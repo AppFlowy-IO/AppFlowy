@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { useAppDispatch } from '$app/stores/store';
 import { arrowActionForRangeThunk, deleteRangeAndInsertThunk } from '$app_reducers/document/async-actions';
-import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
 import { deleteRangeAndInsertEnterThunk } from '$app_reducers/document/async-actions/range';
 import { useRangeRef } from '$app/components/document/_shared/SubscribeSelection.hooks';
@@ -26,7 +25,7 @@ export function useRangeKeyDown() {
         },
         handler: (_: KeyboardEvent) => {
           if (!controller) return;
-          dispatch(
+          void dispatch(
             deleteRangeAndInsertThunk({
               controller,
             })
@@ -40,7 +39,7 @@ export function useRangeKeyDown() {
         },
         handler: (e: KeyboardEvent) => {
           if (!controller) return;
-          dispatch(
+          void dispatch(
             deleteRangeAndInsertThunk({
               controller,
               insertChar: e.key,
@@ -53,9 +52,9 @@ export function useRangeKeyDown() {
         canHandle: (e: KeyboardEvent) => {
           return isHotkey(Keyboard.keys.SHIFT_ENTER, e);
         },
-        handler: (e: KeyboardEvent) => {
+        handler: () => {
           if (!controller) return;
-          dispatch(
+          void dispatch(
             deleteRangeAndInsertEnterThunk({
               controller,
               shiftKey: true,
@@ -68,9 +67,9 @@ export function useRangeKeyDown() {
         canHandle: (e: KeyboardEvent) => {
           return isHotkey(Keyboard.keys.ENTER, e);
         },
-        handler: (e: KeyboardEvent) => {
+        handler: () => {
           if (!controller) return;
-          dispatch(
+          void dispatch(
             deleteRangeAndInsertEnterThunk({
               controller,
               shiftKey: false,
@@ -89,7 +88,7 @@ export function useRangeKeyDown() {
           );
         },
         handler: (e: KeyboardEvent) => {
-          dispatch(
+          void dispatch(
             arrowActionForRangeThunk({
               key: e.key,
               docId,
@@ -105,7 +104,7 @@ export function useRangeKeyDown() {
           const format = parseFormat(e);
 
           if (!format) return;
-          dispatch(
+          void dispatch(
             toggleFormatThunk({
               format,
               controller,
@@ -117,7 +116,7 @@ export function useRangeKeyDown() {
     [controller, dispatch, docId]
   );
 
-  const onKeyDownCapture = useCallback(
+  return useCallback(
     (e: KeyboardEvent) => {
       if (!rangeRef.current) {
         return;
@@ -147,6 +146,4 @@ export function useRangeKeyDown() {
     },
     [interceptEvents, rangeRef]
   );
-
-  return onKeyDownCapture;
 }

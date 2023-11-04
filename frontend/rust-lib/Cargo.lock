@@ -467,7 +467,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4114279215a005bc675e386011e594e1d9b800918cea18fcadadcce864a2046b"
 dependencies = [
  "borsh-derive",
- "hashbrown 0.12.3",
+ "hashbrown 0.13.2",
 ]
 
 [[package]]
@@ -684,7 +684,7 @@ dependencies = [
  "parking_lot",
  "realtime-entity",
  "reqwest",
- "scraper",
+ "scraper 0.17.1",
  "serde",
  "serde_json",
  "serde_repr",
@@ -1902,6 +1902,7 @@ dependencies = [
  "nanoid",
  "parking_lot",
  "protobuf",
+ "scraper 0.18.1",
  "serde",
  "serde_json",
  "strum_macros 0.21.1",
@@ -1911,6 +1912,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
+ "validator",
 ]
 
 [[package]]
@@ -4716,6 +4718,22 @@ dependencies = [
  "once_cell",
  "selectors",
  "smallvec",
+ "tendril",
+]
+
+[[package]]
+name = "scraper"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "585480e3719b311b78a573db1c9d9c4c1f8010c2dee4cc59c2efe58ea4dbc3e1"
+dependencies = [
+ "ahash 0.8.3",
+ "cssparser",
+ "ego-tree",
+ "getopts",
+ "html5ever",
+ "once_cell",
+ "selectors",
  "tendril",
 ]
 

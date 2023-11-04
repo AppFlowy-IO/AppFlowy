@@ -10,6 +10,7 @@ export class DocumentNotificationParser extends NotificationParser<DocumentNotif
       params.callback,
       (ty) => {
         const notification = DocumentNotification[ty];
+
         if (isDocumentNotification(notification)) {
           return DocumentNotification[notification];
         } else {

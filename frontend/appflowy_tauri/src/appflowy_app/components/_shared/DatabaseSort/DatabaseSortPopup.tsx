@@ -1,5 +1,5 @@
 import { t } from 'i18next';
-import { MouseEventHandler, useMemo, useRef, useState } from 'react';
+import { MouseEventHandler, useMemo, useState } from 'react';
 import { useAppSelector } from '$app/stores/store';
 import { IDatabaseSort } from '$app_reducers/database/slice';
 import { DatabaseSortItem } from '$app/components/_shared/DatabaseSort/DatabaseSortItem';

@@ -10,6 +10,7 @@ export class DatabaseNotificationParser extends NotificationParser<DatabaseNotif
       params.callback,
       (ty) => {
         const notification = DatabaseNotification[ty];
+
         if (isDatabaseNotification(notification)) {
           return DatabaseNotification[notification];
         } else {

@@ -186,6 +186,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     return () => {
       void controller?.dispose();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controller, queue]);
 
   const onNewRowClick = async (index: number) => {

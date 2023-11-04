@@ -21,6 +21,7 @@ export function useSlateYjs({ delta, onChange }: { delta?: Delta; onChange: (ops
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const editor = useMemo(() => withYjs(withMarkdown(withReact(createEditor())), sharedType), []);
 
   // Connect editor in useEffect to comply with concurrent mode requirements.

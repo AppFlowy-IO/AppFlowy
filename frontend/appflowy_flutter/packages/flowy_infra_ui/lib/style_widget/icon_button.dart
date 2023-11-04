@@ -85,6 +85,7 @@ class FlowyIconButton extends StatelessWidget {
                   iconColorOnHover ?? Theme.of(context).iconTheme.color,
               //Do not set background here. Use [fillColor] instead.
             ),
+            resetHoverOnRebuild: false,
             child: Padding(
               padding: iconPadding,
               child: Center(

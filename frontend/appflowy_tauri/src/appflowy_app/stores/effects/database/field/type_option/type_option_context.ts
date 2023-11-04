@@ -22,6 +22,7 @@ abstract class TypeOptionSerde<T> {
 // RichText
 export function makeRichTextTypeOptionContext(controller: TypeOptionController): RichTextTypeOptionContext {
   const parser = new RichTextTypeOptionSerde();
+
   return new TypeOptionContext<string>(parser, controller);
 }
 
@@ -40,6 +41,7 @@ class RichTextTypeOptionSerde extends TypeOptionSerde<string> {
 // Number
 export function makeNumberTypeOptionContext(controller: TypeOptionController): NumberTypeOptionContext {
   const parser = new NumberTypeOptionSerde();
+
   return new TypeOptionContext<NumberTypeOptionPB>(parser, controller);
 }
 
@@ -58,6 +60,7 @@ class NumberTypeOptionSerde extends TypeOptionSerde<NumberTypeOptionPB> {
 // Checkbox
 export function makeCheckboxTypeOptionContext(controller: TypeOptionController): CheckboxTypeOptionContext {
   const parser = new CheckboxTypeOptionSerde();
+
   return new TypeOptionContext<CheckboxTypeOptionPB>(parser, controller);
 }
 
@@ -76,6 +79,7 @@ class CheckboxTypeOptionSerde extends TypeOptionSerde<CheckboxTypeOptionPB> {
 // URL
 export function makeURLTypeOptionContext(controller: TypeOptionController): URLTypeOptionContext {
   const parser = new URLTypeOptionSerde();
+
   return new TypeOptionContext<URLTypeOptionPB>(parser, controller);
 }
 
@@ -94,6 +98,7 @@ class URLTypeOptionSerde extends TypeOptionSerde<URLTypeOptionPB> {
 // Date
 export function makeDateTypeOptionContext(controller: TypeOptionController): DateTypeOptionContext {
   const parser = new DateTypeOptionSerde();
+
   return new TypeOptionContext<DateTypeOptionPB>(parser, controller);
 }
 
@@ -112,6 +117,7 @@ class DateTypeOptionSerde extends TypeOptionSerde<DateTypeOptionPB> {
 // SingleSelect
 export function makeSingleSelectTypeOptionContext(controller: TypeOptionController): SingleSelectTypeOptionContext {
   const parser = new SingleSelectTypeOptionSerde();
+
   return new TypeOptionContext<SingleSelectTypeOptionPB>(parser, controller);
 }
 
@@ -130,6 +136,7 @@ class SingleSelectTypeOptionSerde extends TypeOptionSerde<SingleSelectTypeOption
 // Multi-select
 export function makeMultiSelectTypeOptionContext(controller: TypeOptionController): MultiSelectTypeOptionContext {
   const parser = new MultiSelectTypeOptionSerde();
+
   return new TypeOptionContext<MultiSelectTypeOptionPB>(parser, controller);
 }
 
@@ -148,6 +155,7 @@ class MultiSelectTypeOptionSerde extends TypeOptionSerde<MultiSelectTypeOptionPB
 // Checklist
 export function makeChecklistTypeOptionContext(controller: TypeOptionController): ChecklistTypeOptionContext {
   const parser = new ChecklistTypeOptionSerde();
+
   return new TypeOptionContext<ChecklistTypeOptionPB>(parser, controller);
 }
 
@@ -184,8 +192,10 @@ export class TypeOptionContext<T> {
 
   getTypeOption = async (): Promise<Result<T, FlowyError>> => {
     const result = await this.controller.getTypeOption();
+
     if (result.ok) {
       const typeOption = this.parser.deserialize(result.val.type_option_data);
+
       this.typeOption = Some(typeOption);
       return Ok(typeOption);
     } else {

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -81,9 +83,15 @@ extension AppFlowyTestBase on WidgetTester {
   }
 
   Future<void> waitUntilSignInPageShow() async {
-    final finder = find.byType(GoButton);
-    await pumpUntilFound(finder);
-    expect(finder, findsOneWidget);
+    if (isCloudEnabled) {
+      final finder = find.byType(SignInAnonymousButton);
+      await pumpUntilFound(finder);
+      expect(finder, findsOneWidget);
+    } else {
+      final finder = find.byType(GoButton);
+      await pumpUntilFound(finder);
+      expect(finder, findsOneWidget);
+    }
   }
 
   Future<void> pumpUntilFound(

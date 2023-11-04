@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 
 const TestFonts = () => {
   const [sampleText, setSampleText] = useState('Sample Text');
 
-  const onInputChange = (e: any) => {
+  const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSampleText(e.target.value);
   };
 

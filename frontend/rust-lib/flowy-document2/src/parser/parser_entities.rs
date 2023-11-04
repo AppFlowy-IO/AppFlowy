@@ -1,19 +1,16 @@
 use crate::parse::NotEmptyStr;
-use crate::parser::constant::{
-  BG_COLOR, BOLD, BULLETED_LIST, CALLOUT, CHECKED, CODE, DELTA, DIVIDER, FONT_COLOR, FORMULA,
-  HEADING, HREF, ICON, IMAGE, ITALIC, LANGUAGE, LEVEL, MATH_EQUATION, NUMBERED_LIST, PAGE,
-  PARAGRAPH, QUOTE, STRIKETHROUGH, TODO_LIST, TOGGLE_LIST, UNDERLINE, URL,
-};
+use crate::parser::constant::*;
 use crate::parser::utils::{
   convert_insert_delta_from_json, convert_nested_block_children_to_html, delta_to_html,
-  delta_to_text,
+  delta_to_text, required_not_empty_str, serialize_color_attribute,
 };
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
+use validator::Validate;
 
 #[derive(Default, ProtoBuf)]
 pub struct SelectionPB {
@@ -43,7 +40,7 @@ pub struct RangePB {
  * @field text: bool // export text data
  */
 #[derive(Default, ProtoBuf, Debug, Clone)]
-pub struct ExportTypePB {
+pub struct ParseTypePB {
   #[pb(index = 1)]
   pub json: bool,
 
@@ -57,7 +54,7 @@ pub struct ExportTypePB {
 * ConvertDocumentPayloadPB
  * @field document_id: String
  * @file range: Option<RangePB> - optional // if range is None, copy the whole document
- * @field export_types: [ExportTypePB]
+ * @field parse_types: [ParseTypePB]
  */
 #[derive(Default, ProtoBuf)]
 pub struct ConvertDocumentPayloadPB {
@@ -68,7 +65,7 @@ pub struct ConvertDocumentPayloadPB {
   pub range: Option<RangePB>,
 
   #[pb(index = 3)]
-  pub export_types: ExportTypePB,
+  pub parse_types: ParseTypePB,
 }
 
 #[derive(Default, ProtoBuf, Debug)]
@@ -92,7 +89,7 @@ pub struct Range {
   pub end: Selection,
 }
 
-pub struct ExportType {
+pub struct ParseType {
   pub json: bool,
   pub html: bool,
   pub text: bool,
@@ -101,10 +98,10 @@ pub struct ExportType {
 pub struct ConvertDocumentParams {
   pub document_id: String,
   pub range: Option<Range>,
-  pub export_types: ExportType,
+  pub parse_types: ParseType,
 }
 
-impl ExportType {
+impl ParseType {
   pub fn any_enabled(&self) -> bool {
     self.json || self.html || self.text
   }
@@ -129,9 +126,9 @@ impl From<RangePB> for Range {
   }
 }
 
-impl From<ExportTypePB> for ExportType {
-  fn from(data: ExportTypePB) -> Self {
-    ExportType {
+impl From<ParseTypePB> for ParseType {
+  fn from(data: ParseTypePB) -> Self {
+    ParseType {
       json: data.json,
       html: data.html,
       text: data.text,
@@ -148,7 +145,7 @@ impl TryInto<ConvertDocumentParams> for ConvertDocumentPayloadPB {
     Ok(ConvertDocumentParams {
       document_id: document_id.0,
       range,
-      export_types: self.export_types.into(),
+      parse_types: self.parse_types.into(),
     })
   }
 }
@@ -169,88 +166,88 @@ impl InsertDelta {
   pub fn to_html(&self) -> String {
     let mut html = String::new();
     let mut style = String::new();
+    let mut html_attributes = String::new();
     // If there are attributes, serialize them as a HashMap.
     if let Some(attrs) = &self.attributes {
-      // Serialize the font color attributes.
-      if let Some(color) = attrs.get(FONT_COLOR) {
-        style.push_str(&format!(
-          "color: {};",
-          color.to_string().replace("0x", "#").trim_matches('\"')
-        ));
-      }
+      // Serialize the color attributes.
+      style.push_str(&serialize_color_attribute(attrs, FONT_COLOR, COLOR));
       // Serialize the background color attributes.
-      if let Some(color) = attrs.get(BG_COLOR) {
-        style.push_str(&format!(
-          "background-color: {};",
-          color.to_string().replace("0x", "#").trim_matches('\"')
-        ));
-      }
+      style.push_str(&serialize_color_attribute(
+        attrs,
+        BG_COLOR,
+        BACKGROUND_COLOR,
+      ));
       // Serialize the href attributes.
       if let Some(href) = attrs.get(HREF) {
-        html.push_str(&format!("<a href={}>", href));
+        html.push_str(&format!("<{} {}={}>", A_TAG_NAME, HREF, href));
       }
-
       // Serialize the code attributes.
       if let Some(code) = attrs.get(CODE) {
         if code.as_bool().unwrap_or(false) {
-          html.push_str("<code>");
+          html.push_str(&format!("<{}>", CODE_TAG_NAME));
         }
       }
+
       // Serialize the italic, underline, strikethrough, bold, formula attributes.
       if let Some(italic) = attrs.get(ITALIC) {
         if italic.as_bool().unwrap_or(false) {
-          style.push_str("font-style: italic;");
+          style.push_str(FONT_STYLE_ITALIC);
         }
       }
       if let Some(underline) = attrs.get(UNDERLINE) {
         if underline.as_bool().unwrap_or(false) {
-          style.push_str("text-decoration: underline;");
+          style.push_str(TEXT_DECORATION_UNDERLINE);
         }
       }
       if let Some(strikethrough) = attrs.get(STRIKETHROUGH) {
         if strikethrough.as_bool().unwrap_or(false) {
-          style.push_str("text-decoration: line-through;");
+          style.push_str(TEXT_DECORATION_LINE_THROUGH);
         }
       }
       if let Some(bold) = attrs.get(BOLD) {
         if bold.as_bool().unwrap_or(false) {
-          style.push_str("font-weight: bold;");
+          style.push_str(FONT_WEIGHT_BOLD);
         }
       }
       if let Some(formula) = attrs.get(FORMULA) {
         if formula.as_bool().unwrap_or(false) {
-          style.push_str("font-family: fantasy;");
+          style.push_str(FONT_FAMILY_FANTASY);
         }
       }
+      if let Some(direction) = attrs.get(TEXT_DIRECTION) {
+        html_attributes.push_str(&format!(" {}=\"{}\"", DIR_ATTR_NAME, direction));
+      }
     }
-    // Serialize the attributes to style.
     if !style.is_empty() {
-      html.push_str(&format!("<span style=\"{}\">", style));
+      html_attributes.push_str(&format!(" {}=\"{}\"", STYLE, style));
+    }
+
+    if !html_attributes.is_empty() {
+      html.push_str(&format!("<{}{}>", SPAN_TAG_NAME, html_attributes));
     }
     // Serialize the insert field.
     html.push_str(&self.insert);
 
     // Close the style tag.
-    if !style.is_empty() {
-      html.push_str("</span>");
+    if !html_attributes.is_empty() {
+      html.push_str(&format!("</{}>", SPAN_TAG_NAME));
     }
     // Close the tags: <a>, <code>.
     if let Some(attrs) = &self.attributes {
-      if attrs.contains_key(HREF) {
-        html.push_str("</a>");
-      }
       if attrs.contains_key(CODE) {
-        html.push_str("</code>");
+        html.push_str(&format!("</{}>", CODE_TAG_NAME));
+      }
+      if attrs.contains_key(HREF) {
+        html.push_str(&format!("</{}>", A_TAG_NAME));
       }
     }
     html
   }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct NestedBlock {
   #[serde(default)]
-  pub id: String,
   #[serde(rename = "type")]
   pub ty: String,
   #[serde(default)]
@@ -262,7 +259,6 @@ pub struct NestedBlock {
 impl Eq for NestedBlock {}
 
 impl PartialEq for NestedBlock {
-  // ignore the id field
   fn eq(&self, other: &Self) -> bool {
     self.ty == other.ty
       && self.data.iter().all(|(k, v)| {
@@ -278,24 +274,9 @@ impl PartialEq for NestedBlock {
   }
 }
 
-pub struct ConvertBlockToHtmlParams {
-  pub prev_block_ty: Option<String>,
-  pub next_block_ty: Option<String>,
-}
-
 impl NestedBlock {
-  pub fn new(
-    id: String,
-    ty: String,
-    data: HashMap<String, Value>,
-    children: Vec<NestedBlock>,
-  ) -> Self {
-    Self {
-      id,
-      ty,
-      data,
-      children,
-    }
+  pub fn new(ty: String, data: HashMap<String, Value>, children: Vec<NestedBlock>) -> Self {
+    Self { ty, data, children }
   }
 
   pub fn add_child(&mut self, child: NestedBlock) {
@@ -316,115 +297,147 @@ impl NestedBlock {
     let next_block_ty = params.next_block_ty.unwrap_or_default();
 
     match self.ty.as_str() {
+      // <h1>Hello</h1>
       HEADING => {
         let level = self.data.get(LEVEL).unwrap_or(&Value::Null);
         if level.as_u64().unwrap_or(0) > 6 {
-          html.push_str(&format!("<h6>{}</h6>", text_html));
+          html.push_str(&format!("<{}>{}</{}>", H6_TAG_NAME, text_html, H6_TAG_NAME));
         } else {
           html.push_str(&format!("<h{}>{}</h{}>", level, text_html, level));
         }
       },
+      // <p>Hello</p>
       PARAGRAPH => {
-        html.push_str(&format!("<p>{}</p>", text_html));
+        html.push_str(&format!("<{}>{}</{}>", P_TAG_NAME, text_html, P_TAG_NAME));
         html.push_str(&convert_nested_block_children_to_html(Arc::new(
           self.to_owned(),
         )));
       },
+      // <aside>😁Hello</aside>
       CALLOUT => {
         html.push_str(&format!(
-          "<p>{}{}</p>",
+          "<{}>{}{}</{}>",
+          ASIDE_TAG_NAME,
           self
             .data
             .get(ICON)
             .unwrap_or(&Value::Null)
             .to_string()
             .trim_matches('\"'),
-          text_html
+          text_html,
+          ASIDE_TAG_NAME
         ));
       },
+      // <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google Logo" />
       IMAGE => {
         html.push_str(&format!(
-          "<img src={} alt={} />",
+          "<{} src={} alt={} />",
+          IMG_TAG_NAME,
           self.data.get(URL).unwrap(),
           "AppFlowy-Image"
         ));
       },
+      // <hr />
       DIVIDER => {
-        html.push_str("<hr />");
+        html.push_str(&format!("<{} />", HR_TAG_NAME));
       },
+      // <p>$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$</p>
       MATH_EQUATION => {
         let formula = self.data.get(FORMULA).unwrap_or(&Value::Null);
         html.push_str(&format!(
-          "<p>{}</p>",
-          formula.to_string().trim_matches('\"')
+          "<{}>{}</{}>",
+          P_TAG_NAME,
+          formula.to_string().trim_matches('\"'),
+          P_TAG_NAME
         ));
       },
+      // <pre><code class="language-js">console.log('Hello World!');</code></pre>
       CODE => {
         let language = self.data.get(LANGUAGE).unwrap_or(&Value::Null);
         html.push_str(&format!(
-          "<pre><code class=\"language-{}\">{}</code></pre>",
+          "<{}><{} {}=\"{}-{}\">{}</{}></{}>",
+          PRE_TAG_NAME,
+          CODE_TAG_NAME,
+          CLASS,
+          LANGUAGE,
           language.to_string().trim_matches('\"'),
-          text_html
+          text_html,
+          CODE_TAG_NAME,
+          PRE_TAG_NAME
         ));
       },
-      BULLETED_LIST | NUMBERED_LIST | TODO_LIST | TOGGLE_LIST => {
-        let list_type = match self.ty.as_str() {
-          BULLETED_LIST => "ul",
-          NUMBERED_LIST => "ol",
-          TODO_LIST => "ul",
-          TOGGLE_LIST => "ul",
-          _ => "ul", // Default to "ul" for unknown types
+      // <details><summary>Hello</summary><p>World!</p></details>
+      TOGGLE_LIST => {
+        html.push_str(&format!("<{}>", DETAILS_TAG_NAME));
+        html.push_str(&format!(
+          "<{}>{}</{}>",
+          SUMMARY_TAG_NAME, text_html, SUMMARY_TAG_NAME
+        ));
+        html.push_str(&convert_nested_block_children_to_html(Arc::new(
+          self.to_owned(),
+        )));
+        html.push_str(&format!("</{}>", DETAILS_TAG_NAME));
+      },
+      // <ul><li>Hello</li><li>World!</li></ul>
+      BULLETED_LIST | NUMBERED_LIST | TODO_LIST => {
+        let list_type = if self.ty == NUMBERED_LIST {
+          OL_TAG_NAME
+        } else {
+          UL_TAG_NAME
         };
         if prev_block_ty != self.ty {
           html.push_str(&format!("<{}>", list_type));
         }
         if self.ty == TODO_LIST {
-          let checked_str = if self
+          let checked = self
             .data
             .get(CHECKED)
-            .and_then(|checked| checked.as_bool())
-            .unwrap_or(false)
-          {
-            "x"
-          } else {
-            " "
-          };
-          html.push_str(&format!("<li>[{}] {}</li>", checked_str, text_html));
+            .and_then(|v| v.as_bool())
+            .unwrap_or_default();
+          // <li role="checkbox" aria-checked="true">Hello</li>
+          html.push_str(&format!(
+            "<{} {}=\"{}\" {}=\"{}\">{}",
+            LI_TAG_NAME, ROLE, CHECKBOX, ARIA_CHECKED, checked, text_html
+          ));
         } else {
-          html.push_str(&format!("<li>{}</li>", text_html));
+          html.push_str(&format!("<{}>{}", LI_TAG_NAME, text_html));
         }
 
         html.push_str(&convert_nested_block_children_to_html(Arc::new(
           self.to_owned(),
         )));
+        html.push_str(&format!("</{}>", LI_TAG_NAME));
 
         if next_block_ty != self.ty {
           html.push_str(&format!("</{}>", list_type));
         }
       },
 
+      // <blockquote><p>Hello</p><p>World!</p></blockquote>
       QUOTE => {
         if prev_block_ty != self.ty {
-          html.push_str("<blockquote>");
+          html.push_str(&format!("<{}>", BLOCKQUOTE_TAG_NAME));
         }
-        html.push_str(&format!("<p>{}</p>", text_html));
+        html.push_str(&format!("<{}>{}</{}>", P_TAG_NAME, text_html, P_TAG_NAME));
         html.push_str(&convert_nested_block_children_to_html(Arc::new(
           self.to_owned(),
         )));
         if next_block_ty != self.ty {
-          html.push_str("</blockquote>");
+          html.push_str(&format!("</{}>", BLOCKQUOTE_TAG_NAME));
         }
       },
+      // <p>Hello</p>
       PAGE => {
         if !text_html.is_empty() {
-          html.push_str(&format!("<p>{}</p>", text_html));
+          html.push_str(&format!("<{}>{}</{}>", P_TAG_NAME, text_html, P_TAG_NAME));
         }
         html.push_str(&convert_nested_block_children_to_html(Arc::new(
           self.to_owned(),
         )));
       },
+      // <p>Hello</p>
       _ => {
-        html.push_str(&format!("<p>{}</p>", text_html));
+        html.push_str(&format!("<{}>{}</{}>", P_TAG_NAME, text_html, P_TAG_NAME));
         html.push_str(&convert_nested_block_children_to_html(Arc::new(
           self.to_owned(),
         )));
@@ -439,7 +452,7 @@ impl NestedBlock {
 
     let delta_text = self
       .data
-      .get("delta")
+      .get(DELTA)
       .and_then(convert_insert_delta_from_json)
       .map(|delta| delta_to_text(&delta))
       .unwrap_or_default();
@@ -477,5 +490,48 @@ impl NestedBlock {
       },
     };
     text
+  }
+}
+
+pub struct ConvertBlockToHtmlParams {
+  pub prev_block_ty: Option<String>,
+  pub next_block_ty: Option<String>,
+}
+
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum InputType {
+  #[default]
+  Html = 0,
+  PlainText = 1,
+}
+
+#[derive(Default, ProtoBuf, Debug, Validate)]
+pub struct ConvertDataToJsonPayloadPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub data: String,
+
+  #[pb(index = 2)]
+  pub input_type: InputType,
+}
+
+pub struct ConvertDataToJsonParams {
+  pub data: String,
+  pub input_type: InputType,
+}
+
+#[derive(Default, ProtoBuf, Debug)]
+pub struct ConvertDataToJsonResponsePB {
+  #[pb(index = 1)]
+  pub json: String,
+}
+
+impl TryInto<ConvertDataToJsonParams> for ConvertDataToJsonPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<ConvertDataToJsonParams, Self::Error> {
+    Ok(ConvertDataToJsonParams {
+      data: self.data,
+      input_type: self.input_type,
+    })
   }
 }

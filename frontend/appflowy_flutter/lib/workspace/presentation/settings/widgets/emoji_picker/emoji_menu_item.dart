@@ -1,10 +1,9 @@
+import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'emoji_picker.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   name: 'Emoji',
@@ -54,7 +53,7 @@ void showEmojiPickerMenu(
         ),
         child: EmojiSelectionMenu(
           onSubmitted: (emoji) {
-            editorState.insertTextAtCurrentSelection(emoji.emoji);
+            editorState.insertTextAtCurrentSelection(emoji);
           },
           onExit: () {
             // close emoji panel
@@ -73,7 +72,7 @@ class EmojiSelectionMenu extends StatefulWidget {
     required this.onExit,
   }) : super(key: key);
 
-  final void Function(Emoji emoji) onSubmitted;
+  final void Function(String emoji) onSubmitted;
   final void Function() onExit;
 
   @override
@@ -111,9 +110,10 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return EmojiPicker(
-      onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji),
-      config: buildFlowyEmojiPickerConfig(context),
+    return FlowyEmojiPicker(
+      onEmojiSelected: (_, emoji) {
+        widget.onSubmitted(emoji);
+      },
     );
   }
 }

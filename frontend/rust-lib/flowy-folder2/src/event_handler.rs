@@ -219,10 +219,10 @@ pub(crate) async fn read_favorites_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let favorites = folder.get_all_favorites().await;
+  let favorite_items = folder.get_all_favorites().await;
   let mut views = vec![];
-  for info in favorites {
-    if let Ok(view) = folder.get_view_pb(&info.id).await {
+  for item in favorite_items {
+    if let Ok(view) = folder.get_view_pb(&item.id).await {
       views.push(view);
     }
   }

@@ -38,7 +38,6 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
-import 'package:appflowy/plugins/database_view/widgets/setting/setting_property_list.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_cell_editor.dart';
@@ -53,7 +52,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/setting_property_list.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
@@ -618,7 +617,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> openEmojiPicker() async {
     await tapButton(find.byType(EmojiPickerButton));
-    await tapButton(find.byType(EmojiSelectionMenu));
   }
 
   Future<void> tapDateCellInRowDetailPage() async {

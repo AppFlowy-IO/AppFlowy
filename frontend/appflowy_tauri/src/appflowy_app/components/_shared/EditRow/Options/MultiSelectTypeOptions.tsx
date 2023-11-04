@@ -4,7 +4,6 @@ import { CellOption } from '$app/components/_shared/EditRow/Options/CellOption';
 import { SelectOptionPB } from '@/services/backend';
 import { useAppSelector } from '$app/stores/store';
 import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
 
 export const MultiSelectTypeOptions = ({
@@ -16,7 +15,6 @@ export const MultiSelectTypeOptions = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
   const fieldsStore = useAppSelector((state) => state.database.fields);
   const [value, setValue] = useState('');
   const [showInput, setShowInput] = useState(false);

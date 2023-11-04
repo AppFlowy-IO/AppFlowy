@@ -244,6 +244,7 @@ class NotificationItemActions extends StatelessWidget {
                 tooltipText:
                     LocaleKeys.reminderNotification_tooltipMarkUnread.tr(),
                 icon: const FlowySvg(FlowySvgs.restore_s),
+                iconColorOnHover: Theme.of(context).colorScheme.onSurface,
                 onPressed: () => onReadChanged?.call(false),
               ),
             ] else ...[
@@ -251,6 +252,7 @@ class NotificationItemActions extends StatelessWidget {
                 height: 28,
                 tooltipText:
                     LocaleKeys.reminderNotification_tooltipMarkRead.tr(),
+                iconColorOnHover: Theme.of(context).colorScheme.onSurface,
                 icon: const FlowySvg(FlowySvgs.messages_s),
                 onPressed: () => onReadChanged?.call(true),
               ),
@@ -266,6 +268,7 @@ class NotificationItemActions extends StatelessWidget {
               height: 28,
               tooltipText: LocaleKeys.reminderNotification_tooltipDelete.tr(),
               icon: const FlowySvg(FlowySvgs.delete_s),
+              iconColorOnHover: Theme.of(context).colorScheme.onSurface,
               onPressed: onDelete,
             ),
           ],

@@ -18,6 +18,7 @@ export class UserNotificationListener extends AFNotificationObserver<UserNotific
             } else {
               this.onProfileUpdate?.(result);
             }
+
             break;
           default:
             break;
@@ -26,6 +27,7 @@ export class UserNotificationListener extends AFNotificationObserver<UserNotific
       id: params.userId,
       onError: params.onError,
     });
+
     super(parser);
     this.onProfileUpdate = params.onProfileUpdate;
   }

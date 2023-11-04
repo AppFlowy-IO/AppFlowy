@@ -10,6 +10,7 @@ export class TypeOptionBackendService {
 
   createTypeOption = (fieldType: FieldType) => {
     const payload = CreateFieldPayloadPB.fromObject({ view_id: this.viewId, field_type: fieldType });
+
     return DatabaseEventCreateTypeOption(payload);
   };
 
@@ -19,6 +20,7 @@ export class TypeOptionBackendService {
       field_id: fieldId,
       field_type: fieldType,
     });
+
     return DatabaseEventGetTypeOption(payload);
   };
 
@@ -28,6 +30,7 @@ export class TypeOptionBackendService {
       field_id: fieldId,
       field_type: fieldType,
     });
+
     return DatabaseEventUpdateFieldType(payload);
   };
 }
