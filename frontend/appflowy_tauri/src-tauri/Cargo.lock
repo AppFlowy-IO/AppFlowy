@@ -786,7 +786,7 @@ dependencies = [
  "parking_lot",
  "realtime-entity",
  "reqwest",
- "scraper",
+ "scraper 0.17.1",
  "serde",
  "serde_json",
  "serde_repr",
@@ -2081,6 +2081,7 @@ dependencies = [
  "nanoid",
  "parking_lot",
  "protobuf",
+ "scraper 0.18.1",
  "serde",
  "serde_json",
  "strum_macros 0.21.1",
@@ -2088,6 +2089,7 @@ dependencies = [
  "tokio-stream",
  "tracing",
  "uuid",
+ "validator",
 ]
 
 [[package]]
@@ -5369,6 +5371,22 @@ dependencies = [
  "once_cell",
  "selectors 0.25.0",
  "smallvec",
+ "tendril",
+]
+
+[[package]]
+name = "scraper"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "585480e3719b311b78a573db1c9d9c4c1f8010c2dee4cc59c2efe58ea4dbc3e1"
+dependencies = [
+ "ahash 0.8.3",
+ "cssparser 0.31.2",
+ "ego-tree",
+ "getopts",
+ "html5ever 0.26.0",
+ "once_cell",
+ "selectors 0.25.0",
  "tendril",
 ]
 
