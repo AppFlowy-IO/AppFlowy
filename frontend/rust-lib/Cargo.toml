@@ -82,7 +82,7 @@ incremental = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "0d1f4326750b1cd54b8c4549b71c84f821c9414e" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c739029d99517282d2ec1593523a47b51a85231b" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -92,11 +92,11 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "0d1
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4d348f11" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4d348f11" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4d348f11" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4d348f11" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4d348f11" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4d348f11" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4d348f11" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4d348f11" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bab20052" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bab20052" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bab20052" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bab20052" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bab20052" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bab20052" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bab20052" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bab20052" }
