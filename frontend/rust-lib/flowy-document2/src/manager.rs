@@ -126,7 +126,7 @@ impl DocumentManager {
               "can't find the document in the cloud, doc_id: {}",
               doc_id
             );
-            default_document_collab_data(doc_id)
+            vec![default_document_collab_data(doc_id).doc_state.to_vec()]
           } else {
             return Err(err);
           }

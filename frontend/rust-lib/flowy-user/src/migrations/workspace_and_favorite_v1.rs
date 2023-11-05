@@ -37,9 +37,14 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
         folder.add_favorites(favorite_view_ids);
       }
 
-      let (doc_state, sv) = folder.encode_as_update_v1();
+      let encode = folder.encode_collab_v1();
       write_txn
-        .flush_doc_with(session.user_id, &session.user_workspace.id, &doc_state, &sv)
+        .flush_doc_with(
+          session.user_id,
+          &session.user_workspace.id,
+          &encode.doc_state,
+          &encode.state_vector,
+        )
         .map_err(internal_error)?;
     }
 

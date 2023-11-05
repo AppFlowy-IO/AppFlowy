@@ -41,8 +41,13 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
           let collab = Arc::new(MutexCollab::new(origin.clone(), &view.id, vec![]));
           if let Ok(document) = Document::create_with_data(collab.clone(), document_data) {
             // Remove all old updates and then insert the new update
-            let (doc_state, sv) = document.get_collab().encode_as_update_v1();
-            if let Err(err) = write_txn.flush_doc_with(session.user_id, &view.id, &doc_state, &sv) {
+            let encode = document.get_collab().encode_collab_v1();
+            if let Err(err) = write_txn.flush_doc_with(
+              session.user_id,
+              &view.id,
+              &encode.doc_state,
+              &encode.state_vector,
+            ) {
               event!(
                 tracing::Level::ERROR,
                 "Failed to migrate document {}, error: {}",

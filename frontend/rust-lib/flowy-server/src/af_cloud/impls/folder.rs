@@ -64,12 +64,19 @@ where
         workspace_id: workspace_id.clone(),
         collab_type: CollabType::Folder,
       };
-      let updates = vec![try_get_client?
+      let doc_state = try_get_client?
         .get_collab(params)
         .await
-        .map_err(FlowyError::from)?];
-      let folder =
-        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+        .map_err(FlowyError::from)?
+        .doc_state
+        .to_vec();
+      let folder = Folder::from_collab_raw_data(
+        uid,
+        CollabOrigin::Empty,
+        vec![doc_state],
+        &workspace_id,
+        vec![],
+      )?;
       Ok(folder.get_folder_data())
     })
   }
@@ -91,11 +98,13 @@ where
         workspace_id,
         collab_type: CollabType::Folder,
       };
-      let update = try_get_client?
+      let doc_state = try_get_client?
         .get_collab(params)
         .await
-        .map_err(FlowyError::from)?;
-      Ok(vec![update])
+        .map_err(FlowyError::from)?
+        .doc_state
+        .to_vec();
+      Ok(vec![doc_state])
     })
   }
 
