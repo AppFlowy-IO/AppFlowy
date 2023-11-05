@@ -18,7 +18,7 @@ USER $user
 WORKDIR /home/$user
 
 # Install yay
-RUN sudo pacman -S --needed --noconfirm curl tar
+RUN sudo pacman -S --needed --noconfirm curl tar base-devel openssl clang cmake ninja pkg-config xdg-user-dirs git
 RUN curl -sSfL \
     --output yay.tar.gz \
     https://github.com/Jguer/yay/releases/download/v12.0.2/yay_12.0.2_x86_64.tar.gz && \
@@ -28,7 +28,7 @@ RUN curl -sSfL \
   yay --version
 
 # Install Rust
-RUN yay -S --noconfirm base-devel openssl clang cmake ninja pkg-config xdg-user-dirs git gtk3 jemalloc4 libkeybinder3 sqlite rsync libnotify rocksdb zstd
+RUN yay -S --noconfirm gtk3 jemalloc4 libkeybinder3 sqlite rsync libnotify rocksdb zstd
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source ~/.cargo/env && \
