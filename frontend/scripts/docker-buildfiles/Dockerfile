@@ -40,7 +40,7 @@ RUN source ~/.cargo/env && \
 
 # Install Flutter
 RUN curl -sSfL --output flutter.tar.xz \
-      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.1-stable.tar.xz && \
+    https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.1-stable.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop
@@ -56,14 +56,17 @@ RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
 COPY . /appflowy
 RUN sudo chown -R $user: /appflowy
 WORKDIR /appflowy/frontend
-RUN source ~/.cargo/env
-RUN cargo make appflowy-flutter-deps-tools
+RUN source ~/.cargo/env && \
+    cargo make appflowy-flutter-deps-tools
 
-RUN cargo make flutter_clean && \
+RUN source ~/.cargo/env && \
+    cargo make flutter_clean && \
     USE_STATIC_LIB=1 cargo make --profile development-linux-x86_64 appflowy-dev
-RUN cargo make flutter_clean && \
+RUN source ~/.cargo/env && \
+    cargo make flutter_clean && \
     OPENSSL_NO_VENDOR=1 OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make --profile development-linux-x86_64 appflowy-dev
-RUN cargo make flutter_clean && \
+RUN source ~/.cargo/env && \
+    cargo make flutter_clean && \
     cargo make --profile development-linux-x86_64 appflowy-dev
 
 #================
