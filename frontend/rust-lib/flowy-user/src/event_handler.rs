@@ -2,7 +2,6 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
-use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -105,17 +104,11 @@ pub async fn get_user_profile_handler(
     user_profile.email = "".to_string();
   }
 
-  event!(
-    tracing::Level::DEBUG,
-    "Get user profile: {:?}",
-    user_profile
-  );
-
   data_result_ok(user_profile.into())
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
-pub async fn sign_out(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
+pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   manager.sign_out().await?;
   Ok(())
@@ -425,7 +418,7 @@ pub async fn get_cloud_config_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
-pub async fn get_all_user_workspace_handler(
+pub async fn get_all_workspace_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -436,12 +429,12 @@ pub async fn get_all_user_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn open_workspace_handler(
-  data: AFPluginData<UserWorkspacePB>,
+  data: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager.open_workspace(&params.id).await?;
+  let params = data.validate()?.into_inner();
+  manager.open_workspace(&params.workspace_id).await?;
   Ok(())
 }
 

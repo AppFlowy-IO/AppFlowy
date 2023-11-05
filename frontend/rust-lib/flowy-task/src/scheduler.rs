@@ -1,16 +1,16 @@
-use crate::queue::TaskQueue;
-use crate::store::TaskStore;
-use crate::{Task, TaskContent, TaskId, TaskState};
-use anyhow::Error;
-
-use lib_infra::future::BoxResultFuture;
-
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 
+use anyhow::Error;
 use tokio::sync::{watch, RwLock};
 use tokio::time::interval;
+
+use lib_infra::future::BoxResultFuture;
+
+use crate::queue::TaskQueue;
+use crate::store::TaskStore;
+use crate::{Task, TaskContent, TaskId, TaskState};
 
 pub struct TaskDispatcher {
   queue: TaskQueue,
@@ -122,6 +122,9 @@ impl TaskDispatcher {
     }
   }
 
+  pub fn clear_task(&mut self) {
+    self.store.clear();
+  }
   pub fn next_task_id(&self) -> TaskId {
     self.store.next_task_id()
   }

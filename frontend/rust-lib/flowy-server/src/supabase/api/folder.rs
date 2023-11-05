@@ -9,6 +9,7 @@ use tokio::sync::oneshot::channel;
 
 use flowy_folder_deps::cloud::{
   gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+  WorkspaceRecord,
 };
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
@@ -67,6 +68,14 @@ where
       let workspace = workspace_from_json_value(json)?;
       Ok(workspace)
     })
+  }
+
+  fn open_workspace(&self, _workspace_id: &str) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
   }
 
   fn get_folder_data(

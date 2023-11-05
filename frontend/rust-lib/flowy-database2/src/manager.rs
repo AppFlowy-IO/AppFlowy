@@ -13,7 +13,7 @@ use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLay
 use collab_entity::CollabType;
 use futures::executor::block_on;
 use tokio::sync::RwLock;
-use tracing::{instrument, trace};
+use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
@@ -80,6 +80,11 @@ impl DatabaseManager {
     workspace_id: String,
     database_views_aggregate_id: String,
   ) -> FlowyResult<()> {
+    // Clear all existing tasks
+    self.task_scheduler.write().await.clear_task();
+    // Release all existing editors
+    self.editors.write().await.clear();
+
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
       workspace_id: workspace_id.clone(),
@@ -114,7 +119,11 @@ impl DatabaseManager {
     }
 
     // Construct the workspace database.
-    trace!("open workspace database: {}", &database_views_aggregate_id);
+    event!(
+      tracing::Level::INFO,
+      "open aggregate database views object: {}",
+      &database_views_aggregate_id
+    );
     let collab = collab_builder.build_collab_with_config(
       uid,
       &database_views_aggregate_id,

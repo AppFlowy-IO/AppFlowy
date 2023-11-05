@@ -144,19 +144,10 @@ pub struct ViewTest {
   pub workspace: WorkspacePB,
   pub child_view: ViewPB,
 }
-
 impl ViewTest {
   #[allow(dead_code)]
   pub async fn new(sdk: &EventIntegrationTest, layout: ViewLayoutPB, data: Vec<u8>) -> Self {
     let workspace = sdk.folder_manager.get_current_workspace().await.unwrap();
-    let payload = WorkspaceIdPB {
-      value: workspace.id.clone(),
-    };
-    let _ = EventBuilder::new(sdk.clone())
-      .event(OpenWorkspace)
-      .payload(payload)
-      .async_send()
-      .await;
 
     let payload = CreateViewPayloadPB {
       parent_view_id: workspace.id.clone(),

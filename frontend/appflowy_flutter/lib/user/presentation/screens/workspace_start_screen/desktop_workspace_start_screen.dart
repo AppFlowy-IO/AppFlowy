@@ -101,6 +101,5 @@ Widget _renderCreateButton(BuildContext context) {
 
 // same method as in mobile
 void _popToWorkspace(BuildContext context, WorkspacePB workspace) {
-  context.read<WorkspaceBloc>().add(WorkspaceEvent.openWorkspace(workspace));
   context.pop(workspace.id);
 }

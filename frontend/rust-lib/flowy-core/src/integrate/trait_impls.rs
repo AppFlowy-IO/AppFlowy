@@ -17,7 +17,9 @@ use flowy_database_deps::cloud::{
 use flowy_document2::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
+use flowy_folder_deps::cloud::{
+  FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+};
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user_deps::cloud::UserCloudService;
@@ -140,6 +142,17 @@ impl FolderCloudService for ServerProvider {
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
 
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server(&self.get_server_type());
+    FutureResult::new(async move { server?.folder_service().open_workspace(&workspace_id).await })
+  }
+
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
+    let server = self.get_server(&self.get_server_type());
+    FutureResult::new(async move { server?.folder_service().get_all_workspace().await })
+  }
+
   fn get_folder_data(
     &self,
     workspace_id: &str,
@@ -245,7 +258,7 @@ impl DocumentCloudService for ServerProvider {
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
     let server = self.get_server(&self.get_server_type());
@@ -308,7 +321,7 @@ impl CollabStorageProvider for ServerProvider {
           to_fut(async move {
             let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
             match server.collab_ws_channel(&collab_object.object_id).await {
-              Ok(Some((channel, ws_connect_state))) => {
+              Ok(Some((channel, ws_connect_state, is_connected))) => {
                 let origin = CollabOrigin::Client(CollabClient::new(
                   collab_object.uid,
                   collab_object.device_id.clone(),
@@ -316,7 +329,7 @@ impl CollabStorageProvider for ServerProvider {
                 let sync_object = SyncObject::from(collab_object);
                 let (sink, stream) = (channel.sink(), channel.stream());
                 let sink_config = SinkConfig::new()
-                  .send_timeout(6)
+                  .send_timeout(8)
                   .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
                 let sync_plugin = SyncPlugin::new(
                   origin,
@@ -326,6 +339,7 @@ impl CollabStorageProvider for ServerProvider {
                   sink_config,
                   stream,
                   Some(channel),
+                  !is_connected,
                   ws_connect_state,
                 );
                 plugins.push(Arc::new(sync_plugin));
