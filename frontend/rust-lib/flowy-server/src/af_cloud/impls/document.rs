@@ -33,7 +33,9 @@ where
       let data = try_get_client?
         .get_collab(params)
         .await
-        .map_err(FlowyError::from)?;
+        .map_err(FlowyError::from)?
+        .doc_state
+        .to_vec();
       Ok(vec![data])
     })
   }
@@ -61,11 +63,14 @@ where
         object_id: document_id.clone(),
         collab_type: CollabType::Document,
       };
-      let updates = vec![try_get_client?
+      let doc_state = try_get_client?
         .get_collab(params)
         .await
-        .map_err(FlowyError::from)?];
-      let document = Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;
+        .map_err(FlowyError::from)?
+        .doc_state
+        .to_vec();
+      let document =
+        Document::from_updates(CollabOrigin::Empty, vec![doc_state], &document_id, vec![])?;
       Ok(document.get_document_data().ok())
     })
   }
