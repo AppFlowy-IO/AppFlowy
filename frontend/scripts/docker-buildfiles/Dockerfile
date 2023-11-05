@@ -18,7 +18,7 @@ USER $user
 WORKDIR /home/$user
 
 # Install yay
-RUN sudo pacman -S --needed --noconfirm curl wget tar base-devel openssl clang cmake ninja pkg-config xdg-user-dirs git
+RUN sudo pacman -S --needed --noconfirm curl tar base-devel openssl clang cmake ninja pkg-config xdg-user-dirs git
 RUN curl -sSfL \
     --output yay.tar.gz \
     https://github.com/Jguer/yay/releases/download/v12.0.2/yay_12.0.2_x86_64.tar.gz && \
@@ -40,7 +40,7 @@ RUN source ~/.cargo/env && \
 
 # Install Flutter
 RUN curl -sSfL --output flutter.tar.xz \
-    https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.1-stable.tar.xz && \
+      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.1-stable.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop
@@ -55,19 +55,12 @@ RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
 # Build AppFlowy
 COPY . /appflowy
 RUN sudo chown -R $user: /appflowy
-WORKDIR /appflowy/frontend
-RUN source ~/.cargo/env && \
-    cargo make appflowy-flutter-deps-tools
-
-RUN source ~/.cargo/env && \
+WORKDIR /appflowy
+RUN cd frontend && \
+    source ~/.cargo/env && \
+    cargo make appflowy-flutter-deps-tools && \
     cargo make flutter_clean && \
-    USE_STATIC_LIB=1 cargo make --profile development-linux-x86_64 appflowy-dev
-RUN source ~/.cargo/env && \
-    cargo make flutter_clean && \
-    OPENSSL_NO_VENDOR=1 OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make --profile development-linux-x86_64 appflowy-dev
-RUN source ~/.cargo/env && \
-    cargo make flutter_clean && \
-    cargo make --profile development-linux-x86_64 appflowy-dev
+    OPENSSL_NO_VENDOR=1 OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make -p production-linux-x86_64 appflowy-linux
 
 #================
 # APP
