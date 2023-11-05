@@ -55,7 +55,7 @@ script = [
     if [ -n "$USE_STATIC_LIB" ]; then
       static_lib_path="$PWD/resources/lib"
       if [ ! -d "$static_lib_path" ]; then
-        wget "https://mzolfagharid.com/static/appflowy-static-libs-linux.tar.gz"
+        curl -sSfL --output lib.tar.gz "https://mzolfagharid.com/static/appflowy-static-libs-linux.tar.gz"
         tar -xf appflowy-static-libs-linux.tar.gz -C resources/
         rm appflowy-static-libs-linux.tar.gz
       fi
