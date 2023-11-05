@@ -27,9 +27,12 @@ RUN curl -sSfL \
   rm -rf yay_12.0.2_x86_64 && \
   yay --version
 
-# Install Rust
-RUN yay -S --noconfirm gtk3 jemalloc4 libkeybinder3 sqlite rsync libnotify rocksdb zstd
+# jemalloc4 should get installed before rocksdb
+RUN yay -S --noconfirm jemalloc4
+RUN yay -S --noconfirm gtk3 libkeybinder3 sqlite rsync libnotify rocksdb zstd
 RUN xdg-user-dirs-update
+
+# Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source ~/.cargo/env && \
     rustup toolchain install 1.70 && \
