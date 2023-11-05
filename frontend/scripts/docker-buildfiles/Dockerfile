@@ -58,10 +58,14 @@ RUN sudo chown -R $user: /appflowy
 WORKDIR /appflowy
 RUN cd frontend && \
     source ~/.cargo/env && \
-    cargo make appflowy-flutter-deps-tools && \
-    cargo make flutter_clean && \
-    OPENSSL_NO_VENDOR=1 OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make -p production-linux-x86_64 appflowy-linux
+    cargo make appflowy-flutter-deps-tools
 
+RUN cargo make flutter_clean && \
+    USE_STATIC_LIB=1 cargo make --profile development-linux-x86_64 appflowy-dev
+RUN cargo make flutter_clean && \
+    OPENSSL_NO_VENDOR=1 OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make --profile development-linux-x86_64 appflowy-dev
+RUN cargo make flutter_clean && \
+    cargo make --profile development-linux-x86_64 appflowy-dev
 
 #================
 # APP
