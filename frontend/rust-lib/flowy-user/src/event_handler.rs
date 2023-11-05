@@ -429,7 +429,7 @@ pub async fn get_all_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn open_workspace_handler(
-  data: AFPluginData<UserWorkspacePB>,
+  data: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;

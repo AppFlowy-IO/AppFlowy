@@ -15,13 +15,11 @@ import {
   SignInPayloadPB,
   SignUpPayloadPB,
   UpdateUserProfilePayloadPB,
-  WorkspaceIdPB,
   WorkspacePB,
   WorkspaceSettingPB,
 } from '@/services/backend';
 import {
   FolderEventCreateWorkspace,
-  FolderEventOpenWorkspace,
   FolderEventGetCurrentWorkspaceSetting,
   FolderEventReadCurrentWorkspace,
 } from '@/services/backend/events/flowy-folder2';
@@ -65,12 +63,6 @@ export class UserBackendService {
 
   getWorkspaces = () => {
     return FolderEventReadCurrentWorkspace();
-  };
-
-  openWorkspace = (workspaceId: string) => {
-    const payload = WorkspaceIdPB.fromObject({ value: workspaceId });
-
-    return FolderEventOpenWorkspace(payload);
   };
 
   createWorkspace = async (params: { name: string; desc: string }): Promise<WorkspacePB> => {

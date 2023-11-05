@@ -100,8 +100,9 @@ class UserBackendService {
     return Future.value(left([]));
   }
 
-  Future<Either<Unit, FlowyError>> openWorkspace(UserWorkspacePB workspace) {
-    return UserEventOpenWorkspace(workspace).send();
+  Future<Either<Unit, FlowyError>> openWorkspace(String workspaceId) {
+    final payload = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+    return UserEventOpenWorkspace(payload).send();
   }
 
   Future<Either<WorkspacePB, FlowyError>> getCurrentWorkspace() {
