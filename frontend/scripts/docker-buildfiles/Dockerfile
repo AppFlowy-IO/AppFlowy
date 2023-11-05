@@ -55,10 +55,9 @@ RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
 # Build AppFlowy
 COPY . /appflowy
 RUN sudo chown -R $user: /appflowy
-WORKDIR /appflowy
-RUN cd frontend && \
-    source ~/.cargo/env && \
-    cargo make appflowy-flutter-deps-tools
+WORKDIR /appflowy/frontend
+RUN source ~/.cargo/env
+RUN cargo make appflowy-flutter-deps-tools
 
 RUN cargo make flutter_clean && \
     USE_STATIC_LIB=1 cargo make --profile development-linux-x86_64 appflowy-dev
