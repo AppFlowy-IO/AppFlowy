@@ -28,7 +28,7 @@ RUN curl -sSfL \
   yay --version
 
 # Install Rust
-RUN yay -S --noconfirm curl base-devel openssl clang cmake ninja pkg-config xdg-user-dirs
+RUN yay -S --noconfirm base-devel openssl clang cmake ninja pkg-config xdg-user-dirs git gtk3 jemalloc4 libkeybinder3 sqlite rsync libnotify rocksdb zstd
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source ~/.cargo/env && \
@@ -36,9 +36,7 @@ RUN source ~/.cargo/env && \
     rustup default 1.70
 
 # Install Flutter
-RUN sudo pacman -S --noconfirm git tar gtk3
-RUN curl -sSfL \
-      --output flutter.tar.xz \
+RUN curl -sSfL --output flutter.tar.xz \
       https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.1-stable.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
@@ -47,8 +45,7 @@ RUN flutter doctor
 RUN dart pub global activate protoc_plugin 20.0.1
 
 # Install build dependencies for AppFlowy
-RUN yay -S --noconfirm jemalloc4 cargo-make cargo-binstall
-RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang rsync libnotify rocksdb zstd
+RUN yay -S --noconfirm cargo-make cargo-binstall
 RUN sudo ln -s /usr/bin/sha1sum /usr/bin/shasum
 RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
 
@@ -60,7 +57,7 @@ RUN cd frontend && \
     source ~/.cargo/env && \
     cargo make appflowy-flutter-deps-tools && \
     cargo make flutter_clean && \
-    OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make -p production-linux-x86_64 appflowy-linux
+    OPENSSL_NO_VENDOR=1 OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make -p production-linux-x86_64 appflowy-linux
 
 
 #================

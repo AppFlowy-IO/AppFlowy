@@ -50,10 +50,23 @@ run_task = { name = [
 private = true
 script = [
   """
+    build_cmd="cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features \"${FLUTTER_DESKTOP_FEATURES}\""
+
+    if [ -n "$USE_STATIC_LIB" ]; then
+      static_lib_path="$PWD/resources/lib"
+      if [ ! -d "$static_lib_path" ]; then
+        wget "https://mzolfagharid.com/static/appflowy-static-libs-linux.tar.gz"
+        tar -xf appflowy-static-libs-linux.tar.gz -C resources/
+        rm appflowy-static-libs-linux.tar.gz
+      fi
+
+      build_cmd="ROCKSDB_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 OPENSSL_NO_VENDOR=1 ROCKSDB_LIB_DIR=\"${static_lib_path}\" PKG_CONFIG_PATH=\"${static_lib_path}\" OPENSSL_DIR=\"${static_lib_path}/openssl\" ${build_cmd}"
+    fi
+
     cd rust-lib/
     rustup show
-    echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
-    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    echo $build_cmd
+    bash -c "$build_cmd"
     cd ../
   """,
 ]
