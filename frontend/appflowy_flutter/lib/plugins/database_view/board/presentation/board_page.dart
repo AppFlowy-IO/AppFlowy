@@ -115,9 +115,9 @@ class BoardPage extends StatelessWidget {
 
 class BoardContent extends StatefulWidget {
   const BoardContent({
-    Key? key,
+    super.key,
     this.onEditStateChanged,
-  }) : super(key: key);
+  });
 
   final VoidCallback? onEditStateChanged;
 
@@ -275,6 +275,7 @@ class _BoardContentState extends State<BoardContent> {
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
     final groupItemId = groupItem.row.id + groupData.group.groupId;
+
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
       margin: config.cardPadding,
