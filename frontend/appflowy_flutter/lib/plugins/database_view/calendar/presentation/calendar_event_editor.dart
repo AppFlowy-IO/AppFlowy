@@ -144,7 +144,7 @@ class EventPropertyList extends StatelessWidget {
                 textStyle: Theme.of(context)
                     .textTheme
                     .bodyMedium
-                    ?.copyWith(fontSize: 11),
+                    ?.copyWith(fontSize: 11, overflow: TextOverflow.ellipsis),
                 autofocus: true,
                 useRoundedBorder: true,
               ),
@@ -213,10 +213,13 @@ class _PropertyCellState extends State<PropertyCell> {
                     size: const Size.square(14),
                   ),
                   const HSpace(4.0),
-                  FlowyText.regular(
-                    widget.cellContext.fieldInfo.name,
-                    color: Theme.of(context).hintColor,
-                    fontSize: 11,
+                  Expanded(
+                    child: FlowyText.regular(
+                      widget.cellContext.fieldInfo.name,
+                      color: Theme.of(context).hintColor,
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
