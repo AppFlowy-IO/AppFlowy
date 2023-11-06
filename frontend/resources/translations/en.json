@@ -635,7 +635,7 @@
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
       "mathEquation": {
-        "addMathEquation": "Add Math Equation",
+        "addMathEquation": "Add a TeX equation",
         "editMathEquation": "Edit Math Equation"
       },
       "optionAction": {

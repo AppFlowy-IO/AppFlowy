@@ -19,9 +19,16 @@ class UploadImageFileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTapDown: (_) async {
+      child: FlowyButton(
+        showDefaultBoxDecorationOnMobile: true,
+        text: Container(
+          margin: const EdgeInsets.all(4.0),
+          alignment: Alignment.center,
+          child: FlowyText(
+            LocaleKeys.document_imageBlock_upload_placeholder.tr(),
+          ),
+        ),
+        onTap: () async {
           final result = await getIt<FilePickerService>().pickFiles(
             dialogTitle: '',
             allowMultiple: false,
@@ -30,19 +37,6 @@ class UploadImageFileWidget extends StatelessWidget {
           );
           onPickFile(result?.files.firstOrNull?.path);
         },
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              width: 1.0,
-            ),
-          ),
-          child: FlowyText(
-            LocaleKeys.document_imageBlock_upload_placeholder.tr(),
-          ),
-        ),
       ),
     );
   }

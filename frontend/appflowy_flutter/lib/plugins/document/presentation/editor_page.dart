@@ -261,6 +261,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           MobileToolbar(
             editorState: editorState,
             toolbarItems: [
+              imageMobileToolbarItem,
+              mathEquationMobileToolbarItem,
               textDecorationMobileToolbarItem,
               buildTextAndBackgroundColorMobileToolbarItem(),
               headingMobileToolbarItem,
