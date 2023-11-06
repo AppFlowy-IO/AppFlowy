@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -139,40 +140,50 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       );
     }
 
-    if (widget.showMenu && widget.menuBuilder != null) {
-      child = MouseRegion(
-        onEnter: (_) => showActionsNotifier.value = true,
-        onExit: (_) {
-          if (!alwaysShowMenu) {
-            showActionsNotifier.value = false;
-          }
-        },
-        hitTestBehavior: HitTestBehavior.opaque,
-        opaque: false,
-        child: ValueListenableBuilder<bool>(
-          valueListenable: showActionsNotifier,
-          builder: (context, value, child) {
-            final url = node.attributes[ImageBlockKeys.url];
-            return Stack(
-              children: [
-                BlockSelectionContainer(
-                  node: node,
-                  delegate: this,
-                  listenable: editorState.selectionNotifier,
-                  cursorColor: editorState.editorStyle.cursorColor,
-                  selectionColor: editorState.editorStyle.selectionColor,
-                  child: child!,
-                ),
-                if (value && url.isNotEmpty == true)
-                  widget.menuBuilder!(
-                    widget.node,
-                    this,
-                  ),
-              ],
-            );
+    // show a hover menu on desktop or web
+    if (PlatformExtension.isDesktopOrWeb) {
+      if (widget.showMenu && widget.menuBuilder != null) {
+        child = MouseRegion(
+          onEnter: (_) => showActionsNotifier.value = true,
+          onExit: (_) {
+            if (!alwaysShowMenu) {
+              showActionsNotifier.value = false;
+            }
           },
-          child: child,
-        ),
+          hitTestBehavior: HitTestBehavior.opaque,
+          opaque: false,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: showActionsNotifier,
+            builder: (context, value, child) {
+              final url = node.attributes[ImageBlockKeys.url];
+              return Stack(
+                children: [
+                  BlockSelectionContainer(
+                    node: node,
+                    delegate: this,
+                    listenable: editorState.selectionNotifier,
+                    cursorColor: editorState.editorStyle.cursorColor,
+                    selectionColor: editorState.editorStyle.selectionColor,
+                    child: child!,
+                  ),
+                  if (value && url.isNotEmpty == true)
+                    widget.menuBuilder!(
+                      widget.node,
+                      this,
+                    ),
+                ],
+              );
+            },
+            child: child,
+          ),
+        );
+      }
+    } else {
+      // show a fixed menu on mobile
+      child = MobileBlockActionButtons(
+        node: node,
+        editorState: editorState,
+        child: child,
       );
     }
 

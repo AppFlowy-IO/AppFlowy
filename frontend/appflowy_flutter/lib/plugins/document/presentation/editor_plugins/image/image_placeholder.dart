@@ -16,6 +16,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:string_validator/string_validator.dart';
@@ -118,21 +119,21 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
                     UploadImageType.unsplash,
                   ],
                   onSelectedLocalImage: (path) {
-                    controller.close();
+                    context.pop();
                     WidgetsBinding.instance
                         .addPostFrameCallback((timeStamp) async {
                       await insertLocalImage(path);
                     });
                   },
                   onSelectedAIImage: (url) {
-                    controller.close();
+                    context.pop();
                     WidgetsBinding.instance
                         .addPostFrameCallback((timeStamp) async {
                       await insertAIImage(url);
                     });
                   },
                   onSelectedNetworkImage: (url) {
-                    controller.close();
+                    context.pop();
                     WidgetsBinding.instance
                         .addPostFrameCallback((timeStamp) async {
                       await insertNetworkImage(url);

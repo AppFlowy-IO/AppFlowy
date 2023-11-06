@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -145,6 +146,14 @@ class _MathEquationBlockComponentWidgetState
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    if (PlatformExtension.isMobile) {
+      child = MobileBlockActionButtons(
+        node: node,
+        editorState: editorState,
         child: child,
       );
     }
