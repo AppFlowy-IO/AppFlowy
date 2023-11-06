@@ -13,6 +13,7 @@ env:
   CARGO_TERM_COLOR: always
   FLUTTER_VERSION: "3.10.1"
   RUST_TOOLCHAIN: "1.70"
+  CARGO_MAKE_VERSION: "0.36.6"
 
 jobs:
   tests:
@@ -38,15 +39,13 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      - name: Install prerequisites
-        working-directory: frontend
-        run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: ${{ matrix.job.os }}
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}, duckscript_cli
 
       - name: Install code-coverage tools
         working-directory: frontend

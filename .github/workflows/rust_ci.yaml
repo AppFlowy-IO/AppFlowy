@@ -22,6 +22,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.70"
+  CARGO_MAKE_VERSION: "0.36.6"
 
 jobs:
   test-on-ubuntu:
@@ -40,17 +41,15 @@ jobs:
           components: rustfmt, clippy
           profile: minimal
 
-      - name: Install prerequisites
-        working-directory: frontend
-        run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: 'ubuntu-latest'
           workspaces: |
             frontend/rust-lib
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}, duckscript_cli
 
       - name: Create .env file in flowy-server
         working-directory: frontend/rust-lib/flowy-server
@@ -79,3 +78,4 @@ jobs:
       - name: clippy rust-lib
         run: cargo clippy --all
         working-directory: frontend/rust-lib
+

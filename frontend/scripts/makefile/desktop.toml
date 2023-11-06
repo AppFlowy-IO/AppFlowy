@@ -52,7 +52,7 @@ script = [
   """
     build_cmd="cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features \"${FLUTTER_DESKTOP_FEATURES}\""
 
-    if [ -n "$USE_STATIC_LIB" ]; then
+    if [ -n "$USE_STATIC_LIB" ] && [ $RUST_COMPILE_TARGET == *"linux"* ]; then
       static_lib_path="$PWD/resources/lib"
       if [ ! -d "$static_lib_path" ]; then
         wget "https://mzolfagharid.com/static/appflowy-static-libs-linux.tar.gz"
