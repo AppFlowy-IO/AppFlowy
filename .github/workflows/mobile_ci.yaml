@@ -20,6 +20,7 @@ on:
 env:
   FLUTTER_VERSION: "3.10.1"
   RUST_TOOLCHAIN: "1.70"
+  CARGO_MAKE_VERSION: "0.36.6"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -79,16 +80,15 @@ jobs:
           workspaces: |
             frontend/rust-lib
 
-      - uses: davidB/rust-cargo-make@v1
+      - uses: taiki-e/install-action@v2
         with:
-          version: "0.36.6"
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}, duckscript_cli
 
       - name: Install prerequisites
         working-directory: frontend
         run: |
           rustup target install aarch64-linux-android
           rustup target install x86_64-linux-android
-          cargo install --force duckscript_cli
           cargo install cargo-ndk
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
