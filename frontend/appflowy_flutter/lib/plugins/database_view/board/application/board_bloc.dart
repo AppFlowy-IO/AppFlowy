@@ -167,8 +167,14 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               groupId: groupId,
               name: groupName,
             );
-
             emit(state.copyWith(isEditingHeader: false));
+          },
+          toggleGroupVisibility: (String groupId, bool isVisible) async {
+            await groupBackendSvc.updateGroup(
+              fieldId: groupControllers.values.first.group.fieldId,
+              groupId: groupId,
+              visible: isVisible,
+            );
           },
         );
       },
@@ -365,6 +371,10 @@ class BoardEvent with _$BoardEvent {
     RowMetaPB row,
   ) = _StartEditRow;
   const factory BoardEvent.endEditingRow(RowId rowId) = _EndEditRow;
+  const factory BoardEvent.toggleGroupVisibility(
+    String groupId,
+    bool isVisible,
+  ) = _ToggleGroupVisibility;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
   const factory BoardEvent.didReceiveGridUpdate(
     DatabasePB grid,

@@ -124,7 +124,7 @@ class _BoardContentState extends State<BoardContent> {
 
   final config = const AppFlowyBoardConfig(
     groupBackgroundColor: Color(0xffF7F8FC),
-    headerPadding: EdgeInsets.symmetric(horizontal: 6),
+    headerPadding: EdgeInsets.symmetric(horizontal: 8),
     cardPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
   );
 
@@ -166,7 +166,7 @@ class _BoardContentState extends State<BoardContent> {
               Expanded(
                 child: AppFlowyBoard(
                   boardScrollController: scrollManager,
-                  scrollController: scrollController,
+                  scrollController: ScrollController(),
                   controller: context.read<BoardBloc>().boardController,
                   groupConstraints: const BoxConstraints.tightFor(width: 300),
                   config: AppFlowyBoardConfig(
@@ -461,48 +461,79 @@ class _BoardTrailingState extends State<BoardTrailing> {
   }
 }
 
-class HiddenGroupsColumn extends StatelessWidget {
+class HiddenGroupsColumn extends StatefulWidget {
   const HiddenGroupsColumn({super.key});
 
   @override
+  State<HiddenGroupsColumn> createState() => _HiddenGroupsColumnState();
+}
+
+class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
+  bool isCollapsed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 260,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Hidden group title
-          Padding(
-            padding: const EdgeInsets.only(left: 26),
-            child: AppFlowyGroupHeader(
-              height: 50,
-              // Padding is for the hover action discrepancy
-              margin: const EdgeInsets.only(left: 22),
-              title: Expanded(
-                child: FlowyText(
-                  'Hidden groups',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  overflow: TextOverflow.clip,
-                  color: Theme.of(context).hintColor,
-                ),
+    return AnimatedSize(
+      alignment: AlignmentDirectional.topStart,
+      curve: Curves.easeOut,
+      duration: const Duration(milliseconds: 150),
+      child: isCollapsed
+          ? Padding(
+              padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
+              child: _collapseExpandIcon(),
+            )
+          : SizedBox(
+              width: 260,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Hidden group title
+                  Padding(
+                    // padding: const EdgeInsets.only(left: 48),
+                    padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: FlowyText.medium(
+                            'Hidden groups',
+                            fontSize: 14,
+                            overflow: TextOverflow.ellipsis,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                        _collapseExpandIcon(),
+                      ],
+                    ),
+                  ),
+                  // Hidden grouop cards
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: 50,
+                      itemBuilder: (context, index) => const HiddenGroupCard(),
+                      separatorBuilder: (context, index) => const VSpace(2),
+                    ),
+                  ),
+                ],
               ),
-              addIcon: FlowySvg(
-                FlowySvgs.pull_left_outlined_s,
-                color: Theme.of(context).hintColor,
-              ),
-              onAddButtonClick: () {}, // TODO(Richard): Collapse
             ),
-          ),
-          // Hidden grouop cards
-          Expanded(
-            child: ListView.separated(
-              itemCount: 2,
-              itemBuilder: (context, index) => const HiddenGroupCard(),
-              separatorBuilder: (context, index) => const VSpace(2),
-            ),
-          ),
-        ],
+    );
+  }
+
+  Widget _collapseExpandIcon() {
+    return FlowyTooltip(
+      message: isCollapsed ? "Expand group" : "Collpase group",
+      child: FlowyIconButton(
+        width: 20,
+        height: 20,
+        icon: FlowySvg(
+          isCollapsed
+              ? FlowySvgs.pull_left_outlined_s
+              : FlowySvgs.pull_left_outlined_s,
+        ),
+        iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+        onPressed: () => setState(() {
+          isCollapsed = !isCollapsed;
+        }),
       ),
     );
   }
