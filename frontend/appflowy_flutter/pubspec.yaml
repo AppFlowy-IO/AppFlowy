@@ -196,6 +196,12 @@ flutter:
           weight: 800
         - asset: assets/google_fonts/Poppins/Poppins-ExtraBold.ttf
           weight: 900
+    - family: RobotoMono
+      fonts:
+        - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Regular.ttf
+        - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Italic.ttf
+          style: italic
+
 
   # To add assets to your application, add an assets section, like this:
   assets:
