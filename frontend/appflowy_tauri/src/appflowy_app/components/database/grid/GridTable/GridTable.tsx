@@ -40,7 +40,7 @@ export const GridTable: FC = () => {
   return (
     <div
       ref={horizontalScrollElementRef}
-      className='flex w-full overflow-x-auto border-t border-line-divider'
+      className='flex w-full overflow-x-auto'
       style={{ minHeight: 'calc(100% - 132px)' }}
     >
       <VirtualizedList

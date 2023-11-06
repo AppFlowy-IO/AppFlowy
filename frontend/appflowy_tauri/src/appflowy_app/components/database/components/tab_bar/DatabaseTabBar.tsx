@@ -1,20 +1,20 @@
 import { FC, MouseEventHandler, useCallback, useEffect, useState } from 'react';
-import { IconButton, Stack } from '@mui/material';
-import { ReactComponent as AddSvg } from '$app/assets/add.svg';
+import { Stack } from '@mui/material';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { TextButton } from './TextButton';
 import { SortMenu } from '../sort';
 import { useAppSelector } from '$app/stores/store';
 import { useTranslation } from 'react-i18next';
-import { Simulate } from 'react-dom/test-utils';
+import AddViewBtn from '$app/components/database/components/tab_bar/AddViewBtn';
 
 export interface DatabaseTabBarProps {
   childViewIds: string[];
   selectedViewId?: string;
   setSelectedViewId?: (viewId: string) => void;
+  pageId: string;
 }
 
-export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ childViewIds, selectedViewId, setSelectedViewId }) => {
+export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViewIds, selectedViewId, setSelectedViewId }) => {
   const { t } = useTranslation();
   const views = useAppSelector((state) => {
     const map = state.pages.pageMap;
@@ -43,7 +43,7 @@ export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ childViewIds, selected
   }, [selectedViewId, setSelectedViewId, views]);
 
   return (
-    <div className='-mb-px flex items-center'>
+    <div className='-mb-px flex items-center border-b border-line-divider'>
       <div className='flex flex-1 items-center'>
         <ViewTabs value={selectedViewId} onChange={handleChange}>
           {views.map((view) => (
@@ -57,9 +57,7 @@ export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ childViewIds, selected
             />
           ))}
         </ViewTabs>
-        <IconButton size='small'>
-          <AddSvg />
-        </IconButton>
+        <AddViewBtn pageId={pageId} />
       </div>
       <Stack className='text-neutral-500' direction='row' spacing='2px'>
         <TextButton color='inherit'>{t('grid.settings.filter')}</TextButton>

@@ -31,7 +31,13 @@ export const GridFieldRow: FC<GridFieldRowProps> = ({ virtualizer }) => {
         renderItem={(index) => <GridField field={fields[index]} />}
       />
       <div className='min-w-20 grow'>
-        <Button color={'inherit'} className='h-full w-full' size='small' startIcon={<AddSvg />} onClick={handleClick}>
+        <Button
+          color={'inherit'}
+          className='flex h-full w-full items-center justify-start whitespace-nowrap text-left'
+          size='small'
+          startIcon={<AddSvg />}
+          onClick={handleClick}
+        >
           {t('grid.field.newColumn')}
         </Button>
       </div>

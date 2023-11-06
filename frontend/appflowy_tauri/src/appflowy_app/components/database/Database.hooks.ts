@@ -10,11 +10,11 @@ const VerticalScrollElementRefContext = createContext<RefObject<Element>>(create
 export const VerticalScrollElementProvider = VerticalScrollElementRefContext.Provider;
 export const useVerticalScrollElement = () => useContext(VerticalScrollElementRefContext);
 
-export function useSelectDatabaseView() {
+export function useSelectDatabaseView({ viewId }: { viewId?: string }) {
   const key = 'v';
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const selectedViewId = useMemo(() => searchParams.get(key) || undefined, [searchParams]);
+  const selectedViewId = useMemo(() => searchParams.get(key) || viewId, [searchParams, viewId]);
 
   const onChange = useCallback(
     (value: string) => {
@@ -70,7 +70,6 @@ export const useConnectDatabase = (viewId: string) => {
         [DatabaseNotification.DidUpdateFields]: async () => {
           database.fields = await fieldService.getFields(viewId);
         },
-
         [DatabaseNotification.DidUpdateViewRows]: (changeset) => rowListeners.didUpdateViewRows(database, changeset),
         [DatabaseNotification.DidReorderRows]: (changeset) => rowListeners.didReorderRows(database, changeset),
         [DatabaseNotification.DidReorderSingleRow]: (changeset) => rowListeners.didReorderSingleRow(database, changeset),

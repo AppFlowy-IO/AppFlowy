@@ -6,7 +6,9 @@ import { useRef } from 'react';
 export const DatabasePage = () => {
   const viewId = useParams().id;
 
-  const { selectedViewId, onChange } = useSelectDatabaseView();
+  const { selectedViewId, onChange } = useSelectDatabaseView({
+    viewId,
+  });
 
   const ref = useRef<HTMLDivElement>(null);
 
