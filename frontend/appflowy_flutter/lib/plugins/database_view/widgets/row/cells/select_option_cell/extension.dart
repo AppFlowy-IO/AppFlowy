@@ -68,25 +68,30 @@ class SelectOptionTag extends StatelessWidget {
   final Color color;
   final VoidCallback? onSelected;
   final void Function(String)? onRemove;
-  const SelectOptionTag({
-    required this.name,
-    required this.color,
-    this.onSelected,
-    this.onRemove,
-    Key? key,
-  }) : super(key: key);
+  final bool isTextColAlt;
+  const SelectOptionTag(
+      {required this.name,
+      required this.color,
+      this.onSelected,
+      this.onRemove,
+      this.isTextColAlt = false,
+      Key? key,
+      ac})
+      : super(key: key);
 
   factory SelectOptionTag.fromOption({
     required BuildContext context,
     required SelectOptionPB option,
     VoidCallback? onSelected,
     Function(String)? onRemove,
+    bool isTextColAlt = false,
   }) {
     return SelectOptionTag(
       name: option.name,
       color: option.color.toColor(context),
       onSelected: onSelected,
       onRemove: onRemove,
+      isTextColAlt: isTextColAlt,
     );
   }
 
@@ -112,7 +117,11 @@ class SelectOptionTag extends StatelessWidget {
               name,
               fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
-              color: AFThemeExtension.of(context).textColor,
+              color: isTextColAlt
+                  ? Theme.of(context)
+                      .extension<AFThemeExtension>()!
+                      .textColorAlt
+                  : Theme.of(context).extension<AFThemeExtension>()!.textColor,
             ),
           ),
           if (onRemove != null) ...[
