@@ -1,11 +1,6 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/env.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
@@ -48,7 +43,7 @@ class DependencyResolver {
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
     _resolveDocDeps(getIt);
-    _resolveGridDeps(getIt);
+    // _resolveGridDeps(getIt);
     _resolveCommonService(getIt, mode);
   }
 }
@@ -216,23 +211,5 @@ void _resolveDocDeps(GetIt getIt) {
 // Doc
   getIt.registerFactoryParam<DocumentBloc, ViewPB, void>(
     (view, _) => DocumentBloc(view: view),
-  );
-}
-
-void _resolveGridDeps(GetIt getIt) {
-  getIt.registerFactoryParam<GridHeaderBloc, String, FieldController>(
-    (viewId, fieldController) => GridHeaderBloc(
-      viewId: viewId,
-      fieldController: fieldController,
-    ),
-  );
-
-  getIt.registerFactoryParam<FieldActionSheetBloc, FieldContext, void>(
-    (data, _) => FieldActionSheetBloc(fieldCellContext: data),
-  );
-
-  getIt.registerFactoryParam<DatabasePropertyBloc, String, FieldController>(
-    (viewId, cache) =>
-        DatabasePropertyBloc(viewId: viewId, fieldController: cache),
   );
 }

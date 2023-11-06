@@ -6,9 +6,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/group/group_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -398,29 +396,6 @@ class BoardState with _$BoardState {
         loadingState: const LoadingState.loading(),
         layoutSettings: null,
       );
-}
-
-class GridFieldEquatable extends Equatable {
-  final UnmodifiableListView<FieldPB> _fields;
-  const GridFieldEquatable(
-    UnmodifiableListView<FieldPB> fields,
-  ) : _fields = fields;
-
-  @override
-  List<Object?> get props {
-    if (_fields.isEmpty) {
-      return [];
-    }
-
-    return [
-      _fields.length,
-      _fields
-          .map((field) => field.width)
-          .reduce((value, element) => value + element),
-    ];
-  }
-
-  UnmodifiableListView<FieldPB> get value => UnmodifiableListView(_fields);
 }
 
 class GroupItem extends AppFlowyGroupItem {

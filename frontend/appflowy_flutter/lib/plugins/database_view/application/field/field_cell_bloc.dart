@@ -1,67 +1,46 @@
 import 'dart:math';
 
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
-import 'field_listener.dart';
-import 'field_service.dart';
+import 'field_info.dart';
 
 part 'field_cell_bloc.freezed.dart';
 
 class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
-  final SingleFieldListener _fieldListener;
-  final FieldBackendService _fieldBackendSvc;
+  FieldInfo fieldInfo;
+  final FieldSettingsBackendService _fieldSettingsService;
 
-  FieldCellBloc({
-    required FieldContext fieldContext,
-  })  : _fieldListener =
-            SingleFieldListener(fieldId: fieldContext.fieldInfo.id),
-        _fieldBackendSvc = FieldBackendService(
-          viewId: fieldContext.viewId,
-          fieldId: fieldContext.fieldInfo.id,
+  FieldCellBloc({required String viewId, required this.fieldInfo})
+      : _fieldSettingsService = FieldSettingsBackendService(
+          viewId: viewId,
         ),
-        super(FieldCellState.initial(fieldContext)) {
+        super(FieldCellState.initial(fieldInfo)) {
     on<FieldCellEvent>(
       (event, emit) async {
         event.when(
-          initial: () {
-            _startListening();
-          },
-          didReceiveFieldUpdate: (field) {
-            emit(state.copyWith(field: fieldContext.fieldInfo.field));
+          onFieldChanged: (newFieldInfo) {
+            fieldInfo = newFieldInfo;
+            emit(FieldCellState.initial(newFieldInfo));
           },
           onResizeStart: () {
-            emit(state.copyWith(resizeStart: state.width));
+            emit(state.copyWith(isResizing: true, resizeStart: state.width));
           },
           startUpdateWidth: (offset) {
             final width = max(offset + state.resizeStart, 50).toDouble();
             emit(state.copyWith(width: width));
           },
           endUpdateWidth: () {
-            if (state.width != state.field.width.toDouble()) {
-              _fieldBackendSvc.updateField(width: state.width);
+            if (state.width != fieldInfo.fieldSettings?.width.toDouble()) {
+              _fieldSettingsService.updateFieldSettings(
+                fieldId: fieldInfo.id,
+                width: state.width,
+              );
             }
+            emit(state.copyWith(isResizing: false, resizeStart: 0));
           },
         );
-      },
-    );
-  }
-
-  @override
-  Future<void> close() async {
-    await _fieldListener.stop();
-    return super.close();
-  }
-
-  void _startListening() {
-    _fieldListener.start(
-      onFieldChanged: (updatedField) {
-        if (isClosed) {
-          return;
-        }
-        add(FieldCellEvent.didReceiveFieldUpdate(updatedField));
       },
     );
   }
@@ -69,9 +48,8 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 
 @freezed
 class FieldCellEvent with _$FieldCellEvent {
-  const factory FieldCellEvent.initial() = _InitialCell;
-  const factory FieldCellEvent.didReceiveFieldUpdate(FieldPB field) =
-      _DidReceiveFieldUpdate;
+  const factory FieldCellEvent.onFieldChanged(FieldInfo newFieldInfo) =
+      _OnFieldChanged;
   const factory FieldCellEvent.onResizeStart() = _OnResizeStart;
   const factory FieldCellEvent.startUpdateWidth(double offset) =
       _StartUpdateWidth;
@@ -81,16 +59,16 @@ class FieldCellEvent with _$FieldCellEvent {
 @freezed
 class FieldCellState with _$FieldCellState {
   const factory FieldCellState({
-    required String viewId,
-    required FieldPB field,
+    required FieldInfo fieldInfo,
     required double width,
+    required bool isResizing,
     required double resizeStart,
   }) = _FieldCellState;
 
-  factory FieldCellState.initial(FieldContext cellContext) => FieldCellState(
-        viewId: cellContext.viewId,
-        field: cellContext.fieldInfo.field,
-        width: cellContext.fieldInfo.field.width.toDouble(),
+  factory FieldCellState.initial(FieldInfo fieldInfo) => FieldCellState(
+        fieldInfo: fieldInfo,
+        isResizing: false,
+        width: fieldInfo.fieldSettings!.width.toDouble(),
         resizeStart: 0,
       );
 }

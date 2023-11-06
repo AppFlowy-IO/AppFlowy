@@ -844,19 +844,20 @@ impl DatabaseViewEditor {
     self.delegate.get_field_settings(&self.view_id, field_ids)
   }
 
-  pub async fn v_get_all_field_settings(&self) -> HashMap<String, FieldSettings> {
-    self.delegate.get_all_field_settings(&self.view_id)
-  }
+  // pub async fn v_get_all_field_settings(&self) -> HashMap<String, FieldSettings> {
+  //   self.delegate.get_all_field_settings(&self.view_id)
+  // }
 
   pub async fn v_update_field_settings(
     &self,
     view_id: &str,
     field_id: &str,
     visibility: Option<FieldVisibility>,
+    width: Option<i32>,
   ) -> FlowyResult<()> {
     self
       .delegate
-      .update_field_settings(view_id, field_id, visibility);
+      .update_field_settings(view_id, field_id, visibility, width);
 
     Ok(())
   }
