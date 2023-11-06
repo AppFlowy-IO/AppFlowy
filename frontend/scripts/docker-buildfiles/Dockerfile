@@ -52,7 +52,7 @@ RUN yay -S --noconfirm cargo-make cargo-binstall
 RUN sudo ln -s /usr/bin/sha1sum /usr/bin/shasum
 RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
 
-# Build AppFlowy
+# Build AppFlowy using shared libraries for zstd, openssl, rocksdb
 COPY . /appflowy
 RUN sudo chown -R $user: /appflowy
 WORKDIR /appflowy
