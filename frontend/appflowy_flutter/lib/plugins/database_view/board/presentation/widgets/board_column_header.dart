@@ -125,13 +125,16 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                 const HSpace(6),
                 _groupOptionsButton(context),
                 const HSpace(4),
-                FlowyIconButton(
-                  width: 20,
-                  icon: const FlowySvg(FlowySvgs.add_s),
-                  iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-                  onPressed: () => context
-                      .read<BoardBloc>()
-                      .add(BoardEvent.createHeaderRow(widget.groupData.id)),
+                FlowyTooltip(
+                  message: "Add a new card at the top",
+                  child: FlowyIconButton(
+                    width: 20,
+                    icon: const FlowySvg(FlowySvgs.add_s),
+                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+                    onPressed: () => context
+                        .read<BoardBloc>()
+                        .add(BoardEvent.createHeaderRow(widget.groupData.id)),
+                  ),
                 ),
               ],
             ),
