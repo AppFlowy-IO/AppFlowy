@@ -158,9 +158,7 @@
     "editContact": "Редактировать контакт"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Завершить",
-    "Cancel": "Отмена",
+    "done": "Сделанный",
     "signIn": "Войти",
     "signOut": "Выйти",
     "complete": "Завершить",
@@ -176,8 +174,10 @@
     "edit": "Редактировать",
     "delete": "Удалить",
     "duplicate": "Дублировать",
-    "done": "Сделанный",
-    "putback": "Вернуть"
+    "putback": "Вернуть",
+    "OK": "OK",
+    "Done": "Завершить",
+    "Cancel": "Отмена"
   },
   "label": {
     "welcome": "Добро пожаловать!",
@@ -546,11 +546,11 @@
     }
   },
   "board": {
+    "menuName": "Доска",
+    "referencedBoardPrefix": "Просмотр",
     "column": {
       "create_new_card": "Создать"
-    },
-    "menuName": "Доска",
-    "referencedBoardPrefix": "Просмотр"
+    }
   },
   "calendar": {
     "menuName": "Календарь",
@@ -567,9 +567,9 @@
       "firstDayOfWeek": "Первый день недели",
       "layoutDateField": "Вид календаря",
       "noDateTitle": "No Date",
-      "noDateHint": "Unscheduled events will show up here",
       "clickToAdd": "Click to add to the calendar",
-      "name": "Calendar layout"
+      "name": "Calendar layout",
+      "noDateHint": "Unscheduled events will show up here"
     },
     "referencedCalendarPrefix": "Вид"
   },

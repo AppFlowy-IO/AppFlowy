@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function useOutsideClick(ref: any, handler: (e: MouseEvent | TouchEvent) => void) {
   useEffect(
     () => {
@@ -8,8 +9,10 @@ export default function useOutsideClick(ref: any, handler: (e: MouseEvent | Touc
         if (!ref?.current || ref.current.contains(event.target)) {
           return;
         }
+
         handler(event);
       };
+
       document.addEventListener('mousedown', listener);
       document.addEventListener('touchstart', listener);
       return () => {

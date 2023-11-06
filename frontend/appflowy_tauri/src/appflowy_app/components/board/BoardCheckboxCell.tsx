@@ -15,6 +15,7 @@ export const BoardCheckboxCell = ({
   fieldController: FieldController;
 }) => {
   const { data } = useCell(cellIdentifier, cellCache, fieldController);
+
   return (
     <i className={'h-5 w-5'}>
       {data === 'Yes' ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}

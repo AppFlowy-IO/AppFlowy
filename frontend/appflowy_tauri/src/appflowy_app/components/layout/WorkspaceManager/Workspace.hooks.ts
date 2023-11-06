@@ -45,7 +45,7 @@ export function useLoadWorkspaces() {
     })();
 
     return () => {
-      controller.dispose();
+      void controller.dispose();
     };
   }, [controller, initializeWorkspaces, subscribeToWorkspaces]);
 
@@ -85,6 +85,7 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
 
   const initializeWorkspace = useCallback(async () => {
     const childPages = await controller.getChildPages();
+
     dispatch(
       pagesActions.addChildPages({
         id,
@@ -106,7 +107,7 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
     })();
 
     return () => {
-      controller.dispose();
+      void controller.dispose();
     };
   }, [controller, initializeWorkspace, subscribeToWorkspace]);
 

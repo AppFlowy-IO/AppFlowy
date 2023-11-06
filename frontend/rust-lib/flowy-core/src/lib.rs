@@ -196,7 +196,6 @@ impl AppFlowyCore {
 
     let cloned_user_session = Arc::downgrade(&user_manager);
     if let Some(user_session) = cloned_user_session.upgrade() {
-      event!(tracing::Level::DEBUG, "init user session",);
       if let Err(err) = user_session
         .init(user_status_callback, collab_interact_impl)
         .await

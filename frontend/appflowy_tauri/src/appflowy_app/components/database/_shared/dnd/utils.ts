@@ -162,7 +162,6 @@ export const autoScrollOnEdge = ({
   };
 
   const cleanup = () => {
-    console.log('document drag end');
     keepScroll.cancel();
 
     element.removeEventListener('dragover', onDragOver);

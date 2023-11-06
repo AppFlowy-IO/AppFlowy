@@ -1,5 +1,5 @@
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAppDispatch } from '$app/stores/store';
 import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions';
 import Delta, { Op } from 'quill-delta';

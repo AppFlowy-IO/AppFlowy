@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
-import { currentUserActions } from '../../../stores/reducers/current-user/slice';
+import { useAppDispatch } from '$app/stores/store';
+import { currentUserActions } from '$app_reducers/current-user/slice';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth.hooks';
 
@@ -12,7 +12,6 @@ export const useSignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const appDispatch = useAppDispatch();
-  const currentUser = useAppSelector((state) => state.currentUser);
   const navigate = useNavigate();
   const { register } = useAuth();
   const [authError, setAuthError] = useState(false);
@@ -49,6 +48,7 @@ export const useSignUp = () => {
     try {
       const result = await register(email, password, displayName);
       const { id, token } = result;
+
       appDispatch(
         currentUserActions.updateUser({
           id,

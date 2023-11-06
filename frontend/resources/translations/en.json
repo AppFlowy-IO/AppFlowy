@@ -120,7 +120,9 @@
     "mobile": {
       "actions": "Trash Actions",
       "empty": "Trash Bin is Empty",
-      "emptyDescription": "You don't have any deleted file"
+      "emptyDescription": "You don't have any deleted file",
+      "isDeleted": "is deleted",
+      "isRestored": "is restored"
     }
   },
   "deletePagePrompt": {
@@ -394,7 +396,9 @@
       "support": "Support",
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
-      "userAgreement": "User Agreement"
+      "userAgreement": "User Agreement",
+      "userprofileError": "Failed to load user profile",
+      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists."
     }
   },
   "grid": {
@@ -575,6 +579,9 @@
       "calendar": {
         "selectACalendarToLinkTo": "Select a Calendar to link to",
         "createANewCalendar": "Create a new Calendar"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Select a Document to link to"
       }
     },
     "selectionMenu": {
@@ -585,6 +592,7 @@
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
       "referencedCalendar": "Referenced Calendar",
+      "referencedDocument": "Referenced Document",
       "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",

@@ -8,11 +8,14 @@ import { makeNumberTypeOptionContext } from '$app/stores/effects/database/field/
 export const useNumberFormat = (cellIdentifier: CellIdentifier, fieldController: FieldController) => {
   const changeNumberFormat = async (format: NumberFormatPB) => {
     const fieldInfo = fieldController.getField(cellIdentifier.fieldId);
+
     if (!fieldInfo) return;
     const typeOptionController = new TypeOptionController(cellIdentifier.viewId, Some(fieldInfo), FieldType.Number);
+
     await typeOptionController.initialize();
     const numberTypeOptionContext = makeNumberTypeOptionContext(typeOptionController);
     const typeOption = await numberTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+
     typeOption.format = format;
     await numberTypeOptionContext.setTypeOption(typeOption);
   };

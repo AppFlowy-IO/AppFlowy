@@ -64,7 +64,6 @@ ThemeData getMobileThemeData(
     appBarTheme: AppBarTheme(
       foregroundColor: mobileColorTheme.onBackground,
       backgroundColor: mobileColorTheme.background,
-      elevation: 80,
       centerTitle: false,
       titleTextStyle: TextStyle(
         color: mobileColorTheme.onBackground,
@@ -116,7 +115,7 @@ ThemeData getMobileThemeData(
         foregroundColor: MaterialStateProperty.all(
           mobileColorTheme.onBackground,
         ),
-        backgroundColor: MaterialStateProperty.all(Colors.white),
+        backgroundColor: MaterialStateProperty.all(mobileColorTheme.background),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
@@ -129,7 +128,7 @@ ThemeData getMobileThemeData(
           ),
         ),
         padding: MaterialStateProperty.all(
-          const EdgeInsets.symmetric(horizontal: 16),
+          const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         ),
         // splash color
         overlayColor: MaterialStateProperty.all(

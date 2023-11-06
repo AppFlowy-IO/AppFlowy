@@ -58,6 +58,7 @@ class FieldSettingsBackendService {
   Future<Either<Unit, FlowyError>> updateFieldSettings({
     required String fieldId,
     FieldVisibility? fieldVisibility,
+    double? width,
   }) {
     final FieldSettingsChangesetPB payload = FieldSettingsChangesetPB.create()
       ..viewId = viewId
@@ -65,6 +66,10 @@ class FieldSettingsBackendService {
 
     if (fieldVisibility != null) {
       payload.visibility = fieldVisibility;
+    }
+
+    if (width != null) {
+      payload.width = width.round();
     }
 
     return DatabaseEventUpdateFieldSettings(payload).send();

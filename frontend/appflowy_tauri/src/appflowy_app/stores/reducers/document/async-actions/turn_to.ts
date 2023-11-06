@@ -20,7 +20,7 @@ import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
  */
 export const turnToBlockThunk = createAsyncThunk(
   'document/turnToBlock',
-  async (payload: { id: string; controller: DocumentController; type: BlockType; data: BlockData<any> }, thunkAPI) => {
+  async (payload: { id: string; controller: DocumentController; type: BlockType; data: BlockData }, thunkAPI) => {
     const { id, controller, type, data } = payload;
     const docId = controller.documentId;
     const { dispatch, getState } = thunkAPI;
@@ -46,13 +46,13 @@ export const turnToBlockThunk = createAsyncThunk(
 
     if (type === BlockType.EquationBlock) {
       data.formula = deltaOperator.getDeltaText(delta);
-      const block = newBlock<any>(type, parent.id, data);
+      const block = newBlock(type, parent.id, data);
 
       insertActions.push(controller.getInsertAction(block, node.id));
       caretId = block.id;
       caretIndex = 0;
     } else if (type === BlockType.DividerBlock) {
-      const block = newBlock<any>(type, parent.id, data);
+      const block = newBlock(type, parent.id, data);
 
       insertActions.push(controller.getInsertAction(block, node.id));
       const nodeId = generateId();
@@ -97,7 +97,7 @@ export const turnToBlockThunk = createAsyncThunk(
 
     // submit actions
     await controller.applyActions([...insertActions, ...moveChildrenActions, deleteAction]);
-    dispatch(
+    await dispatch(
       setCursorRangeThunk({
         docId,
         blockId: caretId,

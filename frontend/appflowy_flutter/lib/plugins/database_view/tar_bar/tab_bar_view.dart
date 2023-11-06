@@ -216,13 +216,9 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
 
   @override
   Widget? get rightBarItem {
-    return Row(
-      children: [
-        DatabaseShareButton(
-          key: ValueKey(notifier.view.id),
-          view: notifier.view,
-        ),
-      ],
+    return DatabaseShareButton(
+      key: ValueKey(notifier.view.id),
+      view: notifier.view,
     );
   }
 }

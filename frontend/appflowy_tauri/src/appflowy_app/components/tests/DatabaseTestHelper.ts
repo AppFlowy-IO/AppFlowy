@@ -1,32 +1,23 @@
-import {
-  FieldType,
-  FlowyError,
-  SingleSelectTypeOptionPB,
-  ViewLayoutPB,
-  ViewPB,
-  WorkspaceSettingPB,
-} from '../../../services/backend';
-import { DatabaseController } from '../../stores/effects/database/database_controller';
-import { RowInfo } from '../../stores/effects/database/row/row_cache';
-import { RowController } from '../../stores/effects/database/row/row_controller';
+import { FieldType, SingleSelectTypeOptionPB, ViewLayoutPB, ViewPB, WorkspaceSettingPB } from '@/services/backend';
+import { DatabaseController } from '$app/stores/effects/database/database_controller';
+import { RowInfo } from '$app/stores/effects/database/row/row_cache';
+import { RowController } from '$app/stores/effects/database/row/row_controller';
 import {
   CellControllerBuilder,
   CheckboxCellController,
   DateCellController,
-  NumberCellController,
   SelectOptionCellController,
   TextCellController,
   URLCellController,
-} from '../../stores/effects/database/cell/controller_builder';
-import { None, Ok, Option, Result, Some } from 'ts-results';
-import { TypeOptionBackendService } from '../../stores/effects/database/field/type_option/type_option_bd_svc';
-import { DatabaseBackendService } from '../../stores/effects/database/database_bd_svc';
-import { FieldInfo } from '../../stores/effects/database/field/field_controller';
-import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
-import { makeSingleSelectTypeOptionContext } from '../../stores/effects/database/field/type_option/type_option_context';
-import { SelectOptionBackendService } from '../../stores/effects/database/cell/select_option_bd_svc';
-import { Log } from '$app/utils/log';
-import { WorkspaceController } from '../../stores/effects/workspace/workspace_controller';
+} from '$app/stores/effects/database/cell/controller_builder';
+import { None, Option, Some } from 'ts-results';
+import { TypeOptionBackendService } from '$app/stores/effects/database/field/type_option/type_option_bd_svc';
+import { DatabaseBackendService } from '$app/stores/effects/database/database_bd_svc';
+import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
+import { makeSingleSelectTypeOptionContext } from '$app/stores/effects/database/field/type_option/type_option_context';
+import { SelectOptionBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
+import { WorkspaceController } from '$app/stores/effects/workspace/workspace_controller';
 import { FolderEventGetCurrentWorkspaceSetting } from '@/services/backend/events/flowy-folder2';
 
 // Create a database page for specific layout type
@@ -36,9 +27,8 @@ export async function createTestDatabaseView(layout: ViewLayoutPB): Promise<View
     result.unwrap()
   );
   const wsSvc = new WorkspaceController(workspaceSetting.workspace_id);
-  const viewRes = await wsSvc.createView({ name: 'New Grid', layout });
 
-  return viewRes;
+  return await wsSvc.createView({ name: 'New Grid', layout });
 }
 
 export async function openTestDatabase(viewId: string): Promise<DatabaseController> {
@@ -90,18 +80,6 @@ export async function makeTextCellController(
   );
 
   return Some(builder.build() as TextCellController);
-}
-
-export async function makeNumberCellController(
-  fieldId: string,
-  rowInfo: RowInfo,
-  databaseController: DatabaseController
-): Promise<Option<NumberCellController>> {
-  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.Number, databaseController).then(
-    (result) => result.unwrap()
-  );
-
-  return Some(builder.build() as NumberCellController);
 }
 
 export async function makeSingleSelectCellController(
@@ -167,7 +145,7 @@ export async function makeURLCellController(
 export async function makeCellControllerBuilder(
   fieldId: string,
   rowInfo: RowInfo,
-  fieldType: FieldType,
+  _fieldType: FieldType,
   databaseController: DatabaseController
 ): Promise<Option<CellControllerBuilder>> {
   const rowCache = databaseController.databaseViewCache.getRowCache();

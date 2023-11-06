@@ -1,12 +1,12 @@
 import {
   FolderEventCreateWorkspace,
   CreateWorkspacePayloadPB,
-  FolderEventOpenWorkspace,
   FolderEventDeleteWorkspace,
   WorkspaceIdPB,
   FolderEventReadWorkspaceViews,
   FolderEventReadCurrentWorkspace,
 } from '@/services/backend/events/flowy-folder2';
+import { UserEventOpenWorkspace, UserWorkspaceIdPB } from '@/services/backend/events/flowy-user';
 
 export class WorkspaceBackendService {
   constructor() {
@@ -24,11 +24,11 @@ export class WorkspaceBackendService {
   };
 
   openWorkspace = async (workspaceId: string) => {
-    const payload = new WorkspaceIdPB({
-      value: workspaceId,
+    const payload = new UserWorkspaceIdPB({
+      workspace_id: workspaceId,
     });
 
-    return FolderEventOpenWorkspace(payload);
+    return UserEventOpenWorkspace(payload);
   };
 
   deleteWorkspace = async (workspaceId: string) => {

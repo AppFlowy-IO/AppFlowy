@@ -36,30 +36,30 @@ export function useLoadChildPages(pageId: string) {
     [dispatch]
   );
 
+  const loadPageChildren = useCallback(
+    async (pageId: string) => {
+      const childPages = await controller.getChildPages();
 
-  const loadPageChildren = useCallback(async (pageId: string) => {
-    const childPages = await controller.getChildPages();
-
-    dispatch(
-      pagesActions.addChildPages({
-        id: pageId,
-        childPages,
-      })
-    );
-
-  }, [controller, dispatch]);
-
+      dispatch(
+        pagesActions.addChildPages({
+          id: pageId,
+          childPages,
+        })
+      );
+    },
+    [controller, dispatch]
+  );
 
   useEffect(() => {
     void loadPageChildren(pageId);
   }, [loadPageChildren, pageId]);
 
   useEffect(() => {
-    controller.subscribe({
+    void controller.subscribe({
       onPageChanged,
     });
     return () => {
-      controller.dispose();
+      void controller.dispose();
     };
   }, [controller, onPageChanged]);
 
@@ -88,7 +88,7 @@ export function usePageActions(pageId: string) {
     async (layout: ViewLayoutPB) => {
       const newViewId = await controller.createPage({
         layout,
-        name: ""
+        name: '',
       });
 
       dispatch(pagesActions.expandPage(pageId));
@@ -116,7 +116,7 @@ export function usePageActions(pageId: string) {
 
   useEffect(() => {
     return () => {
-      controller.dispose();
+      void controller.dispose();
     };
   }, [controller]);
 
@@ -134,4 +134,3 @@ export function useSelectedPage(pageId: string) {
 
   return id === pageId;
 }
-

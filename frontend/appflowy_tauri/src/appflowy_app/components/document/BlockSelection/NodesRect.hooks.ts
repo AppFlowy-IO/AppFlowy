@@ -16,6 +16,7 @@ export function useNodesRect(container: HTMLDivElement) {
     (node: Element) => {
       const { x, y, width, height } = node.getBoundingClientRect();
       const id = node.getAttribute('data-block-id');
+
       if (!id) return;
       const rect = {
         id,
@@ -24,6 +25,7 @@ export function useNodesRect(container: HTMLDivElement) {
         width,
         height,
       };
+
       regionGrid?.updateBlock(rect);
     },
     [container.scrollLeft, container.scrollTop, regionGrid]
@@ -31,6 +33,7 @@ export function useNodesRect(container: HTMLDivElement) {
 
   const updateViewPortNodesRect = useCallback(() => {
     const nodes = container.querySelectorAll('[data-block-id]');
+
     nodes.forEach(updateNodeRect);
   }, [container, updateNodeRect]);
 
@@ -55,6 +58,7 @@ export function useNodesRect(container: HTMLDivElement) {
       const y = Math.min(startY, endY);
       const width = Math.abs(endX - startX);
       const height = Math.abs(endY - startY);
+
       return regionGrid
         .getIntersectingBlocks({
           x,

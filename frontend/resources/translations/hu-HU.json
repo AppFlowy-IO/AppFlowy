@@ -159,9 +159,7 @@
     "editContact": "Kontakt Szerkesztése"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Kész",
-    "Cancel": "Mégse",
+    "done": "Kész",
     "signIn": "Bejelentkezés",
     "signOut": "Kijelentkezés",
     "complete": "Kész",
@@ -177,8 +175,10 @@
     "edit": "Szerkesztés",
     "delete": "Töröl",
     "duplicate": "Másolat",
-    "done": "Kész",
-    "putback": "Visszatesz"
+    "putback": "Visszatesz",
+    "OK": "OK",
+    "Done": "Kész",
+    "Cancel": "Mégse"
   },
   "label": {
     "welcome": "Üdvözlünk!",
@@ -546,11 +546,11 @@
     }
   },
   "board": {
+    "menuName": "Tábla",
+    "referencedBoardPrefix": "Nézet",
     "column": {
       "create_new_card": "Új"
-    },
-    "menuName": "Tábla",
-    "referencedBoardPrefix": "Nézet"
+    }
   },
   "calendar": {
     "menuName": "Naptár",
@@ -567,9 +567,9 @@
       "firstDayOfWeek": "Kezdje a hetet",
       "layoutDateField": "Elrendezés naptár által",
       "noDateTitle": "Nincs dátum",
-      "noDateHint": "A nem tervezett események itt jelennek meg",
       "clickToAdd": "Kattintson a naptárhoz való hozzáadáshoz",
-      "name": "Naptár elrendezés"
+      "name": "Naptár elrendezés",
+      "noDateHint": "A nem tervezett események itt jelennek meg"
     },
     "referencedCalendarPrefix": "Nézet"
   },

@@ -2,7 +2,7 @@ import { useAppSelector } from '$app/stores/store';
 import { RangeState, RangeStatic } from '$app/interfaces/document';
 import { useMemo, useRef } from 'react';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import { RANGE_NAME, TEMPORARY_NAME, TEXT_LINK_NAME } from '$app/constants/document/name';
+import { RANGE_NAME, TEMPORARY_NAME } from '$app/constants/document/name';
 
 export function useSubscribeDecorate(id: string) {
   const { docId } = useSubscribeDocument();
@@ -51,7 +51,7 @@ export function useFocused(id: string) {
 }
 
 export function useRangeRef() {
-  const { docId, controller } = useSubscribeDocument();
+  const { docId } = useSubscribeDocument();
 
   const rangeRef = useRef<RangeState>();
 

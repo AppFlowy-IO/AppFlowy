@@ -76,7 +76,6 @@ export class DatabaseController {
 
       // load database initial data
       await this.fieldController.loadFields(database.fields);
-      const loadGroupResult = await this.loadGroup();
 
       this.databaseViewCache.initializeWithRows(database.rows);
 

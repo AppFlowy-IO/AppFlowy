@@ -1,9 +1,9 @@
-import { useAppSelector } from "$app/stores/store";
+import { useAppSelector } from '$app/stores/store';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Page } from '$app_reducers/pages/slice';
 import { useTranslation } from 'react-i18next';
-import { PageController } from "$app/stores/effects/workspace/page/page_controller";
+import { PageController } from '$app/stores/effects/workspace/page/page_controller';
 
 export function useLoadExpandedPages() {
   const { t } = useTranslation();
@@ -25,6 +25,7 @@ export function useLoadExpandedPages() {
     async (pageId: string) => {
       let page = pageMap[pageId];
       const controller = new PageController(pageId);
+
       if (!page) {
         try {
           page = await controller.getPage();
@@ -36,22 +37,22 @@ export function useLoadExpandedPages() {
           return;
         }
       }
-      setPagePath(prev => {
-        return [
-          page,
-          ...prev
-        ]
+
+      setPagePath((prev) => {
+        return [page, ...prev];
       });
       await loadPagePath(page.parentId);
-
-    }, [pageMap]);
+    },
+    [pageMap]
+  );
 
   useEffect(() => {
     setPagePath([]);
     if (!currentPageId) {
       return;
     }
-    loadPagePath(currentPageId);
+
+    void loadPagePath(currentPageId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPageId]);
 

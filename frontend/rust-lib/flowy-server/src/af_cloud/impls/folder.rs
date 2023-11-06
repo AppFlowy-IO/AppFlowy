@@ -4,7 +4,9 @@ use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace};
+use flowy_folder_deps::cloud::{
+  Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;
@@ -17,6 +19,35 @@ where
 {
   fn create_workspace(&self, _uid: i64, _name: &str) -> FutureResult<Workspace, Error> {
     FutureResult::new(async move { Err(anyhow!("Not support yet")) })
+  }
+
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let _ = client.open_workspace(&workspace_id).await?;
+      Ok(())
+    })
+  }
+
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let records = client
+        .get_user_workspace_info()
+        .await?
+        .workspaces
+        .into_iter()
+        .map(|af_workspace| WorkspaceRecord {
+          id: af_workspace.workspace_id.to_string(),
+          name: af_workspace.workspace_name,
+          created_at: af_workspace.created_at.timestamp(),
+        })
+        .collect::<Vec<_>>();
+      Ok(records)
+    })
   }
 
   fn get_folder_data(
@@ -33,12 +64,19 @@ where
         workspace_id: workspace_id.clone(),
         collab_type: CollabType::Folder,
       };
-      let updates = vec![try_get_client?
+      let doc_state = try_get_client?
         .get_collab(params)
         .await
-        .map_err(FlowyError::from)?];
-      let folder =
-        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+        .map_err(FlowyError::from)?
+        .doc_state
+        .to_vec();
+      let folder = Folder::from_collab_raw_data(
+        uid,
+        CollabOrigin::Empty,
+        vec![doc_state],
+        &workspace_id,
+        vec![],
+      )?;
       Ok(folder.get_folder_data())
     })
   }
@@ -60,11 +98,13 @@ where
         workspace_id,
         collab_type: CollabType::Folder,
       };
-      let update = try_get_client?
+      let doc_state = try_get_client?
         .get_collab(params)
         .await
-        .map_err(FlowyError::from)?;
-      Ok(vec![update])
+        .map_err(FlowyError::from)?
+        .doc_state
+        .to_vec();
+      Ok(vec![doc_state])
     })
   }
 
