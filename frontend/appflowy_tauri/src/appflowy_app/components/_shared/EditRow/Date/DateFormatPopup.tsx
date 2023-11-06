@@ -29,6 +29,7 @@ export const DateFormatPopup = ({
 
   useEffect(() => {
     setDateType(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as IDateType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [databaseStore]);
 
   const changeFormat = async (format: DateFormatPB) => {

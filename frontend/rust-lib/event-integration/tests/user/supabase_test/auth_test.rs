@@ -4,7 +4,7 @@ use assert_json_diff::assert_json_eq;
 use collab_database::rows::database_row_document_id_from_row_id;
 use collab_document::blocks::DocumentData;
 use collab_entity::CollabType;
-use collab_folder::core::FolderData;
+use collab_folder::FolderData;
 use nanoid::nanoid;
 use serde_json::json;
 
@@ -303,21 +303,12 @@ async fn migrate_anon_data_on_cloud_signup() {
     let folder_data: FolderData = test
       .folder_manager
       .get_cloud_service()
-      .get_folder_data(&user_profile.workspace_id)
+      .get_folder_data(&user_profile.workspace_id, &user_profile.id)
       .await
       .unwrap()
       .unwrap();
 
     let expected_folder_data = expected_workspace_sync_folder_data();
-
-    if folder_data.workspaces.len() != expected_folder_data.workspaces.len() {
-      dbg!(&folder_data.workspaces);
-    }
-
-    assert_eq!(
-      folder_data.workspaces.len(),
-      expected_folder_data.workspaces.len()
-    );
     assert_eq!(folder_data.views.len(), expected_folder_data.views.len());
 
     // After migration, the ids of the folder_data should be different from the expected_folder_data
@@ -329,10 +320,7 @@ async fn migrate_anon_data_on_cloud_signup() {
       assert_eq!(left_view.name, right_view.name);
     }
 
-    assert_ne!(
-      folder_data.current_workspace_id,
-      expected_folder_data.current_workspace_id
-    );
+    assert_ne!(folder_data.workspace.id, expected_folder_data.workspace.id);
     assert_ne!(folder_data.current_view, expected_folder_data.current_view);
 
     let database_views = folder_data

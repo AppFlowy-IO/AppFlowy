@@ -26,6 +26,7 @@ export class DatabaseFieldChangesetObserver {
             } else {
               this.notifier?.notify(result);
             }
+
             return;
           default:
             break;
@@ -64,6 +65,7 @@ export class DatabaseFieldObserver {
             } else {
               this._notifier?.notify(result);
             }
+
             break;
           default:
             break;

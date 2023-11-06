@@ -53,7 +53,7 @@ void main() {
       await tester.favoriteViewByName(names[1]);
       expect(
         tester.findFavoritePageName(names[1]),
-        findsNWidgets(2),
+        findsNWidgets(1),
       );
 
       await tester.unfavoriteViewByName(gettingStarted);
@@ -131,7 +131,7 @@ void main() {
                 widget.view.isFavorite &&
                 widget.categoryType == FolderCategoryType.favorite,
           ),
-          findsNWidgets(6),
+          findsNWidgets(3),
         );
 
         await tester.hoverOnPageName(
@@ -150,7 +150,7 @@ void main() {
                 widget.view.isFavorite &&
                 widget.categoryType == FolderCategoryType.favorite,
           ),
-          findsNWidgets(3),
+          findsNWidgets(2),
         );
 
         await tester.hoverOnPageName(

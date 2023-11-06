@@ -20,14 +20,14 @@ export const GridRow: FC<GridRowProps> = ({
     case RenderRowType.Row:
       return (
         <GridCellRow
-          row={row.data}
+          rowMeta={row.data.meta}
           virtualizer={virtualizer}
         />
       );
     case RenderRowType.Fields:
       return <GridFieldRow virtualizer={virtualizer} />;
     case RenderRowType.NewRow:
-      return <GridNewRow />;
+      return <GridNewRow startRowId={row.data.startRowId} groupId={row.data.groupId} />;
     case RenderRowType.Calculate:
       return <GridCalculateRow />;
     default:

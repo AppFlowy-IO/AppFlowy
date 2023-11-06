@@ -1,6 +1,7 @@
 use anyhow::Error;
 pub use collab_document::blocks::DocumentData;
 
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 /// A trait for document cloud service.
@@ -11,7 +12,7 @@ pub trait DocumentCloudService: Send + Sync + 'static {
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, Error>;
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
 
   fn get_document_snapshots(
     &self,

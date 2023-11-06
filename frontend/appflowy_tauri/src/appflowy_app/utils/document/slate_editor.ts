@@ -107,6 +107,7 @@ export function convertToSlateValue(delta: Delta): Descendant[] {
 export function convertToDelta(slateValue: Descendant[]) {
   const ops = (slateValue[0] as Element).children.map((child) => {
     const { text, ...attributes } = child as Text;
+
     return {
       insert: text,
       attributes,

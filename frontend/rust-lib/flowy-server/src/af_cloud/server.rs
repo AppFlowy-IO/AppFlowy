@@ -4,12 +4,12 @@ use std::sync::Arc;
 use anyhow::Error;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
-  BusinessID, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
+  BusinessID, ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::Client;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
-use tracing::{error, info};
+use tracing::{error, event, info};
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
@@ -145,7 +145,8 @@ impl AppFlowyServer for AFCloudServer {
   fn collab_ws_channel(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver)>, anyhow::Error> {
+  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver, bool)>, anyhow::Error>
+  {
     if self.enable_sync.load(Ordering::SeqCst) {
       let object_id = object_id.to_string();
       let weak_ws_client = Arc::downgrade(&self.ws_client);
@@ -155,7 +156,7 @@ impl AppFlowyServer for AFCloudServer {
           Some(ws_client) => {
             let channel = ws_client.subscribe(BusinessID::CollabId, object_id).ok();
             let connect_state_recv = ws_client.subscribe_connect_state();
-            Ok(channel.map(|c| (c, connect_state_recv)))
+            Ok(channel.map(|c| (c, connect_state_recv, ws_client.is_connected())))
           },
         }
       })
@@ -190,24 +191,33 @@ fn spawn_ws_conn(
     if let Some(ws_client) = weak_ws_client.upgrade() {
       let mut state_recv = ws_client.subscribe_connect_state();
       while let Ok(state) = state_recv.recv().await {
-        if !state.is_timeout() {
-          continue;
-        }
-
-        // Try to reconnect if the connection is timed out.
-        if let (Some(api_client), Some(device_id)) =
-          (weak_api_client.upgrade(), weak_device_id.upgrade())
-        {
-          if enable_sync.load(Ordering::SeqCst) {
-            info!("🟢websocket state: {:?},  reconnecting", state);
-            let device_id = device_id.read().clone();
-            match api_client.ws_url(&device_id) {
-              Ok(ws_addr) => {
-                let _ = ws_client.connect(ws_addr).await;
-              },
-              Err(err) => error!("Failed to get ws url: {}", err),
+        info!("[websocket] state: {:?}", state);
+        match state {
+          ConnectState::PingTimeout => {
+            // Try to reconnect if the connection is timed out.
+            if let (Some(api_client), Some(device_id)) =
+              (weak_api_client.upgrade(), weak_device_id.upgrade())
+            {
+              if enable_sync.load(Ordering::SeqCst) {
+                let device_id = device_id.read().clone();
+                match api_client.ws_url(&device_id) {
+                  Ok(ws_addr) => {
+                    event!(tracing::Level::INFO, "🟢reconnecting websocket");
+                    let _ = ws_client.connect(ws_addr).await;
+                  },
+                  Err(err) => error!("Failed to get ws url: {}", err),
+                }
+              }
             }
-          }
+          },
+          ConnectState::Unauthorized => {
+            if let Some(api_client) = weak_api_client.upgrade() {
+              if enable_sync.load(Ordering::SeqCst) {
+                let _ = api_client.refresh().await;
+              }
+            }
+          },
+          _ => {},
         }
       }
     }

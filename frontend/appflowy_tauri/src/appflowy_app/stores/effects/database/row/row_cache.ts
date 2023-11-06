@@ -1,9 +1,7 @@
 import {
-  RowPB,
   InsertedRowPB,
   UpdatedRowPB,
   RowIdPB,
-  OptionalRowPB,
   RowsChangePB,
   RowsVisibilityChangePB,
   ReorderSingleRowPB,
@@ -13,7 +11,7 @@ import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FieldInfo } from '../field/field_controller';
 import { CellCache, CellCacheKey } from '../cell/cell_cache';
 import { CellIdentifier } from '../cell/cell_bd_svc';
-import { DatabaseEventGetRow, DatabaseEventGetRowMeta } from '@/services/backend/events/flowy-database2';
+import { DatabaseEventGetRowMeta } from '@/services/backend/events/flowy-database2';
 import { None, Option, Some } from 'ts-results';
 import { Log } from '$app/utils/log';
 
@@ -40,10 +38,12 @@ export class RowCache {
 
   loadCells = async (rowId: string): Promise<CellByFieldId> => {
     const opRow = this.rowList.getRow(rowId);
+
     if (opRow.some) {
       return this._toCellMap(opRow.val.row.id, this.getFieldInfos());
     } else {
       const rowResult = await this._loadRow(rowId);
+
       if (rowResult.ok) {
         this._refreshRow(rowResult.val);
         return this._toCellMap(rowId, this.getFieldInfos());
@@ -101,6 +101,7 @@ export class RowCache {
 
   applyReorderSingleRow = (reorderRow: ReorderSingleRowPB) => {
     const rowInfo = this.rowList.getRow(reorderRow.row_id);
+
     if (rowInfo !== undefined) {
       this.rowList.move({ rowId: reorderRow.row_id, fromIndex: reorderRow.old_index, toIndex: reorderRow.new_index });
       this.notifier.withChange(RowChangedReason.ReorderSingleRow, reorderRow.row_id);
@@ -109,24 +110,29 @@ export class RowCache {
 
   private _refreshRow = (updatedRow: RowMetaPB) => {
     const option = this.rowList.getRowWithIndex(updatedRow.id);
+
     if (option.some) {
       const { rowInfo, index } = option.val;
+
       this.rowList.remove(rowInfo.row.id);
       this.rowList.insert(index, rowInfo.copyWith({ row: updatedRow }));
     } else {
       const newRowInfo = new RowInfo(this.viewId, this.getFieldInfos(), updatedRow);
+
       this.rowList.push(newRowInfo);
     }
   };
 
   private _loadRow = (rowId: string) => {
     const payload = RowIdPB.fromObject({ view_id: this.viewId, row_id: rowId });
+
     return DatabaseEventGetRowMeta(payload);
   };
 
   private _deleteRows = (rowIds: string[]) => {
     rowIds.forEach((rowId) => {
       const deletedRow = this.rowList.remove(rowId);
+
       if (deletedRow !== undefined) {
         this.notifier.withChange(RowChangedReason.Delete, deletedRow.rowInfo.row.id);
       }
@@ -137,6 +143,7 @@ export class RowCache {
     rows.forEach((insertedRow) => {
       const rowInfo = this._toRowInfo(insertedRow.row_meta);
       const insertedIndex = this.rowList.insert(insertedRow.index, rowInfo);
+
       if (insertedIndex !== undefined) {
         this.notifier.withChange(RowChangedReason.Insert, insertedIndex.rowId);
       }
@@ -149,9 +156,11 @@ export class RowCache {
     }
 
     const rowInfos: RowInfo[] = [];
+
     updatedRows.forEach((updatedRow) => {
       updatedRow.field_ids.forEach((fieldId) => {
         const key = new CellCacheKey(fieldId, updatedRow.row_meta.id);
+
         this.cellCache.remove(key);
       });
 
@@ -159,6 +168,7 @@ export class RowCache {
     });
 
     const updatedIndexs = this.rowList.insertRows(rowInfos);
+
     updatedIndexs.forEach((row) => {
       this.notifier.withChange(RowChangedReason.Update, row.rowId);
     });
@@ -167,6 +177,7 @@ export class RowCache {
   private _hideRows = (rowIds: string[]) => {
     rowIds.forEach((rowId) => {
       const deletedRow = this.rowList.remove(rowId);
+
       if (deletedRow !== undefined) {
         this.notifier.withChange(RowChangedReason.Delete, deletedRow.rowInfo.row.id);
       }
@@ -196,6 +207,7 @@ export class RowCache {
 
     fieldInfos.forEach((fieldInfo) => {
       const identifier = new CellIdentifier(this.viewId, rowId, fieldInfo.field.id, fieldInfo.field.field_type);
+
       cellIdentifierByFieldId.set(fieldInfo.field.id, identifier);
     });
 
@@ -213,6 +225,7 @@ class RowList {
 
   getRow = (rowId: string): Option<RowInfo> => {
     const rowInfo = this._rowInfoByRowId.get(rowId);
+
     if (rowInfo === undefined) {
       return None;
     } else {
@@ -221,23 +234,29 @@ class RowList {
   };
   getRowWithIndex = (rowId: string): Option<{ rowInfo: RowInfo; index: number }> => {
     const rowInfo = this._rowInfoByRowId.get(rowId);
+
     if (rowInfo !== undefined) {
       const index = this._rowInfos.indexOf(rowInfo, 0);
+
       return Some({ rowInfo: rowInfo, index: index });
     }
+
     return None;
   };
 
   indexOfRow = (rowId: string): number => {
     const rowInfo = this._rowInfoByRowId.get(rowId);
+
     if (rowInfo !== undefined) {
       return this._rowInfos.indexOf(rowInfo, 0);
     }
+
     return -1;
   };
 
   push = (rowInfo: RowInfo) => {
     const index = this.indexOfRow(rowInfo.row.id);
+
     if (index !== -1) {
       this._rowInfos.splice(index, 1, rowInfo);
     } else {
@@ -249,8 +268,10 @@ class RowList {
 
   remove = (rowId: string): DeletedRow | undefined => {
     const result = this.getRowWithIndex(rowId);
+
     if (result.some) {
       const { rowInfo, index } = result.val;
+
       this._rowInfoByRowId.delete(rowInfo.row.id);
       this._rowInfos.splice(index, 1);
       return new DeletedRow(index, rowInfo);
@@ -263,13 +284,16 @@ class RowList {
     const rowId = newRowInfo.row.id;
     // Calibrate where to insert
     let insertedIndex = insertIndex;
+
     if (this._rowInfos.length <= insertedIndex) {
       insertedIndex = this._rowInfos.length;
     }
+
     const result = this.getRowWithIndex(rowId);
 
     if (result.some) {
       const { index } = result.val;
+
       // remove the old row info
       this._rowInfos.splice(index, 1);
       // insert the new row info to the insertedIndex
@@ -285,8 +309,10 @@ class RowList {
 
   insertRows = (rowInfos: RowInfo[]) => {
     const map = new Map<string, InsertedRow>();
+
     rowInfos.forEach((rowInfo) => {
       const index = this.indexOfRow(rowInfo.row.id);
+
       if (index !== -1) {
         this._rowInfos.splice(index, 1, rowInfo);
         this._rowInfoByRowId.set(rowInfo.row.id, rowInfo);
@@ -299,8 +325,10 @@ class RowList {
 
   move = (params: { rowId: string; fromIndex: number; toIndex: number }) => {
     const currentIndex = this.indexOfRow(params.rowId);
+
     if (currentIndex !== -1 && currentIndex !== params.toIndex) {
       const rowInfo = this.remove(params.rowId)?.rowInfo;
+
       if (rowInfo !== undefined) {
         this.insert(params.toIndex, rowInfo);
       }
@@ -312,6 +340,7 @@ class RowList {
     this._rowInfos = [];
     rowIds.forEach((rowId) => {
       const rowInfo = this._rowInfoByRowId.get(rowId);
+
       if (rowInfo !== undefined) {
         this._rowInfos.push(rowInfo);
       }
@@ -324,6 +353,7 @@ class RowList {
 
   setFieldInfos = (fieldInfos: readonly FieldInfo[]) => {
     const newRowInfos: RowInfo[] = [];
+
     this._rowInfos.forEach((rowInfo) => {
       newRowInfos.push(rowInfo.copyWith({ fieldInfos: fieldInfos }));
     });
@@ -371,6 +401,7 @@ export class RowChangeNotifier extends ChangeNotifier<RowChanged> {
 
   withChange = (reason: RowChangedReason, rowId?: string) => {
     const newChange = new RowChanged(reason, rowId);
+
     if (this._currentChanged !== newChange) {
       this._currentChanged = newChange;
       this.notify(this._currentChanged);

@@ -138,7 +138,7 @@ pub struct UserWorkspace {
   pub id: String,
   pub name: String,
   pub created_at: DateTime<Utc>,
-  /// The database storage id is used indexing all the database in current workspace.
+  /// The database storage id is used indexing all the database views in current workspace.
   #[serde(rename = "database_storage_id")]
   pub database_views_aggregate_id: String,
 }

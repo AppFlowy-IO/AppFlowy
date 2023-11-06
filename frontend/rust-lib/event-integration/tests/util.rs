@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
-use collab_folder::core::FolderData;
+use collab_folder::FolderData;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use nanoid::nanoid;
 use tokio::sync::mpsc::Receiver;
@@ -135,11 +135,12 @@ pub fn encryption_collab_service(
 }
 
 pub async fn get_folder_data_from_server(
+  uid: &i64,
   folder_id: &str,
   encryption_secret: Option<String>,
 ) -> Result<Option<FolderData>, Error> {
   let (cloud_service, _encryption) = encryption_folder_service(encryption_secret);
-  cloud_service.get_folder_data(folder_id).await
+  cloud_service.get_folder_data(folder_id, uid).await
 }
 
 pub async fn get_folder_snapshots(

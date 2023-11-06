@@ -12,7 +12,7 @@ use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
 #[tokio::test]
 async fn supabase_document_upload_text_file_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
-    let workspace_id = test.get_current_workspace().await.workspace.id;
+    let workspace_id = test.get_current_workspace().await.id;
     let storage_service = test
       .document_manager
       .get_file_storage_service()
@@ -43,7 +43,7 @@ async fn supabase_document_upload_text_file_test() {
 #[tokio::test]
 async fn supabase_document_upload_zip_file_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
-    let workspace_id = test.get_current_workspace().await.workspace.id;
+    let workspace_id = test.get_current_workspace().await.id;
     let storage_service = test
       .document_manager
       .get_file_storage_service()
@@ -85,7 +85,7 @@ async fn supabase_document_upload_zip_file_test() {
 #[tokio::test]
 async fn supabase_document_upload_image_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
-    let workspace_id = test.get_current_workspace().await.workspace.id;
+    let workspace_id = test.get_current_workspace().await.id;
     let storage_service = test
       .document_manager
       .get_file_storage_service()

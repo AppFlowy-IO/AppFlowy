@@ -17,14 +17,13 @@ use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{Folder, Workspace};
+use flowy_folder_deps::cloud::{Folder, FolderData, Workspace};
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
-use lib_infra::util::timestamp;
 
 use crate::response::ExtendedResponse;
 use crate::supabase::api::request::{
@@ -227,7 +226,13 @@ where
     })
   }
 
-  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn open_workspace(&self, _workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("supabase server doesn't support open workspace"))
+    })
+  }
+
+  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -278,7 +283,7 @@ where
 
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
-    let init_update = empty_workspace_update(&collab_object);
+    let init_update = default_workspace_doc_state(&collab_object);
     af_spawn(async move {
       tx.send(
         async move {
@@ -602,22 +607,16 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
   }
 }
 
-fn empty_workspace_update(collab_object: &CollabObject) -> Vec<u8> {
+fn default_workspace_doc_state(collab_object: &CollabObject) -> Vec<u8> {
   let workspace_id = collab_object.object_id.clone();
   let collab = Arc::new(MutexCollab::new(
     CollabOrigin::Empty,
     &collab_object.object_id,
     vec![],
   ));
-  let folder = Folder::create(collab.clone(), None, None);
-  folder.workspaces.create_workspace(Workspace {
-    id: workspace_id.clone(),
-    name: "My workspace".to_string(),
-    child_views: Default::default(),
-    created_at: timestamp(),
-  });
-  folder.set_current_workspace(&workspace_id);
-  collab.encode_as_update_v1().0
+  let workspace = Workspace::new(workspace_id, "My workspace".to_string());
+  let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));
+  folder.encode_collab_v1().doc_state.to_vec()
 }
 
 fn oauth_params_from_box_any(any: BoxAny) -> Result<SupabaseOAuthParams, Error> {

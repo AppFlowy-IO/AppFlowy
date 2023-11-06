@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "test:code": "eslint --max-warnings=0 --ext .js,.ts,.tsx .",
-    "test:errors": "pnpm sync:i18n && tsc --noEmit && eslint --quiet --ext .js,.ts,.tsx .",
+    "test:errors": "pnpm sync:i18n && tsc --noEmit && eslint --ext .js,.ts,.tsx .",
     "test:prettier": "pnpm prettier --list-different src",
     "tauri:clean": "cargo make --cwd .. tauri_clean",
     "tauri:dev": "pnpm sync:i18n && tauri dev",

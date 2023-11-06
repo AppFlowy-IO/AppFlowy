@@ -1,4 +1,4 @@
-import { BlockData, BlockType, DocumentState, NestedBlock, SplitRelationship } from '$app/interfaces/document';
+import { BlockData, BlockType, DocumentState, SplitRelationship } from '$app/interfaces/document';
 import { generateId, getNextLineId, getPrevLineId } from '$app/utils/document/block';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import Delta, { Op } from 'quill-delta';
@@ -92,7 +92,7 @@ export class BlockDeltaOperator {
     parentId: string;
     type: BlockType;
     prevId: string | null;
-    data?: BlockData<any>;
+    data?: BlockData;
   }) => {
     const externalId = generateId();
     const block = {

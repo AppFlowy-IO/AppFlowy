@@ -1,7 +1,7 @@
 import { DatabaseViewRowsObserver } from './view_row_observer';
 import { RowCache, RowInfo } from '../row/row_cache';
 import { FieldController } from '../field/field_controller';
-import { RowMetaPB, RowPB } from '@/services/backend';
+import { RowMetaPB } from '@/services/backend';
 
 export class DatabaseViewCache {
   private readonly rowsObserver: DatabaseViewRowsObserver;

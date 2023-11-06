@@ -11,6 +11,7 @@ export class DocumentNotificationObserver extends AFNotificationObserver<Documen
       callback: params.parserHandler,
       id: params.viewId,
     });
+
     super(parser);
   }
 }

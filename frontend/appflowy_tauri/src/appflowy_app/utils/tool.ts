@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export function debounce(fn: (...args: any[]) => void, delay: number) {
   let timeout: NodeJS.Timeout;
   const debounceFn = (...args: any[]) => {
@@ -17,7 +19,7 @@ export function debounce(fn: (...args: any[]) => void, delay: number) {
 export function throttle<T extends (...args: any[]) => void = (...args: any[]) => void>(
   fn: T,
   delay: number,
-  immediate = true,
+  immediate = true
 ): T {
   let timeout: NodeJS.Timeout | null = null;
 
@@ -156,7 +158,7 @@ export function chunkArray<T>(array: T[], chunkSize: number) {
 export function interval<T extends (...args: any[]) => any = (...args: any[]) => any>(
   fn: T,
   delay?: number,
-  options?: { immediate?: boolean },
+  options?: { immediate?: boolean }
 ): T & { cancel: () => void } {
   const { immediate = true } = options || {};
   let intervalId: NodeJS.Timer | null = null;

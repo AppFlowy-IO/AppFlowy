@@ -98,9 +98,6 @@ pub enum ErrorCode {
   #[error("user id is empty or whitespace")]
   UserIdInvalid = 30,
 
-  #[error("User not exist")]
-  UserNotExist = 31,
-
   #[error("Text is too long")]
   TextTooLong = 32,
 
@@ -256,6 +253,9 @@ pub enum ErrorCode {
 
   #[error("Internal server error")]
   InternalServerError = 84,
+
+  #[error("Not support yet")]
+  NotSupportYet = 85,
 }
 
 impl ErrorCode {

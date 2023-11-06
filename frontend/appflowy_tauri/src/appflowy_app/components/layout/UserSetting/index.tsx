@@ -30,7 +30,7 @@ function UserSettings({ open, onClose }: { open: boolean; onClose: () => void })
       if (userSettingController) {
         const language = newSetting.language || 'en';
 
-        userSettingController.setAppearanceSetting({
+        void userSettingController.setAppearanceSetting({
           theme: newSetting.theme || Theme.Default,
           theme_mode: newSetting.themeMode || ThemeModePB.Light,
           locale: {
