@@ -160,9 +160,7 @@
     "editContact": "Modifica Contatti"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Fatto",
-    "Cancel": "Annulla",
+    "done": "Fatto",
     "signIn": "Accedi",
     "signOut": "Esci",
     "complete": "Completa",
@@ -178,8 +176,10 @@
     "edit": "Modificare",
     "delete": "Eliminare",
     "duplicate": "Duplicare",
-    "done": "Fatto",
-    "putback": "Rimettere a posto"
+    "putback": "Rimettere a posto",
+    "OK": "OK",
+    "Done": "Fatto",
+    "Cancel": "Annulla"
   },
   "label": {
     "welcome": "Benvenuto!",
@@ -558,11 +558,11 @@
     }
   },
   "board": {
+    "menuName": "Asse",
+    "referencedBoardPrefix": "Vista di",
     "column": {
       "create_new_card": "Nuovo"
-    },
-    "menuName": "Asse",
-    "referencedBoardPrefix": "Vista di"
+    }
   },
   "calendar": {
     "menuName": "Calendario",
@@ -579,9 +579,9 @@
       "firstDayOfWeek": "Inizia la settimana",
       "layoutDateField": "Layout calendario per",
       "noDateTitle": "Nessuna data",
-      "noDateHint": "Gli eventi non programmati verranno visualizzati qui",
       "clickToAdd": "Fare clic per aggiungere al calendario",
-      "name": "Disposizione del calendario"
+      "name": "Disposizione del calendario",
+      "noDateHint": "Gli eventi non programmati verranno visualizzati qui"
     },
     "referencedCalendarPrefix": "Vista di"
   },
