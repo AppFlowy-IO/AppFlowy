@@ -70,7 +70,7 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
         height: 20,
         icon: FlowySvg(
           isCollapsed
-              ? FlowySvgs.pull_left_outlined_s
+              ? FlowySvgs.hamburger_s_s
               : FlowySvgs.pull_left_outlined_s,
         ),
         iconColorOnHover: Theme.of(context).colorScheme.onSurface,

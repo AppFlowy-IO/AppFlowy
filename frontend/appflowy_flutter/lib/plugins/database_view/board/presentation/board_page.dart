@@ -202,7 +202,7 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildBoardHeader(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.only(bottom: 8.0),
+      padding: EdgeInsets.fromLTRB(50, 0, 50, 8.0),
       child: SizedBox(
         height: 24,
         child: Align(
@@ -232,11 +232,12 @@ class _BoardContentState extends State<BoardContent> {
         width: 20,
         child: FlowySvg(
           FlowySvgs.add_s,
-          color: Theme.of(context).iconTheme.color,
+          color: Theme.of(context).hintColor,
         ),
       ),
       title: FlowyText.medium(
         LocaleKeys.board_column_createNewCard.tr(),
+        color: Theme.of(context).hintColor,
         fontSize: 14,
       ),
       onAddButtonClick: () => context
