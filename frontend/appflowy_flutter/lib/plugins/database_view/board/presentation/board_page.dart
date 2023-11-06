@@ -15,7 +15,6 @@ import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
@@ -167,16 +166,15 @@ class _BoardContentState extends State<BoardContent> {
               Expanded(
                 child: AppFlowyBoard(
                   boardScrollController: scrollManager,
-                  scrollController: ScrollController(),
+                  scrollController: scrollController,
                   controller: context.read<BoardBloc>().boardController,
                   groupConstraints: const BoxConstraints.tightFor(width: 300),
-                  config: AppFlowyBoardConfig(
-                    groupPadding: const EdgeInsets.symmetric(horizontal: 4),
-                    groupItemPadding: const EdgeInsets.symmetric(horizontal: 4),
-                    groupBackgroundColor:
-                        Theme.of(context).colorScheme.surfaceVariant,
+                  config: const AppFlowyBoardConfig(
+                    groupPadding: EdgeInsets.symmetric(horizontal: 4),
+                    groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
                   ),
                   leading: const HiddenGroupsColumn(),
+                  trailing: BoardTrailing(scrollController: scrollController),
                   headerBuilder: (_, groupData) =>
                       BlocProvider<BoardBloc>.value(
                     value: context.read<BoardBloc>(),
