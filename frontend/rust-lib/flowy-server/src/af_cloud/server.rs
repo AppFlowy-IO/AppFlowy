@@ -99,7 +99,7 @@ impl AppFlowyServer for AFCloudServer {
       while let Ok(token_state) = token_state_rx.recv().await {
         if let Some(client) = weak_client.upgrade() {
           match token_state {
-            TokenState::Refresh => match client.get_token() {
+            TokenState::Revoked => match client.get_token() {
               Ok(token) => {
                 let _ = watch_tx.send(UserTokenState::Refresh { token });
               },
@@ -110,6 +110,7 @@ impl AppFlowyServer for AFCloudServer {
             TokenState::Invalid => {
               let _ = watch_tx.send(UserTokenState::Invalid);
             },
+            TokenState::DidRefresh => {},
           }
         }
       }
@@ -212,8 +213,8 @@ fn spawn_ws_conn(
           },
           ConnectState::Unauthorized => {
             if let Some(api_client) = weak_api_client.upgrade() {
-              if enable_sync.load(Ordering::SeqCst) {
-                let _ = api_client.refresh().await;
+              if let Err(err) = api_client.refresh_token().await {
+                error!("Failed to refresh token: {}", err);
               }
             }
           },
@@ -229,7 +230,7 @@ fn spawn_ws_conn(
   af_spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
       match token_state {
-        TokenState::Refresh => {
+        TokenState::Revoked => {
           if let (Some(api_client), Some(ws_client), Some(device_id)) = (
             weak_api_client.upgrade(),
             weak_ws_client.upgrade(),
@@ -251,6 +252,7 @@ fn spawn_ws_conn(
             ws_client.disconnect().await;
           }
         },
+        TokenState::DidRefresh => {},
       }
     }
   });
