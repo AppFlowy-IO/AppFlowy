@@ -306,6 +306,8 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  /// Update the field type option data.
+  /// Do nothing if the [TypeOptionData] is empty.
   pub async fn update_field_type_option(
     &self,
     view_id: &str,
