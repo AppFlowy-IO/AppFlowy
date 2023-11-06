@@ -66,7 +66,7 @@ function BlockDragDropContext({ children }: { children: React.ReactNode }) {
       };
 
       const onDragEnd = () => {
-        dispatch(onDragEndThunk());
+        void dispatch(onDragEndThunk());
         unlisten();
       };
 

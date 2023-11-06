@@ -66,7 +66,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           input: _white,
           hint: _lightShader3,
           primary: _lightDandelionYellow,
-          onPrimary: _white,
+          onPrimary: _lightShader1,
           // hover color in sidebar
           hoverBG1: _lightDandelionYellow,
           // tool bar hover color

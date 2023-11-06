@@ -1,14 +1,14 @@
 use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
-use collab::core::collab::MutexCollab;
+use collab::core::collab::{CollabRawData, MutexCollab};
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
-use collab_document::document_data::default_document_data;
+use collab_document::document_data::{default_document_collab_data, default_document_data};
 use collab_document::YrsDocAction;
 use collab_entity::CollabType;
 use parking_lot::RwLock;
-use tracing::instrument;
+use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
@@ -109,10 +109,29 @@ impl DocumentManager {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      updates = self
+      let result: Result<CollabRawData, FlowyError> = self
         .cloud_service
-        .get_document_updates(&self.user.workspace_id()?, doc_id)
-        .await?;
+        .get_document_updates(doc_id, &self.user.workspace_id()?)
+        .await;
+
+      updates = match result {
+        Ok(data) => data,
+        Err(err) => {
+          if err.is_record_not_found() {
+            // The document's ID exists in the cloud, but its content does not.
+            // This occurs when user A's document hasn't finished syncing and user B tries to open it.
+            // As a result, a blank document is created for user B.
+            event!(
+              tracing::Level::INFO,
+              "can't find the document in the cloud, doc_id: {}",
+              doc_id
+            );
+            vec![default_document_collab_data(doc_id).doc_state.to_vec()]
+          } else {
+            return Err(err);
+          }
+        },
+      }
     }
 
     let uid = self.user.user_id()?;

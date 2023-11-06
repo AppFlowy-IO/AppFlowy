@@ -3,12 +3,6 @@ import { BlockActionTypePB } from '@/services/backend';
 import { Sources } from 'quill';
 import React from 'react';
 
-export interface DocumentBlockJSON {
-  type: BlockType;
-  data: BlockData<any>;
-  children: DocumentBlockJSON[];
-}
-
 export interface RangeStatic {
   id: string;
   length: number;
@@ -61,10 +55,8 @@ export interface QuoteBlockData extends TextBlockData {
 export interface CalloutBlockData extends TextBlockData {
   icon: string;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TextBlockData = Record<string, any>;
-
-export interface DividerBlockData {}
 
 export enum Align {
   Left = 'left',
@@ -88,8 +80,11 @@ export interface PageBlockData extends TextBlockData {
   cover?: string;
   coverType?: CoverType;
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Data = any;
 
-export type BlockData<Type> = Type extends BlockType.HeadingBlock
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type BlockData<Type = any> = Type extends BlockType.HeadingBlock
   ? HeadingBlockData
   : Type extends BlockType.PageBlock
   ? PageBlockData
@@ -103,8 +98,6 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? NumberedListBlockData
   : Type extends BlockType.ToggleListBlock
   ? ToggleListBlockData
-  : Type extends BlockType.DividerBlock
-  ? DividerBlockData
   : Type extends BlockType.CalloutBlock
   ? CalloutBlockData
   : Type extends BlockType.EquationBlock
@@ -113,12 +106,13 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? ImageBlockData
   : Type extends BlockType.TextBlock
   ? TextBlockData
-  : any;
+  : Data;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface NestedBlock<Type = any> {
   id: string;
   type: BlockType;
-  data: BlockData<Type> | any;
+  data: BlockData<Type> | Data;
   parent: string | null;
   children: string;
   externalId?: string;
@@ -152,7 +146,6 @@ export interface SlashCommandState {
 
 export enum SlashCommandOptionKey {
   TEXT,
-  PAGE,
   TODO,
   BULLET,
   NUMBER,
@@ -170,7 +163,7 @@ export enum SlashCommandOptionKey {
 
 export interface SlashCommandOption {
   type: BlockType;
-  data?: BlockData<any>;
+  data?: BlockData;
   key: SlashCommandOptionKey;
 }
 
@@ -273,7 +266,7 @@ export interface BlockConfig {
   /**
    * The default data of the block
    */
-  defaultData?: BlockData<any>;
+  defaultData?: BlockData;
 
   /**
    * The props that will be passed to the text split function

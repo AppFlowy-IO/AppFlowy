@@ -19,7 +19,6 @@ import {
   MoveGroupRowPayloadPB,
   MoveRowPayloadPB,
   RowIdPB,
-  DatabaseEventUpdateDatabaseSetting,
   DuplicateFieldPayloadPB,
   DatabaseEventDuplicateField,
 } from '@/services/backend/events/flowy-database2';
@@ -92,6 +91,7 @@ export class DatabaseBackendService {
 
   moveRow = async (fromRowId: string, toRowId: string) => {
     const payload = MoveRowPayloadPB.fromObject({ view_id: this.viewId, from_row_id: fromRowId, to_row_id: toRowId });
+
     return DatabaseEventMoveRow(payload);
   };
 

@@ -306,6 +306,8 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  /// Update the field type option data.
+  /// Do nothing if the [TypeOptionData] is empty.
   pub async fn update_field_type_option(
     &self,
     view_id: &str,
@@ -440,7 +442,7 @@ impl DatabaseEditor {
       let row_detail = self.database.lock().get_row_detail(&row_order.id);
       if let Some(row_detail) = row_detail {
         for view in self.database_views.editors().await {
-          view.v_did_create_row(&row_detail, &group_id, index).await;
+          view.v_did_create_row(&row_detail, index).await;
         }
         return Ok(Some(row_detail));
       }
@@ -959,6 +961,12 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn create_group(&self, view_id: &str, name: &str) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_create_group(name).await?;
+    Ok(())
+  }
+
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn set_layout_setting(
     &self,
@@ -1088,57 +1096,27 @@ impl DatabaseEditor {
   pub async fn get_field_settings(
     &self,
     view_id: &str,
-    layout_ty: DatabaseLayout,
     field_ids: Vec<String>,
   ) -> FlowyResult<Vec<FieldSettings>> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    let default_field_settings = default_field_settings_by_layout_map()
-      .get(&layout_ty)
-      .unwrap()
-      .to_owned();
 
-    let found_field_settings = view.v_get_field_settings(&field_ids).await;
-
-    let field_settings = field_ids
-      .into_iter()
-      .map(|field_id| {
-        if let Some(field_settings) = found_field_settings.get(&field_id) {
-          field_settings.to_owned()
-        } else {
-          FieldSettings::try_from_anymap(field_id, default_field_settings.clone()).unwrap()
-        }
-      })
+    let field_settings = view
+      .v_get_field_settings(&field_ids)
+      .await
+      .into_values()
       .collect();
 
     Ok(field_settings)
   }
 
-  pub async fn get_all_field_settings(
-    &self,
-    view_id: &str,
-    layout_ty: DatabaseLayout,
-  ) -> FlowyResult<Vec<FieldSettings>> {
-    let view = self.database_views.get_view_editor(view_id).await?;
-    let default_field_settings = default_field_settings_by_layout_map()
-      .get(&layout_ty)
-      .unwrap()
-      .to_owned();
-    let fields = self.get_fields(view_id, None);
-
-    let found_field_settings = view.v_get_all_field_settings().await;
-
-    let field_settings = fields
-      .into_iter()
-      .map(|field| {
-        if let Some(field_settings) = found_field_settings.get(&field.id) {
-          field_settings.to_owned()
-        } else {
-          FieldSettings::try_from_anymap(field.id, default_field_settings.clone()).unwrap()
-        }
-      })
+  pub async fn get_all_field_settings(&self, view_id: &str) -> FlowyResult<Vec<FieldSettings>> {
+    let field_ids = self
+      .get_fields(view_id, None)
+      .iter()
+      .map(|field| field.id.clone())
       .collect();
 
-    Ok(field_settings)
+    self.get_field_settings(view_id, field_ids).await
   }
 
   pub async fn update_field_settings_with_changeset(
@@ -1147,7 +1125,12 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(&params.view_id).await?;
     view
-      .v_update_field_settings(&params.view_id, &params.field_id, params.visibility)
+      .v_update_field_settings(
+        &params.view_id,
+        &params.field_id,
+        params.visibility,
+        params.width,
+      )
       .await?;
 
     Ok(())
@@ -1415,38 +1398,37 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     view_id: &str,
     field_ids: &[String],
   ) -> HashMap<String, FieldSettings> {
-    let field_settings_map = self
-      .database
-      .lock()
-      .get_field_settings(view_id, Some(field_ids));
+    let (layout_type, field_settings_map) = {
+      let database = self.database.lock();
+      let layout_type = database.views.get_database_view_layout(view_id);
+      let field_settings_map = database.get_field_settings(view_id, Some(field_ids));
+      (layout_type, field_settings_map)
+    };
 
-    field_settings_map
-      .into_iter()
-      .filter_map(|(field_id, field_settings)| {
-        let field_settings = FieldSettings::try_from_anymap(field_id.clone(), field_settings);
-        if let Ok(settings) = field_settings {
-          Some((field_id, settings))
+    let default_field_settings = default_field_settings_by_layout_map()
+      .get(&layout_type)
+      .unwrap()
+      .to_owned();
+
+    let field_settings = field_ids
+      .iter()
+      .map(|field_id| {
+        if !field_settings_map.contains_key(field_id) {
+          let field_settings =
+            FieldSettings::from_anymap(field_id, layout_type, &default_field_settings);
+          (field_id.clone(), field_settings)
         } else {
-          None
+          let field_settings = FieldSettings::from_anymap(
+            field_id,
+            layout_type,
+            field_settings_map.get(field_id).unwrap(),
+          );
+          (field_id.clone(), field_settings)
         }
       })
-      .collect()
-  }
+      .collect();
 
-  fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings> {
-    let field_settings_map = self.database.lock().get_field_settings(view_id, None);
-
-    field_settings_map
-      .into_iter()
-      .filter_map(|(field_id, field_settings)| {
-        let field_settings = FieldSettings::try_from_anymap(field_id.clone(), field_settings);
-        if let Ok(settings) = field_settings {
-          Some((field_id, settings))
-        } else {
-          None
-        }
-      })
-      .collect()
+    field_settings
   }
 
   fn update_field_settings(
@@ -1454,25 +1436,29 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     view_id: &str,
     field_id: &str,
     visibility: Option<FieldVisibility>,
+    width: Option<i32>,
   ) {
     let field_settings_map = self.get_field_settings(view_id, &[field_id.to_string()]);
 
     let new_field_settings = if let Some(field_settings) = field_settings_map.get(field_id) {
-      let mut field_settings = field_settings.to_owned();
-      field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
-      field_settings
+      FieldSettings {
+        field_id: field_settings.field_id.clone(),
+        visibility: visibility.unwrap_or(field_settings.visibility.clone()),
+        width: width.unwrap_or(field_settings.width),
+      }
     } else {
-      let layout_ty = self.get_layout_for_view(view_id);
-      let mut field_settings = FieldSettings::try_from_anymap(
-        field_id.to_string(),
-        default_field_settings_by_layout_map()
-          .get(&layout_ty)
-          .unwrap()
-          .to_owned(),
-      )
-      .unwrap();
-      field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
-      field_settings
+      let layout_type = self.get_layout_for_view(view_id);
+      let default_field_settings = default_field_settings_by_layout_map()
+        .get(&layout_type)
+        .unwrap()
+        .to_owned();
+      let field_settings =
+        FieldSettings::from_anymap(field_id, layout_type, &default_field_settings);
+      FieldSettings {
+        field_id: field_settings.field_id.clone(),
+        visibility: visibility.unwrap_or(field_settings.visibility),
+        width: width.unwrap_or(field_settings.width),
+      }
     };
 
     self.database.lock().update_field_settings(

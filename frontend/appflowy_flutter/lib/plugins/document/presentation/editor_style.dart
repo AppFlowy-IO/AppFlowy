@@ -179,7 +179,7 @@ class EditorStyleCustomizer {
       backgroundColor: theme.cardColor,
       groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
       menuItemTextColor: theme.colorScheme.onBackground,
-      menuItemSelectedColor: theme.hoverColor,
+      menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );
   }

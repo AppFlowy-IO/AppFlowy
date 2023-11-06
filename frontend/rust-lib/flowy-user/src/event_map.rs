@@ -29,7 +29,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
-    .event(UserEvent::SignOut, sign_out)
+    .event(UserEvent::SignOut, sign_out_handler)
     .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
@@ -41,7 +41,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::OauthSignIn, oauth_handler)
     .event(UserEvent::GetSignInURL, get_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
-    .event(UserEvent::GetAllUserWorkspaces, get_all_user_workspace_handler)
+    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
@@ -60,7 +60,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
-    .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler,)
+    .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -129,10 +129,10 @@ pub enum UserEvent {
   CheckEncryptionSign = 16,
 
   /// Return the all the workspaces of the user
-  #[event()]
-  GetAllUserWorkspaces = 20,
+  #[event(output = "RepeatedUserWorkspacePB")]
+  GetAllWorkspace = 17,
 
-  #[event(input = "UserWorkspacePB")]
+  #[event(input = "UserWorkspaceIdPB")]
   OpenWorkspace = 21,
 
   #[event(input = "NetworkStatePB")]

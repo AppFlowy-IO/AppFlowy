@@ -3,7 +3,7 @@ use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
-use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
+use crate::entities::{FieldType, GroupPB, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
 use crate::services::cell::insert_checkbox_cell;
 use crate::services::field::{
   CheckboxCellDataParser, CheckboxTypeOption, TypeOption, CHECK, UNCHECK,
@@ -109,7 +109,7 @@ impl GroupCustomize for CheckboxGroupController {
     &mut self,
     row: &Row,
     _cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
-  ) -> Vec<GroupRowsNotificationPB> {
+  ) -> (Option<GroupPB>, Vec<GroupRowsNotificationPB>) {
     let mut changesets = vec![];
     self.context.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -122,7 +122,7 @@ impl GroupCustomize for CheckboxGroupController {
         changesets.push(changeset);
       }
     });
-    changesets
+    (None, changesets)
   }
 
   fn move_row(
@@ -153,12 +153,6 @@ impl GroupController for CheckboxGroupController {
         let cell = insert_checkbox_cell(is_check, field);
         cells.insert(field.id.clone(), cell);
       },
-    }
-  }
-
-  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
-    if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row_detail.clone())
     }
   }
 }

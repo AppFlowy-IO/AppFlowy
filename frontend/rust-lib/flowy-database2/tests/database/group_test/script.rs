@@ -67,6 +67,9 @@ pub enum GroupScript {
     group_id: String,
     group_name: String,
   },
+  CreateGroup {
+    name: String,
+  },
 }
 
 pub struct DatabaseGroupTest {
@@ -269,6 +272,11 @@ impl DatabaseGroupTest {
         assert_eq!(group_id, group.group_id, "group index: {}", group_index);
         assert_eq!(group_name, group.group_name, "group index: {}", group_index);
       },
+      GroupScript::CreateGroup { name } => self
+        .editor
+        .create_group(&self.view_id, &name)
+        .await
+        .unwrap(),
     }
   }
 

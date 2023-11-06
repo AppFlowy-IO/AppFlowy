@@ -5,6 +5,7 @@ import DocumentIcon from './DocumentIcon';
 
 function DocumentBanner({ id, hover }: { id: string; hover: boolean }) {
   const { onUpdateCover, node, onUpdateIcon, icon, cover, className, coverType } = useDocumentBanner(id);
+
   return (
     <>
       <div

@@ -70,11 +70,15 @@ export const formatMention = createAsyncThunk(
     const nodeDelta = deltaOperator.getDeltaWithBlockId(blockId);
 
     if (!nodeDelta) return;
-    const diffDelta = new Delta().retain(index).delete(charLength).insert('@',{ mention: { type, [type]: value } });
+    const diffDelta = new Delta()
+      .retain(index)
+      .delete(charLength)
+      .insert('@', { mention: { type, [type]: value } });
     const applyTextDeltaAction = deltaOperator.getApplyDeltaAction(blockId, diffDelta);
+
     if (!applyTextDeltaAction) return;
     await controller.applyActions([applyTextDeltaAction]);
-    dispatch(
+    await dispatch(
       setCursorRangeThunk({
         docId,
         blockId,

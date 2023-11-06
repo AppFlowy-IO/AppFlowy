@@ -2,6 +2,7 @@ use anyhow::Error;
 use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{BatchQueryCollab, BatchQueryCollabParams, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
+use collab::core::collab_plugin::EncodedCollabV1;
 use collab_entity::CollabType;
 use tracing::error;
 
@@ -34,7 +35,7 @@ where
         collab_type,
       };
       match try_get_client?.get_collab(params).await {
-        Ok(data) => Ok(vec![data]),
+        Ok(data) => Ok(vec![data.doc_state.to_vec()]),
         Err(err) => {
           if err.code == RecordNotFound {
             Ok(vec![])
@@ -71,7 +72,15 @@ where
           .0
           .into_iter()
           .flat_map(|(object_id, result)| match result {
-            Success { blob } => Some((object_id, vec![blob])),
+            Success { encode_collab_v1 } => {
+              match EncodedCollabV1::decode_from_bytes(&encode_collab_v1) {
+                Ok(encode) => Some((object_id, vec![encode.doc_state.to_vec()])),
+                Err(err) => {
+                  error!("Failed to decode collab: {}", err);
+                  None
+                },
+              }
+            },
             Failed { error } => {
               error!("Failed to get {} update: {}", object_id, error);
               None

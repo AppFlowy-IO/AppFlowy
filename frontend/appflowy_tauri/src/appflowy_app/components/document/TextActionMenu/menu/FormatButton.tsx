@@ -61,7 +61,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
 
   const addTemporaryInput = useCallback(
     (type: TemporaryType) => {
-      dispatch(createTemporary({ type, docId }));
+      void dispatch(createTemporary({ type, docId }));
     },
     [dispatch, docId]
   );

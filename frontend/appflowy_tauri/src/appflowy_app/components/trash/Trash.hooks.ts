@@ -17,7 +17,7 @@ export function useLoadTrash() {
   }, [controller, dispatch]);
 
   const subscribeToTrash = useCallback(async () => {
-    controller.subscribe({
+    await controller.subscribe({
       onTrashChanged: (trash) => {
         dispatch(trashActions.onTrashChanged(trash.map(trashPBToTrash)));
       },
@@ -33,7 +33,7 @@ export function useLoadTrash() {
 
   useEffect(() => {
     return () => {
-      controller.dispose();
+      void controller.dispose();
     };
   }, [controller]);
 
@@ -52,7 +52,7 @@ export function useTrashActions() {
 
   useEffect(() => {
     return () => {
-      controller.dispose();
+      void controller.dispose();
     };
   }, [controller]);
 

@@ -159,9 +159,7 @@
     "editContact": "連絡先を編集する"
   },
   "button": {
-    "OK": "OK",
-    "Done": "終わり",
-    "Cancel": "キャンセル",
+    "done": "終わり",
     "signIn": "サインイン",
     "signOut": "サインアウト",
     "complete": "完了",
@@ -177,8 +175,10 @@
     "edit": "編集",
     "delete": "消去",
     "duplicate": "複製",
-    "done": "終わり",
-    "putback": "戻す"
+    "putback": "戻す",
+    "OK": "OK",
+    "Done": "終わり",
+    "Cancel": "キャンセル"
   },
   "label": {
     "welcome": "ようこそ！",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
+    "menuName": "ボード",
+    "referencedBoardPrefix": "のビュー",
     "column": {
       "create_new_card": "新しい"
-    },
-    "menuName": "ボード",
-    "referencedBoardPrefix": "のビュー"
+    }
   },
   "calendar": {
     "menuName": "カレンダー",
@@ -568,9 +568,9 @@
       "firstDayOfWeek": "週の開始日",
       "layoutDateField": "レイアウトカレンダー",
       "noDateTitle": "日付なし",
-      "noDateHint": "予定外のイベントがここに表示されます",
       "clickToAdd": "クリックしてカレンダーに追加します",
-      "name": "カレンダーのレイアウト"
+      "name": "カレンダーのレイアウト",
+      "noDateHint": "予定外のイベントがここに表示されます"
     },
     "referencedCalendarPrefix": "のビュー"
   },

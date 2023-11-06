@@ -1,29 +1,14 @@
-import {
-  BlockType,
-  ControllerAction,
-  DocumentState,
-  NestedBlock,
-  RangeState,
-  RangeStatic,
-  SplitRelationship,
-} from '$app/interfaces/document';
-import { getNextLineId, getPrevLineId, newBlock } from '$app/utils/document/block';
-import Delta from 'quill-delta';
-import { RootState } from '$app/stores/store';
+import { ControllerAction, DocumentState, RangeState, RangeStatic } from '$app/interfaces/document';
+import { getNextLineId, newBlock } from '$app/utils/document/block';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { blockConfig } from '$app/constants/document/config';
 import {
   caretInBottomEdgeByDelta,
   caretInTopEdgeByDelta,
-  getAfterExtentDeltaByRange,
-  getBeofreExtentDeltaByRange,
-  getDeltaText,
   getIndexRelativeEnter,
   getLastLineIndex,
   transformIndexToNextLine,
   transformIndexToPrevLine,
 } from '$app/utils/document/delta';
-import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
 import { BlockDeltaOperator } from '$app/utils/document/block_delta';
 
 export function getMiddleIds(document: DocumentState, startId: string, endId: string) {
@@ -80,7 +65,7 @@ export function getLeftCaretByRange(rangeState: RangeState) {
 }
 
 export function getRightCaretByRange(rangeState: RangeState) {
-  const { anchor, focus, ranges, caret } = rangeState;
+  const { anchor, focus, ranges } = rangeState;
 
   if (!anchor || !focus) return;
   const isForward = anchor.point.y < focus.point.y;
@@ -180,7 +165,7 @@ export function getDuplicateActions(
 
   if (!node) return;
   // duplicate new node
-  const newNode = newBlock<any>(node.type, parentId, {
+  const newNode = newBlock(node.type, parentId, {
     ...node.data,
   });
 

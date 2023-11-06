@@ -21,6 +21,7 @@ export const ProtectedRoutes = () => {
         throw new Error(result.val.msg);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {

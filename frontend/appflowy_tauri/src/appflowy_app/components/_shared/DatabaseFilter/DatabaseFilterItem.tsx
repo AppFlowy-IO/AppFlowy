@@ -75,6 +75,7 @@ export const DatabaseFilterItem = ({
         value: currentValue,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFieldId, currentFieldType, currentOperator, currentValue, textInputActive]);
 
   // 1. not all field types support filtering

@@ -32,7 +32,7 @@ where
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
@@ -43,7 +43,7 @@ where
           let action = FetchObjectUpdateAction::new(document_id, CollabType::Document, postgrest);
           let updates = action.run_with_fix_interval(5, 10).await?;
           if updates.is_empty() {
-            return Err(FlowyError::collab_not_sync().into());
+            return Err(FlowyError::collab_not_sync());
           }
           Ok(updates)
         }

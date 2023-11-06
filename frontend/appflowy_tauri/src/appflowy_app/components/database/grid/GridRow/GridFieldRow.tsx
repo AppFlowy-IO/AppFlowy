@@ -3,10 +3,11 @@ import { FC } from 'react';
 import { Button } from '@mui/material';
 import { FieldType } from '@/services/backend';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
-import * as service from '$app/components/database/database_bd_svc';
-import { useDatabase } from '../../database.hooks';
+import { fieldService } from '../../application';
+import { useDatabase } from '../../Database.hooks';
 import { VirtualizedList } from '../../_shared';
 import { GridField } from '../GridField';
+import { useViewId } from '@/appflowy_app/hooks';
 
 export interface GridFieldRowProps {
   virtualizer: Virtualizer<Element, Element>;
@@ -15,9 +16,10 @@ export interface GridFieldRowProps {
 export const GridFieldRow: FC<GridFieldRowProps> = ({
   virtualizer,
 }) => {
-  const { viewId, fields } = useDatabase();
+  const viewId = useViewId();
+  const { fields } = useDatabase();
   const handleClick = async () => {
-    await service.createFieldTypeOption(viewId, FieldType.RichText);
+    await fieldService.createField(viewId, FieldType.RichText);
   };
 
   return (

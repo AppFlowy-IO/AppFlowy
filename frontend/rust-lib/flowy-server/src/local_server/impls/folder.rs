@@ -3,7 +3,7 @@ use std::sync::Arc;
 use anyhow::Error;
 
 use flowy_folder_deps::cloud::{
-  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -11,6 +11,7 @@ use lib_infra::util::timestamp;
 use crate::local_server::LocalServerDB;
 
 pub(crate) struct LocalServerFolderCloudServiceImpl {
+  #[allow(dead_code)]
   pub db: Arc<dyn LocalServerDB>,
 }
 
@@ -25,6 +26,14 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
         created_at: timestamp(),
       })
     })
+  }
+
+  fn open_workspace(&self, _workspace_id: &str) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
   }
 
   fn get_folder_data(
@@ -43,18 +52,12 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
-    let weak_db = Arc::downgrade(&self.db);
-    let workspace_id = workspace_id.to_string();
-    FutureResult::new(async move {
-      match weak_db.upgrade() {
-        None => Ok(vec![]),
-        Some(db) => {
-          let updates = db.get_collab_updates(uid, &workspace_id)?;
-          Ok(updates)
-        },
-      }
-    })
+  fn get_folder_updates(
+    &self,
+    _workspace_id: &str,
+    _uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+    FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn service_name(&self) -> String {

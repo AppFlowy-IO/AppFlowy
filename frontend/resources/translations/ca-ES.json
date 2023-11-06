@@ -159,9 +159,7 @@
     "editContact": "Editar un contacte"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Fet",
-    "Cancel": "Cancel·lar",
+    "done": "Fet",
     "signIn": "Iniciar sessió",
     "signOut": "Tancar sessió",
     "complete": "Completar",
@@ -177,8 +175,10 @@
     "edit": "Edita",
     "delete": "Suprimeix",
     "duplicate": "Duplicat",
-    "done": "Fet",
-    "putback": "Posar enrere"
+    "putback": "Posar enrere",
+    "OK": "OK",
+    "Done": "Fet",
+    "Cancel": "Cancel·lar"
   },
   "label": {
     "welcome": "Benvingut!",
@@ -546,11 +546,11 @@
     }
   },
   "board": {
+    "menuName": "Pissarra",
+    "referencedBoardPrefix": "Vista de",
     "column": {
       "create_new_card": "Nou"
-    },
-    "menuName": "Pissarra",
-    "referencedBoardPrefix": "Vista de"
+    }
   },
   "calendar": {
     "menuName": "Calendari",
@@ -567,9 +567,9 @@
       "firstDayOfWeek": "Comença la setmana",
       "layoutDateField": "Disseny del calendari per",
       "noDateTitle": "Sense data",
-      "noDateHint": "Els esdeveniments no programats es mostraran aquí",
       "clickToAdd": "Feu clic per afegir al calendari",
-      "name": "Disseny del calendari"
+      "name": "Disseny del calendari",
+      "noDateHint": "Els esdeveniments no programats es mostraran aquí"
     },
     "referencedCalendarPrefix": "Vista de"
   },

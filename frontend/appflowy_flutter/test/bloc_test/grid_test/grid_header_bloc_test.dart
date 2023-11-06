@@ -18,7 +18,8 @@ void main() {
     setUp(() async {
       context = await gridTest.createTestGrid();
       actionSheetBloc = FieldActionSheetBloc(
-        fieldCellContext: context.singleSelectFieldCellContext(),
+        viewId: context.gridView.id,
+        fieldInfo: context.singleSelectFieldContext(),
       );
     });
 

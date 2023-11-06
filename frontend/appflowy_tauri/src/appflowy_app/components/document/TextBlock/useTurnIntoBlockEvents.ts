@@ -6,7 +6,7 @@ import { blockConfig } from '$app/constants/document/config';
 
 import Delta from 'quill-delta';
 import { useRangeRef } from '$app/components/document/_shared/SubscribeSelection.hooks';
-import {  getBlockDelta } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { getBlockDelta } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { getDeltaText } from '$app/utils/document/delta';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { turnIntoConfig } from './shortchut';
@@ -155,7 +155,7 @@ export function useTurnIntoBlockEvents(id: string) {
           const data = getData();
 
           if (!data) return;
-          dispatch(turnToBlockThunk({ id, data, type: blockType, controller }));
+          void dispatch(turnToBlockThunk({ id, data, type: blockType, controller }));
         },
       };
     });
@@ -167,9 +167,8 @@ export function useTurnIntoBlockEvents(id: string) {
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
           if (!controller) return;
-          const delta = getDeltaContent();
 
-          dispatch(
+          void dispatch(
             turnToBlockThunk({
               id,
               controller,
@@ -186,7 +185,7 @@ export function useTurnIntoBlockEvents(id: string) {
           if (!controller) return;
           const defaultData = blockConfig[BlockType.CodeBlock].defaultData;
 
-          dispatch(
+          void dispatch(
             turnToBlockThunk({
               id,
               data: {
@@ -208,10 +207,11 @@ export function useTurnIntoBlockEvents(id: string) {
             formula,
           };
 
-          dispatch(turnToBlockThunk({ id, data, type: BlockType.EquationBlock, controller }));
+          void dispatch(turnToBlockThunk({ id, data, type: BlockType.EquationBlock, controller }));
         },
-      }
+      },
     ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canHandle, controller, dispatch, getAttrs, getDeltaContent, id, spaceTriggerMap]);
 
   return turnIntoBlockEvents;

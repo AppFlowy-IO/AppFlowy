@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useAppDispatch } from '$app/stores/store';
 import { pasteThunk } from '$app_reducers/document/async-actions/copy_paste';
 import { clipboardTypes } from '$app/constants/document/copy_paste';
@@ -12,7 +12,7 @@ export function usePaste(container: HTMLDivElement) {
       if (!controller) return;
       e.stopPropagation();
       e.preventDefault();
-      dispatch(
+      void dispatch(
         pasteThunk({
           controller,
           data: {

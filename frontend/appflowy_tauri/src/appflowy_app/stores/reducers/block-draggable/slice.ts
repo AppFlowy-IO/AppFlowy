@@ -81,17 +81,21 @@ export const blockDraggableSlice = createSlice({
 
       state.draggingPosition = draggingPosition;
       state.dropContext = dropContext;
-      const moveDistance = Math.sqrt(
-        Math.pow(draggingPosition.x - state.startDraggingPosition!.x, 2) +
-          Math.pow(draggingPosition.y - state.startDraggingPosition!.y, 2)
-      );
+      const { startDraggingPosition } = state;
+
+      const moveDistance = startDraggingPosition
+        ? Math.sqrt(
+            Math.pow(draggingPosition.x - startDraggingPosition.x, 2) +
+              Math.pow(draggingPosition.y - startDraggingPosition.y, 2)
+          )
+        : 0;
 
       state.dropId = dropId;
       state.insertType = insertType;
       state.dragShadowVisible = moveDistance > DRAG_DISTANCE_THRESHOLD;
     },
 
-    endDrag: (state) => {
+    endDrag: () => {
       return initialState;
     },
   },

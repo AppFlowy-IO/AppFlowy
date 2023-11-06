@@ -579,6 +579,9 @@
       "calendar": {
         "selectACalendarToLinkTo": "Select a Calendar to link to",
         "createANewCalendar": "Create a new Calendar"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Select a Document to link to"
       }
     },
     "selectionMenu": {
@@ -589,6 +592,7 @@
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
       "referencedCalendar": "Referenced Calendar",
+      "referencedDocument": "Referenced Document",
       "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
@@ -751,7 +755,8 @@
   "board": {
     "column": {
       "createNewCard": "New",
-      "renameGroupTooltip": "Press to rename group"
+      "renameGroupTooltip": "Press to rename group",
+      "createNewColumn": "Add a new group"
     },
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",

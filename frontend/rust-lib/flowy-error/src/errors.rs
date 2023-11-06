@@ -55,6 +55,10 @@ impl FlowyError {
     self.code == ErrorCode::RecordNotFound
   }
 
+  pub fn is_unauthorized(&self) -> bool {
+    self.code == ErrorCode::UserUnauthorized || self.code == ErrorCode::RecordNotFound
+  }
+
   static_flowy_error!(internal, ErrorCode::Internal);
   static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
   static_flowy_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
@@ -87,7 +91,6 @@ impl FlowyError {
   );
   static_flowy_error!(name_empty, ErrorCode::UserNameIsEmpty);
   static_flowy_error!(user_id, ErrorCode::UserIdInvalid);
-  static_flowy_error!(user_not_exist, ErrorCode::UserNotExist);
   static_flowy_error!(text_too_long, ErrorCode::TextTooLong);
   static_flowy_error!(invalid_data, ErrorCode::InvalidParams);
   static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);

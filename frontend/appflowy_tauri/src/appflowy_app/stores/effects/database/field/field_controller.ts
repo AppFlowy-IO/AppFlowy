@@ -29,6 +29,7 @@ export class FieldController {
 
   loadFields = async (fieldIds: FieldIdPB[]) => {
     const result = await this.backendService.getFields(fieldIds);
+
     if (result.ok) {
       this.numOfFieldsNotifier.fieldInfos = result.val.map((field) => new FieldInfo(field));
     } else {
@@ -47,6 +48,7 @@ export class FieldController {
       onFieldsChanged: (result) => {
         if (result.ok) {
           const changeset = result.val;
+
           this._deleteFields(changeset.deleted_fields);
           this._insertFields(changeset.inserted_fields);
           this._updateFields(changeset.updated_fields);
@@ -66,6 +68,7 @@ export class FieldController {
     const predicate = (element: FieldInfo): boolean => {
       return !deletedFieldIds.includes(element.field.id);
     };
+
     this.numOfFieldsNotifier.fieldInfos = [...this.fieldInfos].filter(predicate);
   };
 
@@ -73,9 +76,12 @@ export class FieldController {
     if (insertedFields.length === 0) {
       return;
     }
+
     const newFieldInfos = [...this.fieldInfos];
+
     insertedFields.forEach((insertedField) => {
       const fieldInfo = new FieldInfo(insertedField.field);
+
       if (newFieldInfos.length > insertedField.index) {
         newFieldInfos.splice(insertedField.index, 0, fieldInfo);
       } else {
@@ -91,10 +97,12 @@ export class FieldController {
     }
 
     const newFieldInfos = [...this.fieldInfos];
+
     updatedFields.forEach((updatedField) => {
       const index = newFieldInfos.findIndex((fieldInfo) => {
         return fieldInfo.field.id === updatedField.id;
       });
+
       if (index !== -1) {
         newFieldInfos.splice(index, 1, new FieldInfo(updatedField));
       }

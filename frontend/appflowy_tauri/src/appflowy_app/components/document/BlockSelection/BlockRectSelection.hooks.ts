@@ -90,7 +90,7 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
       const blockIds = getIntersectedBlockIds(newRect);
 
       setRect(newRect);
-      dispatch(
+      void dispatch(
         setRectSelectionThunk({
           selection: blockIds,
           docId,
