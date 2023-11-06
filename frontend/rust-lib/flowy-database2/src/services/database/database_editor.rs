@@ -442,7 +442,7 @@ impl DatabaseEditor {
       let row_detail = self.database.lock().get_row_detail(&row_order.id);
       if let Some(row_detail) = row_detail {
         for view in self.database_views.editors().await {
-          view.v_did_create_row(&row_detail, &group_id, index).await;
+          view.v_did_create_row(&row_detail, index).await;
         }
         return Ok(Some(row_detail));
       }
@@ -958,6 +958,12 @@ impl DatabaseEditor {
   pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(view_id).await?;
     view.v_grouping_by_field(field_id).await?;
+    Ok(())
+  }
+
+  pub async fn create_group(&self, view_id: &str, name: &str) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_create_group(name).await?;
     Ok(())
   }
 

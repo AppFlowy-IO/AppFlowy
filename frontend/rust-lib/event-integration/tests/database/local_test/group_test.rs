@@ -3,7 +3,7 @@ use event_integration::EventIntegrationTest;
 #[tokio::test]
 async fn update_group_name_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
-  let current_workspace = test.get_current_workspace().await.workspace;
+  let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
     .await;
