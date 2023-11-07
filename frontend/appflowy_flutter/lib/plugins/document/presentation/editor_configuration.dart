@@ -24,6 +24,9 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
 
   final configuration = BlockComponentConfiguration(
     padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
+    indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
+        ? const EdgeInsets.only(left: 26.0)
+        : const EdgeInsets.only(right: 26.0),
   );
 
   final customBlockComponentBuilderMap = {
