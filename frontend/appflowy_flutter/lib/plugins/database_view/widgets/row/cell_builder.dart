@@ -149,18 +149,18 @@ GridCellWidget _getMobileCardCellWidget(
         key: key,
       );
     case FieldType.Checkbox:
-      return GridCheckboxCell(
+      return MobileCheckboxCell(
         cellControllerBuilder: cellControllerBuilder,
-        style: style,
         key: key,
       );
     case FieldType.DateTime:
-      return GridDateCell(
+      style as DateCellStyle;
+      return MobileDateCell(
         cellControllerBuilder: cellControllerBuilder,
+        placeholder: style.placeholder,
         key: key,
-        style: style,
       );
-
+    // TODO(yijing):  implement the following mobile select option cell
     case FieldType.SingleSelect:
       return GridSingleSelectCell(
         cellControllerBuilder: cellControllerBuilder,

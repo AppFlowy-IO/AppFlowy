@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_property_edit_screen.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
@@ -117,17 +117,21 @@ class _PropertyCellState extends State<_PropertyCell> {
       visualDensity: VisualDensity.compact,
       horizontalTitleGap: 4,
       // FieldCellButton in Desktop
+      // TODO(yijing): adjust width with sreen size
       leading: SizedBox(
-        width: 120,
+        width: 150,
         height: cellHeight,
         child: TextButton.icon(
           icon: FlowySvg(
             widget.cellContext.fieldInfo.field.fieldType.icon(),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           label: Text(
             widget.cellContext.fieldInfo.field.name,
             // TODO(yijing): update text style
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
             overflow: TextOverflow.ellipsis,
           ),
           style: TextButton.styleFrom(
@@ -191,6 +195,7 @@ class _PropertyCellState extends State<_PropertyCell> {
   }
 }
 
+// to delete this
 GridCellStyle? _customCellStyle(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:

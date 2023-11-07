@@ -1,5 +1,6 @@
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_property_edit_screen.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
+import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
@@ -48,6 +49,7 @@ GoRouter generateRouter(Widget child) {
         // card detail page
         _mobileCardDetailScreenRoute(),
         _mobileCardPropertyEditScreenRoute(),
+        _mobileDateCellEditScreenRoute(),
 
         // home
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
@@ -396,6 +398,22 @@ GoRoute _mobileCardPropertyEditScreenRoute() {
             cellContext: cellContext,
           ),
         ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileDateCellEditScreenRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileDateCellEditScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      final cellController = args[MobileDateCellEditScreen.argCellController];
+
+      return MaterialPage(
+        child: MobileDateCellEditScreen(cellController),
+        fullscreenDialog: true,
       );
     },
   );

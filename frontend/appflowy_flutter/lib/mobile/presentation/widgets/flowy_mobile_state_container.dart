@@ -39,6 +39,7 @@ class FlowyMobileStateContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return SizedBox.expand(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
@@ -47,7 +48,10 @@ class FlowyMobileStateContainer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              emoji ?? '',
+              emoji ??
+                  (_stateType == _FlowyMobileStateContainerType.error
+                      ? '🛸'
+                      : ''),
               style: const TextStyle(fontSize: 40),
             ),
             const SizedBox(height: 8),
