@@ -118,9 +118,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       height: 28.0,
     ),
     MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
-      configuration: configuration.copyWith(
-        padding: (_) => const EdgeInsets.symmetric(vertical: 20),
-      ),
+      configuration: configuration,
     ),
     CodeBlockKeys.type: CodeBlockComponentBuilder(
       configuration: configuration.copyWith(

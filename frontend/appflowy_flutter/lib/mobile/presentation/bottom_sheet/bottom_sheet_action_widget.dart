@@ -24,6 +24,7 @@ class BottomSheetActionWidget extends StatelessWidget {
       icon: FlowySvg(
         svg,
         size: const Size.square(22.0),
+        blendMode: BlendMode.dst,
         color: iconColor,
       ),
       label: Text(text),

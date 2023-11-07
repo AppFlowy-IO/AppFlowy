@@ -1,7 +1,24 @@
+import 'dart:io';
+
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsupport_image_widget.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:http/http.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:provider/provider.dart';
+import 'package:string_validator/string_validator.dart';
 
 const kImagePlaceholderKey = 'imagePlaceholderKey';
 
@@ -96,25 +113,30 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     final height = attributes[ImageBlockKeys.height]?.toDouble();
 
     final imagePlaceholderKey = node.extraInfos?[kImagePlaceholderKey];
-    Widget child = src.isEmpty
-        ? ImagePlaceholder(
-            key: imagePlaceholderKey is GlobalKey ? imagePlaceholderKey : null,
-            node: node,
-          )
-        : ResizableImage(
-            src: src,
-            width: width,
-            height: height,
-            editable: editorState.editable,
-            alignment: alignment,
-            onResize: (width) {
-              final transaction = editorState.transaction
-                ..updateNode(node, {
-                  ImageBlockKeys.width: width,
-                });
-              editorState.apply(transaction);
-            },
-          );
+    Widget child;
+    if (src.isEmpty) {
+      child = ImagePlaceholder(
+        key: imagePlaceholderKey is GlobalKey ? imagePlaceholderKey : null,
+        node: node,
+      );
+    } else if (!_checkIfURLIsValid(src)) {
+      child = const UnSupportImageWidget();
+    } else {
+      child = ResizableImage(
+        src: src,
+        width: width,
+        height: height,
+        editable: editorState.editable,
+        alignment: alignment,
+        onResize: (width) {
+          final transaction = editorState.transaction
+            ..updateNode(node, {
+              ImageBlockKeys.width: width,
+            });
+          editorState.apply(transaction);
+        },
+      );
+    }
 
     child = BlockSelectionContainer(
       node: node,
@@ -139,40 +161,51 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       );
     }
 
-    if (widget.showMenu && widget.menuBuilder != null) {
-      child = MouseRegion(
-        onEnter: (_) => showActionsNotifier.value = true,
-        onExit: (_) {
-          if (!alwaysShowMenu) {
-            showActionsNotifier.value = false;
-          }
-        },
-        hitTestBehavior: HitTestBehavior.opaque,
-        opaque: false,
-        child: ValueListenableBuilder<bool>(
-          valueListenable: showActionsNotifier,
-          builder: (context, value, child) {
-            final url = node.attributes[ImageBlockKeys.url];
-            return Stack(
-              children: [
-                BlockSelectionContainer(
-                  node: node,
-                  delegate: this,
-                  listenable: editorState.selectionNotifier,
-                  cursorColor: editorState.editorStyle.cursorColor,
-                  selectionColor: editorState.editorStyle.selectionColor,
-                  child: child!,
-                ),
-                if (value && url.isNotEmpty == true)
-                  widget.menuBuilder!(
-                    widget.node,
-                    this,
-                  ),
-              ],
-            );
+    // show a hover menu on desktop or web
+    if (PlatformExtension.isDesktopOrWeb) {
+      if (widget.showMenu && widget.menuBuilder != null) {
+        child = MouseRegion(
+          onEnter: (_) => showActionsNotifier.value = true,
+          onExit: (_) {
+            if (!alwaysShowMenu) {
+              showActionsNotifier.value = false;
+            }
           },
-          child: child,
-        ),
+          hitTestBehavior: HitTestBehavior.opaque,
+          opaque: false,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: showActionsNotifier,
+            builder: (context, value, child) {
+              final url = node.attributes[ImageBlockKeys.url];
+              return Stack(
+                children: [
+                  BlockSelectionContainer(
+                    node: node,
+                    delegate: this,
+                    listenable: editorState.selectionNotifier,
+                    cursorColor: editorState.editorStyle.cursorColor,
+                    selectionColor: editorState.editorStyle.selectionColor,
+                    child: child!,
+                  ),
+                  if (value && url.isNotEmpty == true)
+                    widget.menuBuilder!(
+                      widget.node,
+                      this,
+                    ),
+                ],
+              );
+            },
+            child: child,
+          ),
+        );
+      }
+    } else {
+      // show a fixed menu on mobile
+      child = MobileBlockActionButtons(
+        node: node,
+        editorState: editorState,
+        extendActionWidgets: _buildExtendActionWidgets(context),
+        child: child,
       );
     }
 
@@ -246,4 +279,89 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     bool shiftWithBaseOffset = false,
   }) =>
       _renderBox!.localToGlobal(offset);
+
+  // only used on mobile platform
+  List<Widget> _buildExtendActionWidgets(BuildContext context) {
+    final url = widget.node.attributes[ImageBlockKeys.url];
+    if (!_checkIfURLIsValid(url)) {
+      return [];
+    }
+
+    return [
+      Row(
+        children: [
+          Expanded(
+            child: BottomSheetActionWidget(
+              svg: FlowySvgs.copy_s,
+              text: LocaleKeys.editor_copyLink.tr(),
+              onTap: () async {
+                context.pop();
+                showSnackBarMessage(
+                  context,
+                  LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+                );
+                await getIt<ClipboardService>().setPlainText(url);
+              },
+            ),
+          ),
+          const HSpace(8.0),
+          Expanded(
+            child: BottomSheetActionWidget(
+              svg: FlowySvgs.image_placeholder_s,
+              text: LocaleKeys.document_imageBlock_saveImageToGallery.tr(),
+              onTap: () async {
+                context.pop();
+                Uint8List? bytes;
+                if (isURL(url)) {
+                  // network image
+                  final result = await get(Uri.parse(url));
+                  if (result.statusCode == 200) {
+                    bytes = result.bodyBytes;
+                  }
+                } else {
+                  final file = File(url);
+                  bytes = await file.readAsBytes();
+                }
+                if (bytes != null) {
+                  await ImageGallerySaver.saveImage(bytes);
+                  if (context.mounted) {
+                    showSnackBarMessage(
+                      context,
+                      LocaleKeys.document_imageBlock_successToAddImageToGallery
+                          .tr(),
+                    );
+                  }
+                } else {
+                  if (context.mounted) {
+                    showSnackBarMessage(
+                      context,
+                      LocaleKeys.document_imageBlock_failedToAddImageToGallery
+                          .tr(),
+                    );
+                  }
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+      const VSpace(8),
+    ];
+  }
+
+  bool _checkIfURLIsValid(dynamic url) {
+    if (url is! String) {
+      return false;
+    }
+
+    if (url.isEmpty) {
+      return false;
+    }
+
+    if (!isURL(url) && !File(url).existsSync()) {
+      return false;
+    }
+
+    return true;
+  }
 }

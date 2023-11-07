@@ -214,7 +214,8 @@
     "tryAgain": "Try again",
     "discard": "Discard",
     "replace": "Replace",
-    "insertBelow": "Insert Below",
+    "insertBelow": "Insert below",
+    "insertAbove": "Insert above",
     "upload": "Upload",
     "edit": "Edit",
     "delete": "Delete",
@@ -639,7 +640,7 @@
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
       "mathEquation": {
-        "addMathEquation": "Add Math Equation",
+        "addMathEquation": "Add a TeX equation",
         "editMathEquation": "Edit Math Equation"
       },
       "optionAction": {
@@ -676,7 +677,8 @@
         "copy": "Copy",
         "cut": "Cut",
         "paste": "Paste"
-      }
+      },
+      "action": "Actions"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -715,7 +717,11 @@
       },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page"
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
+      "saveImageToGallery": "Save image",
+      "failedToAddImageToGallery": "Failed to add image to gallery",
+      "successToAddImageToGallery": "Image added to gallery successfully",
+      "unableToLoadImage": "Unable to load image"
     },
     "codeBlock": {
       "language": {
