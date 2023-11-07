@@ -1,8 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database_view/board/application/hidden_groups_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HiddenGroupsColumn extends StatefulWidget {
   const HiddenGroupsColumn({super.key});
@@ -16,6 +21,7 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
 
   @override
   Widget build(BuildContext context) {
+    final databaseController = context.read<BoardBloc>().databaseController;
     return AnimatedSize(
       alignment: AlignmentDirectional.topStart,
       curve: Curves.easeOut,
@@ -49,11 +55,8 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
                   ),
                   // cards
                   Expanded(
-                    child: ListView.separated(
-                      itemCount: 50,
-                      itemBuilder: (context, index) => const HiddenGroupCard(),
-                      separatorBuilder: (context, index) => const VSpace(4),
-                    ),
+                    child:
+                        HiddenGroupList(databaseController: databaseController),
                   ),
                 ],
               ),
@@ -81,62 +84,93 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
   }
 }
 
+class HiddenGroupList extends StatelessWidget {
+  final DatabaseController databaseController;
+  const HiddenGroupList({super.key, required this.databaseController});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => HiddenGroupsBloc(
+        databaseController: databaseController,
+        initialHiddenGroups: context.read<BoardBloc>().hiddenGroups,
+      )..add(const HiddenGroupsEvent.initial()),
+      child: BlocBuilder<HiddenGroupsBloc, HiddenGroupsState>(
+        builder: (context, state) {
+          return ListView.separated(
+            itemCount: state.hiddenGroups.length,
+            itemBuilder: (context, index) => HiddenGroupCard(
+              group: state.hiddenGroups[index],
+            ),
+            separatorBuilder: (context, index) => const VSpace(4),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class HiddenGroupCard extends StatefulWidget {
-  const HiddenGroupCard({super.key});
+  final GroupPB group;
+  const HiddenGroupCard({super.key, required this.group});
 
   @override
   State<HiddenGroupCard> createState() => _HiddenGroupCardState();
 }
 
 class _HiddenGroupCardState extends State<HiddenGroupCard> {
-  bool _isHovering = false;
-
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 26),
       child: FlowyHover(
-        onHover: (isHovering) => setState(() => _isHovering = isHovering),
         resetHoverOnRebuild: false,
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: SizedBox(
-            height: 24,
-            child: Row(
-              children: [
-                Opacity(
-                  opacity: _isHovering ? 1 : 0,
-                  child: const HiddenGroupCardActions(),
-                ),
-                const HSpace(4),
-                const FlowyText.medium(
-                  'In progress',
-                  fontSize: 12,
-                  overflow: TextOverflow.clip,
-                ),
-                const HSpace(6),
-                FlowyText.medium(
-                  '6',
-                  fontSize: 12,
-                  overflow: TextOverflow.clip,
-                  color: Theme.of(context).hintColor,
-                ),
-                const Spacer(),
-                Opacity(
-                  opacity: _isHovering ? 1 : 0,
-                  child: SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: FlowySvg(
-                      FlowySvgs.show_m,
+        builder: (context, isHovering) {
+          return SizedBox(
+            height: 30,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Row(
+                children: [
+                  // Opacity(
+                  //   opacity: isHover ? 1 : 0,
+                  //   child: const HiddenGroupCardActions(),
+                  // ),
+                  // const HSpace(4),
+                  FlowyText.medium(
+                    widget.group.groupName,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const HSpace(6),
+                  Expanded(
+                    child: FlowyText.medium(
+                      widget.group.rows.length.toString(),
+                      overflow: TextOverflow.ellipsis,
                       color: Theme.of(context).hintColor,
                     ),
                   ),
-                ),
-              ],
+                  FlowyIconButton(
+                    width: 20,
+                    icon: isHovering
+                        ? FlowySvg(
+                            FlowySvgs.show_m,
+                            color: Theme.of(context).hintColor,
+                          )
+                        : const SizedBox.shrink(),
+                    onPressed: () {
+                      context.read<BoardBloc>().add(
+                            BoardEvent.toggleGroupVisibility(
+                              widget.group.groupId,
+                              true,
+                            ),
+                          );
+                    },
+                  )
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
