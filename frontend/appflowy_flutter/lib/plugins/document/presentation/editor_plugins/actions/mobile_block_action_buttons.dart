@@ -21,6 +21,7 @@ class MobileBlockActionButtons extends StatelessWidget {
   const MobileBlockActionButtons({
     super.key,
     this.extendActionWidgets = const [],
+    this.showThreeDots = true,
     required this.node,
     required this.editorState,
     required this.child,
@@ -30,11 +31,20 @@ class MobileBlockActionButtons extends StatelessWidget {
   final EditorState editorState;
   final List<Widget> extendActionWidgets;
   final Widget child;
+  final bool showThreeDots;
 
   @override
   Widget build(BuildContext context) {
     if (!PlatformExtension.isMobile) {
       return child;
+    }
+
+    if (!showThreeDots) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _showBottomSheet(context),
+        child: child,
+      );
     }
 
     const padding = 5.0;

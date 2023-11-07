@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
@@ -119,6 +120,14 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     DividerBlockKeys.type: DividerBlockComponentBuilder(
       configuration: configuration,
       height: 28.0,
+      wrapper: (context, node, child) {
+        return MobileBlockActionButtons(
+          showThreeDots: false,
+          node: node,
+          editorState: editorState,
+          child: child,
+        );
+      },
     ),
     MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
       configuration: configuration,
