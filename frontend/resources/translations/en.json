@@ -531,7 +531,10 @@
       "newRow": "New row",
       "action": "Action",
       "add": "Click add to below",
-      "drag": "Drag to move"
+      "drag": "Drag to move",
+      "dragAndClick": "Drag to move, click to open menu",
+      "insertRecordAbove": "Insert record above",
+      "insertRecordBelow": "Insert record below"
     },
     "selectOption": {
       "create": "Create",

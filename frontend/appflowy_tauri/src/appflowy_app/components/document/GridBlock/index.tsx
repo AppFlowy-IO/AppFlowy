@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BlockType, NestedBlock } from '$app/interfaces/document';
-import { Database, VerticalScrollElementProvider } from '$app/components/database';
+import { Database } from '$app/components/database';
 import { ViewIdProvider } from '@/appflowy_app/hooks';
 
 function GridBlock({ node }: { node: NestedBlock<BlockType.GridBlock> }) {
@@ -25,12 +25,10 @@ function GridBlock({ node }: { node: NestedBlock<BlockType.GridBlock> }) {
   }, []);
 
   return (
-    <div className='max-h-[400px] overflow-y-auto py-3 caret-text-title' ref={ref}>
-      <VerticalScrollElementProvider value={ref}>
-        <ViewIdProvider value={viewId}>
-          <Database selectedViewId={selectedViewId} setSelectedViewId={onChangeSelectedViewId} />
-        </ViewIdProvider>
-      </VerticalScrollElementProvider>
+    <div className='flex h-[400px] overflow-hidden py-3 caret-text-title' ref={ref}>
+      <ViewIdProvider value={viewId}>
+        <Database selectedViewId={selectedViewId} setSelectedViewId={onChangeSelectedViewId} />
+      </ViewIdProvider>
     </div>
   );
 }

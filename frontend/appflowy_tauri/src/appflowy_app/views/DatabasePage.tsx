@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { ViewIdProvider } from '$app/hooks';
-import { Database, DatabaseTitle, useSelectDatabaseView, VerticalScrollElementProvider } from '../components/database';
-import { useRef } from 'react';
+import { Database, DatabaseTitle, useSelectDatabaseView } from '../components/database';
 
 export const DatabasePage = () => {
   const viewId = useParams().id;
@@ -10,20 +9,16 @@ export const DatabasePage = () => {
     viewId,
   });
 
-  const ref = useRef<HTMLDivElement>(null);
-
   if (!viewId) {
     return null;
   }
 
   return (
-    <div className='h-full overflow-y-auto px-16 caret-text-title' ref={ref}>
-      <VerticalScrollElementProvider value={ref}>
-        <ViewIdProvider value={viewId}>
-          <DatabaseTitle />
-          <Database selectedViewId={selectedViewId} setSelectedViewId={onChange} />
-        </ViewIdProvider>
-      </VerticalScrollElementProvider>
+    <div className='flex h-full w-full flex-col overflow-hidden px-16 caret-text-title'>
+      <ViewIdProvider value={viewId}>
+        <DatabaseTitle />
+        <Database selectedViewId={selectedViewId} setSelectedViewId={onChange} />
+      </ViewIdProvider>
     </div>
   );
 };

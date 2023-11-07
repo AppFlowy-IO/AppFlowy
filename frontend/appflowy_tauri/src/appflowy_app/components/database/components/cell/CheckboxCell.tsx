@@ -6,23 +6,19 @@ import { useViewId } from '$app/hooks';
 import { cellService, CheckboxCell as CheckboxCellType, Field } from '../../application';
 
 export const CheckboxCell: FC<{
-  field: Field,
-  cell: CheckboxCellType,
+  field: Field;
+  cell?: CheckboxCellType;
 }> = ({ field, cell }) => {
   const viewId = useViewId();
-  const checked = cell.data === 'Yes';
+  const checked = cell?.data === 'Yes';
 
   const handleClick = useCallback(() => {
-    void cellService.updateCell(
-      viewId,
-      cell.rowId,
-      field.id,
-      !checked ? 'Yes' : 'No',
-    );
-  }, [viewId, cell.rowId, field.id, checked ]);
+    if (!cell) return;
+    void cellService.updateCell(viewId, cell.rowId, field.id, !checked ? 'Yes' : 'No');
+  }, [viewId, cell, field.id, checked]);
 
   return (
-    <div className="flex items-center w-full px-2 cursor-pointer" onClick={handleClick}>
+    <div className='flex w-full cursor-pointer items-center px-2' onClick={handleClick}>
       <Checkbox
         disableRipple
         style={{ padding: 0 }}

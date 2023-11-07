@@ -1,14 +1,9 @@
-import { RefObject, createContext, createRef, useContext, useCallback, useMemo, useEffect } from 'react';
+import { createContext, useContext, useCallback, useMemo, useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { proxy, useSnapshot } from 'valtio';
 import { DatabaseLayoutPB, DatabaseNotification } from '@/services/backend';
 import { subscribeNotifications } from '$app/hooks';
 import { Database, databaseService, fieldService, rowListeners, sortListeners } from './application';
-
-const VerticalScrollElementRefContext = createContext<RefObject<Element>>(createRef());
-
-export const VerticalScrollElementProvider = VerticalScrollElementRefContext.Provider;
-export const useVerticalScrollElement = () => useContext(VerticalScrollElementRefContext);
 
 export function useSelectDatabaseView({ viewId }: { viewId?: string }) {
   const key = 'v';
@@ -70,11 +65,19 @@ export const useConnectDatabase = (viewId: string) => {
         [DatabaseNotification.DidUpdateFields]: async () => {
           database.fields = await fieldService.getFields(viewId);
         },
-        [DatabaseNotification.DidUpdateViewRows]: (changeset) => rowListeners.didUpdateViewRows(database, changeset),
-        [DatabaseNotification.DidReorderRows]: (changeset) => rowListeners.didReorderRows(database, changeset),
-        [DatabaseNotification.DidReorderSingleRow]: (changeset) => rowListeners.didReorderSingleRow(database, changeset),
+        [DatabaseNotification.DidUpdateViewRows]: (changeset) => {
+          rowListeners.didUpdateViewRows(database, changeset);
+        },
+        [DatabaseNotification.DidReorderRows]: (changeset) => {
+          rowListeners.didReorderRows(database, changeset);
+        },
+        [DatabaseNotification.DidReorderSingleRow]: (changeset) => {
+          rowListeners.didReorderSingleRow(database, changeset);
+        },
 
-        [DatabaseNotification.DidUpdateSort]: (changeset) => sortListeners.didUpdateSort(database, changeset),
+        [DatabaseNotification.DidUpdateSort]: (changeset) => {
+          sortListeners.didUpdateSort(database, changeset);
+        },
       },
       { id: viewId }
     );
@@ -84,3 +87,49 @@ export const useConnectDatabase = (viewId: string) => {
 
   return database;
 };
+
+export function useDatabaseResize() {
+  const ref = useRef<HTMLDivElement>(null);
+  const collectionRef = useRef<HTMLDivElement>(null);
+
+  const [tableHeight, setTableHeight] = useState(0);
+
+  useEffect(() => {
+    const element = ref.current;
+
+    if (!element) return;
+
+    const collectionElement = collectionRef.current;
+    const handleResize = () => {
+      const rect = element.getBoundingClientRect();
+      const collectionRect = collectionElement?.getBoundingClientRect();
+      let height = rect.height - 31;
+
+      if (collectionRect) {
+        height -= collectionRect.height;
+      }
+
+      setTableHeight(height);
+    };
+
+    handleResize();
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    resizeObserver.observe(element);
+    if (collectionElement) {
+      resizeObserver.observe(collectionRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  return {
+    ref,
+    collectionRef,
+    tableHeight,
+  };
+}

@@ -11,7 +11,7 @@ import { useViewId } from '@/appflowy_app/hooks';
 import { useTranslation } from 'react-i18next';
 
 export interface GridFieldRowProps {
-  virtualizer: Virtualizer<Element, Element>;
+  virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
 }
 
 export const GridFieldRow: FC<GridFieldRowProps> = ({ virtualizer }) => {
@@ -23,7 +23,7 @@ export const GridFieldRow: FC<GridFieldRowProps> = ({ virtualizer }) => {
   };
 
   return (
-    <div className='flex grow border-b border-line-divider'>
+    <div className='z-10 flex border-b border-line-divider'>
       <VirtualizedList
         className='flex'
         virtualizer={virtualizer}

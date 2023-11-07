@@ -5,16 +5,17 @@ import { cellService, Field, TextCell as TextCellType } from '../../application'
 import { CellText } from '../../_shared';
 
 export const TextCell: FC<{
-  field: Field,
-  cell: TextCellType;
+  field: Field;
+  cell?: TextCellType;
 }> = ({ field, cell }) => {
   const viewId = useViewId();
   const cellRef = useRef<HTMLDivElement>(null);
-  const [ editing, setEditing ] = useState(false);
-  const [ text, setText ] = useState('');
-  const [ width, setWidth ] = useState<number | undefined>(undefined);
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState('');
+  const [width, setWidth] = useState<number | undefined>(undefined);
 
   const handleClose = () => {
+    if (!cell) return;
     if (editing) {
       if (text !== cell.data) {
         void cellService.updateCell(viewId, cell.rowId, field.id, text);
@@ -25,9 +26,10 @@ export const TextCell: FC<{
   };
 
   const handleClick = useCallback(() => {
+    if (!cell) return;
     setText(cell.data);
     setEditing(true);
-  }, [cell.data]);
+  }, [cell]);
 
   const handleInput = useCallback<FormEventHandler<HTMLTextAreaElement>>((event) => {
     setText((event.target as HTMLTextAreaElement).value);
@@ -41,12 +43,8 @@ export const TextCell: FC<{
 
   return (
     <>
-      <CellText
-        ref={cellRef}
-        className="w-full"
-        onClick={handleClick}
-      >
-        {cell.data}
+      <CellText ref={cellRef} className='w-full' onClick={handleClick}>
+        {cell?.data}
       </CellText>
       {editing && (
         <Popover
@@ -64,9 +62,9 @@ export const TextCell: FC<{
           onClose={handleClose}
         >
           <TextareaAutosize
-            className="resize-none text-sm"
+            className='resize-none text-sm'
             autoFocus
-            autoCorrect="off"
+            autoCorrect='off'
             value={text}
             onInput={handleInput}
           />
