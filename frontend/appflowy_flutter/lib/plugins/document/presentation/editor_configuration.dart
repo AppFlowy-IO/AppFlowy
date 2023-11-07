@@ -155,9 +155,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
-      configuration: configuration.copyWith(
-        padding: (_) => const EdgeInsets.symmetric(vertical: 10),
-      ),
+      configuration: configuration,
     ),
   };
 

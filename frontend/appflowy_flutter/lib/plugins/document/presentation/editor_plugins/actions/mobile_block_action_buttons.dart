@@ -47,7 +47,7 @@ class MobileBlockActionButtons extends StatelessWidget {
       );
     }
 
-    const padding = 5.0;
+    const padding = 10.0;
     return Stack(
       children: [
         child,
