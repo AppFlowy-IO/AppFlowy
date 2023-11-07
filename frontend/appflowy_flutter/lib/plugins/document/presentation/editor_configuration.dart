@@ -11,6 +11,8 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required EditorStyleCustomizer styleCustomizer,
   List<SelectionMenuItem>? slashMenuItems,
   bool editable = true,
+  ShowPlaceholder? showParagraphPlaceholder,
+  String Function(Node)? placeholderText,
 }) {
   final standardActions = [
     OptionAction.delete,
@@ -29,7 +31,8 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final customBlockComponentBuilderMap = {
     PageBlockKeys.type: PageBlockComponentBuilder(),
     ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
-      configuration: configuration,
+      configuration: configuration.copyWith(placeholderText: placeholderText),
+      showPlaceholder: showParagraphPlaceholder,
     ),
     TodoListBlockKeys.type: TodoListBlockComponentBuilder(
       configuration: configuration.copyWith(

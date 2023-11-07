@@ -47,6 +47,8 @@ class AppFlowyEditorPage extends StatefulWidget {
     this.scrollController,
     this.autoFocus,
     required this.styleCustomizer,
+    this.showParagraphPlaceholder,
+    this.placeholderText,
   });
 
   final Widget? header;
@@ -55,6 +57,8 @@ class AppFlowyEditorPage extends StatefulWidget {
   final bool shrinkWrap;
   final bool? autoFocus;
   final EditorStyleCustomizer styleCustomizer;
+  final ShowPlaceholder? showParagraphPlaceholder;
+  final String Function(Node)? placeholderText;
 
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
@@ -112,6 +116,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     context: context,
     editorState: widget.editorState,
     styleCustomizer: widget.styleCustomizer,
+    showParagraphPlaceholder: widget.showParagraphPlaceholder,
+    placeholderText: widget.placeholderText,
   );
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
