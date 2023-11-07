@@ -310,7 +310,6 @@ impl DatabaseViewEditor {
       .as_ref()?
       .get_all_groups()
       .into_iter()
-      .filter(|group| group.is_visible)
       .map(|group_data| GroupPB::from(group_data.clone()))
       .collect::<Vec<_>>();
     tracing::trace!("Number of groups: {}", groups.len());
@@ -396,12 +395,16 @@ impl DatabaseViewEditor {
 
   pub async fn v_update_group(&self, changeset: GroupChangesets) -> FlowyResult<()> {
     let mut type_option_data = TypeOptionData::new();
-    let old_field = if let Some(controller) = self.group_controller.write().await.as_mut() {
+    let (old_field, updated_groups) = if let Some(controller) =
+      self.group_controller.write().await.as_mut()
+    {
       let old_field = self.delegate.get_field(controller.field_id());
-      type_option_data.extend(controller.apply_group_changeset(&changeset).await?);
-      old_field
+      let (updated_groups, new_type_option) = controller.apply_group_changeset(&changeset).await?;
+      type_option_data.extend(new_type_option);
+
+      (old_field, updated_groups)
     } else {
-      None
+      (None, vec![])
     };
 
     if let Some(old_field) = old_field {
@@ -411,6 +414,12 @@ impl DatabaseViewEditor {
           .update_field(&self.view_id, type_option_data, old_field)
           .await?;
       }
+      let notification = GroupChangesPB {
+        view_id: self.view_id.clone(),
+        update_groups: updated_groups,
+        ..Default::default()
+      };
+      notify_did_update_num_of_groups(&self.view_id, notification).await;
     }
 
     Ok(())

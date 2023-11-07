@@ -29,6 +29,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
   GroupPB? ungroupedGroup;
+  List<GroupPB> hiddenGroups = [];
 
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
@@ -206,20 +207,26 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     groupControllers.clear();
     boardController.clear();
 
-    final ungroupedGroupIndex =
-        groups.indexWhere((group) => group.groupId == group.fieldId);
+    final ungroupedGroupIndex = groups.indexWhere((group) => group.isDefault);
 
     if (ungroupedGroupIndex != -1) {
       ungroupedGroup = groups[ungroupedGroupIndex];
       final group = groups.removeAt(ungroupedGroupIndex);
-      if (!(state.layoutSettings?.hideUngroupedColumn ?? false)) {
+      if (!(state.layoutSettings?.hideUngroupedColumn ?? false) &&
+          group.isVisible) {
         groups.add(group);
       }
     }
 
+    hiddenGroups.addAll(groups.where((group) => !group.isVisible));
+
     boardController.addGroups(
       groups
-          .where((group) => fieldController.getField(group.fieldId) != null)
+          .where(
+            (group) =>
+                fieldController.getField(group.fieldId) != null &&
+                group.isVisible,
+          )
           .map((group) => initializeGroupData(group))
           .toList(),
     );
@@ -279,10 +286,26 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
       onUpdateGroup: (updatedGroups) {
         if (isClosed) return;
+
         for (final group in updatedGroups) {
+          // see if the column is already in the board
           final columnController =
               boardController.getGroupController(group.groupId);
-          columnController?.updateGroupName(group.groupName);
+
+          if (columnController != null) {
+            // remove the group or update its name
+            columnController.updateGroupName(group.groupName);
+            if (!group.isVisible) {
+              boardController.removeGroup(group.groupId);
+              hiddenGroups.add(group);
+            }
+          } else {
+            final newGroup = initializeGroupData(group);
+            boardController.addGroup(newGroup);
+            hiddenGroups.removeWhere(
+              (g) => group.groupId == g.groupId && group.isVisible,
+            );
+          }
         }
       },
     );

@@ -30,9 +30,8 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hidden group title
+                  // title
                   Padding(
-                    // padding: const EdgeInsets.only(left: 48),
                     padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
                     child: Row(
                       children: [
@@ -48,12 +47,12 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
                       ],
                     ),
                   ),
-                  // Hidden grouop cards
+                  // cards
                   Expanded(
                     child: ListView.separated(
                       itemCount: 50,
                       itemBuilder: (context, index) => const HiddenGroupCard(),
-                      separatorBuilder: (context, index) => const VSpace(2),
+                      separatorBuilder: (context, index) => const VSpace(4),
                     ),
                   ),
                 ],

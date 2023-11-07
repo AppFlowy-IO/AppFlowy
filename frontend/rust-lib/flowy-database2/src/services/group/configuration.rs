@@ -173,6 +173,7 @@ where
       self.field.id.clone(),
       group.name.clone(),
       group.id.clone(),
+      group.visible,
     );
     self.group_by_id.insert(group.id.clone(), group_data);
     let (index, group_data) = self.get_group(&group.id).unwrap();
@@ -338,7 +339,13 @@ where
         .get(&group.id)
         .cloned()
         .unwrap_or_else(|| "".to_owned());
-      let group = GroupData::new(group.id, self.field.id.clone(), group.name, filter_content);
+      let group = GroupData::new(
+        group.id,
+        self.field.id.clone(),
+        group.name,
+        filter_content,
+        group.visible,
+      );
       self.group_by_id.insert(group.id.clone(), group);
     });
 
@@ -351,6 +358,7 @@ where
           self.field.id.clone(),
           group_rev.name,
           filter_content.clone(),
+          group_rev.visible,
         );
         Some(GroupPB::from(group))
       })
@@ -419,7 +427,9 @@ where
       let view_id = self.view_id.clone();
       af_spawn(async move {
         match writer.save_configuration(&view_id, configuration).await {
-          Ok(_) => {},
+          Ok(_) => {
+            tracing::error!("Save wut configuration succ: ");
+          },
           Err(e) => {
             tracing::error!("Save group configuration failed: {}", e);
           },
@@ -444,6 +454,7 @@ where
         None => false,
         Some(group) => {
           mut_groups_fn(group);
+          tracing::trace!("successful {:?}", group);
           updated_group = Some(group.clone());
           true
         },
