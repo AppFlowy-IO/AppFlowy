@@ -10,10 +10,17 @@ import 'package:go_router/go_router.dart';
 
 /// The ... button shows on the top right corner of a block.
 ///
+/// Default actions are:
+/// - delete
+/// - duplicate
+/// - insert above
+/// - insert below
+///
 /// Only works on mobile.
 class MobileBlockActionButtons extends StatelessWidget {
   const MobileBlockActionButtons({
     super.key,
+    this.extendActionWidgets = const [],
     required this.node,
     required this.editorState,
     required this.child,
@@ -21,6 +28,7 @@ class MobileBlockActionButtons extends StatelessWidget {
 
   final Node node;
   final EditorState editorState;
+  final List<Widget> extendActionWidgets;
   final Widget child;
 
   @override
@@ -54,6 +62,7 @@ class MobileBlockActionButtons extends StatelessWidget {
       title: LocaleKeys.document_plugins_action.tr(),
       builder: (context) {
         return BlockActionBottomSheet(
+          extendActionWidgets: extendActionWidgets,
           onAction: (action) async {
             context.pop();
 

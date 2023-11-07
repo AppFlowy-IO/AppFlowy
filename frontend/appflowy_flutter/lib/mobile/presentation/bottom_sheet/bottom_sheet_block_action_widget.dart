@@ -17,9 +17,11 @@ class BlockActionBottomSheet extends StatelessWidget {
   const BlockActionBottomSheet({
     super.key,
     required this.onAction,
+    this.extendActionWidgets = const [],
   });
 
   final void Function(BlockActionBottomSheetType layout) onAction;
+  final List<Widget> extendActionWidgets;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +70,8 @@ class BlockActionBottomSheet extends StatelessWidget {
           ],
         ),
         const VSpace(8),
+
+        ...extendActionWidgets,
       ],
     );
   }

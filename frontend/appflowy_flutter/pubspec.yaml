@@ -118,6 +118,8 @@ dependencies:
   local_notifier: ^0.1.5
   app_links: ^3.4.1
   flutter_slidable: ^3.0.0
+  image_picker: ^1.0.4
+  image_gallery_saver: ^2.0.3
 
 dev_dependencies:
   flutter_lints: ^2.0.1

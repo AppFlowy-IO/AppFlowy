@@ -104,48 +104,47 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     } else {
       return GestureDetector(
         onTap: () {
-          showFlowyMobileBottomSheet(
-            context,
-            title: LocaleKeys.document_plugins_image.tr(),
-            builder: (context) {
-              return ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxHeight: 340,
-                  minHeight: 80,
-                ),
-                child: UploadImageMenu(
-                  supportTypes: const [
-                    UploadImageType.local,
-                    UploadImageType.url,
-                    UploadImageType.unsplash,
-                  ],
-                  onSelectedLocalImage: (path) {
-                    context.pop();
-                    WidgetsBinding.instance
-                        .addPostFrameCallback((timeStamp) async {
-                      await insertLocalImage(path);
-                    });
-                  },
-                  onSelectedAIImage: (url) {
-                    context.pop();
-                    WidgetsBinding.instance
-                        .addPostFrameCallback((timeStamp) async {
-                      await insertAIImage(url);
-                    });
-                  },
-                  onSelectedNetworkImage: (url) {
-                    context.pop();
-                    WidgetsBinding.instance
-                        .addPostFrameCallback((timeStamp) async {
-                      await insertNetworkImage(url);
-                    });
-                  },
-                ),
-              );
-            },
-          );
+          showUploadImageMenu();
         },
         child: child,
+      );
+    }
+  }
+
+  void showUploadImageMenu() {
+    if (PlatformExtension.isDesktopOrWeb) {
+      controller.show();
+    } else {
+      showFlowyMobileBottomSheet(
+        context,
+        title: LocaleKeys.editor_image.tr(),
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 340,
+              minHeight: 80,
+            ),
+            child: UploadImageMenu(
+              supportTypes: const [
+                UploadImageType.local,
+                UploadImageType.url,
+                UploadImageType.unsplash,
+              ],
+              onSelectedLocalImage: (path) async {
+                context.pop();
+                await insertLocalImage(path);
+              },
+              onSelectedAIImage: (url) async {
+                context.pop();
+                await insertAIImage(url);
+              },
+              onSelectedNetworkImage: (url) async {
+                context.pop();
+                await insertNetworkImage(url);
+              },
+            ),
+          );
+        },
       );
     }
   }

@@ -11,7 +11,7 @@ final imageMobileToolbarItem = MobileToolbarItem.action(
     await editorState.insertEmptyImageBlock(imagePlaceholderKey);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      imagePlaceholderKey.currentState?.controller.show();
+      imagePlaceholderKey.currentState?.showUploadImageMenu();
     });
   },
 );
