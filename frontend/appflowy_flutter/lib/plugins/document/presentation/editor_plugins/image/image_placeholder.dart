@@ -39,7 +39,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = DecoratedBox(
+    final Widget child = DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(4),
@@ -66,8 +66,9 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         ),
       ),
     );
+
     if (PlatformExtension.isDesktopOrWeb) {
-      child = AppFlowyPopover(
+      return AppFlowyPopover(
         controller: controller,
         direction: PopoverDirection.bottomWithCenterAligned,
         constraints: const BoxConstraints(
@@ -105,7 +106,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         onTap: () {
           showFlowyMobileBottomSheet(
             context,
-            title: 'Image',
+            title: LocaleKeys.document_plugins_image.tr(),
             builder: (context) {
               return ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -147,8 +148,6 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         child: child,
       );
     }
-
-    return child;
   }
 
   Future<void> insertLocalImage(String? url) async {

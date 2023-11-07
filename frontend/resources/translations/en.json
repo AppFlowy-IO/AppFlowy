@@ -677,7 +677,8 @@
         "copy": "Copy",
         "cut": "Cut",
         "paste": "Paste"
-      }
+      },
+      "action": "Actions"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
