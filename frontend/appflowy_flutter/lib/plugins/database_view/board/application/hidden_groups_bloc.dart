@@ -53,13 +53,18 @@ class HiddenGroupsBloc extends Bloc<HiddenGroupsEvent, HiddenGroupsState> {
             final index = newGroups
                 .indexWhere((element) => element.groupId == group.groupId);
             if (index == -1) {
-              continue;
-            }
-            newGroups.removeAt(index);
-            if (!group.isVisible) {
-              newGroups.insert(index, group);
+              if (!group.isVisible) {
+                newGroups.add(group);
+                hiddenGroupControllers[group.groupId] =
+                    _makeHiddenGroupListener(group);
+              }
             } else {
-              hiddenGroupControllers.remove(group.groupId);
+              newGroups.removeAt(index);
+              if (!group.isVisible) {
+                newGroups.insert(index, group);
+              } else {
+                hiddenGroupControllers.remove(group.groupId);
+              }
             }
           }
           add(HiddenGroupsEvent.didReceiveHiddenGroups(groups: newGroups));
