@@ -29,6 +29,15 @@ final mathEquationMobileToolbarItem = MobileToolbarItem.action(
       );
     }
 
-    editorState.apply(transaction);
+    await editorState.apply(transaction);
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final mathEquationState =
+          editorState.getNodeAtPath(path)?.key.currentState;
+      if (mathEquationState != null &&
+          mathEquationState is MathEquationBlockComponentWidgetState) {
+        mathEquationState.showEditingDialog();
+      }
+    });
   },
 );

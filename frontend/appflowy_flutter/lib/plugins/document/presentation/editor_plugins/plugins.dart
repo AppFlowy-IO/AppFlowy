@@ -35,3 +35,5 @@ export 'table/table_menu.dart';
 export 'table/table_option_action.dart';
 export 'toggle/toggle_block_component.dart';
 export 'toggle/toggle_block_shortcut_event.dart';
+export 'undo_redo/redo_mobile_toolbar_item.dart';
+export 'undo_redo/undo_mobile_toolbar_item.dart';

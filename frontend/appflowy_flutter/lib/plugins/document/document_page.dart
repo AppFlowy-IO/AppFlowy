@@ -111,19 +111,9 @@ class _DocumentPageState extends State<DocumentPage> {
                     );
                   } else {
                     editorState = documentBloc.editorState!;
-                    return NotificationListener<EditorNotification>(
-                      onNotification: (notification) {
-                        switch (notification.type) {
-                          case EditorNotificationType.undo:
-                            editorState?.undoManager.undo();
-                            break;
-                          case EditorNotificationType.redo:
-                            editorState?.undoManager.redo();
-                            break;
-                        }
-                        return true;
-                      },
-                      child: _buildEditorPage(context, state),
+                    return _buildEditorPage(
+                      context,
+                      state,
                     );
                   }
                 },

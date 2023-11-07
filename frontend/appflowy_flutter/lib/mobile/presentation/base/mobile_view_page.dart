@@ -179,8 +179,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
             context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
             break;
           case MobileViewBottomSheetBodyAction.undo:
+            context.dispatchNotification(
+              const EditorNotification(type: EditorNotificationType.redo),
+            );
             context.pop();
-            context.dispatchNotification(EditorNotification.undo());
             break;
           case MobileViewBottomSheetBodyAction.redo:
             context.pop();

@@ -245,7 +245,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
         header: widget.header,
-        footer: const VSpace(200),
+        footer: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
       ),
     );
 
@@ -288,6 +288,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
               imageMobileToolbarItem,
               mathEquationMobileToolbarItem,
               codeMobileToolbarItem,
+              undoMobileToolbarItem,
+              redoMobileToolbarItem,
             ],
           ),
         ],

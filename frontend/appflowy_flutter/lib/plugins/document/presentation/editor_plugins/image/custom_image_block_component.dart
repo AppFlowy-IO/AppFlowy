@@ -292,7 +292,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         children: [
           Expanded(
             child: BottomSheetActionWidget(
-              svg: FlowySvgs.image_placeholder_s,
+              svg: FlowySvgs.copy_s,
               text: LocaleKeys.editor_copyLink.tr(),
               onTap: () async {
                 context.pop();

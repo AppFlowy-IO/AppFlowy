@@ -46,7 +46,7 @@ SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
       final mathEquationState =
           editorState.getNodeAtPath(path)?.key.currentState;
       if (mathEquationState != null &&
-          mathEquationState is _MathEquationBlockComponentWidgetState) {
+          mathEquationState is MathEquationBlockComponentWidgetState) {
         mathEquationState.showEditingDialog();
       }
     });
@@ -91,10 +91,10 @@ class MathEquationBlockComponentWidget extends BlockComponentStatefulWidget {
 
   @override
   State<MathEquationBlockComponentWidget> createState() =>
-      _MathEquationBlockComponentWidgetState();
+      MathEquationBlockComponentWidgetState();
 }
 
-class _MathEquationBlockComponentWidgetState
+class MathEquationBlockComponentWidgetState
     extends State<MathEquationBlockComponentWidget>
     with BlockComponentConfigurable {
   @override
