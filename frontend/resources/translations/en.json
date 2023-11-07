@@ -496,6 +496,8 @@
       "startDateTime": "Start date time",
       "endDateTime": "End date time",
       "failedToLoadDate": "Failed to load date value",
+      "selectTime": "Select time",
+      "selectDate": "Select date",
       "addSelectOption": "Add an option",
       "optionTitle": "Options",
       "addOption": "Add option",
