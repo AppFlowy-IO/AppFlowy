@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 
@@ -68,13 +70,11 @@ class SelectOptionTag extends StatelessWidget {
   final Color color;
   final VoidCallback? onSelected;
   final void Function(String)? onRemove;
-  final bool isTextColAlt;
   const SelectOptionTag(
       {required this.name,
       required this.color,
       this.onSelected,
       this.onRemove,
-      this.isTextColAlt = false,
       Key? key,
       ac})
       : super(key: key);
@@ -91,7 +91,6 @@ class SelectOptionTag extends StatelessWidget {
       color: option.color.toColor(context),
       onSelected: onSelected,
       onRemove: onRemove,
-      isTextColAlt: isTextColAlt,
     );
   }
 
@@ -101,6 +100,36 @@ class SelectOptionTag extends StatelessWidget {
         const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8.0);
     if (onRemove != null) {
       padding = padding.copyWith(right: 2.0);
+    }
+
+    double calculateLuminance(Color color) {
+      List<double> rgb =
+          [color.red, color.green, color.blue].map((c) => c / 255.0).toList();
+
+      for (int i = 0; i < 3; i++) {
+        // Explicitly cast the result of pow to double
+        rgb[i] = rgb[i] <= 0.03928
+            ? rgb[i] / 12.92
+            : pow((rgb[i] + 0.055) / 1.055, 2.4).toDouble();
+      }
+
+      return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+    }
+
+    double calculateContrast(Color color1, Color color2) {
+      // Calculate the relative luminance of the colors
+      double luminance1 = calculateLuminance(color1);
+      double luminance2 = calculateLuminance(color2);
+
+      // Ensure luminance1 is the lighter color
+      if (luminance1 < luminance2) {
+        double temp = luminance1;
+        luminance1 = luminance2;
+        luminance2 = temp;
+      }
+
+      // Calculate the contrast ratio
+      return (luminance1 + 0.05) / (luminance2 + 0.05);
     }
 
     return Container(
@@ -117,7 +146,13 @@ class SelectOptionTag extends StatelessWidget {
               name,
               fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
-              color: isTextColAlt
+              color: (calculateContrast(
+                        color,
+                        Theme.of(context)
+                            .extension<AFThemeExtension>()!
+                            .textColor,
+                      ) <
+                      1.36)
                   ? Theme.of(context)
                       .extension<AFThemeExtension>()!
                       .textColorAlt
