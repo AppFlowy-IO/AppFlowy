@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
@@ -9,12 +10,11 @@ import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_b
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:go_router/go_router.dart';
 import 'mobile_field_type_option_editor.dart';
 
 class CardPropertyEditScreen extends StatefulWidget {
@@ -52,41 +52,26 @@ class _CardPropertyEditScreenState extends State<CardPropertyEditScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit property'),
+        title: Text(LocaleKeys.grid_field_editProperty.tr()),
         actions: [
-          // TODO(yijing): improve style
-          // TextButton(
-          //   onPressed: () {
-          //     Navigator.pop(context);
-          //   },
-          //   child: Text(LocaleKeys.button_done.tr()),
-          // ),
           IconButton(
             onPressed: () {
-              showFlowyMobileBottomSheet(
+              showFlowyMobileConfirmDialog(
                 context,
-                title: 'Property Actions',
-                builder: (context) => BottomSheetActionWidget(
-                  svg: FlowySvgs.delete_s,
-                  text: 'Delete',
-                  onTap: () {
-                    // replace by showFlowyMobileConfirmDialog
-                    NavigatorAlertDialog(
-                      title:
-                          LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-                      confirm: () {
-                        context.read<RowDetailBloc>().add(
-                              RowDetailEvent.deleteField(
-                                widget.cellContext.fieldInfo.field.id,
-                              ),
-                            );
-                      },
-                    ).show(context);
-                  },
-                ),
+                title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+                actionButtonTitle: LocaleKeys.button_delete.tr(),
+                actionButtonColor: Theme.of(context).colorScheme.error,
+                onActionButtonPressed: () {
+                  context.read<RowDetailBloc>().add(
+                        RowDetailEvent.deleteField(
+                          widget.cellContext.fieldInfo.field.id,
+                        ),
+                      );
+                  context.pop();
+                },
               );
             },
-            icon: const Icon(Icons.more_horiz),
+            icon: const FlowySvg(FlowySvgs.m_delete_m),
           ),
         ],
       ),
