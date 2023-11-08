@@ -7,15 +7,17 @@ part 'hidden_groups_bloc.freezed.dart';
 
 class HiddenGroupsBloc extends Bloc<HiddenGroupsEvent, HiddenGroupsState> {
   final DatabaseController databaseController;
-  final List<GroupPB> groups;
+  List<GroupPB> _groups;
 
   HiddenGroupsBloc({
     required this.databaseController,
     required List<GroupPB> initialGroups,
-  })  : groups = initialGroups,
+  })  : _groups = initialGroups,
         super(
           HiddenGroupsState.initial(
-            databaseController.databaseLayoutSetting!.board.hideUngroupedColumn,
+            databaseController
+                    .databaseLayoutSetting?.board.hideUngroupedColumn ??
+                false,
             initialGroups,
           ),
         ) {
@@ -24,8 +26,8 @@ class HiddenGroupsBloc extends Bloc<HiddenGroupsEvent, HiddenGroupsState> {
         event.when(
           initial: _startListening,
           didReceiveHiddenGroups: (newGroups) {
-            groups.clear();
-            groups.addAll(newGroups);
+            _groups = newGroups;
+
             emit(
               state.copyWith(
                 hiddenGroups: _filterHiddenGroups(
@@ -52,16 +54,16 @@ class HiddenGroupsBloc extends Bloc<HiddenGroupsEvent, HiddenGroupsState> {
         onUpdateGroup: (List<GroupPB> updatedGroups) {
           if (isClosed) return;
 
-          final newGroups = List<GroupPB>.from(groups);
+          final newGroups = List<GroupPB>.from(_groups);
           for (final group in updatedGroups) {
-            final index = newGroups
-                .indexWhere((element) => element.groupId == group.groupId);
+            final index =
+                newGroups.indexWhere((g) => g.groupId == group.groupId);
             if (index == -1) {
               continue;
             }
 
             newGroups.removeAt(index);
-            newGroups.insert(index, group);
+            newGroups.add(group);
           }
 
           add(HiddenGroupsEvent.didReceiveHiddenGroups(groups: newGroups));
@@ -69,7 +71,7 @@ class HiddenGroupsBloc extends Bloc<HiddenGroupsEvent, HiddenGroupsState> {
         onDeleteGroup: (List<String> deletedGroupIds) {
           if (isClosed) return;
 
-          final newGroups = List<GroupPB>.from(groups);
+          final newGroups = List<GroupPB>.from(_groups);
           for (final id in deletedGroupIds) {
             newGroups.removeWhere((group) => group.groupId == id);
           }
@@ -81,7 +83,7 @@ class HiddenGroupsBloc extends Bloc<HiddenGroupsEvent, HiddenGroupsState> {
 
           final group = insertedGroup.group;
           if (!group.isVisible) {
-            final newGroups = List<GroupPB>.from(groups);
+            final newGroups = List<GroupPB>.from(_groups);
             newGroups.insert(insertedGroup.index, group);
             add(HiddenGroupsEvent.didReceiveHiddenGroups(groups: newGroups));
           }
@@ -93,7 +95,7 @@ class HiddenGroupsBloc extends Bloc<HiddenGroupsEvent, HiddenGroupsState> {
 
           add(
             HiddenGroupsEvent.didReceiveHiddenGroups(
-              groups: List<GroupPB>.from(groups),
+              groups: List<GroupPB>.from(_groups),
             ),
           );
         },
