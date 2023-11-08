@@ -164,12 +164,8 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 
-  getIt.registerSingleton<NotificationSettingsCubit>(
-    NotificationSettingsCubit(),
-  );
-
   getIt.registerSingleton<ReminderBloc>(
-    ReminderBloc(notificationSettings: getIt<NotificationSettingsCubit>()),
+    ReminderBloc(notificationSettings: NotificationSettingsCubit()),
   );
 }
 
