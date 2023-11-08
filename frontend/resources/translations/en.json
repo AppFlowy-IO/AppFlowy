@@ -760,6 +760,10 @@
       "createNewCard": "New",
       "renameGroupTooltip": "Press to rename group"
     },
+    "cardDetail": "Card Detail",
+    "cardActions": "Card Actions",
+    "cardDuplicated": "Card has been duplicated",
+    "cardDeleted": "Card has been deleted",
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
     "ungroupedButtonText": "Ungrouped",

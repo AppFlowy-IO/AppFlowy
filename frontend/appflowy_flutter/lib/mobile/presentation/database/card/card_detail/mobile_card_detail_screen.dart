@@ -2,8 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
-import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
-import 'package:appflowy/mobile/presentation/home/home.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
@@ -15,7 +13,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/mobile_row_property_list.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +55,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
       child: Scaffold(
         // appbar with duplicate and delete card features
         appBar: AppBar(
-          title: const Text('Card Detail'),
+          title: Text(LocaleKeys.board_cardDetail.tr()),
           actions: [
             BlocProvider<RowActionSheetBloc>(
               create: (context) => RowActionSheetBloc(
@@ -72,7 +69,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
                     onPressed: () {
                       showFlowyMobileBottomSheet(
                         context,
-                        title: 'Actions',
+                        title: LocaleKeys.board_cardActions.tr(),
                         builder: (_) => Row(
                           children: [
                             Expanded(
@@ -88,12 +85,13 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
                                     ..pop()
                                     ..pop();
                                   Fluttertoast.showToast(
-                                    msg: "Duplicated",
+                                    msg: LocaleKeys.board_cardDuplicated.tr(),
                                     gravity: ToastGravity.CENTER,
                                   );
                                 },
                               ),
                             ),
+                            const HSpace(8),
                             Expanded(
                               child: BottomSheetActionWidget(
                                 svg: FlowySvgs.m_delete_m,
@@ -106,7 +104,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
                                     ..pop()
                                     ..pop();
                                   Fluttertoast.showToast(
-                                    msg: "Deleted",
+                                    msg: LocaleKeys.board_cardDeleted.tr(),
                                     gravity: ToastGravity.CENTER,
                                   );
                                 },
