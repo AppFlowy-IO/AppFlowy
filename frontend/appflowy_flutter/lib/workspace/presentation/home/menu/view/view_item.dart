@@ -383,10 +383,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       popupBuilder: (context) {
         isIconPickerOpened = true;
         return FlowyIconPicker(
-          onSelected: (_, emoji) {
+          onSelected: (result) {
             ViewBackendService.updateViewIcon(
               viewId: widget.view.id,
-              viewIcon: emoji,
+              viewIcon: result.emoji,
             );
             controller.close();
           },

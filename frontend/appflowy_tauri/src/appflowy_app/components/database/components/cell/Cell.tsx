@@ -15,26 +15,23 @@ export interface CellProps {
 const getCellComponent = (fieldType: FieldType) => {
   switch (fieldType) {
     case FieldType.RichText:
-      return TextCell as FC<{ field: Field, cell: CellType }>;
+      return TextCell as FC<{ field: Field; cell?: CellType }>;
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:
-      return SelectCell as FC<{ field: Field, cell: CellType }>;
+      return SelectCell as FC<{ field: Field; cell?: CellType }>;
     case FieldType.Checkbox:
-      return CheckboxCell as FC<{ field: Field, cell: CellType }>;
+      return CheckboxCell as FC<{ field: Field; cell?: CellType }>;
     default:
       return null;
   }
 };
 
-export const Cell: FC<CellProps> = ({
-  rowId,
-  field,
-}) => {
+export const Cell: FC<CellProps> = ({ rowId, field }) => {
   const cell = useCell(rowId, field.id, field.type);
 
   const Component = getCellComponent(field.type);
 
-  if (!cell || !Component) {
+  if (!Component) {
     return null;
   }
 

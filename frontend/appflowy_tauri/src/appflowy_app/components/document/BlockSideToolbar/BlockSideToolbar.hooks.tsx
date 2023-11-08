@@ -39,6 +39,10 @@ export function useBlockSideToolbar(id: string) {
       return -6;
     }
 
+    if (block.type === BlockType.GridBlock) {
+      return 16;
+    }
+
     return 0;
   }, [docId, id]);
 
