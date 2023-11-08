@@ -4,10 +4,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
+import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
-import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:bloc/bloc.dart';
@@ -20,16 +20,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
-  final NotificationSettingsCubit _notificationSettings;
-
   late final NotificationActionBloc actionBloc;
   late final ReminderService reminderService;
   late final Timer timer;
 
-  ReminderBloc({
-    required NotificationSettingsCubit notificationSettings,
-  })  : _notificationSettings = notificationSettings,
-        super(ReminderState()) {
+  ReminderBloc() : super(ReminderState()) {
     actionBloc = getIt<NotificationActionBloc>();
     reminderService = const ReminderService();
     timer = _periodicCheck();
@@ -146,7 +141,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   Timer _periodicCheck() {
     return Timer.periodic(
       const Duration(minutes: 1),
-      (_) {
+      (_) async {
         final now = DateTime.now();
 
         for (final reminder in state.upcomingReminders) {
@@ -159,7 +154,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           );
 
           if (scheduledAt.isBefore(now)) {
-            if (_notificationSettings.state.isNotificationsEnabled) {
+            final notificationSettings =
+                await UserSettingsBackendService().getNotificationSettings();
+            if (notificationSettings.notificationsEnabled) {
               NotificationMessage(
                 identifier: reminder.id,
                 title: LocaleKeys.reminderNotification_title.tr(),
