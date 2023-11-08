@@ -140,6 +140,7 @@ impl AppFlowyServer for AFCloudServer {
     Arc::new(AFCloudDocumentCloudServiceImpl(server))
   }
 
+  #[allow(clippy::type_complexity)]
   fn collab_ws_channel(
     &self,
     _object_id: &str,

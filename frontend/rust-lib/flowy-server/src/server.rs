@@ -102,6 +102,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     None
   }
 
+  #[allow(clippy::type_complexity)]
   fn collab_ws_channel(
     &self,
     _object_id: &str,

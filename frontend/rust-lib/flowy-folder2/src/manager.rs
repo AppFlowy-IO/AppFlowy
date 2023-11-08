@@ -1278,6 +1278,7 @@ impl Deref for MutexFolder {
 unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
 
+#[allow(clippy::large_enum_variant)]
 pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },
