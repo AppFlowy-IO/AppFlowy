@@ -460,7 +460,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4114279215a005bc675e386011e594e1d9b800918cea18fcadadcce864a2046b"
 dependencies = [
  "borsh-derive",
- "hashbrown 0.13.2",
+ "hashbrown 0.12.3",
 ]
 
 [[package]]
@@ -863,6 +863,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -882,6 +883,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -911,6 +913,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -922,6 +925,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "anyhow",
  "collab",
@@ -941,6 +945,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "anyhow",
  "bytes",
@@ -954,6 +959,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "anyhow",
  "chrono",
@@ -995,6 +1001,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "async-trait",
  "bincode",
@@ -1015,6 +1022,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1041,6 +1049,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68459c6c501cd6d69deda04605839db1b442bb01#68459c6c501cd6d69deda04605839db1b442bb01"
 dependencies = [
  "anyhow",
  "collab",
@@ -1293,7 +1302,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -4329,6 +4338,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -4418,6 +4428,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.29",
 ]
 
 [[package]]
@@ -4661,7 +4684,7 @@ checksum = "8bdf592881d821b83d471f8af290226c8d51402259e9bb5be7f9f8bdebbb11ac"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
  "multimap",
  "once_cell",
@@ -4682,7 +4705,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "265baba7fabd416cf5078179f7d2cbeca4ce7a9041111900675ea7c4cb8a4c32"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.29",
