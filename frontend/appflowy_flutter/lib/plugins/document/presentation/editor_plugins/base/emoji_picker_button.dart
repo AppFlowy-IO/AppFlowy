@@ -49,18 +49,24 @@ class EmojiPickerButton extends StatelessWidget {
             onExit: () {},
           ),
         ),
-        child: FlowyTextButton(
-          emoji,
-          overflow: TextOverflow.visible,
-          fontSize: emojiSize,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 35.0),
-          fillColor: Colors.transparent,
-          mainAxisAlignment: MainAxisAlignment.center,
-          onPressed: () {
-            popoverController.show();
-          },
-        ),
+        child: emoji.isEmpty && defaultIcon != null
+            ? FlowyButton(
+                useIntrinsicWidth: true,
+                text: defaultIcon!,
+                onTap: () => popoverController.show(),
+              )
+            : FlowyTextButton(
+                emoji,
+                overflow: TextOverflow.visible,
+                fontSize: emojiSize,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 35.0),
+                fillColor: Colors.transparent,
+                mainAxisAlignment: MainAxisAlignment.center,
+                onPressed: () {
+                  popoverController.show();
+                },
+              ),
       );
     } else {
       return FlowyTextButton(
