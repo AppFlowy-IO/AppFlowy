@@ -5,9 +5,6 @@ import 'package:integration_test/integration_test.dart';
 
 import '../util/util.dart';
 
-const defaultFirstCardName = 'Card 1';
-const defaultLastCardName = 'Card 3';
-
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
