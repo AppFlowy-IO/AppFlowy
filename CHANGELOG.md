@@ -8,6 +8,7 @@
 - Display visual hint when card contains notes
 - Quick action for adding new stack to a board
 - Support more ways of inserting page references in documents
+- Shift + click on a checkbox to power toggle its children
 
 ### Bug fixes
 - Improved color of the "Share"-button text
