@@ -1,9 +1,11 @@
-use crate::sqlite::{
+use std::sync::Arc;
+
+use r2d2::PooledConnection;
+
+use crate::sqlite_impl::{
   errors::*,
   pool::{ConnectionManager, ConnectionPool, PoolConfig},
 };
-use r2d2::PooledConnection;
-use std::sync::Arc;
 
 pub struct Database {
   uri: String,

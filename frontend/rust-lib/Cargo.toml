@@ -26,6 +26,7 @@ members = [
   "flowy-ai",
   "flowy-date",
 ]
+resolver = "2"
 
 [workspace.dependencies]
 lib-dispatch = { workspace = true, path = "lib-dispatch" }
@@ -82,7 +83,7 @@ incremental = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "507d19628b" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b4b8303bae1810e3c3b32bb879c00027e62518e8" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -92,11 +93,11 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "507
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "faf17b54" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "faf17b54" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "faf17b54" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "faf17b54" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "faf17b54" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "faf17b54" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "faf17b54" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "faf17b54" }
+collab = { path = "../AppFlowy-Collab/collab" }
+collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
+collab-document = { path = "../AppFlowy-Collab/collab-document" }
+collab-database = { path = "../AppFlowy-Collab/collab-database" }
+collab-plugins = { path = "../AppFlowy-Collab/collab-plugins" }
+collab-user = { path = "../AppFlowy-Collab/collab-user" }
+collab-entity = { path = "../AppFlowy-Collab/collab-entity" }
+collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }

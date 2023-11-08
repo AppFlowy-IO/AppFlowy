@@ -450,7 +450,7 @@ impl FolderManager {
     }
 
     let index = params.index;
-    let view = create_view(params, view_layout);
+    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -474,7 +474,7 @@ impl FolderManager {
     handler
       .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
       .await?;
-    let view = create_view(params, view_layout);
+    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -915,7 +915,7 @@ impl FolderManager {
       index: None,
     };
 
-    let view = create_view(params, import_data.view_layout);
+    let view = create_view(self.user.user_id()?, params, import_data.view_layout);
     self.with_folder(
       || (),
       |folder| {

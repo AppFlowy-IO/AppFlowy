@@ -614,7 +614,7 @@ fn default_workspace_doc_state(collab_object: &CollabObject) -> Vec<u8> {
     &collab_object.object_id,
     vec![],
   ));
-  let workspace = Workspace::new(workspace_id, "My workspace".to_string());
+  let workspace = Workspace::new(workspace_id, "My workspace".to_string(), collab_object.uid);
   let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));
   folder.encode_collab_v1().doc_state.to_vec()
 }

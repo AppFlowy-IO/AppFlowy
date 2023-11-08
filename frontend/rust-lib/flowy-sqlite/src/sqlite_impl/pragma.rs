@@ -1,5 +1,11 @@
 #![allow(clippy::upper_case_acronyms)]
-use crate::sqlite::errors::{Error, Result};
+
+use std::{
+  convert::{TryFrom, TryInto},
+  fmt,
+  str::FromStr,
+};
+
 use diesel::{
   expression::SqlLiteral,
   query_dsl::load_dsl::LoadQuery,
@@ -7,12 +13,8 @@ use diesel::{
   SqliteConnection,
 };
 
-use crate::sqlite::conn_ext::ConnectionExtension;
-use std::{
-  convert::{TryFrom, TryInto},
-  fmt,
-  str::FromStr,
-};
+use crate::sqlite_impl::conn_ext::ConnectionExtension;
+use crate::sqlite_impl::errors::{Error, Result};
 
 pub trait PragmaExtension: ConnectionExtension {
   fn pragma<D: std::fmt::Display>(&self, key: &str, val: D, schema: Option<&str>) -> Result<()> {
