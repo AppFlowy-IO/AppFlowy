@@ -19,12 +19,9 @@ class HiddenGroupButtonBloc
     on<HiddenGroupButtonEvent>(
       (event, emit) {
         event.when(
-          initial: () {
-            _startListening();
-          },
-          didUpdateGroup: (GroupPB group) {
-            emit(state.copyWith(hiddenGroup: group));
-          },
+          initial: _startListening,
+          didUpdateGroup: (GroupPB group) =>
+              emit(state.copyWith(hiddenGroup: group)),
         );
       },
     );
@@ -35,11 +32,14 @@ class HiddenGroupButtonBloc
       initialGroup: state.hiddenGroup,
       onGroupChanged: (newGroupItems) {
         final group = state.hiddenGroup;
-        group.freeze();
-        group.rebuild((g) {
-          g.rows.clear();
-          g.rows.addAll(newGroupItems);
-        });
+        group
+          ..freeze()
+          ..rebuild(
+            (g) => g.rows
+              ..clear()
+              ..addAll(newGroupItems),
+          );
+
         add(HiddenGroupButtonEvent.didUpdateGroup(group: group));
       },
     )..startListening();
@@ -62,9 +62,9 @@ class HiddenGroupButtonState with _$HiddenGroupButtonState {
 }
 
 class HiddenGroupsListener {
-  List<RowMetaPB> _groupItems;
   final SingleGroupListener _listener;
   final void Function(List<RowMetaPB> items) onGroupChanged;
+  List<RowMetaPB> _groupItems;
 
   HiddenGroupsListener({
     required GroupPB initialGroup,
@@ -74,48 +74,46 @@ class HiddenGroupsListener {
 
   void startListening() {
     _listener.start(
-      onGroupChanged: (result) {
-        result.fold(
-          (GroupRowsNotificationPB changeset) {
-            final newItems = List<RowMetaPB>.from(_groupItems);
-            for (final deletedRow in changeset.deletedRows) {
-              newItems.removeWhere((rowPB) => rowPB.id == deletedRow);
+      onGroupChanged: (result) => result.fold(
+        (GroupRowsNotificationPB changeset) {
+          final newItems = List<RowMetaPB>.from(_groupItems);
+          for (final deletedRow in changeset.deletedRows) {
+            newItems.removeWhere((rowPB) => rowPB.id == deletedRow);
+          }
+
+          for (final insertedRow in changeset.insertedRows) {
+            final index = newItems.indexWhere(
+              (rowPB) => rowPB.id == insertedRow.rowMeta.id,
+            );
+
+            if (index != -1) {
+              continue;
             }
 
-            for (final insertedRow in changeset.insertedRows) {
-              final index = newItems.indexWhere(
-                (rowPB) => rowPB.id == insertedRow.rowMeta.id,
-              );
-              if (index != -1) {
-                continue;
-              }
-              if (insertedRow.hasIndex() &&
-                  newItems.length > insertedRow.index) {
-                newItems.insert(insertedRow.index, insertedRow.rowMeta);
-              } else {
-                newItems.add(insertedRow.rowMeta);
-              }
+            if (insertedRow.hasIndex() && newItems.length > insertedRow.index) {
+              newItems.insert(insertedRow.index, insertedRow.rowMeta);
+            } else {
+              newItems.add(insertedRow.rowMeta);
             }
+          }
 
-            for (final updatedRow in changeset.updatedRows) {
-              final index = newItems.indexWhere(
-                (rowPB) => rowPB.id == updatedRow.id,
-              );
+          for (final updatedRow in changeset.updatedRows) {
+            final index = newItems.indexWhere(
+              (rowPB) => rowPB.id == updatedRow.id,
+            );
 
-              if (index != -1) {
-                newItems[index] = updatedRow;
-              }
+            if (index != -1) {
+              newItems[index] = updatedRow;
             }
-            onGroupChanged.call(newItems);
-            _groupItems = newItems;
-          },
-          (err) => Log.error(err),
-        );
-      },
+          }
+
+          onGroupChanged.call(newItems);
+          _groupItems = newItems;
+        },
+        (err) => Log.error(err),
+      ),
     );
   }
 
-  Future<void> dispose() async {
-    _listener.stop();
-  }
+  Future<void> dispose() async => _listener.stop();
 }

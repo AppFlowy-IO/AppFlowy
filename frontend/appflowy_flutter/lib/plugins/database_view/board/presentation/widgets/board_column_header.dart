@@ -94,11 +94,9 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                       AFThemeExtension.of(context).textColor,
                 ),
                 child: GestureDetector(
-                  onTap: () => context.read<BoardBloc>().add(
-                        BoardEvent.startEditingHeader(
-                          widget.groupData.id,
-                        ),
-                      ),
+                  onTap: () => context
+                      .read<BoardBloc>()
+                      .add(BoardEvent.startEditingHeader(widget.groupData.id)),
                   child: FlowyText.medium(
                     widget.groupData.headerData.groupName,
                     fontSize: 14,
@@ -166,7 +164,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
             filled: true,
             fillColor: Theme.of(context).colorScheme.surface,
             hoverColor: Colors.transparent,
-            // Magic number 4 makes the textField take up the same space as FlowyText
             contentPadding: EdgeInsets.symmetric(
               vertical: CardSizes.cardCellVPadding + 4,
               horizontal: 8,
@@ -193,26 +190,20 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
     );
   }
 
-  void _saveEdit() {
-    context.read<BoardBloc>().add(
-          BoardEvent.endEditingHeader(
-            widget.groupData.id,
-            _controller.text,
-          ),
-        );
-  }
+  void _saveEdit() => context
+      .read<BoardBloc>()
+      .add(BoardEvent.endEditingHeader(widget.groupData.id, _controller.text));
 
-  Widget _buildHeaderIcon(GroupData customData) {
-    return switch (customData.fieldType) {
-      FieldType.Checkbox => FlowySvg(
-          customData.asCheckboxGroup()!.isCheck
-              ? FlowySvgs.check_filled_s
-              : FlowySvgs.uncheck_s,
-          blendMode: BlendMode.dst,
-        ),
-      _ => const SizedBox.shrink(),
-    };
-  }
+  Widget _buildHeaderIcon(GroupData customData) =>
+      switch (customData.fieldType) {
+        FieldType.Checkbox => FlowySvg(
+            customData.asCheckboxGroup()!.isCheck
+                ? FlowySvgs.check_filled_s
+                : FlowySvgs.uncheck_s,
+            blendMode: BlendMode.dst,
+          ),
+        _ => const SizedBox.shrink(),
+      };
 
   Widget _groupOptionsButton(BuildContext context) {
     return AppFlowyPopover(
@@ -282,17 +273,13 @@ enum GroupOptions {
     }
   }
 
-  FlowySvgData icon() {
-    return switch (this) {
-      rename => FlowySvgs.edit_s,
-      hide => FlowySvgs.hide_s,
-    };
-  }
+  FlowySvgData icon() => switch (this) {
+        rename => FlowySvgs.edit_s,
+        hide => FlowySvgs.hide_s,
+      };
 
-  String text() {
-    return switch (this) {
-      rename => "Rename",
-      hide => "Hide",
-    };
-  }
+  String text() => switch (this) {
+        rename => "Rename",
+        hide => "Hide",
+      };
 }

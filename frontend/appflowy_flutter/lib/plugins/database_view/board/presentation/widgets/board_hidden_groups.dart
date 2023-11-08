@@ -51,7 +51,6 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // title
                   Padding(
                     padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
                     child: Row(
@@ -68,10 +67,10 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
                       ],
                     ),
                   ),
-                  // cards
                   Expanded(
-                    child:
-                        HiddenGroupList(databaseController: databaseController),
+                    child: HiddenGroupList(
+                      databaseController: databaseController,
+                    ),
                   ),
                 ],
               ),
@@ -85,64 +84,62 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
       child: FlowyIconButton(
         width: 20,
         height: 20,
+        iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+        onPressed: () => setState(() => isCollapsed = !isCollapsed),
         icon: FlowySvg(
           isCollapsed
               ? FlowySvgs.hamburger_s_s
               : FlowySvgs.pull_left_outlined_s,
         ),
-        iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-        onPressed: () => setState(() {
-          isCollapsed = !isCollapsed;
-        }),
       ),
     );
   }
 }
 
 class HiddenGroupList extends StatelessWidget {
+  const HiddenGroupList({
+    super.key,
+    required this.databaseController,
+  });
+
   final DatabaseController databaseController;
-  const HiddenGroupList({super.key, required this.databaseController});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    return BlocProvider<HiddenGroupsBloc>(
       create: (_) => HiddenGroupsBloc(
         databaseController: databaseController,
-        hideUngrouped:
-            databaseController.databaseLayoutSetting!.board.hideUngroupedColumn,
         initialGroups: context.read<BoardBloc>().groupList,
       )..add(const HiddenGroupsEvent.initial()),
       child: BlocBuilder<HiddenGroupsBloc, HiddenGroupsState>(
-        builder: (context, state) {
-          return ListView.separated(
-            itemCount: state.hiddenGroups.length,
-            itemBuilder: (context, index) => HiddenGroupCard(
-              group: state.hiddenGroups[index],
-            ),
-            separatorBuilder: (context, index) => const VSpace(4),
-          );
-        },
+        builder: (_, state) => ListView.separated(
+          itemCount: state.hiddenGroups.length,
+          itemBuilder: (_, index) => HiddenGroupCard(
+            group: state.hiddenGroups[index],
+          ),
+          separatorBuilder: (_, __) => const VSpace(4),
+        ),
       ),
     );
   }
 }
 
 class HiddenGroupCard extends StatefulWidget {
-  final GroupPB group;
   const HiddenGroupCard({super.key, required this.group});
+
+  final GroupPB group;
 
   @override
   State<HiddenGroupCard> createState() => _HiddenGroupCardState();
 }
 
 class _HiddenGroupCardState extends State<HiddenGroupCard> {
-  late final PopoverController _popoverController;
+  final PopoverController _popoverController = PopoverController();
   late final HiddenGroupButtonBloc _bloc;
 
   @override
   void initState() {
     super.initState();
-    _popoverController = PopoverController();
     _bloc = HiddenGroupButtonBloc(group: widget.group)
       ..add(const HiddenGroupButtonEvent.initial());
   }
@@ -152,7 +149,8 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
     final databaseController = context.read<BoardBloc>().databaseController;
     final primaryField = databaseController.fieldController.fieldInfos
         .firstWhereOrNull((element) => element.isPrimary)!;
-    return BlocProvider.value(
+
+    return BlocProvider<HiddenGroupButtonBloc>.value(
       value: _bloc,
       child: Padding(
         padding: const EdgeInsets.only(left: 26),
@@ -160,15 +158,13 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
           controller: _popoverController,
           direction: PopoverDirection.bottomWithCenterAligned,
           triggerActions: PopoverTriggerFlags.none,
-          constraints: const BoxConstraints(maxWidth: 234),
-          popupBuilder: (popoverContext) {
-            return HiddenGroupPopupItemList(
-              bloc: _bloc,
-              viewId: databaseController.viewId,
-              primaryField: primaryField,
-              rowCache: databaseController.rowCache,
-            );
-          },
+          constraints: const BoxConstraints(maxWidth: 234, maxHeight: 300),
+          popupBuilder: (popoverContext) => HiddenGroupPopupItemList(
+            bloc: _bloc,
+            viewId: databaseController.viewId,
+            primaryField: primaryField,
+            rowCache: databaseController.rowCache,
+          ),
           child: HiddenGroupButtonContent(
             popoverController: _popoverController,
           ),
@@ -179,25 +175,24 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
 }
 
 class HiddenGroupButtonContent extends StatelessWidget {
-  final PopoverController popoverController;
   const HiddenGroupButtonContent({
     super.key,
     required this.popoverController,
   });
 
+  final PopoverController popoverController;
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        popoverController.show();
-      },
-      child: FlowyHover(
-        builder: (context, isHovering) {
-          return BlocBuilder<HiddenGroupButtonBloc, HiddenGroupButtonState>(
-            builder: (context, state) {
-              print("flowy hover content rebuild");
+    return BlocBuilder<HiddenGroupButtonBloc, HiddenGroupButtonState>(
+      builder: (context, state) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: popoverController.show,
+          child: FlowyHover(
+            builder: (context, isHovering) {
               final group = state.hiddenGroup;
+
               return SizedBox(
                 height: 30,
                 child: Padding(
@@ -222,28 +217,26 @@ class HiddenGroupButtonContent extends StatelessWidget {
                           color: Theme.of(context).hintColor,
                         ),
                       ),
-                      FlowyIconButton(
-                        width: 20,
-                        icon: isHovering
-                            ? FlowySvg(
-                                FlowySvgs.show_m,
-                                color: Theme.of(context).hintColor,
-                              )
-                            : const SizedBox.shrink(),
-                        onPressed: () {
-                          context.read<BoardBloc>().add(
+                      if (isHovering) ...[
+                        FlowyIconButton(
+                          width: 20,
+                          icon: FlowySvg(
+                            FlowySvgs.show_m,
+                            color: Theme.of(context).hintColor,
+                          ),
+                          onPressed: () => context.read<BoardBloc>().add(
                                 BoardEvent.toggleGroupVisibility(group, true),
-                              );
-                        },
-                      )
+                              ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

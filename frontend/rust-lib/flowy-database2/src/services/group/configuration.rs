@@ -452,7 +452,6 @@ where
         None => false,
         Some(group) => {
           mut_groups_fn(group);
-          tracing::trace!("successful {:?}", group);
           updated_group = Some(group.clone());
           true
         },

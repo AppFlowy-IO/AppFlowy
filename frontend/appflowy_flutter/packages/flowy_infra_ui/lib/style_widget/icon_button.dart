@@ -86,9 +86,7 @@ class FlowyIconButton extends StatelessWidget {
             resetHoverOnRebuild: false,
             child: Padding(
               padding: iconPadding,
-              child: Center(
-                child: child,
-              ),
+              child: Center(child: child),
             ),
           ),
         ),
@@ -98,11 +96,9 @@ class FlowyIconButton extends StatelessWidget {
 }
 
 class FlowyDropdownButton extends StatelessWidget {
+  const FlowyDropdownButton({super.key, this.onPressed});
+
   final VoidCallback? onPressed;
-  const FlowyDropdownButton({
-    Key? key,
-    this.onPressed,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

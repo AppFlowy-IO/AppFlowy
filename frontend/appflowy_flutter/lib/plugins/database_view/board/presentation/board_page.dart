@@ -40,12 +40,11 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
       BoardPage(view: view, databaseController: controller);
 
   @override
-  Widget settingBar(BuildContext context, DatabaseController controller) {
-    return BoardSettingBar(
-      key: _makeValueKey(controller),
-      databaseController: controller,
-    );
-  }
+  Widget settingBar(BuildContext context, DatabaseController controller) =>
+      BoardSettingBar(
+        key: _makeValueKey(controller),
+        databaseController: controller,
+      );
 
   @override
   Widget settingBarExtension(
@@ -54,9 +53,8 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   ) =>
       const SizedBox.shrink();
 
-  ValueKey _makeValueKey(DatabaseController controller) {
-    return ValueKey(controller.viewId);
-  }
+  ValueKey _makeValueKey(DatabaseController controller) =>
+      ValueKey(controller.viewId);
 }
 
 class BoardPage extends StatelessWidget {
@@ -82,23 +80,18 @@ class BoardPage extends StatelessWidget {
       )..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
         buildWhen: (p, c) => p.loadingState != c.loadingState,
-        builder: (context, state) {
-          return state.loadingState.map(
-            loading: (_) =>
-                const Center(child: CircularProgressIndicator.adaptive()),
-            finish: (result) {
-              return result.successOrFail.fold(
-                (_) => BoardContent(
-                  onEditStateChanged: onEditStateChanged,
-                ),
-                (err) => FlowyErrorPage.message(
-                  err.toString(),
-                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-                ),
-              );
-            },
-          );
-        },
+        builder: (context, state) => state.loadingState.map(
+          loading: (_) => const Center(
+            child: CircularProgressIndicator.adaptive(),
+          ),
+          finish: (result) => result.successOrFail.fold(
+            (_) => BoardContent(onEditStateChanged: onEditStateChanged),
+            (err) => FlowyErrorPage.message(
+              err.toString(),
+              howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -117,9 +110,9 @@ class BoardContent extends StatefulWidget {
 }
 
 class _BoardContentState extends State<BoardContent> {
-  late AppFlowyBoardScrollController scrollManager;
-  late final ScrollController scrollController;
   final renderHook = RowCardRenderHook<String>();
+  late final ScrollController scrollController;
+  late final AppFlowyBoardScrollController scrollManager;
 
   final config = const AppFlowyBoardConfig(
     groupBackgroundColor: Color(0xffF7F8FC),
@@ -322,40 +315,37 @@ class _BoardContentState extends State<BoardContent> {
 
     FlowyOverlay.show(
       context: context,
-      builder: (BuildContext context) {
-        return RowDetailPage(
-          cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-          rowController: dataController,
-        );
-      },
+      builder: (_) => RowDetailPage(
+        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+        rowController: dataController,
+      ),
     );
   }
 }
 
 class BoardTrailing extends StatefulWidget {
+  const BoardTrailing({super.key, required this.scrollController});
+
   final ScrollController scrollController;
-  const BoardTrailing({required this.scrollController, super.key});
 
   @override
   State<BoardTrailing> createState() => _BoardTrailingState();
 }
 
 class _BoardTrailingState extends State<BoardTrailing> {
-  bool isEditing = false;
-  late final TextEditingController _textController;
+  final TextEditingController _textController = TextEditingController();
   late final FocusNode _focusNode;
+
+  bool isEditing = false;
 
   void _cancelAddNewGroup() {
     _textController.clear();
-    setState(() {
-      isEditing = false;
-    });
+    setState(() => isEditing = false);
   }
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController();
     _focusNode = FocusNode(
       onKeyEvent: (node, event) {
         if (_focusNode.hasFocus &&
@@ -427,9 +417,7 @@ class _BoardTrailingState extends State<BoardTrailing> {
                     width: 26,
                     icon: const FlowySvg(FlowySvgs.add_s),
                     iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-                    onPressed: () => setState(() {
-                      isEditing = true;
-                    }),
+                    onPressed: () => setState(() => isEditing = true),
                   ),
                 ),
         ),
