@@ -1,25 +1,24 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/mobile_create_row_field_button.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../plugins/database_view/widgets/row/accessory/cell_accessory.dart';
-import '../../../../plugins/database_view/widgets/row/cell_builder.dart';
 
 /// Display the row properties in a list. Only use this widget in the
 /// [MobileCardDetailScreen].
@@ -68,15 +67,19 @@ class MobileRowPropertyList extends StatelessWidget {
                   ),
                 );
           },
-          // add new field
           footer: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (context.read<RowDetailBloc>().state.numHiddenFields != 0)
                   const ToggleHiddenFieldsVisibilityButton(),
                 const VSpace(8),
-                CreateRowFieldButton(viewId: viewId),
+                // add new field
+                MobileCreateRowFieldButton(
+                  viewId: viewId,
+                ),
+                const VSpace(8),
               ],
             ),
           ),
@@ -104,8 +107,6 @@ class _PropertyCell extends StatefulWidget {
 }
 
 class _PropertyCellState extends State<_PropertyCell> {
-  final PopoverController _popoverController = PopoverController();
-
   @override
   Widget build(BuildContext context) {
     const cellHeight = 32.0;
@@ -163,39 +164,8 @@ class _PropertyCellState extends State<_PropertyCell> {
       ),
     );
   }
-
-  Widget buildFieldEditor() {
-    return FieldEditor(
-      viewId: widget.cellContext.viewId,
-      fieldInfo: widget.cellContext.fieldInfo,
-      isGroupingField: widget.cellContext.fieldInfo.isGroupField,
-      typeOptionLoader: FieldTypeOptionLoader(
-        viewId: widget.cellContext.viewId,
-        field: widget.cellContext.fieldInfo.field,
-      ),
-      onToggleVisibility: (fieldId) {
-        _popoverController.close();
-        context
-            .read<RowDetailBloc>()
-            .add(RowDetailEvent.toggleFieldVisibility(fieldId));
-      },
-      onDeleted: (fieldId) {
-        _popoverController.close();
-
-        NavigatorAlertDialog(
-          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          confirm: () {
-            context
-                .read<RowDetailBloc>()
-                .add(RowDetailEvent.deleteField(fieldId));
-          },
-        ).show(context);
-      },
-    );
-  }
 }
 
-// to delete this
 GridCellStyle? _customCellStyle(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:

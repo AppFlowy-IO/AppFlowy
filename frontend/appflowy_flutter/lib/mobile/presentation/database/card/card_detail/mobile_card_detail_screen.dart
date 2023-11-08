@@ -13,7 +13,7 @@ import 'package:appflowy/plugins/database_view/grid/application/row/row_action_s
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
-import 'package:appflowy/mobile/presentation/database/card/mobile_row_property_list.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/mobile_row_property_list.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:easy_localization/easy_localization.dart';

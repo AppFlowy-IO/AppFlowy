@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
@@ -50,6 +51,7 @@ GoRouter generateRouter(Widget child) {
         _mobileCardDetailScreenRoute(),
         _mobileCardPropertyEditScreenRoute(),
         _mobileDateCellEditScreenRoute(),
+        _mobileCreateRowFieldScreenRoute(),
 
         // home
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
@@ -413,6 +415,24 @@ GoRoute _mobileDateCellEditScreenRoute() {
 
       return MaterialPage(
         child: MobileDateCellEditScreen(cellController),
+        fullscreenDialog: true,
+      );
+    },
+  );
+}
+
+GoRoute _mobileCreateRowFieldScreenRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileCreateRowFieldScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      final viewId = args[MobileCreateRowFieldScreen.argViewId];
+      final typeOption = args[MobileCreateRowFieldScreen.argTypeOption];
+
+      return MaterialPage(
+        child:
+            MobileCreateRowFieldScreen(viewId: viewId, typeOption: typeOption),
         fullscreenDialog: true,
       );
     },
