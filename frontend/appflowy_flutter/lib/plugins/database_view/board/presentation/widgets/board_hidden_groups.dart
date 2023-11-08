@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database_view/board/application/hidden_group_button_bloc.dart';
 import 'package:appflowy/plugins/database_view/board/application/hidden_groups_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
@@ -14,7 +15,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -137,110 +137,113 @@ class HiddenGroupCard extends StatefulWidget {
 
 class _HiddenGroupCardState extends State<HiddenGroupCard> {
   late final PopoverController _popoverController;
+  late final HiddenGroupButtonBloc _bloc;
 
   @override
   void initState() {
     super.initState();
     _popoverController = PopoverController();
+    _bloc = HiddenGroupButtonBloc(group: widget.group)
+      ..add(const HiddenGroupButtonEvent.initial());
   }
 
   @override
   Widget build(BuildContext context) {
-    final button = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        if (widget.group.rows.isNotEmpty) {
-          _popoverController.show();
-        }
-      },
-      child: FlowyHover(
-        resetHoverOnRebuild: false,
-        builder: (context, isHovering) {
-          return SizedBox(
-            height: 30,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              child: Row(
-                children: [
-                  // Opacity(
-                  //   opacity: isHovering ? 1 : 0,
-                  //   child: const HiddenGroupCardActions(),
-                  // ),
-                  // const HSpace(4),
-                  FlowyText.medium(
-                    widget.group.groupName,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const HSpace(6),
-                  Expanded(
-                    child: FlowyText.medium(
-                      widget.group.rows.length.toString(),
-                      overflow: TextOverflow.ellipsis,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  ),
-                  FlowyIconButton(
-                    width: 20,
-                    icon: isHovering
-                        ? FlowySvg(
-                            FlowySvgs.show_m,
-                            color: Theme.of(context).hintColor,
-                          )
-                        : const SizedBox.shrink(),
-                    onPressed: () {
-                      context.read<BoardBloc>().add(
-                            BoardEvent.toggleGroupVisibility(
-                              widget.group,
-                              true,
-                            ),
-                          );
-                    },
-                  )
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-
     final databaseController = context.read<BoardBloc>().databaseController;
     final primaryField = databaseController.fieldController.fieldInfos
         .firstWhereOrNull((element) => element.isPrimary)!;
-    return Padding(
-      padding: const EdgeInsets.only(left: 26),
-      child: _wrapPopover(
-        button,
-        databaseController,
-        widget.group.rows,
-        primaryField,
-        widget.group.groupName,
+    return BlocProvider.value(
+      value: _bloc,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 26),
+        child: AppFlowyPopover(
+          controller: _popoverController,
+          direction: PopoverDirection.bottomWithCenterAligned,
+          triggerActions: PopoverTriggerFlags.none,
+          constraints: const BoxConstraints(maxWidth: 234),
+          popupBuilder: (popoverContext) {
+            return HiddenGroupPopupItemList(
+              bloc: _bloc,
+              viewId: databaseController.viewId,
+              primaryField: primaryField,
+              rowCache: databaseController.rowCache,
+            );
+          },
+          child: HiddenGroupButtonContent(
+            popoverController: _popoverController,
+          ),
+        ),
       ),
     );
   }
+}
 
-  Widget _wrapPopover(
-    Widget child,
-    DatabaseController databaseController,
-    List<RowMetaPB> items,
-    FieldInfo primaryField,
-    String groupName,
-  ) {
-    return AppFlowyPopover(
-      controller: _popoverController,
-      direction: PopoverDirection.bottomWithCenterAligned,
-      triggerActions: PopoverTriggerFlags.none,
-      constraints: const BoxConstraints(maxWidth: 234),
-      popupBuilder: (popoverContext) {
-        return HiddenGroupPopupItemList(
-          name: groupName,
-          viewId: databaseController.viewId,
-          primaryField: primaryField,
-          groupItems: items,
-          rowCache: databaseController.rowCache,
-        );
+class HiddenGroupButtonContent extends StatelessWidget {
+  final PopoverController popoverController;
+  const HiddenGroupButtonContent({
+    super.key,
+    required this.popoverController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        popoverController.show();
       },
-      child: child,
+      child: FlowyHover(
+        builder: (context, isHovering) {
+          return BlocBuilder<HiddenGroupButtonBloc, HiddenGroupButtonState>(
+            builder: (context, state) {
+              print("flowy hover content rebuild");
+              final group = state.hiddenGroup;
+              return SizedBox(
+                height: 30,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  child: Row(
+                    children: [
+                      // Opacity(
+                      //   opacity: isHovering ? 1 : 0,
+                      //   child: const HiddenGroupCardActions(),
+                      // ),
+                      // const HSpace(4),
+                      FlowyText.medium(
+                        group.groupName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const HSpace(6),
+                      Expanded(
+                        child: FlowyText.medium(
+                          group.rows.length.toString(),
+                          overflow: TextOverflow.ellipsis,
+                          color: Theme.of(context).hintColor,
+                        ),
+                      ),
+                      FlowyIconButton(
+                        width: 20,
+                        icon: isHovering
+                            ? FlowySvg(
+                                FlowySvgs.show_m,
+                                color: Theme.of(context).hintColor,
+                              )
+                            : const SizedBox.shrink(),
+                        onPressed: () {
+                          context.read<BoardBloc>().add(
+                                BoardEvent.toggleGroupVisibility(group, true),
+                              );
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
@@ -260,105 +263,103 @@ class HiddenGroupCardActions extends StatelessWidget {
   }
 }
 
-class HiddenGroupPopover extends StatelessWidget {
-  const HiddenGroupPopover({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(width: 234, height: 100);
-  }
-}
-
 class HiddenGroupPopupItemList extends StatelessWidget {
-  final String name;
+  final HiddenGroupButtonBloc bloc;
   final String viewId;
   final FieldInfo primaryField;
   final RowCache rowCache;
-  final List<RowMetaPB> groupItems;
   const HiddenGroupPopupItemList({
+    required this.bloc,
     required this.viewId,
     required this.primaryField,
-    required this.groupItems,
     required this.rowCache,
-    required this.name,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    final cells = <Widget>[
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: FlowyText.medium(
-          name,
-          fontSize: 10,
-          color: Theme.of(context).hintColor,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      ...groupItems.map(
-        (item) {
-          final rowController = RowController(
-            rowMeta: item,
-            viewId: viewId,
-            rowCache: rowCache,
-          );
-          final renderHook = RowCardRenderHook<String>();
-          renderHook.addTextCellHook((cellData, _, __) {
-            return BlocBuilder<TextCellBloc, TextCellState>(
-              builder: (context, state) {
-                final text = cellData.isEmpty
-                    ? LocaleKeys.grid_row_titlePlaceholder.tr()
-                    : cellData;
+    return BlocProvider.value(
+      value: bloc,
+      child: BlocBuilder<HiddenGroupButtonBloc, HiddenGroupButtonState>(
+        builder: (context, state) {
+          final group = state.hiddenGroup;
+          final cells = <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: FlowyText.medium(
+                group.groupName,
+                fontSize: 10,
+                color: Theme.of(context).hintColor,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            ...group.rows.map(
+              (item) {
+                final rowController = RowController(
+                  rowMeta: item,
+                  viewId: viewId,
+                  rowCache: rowCache,
+                );
+                final renderHook = RowCardRenderHook<String>();
+                renderHook.addTextCellHook((cellData, _, __) {
+                  return BlocBuilder<TextCellBloc, TextCellState>(
+                    builder: (context, state) {
+                      final text = cellData.isEmpty
+                          ? LocaleKeys.grid_row_titlePlaceholder.tr()
+                          : cellData;
 
-                if (text.isEmpty) {
-                  return const SizedBox.shrink();
-                }
+                      if (text.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
 
-                return Align(
-                  alignment: Alignment.centerLeft,
-                  child: FlowyText.medium(
-                    text,
-                    textAlign: TextAlign.left,
-                    fontSize: 11,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: FlowyText.medium(
+                          text,
+                          textAlign: TextAlign.left,
+                          fontSize: 11,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    },
+                  );
+                });
+
+                return HiddenGroupPopupItem(
+                  cellContext: rowCache.loadCells(item)[primaryField.id]!,
+                  primaryField: primaryField,
+                  rowController: rowController,
+                  cellBuilder: CardCellBuilder<String>(rowController.cellCache),
+                  renderHook: renderHook,
+                  onPressed: () {
+                    FlowyOverlay.show(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return RowDetailPage(
+                          cellBuilder: GridCellBuilder(
+                            cellCache: rowController.cellCache,
+                          ),
+                          rowController: rowController,
+                        );
+                      },
+                    );
+                    PopoverContainer.of(context).close();
+                  },
                 );
               },
-            );
-          });
+            )
+          ];
 
-          return HiddenGroupPopupItem(
-            cellContext: rowCache.loadCells(item)[primaryField.id]!,
-            primaryField: primaryField,
-            rowController: rowController,
-            cellBuilder: CardCellBuilder<String>(rowController.cellCache),
-            renderHook: renderHook,
-            onPressed: () {
-              FlowyOverlay.show(
-                context: context,
-                builder: (BuildContext context) {
-                  return RowDetailPage(
-                    cellBuilder:
-                        GridCellBuilder(cellCache: rowController.cellCache),
-                    rowController: rowController,
-                  );
-                },
-              );
-              PopoverContainer.of(context).close();
-            },
+          return ListView.separated(
+            itemBuilder: (context, index) => cells[index],
+            itemCount: cells.length,
+            separatorBuilder: (context, index) =>
+                VSpace(GridSize.typeOptionSeparatorHeight),
+            shrinkWrap: true,
           );
         },
-      )
-    ];
-
-    return ListView.separated(
-      itemBuilder: (context, index) => cells[index],
-      itemCount: cells.length,
-      separatorBuilder: (context, index) =>
-          VSpace(GridSize.typeOptionSeparatorHeight),
-      shrinkWrap: true,
+      ),
     );
   }
 }
