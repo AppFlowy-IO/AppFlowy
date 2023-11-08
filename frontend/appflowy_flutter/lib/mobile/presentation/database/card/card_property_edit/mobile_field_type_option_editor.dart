@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/type_option_widget_builder/type_option_widget_builder.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_type_option_edit_bloc.dart';
@@ -6,6 +7,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,12 +65,16 @@ class _MobileSwitchFieldButton extends StatelessWidget {
     return GestureDetector(
       child: Row(
         children: [
-          const Text('Property type'),
+          Text(
+            LocaleKeys.grid_field_propertyType.tr(),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const Spacer(),
           FlowySvg(fieldType.icon()),
           const HSpace(4),
           Text(
             fieldType.title(),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           const Icon(Icons.arrow_forward_ios_sharp),
         ],
@@ -76,7 +82,7 @@ class _MobileSwitchFieldButton extends StatelessWidget {
       onTap: () => showFlowyMobileBottomSheet(
         context,
         isScrollControlled: true,
-        title: 'Property type',
+        title: LocaleKeys.grid_field_propertyType.tr(),
         builder: (_) => MobileFieldTypeList(
           bloc: context.read<FieldTypeOptionEditBloc>(),
           onSelectField: (newFieldType) {

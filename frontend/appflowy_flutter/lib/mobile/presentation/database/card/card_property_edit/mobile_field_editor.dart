@@ -109,6 +109,7 @@ class _PropertyLabel extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Text(
           name,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
       ),
     );

@@ -85,6 +85,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
       );
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
+      //
       return TimestampTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<TimestampTypeOptionPB>(
           viewId: viewId,

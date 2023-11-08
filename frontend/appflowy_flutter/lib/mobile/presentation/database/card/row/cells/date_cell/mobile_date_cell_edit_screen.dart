@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_cal_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy_backend/log.dart';
@@ -104,8 +105,8 @@ class _DateCellEditBodyState extends State<_DateCellEditBody> {
             const _StartDayTime(),
             const _EndDayTime(),
             const Divider(),
-            const DateFormatOption(),
-            const TimeFormatOption(),
+            const _DateFormatOption(),
+            const _TimeFormatOption(),
             const Divider(),
             const _ClearDateButton(),
           ];
@@ -162,23 +163,13 @@ class _IncludeTimeSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.includeTime,
       builder: (context, includeTime) {
-        return Row(
-          children: [
-            Text(
-              LocaleKeys.grid_field_includeTime.tr(),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const Spacer(),
-            Switch.adaptive(
-              value: includeTime,
-              activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (value) {
-                context
-                    .read<DateCellCalendarBloc>()
-                    .add(DateCellCalendarEvent.setIncludeTime(value));
-              },
-            ),
-          ],
+        return IncludeTimeSwitch(
+          switchValue: includeTime,
+          onChanged: (value) {
+            context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setIncludeTime(value));
+          },
         );
       },
     );
@@ -337,6 +328,62 @@ class _ClearDateButton extends StatelessWidget {
       onTap: () => context
           .read<DateCellCalendarBloc>()
           .add(const DateCellCalendarEvent.clearDate()),
+    );
+  }
+}
+
+class _TimeFormatOption extends StatelessWidget {
+  const _TimeFormatOption({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<DateCellCalendarBloc, DateCellCalendarState,
+        TimeFormatPB>(
+      selector: (state) => state.dateTypeOptionPB.timeFormat,
+      builder: (context, state) {
+        return TimeFormatListTile(
+          currentFormatStr: state.title(),
+          groupValue: context
+              .watch<DateCellCalendarBloc>()
+              .state
+              .dateTypeOptionPB
+              .timeFormat,
+          onChanged: (newFormat) {
+            if (newFormat == null) return;
+            context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setTimeFormat(newFormat));
+          },
+        );
+      },
+    );
+  }
+}
+
+class _DateFormatOption extends StatelessWidget {
+  const _DateFormatOption({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<DateCellCalendarBloc, DateCellCalendarState,
+        DateFormatPB>(
+      selector: (state) => state.dateTypeOptionPB.dateFormat,
+      builder: (context, state) {
+        return DateFormatListTile(
+          currentFormatStr: state.title(),
+          groupValue: context
+              .watch<DateCellCalendarBloc>()
+              .state
+              .dateTypeOptionPB
+              .dateFormat,
+          onChanged: (newFormat) {
+            if (newFormat == null) return;
+            context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setDateFormat(newFormat));
+          },
+        );
+      },
     );
   }
 }
