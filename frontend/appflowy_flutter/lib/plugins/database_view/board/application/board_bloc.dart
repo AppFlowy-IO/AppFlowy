@@ -14,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
 import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
@@ -29,7 +30,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
   GroupPB? ungroupedGroup;
-  List<GroupPB> hiddenGroups = [];
+  List<GroupPB> groupList = [];
 
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
@@ -170,12 +171,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
             emit(state.copyWith(isEditingHeader: false));
           },
-          toggleGroupVisibility: (String groupId, bool isVisible) async {
-            await groupBackendSvc.updateGroup(
-              fieldId: groupControllers.values.first.group.fieldId,
-              groupId: groupId,
-              visible: isVisible,
-            );
+          toggleGroupVisibility: (GroupPB group, bool isVisible) async {
+            await _toggleGroupVisibility(group, isVisible);
           },
         );
       },
@@ -192,6 +189,26 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     boardController.enableGroupDragging(!isEdit);
   }
 
+  Future<void> _toggleGroupVisibility(GroupPB group, bool isVisible) async {
+    if (group.isDefault) {
+      final newLayoutSettings = state.layoutSettings!;
+
+      newLayoutSettings.freeze();
+      final newLayoutSetting = newLayoutSettings.rebuild((message) {
+        message.hideUngroupedColumn = !isVisible;
+      });
+      return databaseController.updateLayoutSetting(
+        boardLayoutSetting: newLayoutSetting,
+      );
+    } else {
+      await groupBackendSvc.updateGroup(
+        fieldId: groupControllers.values.first.group.fieldId,
+        groupId: group.groupId,
+        visible: isVisible,
+      );
+    }
+  }
+
   @override
   Future<void> close() async {
     for (final controller in groupControllers.values) {
@@ -206,6 +223,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
     groupControllers.clear();
     boardController.clear();
+    groupList.clear();
 
     final ungroupedGroupIndex = groups.indexWhere((group) => group.isDefault);
 
@@ -218,7 +236,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       }
     }
 
-    hiddenGroups.addAll(groups.where((group) => !group.isVisible));
+    groupList.addAll(groups);
 
     boardController.addGroups(
       groups
@@ -251,7 +269,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
     final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
       onLayoutSettingsChanged: (layoutSettings) {
-        if (isClosed || !layoutSettings.hasBoard()) {
+        if (isClosed) {
           return;
         }
         if (ungroupedGroup != null) {
@@ -297,14 +315,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             columnController.updateGroupName(group.groupName);
             if (!group.isVisible) {
               boardController.removeGroup(group.groupId);
-              hiddenGroups.add(group);
             }
           } else {
             final newGroup = initializeGroupData(group);
             boardController.addGroup(newGroup);
-            hiddenGroups.removeWhere(
-              (g) => group.groupId == g.groupId && group.isVisible,
-            );
           }
         }
       },
@@ -395,7 +409,7 @@ class BoardEvent with _$BoardEvent {
   ) = _StartEditRow;
   const factory BoardEvent.endEditingRow(RowId rowId) = _EndEditRow;
   const factory BoardEvent.toggleGroupVisibility(
-    String groupId,
+    GroupPB group,
     bool isVisible,
   ) = _ToggleGroupVisibility;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;

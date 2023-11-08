@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/define.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -225,6 +226,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
         iconColorOnHover: Theme.of(context).colorScheme.onSurface,
       ),
       popupBuilder: (popoverContext) {
+        final customGroupData = widget.groupData.customData as GroupData;
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -240,7 +242,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     onTap: () {
-                      action.call(context, widget.groupData.id);
+                      action.call(context, customGroupData.group);
                       PopoverContainer.of(popoverContext).close();
                     },
                   ),
@@ -260,15 +262,17 @@ enum GroupOptions {
   // color,
   // delete;
 
-  void call(BuildContext context, String groupId) {
+  void call(BuildContext context, GroupPB group) {
     switch (this) {
       case rename:
-        context.read<BoardBloc>().add(BoardEvent.startEditingHeader(groupId));
+        context
+            .read<BoardBloc>()
+            .add(BoardEvent.startEditingHeader(group.groupId));
         break;
       case hide:
         context
             .read<BoardBloc>()
-            .add(BoardEvent.toggleGroupVisibility(groupId, false));
+            .add(BoardEvent.toggleGroupVisibility(group, false));
         break;
       // case GroupOptions.color:
       //   break;

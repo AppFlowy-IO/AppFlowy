@@ -108,7 +108,9 @@ class HiddenGroupList extends StatelessWidget {
     return BlocProvider(
       create: (_) => HiddenGroupsBloc(
         databaseController: databaseController,
-        initialHiddenGroups: context.read<BoardBloc>().hiddenGroups,
+        hideUngrouped:
+            databaseController.databaseLayoutSetting!.board.hideUngroupedColumn,
+        initialGroups: context.read<BoardBloc>().groupList,
       )..add(const HiddenGroupsEvent.initial()),
       child: BlocBuilder<HiddenGroupsBloc, HiddenGroupsState>(
         builder: (context, state) {
@@ -146,7 +148,11 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
   Widget build(BuildContext context) {
     final button = GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => _popoverController.show(),
+      onTap: () {
+        if (widget.group.rows.isNotEmpty) {
+          _popoverController.show();
+        }
+      },
       child: FlowyHover(
         resetHoverOnRebuild: false,
         builder: (context, isHovering) {
@@ -156,11 +162,11 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               child: Row(
                 children: [
-                  Opacity(
-                    opacity: isHovering ? 1 : 0,
-                    child: const HiddenGroupCardActions(),
-                  ),
-                  const HSpace(4),
+                  // Opacity(
+                  //   opacity: isHovering ? 1 : 0,
+                  //   child: const HiddenGroupCardActions(),
+                  // ),
+                  // const HSpace(4),
                   FlowyText.medium(
                     widget.group.groupName,
                     overflow: TextOverflow.ellipsis,
@@ -184,7 +190,7 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
                     onPressed: () {
                       context.read<BoardBloc>().add(
                             BoardEvent.toggleGroupVisibility(
-                              widget.group.groupId,
+                              widget.group,
                               true,
                             ),
                           );

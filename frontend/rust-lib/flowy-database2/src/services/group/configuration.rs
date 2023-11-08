@@ -427,9 +427,7 @@ where
       let view_id = self.view_id.clone();
       af_spawn(async move {
         match writer.save_configuration(&view_id, configuration).await {
-          Ok(_) => {
-            tracing::error!("Save wut configuration succ: ");
-          },
+          Ok(_) => {},
           Err(e) => {
             tracing::error!("Save group configuration failed: {}", e);
           },
