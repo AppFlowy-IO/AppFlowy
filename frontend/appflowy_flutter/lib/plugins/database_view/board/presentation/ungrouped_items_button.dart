@@ -228,6 +228,7 @@ class UngroupedItem extends StatelessWidget {
         text: cellBuilder.buildCell(
           cellContext: cellContext,
           renderHook: renderHook,
+          hasNotes: false,
         ),
         onTap: onPressed,
       ),

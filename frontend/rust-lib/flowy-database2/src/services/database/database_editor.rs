@@ -546,6 +546,7 @@ impl DatabaseEditor {
         document_id: row_document_id,
         icon: row_meta.icon_url,
         cover: row_meta.cover_url,
+        is_document_empty: row_meta.is_document_empty,
       })
     } else {
       warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
@@ -577,7 +578,8 @@ impl DatabaseEditor {
     self.database.lock().update_row_meta(row_id, |meta_update| {
       meta_update
         .insert_cover_if_not_none(changeset.cover_url)
-        .insert_icon_if_not_none(changeset.icon_url);
+        .insert_icon_if_not_none(changeset.icon_url)
+        .update_is_document_empty_if_not_none(changeset.is_document_empty);
     });
 
     // Use the temporary row meta to get rid of the lock that not implement the `Send` or 'Sync' trait.
