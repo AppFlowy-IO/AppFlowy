@@ -15,6 +15,7 @@
 - Text overflow issue in Calendar properties
 - Default font (Roboto) added to application
 - Placeholder added for the editor inside a Card
+- Toggle notifications in settings have been fixed
 - Dialog for linking board/grid/calendar opens in correct position
 - Quick add Card in Board at top, correctly adds a new Card at the top
 
