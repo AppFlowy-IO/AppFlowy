@@ -27,7 +27,6 @@ import '../../widgets/row/cell_builder.dart';
 import '../application/board_bloc.dart';
 import '../../widgets/card/card.dart';
 import 'toolbar/board_setting_bar.dart';
-import 'ungrouped_items_button.dart';
 import 'widgets/board_hidden_groups.dart';
 
 class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
@@ -156,57 +155,35 @@ class _BoardContentState extends State<BoardContent> {
       },
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const VSpace(8.0),
-              if (state.layoutSettings?.hideUngroupedColumn ?? false)
-                _buildBoardHeader(context),
-              Expanded(
-                child: AppFlowyBoard(
-                  boardScrollController: scrollManager,
-                  scrollController: scrollController,
-                  controller: context.read<BoardBloc>().boardController,
-                  groupConstraints: const BoxConstraints.tightFor(width: 300),
-                  config: const AppFlowyBoardConfig(
-                    groupPadding: EdgeInsets.symmetric(horizontal: 4),
-                    groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
-                  ),
-                  leading: const HiddenGroupsColumn(),
-                  trailing: BoardTrailing(scrollController: scrollController),
-                  headerBuilder: (_, groupData) =>
-                      BlocProvider<BoardBloc>.value(
-                    value: context.read<BoardBloc>(),
-                    child: BoardColumnHeader(
-                      groupData: groupData,
-                      margin: config.headerPadding,
-                    ),
-                  ),
-                  footerBuilder: _buildFooter,
-                  cardBuilder: (_, column, columnItem) => _buildCard(
-                    context,
-                    column,
-                    columnItem,
-                  ),
+          return Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: AppFlowyBoard(
+              boardScrollController: scrollManager,
+              scrollController: scrollController,
+              controller: context.read<BoardBloc>().boardController,
+              groupConstraints: const BoxConstraints.tightFor(width: 300),
+              config: const AppFlowyBoardConfig(
+                groupPadding: EdgeInsets.symmetric(horizontal: 4),
+                groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
+              ),
+              leading: const HiddenGroupsColumn(),
+              trailing: BoardTrailing(scrollController: scrollController),
+              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
+                value: context.read<BoardBloc>(),
+                child: BoardColumnHeader(
+                  groupData: groupData,
+                  margin: config.headerPadding,
                 ),
-              )
-            ],
+              ),
+              footerBuilder: _buildFooter,
+              cardBuilder: (_, column, columnItem) => _buildCard(
+                context,
+                column,
+                columnItem,
+              ),
+            ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildBoardHeader(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(50, 0, 50, 8.0),
-      child: SizedBox(
-        height: 24,
-        child: Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: UngroupedItemsButton(),
-        ),
       ),
     );
   }
