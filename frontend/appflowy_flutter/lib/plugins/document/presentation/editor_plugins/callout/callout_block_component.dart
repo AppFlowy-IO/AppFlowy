@@ -187,7 +187,7 @@ class _CalloutBlockComponentWidgetState
               emoji: emoji,
               onSubmitted: (emoji, controller) {
                 setEmoji(emoji);
-                controller.close();
+                controller?.close();
               },
             ),
           ),

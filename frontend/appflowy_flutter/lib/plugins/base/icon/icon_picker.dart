@@ -12,13 +12,23 @@ enum FlowyIconType {
   custom;
 }
 
+class EmojiPickerResult {
+  const EmojiPickerResult(
+    this.type,
+    this.emoji,
+  );
+
+  final FlowyIconType type;
+  final String emoji;
+}
+
 class FlowyIconPicker extends StatefulWidget {
   const FlowyIconPicker({
     super.key,
     required this.onSelected,
   });
 
-  final void Function(FlowyIconType type, String value) onSelected;
+  final void Function(EmojiPickerResult result) onSelected;
 
   @override
   State<FlowyIconPicker> createState() => _FlowyIconPickerState();
@@ -45,7 +55,12 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
               const Spacer(),
               _RemoveIconButton(
                 onTap: () {
-                  widget.onSelected(FlowyIconType.icon, '');
+                  widget.onSelected(
+                    const EmojiPickerResult(
+                      FlowyIconType.icon,
+                      '',
+                    ),
+                  );
                 },
               ),
             ],
@@ -58,7 +73,12 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
               children: [
                 FlowyEmojiPicker(
                   onEmojiSelected: (_, emoji) {
-                    widget.onSelected(FlowyIconType.emoji, emoji);
+                    widget.onSelected(
+                      EmojiPickerResult(
+                        FlowyIconType.emoji,
+                        emoji,
+                      ),
+                    );
                   },
                 ),
               ],

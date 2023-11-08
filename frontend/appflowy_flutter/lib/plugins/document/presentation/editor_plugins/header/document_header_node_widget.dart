@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -16,7 +15,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import 'cover_editor.dart';
 
@@ -303,15 +301,14 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
         ),
         onTap: PlatformExtension.isDesktop
             ? null
-            : () => context.push(
-                  Uri(
-                    path: MobileEmojiPickerScreen.routeName,
-                    queryParameters: {
-                      MobileEmojiPickerScreen.viewId:
-                          context.read<ViewBloc>().state.view.id,
-                    },
-                  ).toString(),
-                ),
+            : () async {
+                final result = await context.push<EmojiPickerResult>(
+                  MobileEmojiPickerScreen.routeName,
+                );
+                if (result != null) {
+                  widget.onCoverChanged(icon: result.emoji);
+                }
+              },
       );
 
       if (PlatformExtension.isDesktop) {
@@ -325,8 +322,8 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
             return FlowyIconPicker(
-              onSelected: (type, value) {
-                widget.onCoverChanged(icon: value);
+              onSelected: (result) {
+                widget.onCoverChanged(icon: result.emoji);
                 _popoverController.close();
               },
             );
@@ -532,8 +529,8 @@ class _DocumentIconState extends State<DocumentIcon> {
         child: child,
         popupBuilder: (BuildContext popoverContext) {
           return FlowyIconPicker(
-            onSelected: (type, value) {
-              widget.onIconChanged(value);
+            onSelected: (result) {
+              widget.onIconChanged(result.emoji);
               _popoverController.close();
             },
           );
@@ -542,15 +539,14 @@ class _DocumentIconState extends State<DocumentIcon> {
     } else {
       child = GestureDetector(
         child: child,
-        onTap: () => context.push(
-          Uri(
-            path: MobileEmojiPickerScreen.routeName,
-            queryParameters: {
-              MobileEmojiPickerScreen.viewId:
-                  context.read<ViewBloc>().state.view.id,
-            },
-          ).toString(),
-        ),
+        onTap: () async {
+          final result = await context.push<EmojiPickerResult>(
+            MobileEmojiPickerScreen.routeName,
+          );
+          if (result != null) {
+            widget.onIconChanged(result.emoji);
+          }
+        },
       );
     }
 
