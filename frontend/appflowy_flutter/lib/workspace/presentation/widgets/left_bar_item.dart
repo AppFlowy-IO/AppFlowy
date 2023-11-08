@@ -4,10 +4,11 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class ViewLeftBarItem extends StatefulWidget {
-  final ViewPB view;
+  ViewLeftBarItem({
+    required this.view,
+  }) : super(key: ValueKey(view.id));
 
-  ViewLeftBarItem({required this.view, Key? key})
-      : super(key: ValueKey(view.hashCode));
+  final ViewPB view;
 
   @override
   State<ViewLeftBarItem> createState() => _ViewLeftBarItemState();
