@@ -37,7 +37,11 @@ class EmojiPickerButton extends StatelessWidget {
       direction: direction ?? PopoverDirection.rightWithTopAligned,
       popupBuilder: (context) => _buildEmojiPicker(),
       child: emoji.isEmpty && defaultIcon != null
-          ? defaultIcon!
+          ? FlowyButton(
+              useIntrinsicWidth: true,
+              text: defaultIcon!,
+              onTap: () => popoverController.show(),
+            )
           : FlowyTextButton(
               emoji,
               overflow: TextOverflow.visible,

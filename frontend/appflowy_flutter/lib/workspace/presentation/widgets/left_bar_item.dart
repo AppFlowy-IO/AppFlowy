@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
+// TODO: Remove this file after the migration is done.
 class ViewLeftBarItem extends StatefulWidget {
   ViewLeftBarItem({
     required this.view,
