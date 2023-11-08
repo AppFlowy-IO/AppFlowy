@@ -450,7 +450,7 @@ impl FolderManager {
     }
 
     let index = params.index;
-    let view = create_view(params, view_layout);
+    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -474,7 +474,7 @@ impl FolderManager {
     handler
       .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
       .await?;
-    let view = create_view(params, view_layout);
+    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -915,7 +915,7 @@ impl FolderManager {
       index: None,
     };
 
-    let view = create_view(params, import_data.view_layout);
+    let view = create_view(self.user.user_id()?, params, import_data.view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -1278,6 +1278,7 @@ impl Deref for MutexFolder {
 unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
 
+#[allow(clippy::large_enum_variant)]
 pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },

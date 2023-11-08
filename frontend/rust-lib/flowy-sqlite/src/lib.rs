@@ -10,11 +10,11 @@ use std::{fmt::Debug, io, path::Path};
 pub use diesel::*;
 pub use diesel_derives::*;
 
-use crate::sqlite::PoolConfig;
-pub use crate::sqlite::{ConnectionPool, DBConnection, Database};
+use crate::sqlite_impl::PoolConfig;
+pub use crate::sqlite_impl::{ConnectionPool, DBConnection, Database};
 
 pub mod kv;
-mod sqlite;
+mod sqlite_impl;
 
 pub mod schema;
 
@@ -46,7 +46,7 @@ pub fn init<P: AsRef<Path>>(storage_path: P) -> Result<Database, io::Error> {
 
 fn as_io_error<E>(e: E) -> io::Error
 where
-  E: Into<crate::sqlite::Error> + Debug,
+  E: Into<crate::sqlite_impl::Error> + Debug,
 {
   let msg = format!("{:?}", e);
   io::Error::new(io::ErrorKind::NotConnected, msg)
