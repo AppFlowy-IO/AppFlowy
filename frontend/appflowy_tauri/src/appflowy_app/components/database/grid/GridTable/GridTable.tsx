@@ -1,9 +1,9 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { FC, useMemo, useRef } from 'react';
 import { RowMeta } from '../../application';
-import { useDatabase } from '../../Database.hooks';
+import { useDatabase, useDatabaseVisibilityFields } from '../../Database.hooks';
 import { VirtualizedList } from '../../_shared';
-import { GridRow, RenderRow, RenderRowType, rowMetasToRenderRow } from '../GridRow';
+import { DEFAULT_FIELD_WIDTH, GridRow, RenderRow, RenderRowType, rowMetasToRenderRow } from '../GridRow';
 
 const getRenderRowKey = (row: RenderRow) => {
   if (row.type === RenderRowType.Row) {
@@ -16,9 +16,9 @@ const getRenderRowKey = (row: RenderRow) => {
 export const GridTable: FC<{ tableHeight: number }> = ({ tableHeight }) => {
   const verticalScrollElementRef = useRef<HTMLDivElement | null>(null);
   const horizontalScrollElementRef = useRef<HTMLDivElement | null>(null);
-  const { rowMetas, fields } = useDatabase();
+  const { rowMetas } = useDatabase();
   const renderRows = useMemo<RenderRow[]>(() => rowMetasToRenderRow(rowMetas as RowMeta[]), [rowMetas]);
-
+  const fields = useDatabaseVisibilityFields();
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
     count: renderRows.length,
     overscan: 20,
@@ -33,7 +33,9 @@ export const GridTable: FC<{ tableHeight: number }> = ({ tableHeight }) => {
     overscan: 5,
     getItemKey: (i) => fields[i].id,
     getScrollElement: () => horizontalScrollElementRef.current,
-    estimateSize: (i) => fields[i].width ?? 201,
+    estimateSize: (i) => {
+      return fields[i].width ?? DEFAULT_FIELD_WIDTH;
+    },
   });
 
   const getPrevRowId = (id: string) => {
