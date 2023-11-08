@@ -10,10 +10,7 @@ export interface GridNewRowProps {
   groupId?: string;
 }
 
-export const GridNewRow: FC<GridNewRowProps> = ({
-  startRowId,
-  groupId,
-}) => {
+export const GridNewRow: FC<GridNewRowProps> = ({ startRowId, groupId }) => {
   const viewId = useViewId();
 
   const handleClick = useCallback(() => {
@@ -24,13 +21,10 @@ export const GridNewRow: FC<GridNewRowProps> = ({
   }, [viewId, groupId, startRowId]);
 
   return (
-    <div className="flex grow border-b border-line-divider">
-      <Button
-        className="grow justify-start"
-        onClick={handleClick}
-      >
-        <span className="inline-flex items-center sticky left-2">
-          <AddSvg className="text-base mr-1" />
+    <div className='flex grow border-b border-line-divider'>
+      <Button className='grow justify-start' onClick={handleClick} color={'inherit'}>
+        <span className='sticky left-2 inline-flex items-center'>
+          <AddSvg className='mr-1 text-base' />
           {t('grid.row.newRow')}
         </span>
       </Button>

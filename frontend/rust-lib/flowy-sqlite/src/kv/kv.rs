@@ -7,7 +7,7 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use crate::kv::schema::{kv_table, kv_table::dsl, KV_SQL};
-use crate::sqlite::{Database, PoolConfig};
+use crate::sqlite_impl::{Database, PoolConfig};
 
 const DB_NAME: &str = "cache.db";
 

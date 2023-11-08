@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Error;
+use client_api::collab_sync::collab_msg::CollabMessage;
 use client_api::ws::{WSConnectStateReceiver, WebSocketChannel};
 use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
@@ -101,11 +102,18 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     None
   }
 
+  #[allow(clippy::type_complexity)]
   fn collab_ws_channel(
     &self,
     _object_id: &str,
-  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver, bool)>, anyhow::Error>
-  {
+  ) -> FutureResult<
+    Option<(
+      Arc<WebSocketChannel<CollabMessage>>,
+      WSConnectStateReceiver,
+      bool,
+    )>,
+    anyhow::Error,
+  > {
     FutureResult::new(async { Ok(None) })
   }
 

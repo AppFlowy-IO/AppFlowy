@@ -3,20 +3,16 @@ import { ViewIdProvider } from '$app/hooks';
 import { DatabaseProvider, useConnectDatabase } from './Database.hooks';
 
 export interface DatabaseLoaderProps {
-  viewId: string
+  viewId: string;
 }
 
-export const DatabaseLoader: FC<PropsWithChildren<DatabaseLoaderProps>> = ({
-  viewId,
-  children,
-}) => {
+export const DatabaseLoader: FC<PropsWithChildren<DatabaseLoaderProps>> = ({ viewId, children }) => {
   const database = useConnectDatabase(viewId);
 
   return (
     <DatabaseProvider value={database}>
-      <ViewIdProvider value={viewId}>
-        {children}
-      </ViewIdProvider>
+      {/* Make sure that the viewId is current */}
+      <ViewIdProvider value={viewId}>{children}</ViewIdProvider>
     </DatabaseProvider>
   );
 };

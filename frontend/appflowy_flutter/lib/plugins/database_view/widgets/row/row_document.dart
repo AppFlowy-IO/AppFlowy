@@ -126,6 +126,10 @@ class _RowEditorState extends State<RowEditor> {
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                           ),
                         ),
+                        showParagraphPlaceholder: (editorState, node) =>
+                            editorState.document.isEmpty,
+                        placeholderText: (node) =>
+                            LocaleKeys.cardDetails_notesPlaceholder.tr(),
                       ),
                     );
                   },

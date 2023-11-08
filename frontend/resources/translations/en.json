@@ -531,7 +531,10 @@
       "newRow": "New row",
       "action": "Action",
       "add": "Click add to below",
-      "drag": "Drag to move"
+      "drag": "Drag to move",
+      "dragAndClick": "Drag to move, click to open menu",
+      "insertRecordAbove": "Insert record above",
+      "insertRecordBelow": "Insert record below"
     },
     "selectOption": {
       "create": "Create",
@@ -613,7 +616,12 @@
       "smartEditDisabled": "Connect OpenAI in Settings",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
-      "toggleList": "Toggle List",
+      "toggleList": "Toggle list",
+      "quoteList":"Quote list",
+      "numberedList":"Numbered list",
+      "bulletedList":"Bulleted list",
+      "todoList": "Todo List",
+      "callout": "Callout",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
@@ -1040,5 +1048,8 @@
   "favorite": {
     "noFavorite": "No favorite page",
     "noFavoriteHintText": "Swipe the page to the left to add it to your favorites"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Enter a / to insert a block, or start typing"
   }
 }

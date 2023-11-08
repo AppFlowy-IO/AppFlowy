@@ -233,7 +233,7 @@
       },
       "theme": "Tema",
       "builtInsLabel": "Inbyggda teman",
-      "pluginsLabel": "Plugins"
+      "pluginsLabel": "Plugin"
     },
     "files": {
       "copy": "Kopiera",
@@ -253,7 +253,7 @@
       "open": "Öppen",
       "openFolder": "Öppna en befintlig mapp",
       "openFolderDesc": "Läs och skriv det till din befintliga AppFlowy-mapp",
-      "folderHintText": "mapp namn",
+      "folderHintText": "mappnamn",
       "location": "Skapar en ny mapp",
       "locationDesc": "Välj ett namn för din AppFlowy-datamapp",
       "browser": "Bläddra",
@@ -455,12 +455,12 @@
       "createInlineMathEquation": "Skapa ekvation",
       "toggleList": "Växla lista",
       "cover": {
-        "changeCover": "Byta omslag",
+        "changeCover": "Byt omslag",
         "colors": "Färger",
         "images": "Bilder",
         "clearAll": "Rensa alla",
         "abstract": "Abstrakt",
-        "addCover": "Lägg till lock",
+        "addCover": "Lägg till omslag",
         "addLocalImage": "Lägg till lokal bild",
         "invalidImageUrl": "Ogiltig bildadress",
         "failedToAddImageToGallery": "Det gick inte att lägga till bild i galleriet",

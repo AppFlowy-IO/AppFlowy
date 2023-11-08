@@ -1,6 +1,5 @@
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,11 +7,10 @@ import 'package:go_router/go_router.dart';
 class IconPickerPage extends StatefulWidget {
   const IconPickerPage({
     super.key,
-    required this.id,
+    required this.onSelected,
   });
 
-  /// view id
-  final String id;
+  final void Function(EmojiPickerResult) onSelected;
 
   @override
   State<IconPickerPage> createState() => _IconPickerPageState();
@@ -34,13 +32,7 @@ class _IconPickerPageState extends State<IconPickerPage> {
       ),
       body: SafeArea(
         child: FlowyIconPicker(
-          onSelected: (_, emoji) {
-            ViewBackendService.updateViewIcon(
-              viewId: widget.id,
-              viewIcon: emoji,
-            );
-            context.pop();
-          },
+          onSelected: widget.onSelected,
         ),
       ),
     );

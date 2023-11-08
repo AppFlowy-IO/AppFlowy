@@ -1,1 +1,1 @@
-export * from './DatabaseSettings';
+export * from './DatabaseCollection';

@@ -209,11 +209,8 @@ GoRoute _mobileEmojiPickerPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileEmojiPickerScreen.routeName,
     pageBuilder: (context, state) {
-      final id = state.uri.queryParameters[MobileEmojiPickerScreen.viewId]!;
-      return MaterialPage(
-        child: MobileEmojiPickerScreen(
-          id: id,
-        ),
+      return const MaterialPage(
+        child: MobileEmojiPickerScreen(),
       );
     },
   );
