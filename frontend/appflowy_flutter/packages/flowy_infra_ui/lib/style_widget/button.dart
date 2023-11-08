@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -24,6 +26,7 @@ class FlowyButton extends StatelessWidget {
   final Size? leftIconSize;
   final bool expandText;
   final MainAxisAlignment mainAxisAlignment;
+  final bool showDefaultBoxDecorationOnMobile;
 
   const FlowyButton({
     Key? key,
@@ -44,6 +47,7 @@ class FlowyButton extends StatelessWidget {
     this.leftIconSize = const Size.square(16),
     this.expandText = true,
     this.mainAxisAlignment = MainAxisAlignment.center,
+    this.showDefaultBoxDecorationOnMobile = false,
   }) : super(key: key);
 
   @override
@@ -65,12 +69,12 @@ class FlowyButton extends StatelessWidget {
         ),
         onHover: disable ? null : onHover,
         isSelected: () => isSelected,
-        builder: (context, onHover) => _render(),
+        builder: (context, onHover) => _render(context),
       ),
     );
   }
 
-  Widget _render() {
+  Widget _render(BuildContext context) {
     List<Widget> children = List.empty(growable: true);
 
     if (leftIcon != null) {
@@ -104,6 +108,16 @@ class FlowyButton extends StatelessWidget {
     if (useIntrinsicWidth) {
       child = IntrinsicWidth(child: child);
     }
+
+    final decoration = this.decoration ??
+        (showDefaultBoxDecorationOnMobile &&
+                (Platform.isIOS || Platform.isAndroid)
+            ? BoxDecoration(
+                border: Border.all(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                width: 1.0,
+              ))
+            : null);
 
     return Container(
       decoration: decoration,

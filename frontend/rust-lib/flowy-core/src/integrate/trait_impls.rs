@@ -330,6 +330,7 @@ impl CollabStorageProvider for ServerProvider {
                 let (sink, stream) = (channel.sink(), channel.stream());
                 let sink_config = SinkConfig::new()
                   .send_timeout(8)
+                  .with_max_payload_size(1024 * 10)
                   .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
                 let sync_plugin = SyncPlugin::new(
                   origin,

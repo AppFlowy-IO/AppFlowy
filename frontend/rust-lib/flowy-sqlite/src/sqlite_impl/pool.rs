@@ -4,7 +4,7 @@ use diesel::{connection::Connection, SqliteConnection};
 use r2d2::{CustomizeConnection, ManageConnection, Pool};
 use scheduled_thread_pool::ScheduledThreadPool;
 
-use crate::sqlite::{errors::*, pragma::*};
+use crate::sqlite_impl::{errors::*, pragma::*};
 
 pub struct ConnectionPool {
   pub(crate) inner: Pool<ConnectionManager>,
@@ -87,7 +87,7 @@ pub struct ConnectionManager {
 
 impl ManageConnection for ConnectionManager {
   type Connection = SqliteConnection;
-  type Error = crate::sqlite::Error;
+  type Error = crate::sqlite_impl::Error;
 
   fn connect(&self) -> Result<Self::Connection> {
     Ok(SqliteConnection::establish(&self.db_uri)?)
@@ -142,7 +142,7 @@ impl DatabaseCustomizer {
   }
 }
 
-impl CustomizeConnection<SqliteConnection, crate::sqlite::Error> for DatabaseCustomizer {
+impl CustomizeConnection<SqliteConnection, crate::sqlite_impl::Error> for DatabaseCustomizer {
   fn on_acquire(&self, conn: &mut SqliteConnection) -> Result<()> {
     conn.pragma_set_busy_timeout(self.config.busy_timeout)?;
     if self.config.journal_mode != SQLiteJournalMode::WAL {

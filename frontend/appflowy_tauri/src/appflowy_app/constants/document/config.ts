@@ -90,6 +90,9 @@ export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.DividerBlock]: {
     canAddChild: false,
   },
+  [BlockType.GridBlock]: {
+    canAddChild: false,
+  },
   [BlockType.EquationBlock]: {
     canAddChild: false,
     defaultData: {

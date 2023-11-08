@@ -23,6 +23,11 @@ body {
   @apply bg-content-blue-100;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
 div[role="textbox"] ::selection {
   @apply bg-transparent;
 }

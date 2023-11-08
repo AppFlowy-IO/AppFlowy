@@ -214,7 +214,8 @@
     "tryAgain": "Try again",
     "discard": "Discard",
     "replace": "Replace",
-    "insertBelow": "Insert Below",
+    "insertBelow": "Insert below",
+    "insertAbove": "Insert above",
     "upload": "Upload",
     "edit": "Edit",
     "delete": "Delete",
@@ -530,7 +531,10 @@
       "newRow": "New row",
       "action": "Action",
       "add": "Click add to below",
-      "drag": "Drag to move"
+      "drag": "Drag to move",
+      "dragAndClick": "Drag to move, click to open menu",
+      "insertRecordAbove": "Insert record above",
+      "insertRecordBelow": "Insert record below"
     },
     "selectOption": {
       "create": "Create",
@@ -612,7 +616,12 @@
       "smartEditDisabled": "Connect OpenAI in Settings",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
-      "toggleList": "Toggle List",
+      "toggleList": "Toggle list",
+      "quoteList":"Quote list",
+      "numberedList":"Numbered list",
+      "bulletedList":"Bulleted list",
+      "todoList": "Todo List",
+      "callout": "Callout",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
@@ -639,7 +648,7 @@
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
       "mathEquation": {
-        "addMathEquation": "Add Math Equation",
+        "addMathEquation": "Add a TeX equation",
         "editMathEquation": "Edit Math Equation"
       },
       "optionAction": {
@@ -676,7 +685,8 @@
         "copy": "Copy",
         "cut": "Cut",
         "paste": "Paste"
-      }
+      },
+      "action": "Actions"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -715,7 +725,11 @@
       },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page"
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
+      "saveImageToGallery": "Save image",
+      "failedToAddImageToGallery": "Failed to add image to gallery",
+      "successToAddImageToGallery": "Image added to gallery successfully",
+      "unableToLoadImage": "Unable to load image"
     },
     "codeBlock": {
       "language": {
@@ -1034,5 +1048,8 @@
   "favorite": {
     "noFavorite": "No favorite page",
     "noFavoriteHintText": "Swipe the page to the left to add it to your favorites"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Enter a / to insert a block, or start typing"
   }
 }

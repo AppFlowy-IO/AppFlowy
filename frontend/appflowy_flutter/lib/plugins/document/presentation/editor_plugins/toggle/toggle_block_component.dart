@@ -166,13 +166,17 @@ class _ToggleListBlockComponentWidgetState
           Container(
             constraints: const BoxConstraints(minWidth: 26, minHeight: 22),
             padding: const EdgeInsets.only(right: 4.0),
-            child: FlowyIconButton(
-              width: 18.0,
-              icon: Icon(
-                collapsed ? Icons.arrow_right : Icons.arrow_drop_down,
-                size: 18.0,
+            child: AnimatedRotation(
+              turns: collapsed ? 0.0 : 0.25,
+              duration: const Duration(milliseconds: 200),
+              child: FlowyIconButton(
+                width: 18.0,
+                icon: const Icon(
+                  Icons.arrow_right,
+                  size: 18.0,
+                ),
+                onPressed: onCollapsed,
               ),
-              onPressed: onCollapsed,
             ),
           ),
 
