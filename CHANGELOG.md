@@ -1,5 +1,22 @@
 # Release Notes
 
+## Version 0.3.8 - 11/13/2023
+
+### New Features
+- Support hiding any stack in a board
+- Support customizing page icons in menu
+- Display visual hint when card contains notes
+- Quick action for adding new stack to a board
+- Support more ways of inserting page references in documents
+
+### Bug fixes
+- Improved color of the "Share"-button text
+- Text overflow issue in Calendar properties
+- Default font (Roboto) added to application
+- Placeholder added for the editor inside a Card
+- Dialog for linking board/grid/calendar opens in correct position
+- Quick add Card in Board at top, correctly adds a new Card at the top
+
 ## Version 0.3.7 - 10/30/2023
 
 ### New Features
