@@ -23,6 +23,7 @@ export enum BlockType {
   CalloutBlock = 'callout',
   DividerBlock = 'divider',
   ImageBlock = 'image',
+  GridBlock = 'grid',
 }
 
 export interface EauqtionBlockData {
@@ -83,6 +84,10 @@ export interface PageBlockData extends TextBlockData {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Data = any;
 
+export interface ReferenceBlockData {
+  viewId: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type BlockData<Type = any> = Type extends BlockType.HeadingBlock
   ? HeadingBlockData
@@ -106,13 +111,15 @@ export type BlockData<Type = any> = Type extends BlockType.HeadingBlock
   ? ImageBlockData
   : Type extends BlockType.TextBlock
   ? TextBlockData
+  : Type extends BlockType.GridBlock
+  ? ReferenceBlockData
   : Data;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface NestedBlock<Type = any> {
   id: string;
   type: BlockType;
-  data: BlockData<Type> | Data;
+  data: BlockData<Type>;
   parent: string | null;
   children: string;
   externalId?: string;
@@ -159,12 +166,14 @@ export enum SlashCommandOptionKey {
   HEADING_2,
   HEADING_3,
   IMAGE,
+  GRID_REFERENCE,
 }
 
 export interface SlashCommandOption {
   type: BlockType;
   data?: BlockData;
   key: SlashCommandOptionKey;
+  onClick?: () => void;
 }
 
 export enum SlashCommandGroup {

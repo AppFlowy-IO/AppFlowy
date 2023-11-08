@@ -1,8 +1,10 @@
 import React from 'react';
 import { WorkspaceItem } from '$app_reducers/workspace/slice';
 import NestedViews from '$app/components/layout/WorkspaceManager/NestedPages';
+import { useLoadWorkspace } from '$app/components/layout/WorkspaceManager/Workspace.hooks';
 
 function Workspace({ workspace, opened }: { workspace: WorkspaceItem; opened: boolean }) {
+  useLoadWorkspace(workspace);
   return (
     <div className={'flex h-[100%] flex-col'}>
       <div
