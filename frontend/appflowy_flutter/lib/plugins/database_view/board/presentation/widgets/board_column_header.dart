@@ -227,9 +227,9 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 4.0),
                   child: FlowyButton(
-                    leftIcon: FlowySvg(action.icon()),
+                    leftIcon: FlowySvg(action.icon),
                     text: FlowyText.medium(
-                      action.text(),
+                      action.text,
                       overflow: TextOverflow.ellipsis,
                     ),
                     onTap: () {
@@ -266,12 +266,12 @@ enum GroupOptions {
     }
   }
 
-  FlowySvgData icon() => switch (this) {
+  FlowySvgData get icon => switch (this) {
         rename => FlowySvgs.edit_s,
         hide => FlowySvgs.hide_s,
       };
 
-  String text() => switch (this) {
+  String get text => switch (this) {
         rename => LocaleKeys.board_column_renameColumn.tr(),
         hide => LocaleKeys.board_column_hideColumn.tr(),
       };

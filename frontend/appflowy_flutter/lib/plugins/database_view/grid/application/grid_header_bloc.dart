@@ -17,12 +17,15 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   GridHeaderBloc({
     required this.viewId,
     required this.fieldController,
-  }) : super(GridHeaderState.initial(fieldController.fieldInfos)) {
+  }) : super(GridHeaderState.initial()) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialHeader value) {
             _startListening();
+            add(
+              GridHeaderEvent.didReceiveFieldUpdate(fieldController.fieldInfos),
+            );
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(
@@ -88,6 +91,5 @@ class GridHeaderState with _$GridHeaderState {
   const factory GridHeaderState({required List<FieldInfo> fields}) =
       _GridHeaderState;
 
-  factory GridHeaderState.initial(List<FieldInfo> fields) =>
-      GridHeaderState(fields: fields);
+  factory GridHeaderState.initial() => const GridHeaderState(fields: []);
 }

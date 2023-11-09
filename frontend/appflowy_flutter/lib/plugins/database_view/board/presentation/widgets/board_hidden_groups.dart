@@ -188,13 +188,13 @@ class HiddenGroupButtonContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HiddenGroupButtonBloc, HiddenGroupButtonState>(
-      builder: (context, state) {
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: popoverController.show,
-          child: FlowyHover(
-            builder: (context, isHovering) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: popoverController.show,
+      child: FlowyHover(
+        builder: (context, isHovering) {
+          return BlocBuilder<HiddenGroupButtonBloc, HiddenGroupButtonState>(
+            builder: (context, state) {
               final group = state.hiddenGroup;
 
               return SizedBox(
@@ -204,11 +204,6 @@ class HiddenGroupButtonContent extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   child: Row(
                     children: [
-                      // Opacity(
-                      //   opacity: isHovering ? 1 : 0,
-                      //   child: const HiddenGroupCardActions(),
-                      // ),
-                      // const HSpace(4),
                       FlowyText.medium(
                         group.groupName,
                         overflow: TextOverflow.ellipsis,
@@ -238,9 +233,9 @@ class HiddenGroupButtonContent extends StatelessWidget {
                 ),
               );
             },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
