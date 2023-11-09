@@ -31,14 +31,12 @@ class HiddenGroupButtonBloc
     listener = HiddenGroupsListener(
       initialGroup: state.hiddenGroup,
       onGroupChanged: (newGroupItems) {
-        final group = state.hiddenGroup;
-        group
-          ..freeze()
-          ..rebuild(
-            (g) => g.rows
-              ..clear()
-              ..addAll(newGroupItems),
-          );
+        GroupPB group = state.hiddenGroup;
+        group.freeze();
+        group = group.rebuild((g) {
+          g.rows.clear();
+          g.rows.addAll(newGroupItems);
+        });
 
         add(HiddenGroupButtonEvent.didUpdateGroup(group: group));
       },

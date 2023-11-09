@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:dartz/dartz.dart';
+import 'package:protobuf/protobuf.dart';
 
 typedef OnGroupError = void Function(FlowyError);
 
@@ -18,7 +19,7 @@ abstract class GroupControllerDelegate {
 }
 
 class GroupController {
-  final GroupPB group;
+  GroupPB group;
   final SingleGroupListener _listener;
   final GroupControllerDelegate delegate;
 
@@ -46,18 +47,19 @@ class GroupController {
       onGroupChanged: (result) {
         result.fold(
           (GroupRowsNotificationPB changeset) {
+            final newItems = [...group.rows];
             for (final deletedRow in changeset.deletedRows) {
-              group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
+              newItems.removeWhere((rowPB) => rowPB.id == deletedRow);
               delegate.removeRow(group, deletedRow);
             }
 
             for (final insertedRow in changeset.insertedRows) {
               final index = insertedRow.hasIndex() ? insertedRow.index : null;
               if (insertedRow.hasIndex() &&
-                  group.rows.length > insertedRow.index) {
-                group.rows.insert(insertedRow.index, insertedRow.rowMeta);
+                  newItems.length > insertedRow.index) {
+                newItems.insert(insertedRow.index, insertedRow.rowMeta);
               } else {
-                group.rows.add(insertedRow.rowMeta);
+                newItems.add(insertedRow.rowMeta);
               }
 
               if (insertedRow.isNew) {
@@ -68,15 +70,21 @@ class GroupController {
             }
 
             for (final updatedRow in changeset.updatedRows) {
-              final index = group.rows.indexWhere(
+              final index = newItems.indexWhere(
                 (rowPB) => rowPB.id == updatedRow.id,
               );
 
               if (index != -1) {
-                group.rows[index] = updatedRow;
+                newItems[index] = updatedRow;
                 delegate.updateRow(group, updatedRow);
               }
             }
+
+            group.freeze();
+            group = group.rebuild((group) {
+              group.rows.clear();
+              group.rows.addAll(newItems);
+            });
           },
           (err) => Log.error(err),
         );
