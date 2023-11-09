@@ -236,6 +236,7 @@ class _BoardContentState extends State<BoardContent> {
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
     final groupItemId = groupItem.row.id + groupData.group.groupId;
+
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
       margin: config.cardPadding,

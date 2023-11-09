@@ -265,6 +265,7 @@ async fn update_row_meta_event_with_url_test() {
     view_id: grid_view.id.clone(),
     icon_url: Some("icon_url".to_owned()),
     cover_url: None,
+    is_document_empty: None,
   };
   let error = test.update_row_meta(changeset).await;
   assert!(error.is_none());
@@ -293,6 +294,7 @@ async fn update_row_meta_event_with_cover_test() {
     view_id: grid_view.id.clone(),
     cover_url: Some("cover url".to_owned()),
     icon_url: None,
+    is_document_empty: None,
   };
   let error = test.update_row_meta(changeset).await;
   assert!(error.is_none());
