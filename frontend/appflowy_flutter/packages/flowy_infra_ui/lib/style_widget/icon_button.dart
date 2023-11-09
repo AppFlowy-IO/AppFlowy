@@ -79,6 +79,7 @@ class FlowyIconButton extends StatelessWidget {
           child: FlowyHover(
             isSelected: isSelected != null ? () => isSelected! : null,
             style: HoverStyle(
+              hoverColor: hoverColor,
               foregroundColorOnHover:
                   iconColorOnHover ?? Theme.of(context).iconTheme.color,
               //Do not set background here. Use [fillColor] instead.
