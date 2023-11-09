@@ -177,7 +177,7 @@ class _IncludeTimeSwitch extends StatelessWidget {
 }
 
 class _StartDayTime extends StatelessWidget {
-  const _StartDayTime({super.key});
+  const _StartDayTime();
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +213,7 @@ class _StartDayTime extends StatelessWidget {
 }
 
 class _EndDayTime extends StatelessWidget {
-  const _EndDayTime({super.key});
+  const _EndDayTime();
 
   @override
   Widget build(BuildContext context) {
@@ -313,7 +313,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
 }
 
 class _ClearDateButton extends StatelessWidget {
-  const _ClearDateButton({super.key});
+  const _ClearDateButton();
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +333,7 @@ class _ClearDateButton extends StatelessWidget {
 }
 
 class _TimeFormatOption extends StatelessWidget {
-  const _TimeFormatOption({super.key});
+  const _TimeFormatOption();
 
   @override
   Widget build(BuildContext context) {
@@ -361,7 +361,7 @@ class _TimeFormatOption extends StatelessWidget {
 }
 
 class _DateFormatOption extends StatelessWidget {
-  const _DateFormatOption({super.key});
+  const _DateFormatOption();
 
   @override
   Widget build(BuildContext context) {

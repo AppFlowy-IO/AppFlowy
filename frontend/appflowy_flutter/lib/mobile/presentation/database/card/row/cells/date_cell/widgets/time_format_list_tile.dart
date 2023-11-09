@@ -82,7 +82,6 @@ class TimeFormatListTile extends StatelessWidget {
 
 class _TimeFormatRadioListTile extends StatelessWidget {
   const _TimeFormatRadioListTile({
-    super.key,
     required this.title,
     required this.timeFormatPB,
     required this.groupValue,

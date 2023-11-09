@@ -26,8 +26,8 @@ class MobileRowPropertyList extends StatelessWidget {
   const MobileRowPropertyList({
     required this.viewId,
     required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

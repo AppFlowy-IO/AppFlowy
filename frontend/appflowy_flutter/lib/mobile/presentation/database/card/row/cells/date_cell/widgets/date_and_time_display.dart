@@ -79,7 +79,6 @@ class _DateEditButton extends StatelessWidget {
     required this.dateStr,
     required this.initialDate,
     required this.onDaySelected,
-    super.key,
   });
 
   @override
@@ -113,9 +112,8 @@ class _DateEditButton extends StatelessWidget {
 class _TimeEditButton extends StatelessWidget {
   final String? timeStr;
   const _TimeEditButton(
-    this.timeStr, {
-    super.key,
-  });
+    this.timeStr,
+  );
 
   @override
   Widget build(BuildContext context) {

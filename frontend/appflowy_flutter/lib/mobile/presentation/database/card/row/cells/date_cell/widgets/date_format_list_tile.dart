@@ -109,7 +109,6 @@ class DateFormatListTile extends StatelessWidget {
 
 class _DateFormatRadioListTile extends StatelessWidget {
   const _DateFormatRadioListTile({
-    super.key,
     required this.title,
     required this.dateFormatPB,
     required this.groupValue,
