@@ -23,6 +23,8 @@ void main() {
         onHover: () async {
           final moreOption = find.byType(CardMoreOption);
           await tester.tapButton(moreOption);
+          // TODO: First time with AppFlowy Open, in a Board, when pressing
+          //  this CardMoreOption, nothing happens or it closes fast
           await tester.tapButton(moreOption);
         },
       );
@@ -42,6 +44,8 @@ void main() {
         onHover: () async {
           final moreOption = find.byType(CardMoreOption);
           await tester.tapButton(moreOption);
+          // TODO: First time with AppFlowy Open, in a Board, when pressing
+          //  this CardMoreOption, nothing happens or it closes fast
           await tester.tapButton(moreOption);
         },
       );

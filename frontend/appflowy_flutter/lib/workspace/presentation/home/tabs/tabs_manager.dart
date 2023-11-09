@@ -10,15 +10,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 class TabsManager extends StatefulWidget {
-  final PageController pageController;
-  final TabsController tabs;
-  final PaneNode pane;
   const TabsManager({
     super.key,
     required this.tabs,
     required this.pageController,
     required this.pane,
   });
+
+  final TabsController tabs;
+  final PageController pageController;
+  final PaneNode pane;
 
   @override
   State<TabsManager> createState() => _TabsManagerState();
@@ -66,6 +67,7 @@ class _TabsManagerState extends State<TabsManager>
     if (_controller.length == 1) {
       return const SizedBox.shrink();
     }
+
     return Container(
       alignment: Alignment.bottomLeft,
       height: HomeSizes.tabBarHeight,

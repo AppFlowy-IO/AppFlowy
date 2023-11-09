@@ -7,16 +7,17 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 
 class TabService {
-  final MenuSharedState menuSharedState;
-
   TabService() : menuSharedState = getIt<MenuSharedState>();
 
+  final MenuSharedState menuSharedState;
+
   PageManager? updateWriteStatusHandler(String pluginId, PaneNode node) {
-    for (final page in node.tabs.pageManagers) {
+    for (final page in node.tabsController.pageManagers) {
       if (page.plugin.id == pluginId && page.readOnly) {
         return page;
       }
     }
+
     for (int i = 0; i < node.children.length; i++) {
       final result = updateWriteStatusHandler(pluginId, node.children[i]);
       if (result != null) {
@@ -29,7 +30,7 @@ class TabService {
   void openViewHandler(TabsController controller, Plugin plugin, {int? index}) {
     final openPlugins = menuSharedState.openPlugins;
 
-    ///determine placement of new pagemanager in list of pagemanagers
+    /// Determine placement of new pagemanager in list of pagemanagers
     final pageManager = PageManager()
       ..setPlugin(plugin)
       ..setReadOnlyStatus(openPlugins.containsKey(plugin.id));
@@ -40,11 +41,7 @@ class TabService {
       controller.pageManagers.insert(index, pageManager);
     }
 
-    openPlugins.update(
-      plugin.id,
-      (value) => value + 1,
-      ifAbsent: () => 1,
-    );
+    openPlugins.update(plugin.id, (value) => value + 1, ifAbsent: () => 1);
     menuSharedState.openPlugins = openPlugins;
   }
 
@@ -54,9 +51,9 @@ class TabService {
     bool move = false,
   }) {
     final openPlugins = menuSharedState.openPlugins;
-    final pm = controller.pageManagers.firstWhere((pm) {
-      return pm.plugin.id == pluginId;
-    });
+    final pm = controller.pageManagers.firstWhere(
+      (pm) => pm.plugin.id == pluginId,
+    );
 
     if (!pm.readOnly && openPlugins.containsKey(pluginId) && !move) {
       controller.tabService.updateWriteStatusHandler(
@@ -65,14 +62,11 @@ class TabService {
       );
     }
 
-    openPlugins.update(
-      pluginId,
-      (value) => value - 1,
-    );
-
+    openPlugins.update(pluginId, (value) => value - 1);
     if (openPlugins[pluginId] == 0) {
       openPlugins.remove(pluginId);
     }
+
     menuSharedState.openPlugins = openPlugins;
     controller.pageManagers.removeWhere((pm) => pm.plugin.id == pluginId);
   }
@@ -83,12 +77,16 @@ class TabService {
   ) {
     final openPlugins = menuSharedState.openPlugins;
     final isPluginOpen = openPlugins.containsKey(plugin.id);
-    final isCurrentPluginOpen =
-        openPlugins.containsKey(controller.currentPageManager.plugin.id);
+    final isCurrentPluginOpen = openPlugins.containsKey(
+      controller.currentPageManager.plugin.id,
+    );
 
-    ///check if a plugin similar to current plugin is already open in any other pane/tabs
+    /// Check if a plugin similar to current plugin is already
+    /// open in any other pane/tabs
     if (isCurrentPluginOpen) {
-      ///if a similar plugin is open and current plugin is writable, make some other plugin writable and sync data before currentPlugin is closed.
+      /// If a similar plugin is open and current plugin is writable,
+      /// then make some other plugin writable and sync data before
+      /// currentPlugin is closed.
       if (!controller.currentPageManager.readOnly) {
         updateWriteStatusHandler(
           controller.currentPageManager.plugin.id,
@@ -96,7 +94,7 @@ class TabService {
         );
       }
 
-      ///update total count of open plugins having similar id as current plugin
+      /// Update total count of open plugins having similar id as current plugin
       openPlugins.update(
         controller.currentPageManager.plugin.id,
         (value) => value - 1,
@@ -107,19 +105,15 @@ class TabService {
       }
     }
 
-    ///create new pagemanager for passed plugin
+    /// Create new pagemanager for passed plugin
     final pageManager = PageManager()
       ..setPlugin(plugin)
       ..setReadOnlyStatus(isPluginOpen);
 
     controller.currentPageManager = pageManager;
 
-    ///update total count of open views holding similar id as passed plugin
-    openPlugins.update(
-      plugin.id,
-      (value) => value + 1,
-      ifAbsent: () => 1,
-    );
+    /// Update total count of open views holding similar id as passed plugin
+    openPlugins.update(plugin.id, (value) => value + 1, ifAbsent: () => 1);
     menuSharedState.openPlugins = openPlugins;
   }
 }

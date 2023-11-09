@@ -8,19 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-enum DraggableHoverPosition {
-  none,
-  top,
-  center,
-  bottom,
-}
+enum DraggableHoverPosition { none, top, center, bottom }
 
 class DraggableViewItem extends StatefulWidget {
   DraggableViewItem({
     super.key,
     required ViewPB view,
-    this.feedback,
     required this.child,
+    this.feedback,
     this.isFirstChild = false,
     this.centerHighlightColor,
     this.topHighlightColor,
@@ -28,9 +23,9 @@ class DraggableViewItem extends StatefulWidget {
     this.onDragging,
   }) : view = CrossDraggablesEntity(draggable: view);
 
+  final CrossDraggablesEntity view;
   final Widget child;
   final WidgetBuilder? feedback;
-  final CrossDraggablesEntity view;
   final bool isFirstChild;
   final Color? centerHighlightColor;
   final Color? topHighlightColor;
@@ -68,21 +63,15 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           if (!_shouldAccept(view, position)) {
             return;
           }
-          setState(() {
-            this.position = position;
-          });
+          setState(() => this.position = position);
         }
       },
-      onLeave: (_) => _updatePosition(
-        DraggableHoverPosition.none,
-      ),
+      onLeave: (_) => _updatePosition(DraggableHoverPosition.none),
       onAccept: (data) {
         if (data.crossDraggableType == CrossDraggableType.view) {
           final from = data.draggable as ViewPB;
           _move(from, widget.view.draggable as ViewPB);
-          setState(
-            () => position = DraggableHoverPosition.none,
-          );
+          setState(() => position = DraggableHoverPosition.none);
         }
       },
       feedback: IntrinsicWidth(
@@ -109,7 +98,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                     Theme.of(context).colorScheme.secondary
                 : Colors.transparent,
           ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.0),
             color: position == DraggableHoverPosition.center
@@ -149,7 +138,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                   : Colors.transparent,
             ),
           ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4.0),
             color: position == DraggableHoverPosition.center
@@ -181,9 +170,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     if (PlatformExtension.isMobile && position != this.position) {
       HapticFeedback.mediumImpact();
     }
-    setState(
-      () => this.position = position,
-    );
+    setState(() => this.position = position);
   }
 
   void _move(ViewPB from, ViewPB to) {
@@ -195,31 +182,19 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
 
     switch (position) {
       case DraggableHoverPosition.top:
-        context.read<ViewBloc>().add(
-              ViewEvent.move(
-                from,
-                to.parentViewId,
-                null,
-              ),
-            );
+        context
+            .read<ViewBloc>()
+            .add(ViewEvent.move(from, to.parentViewId, null));
         break;
       case DraggableHoverPosition.bottom:
-        context.read<ViewBloc>().add(
-              ViewEvent.move(
-                from,
-                to.parentViewId,
-                to.id,
-              ),
-            );
+        context
+            .read<ViewBloc>()
+            .add(ViewEvent.move(from, to.parentViewId, to.id));
         break;
       case DraggableHoverPosition.center:
-        context.read<ViewBloc>().add(
-              ViewEvent.move(
-                from,
-                to.id,
-                to.childViews.lastOrNull?.id,
-              ),
-            );
+        context
+            .read<ViewBloc>()
+            .add(ViewEvent.move(from, to.id, to.childViews.lastOrNull?.id));
         break;
       case DraggableHoverPosition.none:
         break;
@@ -231,9 +206,11 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     if (widget.isFirstChild && offset.dy < -5.0) {
       return DraggableHoverPosition.top;
     }
+
     if (offset.dy > threshold) {
       return DraggableHoverPosition.bottom;
     }
+
     return DraggableHoverPosition.center;
   }
 

@@ -31,11 +31,12 @@ class NavigationNotifier with ChangeNotifier {
 }
 
 class FlowyNavigation extends StatelessWidget {
-  final String currentPaneId;
   const FlowyNavigation({
-    Key? key,
+    super.key,
     required this.currentPaneId,
-  }) : super(key: key);
+  });
+
+  final String currentPaneId;
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +55,7 @@ class FlowyNavigation extends StatelessWidget {
             Selector<NavigationNotifier, List<NavigationItem>>(
               selector: (context, notifier) => notifier.navigationItems,
               builder: (ctx, items, child) => Expanded(
-                child: Row(
-                  children: _renderNavigationItems(items),
-                ),
+                child: Row(children: _renderNavigationItems(items)),
               ),
             ),
           ],
@@ -82,11 +81,9 @@ class FlowyNavigation extends StatelessWidget {
               child: FlowyIconButton(
                 width: 24,
                 hoverColor: Colors.transparent,
-                onPressed: () {
-                  context
-                      .read<HomeSettingBloc>()
-                      .add(const HomeSettingEvent.collapseMenu());
-                },
+                onPressed: () => context
+                    .read<HomeSettingBloc>()
+                    .add(const HomeSettingEvent.collapseMenu()),
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                 icon: FlowySvg(
                   FlowySvgs.hide_menu_m,
@@ -95,9 +92,9 @@ class FlowyNavigation extends StatelessWidget {
               ),
             ),
           );
-        } else {
-          return Container();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -134,47 +131,38 @@ class FlowyNavigation extends StatelessWidget {
         EllipsisNaviItem(items: ellipsisItems),
         ...last,
       ];
-    } else {
-      return items;
     }
+
+    return items;
   }
 }
 
 class NaviItemWidget extends StatelessWidget {
+  const NaviItemWidget(this.item, {super.key});
+
   final NavigationItem item;
-  const NaviItemWidget(this.item, {Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: item.leftBarItem.padding(horizontal: 2, vertical: 2),
-    );
-  }
+  Widget build(BuildContext context) =>
+      Expanded(child: item.leftBarItem.padding(horizontal: 2, vertical: 2));
 }
 
 class NaviItemDivider extends StatelessWidget {
-  final Widget child;
   const NaviItemDivider({super.key, required this.child});
 
+  final Widget child;
+
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [child, const Text('/')],
-    );
-  }
+  Widget build(BuildContext context) => Row(children: [child, const Text('/')]);
 }
 
 class EllipsisNaviItem extends NavigationItem {
+  const EllipsisNaviItem({required this.items});
+
   final List<NavigationItem> items;
-  EllipsisNaviItem({
-    required this.items,
-  });
 
   @override
-  Widget get leftBarItem => FlowyText.medium(
-        '...',
-        fontSize: FontSizes.s16,
-      );
+  Widget get leftBarItem => FlowyText.medium('...', fontSize: FontSizes.s16);
 
   @override
   Widget tabBarItem(String pluginId) => leftBarItem;
@@ -186,11 +174,7 @@ class EllipsisNaviItem extends NavigationItem {
 TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
     TextSpan(
       children: [
-        TextSpan(
-          text: "$hintText\n",
-        ),
-        TextSpan(
-          text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
-        ),
+        TextSpan(text: "$hintText\n"),
+        TextSpan(text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\"),
       ],
     );

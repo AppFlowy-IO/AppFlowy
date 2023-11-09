@@ -25,8 +25,8 @@ class DraggablePaneTarget extends StatefulWidget {
   final CrossDraggablesEntity pane;
   final Widget child;
   final BuildContext paneContext;
-  final bool allowDrag;
   final Size size;
+  final bool allowDrag;
 
   @override
   State<DraggablePaneTarget> createState() => _DraggablePaneTargetState();
@@ -46,22 +46,19 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
           renderBox,
           data.data.crossDraggableType,
         );
+
         if (!_shouldAccept(data.data, position)) {
           return;
         }
 
-        setState(() {
-          position = positionN;
-        });
+        setState(() => position = positionN);
       },
-      onLeave: (_) => setState(() {
-        position = FlowyDraggableHoverPosition.none;
-      }),
+      onLeave: (_) => setState(
+        () => position = FlowyDraggableHoverPosition.none,
+      ),
       onAccept: (data) {
         _move(data, widget.pane);
-        setState(() {
-          position = FlowyDraggableHoverPosition.none;
-        });
+        setState(() => position = FlowyDraggableHoverPosition.none);
       },
       child: Stack(
         children: [
@@ -93,13 +90,18 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
     );
   }
 
-  (double? left, double? top, double? height, double? width)
-      _getHoverWidgetPosition(FlowyDraggableHoverPosition position) {
+  (
+    double? left,
+    double? top,
+    double? height,
+    double? width,
+  ) _getHoverWidgetPosition(FlowyDraggableHoverPosition position) {
     double? left, top, height, width;
 
-    final topOffset = (widget.pane.draggable as PaneNode).tabs.pages > 1
-        ? HomeSizes.tabBarHeight + HomeSizes.topBarHeight
-        : HomeSizes.topBarHeight;
+    final topOffset =
+        (widget.pane.draggable as PaneNode).tabsController.pages > 1
+            ? HomeSizes.tabBarHeight + HomeSizes.topBarHeight
+            : HomeSizes.topBarHeight;
 
     switch (position) {
       case FlowyDraggableHoverPosition.top:
@@ -144,7 +146,7 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
     RenderBox box,
     CrossDraggableType type,
   ) {
-    final top = (widget.pane.draggable as PaneNode).tabs.pages > 1
+    final top = (widget.pane.draggable as PaneNode).tabsController.pages > 1
         ? HomeSizes.tabBarHeight + HomeSizes.topBarHeight
         : HomeSizes.topBarHeight;
 
@@ -157,11 +159,13 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
       offset.dy - center.dy,
       offset.dx - center.dx,
     );
+
     final double angleInDegrees = math.degrees(angleInRadians);
     double normalizedAngle = angleInDegrees % 360;
     if (normalizedAngle < 0) {
       normalizedAngle += 360;
     }
+
     // Determine the quadrant of the offset
     if (normalizedAngle >= 315 || normalizedAngle < 45) {
       return FlowyDraggableHoverPosition.right;
@@ -171,9 +175,9 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
       return FlowyDraggableHoverPosition.left;
     } else if (normalizedAngle >= 225 && normalizedAngle < 315) {
       return FlowyDraggableHoverPosition.top;
-    } else {
-      return FlowyDraggableHoverPosition.none;
     }
+
+    return FlowyDraggableHoverPosition.none;
   }
 
   bool _shouldAccept(
@@ -182,7 +186,10 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
   ) {
     if (data.crossDraggableType == CrossDraggableType.pane &&
         (data.draggable as PaneNode).paneId ==
-            (widget.pane.draggable as PaneNode).paneId) return false;
+            (widget.pane.draggable as PaneNode).paneId) {
+      return false;
+    }
+
     return true;
   }
 
@@ -191,26 +198,28 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
       switch (from.crossDraggableType) {
         case CrossDraggableType.view:
           (to.draggable as PaneNode)
-              .tabs
+              .tabsController
               .openView((from.draggable as ViewPB).plugin());
           return;
         case CrossDraggableType.tab:
-          {
-            final fromTab = from.draggable as TabNode;
-            final destinationPaneNode = to.draggable as PaneNode;
-            bool contains = false;
-            for (final element in destinationPaneNode.tabs.pageManagers) {
-              if (element.plugin.id == fromTab.pageManager.plugin.id) {
-                contains = true;
-                break;
-              }
+          final fromTab = from.draggable as TabNode;
+          final destinationPaneNode = to.draggable as PaneNode;
+          bool contains = false;
+          for (final element
+              in destinationPaneNode.tabsController.pageManagers) {
+            if (element.plugin.id == fromTab.pageManager.plugin.id) {
+              contains = true;
+              break;
             }
-            if (!contains) {
-              destinationPaneNode.tabs.openView(fromTab.pageManager.plugin);
-              fromTab.tabs.closeView(fromTab.pageManager.plugin.id);
-            }
-            return;
           }
+
+          if (!contains) {
+            destinationPaneNode.tabsController
+                .openView(fromTab.pageManager.plugin);
+            fromTab.tabs.closeView(fromTab.pageManager.plugin.id);
+          }
+
+          return;
         default:
           return;
       }

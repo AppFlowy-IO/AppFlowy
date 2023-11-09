@@ -6,28 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class PaneLayout {
-  late double menuWidth;
-  late bool showMenu;
-  late double childPaneWidth;
-  late double childPaneHeight;
-  late double? childPaneLPosition;
-  late double? childPaneTPosition;
-  late double? resizerPosition;
-  late double resizerWidth;
-  late double resizerHeight;
-  late double homePageWidth;
-  late double homePageHeight;
-  late SystemMouseCursor resizeCursorType;
-  final (int, PaneNode) childPane;
-  final PaneNode parentPane;
-  final List<double> flex;
-
   PaneLayout({
-    required BoxConstraints parentPaneConstraints,
-    required HomeLayout homeLayout,
     required this.flex,
     required this.childPane,
     required this.parentPane,
+    required BoxConstraints parentPaneConstraints,
+    required HomeLayout homeLayout,
   }) {
     childPaneWidth = parentPane.axis == Axis.vertical
         ? parentPaneConstraints.maxWidth * flex[childPane.$1]
@@ -38,7 +22,7 @@ class PaneLayout {
         : parentPaneConstraints.maxHeight;
 
     final bool adaptiveContent = adaptivePlugins.contains(
-      childPane.$2.tabs.currentPageManager.notifier.plugin.pluginType,
+      childPane.$2.tabsController.currentPageManager.notifier.plugin.pluginType,
     );
 
     if (adaptiveContent) {
@@ -74,6 +58,22 @@ class PaneLayout {
         : SystemMouseCursors.resizeUpDown;
   }
 
+  final (int, PaneNode) childPane;
+  final PaneNode parentPane;
+  final List<double> flex;
+  late double menuWidth;
+  late bool showMenu;
+  late double childPaneWidth;
+  late double childPaneHeight;
+  late double? childPaneLPosition;
+  late double? childPaneTPosition;
+  late double? resizerPosition;
+  late double resizerWidth;
+  late double resizerHeight;
+  late double homePageWidth;
+  late double homePageHeight;
+  late SystemMouseCursor resizeCursorType;
+
   factory PaneLayout.initial({
     required BoxConstraints parentConstraints,
     required PaneNode root,
@@ -87,7 +87,7 @@ class PaneLayout {
         parentPane: PaneNode.initial(),
       );
 
-  ///PluginType added here will adapt to size of pane
-  ///rather than being stacked over
+  /// PluginType added here will adapt to size of pane
+  /// rather than being stacked over
   final List<PluginType> adaptivePlugins = [];
 }

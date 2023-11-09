@@ -27,45 +27,46 @@ class ViewItem extends StatelessWidget {
   const ViewItem({
     super.key,
     required this.view,
-    this.parentView,
     required this.categoryType,
     required this.level,
-    this.leftPadding = 10,
     required this.onSelected,
+    required this.isFeedback,
+    this.parentView,
+    this.leftPadding = 10,
     this.onTertiarySelected,
     this.isFirstChild = false,
     this.isDraggable = true,
-    required this.isFeedback,
   });
 
   final ViewPB view;
-  final ViewPB? parentView;
-
   final FolderCategoryType categoryType;
 
-  // indicate the level of the view item
-  // used to calculate the left padding
+  /// Indicate the level of the view item
+  /// used to calculate the left padding
   final int level;
-
-  // the left padding of the view item for each level
-  // the left padding of the each level = level * leftPadding
-  final double leftPadding;
 
   // Selected by normal conventions
   final ViewItemOnSelected onSelected;
 
-  // Selected by middle mouse button
+  /// Identify if the view item is rendered as feedback
+  /// widget inside DraggableItem
+  final bool isFeedback;
+
+  final ViewPB? parentView;
+
+  /// The left padding of the view item for each level
+  /// The left padding of the each level = level * leftPadding
+  final double leftPadding;
+
+  /// Selected by middle mouse button
   final ViewItemOnSelected? onTertiarySelected;
 
-  // used for indicating the first child of the parent view, so that we can
-  // add top border to the first child
+  /// Used for indicating the first child of the parent view, so that we can
+  /// add top border to the first child
   final bool isFirstChild;
 
-  // it should be false when it's rendered as feedback widget inside DraggableItem
+  /// It should be false when it's rendered as feedback widget inside DraggableItem
   final bool isDraggable;
-
-  // identify if the view item is rendered as feedback widget inside DraggableItem
-  final bool isFeedback;
 
   @override
   Widget build(BuildContext context) {
@@ -79,10 +80,11 @@ class ViewItem extends StatelessWidget {
               OpenPluginInActivePane(plugin: state.lastCreatedView!.plugin()),
             ),
         builder: (context, state) {
-          // don't remove this code. it's related to the backend service.
+          // Don't remove this code. it's related to the backend service.
           view.childViews
             ..clear()
             ..addAll(state.childViews);
+
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
@@ -158,7 +160,7 @@ class InnerViewItem extends StatelessWidget {
       isFeedback: isFeedback,
     );
 
-    // if the view is expanded and has child views, render its child views
+    // If the view is expanded and has child views, render its child views
     if (isExpanded && childViews.isNotEmpty) {
       final children = childViews.map((childView) {
         return ViewItem(
@@ -185,15 +187,13 @@ class InnerViewItem extends StatelessWidget {
       );
     }
 
-    // wrap the child with DraggableItem if isDraggable is true
+    // Wrap the child with DraggableItem if isDraggable is true
     if (isDraggable && !isReferencedDatabaseView(view, parentView)) {
       child = DraggableViewItem(
         isFirstChild: isFirstChild,
         view: view,
         child: child,
-        onDragging: (isDragging) {
-          _isDragging = isDragging;
-        },
+        onDragging: (isDragging) => _isDragging = isDragging,
         feedback: (context) {
           return ViewItem(
             view: view,
@@ -209,11 +209,8 @@ class InnerViewItem extends StatelessWidget {
         },
       );
     } else {
-      // keep the same height of the DraggableItem
-      child = Padding(
-        padding: const EdgeInsets.only(top: 2.0),
-        child: child,
-      );
+      // Keep the same height of the DraggableItem
+      child = Padding(padding: const EdgeInsets.only(top: 2.0), child: child);
     }
 
     return child;
@@ -226,30 +223,31 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.view,
     required this.parentView,
     required this.isExpanded,
+    required this.isFeedback,
     required this.level,
     required this.leftPadding,
-    this.isDraggable = true,
     required this.categoryType,
     required this.showActions,
     required this.onSelected,
     this.onTertiarySelected,
-    required this.isFeedback,
+    this.isDraggable = true,
   });
 
   final ViewPB view;
   final ViewPB? parentView;
   final bool isExpanded;
-  // identify if the view item is rendered as feedback widget inside DraggableItem
+
+  /// Identify if the view item is rendered as feedback
+  /// widget inside DraggableItem
   final bool isFeedback;
 
   final int level;
   final double leftPadding;
-
-  final bool isDraggable;
+  final FolderCategoryType categoryType;
   final bool showActions;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
-  final FolderCategoryType categoryType;
+  final bool isDraggable;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -277,15 +275,15 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewItem(bool onHover) {
     final children = [
-      // expand icon
+      // Expand icon
       _buildLeftIcon(),
-      // icon
+      // Icon
       SizedBox.square(
         dimension: 16,
         child: widget.view.defaultIcon(),
       ),
       const HSpace(5),
-      // title
+      // Title
       Expanded(
         child: FlowyText.regular(
           widget.view.name,
@@ -294,7 +292,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       )
     ];
 
-    // hover action
+    // Hover action
     if (widget.showActions || onHover) {
       // ··· more action button
       children.add(_buildViewMoreActionButton(context));
@@ -313,9 +311,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         height: 26,
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-          child: Row(
-            children: children,
-          ),
+          child: Row(children: children),
         ),
       ),
     );
@@ -329,17 +325,16 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return const _DotIconWidget();
     }
 
-    final svg = widget.isExpanded
-        ? FlowySvgs.drop_menu_show_m
-        : FlowySvgs.drop_menu_hide_m;
     return GestureDetector(
-      child: FlowySvg(
-        svg,
-        size: const Size.square(16.0),
-      ),
       onTap: () => context
           .read<ViewBloc>()
           .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
+      child: FlowySvg(
+        widget.isExpanded
+            ? FlowySvgs.drop_menu_show_m
+            : FlowySvgs.drop_menu_hide_m,
+        size: const Size.square(16.0),
+      ),
     );
   }
 
@@ -375,9 +370,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               },
             );
           }
-          context.read<ViewBloc>().add(
-                const ViewEvent.setIsExpanded(true),
-              );
+
+          context.read<ViewBloc>().add(const ViewEvent.setIsExpanded(true));
         },
       ),
     );
@@ -404,9 +398,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
                 value: widget.view.name,
-                confirm: (newValue) {
-                  context.read<ViewBloc>().add(ViewEvent.rename(newValue));
-                },
+                confirm: (newValue) =>
+                    context.read<ViewBloc>().add(ViewEvent.rename(newValue)),
               ).show(context);
               break;
             case ViewMoreActionType.delete:
@@ -443,19 +436,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     );
   }
 
-  String _convertLayoutToHintText(ViewLayoutPB layout) {
-    switch (layout) {
-      case ViewLayoutPB.Document:
-        return LocaleKeys.newDocumentText.tr();
-      case ViewLayoutPB.Grid:
-        return LocaleKeys.newGridText.tr();
-      case ViewLayoutPB.Board:
-        return LocaleKeys.newBoardText.tr();
-      case ViewLayoutPB.Calendar:
-        return LocaleKeys.newCalendarText.tr();
-    }
-    return LocaleKeys.newPageText.tr();
-  }
+  String _convertLayoutToHintText(ViewLayoutPB layout) => switch (layout) {
+        ViewLayoutPB.Document => LocaleKeys.newDocumentText.tr(),
+        ViewLayoutPB.Grid => LocaleKeys.newGridText.tr(),
+        ViewLayoutPB.Board => LocaleKeys.newBoardText.tr(),
+        ViewLayoutPB.Calendar => LocaleKeys.newCalendarText.tr(),
+        _ => LocaleKeys.newPageText.tr(),
+      };
 }
 
 class _DotIconWidget extends StatelessWidget {

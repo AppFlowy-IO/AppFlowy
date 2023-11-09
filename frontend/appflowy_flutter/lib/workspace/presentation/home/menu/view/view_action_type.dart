@@ -60,7 +60,6 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return const Icon(Icons.move_to_inbox);
       case ViewMoreActionType.openInNewTab:
         return const FlowySvg(FlowySvgs.full_view_s);
-
       case ViewMoreActionType.splitDown:
         return const Icon(Icons.horizontal_split, size: 20);
       case ViewMoreActionType.splitRight:

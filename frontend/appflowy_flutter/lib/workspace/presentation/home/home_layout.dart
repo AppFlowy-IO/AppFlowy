@@ -28,7 +28,6 @@ class HomeLayout {
     showEditPanel = homeSetting.panelContext.isSome();
 
     menuWidth = Sizes.sideBarWidth;
-
     menuWidth += homeSetting.resizeOffset;
 
     final screenWidthPx = context.widthPx;

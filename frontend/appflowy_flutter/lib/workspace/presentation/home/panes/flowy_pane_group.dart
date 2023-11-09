@@ -1,4 +1,4 @@
-import 'package:appflowy/workspace/application/panes/pane_node_bloc/pane_node_bloc.dart';
+import 'package:appflowy/workspace/application/panes/pane_node_cubit.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 
@@ -13,12 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'flowy_pane.dart';
 
 class FlowyPaneGroup extends StatelessWidget {
-  final PaneNode node;
-  final PaneLayout paneLayout;
-  final HomeLayout layout;
-  final HomeStackDelegate delegate;
-  final bool allowPaneDrag;
-
   const FlowyPaneGroup({
     super.key,
     required this.node,
@@ -28,6 +22,12 @@ class FlowyPaneGroup extends StatelessWidget {
     required this.allowPaneDrag,
   });
 
+  final PaneNode node;
+  final PaneLayout paneLayout;
+  final HomeLayout layout;
+  final HomeStackDelegate delegate;
+  final bool allowPaneDrag;
+
   @override
   Widget build(BuildContext context) {
     if (node.children.isEmpty) {
@@ -36,7 +36,7 @@ class FlowyPaneGroup extends StatelessWidget {
         onPointerDown: (_) =>
             context.read<PanesBloc>().add(SetActivePane(activePane: node)),
         child: FlowyPane(
-          key: ValueKey(node.tabs.tabId),
+          key: ValueKey(node.tabsController.tabId),
           node: node,
           allowPaneDrag: allowPaneDrag,
           delegate: delegate,
@@ -70,12 +70,10 @@ class FlowyPaneGroup extends StatelessWidget {
                         flex: state.flex,
                         parentPaneConstraints: constraints,
                       );
+
                       return Stack(
                         children: [
-                          _resolveFlowyPanes(
-                            paneLayout,
-                            indexNode,
-                          ),
+                          _resolveFlowyPanes(paneLayout, indexNode),
                           _resizeBar(
                             indexNode,
                             context,
@@ -104,6 +102,7 @@ class FlowyPaneGroup extends StatelessWidget {
     if (indexNode.$1 == 0) {
       return const SizedBox.expand();
     }
+
     return Positioned(
       left: paneLayout.childPaneLPosition,
       top: paneLayout.childPaneTPosition,
@@ -143,10 +142,7 @@ class FlowyPaneGroup extends StatelessWidget {
     );
   }
 
-  Widget _resolveFlowyPanes(
-    PaneLayout paneLayout,
-    (int, PaneNode) indexNode,
-  ) {
+  Widget _resolveFlowyPanes(PaneLayout paneLayout, (int, PaneNode) indexNode) {
     return Positioned(
       left: paneLayout.childPaneLPosition,
       top: paneLayout.childPaneTPosition,

@@ -35,6 +35,7 @@ void main() {
         findsNWidgets(2),
       );
     });
+
     testWidgets(
         'Switching view on writable pane or closing the writable pane, searches for and converts the first found read only pane to writable',
         (tester) async {
@@ -57,9 +58,7 @@ void main() {
       );
 
       await tester.createNewPageWithName(name: _documentName);
-
       await tester.tap(find.byType(FlowyPane).first);
-
       await tester.openPage(_documentName);
 
       expect(
@@ -68,7 +67,6 @@ void main() {
       );
 
       await tester.tap(find.byType(FlowyPane).last);
-
       await tester.closePaneWithVisibleCloseButton(first: false);
 
       expect(
@@ -76,6 +74,7 @@ void main() {
         findsNWidgets(0),
       );
     });
+
     testWidgets(
         'opening duplicate view in a new tab of different pane is marked as read only, closing the writable view leads to conversion of readonly view to writable view',
         (tester) async {
@@ -96,8 +95,8 @@ void main() {
         find.textContaining(LocaleKeys.readOnlyViewText.tr()),
         findsNWidgets(1),
       );
-      await tester.tap(find.byType(FlowyPane).first);
 
+      await tester.tap(find.byType(FlowyPane).first);
       await tester.createNewPageWithName(name: _documentName);
 
       expect(
@@ -113,7 +112,6 @@ void main() {
       );
 
       await tester.tap(find.byType(FlowyPane).last);
-
       await tester.closePaneWithVisibleCloseButton(first: false);
 
       expect(

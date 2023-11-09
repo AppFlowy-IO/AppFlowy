@@ -6,19 +6,19 @@ class DraggablePaneItem extends StatefulWidget {
   const DraggablePaneItem({
     super.key,
     required this.pane,
-    this.feedback,
     required this.child,
     required this.paneContext,
     required this.size,
     required this.allowPaneDrag,
+    this.feedback,
   });
 
-  final CrossDraggablesEntity pane; //pass target pane
-  final WidgetBuilder? feedback;
+  final CrossDraggablesEntity pane; // Pass target pane
   final Widget child;
   final BuildContext paneContext;
   final Size size;
   final bool allowPaneDrag;
+  final WidgetBuilder? feedback;
 
   @override
   State<DraggablePaneItem> createState() => _DraggablePaneItemState();
@@ -30,6 +30,7 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
     if (!widget.allowPaneDrag) {
       return widget.child;
     }
+
     return DraggableItem<CrossDraggablesEntity>(
       dragAnchorStrategy: pointerDragAnchorStrategy,
       data: widget.pane,

@@ -14,21 +14,21 @@ part 'panes_event.dart';
 enum SplitDirection { left, right, up, down, none }
 
 class PanesBloc extends Bloc<PanesEvent, PanesState> {
-  final PanesService panesService;
-  PanesBloc()
-      : panesService = PanesService(),
-        super(PanesState.initial()) {
+  final PanesService panesService = PanesService();
+
+  PanesBloc() : super(PanesState.initial()) {
     on<PanesEvent>(
       (event, emit) {
         event.map(
           setActivePane: (e) {
             emit(state.copyWith(activePane: e.activePane));
-            state.activePane.tabs.setLatestOpenView();
+            state.activePane.tabsController.setLatestOpenView();
           },
           splitPane: (e) {
             if (state.count >= 4) {
               return;
             }
+
             final direction = [SplitDirection.right, SplitDirection.down]
                     .contains(e.splitDirection)
                 ? Direction.front
@@ -82,24 +82,21 @@ class PanesBloc extends Bloc<PanesEvent, PanesState> {
               ),
             );
           },
-          openTabInActivePane: (e) {
-            state.activePane.tabs.openView(e.plugin);
-          },
-          opnePluginInActivePane: (e) {
-            state.activePane.tabs.openPlugin(plugin: e.plugin);
-          },
+          openTabInActivePane: (e) =>
+              state.activePane.tabsController.openView(e.plugin),
+          opnePluginInActivePane: (e) =>
+              state.activePane.tabsController.openPlugin(plugin: e.plugin),
           selectTab: (e) {
-            if (e.pane != null) emit(state.copyWith(activePane: e.pane!));
-            state.activePane.tabs.selectTab(index: e.index);
+            if (e.pane != null) {
+              emit(state.copyWith(activePane: e.pane!));
+            }
+
+            state.activePane.tabsController.selectTab(index: e.index);
           },
-          closeCurrentTab: (e) {
-            state.activePane.tabs.closeView(
-              state.activePane.tabs.currentPageManager.plugin.id,
-            );
-          },
-          setDragStatus: (e) {
-            emit(state.copyWith(allowPaneDrag: e.status));
-          },
+          closeCurrentTab: (e) => state.activePane.tabsController.closeView(
+            state.activePane.tabsController.currentPageManager.plugin.id,
+          ),
+          setDragStatus: (e) => emit(state.copyWith(allowPaneDrag: e.status)),
           movePane: (e) {
             final direction = [
               FlowyDraggableHoverPosition.top,

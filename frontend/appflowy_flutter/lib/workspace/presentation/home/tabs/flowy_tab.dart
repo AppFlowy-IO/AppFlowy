@@ -9,15 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FlowyTab extends StatefulWidget {
-  final PageManager pageManager;
-  final PaneNode paneNode;
-  final bool isCurrent;
   const FlowyTab({
     super.key,
     required this.pageManager,
     required this.paneNode,
     required this.isCurrent,
   });
+
+  final PageManager pageManager;
+  final PaneNode paneNode;
+  final bool isCurrent;
 
   @override
   State<FlowyTab> createState() => _FlowyTabState();
@@ -37,9 +38,7 @@ class _FlowyTabState extends State<FlowyTab> {
         child: Container(
           width: HomeSizes.tabWidth,
           height: HomeSizes.tabBarHeight,
-          decoration: BoxDecoration(
-            color: _getBackgroundColor(),
-          ),
+          decoration: BoxDecoration(color: _getBackgroundColor()),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(

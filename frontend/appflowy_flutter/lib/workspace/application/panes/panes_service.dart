@@ -18,13 +18,13 @@ class PanesService {
     /// This is a recursive handler, following condition checks if passed node
     /// is our target node
     if (node.paneId == targetPaneId) {
-      ///we create a holder node which would replace current target and add
-      ///target node + new node as its children
+      /// We create a holder node which would replace current target and add
+      /// target node + new node as its children
       final newHolderNode = PaneNode(
         paneId: nanoid(),
         children: const [],
         axis: axis,
-        tabs: null,
+        tabsController: null,
       );
 
       final oldChildNode = node.copyWith(
@@ -37,48 +37,40 @@ class PanesService {
       final newChildNode = fromNode?.copyWith(
             paneId: nanoid(),
             parent: newHolderNode,
-            children: const [],
             axis: null,
+            children: const [],
           ) ??
           PaneNode(
             paneId: nanoid(),
             children: const [],
             parent: newHolderNode,
-            tabs: TabsController()..openPlugin(plugin: plugin!),
+            tabsController: TabsController()..openPlugin(plugin: plugin!),
           );
 
       final ret = newHolderNode.copyWith(
         children: direction == Direction.front
-            ? [
-                oldChildNode,
-                newChildNode,
-              ]
-            : [
-                newChildNode,
-                oldChildNode,
-              ],
+            ? [oldChildNode, newChildNode]
+            : [newChildNode, oldChildNode],
       );
+
       return ret.copyWith(
         children: ret.children.map((e) => e.copyWith(parent: ret)).toList(),
       );
     }
 
-    /// if we haven't found our target node there is a possibility that our
+    /// If we haven't found our target node there is a possibility that our
     /// target node is a child of an already existing holder node, we do a
     /// quick lookup at children of current node, if we find target in
     /// children, we just append a new child at correct location and return
     if (node.axis == axis) {
       for (int i = 0; i < node.children.length; i++) {
         if (node.children[i].paneId == targetPaneId) {
-          final newNode = fromNode?.copyWith(
-                paneId: nanoid(),
-                parent: node,
-              ) ??
+          final newNode = fromNode?.copyWith(paneId: nanoid(), parent: node) ??
               PaneNode(
                 paneId: nanoid(),
                 children: const [],
                 parent: node,
-                tabs: TabsController()..openPlugin(plugin: plugin!),
+                tabsController: TabsController()..openPlugin(plugin: plugin!),
               );
 
           final list = [...node.children];
@@ -93,14 +85,14 @@ class PanesService {
             list.insert(i, newNode);
           }
 
-          ///copyWith is called to assign new paneId and children with updated/
-          ///reconstructed tabscontroller to trigger build of consecutive
-          ///widget else it won't reflect on ui.
-
+          /// copyWith is called to assign new paneId and children with updated/
+          /// reconstructed tabscontroller to trigger build of consecutive
+          /// widget else it won't reflect on ui.
           final parent = node.copyWith(
             paneId: nanoid(),
             children: list.map((e) => e.copyWith()).toList(),
           );
+
           return parent.copyWith(
             children: list.map((e) => e.copyWith(parent: parent)).toList(),
           );
@@ -108,9 +100,9 @@ class PanesService {
       }
     }
 
-    ///if we couldn't find target in children of current node or if current
-    ///node isn't right holder we proceed recursively to dfs remaining
-    ///children
+    /// If we couldn't find target in children of current node or if current
+    /// node isn't right holder we proceed recursively to dfs remaining
+    /// children
     final newChildren = node.children
         .map(
           (childNode) => splitHandler(
@@ -135,41 +127,44 @@ class PanesService {
     if (node.paneId == targetPaneId) {
       return node;
     }
+
     for (var i = 0; i < node.children.length; i++) {
       final element = node.children[i];
       if (element.paneId == targetPaneId) {
         if (!closingToMove) {
-          element.tabs.closeAllViews();
+          element.tabsController.closeAllViews();
         }
 
         node.children.remove(element);
         final list = List<PaneNode>.from(node.children)..remove(element);
 
         if (node.children.length == 1) {
-          final ret = node.children.first.copyWith(
+          return node.children.first.copyWith(
             paneId: closingToMove ? node.children.first.paneId : nanoid(),
             parent: node.parent,
           );
-          return ret;
         }
 
         final parent = node.copyWith(
           paneId: closingToMove ? node.paneId : nanoid(),
           children: list.map((e) => e.copyWith()).toList(),
         );
+
         return parent.copyWith(
           children: list.map((e) => e.copyWith(parent: parent)).toList(),
         );
       }
     }
 
-    final newChildren = node.children.map((childNode) {
-      return closePaneHandler(
-        node: childNode,
-        targetPaneId: targetPaneId,
-        closingToMove: closingToMove,
-      );
-    }).toList();
+    final newChildren = node.children
+        .map(
+          (childNode) => closePaneHandler(
+            node: childNode,
+            targetPaneId: targetPaneId,
+            closingToMove: closingToMove,
+          ),
+        )
+        .toList();
 
     return node.copyWith(
       paneId: closingToMove ? node.paneId : nanoid(),
@@ -199,10 +194,6 @@ class PanesService {
     return response.copyWith(paneId: nanoid());
   }
 
-  PaneNode findFirstLeaf({required PaneNode node}) {
-    if (node.children.isEmpty) {
-      return node;
-    }
-    return findFirstLeaf(node: node.children[0]);
-  }
+  PaneNode findFirstLeaf({required PaneNode node}) =>
+      node.children.isEmpty ? node : findFirstLeaf(node: node.children[0]);
 }

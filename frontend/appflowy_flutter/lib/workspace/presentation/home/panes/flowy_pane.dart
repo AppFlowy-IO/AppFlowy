@@ -16,13 +16,6 @@ import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class FlowyPane extends StatefulWidget {
-  final PaneNode node;
-  final HomeLayout layout;
-  final HomeStackDelegate delegate;
-  final BuildContext paneContext;
-  final PaneLayout paneLayout;
-  final bool allowPaneDrag;
-
   const FlowyPane({
     super.key,
     required this.node,
@@ -33,21 +26,26 @@ class FlowyPane extends StatefulWidget {
     required this.allowPaneDrag,
   });
 
+  final PaneNode node;
+  final HomeLayout layout;
+  final HomeStackDelegate delegate;
+  final BuildContext paneContext;
+  final PaneLayout paneLayout;
+  final bool allowPaneDrag;
+
   @override
   State<FlowyPane> createState() => _FlowyPaneState();
 }
 
 class _FlowyPaneState extends State<FlowyPane> {
   final pageController = PageController();
-
   final horizontalController = ScrollController();
-
   final verticalController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<TabsController>(
-      create: (context) => widget.node.tabs,
+      create: (context) => widget.node.tabsController,
       child: Consumer<TabsController>(
         builder: (_, value, __) {
           final topHeight = value.pages == 1
@@ -150,13 +148,12 @@ class _FlowyPaneState extends State<FlowyPane> {
   Widget _buildPaneDraggableFeedback(BuildContext context) {
     return FlowyContainer(
       Theme.of(context).colorScheme.onSecondaryContainer,
-      child: widget.node.tabs.currentPageManager.title(),
+      child: widget.node.tabsController.currentPageManager.title(),
     ).padding(all: 4);
   }
 
   bool _proportionalScroll(ScrollNotification notification) {
     final axis = notification.metrics.axis;
-
     if (notification is ScrollUpdateNotification && axis == Axis.vertical) {
       final innerScrollPosition = notification.metrics.pixels;
       final innerScrollMax = notification.metrics.maxScrollExtent;
@@ -170,6 +167,7 @@ class _FlowyPaneState extends State<FlowyPane> {
         verticalController.jumpTo(targetOuterScrollPosition);
       }
     }
+
     return false;
   }
 
@@ -191,25 +189,18 @@ class _FlowyPaneState extends State<FlowyPane> {
 }
 
 class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  const _StickyHeaderDelegate({required this.height, required this.child});
+
   final double height;
   final Widget child;
-
-  _StickyHeaderDelegate({
-    required this.height,
-    required this.child,
-  });
 
   @override
   Widget build(
     BuildContext context,
     double shrinkOffset,
     bool overlapsContent,
-  ) {
-    return SizedBox(
-      height: height,
-      child: child,
-    );
-  }
+  ) =>
+      SizedBox(height: height, child: child);
 
   @override
   double get maxExtent => height;

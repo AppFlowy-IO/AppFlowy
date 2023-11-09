@@ -8,6 +8,7 @@ import '../util/util.dart';
 
 const _documentName = 'First Doc';
 const _documentTwoName = 'Second Doc';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -36,10 +37,7 @@ void main() {
 
       expect(find.byType(FlowyPane), findsNWidgets(2));
 
-      await tester.openViewInNewPane(
-        _documentName,
-        ViewLayoutPB.Document,
-      );
+      await tester.openViewInNewPane(_documentName, ViewLayoutPB.Document);
 
       expect(find.byType(FlowyPane), findsNWidgets(3));
 

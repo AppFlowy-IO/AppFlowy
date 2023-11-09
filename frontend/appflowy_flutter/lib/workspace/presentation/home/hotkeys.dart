@@ -17,15 +17,15 @@ typedef KeyUpHandler = void Function(HotKey hotKey);
 /// relevant [HotKey].
 ///
 class HotKeyItem {
-  final HotKey hotKey;
-  final KeyDownHandler? keyDownHandler;
-  final KeyUpHandler? keyUpHandler;
-
   HotKeyItem({
     required this.hotKey,
     this.keyDownHandler,
     this.keyUpHandler,
   });
+
+  final HotKey hotKey;
+  final KeyDownHandler? keyDownHandler;
+  final KeyUpHandler? keyUpHandler;
 
   void register() => hotKeyManager.register(
         hotKey,
@@ -35,8 +35,9 @@ class HotKeyItem {
 }
 
 class HomeHotKeys extends StatelessWidget {
+  const HomeHotKeys({super.key, required this.child});
+
   final Widget child;
-  const HomeHotKeys({required this.child, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -115,12 +116,12 @@ class HomeHotKeys extends StatelessWidget {
   void _selectTab(BuildContext context, int change) {
     final bloc = context.read<PanesBloc>();
     bloc.add(
-      SelectTab(index: bloc.state.activePane.tabs.currentIndex + change),
+      SelectTab(
+        index: bloc.state.activePane.tabsController.currentIndex + change,
+      ),
     );
   }
 
-  void _setDragStatus(BuildContext context, bool status) {
-    final bloc = context.read<PanesBloc>();
-    bloc.add(SetDragStatus(status: status));
-  }
+  void _setDragStatus(BuildContext context, bool status) =>
+      context.read<PanesBloc>().add(SetDragStatus(status: status));
 }

@@ -7,25 +7,21 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 
-enum TabDraggableHoverPosition {
-  none,
-  left,
-  right,
-}
+enum TabDraggableHoverPosition { none, left, right }
 
 class DraggableTabItem extends StatefulWidget {
   DraggableTabItem({
     super.key,
-    this.feedback,
     required this.child,
     required this.pageManager,
     required TabsController tabs,
+    this.feedback,
   }) : tabs = CrossDraggablesEntity(draggable: TabNode(tabs, pageManager));
 
   final Widget child;
-  final WidgetBuilder? feedback;
-  final CrossDraggablesEntity tabs;
   final PageManager pageManager;
+  final CrossDraggablesEntity tabs;
+  final WidgetBuilder? feedback;
 
   @override
   State<DraggableTabItem> createState() => _DraggabletabItemState();
@@ -70,24 +66,12 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
           renderBox.size,
           data.data,
         );
-        setState(() {
-          this.position = position;
-        });
+        setState(() => this.position = position);
       },
-      onLeave: (_) => setState(
-        () {
-          position = TabDraggableHoverPosition.none;
-        },
-      ),
+      onLeave: (_) => setState(() => position = TabDraggableHoverPosition.none),
       onAccept: (data) {
-        _move(
-          data,
-          widget.tabs,
-          data.crossDraggableType,
-        );
-        setState(
-          () => position = TabDraggableHoverPosition.none,
-        );
+        _move(data, widget.tabs, data.crossDraggableType);
+        setState(() => position = TabDraggableHoverPosition.none);
       },
       feedback: IntrinsicWidth(
         child: Opacity(
@@ -104,7 +88,9 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
     CrossDraggablesEntity to,
     CrossDraggableType type,
   ) {
-    if (position == TabDraggableHoverPosition.none) return;
+    if (position == TabDraggableHoverPosition.none) {
+      return;
+    }
 
     final to = widget.tabs.draggable as TabNode;
     if (type == CrossDraggableType.view) {
@@ -119,6 +105,7 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
       } else {
         to.tabs.closeView(plugin.id, move: true);
       }
+
       to.tabs.move(
         from: fromTab.pageManager,
         to: to.pageManager,
@@ -137,12 +124,15 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
       if (data.pageManager == widget.pageManager) {
         return TabDraggableHoverPosition.none;
       }
+
       final threshold = size.width / 2;
       if (offset.dx < threshold) {
         return TabDraggableHoverPosition.left;
       }
+
       return TabDraggableHoverPosition.right;
     }
+
     return TabDraggableHoverPosition.none;
   }
 }

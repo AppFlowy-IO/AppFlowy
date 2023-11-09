@@ -166,7 +166,7 @@ void main() {
       await tester.dragDropRescheduleCalendarEvent(firstOfThisMonth);
 
       // Make sure that the event has been rescheduled to the new date
-      final sameDayNextWeek = firstOfThisMonth.add(const Duration(days: 14));
+      final sameDayNextWeek = firstOfThisMonth.add(const Duration(days: 7));
       tester.assertNumberOfEventsInCalendar(1);
       tester.assertNumberOfEventsOnSpecificDay(1, sameDayNextWeek);
 

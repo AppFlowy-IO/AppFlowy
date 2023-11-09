@@ -163,6 +163,8 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
 }
 
 abstract mixin class NavigationItem {
+  const NavigationItem();
+
   Widget get leftBarItem;
   Widget? get rightBarItem => null;
   Widget tabBarItem(String pluginId);

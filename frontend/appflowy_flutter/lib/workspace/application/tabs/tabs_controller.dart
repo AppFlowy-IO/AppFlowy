@@ -9,18 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:nanoid/nanoid.dart';
 
 class TabsController extends ChangeNotifier {
-  final String tabId;
-  int currentIndex;
-  List<PageManager> pageManagers;
-  final TabService tabService;
-
   TabsController({
     int? currentIndex,
     List<PageManager>? pageManagers,
   })  : pageManagers = pageManagers ?? [PageManager()],
         currentIndex = currentIndex ?? 0,
-        tabId = nanoid(),
-        tabService = TabService();
+        tabId = nanoid();
+
+  final TabService tabService = TabService();
+  final String tabId;
+  int currentIndex;
+  List<PageManager> pageManagers;
 
   factory TabsController.reconstruct(TabsController oldController) {
     oldController.dispose();
@@ -102,17 +101,13 @@ class TabsController extends ChangeNotifier {
   /// If the plugin is already open in a tab, then that tab
   /// will become selected.
   ///
-  void openPlugin({
-    required Plugin plugin,
-  }) {
+  void openPlugin({required Plugin plugin}) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (!selectExistingPlugin) {
-      tabService.openPluginHandler(
-        this,
-        plugin,
-      );
+      tabService.openPluginHandler(this, plugin);
     }
+
     setLatestOpenView();
     notifyListeners();
   }
@@ -134,19 +129,15 @@ class TabsController extends ChangeNotifier {
       case TabDraggableHoverPosition.none:
         break;
       case TabDraggableHoverPosition.left:
-        {
-          final index = pageManagers.indexOf(to);
-          openView(from.plugin, index: index);
-          currentIndex = index;
-          break;
-        }
+        final index = pageManagers.indexOf(to);
+        openView(from.plugin, index: index);
+        currentIndex = index;
+        break;
       case TabDraggableHoverPosition.right:
-        {
-          final index = pageManagers.indexOf(to);
-          openView(from.plugin, index: index + 1);
-          currentIndex = index + 1;
-          break;
-        }
+        final index = pageManagers.indexOf(to);
+        openView(from.plugin, index: index + 1);
+        currentIndex = index + 1;
+        break;
     }
     setLatestOpenView();
     notifyListeners();

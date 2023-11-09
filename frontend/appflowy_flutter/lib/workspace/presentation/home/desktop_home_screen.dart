@@ -31,9 +31,9 @@ import 'home_layout.dart';
 import 'home_stack.dart';
 
 class DesktopHomeScreen extends StatelessWidget {
-  static const routeName = '/DesktopHomeScreen';
-
   const DesktopHomeScreen({super.key});
+
+  static const routeName = '/DesktopHomeScreen';
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +51,7 @@ class DesktopHomeScreen extends StatelessWidget {
           (workspaceSettingPB) => workspaceSettingPB as WorkspaceSettingPB,
           (error) => null,
         );
+
         final userProfile = snapshots.data?[1].fold(
           (error) => null,
           (userProfilePB) => userProfilePB as UserProfilePB,
@@ -70,20 +71,16 @@ class DesktopHomeScreen extends StatelessWidget {
             ),
             BlocProvider<PanesBloc>.value(value: getIt<PanesBloc>()),
             BlocProvider<HomeBloc>(
-              create: (context) {
-                return HomeBloc(userProfile, workspaceSetting)
-                  ..add(const HomeEvent.initial());
-              },
+              create: (context) => HomeBloc(userProfile, workspaceSetting)
+                ..add(const HomeEvent.initial()),
             ),
             BlocProvider<HomeSettingBloc>(
-              create: (_) {
-                return HomeSettingBloc(
-                  userProfile,
-                  workspaceSetting,
-                  context.read<AppearanceSettingsCubit>(),
-                  context.widthPx,
-                )..add(const HomeSettingEvent.initial());
-              },
+              create: (_) => HomeSettingBloc(
+                userProfile,
+                workspaceSetting,
+                context.read<AppearanceSettingsCubit>(),
+                context.widthPx,
+              )..add(const HomeSettingEvent.initial()),
             ),
           ],
           child: HomeHotKeys(
@@ -101,7 +98,7 @@ class DesktopHomeScreen extends StatelessWidget {
                             .read<PanesBloc>()
                             .state
                             .activePane
-                            .tabs
+                            .tabsController
                             .currentPageManager;
 
                         if (currentPageManager.plugin.pluginType ==
@@ -118,12 +115,10 @@ class DesktopHomeScreen extends StatelessWidget {
                 ],
                 child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
                   buildWhen: (previous, current) => previous != current,
-                  builder: (context, state) {
-                    return FlowyContainer(
-                      Theme.of(context).colorScheme.surface,
-                      child: _buildBody(context, userProfile, workspaceSetting),
-                    );
-                  },
+                  builder: (context, state) => FlowyContainer(
+                    Theme.of(context).colorScheme.surface,
+                    child: _buildBody(context, userProfile, workspaceSetting),
+                  ),
                 ),
               ),
             ),
@@ -144,31 +139,35 @@ class DesktopHomeScreen extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final layout = HomeLayout(context, constraints);
+
         final homeStack = HomeStack(
           layout: layout,
           delegate: DesktopHomeScreenStackAdaptor(
             buildContext: context,
           ),
         );
+
         final menu = _buildHomeSidebar(
           layout: layout,
           context: context,
           userProfile: userProfile,
           workspaceSetting: workspaceSetting,
         );
+
         final homeMenuResizer = _buildHomeMenuResizer(context: context);
+
         final editPanel = _buildEditPanel(
           layout: layout,
           context: context,
         );
-        const bubble = QuestionBubble();
+
         return _layoutWidgets(
           layout: layout,
           homeStack: homeStack,
           homeMenu: menu,
           editPanel: editPanel,
-          bubble: bubble,
           homeMenuResizer: homeMenuResizer,
+          bubble: const QuestionBubble(),
         );
       },
     );
@@ -184,14 +183,16 @@ class DesktopHomeScreen extends StatelessWidget {
       user: userProfile,
       workspaceSetting: workspaceSetting,
     );
-    return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
+
+    return FocusTraversalGroup(
+      child: RepaintBoundary(child: homeMenu),
+    );
   }
 
   Widget _buildEditPanel({
     required BuildContext context,
     required HomeLayout layout,
   }) {
-    final homeBloc = context.read<HomeSettingBloc>();
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
       buildWhen: (previous, current) =>
           previous.panelContext != current.panelContext,
@@ -202,8 +203,9 @@ class DesktopHomeScreen extends StatelessWidget {
             child: RepaintBoundary(
               child: EditPanel(
                 panelContext: panelContext,
-                onEndEdit: () =>
-                    homeBloc.add(const HomeSettingEvent.dismissEditPanel()),
+                onEndEdit: () => context
+                    .read<HomeSettingBloc>()
+                    .add(const HomeSettingEvent.dismissEditPanel()),
               ),
             ),
           ),
@@ -212,9 +214,7 @@ class DesktopHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHomeMenuResizer({
-    required BuildContext context,
-  }) {
+  Widget _buildHomeMenuResizer({required BuildContext context}) {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeLeftRight,
       child: GestureDetector(
@@ -287,12 +287,7 @@ class DesktopHomeScreen extends StatelessWidget {
               curve: Curves.easeOutQuad,
               duration: layout.animDuration.inMilliseconds * 0.001,
             )
-            .positioned(
-              left: 0,
-              top: 0,
-              width: layout.menuWidth,
-              bottom: 0,
-            ),
+            .positioned(left: 0, top: 0, width: layout.menuWidth, bottom: 0),
         homeMenuResizer
             .positioned(left: layout.menuWidth - 5)
             .animate(layout.animDuration, Curves.easeOutQuad),
@@ -302,11 +297,11 @@ class DesktopHomeScreen extends StatelessWidget {
 }
 
 class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
-  final BuildContext buildContext;
-
   DesktopHomeScreenStackAdaptor({
     required this.buildContext,
   });
+
+  final BuildContext buildContext;
 
   @override
   void didDeleteStackWidget(ViewPB view, int? index) {
