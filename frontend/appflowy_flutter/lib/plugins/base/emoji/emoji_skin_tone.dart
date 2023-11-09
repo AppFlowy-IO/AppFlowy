@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:emoji_mart/emoji_mart.dart';
@@ -26,69 +25,54 @@ class FlowyEmojiSkinToneSelector extends StatefulWidget {
 class _FlowyEmojiSkinToneSelectorState
     extends State<FlowyEmojiSkinToneSelector> {
   EmojiSkinTone skinTone = EmojiSkinTone.none;
+  final controller = PopoverController();
 
   @override
   Widget build(BuildContext context) {
-    return PopoverActionList<EmojiSkinToneWrapper>(
+    return AppFlowyPopover(
       direction: PopoverDirection.bottomWithCenterAligned,
-      offset: const Offset(0, 8),
-      actions: EmojiSkinTone.values
-          .map((action) => EmojiSkinToneWrapper(action))
-          .toList(),
-      buildChild: (controller) {
-        return FlowyTooltip(
-          message: LocaleKeys.emoji_selectSkinTone.tr(),
-          child: FlowyIconButton(
-            icon: Padding(
-              // add a left padding to align the emoji center
-              padding: const EdgeInsets.only(
-                left: 3.0,
-              ),
-              child: FlowyText(
-                lastSelectedEmojiSkinTone?.icon ?? '✋',
-                fontSize: 22.0,
-              ),
-            ),
-            onPressed: () => controller.show(),
-          ),
+      controller: controller,
+      popupBuilder: (context) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: EmojiSkinTone.values
+              .map(
+                (e) => _buildIconButton(
+                  e.icon,
+                  () {
+                    setState(() => lastSelectedEmojiSkinTone = e);
+                    widget.onEmojiSkinToneChanged(e);
+                    controller.close();
+                  },
+                ),
+              )
+              .toList(),
         );
       },
-      onSelected: (action, controller) async {
-        widget.onEmojiSkinToneChanged(action.inner);
-        setState(() {
-          lastSelectedEmojiSkinTone = action.inner;
-        });
-        controller.close();
-      },
+      child: FlowyTooltip(
+        message: LocaleKeys.emoji_selectSkinTone.tr(),
+        child: _buildIconButton(
+          lastSelectedEmojiSkinTone?.icon ?? '✋',
+          () => controller.show(),
+        ),
+      ),
     );
   }
-}
 
-class EmojiSkinToneWrapper extends ActionCell {
-  EmojiSkinToneWrapper(this.inner);
-
-  final EmojiSkinTone inner;
-
-  Widget? icon(Color iconColor) => null;
-
-  @override
-  String get name {
-    final String i18n;
-    switch (inner) {
-      case EmojiSkinTone.none:
-        i18n = LocaleKeys.emoji_skinTone_default.tr();
-      case EmojiSkinTone.light:
-        i18n = LocaleKeys.emoji_skinTone_light.tr();
-      case EmojiSkinTone.mediumLight:
-        i18n = LocaleKeys.emoji_skinTone_mediumLight.tr();
-      case EmojiSkinTone.medium:
-        i18n = LocaleKeys.emoji_skinTone_medium.tr();
-      case EmojiSkinTone.mediumDark:
-        i18n = LocaleKeys.emoji_skinTone_mediumDark.tr();
-      case EmojiSkinTone.dark:
-        i18n = LocaleKeys.emoji_skinTone_dark.tr();
-    }
-    return '${inner.icon} $i18n';
+  Widget _buildIconButton(String icon, VoidCallback onPressed) {
+    return FlowyIconButton(
+      icon: Padding(
+        // add a left padding to align the emoji center
+        padding: const EdgeInsets.only(
+          left: 3.0,
+        ),
+        child: FlowyText(
+          icon,
+          fontSize: 22.0,
+        ),
+      ),
+      onPressed: onPressed,
+    );
   }
 }
 
