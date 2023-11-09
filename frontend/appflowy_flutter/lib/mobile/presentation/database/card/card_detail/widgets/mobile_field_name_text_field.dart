@@ -6,11 +6,9 @@ class MobileFieldNameTextField extends StatefulWidget {
   const MobileFieldNameTextField({
     this.text,
     super.key,
-    this.textEditingController,
   });
 
   final String? text;
-  final TextEditingController? textEditingController;
 
   @override
   State<MobileFieldNameTextField> createState() =>
@@ -18,11 +16,10 @@ class MobileFieldNameTextField extends StatefulWidget {
 }
 
 class _MobileFieldNameTextFieldState extends State<MobileFieldNameTextField> {
-  late TextEditingController controller;
+  final controller = TextEditingController();
   @override
   void initState() {
     super.initState();
-    controller = widget.textEditingController ?? TextEditingController();
     if (widget.text != null) {
       controller.text = widget.text!;
     }
