@@ -617,9 +617,9 @@
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
       "toggleList": "Toggle list",
-      "quoteList":"Quote list",
-      "numberedList":"Numbered list",
-      "bulletedList":"Bulleted list",
+      "quoteList": "Quote list",
+      "numberedList": "Numbered list",
+      "bulletedList": "Bulleted list",
       "todoList": "Todo List",
       "callout": "Callout",
       "cover": {
@@ -770,7 +770,15 @@
     "column": {
       "createNewCard": "New",
       "renameGroupTooltip": "Press to rename group",
-      "createNewColumn": "Add a new group"
+      "createNewColumn": "Add a new group",
+      "addToColumnTopTooltip": "Add a new card at the top",
+      "renameColumn": "Rename",
+      "hideColumn": "Hide"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Hidden Groups",
+      "collapseTooltip": "Hide the hidden groups",
+      "expandTooltip": "View the hidden groups"
     },
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",

@@ -125,7 +125,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                 _groupOptionsButton(context),
                 const HSpace(4),
                 FlowyTooltip(
-                  message: "Add a new card at the top",
+                  message: LocaleKeys.board_column_addToColumnTopTooltip.tr(),
                   child: FlowyIconButton(
                     width: 20,
                     icon: const FlowySvg(FlowySvgs.add_s),
@@ -250,8 +250,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 enum GroupOptions {
   rename,
   hide;
-  // color,
-  // delete;
 
   void call(BuildContext context, GroupPB group) {
     switch (this) {
@@ -265,11 +263,6 @@ enum GroupOptions {
             .read<BoardBloc>()
             .add(BoardEvent.toggleGroupVisibility(group, false));
         break;
-      // case GroupOptions.color:
-      //   break;
-      // case GroupOptions.delete:
-      //   // context.read<BoardBloc>().add(BoardEvent.);
-      //   break;
     }
   }
 
@@ -279,7 +272,7 @@ enum GroupOptions {
       };
 
   String text() => switch (this) {
-        rename => "Rename",
-        hide => "Hide",
+        rename => LocaleKeys.board_column_renameColumn.tr(),
+        hide => LocaleKeys.board_column_hideColumn.tr(),
       };
 }

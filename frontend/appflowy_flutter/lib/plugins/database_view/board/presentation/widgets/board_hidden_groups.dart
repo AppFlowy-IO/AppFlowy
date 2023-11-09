@@ -57,7 +57,8 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
                       children: [
                         Expanded(
                           child: FlowyText.medium(
-                            'Hidden groups',
+                            LocaleKeys.board_hiddenGroupSection_sectionTitle
+                                .tr(),
                             fontSize: 14,
                             overflow: TextOverflow.ellipsis,
                             color: Theme.of(context).hintColor,
@@ -80,7 +81,9 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
 
   Widget _collapseExpandIcon() {
     return FlowyTooltip(
-      message: isCollapsed ? "Expand group" : "Collpase group",
+      message: isCollapsed
+          ? LocaleKeys.board_hiddenGroupSection_expandTooltip.tr()
+          : LocaleKeys.board_hiddenGroupSection_collapseTooltip.tr(),
       child: FlowyIconButton(
         width: 20,
         height: 20,
@@ -258,10 +261,6 @@ class HiddenGroupCardActions extends StatelessWidget {
 }
 
 class HiddenGroupPopupItemList extends StatelessWidget {
-  final HiddenGroupButtonBloc bloc;
-  final String viewId;
-  final FieldInfo primaryField;
-  final RowCache rowCache;
   const HiddenGroupPopupItemList({
     required this.bloc,
     required this.viewId,
@@ -269,6 +268,11 @@ class HiddenGroupPopupItemList extends StatelessWidget {
     required this.rowCache,
     super.key,
   });
+
+  final HiddenGroupButtonBloc bloc;
+  final String viewId;
+  final FieldInfo primaryField;
+  final RowCache rowCache;
 
   @override
   Widget build(BuildContext context) {
@@ -359,12 +363,6 @@ class HiddenGroupPopupItemList extends StatelessWidget {
 }
 
 class HiddenGroupPopupItem extends StatelessWidget {
-  final DatabaseCellContext cellContext;
-  final FieldInfo primaryField;
-  final RowController rowController;
-  final CardCellBuilder cellBuilder;
-  final RowCardRenderHook<String> renderHook;
-  final VoidCallback onPressed;
   const HiddenGroupPopupItem({
     super.key,
     required this.cellContext,
@@ -375,6 +373,13 @@ class HiddenGroupPopupItem extends StatelessWidget {
     required this.renderHook,
   });
 
+  final DatabaseCellContext cellContext;
+  final FieldInfo primaryField;
+  final RowController rowController;
+  final CardCellBuilder cellBuilder;
+  final RowCardRenderHook<String> renderHook;
+  final VoidCallback onPressed;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -384,6 +389,7 @@ class HiddenGroupPopupItem extends StatelessWidget {
         text: cellBuilder.buildCell(
           cellContext: cellContext,
           renderHook: renderHook,
+          hasNotes: !cellContext.rowMeta.isDocumentEmpty,
         ),
         onTap: onPressed,
       ),
