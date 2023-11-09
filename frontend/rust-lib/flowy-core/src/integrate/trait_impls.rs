@@ -331,7 +331,7 @@ impl CollabStorageProvider for ServerProvider {
                 let sink_config = SinkConfig::new()
                   .send_timeout(8)
                   .with_max_payload_size(1024 * 10)
-                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
+                  .with_strategy(SinkStrategy::FixInterval(Duration::from_millis(600)));
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,
