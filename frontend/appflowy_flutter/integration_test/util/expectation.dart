@@ -165,12 +165,21 @@ extension Expectation on WidgetTester {
   }) {
     return find.byWidgetPredicate(
       (widget) =>
-          widget is ViewItem &&
+          widget is SingleInnerViewItem &&
           widget.view.isFavorite &&
           widget.categoryType == FolderCategoryType.favorite &&
           widget.view.name == name &&
           widget.view.layout == layout,
       skipOffstage: false,
+    );
+  }
+
+  Finder findAllFavoritePages() {
+    return find.byWidgetPredicate(
+      (widget) =>
+          widget is SingleInnerViewItem &&
+          widget.view.isFavorite &&
+          widget.categoryType == FolderCategoryType.favorite,
     );
   }
 
