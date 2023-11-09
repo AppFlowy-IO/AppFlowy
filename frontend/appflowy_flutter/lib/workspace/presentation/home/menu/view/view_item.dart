@@ -167,30 +167,52 @@ class InnerViewItem extends StatelessWidget {
     );
 
     // if the view is expanded and has child views, render its child views
-    if (isExpanded && childViews.isNotEmpty) {
-      final children = childViews.map((childView) {
-        return ViewItem(
-          key: ValueKey('${categoryType.name} ${childView.id}'),
-          parentView: view,
-          categoryType: categoryType,
-          isFirstChild: childView.id == childViews.first.id,
-          view: childView,
-          level: level + 1,
-          onSelected: onSelected,
-          onTertiarySelected: onTertiarySelected,
-          isDraggable: isDraggable,
-          leftPadding: leftPadding,
-          isFeedback: isFeedback,
-        );
-      }).toList();
+    if (isExpanded) {
+      if (childViews.isNotEmpty) {
+        final children = childViews.map((childView) {
+          return ViewItem(
+            key: ValueKey('${categoryType.name} ${childView.id}'),
+            parentView: view,
+            categoryType: categoryType,
+            isFirstChild: childView.id == childViews.first.id,
+            view: childView,
+            level: level + 1,
+            onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
+            isDraggable: isDraggable,
+            leftPadding: leftPadding,
+            isFeedback: isFeedback,
+          );
+        }).toList();
 
-      child = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          child,
-          ...children,
-        ],
-      );
+        child = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            child,
+            ...children,
+          ],
+        );
+      } else {
+        child = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            child,
+            Container(
+              height: height,
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                // add 2px to make the text align with the view item
+                padding: EdgeInsets.only(left: (level + 1) * leftPadding + 2),
+                child: FlowyText.medium(
+                  LocaleKeys.noPagesInside.tr(),
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      }
     }
 
     // wrap the child with DraggableItem if isDraggable is true

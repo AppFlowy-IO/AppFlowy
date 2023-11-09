@@ -53,7 +53,7 @@ void main() {
       await tester.favoriteViewByName(names[1]);
       expect(
         tester.findFavoritePageName(names[1]),
-        findsNWidgets(1),
+        findsNWidgets(2),
       );
 
       await tester.unfavoriteViewByName(gettingStarted);
@@ -99,7 +99,7 @@ void main() {
         );
         expect(
           tester.findFavoritePageName(name),
-          findsNothing,
+          findsOneWidget,
         );
       },
     );
@@ -127,11 +127,11 @@ void main() {
         expect(
           find.byWidgetPredicate(
             (widget) =>
-                widget is ViewItem &&
+                widget is SingleInnerViewItem &&
                 widget.view.isFavorite &&
                 widget.categoryType == FolderCategoryType.favorite,
           ),
-          findsNWidgets(3),
+          findsNWidgets(6),
         );
 
         await tester.hoverOnPageName(
@@ -144,13 +144,8 @@ void main() {
         );
 
         expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ViewItem &&
-                widget.view.isFavorite &&
-                widget.categoryType == FolderCategoryType.favorite,
-          ),
-          findsNWidgets(2),
+          tester.findAllFavoritePages(),
+          findsNWidgets(3),
         );
 
         await tester.hoverOnPageName(
@@ -163,12 +158,7 @@ void main() {
         );
 
         expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ViewItem &&
-                widget.view.isFavorite &&
-                widget.categoryType == FolderCategoryType.favorite,
-          ),
+          tester.findAllFavoritePages(),
           findsNothing,
         );
       },
