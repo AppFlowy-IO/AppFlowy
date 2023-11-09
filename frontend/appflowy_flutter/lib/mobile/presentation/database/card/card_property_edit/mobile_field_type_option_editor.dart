@@ -76,7 +76,10 @@ class _MobileSwitchFieldButton extends StatelessWidget {
             fieldType.title(),
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const Icon(Icons.arrow_forward_ios_sharp),
+          Icon(
+            Icons.arrow_forward_ios_sharp,
+            color: Theme.of(context).hintColor,
+          ),
         ],
       ),
       onTap: () => showFlowyMobileBottomSheet(

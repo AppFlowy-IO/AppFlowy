@@ -77,7 +77,6 @@ class MobileRowPropertyList extends StatelessWidget {
                 MobileCreateRowFieldButton(
                   viewId: viewId,
                 ),
-                const VSpace(8),
               ],
             ),
           ),

@@ -99,7 +99,7 @@ class MobileDateCellText extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         text,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: isPlaceholder
                   ? Theme.of(context).hintColor
                   : Theme.of(context).colorScheme.onBackground,
