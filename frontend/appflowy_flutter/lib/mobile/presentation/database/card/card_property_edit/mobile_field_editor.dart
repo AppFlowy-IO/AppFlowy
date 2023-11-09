@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/mobile_field_type_option_editor.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/property_title.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
@@ -49,7 +50,7 @@ class MobileFieldEditor extends StatelessWidget {
               children: [
                 // property name
                 // TODO(yijing): improve hint text
-                _PropertyLabel(LocaleKeys.settings_user_name.tr()),
+                PropertyTitle(LocaleKeys.settings_user_name.tr()),
                 BlocSelector<FieldEditorBloc, FieldEditorState, String>(
                   selector: (state) {
                     return state.name;
@@ -62,7 +63,7 @@ class MobileFieldEditor extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    _PropertyLabel(LocaleKeys.grid_field_visibility.tr()),
+                    PropertyTitle(LocaleKeys.grid_field_visibility.tr()),
                     const Spacer(),
                     VisibilitySwitch(
                       isFieldHidden:
@@ -90,27 +91,6 @@ class MobileFieldEditor extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _PropertyLabel extends StatelessWidget {
-  const _PropertyLabel(
-    this.name,
-  );
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(
-          name,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
       ),
     );
   }

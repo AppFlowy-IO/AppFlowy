@@ -1,0 +1,20 @@
+import 'package:flutter/material.dart';
+
+class PropertyTitle extends StatelessWidget {
+  const PropertyTitle(this.name, {super.key});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          name,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ),
+    );
+  }
+}
