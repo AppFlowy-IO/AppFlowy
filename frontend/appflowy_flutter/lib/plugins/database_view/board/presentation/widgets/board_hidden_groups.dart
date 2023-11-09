@@ -116,6 +116,7 @@ class HiddenGroupList extends StatelessWidget {
           itemCount: state.hiddenGroups.length,
           itemBuilder: (_, index) => HiddenGroupCard(
             group: state.hiddenGroups[index],
+            key: ValueKey(state.hiddenGroups[index].groupId),
           ),
           separatorBuilder: (_, __) => const VSpace(4),
         ),
