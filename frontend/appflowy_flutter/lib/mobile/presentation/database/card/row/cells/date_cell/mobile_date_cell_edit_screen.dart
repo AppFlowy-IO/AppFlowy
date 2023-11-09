@@ -221,7 +221,7 @@ class _EndDayTime extends StatelessWidget {
       builder: (context, state) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          child: state.endTimeStr != null
+          child: state.includeTime && state.endTimeStr != null
               ? Row(
                   children: [
                     Text(
