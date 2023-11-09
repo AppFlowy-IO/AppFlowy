@@ -145,8 +145,8 @@ class _VisibilitySwitchState extends State<VisibilitySwitch> {
       onChanged: (bool value) {
         setState(() {
           _isFieldHidden = !_isFieldHidden;
+          widget.onChanged?.call();
         });
-        widget.onChanged?.call();
       },
     );
   }

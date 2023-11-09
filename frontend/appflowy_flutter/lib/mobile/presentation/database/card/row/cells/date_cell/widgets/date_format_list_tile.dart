@@ -65,7 +65,10 @@ class DateFormatListTile extends StatelessWidget {
                     title: LocaleKeys.grid_field_dateFormatUS.tr(),
                     dateFormatPB: DateFormatPB.US,
                     groupValue: groupValue,
-                    onChanged: onChanged,
+                    onChanged: (newFormat) {
+                      onChanged?.call(newFormat);
+                      context.pop();
+                    },
                   ),
                   _DateFormatRadioListTile(
                     title: LocaleKeys.grid_field_dateFormatISO.tr(),
