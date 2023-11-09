@@ -134,6 +134,7 @@ class _PropertyCellState extends State<_PropertyCell> {
           ),
           style: TextButton.styleFrom(
             alignment: Alignment.centerLeft,
+            padding: EdgeInsets.zero,
           ),
           // naivgator to field editor
           onPressed: () => context.push(
@@ -147,7 +148,6 @@ class _PropertyCellState extends State<_PropertyCell> {
         ),
       ),
       title: SizedBox(
-        height: cellHeight,
         width: double.infinity,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,

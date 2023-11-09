@@ -156,6 +156,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
                   },
                 ),
               ),
+              const VSpace(8),
               // Card Properties
               MobileRowPropertyList(
                 cellBuilder: widget.cellBuilder,
