@@ -115,7 +115,6 @@ impl ServerProvider {
       },
       ServerType::AFCloud => {
         let config = AFCloudConfiguration::from_env()?;
-        tracing::trace!("🔑AppFlowy cloud config: {:?}", config);
         let server = Arc::new(AFCloudServer::new(
           config,
           *self.enable_sync.read(),

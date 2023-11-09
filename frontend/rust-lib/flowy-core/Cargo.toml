@@ -41,6 +41,7 @@ tokio-stream = {version = "0.1.14", features = ["sync"]}
 console-subscriber = { version = "0.1.8", optional = true }
 parking_lot = "0.12.1"
 anyhow = "1.0.75"
+base64 = "0.21.5"
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 serde = "1.0"

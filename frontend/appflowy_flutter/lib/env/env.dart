@@ -101,7 +101,10 @@ CloudType currentCloudType() {
   final value = Env.cloudType;
   if (value == 1) {
     if (Env.supabaseUrl.isEmpty || Env.supabaseAnonKey.isEmpty) {
-      Log.error("Supabase is not configured");
+      Log.error(
+        "Supabase is not configured correctly. The values are: "
+        "url: ${Env.supabaseUrl}, anonKey: ${Env.supabaseAnonKey}",
+      );
       return CloudType.unknown;
     } else {
       return CloudType.supabase;
@@ -109,8 +112,13 @@ CloudType currentCloudType() {
   }
 
   if (value == 2) {
-    if (Env.afCloudBaseUrl.isEmpty || Env.afCloudWSBaseUrl.isEmpty) {
-      Log.error("AppFlowy cloud is not configured");
+    if (Env.afCloudBaseUrl.isEmpty ||
+        Env.afCloudWSBaseUrl.isEmpty ||
+        Env.afCloudGoTrueUrl.isEmpty) {
+      Log.error(
+        "AppFlowy cloud is not configured correctly. The values are: "
+        "baseUrl: ${Env.afCloudBaseUrl}, wsBaseUrl: ${Env.afCloudWSBaseUrl}, gotrueUrl: ${Env.afCloudGoTrueUrl}",
+      );
       return CloudType.unknown;
     } else {
       return CloudType.appflowyCloud;

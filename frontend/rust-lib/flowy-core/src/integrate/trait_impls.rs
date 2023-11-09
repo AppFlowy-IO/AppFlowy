@@ -96,7 +96,7 @@ impl UserCloudServiceProvider for ServerProvider {
       None => tracing::error!("🔴Failed to update server provider type: store preferences is drop"),
       Some(store_preferences) => {
         match store_preferences.set_object(SERVER_PROVIDER_TYPE_KEY, server_type.clone()) {
-          Ok(_) => tracing::trace!("Update server provider type to: {:?}", server_type),
+          Ok(_) => tracing::trace!("Set server provider: {:?}", server_type),
           Err(e) => {
             tracing::error!("🔴Failed to update server provider type: {:?}", e);
           },

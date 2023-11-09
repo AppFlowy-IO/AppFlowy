@@ -4,6 +4,8 @@ use std::sync::Weak;
 use std::time::Duration;
 use std::{fmt, sync::Arc};
 
+use base64::engine::general_purpose::URL_SAFE;
+use base64::Engine;
 use tokio::sync::RwLock;
 use tracing::{error, event, instrument};
 
@@ -11,6 +13,7 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_folder2::manager::FolderManager;
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
@@ -42,22 +45,36 @@ pub struct AppFlowyCoreConfig {
   /// Panics if the `root` path is not existing
   pub storage_path: String,
   log_filter: String,
+  cloud_config: Option<AFCloudConfiguration>,
 }
 
 impl fmt::Debug for AppFlowyCoreConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.debug_struct("AppFlowyCoreConfig")
-      .field("storage_path", &self.storage_path)
-      .finish()
+    let mut debug = f.debug_struct("AppFlowy Configuration");
+    debug.field("storage_path", &self.storage_path);
+    if let Some(config) = &self.cloud_config {
+      debug.field("base_url", &config.base_url);
+      debug.field("ws_url", &config.ws_base_url);
+    }
+    debug.finish()
   }
 }
 
 impl AppFlowyCoreConfig {
   pub fn new(root: &str, name: String) -> Self {
+    let mut storage_path = root.to_string();
+    let cloud_config = AFCloudConfiguration::from_env().ok();
+    if let Some(cloud_config) = &cloud_config {
+      // Use the base url as part of the storage path in case the user switch between
+      // different cloud providers.
+      storage_path = format!("{}_{}", root, URL_SAFE.encode(&cloud_config.base_url));
+    }
+
     AppFlowyCoreConfig {
       name,
-      storage_path: root.to_owned(),
+      storage_path,
       log_filter: create_log_filter("info".to_owned(), vec![]),
+      cloud_config,
     }
   }
 
@@ -109,7 +126,7 @@ impl AppFlowyCore {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
 
-    tracing::info!("🔥db {:?}", &config);
+    tracing::info!("🔥{:?}", &config);
     tracing::debug!("🔥{}", runtime);
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
