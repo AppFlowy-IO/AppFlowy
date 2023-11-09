@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:window_manager/window_manager.dart';
 
 class TabsManager extends StatefulWidget {
   final PageController pageController;
@@ -66,27 +69,42 @@ class _TabsManagerState extends State<TabsManager>
               ),
 
               /// TODO(Xazin): Custom Reorderable TabBar
-              child: TabBar(
-                padding: EdgeInsets.zero,
-                labelPadding: EdgeInsets.zero,
-                indicator: BoxDecoration(
-                  border: Border.all(width: 0, color: Colors.transparent),
-                ),
-                indicatorWeight: 0,
-                dividerColor: Colors.transparent,
-                isScrollable: true,
-                controller: _controller,
-                onTap: (newIndex) =>
-                    context.read<TabsBloc>().add(TabsEvent.selectTab(newIndex)),
-                tabs: state.pageManagers
-                    .map(
-                      (pm) => FlowyTab(
-                        key: UniqueKey(),
-                        pageManager: pm,
-                        isCurrent: state.currentPageManager == pm,
+              child: Stack(
+                children: [
+                  TabBar(
+                    padding: EdgeInsets.zero,
+                    labelPadding: EdgeInsets.zero,
+                    indicator: BoxDecoration(
+                      border: Border.all(width: 0, color: Colors.transparent),
+                    ),
+                    indicatorWeight: 0,
+                    dividerColor: Colors.transparent,
+                    isScrollable: true,
+                    controller: _controller,
+                    onTap: (newIndex) => context
+                        .read<TabsBloc>()
+                        .add(TabsEvent.selectTab(newIndex)),
+                    tabs: state.pageManagers
+                        .map(
+                          (pm) => FlowyTab(
+                            key: UniqueKey(),
+                            pageManager: pm,
+                            isCurrent: state.currentPageManager == pm,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  if (Platform.isWindows)
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: SizedBox(
+                        width: 46 * 3,
+                        child: WindowCaption(
+                            brightness: Theme.of(context).brightness,
+                            backgroundColor: Colors.transparent),
                       ),
-                    )
-                    .toList(),
+                    ),
+                ],
               ),
             );
           },

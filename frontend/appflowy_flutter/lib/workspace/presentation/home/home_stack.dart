@@ -1,4 +1,5 @@
-import 'package:appflowy/core/frameless_window.dart';
+import 'dart:io';
+
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -7,6 +8,7 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/window_drag_stack.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'home_layout.dart';
 
@@ -217,7 +220,7 @@ class PageManager {
       child: Selector<PageNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (context, widget, child) {
-          return MoveWindowDetector(child: HomeTopBar(layout: layout));
+          return HomeTopBar(layout: layout);
         },
       ),
     );
@@ -268,22 +271,43 @@ class HomeTopBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: HomeInsets.topBarTitlePadding,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            HSpace(layout.menuSpacing),
-            const FlowyNavigation(),
-            const HSpace(16),
-            ChangeNotifierProvider.value(
-              value: Provider.of<PageNotifier>(context, listen: false),
-              child: Consumer(
-                builder: (_, PageNotifier notifier, __) =>
-                    notifier.plugin.widgetBuilder.rightBarItem ??
-                    const SizedBox.shrink(),
+        ).copyWith(right: Platform.isWindows ? 0 : null),
+        child: WindowDragStack(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              HSpace(layout.menuSpacing),
+              const FlowyNavigation(),
+              const HSpace(16),
+              ChangeNotifierProvider.value(
+                value: Provider.of<PageNotifier>(context, listen: false),
+                child: Consumer(
+                  builder: (_, PageNotifier notifier, __) =>
+                      notifier.plugin.widgetBuilder.rightBarItem ??
+                      const SizedBox.shrink(),
+                ),
               ),
-            ),
-          ],
+              if (Platform.isWindows)
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 200),
+                  child: BlocBuilder<TabsBloc, TabsState>(
+                    builder: (context, state) {
+                      if (state.pages > 1) {
+                        return const SizedBox(
+                          width: HomeInsets.topBarTitlePadding,
+                        );
+                      }
+                      return SizedBox(
+                        width: 46 * 3,
+                        child: WindowCaption(
+                            brightness: Theme.of(context).brightness,
+                            backgroundColor: Colors.transparent),
+                      );
+                    },
+                  ),
+                )
+            ],
+          ),
         ),
       ).bottomBorder(color: Theme.of(context).dividerColor),
     );

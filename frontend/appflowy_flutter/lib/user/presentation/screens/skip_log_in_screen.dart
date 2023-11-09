@@ -19,6 +19,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:window_manager/window_manager.dart';
 
 class SkipLogInScreen extends StatefulWidget {
   static const routeName = '/SkipLogInScreen';
@@ -317,12 +318,9 @@ class _SkipLoginMoveWindow extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Expanded(
-          child: MoveWindowDetector(),
-        ),
-      ],
+    return WindowCaption(
+      backgroundColor: Colors.transparent,
+      brightness: Theme.of(context).brightness,
     );
   }
 
