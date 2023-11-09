@@ -465,7 +465,7 @@ class GroupItem extends AppFlowyGroupItem {
   GroupItem({
     required this.row,
     required this.fieldInfo,
-    draggable = true,
+    bool draggable = true,
   }) {
     super.draggable = draggable;
   }
