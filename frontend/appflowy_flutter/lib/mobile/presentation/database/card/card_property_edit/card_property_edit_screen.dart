@@ -28,25 +28,27 @@ class CardPropertyEditScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(LocaleKeys.grid_field_editProperty.tr()),
         actions: [
-          IconButton(
-            onPressed: () {
-              showFlowyMobileConfirmDialog(
-                context,
-                title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-                actionButtonTitle: LocaleKeys.button_delete.tr(),
-                actionButtonColor: Theme.of(context).colorScheme.error,
-                onActionButtonPressed: () {
-                  context.read<RowDetailBloc>().add(
-                        RowDetailEvent.deleteField(
-                          cellContext.fieldInfo.field.id,
-                        ),
-                      );
-                  context.pop();
-                },
-              );
-            },
-            icon: const FlowySvg(FlowySvgs.m_delete_m),
-          ),
+          // show delete button when this field is not used to group cards
+          if (!cellContext.fieldInfo.isGroupField)
+            IconButton(
+              onPressed: () {
+                showFlowyMobileConfirmDialog(
+                  context,
+                  title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+                  actionButtonTitle: LocaleKeys.button_delete.tr(),
+                  actionButtonColor: Theme.of(context).colorScheme.error,
+                  onActionButtonPressed: () {
+                    context.read<RowDetailBloc>().add(
+                          RowDetailEvent.deleteField(
+                            cellContext.fieldInfo.field.id,
+                          ),
+                        );
+                    context.pop();
+                  },
+                );
+              },
+              icon: const FlowySvg(FlowySvgs.m_delete_m),
+            ),
         ],
       ),
       body: MobileFieldEditor(
