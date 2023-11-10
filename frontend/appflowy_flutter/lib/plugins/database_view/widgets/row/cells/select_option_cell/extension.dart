@@ -12,6 +12,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/color_analyzer/color_analyzer.dart';
 
 extension SelectOptionColorExtension on SelectOptionColorPB {
   Color toColor(BuildContext context) {
@@ -70,21 +71,18 @@ class SelectOptionTag extends StatelessWidget {
   final Color color;
   final VoidCallback? onSelected;
   final void Function(String)? onRemove;
-  const SelectOptionTag(
-      {required this.name,
+  const SelectOptionTag({required this.name,
       required this.color,
       this.onSelected,
       this.onRemove,
       Key? key,
-      ac})
-      : super(key: key);
+      ac}): super(key: key);
 
   factory SelectOptionTag.fromOption({
     required BuildContext context,
     required SelectOptionPB option,
     VoidCallback? onSelected,
     Function(String)? onRemove,
-    bool isTextColAlt = false,
   }) {
     return SelectOptionTag(
       name: option.name,
@@ -102,36 +100,6 @@ class SelectOptionTag extends StatelessWidget {
       padding = padding.copyWith(right: 2.0);
     }
 
-    double calculateLuminance(Color color) {
-      List<double> rgb =
-          [color.red, color.green, color.blue].map((c) => c / 255.0).toList();
-
-      for (int i = 0; i < 3; i++) {
-        // Explicitly cast the result of pow to double
-        rgb[i] = rgb[i] <= 0.03928
-            ? rgb[i] / 12.92
-            : pow((rgb[i] + 0.055) / 1.055, 2.4).toDouble();
-      }
-
-      return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
-    }
-
-    double calculateContrast(Color color1, Color color2) {
-      // Calculate the relative luminance of the colors
-      double luminance1 = calculateLuminance(color1);
-      double luminance2 = calculateLuminance(color2);
-
-      // Ensure luminance1 is the lighter color
-      if (luminance1 < luminance2) {
-        double temp = luminance1;
-        luminance1 = luminance2;
-        luminance2 = temp;
-      }
-
-      // Calculate the contrast ratio
-      return (luminance1 + 0.05) / (luminance2 + 0.05);
-    }
-
     return Container(
       padding: padding,
       decoration: BoxDecoration(
@@ -142,22 +110,17 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(
-              name,
-              fontSize: FontSizes.s11,
-              overflow: TextOverflow.ellipsis,
-              color: (calculateContrast(
-                        color,
-                        Theme.of(context)
-                            .extension<AFThemeExtension>()!
-                            .textColor,
-                      ) <
-                      1.36)
-                  ? Theme.of(context)
-                      .extension<AFThemeExtension>()!
-                      .textColorAlt
-                  : Theme.of(context).extension<AFThemeExtension>()!.textColor,
-            ),
+            child: FlowyText.medium(name,
+                fontSize: FontSizes.s11,
+                overflow: TextOverflow.ellipsis,
+                color: ColorAnalyzer().getAppropriateTextColor(
+                    color,
+                    Theme.of(context)
+                        .extension<AFThemeExtension>()!
+                        .textColorAlt,
+                    Theme.of(context)
+                        .extension<AFThemeExtension>()!
+                        .textColor)),
           ),
           if (onRemove != null) ...[
             const HSpace(2),
