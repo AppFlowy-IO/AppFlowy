@@ -36,10 +36,13 @@ final alignToolbarItem = ToolbarItem(
 
     final child = MouseRegion(
       cursor: SystemMouseCursors.click,
-      child: FlowySvg(
-        data,
-        size: const Size.square(20),
-        color: isHighlight ? highlightColor : Colors.white,
+      child: FlowyTooltip(
+        message: LocaleKeys.document_plugins_optionAction_align.tr(),
+        child: FlowySvg(
+          data,
+          size: const Size.square(16),
+          color: isHighlight ? highlightColor : Colors.white,
+        ),
       ),
     );
 
