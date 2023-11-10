@@ -24,25 +24,33 @@ class MobileCardDetailScreen extends StatefulWidget {
   const MobileCardDetailScreen({
     super.key,
     required this.rowController,
-    required this.cellBuilder,
   });
 
   static const routeName = '/MobileCardDetailScreen';
   static const argRowController = 'rowController';
   static const argCellBuilder = 'cellBuilder';
   final RowController rowController;
-  final GridCellBuilder cellBuilder;
 
   @override
   State<MobileCardDetailScreen> createState() => _MobileCardDetailScreenState();
 }
 
 class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
-  final scrollController = ScrollController();
+  late ScrollController _scrollController;
+  late GridCellBuilder _cellBuilder;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _cellBuilder = GridCellBuilder(
+      cellCache: widget.rowController.cellCache,
+    );
+  }
 
   @override
   void dispose() {
-    scrollController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -124,7 +132,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: ListView(
-            controller: scrollController,
+            controller: _scrollController,
             children: [
               BlocProvider<RowBannerBloc>(
                 create: (context) => RowBannerBloc(
@@ -147,7 +155,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
                         fieldInfo: FieldInfo.initial(state.primaryField!),
                       );
 
-                      return widget.cellBuilder.build(
+                      return _cellBuilder.build(
                         cellContext,
                         style: mobileStyle,
                       );
@@ -159,7 +167,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
               const VSpace(8),
               // Card Properties
               MobileRowPropertyList(
-                cellBuilder: widget.cellBuilder,
+                cellBuilder: _cellBuilder,
                 viewId: widget.rowController.viewId,
               ),
               const Divider(),
@@ -167,7 +175,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
               RowDocument(
                 viewId: widget.rowController.viewId,
                 rowId: widget.rowController.rowId,
-                scrollController: scrollController,
+                scrollController: _scrollController,
               ),
             ],
           ),

@@ -342,7 +342,6 @@ class _BoardContentState extends State<BoardContent> {
         MobileCardDetailScreen.routeName,
         extra: {
           'rowController': dataController,
-          'cellBuilder': GridCellBuilder(cellCache: dataController.cellCache),
         },
       );
     } else {

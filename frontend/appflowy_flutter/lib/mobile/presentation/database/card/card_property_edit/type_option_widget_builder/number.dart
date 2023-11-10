@@ -1,4 +1,4 @@
-import 'package:appflowy/mobile/presentation/database/card/card_property_edit/property_title.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/property_title.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';

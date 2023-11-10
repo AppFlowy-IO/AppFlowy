@@ -34,7 +34,7 @@ class MobileFieldTypeOptionEditor extends StatelessWidget {
       },
       child: BlocBuilder<FieldTypeOptionEditBloc, FieldTypeOptionEditState>(
         builder: (context, state) {
-          final typeOptionWidget = _makeMobileTypeOptionWidget(
+          final typeOptionWidget = _makeTypeOptionMobileWidget(
             context: context,
             dataController: _dataController,
           );
@@ -100,17 +100,17 @@ class _MobileSwitchFieldButton extends StatelessWidget {
   }
 }
 
-Widget? _makeMobileTypeOptionWidget({
+Widget? _makeTypeOptionMobileWidget({
   required BuildContext context,
   required TypeOptionController dataController,
 }) {
-  final builder = _makeMobileTypeOptionMobileWidgetBuilder(
+  final builder = _makeTypeOptionMobileWidgetBuilder(
     dataController: dataController,
   );
   return builder.build(context);
 }
 
-TypeOptionWidgetBuilder _makeMobileTypeOptionMobileWidgetBuilder({
+TypeOptionWidgetBuilder _makeTypeOptionMobileWidgetBuilder({
   required TypeOptionController dataController,
 }) {
   final viewId = dataController.loader.viewId;

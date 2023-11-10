@@ -373,11 +373,10 @@ GoRoute _mobileCardDetailScreenRoute() {
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
       final rowController = args[MobileCardDetailScreen.argRowController];
-      final cellBuilder = args[MobileCardDetailScreen.argCellBuilder];
+
       return MaterialPage(
         child: MobileCardDetailScreen(
           rowController: rowController,
-          cellBuilder: cellBuilder,
         ),
       );
     },
