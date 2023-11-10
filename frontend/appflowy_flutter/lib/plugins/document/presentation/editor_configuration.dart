@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
@@ -11,6 +12,8 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required EditorStyleCustomizer styleCustomizer,
   List<SelectionMenuItem>? slashMenuItems,
   bool editable = true,
+  ShowPlaceholder? showParagraphPlaceholder,
+  String Function(Node)? placeholderText,
 }) {
   final standardActions = [
     OptionAction.delete,
@@ -24,12 +27,16 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
 
   final configuration = BlockComponentConfiguration(
     padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
+    indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
+        ? const EdgeInsets.only(left: 26.0)
+        : const EdgeInsets.only(right: 26.0),
   );
 
   final customBlockComponentBuilderMap = {
     PageBlockKeys.type: PageBlockComponentBuilder(),
     ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
-      configuration: configuration,
+      configuration: configuration.copyWith(placeholderText: placeholderText),
+      showPlaceholder: showParagraphPlaceholder,
     ),
     TodoListBlockKeys.type: TodoListBlockComponentBuilder(
       configuration: configuration.copyWith(
@@ -116,11 +123,17 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     DividerBlockKeys.type: DividerBlockComponentBuilder(
       configuration: configuration,
       height: 28.0,
+      wrapper: (context, node, child) {
+        return MobileBlockActionButtons(
+          showThreeDots: false,
+          node: node,
+          editorState: editorState,
+          child: child,
+        );
+      },
     ),
     MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
-      configuration: configuration.copyWith(
-        padding: (_) => const EdgeInsets.symmetric(vertical: 20),
-      ),
+      configuration: configuration,
     ),
     CodeBlockKeys.type: CodeBlockComponentBuilder(
       configuration: configuration.copyWith(
@@ -145,9 +158,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
-      configuration: configuration.copyWith(
-        padding: (_) => const EdgeInsets.symmetric(vertical: 10),
-      ),
+      configuration: configuration,
     ),
   };
 

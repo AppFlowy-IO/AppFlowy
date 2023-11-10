@@ -13,13 +13,14 @@ use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLay
 use collab_entity::CollabType;
 use futures::executor::block_on;
 use tokio::sync::RwLock;
-use tracing::{instrument, trace};
+use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
+use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
@@ -79,6 +80,11 @@ impl DatabaseManager {
     workspace_id: String,
     database_views_aggregate_id: String,
   ) -> FlowyResult<()> {
+    // Clear all existing tasks
+    self.task_scheduler.write().await.clear_task();
+    // Release all existing editors
+    self.editors.write().await.clear();
+
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
       workspace_id: workspace_id.clone(),
@@ -113,7 +119,11 @@ impl DatabaseManager {
     }
 
     // Construct the workspace database.
-    trace!("open workspace database: {}", &database_views_aggregate_id);
+    event!(
+      tracing::Level::INFO,
+      "open aggregate database views object: {}",
+      &database_views_aggregate_id
+    );
     let collab = collab_builder.build_collab_with_config(
       uid,
       &database_views_aggregate_id,
@@ -361,7 +371,7 @@ impl DatabaseManager {
 /// Send notification to all clients that are listening to the given object.
 fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
   let mut block_event_rx = workspace_database.subscribe_block_event();
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Ok(event) = block_event_rx.recv().await {
       match event {
         BlockEvent::DidFetchRow(row_details) => {

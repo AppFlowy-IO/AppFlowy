@@ -17,7 +17,7 @@ function SelectLanguage({ id, language }: { id: string; language: string }) {
       if (!controller) return;
       const language = event.target.value;
 
-      dispatch(
+      void dispatch(
         updateNodeDataThunk({
           id,
           controller,

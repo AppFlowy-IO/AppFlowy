@@ -1,13 +1,14 @@
 use std::collections::HashSet;
+use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_entity::CollabType;
-use collab_folder::core::{
-  FavoritesInfo, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
-  View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
+use collab_folder::{
+  Folder, FolderData, FolderNotify, SectionItem, TrashChange, TrashChangeReceiver, TrashInfo,
+  UserId, View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::{Mutex, RwLock};
 use tokio_stream::wrappers::WatchStream;
@@ -18,17 +19,17 @@ use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB, YrsDocAction};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
+use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
   CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
-  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, UserFolderPB, ViewPB,
-  WorkspacePB,
+  RepeatedTrashPB, RepeatedViewPB, UpdateViewParams, UserFolderPB, ViewPB, WorkspacePB,
+  WorkspaceSettingPB,
 };
 use crate::notification::{
-  send_notification, send_workspace_notification, send_workspace_setting_notification,
-  FolderNotification,
+  send_notification, send_workspace_setting_notification, FolderNotification,
 };
 use crate::share::ImportParams;
 use crate::user_default::DefaultFolderBuilder;
@@ -73,6 +74,7 @@ impl FolderManager {
     Ok(manager)
   }
 
+  #[instrument(level = "debug", skip(self), err)]
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
     self.with_folder(
       || {
@@ -91,19 +93,7 @@ impl FolderManager {
         };
 
         match folder.get_current_workspace() {
-          None => {
-            // The current workspace should always exist. If not, try to find the first workspace.
-            // from the folder. Otherwise, return an error.
-            let mut workspaces = folder.workspaces.get_all_workspaces();
-            if workspaces.is_empty() {
-              Err(FlowyError::record_not_found().with_context("Can not find the workspace"))
-            } else {
-              tracing::error!("Can't find the current workspace, use the first workspace");
-              let workspace = workspaces.remove(0);
-              folder.set_current_workspace(&workspace.id);
-              workspace_pb_from_workspace(workspace, folder)
-            }
-          },
+          None => Err(FlowyError::record_not_found().with_context("Can not find the workspace")),
           Some(workspace) => workspace_pb_from_workspace(workspace, folder),
         }
       },
@@ -117,9 +107,9 @@ impl FolderManager {
       .mutex_folder
       .lock()
       .as_ref()
-      .map(|folder| folder.get_current_workspace_id());
+      .map(|folder| folder.get_workspace_id());
 
-    if let Some(Some(workspace_id)) = workspace_id {
+    if let Some(workspace_id) = workspace_id {
       self.get_workspace_views(&workspace_id).await
     } else {
       tracing::warn!("Can't get current workspace views");
@@ -128,88 +118,105 @@ impl FolderManager {
   }
 
   pub async fn get_workspace_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(std::vec::Vec::new, |folder| {
+    let views = self.with_folder(Vec::new, |folder| {
       get_workspace_view_pbs(workspace_id, folder)
     });
 
     Ok(views)
   }
 
-  /// Called immediately after the application launched fi the user already sign in/sign up.
+  /// Called immediately after the application launched if the user already sign in/sign up.
   #[tracing::instrument(level = "info", skip(self, initial_data), err)]
   pub async fn initialize(
     &self,
     uid: i64,
     workspace_id: &str,
-    initial_data: FolderInitializeDataSource,
+    initial_data: FolderInitDataSource,
   ) -> FlowyResult<()> {
+    // Update the workspace id
+    event!(
+      Level::INFO,
+      "Init current workspace: {} from: {}",
+      workspace_id,
+      initial_data
+    );
     *self.workspace_id.write() = Some(workspace_id.to_string());
     let workspace_id = workspace_id.to_string();
-    if let Ok(collab_db) = self.user.collab_db(uid) {
-      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-      let folder_notifier = FolderNotify {
-        view_change_tx: view_tx,
-        trash_change_tx: trash_tx,
-      };
 
-      let folder = match initial_data {
-        FolderInitializeDataSource::LocalDisk {
-          create_if_not_exist,
-        } => {
-          let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
-          if is_exist {
-            let collab = self
-              .collab_for_folder(uid, &workspace_id, collab_db, vec![])
-              .await?;
-            Folder::open(collab, Some(folder_notifier))
-          } else if create_if_not_exist {
-            let folder_data =
-              DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
-                .await;
-            let collab = self
-              .collab_for_folder(uid, &workspace_id, collab_db, vec![])
-              .await?;
-            Folder::create(collab, Some(folder_notifier), Some(folder_data))
-          } else {
-            return Err(FlowyError::new(
-              ErrorCode::RecordNotFound,
-              "Can't find any workspace data",
-            ));
-          }
-        },
-        FolderInitializeDataSource::Cloud(raw_data) => {
-          if raw_data.is_empty() {
-            return Err(workspace_data_not_sync_error(uid, &workspace_id));
-          }
-          let collab = self
-            .collab_for_folder(uid, &workspace_id, collab_db, raw_data)
-            .await?;
-          Folder::open(collab, Some(folder_notifier))
-        },
-        FolderInitializeDataSource::FolderData(folder_data) => {
+    // Get the collab db for the user with given user id.
+    let collab_db = self.user.collab_db(uid)?;
+
+    let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+    let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+    let folder_notifier = FolderNotify {
+      view_change_tx: view_tx,
+      trash_change_tx: trash_tx,
+    };
+
+    let folder = match initial_data {
+      FolderInitDataSource::LocalDisk {
+        create_if_not_exist,
+      } => {
+        let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
+        if is_exist {
+          event!(Level::INFO, "Restore folder from local disk");
           let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db, vec![])
             .await?;
-          Folder::create(collab, Some(folder_notifier), Some(folder_data))
-        },
-      };
+          Folder::open(UserId::from(uid), collab, Some(folder_notifier))?
+        } else if create_if_not_exist {
+          event!(Level::INFO, "Create folder with default folder builder");
+          let folder_data =
+            DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
+              .await;
+          let collab = self
+            .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+            .await?;
+          Folder::create(
+            UserId::from(uid),
+            collab,
+            Some(folder_notifier),
+            folder_data,
+          )
+        } else {
+          return Err(FlowyError::new(
+            ErrorCode::RecordNotFound,
+            "Can't find any workspace data",
+          ));
+        }
+      },
+      FolderInitDataSource::Cloud(raw_data) => {
+        event!(Level::INFO, "Restore folder from cloud service");
+        if raw_data.is_empty() {
+          return Err(workspace_data_not_sync_error(uid, &workspace_id));
+        }
+        let collab = self
+          .collab_for_folder(uid, &workspace_id, collab_db, raw_data)
+          .await?;
+        Folder::open(UserId::from(uid), collab, Some(folder_notifier))?
+      },
+      FolderInitDataSource::FolderData(folder_data) => {
+        event!(Level::INFO, "Restore folder with passed-in folder data");
+        let collab = self
+          .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+          .await?;
+        Folder::create(
+          UserId::from(uid),
+          collab,
+          Some(folder_notifier),
+          folder_data,
+        )
+      },
+    };
 
-      tracing::debug!("Current workspace_id: {}", workspace_id);
-      let folder_state_rx = folder.subscribe_sync_state();
-      *self.mutex_folder.lock() = Some(folder);
+    let folder_state_rx = folder.subscribe_sync_state();
+    *self.mutex_folder.lock() = Some(folder);
 
-      let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
-      subscribe_folder_sync_state_changed(
-        workspace_id.clone(),
-        folder_state_rx,
-        &weak_mutex_folder,
-      );
-      subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
-      subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
-      subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
-    }
-
+    let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
+    subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
+    subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
+    subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
+    subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
     Ok(())
   }
 
@@ -236,7 +243,7 @@ impl FolderManager {
 
   /// Initialize the folder with the given workspace id.
   /// Fetch the folder updates from the cloud service and initialize the folder.
-  #[tracing::instrument(level = "debug", skip(self, user_id), err)]
+  #[tracing::instrument(skip(self, user_id), err)]
   pub async fn initialize_with_workspace_id(
     &self,
     user_id: i64,
@@ -247,7 +254,8 @@ impl FolderManager {
       .get_folder_updates(workspace_id, user_id)
       .await?;
 
-    info!(
+    event!(
+      Level::INFO,
       "Get folder updates via {}, number of updates: {}",
       self.cloud_service.service_name(),
       folder_updates.len()
@@ -257,7 +265,7 @@ impl FolderManager {
       .initialize(
         user_id,
         workspace_id,
-        FolderInitializeDataSource::Cloud(folder_updates),
+        FolderInitDataSource::Cloud(folder_updates),
       )
       .await?;
     Ok(())
@@ -265,18 +273,13 @@ impl FolderManager {
 
   /// Initialize the folder for the new user.
   /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
-  #[instrument(
-    name = "folder_initialize_with_new_user",
-    level = "debug",
-    skip_all,
-    err
-  )]
+  #[instrument(level = "info", skip_all, err)]
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
     _token: &str,
     is_new: bool,
-    data_source: FolderInitializeDataSource,
+    data_source: FolderInitDataSource,
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // Create the default workspace if the user is new
@@ -303,7 +306,7 @@ impl FolderManager {
             .initialize(
               user_id,
               workspace_id,
-              FolderInitializeDataSource::Cloud(folder_updates),
+              FolderInitDataSource::Cloud(folder_updates),
             )
             .await?;
         },
@@ -324,49 +327,62 @@ impl FolderManager {
   pub async fn clear(&self, _user_id: i64) {}
 
   #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
-    let workspace = self
-      .cloud_service
-      .create_workspace(self.user.user_id()?, &params.name)
-      .await?;
-
-    self.with_folder(
-      || (),
-      |folder| {
-        folder.workspaces.create_workspace(workspace.clone());
-        folder.set_current_workspace(&workspace.id);
-      },
-    );
-
-    let repeated_workspace = RepeatedWorkspacePB {
-      items: vec![workspace.clone().into()],
-    };
-    send_workspace_notification(FolderNotification::DidCreateWorkspace, repeated_workspace);
-    Ok(workspace)
+  pub async fn create_workspace(&self, _params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
+    Err(FlowyError::not_support())
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<Workspace> {
+  pub async fn open_workspace(&self, _workspace_id: &str) -> FlowyResult<Workspace> {
     self.with_folder(
       || Err(FlowyError::internal()),
       |folder| {
-        let workspace = folder
-          .workspaces
-          .get_workspace(workspace_id)
-          .ok_or_else(|| {
-            FlowyError::record_not_found().with_context("Can't open not existing workspace")
-          })?;
-        folder.set_current_workspace(&workspace.id);
+        let workspace = folder.get_current_workspace().ok_or_else(|| {
+          FlowyError::record_not_found().with_context("Can't open not existing workspace")
+        })?;
         Ok::<Workspace, FlowyError>(workspace)
       },
     )
   }
 
-  pub async fn get_workspace(&self, workspace_id: &str) -> Option<Workspace> {
-    self.with_folder(
-      || None,
-      |folder| folder.workspaces.get_workspace(workspace_id),
-    )
+  pub async fn get_workspace(&self, _workspace_id: &str) -> Option<Workspace> {
+    self.with_folder(|| None, |folder| folder.get_current_workspace())
+  }
+
+  pub async fn get_workspace_setting_pb(&self) -> FlowyResult<WorkspaceSettingPB> {
+    let workspace_id = self.get_current_workspace_id().await?;
+    let latest_view = self.get_current_view().await;
+    Ok(WorkspaceSettingPB {
+      workspace_id,
+      latest_view,
+    })
+  }
+
+  pub async fn get_workspace_pb(&self) -> FlowyResult<WorkspacePB> {
+    let workspace_pb = {
+      let guard = self.mutex_folder.lock();
+      let folder = guard
+        .as_ref()
+        .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
+      let workspace = folder.get_current_workspace().ok_or(
+        FlowyError::record_not_found().with_context("Can't find the current workspace id "),
+      )?;
+
+      let views = folder
+        .views
+        .get_views_belong_to(&workspace.id)
+        .into_iter()
+        .map(view_pb_without_child_views)
+        .collect::<Vec<ViewPB>>();
+
+      WorkspacePB {
+        id: workspace.id,
+        name: workspace.name,
+        views,
+        create_time: workspace.created_at,
+      }
+    };
+
+    Ok(workspace_pb)
   }
 
   async fn get_current_workspace_id(&self) -> FlowyResult<String> {
@@ -374,7 +390,7 @@ impl FolderManager {
       .mutex_folder
       .lock()
       .as_ref()
-      .and_then(|folder| folder.get_current_workspace_id())
+      .map(|folder| folder.get_workspace_id())
       .ok_or(FlowyError::internal().with_context("Unexpected empty workspace id"))
   }
 
@@ -398,8 +414,12 @@ impl FolderManager {
   }
 
   pub async fn get_all_workspaces(&self) -> Vec<Workspace> {
-    self.with_folder(std::vec::Vec::new, |folder| {
-      folder.workspaces.get_all_workspaces()
+    self.with_folder(Vec::new, |folder| {
+      let mut workspaces = vec![];
+      if let Some(workspace) = folder.get_current_workspace() {
+        workspaces.push(workspace);
+      }
+      workspaces
     })
   }
 
@@ -430,7 +450,7 @@ impl FolderManager {
     }
 
     let index = params.index;
-    let view = create_view(params, view_layout);
+    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -454,7 +474,7 @@ impl FolderManager {
     handler
       .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
       .await?;
-    let view = create_view(params, view_layout);
+    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -477,7 +497,7 @@ impl FolderManager {
   /// The child views of the view will only access the first. So if you want to get the child view's
   /// child view, you need to call this method again.
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
-  pub async fn get_view(&self, view_id: &str) -> FlowyResult<ViewPB> {
+  pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
     let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
@@ -585,7 +605,7 @@ impl FolderManager {
     new_parent_id: String,
     prev_view_id: Option<String>,
   ) -> FlowyResult<()> {
-    let view = self.get_view(&view_id).await?;
+    let view = self.get_view_pb(&view_id).await?;
     let old_parent_id = view.parent_view_id;
     self.with_folder(
       || (),
@@ -619,7 +639,7 @@ impl FolderManager {
           .collect::<Vec<_>>()
       } else {
         self
-          .get_view(&parent_view_id)
+          .get_view_pb(&parent_view_id)
           .await?
           .child_views
           .into_iter()
@@ -652,7 +672,7 @@ impl FolderManager {
   /// Return a list of views that belong to the given parent view id.
   #[tracing::instrument(level = "debug", skip(self, parent_view_id), err)]
   pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<Arc<View>>> {
-    let views = self.with_folder(std::vec::Vec::new, |folder| {
+    let views = self.with_folder(Vec::new, |folder| {
       folder.views.get_views_belong_to(parent_view_id)
     });
     Ok(views)
@@ -721,22 +741,22 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let folder = self.mutex_folder.lock();
-    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
-    folder.set_current_view(view_id);
+    let workspace_id = self.with_folder(
+      || Err(FlowyError::record_not_found()),
+      |folder| {
+        folder.set_current_view(view_id);
+        Ok(folder.get_workspace_id())
+      },
+    )?;
 
-    let workspace = folder.get_current_workspace();
-    let view = folder
-      .get_current_view()
-      .and_then(|view_id| folder.views.get_view(&view_id));
-    send_workspace_setting_notification(workspace, view);
+    send_workspace_setting_notification(workspace_id, self.get_current_view().await);
     Ok(())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_current_view(&self) -> Option<ViewPB> {
     let view_id = self.with_folder(|| None, |folder| folder.get_current_view())?;
-    self.get_view(&view_id).await.ok()
+    self.get_view_pb(&view_id).await.ok()
   }
 
   /// Toggles the favorite status of a view identified by `view_id`If the view is not a favorite, it will be added to the favorites list; otherwise, it will be removed from the list.
@@ -760,7 +780,7 @@ impl FolderManager {
 
   // Used by toggle_favorites to send notification to frontend, after the favorite status of view has been changed.It sends two distinct notifications: one to correctly update the concerned view's is_favorite status, and another to update the list of favorites that is to be displayed.
   async fn send_toggle_favorite_notification(&self, view_id: &str) {
-    if let Ok(view) = self.get_view(view_id).await {
+    if let Ok(view) = self.get_view_pb(view_id).await {
       let notification_type = if view.is_favorite {
         FolderNotification::DidFavoriteView
       } else {
@@ -779,8 +799,8 @@ impl FolderManager {
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn get_all_favorites(&self) -> Vec<FavoritesInfo> {
-    self.with_folder(std::vec::Vec::new, |folder| {
+  pub(crate) async fn get_all_favorites(&self) -> Vec<SectionItem> {
+    self.with_folder(Vec::new, |folder| {
       let trash_ids = folder
         .get_all_trash()
         .into_iter()
@@ -795,7 +815,7 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_trash(&self) -> Vec<TrashInfo> {
-    self.with_folder(std::vec::Vec::new, |folder| folder.get_all_trash())
+    self.with_folder(Vec::new, |folder| folder.get_all_trash())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -824,7 +844,7 @@ impl FolderManager {
   /// Delete all the trash permanently.
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_all_trash(&self) {
-    let deleted_trash = self.with_folder(std::vec::Vec::new, |folder| folder.get_all_trash());
+    let deleted_trash = self.with_folder(Vec::new, |folder| folder.get_all_trash());
     for trash in deleted_trash {
       let _ = self.delete_trash(&trash.id).await;
     }
@@ -895,7 +915,7 @@ impl FolderManager {
       index: None,
     };
 
-    let view = create_view(params, import_data.view_layout);
+    let view = create_view(self.user.user_id()?, params, import_data.view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -927,7 +947,7 @@ impl FolderManager {
       }
     }
 
-    if let Ok(view_pb) = self.get_view(view_id).await {
+    if let Ok(view_pb) = self.get_view_pb(view_id).await {
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
@@ -1027,7 +1047,7 @@ fn subscribe_folder_view_changed(
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(folder) = weak_mutex_folder.upgrade() {
         tracing::trace!("Did receive view change: {:?}", value);
@@ -1065,7 +1085,7 @@ fn subscribe_folder_snapshot_state_changed(
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
-  tokio::spawn(async move {
+  af_spawn(async move {
     if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
       let stream = mutex_folder
         .lock()
@@ -1093,7 +1113,7 @@ fn subscribe_folder_sync_state_changed(
   mut folder_sync_state_rx: WatchStream<SyncState>,
   _weak_mutex_folder: &Weak<MutexFolder>,
 ) {
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Some(state) = folder_sync_state_rx.next().await {
       send_notification(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
         .payload(FolderSyncStatePB::from(state))
@@ -1108,7 +1128,7 @@ fn subscribe_folder_trash_changed(
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(folder) = weak_mutex_folder.upgrade() {
         let mut unique_ids = HashSet::new();
@@ -1178,7 +1198,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
 ) -> Option<()> {
   let folder = folder.lock();
   let folder = folder.as_ref()?;
-  let workspace_id = folder.get_current_workspace_id()?;
+  let workspace_id = folder.get_workspace_id();
   let trash_ids = folder
     .get_all_trash()
     .into_iter()
@@ -1258,13 +1278,24 @@ impl Deref for MutexFolder {
 unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
 
-pub enum FolderInitializeDataSource {
+#[allow(clippy::large_enum_variant)]
+pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
   Cloud(CollabRawData),
   /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
   FolderData(FolderData),
+}
+
+impl Display for FolderInitDataSource {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      FolderInitDataSource::LocalDisk { .. } => f.write_fmt(format_args!("LocalDisk")),
+      FolderInitDataSource::Cloud(_) => f.write_fmt(format_args!("Cloud")),
+      FolderInitDataSource::FolderData(_) => f.write_fmt(format_args!("Custom FolderData")),
+    }
+  }
 }
 
 fn is_exist_in_local_disk(user: &Arc<dyn FolderUser>, doc_id: &str) -> FlowyResult<bool> {

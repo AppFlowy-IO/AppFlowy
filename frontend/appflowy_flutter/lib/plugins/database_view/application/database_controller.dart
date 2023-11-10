@@ -177,6 +177,7 @@ class DatabaseController {
   Future<Either<RowMetaPB, FlowyError>> createRow({
     RowId? startRowId,
     String? groupId,
+    bool fromBeginning = false,
     void Function(RowDataBuilder builder)? withCells,
   }) {
     Map<String, String>? cellDataByFieldId;
@@ -191,6 +192,7 @@ class DatabaseController {
       startRowId: startRowId,
       groupId: groupId,
       cellDataByFieldId: cellDataByFieldId,
+      fromBeginning: fromBeginning,
     );
   }
 

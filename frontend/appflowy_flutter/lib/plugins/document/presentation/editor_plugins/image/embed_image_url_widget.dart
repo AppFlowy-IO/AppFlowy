@@ -32,6 +32,7 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
         SizedBox(
           width: 160,
           child: FlowyButton(
+            showDefaultBoxDecorationOnMobile: true,
             margin: const EdgeInsets.all(8.0),
             text: FlowyText(
               LocaleKeys.document_imageBlock_embedLink_label.tr(),

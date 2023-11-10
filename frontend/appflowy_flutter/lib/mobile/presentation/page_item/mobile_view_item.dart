@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_add_new_page.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -303,11 +303,8 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       _buildLeftIcon(),
       const HSpace(4),
       // icon
-      SizedBox.square(
-        dimension: 22,
-        child: widget.view.defaultIcon(),
-      ),
-      const HSpace(12),
+      _buildViewIconButton(),
+      const HSpace(8),
       // title
       Expanded(
         child: FlowyText.regular(
@@ -356,6 +353,19 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     return child;
   }
 
+  Widget _buildViewIconButton() {
+    final icon = widget.view.icon.value.isNotEmpty
+        ? FlowyText(
+            widget.view.icon.value,
+            fontSize: 24.0,
+          )
+        : SizedBox.square(
+            dimension: 26.0,
+            child: widget.view.defaultIcon(),
+          );
+    return icon;
+  }
+
   // > button or · button
   // show > if the view is expandable.
   // show · if the view can't contain child views.
@@ -385,20 +395,24 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
   Widget _buildViewAddButton(BuildContext context) {
     return MobileViewAddButton(
       onPressed: () {
-        showMobileBottomSheet(
-          context: context,
-          builder: (_) => AddNewPageWidgetBottomSheet(
-            view: widget.view,
-            onAction: (layout) {
-              context.pop();
-              context.read<ViewBloc>().add(
-                    ViewEvent.createView(
-                      LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                      layout,
-                    ),
-                  );
-            },
-          ),
+        final title = widget.view.name;
+        showFlowyMobileBottomSheet(
+          context,
+          title: title,
+          builder: (_) {
+            return AddNewPageWidgetBottomSheet(
+              view: widget.view,
+              onAction: (layout) {
+                context.pop();
+                context.read<ViewBloc>().add(
+                      ViewEvent.createView(
+                        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                        layout,
+                      ),
+                    );
+              },
+            );
+          },
         );
       },
     );

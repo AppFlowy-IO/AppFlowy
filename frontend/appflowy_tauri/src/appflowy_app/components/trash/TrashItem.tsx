@@ -23,10 +23,10 @@ function TrashItem({
 
   return (
     <ListItem
-      onMouseEnter={(e) => {
+      onMouseEnter={() => {
         setHoverId(item.id);
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={() => {
         setHoverId('');
       }}
       key={item.id}

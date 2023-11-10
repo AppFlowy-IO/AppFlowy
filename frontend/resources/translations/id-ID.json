@@ -13,6 +13,7 @@
     "addAboveCmd": "Alt+klik",
     "addAboveMacCmd": "Opsi+klik",
     "addAboveTooltip": "untuk menambahkan di atas",
+    "dragTooltip": "Seret untuk pindahkan",
     "openMenuTooltip": "Klik untuk membuka menu"
   },
   "signUp": {
@@ -116,6 +117,11 @@
     "confirmRestoreAll": {
       "title": "Apakah Anda yakin akan memulihkan semua laman di Sampah?",
       "caption": "Tindakan ini tidak bisa dibatalkan."
+    },
+    "mobile": {
+      "actions": "Tindakan Sampah",
+      "empty": "Tempat Sampah Kosong",
+      "emptyDescription": "Anda tidak memiliki file yang dihapus"
     }
   },
   "deletePagePrompt": {
@@ -142,6 +148,7 @@
     "defaultNewPageName": "Tanpa Judul",
     "renameDialog": "Ganti nama"
   },
+  "noPagesInside": "Tidak ada halaman di dalamnya",
   "toolbar": {
     "undo": "Undo",
     "redo": "Redo",
@@ -193,9 +200,9 @@
     "editContact": "Ubah Kontak"
   },
   "button": {
-    "OK": "Ya",
-    "Done": "Selesai",
-    "Cancel": "Batal",
+    "ok": "OKE",
+    "done": "Selesai",
+    "cancel": "Batal",
     "signIn": "Masuk",
     "signOut": "Keluar",
     "complete": "Selesai",
@@ -211,8 +218,16 @@
     "edit": "Sunting",
     "delete": "Menghapus",
     "duplicate": "Duplikat",
-    "done": "Selesai",
-    "putback": "Taruh kembali"
+    "putback": "Taruh kembali",
+    "update": "Perbarui",
+    "share": "Bagikan",
+    "removeFromFavorites": "Hapus dari favorit",
+    "addToFavorites": "Tambahkan ke Favorit",
+    "rename": "Ganti nama",
+    "helpCenter": "Pusat Bantuan",
+    "OK": "Ya",
+    "Done": "Selesai",
+    "Cancel": "Batal"
   },
   "label": {
     "welcome": "Selamat datang!",
@@ -374,6 +389,17 @@
       "resetToDefault": "Mengatur ulang ke keybinding default",
       "couldNotLoadErrorMsg": "Tidak dapat memuat pintasan, Coba lagi",
       "couldNotSaveErrorMsg": "Tidak dapat menyimpan pintasan, Coba lagi"
+    },
+    "mobile": {
+      "personalInfo": "Informasi pribadi",
+      "username": "Nama Pengguna",
+      "usernameEmptyError": "Nama pengguna tidak boleh kosong",
+      "about": "Tentang",
+      "pushNotifications": "Pemberitahuan Dorong",
+      "support": "Dukungan",
+      "joinDiscord": "Bergabunglah dengan kami di Discord",
+      "privacyPolicy": "Kebijakan Privasi",
+      "userAgreement": "Perjanjian Pengguna"
     }
   },
   "grid": {
@@ -531,7 +557,9 @@
     "checklist": {
       "taskHint": "Deskripsi tugas",
       "addNew": "Tambahkan item",
-      "submitNewTask": "Buat"
+      "submitNewTask": "Buat",
+      "hideComplete": "Sembunyikan tugas yang sudah selesai",
+      "showComplete": "Tampilkan semua tugas"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "Pemandangan dari"
@@ -724,9 +752,16 @@
   },
   "board": {
     "column": {
+      "createNewCard": "Baru",
+      "renameGroupTooltip": "Tekan untuk mengganti nama grup",
       "create_new_card": "Baru"
     },
     "menuName": "Papan",
+    "showUngrouped": "Tampilkan item yang tidak dikelompokkan",
+    "ungroupedButtonText": "Tidak dikelompokkan",
+    "ungroupedButtonTooltip": "Berisi kartu yang tidak termasuk dalam grup mana pun",
+    "ungroupedItemsTitle": "Klik untuk menambahkan ke papan",
+    "groupBy": "Kelompokkan berdasarkan",
     "referencedBoardPrefix": "Pemandangan dari"
   },
   "calendar": {
@@ -817,6 +852,9 @@
       "shortKeyword": "mengingatkan"
     }
   },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Ubah format tanggal dan waktu di pengaturan"
+  },
   "relativeDates": {
     "yesterday": "Kemarin",
     "today": "Hari ini",
@@ -825,9 +863,16 @@
   },
   "notificationHub": {
     "title": "Notifikasi",
+    "emptyTitle": "Semua sudah ketahuan!",
+    "emptyBody": "Tidak ada pemberitahuan atau tindakan yang tertunda. Nikmati ketenangannya.",
     "tabs": {
       "inbox": "Kotak masuk",
       "upcoming": "Mendatang"
+    },
+    "actions": {
+      "markAllRead": "tandai semua telah dibaca",
+      "showAll": "Semua",
+      "showUnreads": "Belum dibaca"
     },
     "filters": {
       "ascending": "Ascending",
@@ -854,5 +899,126 @@
     "replaceAll": "Timpa semua",
     "noResult": "Tidak ada hasil",
     "caseSensitive": "Case sensitive"
+  },
+  "error": {
+    "weAreSorry": "Kami meminta maaf",
+    "loadingViewError": "Kami mengalami masalah saat memuat tampilan ini. Silakan periksa koneksi internet Anda, segarkan aplikasi, dan jangan ragu untuk menghubungi tim jika masalah terus berlanjut."
+  },
+  "editor": {
+    "bold": "Tebal",
+    "bulletedList": "Daftar Berpoin",
+    "checkbox": "Kotak centang",
+    "embedCode": "Sematkan Kode",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Sorotan",
+    "color": "Warna",
+    "image": "Gambar",
+    "italic": "Miring",
+    "link": "Tautan",
+    "numberedList": "Daftar Bernomor",
+    "quote": "Kutipan",
+    "strikethrough": "Dicoret",
+    "text": "Teks",
+    "underline": "Garis Bawah",
+    "fontColorDefault": "Bawaan",
+    "fontColorGray": "Abu-abu",
+    "fontColorBrown": "Cokelat",
+    "fontColorOrange": "Oranye",
+    "fontColorYellow": "Kuning",
+    "fontColorGreen": "Hijau",
+    "fontColorBlue": "Biru",
+    "fontColorPurple": "Ungu",
+    "fontColorPink": "Merah Jambu",
+    "fontColorRed": "Merah",
+    "backgroundColorDefault": "Latar belakang bawaan",
+    "backgroundColorGray": "Latar belakang abu-abu",
+    "backgroundColorBrown": "Latar belakang coklat",
+    "backgroundColorOrange": "Latar belakang oranye",
+    "backgroundColorYellow": "Latar belakang kuning",
+    "backgroundColorGreen": "Latar belakang hijau",
+    "backgroundColorBlue": "Latar belakang biru",
+    "backgroundColorPurple": "Latar belakang ungu",
+    "backgroundColorPink": "Latar belakang merah muda",
+    "backgroundColorRed": "Latar belakang merah",
+    "done": "Selesai",
+    "cancel": "Batalkan",
+    "tint1": "Warna 1",
+    "tint2": "Warna 2",
+    "tint3": "Warna 3",
+    "tint4": "Warna 4",
+    "tint5": "Warna 5",
+    "tint6": "Warna 6",
+    "tint7": "Warna 7",
+    "tint8": "Warna 8",
+    "tint9": "Warna 9",
+    "lightLightTint1": "Ungu",
+    "lightLightTint2": "Merah Jambu",
+    "lightLightTint3": "Merah Jambu Muda",
+    "lightLightTint4": "Oranye",
+    "lightLightTint5": "Kuning",
+    "lightLightTint6": "Hijau Jeruk Nipis",
+    "lightLightTint7": "Hijau",
+    "lightLightTint8": "Biru Air",
+    "lightLightTint9": "Biru",
+    "urlHint": "URL",
+    "mobileHeading1": "Judul 1",
+    "mobileHeading2": "Judul 2",
+    "mobileHeading3": "Judul 3",
+    "textColor": "Warna Teks",
+    "backgroundColor": "Warna Latar Belakang",
+    "addYourLink": "Tambahkan tautan Anda",
+    "openLink": "Buka tautan",
+    "copyLink": "Salin tautan",
+    "removeLink": "Hapus tautan",
+    "editLink": "Sunting tautan",
+    "linkText": "Teks",
+    "linkTextHint": "Silakan masukkan teks",
+    "linkAddressHint": "Silakan masukkan URL",
+    "highlightColor": "Sorot warna",
+    "clearHighlightColor": "Hapus warna sorotan",
+    "customColor": "Warna khusus",
+    "hexValue": "Nilai hex",
+    "opacity": "Kegelapan",
+    "resetToDefaultColor": "Atur ulang ke warna default",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "Otomatis",
+    "cut": "Potong",
+    "copy": "Salin",
+    "paste": "Tempel",
+    "find": "Temukan",
+    "previousMatch": "Padanan sebelumnya",
+    "nextMatch": "Padanan selanjutnya",
+    "closeFind": "Tutup",
+    "replace": "Ganti",
+    "replaceAll": "Ganti semua",
+    "regex": "Regex",
+    "caseSensitive": "Huruf besar kecil dibedakan",
+    "uploadImage": "Unggah Gambar",
+    "urlImage": "Gambar URL",
+    "incorrectLink": "Tautan Salah",
+    "upload": "Unggah",
+    "chooseImage": "Pilih gambar",
+    "loading": "Memuat",
+    "imageLoadFailed": "Tidak dapat memuat gambar",
+    "divider": "Pembagi",
+    "table": "Tabel",
+    "colAddBefore": "Tambahkan sebelumnya",
+    "rowAddBefore": "Tambahkan sebelumnya",
+    "colAddAfter": "Tambahkan setelahnya",
+    "rowAddAfter": "Tambahkan setelahnya",
+    "colRemove": "Hapus",
+    "rowRemove": "Hapus",
+    "colDuplicate": "Duplikat",
+    "rowDuplicate": "Duplikat",
+    "colClear": "Hapus Konten",
+    "rowClear": "Hapus Konten",
+    "slashPlaceHolder": "Masukkan / untuk menyisipkan blok, atau mulai mengetik"
+  },
+  "favorite": {
+    "noFavorite": "Tidak ada halaman favorit",
+    "noFavoriteHintText": "Geser halaman ke kiri untuk menambahkannya ke favorit Anda"
   }
 }

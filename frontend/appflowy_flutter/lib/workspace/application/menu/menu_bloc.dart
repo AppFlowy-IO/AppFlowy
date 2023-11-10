@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/application/workspace/workspace_service.dart'
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,17 +16,17 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   final WorkspaceService _workspaceService;
   final WorkspaceListener _listener;
   final UserProfilePB user;
-  final WorkspacePB workspace;
+  final String workspaceId;
 
   MenuBloc({
     required this.user,
-    required this.workspace,
-  })  : _workspaceService = WorkspaceService(workspaceId: workspace.id),
+    required this.workspaceId,
+  })  : _workspaceService = WorkspaceService(workspaceId: workspaceId),
         _listener = WorkspaceListener(
           user: user,
-          workspaceId: workspace.id,
+          workspaceId: workspaceId,
         ),
-        super(MenuState.initial(workspace)) {
+        super(MenuState.initial()) {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
@@ -122,8 +121,8 @@ class MenuState with _$MenuState {
     ViewPB? lastCreatedView,
   }) = _MenuState;
 
-  factory MenuState.initial(WorkspacePB workspace) => MenuState(
-        views: workspace.views,
+  factory MenuState.initial() => MenuState(
+        views: [],
         successOrFailure: left(unit),
         lastCreatedView: null,
       );

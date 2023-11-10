@@ -1,9 +1,10 @@
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
+use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
-use crate::entities::{FieldType, GroupRowsNotificationPB};
+use crate::entities::{FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{
   MultiSelectTypeOption, SelectOption, SelectOptionCellDataParser, SelectTypeOptionSharedAction,
@@ -13,7 +14,7 @@ use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::{
   add_or_remove_select_option_row, generate_select_option_groups, make_no_status_group,
-  move_group_row, remove_select_option_row, GeneratedGroups, GroupChangeset, GroupContext,
+  move_group_row, remove_select_option_row, GeneratedGroups, Group, GroupChangeset, GroupContext,
   GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
 
@@ -69,14 +70,14 @@ impl GroupCustomize for MultiSelectGroupController {
     &mut self,
     row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
-  ) -> Vec<GroupRowsNotificationPB> {
+  ) -> (Option<GroupPB>, Vec<GroupRowsNotificationPB>) {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
       if let Some(changeset) = remove_select_option_row(group, cell_data, row) {
         changesets.push(changeset);
       }
     });
-    changesets
+    (None, changesets)
   }
 
   fn move_row(
@@ -92,6 +93,20 @@ impl GroupCustomize for MultiSelectGroupController {
     });
     group_changeset
   }
+
+  fn generate_new_group(
+    &mut self,
+    name: String,
+  ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
+    let mut new_type_option = self.type_option.clone();
+    let new_select_option = self.type_option.create_option(&name);
+    new_type_option.insert_option(new_select_option.clone());
+
+    let new_group = Group::new(new_select_option.id, new_select_option.name);
+    let inserted_group_pb = self.context.add_new_group(new_group)?;
+
+    Ok((Some(new_type_option.into()), Some(inserted_group_pb)))
+  }
 }
 
 impl GroupController for MultiSelectGroupController {
@@ -104,12 +119,6 @@ impl GroupController for MultiSelectGroupController {
         let cell = insert_select_option_cell(vec![group.id.clone()], field);
         cells.insert(field.id.clone(), cell);
       },
-    }
-  }
-
-  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
-    if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row_detail.clone())
     }
   }
 }

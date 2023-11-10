@@ -1,6 +1,6 @@
-use collab_database::views::DatabaseLayout;
 use flowy_database2::entities::FieldType;
 use flowy_database2::entities::FieldVisibility;
+use flowy_database2::services::field_settings::DEFAULT_WIDTH;
 
 use crate::database::field_settings_test::script::FieldSettingsScript::*;
 use crate::database::field_settings_test::script::FieldSettingsTest;
@@ -10,8 +10,8 @@ use crate::database::field_settings_test::script::FieldSettingsTest;
 async fn get_default_field_settings() {
   let mut test = FieldSettingsTest::new_grid().await;
   let scripts = vec![AssertAllFieldSettings {
-    layout_ty: DatabaseLayout::Grid,
     visibility: FieldVisibility::AlwaysShown,
+    width: DEFAULT_WIDTH,
   }];
   test.run_scripts(scripts).await;
 
@@ -26,13 +26,13 @@ async fn get_default_field_settings() {
   let scripts = vec![
     AssertFieldSettings {
       field_ids: non_primary_field_ids.clone(),
-      layout_ty: DatabaseLayout::Board,
       visibility: FieldVisibility::HideWhenEmpty,
+      width: DEFAULT_WIDTH,
     },
     AssertFieldSettings {
       field_ids: vec![primary_field_id.clone()],
-      layout_ty: DatabaseLayout::Board,
       visibility: FieldVisibility::AlwaysShown,
+      width: DEFAULT_WIDTH,
     },
   ];
   test.run_scripts(scripts).await;
@@ -48,13 +48,13 @@ async fn get_default_field_settings() {
   let scripts = vec![
     AssertFieldSettings {
       field_ids: non_primary_field_ids.clone(),
-      layout_ty: DatabaseLayout::Calendar,
       visibility: FieldVisibility::HideWhenEmpty,
+      width: DEFAULT_WIDTH,
     },
     AssertFieldSettings {
       field_ids: vec![primary_field_id.clone()],
-      layout_ty: DatabaseLayout::Calendar,
       visibility: FieldVisibility::AlwaysShown,
+      width: DEFAULT_WIDTH,
     },
   ];
   test.run_scripts(scripts).await;
@@ -75,21 +75,22 @@ async fn update_field_settings_test() {
   let scripts = vec![
     AssertFieldSettings {
       field_ids: non_primary_field_ids,
-      layout_ty: DatabaseLayout::Board,
       visibility: FieldVisibility::HideWhenEmpty,
+      width: DEFAULT_WIDTH,
     },
     AssertFieldSettings {
       field_ids: vec![primary_field_id.clone()],
-      layout_ty: DatabaseLayout::Board,
       visibility: FieldVisibility::AlwaysShown,
+      width: DEFAULT_WIDTH,
     },
     UpdateFieldSettings {
       field_id: primary_field_id,
       visibility: Some(FieldVisibility::HideWhenEmpty),
+      width: None,
     },
     AssertAllFieldSettings {
-      layout_ty: DatabaseLayout::Board,
       visibility: FieldVisibility::HideWhenEmpty,
+      width: DEFAULT_WIDTH,
     },
   ];
   test.run_scripts(scripts).await;

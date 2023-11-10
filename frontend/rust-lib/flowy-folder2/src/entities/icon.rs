@@ -1,5 +1,5 @@
 use crate::entities::parser::view::ViewIdentify;
-use collab_folder::core::{IconType, ViewIcon};
+use collab_folder::{IconType, ViewIcon};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 

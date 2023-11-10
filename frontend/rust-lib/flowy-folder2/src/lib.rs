@@ -1,4 +1,4 @@
-pub use collab_folder::core::ViewLayout;
+pub use collab_folder::ViewLayout;
 
 pub mod entities;
 pub mod event_handler;

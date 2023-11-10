@@ -7,20 +7,20 @@ export class TrashController {
 
   private readonly backendService: TrashBackendService = new TrashBackendService();
 
-  subscribe = (callbacks: { onTrashChanged?: (trash: TrashPB[]) => void }) => {
+  subscribe = async (callbacks: { onTrashChanged?: (trash: TrashPB[]) => void }) => {
     const didUpdateTrash = (payload: Uint8Array) => {
       const res = RepeatedTrashPB.deserializeBinary(payload);
 
       callbacks.onTrashChanged?.(res.items);
     };
 
-    this.observer.subscribeTrash({
+    await this.observer.subscribeTrash({
       didUpdateTrash,
     });
   };
 
-  dispose = () => {
-    this.observer.unsubscribe();
+  dispose = async () => {
+    await this.observer.unsubscribe();
   };
   getTrash = async () => {
     const res = await this.backendService.getTrash();

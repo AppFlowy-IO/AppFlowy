@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
@@ -15,31 +15,41 @@ import 'field_cell_action_sheet.dart';
 import 'field_type_extension.dart';
 
 class GridFieldCell extends StatefulWidget {
-  final FieldContext cellContext;
+  final String viewId;
+  final FieldInfo fieldInfo;
   const GridFieldCell({
-    Key? key,
-    required this.cellContext,
-  }) : super(key: key);
+    super.key,
+    required this.viewId,
+    required this.fieldInfo,
+  });
 
   @override
   State<GridFieldCell> createState() => _GridFieldCellState();
 }
 
 class _GridFieldCellState extends State<GridFieldCell> {
+  late final FieldCellBloc _bloc;
   late PopoverController popoverController;
 
   @override
   void initState() {
-    popoverController = PopoverController();
     super.initState();
+    popoverController = PopoverController();
+    _bloc = FieldCellBloc(viewId: widget.viewId, fieldInfo: widget.fieldInfo);
+  }
+
+  @override
+  didUpdateWidget(covariant oldWidget) {
+    if (widget.fieldInfo != oldWidget.fieldInfo && !_bloc.isClosed) {
+      _bloc.add(FieldCellEvent.onFieldChanged(widget.fieldInfo));
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        return FieldCellBloc(fieldContext: widget.cellContext);
-      },
+    return BlocProvider.value(
+      value: _bloc,
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
           final button = AppFlowyPopover(
@@ -50,11 +60,12 @@ class _GridFieldCellState extends State<GridFieldCell> {
             controller: popoverController,
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(
-                cellContext: widget.cellContext,
+                viewId: widget.viewId,
+                fieldInfo: widget.fieldInfo,
               );
             },
             child: FieldCellButton(
-              field: widget.cellContext.fieldInfo.field,
+              field: widget.fieldInfo.field,
               onTap: () => popoverController.show(),
             ),
           );
@@ -77,6 +88,12 @@ class _GridFieldCellState extends State<GridFieldCell> {
         },
       ),
     );
+  }
+
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+    await _bloc.close();
   }
 }
 

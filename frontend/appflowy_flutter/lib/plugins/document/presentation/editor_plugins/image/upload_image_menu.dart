@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/stab
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_file_widget.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -39,19 +40,21 @@ class UploadImageMenu extends StatefulWidget {
     required this.onSelectedLocalImage,
     required this.onSelectedAIImage,
     required this.onSelectedNetworkImage,
+    this.supportTypes = UploadImageType.values,
   });
 
   final void Function(String? path) onSelectedLocalImage;
   final void Function(String url) onSelectedAIImage;
   final void Function(String url) onSelectedNetworkImage;
+  final List<UploadImageType> supportTypes;
 
   @override
   State<UploadImageMenu> createState() => _UploadImageMenuState();
 }
 
 class _UploadImageMenuState extends State<UploadImageMenu> {
+  late final List<UploadImageType> values;
   int currentTabIndex = 0;
-  List<UploadImageType> values = UploadImageType.values;
   bool supportOpenAI = false;
   bool supportStabilityAI = false;
 
@@ -59,6 +62,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
   void initState() {
     super.initState();
 
+    values = widget.supportTypes;
     UserBackendService.getCurrentUserProfile().then(
       (value) {
         final supportOpenAI = value.fold(
@@ -97,15 +101,16 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
               Theme.of(context).colorScheme.secondary,
             ),
             padding: EdgeInsets.zero,
-            // splashBorderRadius: BorderRadius.circular(4),
             tabs: values
                 .map(
                   (e) => FlowyHover(
                     style: const HoverStyle(borderRadius: BorderRadius.zero),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 8.0,
+                      padding: EdgeInsets.only(
+                        left: 12.0,
+                        right: 12.0,
+                        bottom: 8.0,
+                        top: PlatformExtension.isMobile ? 0 : 8.0,
                       ),
                       child: FlowyText(e.description),
                     ),

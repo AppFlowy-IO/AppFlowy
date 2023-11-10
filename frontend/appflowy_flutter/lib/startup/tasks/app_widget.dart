@@ -131,7 +131,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           )..readLocaleWhenAppLaunch(context),
         ),
         BlocProvider<NotificationSettingsCubit>(
-          create: (_) => getIt<NotificationSettingsCubit>(),
+          create: (_) => NotificationSettingsCubit(),
         ),
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),

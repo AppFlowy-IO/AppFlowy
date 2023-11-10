@@ -7,7 +7,6 @@ import { focusNodeByIndex } from '$app/utils/document/node';
 import { Keyboard } from '$app/constants/document/keyboard';
 import isHotkey from 'is-hotkey';
 import { useSlateYjs } from '$app/components/document/_shared/SlateEditor/useSlateYjs';
-import { openMention } from '$app_reducers/document/async-actions/mention';
 
 const AFTER_RENDER_DELAY = 100;
 
@@ -49,6 +48,7 @@ export function useEditor({
       : [];
     const currentSelection = editor.selection || [];
     let removeMark = markKeys.length > 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, path] = editor.node(currentSelection);
 
     if (removeMark) {
@@ -113,9 +113,10 @@ export function useEditor({
 
   const decorate = useCallback(
     (entry: NodeEntry) => {
-      const [node, path] = entry;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, path] = entry;
 
-      const ranges: Range[] = [
+      return [
         getDecorateRange(path, decorateSelection, {
           selection_high_lighted: true,
         }),
@@ -123,8 +124,6 @@ export function useEditor({
           temporary: true,
         }),
       ].filter((range) => range !== null) as Range[];
-
-      return ranges;
     },
     [temporarySelection, decorateSelection, getDecorateRange]
   );

@@ -1,6 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../row/cell_builder.dart';
@@ -15,19 +17,21 @@ class TextCardCellStyle extends CardCellStyle {
 
 class TextCardCell<CustomCardData>
     extends CardCell<CustomCardData, TextCardCellStyle> with EditableCell {
+  const TextCardCell({
+    super.key,
+    super.cardData,
+    super.style,
+    required this.cellControllerBuilder,
+    this.editableNotifier,
+    this.renderHook,
+    this.showNotes = false,
+  });
+
   @override
   final EditableCardNotifier? editableNotifier;
   final CellControllerBuilder cellControllerBuilder;
   final CellRenderHook<String, CustomCardData>? renderHook;
-
-  const TextCardCell({
-    required this.cellControllerBuilder,
-    required CustomCardData? cardData,
-    this.editableNotifier,
-    this.renderHook,
-    TextCardCellStyle? style,
-    Key? key,
-  }) : super(key: key, style: style, cardData: cardData);
+  final bool showNotes;
 
   @override
   State<TextCardCell> createState() => _TextCellState();
@@ -122,14 +126,19 @@ class _TextCellState extends State<TextCardCell> {
               return const SizedBox();
             }
 
-            //
-            Widget child;
-            if (state.enableEdit || focusWhenInit) {
-              child = _buildTextField();
-            } else {
-              child = _buildText(state);
-            }
-            return Align(alignment: Alignment.centerLeft, child: child);
+            final child = state.enableEdit || focusWhenInit
+                ? _buildTextField()
+                : _buildText(state);
+
+            return Row(
+              children: [
+                if (widget.showNotes) ...[
+                  const FlowySvg(FlowySvgs.notes_s),
+                  const HSpace(4),
+                ],
+                Expanded(child: child),
+              ],
+            );
           },
         ),
       ),
@@ -151,9 +160,9 @@ class _TextCellState extends State<TextCardCell> {
   double _fontSize() {
     if (widget.style != null) {
       return widget.style!.fontSize;
-    } else {
-      return 14;
     }
+
+    return 14;
   }
 
   Widget _buildText(TextCellState state) {

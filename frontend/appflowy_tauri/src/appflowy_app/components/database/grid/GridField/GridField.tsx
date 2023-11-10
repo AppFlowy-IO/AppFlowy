@@ -1,23 +1,23 @@
 import { Button, Tooltip } from '@mui/material';
 import { DragEventHandler, FC, useCallback, useMemo, useState } from 'react';
-import { Database } from '$app/interfaces/database';
 import { throttle } from '$app/utils/tool';
+import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
-import * as service from '../../database_bd_svc';
-import { useDatabase, useViewId } from '../../database.hooks';
+import { fieldService, Field } from '../../application';
+import { useDatabase } from '../../Database.hooks';
 import { FieldTypeSvg } from './FieldTypeSvg';
 import { GridFieldMenu } from './GridFieldMenu';
 
 export interface GridFieldProps {
-  field: Database.Field;
+  field: Field;
 }
 
 export const GridField: FC<GridFieldProps> = ({ field }) => {
   const viewId = useViewId();
   const { fields } = useDatabase();
-  const [ openMenu, setOpenMenu ] = useState(false);
-  const [ openTooltip, setOpenTooltip ] = useState(false);
-  const [ dropPosition, setDropPosition ] = useState<DropPosition>(DropPosition.Before);
+  const [openMenu, setOpenMenu] = useState(false);
+  const [openTooltip, setOpenTooltip] = useState(false);
+  const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
 
   const handleClick = useCallback(() => {
     setOpenMenu(true);
@@ -35,17 +35,14 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
     setOpenTooltip(false);
   }, []);
 
-  const draggingData = useMemo(() => ({
-    field,
-  }), [field]);
+  const draggingData = useMemo(
+    () => ({
+      field,
+    }),
+    [field]
+  );
 
-  const {
-    isDragging,
-    attributes,
-    listeners,
-    setPreviewRef,
-    previewRef,
-  } = useDraggable({
+  const { isDragging, attributes, listeners, setPreviewRef, previewRef } = useDraggable({
     type: DragType.Field,
     data: draggingData,
     scrollOnEdge: {
@@ -68,23 +65,23 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
     }, 20);
   }, [previewRef]);
 
-  const onDrop = useCallback(({ data }: DragItem) => {
-    const dragField = data.field as Database.Field;
-    const fromIndex = fields.findIndex(item => item.id === dragField.id);
-    const dropIndex = fields.findIndex(item => item.id === field.id);
-    const toIndex = dropIndex + dropPosition + (fromIndex < dropIndex ? -1 : 0);
+  const onDrop = useCallback(
+    ({ data }: DragItem) => {
+      const dragField = data.field as Field;
+      const fromIndex = fields.findIndex((item) => item.id === dragField.id);
+      const dropIndex = fields.findIndex((item) => item.id === field.id);
+      const toIndex = dropIndex + dropPosition + (fromIndex < dropIndex ? -1 : 0);
 
-    if (fromIndex === toIndex) {
-      return;
-    }
+      if (fromIndex === toIndex) {
+        return;
+      }
 
-    void service.moveField(viewId, dragField.id, fromIndex, toIndex);
-  }, [viewId, field, fields, dropPosition]);
+      void fieldService.moveField(viewId, dragField.id, fromIndex, toIndex);
+    },
+    [viewId, field, fields, dropPosition]
+  );
 
-  const {
-    isOver,
-    listeners: dropListeners,
-  } = useDroppable({
+  const { isOver, listeners: dropListeners } = useDroppable({
     accept: DragType.Field,
     disabled: isDragging,
     onDragOver,
@@ -96,35 +93,35 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
       <Tooltip
         open={openTooltip && !isDragging}
         title={field.name}
-        placement="right"
+        placement='right'
         enterDelay={1000}
         enterNextDelay={1000}
         onOpen={handleTooltipOpen}
         onClose={handleTooltipClose}
       >
         <Button
+          color={'inherit'}
           ref={setPreviewRef}
-          className="flex items-center px-2 w-full relative"
+          className='relative flex w-full items-center px-2'
           disableRipple
           onClick={handleClick}
           {...attributes}
           {...listeners}
           {...dropListeners}
         >
-          <FieldTypeSvg className="text-base mr-1" type={field.type} />
-          <span className="flex-1 text-left text-xs truncate">
-            {field.name}
-          </span>
-          {isOver && <div className={`absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10 ${dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'}`} />}
+          <FieldTypeSvg className='mr-1 text-base' type={field.type} />
+          <span className='flex-1 truncate text-left text-xs'>{field.name}</span>
+          {isOver && (
+            <div
+              className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${
+                dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'
+              }`}
+            />
+          )}
         </Button>
       </Tooltip>
       {openMenu && (
-        <GridFieldMenu
-          field={field}
-          open={openMenu}
-          anchorEl={previewRef.current}
-          onClose={handleMenuClose}
-        />
+        <GridFieldMenu field={field} open={openMenu} anchorEl={previewRef.current} onClose={handleMenuClose} />
       )}
     </>
   );

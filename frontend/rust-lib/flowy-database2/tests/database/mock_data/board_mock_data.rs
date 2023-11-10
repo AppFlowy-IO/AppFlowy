@@ -1,6 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
-use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
+use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use flowy_database2::services::setting::BoardLayoutSetting;
 use strum::IntoEnumIterator;
 
@@ -131,8 +131,7 @@ pub fn make_test_board() -> DatabaseData {
 
   let board_setting: LayoutSetting = BoardLayoutSetting::new().into();
 
-  let field_settings =
-    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Board).build();
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Board);
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {

@@ -93,8 +93,10 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// return None if the user is not found
   fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError>;
 
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError>;
+
   /// Return the all the workspaces of the user  
-  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
+  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
 
   fn add_workspace_member(
     &self,

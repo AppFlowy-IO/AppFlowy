@@ -15,7 +15,7 @@ impl FieldBuilder {
       field_type.clone().into(),
       false,
     );
-    field.width = field_type.default_cell_width() as i64;
+    field.width = 150;
     field
       .type_options
       .insert(field_type.to_string(), type_option_data.into());

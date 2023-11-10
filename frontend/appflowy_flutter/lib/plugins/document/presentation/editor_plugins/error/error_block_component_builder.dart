@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -8,6 +9,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ErrorBlockComponentBuilder extends BlockComponentBuilder {
   ErrorBlockComponentBuilder({
@@ -72,11 +74,15 @@ class _DividerBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
             ClipboardServiceData(plainText: jsonEncode(node.toJson())),
           );
         },
-        text: Container(
-          height: 48,
-          alignment: Alignment.center,
-          child: FlowyText(
-            LocaleKeys.document_errorBlock_theBlockIsNotSupported.tr(),
+        text: SizedBox(
+          height: 52,
+          child: Row(
+            children: [
+              const HSpace(4),
+              FlowyText(
+                LocaleKeys.document_errorBlock_theBlockIsNotSupported.tr(),
+              ),
+            ],
           ),
         ),
       ),
@@ -91,6 +97,14 @@ class _DividerBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    if (PlatformExtension.isMobile) {
+      child = MobileBlockActionButtons(
+        node: node,
+        editorState: context.read<EditorState>(),
         child: child,
       );
     }

@@ -59,7 +59,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -69,11 +68,6 @@ jobs:
           override: true
           components: rustfmt
           profile: minimal
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: appflowy-lib-cache
-          key: ${{ matrix.job.os }}-${{ matrix.job.target }}
 
       - name: Install prerequisites
         working-directory: frontend
@@ -151,7 +145,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -161,11 +154,6 @@ jobs:
           override: true
           components: rustfmt
           profile: minimal
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: appflowy-lib-cache
-          key: ${{ matrix.job.os }}-${{ matrix.job.target }}
 
       - name: Install prerequisites
         working-directory: frontend
@@ -257,7 +245,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -265,11 +252,6 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           targets: ${{ matrix.job.targets }}
           components: rustfmt
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: appflowy-lib-cache
-          key: ${{ matrix.job.os }}-${{ matrix.job.target }}
 
       - name: Install prerequisites
         working-directory: frontend
@@ -366,7 +348,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -376,11 +357,6 @@ jobs:
           override: true
           components: rustfmt
           profile: minimal
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: appflowy-lib-cache
-          key: ${{ matrix.job.os }}-${{ matrix.job.target }}
 
       - name: Install prerequisites
         working-directory: frontend

@@ -42,7 +42,6 @@ void main() {
       await tester.hoverRowBanner();
 
       await tester.openEmojiPicker();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
 
       // After select the emoji, the EmojiButton will show up
@@ -60,12 +59,10 @@ void main() {
       await tester.openFirstRowDetailPage();
       await tester.hoverRowBanner();
       await tester.openEmojiPicker();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
 
       // Update existing selected emoji
       await tester.tapButton(find.byType(EmojiButton));
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😅');
 
       // The emoji already displayed in the row banner
@@ -89,7 +86,6 @@ void main() {
       await tester.openFirstRowDetailPage();
       await tester.hoverRowBanner();
       await tester.openEmojiPicker();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
 
       // Remove the emoji

@@ -3,38 +3,43 @@ import { FC } from 'react';
 import { Button } from '@mui/material';
 import { FieldType } from '@/services/backend';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
-import * as service from '$app/components/database/database_bd_svc';
-import { useDatabase } from '../../database.hooks';
+import { fieldService } from '../../application';
+import { useDatabase } from '../../Database.hooks';
 import { VirtualizedList } from '../../_shared';
 import { GridField } from '../GridField';
+import { useViewId } from '@/appflowy_app/hooks';
+import { useTranslation } from 'react-i18next';
 
 export interface GridFieldRowProps {
-  virtualizer: Virtualizer<Element, Element>;
+  virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
 }
 
-export const GridFieldRow: FC<GridFieldRowProps> = ({
-  virtualizer,
-}) => {
-  const { viewId, fields } = useDatabase();
+export const GridFieldRow: FC<GridFieldRowProps> = ({ virtualizer }) => {
+  const { t } = useTranslation();
+  const viewId = useViewId();
+  const { fields } = useDatabase();
   const handleClick = async () => {
-    await service.createFieldTypeOption(viewId, FieldType.RichText);
+    await fieldService.createField(viewId, FieldType.RichText);
   };
 
   return (
-    <div className="flex grow border-b border-line-divider">
+    <div className='z-10 flex border-b border-line-divider'>
       <VirtualizedList
-        className="flex"
+        className='flex'
         virtualizer={virtualizer}
-        itemClassName="flex border-r border-line-divider"
-        renderItem={index => <GridField field={fields[index]} />}
+        itemClassName='flex border-r border-line-divider'
+        renderItem={(index) => <GridField field={fields[index]} />}
       />
-      <div className="min-w-20 grow">
+      <div className='min-w-20 grow'>
         <Button
-          className="w-full h-full"
-          size="small"
+          color={'inherit'}
+          className='flex h-full w-full items-center justify-start whitespace-nowrap text-left'
+          size='small'
           startIcon={<AddSvg />}
           onClick={handleClick}
-        />
+        >
+          {t('grid.field.newColumn')}
+        </Button>
       </div>
     </div>
   );

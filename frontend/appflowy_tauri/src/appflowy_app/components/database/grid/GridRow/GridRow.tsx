@@ -8,26 +8,18 @@ import { GridCalculateRow } from './GridCalculateRow';
 
 export interface GridRowProps {
   row: RenderRow;
-  virtualizer: Virtualizer<Element, Element>;
+  virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
+  getPrevRowId: (id: string) => string | null;
 }
 
-export const GridRow: FC<GridRowProps> = ({
-  row,
-  virtualizer,
-}) => {
-
+export const GridRow: FC<GridRowProps> = ({ row, virtualizer, getPrevRowId }) => {
   switch (row.type) {
     case RenderRowType.Row:
-      return (
-        <GridCellRow
-          row={row.data}
-          virtualizer={virtualizer}
-        />
-      );
+      return <GridCellRow rowMeta={row.data.meta} virtualizer={virtualizer} getPrevRowId={getPrevRowId} />;
     case RenderRowType.Fields:
       return <GridFieldRow virtualizer={virtualizer} />;
     case RenderRowType.NewRow:
-      return <GridNewRow />;
+      return <GridNewRow startRowId={row.data.startRowId} groupId={row.data.groupId} />;
     case RenderRowType.Calculate:
       return <GridCalculateRow />;
     default:
