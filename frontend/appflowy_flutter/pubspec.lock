@@ -249,7 +249,7 @@ packages:
       sha256: "8599ae9edca5ff96163fca3e36f8e481ea917d1e71cdad912c084b5579913f34"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.1"
+    version: "4.0.1"
   connectivity_plus_platform_interface:
     dependency: "direct main"
     description:
@@ -744,7 +744,7 @@ packages:
       sha256: "6431b11844472574a90803c02f1e55221e6a390a872786735f6757a67dacd678"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1"
+    version: "0.3.0"
   irondash_message_channel:
     dependency: transitive
     description:
@@ -752,7 +752,7 @@ packages:
       sha256: "4114739083d1c63e6a1a8b93f09dd69b3cf9a9d6ee215ae7f23079307197ebba"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1"
+    version: "0.3.0"
   isolates:
     dependency: transitive
     description:
@@ -952,7 +952,7 @@ packages:
       sha256: "28386bbe89ab5a7919a47cea99cdd1128e5a6e0bbd7eaafe20440ead84a15de3"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.1"
+    version: "4.0.1"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -1891,3 +1891,4 @@ packages:
 sdks:
   dart: ">=3.0.0 <4.0.0"
   flutter: ">=3.10.1"
+  
