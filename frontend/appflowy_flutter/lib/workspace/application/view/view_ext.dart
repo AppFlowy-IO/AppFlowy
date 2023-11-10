@@ -106,16 +106,20 @@ extension ViewExtension on ViewPB {
 
   FlowySvgData get iconData => layout.icon;
 
-  Future<List<ViewPB>> getAncestors({bool includeSelf = false}) async {
+  Future<List<ViewPB>> getAncestors({
+    bool includeSelf = false,
+    bool includeRoot = false,
+  }) async {
     final ancestors = <ViewPB>[];
     if (includeSelf) {
-      ancestors.add(this);
+      final self = await ViewBackendService.getView(id);
+      ancestors.add(self.getLeftOrNull<ViewPB>() ?? this);
     }
     var parent = await ViewBackendService.getView(parentViewId);
     while (parent.isLeft()) {
       // parent is not null
       final view = parent.getLeftOrNull<ViewPB>();
-      if (view == null) {
+      if (view == null || (!includeRoot && view.parentViewId.isEmpty)) {
         break;
       }
       ancestors.add(view);
