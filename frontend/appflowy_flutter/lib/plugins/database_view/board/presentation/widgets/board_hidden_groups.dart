@@ -37,45 +37,51 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
   @override
   Widget build(BuildContext context) {
     final databaseController = context.read<BoardBloc>().databaseController;
-    return AnimatedSize(
-      alignment: AlignmentDirectional.topStart,
-      curve: Curves.easeOut,
-      duration: const Duration(milliseconds: 150),
-      child: isCollapsed
-          ? Padding(
-              padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
-              child: _collapseExpandIcon(),
-            )
-          : SizedBox(
-              width: 260,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: FlowyText.medium(
-                            LocaleKeys.board_hiddenGroupSection_sectionTitle
-                                .tr(),
-                            fontSize: 14,
-                            overflow: TextOverflow.ellipsis,
-                            color: Theme.of(context).hintColor,
+    return BlocProvider<HiddenGroupsBloc>(
+      create: (_) => HiddenGroupsBloc(
+        databaseController: databaseController,
+        initialGroups: context.read<BoardBloc>().groupList,
+      )..add(const HiddenGroupsEvent.initial()),
+      child: AnimatedSize(
+        alignment: AlignmentDirectional.topStart,
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 150),
+        child: isCollapsed
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
+                child: _collapseExpandIcon(),
+              )
+            : SizedBox(
+                width: 260,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: FlowyText.medium(
+                              LocaleKeys.board_hiddenGroupSection_sectionTitle
+                                  .tr(),
+                              fontSize: 14,
+                              overflow: TextOverflow.ellipsis,
+                              color: Theme.of(context).hintColor,
+                            ),
                           ),
-                        ),
-                        _collapseExpandIcon(),
-                      ],
+                          _collapseExpandIcon(),
+                        ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: HiddenGroupList(
-                      databaseController: databaseController,
+                    Expanded(
+                      child: HiddenGroupList(
+                        databaseController: databaseController,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 
@@ -109,20 +115,14 @@ class HiddenGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<HiddenGroupsBloc>(
-      create: (_) => HiddenGroupsBloc(
-        databaseController: databaseController,
-        initialGroups: context.read<BoardBloc>().groupList,
-      )..add(const HiddenGroupsEvent.initial()),
-      child: BlocBuilder<HiddenGroupsBloc, HiddenGroupsState>(
-        builder: (_, state) => ListView.separated(
-          itemCount: state.hiddenGroups.length,
-          itemBuilder: (_, index) => HiddenGroupCard(
-            group: state.hiddenGroups[index],
-            key: ValueKey(state.hiddenGroups[index].groupId),
-          ),
-          separatorBuilder: (_, __) => const VSpace(4),
+    return BlocBuilder<HiddenGroupsBloc, HiddenGroupsState>(
+      builder: (_, state) => ListView.separated(
+        itemCount: state.hiddenGroups.length,
+        itemBuilder: (_, index) => HiddenGroupCard(
+          group: state.hiddenGroups[index],
+          key: ValueKey(state.hiddenGroups[index].groupId),
         ),
+        separatorBuilder: (_, __) => const VSpace(4),
       ),
     );
   }

@@ -114,6 +114,25 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
             _groupItemStartEditing(group, row, true);
           },
+          didReceiveGridUpdate: (DatabasePB grid) {
+            emit(state.copyWith(grid: Some(grid)));
+          },
+          didReceiveError: (FlowyError error) {
+            emit(state.copyWith(noneOrError: some(error)));
+          },
+          didReceiveGroups: (List<GroupPB> groups) {
+            emit(
+              state.copyWith(
+                groupIds: groups.map((group) => group.groupId).toList(),
+              ),
+            );
+          },
+          didUpdateLayoutSettings: (layoutSettings) {
+            emit(state.copyWith(layoutSettings: layoutSettings));
+          },
+          toggleGroupVisibility: (GroupPB group, bool isVisible) async {
+            await _toggleGroupVisibility(group, isVisible);
+          },
           startEditingRow: (group, row) {
             emit(
               state.copyWith(
@@ -139,22 +158,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               emit(state.copyWith(isEditingRow: false, editingRow: null));
             }
           },
-          didReceiveGridUpdate: (DatabasePB grid) {
-            emit(state.copyWith(grid: Some(grid)));
-          },
-          didReceiveError: (FlowyError error) {
-            emit(state.copyWith(noneOrError: some(error)));
-          },
-          didReceiveGroups: (List<GroupPB> groups) {
-            emit(
-              state.copyWith(
-                groupIds: groups.map((group) => group.groupId).toList(),
-              ),
-            );
-          },
-          didUpdateLayoutSettings: (layoutSettings) {
-            emit(state.copyWith(layoutSettings: layoutSettings));
-          },
           startEditingHeader: (String groupId) {
             emit(
               state.copyWith(isEditingHeader: true, editingHeaderId: groupId),
@@ -167,9 +170,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               name: groupName,
             );
             emit(state.copyWith(isEditingHeader: false));
-          },
-          toggleGroupVisibility: (GroupPB group, bool isVisible) async {
-            await _toggleGroupVisibility(group, isVisible);
           },
         );
       },
