@@ -226,66 +226,74 @@ class HiddenGroupButtonContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: popoverController.show,
-      child: FlowyHover(
-        builder: (context, isHovering) {
-          return BlocProvider<BoardBloc>.value(
-            value: bloc,
-            child: BlocBuilder<BoardBloc, BoardState>(
-              builder: (context, state) {
-                final group = state.hiddenGroups.firstWhereOrNull(
-                  (g) => g.groupId == groupId,
-                );
-                if (group == null) {
-                  return const SizedBox.shrink();
-                }
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: popoverController.show,
+        child: FlowyHover(
+          builder: (context, isHovering) {
+            return BlocProvider<BoardBloc>.value(
+              value: bloc,
+              child: BlocBuilder<BoardBloc, BoardState>(
+                builder: (context, state) {
+                  final group = state.hiddenGroups.firstWhereOrNull(
+                    (g) => g.groupId == groupId,
+                  );
+                  if (group == null) {
+                    return const SizedBox.shrink();
+                  }
 
-                return SizedBox(
-                  height: 30,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-                    child: Row(
-                      children: [
-                        HiddenGroupCardActions(
-                          isVisible: isHovering,
-                          index: index,
-                        ),
-                        const HSpace(4),
-                        FlowyText.medium(
-                          group.groupName,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const HSpace(6),
-                        Expanded(
-                          child: FlowyText.medium(
-                            group.rows.length.toString(),
-                            overflow: TextOverflow.ellipsis,
-                            color: Theme.of(context).hintColor,
+                  return SizedBox(
+                    height: 30,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 3,
+                      ),
+                      child: Row(
+                        children: [
+                          HiddenGroupCardActions(
+                            isVisible: isHovering,
+                            index: index,
                           ),
-                        ),
-                        if (isHovering) ...[
-                          FlowyIconButton(
-                            width: 20,
-                            icon: FlowySvg(
-                              FlowySvgs.show_m,
+                          const HSpace(4),
+                          FlowyText.medium(
+                            group.groupName,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const HSpace(6),
+                          Expanded(
+                            child: FlowyText.medium(
+                              group.rows.length.toString(),
+                              overflow: TextOverflow.ellipsis,
                               color: Theme.of(context).hintColor,
                             ),
-                            onPressed: () => context.read<BoardBloc>().add(
-                                  BoardEvent.toggleGroupVisibility(group, true),
-                                ),
                           ),
+                          if (isHovering) ...[
+                            FlowyIconButton(
+                              width: 20,
+                              icon: FlowySvg(
+                                FlowySvgs.show_m,
+                                color: Theme.of(context).hintColor,
+                              ),
+                              onPressed: () => context.read<BoardBloc>().add(
+                                    BoardEvent.toggleGroupVisibility(
+                                      group,
+                                      true,
+                                    ),
+                                  ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
