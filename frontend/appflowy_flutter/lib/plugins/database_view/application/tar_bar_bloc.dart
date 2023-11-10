@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
+import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
@@ -14,16 +15,37 @@ import 'database_view_service.dart';
 part 'tar_bar_bloc.freezed.dart';
 
 class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
+  final TrashService _trashService;
+  final ViewListener _viewListener;
+
   GridTabBarBloc({
     bool isInlineView = false,
     required ViewPB view,
-  }) : super(GridTabBarState.initial(view)) {
+  })  : _trashService = TrashService(),
+        _viewListener = ViewListener(viewId: view.id),
+        super(GridTabBarState.initial(view)) {
     on<GridTabBarEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () {
             _listenInlineViewChanged();
             _loadChildView();
+          },
+          moveToTrash: () async {
+            emit(state.copyWith(isDeleted: true));
+          },
+          restore: () async {
+            emit(state.copyWith(isDeleted: false));
+          },
+          deletePermanently: () async {
+            final result = await _trashService.deleteViews([view.id]);
+            final forceClose = result.fold((l) => true, (r) => false);
+            emit(state.copyWith(forceClose: forceClose));
+          },
+          restorePage: () async {
+            final result = await _trashService.putback(view.id);
+            final isDeleted = result.fold((l) => false, (r) => true);
+            emit(state.copyWith(isDeleted: isDeleted));
           },
           didLoadChildViews: (List<ViewPB> childViews) {
             emit(
@@ -130,6 +152,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
     for (final tabBar in state.tabBars) {
       await state.tabBarControllerByViewId[tabBar.viewId]?.dispose();
     }
+    await _viewListener.stop();
     return super.close();
   }
 
@@ -143,6 +166,17 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
     controller?.onViewChildViewChanged = (update) {
       add(GridTabBarEvent.didUpdateChildViews(update));
     };
+
+    _viewListener.start(
+      onViewMoveToTrash: (r) {
+        r.swap().map((r) => add(const GridTabBarEvent.moveToTrash()));
+      },
+      onViewDeleted: (r) {
+        r.swap().map((r) => add(const GridTabBarEvent.moveToTrash()));
+      },
+      onViewRestored: (r) =>
+          r.swap().map((r) => add(const GridTabBarEvent.restore())),
+    );
   }
 
   /// Create tab bar controllers for the new views and return the updated map.
@@ -201,6 +235,10 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
 @freezed
 class GridTabBarEvent with _$GridTabBarEvent {
   const factory GridTabBarEvent.initial() = _Initial;
+  const factory GridTabBarEvent.moveToTrash() = MoveToTrash;
+  const factory GridTabBarEvent.restore() = Restore;
+  const factory GridTabBarEvent.restorePage() = RestorePage;
+  const factory GridTabBarEvent.deletePermanently() = DeletePermanently;
   const factory GridTabBarEvent.didLoadChildViews(
     List<ViewPB> childViews,
   ) = _DidLoadChildViews;
@@ -223,6 +261,8 @@ class GridTabBarState with _$GridTabBarState {
     required int selectedIndex,
     required List<TarBar> tabBars,
     required Map<String, DatabaseTarBarController> tabBarControllerByViewId,
+    required bool isDeleted,
+    required bool forceClose,
   }) = _GridTabBarState;
 
   factory GridTabBarState.initial(ViewPB view) {
@@ -236,6 +276,8 @@ class GridTabBarState with _$GridTabBarState {
           view: view,
         )
       },
+      isDeleted: false,
+      forceClose: false,
     );
   }
 }

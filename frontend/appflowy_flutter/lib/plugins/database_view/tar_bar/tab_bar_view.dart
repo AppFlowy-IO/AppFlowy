@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/tar_bar_bloc.dart';
+import 'package:appflowy/plugins/banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -41,9 +42,11 @@ abstract class DatabaseTabBarItemBuilder {
 class DatabaseTabBarView extends StatefulWidget {
   final ViewPB view;
   final bool shrinkWrap;
+  final VoidCallback onDeleted;
   const DatabaseTabBarView({
     required this.view,
     required this.shrinkWrap,
+    required this.onDeleted,
     super.key,
   });
 
@@ -82,52 +85,58 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
             },
           ),
         ],
-        child: Column(
-          children: [
-            BlocBuilder<GridTabBarBloc, GridTabBarState>(
-              builder: (context, state) {
-                return ValueListenableBuilder<bool>(
-                  valueListenable: state
-                      .tabBarControllerByViewId[state.parentView.id]!
-                      .controller
-                      .isLoading,
-                  builder: (_, value, ___) {
-                    if (value) {
-                      return const SizedBox.shrink();
-                    }
-                    return SizedBox(
-                      height: 30,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: GridSize.leadingHeaderPadding,
+        child: BlocBuilder<GridTabBarBloc, GridTabBarState>(
+          builder: (context, state) {
+            if (state.forceClose) {
+              widget.onDeleted();
+              return const SizedBox.shrink();
+            } else {
+              return Column(
+                children: [
+                  if (state.isDeleted) _buildBanner(context),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: state
+                        .tabBarControllerByViewId[state.parentView.id]!
+                        .controller
+                        .isLoading,
+                    builder: (_, value, ___) {
+                      if (value) {
+                        return const SizedBox.shrink();
+                      }
+                      return SizedBox(
+                        height: 30,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: GridSize.leadingHeaderPadding,
+                          ),
+                          child: const TabBarHeader(),
                         ),
-                        child: const TabBarHeader(),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-            BlocBuilder<GridTabBarBloc, GridTabBarState>(
-              builder: (context, state) {
-                return pageSettingBarExtensionFromState(state);
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<GridTabBarBloc, GridTabBarState>(
-                builder: (context, state) {
-                  return PageView(
-                    pageSnapping: false,
-                    physics: const NeverScrollableScrollPhysics(),
-                    controller: _pageController,
-                    children: pageContentFromState(state),
-                  );
-                },
-              ),
-            ),
-          ],
+                      );
+                    },
+                  ),
+                  pageSettingBarExtensionFromState(state),
+                  Expanded(
+                    child: PageView(
+                      pageSnapping: false,
+                      physics: const NeverScrollableScrollPhysics(),
+                      controller: _pageController,
+                      children: pageContentFromState(state),
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
         ),
       ),
+    );
+  }
+
+  Widget _buildBanner(BuildContext context) {
+    final bloc = context.read<GridTabBarBloc>();
+    return OnDeleteBanner(
+      onRestore: () => bloc.add(const GridTabBarEvent.restorePage()),
+      onDelete: () => bloc.add(const GridTabBarEvent.deletePermanently()),
     );
   }
 
@@ -183,6 +192,7 @@ class DatabaseTabBarViewPlugin extends Plugin {
 
 class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   final ViewPluginNotifier notifier;
+  int? deletedViewIndex;
 
   DatabasePluginWidgetBuilder({
     required this.notifier,
@@ -200,7 +210,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
-          context?.onDeleted(notifier.view, deletedView.index);
+          deletedViewIndex = deletedView.index;
         }
       });
     });
@@ -208,6 +218,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
       key: ValueKey(notifier.view.id),
       view: notifier.view,
       shrinkWrap: shrinkWrap,
+      onDeleted: () => context?.onDeleted(notifier.view, deletedViewIndex),
     );
   }
 
