@@ -12,6 +12,7 @@ import 'package:protobuf/protobuf.dart';
 typedef OnGroupError = void Function(FlowyError);
 
 abstract class GroupControllerDelegate {
+  bool hasGroup(String groupId);
   void removeRow(GroupPB group, RowId rowId);
   void insertRow(GroupPB group, RowMetaPB row, int? index);
   void updateRow(GroupPB group, RowMetaPB row);
@@ -22,11 +23,13 @@ class GroupController {
   GroupPB group;
   final SingleGroupListener _listener;
   final GroupControllerDelegate delegate;
+  final void Function(GroupPB group) onGroupChanged;
 
   GroupController({
     required String viewId,
     required this.group,
     required this.delegate,
+    required this.onGroupChanged,
   }) : _listener = SingleGroupListener(group);
 
   RowMetaPB? rowAtIndex(int index) {
@@ -48,9 +51,12 @@ class GroupController {
         result.fold(
           (GroupRowsNotificationPB changeset) {
             final newItems = [...group.rows];
+            final shouldCallDelegate = delegate.hasGroup(group.groupId);
             for (final deletedRow in changeset.deletedRows) {
               newItems.removeWhere((rowPB) => rowPB.id == deletedRow);
-              delegate.removeRow(group, deletedRow);
+              if (shouldCallDelegate) {
+                delegate.removeRow(group, deletedRow);
+              }
             }
 
             for (final insertedRow in changeset.insertedRows) {
@@ -62,10 +68,12 @@ class GroupController {
                 newItems.add(insertedRow.rowMeta);
               }
 
-              if (insertedRow.isNew) {
-                delegate.addNewRow(group, insertedRow.rowMeta, index);
-              } else {
-                delegate.insertRow(group, insertedRow.rowMeta, index);
+              if (shouldCallDelegate) {
+                if (insertedRow.isNew) {
+                  delegate.addNewRow(group, insertedRow.rowMeta, index);
+                } else {
+                  delegate.insertRow(group, insertedRow.rowMeta, index);
+                }
               }
             }
 
@@ -76,7 +84,9 @@ class GroupController {
 
               if (index != -1) {
                 newItems[index] = updatedRow;
-                delegate.updateRow(group, updatedRow);
+                if (shouldCallDelegate) {
+                  delegate.updateRow(group, updatedRow);
+                }
               }
             }
 
@@ -85,6 +95,7 @@ class GroupController {
               group.rows.clear();
               group.rows.addAll(newItems);
             });
+            onGroupChanged(group);
           },
           (err) => Log.error(err),
         );

@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/group/group_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -121,14 +122,22 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             emit(state.copyWith(noneOrError: some(error)));
           },
           didReceiveGroups: (List<GroupPB> groups) {
+            final hiddenGroups = _filterHiddenGroups(hideUngrouped, groups);
             emit(
               state.copyWith(
+                hiddenGroups: hiddenGroups,
                 groupIds: groups.map((group) => group.groupId).toList(),
               ),
             );
           },
           didUpdateLayoutSettings: (layoutSettings) {
-            emit(state.copyWith(layoutSettings: layoutSettings));
+            final hiddenGroups = _filterHiddenGroups(hideUngrouped, groupList);
+            emit(
+              state.copyWith(
+                layoutSettings: layoutSettings,
+                hiddenGroups: hiddenGroups,
+              ),
+            );
           },
           toggleGroupVisibility: (GroupPB group, bool isVisible) async {
             await _toggleGroupVisibility(group, isVisible);
@@ -214,6 +223,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     return super.close();
   }
 
+  bool get hideUngrouped =>
+      databaseController.databaseLayoutSetting?.board.hideUngroupedColumn ??
+      false;
+
   void initializeGroups(List<GroupPB> groups) {
     for (final controller in groupControllers.values) {
       controller.dispose();
@@ -222,18 +235,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     groupControllers.clear();
     boardController.clear();
     groupList.clear();
-
-    final ungroupedGroupIndex = groups.indexWhere((group) => group.isDefault);
-
-    if (ungroupedGroupIndex != -1) {
-      ungroupedGroup = groups[ungroupedGroupIndex];
-      final group = groups.removeAt(ungroupedGroupIndex);
-      if (!(state.layoutSettings?.hideUngroupedColumn ?? false) &&
-          group.isVisible) {
-        groups.add(group);
-      }
-    }
-
     groupList.addAll(groups);
 
     boardController.addGroups(
@@ -241,15 +242,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           .where(
             (group) =>
                 fieldController.getField(group.fieldId) != null &&
-                group.isVisible,
+                (group.isVisible || (group.isDefault && !hideUngrouped)),
           )
-          .map((group) => initializeGroupData(group))
+          .map((group) => _initializeGroupData(group))
           .toList(),
     );
 
     for (final group in groups) {
-      final controller = initializeGroupController(group);
-      groupControllers[controller.group.groupId] = (controller);
+      final controller = _initializeGroupController(group);
+      groupControllers[controller.group.groupId] = controller;
     }
   }
 
@@ -269,11 +270,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           return;
         }
 
-        if (ungroupedGroup != null) {
-          if (layoutSettings.board.hideUngroupedColumn) {
-            boardController.removeGroup(ungroupedGroup!.fieldId);
-          } else {
-            final newGroup = initializeGroupData(ungroupedGroup!);
+        if (layoutSettings.board.hideUngroupedColumn) {
+          boardController.removeGroup(ungroupedGroup!.fieldId);
+        } else {
+          final ungroupedGroup =
+              groupList.firstWhereOrNull((element) => element.isDefault);
+          if (ungroupedGroup != null) {
+            final newGroup = _initializeGroupData(ungroupedGroup);
             boardController.addGroup(newGroup);
           }
         }
@@ -296,6 +299,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         }
 
         boardController.removeGroups(groupIds);
+        groupList.removeWhere((group) => groupIds.contains(group.groupId));
+        add(BoardEvent.didReceiveGroups(groupList));
       },
       onInsertGroup: (insertGroups) {
         if (isClosed) {
@@ -303,10 +308,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         }
 
         final group = insertGroups.group;
-        final newGroup = initializeGroupData(group);
-        final controller = initializeGroupController(group);
-        groupControllers[controller.group.groupId] = (controller);
+        final newGroup = _initializeGroupData(group);
+        final controller = _initializeGroupController(group);
+        groupControllers[controller.group.groupId] = controller;
         boardController.addGroup(newGroup);
+        groupList.insert(insertGroups.index, group);
+        add(BoardEvent.didReceiveGroups(groupList));
       },
       onUpdateGroup: (updatedGroups) {
         if (isClosed) {
@@ -315,9 +322,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
         for (final group in updatedGroups) {
           // see if the column is already in the board
+
+          final index = groupList.indexWhere((g) => g.groupId == group.groupId);
+          if (index == -1) continue;
           final columnController =
               boardController.getGroupController(group.groupId);
-
           if (columnController != null) {
             // remove the group or update its name
             columnController.updateGroupName(group.groupName);
@@ -325,10 +334,24 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               boardController.removeGroup(group.groupId);
             }
           } else {
-            final newGroup = initializeGroupData(group);
-            boardController.addGroup(newGroup);
+            final newGroup = _initializeGroupData(group);
+            final visibleGroups = [...groupList]..retainWhere(
+                (g) =>
+                    g.isVisible ||
+                    g.isDefault && !hideUngrouped ||
+                    g.groupId == group.groupId,
+              );
+            final indexInVisibleGroups =
+                visibleGroups.indexWhere((g) => g.groupId == group.groupId);
+            if (indexInVisibleGroups != -1) {
+              boardController.insertGroup(indexInVisibleGroups, newGroup);
+            }
           }
+
+          groupList.removeAt(index);
+          groupList.insert(index, group);
         }
+        add(BoardEvent.didReceiveGroups(groupList));
       },
     );
 
@@ -366,7 +389,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  GroupController initializeGroupController(GroupPB group) {
+  GroupController _initializeGroupController(GroupPB group) {
     final delegate = GroupControllerDelegateImpl(
       controller: boardController,
       fieldController: fieldController,
@@ -378,12 +401,23 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       viewId: state.viewId,
       group: group,
       delegate: delegate,
+      onGroupChanged: (newGroup) {
+        if (isClosed) return;
+
+        final index =
+            groupList.indexWhere((g) => g.groupId == newGroup.groupId);
+        if (index != -1) {
+          groupList.removeAt(index);
+          groupList.insert(index, newGroup);
+          add(BoardEvent.didReceiveGroups(groupList));
+        }
+      },
     );
 
     return controller..startListening();
   }
 
-  AppFlowyGroupData initializeGroupData(GroupPB group) {
+  AppFlowyGroupData _initializeGroupData(GroupPB group) {
     return AppFlowyGroupData(
       id: group.groupId,
       name: group.groupName,
@@ -444,6 +478,7 @@ class BoardState with _$BoardState {
     required BoardLayoutSettingPB? layoutSettings,
     String? editingHeaderId,
     BoardEditingRow? editingRow,
+    required List<GroupPB> hiddenGroups,
   }) = _BoardState;
 
   factory BoardState.initial(String viewId) => BoardState(
@@ -455,7 +490,14 @@ class BoardState with _$BoardState {
         noneOrError: none(),
         loadingState: const LoadingState.loading(),
         layoutSettings: null,
+        hiddenGroups: [],
       );
+}
+
+List<GroupPB> _filterHiddenGroups(bool hideUngrouped, List<GroupPB> groups) {
+  return [...groups]..retainWhere(
+      (group) => !group.isVisible || group.isDefault && hideUngrouped,
+    );
 }
 
 class GroupItem extends AppFlowyGroupItem {
@@ -484,6 +526,11 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
     required this.fieldController,
     required this.onNewColumnItem,
   });
+
+  @override
+  bool hasGroup(String groupId) {
+    return controller.groupIds.contains(groupId);
+  }
 
   @override
   void insertRow(GroupPB group, RowMetaPB row, int? index) {

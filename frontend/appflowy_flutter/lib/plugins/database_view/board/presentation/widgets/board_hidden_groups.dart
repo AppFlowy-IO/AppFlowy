@@ -6,8 +6,6 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database_view/board/application/hidden_group_button_bloc.dart';
-import 'package:appflowy/plugins/database_view/board/application/hidden_groups_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
@@ -37,57 +35,51 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
   @override
   Widget build(BuildContext context) {
     final databaseController = context.read<BoardBloc>().databaseController;
-    return BlocProvider<HiddenGroupsBloc>(
-      create: (_) => HiddenGroupsBloc(
-        databaseController: databaseController,
-        initialGroups: context.read<BoardBloc>().groupList,
-      )..add(const HiddenGroupsEvent.initial()),
-      child: AnimatedSize(
-        alignment: AlignmentDirectional.topStart,
-        curve: Curves.easeOut,
-        duration: const Duration(milliseconds: 150),
-        child: isCollapsed
-            ? SizedBox(
-                height: 50,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 50, right: 8),
-                  child: Center(child: _collapseExpandIcon()),
-                ),
-              )
-            : SizedBox(
-                width: 260,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 50,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 50, right: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: FlowyText.medium(
-                                LocaleKeys.board_hiddenGroupSection_sectionTitle
-                                    .tr(),
-                                fontSize: 14,
-                                overflow: TextOverflow.ellipsis,
-                                color: Theme.of(context).hintColor,
-                              ),
-                            ),
-                            _collapseExpandIcon(),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: HiddenGroupList(
-                        databaseController: databaseController,
-                      ),
-                    ),
-                  ],
-                ),
+    return AnimatedSize(
+      alignment: AlignmentDirectional.topStart,
+      curve: Curves.easeOut,
+      duration: const Duration(milliseconds: 150),
+      child: isCollapsed
+          ? SizedBox(
+              height: 50,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 50, right: 8),
+                child: Center(child: _collapseExpandIcon()),
               ),
-      ),
+            )
+          : SizedBox(
+              width: 260,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 50,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 50, right: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: FlowyText.medium(
+                              LocaleKeys.board_hiddenGroupSection_sectionTitle
+                                  .tr(),
+                              fontSize: 14,
+                              overflow: TextOverflow.ellipsis,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ),
+                          _collapseExpandIcon(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: HiddenGroupList(
+                      databaseController: databaseController,
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -121,7 +113,7 @@ class HiddenGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HiddenGroupsBloc, HiddenGroupsState>(
+    return BlocBuilder<BoardBloc, BoardState>(
       builder: (_, state) => ListView.separated(
         itemCount: state.hiddenGroups.length,
         itemBuilder: (_, index) => HiddenGroupCard(
@@ -145,13 +137,10 @@ class HiddenGroupCard extends StatefulWidget {
 
 class _HiddenGroupCardState extends State<HiddenGroupCard> {
   final PopoverController _popoverController = PopoverController();
-  late final HiddenGroupButtonBloc _bloc;
 
   @override
   void initState() {
     super.initState();
-    _bloc = HiddenGroupButtonBloc(group: widget.group)
-      ..add(const HiddenGroupButtonEvent.initial());
   }
 
   @override
@@ -160,24 +149,23 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
     final primaryField = databaseController.fieldController.fieldInfos
         .firstWhereOrNull((element) => element.isPrimary)!;
 
-    return BlocProvider<HiddenGroupButtonBloc>.value(
-      value: _bloc,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 26),
-        child: AppFlowyPopover(
-          controller: _popoverController,
-          direction: PopoverDirection.bottomWithCenterAligned,
-          triggerActions: PopoverTriggerFlags.none,
-          constraints: const BoxConstraints(maxWidth: 234, maxHeight: 300),
-          popupBuilder: (popoverContext) => HiddenGroupPopupItemList(
-            bloc: _bloc,
-            viewId: databaseController.viewId,
-            primaryField: primaryField,
-            rowCache: databaseController.rowCache,
-          ),
-          child: HiddenGroupButtonContent(
-            popoverController: _popoverController,
-          ),
+    return Padding(
+      padding: const EdgeInsets.only(left: 26),
+      child: AppFlowyPopover(
+        controller: _popoverController,
+        direction: PopoverDirection.bottomWithCenterAligned,
+        triggerActions: PopoverTriggerFlags.none,
+        constraints: const BoxConstraints(maxWidth: 234, maxHeight: 300),
+        popupBuilder: (popoverContext) => HiddenGroupPopupItemList(
+          bloc: context.read<BoardBloc>(),
+          viewId: databaseController.viewId,
+          groupId: widget.group.groupId,
+          primaryField: primaryField,
+          rowCache: databaseController.rowCache,
+        ),
+        child: HiddenGroupButtonContent(
+          popoverController: _popoverController,
+          groupId: widget.group.groupId,
         ),
       ),
     );
@@ -185,9 +173,11 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
 }
 
 class HiddenGroupButtonContent extends StatelessWidget {
+  final String groupId;
   const HiddenGroupButtonContent({
     super.key,
     required this.popoverController,
+    required this.groupId,
   });
 
   final PopoverController popoverController;
@@ -199,9 +189,14 @@ class HiddenGroupButtonContent extends StatelessWidget {
       onTap: popoverController.show,
       child: FlowyHover(
         builder: (context, isHovering) {
-          return BlocBuilder<HiddenGroupButtonBloc, HiddenGroupButtonState>(
+          return BlocBuilder<BoardBloc, BoardState>(
             builder: (context, state) {
-              final group = state.hiddenGroup;
+              final group = state.hiddenGroups.firstWhereOrNull(
+                (g) => g.groupId == groupId,
+              );
+              if (group == null) {
+                return const SizedBox.shrink();
+              }
 
               return SizedBox(
                 height: 30,
@@ -264,13 +259,15 @@ class HiddenGroupCardActions extends StatelessWidget {
 class HiddenGroupPopupItemList extends StatelessWidget {
   const HiddenGroupPopupItemList({
     required this.bloc,
+    required this.groupId,
     required this.viewId,
     required this.primaryField,
     required this.rowCache,
     super.key,
   });
 
-  final HiddenGroupButtonBloc bloc;
+  final BoardBloc bloc;
+  final String groupId;
   final String viewId;
   final FieldInfo primaryField;
   final RowCache rowCache;
@@ -279,9 +276,14 @@ class HiddenGroupPopupItemList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: bloc,
-      child: BlocBuilder<HiddenGroupButtonBloc, HiddenGroupButtonState>(
+      child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
-          final group = state.hiddenGroup;
+          final group = state.hiddenGroups.firstWhereOrNull(
+            (g) => g.groupId == groupId,
+          );
+          if (group == null) {
+            return const SizedBox.shrink();
+          }
           final cells = <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
