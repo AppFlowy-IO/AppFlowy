@@ -47,30 +47,36 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 150),
         child: isCollapsed
-            ? Padding(
-                padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
-                child: _collapseExpandIcon(),
+            ? SizedBox(
+                height: 50,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 50, right: 8),
+                  child: Center(child: _collapseExpandIcon()),
+                ),
               )
             : SizedBox(
                 width: 260,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(48, 16, 8, 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: FlowyText.medium(
-                              LocaleKeys.board_hiddenGroupSection_sectionTitle
-                                  .tr(),
-                              fontSize: 14,
-                              overflow: TextOverflow.ellipsis,
-                              color: Theme.of(context).hintColor,
+                    SizedBox(
+                      height: 50,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 50, right: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: FlowyText.medium(
+                                LocaleKeys.board_hiddenGroupSection_sectionTitle
+                                    .tr(),
+                                fontSize: 14,
+                                overflow: TextOverflow.ellipsis,
+                                color: Theme.of(context).hintColor,
+                              ),
                             ),
-                          ),
-                          _collapseExpandIcon(),
-                        ],
+                            _collapseExpandIcon(),
+                          ],
+                        ),
                       ),
                     ),
                     Expanded(
