@@ -259,7 +259,6 @@ class _CreateOptionCell extends StatelessWidget {
                 child: SelectOptionTag(
                   name: name,
                   color: AFThemeExtension.of(context).greyHover,
-                  isTextColAlt: true,
                   onSelected: () => context
                       .read<SelectOptionCellEditorBloc>()
                       .add(SelectOptionEditorEvent.newOption(name)),
