@@ -12,8 +12,11 @@ class EmojiPickerButton extends StatelessWidget {
     super.key,
     required this.emoji,
     required this.onSubmitted,
-    this.emojiPickerSize = const Size(300, 250),
+    this.emojiPickerSize = const Size(360, 380),
     this.emojiSize = 18.0,
+    this.defaultIcon,
+    this.offset,
+    this.direction,
   });
 
   final String emoji;
@@ -21,6 +24,9 @@ class EmojiPickerButton extends StatelessWidget {
   final Size emojiPickerSize;
   final void Function(String emoji, PopoverController? controller) onSubmitted;
   final PopoverController popoverController = PopoverController();
+  final Widget? defaultIcon;
+  final Offset? offset;
+  final PopoverDirection? direction;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +38,8 @@ class EmojiPickerButton extends StatelessWidget {
           width: emojiPickerSize.width,
           height: emojiPickerSize.height,
         ),
+        offset: offset,
+        direction: direction ?? PopoverDirection.rightWithTopAligned,
         popupBuilder: (context) => Container(
           width: emojiPickerSize.width,
           height: emojiPickerSize.height,
@@ -41,18 +49,24 @@ class EmojiPickerButton extends StatelessWidget {
             onExit: () {},
           ),
         ),
-        child: FlowyTextButton(
-          emoji,
-          overflow: TextOverflow.visible,
-          fontSize: emojiSize,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 35.0),
-          fillColor: Colors.transparent,
-          mainAxisAlignment: MainAxisAlignment.center,
-          onPressed: () {
-            popoverController.show();
-          },
-        ),
+        child: emoji.isEmpty && defaultIcon != null
+            ? FlowyButton(
+                useIntrinsicWidth: true,
+                text: defaultIcon!,
+                onTap: () => popoverController.show(),
+              )
+            : FlowyTextButton(
+                emoji,
+                overflow: TextOverflow.visible,
+                fontSize: emojiSize,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 35.0),
+                fillColor: Colors.transparent,
+                mainAxisAlignment: MainAxisAlignment.center,
+                onPressed: () {
+                  popoverController.show();
+                },
+              ),
       );
     } else {
       return FlowyTextButton(

@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flutter/material.dart';
@@ -155,7 +156,11 @@ void main() {
       const hand = '👋🏿';
       await tester.tapEmoji(hand);
       tester.expectToSeeDocumentIcon(hand);
-      tester.isPageWithIcon(gettingStarted, hand);
+      tester.expectViewHasIcon(
+        gettingStarted,
+        ViewLayoutPB.Document,
+        hand,
+      );
     });
   });
 }
