@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
@@ -117,23 +119,58 @@ class HiddenGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bloc = context.read<BoardBloc>();
     return BlocBuilder<BoardBloc, BoardState>(
-      builder: (_, state) => ListView.separated(
-        itemCount: state.hiddenGroups.length,
-        itemBuilder: (_, index) => HiddenGroupCard(
-          group: state.hiddenGroups[index],
-          key: ValueKey(state.hiddenGroups[index].groupId),
+      builder: (_, state) => ReorderableListView.builder(
+        proxyDecorator: (child, index, animation) => Material(
+          color: Colors.transparent,
+          child: Stack(
+            children: [
+              child,
+              MouseRegion(
+                cursor: Platform.isWindows
+                    ? SystemMouseCursors.click
+                    : SystemMouseCursors.grabbing,
+                child: const SizedBox.expand(),
+              ),
+            ],
+          ),
         ),
-        separatorBuilder: (_, __) => const VSpace(4),
+        buildDefaultDragHandles: false,
+        itemCount: state.hiddenGroups.length,
+        itemBuilder: (_, index) => Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          key: ValueKey("hiddenGroup${state.hiddenGroups[index].groupId}"),
+          child: HiddenGroupCard(
+            group: state.hiddenGroups[index],
+            index: index,
+            bloc: bloc,
+          ),
+        ),
+        onReorder: (oldIndex, newIndex) {
+          if (oldIndex < newIndex) {
+            newIndex--;
+          }
+          final fromGroupId = state.hiddenGroups[oldIndex].groupId;
+          final toGroupId = state.hiddenGroups[newIndex].groupId;
+          bloc.add(BoardEvent.reorderGroup(fromGroupId, toGroupId));
+        },
       ),
     );
   }
 }
 
 class HiddenGroupCard extends StatefulWidget {
-  const HiddenGroupCard({super.key, required this.group});
+  const HiddenGroupCard({
+    super.key,
+    required this.group,
+    required this.index,
+    required this.bloc,
+  });
 
   final GroupPB group;
+  final BoardBloc bloc;
+  final int index;
 
   @override
   State<HiddenGroupCard> createState() => _HiddenGroupCardState();
@@ -144,7 +181,7 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
 
   @override
   Widget build(BuildContext context) {
-    final databaseController = context.read<BoardBloc>().databaseController;
+    final databaseController = widget.bloc.databaseController;
     final primaryField = databaseController.fieldController.fieldInfos
         .firstWhereOrNull((element) => element.isPrimary)!;
 
@@ -156,7 +193,7 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
         triggerActions: PopoverTriggerFlags.none,
         constraints: const BoxConstraints(maxWidth: 234, maxHeight: 300),
         popupBuilder: (popoverContext) => HiddenGroupPopupItemList(
-          bloc: context.read<BoardBloc>(),
+          bloc: widget.bloc,
           viewId: databaseController.viewId,
           groupId: widget.group.groupId,
           primaryField: primaryField,
@@ -165,6 +202,8 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
         child: HiddenGroupButtonContent(
           popoverController: _popoverController,
           groupId: widget.group.groupId,
+          index: widget.index,
+          bloc: widget.bloc,
         ),
       ),
     );
@@ -173,10 +212,14 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
 
 class HiddenGroupButtonContent extends StatelessWidget {
   final String groupId;
+  final int index;
+  final BoardBloc bloc;
   const HiddenGroupButtonContent({
     super.key,
     required this.popoverController,
     required this.groupId,
+    required this.index,
+    required this.bloc,
   });
 
   final PopoverController popoverController;
@@ -188,53 +231,59 @@ class HiddenGroupButtonContent extends StatelessWidget {
       onTap: popoverController.show,
       child: FlowyHover(
         builder: (context, isHovering) {
-          return BlocBuilder<BoardBloc, BoardState>(
-            builder: (context, state) {
-              final group = state.hiddenGroups.firstWhereOrNull(
-                (g) => g.groupId == groupId,
-              );
-              if (group == null) {
-                return const SizedBox.shrink();
-              }
+          return BlocProvider<BoardBloc>.value(
+            value: bloc,
+            child: BlocBuilder<BoardBloc, BoardState>(
+              builder: (context, state) {
+                final group = state.hiddenGroups.firstWhereOrNull(
+                  (g) => g.groupId == groupId,
+                );
+                if (group == null) {
+                  return const SizedBox.shrink();
+                }
 
-              return SizedBox(
-                height: 30,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-                  child: Row(
-                    children: [
-                      HiddenGroupCardActions(isVisible: isHovering),
-                      const HSpace(4),
-                      FlowyText.medium(
-                        group.groupName,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const HSpace(6),
-                      Expanded(
-                        child: FlowyText.medium(
-                          group.rows.length.toString(),
-                          overflow: TextOverflow.ellipsis,
-                          color: Theme.of(context).hintColor,
+                return SizedBox(
+                  height: 30,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                    child: Row(
+                      children: [
+                        HiddenGroupCardActions(
+                          isVisible: isHovering,
+                          index: index,
                         ),
-                      ),
-                      if (isHovering) ...[
-                        FlowyIconButton(
-                          width: 20,
-                          icon: FlowySvg(
-                            FlowySvgs.show_m,
+                        const HSpace(4),
+                        FlowyText.medium(
+                          group.groupName,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const HSpace(6),
+                        Expanded(
+                          child: FlowyText.medium(
+                            group.rows.length.toString(),
+                            overflow: TextOverflow.ellipsis,
                             color: Theme.of(context).hintColor,
                           ),
-                          onPressed: () => context.read<BoardBloc>().add(
-                                BoardEvent.toggleGroupVisibility(group, true),
-                              ),
                         ),
+                        if (isHovering) ...[
+                          FlowyIconButton(
+                            width: 20,
+                            icon: FlowySvg(
+                              FlowySvgs.show_m,
+                              color: Theme.of(context).hintColor,
+                            ),
+                            onPressed: () => context.read<BoardBloc>().add(
+                                  BoardEvent.toggleGroupVisibility(group, true),
+                                ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
@@ -244,20 +293,31 @@ class HiddenGroupButtonContent extends StatelessWidget {
 
 class HiddenGroupCardActions extends StatelessWidget {
   final bool isVisible;
-  const HiddenGroupCardActions({super.key, required this.isVisible});
+  final int index;
+
+  const HiddenGroupCardActions({
+    super.key,
+    required this.isVisible,
+    required this.index,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.grab,
-      child: SizedBox(
-        height: 14,
-        width: 14,
-        child: isVisible
-            ? FlowySvg(
-                FlowySvgs.drag_element_s,
-                color: Theme.of(context).hintColor,
-              )
-            : const SizedBox.shrink(),
+    return ReorderableDragStartListener(
+      index: index,
+      enabled: isVisible,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.grab,
+        child: SizedBox(
+          height: 14,
+          width: 14,
+          child: isVisible
+              ? FlowySvg(
+                  FlowySvgs.drag_element_s,
+                  color: Theme.of(context).hintColor,
+                )
+              : const SizedBox.shrink(),
+        ),
       ),
     );
   }

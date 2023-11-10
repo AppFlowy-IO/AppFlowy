@@ -140,6 +140,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           toggleGroupVisibility: (GroupPB group, bool isVisible) async {
             await _toggleGroupVisibility(group, isVisible);
           },
+          reorderGroup: (fromGroupId, toGroupId) async {
+            _reorderGroup(fromGroupId, toGroupId, emit);
+          },
           startEditingRow: (group, row) {
             emit(
               state.copyWith(
@@ -211,6 +214,23 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       groupId: group.groupId,
       visible: isVisible,
     );
+  }
+
+  Future<void> _reorderGroup(
+    String fromGroupId,
+    String toGroupId,
+    Emitter<BoardState> emit,
+  ) async {
+    final fromIndex = groupList.indexWhere((g) => g.groupId == fromGroupId);
+    final toIndex = groupList.indexWhere((g) => g.groupId == toGroupId);
+    final group = groupList.removeAt(fromIndex);
+    groupList.insert(toIndex, group);
+    add(BoardEvent.didReceiveGroups(groupList));
+    final result = await databaseController.moveGroup(
+      fromGroupId: fromGroupId,
+      toGroupId: toGroupId,
+    );
+    result.fold((l) => {}, (err) => Log.error(err));
   }
 
   @override
@@ -450,6 +470,8 @@ class BoardEvent with _$BoardEvent {
     GroupPB group,
     bool isVisible,
   ) = _ToggleGroupVisibility;
+  const factory BoardEvent.reorderGroup(String fromGroupId, String toGroupId) =
+      _ReorderGroup;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
   const factory BoardEvent.didReceiveGridUpdate(
     DatabasePB grid,
