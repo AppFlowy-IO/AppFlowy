@@ -752,7 +752,7 @@ packages:
       sha256: "4114739083d1c63e6a1a8b93f09dd69b3cf9a9d6ee215ae7f23079307197ebba"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.3.1"
   isolates:
     dependency: transitive
     description:
@@ -952,7 +952,7 @@ packages:
       sha256: "28386bbe89ab5a7919a47cea99cdd1128e5a6e0bbd7eaafe20440ead84a15de3"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.1"
+    version: "5.0.1"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
