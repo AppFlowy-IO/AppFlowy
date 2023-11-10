@@ -23,7 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HiddenGroupsColumn extends StatefulWidget {
-  const HiddenGroupsColumn({super.key});
+  final EdgeInsets margin;
+  const HiddenGroupsColumn({super.key, required this.margin});
 
   @override
   State<HiddenGroupsColumn> createState() => _HiddenGroupsColumnState();
@@ -43,7 +44,7 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
           ? SizedBox(
               height: 50,
               child: Padding(
-                padding: const EdgeInsets.only(left: 50, right: 8),
+                padding: const EdgeInsets.only(left: 40, right: 8),
                 child: Center(child: _collapseExpandIcon()),
               ),
             )
@@ -55,7 +56,10 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
                   SizedBox(
                     height: 50,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 50, right: 8),
+                      padding: EdgeInsets.only(
+                        left: 40 + widget.margin.left,
+                        right: widget.margin.right,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -139,11 +143,6 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
   final PopoverController _popoverController = PopoverController();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final databaseController = context.read<BoardBloc>().databaseController;
     final primaryField = databaseController.fieldController.fieldInfos
@@ -202,9 +201,11 @@ class HiddenGroupButtonContent extends StatelessWidget {
                 height: 30,
                 child: Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                   child: Row(
                     children: [
+                      HiddenGroupCardActions(isVisible: isHovering),
+                      const HSpace(4),
                       FlowyText.medium(
                         group.groupName,
                         overflow: TextOverflow.ellipsis,
@@ -242,15 +243,21 @@ class HiddenGroupButtonContent extends StatelessWidget {
 }
 
 class HiddenGroupCardActions extends StatelessWidget {
-  const HiddenGroupCardActions({super.key});
+  final bool isVisible;
+  const HiddenGroupCardActions({super.key, required this.isVisible});
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 14,
-      width: 14,
-      child: FlowySvg(
-        FlowySvgs.drag_element_s,
-        color: Theme.of(context).hintColor,
+    return MouseRegion(
+      cursor: SystemMouseCursors.grab,
+      child: SizedBox(
+        height: 14,
+        width: 14,
+        child: isVisible
+            ? FlowySvg(
+                FlowySvgs.drag_element_s,
+                color: Theme.of(context).hintColor,
+              )
+            : const SizedBox.shrink(),
       ),
     );
   }

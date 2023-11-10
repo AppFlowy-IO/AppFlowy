@@ -33,8 +33,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   late final GroupBackendService groupBackendSvc;
   late final AppFlowyBoardController boardController;
 
-  GroupPB? ungroupedGroup;
-
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
 
@@ -269,13 +267,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         if (isClosed) {
           return;
         }
-
-        if (layoutSettings.board.hideUngroupedColumn) {
-          boardController.removeGroup(ungroupedGroup!.fieldId);
-        } else {
-          final ungroupedGroup =
-              groupList.firstWhereOrNull((element) => element.isDefault);
-          if (ungroupedGroup != null) {
+        final ungroupedGroup =
+            groupList.firstWhereOrNull((element) => element.isDefault);
+        if (ungroupedGroup != null) {
+          if (layoutSettings.board.hideUngroupedColumn) {
+            boardController.removeGroup(ungroupedGroup.fieldId);
+          } else {
             final newGroup = _initializeGroupData(ungroupedGroup);
             boardController.addGroup(newGroup);
           }
@@ -289,7 +286,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           return;
         }
 
-        ungroupedGroup = null;
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
       },

@@ -159,7 +159,7 @@ class _BoardContentState extends State<BoardContent> {
                 groupPadding: EdgeInsets.symmetric(horizontal: 4),
                 groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
               ),
-              leading: const HiddenGroupsColumn(),
+              leading: HiddenGroupsColumn(margin: config.headerPadding),
               trailing: BoardTrailing(scrollController: scrollController),
               headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
                 value: context.read<BoardBloc>(),
