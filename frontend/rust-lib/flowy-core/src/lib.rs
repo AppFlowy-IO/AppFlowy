@@ -114,14 +114,19 @@ impl AppFlowyCore {
 
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
-    /// The profiling can be used to tracing the performance of the application.
-    /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)
-    ///  for more information.
-    #[cfg(feature = "profiling")]
-    console_subscriber::init();
+    if cfg!(debug_assertions) {
+      /// The profiling can be used to tracing the performance of the application.
+      /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)
+      ///  for more information.
+      #[cfg(feature = "profiling")]
+      console_subscriber::init();
 
-    // Init the logger before anything else
-    init_log(&config);
+      // Init the logger before anything else
+      #[cfg(not(feature = "profiling"))]
+      init_log(&config);
+    } else {
+      init_log(&config);
+    }
 
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());

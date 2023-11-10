@@ -62,12 +62,10 @@ where
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
-      // TODO(nathan): replace the admin_email and admin_password with encryption key
-      let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
-      let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
-      let url = try_get_client?
-        .generate_sign_in_url_with_email(&admin_email, &admin_password, &email)
-        .await?;
+      // // TODO(nathan): replace the admin_email and admin_password with encryption key
+      // let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
+      // let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
+      let url = try_get_client?.generate_sign_in_url(&email).await?;
       Ok(url)
     })
   }
