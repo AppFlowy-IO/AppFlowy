@@ -9,6 +9,11 @@ import 'package:flutter/material.dart';
 // use a temporary global value to store last selected skin tone
 EmojiSkinTone? lastSelectedEmojiSkinTone;
 
+@visibleForTesting
+ValueKey emojiSkinToneKey(String icon) {
+  return ValueKey('emoji_skin_tone_$icon');
+}
+
 class FlowyEmojiSkinToneSelector extends StatefulWidget {
   const FlowyEmojiSkinToneSelector({
     super.key,
@@ -61,6 +66,7 @@ class _FlowyEmojiSkinToneSelectorState
 
   Widget _buildIconButton(String icon, VoidCallback onPressed) {
     return FlowyIconButton(
+      key: emojiSkinToneKey(icon),
       icon: Padding(
         // add a left padding to align the emoji center
         padding: const EdgeInsets.only(
@@ -76,7 +82,7 @@ class _FlowyEmojiSkinToneSelectorState
   }
 }
 
-extension on EmojiSkinTone {
+extension EmojiSkinToneIcon on EmojiSkinTone {
   String get icon {
     switch (this) {
       case EmojiSkinTone.none:

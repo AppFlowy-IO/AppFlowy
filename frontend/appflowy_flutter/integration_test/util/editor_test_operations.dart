@@ -67,7 +67,7 @@ class EditorOperations {
     await tester.tapButton(
       find.byTooltip(LocaleKeys.emoji_selectSkinTone.tr()),
     );
-    final skinToneButton = find.text(EmojiSkinToneWrapper(skinTone).name);
+    final skinToneButton = find.byKey(emojiSkinToneKey(skinTone.icon));
     await tester.tapButton(skinToneButton);
   }
 
