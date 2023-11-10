@@ -271,7 +271,7 @@ class HomeTopBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: HomeInsets.topBarTitlePadding,
-        ).copyWith(right: Platform.isWindows ? 0 : null),
+        ).copyWith(right: Platform.isWindows && false ? 0 : null),
         child: WindowDragStack(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -287,7 +287,7 @@ class HomeTopBar extends StatelessWidget {
                       const SizedBox.shrink(),
                 ),
               ),
-              if (Platform.isWindows)
+              if (Platform.isWindows && false)
                 AnimatedSize(
                   duration: const Duration(milliseconds: 200),
                   child: BlocBuilder<TabsBloc, TabsState>(

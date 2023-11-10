@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -318,10 +320,12 @@ class _SkipLoginMoveWindow extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return WindowCaption(
-      backgroundColor: Colors.transparent,
-      brightness: Theme.of(context).brightness,
-    );
+    return !Platform.isWindows || true
+        ? const MoveWindowDetector()
+        : WindowCaption(
+            backgroundColor: Colors.transparent,
+            brightness: Theme.of(context).brightness,
+          );
   }
 
   @override

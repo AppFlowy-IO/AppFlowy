@@ -94,7 +94,7 @@ class _TabsManagerState extends State<TabsManager>
                         )
                         .toList(),
                   ),
-                  if (Platform.isWindows)
+                  if (Platform.isWindows && false)
                     Align(
                       alignment: Alignment.topRight,
                       child: SizedBox(

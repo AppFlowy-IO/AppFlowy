@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
@@ -12,6 +14,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'prelude.dart';
 
@@ -138,8 +141,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         ),
       ],
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp.router(
-          builder: overlayManagerBuilder(),
+        builder: (context, state) => MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: state.lightTheme,
           darkTheme: state.darkTheme,
@@ -147,7 +149,36 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: state.locale,
-          routerConfig: routerConfig,
+          builder: (outerContext, __) => Column(
+            children: [
+              if (Platform.isWindows)
+                SizedBox(
+                  height: kWindowCaptionHeight,
+                  child: Scaffold(
+                    body: WindowCaption(
+                      backgroundColor:
+                          Theme.of(outerContext).colorScheme.surfaceVariant,
+                      brightness: state.themeMode == ThemeMode.light
+                          ? Brightness.light
+                          : Brightness.dark,
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: MaterialApp.router(
+                  builder: overlayManagerBuilder(),
+                  debugShowCheckedModeBanner: false,
+                  theme: state.lightTheme,
+                  darkTheme: state.darkTheme,
+                  themeMode: state.themeMode,
+                  localizationsDelegates: context.localizationDelegates,
+                  supportedLocales: context.supportedLocales,
+                  locale: state.locale,
+                  routerConfig: routerConfig,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
@@ -18,10 +20,12 @@ class DesktopSignInScreen extends StatelessWidget {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size(double.infinity, 60),
-        child: WindowCaption(
-          backgroundColor: Colors.transparent,
-          brightness: Theme.of(context).brightness,
-        ),
+        child: !Platform.isWindows || true
+            ? const MoveWindowDetector()
+            : WindowCaption(
+                backgroundColor: Colors.transparent,
+                brightness: Theme.of(context).brightness,
+              ),
       ),
       body: Center(
         child: AuthFormContainer(
