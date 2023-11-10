@@ -1275,14 +1275,21 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   }
 
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>> {
-    let database = self.database.lock();
-    let rows = database.get_rows_for_view(view_id);
-    let row_details = rows
-      .into_iter()
-      .flat_map(|row| database.get_row_detail(&row.id))
-      .collect::<Vec<RowDetail>>();
+    let database = self.database.clone();
+    let view_id = view_id.to_string();
+    to_fut(async move {
+      let db = database.clone();
+      let rows = tokio::task::spawn_blocking(move || database.lock().get_rows_for_view(&view_id))
+        .await
+        .unwrap_or_default();
+      let lock_guard = db.lock();
+      let row_details = rows
+        .into_iter()
+        .flat_map(|row| lock_guard.get_row_detail(&row.id))
+        .collect::<Vec<RowDetail>>();
 
-    to_fut(async move { row_details.into_iter().map(Arc::new).collect() })
+      row_details.into_iter().map(Arc::new).collect()
+    })
   }
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {

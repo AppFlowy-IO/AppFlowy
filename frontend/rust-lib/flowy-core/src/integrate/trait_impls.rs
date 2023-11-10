@@ -8,6 +8,7 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use tokio_stream::wrappers::WatchStream;
+use tracing::instrument;
 
 use collab_integrate::collab_builder::{CollabPluginContext, CollabSource, CollabStorageProvider};
 use collab_integrate::postgres::SupabaseDBPlugin;
@@ -309,6 +310,7 @@ impl CollabStorageProvider for ServerProvider {
     self.get_server_type().into()
   }
 
+  #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
   fn get_plugins(&self, context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
     match context {
       CollabPluginContext::Local => to_fut(async move { vec![] }),
