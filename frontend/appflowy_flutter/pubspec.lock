@@ -45,20 +45,20 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "1a329c2"
-      resolved-ref: "1a329c21921c0d19871bea3237b7d80fe131f2ed"
+      ref: a183c57
+      resolved-ref: a183c57013071cb3192fcf3c9b1eeb89462179b7
       url: "https://github.com/AppFlowy-IO/appflowy-board.git"
     source: git
-    version: "0.1.0"
+    version: "0.0.9"
   appflowy_editor:
     dependency: "direct main"
     description:
       path: "."
-      ref: "50117b6"
-      resolved-ref: "50117b6900e4b239603ee48f6f3e7b7bc603c865"
+      ref: "9ae85ea"
+      resolved-ref: "9ae85ea162606b79483c49550266c154c0cb500c"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "1.5.2"
+    version: "1.4.4"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -246,7 +246,7 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: b502a681ba415272ecc41400bd04fe543ed1a62632137dc84d25a91e7746f55f
+      sha256: "8599ae9edca5ff96163fca3e36f8e481ea917d1e71cdad912c084b5579913f34"
       url: "https://pub.dev"
     source: hosted
     version: "5.0.1"
@@ -274,14 +274,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.6.3"
-  cross_file:
-    dependency: transitive
-    description:
-      name: cross_file
-      sha256: "445db18de832dba8d851e287aff8ccf169bed30d2e94243cb54c7d2f1ed2142c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.3+6"
   crypto:
     dependency: transitive
     description:
@@ -354,14 +346,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0+3"
-  easy_debounce:
-    dependency: transitive
-    description:
-      name: easy_debounce
-      sha256: f082609cfb8f37defb9e37fc28bc978c6712dedf08d4c5a26f820fa10165a236
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   easy_localization:
     dependency: "direct main"
     description:
@@ -378,15 +362,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.2"
-  emoji_mart:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: "067f718"
-      resolved-ref: "067f7188965c8fcb7be02ce174ce2b6757f288ee"
-      url: "https://github.com/LucasXu0/emoji_mart.git"
-    source: git
-    version: "0.0.1"
   envied:
     dependency: "direct main"
     description:
@@ -451,38 +426,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.3.1"
-  file_selector_linux:
-    dependency: transitive
-    description:
-      name: file_selector_linux
-      sha256: "045d372bf19b02aeb69cacf8b4009555fb5f6f0b7ad8016e5f46dd1387ddd492"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.2+1"
-  file_selector_macos:
-    dependency: transitive
-    description:
-      name: file_selector_macos
-      sha256: b15c3da8bd4908b9918111fa486903f5808e388b8d1c559949f584725a6594d6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.3+3"
-  file_selector_platform_interface:
-    dependency: transitive
-    description:
-      name: file_selector_platform_interface
-      sha256: "0aa47a725c346825a2bd396343ce63ac00bda6eff2fbc43eabe99737dede8262"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.6.1"
-  file_selector_windows:
-    dependency: transitive
-    description:
-      name: file_selector_windows
-      sha256: d3547240c20cabf205c7c7f01a50ecdbc413755814d6677f3cb366f04abcead0
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.3+1"
   fixnum:
     dependency: "direct main"
     description:
@@ -582,22 +525,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.15"
-  flutter_slidable:
-    dependency: "direct main"
-    description:
-      name: flutter_slidable
-      sha256: cc4231579e3eae41ae166660df717f4bad1359c87f4a4322ad8ba1befeb3d2be
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
-  flutter_sticky_header:
-    dependency: transitive
-    description:
-      name: flutter_sticky_header
-      sha256: "017f398fbb45a589e01491861ca20eb6570a763fd9f3888165a978e11248c709"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.5"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -636,10 +563,10 @@ packages:
     dependency: "direct main"
     description:
       name: freezed_annotation
-      sha256: c3fd9336eb55a38cc1bbd79ab17573113a8deccd0ecbbf926cca3c62803b5c2d
+      sha256: aeac15850ef1b38ee368d4c53ba9a847e900bb2c53a4db3f6881cbb3cb684338
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.1"
+    version: "2.2.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -781,78 +708,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
-  image_gallery_saver:
-    dependency: "direct main"
-    description:
-      name: image_gallery_saver
-      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
-  image_picker:
-    dependency: "direct main"
-    description:
-      name: image_picker
-      sha256: "7d7f2768df2a8b0a3cefa5ef4f84636121987d403130e70b17ef7e2cf650ba84"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.4"
-  image_picker_android:
-    dependency: transitive
-    description:
-      name: image_picker_android
-      sha256: d6a6e78821086b0b737009b09363018309bbc6de3fd88cc5c26bc2bb44a4957f
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.8.8+2"
-  image_picker_for_web:
-    dependency: transitive
-    description:
-      name: image_picker_for_web
-      sha256: "50bc9ae6a77eea3a8b11af5eb6c661eeb858fdd2f734c2a4fd17086922347ef7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.1"
-  image_picker_ios:
-    dependency: transitive
-    description:
-      name: image_picker_ios
-      sha256: "76ec722aeea419d03aa915c2c96bf5b47214b053899088c9abb4086ceecf97a7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.8.8+4"
-  image_picker_linux:
-    dependency: transitive
-    description:
-      name: image_picker_linux
-      sha256: "4ed1d9bb36f7cd60aa6e6cd479779cc56a4cb4e4de8f49d487b1aaad831300fa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1+1"
-  image_picker_macos:
-    dependency: transitive
-    description:
-      name: image_picker_macos
-      sha256: "3f5ad1e8112a9a6111c46d0b57a7be2286a9a07fc6e1976fdf5be2bd31d4ff62"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1+1"
-  image_picker_platform_interface:
-    dependency: transitive
-    description:
-      name: image_picker_platform_interface
-      sha256: ed9b00e63977c93b0d2d2b343685bed9c324534ba5abafbb3dfbd6a780b1b514
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.9.1"
-  image_picker_windows:
-    dependency: transitive
-    description:
-      name: image_picker_windows
-      sha256: "6ad07afc4eb1bc25f3a01084d28520496c4a3bb0cb13685435838167c9dcedeb"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1+1"
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -870,10 +725,10 @@ packages:
     dependency: transitive
     description:
       name: intl_utils
-      sha256: "5cad11e11ff7662c3cd0ef04729248591d71ed023d4ef0903a137528b4568adf"
+      sha256: "0d38f605f292321c0729f8c0632b845be77aa12d272b7bc5e3022bb670a7309e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.5"
+    version: "2.8.4"
   io:
     dependency: transitive
     description:
@@ -886,7 +741,7 @@ packages:
     dependency: transitive
     description:
       name: irondash_engine_context
-      sha256: fea21bff36d44a5955beba90619f54b9169884014128ae75f50eba2db03c24a0
+      sha256: "6431b11844472574a90803c02f1e55221e6a390a872786735f6757a67dacd678"
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
@@ -894,10 +749,10 @@ packages:
     dependency: transitive
     description:
       name: irondash_message_channel
-      sha256: "500daa1fbe679f7d28a5258df3ff47dab6de352e680dc93c1ca9eae1555d8db5"
+      sha256: "4114739083d1c63e6a1a8b93f09dd69b3cf9a9d6ee215ae7f23079307197ebba"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1"
+    version: "0.3.0"
   isolates:
     dependency: transitive
     description:
@@ -1527,14 +1382,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
-  sliver_tools:
-    dependency: transitive
-    description:
-      name: sliver_tools
-      sha256: eae28220badfb9d0559207badcbbc9ad5331aac829a88cb0964d330d2a4636a6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.12"
   source_gen:
     dependency: transitive
     description:
@@ -1652,18 +1499,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: "548642d62d691d2ba00850efe0f7a11ce5696e59111658abd4c6cb76b49aa61d"
+      sha256: ba484eb42ce621b69241d18d2a8494109589e8796eb6a3399e6c8f9cdaab8303
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.4"
+    version: "0.6.3"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: "3bbb95899f848617b819eec1fa00c80a617f1bd469a480b1f0c4dd383da4c5ec"
+      sha256: dfe0a1c74430db946be973878da3f8611b8f124137f1dcbdf883e4605db40bd8
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.4"
+    version: "0.6.3"
   sync_http:
     dependency: transitive
     description:
@@ -1873,14 +1720,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
-  value_layout_builder:
-    dependency: transitive
-    description:
-      name: value_layout_builder
-      sha256: "98202ec1807e94ac72725b7f0d15027afde513c55c69ff3f41bcfccb950831bc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.1"
   vector_graphics:
     dependency: transitive
     description:
