@@ -1278,17 +1278,34 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let database = self.database.clone();
     let view_id = view_id.to_string();
     to_fut(async move {
-      let db = database.clone();
-      let rows = tokio::task::spawn_blocking(move || database.lock().get_rows_for_view(&view_id))
+      let cloned_database = database.clone();
+      let row_orders = tokio::task::spawn_blocking(move || {
+        cloned_database.lock().get_row_orders_for_view(&view_id)
+      })
+      .await
+      .unwrap_or_default();
+      tokio::task::yield_now().await;
+
+      let mut all_rows = vec![];
+      for chunk in row_orders.chunks(20) {
+        let cloned_database = database.clone();
+        let chunk = chunk.to_vec();
+        let rows = tokio::task::spawn_blocking(move || {
+          let orders = cloned_database.lock().get_rows_from_row_orders(&chunk);
+          let lock_guard = cloned_database.lock();
+          orders
+            .into_iter()
+            .flat_map(|row| lock_guard.get_row_detail(&row.id))
+            .collect::<Vec<RowDetail>>()
+        })
         .await
         .unwrap_or_default();
-      let lock_guard = db.lock();
-      let row_details = rows
-        .into_iter()
-        .flat_map(|row| lock_guard.get_row_detail(&row.id))
-        .collect::<Vec<RowDetail>>();
 
-      row_details.into_iter().map(Arc::new).collect()
+        all_rows.extend(rows);
+        tokio::task::yield_now().await;
+      }
+
+      all_rows.into_iter().map(Arc::new).collect()
     })
   }
 
