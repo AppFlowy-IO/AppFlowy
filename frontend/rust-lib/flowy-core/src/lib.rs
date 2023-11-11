@@ -4,7 +4,6 @@ use std::sync::Weak;
 use std::time::Duration;
 use std::{fmt, sync::Arc};
 
-use base64::engine::general_purpose::URL_SAFE;
 use base64::Engine;
 use tokio::sync::RwLock;
 use tracing::{error, event, instrument};
@@ -62,17 +61,9 @@ impl fmt::Debug for AppFlowyCoreConfig {
 
 impl AppFlowyCoreConfig {
   pub fn new(root: &str, name: String) -> Self {
-    let mut storage_path = root.to_string();
-    let cloud_config = AFCloudConfiguration::from_env().ok();
-    if let Some(cloud_config) = &cloud_config {
-      // Use the base url as part of the storage path in case the user switch between
-      // different cloud providers.
-      storage_path = format!("{}_{}", root, URL_SAFE.encode(&cloud_config.base_url));
-    }
-
     AppFlowyCoreConfig {
       name,
-      storage_path,
+      storage_path: root.to_string(),
       log_filter: create_log_filter("info".to_owned(), vec![]),
       cloud_config,
     }
