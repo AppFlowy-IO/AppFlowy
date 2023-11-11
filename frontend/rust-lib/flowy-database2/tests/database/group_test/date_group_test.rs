@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::vec;
 
 use chrono::NaiveDateTime;
-use chrono::{offset, Duration};
+use chrono::{Duration, Local, TimeZone};
 use collab_database::database::gen_row_id;
 use collab_database::rows::CreateRowParams;
 
@@ -19,8 +19,10 @@ async fn group_by_date_test() {
   let mut test = DatabaseGroupTest::new().await;
   let date_field = test.get_field(FieldType::DateTime).await;
 
+  // 2023/11/10
+  let datetime: chrono::DateTime<Local> = Local.timestamp_opt(1699632574, 0).unwrap();
   for diff in date_diffs {
-    let timestamp = offset::Local::now()
+    let timestamp = datetime
       .checked_add_signed(Duration::days(diff))
       .unwrap()
       .timestamp()
@@ -41,9 +43,14 @@ async fn group_by_date_test() {
     assert!(res.is_ok());
   }
 
-  let today = offset::Local::now();
-  let last_day = today
+  let today = datetime.clone();
+  let yesterday = today
     .checked_add_signed(Duration::days(-1))
+    .unwrap()
+    .format("%Y/%m/%d")
+    .to_string();
+  let last_7_days = today
+    .checked_add_signed(Duration::days(-7))
     .unwrap()
     .format("%Y/%m/%d")
     .to_string();
@@ -98,8 +105,8 @@ async fn group_by_date_test() {
     },
     AssertGroupIDName {
       group_index: 4,
-      group_id: last_day,
-      group_name: "Yesterday".to_string(),
+      group_id: last_7_days,
+      group_name: "Last 7 days".to_string(),
     },
     AssertGroupRowCount {
       group_index: 4,
@@ -107,8 +114,8 @@ async fn group_by_date_test() {
     },
     AssertGroupIDName {
       group_index: 5,
-      group_id: today.format("%Y/%m/%d").to_string(),
-      group_name: "Today".to_string(),
+      group_id: yesterday,
+      group_name: "Yesterday".to_string(),
     },
     AssertGroupRowCount {
       group_index: 5,
