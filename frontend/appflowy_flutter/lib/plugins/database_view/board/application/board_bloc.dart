@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/group/group_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -299,14 +298,19 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         if (isClosed) {
           return;
         }
-        final ungroupedGroup =
-            groupList.firstWhereOrNull((element) => element.isDefault);
-        if (ungroupedGroup != null) {
+        final index = groupList.indexWhere((element) => element.isDefault);
+        if (index != -1) {
           if (layoutSettings.board.hideUngroupedColumn) {
-            boardController.removeGroup(ungroupedGroup.fieldId);
+            boardController.removeGroup(groupList[index].fieldId);
           } else {
-            final newGroup = _initializeGroupData(ungroupedGroup);
-            boardController.addGroup(newGroup);
+            final newGroup = _initializeGroupData(groupList[index]);
+            final visibleGroups = [...groupList]
+              ..retainWhere((g) => g.isVisible || g.isDefault);
+            final indexInVisibleGroups =
+                visibleGroups.indexWhere((g) => g.isDefault);
+            if (indexInVisibleGroups != -1) {
+              boardController.insertGroup(indexInVisibleGroups, newGroup);
+            }
           }
         }
         add(BoardEvent.didUpdateLayoutSettings(layoutSettings.board));
