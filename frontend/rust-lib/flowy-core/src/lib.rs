@@ -114,6 +114,7 @@ impl AppFlowyCore {
 
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
+    #[allow(clippy::if_same_then_else)]
     if cfg!(debug_assertions) {
       /// The profiling can be used to tracing the performance of the application.
       /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)

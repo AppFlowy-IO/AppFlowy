@@ -217,7 +217,7 @@ where
   let mut folder_data = old_folder
     .get_folder_data()
     .ok_or(PersistenceError::Internal(
-      anyhow!("Can't migrate the folder data").into(),
+      anyhow!("Can't migrate the folder data"),
     ))?;
 
   old_to_new_id_map
