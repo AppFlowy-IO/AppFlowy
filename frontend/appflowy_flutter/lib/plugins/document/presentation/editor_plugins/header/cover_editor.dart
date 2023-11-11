@@ -529,14 +529,12 @@ class ColorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      customBorder: const RoundedRectangleBorder(
-        borderRadius: Corners.s6Border,
-      ),
-      hoverColor: hoverColor,
-      onTap: () => onTap(option.colorHex),
-      child: Padding(
-        padding: const EdgeInsets.only(right: 10.0),
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        hoverColor: hoverColor,
+        onTap: () => onTap(option.colorHex),
         child: SizedBox.square(
           dimension: 25,
           child: DecoratedBox(
