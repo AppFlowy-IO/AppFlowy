@@ -4,7 +4,6 @@ use std::sync::Weak;
 use std::time::Duration;
 use std::{fmt, sync::Arc};
 
-use base64::Engine;
 use tokio::sync::RwLock;
 use tracing::{error, event, instrument};
 
@@ -65,7 +64,7 @@ impl AppFlowyCoreConfig {
       name,
       storage_path: root.to_string(),
       log_filter: create_log_filter("info".to_owned(), vec![]),
-      cloud_config,
+      cloud_config: AFCloudConfiguration::from_env().ok(),
     }
   }
 
