@@ -140,6 +140,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           toggleGroupVisibility: (GroupPB group, bool isVisible) async {
             await _toggleGroupVisibility(group, isVisible);
           },
+          toggleHiddenSectionVisibility: (isVisible) async {
+            final newLayoutSettings = state.layoutSettings!;
+            newLayoutSettings.freeze();
+
+            final newLayoutSetting = newLayoutSettings.rebuild(
+              (message) => message.collapseHiddenGroups = isVisible,
+            );
+
+            await databaseController.updateLayoutSetting(
+              boardLayoutSetting: newLayoutSetting,
+            );
+          },
           reorderGroup: (fromGroupId, toGroupId) async {
             _reorderGroup(fromGroupId, toGroupId, emit);
           },
@@ -470,6 +482,8 @@ class BoardEvent with _$BoardEvent {
     GroupPB group,
     bool isVisible,
   ) = _ToggleGroupVisibility;
+  const factory BoardEvent.toggleHiddenSectionVisibility(bool isVisible) =
+      _ToggleHiddenSectionVisibility;
   const factory BoardEvent.reorderGroup(String fromGroupId, String toGroupId) =
       _ReorderGroup;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;

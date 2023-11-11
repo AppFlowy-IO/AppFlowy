@@ -14,7 +14,7 @@ import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -24,72 +24,77 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HiddenGroupsColumn extends StatefulWidget {
+class HiddenGroupsColumn extends StatelessWidget {
   final EdgeInsets margin;
   const HiddenGroupsColumn({super.key, required this.margin});
 
   @override
-  State<HiddenGroupsColumn> createState() => _HiddenGroupsColumnState();
-}
-
-class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
-  bool isCollapsed = false;
-
-  @override
   Widget build(BuildContext context) {
     final databaseController = context.read<BoardBloc>().databaseController;
-    return AnimatedSize(
-      alignment: AlignmentDirectional.topStart,
-      curve: Curves.easeOut,
-      duration: const Duration(milliseconds: 150),
-      child: isCollapsed
-          ? SizedBox(
-              height: 50,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 40, right: 8),
-                child: Center(child: _collapseExpandIcon()),
-              ),
-            )
-          : SizedBox(
-              width: 260,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 50,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: 40 + widget.margin.left,
-                        right: widget.margin.right,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: FlowyText.medium(
-                              LocaleKeys.board_hiddenGroupSection_sectionTitle
-                                  .tr(),
-                              fontSize: 14,
-                              overflow: TextOverflow.ellipsis,
-                              color: Theme.of(context).hintColor,
-                            ),
+    return BlocSelector<BoardBloc, BoardState, BoardLayoutSettingPB?>(
+      selector: (state) => state.layoutSettings,
+      builder: (context, layoutSettings) {
+        if (layoutSettings == null) {
+          return const SizedBox.shrink();
+        }
+        final isCollapsed = layoutSettings.collapseHiddenGroups;
+        return AnimatedSize(
+          alignment: AlignmentDirectional.topStart,
+          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 150),
+          child: isCollapsed
+              ? SizedBox(
+                  height: 50,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 40, right: 8),
+                    child: Center(
+                      child: _collapseExpandIcon(context, isCollapsed),
+                    ),
+                  ),
+                )
+              : SizedBox(
+                  width: 260,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            left: 40 + margin.left,
+                            right: margin.right,
                           ),
-                          _collapseExpandIcon(),
-                        ],
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: FlowyText.medium(
+                                  LocaleKeys
+                                      .board_hiddenGroupSection_sectionTitle
+                                      .tr(),
+                                  fontSize: 14,
+                                  overflow: TextOverflow.ellipsis,
+                                  color: Theme.of(context).hintColor,
+                                ),
+                              ),
+                              _collapseExpandIcon(context, isCollapsed),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      Expanded(
+                        child: HiddenGroupList(
+                          databaseController: databaseController,
+                        ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: HiddenGroupList(
-                      databaseController: databaseController,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                ),
+        );
+      },
     );
   }
 
-  Widget _collapseExpandIcon() {
+  Widget _collapseExpandIcon(BuildContext context, bool isCollapsed) {
     return FlowyTooltip(
       message: isCollapsed
           ? LocaleKeys.board_hiddenGroupSection_expandTooltip.tr()
@@ -98,7 +103,9 @@ class _HiddenGroupsColumnState extends State<HiddenGroupsColumn> {
         width: 20,
         height: 20,
         iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-        onPressed: () => setState(() => isCollapsed = !isCollapsed),
+        onPressed: () => context
+            .read<BoardBloc>()
+            .add(BoardEvent.toggleHiddenSectionVisibility(!isCollapsed)),
         icon: FlowySvg(
           isCollapsed
               ? FlowySvgs.hamburger_s_s
