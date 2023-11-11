@@ -250,7 +250,11 @@ fn init_user_manager(
   user_cloud_service_provider: Arc<dyn UserCloudServiceProvider>,
   collab_builder: Weak<AppFlowyCollabBuilder>,
 ) -> Arc<UserManager> {
-  let user_config = UserSessionConfig::new(&config.name, &config.storage_path);
+  let user_config = UserSessionConfig::new(
+    &config.name,
+    &config.storage_path,
+    config.cloud_config.clone(),
+  );
   UserManager::new(
     user_config,
     user_cloud_service_provider,

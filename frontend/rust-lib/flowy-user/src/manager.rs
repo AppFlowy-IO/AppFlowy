@@ -2,6 +2,10 @@ use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 
+use base64::alphabet::URL_SAFE;
+use base64::engine::general_purpose::PAD;
+use base64::engine::GeneralPurpose;
+use base64::Engine;
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
@@ -11,6 +15,7 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
@@ -36,21 +41,23 @@ use crate::services::user_sql::{UserTable, UserTableChangeset};
 use crate::services::user_workspace::save_user_workspaces;
 use crate::{errors::FlowyError, notification::*};
 
+pub const URL_SAFE_ENGINE: GeneralPurpose = GeneralPurpose::new(&URL_SAFE, PAD);
 pub struct UserSessionConfig {
   root_dir: String,
-
   /// Used as the key of `Session` when saving session information to KV.
   session_cache_key: String,
+  cloud_config: Option<AFCloudConfiguration>,
 }
 
 impl UserSessionConfig {
   /// The `root_dir` represents as the root of the user folders. It must be unique for each
   /// users.
-  pub fn new(name: &str, root_dir: &str) -> Self {
+  pub fn new(name: &str, root_dir: &str, cloud_config: Option<AFCloudConfiguration>) -> Self {
     let session_cache_key = format!("{}_session_cache", name);
     Self {
       root_dir: root_dir.to_owned(),
       session_cache_key,
+      cloud_config,
     }
   }
 }
@@ -542,7 +549,16 @@ impl UserManager {
   }
 
   pub fn user_dir(&self, uid: i64) -> String {
-    format!("{}/{}", self.session_config.root_dir, uid)
+    match &self.session_config.cloud_config {
+      None => {
+        format!("{}/{}", self.session_config.root_dir, uid)
+      },
+      Some(config) => {
+        // If the current auth type
+        let server_base64 = URL_SAFE_ENGINE.encode(&config.base_url);
+        format!("{}/{}_{}", self.session_config.root_dir, uid, server_base64)
+      },
+    }
   }
 
   pub fn user_setting(&self) -> Result<UserSettingPB, FlowyError> {
