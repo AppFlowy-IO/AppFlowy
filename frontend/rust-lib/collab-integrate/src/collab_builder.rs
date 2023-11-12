@@ -195,6 +195,8 @@ impl AppFlowyCollabBuilder {
     {
       let cloud_storage_type = self.cloud_storage.read().await.storage_source();
       let collab_object = self.collab_object(uid, object_id, object_type)?;
+      let span = tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object_id);
+      let _enter = span.enter();
       match cloud_storage_type {
         CollabSource::AFCloud => {
           #[cfg(feature = "appflowy_cloud_integrate")]
@@ -259,6 +261,7 @@ impl AppFlowyCollabBuilder {
     }
 
     collab.lock().initialize();
+    trace!("collab initialized: {}", object_id);
     Ok(collab)
   }
 }

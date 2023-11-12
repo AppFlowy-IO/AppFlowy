@@ -163,5 +163,5 @@ pub extern "C" fn backend_log(level: i64, data: *const c_char) {
 pub extern "C" fn set_env(data: *const c_char) {
   let c_str = unsafe { CStr::from_ptr(data) };
   let serde_str = c_str.to_str().unwrap();
-  AppFlowyEnv::parser(serde_str);
+  AppFlowyEnv::write_env_from(serde_str);
 }

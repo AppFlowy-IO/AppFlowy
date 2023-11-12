@@ -218,7 +218,7 @@ where
           openai_key: "".to_string(),
           stability_ai_key: "".to_string(),
           workspace_id: response.latest_workspace_id,
-          auth_type: AuthType::Supabase,
+          authenticator: Authenticator::Supabase,
           encryption_type: EncryptionType::from_sign(&response.encryption_sign),
           updated_at: response.updated_at.timestamp(),
         }),

@@ -46,7 +46,7 @@ impl Display for ServerType {
   }
 }
 
-/// The [ServerProvider] provides list of [AppFlowyServer] base on the [AuthType]. Using
+/// The [ServerProvider] provides list of [AppFlowyServer] base on the [Authenticator]. Using
 /// the auth type, the [ServerProvider] will create a new [AppFlowyServer] if it doesn't
 /// exist.
 /// Each server implements the [AppFlowyServer] trait, which provides the [UserCloudService], etc.
@@ -66,13 +66,13 @@ pub struct ServerProvider {
 impl ServerProvider {
   pub fn new(
     config: AppFlowyCoreConfig,
-    provider_type: ServerType,
+    server_type: ServerType,
     store_preferences: Weak<StorePreferences>,
   ) -> Self {
     let encryption = EncryptionImpl::new(None);
     Self {
       config,
-      server_type: RwLock::new(provider_type),
+      server_type: RwLock::new(server_type),
       device_id: Arc::new(RwLock::new(uuid::Uuid::new_v4().to_string())),
       providers: RwLock::new(HashMap::new()),
       enable_sync: RwLock::new(true),
@@ -115,7 +115,6 @@ impl ServerProvider {
       },
       ServerType::AFCloud => {
         let config = AFCloudConfiguration::from_env()?;
-        tracing::trace!("🔑AppFlowy cloud config: {:?}", config);
         let server = Arc::new(AFCloudServer::new(
           config,
           *self.enable_sync.read(),
@@ -153,23 +152,32 @@ impl ServerProvider {
   }
 }
 
-impl From<AuthType> for ServerType {
-  fn from(auth_provider: AuthType) -> Self {
+impl From<Authenticator> for ServerType {
+  fn from(auth_provider: Authenticator) -> Self {
     match auth_provider {
-      AuthType::Local => ServerType::Local,
-      AuthType::AFCloud => ServerType::AFCloud,
-      AuthType::Supabase => ServerType::Supabase,
+      Authenticator::Local => ServerType::Local,
+      Authenticator::AFCloud => ServerType::AFCloud,
+      Authenticator::Supabase => ServerType::Supabase,
     }
   }
 }
 
-impl From<&AuthType> for ServerType {
-  fn from(auth_provider: &AuthType) -> Self {
+impl From<ServerType> for Authenticator {
+  fn from(ty: ServerType) -> Self {
+    match ty {
+      ServerType::Local => Authenticator::Local,
+      ServerType::AFCloud => Authenticator::AFCloud,
+      ServerType::Supabase => Authenticator::Supabase,
+    }
+  }
+}
+impl From<&Authenticator> for ServerType {
+  fn from(auth_provider: &Authenticator) -> Self {
     Self::from(auth_provider.clone())
   }
 }
 
-pub fn current_server_provider(store_preferences: &Arc<StorePreferences>) -> ServerType {
+pub fn current_server_type(store_preferences: &Arc<StorePreferences>) -> ServerType {
   match store_preferences.get_object::<ServerType>(SERVER_PROVIDER_TYPE_KEY) {
     None => ServerType::Local,
     Some(provider_type) => provider_type,
