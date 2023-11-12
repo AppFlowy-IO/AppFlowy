@@ -26,9 +26,7 @@ class InitRustSDKTask extends LaunchTask {
 
     // Pass the environment variables to the Rust SDK
     final env = getAppFlowyEnv();
-    context.getIt<FlowySDK>().setEnv(jsonEncode(env.toJson()));
-
-    await context.getIt<FlowySDK>().init(dir);
+    await context.getIt<FlowySDK>().init(dir, jsonEncode(env.toJson()));
   }
 
   @override

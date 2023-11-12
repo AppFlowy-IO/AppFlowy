@@ -43,7 +43,7 @@ mime_guess = "2.0"
 url = "2.4"
 tokio-util = "0.7"
 tokio-stream = { version = "0.1.14", features = ["sync"] }
-client-api = { version = "0.1.0", features = ["collab-sync"] }
+client-api = { version = "0.1.0", features = ["collab-sync", "test_util"] }
 lib-dispatch = { workspace = true }
 
 [dev-dependencies]

@@ -71,7 +71,7 @@ impl std::convert::From<&RowDetail> for RowMetaPB {
       document_id: row_detail.document_id.clone(),
       icon: row_detail.meta.icon_url.clone(),
       cover: row_detail.meta.cover_url.clone(),
-      is_document_empty: row_detail.meta.is_document_empty.clone(),
+      is_document_empty: row_detail.meta.is_document_empty,
     }
   }
 }

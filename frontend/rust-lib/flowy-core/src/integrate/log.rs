@@ -7,7 +7,7 @@ pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
   if !INIT_LOG.load(Ordering::SeqCst) {
     INIT_LOG.store(true, Ordering::SeqCst);
 
-    let _ = lib_log::Builder::new("AppFlowy-Client", &config.storage_path)
+    let _ = lib_log::Builder::new("log", &config.storage_path)
       .env_filter(&config.log_filter)
       .build();
   }
