@@ -1279,6 +1279,8 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let view_id = view_id.to_string();
     to_fut(async move {
       let cloned_database = database.clone();
+      // offloads the blocking operation to a thread where blocking is acceptable. This prevents
+      // blocking the main asynchronous runtime
       let row_orders = tokio::task::spawn_blocking(move || {
         cloned_database.lock().get_row_orders_for_view(&view_id)
       })
@@ -1287,7 +1289,9 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       tokio::task::yield_now().await;
 
       let mut all_rows = vec![];
-      for chunk in row_orders.chunks(20) {
+
+      // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
+      for chunk in row_orders.chunks(10) {
         let cloned_database = database.clone();
         let chunk = chunk.to_vec();
         let rows = tokio::task::spawn_blocking(move || {

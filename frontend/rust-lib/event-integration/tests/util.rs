@@ -231,6 +231,14 @@ pub fn generate_test_email() -> String {
   format!("{}@test.com", Uuid::new_v4())
 }
 
+/// To run the test, create a .env.ci file in the 'event-integration' directory and set the following environment variables:
+///
+/// - `APPFLOWY_CLOUD_BASE_URL=http://localhost:8000`
+/// - `APPFLOWY_CLOUD_WS_BASE_URL=ws://localhost:8000/ws`
+/// - `APPFLOWY_CLOUD_GOTRUE_URL=http://localhost:9998`
+///
+/// - `GOTRUE_ADMIN_EMAIL=admin@example.com`
+/// - `GOTRUE_ADMIN_PASSWORD=password`
 pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
   dotenv::from_filename("./.env.ci").ok()?;
   AFCloudConfiguration::from_env().ok()

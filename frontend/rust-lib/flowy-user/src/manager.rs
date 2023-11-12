@@ -15,7 +15,6 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
@@ -46,18 +45,16 @@ pub struct UserSessionConfig {
   root_dir: String,
   /// Used as the key of `Session` when saving session information to KV.
   session_cache_key: String,
-  cloud_config: Option<AFCloudConfiguration>,
 }
 
 impl UserSessionConfig {
   /// The `root_dir` represents as the root of the user folders. It must be unique for each
   /// users.
-  pub fn new(name: &str, root_dir: &str, cloud_config: Option<AFCloudConfiguration>) -> Self {
+  pub fn new(name: &str, root_dir: &str) -> Self {
     let session_cache_key = format!("{}_session_cache", name);
     Self {
       root_dir: root_dir.to_owned(),
       session_cache_key,
-      cloud_config,
     }
   }
 }
@@ -397,7 +394,7 @@ impl UserManager {
           new_user.user_profile.uid
         );
         self
-          .migrate_anon_user_to_cloud(&old_user, &new_user)
+          .migrate_anon_user_data_to_cloud(&old_user, &new_user)
           .await?;
         let _ = self.database.close(old_user.session.user_id);
       }
@@ -740,7 +737,7 @@ impl UserManager {
     Ok(())
   }
 
-  async fn migrate_anon_user_to_cloud(
+  async fn migrate_anon_user_data_to_cloud(
     &self,
     old_user: &MigrationUser,
     new_user: &MigrationUser,

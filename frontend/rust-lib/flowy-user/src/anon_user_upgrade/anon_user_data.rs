@@ -32,7 +32,6 @@ pub fn migration_anon_user_on_sign_up(
     .with_write_txn(|new_collab_w_txn| {
       let old_collab_r_txn = old_collab_db.read_txn();
       let old_to_new_id_map = Arc::new(Mutex::new(OldToNewIdMap::new()));
-
       migrate_user_awareness(old_to_new_id_map.lock().deref_mut(), old_user, new_user)?;
 
       migrate_database_with_views_object(
@@ -216,9 +215,9 @@ where
   .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
   let mut folder_data = old_folder
     .get_folder_data()
-    .ok_or(PersistenceError::Internal(
-      anyhow!("Can't migrate the folder data"),
-    ))?;
+    .ok_or(PersistenceError::Internal(anyhow!(
+      "Can't migrate the folder data"
+    )))?;
 
   old_to_new_id_map
     .0
