@@ -1,11 +1,13 @@
 #![allow(unused_doc_comments)]
 
+use std::path::Path;
 use std::sync::Weak;
 use std::time::Duration;
 use std::{fmt, sync::Arc};
 
+use base64::Engine;
 use tokio::sync::RwLock;
-use tracing::{error, event, instrument};
+use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
@@ -16,7 +18,7 @@ use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user::manager::{UserManager, UserSessionConfig};
+use flowy_user::manager::{UserManager, UserSessionConfig, URL_SAFE_ENGINE};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
@@ -25,8 +27,9 @@ pub use module::*;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::{create_log_filter, init_log};
-use crate::integrate::server::{current_server_provider, ServerProvider, ServerType};
+use crate::integrate::server::{current_server_type, ServerProvider, ServerType};
 use crate::integrate::user::UserStatusCallbackImpl;
+use crate::integrate::util::copy_dir_recursive;
 
 mod deps_resolve;
 mod integrate;
@@ -60,9 +63,33 @@ impl fmt::Debug for AppFlowyCoreConfig {
 
 impl AppFlowyCoreConfig {
   pub fn new(root: &str, name: String) -> Self {
+    let cloud_config = AFCloudConfiguration::from_env().ok();
+    let storage_path = match &cloud_config {
+      None => root.to_string(),
+      Some(config) => {
+        // Isolate the user data folder by the base url of AppFlowy cloud. This is to avoid
+        // the user data folder being shared by different AppFlowy cloud.
+        let server_base64 = URL_SAFE_ENGINE.encode(&config.base_url);
+        let storage_path = format!("{}_{}", root, server_base64);
+        if !Path::new(&storage_path).exists() {
+          info!("Copy dir from {} to {}", root, storage_path);
+          let src = Path::new(root);
+          match copy_dir_recursive(&src, Path::new(&storage_path)) {
+            Ok(_) => storage_path,
+            Err(err) => {
+              error!("Copy dir failed: {}", err);
+              root.to_string()
+            },
+          }
+        } else {
+          storage_path
+        }
+      },
+    };
+
     AppFlowyCoreConfig {
       name,
-      storage_path: root.to_string(),
+      storage_path,
       log_filter: create_log_filter("info".to_owned(), vec![]),
       cloud_config: AFCloudConfiguration::from_env().ok(),
     }
@@ -121,17 +148,16 @@ impl AppFlowyCore {
 
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
-
-    tracing::info!("🔥{:?}", &config);
-    tracing::debug!("🔥{}", runtime);
+    info!("🔥{:?}", &config);
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let provider_type = current_server_provider(&store_preference);
+    let server_type = current_server_type(&store_preference);
+    debug!("🔥runtime:{}, server:{}", runtime, server_type);
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
-      provider_type,
+      server_type,
       Arc::downgrade(&store_preference),
     ));
 

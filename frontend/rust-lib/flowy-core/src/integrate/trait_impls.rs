@@ -24,7 +24,7 @@ use flowy_folder_deps::cloud::{
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::{AuthType, UserTokenState};
+use flowy_user_deps::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::integrate::server::{ServerProvider, ServerType, SERVER_PROVIDER_TYPE_KEY};
@@ -83,14 +83,14 @@ impl UserCloudServiceProvider for ServerProvider {
     self.encryption.write().set_secret(secret);
   }
 
-  /// When user login, the provider type is set by the [AuthType] and save to disk for next use.
+  /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
   ///
-  /// Each [AuthType] has a corresponding [ServerType]. The [ServerType] is used
+  /// Each [Authenticator] has a corresponding [ServerType]. The [ServerType] is used
   /// to create a new [AppFlowyServer] if it doesn't exist. Once the [ServerType] is set,
   /// it will be used when user open the app again.
   ///
-  fn set_auth_type(&self, auth_type: AuthType) {
-    let server_type: ServerType = auth_type.into();
+  fn set_authenticator(&self, authenticator: Authenticator) {
+    let server_type: ServerType = authenticator.into();
     self.set_server_type(server_type.clone());
 
     match self.store_preferences.upgrade() {
@@ -104,6 +104,11 @@ impl UserCloudServiceProvider for ServerProvider {
         }
       },
     }
+  }
+
+  fn get_authenticator(&self) -> Authenticator {
+    let server_type = self.get_server_type();
+    Authenticator::from(server_type)
   }
 
   fn set_device_id(&self, device_id: &str) {
