@@ -28,7 +28,7 @@ use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::event_map::UserEvent::*;
 use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::AuthType;
+use flowy_user_deps::entities::Authenticator;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   dotenv::from_path(".env.ci").ok()?;
@@ -44,7 +44,9 @@ impl FlowySupabaseTest {
     let _ = get_supabase_config()?;
     let test = EventIntegrationTest::new().await;
     test.set_auth_type(AuthTypePB::Supabase);
-    test.server_provider.set_auth_type(AuthType::Supabase);
+    test
+      .server_provider
+      .set_authenticator(Authenticator::Supabase);
 
     Some(Self { inner: test })
   }
@@ -209,7 +211,9 @@ impl AFCloudTest {
     let _ = get_af_cloud_config()?;
     let test = EventIntegrationTest::new().await;
     test.set_auth_type(AuthTypePB::AFCloud);
-    test.server_provider.set_auth_type(AuthType::AFCloud);
+    test
+      .server_provider
+      .set_authenticator(Authenticator::AFCloud);
 
     Some(Self { inner: test })
   }
@@ -227,6 +231,14 @@ pub fn generate_test_email() -> String {
   format!("{}@test.com", Uuid::new_v4())
 }
 
+/// To run the test, create a .env.ci file in the 'event-integration' directory and set the following environment variables:
+///
+/// - `APPFLOWY_CLOUD_BASE_URL=http://localhost:8000`
+/// - `APPFLOWY_CLOUD_WS_BASE_URL=ws://localhost:8000/ws`
+/// - `APPFLOWY_CLOUD_GOTRUE_URL=http://localhost:9998`
+///
+/// - `GOTRUE_ADMIN_EMAIL=admin@example.com`
+/// - `GOTRUE_ADMIN_PASSWORD=password`
 pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
   dotenv::from_filename("./.env.ci").ok()?;
   AFCloudConfiguration::from_env().ok()

@@ -6,24 +6,24 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tracing = { version = "0.1" }
-futures = "0.3.26"
+tracing.workspace = true
+futures.workspace = true
 futures-util = "0.3.26"
 reqwest = { version = "0.11.20", features = ["native-tls-vendored", "multipart", "blocking"] }
 hyper = "0.14"
 config = { version = "0.10.1", default-features = false, features = ["yaml"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde.workspace = true
+serde_json.workspace = true
 serde-aux = "4.2.0"
 thiserror = "1.0"
-tokio = { version = "1.26", features = ["sync"]}
-parking_lot = "0.12"
+tokio = { workspace = true, features = ["sync"]}
+parking_lot.workspace = true
 lazy_static = "1.4.0"
-bytes = { version = "1.5", features = ["serde"] }
+bytes = { workspace = true, features = ["serde"] }
 tokio-retry = "0.3"
-anyhow = "1.0"
-uuid = { version = "1.3.3", features = ["v4"] }
-chrono = { version = "0.4.31", default-features = false, features = ["clock", "serde"] }
+anyhow.workspace = true
+uuid.workspace = true
+chrono = { workspace = true,  default-features = false, features = ["clock", "serde"] }
 collab = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0"}
 collab-document = { version = "0.1.0" }
@@ -42,15 +42,15 @@ flowy-storage = { workspace = true }
 mime_guess = "2.0"
 url = "2.4"
 tokio-util = "0.7"
-tokio-stream = { version = "0.1.14", features = ["sync"] }
-client-api = { version = "0.1.0", features = ["collab-sync"] }
+tokio-stream = { workspace = true, features = ["sync"] }
+client-api = { version = "0.1.0", features = ["collab-sync", "test_util"] }
 lib-dispatch = { workspace = true }
 
 [dev-dependencies]
-uuid = { version = "1.3.3", features = ["v4"] }
+uuid.workspace = true
 tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 dotenv = "0.15.0"
 yrs = "0.16.5"
 assert-json-diff = "2.0.2"
-serde_json = "1.0.104"
+serde_json.workspace = true
 client-api = { version = "0.1.0" }

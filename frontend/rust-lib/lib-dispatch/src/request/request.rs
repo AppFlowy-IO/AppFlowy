@@ -80,7 +80,7 @@ impl FromAFPluginRequest for String {
 }
 
 pub fn unexpected_none_payload(request: &AFPluginEventRequest) -> DispatchError {
-  log::warn!("{:?} expected payload", &request.event);
+  tracing::warn!("{:?} expected payload", &request.event);
   InternalError::UnexpectedNone("Expected payload".to_string()).into()
 }
 

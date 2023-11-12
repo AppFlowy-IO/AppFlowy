@@ -12,8 +12,8 @@ lib-dispatch = { workspace = true }
 flowy-error = { workspace = true }
 
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-protobuf = {version = "2.28.0"}
-bytes = { version = "1.5" }
+protobuf.workspace = true
+bytes.workspace = true
 strum_macros = "0.21"
 
 [build-dependencies]

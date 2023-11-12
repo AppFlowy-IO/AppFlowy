@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use flowy_user_deps::entities::{AuthResponse, UserProfile, UserWorkspace};
-use flowy_user_deps::entities::{AuthType, UserAuthResponse};
+use flowy_user_deps::entities::{Authenticator, UserAuthResponse};
 
 use crate::entities::AuthTypePB;
 use crate::migrations::MigrationUser;
@@ -157,22 +157,22 @@ mod tests {
   }
 }
 
-impl From<AuthTypePB> for AuthType {
+impl From<AuthTypePB> for Authenticator {
   fn from(pb: AuthTypePB) -> Self {
     match pb {
-      AuthTypePB::Supabase => AuthType::Supabase,
-      AuthTypePB::Local => AuthType::Local,
-      AuthTypePB::AFCloud => AuthType::AFCloud,
+      AuthTypePB::Supabase => Authenticator::Supabase,
+      AuthTypePB::Local => Authenticator::Local,
+      AuthTypePB::AFCloud => Authenticator::AFCloud,
     }
   }
 }
 
-impl From<AuthType> for AuthTypePB {
-  fn from(auth_type: AuthType) -> Self {
+impl From<Authenticator> for AuthTypePB {
+  fn from(auth_type: Authenticator) -> Self {
     match auth_type {
-      AuthType::Supabase => AuthTypePB::Supabase,
-      AuthType::Local => AuthTypePB::Local,
-      AuthType::AFCloud => AuthTypePB::AFCloud,
+      Authenticator::Supabase => AuthTypePB::Supabase,
+      Authenticator::Local => AuthTypePB::Local,
+      Authenticator::AFCloud => AuthTypePB::AFCloud,
     }
   }
 }
@@ -195,18 +195,18 @@ pub struct HistoricalUser {
   #[serde(default = "flowy_user_deps::DEFAULT_USER_NAME")]
   pub user_name: String,
   #[serde(default = "DEFAULT_AUTH_TYPE")]
-  pub auth_type: AuthType,
+  pub auth_type: Authenticator,
   pub sign_in_timestamp: i64,
   pub storage_path: String,
   #[serde(default)]
   pub device_id: String,
 }
-const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;
+const DEFAULT_AUTH_TYPE: fn() -> Authenticator = || Authenticator::Local;
 
 #[derive(Clone)]
 pub(crate) struct ResumableSignUp {
   pub user_profile: UserProfile,
   pub response: AuthResponse,
-  pub auth_type: AuthType,
+  pub authenticator: Authenticator,
   pub migration_user: Option<MigrationUser>,
 }

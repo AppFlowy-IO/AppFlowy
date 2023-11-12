@@ -7,6 +7,7 @@ use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView};
 use tokio::sync::{broadcast, RwLock};
+use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
@@ -256,6 +257,7 @@ impl DatabaseViewEditor {
       .await
   }
 
+  #[instrument(level = "info", skip(self))]
   pub async fn v_get_rows(&self) -> Vec<Arc<RowDetail>> {
     let mut rows = self.delegate.get_rows(&self.view_id).await;
     self.v_filter_rows(&mut rows).await;
