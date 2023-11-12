@@ -22,7 +22,6 @@ void main() {
 
       // Hover over cover toolbar to show 'Add Cover' and 'Add Icon' buttons
       await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
 
       // Insert a document cover
       await tester.editor.tapOnAddCover();
@@ -62,10 +61,9 @@ void main() {
 
       // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
       await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
 
       // Insert a document icon
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
       await tester.tapEmoji('😀');
       tester.expectToSeeDocumentIcon('😀');
 
@@ -100,10 +98,9 @@ void main() {
 
       // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
       await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
 
       // Insert a document icon
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
       await tester.tapEmoji('😀');
 
       // Insert a document cover
@@ -122,8 +119,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.editor.hoverOnCoverToolbar();
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
 
       // click the shuffle button
       await tester.tapButton(
@@ -136,8 +132,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.editor.hoverOnCoverToolbar();
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
 
       final searchEmojiTextField = find.byWidgetPredicate(
         (widget) =>

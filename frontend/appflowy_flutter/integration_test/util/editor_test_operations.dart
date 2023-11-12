@@ -60,6 +60,15 @@ class EditorOperations {
     expect(find.byType(FlowyEmojiPicker), findsOneWidget);
   }
 
+  Future<void> tapGettingStartedIcon() async {
+    await tester.tapButton(
+      find.descendant(
+        of: find.byType(DocumentHeaderNodeWidget),
+        matching: find.findTextInFlowyText('⭐️'),
+      ),
+    );
+  }
+
   /// Taps on the 'Skin tone' button
   ///
   /// Must call [tapAddIconButton] first.

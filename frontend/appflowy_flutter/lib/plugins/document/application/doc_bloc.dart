@@ -18,8 +18,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         TransactionTime,
         Selection,
         Position,
-        paragraphNode,
-        ParagraphBlockKeys;
+        paragraphNode;
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -185,7 +184,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
     final document = editorState.document;
     final lastNode = document.root.children.lastOrNull;
-    if (lastNode == null || lastNode.type != ParagraphBlockKeys.type) {
+    if (lastNode == null || lastNode.delta == null) {
       final transaction = editorState.transaction;
       transaction.insertNode([document.root.children.length], paragraphNode());
       transaction.afterSelection = transaction.beforeSelection;

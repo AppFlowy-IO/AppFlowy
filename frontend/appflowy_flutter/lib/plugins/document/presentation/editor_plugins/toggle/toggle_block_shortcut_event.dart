@@ -70,9 +70,12 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
         // insert a toggle list block below the current toggle list block
         transaction
           ..deleteText(node, selection.startIndex, slicedDelta.length)
-          ..insertNode(
+          ..insertNodes(
             selection.start.path.next,
-            toggleListBlockNode(collapsed: true, delta: slicedDelta),
+            [
+              toggleListBlockNode(collapsed: true, delta: slicedDelta),
+              paragraphNode(),
+            ],
           )
           ..afterSelection = Selection.collapsed(
             Position(path: selection.start.path.next, offset: 0),
