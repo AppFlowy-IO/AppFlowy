@@ -71,12 +71,16 @@ impl AppFlowyCoreConfig {
         // the user data folder being shared by different AppFlowy cloud.
         let server_base64 = URL_SAFE_ENGINE.encode(&config.base_url);
         let storage_path = format!("{}_{}", root, server_base64);
-        if !Path::new(&storage_path).exists() {
+
+        // Copy the user data folder from the root path to the isolated path
+        // The root path only exists when using the local version of appflowy
+        if !Path::new(&storage_path).exists() && Path::new(root).exists() {
           info!("Copy dir from {} to {}", root, storage_path);
           let src = Path::new(root);
           match copy_dir_recursive(&src, Path::new(&storage_path)) {
             Ok(_) => storage_path,
             Err(err) => {
+              // when the copy dir failed, use the root path as the storage path
               error!("Copy dir failed: {}", err);
               root.to_string()
             },
