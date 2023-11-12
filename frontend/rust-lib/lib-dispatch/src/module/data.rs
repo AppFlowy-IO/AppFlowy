@@ -67,7 +67,7 @@ where
         "Failed to get the plugin state of type: {}",
         type_name::<T>()
       );
-      log::error!("{}", msg,);
+      tracing::error!("{}", msg,);
       ready(Err(InternalError::Other(msg).into()))
     }
   }

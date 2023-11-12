@@ -57,10 +57,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      tester.expectToSeeDocumentIcon(null);
-
-      // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
-      await tester.editor.hoverOnCoverToolbar();
+      tester.expectToSeeDocumentIcon('⭐️');
 
       // Insert a document icon
       await tester.editor.tapGettingStartedIcon();
@@ -93,11 +90,8 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      tester.expectToSeeDocumentIcon(null);
+      tester.expectToSeeDocumentIcon('⭐️');
       tester.expectToSeeNoDocumentCover();
-
-      // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
-      await tester.editor.hoverOnCoverToolbar();
 
       // Insert a document icon
       await tester.editor.tapGettingStartedIcon();
