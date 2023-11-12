@@ -668,7 +668,7 @@
         "defaultColor": "Standard"
       },
       "image": {
-        "copiedToPasteBoard": "Der Bildlink wurde in die Zwischenablage kopiert"
+        "copiedToPasteBoard": "Der Bildlink wurde in die Zwischenablage kopiert",
         "addAnImage": "Ein Bild hinzufügen"
       },
       "outline": {
@@ -803,7 +803,7 @@
         "other": "{} ungeplante Ereignisse"
       },
       "clickToAdd": "Klicken, um es zum Kalender hinzuzufügen",
-      "name": "Kalenderlayout",
+      "name": "Kalenderlayout"
       
     },
     "referencedCalendarPrefix": "Sicht auf"
