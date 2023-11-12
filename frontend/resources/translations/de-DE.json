@@ -13,8 +13,8 @@
     "addAboveCmd": "Alt+Klick",
     "addAboveMacCmd": "Cmd+Klick",
     "addAboveTooltip": "oben hinzufügen",
-    "dragTooltip": "Ziehen zum Verschieben",
-    "openMenuTooltip": "Klicken um Menü zu öffnen"
+    "dragTooltip": "Ziehe, um es zu verschieben",
+    "openMenuTooltip": "Klicke um Menü zu öffnen"
   },
   "signUp": {
     "buttonText": "Registrieren",
@@ -98,7 +98,7 @@
   "blankPageTitle": "Leere Seite",
   "newPageText": "Neue Seite",
   "newDocumentText": "Neues Dokument",
-  "newGridText": "Neues Raster",
+  "newGridText": "Neue Tabelle",
   "newCalendarText": "Neuer Kalender",
   "newBoardText": "Neues Board",
   "trash": {
@@ -112,14 +112,14 @@
     },
     "confirmDeleteAll": {
       "title": "Bist du sicher, dass alle Seiten im Papierkorb gelöscht werden sollen?",
-      "caption": "Diese Aktion kann nicht rückgängig gemacht werden."
+      "caption": "Diese Aktion kann nicht rückgängig gemacht werden!"
     },
     "confirmRestoreAll": {
       "title": "Bist du sicher, dass alle Seiten im Papierkorb wiederhergestellt werden sollen?",
       "caption": "Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "mobile": {
-      "actions": "Papierkorb Aktionen",
+      "actions": "Papierkorbaktionen",
       "empty": "Papierkorb ist leet",
       "emptyDescription": "Du besitzt keine gelöschten Dateien",
       "isDeleted": "ist gelöscht",
@@ -173,7 +173,7 @@
     "darkMode": "In den dunklen Modus wechseln",
     "openAsPage": "Als Seite öffnen",
     "addNewRow": "Füge eine neue Zeile hinzu",
-    "openMenu": "Klicken, um das Menü zu öffnen",
+    "openMenu": "Klicke, um das Menü zu öffnen",
     "dragRow": "Lange gedrückt halten, um die Zeile neu anzuordnen",
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
@@ -184,13 +184,13 @@
     "openSidebar": "Seitenleiste öffnen",
     "personal": "Persönlich",
     "favorites": "Favoriten",
-    "clickToHidePersonal": "Klicken um persönlichen Bereich zu verbergen",
-    "clickToHideFavorites": "Klicken um Favoriten zu verbergen",
+    "clickToHidePersonal": "Klicke um persönlichen Bereich zu verbergen",
+    "clickToHideFavorites": "Klicke um Favoriten zu verbergen",
     "addAPage": "Seite hinzufügen"
   },
   "notifications": {
     "export": {
-      "markdown": "Notiz nach Markdown exportiert",
+      "markdown": "Notiz als Markdown exportiert",
       "path": "Dokumente/flowy"
     }
   },
@@ -259,22 +259,22 @@
       "open": "Einstellungen öffnen",
       "logout": "Abmelden",
       "logoutPrompt": "Willst du dich wirklich abmelden?",
-      "selfEncryptionLogoutPrompt": "Bist du dir sicher, dass du dich abmelden möchtest? Versichere dich bitte, dass du dein Verschlüsselungsgeheimnis kopiert hast",
+      "selfEncryptionLogoutPrompt": "Bist du dir sicher, dass du dich abmelden möchtest? Versichere dich bitte, dass du deinen Verschlüsselungscode kopiert hast",
       "syncSetting": "Sync Einstellungen",
       "enableSync": "Sync aktivieren",
       "enableEncrypt": "Daten verschlüsseln",
-      "enableEncryptPrompt": "Aktiviere Verschlüsselung um deine Daten mit einem Geheimnis zu sichern. Verwahre es sicher; einmal aktiviert, kann es nicht wieder deaktiviert werden. Wenn du es verlierst, sind deine Daten nicht wiederherstellbar. Klicke zum Kopieren",
-      "inputEncryptPrompt": "Bitte gib dein Verschlüsselungsgeheimnis ein für",
-      "clickToCopySecret": "Klicken um Geheimnis zu kopieren",
-      "inputTextFieldHint": "Dein Geheimnis",
-      "historicalUserList": "Nutzer Login Verlauf",
-      "historicalUserListTooltip": "Diese Liste zeigt deine anonymen Accounts. Du kannst auf einen Account klicken um dir seine Details anzuschauen. Anonyme Accounts werden durch Klick auf den 'Erste Schritte' Button erstellt",
-      "openHistoricalUser": "Klicken um anonymen Account zu öffnen"
+      "enableEncryptPrompt": "Aktiviere Verschlüsselung, um deine Daten mit einem Verschlüsselungscode zu sichern. Verwahre ihn sicher! Einmal aktiviert, kann die Verschlüsselung nicht wieder deaktiviert werden. Wenn du den Code verlierst, sind deine Daten nicht wiederherstellbar. Klicke zum Kopieren",
+      "inputEncryptPrompt": "Bitte gib deinen Verschlüsselungscode ein für",
+      "clickToCopySecret": "Klicken um Verschlüsselungscode zu kopieren",
+      "inputTextFieldHint": "Dein Verschlüsselungscode",
+      "historicalUserList": "Loginverlauf des Nutzers",
+      "historicalUserListTooltip": "Diese Liste zeigt deine anonymen Accounts. Du kannst auf einen Account klicken, um dir seine Details anzuschauen. Anonyme Accounts werden durch Klick auf den 'Erste Schritte'-Button erstellt",
+      "openHistoricalUser": "Klicke, um anonymen Account zu öffnen"
     },
     "notifications": {
       "enableNotifications": {
         "label": "Benachrichtigungen aktivieren",
-        "hint": "Ausschalten um lokalen Benachrichtigungen nicht mehr anzuzeigen."
+        "hint": "Ausschalten, um lokale Benachrichtigungen nicht mehr anzuzeigen."
       }
     },
     "appearance": {
@@ -290,27 +290,27 @@
         "system": "An das System anpassen"
       },
       "layoutDirection": {
-        "label": "Layout Ausrichtung",
-        "hint": "Bestimme die Sarstellung von Inhalten auf deinem Bildschirm, von links nach rechts oder rechts nach links.",
-        "ltr": "LTR",
-        "rtl": "RTL"
+        "label": "Layoutausrichtung",
+        "hint": "Bestimme die Darstellung von Inhalten auf deinem Bildschirm, von links nach rechts oder rechts nach links.",
+        "ltr": "LNR",
+        "rtl": "RNL"
       },
       "textDirection": {
         "label": "Standardmäßige Textausrichtung",
-        "hint": "Lege fest ob der Text standardmäßig von links oder rechts starten soll.",
-        "ltr": "LTR",
-        "rtl": "RTL",
+        "hint": "Lege fest, ob der Text standardmäßig von links oder von rechts starten soll.",
+        "ltr": "LNR",
+        "rtl": "RNL",
         "auto": "AUTO",
-        "fallback": "Identisch wie Layout Ausrichtung"
+        "fallback": "Identisch wie Layoutausrichtung"
       },
       "themeUpload": {
         "button": "Hochladen",
         "uploadTheme": "Theme hochladen",
         "description": "Lade dein eigenes AppFlowy-Theme über die Schaltfläche unten hoch.",
-        "failure": "Das hochgeladene Theme hatte ein ungültiges Format.",
+        "failure": "Das hochgeladene Theme hatte ein ungültiges Format!",
         "loading": "Bitte warte, während wir dein Theme validieren und hochladen ...",
         "uploadSuccess": "Dein Theme wurde erfolgreich hochgeladen",
-        "deletionFailure": "Das Thema konnte nicht gelöscht werden. Versuche es manuell zu löschen.",
+        "deletionFailure": "Das Theme konnte nicht gelöscht werden. Versuche es manuell zu löschen.",
         "filePickerDialogTitle": "Wähle eine .flowy_plugin-Datei",
         "urlUploadFailure": "URL konnte nicht geöffnet werden: {}"
       },
@@ -328,7 +328,7 @@
       "timeFormat": {
         "label": "Uhrzeitformat",
         "twelveHour": "Zwölf Stunden",
-        "twentyFourHour": "Vierundzwanzig  Stunden"
+        "twentyFourHour": "Vierundzwanzig Stunden"
       },
       "showNamingDialogWhenCreatingPage": "Benennungsdialog beim Erstellen einer Seite anzeigen"
     },
@@ -353,7 +353,7 @@
       "folderHintText": "Ordnernamen",
       "location": "Erstellen eines neuen Ordners",
       "locationDesc": "Wähle einen Namen für deinen AppFlowy-Datenordner",
-      "browser": "Durchsuche",
+      "browser": "Durchsuchen",
       "create": "Erstellen",
       "set": "Festlegen",
       "folderPath": "Pfad zum Speichern deines Ordners",
@@ -374,15 +374,15 @@
       "tooltipSelectIcon": "Icon auswählen",
       "selectAnIcon": "Wähle ein Symbol aus",
       "pleaseInputYourOpenAIKey": "Bitte gib deinen OpenAI-Schlüssel ein",
-      "pleaseInputYourStabilityAIKey": "bitte gib deinen Stability AI Schlüssel ein",
-      "clickToLogout": "Klicken um den aktuellen Benutzer abzumelden"
+      "pleaseInputYourStabilityAIKey": "Bitte gib deinen Stability AI Schlüssel ein",
+      "clickToLogout": "Klicke, um den aktuellen Benutzer abzumelden"
     },
     "shortcuts": {
       "shortcutsLabel": "Verknüpfungen",
       "command": "Befehl",
       "keyBinding": "Keybinding",
       "addNewCommand": "Neuen Befehl hinzufügen",
-      "updateShortcutStep": "Drücke die gewünschte Tastenkombination und drücke anschließend ENTER",
+      "updateShortcutStep": "Drücke die gewünschte Tastenkombination und anschließend ENTER",
       "shortcutIsAlreadyUsed": "Diese Verknüpfung wird bereits verwendet für: {conflict}",
       "resetToDefault": "Zurücksetzen auf Standard Keybindings",
       "couldNotLoadErrorMsg": "Konnte Verknüpfungen nicht laden, versuche es noch einmal",
@@ -391,15 +391,15 @@
     "mobile": {
       "personalInfo": "Persönliche Daten",
       "username": "Benutzername",
-      "usernameEmptyError": "Benutzername darf nicht leer sein",
+      "usernameEmptyError": "Der Benutzername darf nicht leer sein",
       "about": "Über",
-      "pushNotifications": "Push Benachrichtigungen",
+      "pushNotifications": "Push-Benachrichtigungen",
       "support": "Support",
       "joinDiscord": "Triff uns im Discord",
       "privacyPolicy": "Datenschutzerklärung",
       "userAgreement": "Nutzungsvereinbarung",
       "userprofileError": "Konnte Benutzerprofil nicht laden",
-      "userprofileErrorDescription": "Bitte versuche dich ab- und wieder anzumelden, um zu sehen ob das Problem weiter besteht."
+      "userprofileErrorDescription": "Bitte versuche dich ab- und wieder anzumelden, um zu sehen, ob das Problem weiter besteht."
     }
   },
   "grid": {
@@ -413,7 +413,7 @@
       "sort": "Sortieren",
       "sortBy": "Sortiere nach",
       "properties": "Eigenschaften",
-      "reorderPropertiesTooltip": "Ziehen, um die Eigenschaften neu anzuordnen",
+      "reorderPropertiesTooltip": "Ziehe, um die Eigenschaften neu anzuordnen",
       "group": "Gruppieren",
       "addFilter": "Filter hinzufügen",
       "deleteFilter": "Filter löschen",
@@ -503,7 +503,7 @@
     },
     "rowPage": {
       "newField": "Neues Feld hinzufügen",
-      "fieldDragEelementTooltip": "Klicken um Menü zu öffnen",
+      "fieldDragEelementTooltip": "Klicke, um Menü zu öffnen",
       "showHiddenFields": {
         "one": "Zeige {} verborgenes Feld",
         "many": "Zeige {} verborgene Felder",
@@ -527,12 +527,12 @@
       "titlePlaceholder": "Unbenannt",
       "textPlaceholder": "Leer",
       "copyProperty": "Eigenschaft in die Zwischenablage kopiert",
-      "count": "Zählen",
+      "count": "Anzahl",
       "newRow": "Neue Zeile",
       "action": "Aktion",
-      "add": "Klicke, unterhalb zum hinzufügen",
-      "drag": "Halten zum verschieben",
-      "dragAndClick": "Halten zum Verschieben, klicken zum Öffnen des Menüs",
+      "add": "Klicke unterhalb zum Hinzufügen",
+      "drag": "Halte zum Verschieben",
+      "dragAndClick": "Halte zum Verschieben und klicke zum Öffnen des Menüs",
       "insertRecordAbove": "Eintrag oberhalb hinzufügen",
       "insertRecordBelow": "Eintrag unterhalb hinzufügen"
     },
@@ -556,13 +556,13 @@
       "orSelectOne": "Oder wähle eine Option"
     },
     "checklist": {
-      "taskHint": "Task description",
+      "taskHint": "Aufgabenbeschreibung",
       "addNew": "Füge eine Aufgabe hinzu",
       "submitNewTask": "Erstellen",
       "hideComplete": "Verberge erledigte Aufgaben",
       "showComplete": "Zeige alle Aufgaben"
     },
-    "menuName": "Raster",
+    "menuName": "Tabelle",
     "referencedGridPrefix": "Sicht auf"
   },
   "document": {
@@ -577,8 +577,8 @@
         "createANewBoard": "Erstelle ein neues Board"
       },
       "grid": {
-        "selectAGridToLinkTo": "Wähle ein Raster zum Verknüpfen aus",
-        "createANewGrid": "Erstelle ein neues Raster"
+        "selectAGridToLinkTo": "Wähle eine Tabelle zum Verknüpfen aus",
+        "createANewGrid": "Erstelle eine neue Tabelle"
       },
       "calendar": {
         "selectACalendarToLinkTo": "Wähle einen Kalender zum Verknüpfen aus",
@@ -594,7 +594,7 @@
     },
     "plugins": {
       "referencedBoard": "Referenziertes Board",
-      "referencedGrid": "Referenziertes Raster",
+      "referencedGrid": "Referenzierte Tabelle",
       "referencedCalendar": "Referenzierter Kalender",
       "referencedDocument": "Referenziertes Dokument",
       "autoGeneratorMenuItemName": "OpenAI-Autor",
@@ -607,10 +607,10 @@
       "smartEdit": "KI-Assistenten",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Korrigiere Rechtschreibung",
-      "warning": "⚠️ KI-Antworten können ungenau oder irreführend sein.",
+      "warning": "⚠️ KI-Antworten können ungenau oder irreführend sein!",
       "smartEditSummarize": "Zusammenfassen",
       "smartEditImproveWriting": "Verbessere das Schreiben",
-      "smartEditMakeLonger": "Länger machen",
+      "smartEditMakeLonger": "Verlängern",
       "smartEditCouldNotFetchResult": "Das Ergebnis konnte nicht von OpenAI abgerufen werden",
       "smartEditCouldNotFetchKey": "Der OpenAI-Schlüssel konnte nicht abgerufen werden",
       "smartEditDisabled": "Verbinde OpenAI in den Einstellungen",
@@ -618,11 +618,11 @@
       "createInlineMathEquation": "Gleichung erstellen",
       "fonts": "Schriften",
       "toggleList": "Liste umschalten",
-      "quoteList":"Zitate Liste",
+      "quoteList":"Zitate-Liste",
       "numberedList":"Aufzählung",
       "bulletedList":"Auflistung",
       "todoList": "Aufgabenliste",
-      "callout": "Ausruf",
+      "callout": "Notiz",
       "cover": {
         "changeCover": "Deckblatt wechseln",
         "colors": "Farben",
@@ -713,20 +713,20 @@
         "label": "Generiere ein Bild mit Stability AI",
         "placeholder": "Gib bitte den Prompt ein um ein Bild mit Stability AI zu generieren"
       },
-      "support": "Die Bildgrößenbeschränkung beträgt 5 MB. Unterstützte Formate: JPEG, PNG, GIF, SVG",
+      "support": "Die Bildgrößenbeschränkung beträgt 5 MB! Unterstützte Formate: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Ungültiges Bild",
         "invalidImageSize": "Die Bilddatei muss kleiner als 5 MB sein",
-        "invalidImageFormat": "Das Bildformat wird nicht unterstützt. Unterstützte Formate: JPEG, PNG, GIF, SVG",
+        "invalidImageFormat": "Das Bildformat wird nicht unterstützt! Unterstützte Formate: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "Ungültige Bild-URL"
       },
       "embedLink": {
-        "label": "Verknüpfung einbetten",
+        "label": "Verknüpfung einfügen",
         "placeholder": "Bildverknüpfung einfügen oder eingeben"
       },
       "searchForAnImage": "Nach einem Bild suchen",
-      "pleaseInputYourOpenAIKey": "bitte gib deinen Open AI Schlüssel in den Einstellungen ein",
-      "pleaseInputYourStabilityAIKey": "bitte gib deinen Stability AI Schlüssel in den Einstellungen ein",
+      "pleaseInputYourOpenAIKey": "Bitte gib deinen Open AI Schlüssel in den Einstellungen ein",
+      "pleaseInputYourStabilityAIKey": "Bitte gib deinen Stability AI Schlüssel in den Einstellungen ein",
       "saveImageToGallery": "Bild speichern",
       "failedToAddImageToGallery": "Bild konnte der Galerie nicht hinzugefügt werden",
       "successToAddImageToGallery": "Bild wurde der Galerie erfolgreich hinzugefügt",
@@ -756,7 +756,7 @@
       "placeholder": "Erwähne eine Person oder Seite oder Datum...",
       "page": {
         "label": "Seite verknüpfen",
-        "tooltip": "Klicken um Seite zu öffnen"
+        "tooltip": "Klicke, um Seite zu öffnen"
       }
     },
     "toolbar": {
@@ -770,14 +770,14 @@
   "board": {
     "column": {
       "createNewCard": "Neu",
-      "renameGroupTooltip": "Klicken um die Gruppe umzubenennen",
+      "renameGroupTooltip": "Klicke, um die Gruppe umzubenennen",
       "createNewColumn": "Neue Gruppe hinzufügen"
     },
     "menuName": "Board",
-    "showUngrouped": "Zeite nicht gruppierte Elemente",
+    "showUngrouped": "Zeige nicht gruppierte Elemente",
     "ungroupedButtonText": "Nicht gruppiert",
-    "ungroupedButtonTooltip": "Enthält Karten die zu keiner Gruppe gehören",
-    "ungroupedItemsTitle": "Klicken um dem Board hinzuzufügen",
+    "ungroupedButtonTooltip": "Enthält Karten, die zu keiner Gruppe gehören",
+    "ungroupedItemsTitle": "Klicke, um dem Board hinzuzufügen",
     "groupBy": "Gruppiert durch",
     "referencedBoardPrefix": "Sicht auf"
   },
@@ -794,7 +794,7 @@
     "settings": {
       "showWeekNumbers": "Wochennummern anzeigen",
       "showWeekends": "Wochenenden anzeigen",
-      "firstDayOfWeek": "Beginne die Woche am",
+      "firstDayOfWeek": "Beginne die Woche mit",
       "layoutDateField": "Kalenderlayout durch",
       "noDateTitle": "Kein Datum",
       "noDateHint": {
@@ -802,7 +802,7 @@
         "one": "{} ungeplantes Ereignis",
         "other": "{} ungeplante Ereignisse"
       },
-      "clickToAdd": "Klicken, um es zum Kalender hinzuzufügen",
+      "clickToAdd": "Klicke, um es zum Kalender hinzuzufügen",
       "name": "Kalenderlayout"
       
     },
@@ -810,7 +810,7 @@
   },
   "errorDialog": {
     "title": "AppFlowy-Fehler",
-    "howToFixFallback": "Wir entschuldigen uns für die Unannehmlichkeiten! Reiche auf unserer GitHub-Seite ein Problem ein, das deinen Fehler beschreibt.",
+    "howToFixFallback": "Wir entschuldigen uns für die Unannehmlichkeiten! Erstelle bitte auf unserer GitHub-Seite eine Fehlermeldung, die dein Problem beschreibt.",
     "github": "Auf GitHub ansehen"
   },
   "search": {
@@ -839,14 +839,14 @@
     "green": "Grün",
     "blue": "Blau",
     "purple": "Lila",
-    "pink": "Pink",
+    "pink": "Rosa",
     "brown": "Braun",
     "gray": "Grau"
   },
   "emoji": {
     "emojiTab": "Emoji",
     "search": "Suche Emoji",
-    "noRecent": "Kein aktuelles emoji",
+    "noRecent": "Kein aktuelles Emoji",
     "noEmojiFound": "Kein Emoji gefunden",
     "filter": "Filter",
     "random": "Zufällig",
@@ -915,15 +915,15 @@
   },
   "reminderNotification": {
     "title": "Erinnerung",
-    "message": "Erinnere dich dies zu prüfen, bevor du es vergisst!",
+    "message": "Denke daran, dies zu prüfen, bevor du es vergisst!",
     "tooltipDelete": "Löschen",
     "tooltipMarkRead": "Als gelesen markieren",
     "tooltipMarkUnread": "Als ungelesen markieren"
   },
   "findAndReplace": {
     "find": "Suchen",
-    "previousMatch": "Vorheriges Auftreten",
-    "nextMatch": "Nächstes Auftreten",
+    "previousMatch": "Vorheriges Vorkommen",
+    "nextMatch": "Nächstes Vorkommen",
     "close": "Schließen",
     "replace": "Ersetzen",
     "replaceAll": "Alles ersetzen",
@@ -960,7 +960,7 @@
     "fontColorGreen": "Grün",
     "fontColorBlue": "Blau",
     "fontColorPurple": "Lila",
-    "fontColorPink": "Pink",
+    "fontColorPink": "Rosa",
     "fontColorRed": "Rot",
     "backgroundColorDefault": "Standard Hintergrund",
     "backgroundColorGray": "Grauer Hintergrund",
@@ -984,8 +984,8 @@
     "tint8": "Tönung 8",
     "tint9": "Tönung 9",
     "lightLightTint1": "Lila",
-    "lightLightTint2": "Pink",
-    "lightLightTint3": "Helles Pink",
+    "lightLightTint2": "Rosa",
+    "lightLightTint3": "Helles Rosa",
     "lightLightTint4": "Orange",
     "lightLightTint5": "Gelb",
     "lightLightTint6": "Limette",
@@ -1012,8 +1012,8 @@
     "hexValue": "Hex Wert",
     "opacity": "Deckung",
     "resetToDefaultColor": "Auf Standard Farbe zurücksetzen",
-    "ltr": "LTR",
-    "rtl": "RTL",
+    "ltr": "LNR",
+    "rtl": "RNL",
     "auto": "Auto",
     "cut": "Ausschneiden",
     "copy": "Kopieren",
@@ -1045,13 +1045,13 @@
     "rowDuplicate": "Duplizieren",
     "colClear": "Inhalt leeren",
     "rowClear": "Inhalt leeren",
-    "slashPlaceHolder": "Gib ein / ein um einen Block einzufügen oder schreib drauf los"
+    "slashPlaceHolder": "Gib ein \"/\" ein, um einen Block einzufügen oder gib einfach Text über die Tastatur ein"
   },
   "favorite": {
-    "noFavorite": "Keine favorisierte Seite",
-    "noFavoriteHintText": "Ziehe die Seite nach links um sie zu deinen Favoriten hinzuzufügen"
+    "noFavorite": "Keine Favoriten-Seite",
+    "noFavoriteHintText": "Ziehe die Seite nach links, um sie zu deinen Favoriten hinzuzufügen"
   },
   "cardDetails": {
-    "notesPlaceholder": "Gib ein / ein um einen Block einzufügen oder schreib drauf los"
+    "notesPlaceholder": "Gib ein \"/\" ein um einen Block einzufügen oder schreib drauf los"
   }
 }
