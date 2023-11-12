@@ -27,13 +27,6 @@ extension MobileRouter on BuildContext {
   }
 }
 
-final MobileViewPageRouters = [
-  MobileEditorScreen.routeName,
-  MobileGridScreen.routeName,
-  MobileCalendarScreen.routeName,
-  MobileBoardScreen.routeName,
-];
-
 extension on ViewPB {
   String get routeName {
     switch (layout) {

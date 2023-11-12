@@ -27,15 +27,12 @@ class FlowySDK {
 
   void dispose() {}
 
-  Future<void> init(Directory sdkDir) async {
+  Future<void> init(Directory sdkDir, String env) async {
     final port = RustStreamReceiver.shared.port;
     ffi.set_stream_port(port);
 
     ffi.store_dart_post_cobject(NativeApi.postCObject);
+    ffi.set_env(env.toNativeUtf8());
     ffi.init_sdk(sdkDir.path.toNativeUtf8());
-  }
-
-  void setEnv(String envStr) {
-    ffi.set_env(envStr.toNativeUtf8());
   }
 }

@@ -32,7 +32,6 @@ pub fn migration_anon_user_on_sign_up(
     .with_write_txn(|new_collab_w_txn| {
       let old_collab_r_txn = old_collab_db.read_txn();
       let old_to_new_id_map = Arc::new(Mutex::new(OldToNewIdMap::new()));
-
       migrate_user_awareness(old_to_new_id_map.lock().deref_mut(), old_user, new_user)?;
 
       migrate_database_with_views_object(
@@ -216,9 +215,9 @@ where
   .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
   let mut folder_data = old_folder
     .get_folder_data()
-    .ok_or(PersistenceError::Internal(
-      anyhow!("Can't migrate the folder data").into(),
-    ))?;
+    .ok_or(PersistenceError::Internal(anyhow!(
+      "Can't migrate the folder data"
+    )))?;
 
   old_to_new_id_map
     .0
@@ -259,7 +258,7 @@ where
 
   let origin = CollabOrigin::Client(CollabClient::new(new_uid, "phantom"));
   let new_folder_collab = Collab::new_with_raw_data(origin, new_workspace_id, vec![], vec![])
-    .map_err(|err| PersistenceError::Internal(Box::new(err)))?;
+    .map_err(|err| PersistenceError::Internal(err.into()))?;
   let mutex_collab = Arc::new(MutexCollab::from_collab(new_folder_collab));
   let new_user_id = UserId::from(new_uid);
   let _ = Folder::create(new_user_id, mutex_collab.clone(), None, folder_data);
