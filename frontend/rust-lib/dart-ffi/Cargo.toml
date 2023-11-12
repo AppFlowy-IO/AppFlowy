@@ -27,10 +27,11 @@ tracing = { version = "0.1", features = ["log"] }
 
 # workspace
 lib-dispatch = { workspace = true }
+#flowy-core = { workspace = true, features = ["profiling"] }
 flowy-core = { workspace = true }
 flowy-notification = { workspace = true }
 flowy-server = { workspace = true }
-flowy-server-config = { workspace = true }
+flowy-server-config = { workspace = true}
 collab-integrate = { workspace = true }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 

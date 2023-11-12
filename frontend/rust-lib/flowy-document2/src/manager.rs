@@ -162,6 +162,7 @@ impl DocumentManager {
       .map_err(internal_error)
   }
 
+  #[instrument(level = "debug", skip(self), err)]
   pub fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
     self.documents.write().remove(doc_id);
     Ok(())
