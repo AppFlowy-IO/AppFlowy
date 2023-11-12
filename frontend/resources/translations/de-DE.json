@@ -184,8 +184,8 @@
     "openSidebar": "Seitenleiste öffnen",
     "personal": "Persönlich",
     "favorites": "Favoriten",
-    "clickToHidePersonal": "Klicke um persönlichen Bereich zu verbergen",
-    "clickToHideFavorites": "Klicke um Favoriten zu verbergen",
+    "clickToHidePersonal": "Klicke, um persönlichen Bereich zu verbergen",
+    "clickToHideFavorites": "Klicke, um Favoriten zu verbergen",
     "addAPage": "Seite hinzufügen"
   },
   "notifications": {
