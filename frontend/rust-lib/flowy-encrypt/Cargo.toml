@@ -11,5 +11,5 @@ rand = "0.8"
 pbkdf2 = "0.12.2"
 hmac = "0.12.1"
 sha2 = "0.10.7"
-anyhow = "1.0.72"
+anyhow.workspace = true
 base64 = "0.21.2"
