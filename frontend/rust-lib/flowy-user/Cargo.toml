@@ -23,15 +23,14 @@ collab-database = { version = "0.1.0" }
 collab-user = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
 flowy-user-deps = { workspace = true }
-anyhow = "1.0.75"
-
-tracing = { version = "0.1", features = ["log"] }
-bytes = "1.4"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
+anyhow.workspace = true
+tracing.workspace = true
+bytes.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 serde_repr = "0.1"
 log = "0.4.17"
-protobuf = { version = "2.28.0" }
+protobuf.workspace = true
 lazy_static = "1.4.0"
 diesel = { version = "1.4.8", features = ["sqlite"] }
 diesel_derives = { version = "1.4.1", features = ["sqlite"] }

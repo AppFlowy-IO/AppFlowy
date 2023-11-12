@@ -21,7 +21,7 @@ flowy-ast = { path = "../flowy-ast" }
 lazy_static = {version = "1.4.0"}
 dashmap = "5"
 flowy-codegen = { path = "../flowy-codegen"}
-serde_json = "1.0"
+serde_json.workspace = true
 walkdir = "2.3.2"
 
 [dev-dependencies]

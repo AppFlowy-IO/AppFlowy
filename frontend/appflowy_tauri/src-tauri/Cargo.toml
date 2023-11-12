@@ -13,13 +13,21 @@ rust-version = "1.57"
 [build-dependencies]
 tauri-build = { version = "1.2", features = [] }
 
+[workspace.dependencies]
+anyhow = "1.0.75"
+tracing = "0.1.40"
+bytes = "1.5.0"
+serde = "1.0.108"
+serde_json = "1.0.108"
+protobuf = { version = "2.28.0" }
+
 [dependencies]
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
+serde_json.workspace = true
+serde.workspace = true
 tauri = { version = "1.2", features = ["fs-all", "shell-open"] }
 tauri-utils = "1.2"
-bytes = { version = "1.5" }
-tracing = { version = "0.1", features = ["log"] }
+bytes.workspace = true
+tracing.workspace = true
 lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }
 flowy-core = { path = "../../rust-lib/flowy-core", features = ["rev-sqlite", "ts"] }
 flowy-notification = { path = "../../rust-lib/flowy-notification", features = ["ts"] }
