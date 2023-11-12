@@ -46,10 +46,12 @@ pub trait GroupOperationInterceptor {
   type GroupTypeOption: TypeOption;
   async fn type_option_from_group_changeset(
     &self,
-    changeset: &GroupChangeset,
-    type_option: &Self::GroupTypeOption,
-    view_id: &str,
-  ) -> Option<TypeOptionData>;
+    _changeset: &GroupChangeset,
+    _type_option: &Self::GroupTypeOption,
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
+    None
+  }
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]

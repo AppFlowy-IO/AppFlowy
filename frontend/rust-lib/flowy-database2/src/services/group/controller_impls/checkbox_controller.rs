@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use collab_database::fields::{Field, TypeOptionData};
+use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
@@ -12,8 +12,8 @@ use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::{
-  move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupChangeset,
-  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
+  move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupOperationInterceptor,
+  GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -190,12 +190,4 @@ pub struct CheckboxGroupOperationInterceptorImpl {}
 #[async_trait]
 impl GroupOperationInterceptor for CheckboxGroupOperationInterceptorImpl {
   type GroupTypeOption = CheckboxTypeOption;
-  async fn type_option_from_group_changeset(
-    &self,
-    _changeset: &GroupChangeset,
-    _type_option: &Self::GroupTypeOption,
-    _view_id: &str,
-  ) -> Option<TypeOptionData> {
-    todo!()
-  }
 }
