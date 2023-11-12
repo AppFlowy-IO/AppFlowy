@@ -7,7 +7,6 @@ use collab_database::views::{
 use strum::IntoEnumIterator;
 
 use crate::entities::FieldVisibility;
-
 use crate::services::field_settings::{FieldSettings, VISIBILITY};
 
 /// Helper struct to create a new field setting
@@ -52,7 +51,7 @@ pub fn default_field_visibility(layout_type: DatabaseLayout) -> FieldVisibility 
 }
 
 pub fn default_field_settings_for_fields(
-  fields: &Vec<Field>,
+  fields: &[Field],
   layout_type: DatabaseLayout,
 ) -> FieldSettingsByFieldIdMap {
   fields

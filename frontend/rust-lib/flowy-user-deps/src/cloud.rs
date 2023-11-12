@@ -73,6 +73,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;
 
   /// Generate a sign in url for the user with the given email
+  /// Currently, only use the admin client for testing
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error>;
 
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.

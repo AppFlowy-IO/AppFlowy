@@ -10,6 +10,14 @@ use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 
 use crate::setup_log;
 
+/// To run the test, create a .env.ci file in the 'flowy-server' directory and set the following environment variables:
+///
+/// - `APPFLOWY_CLOUD_BASE_URL=http://localhost:8000`
+/// - `APPFLOWY_CLOUD_WS_BASE_URL=ws://localhost:8000/ws`
+/// - `APPFLOWY_CLOUD_GOTRUE_URL=http://localhost:9998`
+///
+/// - `GOTRUE_ADMIN_EMAIL=admin@example.com`
+/// - `GOTRUE_ADMIN_PASSWORD=password`
 pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
   dotenv::from_filename("./.env.ci").ok()?;
   setup_log();
@@ -23,15 +31,21 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AFCloudServer> {
 }
 
 pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguration) -> String {
-  let api_client =
-    client_api::Client::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
-
+  let client = client_api::Client::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
   let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
   let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
-  api_client
-    .generate_sign_in_url_with_email(&admin_email, &admin_password, user_email)
+  let admin_client =
+    client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url());
+  admin_client
+    .sign_in_password(&admin_email, &admin_password)
     .await
-    .unwrap()
+    .unwrap();
+
+  let action_link = admin_client
+    .generate_sign_in_action_link(&user_email)
+    .await
+    .unwrap();
+  client.extract_sign_in_url(&action_link).await.unwrap()
 }
 
 pub async fn af_cloud_sign_up_param(
