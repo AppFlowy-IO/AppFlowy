@@ -12,5 +12,5 @@ serde_json.workspace = true
 anyhow.workspace = true
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 async-openai = "0.14.2"
-tokio = { version = "1.12", features = ["rt", "sync"] }
+tokio = { workspace = true, features = ["rt", "sync"] }
 dotenv = "0.15.0"

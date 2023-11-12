@@ -15,14 +15,13 @@ crate-type = ["staticlib"]
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 byteorder = { version = "1.4.3" }
 protobuf.workspace = true
-tokio = { version = "1.26", features = ["full", "rt-multi-thread", "tracing"] }
-log = "0.4.17"
+tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
 serde.workspace = true
 serde_json.workspace = true
 bytes.workspace = true
 crossbeam-utils = "0.8.15"
 lazy_static = "1.4.0"
-parking_lot = "0.12.1"
+parking_lot.workspace = true
 tracing.workspace = true
 
 # workspace

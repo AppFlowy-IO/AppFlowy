@@ -10,7 +10,7 @@ lazy_static = { version = "1.4.0" }
 protobuf.workspace = true
 tracing.workspace = true
 bytes.workspace = true
-serde = "1.0"
+serde.workspace = true
 
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-dispatch = { workspace = true }

@@ -12,9 +12,8 @@ tracing-bunyan-formatter = "0.3.9"
 tracing-appender = "0.2.2"
 tracing-core = "0.1"
 tracing.workspace = true
-log = "0.4.17"
 serde_json.workspace = true
-serde = "1.0"
+serde.workspace = true
 chrono = "0.4"
 lazy_static = "1.4.0"
 

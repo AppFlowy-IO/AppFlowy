@@ -4,9 +4,8 @@ use std::sync::Arc;
 use std::{ffi::CStr, os::raw::c_char};
 
 use lazy_static::lazy_static;
-use log::error;
 use parking_lot::Mutex;
-use tracing::trace;
+use tracing::{error, trace};
 
 use flowy_core::*;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};

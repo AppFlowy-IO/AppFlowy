@@ -25,6 +25,5 @@ serde_json.workspace = true
 walkdir = "2.3.2"
 
 [dev-dependencies]
-tokio = { version = "1.26", features = ["full"] }
+tokio = { workspace = true, features = ["full"] }
 trybuild = "1.0.77"
-log = "0.4.17"

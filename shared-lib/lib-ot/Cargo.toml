@@ -10,7 +10,6 @@ serde = { version = "1.0", features = ["derive", "rc"] }
 thiserror = "1.0"
 serde_json.workspace = true
 indexmap = {version = "1.9.2", features = ["serde"]}
-log = "0.4"
 tracing.workspace = true
 lazy_static = "1.4.0"
 strum = "0.21"

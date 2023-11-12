@@ -27,7 +27,6 @@ protoc-bin-vendored = { version = "3.0", optional = true }
 toml = {version = "0.5.11", optional = true}
 
 
-
 [features]
 proto_gen = [
     "similar",
