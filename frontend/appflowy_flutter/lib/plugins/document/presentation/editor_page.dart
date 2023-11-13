@@ -286,7 +286,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
               textDecorationMobileToolbarItem,
               buildTextAndBackgroundColorMobileToolbarItem(),
               headingMobileToolbarItem,
-              customListMobileToolbarItem,
+              mobileBlocksToolbarItem,
               linkMobileToolbarItem,
               dividerMobileToolbarItem,
               imageMobileToolbarItem,
