@@ -117,15 +117,19 @@ class _MobileViewPageState extends State<MobileViewPage> {
       appBar: AppBar(
         titleSpacing: 0,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null)
               FlowyText(
                 '$icon ',
                 fontSize: 22.0,
               ),
-            FlowyText.regular(
-              view?.name ?? widget.title ?? '',
-              fontSize: 14.0,
+            Expanded(
+              child: FlowyText.regular(
+                view?.name ?? widget.title ?? '',
+                fontSize: 14.0,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
