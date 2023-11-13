@@ -3,9 +3,8 @@ import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart'
 
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -107,13 +106,11 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: Text(
+            child: FlowyText.medium(
               name,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: FontSizes.s11,
-                    color: AFThemeExtension.of(context).textColor,
-                  ),
+              fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
+              color: AFThemeExtension.of(context).textColor,
             ),
           ),
           if (onRemove != null) ...[
