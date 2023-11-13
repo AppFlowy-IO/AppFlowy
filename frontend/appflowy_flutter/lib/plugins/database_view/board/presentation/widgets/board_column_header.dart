@@ -212,9 +212,13 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
       ),
       popupBuilder: (popoverContext) {
         final customGroupData = widget.groupData.customData as GroupData;
+        final isDefault = customGroupData.group.isDefault;
         final menuItems = GroupOptions.values.toList();
-        if (!customGroupData.fieldType.canEditHeader) {
+        if (!customGroupData.fieldType.canEditHeader || isDefault) {
           menuItems.remove(GroupOptions.rename);
+        }
+        if (!customGroupData.fieldType.canDeleteGroup || isDefault) {
+          menuItems.remove(GroupOptions.delete);
         }
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -247,7 +251,8 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
 enum GroupOptions {
   rename,
-  hide;
+  hide,
+  delete;
 
   void call(BuildContext context, GroupPB group) {
     switch (this) {
@@ -261,16 +266,21 @@ enum GroupOptions {
             .read<BoardBloc>()
             .add(BoardEvent.toggleGroupVisibility(group, false));
         break;
+      case delete:
+        context.read<BoardBloc>().add(BoardEvent.deleteGroup(group.groupId));
+        break;
     }
   }
 
   FlowySvgData get icon => switch (this) {
         rename => FlowySvgs.edit_s,
         hide => FlowySvgs.hide_s,
+        delete => FlowySvgs.delete_s,
       };
 
   String get text => switch (this) {
         rename => LocaleKeys.board_column_renameColumn.tr(),
         hide => LocaleKeys.board_column_hideColumn.tr(),
+        delete => LocaleKeys.board_column_deleteColumn.tr(),
       };
 }

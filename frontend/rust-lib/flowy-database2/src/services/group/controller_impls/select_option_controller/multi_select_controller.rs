@@ -107,6 +107,22 @@ impl GroupCustomize for MultiSelectGroupController {
 
     Ok((Some(new_type_option.into()), Some(inserted_group_pb)))
   }
+
+  fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+    let select_option = self
+      .type_option
+      .options
+      .iter()
+      .find(|option| option.id == group_id);
+
+    let type_option = select_option.map(|option| {
+      let mut new_type_option = self.type_option.clone();
+      new_type_option.delete_option(option.clone());
+      new_type_option.into()
+    });
+
+    Ok(type_option)
+  }
 }
 
 impl GroupController for MultiSelectGroupController {

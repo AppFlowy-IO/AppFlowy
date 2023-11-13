@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{RowCell, RowDetail, RowId};
+use collab_database::rows::{Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use tokio::sync::RwLock;
 
@@ -56,6 +56,8 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   /// Returns all the rows in the view
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
+
+  fn remove_row(&self, row_id: &RowId) -> Option<Row>;
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
 

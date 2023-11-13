@@ -774,7 +774,8 @@
       "createNewColumn": "Add a new group",
       "addToColumnTopTooltip": "Add a new card at the top",
       "renameColumn": "Rename",
-      "hideColumn": "Hide"
+      "hideColumn": "Hide",
+      "deleteColumn": "Delete"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Hidden Groups",

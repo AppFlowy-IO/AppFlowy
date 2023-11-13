@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Row, RowDetail};
+use collab_database::rows::{Cell, Row, RowDetail, RowId};
 
 use flowy_error::FlowyResult;
 
@@ -78,6 +78,8 @@ pub trait GroupCustomize: Send + Sync {
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
     Ok((None, None))
   }
+
+  fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>>;
 }
 
 /// Defines the shared actions any group controller can perform.
@@ -158,6 +160,14 @@ pub trait GroupControllerOperation: Send + Sync {
   ///
   /// * `field`: new changeset
   fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesPB>>;
+
+  /// Delete a group from the group configuration.
+  ///
+  /// Return a list of deleted row ids and/or a new `TypeOptionData` if
+  /// successful.
+  ///
+  /// * `group_id`: the id of the group to be deleted
+  fn delete_group(&mut self, group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)>;
 
   /// Updates the name and/or visibility of groups.
   ///
