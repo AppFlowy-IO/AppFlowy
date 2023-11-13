@@ -225,9 +225,6 @@
     "addToFavorites": "Добавить в избранное",
     "rename": "Переименовать",
     "helpCenter": "Центр помощи",
-    "OK": "OK",
-    "Done": "Завершить",
-    "Cancel": "Отмена",
     "tryAGain": "Повторить"
   },
   "label": {
@@ -421,8 +418,7 @@
       "filterBy": "Фильтровать по...",
       "typeAValue": "Введите значение...",
       "layout": "Вид",
-      "databaseLayout": "Вид базы данных",
-      "Properties": "Свойства"
+      "databaseLayout": "Вид базы данных"
     },
     "textFilter": {
       "contains": "Содержит",

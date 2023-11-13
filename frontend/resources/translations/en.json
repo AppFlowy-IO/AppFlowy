@@ -227,10 +227,7 @@
     "removeFromFavorites": "Remove from favorites",
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
-    "helpCenter": "Help Center",
-    "OK": "OK",
-    "Done": "Done",
-    "Cancel": "Cancel"
+    "helpCenter": "Help Center"
   },
   "label": {
     "welcome": "Welcome!",
@@ -424,8 +421,7 @@
       "filterBy": "Filter by...",
       "typeAValue": "Type a value...",
       "layout": "Layout",
-      "databaseLayout": "Layout",
-      "Properties": "Properties"
+      "databaseLayout": "Layout"
     },
     "textFilter": {
       "contains": "Contains",
@@ -524,8 +520,7 @@
       "ascending": "Ascending",
       "descending": "Descending",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add sort",
-      "deleteSort": "Delete sort"
+      "addSort": "Add sort"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -777,7 +772,6 @@
     "column": {
       "createNewCard": "New",
       "renameGroupTooltip": "Press to rename group",
-      "create_new_card": "Create",
       "createNewColumn": "Add a new group",
       "addToColumnTopTooltip": "Add a new card at the top",
       "renameColumn": "Rename",
