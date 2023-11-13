@@ -1,7 +1,4 @@
-import {
-  FieldPB,
-  FieldType,
-} from '@/services/backend';
+import { FieldPB, FieldType, FieldVisibility } from '@/services/backend';
 import { DateTimeTypeOption, NumberTypeOption, SelectTypeOption } from './type_option/type_option_types';
 
 export interface Field {
@@ -9,8 +6,8 @@ export interface Field {
   name: string;
   type: FieldType;
   typeOption?: unknown;
-  visibility: boolean;
-  width: number;
+  visibility?: FieldVisibility;
+  width?: number;
   isPrimary: boolean;
 }
 
@@ -35,7 +32,5 @@ export const pbToField = (pb: FieldPB): Field => ({
   id: pb.id,
   name: pb.name,
   type: pb.field_type,
-  visibility: pb.visibility,
-  width: pb.width,
   isPrimary: pb.is_primary,
 });

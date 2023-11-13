@@ -96,7 +96,7 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
   );
 }
 
-const NodeWithErrorBoundary = withErrorBoundary(NodeComponent, {
+const NodeWithErrorBoundary = withErrorBoundary(React.memo(NodeComponent), {
   FallbackComponent: ErrorBoundaryFallbackComponent,
 });
 
@@ -110,4 +110,4 @@ const UnSupportedBlock = () => {
   );
 };
 
-export default React.memo(NodeWithErrorBoundary);
+export default NodeWithErrorBoundary;

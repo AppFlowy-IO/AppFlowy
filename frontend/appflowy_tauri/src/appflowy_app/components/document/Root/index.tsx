@@ -27,8 +27,8 @@ function Root({ documentData }: { documentData: DocumentData }) {
   );
 }
 
-const RootWithErrorBoundary = withErrorBoundary(Root, {
+const RootWithErrorBoundary = withErrorBoundary(React.memo(Root), {
   FallbackComponent: ErrorBoundaryFallbackComponent,
 });
 
-export default React.memo(RootWithErrorBoundary);
+export default RootWithErrorBoundary;
