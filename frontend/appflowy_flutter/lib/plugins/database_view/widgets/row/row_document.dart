@@ -123,7 +123,7 @@ class _RowEditorState extends State<RowEditor> {
                           scrollController: widget.scrollController,
                           styleCustomizer: EditorStyleCustomizer(
                             context: context,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            padding: const EdgeInsets.only(left: 16, right: 54),
                           ),
                           showParagraphPlaceholder: (editorState, node) =>
                               editorState.document.isEmpty,

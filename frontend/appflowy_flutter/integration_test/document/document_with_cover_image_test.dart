@@ -22,7 +22,6 @@ void main() {
 
       // Hover over cover toolbar to show 'Add Cover' and 'Add Icon' buttons
       await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
 
       // Insert a document cover
       await tester.editor.tapOnAddCover();
@@ -58,14 +57,10 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      tester.expectToSeeDocumentIcon(null);
-
-      // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
-      await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
+      tester.expectToSeeDocumentIcon('⭐️');
 
       // Insert a document icon
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
       await tester.tapEmoji('😀');
       tester.expectToSeeDocumentIcon('😀');
 
@@ -95,18 +90,15 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      tester.expectToSeeDocumentIcon(null);
+      tester.expectToSeeDocumentIcon('⭐️');
       tester.expectToSeeNoDocumentCover();
 
-      // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
-      await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
-
       // Insert a document icon
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
       await tester.tapEmoji('😀');
 
       // Insert a document cover
+      await tester.editor.hoverOnCoverToolbar();
       await tester.editor.tapOnAddCover();
 
       // Expect to see the icon and cover at the same time
@@ -122,8 +114,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.editor.hoverOnCoverToolbar();
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
 
       // click the shuffle button
       await tester.tapButton(
@@ -136,8 +127,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.editor.hoverOnCoverToolbar();
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
 
       final searchEmojiTextField = find.byWidgetPredicate(
         (widget) =>
