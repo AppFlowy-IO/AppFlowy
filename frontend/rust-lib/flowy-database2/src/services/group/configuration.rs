@@ -12,6 +12,7 @@ use serde::Serialize;
 use tracing::event;
 
 use flowy_error::{FlowyError, FlowyResult};
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::Fut;
 
 use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
@@ -123,6 +124,7 @@ where
   /// Returns the no `status` group
   ///
   /// We take the `id` of the `field` as the no status group id
+  #[allow(dead_code)]
   pub(crate) fn get_no_status_group(&self) -> Option<&GroupData> {
     self.group_by_id.get(&self.field.id)
   }
@@ -248,7 +250,7 @@ where
   ///
   /// # Arguments
   ///
-  /// * `generated_group_configs`: the generated groups contains a list of [GeneratedGroupConfig].
+  /// * `generated_groups`: the generated groups contains a list of [GeneratedGroupConfig].
   ///
   /// Each [FieldType] can implement the [GroupGenerator] trait in order to generate different
   /// groups. For example, the FieldType::Checkbox has the [CheckboxGroupGenerator] that implements
@@ -415,7 +417,7 @@ where
       let configuration = (*self.setting).clone();
       let writer = self.writer.clone();
       let view_id = self.view_id.clone();
-      tokio::spawn(async move {
+      af_spawn(async move {
         match writer.save_configuration(&view_id, configuration).await {
           Ok(_) => {},
           Err(e) => {
@@ -460,14 +462,20 @@ fn merge_groups(
 ) -> MergeGroupResult {
   let mut merge_result = MergeGroupResult::new();
   // group_map is a helper map is used to filter out the new groups.
-  let mut new_group_map: IndexMap<String, Group> = IndexMap::new();
-  new_groups.into_iter().for_each(|group_rev| {
-    new_group_map.insert(group_rev.id.clone(), group_rev);
-  });
+  let mut new_group_map: IndexMap<String, Group> = new_groups
+    .into_iter()
+    .map(|group| (group.id.clone(), group))
+    .collect();
 
   // The group is ordered in old groups. Add them before adding the new groups
   for old in old_groups {
-    if let Some(new) = new_group_map.remove(&old.id) {
+    if let Some(index) = new_group_map.get_index_of(&old.id) {
+      let right = new_group_map.split_off(index);
+      merge_result.all_groups.extend(new_group_map.into_values());
+      new_group_map = right;
+    }
+
+    if let Some(new) = new_group_map.shift_remove(&old.id) {
       merge_result.all_groups.push(new.clone());
     } else {
       merge_result.deleted_groups.push(old);

@@ -2,14 +2,15 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use anyhow::Error;
+use client_api::collab_sync::collab_msg::CollabMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
-  BusinessID, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
+  ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::Client;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
-use tracing::{error, info};
+use tracing::{error, event, info};
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
@@ -19,6 +20,7 @@ use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::UserTokenState;
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::impls::{
@@ -49,11 +51,7 @@ impl AFCloudServer {
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
 
-    let ws_client = WSClient::new(WSClientConfig {
-      buffer_capacity: 100,
-      ping_per_secs: 8,
-      retry_connect_per_pings: 6,
-    });
+    let ws_client = WSClient::new(WSClientConfig::default(), api_client.clone());
     let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
 
@@ -94,7 +92,7 @@ impl AppFlowyServer for AFCloudServer {
     let mut token_state_rx = self.client.subscribe_token_state();
     let (watch_tx, watch_rx) = watch::channel(UserTokenState::Invalid);
     let weak_client = Arc::downgrade(&self.client);
-    tokio::spawn(async move {
+    af_spawn(async move {
       while let Ok(token_state) = token_state_rx.recv().await {
         if let Some(client) = weak_client.upgrade() {
           match token_state {
@@ -141,20 +139,28 @@ impl AppFlowyServer for AFCloudServer {
     Arc::new(AFCloudDocumentCloudServiceImpl(server))
   }
 
+  #[allow(clippy::type_complexity)]
   fn collab_ws_channel(
     &self,
-    object_id: &str,
-  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver)>, anyhow::Error> {
+    _object_id: &str,
+  ) -> FutureResult<
+    Option<(
+      Arc<WebSocketChannel<CollabMessage>>,
+      WSConnectStateReceiver,
+      bool,
+    )>,
+    anyhow::Error,
+  > {
     if self.enable_sync.load(Ordering::SeqCst) {
-      let object_id = object_id.to_string();
+      let object_id = _object_id.to_string();
       let weak_ws_client = Arc::downgrade(&self.ws_client);
       FutureResult::new(async move {
         match weak_ws_client.upgrade() {
           None => Ok(None),
           Some(ws_client) => {
-            let channel = ws_client.subscribe(BusinessID::CollabId, object_id).ok();
+            let channel = ws_client.subscribe(object_id).ok();
             let connect_state_recv = ws_client.subscribe_connect_state();
-            Ok(channel.map(|c| (c, connect_state_recv)))
+            Ok(channel.map(|c| (c, connect_state_recv, ws_client.is_connected())))
           },
         }
       })
@@ -185,28 +191,37 @@ fn spawn_ws_conn(
   let weak_api_client = Arc::downgrade(api_client);
   let enable_sync = enable_sync.clone();
 
-  tokio::spawn(async move {
+  af_spawn(async move {
     if let Some(ws_client) = weak_ws_client.upgrade() {
       let mut state_recv = ws_client.subscribe_connect_state();
       while let Ok(state) = state_recv.recv().await {
-        if !state.is_timeout() {
-          continue;
-        }
-
-        // Try to reconnect if the connection is timed out.
-        if let (Some(api_client), Some(device_id)) =
-          (weak_api_client.upgrade(), weak_device_id.upgrade())
-        {
-          if enable_sync.load(Ordering::SeqCst) {
-            info!("🟢websocket state: {:?},  reconnecting", state);
-            let device_id = device_id.read().clone();
-            match api_client.ws_url(&device_id) {
-              Ok(ws_addr) => {
-                let _ = ws_client.connect(ws_addr).await;
-              },
-              Err(err) => error!("Failed to get ws url: {}", err),
+        info!("[websocket] state: {:?}", state);
+        match state {
+          ConnectState::PingTimeout | ConnectState::Closed => {
+            // Try to reconnect if the connection is timed out.
+            if let (Some(api_client), Some(device_id)) =
+              (weak_api_client.upgrade(), weak_device_id.upgrade())
+            {
+              if enable_sync.load(Ordering::SeqCst) {
+                let device_id = device_id.read().clone();
+                match api_client.ws_url(&device_id) {
+                  Ok(ws_addr) => {
+                    event!(tracing::Level::INFO, "🟢reconnecting websocket");
+                    let _ = ws_client.connect(ws_addr, &device_id).await;
+                  },
+                  Err(err) => error!("Failed to get ws url: {}", err),
+                }
+              }
             }
-          }
+          },
+          ConnectState::Unauthorized => {
+            if let Some(api_client) = weak_api_client.upgrade() {
+              if let Err(err) = api_client.refresh_token().await {
+                error!("Failed to refresh token: {}", err);
+              }
+            }
+          },
+          _ => {},
         }
       }
     }
@@ -215,7 +230,7 @@ fn spawn_ws_conn(
   let weak_device_id = Arc::downgrade(device_id);
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
       match token_state {
         TokenState::Refresh => {
@@ -228,7 +243,7 @@ fn spawn_ws_conn(
             match api_client.ws_url(&device_id) {
               Ok(ws_addr) => {
                 info!("🟢token state: {:?}, reconnecting websocket", token_state);
-                let _ = ws_client.connect(ws_addr).await;
+                let _ = ws_client.connect(ws_addr, &device_id).await;
               },
               Err(err) => error!("Failed to get ws url: {}", err),
             }

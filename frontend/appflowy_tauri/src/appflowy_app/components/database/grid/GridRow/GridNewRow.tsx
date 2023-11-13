@@ -1,29 +1,30 @@
-import { useCallback } from 'react';
+import { FC, useCallback } from 'react';
 import { t } from 'i18next';
 import { Button } from '@mui/material';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
-import * as service from '$app/components/database/database_bd_svc';
-import { useDatabase, useViewId } from '../../database.hooks';
+import { useViewId } from '$app/hooks';
+import { rowService } from '../../application';
 
-export const GridNewRow = () => {
+export interface GridNewRowProps {
+  startRowId?: string;
+  groupId?: string;
+}
+
+export const GridNewRow: FC<GridNewRowProps> = ({ startRowId, groupId }) => {
   const viewId = useViewId();
-  const { rows } = useDatabase();
-  const lastRowId = rows.at(-1)?.id;
 
   const handleClick = useCallback(() => {
-    void service.createRow(viewId, {
-      startRowId: lastRowId,
+    void rowService.createRow(viewId, {
+      startRowId,
+      groupId,
     });
-  }, [viewId, lastRowId]);
+  }, [viewId, groupId, startRowId]);
 
   return (
-    <div className="flex grow border-b border-line-divider">
-      <Button
-        className="grow justify-start"
-        onClick={handleClick}
-      >
-        <span className="inline-flex items-center sticky left-[72px]">
-          <AddSvg className="text-base mr-1" />
+    <div className='flex grow border-b border-line-divider'>
+      <Button className='grow justify-start' onClick={handleClick} color={'inherit'}>
+        <span className='sticky left-2 inline-flex items-center'>
+          <AddSvg className='mr-1 text-base' />
           {t('grid.row.newRow')}
         </span>
       </Button>

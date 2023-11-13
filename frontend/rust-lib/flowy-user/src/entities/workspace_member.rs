@@ -103,3 +103,10 @@ impl From<Role> for AFRolePB {
     }
   }
 }
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct UserWorkspaceIdPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+}

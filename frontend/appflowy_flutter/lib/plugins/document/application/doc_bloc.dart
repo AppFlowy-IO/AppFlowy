@@ -31,13 +31,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     required this.view,
   })  : _documentListener = DocumentListener(id: view.id),
         _viewListener = ViewListener(viewId: view.id),
-        _documentService = DocumentService(),
-        _trashService = TrashService(),
         super(DocumentState.initial()) {
-    _transactionAdapter = TransactionAdapter(
-      documentId: view.id,
-      documentService: _documentService,
-    );
     on<DocumentEvent>(_onDocumentEvent);
   }
 
@@ -46,10 +40,13 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final DocumentListener _documentListener;
   final ViewListener _viewListener;
 
-  final DocumentService _documentService;
-  final TrashService _trashService;
+  final DocumentService _documentService = DocumentService();
+  final TrashService _trashService = TrashService();
 
-  late final TransactionAdapter _transactionAdapter;
+  late final TransactionAdapter _transactionAdapter = TransactionAdapter(
+    documentId: view.id,
+    documentService: _documentService,
+  );
 
   EditorState? editorState;
   StreamSubscription? _subscription;
@@ -158,6 +155,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
       // check if the document is empty.
       applyRules();
+
+      if (!isClosed) {
+        // ignore: invalid_use_of_visible_for_testing_member
+        emit(state.copyWith(isDocumentEmpty: editorState.document.isEmpty));
+      }
     });
 
     // output the log from the editor when debug mode
@@ -240,6 +242,7 @@ class DocumentState with _$DocumentState {
     required DocumentLoadingState loadingState,
     required bool isDeleted,
     required bool forceClose,
+    bool? isDocumentEmpty,
     UserProfilePB? userProfilePB,
   }) = _DocumentState;
 
@@ -247,6 +250,7 @@ class DocumentState with _$DocumentState {
         loadingState: _Loading(),
         isDeleted: false,
         forceClose: false,
+        isDocumentEmpty: null,
         userProfilePB: null,
       );
 }

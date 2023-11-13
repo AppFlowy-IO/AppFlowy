@@ -186,10 +186,9 @@ class _BannerTitleState extends State<_BannerTitle> {
           controller: widget.popoverController,
           triggerActions: PopoverTriggerFlags.none,
           direction: PopoverDirection.bottomWithLeftAligned,
+          constraints: const BoxConstraints(maxWidth: 380, maxHeight: 300),
           popupBuilder: (popoverContext) => _buildEmojiPicker((emoji) {
-            context
-                .read<RowBannerBloc>()
-                .add(RowBannerEvent.setIcon(emoji.emoji));
+            context.read<RowBannerBloc>().add(RowBannerEvent.setIcon(emoji));
             widget.popoverController.close();
           }),
           child: Row(children: children),
@@ -199,7 +198,7 @@ class _BannerTitleState extends State<_BannerTitle> {
   }
 }
 
-typedef OnSubmittedEmoji = void Function(Emoji emoji);
+typedef OnSubmittedEmoji = void Function(String emoji);
 const _kBannerActionHeight = 40.0;
 
 class EmojiButton extends StatelessWidget {
@@ -286,12 +285,9 @@ class RemoveEmojiButton extends StatelessWidget {
 }
 
 Widget _buildEmojiPicker(OnSubmittedEmoji onSubmitted) {
-  return SizedBox(
-    height: 250,
-    child: EmojiSelectionMenu(
-      onSubmitted: onSubmitted,
-      onExit: () {},
-    ),
+  return EmojiSelectionMenu(
+    onSubmitted: onSubmitted,
+    onExit: () {},
   );
 }
 

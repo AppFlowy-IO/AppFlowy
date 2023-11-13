@@ -185,6 +185,7 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
     },
   }
 }
+
 pub fn generate_select_option_groups(
   _field_id: &str,
   options: &[SelectOption],

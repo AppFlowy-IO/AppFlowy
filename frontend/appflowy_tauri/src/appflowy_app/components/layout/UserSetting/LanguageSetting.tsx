@@ -56,7 +56,7 @@ function LanguageSetting({
               onChange({
                 language,
               });
-              i18n.changeLanguage(language);
+              void i18n.changeLanguage(language);
             }}
           >
             {languages.map((option) => (

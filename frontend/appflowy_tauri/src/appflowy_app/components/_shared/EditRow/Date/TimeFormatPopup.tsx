@@ -28,6 +28,7 @@ export const TimeFormatPopup = ({
 
   useEffect(() => {
     setDateType(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as IDateType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [databaseStore]);
 
   const { changeTimeFormat } = useDateTimeFormat(cellIdentifier, fieldController);

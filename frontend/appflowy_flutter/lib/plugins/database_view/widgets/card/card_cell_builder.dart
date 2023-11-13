@@ -25,6 +25,7 @@ class CardCellBuilder<CustomCardData> {
     required DatabaseCellContext cellContext,
     EditableCardNotifier? cellNotifier,
     RowCardRenderHook<CustomCardData>? renderHook,
+    required bool hasNotes,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellContext: cellContext,
@@ -86,12 +87,13 @@ class CardCellBuilder<CustomCardData> {
         );
       case FieldType.RichText:
         return TextCardCell<CustomCardData>(
+          key: key,
+          style: isStyleOrNull<TextCardCellStyle>(style),
+          cardData: cardData,
           renderHook: renderHook?.renderHook[FieldType.RichText],
           cellControllerBuilder: cellControllerBuilder,
           editableNotifier: cellNotifier,
-          cardData: cardData,
-          style: isStyleOrNull<TextCardCellStyle>(style),
-          key: key,
+          showNotes: cellContext.fieldInfo.isPrimary && hasNotes,
         );
       case FieldType.URL:
         return URLCardCell<CustomCardData>(

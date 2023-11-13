@@ -37,4 +37,15 @@ class GroupBackendService {
     }
     return DatabaseEventUpdateGroup(payload).send();
   }
+
+  Future<Either<Unit, FlowyError>> createGroup({
+    required String name,
+    String groupConfigId = "",
+  }) {
+    final payload = CreateGroupPayloadPB.create()
+      ..viewId = viewId
+      ..name = name;
+
+    return DatabaseEventCreateGroup(payload).send();
+  }
 }

@@ -178,8 +178,8 @@ impl GroupCustomize for DateGroupController {
   fn delete_row(
     &mut self,
     row: &Row,
-    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
-  ) -> Vec<GroupRowsNotificationPB> {
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> (Option<GroupPB>, Vec<GroupRowsNotificationPB>) {
     let mut changesets = vec![];
     self.context.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -192,7 +192,23 @@ impl GroupCustomize for DateGroupController {
         changesets.push(changeset);
       }
     });
-    changesets
+
+    let setting_content = self.context.get_setting_content();
+    let deleted_group =
+      match self
+        .context
+        .get_group(&group_id(cell_data, &self.type_option, &setting_content))
+      {
+        Some((_, group)) if group.rows.len() == 1 => Some(group.clone()),
+        _ => None,
+      };
+
+    let deleted_group = deleted_group.map(|group| {
+      let _ = self.context.delete_group(&group.id);
+      group.into()
+    });
+
+    (deleted_group, changesets)
   }
 
   fn move_row(
@@ -245,12 +261,6 @@ impl GroupController for DateGroupController {
         let cell = insert_date_cell(date.timestamp(), None, field);
         cells.insert(field.id.clone(), cell);
       },
-    }
-  }
-
-  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
-    if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row_detail.clone())
     }
   }
 }

@@ -7,6 +7,7 @@ use tokio::sync::oneshot::channel;
 
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{get_snapshots_from_server, FetchObjectUpdateAction};
@@ -31,18 +32,18 @@ where
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
-    tokio::spawn(async move {
+    af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
           let action = FetchObjectUpdateAction::new(document_id, CollabType::Document, postgrest);
           let updates = action.run_with_fix_interval(5, 10).await?;
           if updates.is_empty() {
-            return Err(FlowyError::collab_not_sync().into());
+            return Err(FlowyError::collab_not_sync());
           }
           Ok(updates)
         }
@@ -85,7 +86,7 @@ where
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
-    tokio::spawn(async move {
+    af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;

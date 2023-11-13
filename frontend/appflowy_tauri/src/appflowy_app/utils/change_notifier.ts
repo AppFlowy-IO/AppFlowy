@@ -12,6 +12,7 @@ export class ChangeNotifier<T> {
     if (this.isUnsubscribe) {
       return null;
     }
+
     return this.subject.asObservable();
   }
 

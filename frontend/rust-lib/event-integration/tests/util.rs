@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
-use collab_folder::core::FolderData;
+use collab_folder::FolderData;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use nanoid::nanoid;
 use tokio::sync::mpsc::Receiver;
@@ -28,7 +28,7 @@ use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::event_map::UserEvent::*;
 use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::AuthType;
+use flowy_user_deps::entities::Authenticator;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   dotenv::from_path(".env.ci").ok()?;
@@ -40,11 +40,13 @@ pub struct FlowySupabaseTest {
 }
 
 impl FlowySupabaseTest {
-  pub fn new() -> Option<Self> {
+  pub async fn new() -> Option<Self> {
     let _ = get_supabase_config()?;
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     test.set_auth_type(AuthTypePB::Supabase);
-    test.server_provider.set_auth_type(AuthType::Supabase);
+    test
+      .server_provider
+      .set_authenticator(Authenticator::Supabase);
 
     Some(Self { inner: test })
   }
@@ -71,12 +73,10 @@ impl Deref for FlowySupabaseTest {
 }
 
 pub async fn receive_with_timeout<T>(
-  receiver: &mut Receiver<T>,
+  mut receiver: Receiver<T>,
   duration: Duration,
-) -> Result<T, Box<dyn std::error::Error>> {
-  let res = timeout(duration, receiver.recv())
-    .await?
-    .ok_or(anyhow::anyhow!("recv timeout"))?;
+) -> Result<T, Box<dyn std::error::Error + Send>> {
+  let res = timeout(duration, receiver.recv()).await.unwrap().unwrap();
   Ok(res)
 }
 
@@ -137,11 +137,12 @@ pub fn encryption_collab_service(
 }
 
 pub async fn get_folder_data_from_server(
+  uid: &i64,
   folder_id: &str,
   encryption_secret: Option<String>,
 ) -> Result<Option<FolderData>, Error> {
   let (cloud_service, _encryption) = encryption_folder_service(encryption_secret);
-  cloud_service.get_folder_data(folder_id).await
+  cloud_service.get_folder_data(folder_id, uid).await
 }
 
 pub async fn get_folder_snapshots(
@@ -206,11 +207,13 @@ pub struct AFCloudTest {
 }
 
 impl AFCloudTest {
-  pub fn new() -> Option<Self> {
+  pub async fn new() -> Option<Self> {
     let _ = get_af_cloud_config()?;
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     test.set_auth_type(AuthTypePB::AFCloud);
-    test.server_provider.set_auth_type(AuthType::AFCloud);
+    test
+      .server_provider
+      .set_authenticator(Authenticator::AFCloud);
 
     Some(Self { inner: test })
   }
@@ -228,6 +231,14 @@ pub fn generate_test_email() -> String {
   format!("{}@test.com", Uuid::new_v4())
 }
 
+/// To run the test, create a .env.ci file in the 'event-integration' directory and set the following environment variables:
+///
+/// - `APPFLOWY_CLOUD_BASE_URL=http://localhost:8000`
+/// - `APPFLOWY_CLOUD_WS_BASE_URL=ws://localhost:8000/ws`
+/// - `APPFLOWY_CLOUD_GOTRUE_URL=http://localhost:9998`
+///
+/// - `GOTRUE_ADMIN_EMAIL=admin@example.com`
+/// - `GOTRUE_ADMIN_PASSWORD=password`
 pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
   dotenv::from_filename("./.env.ci").ok()?;
   AFCloudConfiguration::from_env().ok()

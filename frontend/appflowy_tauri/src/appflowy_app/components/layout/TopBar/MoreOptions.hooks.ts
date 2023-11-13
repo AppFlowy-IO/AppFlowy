@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 export function useMoreOptionsConfig() {
   const location = useLocation();
 
-  const { type, pageType, id } = useMemo(() => {
+  const { type, pageType } = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, type, pageType, id] = location.pathname.split('/');
 
     return {

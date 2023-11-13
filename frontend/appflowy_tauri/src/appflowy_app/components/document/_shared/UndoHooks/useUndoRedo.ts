@@ -6,25 +6,26 @@ import { useSubscribeDocument } from '$app/components/document/_shared/Subscribe
 export function useUndoRedo(container: HTMLDivElement) {
   const { controller } = useSubscribeDocument();
 
-  const onUndo = useCallback(() => {
+  const onUndo = useCallback(async () => {
     if (!controller) return;
-    controller.undo();
+    await controller.undo();
   }, [controller]);
 
-  const onRedo = useCallback(() => {
+  const onRedo = useCallback(async () => {
     if (!controller) return;
-    controller.redo();
+    await controller.redo();
   }, [controller]);
 
   const handleKeyDownCapture = useCallback(
-    (e: KeyboardEvent) => {
+    async (e: KeyboardEvent) => {
       if (isHotkey(Keyboard.keys.UNDO, e)) {
         e.stopPropagation();
-        onUndo();
+        await onUndo();
       }
+
       if (isHotkey(Keyboard.keys.REDO, e)) {
         e.stopPropagation();
-        onRedo();
+        await onRedo();
       }
     },
     [onRedo, onUndo]

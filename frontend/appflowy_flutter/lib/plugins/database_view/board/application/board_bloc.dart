@@ -6,9 +6,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/group/group_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -90,11 +88,19 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
           },
           createHeaderRow: (String groupId) async {
-            final result = await databaseController.createRow(groupId: groupId);
+            final result = await databaseController.createRow(
+              groupId: groupId,
+              fromBeginning: true,
+            );
+
             result.fold(
               (_) {},
               (err) => Log.error(err),
             );
+          },
+          createGroup: (name) async {
+            final result = await groupBackendSvc.createGroup(name: name);
+            result.fold((_) {}, (err) => Log.error(err));
           },
           didCreateRow: (group, row, int? index) {
             emit(
@@ -235,11 +241,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         if (isClosed || !layoutSettings.hasBoard()) {
           return;
         }
-        if (layoutSettings.board.hideUngroupedColumn) {
-          boardController.removeGroup(ungroupedGroup!.fieldId);
-        } else if (ungroupedGroup != null) {
-          final newGroup = initializeGroupData(ungroupedGroup!);
-          boardController.addGroup(newGroup);
+        if (ungroupedGroup != null) {
+          if (layoutSettings.board.hideUngroupedColumn) {
+            boardController.removeGroup(ungroupedGroup!.fieldId);
+          } else {
+            final newGroup = initializeGroupData(ungroupedGroup!);
+            boardController.addGroup(newGroup);
+          }
         }
         add(BoardEvent.didUpdateLayoutSettings(layoutSettings.board));
       },
@@ -342,6 +350,7 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = _InitialBoard;
   const factory BoardEvent.createBottomRow(String groupId) = _CreateBottomRow;
   const factory BoardEvent.createHeaderRow(String groupId) = _CreateHeaderRow;
+  const factory BoardEvent.createGroup(String name) = _CreateGroup;
   const factory BoardEvent.startEditingHeader(String groupId) =
       _StartEditingHeader;
   const factory BoardEvent.endEditingHeader(String groupId, String groupName) =
@@ -392,29 +401,6 @@ class BoardState with _$BoardState {
         loadingState: const LoadingState.loading(),
         layoutSettings: null,
       );
-}
-
-class GridFieldEquatable extends Equatable {
-  final UnmodifiableListView<FieldPB> _fields;
-  const GridFieldEquatable(
-    UnmodifiableListView<FieldPB> fields,
-  ) : _fields = fields;
-
-  @override
-  List<Object?> get props {
-    if (_fields.isEmpty) {
-      return [];
-    }
-
-    return [
-      _fields.length,
-      _fields
-          .map((field) => field.width)
-          .reduce((value, element) => value + element),
-    ];
-  }
-
-  UnmodifiableListView<FieldPB> get value => UnmodifiableListView(_fields);
 }
 
 class GroupItem extends AppFlowyGroupItem {

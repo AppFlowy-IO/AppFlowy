@@ -752,19 +752,19 @@
     }
   },
   "board": {
+    "menuName": "Доска",
+    "referencedBoardPrefix": "Просмотр",
     "column": {
       "createNewCard": "Новая",
       "renameGroupTooltip": "Нажмите, чтобы переименовать группу",
       "create_new_card": "Создать"
     },
-    "menuName": "Доска",
     "showUngrouped": "Показать несгруппированные элементы",
     "ungroupedButtonText": "Разгруппировать",
     "ungroupedButtonTooltip": "Содержит карточки, которые не принадлежат ни к одной группе.",
     "ungroupedItemsTitle": "Нажмите, чтобы добавить на доску",
-    "groupBy": "Сгруппировать по",
-    "referencedBoardPrefix": "Просмотр"
-  },
+    "groupBy": "Сгруппировать по"
+    },
   "calendar": {
     "menuName": "Календарь",
     "defaultNewCalendarTitle": "Без названия",

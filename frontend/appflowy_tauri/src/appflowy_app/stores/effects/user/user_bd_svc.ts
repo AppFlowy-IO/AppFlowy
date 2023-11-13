@@ -1,8 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import {
   AppearanceSettingsPB,
-  AuthTypePB,
-  ThemeModePB,
   UserEventGetAppearanceSetting,
   UserEventGetUserProfile,
   UserEventGetUserSetting,
@@ -13,20 +11,17 @@ import {
   UserEventUpdateUserProfile,
 } from '@/services/backend/events/flowy-user';
 import {
-  BlockActionPB,
   CreateWorkspacePayloadPB,
   SignInPayloadPB,
   SignUpPayloadPB,
   UpdateUserProfilePayloadPB,
-  WorkspaceIdPB,
   WorkspacePB,
   WorkspaceSettingPB,
 } from '@/services/backend';
 import {
   FolderEventCreateWorkspace,
-  FolderEventOpenWorkspace,
-  FolderEventGetCurrentWorkspace,
-  FolderEventReadAllWorkspaces,
+  FolderEventGetCurrentWorkspaceSetting,
+  FolderEventReadCurrentWorkspace,
 } from '@/services/backend/events/flowy-folder2';
 
 export class UserBackendService {
@@ -56,8 +51,8 @@ export class UserBackendService {
     return UserEventUpdateUserProfile(payload);
   };
 
-  getCurrentWorkspace = async (): Promise<WorkspaceSettingPB> => {
-    const result = await FolderEventGetCurrentWorkspace();
+  getCurrentWorkspaceSetting = async (): Promise<WorkspaceSettingPB> => {
+    const result = await FolderEventGetCurrentWorkspaceSetting();
 
     if (result.ok) {
       return result.val;
@@ -67,15 +62,7 @@ export class UserBackendService {
   };
 
   getWorkspaces = () => {
-    const payload = WorkspaceIdPB.fromObject({});
-
-    return FolderEventReadAllWorkspaces(payload);
-  };
-
-  openWorkspace = (workspaceId: string) => {
-    const payload = WorkspaceIdPB.fromObject({ value: workspaceId });
-
-    return FolderEventOpenWorkspace(payload);
+    return FolderEventReadCurrentWorkspace();
   };
 
   createWorkspace = async (params: { name: string; desc: string }): Promise<WorkspacePB> => {
@@ -115,9 +102,14 @@ export class AuthBackendService {
     return UserEventSignIn(payload);
   };
 
-  signUp = (params: { name: string; email: string; password: string; }) => {
+  signUp = (params: { name: string; email: string; password: string }) => {
     const deviceId = nanoid(8);
-    const payload = SignUpPayloadPB.fromObject({ name: params.name, email: params.email, password: params.password, device_id: deviceId });
+    const payload = SignUpPayloadPB.fromObject({
+      name: params.name,
+      email: params.email,
+      password: params.password,
+      device_id: deviceId,
+    });
 
     return UserEventSignUp(payload);
   };

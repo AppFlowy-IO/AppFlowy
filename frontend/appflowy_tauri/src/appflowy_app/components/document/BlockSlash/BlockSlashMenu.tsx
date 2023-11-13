@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import MenuItem from '$app/components/document/_shared/MenuItem';
 import {
   ArrowRight,
@@ -13,6 +13,7 @@ import {
   SafetyDivider,
   Image,
   Functions,
+  BackupTableOutlined,
 } from '@mui/icons-material';
 import {
   BlockData,
@@ -23,31 +24,31 @@ import {
 } from '$app/interfaces/document';
 import { useAppDispatch } from '$app/stores/store';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import { slashCommandActions } from '$app_reducers/document/slice';
-import { Keyboard } from '$app/constants/document/keyboard';
-import { selectOptionByUpDown } from '$app/utils/document/menu';
 import { turnToBlockThunk } from '$app_reducers/document/async-actions';
-import {useTranslation} from "react-i18next";
+import { useTranslation } from 'react-i18next';
+import { useKeyboardShortcut } from '$app/components/document/BlockSlash/index.hooks';
 
 function BlockSlashMenu({
   id,
   onClose,
   searchText,
   hoverOption,
+  onHoverOption,
   container,
 }: {
   id: string;
   onClose?: () => void;
   searchText?: string;
   hoverOption?: SlashCommandOption;
+  onHoverOption: (option: SlashCommandOption, target: HTMLElement) => void;
   container: HTMLDivElement;
 }) {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation()
-  const ref = useRef<HTMLDivElement | null>(null);
-  const { docId, controller } = useSubscribeDocument();
+  const { t } = useTranslation();
+  const { controller } = useSubscribeDocument();
+
   const handleInsert = useCallback(
-    async (type: BlockType, data?: BlockData<any>) => {
+    async (type: BlockType, data?: BlockData) => {
       if (!controller) return;
       await dispatch(
         turnToBlockThunk({
@@ -72,14 +73,14 @@ function BlockSlashMenu({
         {
           key: SlashCommandOptionKey.TEXT,
           type: BlockType.TextBlock,
-          title: 'Text',
+          title: t('editor.text'),
           icon: <TextFields />,
           group: SlashCommandGroup.BASIC,
         },
         {
           key: SlashCommandOptionKey.HEADING_1,
           type: BlockType.HeadingBlock,
-          title: 'Heading 1',
+          title: t('editor.heading1'),
           icon: <Title />,
           data: {
             level: 1,
@@ -89,7 +90,7 @@ function BlockSlashMenu({
         {
           key: SlashCommandOptionKey.HEADING_2,
           type: BlockType.HeadingBlock,
-          title: 'Heading 2',
+          title: t('editor.heading2'),
           icon: <Title />,
           data: {
             level: 2,
@@ -99,7 +100,7 @@ function BlockSlashMenu({
         {
           key: SlashCommandOptionKey.HEADING_3,
           type: BlockType.HeadingBlock,
-          title: 'Heading 3',
+          title: t('editor.heading3'),
           icon: <Title />,
           data: {
             level: 3,
@@ -109,35 +110,35 @@ function BlockSlashMenu({
         {
           key: SlashCommandOptionKey.TODO,
           type: BlockType.TodoListBlock,
-          title: 'To-do list',
+          title: t('editor.checkbox'),
           icon: <Check />,
           group: SlashCommandGroup.BASIC,
         },
         {
           key: SlashCommandOptionKey.BULLET,
           type: BlockType.BulletedListBlock,
-          title: 'Bulleted list',
+          title: t('editor.bulletedList'),
           icon: <FormatListBulleted />,
           group: SlashCommandGroup.BASIC,
         },
         {
           key: SlashCommandOptionKey.NUMBER,
           type: BlockType.NumberedListBlock,
-          title: 'Numbered list',
+          title: t('editor.numberedList'),
           icon: <FormatListNumbered />,
           group: SlashCommandGroup.BASIC,
         },
         {
           key: SlashCommandOptionKey.TOGGLE,
           type: BlockType.ToggleListBlock,
-          title: 'Toggle list',
+          title: t('document.plugins.toggleList'),
           icon: <ArrowRight />,
           group: SlashCommandGroup.BASIC,
         },
         {
           key: SlashCommandOptionKey.QUOTE,
           type: BlockType.QuoteBlock,
-          title: 'Quote',
+          title: t('toolbar.quote'),
           icon: <FormatQuote />,
           group: SlashCommandGroup.BASIC,
         },
@@ -151,30 +152,40 @@ function BlockSlashMenu({
         {
           key: SlashCommandOptionKey.DIVIDER,
           type: BlockType.DividerBlock,
-          title: 'Divider',
+          title: t('editor.divider'),
           icon: <SafetyDivider />,
           group: SlashCommandGroup.BASIC,
         },
         {
           key: SlashCommandOptionKey.CODE,
           type: BlockType.CodeBlock,
-          title: 'Code',
+          title: t('document.selectionMenu.codeBlock'),
           icon: <DataObject />,
           group: SlashCommandGroup.MEDIA,
         },
         {
           key: SlashCommandOptionKey.IMAGE,
           type: BlockType.ImageBlock,
-          title: 'Image',
+          title: t('editor.image'),
           icon: <Image />,
           group: SlashCommandGroup.MEDIA,
         },
         {
           key: SlashCommandOptionKey.EQUATION,
           type: BlockType.EquationBlock,
-          title: 'Block equation',
+          title: t('document.plugins.mathEquation.addMathEquation'),
           icon: <Functions />,
           group: SlashCommandGroup.ADVANCED,
+        },
+        {
+          key: SlashCommandOptionKey.GRID_REFERENCE,
+          type: BlockType.GridBlock,
+          title: t('document.plugins.referencedGrid'),
+          icon: <BackupTableOutlined />,
+          group: SlashCommandGroup.ADVANCED,
+          onClick: () => {
+            // do nothing
+          },
         },
       ].filter((option) => {
         if (!searchText) return true;
@@ -184,8 +195,15 @@ function BlockSlashMenu({
 
         return match(option.title) || match(option.type);
       }),
-    [searchText]
+    [searchText, t]
   );
+
+  const { ref } = useKeyboardShortcut({
+    container,
+    options,
+    handleInsert,
+    hoverOption,
+  });
 
   const optionsByGroup = useMemo(() => {
     return options.reduce((acc, option) => {
@@ -198,93 +216,10 @@ function BlockSlashMenu({
     }, {} as Record<SlashCommandGroup, typeof options>);
   }, [options]);
 
-  const scrollIntoOption = useCallback((option: SlashCommandOption) => {
-    if (!ref.current) return;
-    const containerRect = ref.current.getBoundingClientRect();
-    const optionElement = document.querySelector(`#slash-item-${option.key}`);
-
-    if (!optionElement) return;
-    const itemRect = optionElement?.getBoundingClientRect();
-
-    if (!itemRect) return;
-
-    if (itemRect.top < containerRect.top || itemRect.bottom > containerRect.bottom) {
-      optionElement.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, []);
-
-  const selectOptionByArrow = useCallback(
-    ({ isUp = false, isDown = false }: { isUp?: boolean; isDown?: boolean }) => {
-      if (!isUp && !isDown) return;
-      const optionsKeys = options.map((option) => String(option.key));
-      const nextKey = selectOptionByUpDown(isUp, String(hoverOption?.key), optionsKeys);
-      const nextOption = options.find((option) => String(option.key) === nextKey);
-
-      if (!nextOption) return;
-
-      scrollIntoOption(nextOption);
-      dispatch(
-        slashCommandActions.setHoverOption({
-          option: nextOption,
-          docId,
-        })
-      );
-    },
-    [dispatch, docId, hoverOption?.key, options, scrollIntoOption]
-  );
-
-  useEffect(() => {
-    const handleKeyDownCapture = (e: KeyboardEvent) => {
-      const isUp = e.key === Keyboard.keys.UP;
-      const isDown = e.key === Keyboard.keys.DOWN;
-      const isEnter = e.key === Keyboard.keys.ENTER;
-
-      // if any arrow key is pressed, prevent default behavior and stop propagation
-      if (isUp || isDown || isEnter) {
-        e.stopPropagation();
-        e.preventDefault();
-        if (isEnter) {
-          if (hoverOption) {
-            handleInsert(hoverOption.type, hoverOption.data);
-          }
-
-          return;
-        }
-
-        selectOptionByArrow({
-          isUp,
-          isDown,
-        });
-      }
-    };
-
-    // intercept keydown event in capture phase before it reaches the editor
-    container.addEventListener('keydown', handleKeyDownCapture, true);
-    return () => {
-      container.removeEventListener('keydown', handleKeyDownCapture, true);
-    };
-  }, [container, handleInsert, hoverOption, selectOptionByArrow]);
-
-  const onHoverOption = useCallback(
-    (option: SlashCommandOption) => {
-      dispatch(
-        slashCommandActions.setHoverOption({
-          option: {
-            key: option.key,
-            type: option.type,
-            data: option.data,
-          },
-          docId,
-        })
-      );
-    },
-    [dispatch, docId]
-  );
-
   const renderEmptyContent = useCallback(() => {
-    return <div className={'m-5 text-text-caption flex justify-center items-center'}>
-      {t('findAndReplace.noResult')}
-    </div>
+    return (
+      <div className={'m-5 flex items-center justify-center text-text-caption'}>{t('findAndReplace.noResult')}</div>
+    );
   }, [t]);
 
   return (
@@ -296,30 +231,37 @@ function BlockSlashMenu({
       className={'flex h-[100%] max-h-[40vh] w-[324px] min-w-[180px] max-w-[calc(100vw-32px)] flex-col p-1'}
     >
       <div ref={ref} className={'min-h-0 flex-1 overflow-y-auto overflow-x-hidden'}>
-        {options.length === 0 ? renderEmptyContent(): Object.entries(optionsByGroup).map(([group, options]) => (
-          <div key={group}>
-            <div className={'px-2 py-2 text-sm text-text-caption'}>{group}</div>
-            <div>
-              {options.map((option) => {
-                return (
-                  <MenuItem
-                    id={`slash-item-${option.key}`}
-                    key={option.key}
-                    title={option.title}
-                    icon={option.icon}
-                    onHover={() => {
-                      onHoverOption(option);
-                    }}
-                    isHovered={hoverOption?.key === option.key}
-                    onClick={() => {
-                      handleInsert(option.type, option.data);
-                    }}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        ))}
+        {options.length === 0
+          ? renderEmptyContent()
+          : Object.entries(optionsByGroup).map(([group, options]) => (
+              <div key={group}>
+                <div className={'px-2 py-2 text-sm text-text-caption'}>{group}</div>
+                <div>
+                  {options.map((option) => {
+                    return (
+                      <MenuItem
+                        id={`slash-item-${option.key}`}
+                        key={option.key}
+                        title={option.title}
+                        icon={option.icon}
+                        onHover={(e) => {
+                          onHoverOption(option, e.currentTarget as HTMLElement);
+                        }}
+                        isHovered={hoverOption?.key === option.key}
+                        onClick={() => {
+                          if (!option.onClick) {
+                            void handleInsert(option.type, option.data);
+                            return;
+                          }
+
+                          option.onClick();
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
       </div>
     </div>
   );

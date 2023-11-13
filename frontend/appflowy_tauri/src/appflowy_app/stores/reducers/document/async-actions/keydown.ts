@@ -71,7 +71,7 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
         length: 0,
       };
 
-      dispatch(
+      await dispatch(
         setCursorRangeThunk({
           docId,
           blockId: caret.id,
@@ -115,7 +115,6 @@ export const enterActionForBlockThunk = createAsyncThunk(
       );
     });
     const isDocumentTitle = !node.parent;
-    let newLineId;
 
     const delta = deltaOperator.getDeltaWithBlockId(node.id);
 
@@ -126,7 +125,7 @@ export const enterActionForBlockThunk = createAsyncThunk(
       return;
     }
 
-    newLineId = await deltaOperator.splitText(
+    const newLineId = await deltaOperator.splitText(
       {
         id: node.id,
         index: caret.index,
@@ -138,7 +137,7 @@ export const enterActionForBlockThunk = createAsyncThunk(
     );
 
     if (!newLineId) return;
-    dispatch(
+    await dispatch(
       setCursorRangeThunk({
         docId,
         blockId: newLineId,

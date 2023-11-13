@@ -6,7 +6,7 @@ class GridLayout {
     if (fields.isEmpty) return 0;
 
     final fieldsWidth = fields
-        .map((fieldInfo) => fieldInfo.field.width.toDouble())
+        .map((fieldInfo) => fieldInfo.fieldSettings!.width.toDouble())
         .reduce((value, element) => value + element);
 
     return fieldsWidth +

@@ -172,7 +172,7 @@ class _GridPageContentState extends State<GridPageContent> {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
-        final contentWidth = GridLayout.headerWidth(state.fields.value);
+        final contentWidth = GridLayout.headerWidth(state.fields.fields);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

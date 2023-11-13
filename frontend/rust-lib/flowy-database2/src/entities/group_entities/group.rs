@@ -197,3 +197,36 @@ impl From<UpdateGroupParams> for GroupChangeset {
     }
   }
 }
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct CreateGroupPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub group_config_id: String,
+
+  #[pb(index = 3)]
+  pub name: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct CreateGroupParams {
+  pub view_id: String,
+  pub group_config_id: String,
+  pub name: String,
+}
+
+impl TryFrom<CreateGroupPayloadPB> for CreateGroupParams {
+  type Error = ErrorCode;
+
+  fn try_from(value: CreateGroupPayloadPB) -> Result<Self, Self::Error> {
+    let view_id = NotEmptyStr::parse(value.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+    let name = NotEmptyStr::parse(value.name).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+    Ok(CreateGroupParams {
+      view_id: view_id.0,
+      group_config_id: value.group_config_id,
+      name: name.0,
+    })
+  }
+}

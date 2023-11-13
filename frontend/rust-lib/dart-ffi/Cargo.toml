@@ -14,23 +14,23 @@ crate-type = ["staticlib"]
 [dependencies]
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 byteorder = { version = "1.4.3" }
-protobuf = { version = "2.28.0" }
-tokio = { version = "1.26", features = ["full", "rt-multi-thread", "tracing"] }
-log = "0.4.17"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
-bytes = { version = "1.5" }
+protobuf.workspace = true
+tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
+serde.workspace = true
+serde_json.workspace = true
+bytes.workspace = true
 crossbeam-utils = "0.8.15"
 lazy_static = "1.4.0"
-parking_lot = "0.12.1"
-tracing = { version = "0.1", features = ["log"] }
+parking_lot.workspace = true
+tracing.workspace = true
 
 # workspace
 lib-dispatch = { workspace = true }
+#flowy-core = { workspace = true, features = ["profiling"] }
 flowy-core = { workspace = true }
 flowy-notification = { workspace = true }
 flowy-server = { workspace = true }
-flowy-server-config = { workspace = true }
+flowy-server-config = { workspace = true}
 collab-integrate = { workspace = true }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 

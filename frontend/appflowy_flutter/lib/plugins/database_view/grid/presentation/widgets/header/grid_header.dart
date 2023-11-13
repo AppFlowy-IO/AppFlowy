@@ -1,10 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -42,9 +40,9 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return getIt<GridHeaderBloc>(
-          param1: widget.viewId,
-          param2: widget.fieldController,
+        return GridHeaderBloc(
+          viewId: widget.viewId,
+          fieldController: widget.fieldController,
         )..add(const GridHeaderEvent.initial());
       },
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
@@ -96,15 +94,10 @@ class _GridHeaderState extends State<_GridHeader> {
       builder: (context, state) {
         final cells = state.fields
             .map(
-              (field) => FieldContext(
+              (fieldInfo) => GridFieldCell(
+                key: _getKeyById(fieldInfo.id),
                 viewId: widget.viewId,
-                fieldInfo: field,
-              ),
-            )
-            .map(
-              (ctx) => GridFieldCell(
-                key: _getKeyById(ctx.fieldInfo.id),
-                cellContext: ctx,
+                fieldInfo: fieldInfo,
               ),
             )
             .toList();
@@ -136,7 +129,7 @@ class _GridHeaderState extends State<_GridHeader> {
     int newIndex,
   ) {
     if (cells.length > oldIndex) {
-      final field = cells[oldIndex].cellContext.fieldInfo.field;
+      final field = cells[oldIndex].fieldInfo.field;
       context
           .read<GridHeaderBloc>()
           .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));

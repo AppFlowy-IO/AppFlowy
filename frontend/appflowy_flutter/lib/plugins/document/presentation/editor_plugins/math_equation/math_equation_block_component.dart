@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +46,7 @@ SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
       final mathEquationState =
           editorState.getNodeAtPath(path)?.key.currentState;
       if (mathEquationState != null &&
-          mathEquationState is _MathEquationBlockComponentWidgetState) {
+          mathEquationState is MathEquationBlockComponentWidgetState) {
         mathEquationState.showEditingDialog();
       }
     });
@@ -89,10 +91,10 @@ class MathEquationBlockComponentWidget extends BlockComponentStatefulWidget {
 
   @override
   State<MathEquationBlockComponentWidget> createState() =>
-      _MathEquationBlockComponentWidgetState();
+      MathEquationBlockComponentWidgetState();
 }
 
-class _MathEquationBlockComponentWidgetState
+class MathEquationBlockComponentWidgetState
     extends State<MathEquationBlockComponentWidget>
     with BlockComponentConfigurable {
   @override
@@ -112,33 +114,32 @@ class _MathEquationBlockComponentWidgetState
     return InkWell(
       onHover: (value) => setState(() => isHover = value),
       onTap: showEditingDialog,
-      child: _buildMathEquation(context),
+      child: _build(context),
     );
   }
 
-  Widget _buildMathEquation(BuildContext context) {
+  Widget _build(BuildContext context) {
     Widget child = Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 50),
-      padding: padding,
+      constraints: const BoxConstraints(minHeight: 52),
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: isHover || formula.isEmpty
-            ? Theme.of(context).colorScheme.tertiaryContainer
-            : Colors.transparent,
+        color: formula.isNotEmpty
+            ? Colors.transparent
+            : Theme.of(context).colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(4),
       ),
-      child: Center(
+      child: FlowyHover(
+        style: HoverStyle(
+          borderRadius: BorderRadius.circular(4),
+        ),
         child: formula.isEmpty
-            ? FlowyText.medium(
-                LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
-                fontSize: 16,
-              )
-            : Math.tex(
-                formula,
-                textStyle: const TextStyle(fontSize: 20),
-                mathStyle: MathStyle.display,
-              ),
+            ? _buildPlaceholderWidget(context)
+            : _buildMathEquation(context),
       ),
+    );
+
+    child = Padding(
+      padding: padding,
+      child: child,
     );
 
     if (widget.showActions && widget.actionBuilder != null) {
@@ -149,7 +150,41 @@ class _MathEquationBlockComponentWidgetState
       );
     }
 
+    if (PlatformExtension.isMobile) {
+      child = MobileBlockActionButtons(
+        node: node,
+        editorState: editorState,
+        child: child,
+      );
+    }
+
     return child;
+  }
+
+  Widget _buildPlaceholderWidget(BuildContext context) {
+    return SizedBox(
+      height: 52,
+      child: Row(
+        children: [
+          const HSpace(10),
+          const Icon(Icons.text_fields_outlined),
+          const HSpace(10),
+          FlowyText(
+            LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMathEquation(BuildContext context) {
+    return Center(
+      child: Math.tex(
+        formula,
+        textStyle: const TextStyle(fontSize: 20),
+        mathStyle: MathStyle.display,
+      ),
+    );
   }
 
   void showEditingDialog() {

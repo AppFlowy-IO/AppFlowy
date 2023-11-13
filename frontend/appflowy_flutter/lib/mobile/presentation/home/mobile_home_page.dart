@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_folders.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
-import 'package:appflowy/mobile/presentation/home/mobile_home_page_recent_files.dart';
+import 'package:appflowy/mobile/presentation/home/recent_folder/mobile_home_recent_views.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
@@ -24,7 +24,7 @@ class MobileHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Future.wait([
-        FolderEventGetCurrentWorkspace().send(),
+        FolderEventGetCurrentWorkspaceSetting().send(),
         getIt<AuthService>().getUser(),
       ]),
       builder: (context, snapshots) {
@@ -97,8 +97,7 @@ class MobileHomePage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Recent files
-                    const MobileHomePageRecentFilesWidget(),
-                    const Divider(),
+                    const MobileRecentFolder(),
 
                     // Folders
                     Padding(
@@ -110,7 +109,10 @@ class MobileHomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const _TrashButton(),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: _TrashButton(),
+                    ),
                   ],
                 ),
               ),
@@ -142,7 +144,10 @@ class _TrashButton extends StatelessWidget {
           LocaleKeys.trash_text.tr(),
           style: Theme.of(context).textTheme.labelMedium,
         ),
-        style: const ButtonStyle(alignment: Alignment.centerLeft),
+        style: const ButtonStyle(
+          alignment: Alignment.centerLeft,
+          splashFactory: NoSplash.splashFactory,
+        ),
       ),
     );
   }

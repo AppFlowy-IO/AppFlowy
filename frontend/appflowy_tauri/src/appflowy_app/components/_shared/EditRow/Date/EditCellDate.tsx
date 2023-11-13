@@ -13,6 +13,7 @@ export const EditCellDate = ({
   const onClick: MouseEventHandler = () => {
     if (!ref.current) return;
     const { left, top } = ref.current.getBoundingClientRect();
+
     onEditClick(left, top);
   };
 

@@ -25,8 +25,8 @@ export function findFirstTextNode(node: Node): Node | null {
 
   const children = node.childNodes;
 
-  for (let i = 0; i < children.length; i++) {
-    const textNode = findFirstTextNode(children[i]);
+  for (const child of children) {
+    const textNode = findFirstTextNode(child);
 
     if (textNode) {
       return textNode;
