@@ -150,7 +150,7 @@ class _BoardContentState extends State<BoardContent> {
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
           final showCreateGroupButton =
-              context.read<BoardBloc>().groupingFieldType!.canCreateNewGroup;
+              context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
           return Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: AppFlowyBoard(
