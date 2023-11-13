@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/group/group_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -255,6 +256,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   bool get hideUngrouped =>
       databaseController.databaseLayoutSetting?.board.hideUngroupedColumn ??
       false;
+
+  FieldType? get groupingFieldType {
+    final fieldInfo = databaseController.fieldController.fieldInfos
+        .firstWhereOrNull((field) => field.isGroupField);
+
+    return fieldInfo?.fieldType;
+  }
 
   void initializeGroups(List<GroupPB> groups) {
     for (final controller in groupControllers.values) {

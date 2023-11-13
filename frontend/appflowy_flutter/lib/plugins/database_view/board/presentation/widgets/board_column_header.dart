@@ -212,10 +212,14 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
       ),
       popupBuilder: (popoverContext) {
         final customGroupData = widget.groupData.customData as GroupData;
+        final menuItems = GroupOptions.values.toList();
+        if (!customGroupData.fieldType.canEditHeader) {
+          menuItems.remove(GroupOptions.rename);
+        }
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ...GroupOptions.values.map(
+            ...menuItems.map(
               (action) => SizedBox(
                 height: GridSize.popoverItemHeight,
                 child: Padding(
