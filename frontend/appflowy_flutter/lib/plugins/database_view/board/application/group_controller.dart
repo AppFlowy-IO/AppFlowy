@@ -51,10 +51,10 @@ class GroupController {
         result.fold(
           (GroupRowsNotificationPB changeset) {
             final newItems = [...group.rows];
-            final shouldCallDelegate = delegate.hasGroup(group.groupId);
+            final isGroupExist = delegate.hasGroup(group.groupId);
             for (final deletedRow in changeset.deletedRows) {
               newItems.removeWhere((rowPB) => rowPB.id == deletedRow);
-              if (shouldCallDelegate) {
+              if (isGroupExist) {
                 delegate.removeRow(group, deletedRow);
               }
             }
@@ -68,7 +68,7 @@ class GroupController {
                 newItems.add(insertedRow.rowMeta);
               }
 
-              if (shouldCallDelegate) {
+              if (isGroupExist) {
                 if (insertedRow.isNew) {
                   delegate.addNewRow(group, insertedRow.rowMeta, index);
                 } else {
@@ -84,7 +84,7 @@ class GroupController {
 
               if (index != -1) {
                 newItems[index] = updatedRow;
-                if (shouldCallDelegate) {
+                if (isGroupExist) {
                   delegate.updateRow(group, updatedRow);
                 }
               }
