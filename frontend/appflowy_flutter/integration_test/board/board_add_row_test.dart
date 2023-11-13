@@ -38,7 +38,7 @@ void main() {
                 (widget) => widget is FlowySvg && widget.svg == FlowySvgs.add_s,
               ),
             )
-            .first,
+            .at(1),
       );
       await tester.pumpAndSettle();
 
@@ -80,7 +80,7 @@ void main() {
               of: find.byType(AppFlowyGroupFooter),
               matching: find.byType(FlowySvg),
             )
-            .first,
+            .at(1),
       );
       await tester.pumpAndSettle();
 
