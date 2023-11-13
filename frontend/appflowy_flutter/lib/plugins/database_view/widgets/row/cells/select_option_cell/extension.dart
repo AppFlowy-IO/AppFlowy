@@ -5,7 +5,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -93,7 +92,7 @@ class SelectOptionTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8.0);
+        const EdgeInsets.symmetric(vertical: 2, horizontal: 8.0);
     if (onRemove != null) {
       padding = padding.copyWith(right: 2.0);
     }
@@ -108,11 +107,13 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(
+            child: Text(
               name,
-              fontSize: FontSizes.s11,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: FontSizes.s11,
+                    color: AFThemeExtension.of(context).textColor,
+                  ),
               overflow: TextOverflow.ellipsis,
-              color: AFThemeExtension.of(context).textColor,
             ),
           ),
           if (onRemove != null) ...[
