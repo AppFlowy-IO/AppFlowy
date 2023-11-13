@@ -4,7 +4,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 final mathEquationMobileToolbarItem = MobileToolbarItem.action(
-  itemIcon: const SizedBox(width: 22, child: FlowySvg(FlowySvgs.math_lg)),
+  itemIconBuilder: (_, __) =>
+      const SizedBox(width: 22, child: FlowySvg(FlowySvgs.math_lg)),
   actionHandler: (editorState, selection) async {
     if (!selection.isCollapsed) {
       return;
