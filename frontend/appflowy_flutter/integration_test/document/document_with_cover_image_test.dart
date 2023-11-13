@@ -98,6 +98,7 @@ void main() {
       await tester.tapEmoji('😀');
 
       // Insert a document cover
+      await tester.editor.hoverOnCoverToolbar();
       await tester.editor.tapOnAddCover();
 
       // Expect to see the icon and cover at the same time
