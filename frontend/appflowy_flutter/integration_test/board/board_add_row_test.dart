@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -32,10 +33,12 @@ void main() {
       await tester.tap(
         find
             .descendant(
-              of: find.byType(AppFlowyGroupHeader),
-              matching: find.byType(FlowySvg),
+              of: find.byType(BoardColumnHeader),
+              matching: find.byWidgetPredicate(
+                (widget) => widget is FlowySvg && widget.svg == FlowySvgs.add_s,
+              ),
             )
-            .first,
+            .at(1),
       );
       await tester.pumpAndSettle();
 
@@ -77,7 +80,7 @@ void main() {
               of: find.byType(AppFlowyGroupFooter),
               matching: find.byType(FlowySvg),
             )
-            .first,
+            .at(1),
       );
       await tester.pumpAndSettle();
 

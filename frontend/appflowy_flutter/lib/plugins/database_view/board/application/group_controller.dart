@@ -7,10 +7,12 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:dartz/dartz.dart';
+import 'package:protobuf/protobuf.dart';
 
 typedef OnGroupError = void Function(FlowyError);
 
 abstract class GroupControllerDelegate {
+  bool hasGroup(String groupId);
   void removeRow(GroupPB group, RowId rowId);
   void insertRow(GroupPB group, RowMetaPB row, int? index);
   void updateRow(GroupPB group, RowMetaPB row);
@@ -18,14 +20,16 @@ abstract class GroupControllerDelegate {
 }
 
 class GroupController {
-  final GroupPB group;
+  GroupPB group;
   final SingleGroupListener _listener;
   final GroupControllerDelegate delegate;
+  final void Function(GroupPB group) onGroupChanged;
 
   GroupController({
     required String viewId,
     required this.group,
     required this.delegate,
+    required this.onGroupChanged,
   }) : _listener = SingleGroupListener(group);
 
   RowMetaPB? rowAtIndex(int index) {
@@ -46,37 +50,52 @@ class GroupController {
       onGroupChanged: (result) {
         result.fold(
           (GroupRowsNotificationPB changeset) {
+            final newItems = [...group.rows];
+            final isGroupExist = delegate.hasGroup(group.groupId);
             for (final deletedRow in changeset.deletedRows) {
-              group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
-              delegate.removeRow(group, deletedRow);
+              newItems.removeWhere((rowPB) => rowPB.id == deletedRow);
+              if (isGroupExist) {
+                delegate.removeRow(group, deletedRow);
+              }
             }
 
             for (final insertedRow in changeset.insertedRows) {
               final index = insertedRow.hasIndex() ? insertedRow.index : null;
               if (insertedRow.hasIndex() &&
-                  group.rows.length > insertedRow.index) {
-                group.rows.insert(insertedRow.index, insertedRow.rowMeta);
+                  newItems.length > insertedRow.index) {
+                newItems.insert(insertedRow.index, insertedRow.rowMeta);
               } else {
-                group.rows.add(insertedRow.rowMeta);
+                newItems.add(insertedRow.rowMeta);
               }
 
-              if (insertedRow.isNew) {
-                delegate.addNewRow(group, insertedRow.rowMeta, index);
-              } else {
-                delegate.insertRow(group, insertedRow.rowMeta, index);
+              if (isGroupExist) {
+                if (insertedRow.isNew) {
+                  delegate.addNewRow(group, insertedRow.rowMeta, index);
+                } else {
+                  delegate.insertRow(group, insertedRow.rowMeta, index);
+                }
               }
             }
 
             for (final updatedRow in changeset.updatedRows) {
-              final index = group.rows.indexWhere(
+              final index = newItems.indexWhere(
                 (rowPB) => rowPB.id == updatedRow.id,
               );
 
               if (index != -1) {
-                group.rows[index] = updatedRow;
-                delegate.updateRow(group, updatedRow);
+                newItems[index] = updatedRow;
+                if (isGroupExist) {
+                  delegate.updateRow(group, updatedRow);
+                }
               }
             }
+
+            group.freeze();
+            group = group.rebuild((group) {
+              group.rows.clear();
+              group.rows.addAll(newItems);
+            });
+            onGroupChanged(group);
           },
           (err) => Log.error(err),
         );
