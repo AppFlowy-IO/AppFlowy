@@ -121,7 +121,9 @@
     "mobile": {
       "actions": "Действия с корзиной",
       "empty": "Корзина пуста",
-      "emptyDescription": "У вас нет удаленных файлов"
+      "emptyDescription": "У вас нет удаленных файлов",
+      "isDeleted": "удал",
+      "isRestored": "восстановлен"
     }
   },
   "deletePagePrompt": {
@@ -185,7 +187,8 @@
     "favorites": "Избранное",
     "clickToHidePersonal": "Нажмите, чтобы скрыть личный раздел",
     "clickToHideFavorites": "Нажмите, чтобы скрыть раздел избранного",
-    "addAPage": "Добавить страницу"
+    "addAPage": "Добавить страницу",
+    "recent": "Недавний"
   },
   "notifications": {
     "export": {
@@ -214,6 +217,7 @@
     "discard": "Отменить",
     "replace": "Заменить",
     "insertBelow": "Вставить ниже",
+    "insertAbove": "Вставьте выше",
     "upload": "Загрузить",
     "edit": "Редактировать",
     "delete": "Удалить",
@@ -225,6 +229,8 @@
     "addToFavorites": "Добавить в избранное",
     "rename": "Переименовать",
     "helpCenter": "Центр помощи",
+    "OK": "Ок",
+    "Cancel": "Отмн",
     "tryAGain": "Повторить"
   },
   "label": {
@@ -397,7 +403,9 @@
       "support": "Поддержка",
       "joinDiscord": "Присоединяйтесь к нам в Discord",
       "privacyPolicy": "Политика Конфиденциальности",
-      "userAgreement": "Пользовательское Соглашение"
+      "userAgreement": "Пользовательское Соглашение",
+      "userprofileError": "Не удалось загрузить профиль пользователя",
+      "userprofileErrorDescription": "Пожалуйста, попробуйте разлоги и войти снова, чтобы проверить, сохраняется ли проблема."
     }
   },
   "grid": {
@@ -418,7 +426,8 @@
       "filterBy": "Фильтровать по...",
       "typeAValue": "Введите значение...",
       "layout": "Вид",
-      "databaseLayout": "Вид базы данных"
+      "databaseLayout": "Вид базы данных",
+      "Properties": "Свойства"
     },
     "textFilter": {
       "contains": "Содержит",
@@ -530,7 +539,10 @@
       "newRow": "Новая строка",
       "action": "Действия",
       "add": "Нажмите, чтобы добавить ниже",
-      "drag": "Перетащите для перемещения"
+      "drag": "Перетащите для перемещения",
+      "dragAndClick": "Перетащите, чтобы переместить, нажмите, чтобы открыть меню",
+      "insertRecordAbove": "Вставить запись выше",
+      "insertRecordBelow": "Встав запись ниже"
     },
     "selectOption": {
       "create": "Создать",
@@ -579,6 +591,9 @@
       "calendar": {
         "selectACalendarToLinkTo": "Выбрать календарь",
         "createANewCalendar": "Создать календарь"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Выберите документ для ссылки на него"
       }
     },
     "selectionMenu": {
@@ -589,6 +604,7 @@
       "referencedBoard": "Связанные доски",
       "referencedGrid": "Связанные сетки",
       "referencedCalendar": "Связанные календари",
+      "referencedDocument": "Ссылочный документ",
       "autoGeneratorMenuItemName": "OpenAI Генератор",
       "autoGeneratorTitleName": "OpenAI: попросить ИИ написать что угодно...",
       "autoGeneratorLearnMore": "Узнать больше",
@@ -608,7 +624,13 @@
       "smartEditDisabled": "OpenAI",
       "discardResponse": "Хотите убрать ответы ИИ?",
       "createInlineMathEquation": "Создать уравнение",
+      "fonts": "Шрифты",
       "toggleList": "Выпадающий список",
+      "quoteList": "Список цитат",
+      "numberedList": "Нумерованный список",
+      "bulletedList": "Маркированный список",
+      "todoList": "Список дел",
+      "callout": "Блоки Callout",
       "cover": {
         "changeCover": "Сменить обложку",
         "colors": "Цвета",
@@ -630,6 +652,7 @@
         "couldNotFetchImage": "Не удалось получить изображение",
         "imageSavingFailed": "Не удалось сохранить изображение",
         "addIcon": "Добавить иконку",
+        "changeIcon": "Изменить значок",
         "coverRemoveAlert": "Изображение будет удалено с обложки",
         "alertDialogConfirmation": "Вы хотите продолжить?"
       },
@@ -671,7 +694,8 @@
         "copy": "Копировать",
         "cut": "Вырезать",
         "paste": "Вставить"
-      }
+      },
+      "action": "Действия"
     },
     "textBlock": {
       "placeholder": "Введите '/' для команд"
@@ -710,7 +734,11 @@
       },
       "searchForAnImage": "Поиск изображения",
       "pleaseInputYourOpenAIKey": "пожалуйста, введите свой токен OpenAI на странице настроек",
-      "pleaseInputYourStabilityAIKey": "пожалуйста, введите свой токен Stability AI на странице настроек"
+      "pleaseInputYourStabilityAIKey": "пожалуйста, введите свой токен Stability AI на странице настроек",
+      "saveImageToGallery": "Сохранить изображение",
+      "failedToAddImageToGallery": "Не удалось добавить изображение в галерею.",
+      "successToAddImageToGallery": "Изображение успешно добавлено в галерею",
+      "unableToLoadImage": "Невозможно загрузить изображение"
     },
     "codeBlock": {
       "language": {
@@ -748,19 +776,28 @@
     }
   },
   "board": {
-    "menuName": "Доска",
-    "referencedBoardPrefix": "Просмотр",
     "column": {
       "createNewCard": "Новая",
       "renameGroupTooltip": "Нажмите, чтобы переименовать группу",
+      "createNewColumn": "Добавить новую группу",
+      "addToColumnTopTooltip": "Добавить новую карту верху",
+      "renameColumn": "Переименовать",
+      "hideColumn": "Скрывать",
       "create_new_card": "Создать"
     },
+    "hiddenGroupSection": {
+      "sectionTitle": "Скрытые группы",
+      "collapseTooltip": "Скрыть скрытые группы",
+      "expandTooltip": "Скрыть скрытые группы"
+    },
+    "menuName": "Доска",
     "showUngrouped": "Показать несгруппированные элементы",
     "ungroupedButtonText": "Разгруппировать",
     "ungroupedButtonTooltip": "Содержит карточки, которые не принадлежат ни к одной группе.",
     "ungroupedItemsTitle": "Нажмите, чтобы добавить на доску",
-    "groupBy": "Сгруппировать по"
-    },
+    "groupBy": "Сгруппировать по",
+    "referencedBoardPrefix": "Просмотр"
+  },
   "calendar": {
     "menuName": "Календарь",
     "defaultNewCalendarTitle": "Без названия",
@@ -777,13 +814,9 @@
       "firstDayOfWeek": "Первый день недели",
       "layoutDateField": "Вид календаря",
       "noDateTitle": "Без даты",
-      "noDateHint": {
-        "zero": "Здесь будут отображаться незапланированные мероприятия.",
-        "one": "{} незапланированное событие",
-        "other": "{} незапланированные события"
-      },
       "clickToAdd": "Нажмите, чтобы добавить в календарь",
-      "name": "Макет календаря"
+      "name": "Макет календаря",
+      "noDateHint": "нет даты"
     },
     "referencedCalendarPrefix": "Вид"
   },
@@ -823,6 +856,7 @@
     "gray": "Серый"
   },
   "emoji": {
+    "emojiTab": "Эмодзи",
     "search": "Поиск эмодзи",
     "noRecent": "Нет недавних эмодзи",
     "noEmojiFound": "Эмодзи не найдено",
@@ -842,6 +876,14 @@
       "flags": "Флаги",
       "nature": "Природа",
       "frequentlyUsed": "Часто используемые"
+    },
+    "skinTone": {
+      "default": "По умолчанию",
+      "light": "Све",
+      "mediumLight": "среднийСветлый",
+      "medium": "средний",
+      "mediumDark": "Средне-тёмный",
+      "dark": "N"
     }
   },
   "inlineActions": {
@@ -881,7 +923,8 @@
       "groupByDate": "Сгруппировать по дате",
       "showUnreadsOnly": "Показать только непрочитанные",
       "resetToDefault": "Восстановить по умолчанию"
-    }
+    },
+    "empty": "Пус"
   },
   "reminderNotification": {
     "title": "Напоминание",
@@ -1020,5 +1063,8 @@
   "favorite": {
     "noFavorite": "Нет избраной страницы",
     "noFavoriteHintText": "Проведите по странице влево, чтобы добавить ее в избранное."
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Введите  / , чтобы вставить блок. Или начните писать"
   }
 }

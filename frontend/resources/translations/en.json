@@ -227,7 +227,10 @@
     "removeFromFavorites": "Remove from favorites",
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
-    "helpCenter": "Help Center"
+    "helpCenter": "Help Center",
+    "OK": "Ok",
+    "Done": "Done",
+    "Cancel": "Cancel"
   },
   "label": {
     "welcome": "Welcome!",

@@ -780,9 +780,9 @@
       "firstDayOfWeek": "Mulai minggu",
       "layoutDateField": "Tata letak kalender oleh",
       "noDateTitle": "Tidak ada tanggal",
-      "noDateHint": "Acara yang tidak dijadwalkan akan muncul di sini",
       "clickToAdd": "Klik untuk menambahkan ke kalender",
-      "name": "Tata letak kalender"
+      "name": "Tata letak kalender",
+      "noDateHint": "Acara yang tidak dijadwalkan akan muncul di sini"
     },
     "referencedCalendarPrefix": "Pemandangan dari"
   },
