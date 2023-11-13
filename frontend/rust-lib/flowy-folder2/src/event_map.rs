@@ -36,6 +36,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
     .event(FolderEvent::ReadFavorites, read_favorites_handler)
+    .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
 }
 
@@ -145,4 +146,7 @@ pub enum FolderEvent {
 
   #[event(input = "UpdateViewIconPayloadPB")]
   UpdateViewIcon = 35,
+
+  #[event(output = "RepeatedViewPB")]
+  ReadRecentViews = 36,
 }
