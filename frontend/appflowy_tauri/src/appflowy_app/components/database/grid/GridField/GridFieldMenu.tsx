@@ -53,13 +53,20 @@ export const GridFieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, o
     </MenuItem>
   );
 
+  const isPrimary = field.isPrimary;
+
   return (
     <>
       <Menu anchorEl={anchorEl} open={open} onClose={onClose}>
         {fieldNameInput}
-        {fieldTypeSelect}
-        <Divider />
-        <GridFieldMenuActions isPrimary={field.isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
+        {!isPrimary && (
+          <>
+            {fieldTypeSelect}
+            <Divider />
+          </>
+        )}
+
+        <GridFieldMenuActions isPrimary={isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
       </Menu>
     </>
   );

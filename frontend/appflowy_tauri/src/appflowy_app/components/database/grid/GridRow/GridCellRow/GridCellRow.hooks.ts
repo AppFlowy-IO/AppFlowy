@@ -14,6 +14,12 @@ export function useGridRowActionsDisplay(rowId: string, ref: React.RefObject<HTM
     setRowHover(rowId);
   }, [setRowHover, rowId]);
 
+  const onMouseLeave = useCallback(() => {
+    if (hover) {
+      setRowHover(null);
+    }
+  }, [setRowHover, hover]);
+
   useEffect(() => {
     // Next frame to avoid layout thrashing
     requestAnimationFrame(() => {
@@ -37,6 +43,7 @@ export function useGridRowActionsDisplay(rowId: string, ref: React.RefObject<HTM
   return {
     actionsStyle,
     onMouseEnter,
+    onMouseLeave,
     hover,
   };
 }

@@ -33,7 +33,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
   const rowId = rowMeta.id;
   const viewId = useViewId();
   const ref = useRef<HTMLDivElement | null>(null);
-  const { onMouseEnter, actionsStyle, hover } = useGridRowActionsDisplay(rowId, ref);
+  const { onMouseLeave, onMouseEnter, actionsStyle, hover } = useGridRowActionsDisplay(rowId, ref);
   const {
     isContextMenuOpen,
     closeContextMenu,
@@ -107,7 +107,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
   }, [openContextMenu]);
 
   return (
-    <div ref={ref} className='flex grow' onMouseEnter={onMouseEnter} {...dropListeners}>
+    <div ref={ref} className='flex grow' onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} {...dropListeners}>
       <div
         ref={setPreviewRef}
         className={`relative flex grow border-b border-line-divider ${isDragging ? 'bg-blue-50' : ''}`}
@@ -138,13 +138,15 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
           rowId={rowMeta.id}
           getPrevRowId={getPrevRowId}
         />
-        <GridCellRowContextMenu
-          open={isContextMenuOpen}
-          onClose={closeContextMenu}
-          anchorPosition={contextMenuPosition}
-          rowId={rowId}
-          getPrevRowId={getPrevRowId}
-        />
+        {isContextMenuOpen && (
+          <GridCellRowContextMenu
+            open={isContextMenuOpen}
+            onClose={closeContextMenu}
+            anchorPosition={contextMenuPosition}
+            rowId={rowId}
+            getPrevRowId={getPrevRowId}
+          />
+        )}
       </Portal>
     </div>
   );

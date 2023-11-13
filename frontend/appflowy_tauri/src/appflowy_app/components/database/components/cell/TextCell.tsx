@@ -1,8 +1,9 @@
 import { Popover, TextareaAutosize } from '@mui/material';
-import { FC, FormEventHandler, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { FC, FormEventHandler, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { cellService, Field, TextCell as TextCellType } from '../../application';
 import { CellText } from '../../_shared';
+import { useGridUIStateDispatcher } from '$app/components/database/proxy/grid/ui_state/actions';
 
 export const TextCell: FC<{
   field: Field;
@@ -13,7 +14,7 @@ export const TextCell: FC<{
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState('');
   const [width, setWidth] = useState<number | undefined>(undefined);
-
+  const { setRowHover } = useGridUIStateDispatcher();
   const handleClose = () => {
     if (!cell) return;
     if (editing) {
@@ -40,6 +41,12 @@ export const TextCell: FC<{
       setWidth(cellRef.current.clientWidth);
     }
   }, [editing]);
+
+  useEffect(() => {
+    if (editing) {
+      setRowHover(null);
+    }
+  }, [editing, setRowHover]);
 
   return (
     <>
