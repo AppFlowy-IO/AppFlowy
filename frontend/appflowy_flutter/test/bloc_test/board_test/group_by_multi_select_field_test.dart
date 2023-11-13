@@ -107,8 +107,8 @@ void main() {
 
     final groups =
         boardBloc.groupControllers.values.map((e) => e.group).toList();
-    assert(groups[0].groupName == "B");
-    assert(groups[1].groupName == "A");
-    assert(groups[2].groupName == "No ${multiSelectField.name}");
+    assert(groups[0].groupName == "No ${multiSelectField.name}");
+    assert(groups[1].groupName == "B");
+    assert(groups[2].groupName == "A");
   });
 }

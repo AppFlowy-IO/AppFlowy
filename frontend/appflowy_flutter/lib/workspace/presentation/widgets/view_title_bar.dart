@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
+import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -29,9 +30,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
   void initState() {
     super.initState();
 
-    ancestors = widget.view.getAncestors(
-      includeSelf: true,
-    );
+    _reloadAncestors();
   }
 
   @override
@@ -39,9 +38,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.view.id != widget.view.id) {
-      ancestors = widget.view.getAncestors(
-        includeSelf: true,
-      );
+      _reloadAncestors();
     }
   }
 
@@ -51,27 +48,57 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
       future: ancestors,
       builder: ((context, snapshot) {
         final ancestors = snapshot.data;
-        if (ancestors == null ||
-            snapshot.connectionState != ConnectionState.done) {
+        if (ancestors == null) {
           return const SizedBox.shrink();
         }
-        return Row(
+        const maxWidth = WindowSizeManager.minWindowWidth - 100;
+        final replacement = Row(
+          // refresh the view title bar when the ancestors changed
+          key: ValueKey(ancestors.hashCode),
           children: _buildViewTitles(ancestors),
+        );
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return Visibility(
+              visible: constraints.maxWidth < maxWidth,
+              replacement: replacement,
+              // if the width is too small, only show one view title bar without the ancestors
+              child: _ViewTitle(
+                view: ancestors.last,
+                behavior: _ViewTitleBehavior.editable,
+                maxTitleWidth: constraints.maxWidth - 50.0,
+                onUpdated: () => setState(() => _reloadAncestors()),
+              ),
+            );
+          },
         );
       }),
     );
   }
 
   List<Widget> _buildViewTitles(List<ViewPB> views) {
+    // if the level is too deep, only show the last two view, the first one view and the root view
+    bool hasAddedEllipsis = false;
     final children = <Widget>[];
+
     for (var i = 0; i < views.length; i++) {
       final view = views[i];
+      if (i >= 1 && i < views.length - 2) {
+        if (!hasAddedEllipsis) {
+          hasAddedEllipsis = true;
+          children.add(
+            const FlowyText.regular(' ... /'),
+          );
+        }
+        continue;
+      }
       children.add(
         _ViewTitle(
           view: view,
           behavior: i == views.length - 1
               ? _ViewTitleBehavior.editable // only the last one is editable
               : _ViewTitleBehavior.uneditable, // others are not editable
+          onUpdated: () => setState(() => _reloadAncestors()),
         ),
       );
       if (i != views.length - 1) {
@@ -80,6 +107,12 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
       }
     }
     return children;
+  }
+
+  void _reloadAncestors() {
+    ancestors = widget.view.getAncestors(
+      includeSelf: true,
+    );
   }
 }
 
@@ -92,10 +125,14 @@ class _ViewTitle extends StatefulWidget {
   const _ViewTitle({
     required this.view,
     this.behavior = _ViewTitleBehavior.editable,
+    this.maxTitleWidth = 180,
+    required this.onUpdated,
   });
 
   final ViewPB view;
   final _ViewTitleBehavior behavior;
+  final double maxTitleWidth;
+  final VoidCallback onUpdated;
 
   @override
   State<_ViewTitle> createState() => _ViewTitleState();
@@ -124,6 +161,7 @@ class _ViewTitleState extends State<_ViewTitle> {
           icon = view.icon.value;
           _resetTextEditingController();
         });
+        widget.onUpdated();
       },
     );
   }
@@ -156,7 +194,15 @@ class _ViewTitleState extends State<_ViewTitle> {
           fontSize: 18.0,
         ),
         const HSpace(2.0),
-        FlowyText.regular(name),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: widget.maxTitleWidth,
+          ),
+          child: FlowyText.regular(
+            name,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
 
@@ -188,8 +234,8 @@ class _ViewTitleState extends State<_ViewTitle> {
               defaultIcon: widget.view.defaultIcon(),
               direction: PopoverDirection.bottomWithCenterAligned,
               offset: const Offset(0, 18),
-              onSubmitted: (emoji, _) {
-                ViewBackendService.updateViewIcon(
+              onSubmitted: (emoji, _) async {
+                await ViewBackendService.updateViewIcon(
                   viewId: widget.view.id,
                   viewIcon: emoji,
                 );
@@ -203,9 +249,9 @@ class _ViewTitleState extends State<_ViewTitle> {
               child: FlowyTextField(
                 autoFocus: true,
                 controller: textEditingController,
-                onSubmitted: (text) {
+                onSubmitted: (text) async {
                   if (text.isNotEmpty && text != name) {
-                    ViewBackendService.updateView(
+                    await ViewBackendService.updateView(
                       viewId: widget.view.id,
                       name: text,
                     );

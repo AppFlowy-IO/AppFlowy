@@ -173,6 +173,7 @@ where
       self.field.id.clone(),
       group.name.clone(),
       group.id.clone(),
+      group.visible,
     );
     self.group_by_id.insert(group.id.clone(), group_data);
     let (index, group_data) = self.get_group(&group.id).unwrap();
@@ -338,7 +339,13 @@ where
         .get(&group.id)
         .cloned()
         .unwrap_or_else(|| "".to_owned());
-      let group = GroupData::new(group.id, self.field.id.clone(), group.name, filter_content);
+      let group = GroupData::new(
+        group.id,
+        self.field.id.clone(),
+        group.name,
+        filter_content,
+        group.visible,
+      );
       self.group_by_id.insert(group.id.clone(), group);
     });
 
@@ -351,6 +358,7 @@ where
           self.field.id.clone(),
           group_rev.name,
           filter_content.clone(),
+          group_rev.visible,
         );
         Some(GroupPB::from(group))
       })

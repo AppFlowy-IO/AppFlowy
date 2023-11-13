@@ -1,10 +1,18 @@
 import { RowMeta } from '../../application';
 
+export const GridCalculateCountHeight = 40;
+
+export const DEFAULT_FIELD_WIDTH = 150;
+
 export enum RenderRowType {
   Fields = 'fields',
   Row = 'row',
   NewRow = 'new-row',
-  Calculate = 'calculate',
+  CalculateRow = 'calculate-row',
+}
+
+export interface CalculateRenderRow {
+  type: RenderRowType.CalculateRow;
 }
 
 export interface FieldRenderRow {
@@ -24,10 +32,6 @@ export interface NewRenderRow {
     startRowId?: string;
     groupId?: string;
   };
-}
-
-export interface CalculateRenderRow {
-  type: RenderRowType.Calculate;
 }
 
 export type RenderRow = FieldRenderRow | CellRenderRow | NewRenderRow | CalculateRenderRow;
@@ -50,7 +54,7 @@ export const rowMetasToRenderRow = (rowMetas: RowMeta[]): RenderRow[] => {
       },
     },
     {
-      type: RenderRowType.Calculate,
+      type: RenderRowType.CalculateRow,
     },
   ];
 };

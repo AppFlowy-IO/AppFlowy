@@ -11,7 +11,8 @@ use serde::Serialize;
 use flowy_error::FlowyResult;
 
 use crate::entities::{
-  FieldType, GroupChangesPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
+  FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
+  RowMetaPB,
 };
 use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser};
 use crate::services::field::{default_type_option_data_from_type, TypeOption, TypeOptionCellData};
@@ -45,10 +46,12 @@ pub trait GroupOperationInterceptor {
   type GroupTypeOption: TypeOption;
   async fn type_option_from_group_changeset(
     &self,
-    changeset: &GroupChangeset,
-    type_option: &Self::GroupTypeOption,
-    view_id: &str,
-  ) -> Option<TypeOptionData>;
+    _changeset: &GroupChangeset,
+    _type_option: &Self::GroupTypeOption,
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
+    None
+  }
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
@@ -396,7 +399,7 @@ where
   async fn apply_group_changeset(
     &mut self,
     changeset: &GroupChangesets,
-  ) -> FlowyResult<TypeOptionData> {
+  ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
     for group_changeset in changeset.changesets.iter() {
       self.context.update_group(group_changeset)?;
     }
@@ -410,7 +413,16 @@ where
         type_option_data.extend(new_type_option_data);
       }
     }
-    Ok(type_option_data)
+    let updated_groups = changeset
+      .changesets
+      .iter()
+      .filter_map(|changeset| {
+        self
+          .get_group(&changeset.group_id)
+          .map(|(_, group)| GroupPB::from(group))
+      })
+      .collect::<Vec<_>>();
+    Ok((updated_groups, type_option_data))
   }
 }
 

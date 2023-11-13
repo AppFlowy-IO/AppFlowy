@@ -52,7 +52,14 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
         selectedViewId={selectedViewId}
         childViewIds={childViewIds}
       />
-      <SwipeableViews className={'flex-1 overflow-hidden'} axis={'x'} index={index}>
+      <SwipeableViews
+        slideStyle={{
+          overflow: 'hidden',
+        }}
+        className={'flex-1 overflow-hidden'}
+        axis={'x'}
+        index={index}
+      >
         {childViewIds.map((id) => (
           <TabPanel key={id} index={index} value={index}>
             <DatabaseLoader viewId={id}>

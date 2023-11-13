@@ -12,7 +12,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // const String readme = 'Read me';
-const String gettingStarted = '⭐️ Getting started';
+const String gettingStarted = 'Getting started';
 
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.

@@ -786,7 +786,8 @@ async fn hide_group_event_test() {
   assert!(error.is_none());
 
   let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups.len(), 3);
+  assert_eq!(groups.len(), 4);
+  assert_eq!(groups[0].is_visible, false);
 }
 
 // Update the database layout type from grid to board

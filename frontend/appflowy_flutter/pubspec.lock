@@ -45,11 +45,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "1a329c2"
-      resolved-ref: "1a329c21921c0d19871bea3237b7d80fe131f2ed"
+      ref: "2de4fe0"
+      resolved-ref: "2de4fe0b0245dcdf2c2bf43410661c28acbcc687"
       url: "https://github.com/AppFlowy-IO/appflowy-board.git"
     source: git
-    version: "0.1.0"
+    version: "0.1.1"
   appflowy_editor:
     dependency: "direct main"
     description:

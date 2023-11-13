@@ -8,6 +8,9 @@ import {
   MoveFieldPayloadPB,
   RepeatedFieldIdPB,
   UpdateFieldTypePayloadPB,
+  FieldSettingsChangesetPB,
+  FieldVisibility,
+  DatabaseViewIdPB,
 } from '@/services/backend';
 import {
   DatabaseEventDuplicateField,
@@ -17,6 +20,8 @@ import {
   DatabaseEventGetFields,
   DatabaseEventDeleteField,
   DatabaseEventCreateTypeOption,
+  DatabaseEventUpdateFieldSettings,
+  DatabaseEventGetAllFieldSettings,
 } from '@/services/backend/events/flowy-database2';
 import { Field, pbToField } from './field_types';
 import { bytesToTypeOption, getTypeOption } from './type_option';
@@ -24,20 +29,39 @@ import { bytesToTypeOption, getTypeOption } from './type_option';
 export async function getFields(viewId: string, fieldIds?: string[]): Promise<Field[]> {
   const payload = GetFieldPayloadPB.fromObject({
     view_id: viewId,
-    field_ids: fieldIds ? RepeatedFieldIdPB.fromObject({
-      items: fieldIds.map(fieldId => ({ field_id: fieldId })),
-    }) : undefined,
+    field_ids: fieldIds
+      ? RepeatedFieldIdPB.fromObject({
+          items: fieldIds.map((fieldId) => ({ field_id: fieldId })),
+        })
+      : undefined,
   });
 
   const result = await DatabaseEventGetFields(payload);
 
-  const fields = result.map((value) => value.items.map(pbToField)).unwrap();
+  const getSettingsPayload = DatabaseViewIdPB.fromObject({
+    value: viewId,
+  });
 
-  await Promise.all(fields.map(async field => {
-    const typeOption = await getTypeOption(viewId, field.id, field.type);
+  const settings = await DatabaseEventGetAllFieldSettings(getSettingsPayload);
 
-    field.typeOption = typeOption;
-  }));
+  if (settings.ok === false || result.ok === false) {
+    return Promise.reject('Failed to get fields');
+  }
+
+  const fields = await Promise.all(
+    result.val.items.map(async (item) => {
+      const setting = settings.val.items.find((setting) => setting.field_id === item.id);
+      const field = pbToField(item);
+      const typeOption = await getTypeOption(viewId, field.id, field.type);
+
+      return {
+        ...field,
+        visibility: setting?.visibility,
+        width: setting?.width,
+        typeOption,
+      };
+    })
+  );
 
   return fields;
 }
@@ -51,13 +75,14 @@ export async function createField(viewId: string, fieldType?: FieldType, data?: 
 
   const result = await DatabaseEventCreateTypeOption(payload);
 
-  return result.map(value => {
-    const field = pbToField(value.field);
+  if (result.ok === false) {
+    return Promise.reject('Failed to create field');
+  }
 
-    field.typeOption = bytesToTypeOption(value.type_option_data, field.type);
+  const field = pbToField(result.val.field);
 
-    return field;
-  }).unwrap();
+  field.typeOption = bytesToTypeOption(result.val.type_option_data, field.type);
+  return field;
 }
 
 export async function duplicateField(viewId: string, fieldId: string): Promise<void> {
@@ -68,16 +93,21 @@ export async function duplicateField(viewId: string, fieldId: string): Promise<v
 
   const result = await DatabaseEventDuplicateField(payload);
 
-  return result.unwrap();
+  if (result.ok === false) {
+    return Promise.reject('Failed to duplicate field');
+  }
+
+  return result.val;
 }
 
-export async function updateField(viewId: string, fieldId: string, data: {
-  name?: string;
-  desc?: string;
-  frozen?: boolean;
-  visibility?: boolean;
-  width?: number;
-}): Promise<void> {
+export async function updateField(
+  viewId: string,
+  fieldId: string,
+  data: {
+    name?: string;
+    desc?: string;
+  }
+): Promise<void> {
   const payload = FieldChangesetPB.fromObject({
     view_id: viewId,
     field_id: fieldId,
@@ -123,4 +153,27 @@ export async function deleteField(viewId: string, fieldId: string): Promise<void
   const result = await DatabaseEventDeleteField(payload);
 
   return result.unwrap();
+}
+
+export async function updateFieldSetting(
+  viewId: string,
+  fieldId: string,
+  settings: {
+    visibility?: FieldVisibility;
+    width?: number;
+  }
+): Promise<void> {
+  const payload = FieldSettingsChangesetPB.fromObject({
+    view_id: viewId,
+    field_id: fieldId,
+    ...settings,
+  });
+
+  const result = await DatabaseEventUpdateFieldSettings(payload);
+
+  if (result.ok === false) {
+    return Promise.reject('Failed to update field settings');
+  }
+
+  return result.val;
 }
