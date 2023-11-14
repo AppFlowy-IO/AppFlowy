@@ -1,14 +1,10 @@
-import 'dart:math';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -71,12 +67,13 @@ class SelectOptionTag extends StatelessWidget {
   final Color color;
   final VoidCallback? onSelected;
   final void Function(String)? onRemove;
-  const SelectOptionTag({required this.name,
-      required this.color,
-      this.onSelected,
-      this.onRemove,
-      Key? key,
-      ac}): super(key: key);
+  const SelectOptionTag({
+    required this.name,
+    required this.color,
+    this.onSelected,
+    this.onRemove,
+    Key? key,
+  }) : super(key: key);
 
   factory SelectOptionTag.fromOption({
     required BuildContext context,
@@ -95,7 +92,7 @@ class SelectOptionTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8.0);
+        const EdgeInsets.symmetric(vertical: 2, horizontal: 8.0);
     if (onRemove != null) {
       padding = padding.copyWith(right: 2.0);
     }
@@ -110,17 +107,16 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(name,
-                fontSize: FontSizes.s11,
-                overflow: TextOverflow.ellipsis,
-                color: ColorAnalyzer().getAppropriateTextColor(
-                    color,
-                    Theme.of(context)
-                        .extension<AFThemeExtension>()!
-                        .textColorAlt,
-                    Theme.of(context)
-                        .extension<AFThemeExtension>()!
-                        .textColor)),
+            child: FlowyText.medium(
+              name,
+              fontSize: FontSizes.s11,
+              overflow: TextOverflow.ellipsis,
+              color: ColorAnalyzer().getAppropriateTextColor(
+                color,
+                Theme.of(context).extension<AFThemeExtension>()!.textColor,
+                Theme.of(context).extension<AFThemeExtension>()!.textColorAlt,
+              ),
+            ),
           ),
           if (onRemove != null) ...[
             const HSpace(2),

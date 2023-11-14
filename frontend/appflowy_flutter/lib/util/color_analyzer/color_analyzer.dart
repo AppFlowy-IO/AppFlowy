@@ -6,6 +6,7 @@ class ColorAnalyzer {
   static const double luminanceThreshold = 0.03928;
   static const double adjustmentFactor = 12.92;
   static const double scaleNorm = 1.055;
+  static const double contrastThreshold = 1.36;
   static const List<double> luminanceCoefficients = [0.2126, 0.7152, 0.0722];
 
   double calculateLuminance(Color color) {
@@ -28,7 +29,7 @@ class ColorAnalyzer {
     double luminance2 = calculateLuminance(color2);
 
     if (luminance1 < luminance2) {
-      double temp = luminance1;
+      final double temp = luminance1;
       luminance1 = luminance2;
       luminance2 = temp;
     }
@@ -37,10 +38,13 @@ class ColorAnalyzer {
   }
 
   Color getAppropriateTextColor(
-      Color backgroundColor, Color primaryTextColor, Color altTextColor) {
+    Color backgroundColor,
+    Color primaryTextColor,
+    Color altTextColor,
+  ) {
     final double contrastRatio =
         calculateContrast(backgroundColor, primaryTextColor);
 
-    return contrastRatio < 1.36 ? altTextColor : primaryTextColor;
+    return contrastRatio < contrastThreshold ? altTextColor : primaryTextColor;
   }
 }
