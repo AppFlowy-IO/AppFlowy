@@ -38,30 +38,23 @@ class DateCellCalendarBloc
         await event.when(
           initial: () async => _startListening(),
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
-            final (
-              dateTime,
-              endDateTime,
-              timeStr,
-              endTimeStr,
-              includeTime,
-              isRange,
-              dateStr,
-              endDateStr,
-            ) = _dateDataFromCellData(cellData);
+            final dateCellData = _dateDataFromCellData(cellData);
             final endDay =
-                isRange == state.isRange && isRange ? endDateTime : null;
+                dateCellData.isRange == state.isRange && dateCellData.isRange
+                    ? dateCellData.endDateTime
+                    : null;
             emit(
               state.copyWith(
-                dateTime: dateTime,
-                timeStr: timeStr,
-                endDateTime: endDateTime,
-                endTimeStr: endTimeStr,
-                includeTime: includeTime,
-                isRange: isRange,
-                startDay: isRange ? dateTime : null,
+                dateTime: dateCellData.dateTime,
+                timeStr: dateCellData.timeStr,
+                endDateTime: dateCellData.endDateTime,
+                endTimeStr: dateCellData.endTimeStr,
+                includeTime: dateCellData.includeTime,
+                isRange: dateCellData.isRange,
+                startDay: dateCellData.isRange ? dateCellData.dateTime : null,
                 endDay: endDay,
-                dateStr: dateStr,
-                endDateStr: endDateStr,
+                dateStr: dateCellData.dateStr,
+                endDateStr: dateCellData.endDateStr,
               ),
             );
           },
@@ -424,28 +417,19 @@ class DateCellCalendarState with _$DateCellCalendarState {
     DateTypeOptionPB dateTypeOptionPB,
     DateCellDataPB? cellData,
   ) {
-    final (
-      dateTime,
-      endDateTime,
-      timeStr,
-      endTimeStr,
-      includeTime,
-      isRange,
-      dateStr,
-      endDateStr
-    ) = _dateDataFromCellData(cellData);
+    final dateCellData = _dateDataFromCellData(cellData);
     return DateCellCalendarState(
       dateTypeOptionPB: dateTypeOptionPB,
-      startDay: isRange ? dateTime : null,
-      endDay: isRange ? endDateTime : null,
-      dateTime: dateTime,
-      endDateTime: endDateTime,
-      timeStr: timeStr,
-      endTimeStr: endTimeStr,
-      dateStr: dateStr,
-      endDateStr: endDateStr,
-      includeTime: includeTime,
-      isRange: isRange,
+      startDay: dateCellData.isRange ? dateCellData.dateTime : null,
+      endDay: dateCellData.isRange ? dateCellData.endDateTime : null,
+      dateTime: dateCellData.dateTime,
+      endDateTime: dateCellData.endDateTime,
+      timeStr: dateCellData.timeStr,
+      endTimeStr: dateCellData.endTimeStr,
+      dateStr: dateCellData.dateStr,
+      endDateStr: dateCellData.endDateStr,
+      includeTime: dateCellData.includeTime,
+      isRange: dateCellData.isRange,
       parseTimeError: null,
       parseEndTimeError: null,
       timeHintText: _timeHintText(dateTypeOptionPB),
@@ -464,14 +448,22 @@ String _timeHintText(DateTypeOptionPB typeOption) {
   }
 }
 
-(DateTime?, DateTime?, String?, String?, bool, bool, String?, String?)
-    _dateDataFromCellData(
+DateCellData _dateDataFromCellData(
   DateCellDataPB? cellData,
 ) {
   // a null DateCellDataPB may be returned, indicating that all the fields are
   // their default values: empty strings and false booleans
   if (cellData == null) {
-    return (null, null, null, null, false, false, null, null);
+    return DateCellData(
+      dateTime: null,
+      endDateTime: null,
+      timeStr: null,
+      endTimeStr: null,
+      includeTime: false,
+      isRange: false,
+      dateStr: null,
+      endDateStr: null,
+    );
   }
 
   DateTime? dateTime;
@@ -498,14 +490,36 @@ String _timeHintText(DateTypeOptionPB typeOption) {
   }
   final String dateStr = cellData.date;
 
-  return (
-    dateTime,
-    endDateTime,
-    timeStr,
-    endTimeStr,
-    includeTime,
-    isRange,
-    dateStr,
-    endDateStr
+  return DateCellData(
+    dateTime: dateTime,
+    endDateTime: endDateTime,
+    timeStr: timeStr,
+    endTimeStr: endTimeStr,
+    includeTime: includeTime,
+    isRange: isRange,
+    dateStr: dateStr,
+    endDateStr: endDateStr,
   );
+}
+
+class DateCellData {
+  final DateTime? dateTime;
+  final DateTime? endDateTime;
+  final String? timeStr;
+  final String? endTimeStr;
+  final bool includeTime;
+  final bool isRange;
+  final String? dateStr;
+  final String? endDateStr;
+
+  DateCellData({
+    required this.dateTime,
+    required this.endDateTime,
+    required this.timeStr,
+    required this.endTimeStr,
+    required this.includeTime,
+    required this.isRange,
+    required this.dateStr,
+    required this.endDateStr,
+  });
 }
