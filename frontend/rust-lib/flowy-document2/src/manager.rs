@@ -22,9 +22,7 @@ use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-
   fn workspace_id(&self) -> Result<String, FlowyError>;
-
   fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
   fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
 }
