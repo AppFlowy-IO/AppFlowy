@@ -34,6 +34,7 @@ uuid.workspace = true
 futures.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
 scraper = "0.18.0"
+lru.workspace = true
 
 [dev-dependencies]
 tempfile = "3.4.0"
