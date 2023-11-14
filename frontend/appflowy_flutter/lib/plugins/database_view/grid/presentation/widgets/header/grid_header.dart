@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -111,7 +110,7 @@ class _GridHeaderState extends State<_GridHeader> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               scrollController: ScrollController(),
               header: const _CellLeading(),
-              needsLongPressDraggable: Platform.isAndroid || Platform.isIOS,
+              needsLongPressDraggable: PlatformExtension.isMobile,
               footer: _CellTrailing(viewId: widget.viewId),
               onReorder: (int oldIndex, int newIndex) {
                 _onReorder(cells, oldIndex, context, newIndex);

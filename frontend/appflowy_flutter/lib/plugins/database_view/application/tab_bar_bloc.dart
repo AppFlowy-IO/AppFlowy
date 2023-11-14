@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_add_button.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -253,7 +252,7 @@ class DatabaseTabBar extends Equatable {
 
   DatabaseTabBar({
     required this.view,
-  }) : _builder = Platform.isAndroid || Platform.isIOS
+  }) : _builder = PlatformExtension.isMobile
             ? view.mobileTabBarItem()
             : view.tabBarItem();
 
