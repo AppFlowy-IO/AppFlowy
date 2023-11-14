@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileTimestampCell extends GridCellWidget {
+  MobileTimestampCell({
+    super.key,
+    required this.cellControllerBuilder,
+  });
+
   final CellControllerBuilder cellControllerBuilder;
 
-  MobileTimestampCell({
-    required this.cellControllerBuilder,
-    super.key,
-  });
   @override
   GridCellState<MobileTimestampCell> createState() => _TimestampCellState();
 }

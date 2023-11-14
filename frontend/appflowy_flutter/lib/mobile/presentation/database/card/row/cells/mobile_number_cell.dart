@@ -6,15 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileNumberCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
-
-  final String? hintText;
-
   MobileNumberCell({
+    super.key,
     required this.cellControllerBuilder,
     this.hintText,
-    super.key,
   });
+
+  final CellControllerBuilder cellControllerBuilder;
+  final String? hintText;
 
   @override
   GridEditableTextCell<MobileNumberCell> createState() => _NumberCellState();
@@ -71,11 +70,10 @@ class _NumberCellState extends GridEditableTextCell<MobileNumberCell> {
 
   @override
   Future<void> focusChanged() async {
-    if (mounted) {
-      if (_cellBloc.isClosed == false &&
-          _controller.text != _cellBloc.state.cellContent) {
-        _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
-      }
+    if (mounted &&
+        _cellBloc.isClosed == false &&
+        _controller.text != _cellBloc.state.cellContent) {
+      _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
     }
   }
 

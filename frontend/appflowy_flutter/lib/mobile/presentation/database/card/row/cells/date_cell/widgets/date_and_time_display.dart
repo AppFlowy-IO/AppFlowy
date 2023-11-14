@@ -27,15 +27,11 @@ class DateAndTimeDisplay extends StatelessWidget {
                   : state.dateStr,
               initialDate: state.isRange ? state.startDay : state.dateTime,
               onDaySelected: (newDate) {
-                if (state.isRange) {
-                  context
-                      .read<DateCellCalendarBloc>()
-                      .add(DateCellCalendarEvent.setStartDay(newDate));
-                } else {
-                  context.read<DateCellCalendarBloc>().add(
-                        DateCellCalendarEvent.selectDay(newDate),
-                      );
-                }
+                context.read<DateCellCalendarBloc>().add(
+                      state.isRange
+                          ? DateCellCalendarEvent.setStartDay(newDate)
+                          : DateCellCalendarEvent.selectDay(newDate),
+                    );
               },
             ),
             const HSpace(8),
@@ -45,24 +41,20 @@ class DateAndTimeDisplay extends StatelessWidget {
         ),
         const VSpace(8),
         // end date and time
-        if (state.isRange)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _DateEditButton(
-                dateStr: state.endDay != null ? state.endDateStr : null,
-                initialDate: state.endDay,
-                onDaySelected: (newDate) {
-                  context.read<DateCellCalendarBloc>().add(
-                        DateCellCalendarEvent.setEndDay(newDate),
-                      );
-                },
-              ),
-              const HSpace(8),
-              if (state.includeTime)
-                Expanded(child: _TimeEditButton(state.endTimeStr)),
-            ],
+        if (state.isRange) ...[
+          _DateEditButton(
+            dateStr: state.endDay != null ? state.endDateStr : null,
+            initialDate: state.endDay,
+            onDaySelected: (newDate) {
+              context.read<DateCellCalendarBloc>().add(
+                    DateCellCalendarEvent.setEndDay(newDate),
+                  );
+            },
           ),
+          const HSpace(8),
+          if (state.includeTime)
+            Expanded(child: _TimeEditButton(state.endTimeStr)),
+        ],
       ],
     );
   }
@@ -110,10 +102,11 @@ class _DateEditButton extends StatelessWidget {
 }
 
 class _TimeEditButton extends StatelessWidget {
-  final String? timeStr;
   const _TimeEditButton(
     this.timeStr,
   );
+
+  final String? timeStr;
 
   @override
   Widget build(BuildContext context) {

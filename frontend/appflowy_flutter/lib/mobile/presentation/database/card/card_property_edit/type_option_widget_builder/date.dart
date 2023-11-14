@@ -21,12 +21,12 @@ class DateTypeOptionMobileWidgetBuilder extends TypeOptionWidgetBuilder {
 }
 
 class DateTypeOptionMobileWidget extends TypeOptionWidget {
-  final DateTypeOptionContext typeOptionContext;
-
   const DateTypeOptionMobileWidget({
     super.key,
     required this.typeOptionContext,
   });
+
+  final DateTypeOptionContext typeOptionContext;
 
   @override
   Widget build(BuildContext context) {
@@ -77,9 +77,9 @@ class DateTypeOptionMobileWidget extends TypeOptionWidget {
           return ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) => const VSpace(8),
+            separatorBuilder: (_, index) => const VSpace(8),
             itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) => children[index],
+            itemBuilder: (_, index) => children[index],
           );
         },
       ),

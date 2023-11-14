@@ -87,13 +87,14 @@ class NumberTypeOptionMobileWidget extends TypeOptionWidget {
 typedef SelectNumberFormatCallback = Function(NumberFormatPB format);
 
 class NumberFormatList extends StatelessWidget {
-  final SelectNumberFormatCallback onSelected;
-  final NumberFormatPB selectedFormat;
   const NumberFormatList({
+    super.key,
     required this.selectedFormat,
     required this.onSelected,
-    Key? key,
   });
+
+  final SelectNumberFormatCallback onSelected;
+  final NumberFormatPB selectedFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -107,26 +108,21 @@ class NumberFormatList extends StatelessWidget {
             height: 300,
             child: BlocBuilder<NumberFormatBloc, NumberFormatState>(
               builder: (context, state) {
-                final cells = state.formats.map((format) {
-                  return RadioListTile<NumberFormatPB>(
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    visualDensity: VisualDensity.compact,
-                    value: format,
-                    groupValue: selectedFormat,
-                    onChanged: (format) {
-                      onSelected(format!);
-                    },
-                    title: Text(format.title()),
-                  );
-                }).toList();
-
-                final list = ListView.builder(
-                  itemCount: cells.length,
+                final List<NumberFormatPB> formatList = state.formats;
+                return ListView.builder(
+                  itemCount: formatList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return cells[index];
+                    final format = formatList[index];
+                    return RadioListTile<NumberFormatPB>(
+                      controlAffinity: ListTileControlAffinity.trailing,
+                      visualDensity: VisualDensity.compact,
+                      value: format,
+                      groupValue: selectedFormat,
+                      onChanged: (format) => onSelected(format!),
+                      title: Text(format.title()),
+                    );
                   },
                 );
-                return list;
               },
             ),
           ),
@@ -137,7 +133,7 @@ class NumberFormatList extends StatelessWidget {
 }
 
 class _FilterTextField extends StatelessWidget {
-  const _FilterTextField({Key? key});
+  const _FilterTextField();
   @override
   Widget build(BuildContext context) {
     return Padding(

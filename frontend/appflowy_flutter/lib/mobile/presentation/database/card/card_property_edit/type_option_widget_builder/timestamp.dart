@@ -22,12 +22,12 @@ class TimestampTypeOptionMobileWidgetBuilder extends TypeOptionWidgetBuilder {
 }
 
 class TimestampTypeOptionMobileWidget extends TypeOptionWidget {
-  final TimestampTypeOptionContext typeOptionContext;
-
   const TimestampTypeOptionMobileWidget({
-    required this.typeOptionContext,
     super.key,
+    required this.typeOptionContext,
   });
+
+  final TimestampTypeOptionContext typeOptionContext;
 
   @override
   Widget build(BuildContext context) {

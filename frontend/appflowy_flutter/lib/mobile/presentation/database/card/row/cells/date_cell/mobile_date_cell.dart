@@ -13,14 +13,14 @@ abstract class GridCellDelegate {
 }
 
 class MobileDateCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
-  final String? placeholder;
-
   MobileDateCell({
+    super.key,
     required this.cellControllerBuilder,
     required this.placeholder,
-    super.key,
   });
+
+  final CellControllerBuilder cellControllerBuilder;
+  final String? placeholder;
 
   @override
   GridCellState<MobileDateCell> createState() => _DateCellState();
@@ -82,14 +82,14 @@ class _DateCellState extends GridCellState<MobileDateCell> {
 }
 
 class MobileDateCellText extends StatelessWidget {
-  final String dateStr;
-  final String placeholder;
-
   const MobileDateCellText({
+    super.key,
     required this.dateStr,
     required this.placeholder,
-    super.key,
   });
+
+  final String dateStr;
+  final String placeholder;
 
   @override
   Widget build(BuildContext context) {

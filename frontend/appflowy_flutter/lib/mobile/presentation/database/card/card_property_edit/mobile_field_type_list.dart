@@ -39,13 +39,14 @@ class MobileFieldTypeList extends StatelessWidget {
 }
 
 class MobileFieldTypeCell extends StatelessWidget {
-  final FieldType fieldType;
-  final SelectFieldCallback onSelectField;
   const MobileFieldTypeCell({
     super.key,
     required this.fieldType,
     required this.onSelectField,
   });
+
+  final FieldType fieldType;
+  final SelectFieldCallback onSelectField;
 
   @override
   Widget build(BuildContext context) {

@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 
 class IncludeTimeSwitch extends StatelessWidget {
   const IncludeTimeSwitch({
+    super.key,
     required this.switchValue,
     required this.onChanged,
-    super.key,
   });
+
   final bool switchValue;
   final void Function(bool)? onChanged;
+
   @override
   Widget build(BuildContext context) {
     return Row(

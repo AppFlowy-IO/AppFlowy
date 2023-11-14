@@ -18,13 +18,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'widgets/widgets.dart';
 
 class MobileDateCellEditScreen extends StatefulWidget {
+  static const routeName = '/MobileDateCellEditScreen';
+  static const argCellController = 'cellController';
   const MobileDateCellEditScreen(
     this.cellController, {
     super.key,
   });
-  static const routeName = '/MobileDateCellEditScreen';
-  static const argCellController = 'cellController';
+
   final DateCellController cellController;
+
   @override
   State<MobileDateCellEditScreen> createState() =>
       _MobileDateCellEditScreenState();
@@ -80,13 +82,6 @@ class _DateCellEditBody extends StatefulWidget {
 }
 
 class _DateCellEditBodyState extends State<_DateCellEditBody> {
-  final PopoverMutex popoverMutex = PopoverMutex();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -247,36 +242,28 @@ class _EndDayTime extends StatelessWidget {
 }
 
 class _TimeTextField extends StatefulWidget {
-  final bool isEndTime;
-  final String? timeStr;
-
   const _TimeTextField({
     required this.timeStr,
     required this.isEndTime,
   });
+
+  final bool isEndTime;
+  final String? timeStr;
 
   @override
   State<_TimeTextField> createState() => _TimeTextFieldState();
 }
 
 class _TimeTextFieldState extends State<_TimeTextField> {
-  late final TextEditingController _textController;
-
-  @override
-  void initState() {
-    super.initState();
-    _textController = TextEditingController(text: widget.timeStr);
-  }
+  late final TextEditingController _textController =
+      TextEditingController(text: widget.timeStr);
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DateCellCalendarBloc, DateCellCalendarState>(
       listener: (context, state) {
-        if (widget.isEndTime) {
-          _textController.text = state.endTimeStr ?? "";
-        } else {
-          _textController.text = state.timeStr ?? "";
-        }
+        _textController.text =
+            widget.isEndTime ? state.endTimeStr ?? "" : state.timeStr ?? "";
       },
       builder: (context, state) {
         return TextFormField(
@@ -290,15 +277,11 @@ class _TimeTextFieldState extends State<_TimeTextField> {
           ),
           keyboardType: TextInputType.datetime,
           onFieldSubmitted: (timeStr) {
-            if (widget.isEndTime) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setEndTime(timeStr));
-            } else {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setTime(timeStr));
-            }
+            context.read<DateCellCalendarBloc>().add(
+                  widget.isEndTime
+                      ? DateCellCalendarEvent.setEndTime(timeStr)
+                      : DateCellCalendarEvent.setTime(timeStr),
+                );
           },
         );
       },

@@ -36,26 +36,26 @@ class GridCellBuilder {
 
     if (PlatformExtension.isMobile) {
       return _getMobileCardCellWidget(
+        key,
         cellContext,
         cellControllerBuilder,
         style,
-        key,
       );
     }
 
     return _getDesktopGridCellWidget(
+      key,
       cellContext,
       cellControllerBuilder,
       style,
-      key,
     );
   }
 
   GridCellWidget _getDesktopGridCellWidget(
+    ValueKey key,
     DatabaseCellContext cellContext,
     CellControllerBuilder cellControllerBuilder,
     GridCellStyle? style,
-    ValueKey key,
   ) {
     switch (cellContext.fieldType) {
       case FieldType.Checkbox:
@@ -122,10 +122,10 @@ class GridCellBuilder {
 
 // editable cell/(card's propery value) widget
 GridCellWidget _getMobileCardCellWidget(
+  ValueKey key,
   DatabaseCellContext cellContext,
   CellControllerBuilder cellControllerBuilder,
   GridCellStyle? style,
-  ValueKey key,
 ) {
   switch (cellContext.fieldType) {
     case FieldType.RichText:

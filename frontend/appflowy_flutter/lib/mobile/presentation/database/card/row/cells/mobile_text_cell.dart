@@ -6,15 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileTextCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
-
-  final String? hintText;
-
   MobileTextCell({
+    super.key,
     required this.cellControllerBuilder,
     this.hintText,
-    super.key,
   });
+
+  final CellControllerBuilder cellControllerBuilder;
+  final String? hintText;
 
   @override
   GridEditableTextCell<MobileTextCell> createState() => _MobileTextCellState();

@@ -16,22 +16,18 @@ import 'package:go_router/go_router.dart';
 import 'mobile_field_type_list.dart';
 
 class MobileFieldTypeOptionEditor extends StatelessWidget {
-  final TypeOptionController _dataController;
-
   const MobileFieldTypeOptionEditor({
+    super.key,
     required TypeOptionController dataController,
-    Key? key,
-  })  : _dataController = dataController,
-        super(key: key);
+  }) : _dataController = dataController;
+
+  final TypeOptionController _dataController;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = FieldTypeOptionEditBloc(_dataController);
-        bloc.add(const FieldTypeOptionEditEvent.initial());
-        return bloc;
-      },
+    return BlocProvider<FieldTypeOptionEditBloc>(
+      create: (_) => FieldTypeOptionEditBloc(_dataController)
+        ..add(const FieldTypeOptionEditEvent.initial()),
       child: BlocBuilder<FieldTypeOptionEditBloc, FieldTypeOptionEditState>(
         builder: (context, state) {
           final typeOptionWidget = _makeTypeOptionMobileWidget(
@@ -101,12 +97,10 @@ class _MobileSwitchFieldButton extends StatelessWidget {
 Widget? _makeTypeOptionMobileWidget({
   required BuildContext context,
   required TypeOptionController dataController,
-}) {
-  final builder = _makeTypeOptionMobileWidgetBuilder(
-    dataController: dataController,
-  );
-  return builder.build(context);
-}
+}) =>
+    _makeTypeOptionMobileWidgetBuilder(
+      dataController: dataController,
+    ).build(context);
 
 TypeOptionWidgetBuilder _makeTypeOptionMobileWidgetBuilder({
   required TypeOptionController dataController,

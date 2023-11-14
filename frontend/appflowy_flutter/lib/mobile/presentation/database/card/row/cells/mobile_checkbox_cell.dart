@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileCheckboxCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
-
   MobileCheckboxCell({
+    super.key,
     required this.cellControllerBuilder,
     GridCellStyle? style,
-    super.key,
   });
+
+  final CellControllerBuilder cellControllerBuilder;
 
   @override
   GridCellState<MobileCheckboxCell> createState() => _CheckboxCellState();
@@ -23,11 +23,11 @@ class _CheckboxCellState extends GridCellState<MobileCheckboxCell> {
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as CheckboxCellController;
     _cellBloc = CheckboxCellBloc(cellController: cellController)
       ..add(const CheckboxCellEvent.initial());
-    super.initState();
   }
 
   @override
@@ -62,11 +62,5 @@ class _CheckboxCellState extends GridCellState<MobileCheckboxCell> {
   }
 
   @override
-  String? onCopy() {
-    if (_cellBloc.state.isSelected) {
-      return "Yes";
-    } else {
-      return "No";
-    }
-  }
+  String? onCopy() => _cellBloc.state.isSelected ? "Yes" : "No";
 }

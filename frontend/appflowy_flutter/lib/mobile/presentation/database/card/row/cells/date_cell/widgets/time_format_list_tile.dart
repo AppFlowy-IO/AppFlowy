@@ -87,6 +87,7 @@ class _TimeFormatRadioListTile extends StatelessWidget {
     required this.groupValue,
     required this.onChanged,
   });
+
   final String title;
   final TimeFormatPB timeFormatPB;
   final TimeFormatPB? groupValue;
