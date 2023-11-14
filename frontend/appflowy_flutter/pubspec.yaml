@@ -111,10 +111,10 @@ dependencies:
   go_router: ^10.1.2
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
-  emoji_mart:
+  flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
-      ref: "067f718"
+      ref: "140b530"
 
   # Notifications
   # TODO: Consider implementing custom package

@@ -402,15 +402,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.2"
-  emoji_mart:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: "067f718"
-      resolved-ref: "067f7188965c8fcb7be02ce174ce2b6757f288ee"
-      url: "https://github.com/LucasXu0/emoji_mart.git"
-    source: git
-    version: "0.0.1"
   envied:
     dependency: "direct main"
     description:
@@ -584,6 +575,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_emoji_mart:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "140b530"
+      resolved-ref: "140b53091ce7ad971e97c1d5a53fe0875596326d"
+      url: "https://github.com/LucasXu0/emoji_mart.git"
+    source: git
+    version: "1.0.2"
   flutter_lints:
     dependency: "direct dev"
     description:
