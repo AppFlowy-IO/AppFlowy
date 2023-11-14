@@ -57,26 +57,29 @@ class _DatabaseViewSettingContent extends StatelessWidget {
     return BlocBuilder<DatabaseViewSettingExtensionBloc,
         DatabaseViewSettingExtensionState>(
       builder: (context, state) {
-        return _wrapPadding(
-          Row(
-            children: [
-              SortMenu(fieldController: fieldController),
-              const HSpace(6),
-              FilterMenu(fieldController: fieldController),
-            ],
+        final borderSide =
+            BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: GridSize.leadingHeaderPadding,
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(bottom: borderSide),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  SortMenu(fieldController: fieldController),
+                  const HSpace(6),
+                  FilterMenu(fieldController: fieldController),
+                ],
+              ),
+            ),
           ),
         );
       },
-    );
-  }
-
-  Widget _wrapPadding(Widget child) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: GridSize.leadingHeaderPadding,
-        vertical: 8,
-      ),
-      child: child,
     );
   }
 }

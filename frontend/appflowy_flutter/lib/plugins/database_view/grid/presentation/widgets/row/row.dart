@@ -254,8 +254,6 @@ class RowContent extends StatelessWidget {
       builder: (context, state) {
         return IntrinsicHeight(
           child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ..._makeCells(context, state.cellByFieldId),

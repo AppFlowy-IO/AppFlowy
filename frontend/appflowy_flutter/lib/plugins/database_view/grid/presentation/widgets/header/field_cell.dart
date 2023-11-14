@@ -114,7 +114,6 @@ class _GridHeaderCellContainer extends StatelessWidget {
     );
     final decoration = BoxDecoration(
       border: Border(
-        top: borderSide,
         right: borderSide,
         bottom: borderSide,
       ),

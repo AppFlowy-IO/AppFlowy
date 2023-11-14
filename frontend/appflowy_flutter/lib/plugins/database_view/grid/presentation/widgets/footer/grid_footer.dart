@@ -18,13 +18,13 @@ class GridAddRowButton extends StatelessWidget {
     return FlowyButton(
       text: FlowyText.medium(
         LocaleKeys.grid_row_newRow.tr(),
-        color: Theme.of(context).colorScheme.tertiary,
+        color: Theme.of(context).hintColor,
       ),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
       leftIcon: FlowySvg(
         FlowySvgs.add_s,
-        color: Theme.of(context).colorScheme.tertiary,
+        color: Theme.of(context).hintColor,
       ),
     );
   }

@@ -19,6 +19,7 @@ import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
 import '../application/grid_bloc.dart';
 import '../../application/database_controller.dart';
+import 'grid_page.dart';
 import 'grid_scroll.dart';
 import '../../tab_bar/tab_bar_view.dart';
 import 'layout/layout.dart';
@@ -29,18 +30,7 @@ import 'widgets/header/grid_header.dart';
 import '../../widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
 
-class ToggleExtensionNotifier extends ChangeNotifier {
-  bool _isToggled = false;
-
-  get isToggled => _isToggled;
-
-  void toggle() {
-    _isToggled = !_isToggled;
-    notifyListeners();
-  }
-}
-
-class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
 
   @override
@@ -50,7 +40,7 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     DatabaseController controller,
     bool shrinkWrap,
   ) {
-    return GridPage(
+    return MobileGridPage(
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
@@ -84,9 +74,9 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   }
 }
 
-class GridPage extends StatefulWidget {
+class MobileGridPage extends StatefulWidget {
   final DatabaseController databaseController;
-  const GridPage({
+  const MobileGridPage({
     required this.view,
     required this.databaseController,
     this.onDeleted,
@@ -97,10 +87,10 @@ class GridPage extends StatefulWidget {
   final VoidCallback? onDeleted;
 
   @override
-  State<GridPage> createState() => _GridPageState();
+  State<MobileGridPage> createState() => _MobileGridPageState();
 }
 
-class _GridPageState extends State<GridPage> {
+class _MobileGridPageState extends State<MobileGridPage> {
   @override
   void initState() {
     super.initState();
@@ -174,17 +164,19 @@ class _GridPageContentState extends State<GridPageContent> {
       builder: (context, state) {
         final contentWidth = GridLayout.headerWidth(state.fields.fields);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _GridHeader(headerScrollController: headerScrollController),
-            _GridRows(
-              viewId: state.viewId,
-              contentWidth: contentWidth,
-              scrollController: _scrollController,
-            ),
-            const _GridFooter(),
-          ],
+        return Padding(
+          padding: const EdgeInsets.only(right: 26),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _GridHeader(headerScrollController: headerScrollController),
+              _GridRows(
+                viewId: state.viewId,
+                contentWidth: contentWidth,
+                scrollController: _scrollController,
+              ),
+            ],
+          ),
         );
       },
     );
@@ -223,7 +215,7 @@ class _GridRows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
+    return Expanded(
       child: _WrapScrollView(
         scrollController: scrollController,
         contentWidth: contentWidth,
@@ -255,37 +247,59 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
-    return ReorderableListView.builder(
-      /// TODO(Xazin): Resolve inconsistent scrollbar behavior
-      ///  This is a workaround related to
-      ///  https://github.com/flutter/flutter/issues/25652
-      cacheExtent: 5000,
-      scrollController: scrollController.verticalController,
-      buildDefaultDragHandles: false,
-      proxyDecorator: (child, index, animation) => Material(
-        color: Colors.white.withOpacity(.1),
-        child: Opacity(opacity: .5, child: child),
-      ),
-      onReorder: (fromIndex, newIndex) {
-        final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-        if (fromIndex == toIndex) {
-          return;
-        }
-        context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
-      },
-      itemCount: rowInfos.length + 1, // the extra item is the footer
-      itemBuilder: (context, index) {
-        if (index < rowInfos.length) {
+    // return const SizedBox.shrink();
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context)
+          .copyWith(physics: const ClampingScrollPhysics()),
+      child: ReorderableListView.builder(
+        scrollController: scrollController.verticalController,
+        buildDefaultDragHandles: false,
+        proxyDecorator: (child, index, animation) => Material(
+          color: Colors.transparent,
+          child: child,
+        ),
+        onReorder: (fromIndex, newIndex) {
+          final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+          if (fromIndex == toIndex) {
+            return;
+          }
+          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
+        },
+        itemCount: rowInfos.length,
+        itemBuilder: (context, index) {
           final rowInfo = rowInfos[index];
-          return _renderRow(
-            context,
-            rowInfo.rowId,
-            isDraggable: state.reorderable,
+          return ReorderableDelayedDragStartListener(
+            key: ValueKey(rowInfo.rowMeta.id),
             index: index,
+            child: _renderRow(
+              context,
+              rowInfo.rowId,
+              isDraggable: state.reorderable,
+              index: index,
+            ),
           );
-        }
-        return const GridRowBottomBar(key: Key('gridFooter'));
-      },
+        },
+        footer: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: GridSize.footerContentInsets,
+              child: const SizedBox(
+                height: 30,
+                child: GridAddRowButton(
+                  key: Key('gridFooter'),
+                ),
+              ),
+            ),
+            Container(
+              height: 30,
+              alignment: AlignmentDirectional.centerStart,
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: const _GridFooter(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

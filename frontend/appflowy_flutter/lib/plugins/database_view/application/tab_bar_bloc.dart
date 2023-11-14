@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_add_button.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -251,7 +253,9 @@ class DatabaseTabBar extends Equatable {
 
   DatabaseTabBar({
     required this.view,
-  }) : _builder = view.tabBarItem();
+  }) : _builder = Platform.isAndroid || Platform.isIOS
+            ? view.mobileTabBarItem()
+            : view.tabBarItem();
 
   @override
   List<Object?> get props => [view.hashCode];

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
@@ -107,9 +109,17 @@ class _GridHeaderState extends State<_GridHeader> {
           child: RepaintBoundary(
             child: ReorderableRow(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              buildDraggableFeedback: (context, constraints, child) =>
+                  ConstrainedBox(
+                constraints: constraints,
+                child: Material(
+                  color: Colors.transparent,
+                  child: child,
+                ),
+              ),
               scrollController: ScrollController(),
               header: const _CellLeading(),
-              needsLongPressDraggable: false,
+              needsLongPressDraggable: Platform.isAndroid || Platform.isIOS,
               footer: _CellTrailing(viewId: widget.viewId),
               onReorder: (int oldIndex, int newIndex) {
                 _onReorder(cells, oldIndex, context, newIndex);
@@ -159,7 +169,7 @@ class _CellTrailing extends StatelessWidget {
     return Container(
       width: GridSize.trailHeaderPadding,
       decoration: BoxDecoration(
-        border: Border(top: borderSide, bottom: borderSide),
+        border: Border(bottom: borderSide),
       ),
       padding: GridSize.headerContentInsets,
       child: CreateFieldButton(viewId: viewId),

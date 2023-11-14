@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/mobile_grid_page.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -97,7 +98,21 @@ extension ViewExtension on ViewPB {
       case ViewLayoutPB.Calendar:
         return CalendarPageTabBarBuilderImpl();
       case ViewLayoutPB.Grid:
-        return GridPageTabBarBuilderImpl();
+        return DesktopGridTabBarBuilderImpl();
+      case ViewLayoutPB.Document:
+        throw UnimplementedError;
+    }
+    throw UnimplementedError;
+  }
+
+  DatabaseTabBarItemBuilder mobileTabBarItem() {
+    switch (layout) {
+      case ViewLayoutPB.Board:
+        return BoardPageTabBarBuilderImpl();
+      case ViewLayoutPB.Calendar:
+        return CalendarPageTabBarBuilderImpl();
+      case ViewLayoutPB.Grid:
+        return MobileGridTabBarBuilderImpl();
       case ViewLayoutPB.Document:
         throw UnimplementedError;
     }
