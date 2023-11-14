@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:collection/collection.dart';
+import 'package:dartz/dartz_unsafe.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -34,28 +35,27 @@ class MobileRowPropertyList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
-        final children = state.visibleCells
+        final List<DatabaseCellContext> visibleCells = state.visibleCells
             .where((element) => !element.fieldInfo.field.isPrimary)
-            .mapIndexed(
-              (index, cell) => _PropertyCell(
-                key: ValueKey('row_detail_${cell.fieldId}'),
-                cellContext: cell,
-                cellBuilder: cellBuilder,
-                index: index,
-              ),
-            )
             .toList();
 
-        return ReorderableListView(
+        return ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
+          itemCount: visibleCells.length,
+          itemBuilder: (context, index) => _PropertyCell(
+            key: ValueKey('row_detail_${visibleCells[index].fieldId}'),
+            cellContext: visibleCells[index],
+            cellBuilder: cellBuilder,
+            index: index,
+          ),
           onReorder: (oldIndex, newIndex) {
             // when reorderiing downwards, need to update index
             if (oldIndex < newIndex) {
               newIndex--;
             }
-            final reorderedFieldId = children[oldIndex].cellContext.fieldId;
-            final targetFieldId = children[newIndex].cellContext.fieldId;
+            final reorderedFieldId = visibleCells[oldIndex].fieldId;
+            final targetFieldId = visibleCells[newIndex].fieldId;
 
             context.read<RowDetailBloc>().add(
                   RowDetailEvent.reorderField(
@@ -81,7 +81,6 @@ class MobileRowPropertyList extends StatelessWidget {
               ],
             ),
           ),
-          children: children,
         );
       },
     );
