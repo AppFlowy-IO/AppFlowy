@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/tar_bar_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -63,14 +63,14 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<GridTabBarBloc>(
-      create: (context) => GridTabBarBloc(view: widget.view)
+    return BlocProvider<DatabaseTabBarBloc>(
+      create: (context) => DatabaseTabBarBloc(view: widget.view)
         ..add(
-          const GridTabBarEvent.initial(),
+          const DatabaseTabBarEvent.initial(),
         ),
       child: MultiBlocListener(
         listeners: [
-          BlocListener<GridTabBarBloc, GridTabBarState>(
+          BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
             listener: (context, state) {
               _pageController?.animateToPage(
@@ -83,7 +83,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         ],
         child: Column(
           children: [
-            BlocBuilder<GridTabBarBloc, GridTabBarState>(
+            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
                 return ValueListenableBuilder<bool>(
                   valueListenable: state
@@ -105,13 +105,13 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                 );
               },
             ),
-            BlocBuilder<GridTabBarBloc, GridTabBarState>(
+            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
                 return pageSettingBarExtensionFromState(state);
               },
             ),
             Expanded(
-              child: BlocBuilder<GridTabBarBloc, GridTabBarState>(
+              child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
                 builder: (context, state) {
                   return PageView(
                     pageSnapping: false,
@@ -128,7 +128,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
     );
   }
 
-  List<Widget> pageContentFromState(GridTabBarState state) {
+  List<Widget> pageContentFromState(DatabaseTabBarState state) {
     return state.tabBars.map((tabBar) {
       final controller =
           state.tabBarControllerByViewId[tabBar.viewId]!.controller;
@@ -141,7 +141,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
     }).toList();
   }
 
-  Widget pageSettingBarExtensionFromState(GridTabBarState state) {
+  Widget pageSettingBarExtensionFromState(DatabaseTabBarState state) {
     if (state.tabBars.length < state.selectedIndex) {
       return const SizedBox.shrink();
     }
