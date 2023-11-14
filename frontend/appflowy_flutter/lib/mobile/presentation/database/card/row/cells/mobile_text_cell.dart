@@ -20,8 +20,8 @@ class MobileTextCell extends GridCellWidget {
 }
 
 class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
-  late TextCellBloc _cellBloc;
-  late TextEditingController _controller;
+  late final TextCellBloc _cellBloc;
+  late final TextEditingController _controller;
 
   @override
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();

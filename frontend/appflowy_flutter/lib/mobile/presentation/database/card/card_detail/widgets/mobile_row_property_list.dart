@@ -85,6 +85,10 @@ class MobileRowPropertyList extends StatelessWidget {
   }
 }
 
+// TODO(yijing): temperary locate here
+// It may need to be share with other widgets
+const cellHeight = 32.0;
+
 class _PropertyCell extends StatefulWidget {
   const _PropertyCell({
     super.key,
@@ -104,7 +108,6 @@ class _PropertyCell extends StatefulWidget {
 class _PropertyCellState extends State<_PropertyCell> {
   @override
   Widget build(BuildContext context) {
-    const cellHeight = 32.0;
     final style = _customCellStyle(widget.cellContext.fieldType);
     final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 

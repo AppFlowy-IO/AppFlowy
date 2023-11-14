@@ -7,13 +7,11 @@ class PropertyTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(
-          name,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Text(
+        name,
+        style: Theme.of(context).textTheme.titleMedium,
       ),
     );
   }

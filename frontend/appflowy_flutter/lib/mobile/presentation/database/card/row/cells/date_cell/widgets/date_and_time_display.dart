@@ -61,17 +61,17 @@ class DateAndTimeDisplay extends StatelessWidget {
 }
 
 class _DateEditButton extends StatelessWidget {
-  final String? dateStr;
-
-  /// initial date for date picker, if null, use DateTime.now()
-  final DateTime? initialDate;
-  final void Function(DateTime)? onDaySelected;
-
   const _DateEditButton({
     required this.dateStr,
     required this.initialDate,
     required this.onDaySelected,
   });
+
+  final String? dateStr;
+
+  /// initial date for date picker, if null, use DateTime.now()
+  final DateTime? initialDate;
+  final void Function(DateTime)? onDaySelected;
 
   @override
   Widget build(BuildContext context) {

@@ -20,8 +20,8 @@ class MobileNumberCell extends GridCellWidget {
 }
 
 class _NumberCellState extends GridEditableTextCell<MobileNumberCell> {
-  late NumberCellBloc _cellBloc;
-  late TextEditingController _controller;
+  late final NumberCellBloc _cellBloc;
+  late final TextEditingController _controller;
 
   @override
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();
@@ -78,7 +78,5 @@ class _NumberCellState extends GridEditableTextCell<MobileNumberCell> {
   }
 
   @override
-  String? onCopy() {
-    return _cellBloc.state.cellContent;
-  }
+  String? onCopy() => _cellBloc.state.cellContent;
 }

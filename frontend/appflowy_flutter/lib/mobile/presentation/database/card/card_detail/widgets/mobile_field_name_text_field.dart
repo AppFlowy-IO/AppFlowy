@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileFieldNameTextField extends StatefulWidget {
   const MobileFieldNameTextField({
-    this.text,
     super.key,
+    this.text,
   });
 
   final String? text;

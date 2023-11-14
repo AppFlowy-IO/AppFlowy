@@ -19,7 +19,7 @@ class MobileCheckboxCell extends GridCellWidget {
 }
 
 class _CheckboxCellState extends GridCellState<MobileCheckboxCell> {
-  late CheckboxCellBloc _cellBloc;
+  late final CheckboxCellBloc _cellBloc;
 
   @override
   void initState() {

@@ -22,6 +22,7 @@ class MobileFieldEditor extends StatelessWidget {
     this.isGroupingField = false,
     this.fieldInfo,
   });
+
   final String viewId;
   final bool isGroupingField;
   final FieldTypeOptionLoader typeOptionLoader;

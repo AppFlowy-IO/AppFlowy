@@ -38,8 +38,10 @@ class MobileFieldTypeOptionEditor extends StatelessWidget {
           return Column(
             children: [
               const _MobileSwitchFieldButton(),
-              const VSpace(8),
-              if (typeOptionWidget != null) typeOptionWidget
+              if (typeOptionWidget != null) ...[
+                const VSpace(8),
+                typeOptionWidget
+              ]
             ],
           );
         },

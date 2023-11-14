@@ -14,6 +14,7 @@ class TimeFormatListTile extends StatelessWidget {
     required this.groupValue,
     required this.onChanged,
   });
+
   final String currentFormatStr;
 
   /// The group value for the radio list tile.

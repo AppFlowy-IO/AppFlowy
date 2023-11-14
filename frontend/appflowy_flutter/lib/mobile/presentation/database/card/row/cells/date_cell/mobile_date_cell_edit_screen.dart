@@ -19,6 +19,7 @@ import 'widgets/widgets.dart';
 class MobileDateCellEditScreen extends StatefulWidget {
   static const routeName = '/MobileDateCellEditScreen';
   static const argCellController = 'cellController';
+
   const MobileDateCellEditScreen(
     this.cellController, {
     super.key,
@@ -68,13 +69,13 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
 }
 
 class _DateCellEditBody extends StatefulWidget {
-  final DateCellController dateCellController;
-  final DateTypeOptionPB dateTypeOptionPB;
-
   const _DateCellEditBody({
     required this.dateCellController,
     required this.dateTypeOptionPB,
   });
+
+  final DateCellController dateCellController;
+  final DateTypeOptionPB dateTypeOptionPB;
 
   @override
   State<_DateCellEditBody> createState() => _DateCellEditBodyState();
@@ -246,8 +247,8 @@ class _TimeTextField extends StatefulWidget {
     required this.isEndTime,
   });
 
-  final bool isEndTime;
   final String? timeStr;
+  final bool isEndTime;
 
   @override
   State<_TimeTextField> createState() => _TimeTextFieldState();

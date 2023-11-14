@@ -27,7 +27,7 @@ class MobileDateCell extends GridCellWidget {
 }
 
 class _DateCellState extends GridCellState<MobileDateCell> {
-  late DateCellBloc _cellBloc;
+  late final DateCellBloc _cellBloc;
 
   @override
   void initState() {
