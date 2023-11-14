@@ -897,7 +897,7 @@
     "emptyTitle": "Alles erledigt!",
     "emptyBody": "Keine wartenden Benachrichtigungen oder Aktivitäten. Erfreue dich an der Ruhe.",
     "tabs": {
-      "inbox": "Inbox",
+      "inbox": "Eingang",
       "upcoming": "Anstehend"
     },
     "actions": {
@@ -1019,8 +1019,8 @@
     "copy": "Kopieren",
     "paste": "Einfügen",
     "find": "Suchen",
-    "previousMatch": "Vorherige Entsprechung",
-    "nextMatch": "Nächste Entsprechung",
+    "previousMatch": "Vorheriges Vorkommen",
+    "nextMatch": "Nächstes Vorkommen",
     "closeFind": "Schließen",
     "replace": "Ersetzen",
     "replaceAll": "Alle ersetzen",
