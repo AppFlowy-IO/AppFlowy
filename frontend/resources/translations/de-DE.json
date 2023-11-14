@@ -7,7 +7,7 @@
   "letsGoButtonText": "Los geht's",
   "title": "Titel",
   "youCanAlso": "Du kannst auch",
-  "and": "Und",
+  "and": "UND",
   "blockActions": {
     "addBelowTooltip": "Klicke unten, um etwas hinzuzufügen",
     "addAboveCmd": "Alt+Klick",
@@ -211,7 +211,7 @@
     "generate": "Generieren",
     "esc": "ESC",
     "keep": "Behalten",
-    "tryAgain": "Versuchen Sie es erneut",
+    "tryAgain": "Versuche es erneut",
     "discard": "Verwerfen",
     "replace": "Ersetzen",
     "insertBelow": "Unterhalb einfügen",
@@ -371,7 +371,7 @@
     "user": {
       "name": "Name",
       "email": "E-Mail",
-      "tooltipSelectIcon": "Icon auswählen",
+      "tooltipSelectIcon": "Symbol auswählen",
       "selectAnIcon": "Wähle ein Symbol aus",
       "pleaseInputYourOpenAIKey": "Bitte gib deinen OpenAI-Schlüssel ein",
       "pleaseInputYourStabilityAIKey": "Bitte gib deinen Stability AI Schlüssel ein",
@@ -932,7 +932,7 @@
   },
   "error": {
     "weAreSorry": "Es tut uns leid",
-    "loadingViewError": "Wir haben Probleme diese Ansicht zu laden. Bitte prüfe deine Internetverbindung, aktualisiere die Anwendung und zögere nicht das Team zu kontaktieren, sollte der Fehler weiterhin auftreten."
+    "loadingViewError": "Wir haben Probleme, diese Ansicht zu laden. Bitte prüfe deine Internetverbindung, aktualisiere die Anwendung und zögere nicht, das Team zu kontaktieren, sollte der Fehler weiterhin auftreten."
   },
   "editor": {
     "bold": "Fett",
@@ -996,8 +996,8 @@
     "mobileHeading1": "Überschrift 1",
     "mobileHeading2": "Überschrift 2",
     "mobileHeading3": "Überschrift 3",
-    "textColor": "Text Farbe",
-    "backgroundColor": "Hintergrund Farbe",
+    "textColor": "Textfarbe",
+    "backgroundColor": "Hintergrundfarbe",
     "addYourLink": "Deine Verknüpfung hinzufügen",
     "openLink": "Verknüpfung öffnen",
     "copyLink": "Verknüpfung kopieren",
@@ -1006,12 +1006,12 @@
     "linkText": "Text",
     "linkTextHint": "Bitte Text eingeben",
     "linkAddressHint": "Bitte URL eingeben",
-    "highlightColor": "Markierungs Farbe",
+    "highlightColor": "Markierungsfarbe",
     "clearHighlightColor": "Markierung entfernen",
     "customColor": "Benutzerdefinierte Farbe",
-    "hexValue": "Hex Wert",
+    "hexValue": "Hex-Wert",
     "opacity": "Deckung",
-    "resetToDefaultColor": "Auf Standard Farbe zurücksetzen",
+    "resetToDefaultColor": "Auf Standardfarbe zurücksetzen",
     "ltr": "LNR",
     "rtl": "RNL",
     "auto": "Auto",
