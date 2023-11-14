@@ -9,7 +9,7 @@ class ColorAnalyzer {
   static const double contrastThreshold = 1.36;
   static const List<double> luminanceCoefficients = [0.2126, 0.7152, 0.0722];
 
-  double calculateLuminance(Color color) {
+  static double calculateLuminance(Color color) {
     final List<double> rgb =
         [color.red, color.green, color.blue].map((c) => c / rgbScale).toList();
 
@@ -24,7 +24,7 @@ class ColorAnalyzer {
         rgb[2] * luminanceCoefficients[2];
   }
 
-  double calculateContrast(Color color1, Color color2) {
+  static double calculateContrast(Color color1, Color color2) {
     double luminance1 = calculateLuminance(color1);
     double luminance2 = calculateLuminance(color2);
 
@@ -37,7 +37,7 @@ class ColorAnalyzer {
     return (luminance1 + 0.05) / (luminance2 + 0.05);
   }
 
-  Color getAppropriateTextColor(
+  static Color getAppropriateTextColor(
     Color backgroundColor,
     Color primaryTextColor,
     Color altTextColor,

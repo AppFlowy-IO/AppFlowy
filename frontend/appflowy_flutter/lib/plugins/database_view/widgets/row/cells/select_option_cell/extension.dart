@@ -113,7 +113,7 @@ class SelectOptionTag extends StatelessWidget {
               name,
               fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
-              color: ColorAnalyzer().getAppropriateTextColor(
+              color: ColorAnalyzer.getAppropriateTextColor(
                 color,
                 AFThemeExtension.of(context).textColor,
                 AFThemeExtension.of(context).textColorAlt,
