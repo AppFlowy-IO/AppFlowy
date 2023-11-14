@@ -57,15 +57,18 @@ class _DatabaseViewSettingContent extends StatelessWidget {
     return BlocBuilder<DatabaseViewSettingExtensionBloc,
         DatabaseViewSettingExtensionState>(
       builder: (context, state) {
-        final borderSide =
-            BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
         return Padding(
           padding: EdgeInsets.symmetric(
             horizontal: GridSize.leadingHeaderPadding,
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              border: Border(bottom: borderSide),
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 1.0,
+                ),
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),

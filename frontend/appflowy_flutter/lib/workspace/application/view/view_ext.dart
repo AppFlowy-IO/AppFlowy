@@ -99,10 +99,9 @@ extension ViewExtension on ViewPB {
         return CalendarPageTabBarBuilderImpl();
       case ViewLayoutPB.Grid:
         return DesktopGridTabBarBuilderImpl();
-      case ViewLayoutPB.Document:
+      default:
         throw UnimplementedError;
     }
-    throw UnimplementedError;
   }
 
   DatabaseTabBarItemBuilder mobileTabBarItem() {
@@ -113,10 +112,9 @@ extension ViewExtension on ViewPB {
         return CalendarPageTabBarBuilderImpl();
       case ViewLayoutPB.Grid:
         return MobileGridTabBarBuilderImpl();
-      case ViewLayoutPB.Document:
+      default:
         throw UnimplementedError;
     }
-    throw UnimplementedError;
   }
 
   FlowySvgData get iconData => layout.icon;
