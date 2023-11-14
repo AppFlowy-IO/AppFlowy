@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_add_button.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
@@ -11,14 +11,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'database_controller.dart';
 import 'database_view_service.dart';
 
-part 'tar_bar_bloc.freezed.dart';
+part 'tab_bar_bloc.freezed.dart';
 
-class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
-  GridTabBarBloc({
+class DatabaseTabBarBloc
+    extends Bloc<DatabaseTabBarEvent, DatabaseTabBarState> {
+  DatabaseTabBarBloc({
     bool isInlineView = false,
     required ViewPB view,
-  }) : super(GridTabBarState.initial(view)) {
-    on<GridTabBarEvent>(
+  }) : super(DatabaseTabBarState.initial(view)) {
+    on<DatabaseTabBarEvent>(
       (event, emit) async {
         event.when(
           initial: () {
@@ -31,7 +32,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
                 tabBars: [
                   ...state.tabBars,
                   ...childViews.map(
-                    (newChildView) => TarBar(view: newChildView),
+                    (newChildView) => DatabaseTabBar(view: newChildView),
                   ),
                 ],
                 tabBarControllerByViewId: _extendsTabBarController(childViews),
@@ -64,7 +65,8 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
             if (updatePB.createChildViews.isNotEmpty) {
               final allTabBars = [
                 ...state.tabBars,
-                ...updatePB.createChildViews.map((e) => TarBar(view: e)),
+                ...updatePB.createChildViews
+                    .map((e) => DatabaseTabBar(view: e)),
               ];
               emit(
                 state.copyWith(
@@ -115,7 +117,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
             );
             if (index != -1) {
               final allTabBars = [...state.tabBars];
-              final updatedTabBar = TarBar(view: updatedView);
+              final updatedTabBar = DatabaseTabBar(view: updatedView);
               allTabBars[index] = updatedTabBar;
               emit(state.copyWith(tabBars: allTabBars));
             }
@@ -136,24 +138,24 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
   void _listenInlineViewChanged() {
     final controller = state.tabBarControllerByViewId[state.parentView.id];
     controller?.onViewUpdated = (newView) {
-      add(GridTabBarEvent.viewDidUpdate(newView));
+      add(DatabaseTabBarEvent.viewDidUpdate(newView));
     };
 
     // Only listen the child view changes when the parent view is inline.
     controller?.onViewChildViewChanged = (update) {
-      add(GridTabBarEvent.didUpdateChildViews(update));
+      add(DatabaseTabBarEvent.didUpdateChildViews(update));
     };
   }
 
   /// Create tab bar controllers for the new views and return the updated map.
-  Map<String, DatabaseTarBarController> _extendsTabBarController(
+  Map<String, DatabaseTabBarController> _extendsTabBarController(
     List<ViewPB> newViews,
   ) {
     final tabBarControllerByViewId = {...state.tabBarControllerByViewId};
     for (final view in newViews) {
-      final controller = DatabaseTarBarController(view: view);
+      final controller = DatabaseTabBarController(view: view);
       controller.onViewUpdated = (newView) {
-        add(GridTabBarEvent.viewDidUpdate(newView));
+        add(DatabaseTabBarEvent.viewDidUpdate(newView));
       };
 
       tabBarControllerByViewId[view.id] = controller;
@@ -191,7 +193,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
         return;
       }
       viewsOrFail.fold(
-        (views) => add(GridTabBarEvent.didLoadChildViews(views)),
+        (views) => add(DatabaseTabBarEvent.didLoadChildViews(views)),
         (err) => Log.error(err),
       );
     });
@@ -199,40 +201,40 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
 }
 
 @freezed
-class GridTabBarEvent with _$GridTabBarEvent {
-  const factory GridTabBarEvent.initial() = _Initial;
-  const factory GridTabBarEvent.didLoadChildViews(
+class DatabaseTabBarEvent with _$DatabaseTabBarEvent {
+  const factory DatabaseTabBarEvent.initial() = _Initial;
+  const factory DatabaseTabBarEvent.didLoadChildViews(
     List<ViewPB> childViews,
   ) = _DidLoadChildViews;
-  const factory GridTabBarEvent.selectView(String viewId) = _DidSelectView;
-  const factory GridTabBarEvent.createView(AddButtonAction action) =
+  const factory DatabaseTabBarEvent.selectView(String viewId) = _DidSelectView;
+  const factory DatabaseTabBarEvent.createView(AddButtonAction action) =
       _CreateView;
-  const factory GridTabBarEvent.renameView(String viewId, String newName) =
+  const factory DatabaseTabBarEvent.renameView(String viewId, String newName) =
       _RenameView;
-  const factory GridTabBarEvent.deleteView(String viewId) = _DeleteView;
-  const factory GridTabBarEvent.didUpdateChildViews(
+  const factory DatabaseTabBarEvent.deleteView(String viewId) = _DeleteView;
+  const factory DatabaseTabBarEvent.didUpdateChildViews(
     ChildViewUpdatePB updatePB,
   ) = _DidUpdateChildViews;
-  const factory GridTabBarEvent.viewDidUpdate(ViewPB view) = _ViewDidUpdate;
+  const factory DatabaseTabBarEvent.viewDidUpdate(ViewPB view) = _ViewDidUpdate;
 }
 
 @freezed
-class GridTabBarState with _$GridTabBarState {
-  const factory GridTabBarState({
+class DatabaseTabBarState with _$DatabaseTabBarState {
+  const factory DatabaseTabBarState({
     required ViewPB parentView,
     required int selectedIndex,
-    required List<TarBar> tabBars,
-    required Map<String, DatabaseTarBarController> tabBarControllerByViewId,
-  }) = _GridTabBarState;
+    required List<DatabaseTabBar> tabBars,
+    required Map<String, DatabaseTabBarController> tabBarControllerByViewId,
+  }) = _DatabaseTabBarState;
 
-  factory GridTabBarState.initial(ViewPB view) {
-    final tabBar = TarBar(view: view);
-    return GridTabBarState(
+  factory DatabaseTabBarState.initial(ViewPB view) {
+    final tabBar = DatabaseTabBar(view: view);
+    return DatabaseTabBarState(
       parentView: view,
       selectedIndex: 0,
       tabBars: [tabBar],
       tabBarControllerByViewId: {
-        view.id: DatabaseTarBarController(
+        view.id: DatabaseTabBarController(
           view: view,
         ),
       },
@@ -240,7 +242,7 @@ class GridTabBarState with _$GridTabBarState {
   }
 }
 
-class TarBar extends Equatable {
+class DatabaseTabBar extends Equatable {
   final ViewPB view;
   final DatabaseTabBarItemBuilder _builder;
 
@@ -248,7 +250,7 @@ class TarBar extends Equatable {
   DatabaseTabBarItemBuilder get builder => _builder;
   ViewLayoutPB get layout => view.layout;
 
-  TarBar({
+  DatabaseTabBar({
     required this.view,
   }) : _builder = view.tarBarItem();
 
@@ -261,14 +263,14 @@ typedef OnViewChildViewChanged = void Function(
   ChildViewUpdatePB childViewUpdate,
 );
 
-class DatabaseTarBarController {
+class DatabaseTabBarController {
   ViewPB view;
   final DatabaseController controller;
   final ViewListener viewListener;
   OnViewUpdated? onViewUpdated;
   OnViewChildViewChanged? onViewChildViewChanged;
 
-  DatabaseTarBarController({
+  DatabaseTabBarController({
     required this.view,
   })  : controller = DatabaseController(view: view),
         viewListener = ViewListener(viewId: view.id) {
