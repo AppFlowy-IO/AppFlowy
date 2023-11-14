@@ -235,7 +235,7 @@ class HoverButton extends StatelessWidget {
             children: [
               if (leftIcon != null) ...[
                 leftIcon!,
-                HSpace(ActionListSizes.itemHPadding)
+                HSpace(ActionListSizes.itemHPadding),
               ],
               Expanded(
                 child: FlowyText.medium(

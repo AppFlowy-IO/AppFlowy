@@ -431,7 +431,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                   },
                 );
               },
-            )
+            ),
           ];
 
           return ListView.separated(

@@ -81,7 +81,7 @@ class SignUpForm extends StatelessWidget {
           if (context.read<SignUpBloc>().state.isSubmitting) ...[
             const SizedBox(height: 8),
             const LinearProgressIndicator(value: null),
-          ]
+          ],
         ],
       ),
     );

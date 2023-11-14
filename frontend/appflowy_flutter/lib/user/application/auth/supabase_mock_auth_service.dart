@@ -61,7 +61,7 @@ class MockAuthService implements AuthService {
         map: {
           AuthServiceMapKeys.uuid: uuid,
           AuthServiceMapKeys.email: email,
-          AuthServiceMapKeys.deviceId: 'MockDeviceId'
+          AuthServiceMapKeys.deviceId: 'MockDeviceId',
         },
       );
 

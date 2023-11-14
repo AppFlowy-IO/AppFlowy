@@ -392,7 +392,7 @@ class FieldController {
       }
       final List<FieldInfo> newFields = fieldInfos;
       final Map<String, FieldIdPB> deletedFieldMap = {
-        for (final fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
+        for (final fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder,
       };
 
       newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
