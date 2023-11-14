@@ -192,8 +192,10 @@ abstract class GridEditableTextCell<T extends GridCellWidget>
 
   @override
   void didUpdateWidget(covariant T oldWidget) {
-    if (oldWidget != this) {
-      _listenOnFocusNodeChanged();
+    if (!focusNode.hasFocus && widget.onCellFocus.value) {
+      focusNode.requestFocus();
+    } else if (focusNode.hasFocus && !widget.onCellFocus.value) {
+      focusNode.unfocus();
     }
     super.didUpdateWidget(oldWidget);
   }
