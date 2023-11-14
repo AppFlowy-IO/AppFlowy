@@ -21,13 +21,14 @@ import 'package:go_router/go_router.dart';
 /// Display the row properties in a list. Only use this widget in the
 /// [MobileCardDetailScreen].
 class MobileRowPropertyList extends StatelessWidget {
-  final String viewId;
-  final GridCellBuilder cellBuilder;
   const MobileRowPropertyList({
     required this.viewId,
     required this.cellBuilder,
     super.key,
   });
+
+  final String viewId;
+  final GridCellBuilder cellBuilder;
 
   @override
   Widget build(BuildContext context) {

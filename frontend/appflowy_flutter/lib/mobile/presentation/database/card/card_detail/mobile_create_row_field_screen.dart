@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileCreateRowFieldScreen extends StatefulWidget {
-  final String viewId;
-  final TypeOptionPB typeOption;
   static const routeName = '/MobileCreateRowFieldScreen';
   static const argViewId = 'viewId';
   static const argTypeOption = 'typeOption';
@@ -18,6 +16,9 @@ class MobileCreateRowFieldScreen extends StatefulWidget {
     required this.typeOption,
     super.key,
   });
+
+  final String viewId;
+  final TypeOptionPB typeOption;
 
   @override
   State<MobileCreateRowFieldScreen> createState() =>

@@ -16,7 +16,7 @@ class MobileTimestampCell extends GridCellWidget {
 }
 
 class _TimestampCellState extends GridCellState<MobileTimestampCell> {
-  late TimestampCellBloc _cellBloc;
+  late final TimestampCellBloc _cellBloc;
 
   @override
   void initState() {

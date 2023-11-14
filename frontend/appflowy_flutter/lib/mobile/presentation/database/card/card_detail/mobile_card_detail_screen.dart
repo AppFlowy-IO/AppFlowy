@@ -36,8 +36,8 @@ class MobileCardDetailScreen extends StatefulWidget {
 }
 
 class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
-  late ScrollController _scrollController;
-  late GridCellBuilder _cellBuilder;
+  late final ScrollController _scrollController;
+  late final GridCellBuilder _cellBuilder;
 
   @override
   void initState() {

@@ -35,22 +35,20 @@ class GridCellBuilder {
     final key = cellContext.key();
 
     if (PlatformExtension.isMobile) {
-      final mobileGridCellWidget = _getMobileCardCellWidget(
+      return _getMobileCardCellWidget(
         cellContext,
         cellControllerBuilder,
         style,
         key,
       );
-      return mobileGridCellWidget;
-    } else {
-      final desktopGridCellWidget = _getDesktopGridCellWidget(
-        cellContext,
-        cellControllerBuilder,
-        style,
-        key,
-      );
-      return desktopGridCellWidget;
     }
+
+    return _getDesktopGridCellWidget(
+      cellContext,
+      cellControllerBuilder,
+      style,
+      key,
+    );
   }
 
   GridCellWidget _getDesktopGridCellWidget(
