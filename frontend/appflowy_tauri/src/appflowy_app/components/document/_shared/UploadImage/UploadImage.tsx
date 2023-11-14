@@ -42,6 +42,7 @@ function UploadImage({ onChange }: UploadImageProps) {
       duration: 3000,
       type: 'error',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 
   const handleUpload = useCallback(
@@ -74,7 +75,7 @@ function UploadImage({ onChange }: UploadImageProps) {
       if (!files || files.length === 0) return;
       const file = files[0];
 
-      handleUpload(file);
+      void handleUpload(file);
     },
     [handleUpload]
   );
@@ -87,7 +88,7 @@ function UploadImage({ onChange }: UploadImageProps) {
       if (!files || files.length === 0) return;
       const file = files[0];
 
-      handleUpload(file);
+      void handleUpload(file);
     },
     [handleUpload]
   );

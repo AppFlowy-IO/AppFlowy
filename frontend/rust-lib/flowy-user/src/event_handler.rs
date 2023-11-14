@@ -2,7 +2,6 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
-use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -101,21 +100,15 @@ pub async fn get_user_profile_handler(
 
   // When the user is logged in with a local account, the email field is a placeholder and should
   // not be exposed to the client. So we set the email field to an empty string.
-  if user_profile.auth_type == AuthType::Local {
+  if user_profile.authenticator == Authenticator::Local {
     user_profile.email = "".to_string();
   }
-
-  event!(
-    tracing::Level::DEBUG,
-    "Get user profile: {:?}",
-    user_profile
-  );
 
   data_result_ok(user_profile.into())
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
-pub async fn sign_out(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
+pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   manager.sign_out().await?;
   Ok(())
@@ -264,7 +257,7 @@ pub async fn oauth_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let auth_type: AuthType = params.auth_type.into();
+  let auth_type: Authenticator = params.auth_type.into();
   let user_profile = manager.sign_up(auth_type, BoxAny::new(params.map)).await?;
   data_result_ok(user_profile.into())
 }
@@ -276,7 +269,7 @@ pub async fn get_sign_in_url_handler(
 ) -> DataResult<SignInUrlPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let auth_type: AuthType = params.auth_type.into();
+  let auth_type: Authenticator = params.auth_type.into();
   let sign_in_url = manager
     .generate_sign_in_url_with_email(&auth_type, &params.email)
     .await?;
@@ -425,7 +418,7 @@ pub async fn get_cloud_config_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
-pub async fn get_all_user_workspace_handler(
+pub async fn get_all_workspace_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -436,12 +429,12 @@ pub async fn get_all_user_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn open_workspace_handler(
-  data: AFPluginData<UserWorkspacePB>,
+  data: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager.open_workspace(&params.id).await?;
+  let params = data.validate()?.into_inner();
+  manager.open_workspace(&params.workspace_id).await?;
   Ok(())
 }
 
@@ -476,7 +469,7 @@ pub async fn open_historical_users_handler(
 ) -> Result<(), FlowyError> {
   let user = user.into_inner();
   let manager = upgrade_manager(manager)?;
-  let auth_type = AuthType::from(user.auth_type);
+  let auth_type = Authenticator::from(user.auth_type);
   manager
     .open_historical_user(user.user_id, user.device_id, auth_type)
     .await?;

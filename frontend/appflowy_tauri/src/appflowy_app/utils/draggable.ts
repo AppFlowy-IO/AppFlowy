@@ -1,8 +1,6 @@
 import { BlockDraggableType, DragInsertType } from '$app_reducers/block-draggable/slice';
 import { findParent } from '$app/utils/document/node';
 import { nanoid } from 'nanoid';
-import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
-import { blockConfig } from '$app/constants/document/config';
 
 export function getDraggableIdByPoint(target: HTMLElement | null) {
   let node = target;

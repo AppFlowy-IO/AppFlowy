@@ -47,7 +47,7 @@ export function useImageBlock(node: NestedBlock<BlockType.ImageBlock>) {
 
   const updateWidth = useCallback(
     (width: number, height: number) => {
-      dispatch(
+      void dispatch(
         updateNodeDataThunk({
           id: node.id,
           data: {
@@ -93,7 +93,7 @@ export function useImageBlock(node: NestedBlock<BlockType.ImageBlock>) {
       });
     };
 
-    const onResizeEnd = (e: MouseEvent) => {
+    const onResizeEnd = () => {
       setResizing(false);
       if (!startResizePoint.current) return;
       startResizePoint.current = undefined;

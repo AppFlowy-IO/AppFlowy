@@ -7,10 +7,10 @@ edition = "2021"
 
 [dependencies]
 reqwest = { version = "0.11", features = ["json", "stream"] }
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-async-trait = "0.1.73"
-bytes = "1.0.1"
+serde_json.workspace = true
+serde.workspace = true
+async-trait.workspace = true
+bytes.workspace = true
 mime_guess = "2.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 url = "2.2.2"

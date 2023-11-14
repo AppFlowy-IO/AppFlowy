@@ -19,9 +19,6 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
           initial: (e) async {
             await _fetchWorkspaces(emit);
           },
-          openWorkspace: (e) async {
-            await _openWorkspace(e.workspace, emit);
-          },
           createWorkspace: (e) async {
             await _createWorkspace(e.name, e.desc, emit);
           },
@@ -57,22 +54,6 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
     );
   }
 
-  Future<void> _openWorkspace(
-    WorkspacePB workspace,
-    Emitter<WorkspaceState> emit,
-  ) async {
-    final result = await userService.openWorkspace(workspace.id);
-    emit(
-      result.fold(
-        (workspaces) => state.copyWith(successOrFailure: left(unit)),
-        (error) {
-          Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
-        },
-      ),
-    );
-  }
-
   Future<void> _createWorkspace(
     String name,
     String desc,
@@ -98,8 +79,6 @@ class WorkspaceEvent with _$WorkspaceEvent {
   const factory WorkspaceEvent.initial() = Initial;
   const factory WorkspaceEvent.createWorkspace(String name, String desc) =
       CreateWorkspace;
-  const factory WorkspaceEvent.openWorkspace(WorkspacePB workspace) =
-      OpenWorkspace;
   const factory WorkspaceEvent.workspacesReveived(
     Either<List<WorkspacePB>, FlowyError> workspacesOrFail,
   ) = WorkspacesReceived;

@@ -189,9 +189,7 @@
     "editContact": "Kontakt bearbeiten"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Erledigt",
-    "Cancel": "Abbrechen",
+    "done": "Erledigt",
     "signIn": "Anmelden",
     "signOut": "Abmelden",
     "complete": "Fertig",
@@ -207,8 +205,10 @@
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "duplicate": "Duplikat",
-    "done": "Erledigt",
-    "putback": "Zurück geben"
+    "putback": "Zurück geben",
+    "OK": "OK",
+    "Done": "Erledigt",
+    "Cancel": "Abbrechen"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -591,11 +591,11 @@
     }
   },
   "board": {
+    "menuName": "Planke",
+    "referencedBoardPrefix": "Sicht von",
     "column": {
       "create_new_card": "Neu"
-    },
-    "menuName": "Planke",
-    "referencedBoardPrefix": "Sicht von"
+    }
   },
   "calendar": {
     "menuName": "Kalender",
@@ -612,9 +612,9 @@
       "firstDayOfWeek": "Beginnen Sie die Woche am",
       "layoutDateField": "Layoutkalender von",
       "noDateTitle": "Kein Datum",
-      "noDateHint": "Außerplanmäßige Ereignisse werden hier angezeigt",
       "clickToAdd": "Klicken Sie, um es zum Kalender hinzuzufügen",
-      "name": "Kalenderlayout"
+      "name": "Kalenderlayout",
+      "noDateHint": "Außerplanmäßige Ereignisse werden hier angezeigt"
     },
     "referencedCalendarPrefix": "Sicht von"
   },

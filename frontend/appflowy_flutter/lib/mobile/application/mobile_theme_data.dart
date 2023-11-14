@@ -34,6 +34,7 @@ ThemeData getMobileThemeData(
           //Snack bar
           surface: Colors.white,
           onSurface: _onSurfaceColor, // text/body color
+          surfaceVariant: const Color.fromARGB(255, 216, 216, 216),
         )
       : ColorScheme(
           brightness: brightness,
@@ -226,6 +227,7 @@ ThemeData getMobileThemeData(
       cursorColor: mobileColorTheme.onBackground,
     ),
     colorScheme: mobileColorTheme,
+    indicatorColor: Colors.blue,
     extensions: [
       AFThemeExtension(
         warning: theme.yellow,

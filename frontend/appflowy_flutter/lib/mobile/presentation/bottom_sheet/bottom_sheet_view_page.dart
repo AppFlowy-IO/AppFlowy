@@ -121,31 +121,31 @@ class MobileViewBottomSheetBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // undo, redo
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              child: BottomSheetActionWidget(
-                svg: FlowySvgs.m_undo_m,
-                text: LocaleKeys.toolbar_undo.tr(),
-                onTap: () => onAction(
-                  MobileViewBottomSheetBodyAction.undo,
-                ),
-              ),
-            ),
-            const HSpace(8),
-            Expanded(
-              child: BottomSheetActionWidget(
-                svg: FlowySvgs.m_redo_m,
-                text: LocaleKeys.toolbar_redo.tr(),
-                onTap: () => onAction(
-                  MobileViewBottomSheetBodyAction.redo,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const VSpace(8),
+        // Row(
+        //   mainAxisSize: MainAxisSize.max,
+        //   children: [
+        //     Expanded(
+        //       child: BottomSheetActionWidget(
+        //         svg: FlowySvgs.m_undo_m,
+        //         text: LocaleKeys.toolbar_undo.tr(),
+        //         onTap: () => onAction(
+        //           MobileViewBottomSheetBodyAction.undo,
+        //         ),
+        //       ),
+        //     ),
+        //     const HSpace(8),
+        //     Expanded(
+        //       child: BottomSheetActionWidget(
+        //         svg: FlowySvgs.m_redo_m,
+        //         text: LocaleKeys.toolbar_redo.tr(),
+        //         onTap: () => onAction(
+        //           MobileViewBottomSheetBodyAction.redo,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
+        // const VSpace(8),
 
         // rename, duplicate
         Row(

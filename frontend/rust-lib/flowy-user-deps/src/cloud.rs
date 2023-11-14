@@ -73,6 +73,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;
 
   /// Generate a sign in url for the user with the given email
+  /// Currently, only use the admin client for testing
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error>;
 
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
@@ -93,8 +94,10 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// return None if the user is not found
   fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError>;
 
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError>;
+
   /// Return the all the workspaces of the user  
-  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
+  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
 
   fn add_workspace_member(
     &self,

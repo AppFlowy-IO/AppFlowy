@@ -18,6 +18,12 @@ class SidebarFolder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // check if there is any duplicate views
+    final views = this.views.toSet().toList();
+    final favoriteViews = this.favoriteViews.toSet().toList();
+    assert(views.length == this.views.length);
+    assert(favoriteViews.length == favoriteViews.length);
+
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, child) {
@@ -27,6 +33,7 @@ class SidebarFolder extends StatelessWidget {
             // favorite
             if (favoriteViews.isNotEmpty) ...[
               FavoriteFolder(
+                // remove the duplicate views
                 views: favoriteViews,
               ),
               const VSpace(10),

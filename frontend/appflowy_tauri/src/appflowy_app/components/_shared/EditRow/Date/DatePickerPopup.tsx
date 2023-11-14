@@ -30,6 +30,7 @@ export const DatePickerPopup = ({
 
   useEffect(() => {
     const date_pb = data as DateCellDataPB | undefined;
+
     if (!date_pb || !date_pb?.date.length) return;
 
     setSelectedDate(dayjs(date_pb.date).toDate());
@@ -39,6 +40,7 @@ export const DatePickerPopup = ({
     if (v instanceof Date) {
       setSelectedDate(v);
       const date = new CalendarData(dayjs(v).add(dayjs().utcOffset(), 'minutes').toDate(), false);
+
       await cellController?.saveCellData(date);
     }
   };

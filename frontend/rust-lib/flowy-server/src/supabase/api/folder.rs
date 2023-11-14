@@ -9,9 +9,11 @@ use tokio::sync::oneshot::channel;
 
 use flowy_folder_deps::cloud::{
   gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+  WorkspaceRecord,
 };
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
+use lib_infra::util::timestamp;
 
 use crate::response::ExtendedResponse;
 use crate::supabase::api::request::{
@@ -67,6 +69,14 @@ where
       let workspace = workspace_from_json_value(json)?;
       Ok(workspace)
     })
+  }
+
+  fn open_workspace(&self, _workspace_id: &str) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
   }
 
   fn get_folder_data(
@@ -161,5 +171,11 @@ fn workspace_from_json_value(value: Value) -> Result<Workspace, Error> {
       .and_then(|s| DateTime::<Utc>::from_str(s).ok())
       .map(|date| date.timestamp())
       .unwrap_or_default(),
+    created_by: json.get("created_by").and_then(|value| value.as_i64()),
+    last_edited_time: json
+      .get("last_edited_time")
+      .and_then(|value| value.as_i64())
+      .unwrap_or(timestamp()),
+    last_edited_by: json.get("last_edited_by").and_then(|value| value.as_i64()),
   })
 }

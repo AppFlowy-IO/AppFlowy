@@ -1,6 +1,6 @@
 import { WorkspaceBackendService } from '$app/stores/effects/workspace/workspace_bd_svc';
 import { WorkspaceObserver } from '$app/stores/effects/workspace/workspace_observer';
-import { CreateViewPayloadPB, RepeatedViewPB } from "@/services/backend";
+import { CreateViewPayloadPB, RepeatedViewPB } from '@/services/backend';
 import { PageBackendService } from '$app/stores/effects/workspace/page/page_bd_svc';
 import { Page, parserViewPBToPage } from '$app_reducers/pages/slice';
 
@@ -13,8 +13,8 @@ export class WorkspaceController {
     this.backendService = new WorkspaceBackendService();
   }
 
-  dispose = () => {
-    this.observer.unsubscribe();
+  dispose = async () => {
+    await this.observer.unsubscribe();
   };
 
   open = async () => {
@@ -37,16 +37,15 @@ export class WorkspaceController {
     return Promise.reject(result.err);
   };
 
-  subscribe = async (callbacks: {
-    onChildPagesChanged?: (childPages: Page[]) => void;
-  }) => {
-
+  subscribe = async (callbacks: { onChildPagesChanged?: (childPages: Page[]) => void }) => {
     const didUpdateWorkspace = (payload: Uint8Array) => {
       const res = RepeatedViewPB.deserializeBinary(payload).items;
+
       callbacks.onChildPagesChanged?.(res.map(parserViewPBToPage));
-    }
+    };
+
     await this.observer.subscribeWorkspace(this.workspaceId, {
-      didUpdateWorkspace
+      didUpdateWorkspace,
     });
   };
 
@@ -71,6 +70,4 @@ export class WorkspaceController {
 
     return [];
   };
-
-
 }

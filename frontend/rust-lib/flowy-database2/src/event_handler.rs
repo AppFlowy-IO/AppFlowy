@@ -742,6 +742,20 @@ pub(crate) async fn move_group_row_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
+pub(crate) async fn create_group_handler(
+  data: AFPluginData<CreateGroupPayloadPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: CreateGroupParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .create_group(&params.view_id, &params.name)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(manager), err)]
 pub(crate) async fn get_databases_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RepeatedDatabaseDescriptionPB, FlowyError> {
@@ -892,10 +906,8 @@ pub(crate) async fn get_field_settings_handler(
   let (view_id, field_ids) = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
 
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-
   let field_settings = database_editor
-    .get_field_settings(&view_id, layout_ty, field_ids.clone())
+    .get_field_settings(&view_id, field_ids.clone())
     .await?
     .into_iter()
     .map(FieldSettingsPB::from)
@@ -915,10 +927,8 @@ pub(crate) async fn get_all_field_settings_handler(
   let view_id = data.into_inner();
   let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
 
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-
   let field_settings = database_editor
-    .get_all_field_settings(view_id.as_ref(), layout_ty)
+    .get_all_field_settings(view_id.as_ref())
     .await?
     .into_iter()
     .map(FieldSettingsPB::from)

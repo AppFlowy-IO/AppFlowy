@@ -54,6 +54,7 @@ export const DatabaseSortItem = ({
         fieldType: fields[currentFieldId].fieldType,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFieldId, currentOrder]);
 
   const onSelectFieldClick = (id: string) => {

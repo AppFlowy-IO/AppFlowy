@@ -1,41 +1,77 @@
-import { useEffect, useRef, useState } from 'react';
-import { proxy } from 'valtio';
-import { subscribeKey } from 'valtio/utils';
-import { DatabaseLayoutPB } from '@/services/backend';
-import { DndContext, DndContextDescriptor } from './_shared';
-import { VerticalScrollElementRefContext, DatabaseContext } from './database.context';
-import { useViewId, useConnectDatabase } from './database.hooks';
-import { DatabaseHeader } from './DatabaseHeader';
-import { Grid } from './grid';
+import { useEffect, useMemo, useState } from 'react';
+import { useViewId } from '$app/hooks/ViewId.hooks';
+import { databaseViewService } from './application';
+import { DatabaseTabBar } from './components';
+import { DatabaseLoader } from './DatabaseLoader';
+import { DatabaseView } from './DatabaseView';
+import { DatabaseCollection } from './components/database_settings';
+import { PageController } from '$app/stores/effects/workspace/page/page_controller';
+import SwipeableViews from 'react-swipeable-views';
+import { TabPanel } from '$app/components/database/components/tab_bar/ViewTabs';
+import { useDatabaseResize } from '$app/components/database/Database.hooks';
 
-export const Database = () => {
+interface Props {
+  selectedViewId?: string;
+  setSelectedViewId?: (viewId: string) => void;
+}
+
+export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
   const viewId = useViewId();
-  const verticalScrollElementRef = useRef<HTMLDivElement>(null);
-  const database = useConnectDatabase(viewId);
-  const [ layoutType, setLayoutType ] = useState(database.layoutType);
-  const dndContext = useRef(proxy<DndContextDescriptor>({
-    dragging: null,
-  }));
+  const [childViewIds, setChildViewIds] = useState<string[]>([]);
+  const { ref, collectionRef, tableHeight } = useDatabaseResize();
 
   useEffect(() => {
-    return subscribeKey(database, 'layoutType', (value) => {
-      setLayoutType(value);
+    const onPageChanged = () => {
+      void databaseViewService.getDatabaseViews(viewId).then((value) => {
+        setChildViewIds(value.map((view) => view.id));
+      });
+    };
+
+    onPageChanged();
+
+    const pageController = new PageController(viewId);
+
+    void pageController.subscribe({
+      onPageChanged,
     });
-  }, [database]);
+
+    return () => {
+      void pageController.unsubscribe();
+    };
+  }, [viewId]);
+
+  const index = useMemo(() => {
+    return Math.max(0, childViewIds.indexOf(selectedViewId ?? viewId));
+  }, [childViewIds, selectedViewId, viewId]);
 
   return (
-    <div
-      ref={verticalScrollElementRef}
-      className="h-full overflow-y-auto"
-    >
-      <DatabaseHeader />
-      <VerticalScrollElementRefContext.Provider value={verticalScrollElementRef}>
-        <DndContext.Provider value={dndContext.current}>
-          <DatabaseContext.Provider value={database}>
-            {layoutType === DatabaseLayoutPB.Grid ? <Grid /> : null}
-          </DatabaseContext.Provider>
-        </DndContext.Provider >
-      </VerticalScrollElementRefContext.Provider>
+    <div ref={ref} className='appflowy-database flex flex-1 flex-col overflow-y-hidden'>
+      <DatabaseTabBar
+        pageId={viewId}
+        setSelectedViewId={setSelectedViewId}
+        selectedViewId={selectedViewId}
+        childViewIds={childViewIds}
+      />
+      <SwipeableViews
+        slideStyle={{
+          overflow: 'hidden',
+        }}
+        className={'flex-1 overflow-hidden'}
+        axis={'x'}
+        index={index}
+      >
+        {childViewIds.map((id) => (
+          <TabPanel key={id} index={index} value={index}>
+            <DatabaseLoader viewId={id}>
+              <div ref={collectionRef}>
+                <DatabaseCollection />
+              </div>
+
+              <DatabaseView isActivated={selectedViewId === id} tableHeight={tableHeight} />
+            </DatabaseLoader>
+          </TabPanel>
+        ))}
+      </SwipeableViews>
     </div>
   );
 };

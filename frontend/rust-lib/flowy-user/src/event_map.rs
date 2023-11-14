@@ -29,7 +29,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
-    .event(UserEvent::SignOut, sign_out)
+    .event(UserEvent::SignOut, sign_out_handler)
     .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
@@ -41,7 +41,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::OauthSignIn, oauth_handler)
     .event(UserEvent::GetSignInURL, get_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
-    .event(UserEvent::GetAllUserWorkspaces, get_all_user_workspace_handler)
+    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
@@ -60,18 +60,18 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
-    .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler,)
+    .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum UserEvent {
-  /// Only use when the [AuthType] is Local or SelfHosted
+  /// Only use when the [Authenticator] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
   SignIn = 0,
 
-  /// Only use when the [AuthType] is Local or SelfHosted
+  /// Only use when the [Authenticator] is Local or SelfHosted
   /// Creating a new account
   #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
   SignUp = 1,
@@ -109,7 +109,7 @@ pub enum UserEvent {
   OauthSignIn = 10,
 
   /// Get the OAuth callback url
-  /// Only use when the [AuthType] is AFCloud
+  /// Only use when the [Authenticator] is AFCloud
   #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
   GetSignInURL = 11,
 
@@ -129,10 +129,10 @@ pub enum UserEvent {
   CheckEncryptionSign = 16,
 
   /// Return the all the workspaces of the user
-  #[event()]
-  GetAllUserWorkspaces = 20,
+  #[event(output = "RepeatedUserWorkspacePB")]
+  GetAllWorkspace = 17,
 
-  #[event(input = "UserWorkspacePB")]
+  #[event(input = "UserWorkspaceIdPB")]
   OpenWorkspace = 21,
 
   #[event(input = "NetworkStatePB")]
@@ -145,7 +145,7 @@ pub enum UserEvent {
   OpenHistoricalUser = 26,
 
   /// Push a realtime event to the user. Currently, the realtime event
-  /// is only used when the auth type is: [AuthType::Supabase].
+  /// is only used when the auth type is: [Authenticator::Supabase].
   ///
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
@@ -201,9 +201,9 @@ pub struct SignUpContext {
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
-  /// When the [AuthType] changed, this method will be called. Currently, the auth type
+  /// When the [Authenticator] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
+  fn authenticator_did_changed(&self, _authenticator: Authenticator) {}
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
   fn did_init(
@@ -244,7 +244,8 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
 
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
   fn set_encrypt_secret(&self, secret: String);
-  fn set_auth_type(&self, auth_type: AuthType);
+  fn set_authenticator(&self, authenticator: Authenticator);
+  fn get_authenticator(&self) -> Authenticator;
   fn set_device_id(&self, device_id: &str);
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
   fn service_name(&self) -> String;
@@ -266,8 +267,12 @@ where
     (**self).set_encrypt_secret(secret)
   }
 
-  fn set_auth_type(&self, auth_type: AuthType) {
-    (**self).set_auth_type(auth_type)
+  fn set_authenticator(&self, authenticator: Authenticator) {
+    (**self).set_authenticator(authenticator)
+  }
+
+  fn get_authenticator(&self) -> Authenticator {
+    (**self).get_authenticator()
   }
 
   fn set_device_id(&self, device_id: &str) {

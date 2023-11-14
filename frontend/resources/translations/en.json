@@ -186,7 +186,8 @@
     "favorites": "Favorites",
     "clickToHidePersonal": "Click to hide personal section",
     "clickToHideFavorites": "Click to hide favorite section",
-    "addAPage": "Add a page"
+    "addAPage": "Add a page",
+    "recent": "Recent"
   },
   "notifications": {
     "export": {
@@ -214,7 +215,8 @@
     "tryAgain": "Try again",
     "discard": "Discard",
     "replace": "Replace",
-    "insertBelow": "Insert Below",
+    "insertBelow": "Insert below",
+    "insertAbove": "Insert above",
     "upload": "Upload",
     "edit": "Edit",
     "delete": "Delete",
@@ -538,7 +540,10 @@
       "newRow": "New row",
       "action": "Action",
       "add": "Click add to below",
-      "drag": "Drag to move"
+      "drag": "Drag to move",
+      "dragAndClick": "Drag to move, click to open menu",
+      "insertRecordAbove": "Insert record above",
+      "insertRecordBelow": "Insert record below"
     },
     "selectOption": {
       "create": "Create",
@@ -587,6 +592,9 @@
       "calendar": {
         "selectACalendarToLinkTo": "Select a Calendar to link to",
         "createANewCalendar": "Create a new Calendar"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Select a Document to link to"
       }
     },
     "selectionMenu": {
@@ -597,6 +605,7 @@
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
       "referencedCalendar": "Referenced Calendar",
+      "referencedDocument": "Referenced Document",
       "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
@@ -616,7 +625,13 @@
       "smartEditDisabled": "Connect OpenAI in Settings",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
-      "toggleList": "Toggle List",
+      "fonts": "Fonts",
+      "toggleList": "Toggle list",
+      "quoteList": "Quote list",
+      "numberedList": "Numbered list",
+      "bulletedList": "Bulleted list",
+      "todoList": "Todo List",
+      "callout": "Callout",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
@@ -643,7 +658,7 @@
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
       "mathEquation": {
-        "addMathEquation": "Add Math Equation",
+        "addMathEquation": "Add a TeX equation",
         "editMathEquation": "Edit Math Equation"
       },
       "optionAction": {
@@ -680,7 +695,8 @@
         "copy": "Copy",
         "cut": "Cut",
         "paste": "Paste"
-      }
+      },
+      "action": "Actions"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -719,7 +735,11 @@
       },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page"
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
+      "saveImageToGallery": "Save image",
+      "failedToAddImageToGallery": "Failed to add image to gallery",
+      "successToAddImageToGallery": "Image added to gallery successfully",
+      "unableToLoadImage": "Unable to load image"
     },
     "codeBlock": {
       "language": {
@@ -759,7 +779,16 @@
   "board": {
     "column": {
       "createNewCard": "New",
-      "renameGroupTooltip": "Press to rename group"
+      "renameGroupTooltip": "Press to rename group",
+      "createNewColumn": "Add a new group",
+      "addToColumnTopTooltip": "Add a new card at the top",
+      "renameColumn": "Rename",
+      "hideColumn": "Hide"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Hidden Groups",
+      "collapseTooltip": "Hide the hidden groups",
+      "expandTooltip": "View the hidden groups"
     },
     "cardDetail": "Card Detail",
     "cardActions": "Card Actions",
@@ -1041,5 +1070,8 @@
   "favorite": {
     "noFavorite": "No favorite page",
     "noFavoriteHintText": "Swipe the page to the left to add it to your favorites"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Enter a / to insert a block, or start typing"
   }
 }

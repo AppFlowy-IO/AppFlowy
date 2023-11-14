@@ -11,6 +11,7 @@ export class DatabaseNotificationObserver extends AFNotificationObserver<Databas
       callback: params.parserHandler,
       id: params.id,
     });
+
     super(parser);
   }
 }

@@ -1,6 +1,11 @@
+use std::path::PathBuf;
 use std::string::ToString;
+use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 
+use base64::alphabet::URL_SAFE;
+use base64::engine::general_purpose::PAD;
+use base64::engine::GeneralPurpose;
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
@@ -28,16 +33,16 @@ use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMig
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
-use crate::services::database::UserDB;
+use crate::services::database::{UserDB, UserDBPath};
 use crate::services::entities::{ResumableSignUp, Session};
 use crate::services::user_awareness::UserAwarenessDataSource;
 use crate::services::user_sql::{UserTable, UserTableChangeset};
 use crate::services::user_workspace::save_user_workspaces;
 use crate::{errors::FlowyError, notification::*};
 
+pub const URL_SAFE_ENGINE: GeneralPurpose = GeneralPurpose::new(&URL_SAFE, PAD);
 pub struct UserSessionConfig {
   root_dir: String,
-
   /// Used as the key of `Session` when saving session information to KV.
   session_cache_key: String,
 }
@@ -55,7 +60,8 @@ impl UserSessionConfig {
 }
 
 pub struct UserManager {
-  database: UserDB,
+  database: Arc<UserDB>,
+  user_paths: UserPaths,
   session_config: UserSessionConfig,
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<StorePreferences>,
@@ -64,7 +70,8 @@ pub struct UserManager {
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
   resumable_sign_up: Mutex<Option<ResumableSignUp>>,
-  current_session: parking_lot::RwLock<Option<Session>>,
+  current_session: Arc<parking_lot::RwLock<Option<Session>>>,
+  refresh_user_profile_since: AtomicI64,
 }
 
 impl UserManager {
@@ -74,12 +81,17 @@ impl UserManager {
     store_preferences: Arc<StorePreferences>,
     collab_builder: Weak<AppFlowyCollabBuilder>,
   ) -> Arc<Self> {
-    let database = UserDB::new(&session_config.root_dir);
+    let user_paths = UserPaths {
+      root: session_config.root_dir.clone(),
+    };
+    let database = Arc::new(UserDB::new(user_paths.clone()));
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
 
+    let refresh_user_profile_since = AtomicI64::new(0);
     let user_manager = Arc::new(Self {
       database,
+      user_paths,
       session_config,
       cloud_services,
       store_preferences,
@@ -89,6 +101,7 @@ impl UserManager {
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
       resumable_sign_up: Default::default(),
       current_session: Default::default(),
+      refresh_user_profile_since,
     });
 
     let weak_user_manager = Arc::downgrade(&user_manager);
@@ -120,13 +133,28 @@ impl UserManager {
   /// a local data migration for the user. After ensuring the user's data is migrated and up-to-date,
   /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
   /// completion, a user status callback is invoked to signify that the initialization process is complete.
+  #[instrument(level = "debug", skip_all, err)]
   pub async fn init<C: UserStatusCallback + 'static, I: CollabInteract>(
     &self,
     user_status_callback: C,
     collab_interact: I,
   ) -> Result<(), FlowyError> {
+    let user_status_callback = Arc::new(user_status_callback);
+    *self.user_status_callback.write().await = user_status_callback.clone();
+    *self.collab_interact.write().await = Arc::new(collab_interact);
+
     if let Ok(session) = self.get_session() {
       let user = self.get_user_profile(session.user_id).await?;
+
+      event!(
+        tracing::Level::INFO,
+        "init user session: {}:{}",
+        user.uid,
+        user.email
+      );
+
+      // Set the token if the current cloud service using token to authenticate
+      // Currently, only the AppFlowy cloud using token to init the client api.
       if let Err(err) = self.cloud_services.set_token(&user.token) {
         error!("Set token failed: {}", err);
       }
@@ -134,10 +162,13 @@ impl UserManager {
       // Subscribe the token state
       let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
       if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
+        event!(tracing::Level::DEBUG, "Listen token state change");
         af_spawn(async move {
           while let Some(token_state) = token_state_rx.next().await {
+            debug!("Token state changed: {:?}", token_state);
             match token_state {
               UserTokenState::Refresh { token } => {
+                // Only save the token if the token is different from the current token
                 if token != user.token {
                   if let Some(pool) = weak_pool.upgrade() {
                     // Save the new token
@@ -147,19 +178,14 @@ impl UserManager {
                   }
                 }
               },
-              UserTokenState::Invalid => {
-                send_auth_state_notification(AuthStateChangedPB {
-                  state: AuthStatePB::InvalidAuth,
-                  message: "Token is invalid".to_string(),
-                })
-                .send();
-              },
+              UserTokenState::Invalid => {},
             }
           }
         });
       }
 
       // Do the user data migration if needed
+      event!(tracing::Level::INFO, "Prepare user data migration");
       match (
         self.database.get_collab_db(session.user_id),
         self.database.get_pool(session.user_id),
@@ -202,8 +228,6 @@ impl UserManager {
         error!("Failed to call did_init callback: {:?}", e);
       }
     }
-    *self.user_status_callback.write().await = Arc::new(user_status_callback);
-    *self.collab_interact.write().await = Arc::new(collab_interact);
     Ok(())
   }
 
@@ -234,9 +258,9 @@ impl UserManager {
   pub async fn sign_in(
     &self,
     params: BoxAny,
-    auth_type: AuthType,
+    authenticator: Authenticator,
   ) -> Result<UserProfile, FlowyError> {
-    self.update_auth_type(&auth_type).await;
+    self.update_authenticator(&authenticator).await;
     let response: AuthResponse = self
       .cloud_services
       .get_user_service()?
@@ -246,8 +270,10 @@ impl UserManager {
     self.set_collab_config(&session);
 
     let latest_workspace = response.latest_workspace.clone();
-    let user_profile = UserProfile::from((&response, &auth_type));
-    self.save_auth_data(&response, &auth_type, &session).await?;
+    let user_profile = UserProfile::from((&response, &authenticator));
+    self
+      .save_auth_data(&response, &authenticator, &session)
+      .await?;
     let _ = self
       .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
       .await;
@@ -269,13 +295,13 @@ impl UserManager {
     Ok(user_profile)
   }
 
-  pub(crate) async fn update_auth_type(&self, auth_type: &AuthType) {
+  pub(crate) async fn update_authenticator(&self, authenticator: &Authenticator) {
     self
       .user_status_callback
       .read()
       .await
-      .auth_type_did_changed(auth_type.clone());
-    self.cloud_services.set_auth_type(auth_type.clone());
+      .authenticator_did_changed(authenticator.clone());
+    self.cloud_services.set_authenticator(authenticator.clone());
   }
 
   /// Manages the user sign-up process, potentially migrating data if necessary.
@@ -288,15 +314,15 @@ impl UserManager {
   #[tracing::instrument(level = "info", skip(self, params))]
   pub async fn sign_up(
     &self,
-    auth_type: AuthType,
+    authenticator: Authenticator,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
-    self.update_auth_type(&auth_type).await;
+    self.update_authenticator(&authenticator).await;
 
-    let migration_user = self.get_migration_user(&auth_type).await;
+    let migration_user = self.get_migration_user(&authenticator).await;
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
-    let user_profile = UserProfile::from((&response, &auth_type));
+    let user_profile = UserProfile::from((&response, &authenticator));
     if user_profile.encryption_type.is_need_encrypt_secret() {
       self
         .resumable_sign_up
@@ -306,11 +332,11 @@ impl UserManager {
           user_profile: user_profile.clone(),
           migration_user,
           response,
-          auth_type,
+          authenticator,
         });
     } else {
       self
-        .continue_sign_up(&user_profile, migration_user, response, &auth_type)
+        .continue_sign_up(&user_profile, migration_user, response, &authenticator)
         .await?;
     }
     Ok(user_profile)
@@ -322,7 +348,7 @@ impl UserManager {
       user_profile,
       migration_user,
       response,
-      auth_type,
+      authenticator,
     } = self
       .resumable_sign_up
       .lock()
@@ -333,7 +359,7 @@ impl UserManager {
         "No resumable sign up data",
       ))?;
     self
-      .continue_sign_up(&user_profile, migration_user, response, &auth_type)
+      .continue_sign_up(&user_profile, migration_user, response, &authenticator)
       .await?;
     Ok(())
   }
@@ -344,7 +370,7 @@ impl UserManager {
     user_profile: &UserProfile,
     migration_user: Option<MigrationUser>,
     response: AuthResponse,
-    auth_type: &AuthType,
+    authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     let new_session = Session::from(&response);
     self.set_collab_config(&new_session);
@@ -368,7 +394,7 @@ impl UserManager {
           new_user.user_profile.uid
         );
         self
-          .migrate_anon_user_to_cloud(&old_user, &new_user)
+          .migrate_anon_user_data_to_cloud(&old_user, &new_user)
           .await?;
         let _ = self.database.close(old_user.session.user_id);
       }
@@ -378,8 +404,9 @@ impl UserManager {
       .await;
 
     self
-      .save_auth_data(&response, auth_type, &new_session)
+      .save_auth_data(&response, authenticator, &new_session)
       .await?;
+
     self
       .user_status_callback
       .read()
@@ -445,14 +472,28 @@ impl UserManager {
   pub async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
     let user: UserProfile = user_table::dsl::user_table
       .filter(user_table::id.eq(&uid.to_string()))
-      .first::<UserTable>(&*(self.db_connection(uid)?))?
+      .first::<UserTable>(&*(self.db_connection(uid)?))
+      .map_err(|err| {
+        FlowyError::record_not_found().with_context(format!(
+          "Can't find the user profile for user id: {}, error: {:?}",
+          uid, err
+        ))
+      })?
       .into();
 
     Ok(user)
   }
 
-  #[tracing::instrument(level = "info", skip_all)]
+  #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn refresh_user_profile(&self, old_user_profile: &UserProfile) -> FlowyResult<()> {
+    let now = chrono::Utc::now().timestamp();
+
+    // Add debounce to avoid too many requests
+    if now - self.refresh_user_profile_since.load(Ordering::SeqCst) < 5 {
+      return Ok(());
+    }
+
+    self.refresh_user_profile_since.store(now, Ordering::SeqCst);
     let uid = old_user_profile.uid;
     let result: Result<UserProfile, FlowyError> = self
       .cloud_services
@@ -465,14 +506,14 @@ impl UserManager {
         // If the authentication type has changed, it indicates that the user has signed in
         // using a different release package but is sharing the same data folder.
         // In such cases, notify the frontend to log out.
-        if old_user_profile.auth_type != AuthType::Local
-          && new_user_profile.auth_type != old_user_profile.auth_type
+        if old_user_profile.authenticator != Authenticator::Local
+          && new_user_profile.authenticator != old_user_profile.authenticator
         {
           event!(
             tracing::Level::INFO,
-            "User login with different cloud: {:?} -> {:?}",
-            old_user_profile.auth_type,
-            new_user_profile.auth_type
+            "User login with different authenticator: {:?} -> {:?}",
+            old_user_profile.authenticator,
+            new_user_profile.authenticator
           );
 
           send_auth_state_notification(AuthStateChangedPB {
@@ -494,12 +535,12 @@ impl UserManager {
       },
       Err(err) => {
         // If the user is not found, notify the frontend to logout
-        if err.is_record_not_found() {
+        if err.is_unauthorized() {
           event!(
-            tracing::Level::INFO,
-            "User is not found on the server when refreshing profile"
+            tracing::Level::ERROR,
+            "User is unauthorized, sign out the user"
           );
-
+          self.sign_out().await?;
           send_auth_state_notification(AuthStateChangedPB {
             state: AuthStatePB::InvalidAuth,
             message: "User is not found on the server".to_string(),
@@ -511,8 +552,9 @@ impl UserManager {
     }
   }
 
+  #[instrument(level = "info", skip_all)]
   pub fn user_dir(&self, uid: i64) -> String {
-    format!("{}/{}", self.session_config.root_dir, uid)
+    self.user_paths.user_dir(uid)
   }
 
   pub fn user_setting(&self) -> Result<UserSettingPB, FlowyError> {
@@ -616,10 +658,10 @@ impl UserManager {
 
   pub(crate) async fn generate_sign_in_url_with_email(
     &self,
-    auth_type: &AuthType,
+    authenticator: &Authenticator,
     email: &str,
   ) -> Result<String, FlowyError> {
-    self.update_auth_type(auth_type).await;
+    self.update_authenticator(authenticator).await;
 
     let auth_service = self.cloud_services.get_user_service()?;
     let url = auth_service
@@ -633,7 +675,7 @@ impl UserManager {
     &self,
     oauth_provider: &str,
   ) -> Result<String, FlowyError> {
-    self.update_auth_type(&AuthType::AFCloud).await;
+    self.update_authenticator(&Authenticator::AFCloud).await;
     let auth_service = self.cloud_services.get_user_service()?;
     let url = auth_service
       .generate_oauth_url_with_provider(oauth_provider)
@@ -641,27 +683,28 @@ impl UserManager {
     Ok(url)
   }
 
+  #[instrument(level = "info", skip_all, err)]
   async fn save_auth_data(
     &self,
     response: &impl UserAuthResponse,
-    auth_type: &AuthType,
+    authenticator: &Authenticator,
     session: &Session,
   ) -> Result<(), FlowyError> {
-    let user_profile = UserProfile::from((response, auth_type));
+    let user_profile = UserProfile::from((response, authenticator));
     let uid = user_profile.uid;
     event!(tracing::Level::DEBUG, "Save new history user: {:?}", uid);
     self.add_historical_user(
       uid,
       response.device_id(),
       response.user_name().to_string(),
-      auth_type,
+      authenticator,
       self.user_dir(uid),
     );
     event!(tracing::Level::DEBUG, "Save new history user workspace");
     save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
     event!(tracing::Level::INFO, "Save new user profile to disk");
     self
-      .save_user(uid, (user_profile, auth_type.clone()).into())
+      .save_user(uid, (user_profile, authenticator.clone()).into())
       .await?;
     self.set_session(Some(session.clone()))?;
     Ok(())
@@ -694,7 +737,7 @@ impl UserManager {
     Ok(())
   }
 
-  async fn migrate_anon_user_to_cloud(
+  async fn migrate_anon_user_data_to_cloud(
     &self,
     old_user: &MigrationUser,
     new_user: &MigrationUser,
@@ -765,4 +808,27 @@ fn save_user_token(uid: i64, pool: Arc<ConnectionPool>, token: String) -> FlowyR
   let params = UpdateUserProfileParams::new(uid).with_token(token);
   let changeset = UserTableChangeset::new(params);
   upsert_user_profile_change(uid, pool, changeset)
+}
+
+#[derive(Clone)]
+struct UserPaths {
+  root: String,
+}
+
+impl UserPaths {
+  fn user_dir(&self, uid: i64) -> String {
+    format!("{}/{}", self.root, uid)
+  }
+}
+
+impl UserDBPath for UserPaths {
+  fn user_db_path(&self, uid: i64) -> PathBuf {
+    PathBuf::from(self.user_dir(uid))
+  }
+
+  fn collab_db_path(&self, uid: i64) -> PathBuf {
+    let mut path = PathBuf::from(self.user_dir(uid));
+    path.push("collab_db");
+    path
+  }
 }

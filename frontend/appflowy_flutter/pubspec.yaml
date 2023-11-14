@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.3.7
+version: 0.3.8
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -43,8 +43,12 @@ dependencies:
     # path: packages/appflowy_board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 6aba8dd
-  appflowy_editor: ^1.5.1
+      ref: 2de4fe0
+  appflowy_editor:
+    git:
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: 009115d
+
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -118,6 +122,9 @@ dependencies:
   local_notifier: ^0.1.5
   app_links: ^3.4.1
   flutter_slidable: ^3.0.0
+  image_picker: ^1.0.4
+  image_gallery_saver: ^2.0.3
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -196,6 +203,11 @@ flutter:
           weight: 800
         - asset: assets/google_fonts/Poppins/Poppins-ExtraBold.ttf
           weight: 900
+    - family: RobotoMono
+      fonts:
+        - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Regular.ttf
+        - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Italic.ttf
+          style: italic
 
   # To add assets to your application, add an assets section, like this:
   assets:

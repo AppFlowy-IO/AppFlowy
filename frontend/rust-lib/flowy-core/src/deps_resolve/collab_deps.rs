@@ -47,7 +47,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
       {
         let conn = pool
           .get()
-          .map_err(|e| PersistenceError::Internal(Box::new(e)))?;
+          .map_err(|e| PersistenceError::Internal(e.into()))?;
 
         let desc = match CollabSnapshotTableSql::get_latest_snapshot(&object_id, &conn) {
           None => Ok("".to_string()),
@@ -70,7 +70,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
           },
           &conn,
         )
-        .map_err(|e| PersistenceError::Internal(Box::new(e)));
+        .map_err(|e| PersistenceError::Internal(e.into()));
 
         if let Err(e) = result {
           tracing::warn!("create snapshot error: {:?}", e);

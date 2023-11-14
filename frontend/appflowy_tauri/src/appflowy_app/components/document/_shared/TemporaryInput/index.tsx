@@ -77,6 +77,7 @@ function TemporaryInput({
 
   useEffect(() => {
     const match = getMatch();
+
     setMatch(match);
   }, [getMatch]);
 

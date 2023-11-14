@@ -26,6 +26,7 @@ class FlowyTextField extends StatefulWidget {
   final Widget? suffixIcon;
   final BoxConstraints? prefixIconConstraints;
   final BoxConstraints? suffixIconConstraints;
+  final BoxConstraints? hintTextConstraints;
 
   const FlowyTextField({
     super.key,
@@ -50,6 +51,7 @@ class FlowyTextField extends StatefulWidget {
     this.suffixIcon,
     this.prefixIconConstraints,
     this.suffixIconConstraints,
+    this.hintTextConstraints,
   });
 
   @override
@@ -76,9 +78,11 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     if (widget.autoFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
-        controller.selection = TextSelection.fromPosition(
-          TextPosition(offset: controller.text.length),
-        );
+        if (widget.controller == null) {
+          controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length),
+          );
+        }
       });
     }
   }
@@ -119,15 +123,22 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       },
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
+      minLines: 1,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
       textAlignVertical: TextAlignVertical.center,
+      keyboardType: TextInputType.multiline,
       decoration: InputDecoration(
-        constraints: BoxConstraints(
-            maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        constraints: widget.hintTextConstraints ??
+            BoxConstraints(
+              maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58,
+            ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: widget.maxLines > 1 ? 12 : 0,
+        ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.outline,

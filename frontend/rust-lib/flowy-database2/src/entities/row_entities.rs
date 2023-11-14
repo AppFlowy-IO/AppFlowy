@@ -59,6 +59,9 @@ pub struct RowMetaPB {
 
   #[pb(index = 4, one_of)]
   pub cover: Option<String>,
+
+  #[pb(index = 5)]
+  pub is_document_empty: bool,
 }
 
 impl std::convert::From<&RowDetail> for RowMetaPB {
@@ -68,6 +71,7 @@ impl std::convert::From<&RowDetail> for RowMetaPB {
       document_id: row_detail.document_id.clone(),
       icon: row_detail.meta.icon_url.clone(),
       cover: row_detail.meta.cover_url.clone(),
+      is_document_empty: row_detail.meta.is_document_empty,
     }
   }
 }
@@ -78,6 +82,7 @@ impl std::convert::From<RowDetail> for RowMetaPB {
       document_id: row_detail.document_id,
       icon: row_detail.meta.icon_url,
       cover: row_detail.meta.cover_url,
+      is_document_empty: row_detail.meta.is_document_empty,
     }
   }
 }
@@ -96,6 +101,9 @@ pub struct UpdateRowMetaChangesetPB {
 
   #[pb(index = 4, one_of)]
   pub cover_url: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub is_document_empty: Option<bool>,
 }
 
 #[derive(Debug)]
@@ -104,6 +112,7 @@ pub struct UpdateRowMetaParams {
   pub view_id: String,
   pub icon_url: Option<String>,
   pub cover_url: Option<String>,
+  pub is_document_empty: Option<bool>,
 }
 
 impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
@@ -122,6 +131,7 @@ impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
       view_id,
       icon_url: self.icon_url,
       cover_url: self.cover_url,
+      is_document_empty: self.is_document_empty,
     })
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:appflowy/plugins/database_view/application/row/row_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,8 +17,10 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   final String? groupFieldId;
   final RowBackendService _rowBackendSvc;
   final RowCache _rowCache;
-  VoidCallback? _rowCallback;
   final String viewId;
+  final RowListener _rowListener;
+
+  VoidCallback? _rowCallback;
 
   CardBloc({
     required this.rowMeta,
@@ -26,6 +29,7 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
     required RowCache rowCache,
     required bool isEditing,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
+        _rowListener = RowListener(rowMeta.id),
         _rowCache = rowCache,
         super(
           RowCardState.initial(
@@ -49,6 +53,16 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
           },
           setIsEditing: (bool isEditing) {
             emit(state.copyWith(isEditing: isEditing));
+          },
+          didReceiveRowMeta: (rowMeta) {
+            final cells = state.cells
+                .map(
+                  (cell) => cell.rowMeta.id == rowMeta.id
+                      ? cell.copyWith(rowMeta: rowMeta)
+                      : cell,
+                )
+                .toList();
+            emit(state.copyWith(cells: cells));
           },
         );
       },
@@ -85,6 +99,14 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
         }
       },
     );
+
+    _rowListener.start(
+      onMetaChanged: (meta) {
+        if (!isClosed) {
+          add(RowCardEvent.didReceiveRowMeta(meta));
+        }
+      },
+    );
   }
 }
 
@@ -116,6 +138,9 @@ class RowCardEvent with _$RowCardEvent {
     List<DatabaseCellContext> cells,
     ChangedReason reason,
   ) = _DidReceiveCells;
+  const factory RowCardEvent.didReceiveRowMeta(
+    RowMetaPB meta,
+  ) = _DidReceiveRowMeta;
 }
 
 @freezed

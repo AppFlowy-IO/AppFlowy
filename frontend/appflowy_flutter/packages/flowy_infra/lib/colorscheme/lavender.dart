@@ -64,7 +64,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           input: _white,
           hint: _lightShader3,
           primary: _lightMain1,
-          onPrimary: _white,
+          onPrimary: _lightShader1,
           hoverBG1: _lightBg2,
           hoverBG2: _lightHover,
           hoverBG3: _lightShader6,

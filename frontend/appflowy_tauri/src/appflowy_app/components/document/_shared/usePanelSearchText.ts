@@ -25,9 +25,11 @@ export function useSubscribePanelSearchText({ blockId, open }: { blockId: string
       beforeOpenDeltaRef.current = [];
       return;
     }
+
     if (beforeOpenDeltaRef.current.length > 0) return;
 
     const delta = new Delta(JSON.parse(deltaStr || "{}"));
+
     beforeOpenDeltaRef.current = delta.ops;
     handleSearch(delta);
   }, [deltaStr, handleSearch, open]);

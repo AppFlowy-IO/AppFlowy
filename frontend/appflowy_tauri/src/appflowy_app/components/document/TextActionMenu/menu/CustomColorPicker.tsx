@@ -46,7 +46,7 @@ function CustomColorPicker({
       onClose={onClose}
     >
       <SketchPicker
-        onChange={(color, event) => {
+        onChange={(color) => {
           setColor(color.rgb);
         }}
         color={color}

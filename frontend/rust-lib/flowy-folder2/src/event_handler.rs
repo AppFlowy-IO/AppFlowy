@@ -38,6 +38,14 @@ pub(crate) async fn create_workspace_handler(
   })
 }
 
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_all_workspace_handler(
+  _data: AFPluginData<CreateWorkspacePayloadPB>,
+  _folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedWorkspacePB, FlowyError> {
+  todo!()
+}
+
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn get_workspace_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
@@ -48,32 +56,12 @@ pub(crate) async fn get_workspace_views_handler(
   data_result_ok(repeated_view)
 }
 
-#[tracing::instrument(level = "debug", skip(data, folder), err)]
-pub(crate) async fn open_workspace_handler(
-  data: AFPluginData<WorkspaceIdPB>,
-  folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<WorkspacePB, FlowyError> {
-  let folder = upgrade_folder(folder)?;
-  let workspace_id = data.into_inner().value;
-  if workspace_id.is_empty() {
-    Err(FlowyError::workspace_id().with_context("workspace id should not be empty"))
-  } else {
-    let workspace = folder.open_workspace(&workspace_id).await?;
-    let views = folder.get_workspace_views(&workspace_id).await?;
-    let workspace_pb: WorkspacePB = (workspace, views).into();
-    data_result_ok(workspace_pb)
-  }
-}
-
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_current_workspace_setting_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let setting = folder
-    .get_workspace_setting_pb()
-    .await
-    .ok_or(FlowyError::record_not_found())?;
+  let setting = folder.get_workspace_setting_pb().await?;
   data_result_ok(setting)
 }
 
@@ -82,10 +70,7 @@ pub(crate) async fn read_current_workspace_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<WorkspacePB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let workspace = folder
-    .get_workspace_pb()
-    .await
-    .ok_or(FlowyError::record_not_found())?;
+  let workspace = folder.get_workspace_pb().await?;
   data_result_ok(workspace)
 }
 
@@ -243,6 +228,22 @@ pub(crate) async fn read_favorites_handler(
   }
   data_result_ok(RepeatedViewPB { items: views })
 }
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn read_recent_views_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let recent_items = folder.get_all_recent_sections().await;
+  let mut views = vec![];
+  for item in recent_items {
+    if let Ok(view) = folder.get_view_pb(&item.id).await {
+      views.push(view);
+    }
+  }
+  data_result_ok(RepeatedViewPB { items: views })
+}
+
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_trash_handler(
   folder: AFPluginState<Weak<FolderManager>>,

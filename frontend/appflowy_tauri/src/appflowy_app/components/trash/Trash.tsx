@@ -28,11 +28,11 @@ function Trash() {
       <div className={'flex items-center justify-between'}>
         <div className={'text-2xl font-bold'}>{t('trash.text')}</div>
         <div className={'flex items-center justify-end'}>
-          <Button color={'inherit'} onClick={(e) => onClickRestoreAll()}>
+          <Button color={'inherit'} onClick={() => onClickRestoreAll()}>
             <RestoreOutlined />
             <span className={'ml-1'}>{t('trash.restoreAll')}</span>
           </Button>
-          <Button color={'error'} onClick={(e) => onClickDeleteAll()}>
+          <Button color={'error'} onClick={() => onClickDeleteAll()}>
             <DeleteOutline />
             <span className={'ml-1'}>{t('trash.deleteAll')}</span>
           </Button>

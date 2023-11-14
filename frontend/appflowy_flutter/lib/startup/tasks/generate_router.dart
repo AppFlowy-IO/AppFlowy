@@ -9,6 +9,7 @@ import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart'
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -62,6 +63,7 @@ GoRouter generateRouter(Widget child) {
 
         // emoji picker
         _mobileEmojiPickerPageRoute(),
+        _mobileImagePickerPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -220,11 +222,20 @@ GoRoute _mobileEmojiPickerPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileEmojiPickerScreen.routeName,
     pageBuilder: (context, state) {
-      final id = state.uri.queryParameters[MobileEmojiPickerScreen.viewId]!;
-      return MaterialPage(
-        child: MobileEmojiPickerScreen(
-          id: id,
-        ),
+      return const MaterialPage(
+        child: MobileEmojiPickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileImagePickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileImagePickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: MobileImagePickerScreen(),
       );
     },
   );

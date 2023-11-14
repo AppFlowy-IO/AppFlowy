@@ -62,13 +62,27 @@ where
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
-      // TODO(nathan): replace the admin_email and admin_password with encryption key
-      let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
-      let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
-      let url = try_get_client?
-        .generate_sign_in_url_with_email(&admin_email, &admin_password, &email)
-        .await?;
-      Ok(url)
+      let client = try_get_client?;
+      let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").map_err(|_| {
+        anyhow!(
+          "GOTRUE_ADMIN_EMAIL is not set. Please set it to the admin email for the test server"
+        )
+      })?;
+      let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").map_err(|_| {
+        anyhow!(
+          "GOTRUE_ADMIN_PASSWORD is not set. Please set it to the admin password for the test server"
+        )
+      })?;
+      let admin_client =
+        client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url());
+      admin_client
+        .sign_in_password(&admin_email, &admin_password)
+        .await
+        .unwrap();
+
+      let action_link = admin_client.generate_sign_in_action_link(&email).await?;
+      let sign_in_url = client.extract_sign_in_url(&action_link).await?;
+      Ok(sign_in_url)
     })
   }
 
@@ -113,7 +127,17 @@ where
     })
   }
 
-  fn get_all_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let af_workspace = client.open_workspace(&workspace_id).await?;
+      Ok(to_user_workspace(af_workspace))
+    })
+  }
+
+  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;

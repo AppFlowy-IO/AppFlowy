@@ -1,4 +1,3 @@
-use collab_database::views::DatabaseLayout;
 use flowy_database2::entities::FieldVisibility;
 use flowy_database2::services::field_settings::FieldSettingsChangesetParams;
 
@@ -8,16 +7,17 @@ use crate::database::database_editor::DatabaseEditorTest;
 pub enum FieldSettingsScript {
   AssertFieldSettings {
     field_ids: Vec<String>,
-    layout_ty: DatabaseLayout,
     visibility: FieldVisibility,
+    width: i32,
   },
   AssertAllFieldSettings {
-    layout_ty: DatabaseLayout,
     visibility: FieldVisibility,
+    width: i32,
   },
   UpdateFieldSettings {
     field_id: String,
     visibility: Option<FieldVisibility>,
+    width: Option<i32>,
   },
 }
 
@@ -51,41 +51,42 @@ impl FieldSettingsTest {
     match script {
       FieldSettingsScript::AssertFieldSettings {
         field_ids,
-        layout_ty,
         visibility,
+        width,
       } => {
         let field_settings = self
           .editor
-          .get_field_settings(&self.view_id, layout_ty, field_ids)
+          .get_field_settings(&self.view_id, field_ids)
           .await
           .unwrap();
 
         for field_settings in field_settings.into_iter() {
-          assert_eq!(field_settings.visibility, visibility)
+          assert_eq!(field_settings.width, width);
+          assert_eq!(field_settings.visibility, visibility);
         }
       },
-      FieldSettingsScript::AssertAllFieldSettings {
-        layout_ty,
-        visibility,
-      } => {
+      FieldSettingsScript::AssertAllFieldSettings { visibility, width } => {
         let field_settings = self
           .editor
-          .get_all_field_settings(&self.view_id, layout_ty)
+          .get_all_field_settings(&self.view_id)
           .await
           .unwrap();
 
         for field_settings in field_settings.into_iter() {
-          assert_eq!(field_settings.visibility, visibility)
+          assert_eq!(field_settings.width, width);
+          assert_eq!(field_settings.visibility, visibility);
         }
       },
       FieldSettingsScript::UpdateFieldSettings {
         field_id,
         visibility,
+        width,
       } => {
         let params = FieldSettingsChangesetParams {
           view_id: self.view_id.clone(),
           field_id,
           visibility,
+          width,
         };
         let _ = self
           .editor

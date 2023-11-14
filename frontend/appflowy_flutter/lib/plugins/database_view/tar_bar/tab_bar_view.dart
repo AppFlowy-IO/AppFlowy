@@ -3,14 +3,13 @@ import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy/workspace/presentation/widgets/left_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../application/database_controller.dart';
-import '../grid/presentation/layout/sizes.dart';
 import 'tab_bar_header.dart';
 
 abstract class DatabaseTabBarItemBuilder {
@@ -95,13 +94,11 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                     if (value) {
                       return const SizedBox.shrink();
                     }
-                    return SizedBox(
+                    return const SizedBox(
                       height: 30,
                       child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: GridSize.leadingHeaderPadding,
-                        ),
-                        child: const TabBarHeader(),
+                        padding: EdgeInsets.symmetric(horizontal: 40),
+                        child: TabBarHeader(),
                       ),
                     );
                   },
@@ -190,7 +187,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   });
 
   @override
-  Widget get leftBarItem => ViewLeftBarItem(view: notifier.view);
+  Widget get leftBarItem => ViewTitleBar(view: notifier.view);
 
   @override
   Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
@@ -216,13 +213,9 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
 
   @override
   Widget? get rightBarItem {
-    return Row(
-      children: [
-        DatabaseShareButton(
-          key: ValueKey(notifier.view.id),
-          view: notifier.view,
-        ),
-      ],
+    return DatabaseShareButton(
+      key: ValueKey(notifier.view.id),
+      view: notifier.view,
     );
   }
 }

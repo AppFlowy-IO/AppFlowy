@@ -67,6 +67,7 @@ pub async fn sync_user_data_to_cloud(
       tracing::error!("🔴sync {} failed: {:?}", view_id, err);
     }
   }
+  tokio::task::yield_now().await;
   Ok(())
 }
 
@@ -101,25 +102,26 @@ fn sync_views(
 
     match view.layout {
       ViewLayout::Document => {
-        let update = get_collab_init_update(uid, &collab_object, &collab_db)?;
+        let doc_state = get_collab_doc_state(uid, &collab_object, &collab_db)?;
         tracing::info!(
           "sync object: {} with update: {}",
           collab_object,
-          update.len()
+          doc_state.len()
         );
         user_service
-          .create_collab_object(&collab_object, update)
+          .create_collab_object(&collab_object, doc_state)
           .await?;
       },
       ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
-        let (database_update, row_ids) = get_database_init_update(uid, &collab_object, &collab_db)?;
+        let (database_doc_state, row_ids) =
+          get_database_doc_state(uid, &collab_object, &collab_db)?;
         tracing::info!(
           "sync object: {} with update: {}",
           collab_object,
-          database_update.len()
+          database_doc_state.len()
         );
         user_service
-          .create_collab_object(&collab_object, database_update)
+          .create_collab_object(&collab_object, database_doc_state)
           .await?;
 
         // sync database's row
@@ -134,16 +136,16 @@ fn sync_views(
             workspace_id.to_string(),
             device_id.clone(),
           );
-          let database_row_update =
-            get_collab_init_update(uid, &database_row_collab_object, &collab_db)?;
+          let database_row_doc_state =
+            get_collab_doc_state(uid, &database_row_collab_object, &collab_db)?;
           tracing::info!(
             "sync object: {} with update: {}",
             database_row_collab_object,
-            database_row_update.len()
+            database_row_doc_state.len()
           );
 
           let _ = user_service
-            .create_collab_object(&database_row_collab_object, database_row_update)
+            .create_collab_object(&database_row_collab_object, database_row_doc_state)
             .await;
 
           let database_row_document = CollabObject::new(
@@ -154,16 +156,16 @@ fn sync_views(
             device_id.to_string(),
           );
           // sync document in the row if exist
-          if let Ok(document_update) =
-            get_collab_init_update(uid, &database_row_document, &collab_db)
+          if let Ok(document_doc_state) =
+            get_collab_doc_state(uid, &database_row_document, &collab_db)
           {
             tracing::info!(
               "sync database row document: {} with update: {}",
               database_row_document,
-              document_update.len()
+              document_doc_state.len()
             );
             let _ = user_service
-              .create_collab_object(&database_row_document, document_update)
+              .create_collab_object(&database_row_document, document_doc_state)
               .await;
           }
         }
@@ -197,7 +199,7 @@ fn sync_views(
   })
 }
 
-fn get_collab_init_update(
+fn get_collab_doc_state(
   uid: i64,
   collab_object: &CollabObject,
   collab_db: &Arc<RocksCollabDB>,
@@ -208,15 +210,15 @@ fn get_collab_init_update(
       .read_txn()
       .load_doc_with_txn(uid, &collab_object.object_id, txn)
   })?;
-  let update = collab.encode_as_update_v1().0;
-  if update.is_empty() {
+  let doc_state = collab.encode_collab_v1().doc_state;
+  if doc_state.is_empty() {
     return Err(PersistenceError::UnexpectedEmptyUpdates);
   }
 
-  Ok(update)
+  Ok(doc_state.to_vec())
 }
 
-fn get_database_init_update(
+fn get_database_doc_state(
   uid: i64,
   collab_object: &CollabObject,
   collab_db: &Arc<RocksCollabDB>,
@@ -229,12 +231,12 @@ fn get_database_init_update(
   })?;
 
   let row_ids = get_database_row_ids(&collab).unwrap_or_default();
-  let update = collab.encode_as_update_v1().0;
-  if update.is_empty() {
+  let doc_state = collab.encode_collab_v1().doc_state;
+  if doc_state.is_empty() {
     return Err(PersistenceError::UnexpectedEmptyUpdates);
   }
 
-  Ok((update, row_ids))
+  Ok((doc_state.to_vec(), row_ids))
 }
 
 async fn sync_folder(
@@ -252,14 +254,14 @@ async fn sync_folder(
         .read_txn()
         .load_doc_with_txn(uid, workspace_id, txn)
     })?;
-    let update = collab.encode_as_update_v1().0;
+    let doc_state = collab.encode_collab_v1().doc_state;
     (
       MutexFolder::new(Folder::open(
         uid,
         Arc::new(MutexCollab::from_collab(collab)),
         None,
       )?),
-      update,
+      doc_state,
     )
   };
 
@@ -276,7 +278,7 @@ async fn sync_folder(
     update.len()
   );
   if let Err(err) = user_service
-    .create_collab_object(&collab_object, update)
+    .create_collab_object(&collab_object, update.to_vec())
     .await
   {
     tracing::error!("🔴sync folder failed: {:?}", err);
@@ -313,14 +315,14 @@ async fn sync_database_views(
       .map(|_| {
         (
           get_database_with_views(&collab),
-          collab.encode_as_update_v1().0,
+          collab.encode_collab_v1().doc_state,
         )
       })
   };
 
-  if let Ok((records, update)) = result {
+  if let Ok((records, doc_state)) = result {
     let _ = user_service
-      .create_collab_object(&collab_object, update)
+      .create_collab_object(&collab_object, doc_state.to_vec())
       .await;
     records.into_iter().map(Arc::new).collect()
   } else {

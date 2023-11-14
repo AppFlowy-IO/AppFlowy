@@ -17,8 +17,10 @@ impl DefaultFolderBuilder {
     workspace_id: String,
     handlers: &FolderOperationHandlers,
   ) -> FolderData {
-    let workspace_view_builder =
-      Arc::new(RwLock::new(WorkspaceViewBuilder::new(workspace_id.clone())));
+    let workspace_view_builder = Arc::new(RwLock::new(WorkspaceViewBuilder::new(
+      workspace_id.clone(),
+      uid,
+    )));
     for handler in handlers.values() {
       let _ = handler
         .create_workspace_view(uid, workspace_view_builder.clone())
@@ -41,6 +43,9 @@ impl DefaultFolderBuilder {
       name: "Workspace".to_string(),
       child_views: RepeatedViewIdentifier::new(first_level_views),
       created_at: timestamp(),
+      created_by: Some(uid),
+      last_edited_time: timestamp(),
+      last_edited_by: Some(uid),
     };
 
     FolderData {
@@ -48,6 +53,7 @@ impl DefaultFolderBuilder {
       current_view: first_view.id,
       views: FlattedViews::flatten_views(views),
       favorites: Default::default(),
+      recent: Default::default(),
     }
   }
 }

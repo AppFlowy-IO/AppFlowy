@@ -159,9 +159,7 @@
     "editContact": "تحرير جهة الاتصال"
   },
   "button": {
-    "OK": "نعم",
-    "Done": "منتهي",
-    "Cancel": "إلغاء",
+    "done": "منتهي",
     "signIn": "تسجيل الدخول",
     "signOut": "خروج",
     "complete": "مكتمل",
@@ -177,8 +175,10 @@
     "edit": "يحرر",
     "delete": "يمسح",
     "duplicate": "ينسخ",
-    "done": "منتهي",
-    "putback": "ضعها بالخلف"
+    "putback": "ضعها بالخلف",
+    "OK": "نعم",
+    "Done": "منتهي",
+    "Cancel": "إلغاء"
   },
   "label": {
     "welcome": "مرحباً!",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
+    "menuName": "سبورة",
+    "referencedBoardPrefix": "نظرا ل",
     "column": {
       "create_new_card": "جديد"
-    },
-    "menuName": "سبورة",
-    "referencedBoardPrefix": "نظرا ل"
+    }
   },
   "calendar": {
     "menuName": "تقويم",
@@ -568,9 +568,9 @@
       "firstDayOfWeek": "اليوم الأول من الأسبوع",
       "layoutDateField": "تقويم التخطيط بواسطة",
       "noDateTitle": "بدون تاريخ",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "clickToAdd": "انقر للإضافة إلى التقويم",
-      "name": "تخطيط التقويم"
+      "name": "تخطيط التقويم",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
     },
     "referencedCalendarPrefix": "نظرا ل"
   },

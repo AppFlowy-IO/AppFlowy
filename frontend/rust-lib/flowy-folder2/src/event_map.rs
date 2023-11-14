@@ -12,9 +12,8 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
-      .event(FolderEvent::GetCurrentWorkspaceSetting, read_current_workspace_setting_handler)
+    .event(FolderEvent::GetCurrentWorkspaceSetting, read_current_workspace_setting_handler)
     .event(FolderEvent::ReadCurrentWorkspace, read_current_workspace_handler)
-    .event(FolderEvent::OpenWorkspace, open_workspace_handler)
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
      // View
     .event(FolderEvent::CreateView, create_view_handler)
@@ -37,6 +36,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
     .event(FolderEvent::ReadFavorites, read_favorites_handler)
+    .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
 }
 
@@ -58,10 +58,6 @@ pub enum FolderEvent {
   /// Delete the workspace
   #[event(input = "WorkspaceIdPB")]
   DeleteWorkspace = 3,
-
-  /// Open the workspace and mark it as the current workspace
-  #[event(input = "WorkspaceIdPB", output = "WorkspacePB")]
-  OpenWorkspace = 4,
 
   /// Return a list of views of the current workspace.
   /// Only the first level of child views are included.
@@ -150,4 +146,7 @@ pub enum FolderEvent {
 
   #[event(input = "UpdateViewIconPayloadPB")]
   UpdateViewIcon = 35,
+
+  #[event(output = "RepeatedViewPB")]
+  ReadRecentViews = 36,
 }

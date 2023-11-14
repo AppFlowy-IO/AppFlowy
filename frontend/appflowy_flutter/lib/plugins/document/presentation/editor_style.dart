@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -179,7 +180,7 @@ class EditorStyleCustomizer {
       backgroundColor: theme.cardColor,
       groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
       menuItemTextColor: theme.colorScheme.onBackground,
-      menuItemSelectedColor: theme.hoverColor,
+      menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );
   }
@@ -261,6 +262,19 @@ class EditorStyleCustomizer {
           formula: formula,
           textStyle: style().textStyleConfiguration.text,
         ),
+      );
+    }
+
+    // customize the link on mobile
+    final href = attributes[AppFlowyRichTextKeys.href] as String?;
+    if (PlatformExtension.isMobile && href != null) {
+      return TextSpan(
+        style: textSpan.style,
+        text: text.text,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            safeLaunchUrl(href);
+          },
       );
     }
 

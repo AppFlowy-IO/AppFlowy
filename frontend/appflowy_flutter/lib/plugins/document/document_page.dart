@@ -26,6 +26,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 
+enum EditorNotificationType {
+  undo,
+  redo,
+}
+
+class EditorNotification extends Notification {
+  const EditorNotification({
+    required this.type,
+  });
+
+  EditorNotification.undo() : type = EditorNotificationType.undo;
+  EditorNotification.redo() : type = EditorNotificationType.redo;
+
+  final EditorNotificationType type;
+}
+
 class DocumentPage extends StatefulWidget {
   const DocumentPage({
     super.key,
@@ -95,7 +111,10 @@ class _DocumentPageState extends State<DocumentPage> {
                     );
                   } else {
                     editorState = documentBloc.editorState!;
-                    return _buildEditorPage(context, state);
+                    return _buildEditorPage(
+                      context,
+                      state,
+                    );
                   }
                 },
               ),
@@ -116,6 +135,7 @@ class _DocumentPageState extends State<DocumentPage> {
       ),
       header: _buildCoverAndIcon(context),
     );
+
     return Column(
       children: [
         if (state.isDeleted) _buildBanner(context),

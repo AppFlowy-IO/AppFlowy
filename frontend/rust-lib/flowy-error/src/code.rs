@@ -98,9 +98,6 @@ pub enum ErrorCode {
   #[error("user id is empty or whitespace")]
   UserIdInvalid = 30,
 
-  #[error("User not exist")]
-  UserNotExist = 31,
-
   #[error("Text is too long")]
   TextTooLong = 32,
 

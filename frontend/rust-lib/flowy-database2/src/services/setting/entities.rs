@@ -93,6 +93,7 @@ pub const DEFAULT_SHOW_WEEK_NUMBERS: bool = true;
 #[derive(Debug, Clone, Default)]
 pub struct BoardLayoutSetting {
   pub hide_ungrouped_column: bool,
+  pub collapse_hidden_groups: bool,
 }
 
 impl BoardLayoutSetting {
@@ -107,6 +108,9 @@ impl From<LayoutSetting> for BoardLayoutSetting {
       hide_ungrouped_column: setting
         .get_bool_value("hide_ungrouped_column")
         .unwrap_or_default(),
+      collapse_hidden_groups: setting
+        .get_bool_value("collapse_hidden_groups")
+        .unwrap_or_default(),
     }
   }
 }
@@ -115,6 +119,7 @@ impl From<BoardLayoutSetting> for LayoutSetting {
   fn from(setting: BoardLayoutSetting) -> Self {
     LayoutSettingBuilder::new()
       .insert_bool_value("hide_ungrouped_column", setting.hide_ungrouped_column)
+      .insert_bool_value("collapse_hidden_groups", setting.collapse_hidden_groups)
       .build()
   }
 }

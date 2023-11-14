@@ -21,6 +21,10 @@ export class AsyncQueue<T = unknown> {
 
     const item = this.queue.shift();
 
+    if (!item) {
+      return;
+    }
+
     this.isProcessing = true;
 
     const executeFn = async (item: T) => {
@@ -34,7 +38,7 @@ export class AsyncQueue<T = unknown> {
       }
     };
 
-    executeFn(item!);
+    void executeFn(item);
   }
 
   private async processItem(item: T): Promise<void> {

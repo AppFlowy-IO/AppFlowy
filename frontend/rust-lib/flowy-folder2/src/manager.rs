@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
@@ -6,8 +7,8 @@ use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_entity::CollabType;
 use collab_folder::{
-  Folder, FolderData, FolderNotify, SectionItem, TrashChange, TrashChangeReceiver, TrashInfo,
-  UserId, View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
+  Folder, FolderData, FolderNotify, Section, SectionItem, TrashChange, TrashChangeReceiver,
+  TrashInfo, UserId, View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::{Mutex, RwLock};
 use tokio_stream::wrappers::WatchStream;
@@ -124,68 +125,50 @@ impl FolderManager {
     Ok(views)
   }
 
-  /// Called immediately after the application launched fi the user already sign in/sign up.
+  /// Called immediately after the application launched if the user already sign in/sign up.
   #[tracing::instrument(level = "info", skip(self, initial_data), err)]
   pub async fn initialize(
     &self,
     uid: i64,
     workspace_id: &str,
-    initial_data: FolderInitializeDataSource,
+    initial_data: FolderInitDataSource,
   ) -> FlowyResult<()> {
+    // Update the workspace id
+    event!(
+      Level::INFO,
+      "Init current workspace: {} from: {}",
+      workspace_id,
+      initial_data
+    );
     *self.workspace_id.write() = Some(workspace_id.to_string());
     let workspace_id = workspace_id.to_string();
-    if let Ok(collab_db) = self.user.collab_db(uid) {
-      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-      let folder_notifier = FolderNotify {
-        view_change_tx: view_tx,
-        trash_change_tx: trash_tx,
-      };
 
-      let folder = match initial_data {
-        FolderInitializeDataSource::LocalDisk {
-          create_if_not_exist,
-        } => {
-          let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
-          if is_exist {
-            event!(Level::INFO, "Restore folder from local disk");
-            let collab = self
-              .collab_for_folder(uid, &workspace_id, collab_db, vec![])
-              .await?;
-            Folder::open(UserId::from(uid), collab, Some(folder_notifier))?
-          } else if create_if_not_exist {
-            event!(Level::INFO, "Create folder with default folder builder");
-            let folder_data =
-              DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
-                .await;
-            let collab = self
-              .collab_for_folder(uid, &workspace_id, collab_db, vec![])
-              .await?;
-            Folder::create(
-              UserId::from(uid),
-              collab,
-              Some(folder_notifier),
-              folder_data,
-            )
-          } else {
-            return Err(FlowyError::new(
-              ErrorCode::RecordNotFound,
-              "Can't find any workspace data",
-            ));
-          }
-        },
-        FolderInitializeDataSource::Cloud(raw_data) => {
-          event!(Level::INFO, "Restore folder from cloud service");
-          if raw_data.is_empty() {
-            return Err(workspace_data_not_sync_error(uid, &workspace_id));
-          }
+    // Get the collab db for the user with given user id.
+    let collab_db = self.user.collab_db(uid)?;
+
+    let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+    let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+    let folder_notifier = FolderNotify {
+      view_change_tx: view_tx,
+      trash_change_tx: trash_tx,
+    };
+
+    let folder = match initial_data {
+      FolderInitDataSource::LocalDisk {
+        create_if_not_exist,
+      } => {
+        let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
+        if is_exist {
+          event!(Level::INFO, "Restore folder from local disk");
           let collab = self
-            .collab_for_folder(uid, &workspace_id, collab_db, raw_data)
+            .collab_for_folder(uid, &workspace_id, collab_db, vec![])
             .await?;
           Folder::open(UserId::from(uid), collab, Some(folder_notifier))?
-        },
-        FolderInitializeDataSource::FolderData(folder_data) => {
-          event!(Level::INFO, "Restore folder with passed-in folder data");
+        } else if create_if_not_exist {
+          event!(Level::INFO, "Create folder with default folder builder");
+          let folder_data =
+            DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
+              .await;
           let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db, vec![])
             .await?;
@@ -195,24 +178,45 @@ impl FolderManager {
             Some(folder_notifier),
             folder_data,
           )
-        },
-      };
+        } else {
+          return Err(FlowyError::new(
+            ErrorCode::RecordNotFound,
+            "Can't find any workspace data",
+          ));
+        }
+      },
+      FolderInitDataSource::Cloud(raw_data) => {
+        event!(Level::INFO, "Restore folder from cloud service");
+        if raw_data.is_empty() {
+          return Err(workspace_data_not_sync_error(uid, &workspace_id));
+        }
+        let collab = self
+          .collab_for_folder(uid, &workspace_id, collab_db, raw_data)
+          .await?;
+        Folder::open(UserId::from(uid), collab, Some(folder_notifier))?
+      },
+      FolderInitDataSource::FolderData(folder_data) => {
+        event!(Level::INFO, "Restore folder with passed-in folder data");
+        let collab = self
+          .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+          .await?;
+        Folder::create(
+          UserId::from(uid),
+          collab,
+          Some(folder_notifier),
+          folder_data,
+        )
+      },
+    };
 
-      tracing::debug!("Current workspace_id: {}", workspace_id);
-      let folder_state_rx = folder.subscribe_sync_state();
-      *self.mutex_folder.lock() = Some(folder);
+    let folder_state_rx = folder.subscribe_sync_state();
+    *self.mutex_folder.lock() = Some(folder);
 
-      let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
-      subscribe_folder_sync_state_changed(
-        workspace_id.clone(),
-        folder_state_rx,
-        &weak_mutex_folder,
-      );
-      subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
-      subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
-      subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
-    }
-
+    let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
+    subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
+    subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
+    subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
+    subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
     Ok(())
   }
 
@@ -239,7 +243,7 @@ impl FolderManager {
 
   /// Initialize the folder with the given workspace id.
   /// Fetch the folder updates from the cloud service and initialize the folder.
-  #[tracing::instrument(level = "debug", skip(self, user_id), err)]
+  #[tracing::instrument(skip(self, user_id), err)]
   pub async fn initialize_with_workspace_id(
     &self,
     user_id: i64,
@@ -250,7 +254,8 @@ impl FolderManager {
       .get_folder_updates(workspace_id, user_id)
       .await?;
 
-    info!(
+    event!(
+      Level::INFO,
       "Get folder updates via {}, number of updates: {}",
       self.cloud_service.service_name(),
       folder_updates.len()
@@ -260,7 +265,7 @@ impl FolderManager {
       .initialize(
         user_id,
         workspace_id,
-        FolderInitializeDataSource::Cloud(folder_updates),
+        FolderInitDataSource::Cloud(folder_updates),
       )
       .await?;
     Ok(())
@@ -268,18 +273,13 @@ impl FolderManager {
 
   /// Initialize the folder for the new user.
   /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
-  #[instrument(
-    name = "folder_initialize_with_new_user",
-    level = "debug",
-    skip_all,
-    err
-  )]
+  #[instrument(level = "info", skip_all, err)]
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
     _token: &str,
     is_new: bool,
-    data_source: FolderInitializeDataSource,
+    data_source: FolderInitDataSource,
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // Create the default workspace if the user is new
@@ -306,7 +306,7 @@ impl FolderManager {
             .initialize(
               user_id,
               workspace_id,
-              FolderInitializeDataSource::Cloud(folder_updates),
+              FolderInitDataSource::Cloud(folder_updates),
             )
             .await?;
         },
@@ -348,20 +348,24 @@ impl FolderManager {
     self.with_folder(|| None, |folder| folder.get_current_workspace())
   }
 
-  pub async fn get_workspace_setting_pb(&self) -> Option<WorkspaceSettingPB> {
-    let workspace_id = self.get_current_workspace_id().await.ok()?;
+  pub async fn get_workspace_setting_pb(&self) -> FlowyResult<WorkspaceSettingPB> {
+    let workspace_id = self.get_current_workspace_id().await?;
     let latest_view = self.get_current_view().await;
-    Some(WorkspaceSettingPB {
+    Ok(WorkspaceSettingPB {
       workspace_id,
       latest_view,
     })
   }
 
-  pub async fn get_workspace_pb(&self) -> Option<WorkspacePB> {
+  pub async fn get_workspace_pb(&self) -> FlowyResult<WorkspacePB> {
     let workspace_pb = {
       let guard = self.mutex_folder.lock();
-      let folder = guard.as_ref()?;
-      let workspace = folder.get_current_workspace()?;
+      let folder = guard
+        .as_ref()
+        .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
+      let workspace = folder.get_current_workspace().ok_or(
+        FlowyError::record_not_found().with_context("Can't find the current workspace id "),
+      )?;
 
       let views = folder
         .views
@@ -378,7 +382,7 @@ impl FolderManager {
       }
     };
 
-    Some(workspace_pb)
+    Ok(workspace_pb)
   }
 
   async fn get_current_workspace_id(&self) -> FlowyResult<String> {
@@ -446,7 +450,7 @@ impl FolderManager {
     }
 
     let index = params.index;
-    let view = create_view(params, view_layout);
+    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -470,7 +474,7 @@ impl FolderManager {
     handler
       .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
       .await?;
-    let view = create_view(params, view_layout);
+    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -741,6 +745,7 @@ impl FolderManager {
       || Err(FlowyError::record_not_found()),
       |folder| {
         folder.set_current_view(view_id);
+        folder.add_recent_view_ids(vec![view_id.to_string()]);
         Ok(folder.get_workspace_id())
       },
     )?;
@@ -796,17 +801,12 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_favorites(&self) -> Vec<SectionItem> {
-    self.with_folder(Vec::new, |folder| {
-      let trash_ids = folder
-        .get_all_trash()
-        .into_iter()
-        .map(|trash| trash.id)
-        .collect::<Vec<String>>();
+    self.get_sections(Section::Favorite)
+  }
 
-      let mut views = folder.get_all_favorites();
-      views.retain(|view| !trash_ids.contains(&view.id));
-      views
-    })
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub(crate) async fn get_all_recent_sections(&self) -> Vec<SectionItem> {
+    self.get_sections(Section::Recent)
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -911,7 +911,7 @@ impl FolderManager {
       index: None,
     };
 
-    let view = create_view(params, import_data.view_layout);
+    let view = create_view(self.user.user_id()?, params, import_data.view_layout);
     self.with_folder(
       || (),
       |folder| {
@@ -1034,6 +1034,26 @@ impl FolderManager {
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn FolderCloudService> {
     &self.cloud_service
+  }
+
+  fn get_sections(&self, section_type: Section) -> Vec<SectionItem> {
+    self.with_folder(Vec::new, |folder| {
+      let trash_ids = folder
+        .get_all_trash()
+        .into_iter()
+        .map(|trash| trash.id)
+        .collect::<Vec<String>>();
+
+      let mut views = match section_type {
+        Section::Favorite => folder.get_all_favorites(),
+        Section::Recent => folder.get_all_recent_sections(),
+        _ => vec![],
+      };
+
+      // filter the views that are in the trash
+      views.retain(|view| !trash_ids.contains(&view.id));
+      views
+    })
   }
 }
 
@@ -1274,13 +1294,24 @@ impl Deref for MutexFolder {
 unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
 
-pub enum FolderInitializeDataSource {
+#[allow(clippy::large_enum_variant)]
+pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
   Cloud(CollabRawData),
   /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
   FolderData(FolderData),
+}
+
+impl Display for FolderInitDataSource {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      FolderInitDataSource::LocalDisk { .. } => f.write_fmt(format_args!("LocalDisk")),
+      FolderInitDataSource::Cloud(_) => f.write_fmt(format_args!("Cloud")),
+      FolderInitDataSource::FolderData(_) => f.write_fmt(format_args!("Custom FolderData")),
+    }
+  }
 }
 
 fn is_exist_in_local_disk(user: &Arc<dyn FolderUser>, doc_id: &str) -> FlowyResult<bool> {

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { pageTypeMap } from '$app/constants';
 import { LinearProgress } from '@mui/material';
-import Tooltip from "@mui/material/Tooltip";
+import Tooltip from '@mui/material/Tooltip';
 
 function PageInline({ pageId }: { pageId: string }) {
   const { t } = useTranslation();
@@ -18,12 +18,14 @@ function PageInline({ pageId }: { pageId: string }) {
     const controller = new PageController(id);
 
     const page = await controller.getPage();
+
     setCurrentPage(page);
   }, []);
 
   const navigateToPage = useCallback(
     (page: Page) => {
       const pageType = pageTypeMap[page.layout];
+
       navigate(`/page/${pageType}/${page.id}`);
     },
     [navigate]
@@ -31,13 +33,11 @@ function PageInline({ pageId }: { pageId: string }) {
 
   useEffect(() => {
     if (!page) {
-      loadPage(pageId);
+      void loadPage(pageId);
     } else {
       setCurrentPage(page);
     }
-
   }, [page, loadPage, pageId]);
-
 
   return currentPage ? (
     <Tooltip arrow title={t('document.mention.page.tooltip')} placement={'top'}>
@@ -49,11 +49,10 @@ function PageInline({ pageId }: { pageId: string }) {
         }}
         className={'inline-block cursor-pointer rounded px-1 hover:bg-content-blue-100'}
       >
-      <span className={'mr-1'}>{currentPage.icon?.value || <Article />}</span>
-      <span className={'font-medium underline '}>{currentPage.name || t('menuAppHeader.defaultNewPageName')}</span>
-    </span>
+        <span className={'mr-1'}>{currentPage.icon?.value || <Article />}</span>
+        <span className={'font-medium underline '}>{currentPage.name || t('menuAppHeader.defaultNewPageName')}</span>
+      </span>
     </Tooltip>
-
   ) : (
     <span>
       <LinearProgress />

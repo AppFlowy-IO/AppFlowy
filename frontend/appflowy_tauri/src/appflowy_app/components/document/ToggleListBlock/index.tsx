@@ -3,13 +3,13 @@ import { BlockType, NestedBlock } from '$app/interfaces/document';
 import TextBlock from '$app/components/document/TextBlock';
 import NodeChildren from '$app/components/document/Node/NodeChildren';
 import { useToggleListBlock } from '$app/components/document/ToggleListBlock/ToggleListBlock.hooks';
-import { IconButton } from '@mui/material';
 import { DropDownShowSvg } from '$app/components/_shared/svg/DropDownShowSvg';
 import Button from '@mui/material/Button';
 
 function ToggleListBlock({ node, childIds }: { node: NestedBlock<BlockType.ToggleListBlock>; childIds?: string[] }) {
   const { toggleCollapsed, handleShortcut } = useToggleListBlock(node.id, node.data);
   const collapsed = node.data.collapsed;
+
   return (
     <>
       <div className={'flex'} onKeyDownCapture={handleShortcut}>

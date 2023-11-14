@@ -20,13 +20,15 @@ pub type ViewData = Bytes;
 /// A builder for creating a view for a workspace.
 /// The views created by this builder will be the first level views of the workspace.
 pub struct WorkspaceViewBuilder {
+  pub uid: i64,
   pub workspace_id: String,
   pub views: Vec<ParentChildViews>,
 }
 
 impl WorkspaceViewBuilder {
-  pub fn new(workspace_id: String) -> Self {
+  pub fn new(workspace_id: String, uid: i64) -> Self {
     Self {
+      uid,
       workspace_id,
       views: vec![],
     }
@@ -37,7 +39,7 @@ impl WorkspaceViewBuilder {
     F: Fn(ViewBuilder) -> O,
     O: Future<Output = ParentChildViews>,
   {
-    let builder = ViewBuilder::new(self.workspace_id.clone());
+    let builder = ViewBuilder::new(self.uid, self.workspace_id.clone());
     self.views.push(view_builder(builder).await);
   }
 
@@ -49,6 +51,7 @@ impl WorkspaceViewBuilder {
 /// A builder for creating a view.
 /// The default layout of the view is [ViewLayout::Document]
 pub struct ViewBuilder {
+  uid: i64,
   parent_view_id: String,
   view_id: String,
   name: String,
@@ -60,8 +63,9 @@ pub struct ViewBuilder {
 }
 
 impl ViewBuilder {
-  pub fn new(parent_view_id: String) -> Self {
+  pub fn new(uid: i64, parent_view_id: String) -> Self {
     Self {
+      uid,
       parent_view_id,
       view_id: gen_view_id().to_string(),
       name: Default::default(),
@@ -92,6 +96,14 @@ impl ViewBuilder {
     self
   }
 
+  pub fn with_icon(mut self, icon: &str) -> Self {
+    self.icon = Some(ViewIcon {
+      ty: collab_folder::IconType::Emoji,
+      value: icon.to_string(),
+    });
+    self
+  }
+
   /// Create a child view for the current view.
   /// The view created by this builder will be the next level view of the current view.
   pub async fn with_child_view_builder<F, O>(mut self, child_view_builder: F) -> Self
@@ -99,7 +111,7 @@ impl ViewBuilder {
     F: Fn(ViewBuilder) -> O,
     O: Future<Output = ParentChildViews>,
   {
-    let builder = ViewBuilder::new(self.view_id.clone());
+    let builder = ViewBuilder::new(self.uid, self.view_id.clone());
     self.child_views.push(child_view_builder(builder).await);
     self
   }
@@ -114,6 +126,8 @@ impl ViewBuilder {
       is_favorite: self.is_favorite,
       layout: self.layout,
       icon: self.icon,
+      created_by: Some(self.uid),
+      last_edited_time: 0,
       children: RepeatedViewIdentifier::new(
         self
           .child_views
@@ -123,6 +137,7 @@ impl ViewBuilder {
           })
           .collect(),
       ),
+      last_edited_by: Some(self.uid),
     };
     ParentChildViews {
       parent_view: view,
@@ -246,7 +261,7 @@ impl From<ViewLayoutPB> for ViewLayout {
   }
 }
 
-pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View {
+pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout) -> View {
   let time = timestamp();
   View {
     id: params.view_id,
@@ -258,6 +273,9 @@ pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View 
     is_favorite: false,
     layout,
     icon: None,
+    created_by: Some(uid),
+    last_edited_time: 0,
+    last_edited_by: Some(uid),
   }
 }
 
@@ -268,7 +286,7 @@ mod tests {
   #[tokio::test]
   async fn create_first_level_views_test() {
     let workspace_id = "w1".to_string();
-    let mut builder = WorkspaceViewBuilder::new(workspace_id);
+    let mut builder = WorkspaceViewBuilder::new(workspace_id, 1);
     builder
       .with_view_builder(|view_builder| async { view_builder.with_name("1").build() })
       .await;
@@ -288,7 +306,7 @@ mod tests {
   #[tokio::test]
   async fn create_view_with_child_views_test() {
     let workspace_id = "w1".to_string();
-    let mut builder = WorkspaceViewBuilder::new(workspace_id);
+    let mut builder = WorkspaceViewBuilder::new(workspace_id, 1);
     builder
       .with_view_builder(|view_builder| async {
         view_builder
@@ -331,7 +349,7 @@ mod tests {
   #[tokio::test]
   async fn create_three_level_view_test() {
     let workspace_id = "w1".to_string();
-    let mut builder = WorkspaceViewBuilder::new(workspace_id);
+    let mut builder = WorkspaceViewBuilder::new(workspace_id, 1);
     builder
       .with_view_builder(|view_builder| async {
         view_builder

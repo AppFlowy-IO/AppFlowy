@@ -6,7 +6,15 @@ use lib_infra::future::FutureResult;
 
 /// [FolderCloudService] represents the cloud service for folder.
 pub trait FolderCloudService: Send + Sync + 'static {
+  /// Creates a new workspace for the user.
+  /// Returns error if the cloud service doesn't support multiple workspaces
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error>;
+
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error>;
+
+  /// Returns all workspaces of the user.
+  /// Returns vec![] if the cloud service doesn't support multiple workspaces
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error>;
 
   fn get_folder_data(
     &self,
@@ -38,4 +46,11 @@ pub fn gen_workspace_id() -> Uuid {
 
 pub fn gen_view_id() -> Uuid {
   uuid::Uuid::new_v4()
+}
+
+#[derive(Debug)]
+pub struct WorkspaceRecord {
+  pub id: String,
+  pub name: String,
+  pub created_at: i64,
 }

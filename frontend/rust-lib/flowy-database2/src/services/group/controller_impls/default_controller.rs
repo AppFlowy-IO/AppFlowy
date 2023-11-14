@@ -6,7 +6,9 @@ use collab_database::rows::{Cells, Row, RowDetail};
 
 use flowy_error::FlowyResult;
 
-use crate::entities::GroupChangesPB;
+use crate::entities::{
+  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
+};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
 };
@@ -30,6 +32,7 @@ impl DefaultGroupController {
       field.id.clone(),
       "".to_owned(),
       "".to_owned(),
+      true,
     );
     Self {
       field_id: field.id.clone(),
@@ -44,7 +47,7 @@ impl GroupControllerOperation for DefaultGroupController {
     &self.field_id
   }
 
-  fn groups(&self) -> Vec<&GroupData> {
+  fn get_all_groups(&self) -> Vec<&GroupData> {
     vec![&self.group]
   }
 
@@ -59,8 +62,32 @@ impl GroupControllerOperation for DefaultGroupController {
     Ok(())
   }
 
+  fn create_group(
+    &mut self,
+    _name: String,
+  ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
+    Ok((None, None))
+  }
+
   fn move_group(&mut self, _from_group_id: &str, _to_group_id: &str) -> FlowyResult<()> {
     Ok(())
+  }
+
+  fn did_create_row(
+    &mut self,
+    row_detail: &RowDetail,
+    index: usize,
+  ) -> Vec<GroupRowsNotificationPB> {
+    self.group.add_row(row_detail.clone());
+
+    vec![GroupRowsNotificationPB::insert(
+      self.group.id.clone(),
+      vec![InsertedRowPB {
+        row_meta: row_detail.into(),
+        index: Some(index as i32),
+        is_new: true,
+      }],
+    )]
   }
 
   fn did_update_group_row(
@@ -76,14 +103,15 @@ impl GroupControllerOperation for DefaultGroupController {
     })
   }
 
-  fn did_delete_delete_row(
-    &mut self,
-    _row: &Row,
-    _field: &Field,
-  ) -> FlowyResult<DidMoveGroupRowResult> {
+  fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult> {
+    let mut changeset = GroupRowsNotificationPB::new(self.group.id.clone());
+    if self.group.contains_row(&row.id) {
+      self.group.remove_row(&row.id);
+      changeset.deleted_rows.push(row.id.clone().into_inner());
+    }
     Ok(DidMoveGroupRowResult {
       deleted_group: None,
-      row_changesets: vec![],
+      row_changesets: vec![changeset],
     })
   }
 
@@ -104,8 +132,8 @@ impl GroupControllerOperation for DefaultGroupController {
   async fn apply_group_changeset(
     &mut self,
     _changeset: &GroupChangesets,
-  ) -> FlowyResult<TypeOptionData> {
-    Ok(TypeOptionData::default())
+  ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
+    Ok((Vec::new(), TypeOptionData::default()))
   }
 }
 
@@ -115,6 +143,4 @@ impl GroupController for DefaultGroupController {
   }
 
   fn will_create_row(&mut self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
-
-  fn did_create_row(&mut self, _row_detail: &RowDetail, _group_id: &str) {}
 }

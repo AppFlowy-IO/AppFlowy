@@ -7,6 +7,28 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+// Document Reference
+
+SelectionMenuItem referencedDocumentMenuItem = SelectionMenuItem(
+  name: LocaleKeys.document_plugins_referencedDocument.tr(),
+  icon: (editorState, onSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.documents_s,
+    isSelected: onSelected,
+    style: style,
+  ),
+  keywords: ['page', 'notes', 'referenced page', 'referenced document'],
+  handler: (editorState, menuService, context) {
+    showLinkToPageMenu(
+      Overlay.of(context),
+      editorState,
+      menuService,
+      ViewLayoutPB.Document,
+    );
+  },
+);
+
+// Database References
+
 SelectionMenuItem referencedGridMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedGrid.tr(),
   icon: (editorState, onSelected, style) => SelectableSvgWidget(

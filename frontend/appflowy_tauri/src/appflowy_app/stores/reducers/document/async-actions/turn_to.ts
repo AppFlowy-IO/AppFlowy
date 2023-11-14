@@ -20,7 +20,7 @@ import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
  */
 export const turnToBlockThunk = createAsyncThunk(
   'document/turnToBlock',
-  async (payload: { id: string; controller: DocumentController; type: BlockType; data: BlockData<any> }, thunkAPI) => {
+  async (payload: { id: string; controller: DocumentController; type: BlockType; data: BlockData }, thunkAPI) => {
     const { id, controller, type, data } = payload;
     const docId = controller.documentId;
     const { dispatch, getState } = thunkAPI;
@@ -44,52 +44,63 @@ export const turnToBlockThunk = createAsyncThunk(
       delta = new Delta([{ insert: node.data.formula }]);
     }
 
-    if (type === BlockType.EquationBlock) {
-      data.formula = deltaOperator.getDeltaText(delta);
-      const block = newBlock<any>(type, parent.id, data);
+    const block = newBlock(type, parent.id, data);
 
-      insertActions.push(controller.getInsertAction(block, node.id));
-      caretId = block.id;
-      caretIndex = 0;
-    } else if (type === BlockType.DividerBlock) {
-      const block = newBlock<any>(type, parent.id, data);
+    caretId = block.id;
 
-      insertActions.push(controller.getInsertAction(block, node.id));
-      const nodeId = generateId();
-      const actions = deltaOperator.getNewTextLineActions({
-        blockId: nodeId,
-        parentId: parent.id,
-        prevId: block.id || null,
-        delta: delta ? delta : new Delta([{ insert: '' }]),
-        type: BlockType.TextBlock,
-        data,
-      });
+    switch (type) {
+      case BlockType.GridBlock:
+        insertActions.push(controller.getInsertAction(block, node.id));
+        caretIndex = 0;
+        break;
+      case BlockType.EquationBlock:
+        data.formula = deltaOperator.getDeltaText(delta);
+        insertActions.push(controller.getInsertAction(block, node.id));
+        caretIndex = 0;
+        break;
+      case BlockType.DividerBlock: {
+        insertActions.push(controller.getInsertAction(block, node.id));
 
-      caretId = nodeId;
-      caretIndex = 0;
-      insertActions.push(...actions);
-    } else {
-      caretId = generateId();
+        const nodeId = generateId();
 
-      const actions = deltaOperator.getNewTextLineActions({
-        blockId: caretId,
-        parentId: parent.id,
-        prevId: node.id,
-        delta: delta,
-        type,
-        data,
-      });
+        caretId = nodeId;
+        caretIndex = 0;
+        insertActions.push(
+          ...deltaOperator.getNewTextLineActions({
+            blockId: nodeId,
+            parentId: parent.id,
+            prevId: block.id || null,
+            delta: delta ? delta : new Delta([{ insert: '' }]),
+            type: BlockType.TextBlock,
+            data,
+          })
+        );
+        break;
+      }
 
-      insertActions.push(...actions);
+      default:
+        caretId = generateId();
+
+        insertActions.push(
+          ...deltaOperator.getNewTextLineActions({
+            blockId: caretId,
+            parentId: parent.id,
+            prevId: node.id,
+            delta,
+            type,
+            data,
+          })
+        );
+        break;
     }
 
     if (!caretId) return;
     // check if prev node is allowed to have children
     const config = blockConfig[type];
     // if new block is not allowed to have children, move children to parent
-    const newParentId = config.canAddChild ? caretId : parent.id;
+    const newParentId = config?.canAddChild ? caretId : parent.id;
     // if move children to parent, set prev to current block, otherwise the prev is empty
-    const newPrev = config.canAddChild ? null : caretId;
+    const newPrev = config?.canAddChild ? null : caretId;
     const moveChildrenActions = controller.getMoveChildrenAction(children, newParentId, newPrev);
 
     // delete current block
@@ -97,7 +108,7 @@ export const turnToBlockThunk = createAsyncThunk(
 
     // submit actions
     await controller.applyActions([...insertActions, ...moveChildrenActions, deleteAction]);
-    dispatch(
+    await dispatch(
       setCursorRangeThunk({
         docId,
         blockId: caretId,

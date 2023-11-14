@@ -19,8 +19,8 @@ export function useSelection(id: string) {
   const { docId } = useSubscribeDocument();
 
   const storeRange = useCallback(
-    (range: RangeStatic) => {
-      dispatch(storeRangeThunk({ id, range, docId }));
+    async (range: RangeStatic) => {
+      await dispatch(storeRangeThunk({ id, range, docId }));
     },
     [docId, id, dispatch]
   );
@@ -38,7 +38,7 @@ export function useSelection(id: string) {
           },
         })
       );
-      storeRange(range);
+      void storeRange(range);
     },
     [docId, id, dispatch, storeRange]
   );

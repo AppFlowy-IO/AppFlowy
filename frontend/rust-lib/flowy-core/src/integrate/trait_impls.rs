@@ -8,6 +8,7 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use tokio_stream::wrappers::WatchStream;
+use tracing::instrument;
 
 use collab_integrate::collab_builder::{CollabPluginContext, CollabSource, CollabStorageProvider};
 use collab_integrate::postgres::SupabaseDBPlugin;
@@ -17,11 +18,13 @@ use flowy_database_deps::cloud::{
 use flowy_document2::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
+use flowy_folder_deps::cloud::{
+  FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+};
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::{AuthType, UserTokenState};
+use flowy_user_deps::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::integrate::server::{ServerProvider, ServerType, SERVER_PROVIDER_TYPE_KEY};
@@ -80,27 +83,32 @@ impl UserCloudServiceProvider for ServerProvider {
     self.encryption.write().set_secret(secret);
   }
 
-  /// When user login, the provider type is set by the [AuthType] and save to disk for next use.
+  /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
   ///
-  /// Each [AuthType] has a corresponding [ServerType]. The [ServerType] is used
+  /// Each [Authenticator] has a corresponding [ServerType]. The [ServerType] is used
   /// to create a new [AppFlowyServer] if it doesn't exist. Once the [ServerType] is set,
   /// it will be used when user open the app again.
   ///
-  fn set_auth_type(&self, auth_type: AuthType) {
-    let server_type: ServerType = auth_type.into();
+  fn set_authenticator(&self, authenticator: Authenticator) {
+    let server_type: ServerType = authenticator.into();
     self.set_server_type(server_type.clone());
 
     match self.store_preferences.upgrade() {
       None => tracing::error!("🔴Failed to update server provider type: store preferences is drop"),
       Some(store_preferences) => {
         match store_preferences.set_object(SERVER_PROVIDER_TYPE_KEY, server_type.clone()) {
-          Ok(_) => tracing::trace!("Update server provider type to: {:?}", server_type),
+          Ok(_) => tracing::trace!("Set server provider: {:?}", server_type),
           Err(e) => {
             tracing::error!("🔴Failed to update server provider type: {:?}", e);
           },
         }
       },
     }
+  }
+
+  fn get_authenticator(&self) -> Authenticator {
+    let server_type = self.get_server_type();
+    Authenticator::from(server_type)
   }
 
   fn set_device_id(&self, device_id: &str) {
@@ -138,6 +146,17 @@ impl FolderCloudService for ServerProvider {
     let server = self.get_server(&self.get_server_type());
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
+  }
+
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server(&self.get_server_type());
+    FutureResult::new(async move { server?.folder_service().open_workspace(&workspace_id).await })
+  }
+
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
+    let server = self.get_server(&self.get_server_type());
+    FutureResult::new(async move { server?.folder_service().get_all_workspace().await })
   }
 
   fn get_folder_data(
@@ -245,7 +264,7 @@ impl DocumentCloudService for ServerProvider {
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
     let server = self.get_server(&self.get_server_type());
@@ -296,6 +315,7 @@ impl CollabStorageProvider for ServerProvider {
     self.get_server_type().into()
   }
 
+  #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
   fn get_plugins(&self, context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
     match context {
       CollabPluginContext::Local => to_fut(async move { vec![] }),
@@ -308,7 +328,7 @@ impl CollabStorageProvider for ServerProvider {
           to_fut(async move {
             let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
             match server.collab_ws_channel(&collab_object.object_id).await {
-              Ok(Some((channel, ws_connect_state))) => {
+              Ok(Some((channel, ws_connect_state, is_connected))) => {
                 let origin = CollabOrigin::Client(CollabClient::new(
                   collab_object.uid,
                   collab_object.device_id.clone(),
@@ -316,8 +336,9 @@ impl CollabStorageProvider for ServerProvider {
                 let sync_object = SyncObject::from(collab_object);
                 let (sink, stream) = (channel.sink(), channel.stream());
                 let sink_config = SinkConfig::new()
-                  .send_timeout(6)
-                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
+                  .send_timeout(8)
+                  .with_max_payload_size(1024 * 10)
+                  .with_strategy(SinkStrategy::FixInterval(Duration::from_millis(600)));
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,
@@ -326,6 +347,7 @@ impl CollabStorageProvider for ServerProvider {
                   sink_config,
                   stream,
                   Some(channel),
+                  !is_connected,
                   ws_connect_state,
                 );
                 plugins.push(Arc::new(sync_plugin));

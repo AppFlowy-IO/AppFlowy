@@ -27,7 +27,7 @@ function ImageToolbar({ id, open, align }: { id: string; open: boolean; align: A
         <Tooltip disableInteractive placement={'top'} title={t('button.delete')}>
           <div
             onClick={() => {
-              dispatch(deleteNodeThunk({ id, controller }));
+              void dispatch(deleteNodeThunk({ id, controller }));
             }}
             className='flex items-center justify-center p-1'
           >
