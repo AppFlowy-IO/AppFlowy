@@ -251,7 +251,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
         header: widget.header,
-        footer: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
+        footer: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () async {
+            // if the last one isn't a empty node, insert a new empty node.
+            await _ensureLastNodeIsEmptyParagraph();
+          },
+          child: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
+        ),
       ),
     );
 
@@ -469,5 +476,21 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   void _initEditorL10n() {
     AppFlowyEditorL10n.current = EditorI18n();
+  }
+
+  Future<void> _ensureLastNodeIsEmptyParagraph() async {
+    final editorState = widget.editorState;
+    final root = editorState.document.root;
+    final lastNode = root.children.lastOrNull;
+    if (lastNode == null ||
+        lastNode.delta?.isEmpty == false ||
+        lastNode.type != ParagraphBlockKeys.type) {
+      final transaction = editorState.transaction;
+      transaction.insertNode([root.children.length], paragraphNode());
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: [root.children.length]),
+      );
+      await editorState.apply(transaction);
+    }
   }
 }
