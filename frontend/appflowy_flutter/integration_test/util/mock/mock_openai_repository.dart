@@ -15,7 +15,7 @@ class MyMockClient extends Mock implements http.Client {
     if (requestType == 'POST' &&
         requestUri == OpenAIRequestType.textCompletion.uri) {
       final responseHeaders = <String, String>{
-        'content-type': 'text/event-stream'
+        'content-type': 'text/event-stream',
       };
       final responseBody = Stream.fromIterable([
         utf8.encode(

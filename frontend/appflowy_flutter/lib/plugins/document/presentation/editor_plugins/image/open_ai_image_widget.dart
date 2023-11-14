@@ -88,7 +88,7 @@ class _OpenAIImageWidgetState extends State<OpenAIImageWidget> {
                 );
               },
             ),
-          )
+          ),
       ],
     );
   }

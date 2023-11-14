@@ -12,8 +12,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../application/tar_bar_bloc.dart';
-import 'tar_bar_add_button.dart';
+import '../application/tab_bar_bloc.dart';
+import 'tab_bar_add_button.dart';
 
 class TabBarHeader extends StatefulWidget {
   const TabBarHeader({super.key});
@@ -40,14 +40,14 @@ class _TabBarHeaderState extends State<TabBarHeader> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BlocBuilder<GridTabBarBloc, GridTabBarState>(
+            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
                 return const Flexible(
                   child: DatabaseTabBar(),
                 );
               },
             ),
-            BlocBuilder<GridTabBarBloc, GridTabBarState>(
+            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
                 return SizedBox(
                   width: 200,
@@ -66,7 +66,7 @@ class _TabBarHeaderState extends State<TabBarHeader> {
     );
   }
 
-  Widget pageSettingBarFromState(GridTabBarState state) {
+  Widget pageSettingBarFromState(DatabaseTabBarState state) {
     if (state.tabBars.length < state.selectedIndex) {
       return const SizedBox.shrink();
     }
@@ -92,7 +92,7 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridTabBarBloc, GridTabBarState>(
+    return BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
       builder: (context, state) {
         final children = state.tabBars.indexed.map((indexed) {
           final isSelected = state.selectedIndex == indexed.$1;
@@ -102,8 +102,8 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
             view: tabBar.view,
             isSelected: isSelected,
             onTap: (selectedView) {
-              context.read<GridTabBarBloc>().add(
-                    GridTabBarEvent.selectView(selectedView.id),
+              context.read<DatabaseTabBarBloc>().add(
+                    DatabaseTabBarEvent.selectView(selectedView.id),
                   );
             },
           );
@@ -122,8 +122,8 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
             ),
             AddDatabaseViewButton(
               onTap: (action) async {
-                context.read<GridTabBarBloc>().add(
-                      GridTabBarEvent.createView(action),
+                context.read<DatabaseTabBarBloc>().add(
+                      DatabaseTabBarEvent.createView(action),
                     );
               },
             ),
@@ -231,8 +231,8 @@ class TabBarItemButton extends StatelessWidget {
               title: LocaleKeys.menuAppHeader_renameDialog.tr(),
               value: view.name,
               confirm: (newValue) {
-                context.read<GridTabBarBloc>().add(
-                      GridTabBarEvent.renameView(view.id, newValue),
+                context.read<DatabaseTabBarBloc>().add(
+                      DatabaseTabBarEvent.renameView(view.id, newValue),
                     );
               },
             ).show(context);
@@ -241,8 +241,8 @@ class TabBarItemButton extends StatelessWidget {
             NavigatorAlertDialog(
               title: LocaleKeys.grid_deleteView.tr(),
               confirm: () {
-                context.read<GridTabBarBloc>().add(
-                      GridTabBarEvent.deleteView(view.id),
+                context.read<DatabaseTabBarBloc>().add(
+                      DatabaseTabBarEvent.deleteView(view.id),
                     );
               },
             ).show(context);

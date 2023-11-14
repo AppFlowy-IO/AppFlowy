@@ -34,7 +34,7 @@ class LayoutDirectionSetting extends StatelessWidget {
               _layoutDirectionItemButton(context, LayoutDirection.rtlLayout),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -98,7 +98,7 @@ class TextDirectionSetting extends StatelessWidget {
                 _textDirectionItemButton(context, AppFlowyTextDirection.auto),
               ],
             ),
-          )
+          ),
         ],
       );
 

@@ -157,7 +157,7 @@ class _AutoCompletionBlockComponentState
                 onKeep: _onExit,
                 onRewrite: _onRewrite,
                 onDiscard: _onDiscard,
-              )
+              ),
             ],
           ],
         ),
@@ -477,7 +477,7 @@ class AutoCompletionHeader extends StatelessWidget {
           onTap: () async {
             await openLearnMorePage();
           },
-        )
+        ),
       ],
     );
   }

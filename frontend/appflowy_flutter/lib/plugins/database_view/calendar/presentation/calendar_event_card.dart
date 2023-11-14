@@ -230,7 +230,7 @@ class _EventCardState extends State<EventCard> {
                     color: Theme.of(context).hintColor,
                     overflow: TextOverflow.ellipsis,
                   ),
-                )
+                ),
             ],
           ),
         ),

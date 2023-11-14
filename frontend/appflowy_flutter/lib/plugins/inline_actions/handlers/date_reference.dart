@@ -124,7 +124,7 @@ class DateReferenceService {
           MentionBlockKeys.mention: {
             MentionBlockKeys.type: MentionType.date.name,
             MentionBlockKeys.date: date.toIso8601String(),
-          }
+          },
         },
       );
 

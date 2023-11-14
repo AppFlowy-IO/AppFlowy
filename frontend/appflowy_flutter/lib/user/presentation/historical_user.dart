@@ -48,7 +48,7 @@ class HistoricalUserList extends StatelessWidget {
                     },
                     itemCount: state.historicalUsers.length,
                   ),
-                )
+                ),
               ],
             );
           }
