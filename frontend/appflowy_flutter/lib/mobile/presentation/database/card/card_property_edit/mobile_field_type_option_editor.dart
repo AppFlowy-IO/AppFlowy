@@ -53,9 +53,7 @@ class MobileFieldTypeOptionEditor extends StatelessWidget {
 }
 
 class _MobileSwitchFieldButton extends StatelessWidget {
-  const _MobileSwitchFieldButton({
-    Key? key,
-  }) : super(key: key);
+  const _MobileSwitchFieldButton();
 
   @override
   Widget build(BuildContext context) {

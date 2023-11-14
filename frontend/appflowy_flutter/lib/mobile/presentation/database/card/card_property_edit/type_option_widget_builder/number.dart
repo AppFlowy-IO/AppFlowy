@@ -32,9 +32,9 @@ class NumberTypeOptionMobileWidget extends TypeOptionWidget {
   final NumberTypeOptionContext typeOptionContext;
 
   const NumberTypeOptionMobileWidget({
+    super.key,
     required this.typeOptionContext,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +93,7 @@ class NumberFormatList extends StatelessWidget {
     required this.selectedFormat,
     required this.onSelected,
     Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +137,7 @@ class NumberFormatList extends StatelessWidget {
 }
 
 class _FilterTextField extends StatelessWidget {
-  const _FilterTextField({Key? key}) : super(key: key);
+  const _FilterTextField({Key? key});
   @override
   Widget build(BuildContext context) {
     return Padding(

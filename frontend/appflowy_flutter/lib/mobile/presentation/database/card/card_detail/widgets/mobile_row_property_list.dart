@@ -88,16 +88,16 @@ class MobileRowPropertyList extends StatelessWidget {
 }
 
 class _PropertyCell extends StatefulWidget {
-  final DatabaseCellContext cellContext;
-  final GridCellBuilder cellBuilder;
-
-  final int index;
   const _PropertyCell({
+    super.key,
     required this.cellContext,
     required this.cellBuilder,
-    Key? key,
     required this.index,
-  }) : super(key: key);
+  });
+
+  final DatabaseCellContext cellContext;
+  final GridCellBuilder cellBuilder;
+  final int index;
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();

@@ -13,10 +13,10 @@ class MobileFieldTypeList extends StatelessWidget {
   final FieldTypeOptionEditBloc bloc;
   final SelectFieldCallback onSelectField;
   const MobileFieldTypeList({
+    super.key,
     required this.onSelectField,
-    Key? key,
     required this.bloc,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class MobileFieldTypeCell extends StatelessWidget {
     required this.fieldType,
     required this.onSelectField,
     Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

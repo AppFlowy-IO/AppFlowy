@@ -24,9 +24,9 @@ class DateTypeOptionMobileWidget extends TypeOptionWidget {
   final DateTypeOptionContext typeOptionContext;
 
   const DateTypeOptionMobileWidget({
+    super.key,
     required this.typeOptionContext,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
