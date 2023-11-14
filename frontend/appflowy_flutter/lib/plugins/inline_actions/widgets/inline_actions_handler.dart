@@ -226,7 +226,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         ![
           ...moveKeys,
           LogicalKeyboardKey.arrowLeft,
-          LogicalKeyboardKey.arrowRight
+          LogicalKeyboardKey.arrowRight,
         ].contains(event.logicalKey)) {
       /// Prevents dismissal of context menu by notifying the parent
       /// that the selection change occurred from the handler.

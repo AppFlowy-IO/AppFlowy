@@ -92,8 +92,8 @@ class FlowyMobileStateContainer extends StatelessWidget {
                     ],
                   );
                 },
-              )
-            ]
+              ),
+            ],
           ],
         ),
       ),

@@ -64,7 +64,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
             if (updatePB.createChildViews.isNotEmpty) {
               final allTabBars = [
                 ...state.tabBars,
-                ...updatePB.createChildViews.map((e) => TarBar(view: e))
+                ...updatePB.createChildViews.map((e) => TarBar(view: e)),
               ];
               emit(
                 state.copyWith(
@@ -79,7 +79,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
             if (updatePB.deleteChildViews.isNotEmpty) {
               final allTabBars = [...state.tabBars];
               final tabBarControllerByViewId = {
-                ...state.tabBarControllerByViewId
+                ...state.tabBarControllerByViewId,
               };
               var newSelectedIndex = state.selectedIndex;
               for (final viewId in updatePB.deleteChildViews) {
@@ -234,7 +234,7 @@ class GridTabBarState with _$GridTabBarState {
       tabBarControllerByViewId: {
         view.id: DatabaseTarBarController(
           view: view,
-        )
+        ),
       },
     );
   }

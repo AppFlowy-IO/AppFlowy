@@ -435,7 +435,7 @@ class UnscheduleEventsList extends StatelessWidget {
             PopoverContainer.of(context).close();
           },
         ),
-      )
+      ),
     ];
 
     return ListView.separated(

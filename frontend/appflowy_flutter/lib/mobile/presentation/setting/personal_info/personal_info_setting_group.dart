@@ -62,7 +62,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
                     },
                   );
                 },
-              )
+              ),
             ],
           );
         },
