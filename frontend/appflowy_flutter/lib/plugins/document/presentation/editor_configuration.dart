@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
@@ -42,6 +43,11 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderText: (_) => 'To-do',
       ),
+      toggleChildrenTriggers: [
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.shiftLeft,
+        LogicalKeyboardKey.shiftRight,
+      ],
     ),
     BulletedListBlockKeys.type: BulletedListBlockComponentBuilder(
       configuration: configuration.copyWith(
