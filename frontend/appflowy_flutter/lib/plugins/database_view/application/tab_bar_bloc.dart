@@ -251,7 +251,7 @@ class DatabaseTabBar extends Equatable {
 
   DatabaseTabBar({
     required this.view,
-  }) : _builder = view.tarBarItem();
+  }) : _builder = view.tabBarItem();
 
   @override
   List<Object?> get props => [view.hashCode];

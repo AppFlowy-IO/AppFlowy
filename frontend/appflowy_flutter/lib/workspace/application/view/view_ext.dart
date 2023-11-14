@@ -90,7 +90,7 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  DatabaseTabBarItemBuilder tarBarItem() {
+  DatabaseTabBarItemBuilder tabBarItem() {
     switch (layout) {
       case ViewLayoutPB.Board:
         return BoardPageTabBarBuilderImpl();

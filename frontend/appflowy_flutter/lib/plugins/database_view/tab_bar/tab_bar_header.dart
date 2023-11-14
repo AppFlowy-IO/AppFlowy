@@ -70,10 +70,10 @@ class _TabBarHeaderState extends State<TabBarHeader> {
     if (state.tabBars.length < state.selectedIndex) {
       return const SizedBox.shrink();
     }
-    final tarBar = state.tabBars[state.selectedIndex];
+    final tabBar = state.tabBars[state.selectedIndex];
     final controller =
-        state.tabBarControllerByViewId[tarBar.viewId]!.controller;
-    return tarBar.builder.settingBar(
+        state.tabBarControllerByViewId[tabBar.viewId]!.controller;
+    return tabBar.builder.settingBar(
       context,
       controller,
     );
