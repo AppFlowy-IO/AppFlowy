@@ -117,7 +117,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
                                   );
                                 },
                               ),
-                            )
+                            ),
                           ],
                         ),
                       );

@@ -40,8 +40,8 @@ class MobileFieldTypeOptionEditor extends StatelessWidget {
               const _MobileSwitchFieldButton(),
               if (typeOptionWidget != null) ...[
                 const VSpace(8),
-                typeOptionWidget
-              ]
+                typeOptionWidget,
+              ],
             ],
           );
         },

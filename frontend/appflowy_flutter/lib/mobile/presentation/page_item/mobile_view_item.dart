@@ -312,7 +312,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
           fontSize: 18.0,
           overflow: TextOverflow.ellipsis,
         ),
-      )
+      ),
     ];
 
     // hover action
