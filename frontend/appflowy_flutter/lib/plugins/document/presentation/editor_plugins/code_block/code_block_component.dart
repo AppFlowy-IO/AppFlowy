@@ -286,8 +286,8 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         child: FlowyTextButton(
           '${language?.capitalize() ?? 'Auto'} ',
           padding: const EdgeInsets.symmetric(
-            horizontal: 12.0,
-            vertical: 4.0,
+            horizontal: 8.0,
+            vertical: 6.0,
           ),
           constraints: const BoxConstraints(maxWidth: maxWidth),
           fontColor: Theme.of(context).colorScheme.onBackground,
