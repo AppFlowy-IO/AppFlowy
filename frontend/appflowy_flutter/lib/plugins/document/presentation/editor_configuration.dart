@@ -155,6 +155,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderTextStyle: (_) =>
             styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+        padding: (_) => const EdgeInsets.only(
+          top: 12.0,
+          bottom: 4.0,
+        ),
       ),
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
