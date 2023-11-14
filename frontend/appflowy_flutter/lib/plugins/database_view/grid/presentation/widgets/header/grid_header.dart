@@ -109,14 +109,6 @@ class _GridHeaderState extends State<_GridHeader> {
           child: RepaintBoundary(
             child: ReorderableRow(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              buildDraggableFeedback: (context, constraints, child) =>
-                  ConstrainedBox(
-                constraints: constraints,
-                child: Material(
-                  color: Colors.transparent,
-                  child: child,
-                ),
-              ),
               scrollController: ScrollController(),
               header: const _CellLeading(),
               needsLongPressDraggable: Platform.isAndroid || Platform.isIOS,
