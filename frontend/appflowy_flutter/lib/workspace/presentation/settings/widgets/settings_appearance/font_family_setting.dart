@@ -45,7 +45,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
       trailing: [
         FontFamilyDropDown(
           currentFontFamily: widget.currentFontFamily,
-        )
+        ),
       ],
     );
   }

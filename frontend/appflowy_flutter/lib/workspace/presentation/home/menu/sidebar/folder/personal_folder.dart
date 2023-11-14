@@ -62,7 +62,7 @@ class PersonalFolder extends StatelessWidget {
                     onTertiarySelected: (view) =>
                         context.read<TabsBloc>().openTab(view),
                   ),
-                )
+                ),
             ],
           );
         },
@@ -136,7 +136,7 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
                 );
               },
             ),
-          ]
+          ],
         ],
       ),
     );

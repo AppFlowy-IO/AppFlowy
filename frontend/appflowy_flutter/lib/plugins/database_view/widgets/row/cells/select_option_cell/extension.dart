@@ -123,7 +123,7 @@ class SelectOptionTag extends StatelessWidget {
                 FlowySvgs.close_s,
               ),
             ),
-          ]
+          ],
         ],
       ),
     );

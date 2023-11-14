@@ -1,7 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 
 class FlowyEmojiHeader extends StatelessWidget {
   const FlowyEmojiHeader({

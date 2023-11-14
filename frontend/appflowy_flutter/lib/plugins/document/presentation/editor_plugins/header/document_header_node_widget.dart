@@ -173,7 +173,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
       DocumentHeaderBlockKeys.coverDetails:
           widget.node.attributes[DocumentHeaderBlockKeys.coverDetails],
       DocumentHeaderBlockKeys.icon:
-          widget.node.attributes[DocumentHeaderBlockKeys.icon]
+          widget.node.attributes[DocumentHeaderBlockKeys.icon],
     };
     if (cover != null) {
       attributes[DocumentHeaderBlockKeys.coverType] = cover.$1.toString();
@@ -398,7 +398,7 @@ class DocumentCoverState extends State<DocumentCover> {
               width: double.infinity,
               child: _buildCoverImage(),
             ),
-            if (!isOverlayButtonsHidden) _buildCoverOverlayButtons(context)
+            if (!isOverlayButtonsHidden) _buildCoverOverlayButtons(context),
           ],
         ),
       ),

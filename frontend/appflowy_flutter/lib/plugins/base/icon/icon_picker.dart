@@ -111,7 +111,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
                 LocaleKeys.emoji_emojiTab.tr(),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

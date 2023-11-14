@@ -4,7 +4,7 @@ no_pub_get=false
 
 while getopts 's' flag; do
   case "${flag}" in
-    s) no_pub_get=true ;;
+  s) no_pub_get=true ;;
   esac
 done
 
@@ -23,7 +23,7 @@ if [ "$no_pub_get" = false ]; then
   flutter packages pub get >/dev/null 2>&1
 fi
 
-dart run build_runner clean && dart run build_runner build -d
+dart run build_runner build -d
 echo "Done generating files for appflowy_flutter"
 
 echo "Generating files for packages"
@@ -39,7 +39,7 @@ for d in */; do
     if [ "$no_pub_get" = false ]; then
       flutter packages pub get >/dev/null 2>&1
     fi
-    dart run build_runner clean && dart run build_runner build -d
+    dart run build_runner build -d
     echo "Done running build command in $d"
   else
     echo "No pubspec.yaml found in $d, it can\'t be a Dart project. Skipping."

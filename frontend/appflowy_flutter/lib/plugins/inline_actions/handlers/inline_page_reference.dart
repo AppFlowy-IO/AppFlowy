@@ -109,7 +109,7 @@ class InlinePageReferenceService {
                 MentionBlockKeys.mention: {
                   MentionBlockKeys.type: MentionType.page.name,
                   MentionBlockKeys.pageId: view.id,
-                }
+                },
               },
             );
 

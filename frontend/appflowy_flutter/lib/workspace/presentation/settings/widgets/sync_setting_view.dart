@@ -87,7 +87,7 @@ class EnableEncrypt extends StatelessWidget {
                               .add(CloudSettingEvent.enableEncrypt(value));
                         },
                   value: state.config.enableEncrypt,
-                )
+                ),
               ],
             ),
             Column(
@@ -128,7 +128,7 @@ class EnableEncrypt extends StatelessWidget {
                   ),
                 ),
               ],
-            )
+            ),
           ],
         );
       },
@@ -154,7 +154,7 @@ class EnableSync extends StatelessWidget {
                     );
               },
               value: state.config.enableSync,
-            )
+            ),
           ],
         );
       },
