@@ -145,10 +145,10 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
     if (state.tabBars.length < state.selectedIndex) {
       return const SizedBox.shrink();
     }
-    final tarBar = state.tabBars[state.selectedIndex];
+    final tabBar = state.tabBars[state.selectedIndex];
     final controller =
-        state.tabBarControllerByViewId[tarBar.viewId]!.controller;
-    return tarBar.builder.settingBarExtension(
+        state.tabBarControllerByViewId[tabBar.viewId]!.controller;
+    return tabBar.builder.settingBarExtension(
       context,
       controller,
     );

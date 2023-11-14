@@ -89,10 +89,10 @@ class DatabaseTabBarBloc
                   (element) => element.viewId == viewId,
                 );
                 if (index != -1) {
-                  final tarBar = allTabBars.removeAt(index);
+                  final tabBar = allTabBars.removeAt(index);
                   // Dispose the controller when the tab is removed.
                   final controller =
-                      tabBarControllerByViewId.remove(tarBar.viewId);
+                      tabBarControllerByViewId.remove(tabBar.viewId);
                   controller?.dispose();
                 }
 

@@ -1387,7 +1387,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     final findCreateButton = find.byWidgetPredicate(
       (widget) =>
-          widget is TarBarAddButtonActionCell && widget.action == action,
+          widget is TabBarAddButtonActionCell && widget.action == action,
     );
     await tapButton(findCreateButton);
   }

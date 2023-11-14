@@ -57,7 +57,7 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
         ),
       ),
       popupBuilder: (BuildContext context) {
-        return TarBarAddButtonAction(
+        return TabBarAddButtonAction(
           onTap: (action) {
             popoverController.close();
             widget.onTap(action);
@@ -68,9 +68,9 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
   }
 }
 
-class TarBarAddButtonAction extends StatelessWidget {
+class TabBarAddButtonAction extends StatelessWidget {
   final Function(AddButtonAction) onTap;
-  const TarBarAddButtonAction({
+  const TabBarAddButtonAction({
     required this.onTap,
     super.key,
   });
@@ -78,7 +78,7 @@ class TarBarAddButtonAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cells = AddButtonAction.values.map((layout) {
-      return TarBarAddButtonActionCell(
+      return TabBarAddButtonActionCell(
         action: layout,
         onTap: onTap,
       );
@@ -96,10 +96,10 @@ class TarBarAddButtonAction extends StatelessWidget {
   }
 }
 
-class TarBarAddButtonActionCell extends StatelessWidget {
+class TabBarAddButtonActionCell extends StatelessWidget {
   final AddButtonAction action;
   final void Function(AddButtonAction) onTap;
-  const TarBarAddButtonActionCell({
+  const TabBarAddButtonActionCell({
     required this.action,
     required this.onTap,
     super.key,
