@@ -10,32 +10,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 typedef SelectFieldCallback = void Function(FieldType);
 
 class MobileFieldTypeList extends StatelessWidget {
-  final FieldTypeOptionEditBloc bloc;
-  final SelectFieldCallback onSelectField;
   const MobileFieldTypeList({
     super.key,
     required this.onSelectField,
     required this.bloc,
   });
 
+  final FieldTypeOptionEditBloc bloc;
+  final SelectFieldCallback onSelectField;
+
   @override
   Widget build(BuildContext context) {
-    final cells = FieldType.values.map((fieldType) {
-      return MobileFieldTypeCell(
-        fieldType: fieldType,
-        onSelectField: (fieldType) {
-          onSelectField(fieldType);
-        },
-      );
-    }).toList();
-
+    const allFieldTypes = FieldType.values;
     return BlocProvider.value(
       value: bloc,
       child: ListView.builder(
         shrinkWrap: true,
-        itemCount: cells.length,
+        itemCount: allFieldTypes.length,
         itemBuilder: (_, index) {
-          return cells[index];
+          return MobileFieldTypeCell(
+            fieldType: allFieldTypes[index],
+            onSelectField: onSelectField,
+          );
         },
       ),
     );
@@ -46,9 +42,9 @@ class MobileFieldTypeCell extends StatelessWidget {
   final FieldType fieldType;
   final SelectFieldCallback onSelectField;
   const MobileFieldTypeCell({
+    super.key,
     required this.fieldType,
     required this.onSelectField,
-    Key? key,
   });
 
   @override

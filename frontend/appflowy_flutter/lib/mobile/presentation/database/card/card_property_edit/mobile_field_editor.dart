@@ -102,6 +102,7 @@ class VisibilitySwitch extends StatefulWidget {
     required this.isFieldHidden,
     this.onChanged,
   });
+
   final bool isFieldHidden;
   final Function? onChanged;
 
@@ -110,12 +111,7 @@ class VisibilitySwitch extends StatefulWidget {
 }
 
 class _VisibilitySwitchState extends State<VisibilitySwitch> {
-  late bool _isFieldHidden;
-  @override
-  initState() {
-    super.initState();
-    _isFieldHidden = widget.isFieldHidden;
-  }
+  late bool _isFieldHidden = widget.isFieldHidden;
 
   @override
   Widget build(BuildContext context) {
