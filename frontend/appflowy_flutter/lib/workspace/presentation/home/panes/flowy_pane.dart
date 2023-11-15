@@ -46,9 +46,13 @@ class _FlowyPaneState extends State<FlowyPane> {
       create: (context) => widget.node.tabsController,
       child: Consumer<TabsController>(
         builder: (_, value, __) {
-          final topHeight = value.pages == 1
+          double topHeight = value.pages == 1
               ? HomeSizes.topBarHeight
               : HomeSizes.topBarHeight + HomeSizes.tabBarHeight;
+
+          if (value.currentPageManager.readOnly) {
+            topHeight += HomeSizes.readOnlyBannerHeight;
+          }
 
           return DraggablePaneTarget(
             size: Size(

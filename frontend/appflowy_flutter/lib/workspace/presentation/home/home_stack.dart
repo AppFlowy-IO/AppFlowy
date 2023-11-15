@@ -250,7 +250,11 @@ class PageManager {
         selector: (context, notifier) => notifier.titleWidget,
         builder: (context, widget, child) {
           return MoveWindowDetector(
-            child: HomeTopBar(layout: layout, paneId: paneId),
+            child: HomeTopBar(
+              layout: layout,
+              paneId: paneId,
+              notifier: notifier,
+            ),
           );
         },
       ),
@@ -276,55 +280,88 @@ class PageManager {
 }
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({super.key, required this.layout, required this.paneId});
+  const HomeTopBar({
+    super.key,
+    required this.layout,
+    required this.paneId,
+    required this.notifier,
+  });
 
+  final PageNotifier notifier;
   final HomeLayout layout;
   final String paneId;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
-      height: HomeSizes.topBarHeight,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: HomeInsets.topBarTitlePadding,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            HSpace(layout.menuSpacing),
-            FlowyNavigation(currentPaneId: paneId),
-            const HSpace(16),
-            ChangeNotifierProvider.value(
-              value: Provider.of<PageNotifier>(context, listen: false),
-              child: Consumer(
-                builder: (_, PageNotifier notifier, __) =>
-                    notifier.plugin.widgetBuilder.rightBarItem ??
-                    const SizedBox(),
-              ),
+    return Column(
+      children: [
+        Container(
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
+          height: HomeSizes.topBarHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: HomeInsets.topBarTitlePadding,
             ),
-            BlocBuilder<PanesBloc, PanesState>(
-              builder: (context, state) {
-                if (state.count <= 1) {
-                  return const SizedBox.shrink();
-                }
-
-                return Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: FlowyIconButton(
-                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-                    onPressed: () => context
-                        .read<PanesBloc>()
-                        .add(ClosePane(paneId: paneId)),
-                    icon: const FlowySvg(FlowySvgs.close_s),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                HSpace(layout.menuSpacing),
+                FlowyNavigation(currentPaneId: paneId),
+                const HSpace(16),
+                ChangeNotifierProvider.value(
+                  value: Provider.of<PageNotifier>(context, listen: false),
+                  child: Consumer(
+                    builder: (_, PageNotifier notifier, __) =>
+                        notifier.plugin.widgetBuilder.rightBarItem ??
+                        const SizedBox.shrink(),
                   ),
-                );
-              },
+                ),
+                BlocBuilder<PanesBloc, PanesState>(
+                  builder: (context, state) {
+                    if (state.count <= 1) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: FlowyIconButton(
+                        iconColorOnHover:
+                            Theme.of(context).colorScheme.onSurface,
+                        onPressed: () => context
+                            .read<PanesBloc>()
+                            .add(ClosePane(paneId: paneId)),
+                        icon: const FlowySvg(FlowySvgs.close_s),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ).bottomBorder(color: Theme.of(context).dividerColor),
+        ),
+        if (notifier.readOnly) _buildReadOnlyBanner(context),
+      ],
+    );
+  }
+
+  Widget _buildReadOnlyBanner(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      color: colorScheme.primary,
+      child: FittedBox(
+        alignment: Alignment.center,
+        fit: BoxFit.scaleDown,
+        child: Row(
+          children: [
+            FlowyText.medium(
+              LocaleKeys.readOnlyViewText.tr(),
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ],
         ),
-      ).bottomBorder(color: Theme.of(context).dividerColor),
+      ),
     );
   }
 }
@@ -358,41 +395,36 @@ class _HomeBodyState extends State<HomeBody> {
     if (widget.notifier.readOnly) {
       return ValueListenableBuilder(
         valueListenable: absorbTapsNotifier,
-        builder: (_, value, __) => Stack(
-          children: [
-            GestureDetector(
-              child: Listener(
-                behavior: HitTestBehavior.translucent,
-                onPointerPanZoomUpdate: (event) {
-                  absorbTapsNotifier.value = false;
-                  _timer?.cancel();
-                },
-                onPointerPanZoomEnd: (event) {
-                  _timer?.cancel();
-                  _applyTimer();
-                },
-                onPointerPanZoomStart: (event) {
-                  absorbTapsNotifier.value = false;
-                  _timer?.cancel();
-                },
-                onPointerSignal: (signal) {
-                  if (signal is PointerScrollEvent) {
-                    absorbTapsNotifier.value = false;
-                    _timer?.cancel();
-                    _applyTimer();
-                  }
-                },
-                child: IgnorePointer(
-                  ignoring: value,
-                  child: Opacity(
-                    opacity: 0.5,
-                    child: _buildWidgetStack(onDeleted: widget.onDeleted),
-                  ),
-                ),
+        builder: (_, value, __) => GestureDetector(
+          child: Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerPanZoomUpdate: (event) {
+              absorbTapsNotifier.value = false;
+              _timer?.cancel();
+            },
+            onPointerPanZoomEnd: (event) {
+              _timer?.cancel();
+              _applyTimer();
+            },
+            onPointerPanZoomStart: (event) {
+              absorbTapsNotifier.value = false;
+              _timer?.cancel();
+            },
+            onPointerSignal: (signal) {
+              if (signal is PointerScrollEvent) {
+                absorbTapsNotifier.value = false;
+                _timer?.cancel();
+                _applyTimer();
+              }
+            },
+            child: IgnorePointer(
+              ignoring: value,
+              child: Opacity(
+                opacity: 0.5,
+                child: _buildWidgetStack(onDeleted: widget.onDeleted),
               ),
             ),
-            Positioned(child: _buildReadOnlyBanner(context)),
-          ],
+          ),
         ),
       );
     }
@@ -428,29 +460,6 @@ class _HomeBodyState extends State<HomeBody> {
           return const BlankPage();
         },
       ).toList(),
-    );
-  }
-
-  Widget _buildReadOnlyBanner(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 20),
-      child: Container(
-        width: double.infinity,
-        color: colorScheme.primary,
-        child: FittedBox(
-          alignment: Alignment.center,
-          fit: BoxFit.scaleDown,
-          child: Row(
-            children: [
-              FlowyText.medium(
-                LocaleKeys.readOnlyViewText.tr(),
-                fontSize: 14,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

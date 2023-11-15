@@ -4,6 +4,7 @@ class HomeSizes {
   static const double editPanelTopBarHeight = 60;
   static const double editPanelWidth = 400;
   static const double tabBarHeight = 40;
+  static const double readOnlyBannerHeight = 24;
   static const double tabWidth = 200;
   static const double resizeBarThickness = 2;
 }
