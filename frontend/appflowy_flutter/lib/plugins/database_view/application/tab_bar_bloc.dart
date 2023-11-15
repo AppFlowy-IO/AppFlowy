@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_add_button.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
@@ -66,7 +66,8 @@ class DatabaseTabBarBloc
             if (updatePB.createChildViews.isNotEmpty) {
               final allTabBars = [
                 ...state.tabBars,
-                ...updatePB.createChildViews.map((e) => DatabaseTabBar(view: e))
+                ...updatePB.createChildViews
+                    .map((e) => DatabaseTabBar(view: e)),
               ];
               emit(
                 state.copyWith(
@@ -81,7 +82,7 @@ class DatabaseTabBarBloc
             if (updatePB.deleteChildViews.isNotEmpty) {
               final allTabBars = [...state.tabBars];
               final tabBarControllerByViewId = {
-                ...state.tabBarControllerByViewId
+                ...state.tabBarControllerByViewId,
               };
               var newSelectedIndex = state.selectedIndex;
               for (final viewId in updatePB.deleteChildViews) {
@@ -236,7 +237,7 @@ class DatabaseTabBarState with _$DatabaseTabBarState {
       tabBarControllerByViewId: {
         view.id: DatabaseTabBarController(
           view: view,
-        )
+        ),
       },
     );
   }

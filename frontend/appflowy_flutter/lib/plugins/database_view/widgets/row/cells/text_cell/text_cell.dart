@@ -130,7 +130,7 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
                           isDense: true,
                         ),
                       ),
-              )
+              ),
             ],
           ),
         ),

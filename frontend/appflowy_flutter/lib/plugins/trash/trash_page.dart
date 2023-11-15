@@ -110,7 +110,7 @@ class _TrashPageState extends State<TrashPage> {
               onTap: () =>
                   context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
             ),
-          )
+          ),
         ],
       ),
     );

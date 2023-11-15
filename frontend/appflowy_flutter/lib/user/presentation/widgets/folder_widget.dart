@@ -185,7 +185,7 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
               }
             },
           ),
-        )
+        ),
       ],
     );
   }

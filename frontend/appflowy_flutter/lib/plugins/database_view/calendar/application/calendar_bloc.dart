@@ -283,7 +283,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           return;
         }
         fieldInfoByFieldId = {
-          for (var fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo
+          for (final fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo,
         };
       },
       onRowsCreated: (rowIds) async {

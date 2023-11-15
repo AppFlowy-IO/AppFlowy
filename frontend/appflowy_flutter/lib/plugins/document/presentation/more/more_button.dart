@@ -35,7 +35,7 @@ class DocumentMoreButton extends StatelessWidget {
               BlocProvider.value(
                 value: context.read<DocumentAppearanceCubit>(),
                 child: const FontSizeSwitcher(),
-              )
+              ),
             ],
           ),
         );
