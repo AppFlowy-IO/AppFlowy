@@ -476,7 +476,7 @@
     },
     "rowPage": {
       "newField": "ግልጽ ቀን",
-      "fieldDragEelementTooltip": "አንድ አማራጭ ያክሉ",
+      "fieldDragElementTooltip": "አንድ አማራጭ ያክሉ",
       "showHiddenFields": {
         "one": "የተደበቁ {} ፊልዶችን ያሳዩ",
         "many": "የተደበቁ {} ፊልዶችን ያሳዩ",

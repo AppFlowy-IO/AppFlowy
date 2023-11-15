@@ -510,7 +510,7 @@
     },
     "rowPage": {
       "newField": "Добавить новое поле",
-      "fieldDragEelementTooltip": "Нажмите, чтобы открыть меню",
+      "fieldDragElementTooltip": "Нажмите, чтобы открыть меню",
       "showHiddenFields": {
         "one": "Показать {} скрытое поле",
         "many": "Показать {} скрытых поля",

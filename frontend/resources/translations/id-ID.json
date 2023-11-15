@@ -504,7 +504,7 @@
     },
     "rowPage": {
       "newField": "Tambah bidang baru",
-      "fieldDragEelementTooltip": "Klik untuk membuka menu",
+      "fieldDragElementTooltip": "Klik untuk membuka menu",
       "showHiddenFields": {
         "one": "Tampilkan {} bidang tersembunyi",
         "many": "Tampilkan {} bidang tersembunyi",
