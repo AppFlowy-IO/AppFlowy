@@ -28,9 +28,6 @@ body {
   height: 8px;
 }
 
-div[role="textbox"] ::selection {
-  @apply bg-transparent;
-}
 
 :root[data-dark-mode=true] body {
     scrollbar-color: #fff var(--bg-body);

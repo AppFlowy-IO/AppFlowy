@@ -10,6 +10,6 @@ void i18next
   .init({
     lng: 'en',
     defaultNS: 'translation',
-    debug: true,
+    debug: false,
     fallbackLng: 'en',
   });

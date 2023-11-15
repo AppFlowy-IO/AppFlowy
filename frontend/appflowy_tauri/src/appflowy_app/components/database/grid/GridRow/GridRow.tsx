@@ -1,5 +1,5 @@
 import { Virtualizer } from '@tanstack/react-virtual';
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { RenderRow, RenderRowType } from './constants';
 import { GridCellRow } from './GridCellRow';
 import { GridNewRow } from './GridNewRow';
@@ -12,7 +12,7 @@ export interface GridRowProps {
   getPrevRowId: (id: string) => string | null;
 }
 
-export const GridRow: FC<GridRowProps> = ({ row, virtualizer, getPrevRowId }) => {
+export const GridRow: FC<GridRowProps> = React.memo(({ row, virtualizer, getPrevRowId }) => {
   switch (row.type) {
     case RenderRowType.Fields:
       return <GridFieldRow />;
@@ -25,4 +25,4 @@ export const GridRow: FC<GridRowProps> = ({ row, virtualizer, getPrevRowId }) =>
     default:
       return null;
   }
-};
+});
