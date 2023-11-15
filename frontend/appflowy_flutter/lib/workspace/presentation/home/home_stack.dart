@@ -301,7 +301,7 @@ class HomeTopBar extends StatelessWidget {
               child: Consumer(
                 builder: (_, PageNotifier notifier, __) =>
                     notifier.plugin.widgetBuilder.rightBarItem ??
-                    const SizedBox.shrink(),
+                    const SizedBox(),
               ),
             ),
             BlocBuilder<PanesBloc, PanesState>(
@@ -310,12 +310,14 @@ class HomeTopBar extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
 
-                return FlowyIconButton(
-                  onPressed: () =>
-                      context.read<PanesBloc>().add(ClosePane(paneId: paneId)),
-                  icon: FlowySvg(
-                    FlowySvgs.close_s,
-                    color: Theme.of(context).iconTheme.color,
+                return Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: FlowyIconButton(
+                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+                    onPressed: () => context
+                        .read<PanesBloc>()
+                        .add(ClosePane(paneId: paneId)),
+                    icon: const FlowySvg(FlowySvgs.close_s),
                   ),
                 );
               },
