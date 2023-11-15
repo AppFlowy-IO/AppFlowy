@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::collab_msg::CollabMessage;
+use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
@@ -18,7 +19,7 @@ use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_storage::FileStorageService;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::cloud::{UserCloudService, UserUpdate};
 use flowy_user_deps::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
@@ -119,9 +120,26 @@ impl AppFlowyServer for AFCloudServer {
     info!("{} cloud sync: {}", uid, enable);
     self.enable_sync.store(enable, Ordering::SeqCst);
   }
+
   fn user_service(&self) -> Arc<dyn UserCloudService> {
     let server = AFServerImpl(self.get_client());
-    Arc::new(AFCloudUserAuthServiceImpl::new(server))
+    let mut user_change = self.ws_client.subscribe_user_changed();
+    let (tx, rx) = tokio::sync::mpsc::channel(1);
+    tokio::spawn(async move {
+      while let Ok(user_message) = user_change.recv().await {
+        if let UserMessage::ProfileChange(change) = user_message {
+          let user_update = UserUpdate {
+            uid: change.uid,
+            name: change.name,
+            email: change.email,
+            encryption_sign: "".to_string(),
+          };
+          let _ = tx.send(user_update).await;
+        }
+      }
+    });
+
+    Arc::new(AFCloudUserAuthServiceImpl::new(server, rx))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
@@ -158,7 +176,7 @@ impl AppFlowyServer for AFCloudServer {
         match weak_ws_client.upgrade() {
           None => Ok(None),
           Some(ws_client) => {
-            let channel = ws_client.subscribe(object_id).ok();
+            let channel = ws_client.subscribe_collab(object_id).ok();
             let connect_state_recv = ws_client.subscribe_connect_state();
             Ok(channel.map(|c| (c, connect_state_recv, ws_client.is_connected())))
           },

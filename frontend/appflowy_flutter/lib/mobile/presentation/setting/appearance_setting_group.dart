@@ -40,7 +40,7 @@ class _AppearanceSettingGroupState extends State<AppearanceSettingGroup> {
                       color: theme.colorScheme.onSurface,
                     ),
                   ),
-                  const Icon(Icons.chevron_right)
+                  const Icon(Icons.chevron_right),
                 ],
               ),
               onTap: () {

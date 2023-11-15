@@ -48,7 +48,7 @@ class _BottomSheetTitle extends StatelessWidget {
           onPressed: () {
             context.pop();
           },
-        )
+        ),
       ],
     );
   }

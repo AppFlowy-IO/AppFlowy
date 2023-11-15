@@ -176,10 +176,14 @@ class PopoverState extends State<Popover> {
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
   }
 
-  void close() {
+  void close({
+    bool notify = true,
+  }) {
     if (_rootEntry.contains(this)) {
       _rootEntry.removeEntry(this);
-      widget.onClose?.call();
+      if (notify) {
+        widget.onClose?.call();
+      }
     }
   }
 
@@ -193,7 +197,7 @@ class PopoverState extends State<Popover> {
 
   @override
   void deactivate() {
-    close();
+    close(notify: false);
     super.deactivate();
   }
 

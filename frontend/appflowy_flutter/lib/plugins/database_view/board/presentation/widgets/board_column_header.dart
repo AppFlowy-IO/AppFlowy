@@ -237,7 +237,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         );
       },

@@ -120,8 +120,8 @@ impl From<UserUpdate> for UserTableChangeset {
   fn from(value: UserUpdate) -> Self {
     UserTableChangeset {
       id: value.uid.to_string(),
-      name: Some(value.name),
-      email: Some(value.email),
+      name: value.name,
+      email: value.email,
       ..Default::default()
     }
   }

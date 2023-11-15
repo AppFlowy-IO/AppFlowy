@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_add_button.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';

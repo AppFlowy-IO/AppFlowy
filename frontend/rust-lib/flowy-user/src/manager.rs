@@ -108,7 +108,7 @@ impl UserManager {
     if let Ok(user_service) = user_manager.cloud_services.get_user_service() {
       if let Some(mut rx) = user_service.subscribe_user_update() {
         af_spawn(async move {
-          while let Ok(update) = rx.recv().await {
+          while let Some(update) = rx.recv().await {
             if let Some(user_manager) = weak_user_manager.upgrade() {
               if let Err(err) = user_manager.handler_user_update(update).await {
                 error!("handler_user_update failed: {:?}", err);
@@ -526,7 +526,7 @@ impl UserManager {
 
         // If the user profile is updated, save the new user profile
         if new_user_profile.updated_at > old_user_profile.updated_at {
-          check_encryption_sign(old_user_profile, &new_user_profile.encryption_type.sign());
+          validate_encryption_sign(old_user_profile, &new_user_profile.encryption_type.sign());
           // Save the new user profile
           let changeset = UserTableChangeset::from_user_profile(new_user_profile);
           let _ = upsert_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
@@ -722,7 +722,7 @@ impl UserManager {
     if session.user_id == user_update.uid {
       debug!("Receive user update: {:?}", user_update);
       let user_profile = self.get_user_profile(user_update.uid).await?;
-      if !check_encryption_sign(&user_profile, &user_update.encryption_sign) {
+      if !validate_encryption_sign(&user_profile, &user_update.encryption_sign) {
         return Ok(());
       }
 
@@ -767,7 +767,7 @@ impl UserManager {
   }
 }
 
-fn check_encryption_sign(user_profile: &UserProfile, encryption_sign: &str) -> bool {
+fn validate_encryption_sign(user_profile: &UserProfile, encryption_sign: &str) -> bool {
   // If the local user profile's encryption sign is not equal to the user update's encryption sign,
   // which means the user enable encryption in another device, we should logout the current user.
   let is_valid = user_profile.encryption_type.sign() == encryption_sign;

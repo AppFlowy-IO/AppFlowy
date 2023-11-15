@@ -51,7 +51,7 @@ class MobileHomeTrashPage extends StatelessWidget {
                                     trashBloc: trashBloc,
                                     type: _TrashActionType.restoreAll,
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           );
@@ -214,7 +214,7 @@ class _DeletedFilesListView extends StatelessWidget {
                         gravity: ToastGravity.BOTTOM,
                       );
                     },
-                  )
+                  ),
                 ],
               ),
             ),

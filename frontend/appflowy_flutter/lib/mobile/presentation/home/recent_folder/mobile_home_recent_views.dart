@@ -48,7 +48,7 @@ class _MobileRecentFolderState extends State<MobileRecentFolder> {
                   // the recent views are in reverse order
                   recentViews: recentViews,
                 ),
-                const VSpace(12.0)
+                const VSpace(12.0),
               ],
             );
           },

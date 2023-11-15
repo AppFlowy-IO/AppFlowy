@@ -150,7 +150,7 @@ class ReminderReferenceService {
             MentionBlockKeys.type: MentionType.reminder.name,
             MentionBlockKeys.date: date.toIso8601String(),
             MentionBlockKeys.uid: reminder.id,
-          }
+          },
         },
       );
 

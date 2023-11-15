@@ -127,12 +127,12 @@ class ShortcutsListTile extends StatelessWidget {
               onPressed: () {
                 showKeyListenerDialog(context);
               },
-            )
+            ),
           ],
         ),
         Divider(
           color: Theme.of(context).dividerColor,
-        )
+        ),
       ],
     );
   }

@@ -43,19 +43,19 @@ use crate::AppFlowyEncryption;
 pub struct SupabaseUserServiceImpl<T> {
   server: T,
   realtime_event_handlers: Vec<Box<dyn RealtimeEventHandler>>,
-  user_update_tx: Option<UserUpdateSender>,
+  user_update_rx: RwLock<Option<UserUpdateReceiver>>,
 }
 
 impl<T> SupabaseUserServiceImpl<T> {
   pub fn new(
     server: T,
     realtime_event_handlers: Vec<Box<dyn RealtimeEventHandler>>,
-    user_update_tx: Option<UserUpdateSender>,
+    user_update_rx: Option<UserUpdateReceiver>,
   ) -> Self {
     Self {
       server,
       realtime_event_handlers,
-      user_update_tx,
+      user_update_rx: RwLock::new(user_update_rx),
     }
   }
 }
@@ -275,7 +275,7 @@ where
   }
 
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
-    self.user_update_tx.as_ref().map(|tx| tx.subscribe())
+    self.user_update_rx.write().take()
   }
 
   fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error> {
@@ -531,8 +531,8 @@ impl RealtimeEventHandler for RealtimeUserHandler {
     if let Ok(user_event) = serde_json::from_value::<RealtimeUserEvent>(event.new.clone()) {
       let _ = self.0.send(UserUpdate {
         uid: user_event.uid,
-        name: user_event.name,
-        email: user_event.email,
+        name: Some(user_event.name),
+        email: Some(user_event.email),
         encryption_sign: user_event.encryption_sign,
       });
     }
