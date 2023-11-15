@@ -1,17 +1,77 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_item_list_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:highlight/highlight.dart' as highlight;
 import 'package:highlight/languages/all.dart';
 import 'package:provider/provider.dart';
 
 import 'code_block_themes.dart';
+
+final supportedLanguages = [
+  'Assembly',
+  'Bash',
+  'BASIC',
+  'C',
+  'C#',
+  'CPP',
+  'Clojure',
+  'CS',
+  'CSS',
+  'Dart',
+  'Docker',
+  'Elixir',
+  'Elm',
+  'Erlang',
+  'Fortran',
+  'Go',
+  'GraphQL',
+  'Haskell',
+  'HTML',
+  'Java',
+  'JavaScript',
+  'JSON',
+  'Kotlin',
+  'LaTeX',
+  'Lisp',
+  'Lua',
+  'Markdown',
+  'MATLAB',
+  'Objective-C',
+  'OCaml',
+  'Perl',
+  'PHP',
+  'PowerShell',
+  'Python',
+  'R',
+  'Ruby',
+  'Rust',
+  'Scala',
+  'Shell',
+  'SQL',
+  'Swift',
+  'TypeScript',
+  'Visual Basic',
+  'XML',
+  'YAML',
+];
+
+final codeBlockSupportedLanguages = supportedLanguages
+    .map((e) => e.toLowerCase())
+    .toSet()
+    .intersection(allLanguages.keys.toSet())
+    .toList()
+  ..add('auto')
+  ..add('c')
+  ..sort();
 
 class CodeBlockKeys {
   const CodeBlockKeys._();
@@ -123,62 +183,6 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
 
   final popoverController = PopoverController();
 
-  final supportedLanguages = [
-    'Assembly',
-    'Bash',
-    'BASIC',
-    'C',
-    'C#',
-    'CPP',
-    'Clojure',
-    'CS',
-    'CSS',
-    'Dart',
-    'Docker',
-    'Elixir',
-    'Elm',
-    'Erlang',
-    'Fortran',
-    'Go',
-    'GraphQL',
-    'Haskell',
-    'HTML',
-    'Java',
-    'JavaScript',
-    'JSON',
-    'Kotlin',
-    'LaTeX',
-    'Lisp',
-    'Lua',
-    'Markdown',
-    'MATLAB',
-    'Objective-C',
-    'OCaml',
-    'Perl',
-    'PHP',
-    'PowerShell',
-    'Python',
-    'R',
-    'Ruby',
-    'Rust',
-    'Scala',
-    'Shell',
-    'SQL',
-    'Swift',
-    'TypeScript',
-    'Visual Basic',
-    'XML',
-    'YAML',
-  ];
-  late final languages = supportedLanguages
-      .map((e) => e.toLowerCase())
-      .toSet()
-      .intersection(allLanguages.keys.toSet())
-      .toList()
-    ..add('auto')
-    ..add('c')
-    ..sort();
-
   @override
   late final editorState = context.read<EditorState>();
 
@@ -224,10 +228,19 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       child: child,
     );
 
-    if (widget.showActions && widget.actionBuilder != null) {
-      child = BlockComponentActionWrapper(
-        node: widget.node,
-        actionBuilder: widget.actionBuilder!,
+    if (PlatformExtension.isDesktopOrWeb) {
+      if (widget.showActions && widget.actionBuilder != null) {
+        child = BlockComponentActionWrapper(
+          node: widget.node,
+          actionBuilder: widget.actionBuilder!,
+          child: child,
+        );
+      }
+    } else {
+      // show a fixed menu on mobile
+      child = MobileBlockActionButtons(
+        node: node,
+        editorState: editorState,
         child: child,
       );
     }
@@ -277,36 +290,57 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
 
   Widget _buildSwitchLanguageButton(BuildContext context) {
     const maxWidth = 100.0;
-    return AppFlowyPopover(
-      controller: popoverController,
-      child: Container(
-        width: maxWidth,
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: FlowyTextButton(
-          '${language?.capitalize() ?? 'Auto'} ',
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12.0,
-            vertical: 4.0,
-          ),
-          constraints: const BoxConstraints(maxWidth: maxWidth),
-          fontColor: Theme.of(context).colorScheme.onBackground,
-          fillColor: Colors.transparent,
-          mainAxisAlignment: MainAxisAlignment.start,
-          onPressed: () {},
-        ),
+
+    Widget child = Container(
+      width: maxWidth,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.only(
+        top: 4.0,
+        left: 4.0,
+        bottom: 12.0,
       ),
-      popupBuilder: (BuildContext context) {
-        return SelectableItemListMenu(
-          items: languages.map((e) => e.capitalize()).toList(),
-          selectedIndex: languages.indexOf(language ?? ''),
-          onSelected: (index) {
-            updateLanguage(languages[index]);
-            popoverController.close();
-          },
-        );
-      },
+      child: FlowyTextButton(
+        '${language?.capitalize() ?? 'Auto'} ',
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 6.0,
+        ),
+        constraints: const BoxConstraints(maxWidth: maxWidth),
+        fontColor: Theme.of(context).colorScheme.onBackground,
+        fillColor: Colors.transparent,
+        mainAxisAlignment: MainAxisAlignment.start,
+        onPressed: () async {
+          if (PlatformExtension.isMobile) {
+            final language = await context.push<String>(
+              MobileCodeLanguagePickerScreen.routeName,
+            );
+            if (language != null) {
+              updateLanguage(language);
+            }
+          }
+        },
+      ),
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = AppFlowyPopover(
+        controller: popoverController,
+        child: child,
+        popupBuilder: (BuildContext context) {
+          return SelectableItemListMenu(
+            items:
+                codeBlockSupportedLanguages.map((e) => e.capitalize()).toList(),
+            selectedIndex: codeBlockSupportedLanguages.indexOf(language ?? ''),
+            onSelected: (index) {
+              updateLanguage(codeBlockSupportedLanguages[index]);
+              popoverController.close();
+            },
+          );
+        },
+      );
+    }
+
+    return child;
   }
 
   Future<void> updateLanguage(String language) async {
