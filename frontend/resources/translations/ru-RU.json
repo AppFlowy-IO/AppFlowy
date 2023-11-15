@@ -510,7 +510,7 @@
     },
     "rowPage": {
       "newField": "Добавить новое поле",
-      "fieldDragEelementTooltip": "Нажмите, чтобы открыть меню",
+      "fieldDragElementTooltip": "Нажмите, чтобы открыть меню",
       "showHiddenFields": {
         "one": "Показать {} скрытое поле",
         "many": "Показать {} скрытых поля",
@@ -778,8 +778,7 @@
       "createNewColumn": "Создать новую группу",
       "addToColumnTopTooltip": "Добавить новую карту сверху",
       "renameColumn": "Переименовать",
-      "hideColumn": "Скрыть",
-      "createNewCard": "Создать новую карту"
+      "hideColumn": "Скрыть"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Скрытые группы",
