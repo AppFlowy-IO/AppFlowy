@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -51,7 +52,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
         if (ancestors == null) {
           return const SizedBox.shrink();
         }
-        const maxWidth = WindowSizeManager.minWindowWidth - 100;
+        const maxWidth = WindowSizeManager.minWindowWidth - 200;
         final replacement = Row(
           // refresh the view title bar when the ancestors changed
           key: ValueKey(ancestors.hashCode),
@@ -64,6 +65,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
               replacement: replacement,
               // if the width is too small, only show one view title bar without the ancestors
               child: _ViewTitle(
+                key: ValueKey(ancestors.last),
                 view: ancestors.last,
                 behavior: _ViewTitleBehavior.editable,
                 maxTitleWidth: constraints.maxWidth - 50.0,
@@ -123,6 +125,7 @@ enum _ViewTitleBehavior {
 
 class _ViewTitle extends StatefulWidget {
   const _ViewTitle({
+    super.key,
     required this.view,
     this.behavior = _ViewTitleBehavior.editable,
     this.maxTitleWidth = 180,
@@ -187,23 +190,26 @@ class _ViewTitleState extends State<_ViewTitle> {
       );
     }
 
-    final child = Row(
-      children: [
-        FlowyText.regular(
-          icon,
-          fontSize: 18.0,
-        ),
-        const HSpace(2.0),
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: widget.maxTitleWidth,
+    final child = FlowyTooltip(
+      message: name,
+      child: Row(
+        children: [
+          FlowyText.regular(
+            icon,
+            fontSize: 18.0,
           ),
-          child: FlowyText.regular(
-            name,
-            overflow: TextOverflow.ellipsis,
+          const HSpace(2.0),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: widget.maxTitleWidth,
+            ),
+            child: FlowyText.regular(
+              name,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {
