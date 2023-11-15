@@ -76,7 +76,7 @@ class SettingsDialog extends StatelessWidget {
                         context.read<SettingsDialogBloc>().state.page,
                         context.read<SettingsDialogBloc>().state.userProfile,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

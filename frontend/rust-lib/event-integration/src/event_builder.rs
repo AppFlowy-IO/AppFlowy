@@ -48,13 +48,6 @@ impl EventBuilder {
     self
   }
 
-  pub fn sync_send(mut self) -> Self {
-    let request = self.get_request();
-    let resp = AFPluginDispatcher::sync_send(self.dispatch(), request);
-    self.context.response = Some(resp);
-    self
-  }
-
   pub async fn async_send(mut self) -> Self {
     let request = self.get_request();
     let resp = AFPluginDispatcher::async_send(self.dispatch(), request).await;

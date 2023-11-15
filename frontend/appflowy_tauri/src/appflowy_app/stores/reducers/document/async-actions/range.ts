@@ -156,7 +156,7 @@ export const deleteRangeAndInsertThunk = createAsyncThunk(
     );
 
     if (!id) return;
-    dispatch(
+    await dispatch(
       setCursorRangeThunk({
         docId,
         blockId: id,
@@ -211,7 +211,7 @@ export const deleteRangeAndInsertEnterThunk = createAsyncThunk(
     );
 
     if (!newLineId) return;
-    dispatch(
+    await dispatch(
       setCursorRangeThunk({
         docId,
         blockId: newLineId,

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 export const FieldTypeName = ({ fieldType }: { fieldType: FieldType }) => {
   const { t } = useTranslation();
+
   return (
     <>
       {fieldType === FieldType.RichText && t('grid.field.textFieldName')}

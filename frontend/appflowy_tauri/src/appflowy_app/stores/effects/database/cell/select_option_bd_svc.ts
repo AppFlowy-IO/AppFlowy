@@ -40,6 +40,7 @@ export class SelectOptionCellBackendService {
     });
 
     const result = await DatabaseEventCreateSelectOption(payload);
+
     if (result.ok) {
       return await this._insertOption(result.val, params.isSelect || true);
     } else {
@@ -47,7 +48,7 @@ export class SelectOptionCellBackendService {
     }
   };
 
-  private _insertOption = (option: SelectOptionPB, isSelect: boolean) => {
+  private _insertOption = (option: SelectOptionPB, _: boolean) => {
     const payload = RepeatedSelectOptionPayload.fromObject({
       view_id: this.cellIdentifier.viewId,
       field_id: this.cellIdentifier.fieldId,
@@ -73,6 +74,7 @@ export class SelectOptionCellBackendService {
       field_id: this.cellIdentifier.fieldId,
       row_id: this.cellIdentifier.rowId,
     });
+
     payload.items.push(...options);
     return DatabaseEventDeleteSelectOption(payload);
   };
@@ -83,12 +85,14 @@ export class SelectOptionCellBackendService {
 
   selectOption = (optionIds: string[]) => {
     const payload = SelectOptionCellChangesetPB.fromObject({ cell_identifier: this._cellIdentifier() });
+
     payload.insert_option_ids.push(...optionIds);
     return DatabaseEventUpdateSelectOptionCell(payload);
   };
 
   unselectOption = (optionIds: string[]) => {
     const payload = SelectOptionCellChangesetPB.fromObject({ cell_identifier: this._cellIdentifier() });
+
     payload.delete_option_ids.push(...optionIds);
     return DatabaseEventUpdateSelectOptionCell(payload);
   };

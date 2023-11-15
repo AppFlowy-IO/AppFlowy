@@ -1,5 +1,43 @@
 # Release Notes
 
+## Version 0.3.8 - 11/13/2023
+
+### New Features
+- Support hiding any stack in a board
+- Support customizing page icons in menu
+- Display visual hint when card contains notes
+- Quick action for adding new stack to a board
+- Support more ways of inserting page references in documents
+- Shift + click on a checkbox to power toggle its children
+
+### Bug fixes
+- Improved color of the "Share"-button text
+- Text overflow issue in Calendar properties
+- Default font (Roboto) added to application
+- Placeholder added for the editor inside a Card
+- Toggle notifications in settings have been fixed
+- Dialog for linking board/grid/calendar opens in correct position
+- Quick add Card in Board at top, correctly adds a new Card at the top
+
+## Version 0.3.7 - 10/30/2023
+
+### New Features
+- Support showing checklist items inline in row page.
+- Support inserting date from slash menu.
+- Support renaming a stack directly by clicking on the stack name.
+- Show the detailed reminder content in the notification center.
+- Save card order in Board view.
+- Allow to hide the ungrouped stack.
+- Segmented the checklist progress bar.
+
+### Bug fixes
+- Optimize side panel animation.
+- Fix calendar with hidden date or title doesn't show options correctly.
+- Fix the horizontal scroll bar disappears in Grid view.
+- Improve setting tab UI in Grid view.
+- Improve theme of the code block.
+- Fix some UI issues.
+
 ## Version 0.3.6 - 10/16/2023
 
 ### New Features
@@ -7,8 +45,7 @@
 - Added Ukrainian language.
 - Support auto-hiding sidebar feature, ensuring a streamlined view even when resizing to a smaller window.
 - Support toggling the notifitcation on/off.
-- Added Lemonade theme. 
-
+- Added Lemonade theme.
 
 ### Bug fixes
 - Improve Vietnamese translations.

@@ -15,14 +15,23 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('toggle list in document', () {
+    Finder findToggleListIcon({
+      required bool isExpanded,
+    }) {
+      final turns = isExpanded ? 0.25 : 0.0;
+      return find.byWidgetPredicate(
+        (widget) => widget is AnimatedRotation && widget.turns == turns,
+      );
+    }
+
     void expectToggleListOpened() {
-      expect(find.byIcon(Icons.arrow_drop_down), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_right), findsNothing);
+      expect(findToggleListIcon(isExpanded: true), findsOneWidget);
+      expect(findToggleListIcon(isExpanded: false), findsNothing);
     }
 
     void expectToggleListClosed() {
-      expect(find.byIcon(Icons.arrow_drop_down), findsNothing);
-      expect(find.byIcon(Icons.arrow_right), findsOneWidget);
+      expect(findToggleListIcon(isExpanded: false), findsOneWidget);
+      expect(findToggleListIcon(isExpanded: true), findsNothing);
     }
 
     testWidgets('convert > to toggle list, and click the icon to close it',
@@ -63,7 +72,7 @@ void main() {
       expect(find.text(text2, findRichText: true), findsOneWidget);
 
       // Click the toggle list icon to close it
-      final toggleListIcon = find.byIcon(Icons.arrow_drop_down);
+      final toggleListIcon = find.byIcon(Icons.arrow_right);
       await tester.tapButton(toggleListIcon);
 
       // expect the toggle list to be closed
@@ -88,7 +97,7 @@ void main() {
       await tester.ime.insertText('> $text');
 
       // Click the toggle list icon to close it
-      final toggleListIcon = find.byIcon(Icons.arrow_drop_down);
+      final toggleListIcon = find.byIcon(Icons.arrow_right);
       await tester.tapButton(toggleListIcon);
 
       // Press the enter key
@@ -164,7 +173,7 @@ void main() {
 
       // Press the enter key
       // Click the toggle list icon to close it
-      final toggleListIcon = find.byIcon(Icons.arrow_drop_down);
+      final toggleListIcon = find.byIcon(Icons.arrow_right);
       await tester.tapButton(toggleListIcon);
 
       await tester.editor.updateSelection(

@@ -8,7 +8,7 @@ import { updatePageName } from '$app_reducers/pages/async_actions';
 import { getDeltaText } from '$app/utils/document/delta';
 import { BlockDeltaOperator } from '$app/utils/document/block_delta';
 import { openMention, closeMention } from '$app_reducers/document/async-actions/mention';
-import {slashCommandActions} from "$app_reducers/document/slice";
+import { slashCommandActions } from '$app_reducers/document/slice';
 
 const updateNodeDeltaAfterThunk = createAsyncThunk(
   'document/updateNodeDeltaAfter',
@@ -27,9 +27,11 @@ const updateNodeDeltaAfterThunk = createAsyncThunk(
 
     if (insertOps.length === 1) {
       const char = insertOps[0].insert;
+
       if (char === '@' && (oldText.endsWith(' ') || oldText === '')) {
-        dispatch(openMention({ docId }));
+        await dispatch(openMention({ docId }));
       }
+
       if (char === '/') {
         dispatch(
           slashCommandActions.openSlashCommand({
@@ -42,15 +44,13 @@ const updateNodeDeltaAfterThunk = createAsyncThunk(
 
     if (deleteOps.length === 1) {
       if (deleteText === '@') {
-        dispatch(closeMention({ docId }));
+        await dispatch(closeMention({ docId }));
       }
+
       if (deleteText === '/') {
-        dispatch(
-          slashCommandActions.closeSlashCommand(docId)
-        );
+        dispatch(slashCommandActions.closeSlashCommand(docId));
       }
     }
-
   }
 );
 
@@ -92,7 +92,7 @@ export const updateNodeDataThunk = createAsyncThunk<
   void,
   {
     id: string;
-    data: Partial<BlockData<any>>;
+    data: Partial<BlockData>;
     controller: DocumentController;
   }
 >('document/updateNodeDataExceptDelta', async (payload, thunkAPI) => {

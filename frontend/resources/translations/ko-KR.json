@@ -159,9 +159,7 @@
     "editContact": "연락처 편집"
   },
   "button": {
-    "OK": "확인",
-    "Done": "완료",
-    "Cancel": "취소",
+    "done": "완료",
     "signIn": "로그인",
     "signOut": "로그아웃",
     "complete": "완료",
@@ -177,8 +175,10 @@
     "edit": "편집하다",
     "delete": "삭제",
     "duplicate": "복제하다",
-    "done": "완료",
-    "putback": "다시 집어 넣어"
+    "putback": "다시 집어 넣어",
+    "OK": "확인",
+    "Done": "완료",
+    "Cancel": "취소"
   },
   "label": {
     "welcome": "환영합니다!",
@@ -549,11 +549,11 @@
     }
   },
   "board": {
+    "menuName": "판자",
+    "referencedBoardPrefix": "관점",
     "column": {
       "create_new_card": "추가"
-    },
-    "menuName": "판자",
-    "referencedBoardPrefix": "관점"
+    }
   },
   "calendar": {
     "menuName": "달력",
@@ -570,9 +570,9 @@
       "firstDayOfWeek": "주 시작",
       "layoutDateField": "레이아웃 캘린더",
       "noDateTitle": "날짜 없음",
-      "noDateHint": "예약되지 않은 일정이 여기에 표시됩니다.",
       "clickToAdd": "캘린더에 추가하려면 클릭하세요.",
-      "name": "달력 레이아웃"
+      "name": "달력 레이아웃",
+      "noDateHint": "예약되지 않은 일정이 여기에 표시됩니다."
     },
     "referencedCalendarPrefix": "관점"
   },

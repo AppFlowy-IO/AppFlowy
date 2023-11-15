@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
@@ -51,6 +50,7 @@ class InlineActionsHandler extends StatefulWidget {
     required this.onDismiss,
     required this.onSelectionUpdate,
     required this.style,
+    this.startCharAmount = 1,
   });
 
   final InlineActionsService service;
@@ -60,6 +60,7 @@ class InlineActionsHandler extends StatefulWidget {
   final VoidCallback onDismiss;
   final VoidCallback onSelectionUpdate;
   final InlineActionsMenuStyle style;
+  final int startCharAmount;
 
   @override
   State<InlineActionsHandler> createState() => _InlineActionsHandlerState();
@@ -99,10 +100,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     _resetSelection();
 
     newResults.sortByStartsWithKeyword(_search);
-
-    setState(() {
-      results = newResults;
-    });
+    setState(() => results = newResults);
   }
 
   void _resetSelection() {
@@ -116,10 +114,9 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNode.requestFocus(),
+    );
 
     startOffset = widget.editorState.selection?.endIndex ?? 0;
   }
@@ -163,6 +160,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
                           isGroupSelected: _selectedGroup == index,
                           selectedIndex: _selectedIndex,
                           onSelected: widget.onDismiss,
+                          startOffset: startOffset - widget.startCharAmount,
+                          endOffset: _search.length + widget.startCharAmount,
                         ),
                       )
                       .toList(),
@@ -200,7 +199,10 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
           context,
           widget.editorState,
           widget.menuService,
-          (startOffset - 1, _search.length + 1),
+          (
+            startOffset - widget.startCharAmount,
+            _search.length + widget.startCharAmount
+          ),
         );
 
         widget.onDismiss();
@@ -212,7 +214,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
         widget.onDismiss();
-        widget.editorState.deleteBackward(); // Delete '@'
+        widget.editorState.deleteBackward();
       } else {
         widget.onSelectionUpdate();
         widget.editorState.deleteBackward();
@@ -224,7 +226,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         ![
           ...moveKeys,
           LogicalKeyboardKey.arrowLeft,
-          LogicalKeyboardKey.arrowRight
+          LogicalKeyboardKey.arrowRight,
         ].contains(event.logicalKey)) {
       /// Prevents dismissal of context menu by notifying the parent
       /// that the selection change occurred from the handler.
@@ -282,16 +284,12 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       return;
     }
 
-    /// Grab index of the first character in command (right after @)
-    final startIndex =
-        delta.toPlainText().lastIndexOf(inlineActionCharacter) + 1;
-
     search = widget.editorState
         .getTextInSelection(
           selection.copyWith(
-            start: selection.start.copyWith(offset: startIndex),
+            start: selection.start.copyWith(offset: startOffset),
             end: selection.start
-                .copyWith(offset: startIndex + _search.length + 1),
+                .copyWith(offset: startOffset + _search.length + 1),
           ),
         )
         .join();
@@ -331,8 +329,9 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       return;
     }
 
-    search = delta
-        .toPlainText()
-        .substring(startOffset, startOffset - 1 + _search.length);
+    search = delta.toPlainText().substring(
+          startOffset,
+          startOffset - 1 + _search.length,
+        );
   }
 }

@@ -92,6 +92,7 @@ const TextLeaf = (props: TextLeafProps) => {
   }
 
   const mention = leaf.mention;
+
   if (mention && mention.type === MentionType.PAGE && leaf.text) {
     newChildren = (
       <FakeCursorContainer

@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/setting_menu.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/setting_menu.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,7 +20,7 @@ import '../../application/row/row_controller.dart';
 import '../application/grid_bloc.dart';
 import '../../application/database_controller.dart';
 import 'grid_scroll.dart';
-import '../../tar_bar/tab_bar_view.dart';
+import '../../tab_bar/tab_bar_view.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/row/row.dart';
@@ -172,7 +172,7 @@ class _GridPageContentState extends State<GridPageContent> {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
-        final contentWidth = GridLayout.headerWidth(state.fields.value);
+        final contentWidth = GridLayout.headerWidth(state.fields.fields);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

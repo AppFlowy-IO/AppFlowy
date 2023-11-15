@@ -10,7 +10,7 @@ use crate::user::local_test::helper::*;
 
 #[tokio::test]
 async fn user_profile_get_failed() {
-  let sdk = EventIntegrationTest::new();
+  let sdk = EventIntegrationTest::new().await;
   let result = EventBuilder::new(sdk)
     .event(GetUserProfile)
     .async_send()
@@ -21,11 +21,12 @@ async fn user_profile_get_failed() {
 
 #[tokio::test]
 async fn anon_user_profile_get() {
-  let test = EventIntegrationTest::new();
+  let test = EventIntegrationTest::new().await;
   let user_profile = test.init_anon_user().await;
   let user = EventBuilder::new(test.clone())
     .event(GetUserProfile)
-    .sync_send()
+    .async_send()
+    .await
     .parse::<UserProfilePB>();
   assert_eq!(user_profile.id, user.id);
   assert_eq!(user_profile.openai_key, user.openai_key);
@@ -36,18 +37,20 @@ async fn anon_user_profile_get() {
 
 #[tokio::test]
 async fn user_update_with_name() {
-  let sdk = EventIntegrationTest::new();
+  let sdk = EventIntegrationTest::new().await;
   let user = sdk.init_anon_user().await;
   let new_name = "hello_world".to_owned();
   let request = UpdateUserProfilePayloadPB::new(user.id).name(&new_name);
   let _ = EventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
     .payload(request)
-    .sync_send();
+    .async_send()
+    .await;
 
   let user_profile = EventBuilder::new(sdk.clone())
     .event(GetUserProfile)
-    .sync_send()
+    .async_send()
+    .await
     .parse::<UserProfilePB>();
 
   assert_eq!(user_profile.name, new_name,);
@@ -55,7 +58,7 @@ async fn user_update_with_name() {
 
 #[tokio::test]
 async fn user_update_with_ai_key() {
-  let sdk = EventIntegrationTest::new();
+  let sdk = EventIntegrationTest::new().await;
   let user = sdk.init_anon_user().await;
   let openai_key = "openai_key".to_owned();
   let stability_ai_key = "stability_ai_key".to_owned();
@@ -65,11 +68,13 @@ async fn user_update_with_ai_key() {
   let _ = EventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
     .payload(request)
-    .sync_send();
+    .async_send()
+    .await;
 
   let user_profile = EventBuilder::new(sdk.clone())
     .event(GetUserProfile)
-    .sync_send()
+    .async_send()
+    .await
     .parse::<UserProfilePB>();
 
   assert_eq!(user_profile.openai_key, openai_key,);
@@ -78,17 +83,19 @@ async fn user_update_with_ai_key() {
 
 #[tokio::test]
 async fn anon_user_update_with_email() {
-  let sdk = EventIntegrationTest::new();
+  let sdk = EventIntegrationTest::new().await;
   let user = sdk.init_anon_user().await;
   let new_email = format!("{}@gmail.com", nanoid!(6));
   let request = UpdateUserProfilePayloadPB::new(user.id).email(&new_email);
   let _ = EventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
     .payload(request)
-    .sync_send();
+    .async_send()
+    .await;
   let user_profile = EventBuilder::new(sdk.clone())
     .event(GetUserProfile)
-    .sync_send()
+    .async_send()
+    .await
     .parse::<UserProfilePB>();
 
   // When the user is anonymous, the email is empty no matter what you set
@@ -97,7 +104,7 @@ async fn anon_user_update_with_email() {
 
 #[tokio::test]
 async fn user_update_with_invalid_email() {
-  let test = EventIntegrationTest::new();
+  let test = EventIntegrationTest::new().await;
   let user = test.init_anon_user().await;
   for email in invalid_email_test_case() {
     let request = UpdateUserProfilePayloadPB::new(user.id).email(&email);
@@ -105,7 +112,8 @@ async fn user_update_with_invalid_email() {
       EventBuilder::new(test.clone())
         .event(UpdateUserProfile)
         .payload(request)
-        .sync_send()
+        .async_send()
+        .await
         .error()
         .unwrap()
         .code,
@@ -116,7 +124,7 @@ async fn user_update_with_invalid_email() {
 
 #[tokio::test]
 async fn user_update_with_invalid_password() {
-  let test = EventIntegrationTest::new();
+  let test = EventIntegrationTest::new().await;
   let user = test.init_anon_user().await;
   for password in invalid_password_test_case() {
     let request = UpdateUserProfilePayloadPB::new(user.id).password(&password);
@@ -133,13 +141,14 @@ async fn user_update_with_invalid_password() {
 
 #[tokio::test]
 async fn user_update_with_invalid_name() {
-  let test = EventIntegrationTest::new();
+  let test = EventIntegrationTest::new().await;
   let user = test.init_anon_user().await;
   let request = UpdateUserProfilePayloadPB::new(user.id).name("");
   assert!(EventBuilder::new(test.clone())
     .event(UpdateUserProfile)
     .payload(request)
-    .sync_send()
+    .async_send()
+    .await
     .error()
     .is_some())
 }

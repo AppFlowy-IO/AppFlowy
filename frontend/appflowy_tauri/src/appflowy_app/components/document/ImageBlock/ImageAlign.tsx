@@ -47,7 +47,7 @@ function ImageAlign({
 
   const updateAlign = useCallback(
     (align: Align) => {
-      dispatch(
+      void dispatch(
         updateNodeDataThunk({
           id,
           data: {

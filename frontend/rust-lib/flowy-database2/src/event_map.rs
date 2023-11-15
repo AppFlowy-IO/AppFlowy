@@ -54,14 +54,13 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
-        .event(DatabaseEvent::GetGroupConfigurations, get_group_configurations_handler)
-        .event(DatabaseEvent::UpdateGroupConfiguration, update_group_configuration_handler)
         .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
         .event(DatabaseEvent::MoveGroup, move_group_handler)
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
         .event(DatabaseEvent::GetGroups, get_groups_handler)
         .event(DatabaseEvent::GetGroup, get_group_handler)
         .event(DatabaseEvent::UpdateGroup, update_group_handler)
+        .event(DatabaseEvent::CreateGroup, create_group_handler)
         // Database
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
@@ -266,14 +265,10 @@ pub enum DatabaseEvent {
   #[event(input = "DateChangesetPB")]
   UpdateDateCell = 80,
 
-  #[event(input = "DatabaseViewIdPB", output = "RepeatedGroupSettingPB")]
-  GetGroupConfigurations = 90,
-
-  #[event(input = "GroupSettingChangesetPB")]
-  UpdateGroupConfiguration = 91,
-
+  /// [SetGroupByField] event is used to create a new grouping in a database
+  /// view based on the `field_id`
   #[event(input = "GroupByFieldPayloadPB")]
-  SetGroupByField = 92,
+  SetGroupByField = 90,
 
   #[event(input = "DatabaseViewIdPB", output = "RepeatedGroupPB")]
   GetGroups = 100,
@@ -289,6 +284,9 @@ pub enum DatabaseEvent {
 
   #[event(input = "UpdateGroupPB")]
   UpdateGroup = 113,
+
+  #[event(input = "CreateGroupPayloadPB")]
+  CreateGroup = 114,
 
   /// Returns all the databases
   #[event(output = "RepeatedDatabaseDescriptionPB")]

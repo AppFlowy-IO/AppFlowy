@@ -18,6 +18,7 @@ class InlineActionsMenu extends InlineActionsMenuService {
     required this.service,
     required this.initialResults,
     required this.style,
+    this.startCharAmount = 1,
   });
 
   final BuildContext context;
@@ -27,6 +28,8 @@ class InlineActionsMenu extends InlineActionsMenuService {
 
   @override
   final InlineActionsMenuStyle style;
+
+  final int startCharAmount;
 
   OverlayEntry? _menuEntry;
   bool selectionChangedByMenu = false;
@@ -130,6 +133,7 @@ class InlineActionsMenu extends InlineActionsMenuService {
                     onDismiss: dismiss,
                     onSelectionUpdate: _onSelectionUpdate,
                     style: style,
+                    startCharAmount: startCharAmount,
                   ),
                 ),
               ),

@@ -408,9 +408,10 @@ class _HomeBodyState extends State<HomeBody> {
             final builder = widget.notifier.plugin.widgetBuilder;
             final pluginWidget = builder.buildWidget(
               context: PluginContext(onDeleted: onDeleted),
-              shrinkWrap: true,
+              shrinkWrap: false,
             );
 
+            // TODO(Xazin): Board should fill up full width
             return Padding(
               padding: builder.contentPadding,
               child: pluginWidget,

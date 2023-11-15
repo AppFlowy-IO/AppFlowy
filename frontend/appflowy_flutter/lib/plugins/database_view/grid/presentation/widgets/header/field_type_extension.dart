@@ -59,4 +59,10 @@ extension FieldTypeListExtension on FieldType {
         FieldType.SingleSelect => true,
         _ => false,
       };
+
+  bool get canCreateNewGroup => switch (this) {
+        FieldType.MultiSelect => true,
+        FieldType.SingleSelect => true,
+        _ => false,
+      };
 }

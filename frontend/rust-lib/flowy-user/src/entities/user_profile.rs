@@ -1,9 +1,12 @@
 use std::convert::TryInto;
 
+use validator::Validate;
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_deps::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
+use crate::entities::required_not_empty_str;
 use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
 use crate::services::entities::HistoricalUser;
@@ -83,7 +86,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
-      auth_type: user_profile.auth_type.into(),
+      auth_type: user_profile.authenticator.into(),
       encryption_sign,
       encryption_type: encryption_ty,
       workspace_id: user_profile.workspace_id,
@@ -217,10 +220,11 @@ impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
   }
 }
 
-#[derive(ProtoBuf, Default, Debug, Clone)]
+#[derive(ProtoBuf, Default, Debug, Clone, Validate)]
 pub struct UserWorkspacePB {
   #[pb(index = 1)]
-  pub id: String,
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
 
   #[pb(index = 2)]
   pub name: String,
@@ -229,7 +233,7 @@ pub struct UserWorkspacePB {
 impl From<UserWorkspace> for UserWorkspacePB {
   fn from(value: UserWorkspace) -> Self {
     Self {
-      id: value.id,
+      workspace_id: value.id,
       name: value.name,
     }
   }

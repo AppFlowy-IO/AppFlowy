@@ -46,12 +46,12 @@ class HomeSideBar extends StatelessWidget {
         BlocProvider(
           create: (_) => MenuBloc(
             user: user,
-            workspace: workspaceSetting.workspace,
+            workspaceId: workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
         BlocProvider(
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
-        )
+        ),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -89,6 +89,7 @@ class HomeSideBar extends StatelessWidget {
     List<ViewPB> views,
     List<ViewPB> favoriteViews,
   ) {
+    const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 12);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
@@ -96,19 +97,25 @@ class HomeSideBar extends StatelessWidget {
           right: BorderSide(color: Theme.of(context).dividerColor),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            // top menu
-            const SidebarTopMenu(),
-            // user, setting
-            SidebarUser(user: user, views: views),
-            const VSpace(20),
-            // scrollable document list
-            Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // top menu
+          const Padding(
+            padding: menuHorizontalInset,
+            child: SidebarTopMenu(),
+          ),
+          // user, setting
+          Padding(
+            padding: menuHorizontalInset,
+            child: SidebarUser(user: user, views: views),
+          ),
+          const VSpace(20),
+          // scrollable document list
+          Expanded(
+            child: Padding(
+              padding: menuHorizontalInset,
               child: SingleChildScrollView(
                 child: SidebarFolder(
                   views: views,
@@ -116,17 +123,17 @@ class HomeSideBar extends StatelessWidget {
                 ),
               ),
             ),
-            const VSpace(10),
-            // trash
-            const SidebarTrashButton(),
-            const VSpace(10),
-            // new page button
-            const Padding(
-              padding: EdgeInsets.only(left: 6.0),
-              child: SidebarNewPageButton(),
-            ),
-          ],
-        ),
+          ),
+          const VSpace(10),
+          // trash
+          const Padding(
+            padding: menuHorizontalInset,
+            child: SidebarTrashButton(),
+          ),
+          const VSpace(10),
+          // new page button
+          const SidebarNewPageButton(),
+        ],
       ),
     );
   }

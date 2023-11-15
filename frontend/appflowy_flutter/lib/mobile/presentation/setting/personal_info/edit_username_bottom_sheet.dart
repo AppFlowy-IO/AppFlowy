@@ -71,7 +71,7 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
                 onPressed: () {
                   widget.context.pop();
                 },
-              )
+              ),
             ],
           ),
           const SizedBox(

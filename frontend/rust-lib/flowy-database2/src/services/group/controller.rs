@@ -1,24 +1,27 @@
-use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
+use collab_database::rows::{Cells, Row, RowDetail};
+use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use flowy_error::FlowyResult;
 
 use crate::entities::{
-  FieldType, GroupChangesPB, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB,
+  FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
+  RowMetaPB,
 };
-use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
+use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser};
+use crate::services::field::{default_type_option_data_from_type, TypeOption, TypeOptionCellData};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation, GroupCustomize,
 };
 use crate::services::group::configuration::GroupContext;
-use crate::services::group::entities::{GroupData, GroupSetting};
-use crate::services::group::{Group, GroupChangesets, GroupSettingChangeset};
+use crate::services::group::entities::GroupData;
+use crate::services::group::{GroupChangeset, GroupChangesets, GroupsBuilder, MoveGroupRowContext};
 
 // use collab_database::views::Group;
 
@@ -32,72 +35,22 @@ use crate::services::group::{Group, GroupChangesets, GroupSettingChangeset};
 ///
 pub trait GroupController: GroupControllerOperation + Send + Sync {
   /// Called when the type option of the [Field] was updated.
-  fn did_update_field_type_option(&mut self, field: &Arc<Field>);
+  fn did_update_field_type_option(&mut self, field: &Field);
 
   /// Called before the row was created.
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str);
+}
 
-  /// Called after the row was created.
-  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str);
-
-  /// Update group name handler
-  fn update_group_name(&mut self, _group_id: &str, _group_name: &str) -> Option<TypeOptionData> {
+#[async_trait]
+pub trait GroupOperationInterceptor {
+  type GroupTypeOption: TypeOption;
+  async fn type_option_from_group_changeset(
+    &self,
+    _changeset: &GroupChangeset,
+    _type_option: &Self::GroupTypeOption,
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
     None
-  }
-}
-
-/// The [GroupsBuilder] trait is used to generate the groups for different [FieldType]
-pub trait GroupsBuilder {
-  type Context;
-  type TypeOptionType;
-
-  fn build(
-    field: &Field,
-    context: &Self::Context,
-    type_option: &Option<Self::TypeOptionType>,
-  ) -> GeneratedGroups;
-}
-
-pub struct GeneratedGroups {
-  pub no_status_group: Option<Group>,
-  pub group_configs: Vec<GeneratedGroupConfig>,
-}
-
-pub struct GeneratedGroupConfig {
-  pub group: Group,
-  pub filter_content: String,
-}
-
-pub struct MoveGroupRowContext<'a> {
-  pub row_detail: &'a RowDetail,
-  pub row_changeset: &'a mut RowChangeset,
-  pub field: &'a Field,
-  pub to_group_id: &'a str,
-  pub to_row_id: Option<RowId>,
-}
-
-#[derive(Debug, Clone)]
-pub struct RowChangeset {
-  pub row_id: RowId,
-  pub height: Option<i32>,
-  pub visibility: Option<bool>,
-  // Contains the key/value changes represents as the update of the cells. For example,
-  // if there is one cell was changed, then the `cell_by_field_id` will only have one key/value.
-  pub cell_by_field_id: HashMap<String, Cell>,
-}
-
-impl RowChangeset {
-  pub fn new(row_id: RowId) -> Self {
-    Self {
-      row_id,
-      height: None,
-      visibility: None,
-      cell_by_field_id: Default::default(),
-    }
-  }
-
-  pub fn is_empty(&self) -> bool {
-    self.height.is_none() && self.visibility.is_none() && self.cell_by_field_id.is_empty()
   }
 }
 
@@ -105,35 +58,43 @@ impl RowChangeset {
 /// T: the type-option data deserializer that impl [TypeOptionDataDeserializer]
 /// G: the group generator, [GroupsBuilder]
 /// P: the parser that impl [CellProtobufBlobParser] for the CellBytes
-pub struct BaseGroupController<C, T, G, P> {
+pub struct BaseGroupController<C, T, G, P, I> {
   pub grouping_field_id: String,
-  pub type_option: Option<T>,
+  pub type_option: T,
   pub context: GroupContext<C>,
-  group_action_phantom: PhantomData<G>,
+  group_builder_phantom: PhantomData<G>,
   cell_parser_phantom: PhantomData<P>,
+  pub operation_interceptor: I,
 }
 
-impl<C, T, G, P> BaseGroupController<C, T, G, P>
+impl<C, T, G, P, I> BaseGroupController<C, T, G, P, I>
 where
   C: Serialize + DeserializeOwned,
-  T: From<TypeOptionData>,
-  G: GroupsBuilder<Context = GroupContext<C>, TypeOptionType = T>,
+  T: TypeOption + From<TypeOptionData> + Send + Sync,
+  G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
+  I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
 {
   pub async fn new(
     grouping_field: &Arc<Field>,
     mut configuration: GroupContext<C>,
+    operation_interceptor: I,
   ) -> FlowyResult<Self> {
     let field_type = FieldType::from(grouping_field.field_type);
-    let type_option = grouping_field.get_type_option::<T>(field_type);
-    let generated_groups = G::build(grouping_field, &configuration, &type_option);
+    let type_option = grouping_field
+      .get_type_option::<T>(&field_type)
+      .unwrap_or_else(|| T::from(default_type_option_data_from_type(&field_type)));
+
+    // TODO(nathan): remove block_on
+    let generated_groups = block_on(G::build(grouping_field, &configuration, &type_option));
     let _ = configuration.init_groups(generated_groups)?;
 
     Ok(Self {
       grouping_field_id: grouping_field.id.clone(),
       type_option,
       context: configuration,
-      group_action_phantom: PhantomData,
+      group_builder_phantom: PhantomData,
       cell_parser_phantom: PhantomData,
+      operation_interceptor,
     })
   }
 
@@ -209,20 +170,21 @@ where
   }
 }
 
-impl<C, T, G, P> GroupControllerOperation for BaseGroupController<C, T, G, P>
+#[async_trait]
+impl<C, T, G, P, I> GroupControllerOperation for BaseGroupController<C, T, G, P, I>
 where
-  P: CellProtobufBlobParser,
-  C: Serialize + DeserializeOwned,
-  T: From<TypeOptionData>,
-  G: GroupsBuilder<Context = GroupContext<C>, TypeOptionType = T>,
-
-  Self: GroupCustomize<CellData = P::Object>,
+  P: CellProtobufBlobParser<Object = <T as TypeOption>::CellProtobufType>,
+  C: Serialize + DeserializeOwned + Sync + Send,
+  T: TypeOption + From<TypeOptionData> + Send + Sync,
+  G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
+  I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
+  Self: GroupCustomize<GroupTypeOption = T>,
 {
   fn field_id(&self) -> &str {
     &self.grouping_field_id
   }
 
-  fn groups(&self) -> Vec<&GroupData> {
+  fn get_all_groups(&self) -> Vec<&GroupData> {
     self.context.groups()
   }
 
@@ -232,7 +194,7 @@ where
   }
 
   #[tracing::instrument(level = "trace", skip_all, fields(row_count=%rows.len(), group_result))]
-  fn fill_groups(&mut self, rows: &[&RowDetail], field: &Field) -> FlowyResult<()> {
+  fn fill_groups(&mut self, rows: &[&RowDetail], _field: &Field) -> FlowyResult<()> {
     for row_detail in rows {
       let cell = match row_detail.row.cells.get(&self.grouping_field_id) {
         None => self.placeholder_cell(),
@@ -241,8 +203,7 @@ where
 
       if let Some(cell) = cell {
         let mut grouped_rows: Vec<GroupedRow> = vec![];
-        let cell_bytes = get_cell_protobuf(&cell, field, None);
-        let cell_data = cell_bytes.parser::<P>()?;
+        let cell_data = <T as TypeOption>::CellData::from(&cell);
         for group in self.context.groups() {
           if self.can_group(&group.filter_content, &cell_data) {
             grouped_rows.push(GroupedRow {
@@ -272,8 +233,68 @@ where
     Ok(())
   }
 
+  fn create_group(
+    &mut self,
+    name: String,
+  ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
+    self.generate_new_group(name)
+  }
+
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
     self.context.move_group(from_group_id, to_group_id)
+  }
+
+  fn did_create_row(
+    &mut self,
+    row_detail: &RowDetail,
+    index: usize,
+  ) -> Vec<GroupRowsNotificationPB> {
+    let cell = match row_detail.row.cells.get(&self.grouping_field_id) {
+      None => self.placeholder_cell(),
+      Some(cell) => Some(cell.clone()),
+    };
+
+    let mut changesets: Vec<GroupRowsNotificationPB> = vec![];
+    if let Some(cell) = cell {
+      let cell_data = <T as TypeOption>::CellData::from(&cell);
+
+      let mut suitable_group_ids = vec![];
+
+      for group in self.get_all_groups() {
+        if self.can_group(&group.filter_content, &cell_data) {
+          suitable_group_ids.push(group.id.clone());
+          let changeset = GroupRowsNotificationPB::insert(
+            group.id.clone(),
+            vec![InsertedRowPB {
+              row_meta: row_detail.into(),
+              index: Some(index as i32),
+              is_new: true,
+            }],
+          );
+          changesets.push(changeset);
+        }
+      }
+      if !suitable_group_ids.is_empty() {
+        for group_id in suitable_group_ids.iter() {
+          if let Some(group) = self.context.get_mut_group(group_id) {
+            group.add_row(row_detail.clone());
+          }
+        }
+      } else if let Some(no_status_group) = self.context.get_mut_no_status_group() {
+        no_status_group.add_row(row_detail.clone());
+        let changeset = GroupRowsNotificationPB::insert(
+          no_status_group.id.clone(),
+          vec![InsertedRowPB {
+            row_meta: row_detail.into(),
+            index: Some(index as i32),
+            is_new: true,
+          }],
+        );
+        changesets.push(changeset);
+      }
+    }
+
+    changesets
   }
 
   fn did_update_group_row(
@@ -317,27 +338,21 @@ where
     Ok(result)
   }
 
-  fn did_delete_delete_row(
-    &mut self,
-    row: &Row,
-    field: &Field,
-  ) -> FlowyResult<DidMoveGroupRowResult> {
-    // if the cell_rev is none, then the row must in the default group.
+  fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult> {
     let mut result = DidMoveGroupRowResult {
       deleted_group: None,
       row_changesets: vec![],
     };
+    // early return if the row is not in the default group
     if let Some(cell) = row.cells.get(&self.grouping_field_id) {
-      let cell_bytes = get_cell_protobuf(cell, field, None);
-      let cell_data = cell_bytes.parser::<P>()?;
-      if !cell_data.is_empty() {
-        tracing::error!("did_delete_delete_row {:?}", cell);
-        result.row_changesets = self.delete_row(row, &cell_data);
+      let cell_data = <T as TypeOption>::CellData::from(cell);
+      if !cell_data.is_cell_empty() {
+        (result.deleted_group, result.row_changesets) = self.delete_row(row, &cell_data);
         return Ok(result);
       }
     }
 
-    match self.context.get_no_status_group() {
+    match self.context.get_mut_no_status_group() {
       None => {
         tracing::error!("Unexpected None value. It should have the no status group");
       },
@@ -345,6 +360,7 @@ where
         if !no_status_group.contains_row(&row.id) {
           tracing::error!("The row: {:?} should be in the no status group", row.id);
         }
+        no_status_group.remove_row(&row.id);
         result.row_changesets = vec![GroupRowsNotificationPB::delete(
           no_status_group.id.clone(),
           vec![row.id.clone().into_inner()],
@@ -380,20 +396,33 @@ where
     Ok(None)
   }
 
-  fn apply_group_setting_changeset(&mut self, changeset: GroupChangesets) -> FlowyResult<()> {
-    for group_changeset in changeset.update_groups {
-      if let Err(e) = self.context.update_group(group_changeset) {
-        tracing::error!("Failed to update group: {:?}", e);
+  async fn apply_group_changeset(
+    &mut self,
+    changeset: &GroupChangesets,
+  ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
+    for group_changeset in changeset.changesets.iter() {
+      self.context.update_group(group_changeset)?;
+    }
+    let mut type_option_data = TypeOptionData::new();
+    for group_changeset in changeset.changesets.iter() {
+      if let Some(new_type_option_data) = self
+        .operation_interceptor
+        .type_option_from_group_changeset(group_changeset, &self.type_option, &self.context.view_id)
+        .await
+      {
+        type_option_data.extend(new_type_option_data);
       }
     }
-    Ok(())
-  }
-
-  fn apply_group_configuration_setting_changeset(
-    &mut self,
-    changeset: GroupSettingChangeset,
-  ) -> FlowyResult<Option<GroupSetting>> {
-    self.context.update_configuration(changeset)
+    let updated_groups = changeset
+      .changesets
+      .iter()
+      .filter_map(|changeset| {
+        self
+          .get_group(&changeset.group_id)
+          .map(|(_, group)| GroupPB::from(group))
+      })
+      .collect::<Vec<_>>();
+    Ok((updated_groups, type_option_data))
   }
 }
 

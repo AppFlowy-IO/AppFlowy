@@ -18,7 +18,7 @@ function BlockDraggable(
   } & HTMLAttributes<HTMLDivElement>,
   ref: React.Ref<HTMLDivElement>
 ) {
-  const { onDragStart, beforeDropping, afterDropping, childDropping, isDragging } = useDraggableState(id, type);
+  const { onDragStart, beforeDropping, afterDropping, childDropping } = useDraggableState(id, type);
 
   const commonCls = 'pointer-events-none absolute z-10 w-[100%] bg-fill-hover transition-all duration-200';
 

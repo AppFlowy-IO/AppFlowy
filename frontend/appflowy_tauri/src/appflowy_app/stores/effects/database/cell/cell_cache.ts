@@ -14,6 +14,7 @@ export class CellCache {
 
   remove = (key: CellCacheKey) => {
     const cellDataByRowId = this.cellDataByFieldId.get(key.fieldId);
+
     if (cellDataByRowId !== undefined) {
       cellDataByRowId.delete(key.rowId);
     }
@@ -25,8 +26,10 @@ export class CellCache {
 
   insert = (key: CellCacheKey, value: any) => {
     const cellDataByRowId = this.cellDataByFieldId.get(key.fieldId);
+
     if (cellDataByRowId === undefined) {
       const map = new Map();
+
       map.set(key.rowId, value);
       this.cellDataByFieldId.set(key.fieldId, map);
     } else {
@@ -36,10 +39,12 @@ export class CellCache {
 
   get<T>(key: CellCacheKey): Option<T> {
     const cellDataByRowId = this.cellDataByFieldId.get(key.fieldId);
+
     if (cellDataByRowId === undefined) {
       return None;
     } else {
       const value = cellDataByRowId.get(key.rowId);
+
       if (typeof value === typeof undefined) {
         return None;
       }

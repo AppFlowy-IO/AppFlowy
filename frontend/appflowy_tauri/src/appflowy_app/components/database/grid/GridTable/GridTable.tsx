@@ -1,83 +1,76 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { FC, useContext, useMemo, useRef } from 'react';
-import { VerticalScrollElementRefContext } from '../../database.context';
-import { useDatabase } from '../../database.hooks';
+import { FC, useMemo, useRef } from 'react';
+import { RowMeta } from '../../application';
+import { useDatabase, useDatabaseVisibilityFields } from '../../Database.hooks';
 import { VirtualizedList } from '../../_shared';
-import { GridRow, RenderRow, RenderRowType } from '../GridRow';
+import { DEFAULT_FIELD_WIDTH, GridRow, RenderRow, RenderRowType, rowMetasToRenderRow } from '../GridRow';
 
 const getRenderRowKey = (row: RenderRow) => {
   if (row.type === RenderRowType.Row) {
-    return `row:${row.data.id}`;
+    return `row:${row.data.meta.id}`;
   }
 
   return row.type;
 };
 
-const getRenderRowHeight = (row: RenderRow) => {
-  const defaultRowHeight = 37;
-
-  if (row.type === RenderRowType.Row) {
-    return row.data.height ?? defaultRowHeight;
-  }
-
-  return defaultRowHeight;
-};
-
-export const GridTable: FC = () => {
-  const verticalScrollElementRef = useContext(VerticalScrollElementRefContext);
-  const horizontalScrollElementRef = useRef<HTMLDivElement>(null);
-  const { rows, fields } = useDatabase();
-
-  const renderRows = useMemo<RenderRow[]>(() => {
-    return [
-      {
-        type: RenderRowType.Fields,
-      },
-      ...rows.map(row => ({
-        type: RenderRowType.Row,
-        data: row,
-      })),
-      {
-        type: RenderRowType.NewRow,
-      },
-      {
-        type: RenderRowType.Calculate,
-      },
-    ];
-  }, [rows]);
-
-  const rowVirtualizer = useVirtualizer({
+export const GridTable: FC<{ tableHeight: number }> = ({ tableHeight }) => {
+  const verticalScrollElementRef = useRef<HTMLDivElement | null>(null);
+  const horizontalScrollElementRef = useRef<HTMLDivElement | null>(null);
+  const { rowMetas } = useDatabase();
+  const renderRows = useMemo<RenderRow[]>(() => rowMetasToRenderRow(rowMetas as RowMeta[]), [rowMetas]);
+  const fields = useDatabaseVisibilityFields();
+  const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
     count: renderRows.length,
-    overscan: 10,
-    getItemKey: i => getRenderRowKey(renderRows[i]),
+    overscan: 20,
+    getItemKey: (i) => getRenderRowKey(renderRows[i]),
     getScrollElement: () => verticalScrollElementRef.current,
-    estimateSize: i => getRenderRowHeight(renderRows[i]),
+    estimateSize: () => 37,
   });
 
-  const defaultColumnWidth = 221;
-  const columnVirtualizer = useVirtualizer<Element, Element>({
+  const columnVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
     horizontal: true,
     count: fields.length,
     overscan: 5,
-    getItemKey: i => fields[i].id,
+    getItemKey: (i) => fields[i].id,
     getScrollElement: () => horizontalScrollElementRef.current,
-    estimateSize: (i) => fields[i].width ?? defaultColumnWidth,
+    estimateSize: (i) => {
+      return fields[i].width ?? DEFAULT_FIELD_WIDTH;
+    },
   });
+
+  const getPrevRowId = (id: string) => {
+    const index = rowMetas.findIndex((rowMeta) => rowMeta.id === id);
+
+    if (index === 0) {
+      return null;
+    }
+
+    return rowMetas[index - 1].id;
+  };
 
   return (
     <div
-      ref={horizontalScrollElementRef}
-      className="flex w-full overflow-x-auto"
-      style={{ minHeight: 'calc(100% - 132px)' }}
+      style={{
+        height: tableHeight,
+      }}
+      className={'flex w-full flex-col'}
     >
-      <VirtualizedList
-        className="flex flex-col basis-full px-16"
-        virtualizer={rowVirtualizer}
-        itemClassName="flex"
-        renderItem={index => (
-          <GridRow row={renderRows[index]} virtualizer={columnVirtualizer} />
-        )}
-      />
+      <div
+        className={'w-full flex-1 overflow-auto'}
+        ref={(e) => {
+          verticalScrollElementRef.current = e;
+          horizontalScrollElementRef.current = e;
+        }}
+      >
+        <VirtualizedList
+          className='flex w-fit basis-full flex-col'
+          virtualizer={rowVirtualizer}
+          itemClassName='flex'
+          renderItem={(index) => (
+            <GridRow getPrevRowId={getPrevRowId} row={renderRows[index]} virtualizer={columnVirtualizer} />
+          )}
+        />
+      </div>
     </div>
   );
 };

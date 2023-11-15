@@ -31,6 +31,7 @@ export const TestAllKanbanTests = () => {
 async function createBuildInBoard() {
   const view = await createTestDatabaseView(ViewLayoutPB.Board);
   const databaseController = await openTestDatabase(view.id);
+
   databaseController.subscribe({
     onGroupByField: (groups) => {
       console.log(groups);
@@ -51,10 +52,12 @@ async function createBuildInBoard() {
 async function createKanbanBoardRow() {
   const view = await createTestDatabaseView(ViewLayoutPB.Board);
   const databaseController = await openTestDatabase(view.id);
+
   await databaseController.open().then((result) => result.unwrap());
 
   // Create row in no status group
   const noStatusGroup = databaseController.groups.getValue()[0];
+
   await noStatusGroup.createRow().then((result) => result.unwrap());
   await assertNumberOfRowsInGroup(view.id, noStatusGroup.groupId, 1);
 
@@ -64,11 +67,13 @@ async function createKanbanBoardRow() {
 async function moveKanbanBoardRow() {
   const view = await createTestDatabaseView(ViewLayoutPB.Board);
   const databaseController = await openTestDatabase(view.id);
+
   await databaseController.open().then((result) => result.unwrap());
 
   // Create row in no status group
   const firstGroup = databaseController.groups.getValue()[1];
   const secondGroup = databaseController.groups.getValue()[2];
+
   // subscribe the group changes
   firstGroup.subscribe({
     onRemoveRow: (groupId, deleteRowId) => {
@@ -101,6 +106,7 @@ async function moveKanbanBoardRow() {
   });
 
   const row = firstGroup.rowAtIndex(0).unwrap();
+
   await databaseController.moveGroupRow(row.id, secondGroup.groupId);
 
   assert(firstGroup.rows.length === 2);
@@ -115,11 +121,13 @@ async function moveKanbanBoardRow() {
 async function createKanbanBoardColumn() {
   const view = await createTestDatabaseView(ViewLayoutPB.Board);
   const databaseController = await openTestDatabase(view.id);
+
   await databaseController.open().then((result) => result.unwrap());
 
   // Create row in no status group
   const firstGroup = databaseController.groups.getValue()[1];
   const secondGroup = databaseController.groups.getValue()[2];
+
   await databaseController.moveGroup(firstGroup.groupId, secondGroup.groupId);
 
   assert(databaseController.groups.getValue()[1].groupId === secondGroup.groupId);
@@ -130,6 +138,7 @@ async function createKanbanBoardColumn() {
 async function createColumnInBoard() {
   const view = await createTestDatabaseView(ViewLayoutPB.Board);
   const databaseController = await openTestDatabase(view.id);
+
   await databaseController.open().then((result) => result.unwrap());
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -139,6 +148,7 @@ async function createColumnInBoard() {
 
   // Create a option which will cause creating a new group
   const name = 'New column';
+
   await createSingleSelectOptions(view.id, singleSelect, [name]);
 
   // Wait the backend posting the notification to update the groups

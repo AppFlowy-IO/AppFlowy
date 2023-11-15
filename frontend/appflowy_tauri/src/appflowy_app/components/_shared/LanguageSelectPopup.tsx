@@ -37,6 +37,7 @@ export const LanguageSelectPopup = ({ onClose }: { onClose: () => void }) => {
     title: item.title,
     icon: <></>,
   }));
+
   return (
     <PopupSelect
       items={items}

@@ -29,7 +29,7 @@ pub struct SignInParams {
   pub email: String,
   pub password: String,
   pub name: String,
-  pub auth_type: AuthType,
+  pub auth_type: Authenticator,
   pub device_id: String,
 }
 
@@ -38,7 +38,7 @@ pub struct SignUpParams {
   pub email: String,
   pub name: String,
   pub password: String,
-  pub auth_type: AuthType,
+  pub auth_type: Authenticator,
   pub device_id: String,
 }
 
@@ -101,7 +101,7 @@ impl UserAuthResponse for AuthResponse {
 
 #[derive(Clone, Debug)]
 pub struct UserCredentials {
-  /// Currently, the token is only used when the [AuthType] is AFCloud
+  /// Currently, the token is only used when the [Authenticator] is AFCloud
   pub token: Option<String>,
 
   /// The user id
@@ -138,7 +138,7 @@ pub struct UserWorkspace {
   pub id: String,
   pub name: String,
   pub created_at: DateTime<Utc>,
-  /// The database storage id is used indexing all the database in current workspace.
+  /// The database storage id is used indexing all the database views in current workspace.
   #[serde(rename = "database_storage_id")]
   pub database_views_aggregate_id: String,
 }
@@ -165,7 +165,7 @@ pub struct UserProfile {
   pub openai_key: String,
   pub stability_ai_key: String,
   pub workspace_id: String,
-  pub auth_type: AuthType,
+  pub authenticator: Authenticator,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
   pub encryption_type: EncryptionType,
   pub updated_at: i64,
@@ -210,11 +210,11 @@ impl FromStr for EncryptionType {
   }
 }
 
-impl<T> From<(&T, &AuthType)> for UserProfile
+impl<T> From<(&T, &Authenticator)> for UserProfile
 where
   T: UserAuthResponse,
 {
-  fn from(params: (&T, &AuthType)) -> Self {
+  fn from(params: (&T, &Authenticator)) -> Self {
     let (value, auth_type) = params;
     let (icon_url, openai_key, stability_ai_key) = {
       value
@@ -243,7 +243,7 @@ where
       icon_url,
       openai_key,
       workspace_id: value.latest_workspace().id.to_owned(),
-      auth_type: auth_type.clone(),
+      authenticator: auth_type.clone(),
       encryption_type: value.encryption_type(),
       stability_ai_key,
       updated_at: value.updated_at(),
@@ -329,7 +329,7 @@ impl UpdateUserProfileParams {
 
 #[derive(Debug, Clone, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
 #[repr(u8)]
-pub enum AuthType {
+pub enum Authenticator {
   /// It's a local server, we do fake sign in default.
   Local = 0,
   /// Currently not supported. It will be supported in the future when the
@@ -339,25 +339,25 @@ pub enum AuthType {
   Supabase = 2,
 }
 
-impl Default for AuthType {
+impl Default for Authenticator {
   fn default() -> Self {
     Self::Local
   }
 }
 
-impl AuthType {
+impl Authenticator {
   pub fn is_local(&self) -> bool {
-    matches!(self, AuthType::Local)
+    matches!(self, Authenticator::Local)
   }
 }
 
-impl From<i32> for AuthType {
+impl From<i32> for Authenticator {
   fn from(value: i32) -> Self {
     match value {
-      0 => AuthType::Local,
-      1 => AuthType::AFCloud,
-      2 => AuthType::Supabase,
-      _ => AuthType::Local,
+      0 => Authenticator::Local,
+      1 => Authenticator::AFCloud,
+      2 => Authenticator::Supabase,
+      _ => Authenticator::Local,
     }
   }
 }

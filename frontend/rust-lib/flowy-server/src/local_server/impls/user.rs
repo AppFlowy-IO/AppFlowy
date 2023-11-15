@@ -116,7 +116,13 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { result })
   }
 
-  fn get_all_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn open_workspace(&self, _workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("local server doesn't support open workspace"))
+    })
+  }
+
+  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     FutureResult::new(async { Ok(vec![]) })
   }
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
@@ -15,6 +16,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:string_validator/string_validator.dart';
@@ -37,65 +39,114 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      controller: controller,
-      direction: PopoverDirection.bottomWithCenterAligned,
-      constraints: const BoxConstraints(
-        maxWidth: 540,
-        maxHeight: 360,
-        minHeight: 80,
+    final Widget child = DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(4),
       ),
-      clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (context) {
-        return UploadImageMenu(
-          onSelectedLocalImage: (path) {
-            controller.close();
-            WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-              await insertLocalImage(path);
-            });
-          },
-          onSelectedAIImage: (url) {
-            controller.close();
-            WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-              await insertAIImage(url);
-            });
-          },
-          onSelectedNetworkImage: (url) {
-            controller.close();
-            WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-              await insertNetworkImage(url);
-            });
-          },
-        );
-      },
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant,
+      child: FlowyHover(
+        style: HoverStyle(
           borderRadius: BorderRadius.circular(4),
         ),
-        child: FlowyHover(
-          style: HoverStyle(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: SizedBox(
-            height: 48,
-            child: Row(
-              children: [
-                const HSpace(10),
-                const FlowySvg(
-                  FlowySvgs.image_placeholder_s,
-                  size: Size.square(24),
-                ),
-                const HSpace(10),
-                FlowyText(
-                  LocaleKeys.document_plugins_image_addAnImage.tr(),
-                ),
-              ],
-            ),
+        child: SizedBox(
+          height: 52,
+          child: Row(
+            children: [
+              const HSpace(10),
+              const FlowySvg(
+                FlowySvgs.image_placeholder_s,
+                size: Size.square(24),
+              ),
+              const HSpace(10),
+              FlowyText(
+                LocaleKeys.document_plugins_image_addAnImage.tr(),
+              ),
+            ],
           ),
         ),
       ),
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      return AppFlowyPopover(
+        controller: controller,
+        direction: PopoverDirection.bottomWithCenterAligned,
+        constraints: const BoxConstraints(
+          maxWidth: 540,
+          maxHeight: 360,
+          minHeight: 80,
+        ),
+        clickHandler: PopoverClickHandler.gestureDetector,
+        popupBuilder: (context) {
+          return UploadImageMenu(
+            onSelectedLocalImage: (path) {
+              controller.close();
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+                await insertLocalImage(path);
+              });
+            },
+            onSelectedAIImage: (url) {
+              controller.close();
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+                await insertAIImage(url);
+              });
+            },
+            onSelectedNetworkImage: (url) {
+              controller.close();
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+                await insertNetworkImage(url);
+              });
+            },
+          );
+        },
+        child: child,
+      );
+    } else {
+      return GestureDetector(
+        onTap: () {
+          showUploadImageMenu();
+        },
+        child: child,
+      );
+    }
+  }
+
+  void showUploadImageMenu() {
+    if (PlatformExtension.isDesktopOrWeb) {
+      controller.show();
+    } else {
+      showFlowyMobileBottomSheet(
+        context,
+        title: LocaleKeys.editor_image.tr(),
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 340,
+              minHeight: 80,
+            ),
+            child: UploadImageMenu(
+              supportTypes: const [
+                UploadImageType.local,
+                UploadImageType.url,
+                UploadImageType.unsplash,
+              ],
+              onSelectedLocalImage: (path) async {
+                context.pop();
+                await insertLocalImage(path);
+              },
+              onSelectedAIImage: (url) async {
+                context.pop();
+                await insertAIImage(url);
+              },
+              onSelectedNetworkImage: (url) async {
+                context.pop();
+                await insertNetworkImage(url);
+              },
+            ),
+          );
+        },
+      );
+    }
   }
 
   Future<void> insertLocalImage(String? url) async {

@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/database_view/application/database_controller.d
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -14,6 +14,7 @@ import 'package:flowy_infra/size.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -375,9 +376,13 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                   _popoverController.show();
                 }
               },
-              child: FlowyText.regular(
-                "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
-                fontSize: 10,
+              child: FlowyTooltip(
+                message: LocaleKeys.calendar_settings_noDateHint
+                    .plural(state.unscheduleEvents.length),
+                child: FlowyText.regular(
+                  "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
+                  fontSize: 10,
+                ),
               ),
             ),
             popupBuilder: (context) {
@@ -430,7 +435,7 @@ class UnscheduleEventsList extends StatelessWidget {
             PopoverContainer.of(context).close();
           },
         ),
-      )
+      ),
     ];
 
     return ListView.separated(

@@ -69,7 +69,7 @@ class FavoriteFolder extends StatelessWidget {
                         .read<PanesBloc>()
                         .add(OpenTabInActivePane(plugin: view.plugin())),
                   ),
-                )
+                ),
             ],
           );
         },

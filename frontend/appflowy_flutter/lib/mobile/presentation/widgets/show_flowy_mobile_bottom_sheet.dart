@@ -8,6 +8,7 @@ Future<T?> showFlowyMobileBottomSheet<T>(
 }) async {
   return showModalBottomSheet(
     context: context,
+    isScrollControlled: true,
     builder: (context) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
@@ -47,7 +48,7 @@ class _BottomSheetTitle extends StatelessWidget {
           onPressed: () {
             context.pop();
           },
-        )
+        ),
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
@@ -7,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/wid
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -15,8 +17,6 @@ import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 
 class AutoCompletionBlockKeys {
@@ -157,7 +157,7 @@ class _AutoCompletionBlockComponentState
                 onKeep: _onExit,
                 onRewrite: _onRewrite,
                 onDiscard: _onDiscard,
-              )
+              ),
             ],
           ],
         ),
@@ -169,9 +169,12 @@ class _AutoCompletionBlockComponentState
     return FlowyTextField(
       hintText: LocaleKeys.document_plugins_autoGeneratorHintText.tr(),
       controller: controller,
-      maxLines: 3,
+      maxLines: 5,
       focusNode: textFieldFocusNode,
       autoFocus: false,
+      hintTextConstraints: const BoxConstraints(
+        maxHeight: double.infinity,
+      ),
     );
   }
 
@@ -474,7 +477,7 @@ class AutoCompletionHeader extends StatelessWidget {
           onTap: () async {
             await openLearnMorePage();
           },
-        )
+        ),
       ],
     );
   }

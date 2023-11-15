@@ -166,7 +166,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             }
             controller.close();
           },
-        )
+        ),
       ],
     );
   }

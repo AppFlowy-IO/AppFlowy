@@ -12,7 +12,7 @@ export function useTurnInto({ node, onClose }: { node: NestedBlock; onClose?: ()
   const { controller, docId } = useSubscribeDocument();
 
   const turnIntoBlock = useCallback(
-    async (type: BlockType, isSelected: boolean, data?: BlockData<any>) => {
+    async (type: BlockType, isSelected: boolean, data?: BlockData) => {
       if (!controller || isSelected) {
         onClose?.();
         return;
@@ -35,7 +35,7 @@ export function useTurnInto({ node, onClose }: { node: NestedBlock; onClose?: ()
       );
 
       onClose?.();
-      dispatch(
+      await dispatch(
         setRectSelectionThunk({
           docId,
           selection: [newBlockId as string],

@@ -79,7 +79,7 @@ class BlockOptionButton extends StatelessWidget {
           ),
           TextSpan(
             text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
-          )
+          ),
         ],
       ),
       onTap: () {

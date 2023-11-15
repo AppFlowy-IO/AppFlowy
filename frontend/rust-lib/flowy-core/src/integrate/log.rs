@@ -7,7 +7,7 @@ pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
   if !INIT_LOG.load(Ordering::SeqCst) {
     INIT_LOG.store(true, Ordering::SeqCst);
 
-    let _ = lib_log::Builder::new("AppFlowy-Client", &config.storage_path)
+    let _ = lib_log::Builder::new("log", &config.storage_path)
       .env_filter(&config.log_filter)
       .build();
   }
@@ -34,6 +34,7 @@ pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> Stri
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_task={}", level));
+  // filters.push(format!("lib_dispatch={}", level));
 
   filters.push(format!("dart_ffi={}", "info"));
   filters.push(format!("flowy_sqlite={}", "info"));

@@ -2,9 +2,10 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -104,6 +105,28 @@ extension ViewExtension on ViewPB {
   }
 
   FlowySvgData get iconData => layout.icon;
+
+  Future<List<ViewPB>> getAncestors({
+    bool includeSelf = false,
+    bool includeRoot = false,
+  }) async {
+    final ancestors = <ViewPB>[];
+    if (includeSelf) {
+      final self = await ViewBackendService.getView(id);
+      ancestors.add(self.getLeftOrNull<ViewPB>() ?? this);
+    }
+    var parent = await ViewBackendService.getView(parentViewId);
+    while (parent.isLeft()) {
+      // parent is not null
+      final view = parent.getLeftOrNull<ViewPB>();
+      if (view == null || (!includeRoot && view.parentViewId.isEmpty)) {
+        break;
+      }
+      ancestors.add(view);
+      parent = await ViewBackendService.getView(view.parentViewId);
+    }
+    return ancestors.reversed.toList();
+  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {

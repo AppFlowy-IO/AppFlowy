@@ -1,27 +1,20 @@
 import { Divider, Menu, MenuItem, MenuProps, OutlinedInput } from '@mui/material';
 import { ChangeEventHandler, FC, useCallback, useState } from 'react';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
-import { Database } from '$app/interfaces/database';
-import * as service from '$app/components/database/database_bd_svc';
-import { useViewId } from '../../database.hooks';
+import { useViewId } from '$app/hooks';
+import { Field, fieldService } from '../../application';
 import { FieldTypeSvg } from './FieldTypeSvg';
 import { FieldTypeText } from './FieldTypeText';
 import { GridFieldMenuActions } from './GridFieldMenuActions';
 
-
 export interface GridFieldMenuProps {
-  field: Database.Field;
+  field: Field;
   anchorEl: MenuProps['anchorEl'];
   open: boolean;
-  onClose: MenuProps['onClose'];
+  onClose: () => void;
 }
 
-export const GridFieldMenu: FC<GridFieldMenuProps> = ({
-  field,
-  anchorEl,
-  open,
-  onClose,
-}) => {
+export const GridFieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClose }) => {
   const viewId = useViewId();
   const [inputtingName, setInputtingName] = useState(field.name);
 
@@ -32,7 +25,7 @@ export const GridFieldMenu: FC<GridFieldMenuProps> = ({
   const handleBlur = useCallback(async () => {
     if (inputtingName !== field.name) {
       try {
-        await service.updateField(viewId, field.id, {
+        await fieldService.updateField(viewId, field.id, {
           name: inputtingName,
         });
       } catch (e) {
@@ -44,8 +37,8 @@ export const GridFieldMenu: FC<GridFieldMenuProps> = ({
 
   const fieldNameInput = (
     <OutlinedInput
-      className="mx-3 mt-1 mb-5 !rounded-[10px]"
-      size="small"
+      className='mx-3 mb-5 mt-1 !rounded-[10px]'
+      size='small'
       value={inputtingName}
       onChange={handleInput}
       onBlur={handleBlur}
@@ -54,24 +47,27 @@ export const GridFieldMenu: FC<GridFieldMenuProps> = ({
 
   const fieldTypeSelect = (
     <MenuItem dense>
-      <FieldTypeSvg type={field.type} className="text-base mr-2" />
-      <span className="flex-1 text-xs font-medium">
-        {FieldTypeText(field.type)}
-      </span>
-      <MoreSvg className="text-base" />
+      <FieldTypeSvg type={field.type} className='mr-2 text-base' />
+      <span className='flex-1 text-xs font-medium'>{FieldTypeText(field.type)}</span>
+      <MoreSvg className='text-base' />
     </MenuItem>
   );
 
+  const isPrimary = field.isPrimary;
+
   return (
-    <Menu
-      anchorEl={anchorEl}
-      open={open}
-      onClose={onClose}
-    >
-      {fieldNameInput}
-      {fieldTypeSelect}
-      <Divider />
-      <GridFieldMenuActions />
-    </Menu>
+    <>
+      <Menu anchorEl={anchorEl} open={open} onClose={onClose}>
+        {fieldNameInput}
+        {!isPrimary && (
+          <>
+            {fieldTypeSelect}
+            <Divider />
+          </>
+        )}
+
+        <GridFieldMenuActions isPrimary={isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
+      </Menu>
+    </>
   );
 };

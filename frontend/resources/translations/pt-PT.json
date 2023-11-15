@@ -194,9 +194,7 @@
     "editContact": "Editar um conctato"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Feito",
-    "Cancel": "Cancelar",
+    "done": "Feito",
     "signIn": "Entrar",
     "signOut": "Sair",
     "complete": "Completar",
@@ -212,8 +210,10 @@
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
-    "done": "Feito",
-    "putback": "Por de volta"
+    "putback": "Por de volta",
+    "OK": "OK",
+    "Done": "Feito",
+    "Cancel": "Cancelar"
   },
   "label": {
     "welcome": "Bem vindo!",
@@ -725,11 +725,11 @@
     }
   },
   "board": {
+    "menuName": "Quadro",
+    "referencedBoardPrefix": "Vista de",
     "column": {
       "create_new_card": "Novo"
-    },
-    "menuName": "Quadro",
-    "referencedBoardPrefix": "Vista de"
+    }
   },
   "calendar": {
     "menuName": "Calendário",
@@ -747,9 +747,9 @@
       "firstDayOfWeek": "Comece a semana em",
       "layoutDateField": "Calendário de layout por",
       "noDateTitle": "sem data",
-      "noDateHint": "Eventos não agendados aparecerão aqui",
       "clickToAdd": "Clique para adicionar ao calendário",
-      "name": "Layout do calendário"
+      "name": "Layout do calendário",
+      "noDateHint": "Eventos não agendados aparecerão aqui"
     },
     "referencedCalendarPrefix": "Vista de"
   },

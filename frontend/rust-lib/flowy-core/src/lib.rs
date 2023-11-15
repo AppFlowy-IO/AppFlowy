@@ -1,31 +1,35 @@
 #![allow(unused_doc_comments)]
 
+use std::path::Path;
 use std::sync::Weak;
 use std::time::Duration;
 use std::{fmt, sync::Arc};
 
+use base64::Engine;
 use tokio::sync::RwLock;
-use tracing::error;
+use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_folder2::manager::FolderManager;
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user::manager::{UserManager, UserSessionConfig};
+use flowy_user::manager::{UserManager, UserSessionConfig, URL_SAFE_ENGINE};
 use lib_dispatch::prelude::*;
-use lib_dispatch::runtime::tokio_default_runtime;
+use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
 pub use module::*;
 
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::{create_log_filter, init_log};
-use crate::integrate::server::{current_server_provider, ServerProvider, ServerType};
+use crate::integrate::server::{current_server_type, ServerProvider, ServerType};
 use crate::integrate::user::UserStatusCallbackImpl;
+use crate::integrate::util::copy_dir_recursive;
 
 mod deps_resolve;
 mod integrate;
@@ -42,22 +46,56 @@ pub struct AppFlowyCoreConfig {
   /// Panics if the `root` path is not existing
   pub storage_path: String,
   log_filter: String,
+  cloud_config: Option<AFCloudConfiguration>,
 }
 
 impl fmt::Debug for AppFlowyCoreConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.debug_struct("AppFlowyCoreConfig")
-      .field("storage_path", &self.storage_path)
-      .finish()
+    let mut debug = f.debug_struct("AppFlowy Configuration");
+    debug.field("storage_path", &self.storage_path);
+    if let Some(config) = &self.cloud_config {
+      debug.field("base_url", &config.base_url);
+      debug.field("ws_url", &config.ws_base_url);
+    }
+    debug.finish()
   }
 }
 
 impl AppFlowyCoreConfig {
   pub fn new(root: &str, name: String) -> Self {
+    let cloud_config = AFCloudConfiguration::from_env().ok();
+    let storage_path = match &cloud_config {
+      None => root.to_string(),
+      Some(config) => {
+        // Isolate the user data folder by the base url of AppFlowy cloud. This is to avoid
+        // the user data folder being shared by different AppFlowy cloud.
+        let server_base64 = URL_SAFE_ENGINE.encode(&config.base_url);
+        let storage_path = format!("{}_{}", root, server_base64);
+
+        // Copy the user data folder from the root path to the isolated path
+        // The root path only exists when using the local version of appflowy
+        if !Path::new(&storage_path).exists() && Path::new(root).exists() {
+          info!("Copy dir from {} to {}", root, storage_path);
+          let src = Path::new(root);
+          match copy_dir_recursive(&src, Path::new(&storage_path)) {
+            Ok(_) => storage_path,
+            Err(err) => {
+              // when the copy dir failed, use the root path as the storage path
+              error!("Copy dir failed: {}", err);
+              root.to_string()
+            },
+          }
+        } else {
+          storage_path
+        }
+      },
+    };
+
     AppFlowyCoreConfig {
       name,
-      storage_path: root.to_owned(),
+      storage_path,
       log_filter: create_log_filter("info".to_owned(), vec![]),
+      cloud_config: AFCloudConfiguration::from_env().ok(),
     }
   }
 
@@ -82,32 +120,52 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  pub fn new(config: AppFlowyCoreConfig) -> Self {
-    /// The profiling can be used to tracing the performance of the application.
-    /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)
-    ///  for more information.
-    #[cfg(feature = "profiling")]
-    console_subscriber::init();
+  #[cfg(feature = "single_thread")]
+  pub async fn new(config: AppFlowyCoreConfig) -> Self {
+    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+    Self::init(config, runtime).await
+  }
 
-    // Init the logger before anything else
-    init_log(&config);
+  #[cfg(not(feature = "single_thread"))]
+  pub fn new(config: AppFlowyCoreConfig) -> Self {
+    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+    let cloned_runtime = runtime.clone();
+    runtime.block_on(Self::init(config, cloned_runtime))
+  }
+
+  #[instrument(skip(config, runtime))]
+  async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
+    #[allow(clippy::if_same_then_else)]
+    if cfg!(debug_assertions) {
+      /// The profiling can be used to tracing the performance of the application.
+      /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)
+      ///  for more information.
+      #[cfg(feature = "profiling")]
+      console_subscriber::init();
+
+      // Init the logger before anything else
+      #[cfg(not(feature = "profiling"))]
+      init_log(&config);
+    } else {
+      init_log(&config);
+    }
 
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
-
-    tracing::info!("🔥 {:?}", &config);
-    let runtime = tokio_default_runtime().unwrap();
+    info!("🔥{:?}", &config);
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let provider_type = current_server_provider(&store_preference);
+    let server_type = current_server_type(&store_preference);
+    debug!("🔥runtime:{}, server:{}", runtime, server_type);
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
-      provider_type,
+      server_type,
       Arc::downgrade(&store_preference),
     ));
 
+    event!(tracing::Level::DEBUG, "Init managers",);
     let (
       user_manager,
       folder_manager,
@@ -115,7 +173,7 @@ impl AppFlowyCore {
       database_manager,
       document_manager,
       collab_builder,
-    ) = runtime.block_on(async {
+    ) = async {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(server_provider.clone()));
@@ -162,7 +220,8 @@ impl AppFlowyCore {
         document_manager,
         collab_builder,
       )
-    });
+    }
+    .await;
 
     let user_status_callback = UserStatusCallbackImpl {
       collab_builder,
@@ -179,17 +238,14 @@ impl AppFlowyCore {
     };
 
     let cloned_user_session = Arc::downgrade(&user_manager);
-    runtime.block_on(async move {
-      if let Some(user_manager) = cloned_user_session.upgrade() {
-        if let Err(err) = user_manager
-          .init(user_status_callback, collab_interact_impl)
-          .await
-        {
-          error!("Init user failed: {}", err)
-        }
+    if let Some(user_session) = cloned_user_session.upgrade() {
+      if let Err(err) = user_session
+        .init(user_status_callback, collab_interact_impl)
+        .await
+      {
+        error!("Init user failed: {}", err)
       }
-    });
-
+    }
     let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
       make_plugins(
         Arc::downgrade(&folder_manager),

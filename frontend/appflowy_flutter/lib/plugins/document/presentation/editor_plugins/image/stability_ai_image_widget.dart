@@ -104,7 +104,7 @@ class _StabilityAIImageWidgetState extends State<StabilityAIImageWidget> {
                 );
               },
             ),
-          )
+          ),
       ],
     );
   }

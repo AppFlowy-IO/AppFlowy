@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -46,6 +47,8 @@ class AppFlowyEditorPage extends StatefulWidget {
     this.scrollController,
     this.autoFocus,
     required this.styleCustomizer,
+    this.showParagraphPlaceholder,
+    this.placeholderText,
   });
 
   final Widget? header;
@@ -54,6 +57,8 @@ class AppFlowyEditorPage extends StatefulWidget {
   final bool shrinkWrap;
   final bool? autoFocus;
   final EditorStyleCustomizer styleCustomizer;
+  final ShowPlaceholder? showParagraphPlaceholder;
+  final String Function(Node)? placeholderText;
 
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
@@ -111,6 +116,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     context: context,
     editorState: widget.editorState,
     styleCustomizer: widget.styleCustomizer,
+    showParagraphPlaceholder: widget.showParagraphPlaceholder,
+    placeholderText: widget.placeholderText,
   );
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
@@ -138,6 +145,21 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         inlineActionsCommand(
           inlineActionsService,
           style: styleCustomizer.inlineActionsMenuStyleBuilder(),
+        ),
+
+        /// Inline page menu
+        /// - Using `[[`
+        pageReferenceShortcutBrackets(
+          context,
+          documentBloc.view.id,
+          styleCustomizer.inlineActionsMenuStyleBuilder(),
+        ),
+
+        /// - Using `+`
+        pageReferenceShortcutPlusSign(
+          context,
+          documentBloc.view.id,
+          styleCustomizer.inlineActionsMenuStyleBuilder(),
         ),
       ];
 
@@ -229,7 +251,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
         header: widget.header,
-        footer: const VSpace(200),
+        footer: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
       ),
     );
 
@@ -243,13 +265,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             child: MobileFloatingToolbar(
               editorState: editorState,
               editorScrollController: editorScrollController,
-              toolbarBuilder: (context, anchor) {
+              toolbarBuilder: (context, anchor, closeToolbar) {
                 return AdaptiveTextSelectionToolbar.editable(
                   clipboardStatus: ClipboardStatus.pasteable,
-                  onCopy: () => copyCommand.execute(editorState),
+                  onCopy: () {
+                    copyCommand.execute(editorState);
+                    closeToolbar();
+                  },
                   onCut: () => cutCommand.execute(editorState),
                   onPaste: () => pasteCommand.execute(editorState),
                   onSelectAll: () => selectAllCommand.execute(editorState),
+                  onLiveTextInput: null,
                   anchors: TextSelectionToolbarAnchors(
                     primaryAnchor: anchor,
                   ),
@@ -264,12 +290,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
               textDecorationMobileToolbarItem,
               buildTextAndBackgroundColorMobileToolbarItem(),
               headingMobileToolbarItem,
-              todoListMobileToolbarItem,
-              listMobileToolbarItem,
+              mobileBlocksToolbarItem,
               linkMobileToolbarItem,
-              quoteMobileToolbarItem,
               dividerMobileToolbarItem,
+              imageMobileToolbarItem,
+              mathEquationMobileToolbarItem,
               codeMobileToolbarItem,
+              mobileAlignToolbarItem,
+              mobileIndentToolbarItem,
+              mobileOutdentToolbarItem,
+              undoMobileToolbarItem,
+              redoMobileToolbarItem,
             ],
           ),
         ],
@@ -322,6 +353,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       referencedBoardMenuItem,
       inlineCalendarMenuItem(documentBloc),
       referencedCalendarMenuItem,
+      referencedDocumentMenuItem,
       calloutItem,
       outlineItem,
       mathEquationItem,

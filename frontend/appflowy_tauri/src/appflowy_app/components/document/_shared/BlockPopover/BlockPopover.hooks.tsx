@@ -42,7 +42,7 @@ export function useBlockPopover({
   }, [dispatch, docId, id, onAfterClose]);
 
   const selectBlock = useCallback(() => {
-    dispatch(
+    void dispatch(
       setRectSelectionThunk({
         docId,
         selection: [id],

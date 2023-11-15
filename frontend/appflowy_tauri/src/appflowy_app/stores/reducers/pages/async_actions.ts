@@ -58,35 +58,17 @@ export const movePageThunk = createAsyncThunk(
   }
 );
 
-export const updatePageName = createAsyncThunk(
-  'pages/updateName',
-  async (
-    payload: {
-      id: string;
-      name: string;
-    },
-    thunkAPI
-  ) => {
-    const controller = new PageController(payload.id);
+export const updatePageName = createAsyncThunk('pages/updateName', async (payload: { id: string; name: string }) => {
+  const controller = new PageController(payload.id);
 
-    await controller.updatePage({
-      id: payload.id,
-      name: payload.name,
-    });
-  }
-);
+  await controller.updatePage({
+    id: payload.id,
+    name: payload.name,
+  });
+});
 
-export const updatePageIcon = createAsyncThunk(
-  'pages/updateIcon',
-  async (
-    payload: {
-      id: string;
-      icon?: PageIcon;
-    },
-    thunkAPI
-  ) => {
-    const controller = new PageController(payload.id);
+export const updatePageIcon = createAsyncThunk('pages/updateIcon', async (payload: { id: string; icon?: PageIcon }) => {
+  const controller = new PageController(payload.id);
 
-    await controller.updatePageIcon(payload.icon);
-  }
-);
+  await controller.updatePageIcon(payload.icon);
+});

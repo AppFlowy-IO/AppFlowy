@@ -6,13 +6,11 @@ import 'package:appflowy/plugins/database_view/application/row/row_service.dart'
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../application/database_controller.dart';
-import 'dart:collection';
 
 part 'grid_bloc.freezed.dart';
 
@@ -54,7 +52,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           didReceiveFieldUpdate: (fields) {
             emit(
               state.copyWith(
-                fields: GridFieldEquatable(fields),
+                fields: FieldList(fields),
               ),
             );
           },
@@ -175,7 +173,7 @@ class GridState with _$GridState {
   const factory GridState({
     required String viewId,
     required Option<DatabasePB> grid,
-    required GridFieldEquatable fields,
+    required FieldList fields,
     required List<RowInfo> rowInfos,
     required int rowCount,
     required LoadingState loadingState,
@@ -186,7 +184,7 @@ class GridState with _$GridState {
   }) = _GridState;
 
   factory GridState.initial(String viewId) => GridState(
-        fields: GridFieldEquatable(UnmodifiableListView([])),
+        fields: FieldList([]),
         rowInfos: [],
         rowCount: 0,
         grid: none(),
@@ -199,26 +197,7 @@ class GridState with _$GridState {
       );
 }
 
-class GridFieldEquatable extends Equatable {
-  final List<FieldInfo> _fieldInfos;
-  const GridFieldEquatable(
-    List<FieldInfo> fieldInfos,
-  ) : _fieldInfos = fieldInfos;
-
-  @override
-  List<Object?> get props {
-    if (_fieldInfos.isEmpty) {
-      return [];
-    }
-
-    return [
-      _fieldInfos.length,
-      _fieldInfos
-          .map((fieldInfo) => fieldInfo.field.width)
-          .reduce((value, element) => value + element),
-    ];
-  }
-
-  UnmodifiableListView<FieldInfo> get value =>
-      UnmodifiableListView(_fieldInfos);
+@freezed
+class FieldList with _$FieldList {
+  factory FieldList(List<FieldInfo> fields) = _FieldList;
 }

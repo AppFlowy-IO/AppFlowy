@@ -1,14 +1,16 @@
+use std::num::NonZeroUsize;
+use std::sync::Arc;
 use std::sync::Weak;
-use std::{collections::HashMap, sync::Arc};
 
-use collab::core::collab::MutexCollab;
+use collab::core::collab::{CollabRawData, MutexCollab};
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
-use collab_document::document_data::default_document_data;
+use collab_document::document_data::{default_document_collab_data, default_document_data};
 use collab_document::YrsDocAction;
 use collab_entity::CollabType;
-use parking_lot::RwLock;
-use tracing::instrument;
+use lru::LruCache;
+use parking_lot::Mutex;
+use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
@@ -22,9 +24,7 @@ use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-
   fn workspace_id(&self) -> Result<String, FlowyError>;
-
   fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
   fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
 }
@@ -32,7 +32,7 @@ pub trait DocumentUser: Send + Sync {
 pub struct DocumentManager {
   pub user: Arc<dyn DocumentUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  documents: Arc<RwLock<HashMap<String, Arc<MutexDocument>>>>,
+  documents: Arc<Mutex<LruCache<String, Arc<MutexDocument>>>>,
   #[allow(dead_code)]
   cloud_service: Arc<dyn DocumentCloudService>,
   storage_service: Weak<dyn FileStorageService>,
@@ -45,17 +45,18 @@ impl DocumentManager {
     cloud_service: Arc<dyn DocumentCloudService>,
     storage_service: Weak<dyn FileStorageService>,
   ) -> Self {
+    let documents = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(10).unwrap())));
     Self {
       user,
       collab_builder,
-      documents: Default::default(),
+      documents,
       cloud_service,
       storage_service,
     }
   }
 
   pub async fn initialize(&self, _uid: i64, _workspace_id: String) -> FlowyResult<()> {
-    self.documents.write().clear();
+    self.documents.lock().clear();
     Ok(())
   }
 
@@ -103,19 +104,39 @@ impl DocumentManager {
   /// Return the document
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
-    if let Some(doc) = self.documents.read().get(doc_id) {
-      return Ok(doc.clone());
+    if let Some(doc) = self.documents.lock().get(doc_id).cloned() {
+      return Ok(doc);
     }
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      updates = self
+      let result: Result<CollabRawData, FlowyError> = self
         .cloud_service
-        .get_document_updates(&self.user.workspace_id()?, doc_id)
-        .await?;
+        .get_document_updates(doc_id, &self.user.workspace_id()?)
+        .await;
+
+      updates = match result {
+        Ok(data) => data,
+        Err(err) => {
+          if err.is_record_not_found() {
+            // The document's ID exists in the cloud, but its content does not.
+            // This occurs when user A's document hasn't finished syncing and user B tries to open it.
+            // As a result, a blank document is created for user B.
+            event!(
+              tracing::Level::INFO,
+              "can't find the document in the cloud, doc_id: {}",
+              doc_id
+            );
+            vec![default_document_collab_data(doc_id).doc_state.to_vec()]
+          } else {
+            return Err(err);
+          }
+        },
+      }
     }
 
     let uid = self.user.user_id()?;
+    event!(tracing::Level::DEBUG, "Initialize document: {}", doc_id);
     let collab = self.collab_for_document(uid, doc_id, updates).await?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
@@ -123,8 +144,8 @@ impl DocumentManager {
     // and we don't want to subscribe to the document changes if we open the same document again.
     self
       .documents
-      .write()
-      .insert(doc_id.to_string(), document.clone());
+      .lock()
+      .put(doc_id.to_string(), document.clone());
     Ok(document)
   }
 
@@ -143,8 +164,10 @@ impl DocumentManager {
       .map_err(internal_error)
   }
 
+  #[instrument(level = "debug", skip(self), err)]
   pub fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
-    self.documents.write().remove(doc_id);
+    // TODO(nathan): remove the document from lru cache. Currently, we don't remove it from the cache.
+    // The lru will pop the least recently used document when the cache is full.
     Ok(())
   }
 
@@ -155,7 +178,9 @@ impl DocumentManager {
         txn.delete_doc(uid, &doc_id)?;
         Ok(())
       });
-      self.documents.write().remove(doc_id);
+
+      // When deleting a document, we need to remove it from the cache.
+      self.documents.lock().pop(doc_id);
     }
     Ok(())
   }
@@ -195,19 +220,6 @@ impl DocumentManager {
       .build(uid, doc_id, CollabType::Document, updates, db)
       .await?;
     Ok(collab)
-
-    // let doc_id = doc_id.to_string();
-    // let (tx, rx) = oneshot::channel();
-    // let collab_builder = self.collab_builder.clone();
-    // tokio::spawn(async move {
-    //   let collab = collab_builder
-    //     .build(uid, &doc_id, CollabType::Document, updates, db)
-    //     .await
-    //     .unwrap();
-    //   let _ = tx.send(collab);
-    // });
-    //
-    // Ok(rx.await.unwrap())
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {

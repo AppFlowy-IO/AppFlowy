@@ -142,7 +142,7 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
                 );
               },
             ),
-          ]
+          ],
         ],
       ),
     );

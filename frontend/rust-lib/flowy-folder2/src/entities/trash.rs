@@ -1,4 +1,4 @@
-use collab_folder::core::TrashInfo;
+use collab_folder::TrashInfo;
 use flowy_derive::ProtoBuf;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]

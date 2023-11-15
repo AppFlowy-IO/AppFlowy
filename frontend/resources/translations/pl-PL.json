@@ -189,9 +189,7 @@
     "editContact": "Edytuj Kontakt"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Zrobione",
-    "Cancel": "Anuluj",
+    "done": "Zrobione",
     "signIn": "Zaloguj",
     "signOut": "Wyloguj",
     "complete": "Zakończono",
@@ -207,8 +205,10 @@
     "edit": "Edytuj",
     "delete": "Usuń",
     "duplicate": "Duplikuj",
-    "done": "Zrobione",
-    "putback": "Odłóż z powrotem"
+    "putback": "Odłóż z powrotem",
+    "OK": "OK",
+    "Done": "Zrobione",
+    "Cancel": "Anuluj"
   },
   "label": {
     "welcome": "Witaj!",
@@ -656,11 +656,11 @@
     }
   },
   "board": {
+    "menuName": "Tablica",
+    "referencedBoardPrefix": "Widok",
     "column": {
       "create_new_card": "Nowy"
-    },
-    "menuName": "Tablica",
-    "referencedBoardPrefix": "Widok"
+    }
   },
   "calendar": {
     "menuName": "Kalendarz",
@@ -678,9 +678,9 @@
       "firstDayOfWeek": "Rozpocznij tydzień",
       "layoutDateField": "Układ kalendarza wg",
       "noDateTitle": "Brak daty",
-      "noDateHint": "Tutaj pojawią się nieplanowane wydarzenia",
       "clickToAdd": "Kliknij, aby dodać do kalendarza",
-      "name": "Układ kalendarza"
+      "name": "Układ kalendarza",
+      "noDateHint": "Tutaj pojawią się nieplanowane wydarzenia"
     },
     "referencedCalendarPrefix": "Widok"
   },

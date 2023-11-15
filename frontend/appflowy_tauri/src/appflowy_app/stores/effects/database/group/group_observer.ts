@@ -33,6 +33,7 @@ export class DatabaseGroupObserver {
             } else {
               this.groupByNotifier?.notify(result);
             }
+
             break;
           case DatabaseNotification.DidUpdateNumOfGroups:
             if (result.ok) {
@@ -40,6 +41,7 @@ export class DatabaseGroupObserver {
             } else {
               this.groupChangesetNotifier?.notify(result);
             }
+
             break;
           default:
             break;

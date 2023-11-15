@@ -10,7 +10,7 @@ import { ReactComponent as CheckboxSvg } from '$app/assets/database/field-type-c
 import { ReactComponent as URLSvg } from '$app/assets/database/field-type-url.svg';
 import { ReactComponent as LastEditedTimeSvg } from '$app/assets/database/field-type-last-edited-time.svg';
 
-export const FieldTypeSvgMap: Record<FieldType, FC<any>> = {
+export const FieldTypeSvgMap: Record<FieldType, FC<{ className?: string }>> = {
   [FieldType.RichText]: TextSvg,
   [FieldType.Number]: NumberSvg,
   [FieldType.DateTime]: DateSvg,
@@ -23,8 +23,8 @@ export const FieldTypeSvgMap: Record<FieldType, FC<any>> = {
   [FieldType.CreatedTime]: LastEditedTimeSvg,
 };
 
-export const FieldTypeSvg: FC<{ type: FieldType, className?: string }> = ({ type, ...props }) => {
+export const FieldTypeSvg: FC<{ type: FieldType; className?: string }> = ({ type, ...props }) => {
   const Svg = FieldTypeSvgMap[type];
 
   return <Svg {...props} />;
-}
+};

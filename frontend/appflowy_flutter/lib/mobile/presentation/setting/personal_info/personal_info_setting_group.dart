@@ -16,7 +16,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
     required this.userProfile,
   });
 
-  final UserProfilePB? userProfile;
+  final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +33,9 @@ class PersonalInfoSettingGroup extends StatelessWidget {
             settingItemList: [
               MobileSettingItem(
                 name: userName,
-                subtitle: isCloudEnabled && userProfile != null
+                subtitle: isCloudEnabled
                     ? Text(
-                        userProfile!.email,
+                        userProfile.email,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface,
                         ),
@@ -62,7 +62,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
                     },
                   );
                 },
-              )
+              ),
             ],
           );
         },

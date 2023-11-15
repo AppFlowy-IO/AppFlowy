@@ -9,7 +9,7 @@ use crate::user::local_test::helper::*;
 #[tokio::test]
 async fn sign_up_with_invalid_email() {
   for email in invalid_email_test_case() {
-    let sdk = EventIntegrationTest::new();
+    let sdk = EventIntegrationTest::new().await;
     let request = SignUpPayloadPB {
       email: email.to_string(),
       name: valid_name(),
@@ -33,7 +33,7 @@ async fn sign_up_with_invalid_email() {
 }
 #[tokio::test]
 async fn sign_up_with_long_password() {
-  let sdk = EventIntegrationTest::new();
+  let sdk = EventIntegrationTest::new().await;
   let request = SignUpPayloadPB {
     email: unique_email(),
     name: valid_name(),
@@ -58,7 +58,7 @@ async fn sign_up_with_long_password() {
 #[tokio::test]
 async fn sign_in_with_invalid_email() {
   for email in invalid_email_test_case() {
-    let sdk = EventIntegrationTest::new();
+    let sdk = EventIntegrationTest::new().await;
     let request = SignInPayloadPB {
       email: email.to_string(),
       password: login_password(),
@@ -84,7 +84,7 @@ async fn sign_in_with_invalid_email() {
 #[tokio::test]
 async fn sign_in_with_invalid_password() {
   for password in invalid_password_test_case() {
-    let sdk = EventIntegrationTest::new();
+    let sdk = EventIntegrationTest::new().await;
 
     let request = SignInPayloadPB {
       email: unique_email(),
