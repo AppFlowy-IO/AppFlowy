@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
@@ -53,6 +54,9 @@ GoRouter generateRouter(Widget child) {
         // emoji picker
         _mobileEmojiPickerPageRoute(),
         _mobileImagePickerPageRoute(),
+
+        // code language picker
+        _mobileCodeLanguagePickerPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -225,6 +229,18 @@ GoRoute _mobileImagePickerPageRoute() {
     pageBuilder: (context, state) {
       return const MaterialPage(
         child: MobileImagePickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCodeLanguagePickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileCodeLanguagePickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: MobileCodeLanguagePickerScreen(),
       );
     },
   );

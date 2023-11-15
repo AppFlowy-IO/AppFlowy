@@ -1068,5 +1068,9 @@
     "numberList": "List",
     "quote": "Quote",
     "heading": "Heading {}"
+  },
+  "titleBar": {
+    "pageIcon": "Page icon",
+    "language": "Language"
   }
 }
