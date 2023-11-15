@@ -1,144 +1,57 @@
-import 'dart:collection';
-import 'dart:io';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
+import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_hidden_groups.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
+import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
+import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-
-import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart' hide Card;
-import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../widgets/card/cells/card_cell.dart';
-import '../../widgets/card/card_cell_builder.dart';
-import '../../widgets/row/cell_builder.dart';
-import '../application/board_bloc.dart';
-import '../../widgets/card/card.dart';
-import 'toolbar/board_setting_bar.dart';
-import 'widgets/board_hidden_groups.dart';
-
-class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
-  @override
-  Widget content(
-    BuildContext context,
-    ViewPB view,
-    DatabaseController controller,
-    bool shrinkWrap,
-  ) =>
-      BoardPage(view: view, databaseController: controller);
-
-  @override
-  Widget settingBar(BuildContext context, DatabaseController controller) =>
-      BoardSettingBar(
-        key: _makeValueKey(controller),
-        databaseController: controller,
-      );
-
-  @override
-  Widget settingBarExtension(
-    BuildContext context,
-    DatabaseController controller,
-  ) =>
-      const SizedBox.shrink();
-
-  ValueKey _makeValueKey(DatabaseController controller) =>
-      ValueKey(controller.viewId);
-}
-
-class BoardPage extends StatelessWidget {
-  BoardPage({
-    required this.view,
-    required this.databaseController,
-    this.onEditStateChanged,
-  }) : super(key: ValueKey(view.id));
-
-  final ViewPB view;
-
-  final DatabaseController databaseController;
-
-  /// Called when edit state changed
-  final VoidCallback? onEditStateChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider<BoardBloc>(
-      create: (context) => BoardBloc(
-        view: view,
-        databaseController: databaseController,
-      )..add(const BoardEvent.initial()),
-      child: BlocBuilder<BoardBloc, BoardState>(
-        buildWhen: (p, c) => p.loadingState != c.loadingState,
-        builder: (context, state) => state.loadingState.map(
-          loading: (_) => const Center(
-            child: CircularProgressIndicator.adaptive(),
-          ),
-          finish: (result) => result.successOrFail.fold(
-            (_) => PlatformExtension.isMobile
-                ? MobileBoardContent(
-                    onEditStateChanged: onEditStateChanged,
-                  )
-                : BoardContent(onEditStateChanged: onEditStateChanged),
-            (err) => PlatformExtension.isMobile
-                ? FlowyMobileStateContainer.error(
-                    emoji: '🛸',
-                    title: 'Failed to load board view',
-                    errorMsg: err.toString(),
-                  )
-                : FlowyErrorPage.message(
-                    err.toString(),
-                    howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class BoardContent extends StatefulWidget {
-  const BoardContent({
+//TODO(yijing): refactor for mobile
+class MobileBoardContent extends StatefulWidget {
+  const MobileBoardContent({
     super.key,
     this.onEditStateChanged,
   });
 
-  final VoidCallback? onEditStateChanged;
+  final VoidCallback? onEditStateChanged; //**??? what is this for?
 
   @override
-  State<BoardContent> createState() => _BoardContentState();
+  State<MobileBoardContent> createState() => _MobileBoardContentState();
 }
 
-class _BoardContentState extends State<BoardContent> {
+class _MobileBoardContentState extends State<MobileBoardContent> {
   final renderHook = RowCardRenderHook<String>();
   late final ScrollController scrollController;
   late final AppFlowyBoardScrollController scrollManager;
 
   final config = const AppFlowyBoardConfig(
-    groupBackgroundColor: Color(0xffF7F8FC),
+    groupBackgroundColor: Colors.green,
     headerPadding: EdgeInsets.symmetric(horizontal: 8),
     cardPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+    groupPadding: EdgeInsets.symmetric(horizontal: 4),
+    groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
   );
 
   @override
   void initState() {
     super.initState();
-
+    //mobile may not need this
+    //scroll to bottom when add a new card
     scrollManager = AppFlowyBoardScrollController();
     scrollController = ScrollController();
     renderHook.addSelectOptionHook((options, groupId, _) {
@@ -165,17 +78,14 @@ class _BoardContentState extends State<BoardContent> {
         builder: (context, state) {
           final showCreateGroupButton =
               context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
-          return Padding(
-            padding: const EdgeInsets.only(top: 8.0),
+          return Container(
+            color: Colors.amber,
             child: AppFlowyBoard(
               boardScrollController: scrollManager,
               scrollController: scrollController,
               controller: context.read<BoardBloc>().boardController,
               groupConstraints: const BoxConstraints.tightFor(width: 300),
-              config: const AppFlowyBoardConfig(
-                groupPadding: EdgeInsets.symmetric(horizontal: 4),
-                groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
-              ),
+              config: config,
               leading: HiddenGroupsColumn(margin: config.headerPadding),
               trailing: showCreateGroupButton
                   ? BoardTrailing(scrollController: scrollController)
@@ -200,6 +110,8 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
+  /// when add a new card, it got trigger
+  /// todo refactor
   void _handleEditStateChanged(BoardState state, BuildContext context) {
     if (state.isEditingRow && state.editingRow != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -311,6 +223,7 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
+  //TODO(yijing): connect to card detail PR
   void _openCard({
     required BuildContext context,
     required String viewId,
@@ -338,109 +251,6 @@ class _BoardContentState extends State<BoardContent> {
       builder: (_) => RowDetailPage(
         cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
         rowController: dataController,
-      ),
-    );
-  }
-}
-
-class BoardTrailing extends StatefulWidget {
-  const BoardTrailing({super.key, required this.scrollController});
-
-  final ScrollController scrollController;
-
-  @override
-  State<BoardTrailing> createState() => _BoardTrailingState();
-}
-
-class _BoardTrailingState extends State<BoardTrailing> {
-  final TextEditingController _textController = TextEditingController();
-  late final FocusNode _focusNode;
-
-  bool isEditing = false;
-
-  void _cancelAddNewGroup() {
-    _textController.clear();
-    setState(() => isEditing = false);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = FocusNode(
-      onKeyEvent: (node, event) {
-        if (_focusNode.hasFocus &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
-          _cancelAddNewGroup();
-          return KeyEventResult.handled;
-        }
-        return KeyEventResult.ignored;
-      },
-    )..addListener(() {
-        if (!_focusNode.hasFocus) {
-          _cancelAddNewGroup();
-        }
-      });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // call after every setState
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isEditing) {
-        _focusNode.requestFocus();
-        widget.scrollController.jumpTo(
-          widget.scrollController.position.maxScrollExtent,
-        );
-      }
-    });
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0, top: 12),
-      child: Align(
-        alignment: AlignmentDirectional.topStart,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: isEditing
-              ? SizedBox(
-                  width: 256,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _textController,
-                      focusNode: _focusNode,
-                      decoration: InputDecoration(
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(left: 4, bottom: 8.0),
-                          child: FlowyIconButton(
-                            icon: const FlowySvg(FlowySvgs.close_filled_m),
-                            hoverColor: Colors.transparent,
-                            onPressed: () => _textController.clear(),
-                          ),
-                        ),
-                        suffixIconConstraints:
-                            BoxConstraints.loose(const Size(20, 24)),
-                        border: const UnderlineInputBorder(),
-                        contentPadding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-                        isDense: true,
-                      ),
-                      style: Theme.of(context).textTheme.bodySmall,
-                      maxLines: 1,
-                      onSubmitted: (groupName) => context
-                          .read<BoardBloc>()
-                          .add(BoardEvent.createGroup(groupName)),
-                    ),
-                  ),
-                )
-              : FlowyTooltip(
-                  message: LocaleKeys.board_column_createNewColumn.tr(),
-                  child: FlowyIconButton(
-                    width: 26,
-                    icon: const FlowySvg(FlowySvgs.add_s),
-                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-                    onPressed: () => setState(() => isEditing = true),
-                  ),
-                ),
-        ),
       ),
     );
   }
