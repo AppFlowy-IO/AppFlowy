@@ -79,6 +79,26 @@ class _MobileListMenu extends StatelessWidget {
           const Icon(Icons.note_rounded),
           LocaleKeys.document_plugins_callout.tr(),
         ),
+        _buildListButton(
+          context,
+          CodeBlockKeys.type,
+          const Icon(Icons.abc),
+          LocaleKeys.document_selectionMenu_codeBlock.tr(),
+        ),
+        // code block
+        _buildListButton(
+          context,
+          CodeBlockKeys.type,
+          const Icon(Icons.abc),
+          LocaleKeys.document_selectionMenu_codeBlock.tr(),
+        ),
+        // outline
+        _buildListButton(
+          context,
+          OutlineBlockKeys.type,
+          const Icon(Icons.list_alt),
+          LocaleKeys.document_selectionMenu_outline.tr(),
+        ),
       ],
     );
   }

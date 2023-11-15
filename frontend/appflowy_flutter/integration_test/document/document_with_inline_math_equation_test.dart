@@ -21,7 +21,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        name: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        name: 'math equation',
         layout: ViewLayoutPB.Document,
       );
 
@@ -67,7 +67,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        name: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        name: 'math equation',
         layout: ViewLayoutPB.Document,
       );
 
