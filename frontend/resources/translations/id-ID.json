@@ -753,8 +753,7 @@
   "board": {
     "column": {
       "createNewCard": "Baru",
-      "renameGroupTooltip": "Tekan untuk mengganti nama grup",
-      "create_new_card": "Baru"
+      "renameGroupTooltip": "Tekan untuk mengganti nama grup"
     },
     "menuName": "Papan",
     "showUngrouped": "Tampilkan item yang tidak dikelompokkan",

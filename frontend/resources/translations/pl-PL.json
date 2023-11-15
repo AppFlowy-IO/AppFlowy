@@ -659,7 +659,7 @@
     "menuName": "Tablica",
     "referencedBoardPrefix": "Widok",
     "column": {
-      "create_new_card": "Nowy"
+      "createNewCard": "Nowy"
     }
   },
   "calendar": {
