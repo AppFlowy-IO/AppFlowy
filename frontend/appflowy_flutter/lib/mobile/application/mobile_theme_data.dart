@@ -29,7 +29,7 @@ ThemeData getMobileThemeData(
           onError: const Color(0xffFB006D),
           background: Colors.white,
           onBackground: _onBackgroundColor,
-          outline: const Color(0xffBDC0C5), //caption
+          outline: const Color(0xffe3e3e3),
           outlineVariant: const Color(0xffCBD5E0).withOpacity(0.24),
           //Snack bar
           surface: Colors.white,
@@ -58,8 +58,8 @@ ThemeData getMobileThemeData(
     // color
     primaryColor: mobileColorTheme.primary, //primary 100
     primaryColorLight: const Color(0xFF57B5F8), //primary 80
-    dividerColor: mobileColorTheme.outline, //caption
-    hintColor: mobileColorTheme.outline,
+    dividerColor: mobileColorTheme.outline,
+    hintColor: const Color(0xff96989C), //caption
     disabledColor: mobileColorTheme.outline,
     scaffoldBackgroundColor: mobileColorTheme.background,
     appBarTheme: AppBarTheme(
@@ -72,7 +72,7 @@ ThemeData getMobileThemeData(
         fontWeight: FontWeight.w600,
         letterSpacing: 0.05,
       ),
-      shadowColor: mobileColorTheme.outlineVariant,
+      shadowColor: mobileColorTheme.shadow,
     ),
     radioTheme: RadioThemeData(
       fillColor: MaterialStateProperty.resolveWith((states) {
