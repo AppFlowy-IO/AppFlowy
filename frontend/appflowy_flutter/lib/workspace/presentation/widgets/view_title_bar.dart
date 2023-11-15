@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -210,7 +210,9 @@ class _ViewTitleState extends State<_ViewTitle> {
       return FlowyButton(
         useIntrinsicWidth: true,
         onTap: () {
-          context.read<TabsBloc>().openPlugin(widget.view);
+          context
+              .read<PanesBloc>()
+              .add(OpenPluginInActivePane(plugin: widget.view.plugin()));
         },
         text: child,
       );

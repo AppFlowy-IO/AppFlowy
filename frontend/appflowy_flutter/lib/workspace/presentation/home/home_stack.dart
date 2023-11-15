@@ -47,6 +47,11 @@ class HomeStack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PanesBloc, PanesState>(
+      buildWhen: (previous, current) =>
+          previous.count != current.count ||
+          previous.root != current.root ||
+          previous.allowPaneDrag != current.allowPaneDrag ||
+          previous.firstLeafNode != current.firstLeafNode,
       builder: (context, state) {
         return BlocBuilder<HomeSettingBloc, HomeSettingState>(
           builder: (context, homeState) {

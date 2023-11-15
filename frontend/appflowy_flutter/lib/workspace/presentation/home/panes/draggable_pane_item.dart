@@ -36,11 +36,9 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
       data: widget.pane,
       enableAutoScroll: false,
       feedback: Material(
-        child: IntrinsicWidth(
-          child: Opacity(
-            opacity: 0.5,
-            child: widget.feedback?.call(context) ?? widget.child,
-          ),
+        child: Opacity(
+          opacity: 0.5,
+          child: widget.feedback?.call(context) ?? widget.child,
         ),
       ),
       child: widget.child,

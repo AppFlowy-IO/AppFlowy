@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/panes_layout.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,12 +32,21 @@ class FlowyPaneGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (node.children.isEmpty) {
-      return Listener(
+      final activePaneGestureRecognizerFactory =
+          GestureRecognizerFactoryWithHandlers<AllowMultipleTap>(
+        () => AllowMultipleTap(),
+        (AllowMultipleTap instance) {
+          instance.onTap = () =>
+              context.read<PanesBloc>().add(SetActivePane(activePane: node));
+        },
+      );
+      return RawGestureDetector(
         behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) =>
-            context.read<PanesBloc>().add(SetActivePane(activePane: node)),
+        gestures: {
+          AllowMultipleTap: activePaneGestureRecognizerFactory,
+        },
         child: FlowyPane(
-          key: ValueKey(node.tabsController.tabId),
+          key: ValueKey(node.paneId + node.tabsController.tabId),
           node: node,
           allowPaneDrag: allowPaneDrag,
           delegate: delegate,
@@ -48,7 +58,7 @@ class FlowyPaneGroup extends StatelessWidget {
     }
 
     return BlocProvider(
-      key: ValueKey(node.paneId),
+      key: ValueKey(node.paneId + node.tabsController.tabId),
       create: (context) => PaneNodeCubit(
         node.children.length,
         node.axis == Axis.horizontal
@@ -158,4 +168,9 @@ class FlowyPaneGroup extends StatelessWidget {
       ),
     );
   }
+}
+
+class AllowMultipleTap extends TapGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) => acceptGesture(pointer);
 }

@@ -1,6 +1,4 @@
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
@@ -177,14 +175,6 @@ class _FlowyPaneState extends State<FlowyPane> {
     verticalController.dispose();
     pageController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    if (widget.node != getIt<PanesBloc>().state.activePane) {
-      FocusScope.of(widget.paneContext).unfocus();
-    }
-    super.didChangeDependencies();
   }
 }
 
