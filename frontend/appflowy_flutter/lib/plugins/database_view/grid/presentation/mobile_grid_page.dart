@@ -162,21 +162,22 @@ class _GridPageContentState extends State<GridPageContent> {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
-        final contentWidth = GridLayout.headerWidth(state.fields.fields);
+        final contentWidth = GridLayout.headerWidth(state.fields.fields) + 26;
 
-        return Padding(
-          padding: const EdgeInsets.only(right: 26),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _GridHeader(headerScrollController: headerScrollController),
-              _GridRows(
-                viewId: state.viewId,
-                contentWidth: contentWidth,
-                scrollController: _scrollController,
-              ),
-            ],
-          ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 26.0),
+              child:
+                  _GridHeader(headerScrollController: headerScrollController),
+            ),
+            _GridRows(
+              viewId: state.viewId,
+              contentWidth: contentWidth,
+              scrollController: _scrollController,
+            ),
+          ],
         );
       },
     );
@@ -247,7 +248,6 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
-    // return const SizedBox.shrink();
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context)
           .copyWith(physics: const ClampingScrollPhysics()),
