@@ -291,12 +291,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
               child: editor,
             ),
           ),
-          MobileToolbar(
+          MobileToolbarV2(
             editorState: editorState,
             toolbarItems: [
-              textDecorationMobileToolbarItem,
+              textDecorationMobileToolbarItemV2,
               buildTextAndBackgroundColorMobileToolbarItem(),
-              headingMobileToolbarItem,
               mobileBlocksToolbarItem,
               linkMobileToolbarItem,
               dividerMobileToolbarItem,
