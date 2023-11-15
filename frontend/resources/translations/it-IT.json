@@ -561,7 +561,7 @@
     "menuName": "Asse",
     "referencedBoardPrefix": "Vista di",
     "column": {
-      "create_new_card": "Nuovo"
+      "createNewCard": "Nuovo"
     }
   },
   "calendar": {

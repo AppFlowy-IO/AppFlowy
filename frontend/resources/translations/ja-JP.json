@@ -550,7 +550,7 @@
     "menuName": "ボード",
     "referencedBoardPrefix": "のビュー",
     "column": {
-      "create_new_card": "新しい"
+      "createNewCard": "新しい"
     }
   },
   "calendar": {

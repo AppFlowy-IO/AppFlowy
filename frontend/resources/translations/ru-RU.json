@@ -779,7 +779,7 @@
       "addToColumnTopTooltip": "Добавить новую карту сверху",
       "renameColumn": "Переименовать",
       "hideColumn": "Скрыть",
-      "create_new_card": "Создать новую карту"
+      "createNewCard": "Создать новую карту"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Скрытые группы",
