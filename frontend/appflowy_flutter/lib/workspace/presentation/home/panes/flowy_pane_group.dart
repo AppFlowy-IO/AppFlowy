@@ -1,4 +1,4 @@
-import 'package:appflowy/workspace/application/panes/pane_node_cubit.dart';
+import 'package:appflowy/workspace/application/panes/pane_node_bloc/pane_node_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 
@@ -59,13 +59,13 @@ class FlowyPaneGroup extends StatelessWidget {
 
     return BlocProvider(
       key: ValueKey(node.paneId + node.tabsController.tabId),
-      create: (context) => PaneNodeCubit(
+      create: (context) => PaneNodeBloc(
         node.children.length,
         node.axis == Axis.horizontal
             ? paneLayout.childPaneHeight
             : paneLayout.childPaneWidth,
       ),
-      child: BlocBuilder<PaneNodeCubit, PaneNodeState>(
+      child: BlocBuilder<PaneNodeBloc, PaneNodeState>(
         builder: (context, state) {
           return SizedBox(
             child: LayoutBuilder(
@@ -118,7 +118,7 @@ class FlowyPaneGroup extends StatelessWidget {
       top: paneLayout.childPaneTPosition,
       child: GestureDetector(
         onHorizontalDragUpdate: (details) {
-          context.read<PaneNodeCubit>().add(
+          context.read<PaneNodeBloc>().add(
                 ResizeUpdate(
                   targetIndex: indexNode.$1,
                   offset: details.delta.dx,
@@ -127,7 +127,7 @@ class FlowyPaneGroup extends StatelessWidget {
               );
         },
         onVerticalDragUpdate: (details) {
-          context.read<PaneNodeCubit>().add(
+          context.read<PaneNodeBloc>().add(
                 ResizeUpdate(
                   targetIndex: indexNode.$1,
                   offset: details.delta.dy,

@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'pane_node_cubit.freezed.dart';
+part 'pane_node_bloc.freezed.dart';
 
-class PaneNodeCubit extends Bloc<PaneNodeEvent, PaneNodeState> {
-  PaneNodeCubit(int length, double size)
+class PaneNodeBloc extends Bloc<PaneNodeEvent, PaneNodeState> {
+  PaneNodeBloc(int length, double size)
       : super(PaneNodeState.initial(length: length, size: size)) {
     on<PaneNodeEvent>(
       (event, emit) {

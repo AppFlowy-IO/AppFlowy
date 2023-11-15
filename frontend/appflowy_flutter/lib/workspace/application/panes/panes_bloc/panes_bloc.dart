@@ -100,14 +100,14 @@ class PanesBloc extends Bloc<PanesEvent, PanesState> {
           movePane: (e) {
             final direction = [
               FlowyDraggableHoverPosition.top,
-              FlowyDraggableHoverPosition.left
+              FlowyDraggableHoverPosition.left,
             ].contains(e.position)
                 ? Direction.back
                 : Direction.front;
 
             final axis = [
               FlowyDraggableHoverPosition.left,
-              FlowyDraggableHoverPosition.right
+              FlowyDraggableHoverPosition.right,
             ].contains(e.position)
                 ? Axis.vertical
                 : Axis.horizontal;

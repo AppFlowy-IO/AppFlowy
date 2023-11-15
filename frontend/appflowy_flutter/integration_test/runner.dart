@@ -23,11 +23,7 @@ import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'tabs/tabs_test.dart' as tabs_test;
 import 'empty_test.dart' as first_test;
 import 'hotkeys_test.dart' as hotkeys_test;
-import 'import_files_test.dart' as import_files_test;
 import 'settings/settings_runner.dart' as settings_test_runner;
-import 'share_markdown_test.dart' as share_markdown_test;
-import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
-import 'switch_folder_test.dart' as switch_folder_test;
 import 'panes/panes_test.dart' as panes_test;
 import 'panes/panes_overlay_test.dart' as panes_overlay_test;
 
