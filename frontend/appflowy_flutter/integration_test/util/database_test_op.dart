@@ -1381,13 +1381,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(unscheduledEvent);
   }
 
-  Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {
+  Future<void> tapCreateLinkedDatabaseViewButton(
+    DatabaseLayoutPB layoutType,
+  ) async {
     final findAddButton = find.byType(AddDatabaseViewButton);
     await tapButton(findAddButton);
 
     final findCreateButton = find.byWidgetPredicate(
       (widget) =>
-          widget is TabBarAddButtonActionCell && widget.action == action,
+          widget is TabBarAddButtonActionCell && widget.action == layoutType,
     );
     await tapButton(findCreateButton);
   }
@@ -1554,7 +1556,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> selectDatabaseLayoutType(DatabaseLayoutPB layout) async {
     final findLayoutCell = find.byType(DatabaseViewLayoutCell);
     final findText = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.text == layout.layoutName(),
+      (widget) => widget is FlowyText && widget.text == layout.layoutName,
     );
 
     final button = find.descendant(

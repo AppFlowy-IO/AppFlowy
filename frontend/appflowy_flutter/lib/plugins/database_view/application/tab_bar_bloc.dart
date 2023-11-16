@@ -1,8 +1,9 @@
-import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:equatable/equatable.dart';
@@ -49,8 +50,8 @@ class DatabaseTabBarBloc
               );
             }
           },
-          createView: (action) {
-            _createLinkedView(action.name, action.layoutType);
+          createView: (layout) {
+            _createLinkedView(layout.layoutType, layout.layoutName);
           },
           deleteView: (String viewId) async {
             final result = await ViewBackendService.delete(viewId: viewId);
@@ -164,7 +165,7 @@ class DatabaseTabBarBloc
     return tabBarControllerByViewId;
   }
 
-  Future<void> _createLinkedView(String name, ViewLayoutPB layoutType) async {
+  Future<void> _createLinkedView(ViewLayoutPB layoutType, String name) async {
     final viewId = state.parentView.id;
     final databaseIdOrError =
         await DatabaseViewBackendService(viewId: viewId).getDatabaseId();
@@ -208,7 +209,7 @@ class DatabaseTabBarEvent with _$DatabaseTabBarEvent {
     List<ViewPB> childViews,
   ) = _DidLoadChildViews;
   const factory DatabaseTabBarEvent.selectView(String viewId) = _DidSelectView;
-  const factory DatabaseTabBarEvent.createView(AddButtonAction action) =
+  const factory DatabaseTabBarEvent.createView(DatabaseLayoutPB layout) =
       _CreateView;
   const factory DatabaseTabBarEvent.renameView(String viewId, String newName) =
       _RenameView;

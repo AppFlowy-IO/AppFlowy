@@ -121,9 +121,9 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
               ),
             ),
             AddDatabaseViewButton(
-              onTap: (action) async {
+              onTap: (layoutType) async {
                 context.read<DatabaseTabBarBloc>().add(
-                      DatabaseTabBarEvent.createView(action),
+                      DatabaseTabBarEvent.createView(layoutType),
                     );
               },
             ),
