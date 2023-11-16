@@ -26,17 +26,18 @@ function LinkInline({
   const dispatch = useAppDispatch();
 
   const onClick = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       if (!ref.current) return;
       const selection = getSelection(ref.current);
 
       if (!selection) return;
       const rect = ref.current?.getBoundingClientRect();
+
       if (!rect) return;
       e.stopPropagation();
       e.preventDefault();
 
-      dispatch(
+      await dispatch(
         createTemporary({
           docId,
           state: {

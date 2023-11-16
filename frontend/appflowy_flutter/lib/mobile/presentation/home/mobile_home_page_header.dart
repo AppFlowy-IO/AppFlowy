@@ -66,7 +66,7 @@ class MobileHomePageHeader extends StatelessWidget {
                       icon: const Icon(
                         Icons.arrow_drop_down,
                       ),
-                    )
+                    ),
                   ],
                 ),
                 FlowyText.regular(
@@ -76,7 +76,7 @@ class MobileHomePageHeader extends StatelessWidget {
                   fontSize: 12,
                   color: theme.colorScheme.onSurface,
                   overflow: TextOverflow.ellipsis,
-                )
+                ),
               ],
             ),
           ),
@@ -87,7 +87,7 @@ class MobileHomePageHeader extends StatelessWidget {
             icon: const FlowySvg(
               FlowySvgs.m_setting_m,
             ),
-          )
+          ),
         ],
       ),
     );

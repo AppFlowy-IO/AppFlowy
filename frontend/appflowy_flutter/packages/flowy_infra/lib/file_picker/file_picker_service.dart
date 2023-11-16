@@ -1,7 +1,7 @@
+import 'package:file_picker/file_picker.dart';
+
 export 'package:file_picker/file_picker.dart'
     show FileType, FilePickerStatus, PlatformFile;
-
-import 'package:file_picker/file_picker.dart';
 
 class FilePickerResult {
   const FilePickerResult(this.files);

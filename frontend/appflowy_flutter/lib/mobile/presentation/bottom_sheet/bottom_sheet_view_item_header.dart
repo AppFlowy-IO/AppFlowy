@@ -1,6 +1,6 @@
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MobileViewItemBottomSheetHeader extends StatelessWidget {
   const MobileViewItemBottomSheetHeader({
@@ -16,8 +16,8 @@ class MobileViewItemBottomSheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // back button,
         showBackButton
@@ -31,14 +31,23 @@ class MobileViewItemBottomSheetHeader extends StatelessWidget {
                   ),
                 ),
               )
-            : const HSpace(40.0),
+            : const SizedBox.shrink(),
         // title
-        FlowyText.regular(
-          view.name,
-          fontSize: 16.0,
+        Expanded(
+          child: Text(
+            view.name,
+            style: theme.textTheme.labelSmall,
+          ),
         ),
-        // placeholder, ensure the title is centered
-        const HSpace(40.0),
+        IconButton(
+          icon: Icon(
+            Icons.close,
+            color: theme.hintColor,
+          ),
+          onPressed: () {
+            context.pop();
+          },
+        ),
       ],
     );
   }

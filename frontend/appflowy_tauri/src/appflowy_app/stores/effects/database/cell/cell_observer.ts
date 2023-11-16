@@ -29,6 +29,7 @@ export class CellObserver {
             } else {
               this.notifier?.notify(result);
             }
+
             return;
           default:
             break;

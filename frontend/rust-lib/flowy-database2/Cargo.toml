@@ -14,37 +14,37 @@ flowy-database-deps = { workspace = true }
 
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-notification  = { workspace = true }
-parking_lot = "0.12.1"
-protobuf = {version = "2.28.0"}
+parking_lot.workspace = true
+protobuf.workspace = true
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_collab"]}
 lib-dispatch = { workspace = true }
-tokio = { version = "1.26", features = ["sync"] }
+tokio = { workspace = true, features = ["sync"] }
 flowy-task= { workspace = true }
-bytes = { version = "1.5" }
-tracing = { version = "0.1", features = ["log"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = {version = "1.0"}
-serde_repr = "0.1"
+bytes.workspace = true
+tracing.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_repr.workspace = true
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
+chrono = { workspace = true,  default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"
 rusty-money = {version = "0.4.1", features = ["iso"]}
 lazy_static = "1.4.0"
 indexmap = {version = "1.9.2", features = ["serde"]}
 url = { version = "2"}
 fancy-regex = "0.11.0"
-futures = "0.3.26"
+futures.workspace = true
 dashmap = "5"
-anyhow = "1.0"
+anyhow.workspace = true
 async-stream = "0.3.4"
 rayon = "1.6.1"
 nanoid = "0.4.0"
-async-trait = "0.1.73"
+async-trait.workspace = true
 chrono-tz = "0.8.2"
 csv = "1.1.6"
-
 strum = "0.25"
 strum_macros = "0.25"
+lru.workspace = true
 
 [dev-dependencies]
 event-integration = { path = "../event-integration", default-features = false }

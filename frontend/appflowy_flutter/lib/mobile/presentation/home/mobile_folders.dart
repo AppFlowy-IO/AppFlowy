@@ -29,12 +29,12 @@ class MobileFolders extends StatelessWidget {
         BlocProvider(
           create: (_) => MenuBloc(
             user: user,
-            workspace: workspaceSetting.workspace,
+            workspaceId: workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
         BlocProvider(
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
-        )
+        ),
       ],
       child: MultiBlocListener(
         listeners: [

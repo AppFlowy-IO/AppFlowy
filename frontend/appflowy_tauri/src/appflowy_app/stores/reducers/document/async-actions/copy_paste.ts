@@ -9,7 +9,7 @@ export const copyThunk = createAsyncThunk<
     controller: DocumentController;
     setClipboardData: (data: BlockCopyData) => void;
   }
->('document/copy', async (payload, thunkAPI) => {
+>('document/copy', async () => {
   // TODO: Migrate to Rust implementation.
 });
 
@@ -29,6 +29,6 @@ export const pasteThunk = createAsyncThunk<
     data: BlockCopyData;
     controller: DocumentController;
   }
->('document/paste', async (payload, thunkAPI) => {
+>('document/paste', async () => {
   // TODO: Migrate to Rust implementation.
 });

@@ -4,15 +4,18 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,13 +25,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'emoji.dart';
 import 'util.dart';
 
 extension CommonOperations on WidgetTester {
   /// Tap the GetStart button on the launch page.
   Future<void> tapGoButton() async {
+    // local version
     final goButton = find.byType(GoButton);
-    await tapButton(goButton);
+    if (goButton.evaluate().isNotEmpty) {
+      await tapButton(goButton);
+    } else {
+      // cloud version
+      final anonymousButton = find.byType(SignInAnonymousButton);
+      await tapButton(anonymousButton);
+    }
 
     if (Platform.isWindows) {
       await pumpAndSettle(const Duration(milliseconds: 200));
@@ -433,6 +444,47 @@ extension CommonOperations on WidgetTester {
       (widget) => widget is FlowySvg && widget.svg.path == svg.path,
     );
     await tapButton(button);
+  }
+
+  // update the page icon in the sidebar
+  Future<void> updatePageIconInSidebarByName({
+    required String name,
+    required String parentName,
+    required ViewLayoutPB layout,
+    required String icon,
+  }) async {
+    final iconButton = find.descendant(
+      of: findPageName(
+        name,
+        layout: layout,
+        parentName: parentName,
+      ),
+      matching:
+          find.byTooltip(LocaleKeys.document_plugins_cover_changeIcon.tr()),
+    );
+    await tapButton(iconButton);
+    await tapEmoji(icon);
+    await pumpAndSettle();
+  }
+
+  // update the page icon in the sidebar
+  Future<void> updatePageIconInTitleBarByName({
+    required String name,
+    required ViewLayoutPB layout,
+    required String icon,
+  }) async {
+    await openPage(
+      name,
+      layout: layout,
+    );
+    final title = find.descendant(
+      of: find.byType(ViewTitleBar),
+      matching: find.text(name),
+    );
+    await tapButton(title);
+    await tapButton(find.byType(EmojiPickerButton));
+    await tapEmoji(icon);
+    await pumpAndSettle();
   }
 }
 

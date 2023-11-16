@@ -159,9 +159,7 @@
     "editContact": "Kişiyi Düzenle"
   },
   "button": {
-    "OK": "TAMAM",
-    "Done": "Tamamlamak",
-    "Cancel": "İptal",
+    "done": "Tamamlamak",
     "signIn": "Oturum Aç",
     "signOut": "Oturum Kapat",
     "complete": "Tamamlandı",
@@ -177,8 +175,10 @@
     "edit": "Düzenlemek",
     "delete": "Silmek",
     "duplicate": "Kopyalamak",
-    "done": "Tamamlamak",
-    "putback": "Geri koy"
+    "putback": "Geri koy",
+    "OK": "TAMAM",
+    "Done": "Tamamlamak",
+    "Cancel": "İptal"
   },
   "label": {
     "welcome": "Merhaba!",
@@ -546,11 +546,11 @@
     }
   },
   "board": {
+    "menuName": "Pano",
+    "referencedBoardPrefix": "görünümü",
     "column": {
       "create_new_card": "Yeni"
-    },
-    "menuName": "Pano",
-    "referencedBoardPrefix": "görünümü"
+    }
   },
   "calendar": {
     "menuName": "Takvim",
@@ -567,9 +567,9 @@
       "firstDayOfWeek": "hafta başla",
       "layoutDateField": "Yerleşim takvimi",
       "noDateTitle": "Tarih yok",
-      "noDateHint": "Planlanmamış etkinlikler burada gösterilir",
       "clickToAdd": "Takvime eklemek için tıklayın",
-      "name": "Takvim düzeni"
+      "name": "Takvim düzeni",
+      "noDateHint": "Planlanmamış etkinlikler burada gösterilir"
     },
     "referencedCalendarPrefix": "görünümü"
   },

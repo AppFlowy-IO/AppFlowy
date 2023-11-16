@@ -70,7 +70,7 @@ class FlowyIconButton extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
           fillColor: fillColor,
-          hoverColor: hoverColor,
+          hoverColor: Colors.transparent,
           focusColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
@@ -79,17 +79,15 @@ class FlowyIconButton extends StatelessWidget {
           child: FlowyHover(
             isSelected: isSelected != null ? () => isSelected! : null,
             style: HoverStyle(
-              // hoverColor is set in both [HoverStyle] and [RawMaterialButton] to avoid the conflicts between two layers
               hoverColor: hoverColor,
               foregroundColorOnHover:
                   iconColorOnHover ?? Theme.of(context).iconTheme.color,
               //Do not set background here. Use [fillColor] instead.
             ),
+            resetHoverOnRebuild: false,
             child: Padding(
               padding: iconPadding,
-              child: Center(
-                child: child,
-              ),
+              child: Center(child: child),
             ),
           ),
         ),
@@ -99,11 +97,9 @@ class FlowyIconButton extends StatelessWidget {
 }
 
 class FlowyDropdownButton extends StatelessWidget {
+  const FlowyDropdownButton({super.key, this.onPressed});
+
   final VoidCallback? onPressed;
-  const FlowyDropdownButton({
-    Key? key,
-    this.onPressed,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

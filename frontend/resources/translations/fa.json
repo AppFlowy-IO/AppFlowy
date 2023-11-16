@@ -175,9 +175,7 @@
     "editContact": "ویرایش مخاطب"
   },
   "button": {
-    "OK": "باشه",
-    "Done": "انجام شد",
-    "Cancel": "لغو",
+    "done": "انجام شد",
     "signIn": "ورود",
     "signOut": "خروج",
     "complete": "کامل شد",
@@ -193,8 +191,10 @@
     "edit": "ویرایش",
     "delete": "حذف کردن",
     "duplicate": "تکرار کردن",
-    "done": "انجام شد",
-    "putback": "بازگشت"
+    "putback": "بازگشت",
+    "OK": "باشه",
+    "Done": "انجام شد",
+    "Cancel": "لغو"
   },
   "label": {
     "welcome": "خوش آمدید!",
@@ -593,11 +593,11 @@
     }
   },
   "board": {
+    "menuName": "بورد",
+    "referencedBoardPrefix": "نمای",
     "column": {
       "create_new_card": "ایجاد"
-    },
-    "menuName": "بورد",
-    "referencedBoardPrefix": "نمای"
+    }
   },
   "calendar": {
     "menuName": "تقویم",
@@ -614,9 +614,9 @@
       "firstDayOfWeek": "شروع هفته در",
       "layoutDateField": "طرح‌بندی تقویم با",
       "noDateTitle": "بدون تاریخ",
-      "noDateHint": "رویدادهای برنامه‌ریزی نشده در اینجا نشان داده می‌شوند",
       "clickToAdd": "برای افزودن به تقویم کلیک کنید",
-      "name": "طرح‌بندی تقویم"
+      "name": "طرح‌بندی تقویم",
+      "noDateHint": "رویدادهای برنامه‌ریزی نشده در اینجا نشان داده می‌شوند"
     },
     "referencedCalendarPrefix": "نمای"
   },

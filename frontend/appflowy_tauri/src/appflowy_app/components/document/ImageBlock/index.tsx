@@ -20,7 +20,7 @@ function ImageBlock({ node }: { node: NestedBlock<BlockType.ImageBlock> }) {
     ({ onClose }: { onClose: () => void }) => {
       const onSubmitUrl = (url: string) => {
         if (!url) return;
-        dispatch(
+        void dispatch(
           updateNodeDataThunk({
             id,
             data: {
@@ -77,4 +77,4 @@ function ImageBlock({ node }: { node: NestedBlock<BlockType.ImageBlock> }) {
   );
 }
 
-export default ImageBlock;
+export default React.memo(ImageBlock);

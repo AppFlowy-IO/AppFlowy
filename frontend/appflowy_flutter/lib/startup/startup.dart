@@ -75,7 +75,7 @@ class FlowyRunner {
           InitSupabaseTask(),
           InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
-          const InitPlatformServiceTask()
+          const InitPlatformServiceTask(),
         ],
       ],
     );

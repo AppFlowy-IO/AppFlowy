@@ -4,6 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'field_info.dart';
 import 'field_service.dart';
 
 part 'field_action_sheet_bloc.freezed.dart';
@@ -14,17 +15,18 @@ class FieldActionSheetBloc
   final FieldBackendService fieldService;
   final FieldSettingsBackendService fieldSettingsService;
 
-  FieldActionSheetBloc({required FieldContext fieldCellContext})
-      : fieldId = fieldCellContext.fieldInfo.id,
+  FieldActionSheetBloc({
+    required String viewId,
+    required FieldInfo fieldInfo,
+  })  : fieldId = fieldInfo.id,
         fieldService = FieldBackendService(
-          viewId: fieldCellContext.viewId,
-          fieldId: fieldCellContext.fieldInfo.id,
+          viewId: viewId,
+          fieldId: fieldInfo.id,
         ),
-        fieldSettingsService =
-            FieldSettingsBackendService(viewId: fieldCellContext.viewId),
+        fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
         super(
           FieldActionSheetState.initial(
-            TypeOptionPB.create()..field_2 = fieldCellContext.fieldInfo.field,
+            TypeOptionPB.create()..field_2 = fieldInfo.field,
           ),
         ) {
     on<FieldActionSheetEvent>(

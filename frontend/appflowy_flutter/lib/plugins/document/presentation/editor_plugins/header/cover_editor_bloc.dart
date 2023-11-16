@@ -102,7 +102,7 @@ class ChangeCoverPopoverBloc
     transaction.updateNode(node, {
       DocumentHeaderBlockKeys.coverType: CoverType.none.toString(),
       DocumentHeaderBlockKeys.icon:
-          node.attributes[DocumentHeaderBlockKeys.icon]
+          node.attributes[DocumentHeaderBlockKeys.icon],
     });
     return editorState.apply(transaction);
   }

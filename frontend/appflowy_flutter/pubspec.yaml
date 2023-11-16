@@ -15,10 +15,10 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.3.7
+version: 0.3.8
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.1.5 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -43,8 +43,12 @@ dependencies:
     # path: packages/appflowy_board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 6aba8dd
-  appflowy_editor: ^1.5.0
+      ref: 2de4fe0
+  appflowy_editor:
+    git:
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: 4f073f3
+
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -107,6 +111,10 @@ dependencies:
   go_router: ^10.1.2
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
+  flutter_emoji_mart:
+    git:
+      url: https://github.com/LucasXu0/emoji_mart.git
+      ref: "140b530"
 
   # Notifications
   # TODO: Consider implementing custom package
@@ -114,6 +122,9 @@ dependencies:
   local_notifier: ^0.1.5
   app_links: ^3.4.1
   flutter_slidable: ^3.0.0
+  image_picker: ^1.0.4
+  image_gallery_saver: ^2.0.3
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -192,6 +203,11 @@ flutter:
           weight: 800
         - asset: assets/google_fonts/Poppins/Poppins-ExtraBold.ttf
           weight: 900
+    - family: RobotoMono
+      fonts:
+        - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Regular.ttf
+        - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Italic.ttf
+          style: italic
 
   # To add assets to your application, add an assets section, like this:
   assets:

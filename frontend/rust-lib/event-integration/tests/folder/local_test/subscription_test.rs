@@ -17,7 +17,7 @@ use crate::util::receive_with_timeout;
 /// 6. Ensure that the received views contain the newly created "test_view".
 async fn create_child_view_in_workspace_subscription_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
-  let workspace = test.get_current_workspace().await.workspace;
+  let workspace = test.get_current_workspace().await;
   let rx = test
     .notification_sender
     .subscribe::<RepeatedViewPB>(&workspace.id, FolderNotification::DidUpdateWorkspaceViews);
@@ -41,7 +41,7 @@ async fn create_child_view_in_workspace_subscription_test() {
 #[tokio::test]
 async fn create_child_view_in_view_subscription_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
-  let mut workspace = test.get_current_workspace().await.workspace;
+  let mut workspace = test.get_current_workspace().await;
   let workspace_child_view = workspace.views.pop().unwrap();
   let rx = test.notification_sender.subscribe::<ChildViewUpdatePB>(
     &workspace_child_view.id,
@@ -73,7 +73,7 @@ async fn create_child_view_in_view_subscription_test() {
 #[tokio::test]
 async fn delete_view_subscription_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
-  let workspace = test.get_current_workspace().await.workspace;
+  let workspace = test.get_current_workspace().await;
   let rx = test
     .notification_sender
     .subscribe::<ChildViewUpdatePB>(&workspace.id, FolderNotification::DidUpdateChildViews);
@@ -104,7 +104,7 @@ async fn delete_view_subscription_test() {
 #[tokio::test]
 async fn update_view_subscription_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
-  let mut workspace = test.get_current_workspace().await.workspace;
+  let mut workspace = test.get_current_workspace().await;
   let rx = test
     .notification_sender
     .subscribe::<ChildViewUpdatePB>(&workspace.id, FolderNotification::DidUpdateChildViews);

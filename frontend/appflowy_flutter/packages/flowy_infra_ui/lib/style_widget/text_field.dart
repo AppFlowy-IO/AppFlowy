@@ -22,6 +22,11 @@ class FlowyTextField extends StatefulWidget {
   final String? errorText;
   final int maxLines;
   final bool showCounter;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final BoxConstraints? prefixIconConstraints;
+  final BoxConstraints? suffixIconConstraints;
+  final BoxConstraints? hintTextConstraints;
 
   const FlowyTextField({
     super.key,
@@ -42,6 +47,11 @@ class FlowyTextField extends StatefulWidget {
     this.errorText,
     this.maxLines = 1,
     this.showCounter = true,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.prefixIconConstraints,
+    this.suffixIconConstraints,
+    this.hintTextConstraints,
   });
 
   @override
@@ -55,6 +65,8 @@ class FlowyTextFieldState extends State<FlowyTextField> {
 
   @override
   void initState() {
+    super.initState();
+
     focusNode = widget.focusNode ?? FocusNode();
     focusNode.addListener(notifyDidEndEditing);
 
@@ -66,11 +78,13 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     if (widget.autoFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
-        controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: controller.text.length));
+        if (widget.controller == null) {
+          controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length),
+          );
+        }
       });
     }
-    super.initState();
   }
 
   void _debounceOnChangedText(Duration duration, String text) {
@@ -109,14 +123,22 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       },
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
+      minLines: 1,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
+      textAlignVertical: TextAlignVertical.center,
+      keyboardType: TextInputType.multiline,
       decoration: InputDecoration(
-        constraints: BoxConstraints(
-            maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        constraints: widget.hintTextConstraints ??
+            BoxConstraints(
+              maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58,
+            ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: widget.maxLines > 1 ? 12 : 0,
+        ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.outline,
@@ -158,6 +180,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           ),
           borderRadius: Corners.s8Border,
         ),
+        prefixIcon: widget.prefixIcon,
+        suffixIcon: widget.suffixIcon,
+        prefixIconConstraints: widget.prefixIconConstraints,
+        suffixIconConstraints: widget.suffixIconConstraints,
       ),
     );
   }

@@ -33,7 +33,7 @@ class SettingsNotificationsView extends StatelessWidget {
                           .read<NotificationSettingsCubit>()
                           .toggleNotificationsEnabled();
                     },
-                  )
+                  ),
                 ],
               ),
             ],

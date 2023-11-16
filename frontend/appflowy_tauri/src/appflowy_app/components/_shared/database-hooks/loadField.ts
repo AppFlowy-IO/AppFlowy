@@ -1,9 +1,8 @@
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
 import { IDatabaseField, ISelectOption } from '$app_reducers/database/slice';
-import { ChecklistTypeOptionPB, FieldType, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB } from '@/services/backend';
+import { FieldType, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB } from '@/services/backend';
 import {
-  makeChecklistTypeOptionContext,
   makeDateTypeOptionContext,
   makeMultiSelectTypeOptionContext,
   makeNumberTypeOptionContext,
@@ -32,9 +31,11 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
           if (dispatch) {
             dispatch(boardActions.setGroupingFieldId({ fieldId: field.id }));
           }
+
           groupingFieldSelected = true;
         }
       }
+
       if (field.field_type === FieldType.MultiSelect) {
         typeOption = (await makeMultiSelectTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
       }
@@ -63,6 +64,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
 
     case FieldType.Number: {
       const typeOption = (await makeNumberTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
+
       return {
         fieldId: field.id,
         title: field.name,
@@ -77,6 +79,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
 
     case FieldType.DateTime: {
       const typeOption = (await makeDateTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
+
       return {
         fieldId: field.id,
         title: field.name,

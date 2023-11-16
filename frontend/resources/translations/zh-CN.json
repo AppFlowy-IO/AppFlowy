@@ -159,9 +159,7 @@
     "editContact": "编辑联系人"
   },
   "button": {
-    "OK": "确认",
-    "Done": "完成",
-    "Cancel": "取消",
+    "done": "完毕",
     "signIn": "登录",
     "signOut": "登出",
     "complete": "完成",
@@ -177,8 +175,10 @@
     "edit": "编辑",
     "delete": "删除",
     "duplicate": "复制",
-    "done": "完毕",
-    "putback": "放回去"
+    "putback": "放回去",
+    "OK": "确认",
+    "Done": "完成",
+    "Cancel": "取消"
   },
   "label": {
     "welcome": "欢迎!",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
+    "menuName": "看板",
+    "referencedBoardPrefix": "视图",
     "column": {
       "create_new_card": "新建"
-    },
-    "menuName": "看板",
-    "referencedBoardPrefix": "视图"
+    }
   },
   "calendar": {
     "menuName": "日历",
@@ -568,9 +568,9 @@
       "firstDayOfWeek": "一周开始于",
       "layoutDateField": "以……为日历布局",
       "noDateTitle": "没有日期",
-      "noDateHint": "计划外事件将显示在此处",
       "clickToAdd": "单击以添加到日历",
-      "name": "日历布局"
+      "name": "日历布局",
+      "noDateHint": "计划外事件将显示在此处"
     },
     "referencedCalendarPrefix": "视图"
   },

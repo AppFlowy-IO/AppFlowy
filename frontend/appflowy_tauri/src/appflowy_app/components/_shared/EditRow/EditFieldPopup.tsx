@@ -59,6 +59,7 @@ export const EditFieldPopup = ({
   const save = async () => {
     if (!controller) return;
     const fieldInfo = controller.fieldController.getField(cellIdentifier.fieldId);
+
     if (!fieldInfo) return;
     const typeOptionController = new TypeOptionController(viewId, Some(fieldInfo));
 

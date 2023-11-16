@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,6 +29,10 @@ class EditorStyleCustomizer {
     }
     throw UnimplementedError();
   }
+
+  static EdgeInsets get documentPadding => PlatformExtension.isMobile
+      ? const EdgeInsets.only(left: 20, right: 20)
+      : const EdgeInsets.only(left: 40, right: 40 + 44);
 
   EditorStyle desktop() {
     final theme = Theme.of(context);
@@ -127,7 +132,7 @@ class EditorStyleCustomizer {
       fontSize + 8,
       fontSize + 4,
       fontSize + 2,
-      fontSize
+      fontSize,
     ];
     return TextStyle(
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
@@ -175,7 +180,7 @@ class EditorStyleCustomizer {
       backgroundColor: theme.cardColor,
       groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
       menuItemTextColor: theme.colorScheme.onBackground,
-      menuItemSelectedColor: theme.hoverColor,
+      menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );
   }
@@ -257,6 +262,19 @@ class EditorStyleCustomizer {
           formula: formula,
           textStyle: style().textStyleConfiguration.text,
         ),
+      );
+    }
+
+    // customize the link on mobile
+    final href = attributes[AppFlowyRichTextKeys.href] as String?;
+    if (PlatformExtension.isMobile && href != null) {
+      return TextSpan(
+        style: textSpan.style,
+        text: text.text,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            safeLaunchUrl(href);
+          },
       );
     }
 

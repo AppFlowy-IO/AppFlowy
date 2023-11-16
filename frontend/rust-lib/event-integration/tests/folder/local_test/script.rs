@@ -1,4 +1,4 @@
-use collab_folder::core::ViewLayout;
+use collab_folder::ViewLayout;
 
 use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
@@ -7,14 +7,15 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent::*;
 
 pub enum FolderScript {
-  // Workspace
-  ReadAllWorkspaces,
+  #[allow(dead_code)]
   CreateWorkspace {
     name: String,
     desc: String,
   },
+  #[allow(dead_code)]
   AssertWorkspace(WorkspacePB),
-  ReadWorkspace(Option<String>),
+  #[allow(dead_code)]
+  ReadWorkspace(String),
 
   // App
   CreateParentView {
@@ -65,7 +66,6 @@ pub enum FolderScript {
 
 pub struct FolderTest {
   pub sdk: EventIntegrationTest,
-  pub all_workspace: Vec<WorkspacePB>,
   pub workspace: WorkspacePB,
   pub parent_view: ViewPB,
   pub child_view: ViewPB,
@@ -77,8 +77,15 @@ impl FolderTest {
   pub async fn new() -> Self {
     let sdk = EventIntegrationTest::new().await;
     let _ = sdk.init_anon_user().await;
-    let workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
-    let parent_view = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
+    let workspace = sdk.folder_manager.get_current_workspace().await.unwrap();
+    let parent_view = create_view(
+      &sdk,
+      &workspace.id,
+      "Folder App",
+      "Folder test app",
+      ViewLayout::Document,
+    )
+    .await;
     let view = create_view(
       &sdk,
       &parent_view.id,
@@ -89,7 +96,6 @@ impl FolderTest {
     .await;
     Self {
       sdk,
-      all_workspace: vec![],
       workspace,
       parent_view,
       child_view: view,
@@ -107,10 +113,6 @@ impl FolderTest {
   pub async fn run_script(&mut self, script: FolderScript) {
     let sdk = &self.sdk;
     match script {
-      FolderScript::ReadAllWorkspaces => {
-        let all_workspace = read_workspace(sdk, None).await;
-        self.all_workspace = all_workspace;
-      },
       FolderScript::CreateWorkspace { name, desc } => {
         let workspace = create_workspace(sdk, &name, &desc).await;
         self.workspace = workspace;
@@ -119,11 +121,11 @@ impl FolderTest {
         assert_eq!(self.workspace, workspace, "Workspace not equal");
       },
       FolderScript::ReadWorkspace(workspace_id) => {
-        let workspace = read_workspace(sdk, workspace_id).await.pop().unwrap();
+        let workspace = read_workspace(sdk, workspace_id).await;
         self.workspace = workspace;
       },
       FolderScript::CreateParentView { name, desc } => {
-        let app = create_app(sdk, &self.workspace.id, &name, &desc).await;
+        let app = create_view(sdk, &self.workspace.id, &name, &desc, ViewLayout::Document).await;
         self.parent_view = app;
       },
       FolderScript::AssertParentView(app) => {
@@ -215,70 +217,27 @@ pub async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str
     .parse::<WorkspacePB>()
 }
 
-pub async fn read_workspace(
-  sdk: &EventIntegrationTest,
-  workspace_id: Option<String>,
-) -> Vec<WorkspacePB> {
+pub async fn read_workspace(sdk: &EventIntegrationTest, workspace_id: String) -> WorkspacePB {
   let request = WorkspaceIdPB {
     value: workspace_id,
   };
-  let repeated_workspace = EventBuilder::new(sdk.clone())
-    .event(ReadAllWorkspaces)
+  EventBuilder::new(sdk.clone())
+    .event(ReadCurrentWorkspace)
     .payload(request.clone())
     .async_send()
     .await
-    .parse::<RepeatedWorkspacePB>();
-
-  let workspaces;
-  if let Some(workspace_id) = &request.value {
-    workspaces = repeated_workspace
-      .items
-      .into_iter()
-      .filter(|workspace| &workspace.id == workspace_id)
-      .collect::<Vec<WorkspacePB>>();
-    debug_assert_eq!(workspaces.len(), 1);
-  } else {
-    workspaces = repeated_workspace.items;
-  }
-
-  workspaces
-}
-
-pub async fn create_app(
-  sdk: &EventIntegrationTest,
-  workspace_id: &str,
-  name: &str,
-  desc: &str,
-) -> ViewPB {
-  let create_view_request = CreateViewPayloadPB {
-    parent_view_id: workspace_id.to_owned(),
-    name: name.to_string(),
-    desc: desc.to_string(),
-    thumbnail: None,
-    layout: ViewLayout::Document.into(),
-    initial_data: vec![],
-    meta: Default::default(),
-    set_as_current: true,
-    index: None,
-  };
-
-  EventBuilder::new(sdk.clone())
-    .event(CreateView)
-    .payload(create_view_request)
-    .async_send()
-    .await
-    .parse::<ViewPB>()
+    .parse::<WorkspacePB>()
 }
 
 pub async fn create_view(
   sdk: &EventIntegrationTest,
-  app_id: &str,
+  parent_view_id: &str,
   name: &str,
   desc: &str,
   layout: ViewLayout,
 ) -> ViewPB {
   let request = CreateViewPayloadPB {
-    parent_view_id: app_id.to_string(),
+    parent_view_id: parent_view_id.to_string(),
     name: name.to_string(),
     desc: desc.to_string(),
     thumbnail: None,

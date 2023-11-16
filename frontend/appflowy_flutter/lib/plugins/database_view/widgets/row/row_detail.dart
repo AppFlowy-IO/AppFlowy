@@ -15,10 +15,10 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   final GridCellBuilder cellBuilder;
 
   const RowDetailPage({
+    super.key,
     required this.rowController,
     required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<RowDetailPage> createState() => _RowDetailPageState();

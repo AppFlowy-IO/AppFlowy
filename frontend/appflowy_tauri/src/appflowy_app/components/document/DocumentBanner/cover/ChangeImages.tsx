@@ -7,7 +7,7 @@ import { readCoverImageUrls, readImage, writeCoverImageUrls } from '$app/utils/d
 import { Log } from '$app/utils/log';
 import { Image } from '$app/components/document/DocumentBanner/cover/GalleryItem';
 
-function ChangeImages({ cover, onChange }: { onChange: (url: string) => void; cover: string }) {
+function ChangeImages({ onChange }: { onChange: (url: string) => void; cover: string }) {
   const { t } = useTranslation();
   const [images, setImages] = useState<Image[]>([]);
   const loadImageUrls = useCallback(async () => {
@@ -58,7 +58,7 @@ function ChangeImages({ cover, onChange }: { onChange: (url: string) => void; co
   }, [loadImageUrls]);
 
   useEffect(() => {
-    loadImageUrls();
+    void loadImageUrls();
   }, [loadImageUrls]);
 
   return (

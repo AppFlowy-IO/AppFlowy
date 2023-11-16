@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,11 +22,9 @@ void main() {
     blocTest(
       'update field width',
       build: () => FieldCellBloc(
-        fieldContext: FieldContext(
-          fieldInfo: context.fieldContexts[0],
-          viewId: context.gridView.id,
-        ),
-      )..add(const FieldCellEvent.initial()),
+        fieldInfo: context.fieldContexts[0],
+        viewId: context.gridView.id,
+      ),
       act: (bloc) {
         width = bloc.state.width;
         bloc.add(const FieldCellEvent.onResizeStart());
@@ -42,11 +39,9 @@ void main() {
     blocTest(
       'field width should not be lesser than 50px',
       build: () => FieldCellBloc(
-        fieldContext: FieldContext(
-          fieldInfo: context.fieldContexts[0],
-          viewId: context.gridView.id,
-        ),
-      )..add(const FieldCellEvent.initial()),
+        viewId: context.gridView.id,
+        fieldInfo: context.fieldContexts[0],
+      ),
       act: (bloc) {
         bloc.add(const FieldCellEvent.onResizeStart());
         bloc.add(const FieldCellEvent.startUpdateWidth(-110));

@@ -11,4 +11,4 @@ function NodeChildren({ childIds, ...props }: { childIds?: string[] } & React.HT
   ) : null;
 }
 
-export default NodeChildren;
+export default React.memo(NodeChildren);

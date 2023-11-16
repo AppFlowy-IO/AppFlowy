@@ -53,7 +53,8 @@ export const GridTableHeaderItem = ({
     if (newSizeX >= MIN_COLUMN_WIDTH) {
       dispatch(databaseActions.changeWidth({ fieldId: field.fieldId, width: newSizeX }));
     }
-  }, [newSizeX]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newSizeX, dispatch]);
 
   const changeFieldType = async (newType: FieldType) => {
     if (!editingField) return;

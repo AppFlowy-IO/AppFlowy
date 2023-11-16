@@ -5,9 +5,10 @@ use anyhow::{anyhow, Error};
 use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
 use client_api::entity::{AFRole, AFWorkspace, InsertCollabParams, OAuthProvider};
 use collab_entity::CollabObject;
+use parking_lot::RwLock;
 
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::cloud::{UserCloudService, UserUpdate, UserUpdateReceiver};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -21,11 +22,15 @@ use crate::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
+  user_change_recv: RwLock<Option<tokio::sync::mpsc::Receiver<UserUpdate>>>,
 }
 
 impl<T> AFCloudUserAuthServiceImpl<T> {
-  pub(crate) fn new(server: T) -> Self {
-    Self { server }
+  pub(crate) fn new(server: T, user_change_recv: tokio::sync::mpsc::Receiver<UserUpdate>) -> Self {
+    Self {
+      server,
+      user_change_recv: RwLock::new(Some(user_change_recv)),
+    }
   }
 }
 
@@ -62,13 +67,27 @@ where
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
-      // TODO(nathan): replace the admin_email and admin_password with encryption key
-      let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
-      let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
-      let url = try_get_client?
-        .generate_sign_in_url_with_email(&admin_email, &admin_password, &email)
-        .await?;
-      Ok(url)
+      let client = try_get_client?;
+      let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").map_err(|_| {
+        anyhow!(
+          "GOTRUE_ADMIN_EMAIL is not set. Please set it to the admin email for the test server"
+        )
+      })?;
+      let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").map_err(|_| {
+        anyhow!(
+          "GOTRUE_ADMIN_PASSWORD is not set. Please set it to the admin password for the test server"
+        )
+      })?;
+      let admin_client =
+        client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url());
+      admin_client
+        .sign_in_password(&admin_email, &admin_password)
+        .await
+        .unwrap();
+
+      let action_link = admin_client.generate_sign_in_action_link(&email).await?;
+      let sign_in_url = client.extract_sign_in_url(&action_link).await?;
+      Ok(sign_in_url)
     })
   }
 
@@ -113,7 +132,17 @@ where
     })
   }
 
-  fn get_all_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let af_workspace = client.open_workspace(&workspace_id).await?;
+      Ok(to_user_workspace(af_workspace))
+    })
+  }
+
+  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;
@@ -188,12 +217,14 @@ where
   }
 
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
-    // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(vec![]) })
   }
 
+  fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
+    self.user_change_recv.write().take()
+  }
+
   fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), Error> {
-    // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(()) })
   }
 

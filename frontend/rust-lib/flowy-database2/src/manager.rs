@@ -1,9 +1,9 @@
-use std::collections::HashMap;
+use std::num::NonZeroUsize;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, YrsDocAction};
+use collab_database::database::{DatabaseData, MutexDatabase, YrsDocAction};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
   CollabFuture, CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCollabService,
@@ -12,8 +12,9 @@ use collab_database::user::{
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_entity::CollabType;
 use futures::executor::block_on;
-use tokio::sync::RwLock;
-use tracing::{instrument, trace};
+use lru::LruCache;
+use tokio::sync::{Mutex, RwLock};
+use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
@@ -42,7 +43,7 @@ pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
   workspace_database: Arc<RwLock<Option<Arc<WorkspaceDatabase>>>>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
-  editors: RwLock<HashMap<String, Arc<DatabaseEditor>>>,
+  editors: Mutex<LruCache<String, Arc<DatabaseEditor>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
@@ -54,11 +55,12 @@ impl DatabaseManager {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Self {
+    let editors = Mutex::new(LruCache::new(NonZeroUsize::new(5).unwrap()));
     Self {
       user: database_user,
       workspace_database: Default::default(),
       task_scheduler,
-      editors: Default::default(),
+      editors,
       collab_builder,
       cloud_service,
     }
@@ -80,6 +82,12 @@ impl DatabaseManager {
     workspace_id: String,
     database_views_aggregate_id: String,
   ) -> FlowyResult<()> {
+    // Clear all existing tasks
+    self.task_scheduler.write().await.clear_task();
+    // Release all existing editors
+    self.editors.lock().await.clear();
+    *self.workspace_database.write().await = None;
+
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
       workspace_id: workspace_id.clone(),
@@ -114,7 +122,11 @@ impl DatabaseManager {
     }
 
     // Construct the workspace database.
-    trace!("open workspace database: {}", &database_views_aggregate_id);
+    event!(
+      tracing::Level::INFO,
+      "open aggregate database views object: {}",
+      &database_views_aggregate_id
+    );
     let collab = collab_builder.build_collab_with_config(
       uid,
       &database_views_aggregate_id,
@@ -125,11 +137,8 @@ impl DatabaseManager {
     );
     let workspace_database =
       WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
-    subscribe_block_event(&workspace_database);
     *self.workspace_database.write().await = Some(Arc::new(workspace_database));
 
-    // Remove all existing editors
-    self.editors.write().await.clear();
     Ok(())
   }
 
@@ -177,44 +186,42 @@ impl DatabaseManager {
   }
 
   pub async fn get_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    if let Some(editor) = self.editors.read().await.get(database_id) {
-      return Ok(editor.clone());
+    if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
+      return Ok(editor);
     }
     self.open_database(database_id).await
   }
 
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     trace!("create new editor for database {}", database_id);
-    let mut editors = self.editors.write().await;
-
-    let wdb = self.get_workspace_database().await?;
-    let database = wdb
+    let database = self
+      .get_workspace_database()
+      .await?
       .get_database(database_id)
       .await
       .ok_or_else(FlowyError::collab_not_sync)?;
 
+    // Subscribe the [BlockEvent]
+    subscribe_block_event(&database);
+
     let editor = Arc::new(DatabaseEditor::new(database, self.task_scheduler.clone()).await?);
-    editors.insert(database_id.to_string(), editor.clone());
+    self
+      .editors
+      .lock()
+      .await
+      .put(database_id.to_string(), editor.clone());
     Ok(editor)
   }
 
   #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
-    // TODO(natan): defer closing the database if the sync is not finished
     let view_id = view_id.as_ref();
     let wdb = self.get_workspace_database().await?;
     let database_id = wdb.get_database_id_with_view_id(view_id);
-    if database_id.is_some() {
-      wdb.close_database(database_id.as_ref().unwrap());
-    }
-
     if let Some(database_id) = database_id {
-      let mut editors = self.editors.write().await;
+      let mut editors = self.editors.lock().await;
       if let Some(editor) = editors.get(&database_id) {
-        if editor.close_view_editor(view_id).await {
-          editor.close().await;
-          editors.remove(&database_id);
-        }
+        editor.close_view_editor(view_id).await;
       }
     }
 
@@ -360,8 +367,8 @@ impl DatabaseManager {
 }
 
 /// Send notification to all clients that are listening to the given object.
-fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
-  let mut block_event_rx = workspace_database.subscribe_block_event();
+fn subscribe_block_event(database: &Arc<MutexDatabase>) {
+  let mut block_event_rx = database.lock().subscribe_block_event();
   af_spawn(async move {
     while let Ok(event) = block_event_rx.recv().await {
       match event {

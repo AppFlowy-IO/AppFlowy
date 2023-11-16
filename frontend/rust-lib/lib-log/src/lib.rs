@@ -1,9 +1,11 @@
 use std::sync::RwLock;
 
+use chrono::Local;
 use lazy_static::lazy_static;
 use tracing::subscriber::set_global_default;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_bunyan_formatter::JsonStorageLayer;
+use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 use crate::layer::FlowyFormattingLayer;
@@ -23,13 +25,10 @@ pub struct Builder {
 
 impl Builder {
   pub fn new(name: &str, directory: &str) -> Self {
-    // let directory = directory.as_ref().to_str().unwrap().to_owned();
-    let local_file_name = format!("{}.log", name);
-
     Builder {
       name: name.to_owned(),
       env_filter: "Info".to_owned(),
-      file_appender: tracing_appender::rolling::daily(directory, local_file_name),
+      file_appender: tracing_appender::rolling::daily(directory, format!("{}", name)),
     }
   }
 
@@ -43,12 +42,12 @@ impl Builder {
 
     let (non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
     let subscriber = tracing_subscriber::fmt()
+      .with_timer(CustomTime)
       .with_ansi(true)
-      .with_target(true)
+      .with_target(false)
       .with_max_level(tracing::Level::TRACE)
       .with_thread_ids(false)
-      .with_file(false)
-      .with_writer(std::io::stderr)
+      .with_writer(std::io::stdout)
       .pretty()
       .with_env_filter(env_filter)
       .finish()
@@ -56,7 +55,15 @@ impl Builder {
       .with(FlowyFormattingLayer::new(non_blocking));
 
     set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
+
     *LOG_GUARD.write().unwrap() = Some(guard);
     Ok(())
+  }
+}
+
+struct CustomTime;
+impl tracing_subscriber::fmt::time::FormatTime for CustomTime {
+  fn format_time(&self, w: &mut Writer<'_>) -> std::fmt::Result {
+    write!(w, "{}", Local::now().format("%Y-%m-%d %H:%M:%S"))
   }
 }

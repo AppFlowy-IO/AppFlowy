@@ -115,12 +115,11 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
     field_ids: &[String],
   ) -> HashMap<String, FieldSettings>;
 
-  fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings>;
-
   fn update_field_settings(
     &self,
     view_id: &str,
     field_id: &str,
     visibility: Option<FieldVisibility>,
+    width: Option<i32>,
   );
 }

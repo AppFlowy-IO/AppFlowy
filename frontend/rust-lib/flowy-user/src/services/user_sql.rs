@@ -29,8 +29,8 @@ impl UserTable {
   }
 }
 
-impl From<(UserProfile, AuthType)> for UserTable {
-  fn from(value: (UserProfile, AuthType)) -> Self {
+impl From<(UserProfile, Authenticator)> for UserTable {
+  fn from(value: (UserProfile, Authenticator)) -> Self {
     let (user_profile, auth_type) = value;
     let encryption_type = serde_json::to_string(&user_profile.encryption_type).unwrap_or_default();
     UserTable {
@@ -59,7 +59,7 @@ impl From<UserTable> for UserProfile {
       icon_url: table.icon_url,
       openai_key: table.openai_key,
       workspace_id: table.workspace,
-      auth_type: AuthType::from(table.auth_type),
+      authenticator: Authenticator::from(table.auth_type),
       encryption_type: EncryptionType::from_str(&table.encryption_type).unwrap_or_default(),
       stability_ai_key: table.stability_ai_key,
       updated_at: table.updated_at,
@@ -120,8 +120,8 @@ impl From<UserUpdate> for UserTableChangeset {
   fn from(value: UserUpdate) -> Self {
     UserTableChangeset {
       id: value.uid.to_string(),
-      name: Some(value.name),
-      email: Some(value.email),
+      name: value.name,
+      email: value.email,
       ..Default::default()
     }
   }
