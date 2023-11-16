@@ -229,9 +229,11 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     Widget child = Container(
       alignment: Alignment.bottomLeft,
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: EditorStyleCustomizer.documentPadding.left - 6.0,
-      ),
+      padding: PlatformExtension.isDesktopOrWeb
+          ? EditorStyleCustomizer.documentPadding
+          : EdgeInsets.symmetric(
+              horizontal: EditorStyleCustomizer.documentPadding.left - 6.0,
+            ),
       child: SizedBox(
         height: 28,
         child: Row(
