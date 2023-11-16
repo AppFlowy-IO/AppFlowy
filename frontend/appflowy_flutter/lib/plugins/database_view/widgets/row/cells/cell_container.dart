@@ -101,16 +101,7 @@ class _GridCellEnterRegion extends StatelessWidget {
           !cellNotifier.isFocus &&
           (cellNotifier.onEnter || regionNotifier.onEnter && isPrimary),
       builder: (context, showAccessory, _) {
-        final List<Widget> children = [
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            onEnter: (p) =>
-                CellContainerNotifier.of(context, listen: false).onEnter = true,
-            onExit: (p) => CellContainerNotifier.of(context, listen: false)
-                .onEnter = false,
-          ),
-          child,
-        ];
+        final List<Widget> children = [child];
 
         if (showAccessory) {
           children.add(
@@ -120,10 +111,17 @@ class _GridCellEnterRegion extends StatelessWidget {
           );
         }
 
-        return Stack(
-          alignment: AlignmentDirectional.center,
-          fit: StackFit.expand,
-          children: children,
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (p) =>
+              CellContainerNotifier.of(context, listen: false).onEnter = true,
+          onExit: (p) =>
+              CellContainerNotifier.of(context, listen: false).onEnter = false,
+          child: Stack(
+            alignment: AlignmentDirectional.center,
+            fit: StackFit.expand,
+            children: children,
+          ),
         );
       },
     );
