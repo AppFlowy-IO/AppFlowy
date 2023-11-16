@@ -79,16 +79,7 @@ class FieldInfo with _$FieldInfo {
     }
   }
 
-  bool get hasConfig {
-    switch (field.fieldType) {
-      case FieldType.DateTime:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  List<ProtobufEnum> get conditions {
+  List<ProtobufEnum> get groupConditions {
     switch (field.fieldType) {
       case FieldType.DateTime:
         return DateCondition.values;

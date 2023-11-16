@@ -96,7 +96,7 @@ class DatabaseGroupList extends StatelessWidget {
                     key: ValueKey(fieldInfo.id),
                   ),
                 ),
-            if (field?.hasConfig ?? false) ...[
+            if (field?.groupConditions.isNotEmpty ?? false) ...[
               const TypeOptionSeparator(spacing: 0),
               SizedBox(
                 height: GridSize.popoverItemHeight,
@@ -110,7 +110,7 @@ class DatabaseGroupList extends StatelessWidget {
                   ),
                 ),
               ),
-              ...field!.conditions.map(
+              ...field!.groupConditions.map(
                 (condition) => _GridGroupCell(
                   fieldInfo: field,
                   name: condition.name,
