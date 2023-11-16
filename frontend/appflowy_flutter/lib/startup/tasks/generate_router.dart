@@ -26,38 +26,18 @@ GoRouter generateRouter(Widget child) {
       // It needs LaunchConfiguration as a parameter, so we get it from ApplicationWidget's child.
       _rootRoute(child),
       // Routes in both desktop and mobile
-      _generateRouterWithoutParameters(
-        SignInScreen.routeName,
-        const SignInScreen(),
-      ),
-      _generateRouterWithoutParameters(
-        SkipLogInScreen.routeName,
-        const SkipLogInScreen(),
-      ),
+      _signInScreenRoute(),
+      _skipLogInScreenRoute(),
       _encryptSecretScreenRoute(),
       _workspaceErrorScreenRoute(),
       // Desktop only
-      if (!PlatformExtension.isMobile) ...[
-        _generateRouterWithoutParameters(
-          DesktopHomeScreen.routeName,
-          const DesktopHomeScreen(),
-        ),
-      ],
+      if (!PlatformExtension.isMobile) _desktopHomeScreenRoute(),
       // Mobile only
       if (PlatformExtension.isMobile) ...[
         // settings
-        _generateRouterWithoutParameters(
-          MobileHomeSettingPage.routeName,
-          const MobileHomeSettingPage(),
-        ),
-        _generateRouterWithoutParameters(
-          PrivacyPolicyPage.routeName,
-          const PrivacyPolicyPage(),
-        ),
-        _generateRouterWithoutParameters(
-          UserAgreementPage.routeName,
-          const UserAgreementPage(),
-        ),
+        _mobileHomeSettingPageRoute(),
+        _mobileSettingPrivacyPolicyPageRoute(),
+        _mobileSettingUserAgreementPageRoute(),
 
         // view page
         _mobileEditorScreenRoute(),
@@ -70,32 +50,15 @@ GoRouter generateRouter(Widget child) {
         _mobileHomeScreenWithNavigationBarRoute(),
 
         // trash
-        _generateRouterWithoutParameters(
-          MobileHomeTrashPage.routeName,
-          const MobileHomeTrashPage(),
-        ),
+        _mobileHomeTrashPageRoute(),
 
         // emoji picker
-        _generateRouterWithoutParameters(
-          MobileEmojiPickerScreen.routeName,
-          const MobileEmojiPickerScreen(),
-        ),
-        _generateRouterWithoutParameters(
-          MobileImagePickerScreen.routeName,
-          const MobileImagePickerScreen(),
-        ),
+        _mobileEmojiPickerPageRoute(),
+        _mobileImagePickerPageRoute(),
 
         // code language picker
-        _generateRouterWithoutParameters(
-          MobileCodeLanguagePickerScreen.routeName,
-          const MobileCodeLanguagePickerScreen(),
-        ),
-
-        // language
-        _generateRouterWithoutParameters(
-          LanguagePickerScreen.routeName,
-          const LanguagePickerScreen(),
-        ),
+        _mobileCodeLanguagePickerPageRoute(),
+        _mobileLanguagePickerPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -209,6 +172,107 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
   );
 }
 
+GoRoute _mobileHomeSettingPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileHomeSettingPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileHomeSettingPage());
+    },
+  );
+}
+
+GoRoute _mobileSettingPrivacyPolicyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: PrivacyPolicyPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: PrivacyPolicyPage());
+    },
+  );
+}
+
+GoRoute _mobileSettingUserAgreementPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: UserAgreementPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: UserAgreementPage());
+    },
+  );
+}
+
+GoRoute _mobileHomeTrashPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileHomeTrashPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileHomeTrashPage());
+    },
+  );
+}
+
+GoRoute _mobileEmojiPickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileEmojiPickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: MobileEmojiPickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileImagePickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileImagePickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: MobileImagePickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCodeLanguagePickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileCodeLanguagePickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: MobileCodeLanguagePickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileLanguagePickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: LanguagePickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: LanguagePickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _desktopHomeScreenRoute() {
+  return GoRoute(
+    path: DesktopHomeScreen.routeName,
+    pageBuilder: (context, state) {
+      return CustomTransitionPage(
+        child: const DesktopHomeScreen(),
+        transitionsBuilder: _buildFadeTransition,
+        transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
 GoRoute _workspaceErrorScreenRoute() {
   return GoRoute(
     path: WorkspaceErrorScreen.routeName,
@@ -236,6 +300,32 @@ GoRoute _encryptSecretScreenRoute() {
           user: args[EncryptSecretScreen.argUser],
           key: args[EncryptSecretScreen.argKey],
         ),
+        transitionsBuilder: _buildFadeTransition,
+        transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _skipLogInScreenRoute() {
+  return GoRoute(
+    path: SkipLogInScreen.routeName,
+    pageBuilder: (context, state) {
+      return CustomTransitionPage(
+        child: const SkipLogInScreen(),
+        transitionsBuilder: _buildFadeTransition,
+        transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _signInScreenRoute() {
+  return GoRoute(
+    path: SignInScreen.routeName,
+    pageBuilder: (context, state) {
+      return CustomTransitionPage(
+        child: const SignInScreen(),
         transitionsBuilder: _buildFadeTransition,
         transitionDuration: _slowDuration,
       );
@@ -311,7 +401,7 @@ GoRoute _rootRoute(Widget child) {
   return GoRoute(
     path: '/',
     redirect: (context, state) async {
-      // Every time before navigating to splash screen, we check if user is already logged in in desktop. It is used to skip showing splash screen when user just changes appearance settings like theme mode.
+      // Every time before navigating to splash screen, we check if user is already logged in in desktop. It is used to skip showing splash screen when user just changes apperance settings like theme mode.
       final userResponse = await getIt<AuthService>().getUser();
       final routeName = userResponse.fold(
         (error) => null,
@@ -326,19 +416,6 @@ GoRoute _rootRoute(Widget child) {
     pageBuilder: (context, state) => MaterialPage(
       child: child,
     ),
-  );
-}
-
-GoRoute _generateRouterWithoutParameters(String routerName, Widget page) {
-  return GoRoute(
-    path: routerName,
-    pageBuilder: (context, state) {
-      return CustomTransitionPage(
-        child: page,
-        transitionsBuilder: _buildFadeTransition,
-        transitionDuration: _slowDuration,
-      );
-    },
   );
 }
 
