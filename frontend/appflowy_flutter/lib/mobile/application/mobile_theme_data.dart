@@ -29,7 +29,8 @@ ThemeData getMobileThemeData(
           onError: const Color(0xffFB006D),
           background: Colors.white,
           onBackground: _onBackgroundColor,
-          outline: const Color(0xffBDC0C5), //caption
+          outline: const Color(0xffE3E3E3), //caption
+          // outline: const Color(0xffBDC0C5), //caption
           outlineVariant: const Color(0xffCBD5E0).withOpacity(0.24),
           //Snack bar
           surface: Colors.white,
@@ -175,7 +176,7 @@ ThemeData getMobileThemeData(
         color: mobileColorTheme.onBackground,
         fontSize: 14,
         fontWeight: FontWeight.w400,
-        height: 1.20,
+        // height: 1.2,
         letterSpacing: 0.07,
       ),
       // Trash empty title

@@ -316,7 +316,6 @@ class RowContent extends StatelessWidget {
             bottom: BorderSide(color: Theme.of(context).dividerColor),
           ),
         ),
-        child: const SizedBox.shrink(),
       ),
     );
   }

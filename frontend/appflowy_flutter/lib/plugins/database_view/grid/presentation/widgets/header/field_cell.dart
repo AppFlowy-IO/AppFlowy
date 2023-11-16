@@ -81,7 +81,6 @@ class _GridFieldCellState extends State<GridFieldCell> {
             width: state.width,
             child: Stack(
               alignment: Alignment.centerRight,
-              fit: StackFit.expand,
               children: [button, line],
             ),
           );
@@ -122,10 +121,7 @@ class _GridHeaderCellContainer extends StatelessWidget {
     return Container(
       width: width,
       decoration: decoration,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints.expand(),
-        child: child,
-      ),
+      child: child,
     );
   }
 }
