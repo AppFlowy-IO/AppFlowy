@@ -26,6 +26,7 @@ export 'inline_math_equation/inline_math_equation.dart';
 export 'inline_math_equation/inline_math_equation_toolbar_item.dart';
 export 'math_equation/math_equation_block_component.dart';
 export 'math_equation/mobile_math_equation_toolbar_item.dart';
+export 'mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
 export 'mobile_toolbar_item/mobile_align_toolbar_item.dart';
 export 'mobile_toolbar_item/mobile_convert_block_toolbar_item.dart';
 export 'mobile_toolbar_item/mobile_indent_toolbar_items.dart';

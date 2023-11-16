@@ -18,43 +18,26 @@ final mobileConvertBlockToolbarItem = MobileToolbarItem.withMenu(
       size: Size.square(22),
     );
   },
-  itemMenuBuilder: (_, editorState, __) {
+  itemMenuBuilder: (_, editorState, service) {
     final selection = editorState.selection;
     if (selection == null) {
       return null;
     }
-    return _ConvertToMenu(
+    return BlocksMenu(
+      items: _convertToBlockMenuItems,
       editorState: editorState,
-      selection: selection,
+      service: service,
     );
   },
 );
 
-class _ConvertToMenu extends StatelessWidget {
-  const _ConvertToMenu({
-    required this.editorState,
-    required this.selection,
-  });
-
-  final Selection selection;
-  final EditorState editorState;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocksMenu(
-      editorState: editorState,
-      items: _convertToBlockMenus,
-    );
-  }
-}
-
-final _convertToBlockMenus = [
+final _convertToBlockMenuItems = [
   // paragraph
   BlockMenuItem(
     blockType: ParagraphBlockKeys.type,
     icon: const FlowySvg(FlowySvgs.m_text_decoration_m),
     label: LocaleKeys.editor_text.tr(),
-    onTap: (editorState, selection) => editorState.convertBlockType(
+    onTap: (editorState, selection, _) => editorState.convertBlockType(
       selection,
       ParagraphBlockKeys.type,
     ),
@@ -65,7 +48,7 @@ final _convertToBlockMenus = [
     blockType: TodoListBlockKeys.type,
     icon: const FlowySvg(FlowySvgs.m_checkbox_m),
     label: LocaleKeys.editor_checkbox.tr(),
-    onTap: (editorState, selection) => editorState.convertBlockType(
+    onTap: (editorState, selection, _) => editorState.convertBlockType(
       selection,
       TodoListBlockKeys.type,
       extraAttributes: {
@@ -84,7 +67,7 @@ final _convertToBlockMenus = [
       selection,
       1,
     ),
-    onTap: (editorState, selection) {
+    onTap: (editorState, selection, _) {
       final isSelected = _isHeadingSelected(
         editorState,
         selection,
@@ -109,7 +92,7 @@ final _convertToBlockMenus = [
       selection,
       2,
     ),
-    onTap: (editorState, selection) {
+    onTap: (editorState, selection, _) {
       final isSelected = _isHeadingSelected(
         editorState,
         selection,
@@ -134,7 +117,7 @@ final _convertToBlockMenus = [
       selection,
       3,
     ),
-    onTap: (editorState, selection) {
+    onTap: (editorState, selection, _) {
       final isSelected = _isHeadingSelected(
         editorState,
         selection,
@@ -156,7 +139,7 @@ final _convertToBlockMenus = [
     blockType: BulletedListBlockKeys.type,
     icon: const FlowySvg(FlowySvgs.m_bulleted_list_m),
     label: LocaleKeys.editor_bulletedList.tr(),
-    onTap: (editorState, selection) => editorState.convertBlockType(
+    onTap: (editorState, selection, _) => editorState.convertBlockType(
       selection,
       BulletedListBlockKeys.type,
     ),
@@ -167,7 +150,7 @@ final _convertToBlockMenus = [
     blockType: NumberedListBlockKeys.type,
     icon: const FlowySvg(FlowySvgs.m_numbered_list_m),
     label: LocaleKeys.editor_numberedList.tr(),
-    onTap: (editorState, selection) => editorState.convertBlockType(
+    onTap: (editorState, selection, _) => editorState.convertBlockType(
       selection,
       NumberedListBlockKeys.type,
     ),
@@ -178,7 +161,7 @@ final _convertToBlockMenus = [
     blockType: ToggleListBlockKeys.type,
     icon: const FlowySvg(FlowySvgs.m_toggle_list_m),
     label: LocaleKeys.document_plugins_toggleList.tr(),
-    onTap: (editorState, selection) => editorState.convertBlockType(
+    onTap: (editorState, selection, _) => editorState.convertBlockType(
       selection,
       ToggleListBlockKeys.type,
     ),
@@ -189,7 +172,7 @@ final _convertToBlockMenus = [
     blockType: QuoteBlockKeys.type,
     icon: const FlowySvg(FlowySvgs.m_quote_m),
     label: LocaleKeys.editor_quote.tr(),
-    onTap: (editorState, selection) => editorState.convertBlockType(
+    onTap: (editorState, selection, _) => editorState.convertBlockType(
       selection,
       QuoteBlockKeys.type,
     ),
@@ -201,7 +184,7 @@ final _convertToBlockMenus = [
     // FIXME: update icon
     icon: const Icon(Icons.note_rounded),
     label: LocaleKeys.document_plugins_callout.tr(),
-    onTap: (editorState, selection) => editorState.convertBlockType(
+    onTap: (editorState, selection, _) => editorState.convertBlockType(
       selection,
       CalloutBlockKeys.type,
       extraAttributes: {
@@ -215,7 +198,7 @@ final _convertToBlockMenus = [
     blockType: CodeBlockKeys.type,
     icon: const FlowySvg(FlowySvgs.m_code_m),
     label: LocaleKeys.document_selectionMenu_codeBlock.tr(),
-    onTap: (editorState, selection) => editorState.convertBlockType(
+    onTap: (editorState, selection, _) => editorState.convertBlockType(
       selection,
       CodeBlockKeys.type,
     ),

@@ -19,6 +19,8 @@ class BlockMenuItem {
   final void Function(
     EditorState editorState,
     Selection selection,
+    // used to control the open or close the menu
+    MobileToolbarWidgetService service,
   ) onTap;
 
   final bool Function(
@@ -32,10 +34,12 @@ class BlocksMenu extends StatelessWidget {
     super.key,
     required this.editorState,
     required this.items,
+    required this.service,
   });
 
   final EditorState editorState;
   final List<BlockMenuItem> items;
+  final MobileToolbarWidgetService service;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +48,9 @@ class BlocksMenu extends StatelessWidget {
       mainAxisSpacing: 8,
       crossAxisSpacing: 8,
       childAspectRatio: 4,
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.only(
+        bottom: 36.0,
+      ),
       shrinkWrap: true,
       children: items.map((item) {
         final selection = editorState.selection;
@@ -62,7 +68,7 @@ class BlocksMenu extends StatelessWidget {
           label: FlowyText(item.label),
           isSelected: isSelected,
           onPressed: () async {
-            item.onTap(editorState, selection);
+            item.onTap(editorState, selection, service);
           },
         );
       }).toList(),

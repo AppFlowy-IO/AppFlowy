@@ -267,16 +267,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     if (PlatformExtension.isMobile) {
       return MobileToolbarV2(
+        toolbarHeight: 48.0,
         editorState: editorState,
         toolbarItems: [
           customTextDecorationMobileToolbarItem,
           buildTextAndBackgroundColorMobileToolbarItem(),
+          mobileAddBlockToolbarItem,
           mobileConvertBlockToolbarItem,
           linkMobileToolbarItem,
-          dividerMobileToolbarItem,
           imageMobileToolbarItem,
-          mathEquationMobileToolbarItem,
-          codeMobileToolbarItem,
           mobileAlignToolbarItem,
           mobileIndentToolbarItem,
           mobileOutdentToolbarItem,
