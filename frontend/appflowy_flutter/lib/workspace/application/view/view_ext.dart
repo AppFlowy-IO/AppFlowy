@@ -50,8 +50,8 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Board => FlowySvgs.board_s,
         ViewLayoutPB.Calendar => FlowySvgs.date_s,
         ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Document => FlowySvgs.documents_s,
-        _ => FlowySvgs.documents_s,
+        ViewLayoutPB.Document => FlowySvgs.page_s,
+        _ => FlowySvgs.page_s,
       },
     );
   }
@@ -139,7 +139,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
       case ViewLayoutPB.Calendar:
         return FlowySvgs.date_s;
       case ViewLayoutPB.Document:
-        return FlowySvgs.documents_s;
+        return FlowySvgs.page_s;
       default:
         throw Exception('Unknown layout type');
     }
