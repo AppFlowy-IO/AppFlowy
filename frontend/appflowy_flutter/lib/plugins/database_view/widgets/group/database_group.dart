@@ -121,8 +121,8 @@ class DatabaseGroupList extends StatelessWidget {
                           ?.condition ==
                       condition.value,
                 ),
-              )
-            ]
+              ),
+            ],
           ];
 
           return ListView.separated(
