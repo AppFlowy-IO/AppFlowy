@@ -328,7 +328,7 @@ impl DatabaseViewEditor {
       .as_ref()
       .and_then(|group_controller| {
         group_controller
-          .groups()
+          .get_all_groups()
           .iter()
           .find(|group| group.contains_row(&row_id))
           .cloned()
