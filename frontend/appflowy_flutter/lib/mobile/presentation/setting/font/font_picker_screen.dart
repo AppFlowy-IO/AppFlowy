@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_bar.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -33,6 +34,15 @@ class LanguagePickerPage extends StatefulWidget {
 }
 
 class _LanguagePickerPageState extends State<LanguagePickerPage> {
+  late List<String> availableFonts;
+
+  @override
+  initState() {
+    super.initState();
+
+    availableFonts = _availableFonts;
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedFontFamilyName =
@@ -51,7 +61,26 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
       body: SafeArea(
         child: ListView.separated(
           itemBuilder: (context, index) {
-            final fontFamilyName = _availableFonts[index];
+            if (index == 0) {
+              // search bar
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FlowyMobileSearchTextField(
+                  onKeywordChanged: (keyword) {
+                    setState(() {
+                      availableFonts = _availableFonts
+                          .where(
+                            (element) => parseFontFamilyName(element)
+                                .toLowerCase()
+                                .contains(keyword.toLowerCase()),
+                          )
+                          .toList();
+                    });
+                  },
+                ),
+              );
+            }
+            final fontFamilyName = availableFonts[index - 1];
             final displayName = parseFontFamilyName(fontFamilyName);
             return InkWell(
               onTap: () => context.pop(fontFamilyName),
@@ -83,7 +112,7 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
           separatorBuilder: (_, __) => const Divider(
             height: 1,
           ),
-          itemCount: _availableFonts.length,
+          itemCount: availableFonts.length + 1, // with search bar
         ),
       ),
     );
