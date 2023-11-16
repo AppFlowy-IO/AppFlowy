@@ -83,11 +83,14 @@ class EditorStyleCustomizer {
 
   EditorStyle mobile() {
     final theme = Theme.of(context);
-    const fontSize = 14.0;
-    final fontFamily = GoogleFonts.poppins().fontFamily ?? 'Poppins';
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    final defaultTextDirection =
+        context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
     final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.mobile(
       padding: padding,
+      defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
