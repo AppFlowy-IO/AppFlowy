@@ -1073,5 +1073,9 @@
   },
   "cardDetails": {
     "notesPlaceholder": "Enter a / to insert a block, or start typing"
+  },
+  "titleBar": {
+    "pageIcon": "Page icon",
+    "language": "Language"
   }
 }
