@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_blocks_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,12 +11,12 @@ import 'package:flutter/material.dart';
 // only show in single selection and text type
 final mobileConvertBlockToolbarItem = MobileToolbarItem.withMenu(
   itemIconBuilder: (_, editorState, ___) {
-    if (!onlyShowInTextType(editorState)) {
+    if (!onlyShowInSingleSelectionAndTextType(editorState)) {
       return null;
     }
     return const FlowySvg(
-      FlowySvgs.add_m,
-      size: Size.square(48),
+      FlowySvgs.convert_s,
+      size: Size.square(22),
     );
   },
   itemMenuBuilder: (_, editorState, __) {
@@ -23,15 +24,15 @@ final mobileConvertBlockToolbarItem = MobileToolbarItem.withMenu(
     if (selection == null) {
       return null;
     }
-    return _MobileListMenu(
+    return _ConvertToMenu(
       editorState: editorState,
       selection: selection,
     );
   },
 );
 
-class _MobileListMenu extends StatelessWidget {
-  const _MobileListMenu({
+class _ConvertToMenu extends StatelessWidget {
+  const _ConvertToMenu({
     required this.editorState,
     required this.selection,
   });
@@ -41,85 +42,15 @@ class _MobileListMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 4,
-      padding: EdgeInsets.zero,
-      shrinkWrap: true,
-      children: [
-        // bulleted list, numbered list
-        _buildListButton(
-          context,
-          BulletedListBlockKeys.type,
-          const AFMobileIcon(afMobileIcons: AFMobileIcons.bulletedList),
-          LocaleKeys.document_plugins_bulletedList.tr(),
-        ),
-        _buildListButton(
-          context,
-          NumberedListBlockKeys.type,
-          const AFMobileIcon(afMobileIcons: AFMobileIcons.numberedList),
-          LocaleKeys.document_plugins_numberedList.tr(),
-        ),
-
-        // todo list, quote list
-        _buildListButton(
-          context,
-          TodoListBlockKeys.type,
-          const AFMobileIcon(afMobileIcons: AFMobileIcons.checkbox),
-          LocaleKeys.document_plugins_todoList.tr(),
-        ),
-        _buildListButton(
-          context,
-          QuoteBlockKeys.type,
-          const AFMobileIcon(afMobileIcons: AFMobileIcons.quote),
-          LocaleKeys.document_plugins_quoteList.tr(),
-        ),
-
-        // toggle list, callout
-        _buildListButton(
-          context,
-          ToggleListBlockKeys.type,
-          const FlowySvg(
-            FlowySvgs.toggle_list_s,
-            size: Size.square(24),
-          ),
-          LocaleKeys.document_plugins_toggleList.tr(),
-        ),
-        _buildListButton(
-          context,
-          CalloutBlockKeys.type,
-          const Icon(Icons.note_rounded),
-          LocaleKeys.document_plugins_callout.tr(),
-        ),
-        _buildListButton(
-          context,
-          CodeBlockKeys.type,
-          const Icon(Icons.abc),
-          LocaleKeys.document_selectionMenu_codeBlock.tr(),
-        ),
-        // code block
-        _buildListButton(
-          context,
-          CodeBlockKeys.type,
-          const Icon(Icons.abc),
-          LocaleKeys.document_selectionMenu_codeBlock.tr(),
-        ),
-        // outline
-        _buildListButton(
-          context,
-          OutlineBlockKeys.type,
-          const Icon(Icons.list_alt),
-          LocaleKeys.document_selectionMenu_outline.tr(),
-        ),
-      ],
+    return BlocksMenu(
+      editorState: editorState,
+      items: _convertToBlockMenus,
     );
   }
 
-  Widget _buildListButton(
+  Widget _buildBlockButton(
     BuildContext context,
-    String listBlockType,
+    String blockType,
     Widget icon,
     String label,
   ) {
@@ -128,7 +59,7 @@ class _MobileListMenu extends StatelessWidget {
     if (node == null || type == null) {
       const SizedBox.shrink();
     }
-    final isSelected = type == listBlockType;
+    final isSelected = type == blockType;
     return MobileToolbarItemMenuBtn(
       icon: icon,
       label: FlowyText(label),
@@ -139,13 +70,13 @@ class _MobileListMenu extends StatelessWidget {
           (node) {
             final attributes = {
               ParagraphBlockKeys.delta: (node.delta ?? Delta()).toJson(),
-              if (listBlockType == TodoListBlockKeys.type)
+              if (blockType == TodoListBlockKeys.type)
                 TodoListBlockKeys.checked: false,
-              if (listBlockType == CalloutBlockKeys.type)
+              if (blockType == CalloutBlockKeys.type)
                 CalloutBlockKeys.icon: '📌',
             };
             return node.copyWith(
-              type: isSelected ? ParagraphBlockKeys.type : listBlockType,
+              type: isSelected ? ParagraphBlockKeys.type : blockType,
               attributes: attributes,
             );
           },
@@ -153,4 +84,109 @@ class _MobileListMenu extends StatelessWidget {
       },
     );
   }
+}
+
+final _convertToBlockMenus = [
+  // paragraph
+  BlockMenuItem(
+    blockType: PageBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_text_decoration_m),
+    label: LocaleKeys.editor_text.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+
+  // to-do list
+  BlockMenuItem(
+    blockType: TodoListBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_checkbox_m),
+    label: LocaleKeys.editor_checkbox.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+
+  // heading 1 - 3
+  BlockMenuItem(
+    blockType: HeadingBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_h1_m),
+    label: LocaleKeys.editor_heading1.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+  BlockMenuItem(
+    blockType: HeadingBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_h2_m),
+    label: LocaleKeys.editor_heading2.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+  BlockMenuItem(
+    blockType: HeadingBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_h3_m),
+    label: LocaleKeys.editor_heading3.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+
+  // bulleted list
+  BlockMenuItem(
+    blockType: BulletedListBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_bulleted_list_m),
+    label: LocaleKeys.editor_bulletedList.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+
+  // numbered list
+  BlockMenuItem(
+    blockType: NumberedListBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_numbered_list_m),
+    label: LocaleKeys.editor_numberedList.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+
+  // toggle list
+  BlockMenuItem(
+    blockType: ToggleListBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_toggle_list_m),
+    label: LocaleKeys.document_plugins_toggleList.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+
+  // quote
+  BlockMenuItem(
+    blockType: QuoteBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_quote_m),
+    label: LocaleKeys.editor_quote.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+
+  // callout
+  BlockMenuItem(
+    blockType: CalloutBlockKeys.type,
+    // FIXME: update icon
+    icon: const Icon(Icons.note_rounded),
+    label: LocaleKeys.document_plugins_callout.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+
+  // code
+  BlockMenuItem(
+    blockType: CodeBlockKeys.type,
+    icon: const FlowySvg(FlowySvgs.m_code_m),
+    label: LocaleKeys.document_selectionMenu_codeBlock.tr(),
+    isSelected: _unSelectable,
+    onTap: (editorState, selection) {},
+  ),
+];
+
+bool _unSelectable(
+  EditorState editorState,
+  Selection selection,
+) {
+  return false;
 }
