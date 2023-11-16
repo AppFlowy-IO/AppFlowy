@@ -11,7 +11,7 @@ class MobileHomeSettingPage extends StatefulWidget {
     super.key,
   });
 
-  static const routeName = '/MobileHomeSettingPage';
+  static const routeName = '/settings';
 
   @override
   State<MobileHomeSettingPage> createState() => _MobileHomeSettingPageState();

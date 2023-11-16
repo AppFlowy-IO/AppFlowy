@@ -422,48 +422,50 @@ class DocumentCoverState extends State<DocumentCover> {
             right: 12,
             child: Row(
               children: [
-                RoundedTextButton(
-                  onPressed: () {
-                    showFlowyMobileBottomSheet(
-                      context,
-                      title: LocaleKeys.document_plugins_cover_changeCover.tr(),
-                      builder: (context) {
-                        return ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxHeight: 340,
-                            minHeight: 80,
-                          ),
-                          child: UploadImageMenu(
-                            supportTypes: const [
-                              UploadImageType.color,
-                              UploadImageType.local,
-                              UploadImageType.url,
-                              UploadImageType.unsplash,
-                            ],
-                            onSelectedLocalImage: (path) async {
-                              context.pop();
-                              widget.onCoverChanged(CoverType.file, path);
-                            },
-                            onSelectedAIImage: (_) {
-                              throw UnimplementedError();
-                            },
-                            onSelectedNetworkImage: (url) async {
-                              context.pop();
-                              widget.onCoverChanged(CoverType.file, url);
-                            },
-                            onSelectedColor: (color) {
-                              context.pop();
-                              widget.onCoverChanged(CoverType.color, color);
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  fillColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                  width: 120,
-                  height: 32,
-                  title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+                IntrinsicWidth(
+                  child: RoundedTextButton(
+                    onPressed: () {
+                      showFlowyMobileBottomSheet(
+                        context,
+                        title:
+                            LocaleKeys.document_plugins_cover_changeCover.tr(),
+                        builder: (context) {
+                          return ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 340,
+                              minHeight: 80,
+                            ),
+                            child: UploadImageMenu(
+                              supportTypes: const [
+                                UploadImageType.color,
+                                UploadImageType.local,
+                                UploadImageType.url,
+                                UploadImageType.unsplash,
+                              ],
+                              onSelectedLocalImage: (path) async {
+                                context.pop();
+                                widget.onCoverChanged(CoverType.file, path);
+                              },
+                              onSelectedAIImage: (_) {
+                                throw UnimplementedError();
+                              },
+                              onSelectedNetworkImage: (url) async {
+                                context.pop();
+                                widget.onCoverChanged(CoverType.file, url);
+                              },
+                              onSelectedColor: (color) {
+                                context.pop();
+                                widget.onCoverChanged(CoverType.color, color);
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    fillColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 32,
+                    title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+                  ),
                 ),
                 const HSpace(8.0),
                 SizedBox.square(
