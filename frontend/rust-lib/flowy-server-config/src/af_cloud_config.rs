@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 pub const APPFLOWY_CLOUD_BASE_URL: &str = "APPFLOWY_CLOUD_BASE_URL";
 pub const APPFLOWY_CLOUD_WS_BASE_URL: &str = "APPFLOWY_CLOUD_WS_BASE_URL";
@@ -60,10 +60,25 @@ impl AFCloudConfiguration {
     })
   }
 
+  pub fn validate(&self) -> Result<(), FlowyError> {
+    if self.base_url.is_empty() || self.ws_base_url.is_empty() || self.gotrue_url.is_empty() {
+      return Err(FlowyError::new(
+        ErrorCode::InvalidAuthConfig,
+        format!(
+          "Invalid APPFLOWY_CLOUD_BASE_URL: {}, APPFLOWY_CLOUD_WS_BASE_URL: {}, APPFLOWY_CLOUD_GOTRUE_URL: {}",
+          self.base_url, self.ws_base_url, self.gotrue_url,
+        )),
+      );
+    }
+    Ok(())
+  }
+
   /// Write the configuration to the environment variables.
-  pub fn write_env(&self) {
+  pub fn write_env(&self) -> FlowyResult<()> {
+    self.validate()?;
     std::env::set_var(APPFLOWY_CLOUD_BASE_URL, &self.base_url);
     std::env::set_var(APPFLOWY_CLOUD_WS_BASE_URL, &self.ws_base_url);
     std::env::set_var(APPFLOWY_CLOUD_GOTRUE_URL, &self.gotrue_url);
+    Ok(())
   }
 }

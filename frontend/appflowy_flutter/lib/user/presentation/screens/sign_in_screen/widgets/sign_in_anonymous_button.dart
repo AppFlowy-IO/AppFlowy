@@ -41,7 +41,6 @@ class SignInAnonymousButton extends StatelessWidget {
                     : LocaleKeys.signIn_continueAnonymousUser.tr();
                 final onTap = state.historicalUsers.isEmpty
                     ? () {
-                        getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
                         context
                             .read<SignInBloc>()
                             .add(const SignInEvent.signedInAsGuest());

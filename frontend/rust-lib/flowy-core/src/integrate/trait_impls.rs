@@ -68,13 +68,10 @@ impl UserCloudServiceProvider for ServerProvider {
   }
 
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
-    match self.get_server(&self.get_server_type()) {
-      Ok(server) => {
-        server.set_enable_sync(uid, enable_sync);
-        *self.enable_sync.write() = enable_sync;
-        *self.uid.write() = Some(uid);
-      },
-      Err(e) => tracing::error!("🔴Failed to enable sync: {:?}", e),
+    if let Ok(server) = self.get_server(&self.get_server_type()) {
+      server.set_enable_sync(uid, enable_sync);
+      *self.enable_sync.write() = enable_sync;
+      *self.uid.write() = Some(uid);
     }
   }
 

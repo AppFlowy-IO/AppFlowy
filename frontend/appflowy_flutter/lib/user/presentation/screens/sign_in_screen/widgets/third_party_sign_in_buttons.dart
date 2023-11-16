@@ -165,19 +165,16 @@ class _ThirdPartySignInButton extends StatelessWidget {
 }
 
 void _signInWithGoogle(BuildContext context) {
-  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
   context.read<SignInBloc>().add(
         const SignInEvent.signedInWithOAuth('google'),
       );
 }
 
 void _signInWithGithub(BuildContext context) {
-  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
   context.read<SignInBloc>().add(const SignInEvent.signedInWithOAuth('github'));
 }
 
 void _signInWithDiscord(BuildContext context) {
-  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
   context
       .read<SignInBloc>()
       .add(const SignInEvent.signedInWithOAuth('discord'));

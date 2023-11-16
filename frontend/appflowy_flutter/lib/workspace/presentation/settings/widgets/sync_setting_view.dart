@@ -1,3 +1,4 @@
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/setting_supabase_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -34,10 +35,11 @@ class SyncSettingView extends StatelessWidget {
                 )..add(const CloudSettingEvent.initial()),
                 child: BlocBuilder<CloudSettingBloc, CloudSettingState>(
                   builder: (context, state) {
-                    return const Column(
+                    return Column(
                       children: [
-                        EnableSync(),
-                        EnableEncrypt(),
+                        const EnableSync(),
+                        // Currently the appflowy cloud is not support end-to-end encryption.
+                        if (!isAppFlowyCloudEnabled) const EnableEncrypt()
                       ],
                     );
                   },
