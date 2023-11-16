@@ -190,7 +190,7 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
 
   @override
   void requestBeginFocus() {
-    widget.onCellFocus.value = true;
+    widget.cellContainerNotifier.isFocus = true;
     _popoverController.show();
   }
 

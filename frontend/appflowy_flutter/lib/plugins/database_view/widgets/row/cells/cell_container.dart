@@ -13,28 +13,26 @@ class CellContainer extends StatelessWidget {
   final AccessoryBuilder? accessoryBuilder;
   final double width;
   final bool isPrimary;
-  final CellContainerNotifier cellContainerNotifier;
 
   const CellContainer({
     Key? key,
     required this.child,
     required this.width,
     required this.isPrimary,
-    required this.cellContainerNotifier,
     this.accessoryBuilder,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: cellContainerNotifier,
+      value: child.cellContainerNotifier,
       child: Selector<CellContainerNotifier, bool>(
         selector: (context, notifier) => notifier.isFocus,
-        builder: (privderContext, isFocus, _) {
+        builder: (providerContext, isFocus, _) {
           Widget container = Center(child: GridCellShortcuts(child: child));
 
           if (accessoryBuilder != null) {
-            final accessories = accessoryBuilder!(
+            final accessories = accessoryBuilder!.call(
               GridCellAccessoryBuildContext(
                 anchorContext: context,
                 isCellEditing: isFocus,
@@ -81,15 +79,16 @@ class CellContainer extends StatelessWidget {
 }
 
 class _GridCellEnterRegion extends StatelessWidget {
-  final Widget child;
-  final List<GridCellAccessoryBuilder> accessories;
-  final bool isPrimary;
   const _GridCellEnterRegion({
     required this.child,
     required this.accessories,
     required this.isPrimary,
     Key? key,
   }) : super(key: key);
+
+  final Widget child;
+  final List<GridCellAccessoryBuilder> accessories;
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {
@@ -110,11 +109,9 @@ class _GridCellEnterRegion extends StatelessWidget {
         return MouseRegion(
           cursor: SystemMouseCursors.click,
           onEnter: (p) =>
-              Provider.of<CellContainerNotifier>(context, listen: false)
-                  .onEnter = true,
+              CellContainerNotifier.of(context, listen: false).onEnter = true,
           onExit: (p) =>
-              Provider.of<CellContainerNotifier>(context, listen: false)
-                  .onEnter = false,
+              CellContainerNotifier.of(context, listen: false).onEnter = false,
           child: Stack(
             alignment: AlignmentDirectional.center,
             fit: StackFit.expand,
@@ -127,23 +124,8 @@ class _GridCellEnterRegion extends StatelessWidget {
 }
 
 class CellContainerNotifier extends ChangeNotifier {
-  final CellEditable cellEditable;
-  VoidCallback? _onCellFocusListener;
   bool _isFocus = false;
   bool _onEnter = false;
-
-  CellContainerNotifier(this.cellEditable) {
-    _onCellFocusListener = () => isFocus = cellEditable.onCellFocus.value;
-    cellEditable.onCellFocus.addListener(_onCellFocusListener!);
-  }
-
-  @override
-  void dispose() {
-    if (_onCellFocusListener != null) {
-      cellEditable.onCellFocus.removeListener(_onCellFocusListener!);
-    }
-    super.dispose();
-  }
 
   set isFocus(bool value) {
     if (_isFocus != value) {
@@ -162,4 +144,8 @@ class CellContainerNotifier extends ChangeNotifier {
   bool get isFocus => _isFocus;
 
   bool get onEnter => _onEnter;
+
+  static CellContainerNotifier of(BuildContext context, {bool listen = true}) {
+    return Provider.of<CellContainerNotifier>(context, listen: listen);
+  }
 }

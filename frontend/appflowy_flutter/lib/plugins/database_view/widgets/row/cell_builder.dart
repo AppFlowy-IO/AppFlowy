@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../application/cell/cell_service.dart';
 import 'accessory/cell_accessory.dart';
 import 'accessory/cell_shortcuts.dart';
+import 'cells/cell_container.dart';
 import 'cells/checkbox_cell/checkbox_cell.dart';
 import 'cells/checklist_cell/checklist_cell.dart';
 import 'cells/date_cell/date_cell.dart';
@@ -106,7 +107,7 @@ class BlankCell extends StatelessWidget {
 abstract class CellEditable {
   RequestFocusListener get requestFocus;
 
-  ValueNotifier<bool> get onCellFocus;
+  CellContainerNotifier get cellContainerNotifier;
 
   // ValueNotifier<bool> get onCellEditing;
 }
@@ -129,11 +130,11 @@ abstract class GridCellWidget extends StatefulWidget
   GridCellWidget({super.key});
 
   @override
-  final ValueNotifier<bool> onCellFocus = ValueNotifier<bool>(false);
+  final CellContainerNotifier cellContainerNotifier = CellContainerNotifier();
 
   // When the cell is focused, we assume that the accessory also be hovered.
   @override
-  ValueNotifier<bool> get onAccessoryHover => onCellFocus;
+  ValueNotifier<bool> get onAccessoryHover => ValueNotifier(false);
 
   // @override
   // final ValueNotifier<bool> onCellEditing = ValueNotifier<bool>(false);
@@ -192,9 +193,9 @@ abstract class GridEditableTextCell<T extends GridCellWidget>
 
   @override
   void didUpdateWidget(covariant T oldWidget) {
-    if (!focusNode.hasFocus && widget.onCellFocus.value) {
+    if (!focusNode.hasFocus && widget.cellContainerNotifier.isFocus) {
       focusNode.requestFocus();
-    } else if (focusNode.hasFocus && !widget.onCellFocus.value) {
+    } else if (focusNode.hasFocus && !widget.cellContainerNotifier.isFocus) {
       focusNode.unfocus();
     }
     super.didUpdateWidget(oldWidget);
@@ -210,15 +211,15 @@ abstract class GridEditableTextCell<T extends GridCellWidget>
 
   @override
   void requestBeginFocus() {
-    if (focusNode.hasFocus == false && focusNode.canRequestFocus) {
+    if (!focusNode.hasFocus && focusNode.canRequestFocus) {
       FocusScope.of(context).requestFocus(focusNode);
     }
   }
 
   void _listenOnFocusNodeChanged() {
-    widget.onCellFocus.value = focusNode.hasFocus;
+    widget.cellContainerNotifier.isFocus = focusNode.hasFocus;
     focusNode.setListener(() {
-      widget.onCellFocus.value = focusNode.hasFocus;
+      widget.cellContainerNotifier.isFocus = focusNode.hasFocus;
       focusChanged();
     });
   }
