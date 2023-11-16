@@ -34,7 +34,7 @@ void main() {
       await tester.findFieldWithName('New field 1');
 
       // go back to linked database view, expect field to be hidden
-      await tester.tapTabBarLinkedViewByViewName('grid');
+      await tester.tapTabBarLinkedViewByViewName('Grid');
       await tester.noFieldWithName('New field 1');
 
       // use the settings button to show the field
