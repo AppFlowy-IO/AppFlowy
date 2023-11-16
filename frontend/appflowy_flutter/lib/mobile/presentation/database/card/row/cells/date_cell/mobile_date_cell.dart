@@ -7,20 +7,15 @@ import 'package:go_router/go_router.dart';
 
 import 'mobile_date_cell_edit_screen.dart';
 
-abstract class GridCellDelegate {
-  void onFocus(bool isFocus);
-  GridCellDelegate get delegate;
-}
-
 class MobileDateCell extends GridCellWidget {
   MobileDateCell({
     super.key,
     required this.cellControllerBuilder,
-    required this.placeholder,
+    required this.hintText,
   });
 
   final CellControllerBuilder cellControllerBuilder;
-  final String? placeholder;
+  final String? hintText;
 
   @override
   GridCellState<MobileDateCell> createState() => _DateCellState();
@@ -57,7 +52,7 @@ class _DateCellState extends GridCellState<MobileDateCell> {
               width: double.infinity,
               child: MobileDateCellText(
                 dateStr: state.dateStr,
-                placeholder: widget.placeholder ?? "",
+                placeholder: widget.hintText ?? "",
               ),
             ),
           );
@@ -73,9 +68,7 @@ class _DateCellState extends GridCellState<MobileDateCell> {
   }
 
   @override
-  void requestBeginFocus() {
-    widget.onCellFocus.value = true;
-  }
+  void requestBeginFocus() {}
 
   @override
   String? onCopy() => _cellBloc.state.dateStr;

@@ -8,5 +8,5 @@ class URLTypeOptionMobileWidgetBuilder extends TypeOptionWidgetBuilder {
   );
 
   @override
-  Widget? build(BuildContext context) => const Text('Under Construction');
+  Widget? build(BuildContext context) => null;
 }

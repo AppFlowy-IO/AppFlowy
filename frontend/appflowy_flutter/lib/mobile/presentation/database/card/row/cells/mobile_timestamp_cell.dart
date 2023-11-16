@@ -53,7 +53,5 @@ class _TimestampCellState extends GridCellState<MobileTimestampCell> {
   String? onCopy() => _cellBloc.state.dateStr;
 
   @override
-  void requestBeginFocus() {
-    return;
-  }
+  void requestBeginFocus() {}
 }

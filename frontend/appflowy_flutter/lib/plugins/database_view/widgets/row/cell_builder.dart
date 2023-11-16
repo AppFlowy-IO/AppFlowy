@@ -155,7 +155,14 @@ GridCellWidget _getMobileCardCellWidget(
       style as DateCellStyle;
       return MobileDateCell(
         cellControllerBuilder: cellControllerBuilder,
-        placeholder: style.placeholder,
+        hintText: style.placeholder,
+        key: key,
+      );
+    case FieldType.URL:
+      style as GridURLCellStyle;
+      return MobileURLCell(
+        cellControllerBuilder: cellControllerBuilder,
+        hintText: style.placeholder,
         key: key,
       );
     // TODO(yijing):  implement the following mobile select option cell
@@ -173,13 +180,6 @@ GridCellWidget _getMobileCardCellWidget(
       );
     case FieldType.Checklist:
       return GridChecklistCell(
-        cellControllerBuilder: cellControllerBuilder,
-        style: style,
-        key: key,
-      );
-
-    case FieldType.URL:
-      return GridURLCell(
         cellControllerBuilder: cellControllerBuilder,
         style: style,
         key: key,

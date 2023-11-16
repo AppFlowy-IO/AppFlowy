@@ -800,7 +800,10 @@
     "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
-    "referencedBoardPrefix": "View of"
+    "referencedBoardPrefix": "View of",
+    "mobile": {
+      "editURL": "Edit URL"
+    }
   },
   "calendar": {
     "menuName": "Calendar",
