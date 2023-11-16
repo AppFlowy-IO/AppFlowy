@@ -255,7 +255,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           behavior: HitTestBehavior.translucent,
           onTap: () async {
             // if the last one isn't a empty node, insert a new empty node.
-            await _ensureLastNodeIsEmptyParagraph();
+            await _focusOnLastEmptyParagraph();
           },
           child: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
         ),
@@ -480,19 +480,23 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     AppFlowyEditorL10n.current = EditorI18n();
   }
 
-  Future<void> _ensureLastNodeIsEmptyParagraph() async {
+  Future<void> _focusOnLastEmptyParagraph() async {
     final editorState = widget.editorState;
     final root = editorState.document.root;
     final lastNode = root.children.lastOrNull;
+    final transaction = editorState.transaction;
     if (lastNode == null ||
         lastNode.delta?.isEmpty == false ||
         lastNode.type != ParagraphBlockKeys.type) {
-      final transaction = editorState.transaction;
       transaction.insertNode([root.children.length], paragraphNode());
       transaction.afterSelection = Selection.collapsed(
         Position(path: [root.children.length]),
       );
-      await editorState.apply(transaction);
+    } else {
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: lastNode.path),
+      );
     }
+    await editorState.apply(transaction);
   }
 }

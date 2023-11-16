@@ -62,8 +62,6 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final style = MobileToolbarTheme.of(context);
-
     final bius = textDecorations.map((currentDecoration) {
       // Check current decoration is active or not
       final selection = widget.selection;
