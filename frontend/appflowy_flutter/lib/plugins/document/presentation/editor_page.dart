@@ -266,50 +266,50 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     _setInitialSelection(editorScrollController);
 
     if (PlatformExtension.isMobile) {
-      return Column(
-        children: [
-          Expanded(
-            child: MobileFloatingToolbar(
-              editorState: editorState,
-              editorScrollController: editorScrollController,
-              toolbarBuilder: (context, anchor, closeToolbar) {
-                return AdaptiveTextSelectionToolbar.editable(
-                  clipboardStatus: ClipboardStatus.pasteable,
-                  onCopy: () {
-                    copyCommand.execute(editorState);
-                    closeToolbar();
-                  },
-                  onCut: () => cutCommand.execute(editorState),
-                  onPaste: () => pasteCommand.execute(editorState),
-                  onSelectAll: () => selectAllCommand.execute(editorState),
-                  onLiveTextInput: null,
-                  anchors: TextSelectionToolbarAnchors(
-                    primaryAnchor: anchor,
-                  ),
-                );
-              },
-              child: editor,
-            ),
-          ),
-          MobileToolbarV2(
-            editorState: editorState,
-            toolbarItems: [
-              textDecorationMobileToolbarItemV2,
-              buildTextAndBackgroundColorMobileToolbarItem(),
-              mobileBlocksToolbarItem,
-              linkMobileToolbarItem,
-              dividerMobileToolbarItem,
-              imageMobileToolbarItem,
-              mathEquationMobileToolbarItem,
-              codeMobileToolbarItem,
-              mobileAlignToolbarItem,
-              mobileIndentToolbarItem,
-              mobileOutdentToolbarItem,
-              undoMobileToolbarItem,
-              redoMobileToolbarItem,
-            ],
-          ),
+      return MobileToolbarV2(
+        editorState: editorState,
+        toolbarItems: [
+          customTextDecorationMobileToolbarItem,
+          buildTextAndBackgroundColorMobileToolbarItem(),
+          mobileConvertBlockToolbarItem,
+          linkMobileToolbarItem,
+          dividerMobileToolbarItem,
+          imageMobileToolbarItem,
+          mathEquationMobileToolbarItem,
+          codeMobileToolbarItem,
+          mobileAlignToolbarItem,
+          mobileIndentToolbarItem,
+          mobileOutdentToolbarItem,
+          undoMobileToolbarItem,
+          redoMobileToolbarItem,
         ],
+        child: Column(
+          children: [
+            Expanded(
+              child: MobileFloatingToolbar(
+                editorState: editorState,
+                editorScrollController: editorScrollController,
+                toolbarBuilder: (context, anchor, closeToolbar) {
+                  return AdaptiveTextSelectionToolbar.editable(
+                    clipboardStatus: ClipboardStatus.pasteable,
+                    onCopy: () {
+                      copyCommand.execute(editorState);
+                      closeToolbar();
+                    },
+                    onCut: () => cutCommand.execute(editorState),
+                    onPaste: () => pasteCommand.execute(editorState),
+                    onSelectAll: () => selectAllCommand.execute(editorState),
+                    onLiveTextInput: null,
+                    anchors: TextSelectionToolbarAnchors(
+                      primaryAnchor: anchor,
+                    ),
+                  );
+                },
+                child: editor,
+              ),
+            ),
+          ],
+        ),
       );
     }
 

@@ -38,6 +38,7 @@ class _MobileAlignMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.count(
+      padding: EdgeInsets.zero,
       crossAxisCount: 3,
       mainAxisSpacing: 8,
       crossAxisSpacing: 8,

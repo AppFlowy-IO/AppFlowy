@@ -326,6 +326,7 @@ GoRoute _mobileEditorScreenRoute() {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
       return MaterialPage(
+        fullscreenDialog: true,
         child: MobileEditorScreen(
           id: id,
           title: title,

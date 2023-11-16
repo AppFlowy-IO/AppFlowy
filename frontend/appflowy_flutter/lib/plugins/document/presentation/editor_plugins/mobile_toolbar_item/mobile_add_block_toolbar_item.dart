@@ -6,11 +6,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-final mobileBlocksToolbarItem = MobileToolbarItem.withMenu(
-  itemIconBuilder: (_, __, ___) => const FlowySvg(
-    FlowySvgs.add_m,
-    size: Size.square(48),
-  ),
+// convert the current block to other block types
+// only show in single selection and text type
+final mobileConvertBlockToolbarItem = MobileToolbarItem.withMenu(
+  itemIconBuilder: (_, editorState, ___) {
+    if (!onlyShowInTextType(editorState)) {
+      return null;
+    }
+    return const FlowySvg(
+      FlowySvgs.add_m,
+      size: Size.square(48),
+    );
+  },
   itemMenuBuilder: (_, editorState, __) {
     final selection = editorState.selection;
     if (selection == null) {
@@ -38,7 +45,8 @@ class _MobileListMenu extends StatelessWidget {
       crossAxisCount: 2,
       mainAxisSpacing: 8,
       crossAxisSpacing: 8,
-      childAspectRatio: 5,
+      childAspectRatio: 4,
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       children: [
         // bulleted list, numbered list
