@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/mobile/mobile_tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -6,11 +8,11 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../application/database_controller.dart';
-import 'tab_bar_header.dart';
+import 'desktop/tab_bar_header.dart';
 
 abstract class DatabaseTabBarItemBuilder {
   const DatabaseTabBarItemBuilder();
@@ -94,12 +96,11 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                     if (value) {
                       return const SizedBox.shrink();
                     }
-                    return const SizedBox(
-                      height: 30,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 40),
-                        child: TabBarHeader(),
-                      ),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: PlatformExtension.isDesktop
+                          ? const TabBarHeader()
+                          : const MobileTabBarHeader(),
                     );
                   },
                 );

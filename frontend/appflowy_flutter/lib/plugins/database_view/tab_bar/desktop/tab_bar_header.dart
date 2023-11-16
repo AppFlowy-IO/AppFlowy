@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -12,7 +13,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../application/tab_bar_bloc.dart';
 import 'tab_bar_add_button.dart';
 
 class TabBarHeader extends StatefulWidget {
@@ -25,44 +25,47 @@ class TabBarHeader extends StatefulWidget {
 class _TabBarHeaderState extends State<TabBarHeader> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Divider(
-            color: Theme.of(context).dividerColor,
-            height: 1,
-            thickness: 1,
+    return SizedBox(
+      height: 30,
+      child: Stack(
+        children: [
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Divider(
+              color: Theme.of(context).dividerColor,
+              height: 1,
+              thickness: 1,
+            ),
           ),
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                return const Flexible(
-                  child: DatabaseTabBar(),
-                );
-              },
-            ),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                return SizedBox(
-                  width: 200,
-                  child: Column(
-                    children: [
-                      const VSpace(3),
-                      pageSettingBarFromState(state),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+                builder: (context, state) {
+                  return const Flexible(
+                    child: DatabaseTabBar(),
+                  );
+                },
+              ),
+              BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+                builder: (context, state) {
+                  return SizedBox(
+                    width: 200,
+                    child: Column(
+                      children: [
+                        const VSpace(3),
+                        pageSettingBarFromState(state),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

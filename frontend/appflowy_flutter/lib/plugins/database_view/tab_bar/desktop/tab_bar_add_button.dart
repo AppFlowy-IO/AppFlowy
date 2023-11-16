@@ -91,7 +91,7 @@ class TabBarAddButtonAction extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) => cells[index],
       separatorBuilder: (BuildContext context, int index) =>
           VSpace(GridSize.typeOptionSeparatorHeight),
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
     );
   }
 }
