@@ -229,7 +229,9 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     Widget child = Container(
       alignment: Alignment.bottomLeft,
       width: double.infinity,
-      padding: EditorStyleCustomizer.documentPadding,
+      padding: EdgeInsets.symmetric(
+        horizontal: EditorStyleCustomizer.documentPadding.left - 6.0,
+      ),
       child: SizedBox(
         height: 28,
         child: Row(
@@ -535,8 +537,6 @@ class DocumentCoverState extends State<DocumentCover> {
               hoverColor: Theme.of(context).colorScheme.surface,
               textColor: Theme.of(context).colorScheme.tertiary,
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-              width: 120,
-              height: 28,
               title: LocaleKeys.document_plugins_cover_changeCover.tr(),
             ),
             popupBuilder: (BuildContext popoverContext) {
