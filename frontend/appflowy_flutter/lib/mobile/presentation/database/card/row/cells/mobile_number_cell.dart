@@ -57,6 +57,9 @@ class _NumberCellState extends GridEditableTextCell<MobileNumberCell> {
             contentPadding: EdgeInsets.zero,
             isCollapsed: true,
           ),
+          // close keyboard when tapping outside of the text field
+          onTapOutside: (event) =>
+              FocusManager.instance.primaryFocus?.unfocus(),
         ),
       ),
     );
