@@ -185,19 +185,19 @@ abstract class GridEditableTextCell<T extends GridCellWidget>
 
   @override
   void initState() {
+    super.initState();
     widget.shortcutHandlers[CellKeyboardKey.onEnter] =
         () => focusNode.unfocus();
     _listenOnFocusNodeChanged();
-    super.initState();
   }
 
   @override
   void didUpdateWidget(covariant T oldWidget) {
-    if (!focusNode.hasFocus && widget.cellContainerNotifier.isFocus) {
-      focusNode.requestFocus();
-    } else if (focusNode.hasFocus && !widget.cellContainerNotifier.isFocus) {
-      focusNode.unfocus();
-    }
+    // if (!focusNode.hasFocus && widget.cellContainerNotifier.isFocus) {
+    //   focusNode.requestFocus();
+    // } else if (focusNode.hasFocus && !widget.cellContainerNotifier.isFocus) {
+    //   focusNode.unfocus();
+    // }
     super.didUpdateWidget(oldWidget);
   }
 

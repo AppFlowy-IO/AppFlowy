@@ -48,15 +48,25 @@ class CellContainer extends StatelessWidget {
             }
           }
 
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => child.requestFocus.notify(),
-            child: Container(
-              constraints: BoxConstraints(maxWidth: width, minHeight: 46),
-              decoration: _makeBoxDecoration(context, isFocus),
-              child: container,
-            ),
+          return Container(
+            constraints: BoxConstraints(maxWidth: width, minHeight: 46),
+            decoration: _makeBoxDecoration(context, isFocus),
+            child: container,
           );
+
+          // return GestureDetector(
+          //   behavior: HitTestBehavior.opaque,
+          //   onTap: () {
+          //     if (!isFocus) {
+          //       child.requestFocus.notify();
+          //     }
+          //   },
+          //   child: Container(
+          //     constraints: BoxConstraints(maxWidth: width, minHeight: 46),
+          //     decoration: _makeBoxDecoration(context, isFocus),
+          //     child: container,
+          //   ),
+          // );
         },
       ),
     );

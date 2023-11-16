@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -243,6 +244,19 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
+    final children = rowInfos.mapIndexed((index, rowInfo) {
+      return ReorderableDelayedDragStartListener(
+        key: ValueKey(rowInfo.rowMeta.id),
+        index: index,
+        child: _renderRow(
+          context,
+          rowInfo.rowId,
+          isDraggable: state.reorderable,
+          index: index,
+        ),
+      );
+    }).toList();
+
     return ReorderableListView.builder(
       scrollController: scrollController.verticalController,
       buildDefaultDragHandles: false,
@@ -258,19 +272,7 @@ class _GridRows extends StatelessWidget {
         context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
       },
       itemCount: rowInfos.length,
-      itemBuilder: (context, index) {
-        final rowInfo = rowInfos[index];
-        return ReorderableDelayedDragStartListener(
-          key: ValueKey(rowInfo.rowMeta.id),
-          index: index,
-          child: _renderRow(
-            context,
-            rowInfo.rowId,
-            isDraggable: state.reorderable,
-            index: index,
-          ),
-        );
-      },
+      itemBuilder: (context, index) => children[index],
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
