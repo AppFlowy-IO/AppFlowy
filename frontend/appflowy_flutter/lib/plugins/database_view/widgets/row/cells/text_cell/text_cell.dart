@@ -129,6 +129,7 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
                           hintText: widget.cellStyle.placeholder,
                           isDense: true,
                         ),
+                        onTapOutside: (_) => focusNode.unfocus(),
                       ),
               ),
             ],

@@ -87,6 +87,7 @@ class _NumberCellState extends GridEditableTextCell<GridNumberCell> {
               hintText: widget.cellStyle.placeholder,
               isDense: true,
             ),
+            onTapOutside: (_) => focusNode.unfocus(),
           ),
         ),
       ),

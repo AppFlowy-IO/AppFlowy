@@ -110,7 +110,6 @@ class GridURLCell extends GridCellWidget {
 }
 
 class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
-  final _popoverController = PopoverController();
   late final URLCellBloc _cellBloc;
   late final TextEditingController _controller;
 
@@ -175,6 +174,7 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
                 hintStyle: style.copyWith(color: Theme.of(context).hintColor),
                 isDense: true,
               ),
+              onTapOutside: (_) => focusNode.unfocus(),
             ),
           );
         },
@@ -186,12 +186,6 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
   Future<void> focusChanged() async {
     _cellBloc.add(URLCellEvent.updateURL(_controller.text));
     return super.focusChanged();
-  }
-
-  @override
-  void requestBeginFocus() {
-    widget.cellContainerNotifier.isFocus = true;
-    _popoverController.show();
   }
 
   @override

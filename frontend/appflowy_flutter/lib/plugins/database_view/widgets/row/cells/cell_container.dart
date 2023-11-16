@@ -48,25 +48,19 @@ class CellContainer extends StatelessWidget {
             }
           }
 
-          return Container(
-            constraints: BoxConstraints(maxWidth: width, minHeight: 46),
-            decoration: _makeBoxDecoration(context, isFocus),
-            child: container,
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (!isFocus) {
+                child.requestFocus.notify();
+              }
+            },
+            child: Container(
+              constraints: BoxConstraints(maxWidth: width, minHeight: 46),
+              decoration: _makeBoxDecoration(context, isFocus),
+              child: container,
+            ),
           );
-
-          // return GestureDetector(
-          //   behavior: HitTestBehavior.opaque,
-          //   onTap: () {
-          //     if (!isFocus) {
-          //       child.requestFocus.notify();
-          //     }
-          //   },
-          //   child: Container(
-          //     constraints: BoxConstraints(maxWidth: width, minHeight: 46),
-          //     decoration: _makeBoxDecoration(context, isFocus),
-          //     child: container,
-          //   ),
-          // );
         },
       ),
     );
@@ -107,7 +101,17 @@ class _GridCellEnterRegion extends StatelessWidget {
           !cellNotifier.isFocus &&
           (cellNotifier.onEnter || regionNotifier.onEnter && isPrimary),
       builder: (context, showAccessory, _) {
-        final List<Widget> children = [child];
+        final List<Widget> children = [
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (p) =>
+                CellContainerNotifier.of(context, listen: false).onEnter = true,
+            onExit: (p) => CellContainerNotifier.of(context, listen: false)
+                .onEnter = false,
+          ),
+          child,
+        ];
+
         if (showAccessory) {
           children.add(
             CellAccessoryContainer(accessories: accessories).positioned(
@@ -116,17 +120,10 @@ class _GridCellEnterRegion extends StatelessWidget {
           );
         }
 
-        return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (p) =>
-              CellContainerNotifier.of(context, listen: false).onEnter = true,
-          onExit: (p) =>
-              CellContainerNotifier.of(context, listen: false).onEnter = false,
-          child: Stack(
-            alignment: AlignmentDirectional.center,
-            fit: StackFit.expand,
-            children: children,
-          ),
+        return Stack(
+          alignment: AlignmentDirectional.center,
+          fit: StackFit.expand,
+          children: children,
         );
       },
     );
