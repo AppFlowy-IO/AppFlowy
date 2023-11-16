@@ -392,12 +392,20 @@ impl EventIntegrationTest {
       .error()
   }
 
-  pub async fn set_group_by_field(&self, view_id: &str, field_id: &str) -> Option<FlowyError> {
+  pub async fn set_group_by_field(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    condition: i32,
+    hide_empty: bool,
+  ) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::SetGroupByField)
       .payload(GroupByFieldPayloadPB {
         field_id: field_id.to_string(),
         view_id: view_id.to_string(),
+        condition,
+        hide_empty,
       })
       .async_send()
       .await

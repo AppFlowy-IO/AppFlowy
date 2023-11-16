@@ -14,6 +14,12 @@ pub struct GroupSettingPB {
 
   #[pb(index = 2)]
   pub field_id: String,
+
+  #[pb(index = 3)]
+  pub condition: i32,
+
+  #[pb(index = 4)]
+  pub hide_empty: bool,
 }
 
 impl std::convert::From<&GroupSetting> for GroupSettingPB {
@@ -21,6 +27,8 @@ impl std::convert::From<&GroupSetting> for GroupSettingPB {
     GroupSettingPB {
       id: rev.id.clone(),
       field_id: rev.field_id.clone(),
+      condition: rev.condition.clone().into(),
+      hide_empty: rev.hide_empty.clone(),
     }
   }
 }
@@ -108,6 +116,12 @@ pub struct GroupByFieldPayloadPB {
 
   #[pb(index = 2)]
   pub view_id: String,
+
+  #[pb(index = 3)]
+  pub condition: i32,
+
+  #[pb(index = 4)]
+  pub hide_empty: bool,
 }
 
 impl TryInto<GroupByFieldParams> for GroupByFieldPayloadPB {
@@ -121,13 +135,20 @@ impl TryInto<GroupByFieldParams> for GroupByFieldPayloadPB {
       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
-    Ok(GroupByFieldParams { field_id, view_id })
+    Ok(GroupByFieldParams {
+      field_id,
+      view_id,
+      condition: self.condition as u8,
+      hide_empty: self.hide_empty,
+    })
   }
 }
 
 pub struct GroupByFieldParams {
   pub field_id: String,
   pub view_id: String,
+  pub condition: u8,
+  pub hide_empty: bool,
 }
 
 pub struct DeleteGroupParams {

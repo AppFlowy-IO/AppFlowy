@@ -82,7 +82,7 @@ pub struct GroupContext<C> {
   reader: Arc<dyn GroupSettingReader>,
 
   /// A writer that implement the [GroupSettingWriter] trait is used to save the
-  /// configuration to disk  
+  /// configuration to disk
   ///
   writer: Arc<dyn GroupSettingWriter>,
 }
@@ -406,8 +406,8 @@ where
       .await
   }
 
-  pub fn get_setting_content(&self) -> String {
-    self.setting.content.clone()
+  pub fn get_setting(&self) -> Arc<GroupSetting> {
+    self.setting.clone()
   }
 
   /// # Arguments

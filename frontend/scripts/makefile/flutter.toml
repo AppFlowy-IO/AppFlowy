@@ -271,7 +271,7 @@ script = ["""
   flutter pub get
   flutter packages pub get
   cd ../
-  sh scripts/code_generation/generate.sh
+  sh scripts/code_generation/generate.sh -s
   """]
 
 [tasks.code_generation.windows]

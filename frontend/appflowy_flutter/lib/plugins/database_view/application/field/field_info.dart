@@ -1,6 +1,8 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/configuration.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 part 'field_info.freezed.dart';
 
 @freezed
@@ -74,6 +76,24 @@ class FieldInfo with _$FieldInfo {
         return true;
       default:
         return false;
+    }
+  }
+
+  bool get hasConfig {
+    switch (field.fieldType) {
+      case FieldType.DateTime:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  List<ProtobufEnum> get conditions {
+    switch (field.fieldType) {
+      case FieldType.DateTime:
+        return DateCondition.values;
+      default:
+        return [];
     }
   }
 }
