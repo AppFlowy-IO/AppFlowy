@@ -1,8 +1,6 @@
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-import 'mobile_setting_item_widget.dart';
-
 class MobileSettingGroup extends StatelessWidget {
   const MobileSettingGroup({
     required this.groupTitle,
@@ -10,8 +8,9 @@ class MobileSettingGroup extends StatelessWidget {
     this.showDivider = true,
     super.key,
   });
+
   final String groupTitle;
-  final List<MobileSettingItem> settingItemList;
+  final List<Widget> settingItemList;
   final bool showDivider;
 
   @override

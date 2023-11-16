@@ -1065,6 +1065,7 @@
   },
   "titleBar": {
     "pageIcon": "Page icon",
-    "language": "Language"
+    "language": "Language",
+    "font": "Font"
   }
 }
