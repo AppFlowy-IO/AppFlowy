@@ -3,8 +3,10 @@ import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sh
 import 'package:appflowy/util/theme_mode_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'setting.dart';
 
 class AppearanceSettingGroup extends StatefulWidget {
@@ -34,11 +36,9 @@ class _AppearanceSettingGroupState extends State<AppearanceSettingGroup> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  FlowyText(
                     themeMode.labelText,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
+                    color: theme.colorScheme.onSurface,
                   ),
                   const Icon(Icons.chevron_right),
                 ],

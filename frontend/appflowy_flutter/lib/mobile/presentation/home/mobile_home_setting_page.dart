@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/setting/language_setting_group.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -58,6 +59,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                         // TODO(yijing): implement this along with Notification Page
                         const NotificationsSettingGroup(),
                         const AppearanceSettingGroup(),
+                        const LanguageSettingGroup(),
                         const SupportSettingGroup(),
                         const AboutSettingGroup(),
                       ],
