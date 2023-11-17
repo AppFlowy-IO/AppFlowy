@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 SelectionMenuItem referencedDocumentMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedDocument.tr(),
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.documents_s,
+    data: FlowySvgs.document_s,
     isSelected: onSelected,
     style: style,
   ),
