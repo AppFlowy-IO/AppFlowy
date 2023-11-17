@@ -650,6 +650,7 @@
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
       "mathEquation": {
+        "name": "Math Equation",
         "addMathEquation": "Add a TeX equation",
         "editMathEquation": "Edit Math Equation"
       },
@@ -1064,6 +1065,7 @@
   },
   "titleBar": {
     "pageIcon": "Page icon",
-    "language": "Language"
+    "language": "Language",
+    "font": "Font"
   }
 }

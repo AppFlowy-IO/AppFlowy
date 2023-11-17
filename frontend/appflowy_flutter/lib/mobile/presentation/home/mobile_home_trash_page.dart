@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 class MobileHomeTrashPage extends StatelessWidget {
   const MobileHomeTrashPage({super.key});
 
-  static const routeName = "/MobileHomeTrashPage";
+  static const routeName = '/trash';
 
   @override
   Widget build(BuildContext context) {
