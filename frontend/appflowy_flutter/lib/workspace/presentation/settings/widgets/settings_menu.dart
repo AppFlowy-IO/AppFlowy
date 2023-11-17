@@ -67,9 +67,9 @@ class SettingsMenu extends StatelessWidget {
         if (showSyncSetting) ...[
           const SizedBox(height: 10),
           SettingsMenuElement(
-            page: SettingsPage.syncSetting,
+            page: SettingsPage.cloud,
             selectedPage: currentPage,
-            label: LocaleKeys.settings_menu_syncSetting.tr(),
+            label: LocaleKeys.settings_menu_cloudSetting.tr(),
             icon: Icons.sync,
             changeSelectedPage: changeSelectedPage,
           ),

@@ -48,51 +48,65 @@ class SettingsFileLocationCustomizerState
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // display file paths.
-                  Flexible(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FlowyText.medium(
-                          LocaleKeys.settings_files_defaultLocation.tr(),
-                          fontSize: 13,
-                          overflow: TextOverflow.visible,
-                        ).padding(horizontal: 5),
-                        const VSpace(5),
-                        _CopyableText(
-                          usingPath: path,
-                        ),
-                      ],
-                    ),
-                  ),
+                  _path(path),
 
                   // display the icons
-                  Flexible(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: _ChangeStoragePathButton(
-                            usingPath: path,
-                          ),
-                        ),
-                        const HSpace(10),
-                        _OpenStorageButton(
-                          usingPath: path,
-                        ),
-                        _RecoverDefaultStorageButton(
-                          usingPath: path,
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buttons(path),
                 ],
               );
             },
           );
         },
       ),
+    );
+  }
+
+  Widget _path(String path) {
+    return Flexible(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlowyText.medium(
+            LocaleKeys.settings_files_defaultLocation.tr(),
+            fontSize: 13,
+            overflow: TextOverflow.visible,
+          ).padding(horizontal: 5),
+          const VSpace(5),
+          _CopyableText(
+            usingPath: path,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buttons(String path) {
+    final List<Widget> children = [];
+    children.addAll([
+      Flexible(
+        child: _ChangeStoragePathButton(
+          usingPath: path,
+        ),
+      ),
+      const HSpace(10),
+    ]);
+
+    children.add(
+      _OpenStorageButton(
+        usingPath: path,
+      ),
+    );
+
+    children.add(
+      _RecoverDefaultStorageButton(
+        usingPath: path,
+      ),
+    );
+
+    return Flexible(
+      child: Row(mainAxisAlignment: MainAxisAlignment.end, children: children),
     );
   }
 }

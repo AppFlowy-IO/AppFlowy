@@ -12,7 +12,7 @@ import '../../../core/notification/user_notification.dart';
 class UserCloudConfigListener {
   final String userId;
   StreamSubscription<SubscribeObject>? _subscription;
-  void Function(Either<UserCloudConfigPB, FlowyError>)? _onSettingChanged;
+  void Function(Either<CloudSettingPB, FlowyError>)? _onSettingChanged;
 
   UserNotificationParser? _userParser;
   UserCloudConfigListener({
@@ -20,7 +20,7 @@ class UserCloudConfigListener {
   });
 
   void start({
-    void Function(Either<UserCloudConfigPB, FlowyError>)? onSettingChanged,
+    void Function(Either<CloudSettingPB, FlowyError>)? onSettingChanged,
   }) {
     _onSettingChanged = onSettingChanged;
     _userParser = UserNotificationParser(
@@ -45,8 +45,8 @@ class UserCloudConfigListener {
     switch (ty) {
       case UserNotification.DidUpdateCloudConfig:
         result.fold(
-          (payload) => _onSettingChanged
-              ?.call(left(UserCloudConfigPB.fromBuffer(payload))),
+          (payload) =>
+              _onSettingChanged?.call(left(CloudSettingPB.fromBuffer(payload))),
           (error) => _onSettingChanged?.call(right(error)),
         );
         break;

@@ -262,6 +262,8 @@
       "logoutPrompt": "Are you sure to logout?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
+      "cloudSetting": "Cloud Setting",
+      "cloudURL": "Server URL",
       "enableSync": "Enable sync",
       "enableEncrypt": "Encrypt data",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",

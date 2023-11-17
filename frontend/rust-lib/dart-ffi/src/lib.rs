@@ -7,6 +7,7 @@ use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use tracing::{error, trace};
 
+use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::*;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
 use lib_dispatch::prelude::ToBytes;

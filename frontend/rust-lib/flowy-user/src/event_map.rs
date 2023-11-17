@@ -119,7 +119,7 @@ pub enum UserEvent {
   #[event(input = "UpdateCloudConfigPB")]
   SetCloudConfig = 13,
 
-  #[event(output = "UserCloudConfigPB")]
+  #[event(output = "CloudSettingPB")]
   GetCloudConfig = 14,
 
   #[event(input = "UserSecretPB")]
@@ -248,7 +248,7 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   fn get_authenticator(&self) -> Authenticator;
   fn set_device_id(&self, device_id: &str);
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
-  fn service_name(&self) -> String;
+  fn service_url(&self) -> String;
 }
 
 impl<T> UserCloudServiceProvider for Arc<T>
@@ -283,8 +283,8 @@ where
     (**self).get_user_service()
   }
 
-  fn service_name(&self) -> String {
-    (**self).service_name()
+  fn service_url(&self) -> String {
+    (**self).service_url()
   }
 }
 

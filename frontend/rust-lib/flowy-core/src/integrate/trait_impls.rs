@@ -21,6 +21,8 @@ use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{
   FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user_deps::cloud::UserCloudService;
@@ -68,13 +70,10 @@ impl UserCloudServiceProvider for ServerProvider {
   }
 
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
-    match self.get_server(&self.get_server_type()) {
-      Ok(server) => {
-        server.set_enable_sync(uid, enable_sync);
-        *self.enable_sync.write() = enable_sync;
-        *self.uid.write() = Some(uid);
-      },
-      Err(e) => tracing::error!("🔴Failed to enable sync: {:?}", e),
+    if let Ok(server) = self.get_server(&self.get_server_type()) {
+      server.set_enable_sync(uid, enable_sync);
+      *self.enable_sync.write() = enable_sync;
+      *self.uid.write() = Some(uid);
     }
   }
 
@@ -136,8 +135,16 @@ impl UserCloudServiceProvider for ServerProvider {
     Ok(user_service)
   }
 
-  fn service_name(&self) -> String {
-    self.get_server_type().to_string()
+  fn service_url(&self) -> String {
+    match self.get_server_type() {
+      ServerType::Local => "".to_string(),
+      ServerType::AFCloud => AFCloudConfiguration::from_env()
+        .map(|config| config.base_url)
+        .unwrap_or_default(),
+      ServerType::Supabase => SupabaseConfiguration::from_env()
+        .map(|config| config.url)
+        .unwrap_or_default(),
+    }
   }
 }
 

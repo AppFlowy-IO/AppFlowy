@@ -124,13 +124,7 @@ impl ServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       ServerType::Supabase => {
-        let config = match SupabaseConfiguration::from_env() {
-          Ok(config) => config,
-          Err(e) => {
-            *self.enable_sync.write() = false;
-            return Err(e);
-          },
-        };
+        let config = SupabaseConfiguration::from_env()?;
         let uid = self.uid.clone();
         tracing::trace!("🔑Supabase config: {:?}", config);
         let encryption = Arc::downgrade(&*self.encryption.read());
