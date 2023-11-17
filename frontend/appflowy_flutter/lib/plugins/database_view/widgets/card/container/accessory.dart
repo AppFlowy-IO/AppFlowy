@@ -26,7 +26,7 @@ class CardAccessoryContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final children = accessories.map((accessory) {
+    final children = accessories.map<Widget>((accessory) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -36,32 +36,62 @@ class CardAccessoryContainer extends StatelessWidget {
         child: _wrapHover(context, accessory),
       );
     }).toList();
-    return _wrapDecoration(context, Row(children: children));
+
+    children.insert(
+      1,
+      VerticalDivider(
+        width: 1,
+        thickness: 1,
+        color: Theme.of(context).brightness == Brightness.light
+            ? const Color(0xFF1F2329).withOpacity(0.12)
+            : const Color(0xff59647a),
+      ),
+    );
+
+    return _wrapDecoration(
+      context,
+      IntrinsicHeight(child: Row(children: children)),
+    );
   }
 
-  FlowyHover _wrapHover(BuildContext context, CardAccessory accessory) {
-    return FlowyHover(
-      style: HoverStyle(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.zero,
-      ),
-      builder: (_, onHover) => SizedBox(
-        width: 24,
-        height: 24,
+  Widget _wrapHover(BuildContext context, CardAccessory accessory) {
+    return SizedBox(
+      width: 24,
+      height: 22,
+      child: FlowyHover(
+        style: HoverStyle(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.zero,
+        ),
         child: accessory,
       ),
     );
   }
 
   Widget _wrapDecoration(BuildContext context, Widget child) {
-    final borderSide = BorderSide(
-      color: Theme.of(context).dividerColor,
-      width: 1.0,
-    );
     final decoration = BoxDecoration(
-      color: Colors.transparent,
-      border: Border.fromBorderSide(borderSide),
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: const BorderRadius.all(Radius.circular(4)),
+      border: Border.fromBorderSide(
+        BorderSide(
+          color: Theme.of(context).brightness == Brightness.light
+              ? const Color(0xFF1F2329).withOpacity(0.12)
+              : const Color(0xff59647a),
+          width: 1.0,
+        ),
+      ),
+      boxShadow: [
+        BoxShadow(
+          blurRadius: 4,
+          spreadRadius: 0,
+          color: const Color(0xFF1F2329).withOpacity(0.02),
+        ),
+        BoxShadow(
+          blurRadius: 4,
+          spreadRadius: -2,
+          color: const Color(0xFF1F2329).withOpacity(0.02),
+        ),
+      ],
     );
     return Container(
       clipBehavior: Clip.hardEdge,

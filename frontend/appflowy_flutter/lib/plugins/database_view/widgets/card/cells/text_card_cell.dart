@@ -5,6 +5,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../row/cell_builder.dart';
 import '../define.dart';
 import 'card_cell.dart';
@@ -123,21 +124,24 @@ class _TextCellState extends State<TextCardCell> {
             if (state.content.isEmpty &&
                 state.enableEdit == false &&
                 focusWhenInit == false) {
-              return const SizedBox();
+              return const SizedBox.shrink();
             }
 
             final child = state.enableEdit || focusWhenInit
                 ? _buildTextField()
                 : _buildText(state);
 
-            return Row(
-              children: [
-                if (widget.showNotes) ...[
-                  const FlowySvg(FlowySvgs.notes_s),
-                  const HSpace(4),
+            return Padding(
+              padding: CardSizes.cardCellPadding,
+              child: Row(
+                children: [
+                  if (widget.showNotes) ...[
+                    const FlowySvg(FlowySvgs.notes_s),
+                    const HSpace(4),
+                  ],
+                  Expanded(child: child),
                 ],
-                Expanded(child: child),
-              ],
+              ),
             );
           },
         ),
@@ -157,47 +161,35 @@ class _TextCellState extends State<TextCardCell> {
     super.dispose();
   }
 
-  double _fontSize() {
-    if (widget.style != null) {
-      return widget.style!.fontSize;
-    }
-
-    return 14;
+  double _fontSize(bool isTitle) {
+    return widget.style?.fontSize ?? (isTitle ? 12 : 12);
   }
 
   Widget _buildText(TextCellState state) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: CardSizes.cardCellVPadding,
-      ),
-      child: FlowyText.medium(
-        state.content,
-        fontSize: _fontSize(),
-        maxLines: null, // Enable multiple lines
-      ),
+    return FlowyText.medium(
+      state.content,
+      fontSize: _fontSize(state.enableEdit),
+      maxLines: null, // Enable multiple lines
     );
   }
 
   Widget _buildTextField() {
-    return IntrinsicHeight(
-      child: TextField(
-        controller: _controller,
-        focusNode: focusNode,
-        onChanged: (value) => focusChanged(),
-        onEditingComplete: () => focusNode.unfocus(),
-        maxLines: null,
-        style: Theme.of(context)
-            .textTheme
-            .bodyMedium!
-            .copyWith(fontSize: _fontSize()),
-        decoration: InputDecoration(
-          // Magic number 4 makes the textField take up the same space as FlowyText
-          contentPadding: EdgeInsets.symmetric(
-            vertical: CardSizes.cardCellVPadding + 4,
-          ),
-          border: InputBorder.none,
-          isDense: true,
-        ),
+    return TextField(
+      controller: _controller,
+      focusNode: focusNode,
+      onChanged: (value) => focusChanged(),
+      onEditingComplete: () => focusNode.unfocus(),
+      maxLines: null,
+      style: Theme.of(context)
+          .textTheme
+          .bodyMedium!
+          .copyWith(fontSize: _fontSize(true)),
+      decoration: InputDecoration(
+        contentPadding:
+            EdgeInsets.symmetric(vertical: CardSizes.cardCellPadding.top + 0.5),
+        border: InputBorder.none,
+        isDense: true,
+        isCollapsed: true,
       ),
     );
   }

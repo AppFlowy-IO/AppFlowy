@@ -110,50 +110,40 @@ class _RowCardState<T> extends State<RowCard<T>> {
       child: BlocBuilder<CardBloc, RowCardState>(
         buildWhen: (previous, current) {
           // Rebuild when:
-          // 1.If the length of the cells is not the same
-          // 2.isEditing changed
-          if (previous.cells.length != current.cells.length ||
-              previous.isEditing != current.isEditing) {
+          // 1. If the length of the cells is not the same
+          if (previous.cells.length != current.cells.length) {
             return true;
           }
 
-          // 3.Compare the content of the cells. The cells consists of
-          // list of [BoardCellEquatable] that extends the [Equatable].
+          // 2. isEditing changed
+          if (previous.isEditing != current.isEditing) {
+            return true;
+          }
+
+          // 3. the content of the cells changed
           return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {
-          return AppFlowyPopover(
-            controller: popoverController,
-            triggerActions: PopoverTriggerFlags.none,
-            constraints: BoxConstraints.loose(const Size(140, 200)),
-            margin: const EdgeInsets.all(6),
-            direction: PopoverDirection.rightWithCenterAligned,
-            popupBuilder: (popoverContext) => _handlePopoverBuilder(
-              context,
-              popoverContext,
-            ),
-            child: RowCardContainer(
-              buildAccessoryWhen: () => state.isEditing == false,
-              accessoryBuilder: (context) {
-                if (widget.styleConfiguration.showAccessory == false) {
-                  return [];
-                } else {
-                  return [
+          return RowCardContainer(
+            buildAccessoryWhen: () => state.isEditing == false,
+            accessories: widget.styleConfiguration.showAccessory
+                ? [
                     _CardEditOption(rowNotifier: rowNotifier),
-                    CardMoreOption(),
-                  ];
-                }
-              },
-              openAccessory: _handleOpenAccessory,
-              openCard: (context) => widget.openCard(context),
-              child: _CardContent<T>(
-                rowNotifier: rowNotifier,
-                cellBuilder: widget.cellBuilder,
-                styleConfiguration: widget.styleConfiguration,
-                cells: state.cells,
-                renderHook: widget.renderHook,
-                cardData: widget.cardData,
-              ),
+                    CardMoreOption(
+                      popoverController: popoverController,
+                      groupId: widget.groupId,
+                    ),
+                  ]
+                : [],
+            openAccessory: _handleOpenAccessory,
+            openCard: (context) => widget.openCard(context),
+            child: _CardContent<T>(
+              rowNotifier: rowNotifier,
+              cellBuilder: widget.cellBuilder,
+              styleConfiguration: widget.styleConfiguration,
+              cells: state.cells,
+              renderHook: widget.renderHook,
+              cardData: widget.cardData,
             ),
           );
         },
@@ -169,22 +159,6 @@ class _RowCardState<T> extends State<RowCard<T>> {
       case AccessoryType.more:
         popoverController.show();
         break;
-    }
-  }
-
-  Widget _handlePopoverBuilder(
-    BuildContext context,
-    BuildContext popoverContext,
-  ) {
-    switch (accessoryType!) {
-      case AccessoryType.edit:
-        throw UnimplementedError();
-      case AccessoryType.more:
-        return RowActions(
-          viewId: context.read<CardBloc>().viewId,
-          rowId: context.read<CardBloc>().rowMeta.id,
-          groupId: widget.groupId,
-        );
     }
   }
 
@@ -219,6 +193,7 @@ class _CardContent<CustomCardData> extends StatelessWidget {
     if (styleConfiguration.hoverStyle != null) {
       return FlowyHover(
         style: styleConfiguration.hoverStyle,
+        buildWhenOnHover: () => !rowNotifier.isEditing.value,
         child: Padding(
           padding: styleConfiguration.cardPadding,
           child: Column(
@@ -273,22 +248,47 @@ class _CardContent<CustomCardData> extends StatelessWidget {
   }
 }
 
-class CardMoreOption extends StatelessWidget with CardAccessory {
-  CardMoreOption({Key? key}) : super(key: key);
+class CardMoreOption extends StatefulWidget with CardAccessory {
+  CardMoreOption({
+    super.key,
+    required this.popoverController,
+    this.groupId,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(3.0),
-      child: FlowySvg(
-        FlowySvgs.details_s,
-        color: Theme.of(context).iconTheme.color,
-      ),
-    );
-  }
+  final PopoverController popoverController;
+  final String? groupId;
 
   @override
   AccessoryType get type => AccessoryType.more;
+
+  @override
+  State<CardMoreOption> createState() => _CardMoreOptionState();
+}
+
+class _CardMoreOptionState extends State<CardMoreOption> {
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      controller: widget.popoverController,
+      triggerActions: PopoverTriggerFlags.none,
+      constraints: BoxConstraints.loose(const Size(140, 200)),
+      direction: PopoverDirection.bottomWithLeftAligned,
+      popupBuilder: (popoverContext) {
+        return RowActions(
+          viewId: context.read<CardBloc>().viewId,
+          rowId: context.read<CardBloc>().rowMeta.id,
+          groupId: widget.groupId,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(3.0),
+        child: FlowySvg(
+          FlowySvgs.three_dots_s,
+          color: Theme.of(context).hintColor,
+        ),
+      ),
+    );
+  }
 }
 
 class _CardEditOption extends StatelessWidget with CardAccessory {
@@ -304,7 +304,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
       padding: const EdgeInsets.all(3.0),
       child: FlowySvg(
         FlowySvgs.edit_s,
-        color: Theme.of(context).iconTheme.color,
+        color: Theme.of(context).hintColor,
       ),
     );
   }
@@ -324,7 +324,7 @@ class RowCardStyleConfiguration {
 
   const RowCardStyleConfiguration({
     this.showAccessory = true,
-    this.cellPadding = const EdgeInsets.only(left: 4, right: 4),
+    this.cellPadding = EdgeInsets.zero,
     this.cardPadding = const EdgeInsets.all(8),
     this.hoverStyle,
   });

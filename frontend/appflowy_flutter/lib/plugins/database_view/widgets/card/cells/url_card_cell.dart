@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/url_cell/url_cell_bloc.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -48,27 +47,24 @@ class _URLCellState extends State<URLCardCell> {
         builder: (context, state) {
           if (state.content.isEmpty) {
             return const SizedBox();
-          } else {
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: CardSizes.cardCellVPadding,
-                ),
-                child: RichText(
-                  textAlign: TextAlign.left,
-                  text: TextSpan(
-                    text: state.content,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: widget.style?.fontSize ?? FontSizes.s14,
-                          color: Theme.of(context).colorScheme.primary,
-                          decoration: TextDecoration.underline,
-                        ),
-                  ),
+          }
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: CardSizes.cardCellPadding,
+              child: RichText(
+                textAlign: TextAlign.left,
+                text: TextSpan(
+                  text: state.content,
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: widget.style?.fontSize ?? 11,
+                        color: Theme.of(context).colorScheme.primary,
+                        decoration: TextDecoration.underline,
+                      ),
                 ),
               ),
-            );
-          }
+            ),
+          );
         },
       ),
     );
