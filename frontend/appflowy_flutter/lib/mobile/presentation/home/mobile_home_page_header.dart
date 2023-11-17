@@ -27,8 +27,8 @@ class MobileHomePageHeader extends StatelessWidget {
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
         builder: (context, state) {
           final userIcon = state.userProfile.iconUrl;
-          return SizedBox(
-            height: 48,
+          return ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
             child: Row(
               children: [
                 FlowyButton(
