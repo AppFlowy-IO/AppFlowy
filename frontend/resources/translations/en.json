@@ -1063,6 +1063,13 @@
   "cardDetails": {
     "notesPlaceholder": "Enter a / to insert a block, or start typing"
   },
+  "blockPlaceholders": {
+    "todoList": "To-do",
+    "bulletList": "List",
+    "numberList": "List",
+    "quote": "Quote",
+    "heading": "Heading {}"
+  },
   "titleBar": {
     "pageIcon": "Page icon",
     "language": "Language",
