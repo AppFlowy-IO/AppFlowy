@@ -72,6 +72,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
             child: TabBarView(
               children: [
                 FlowyEmojiPicker(
+                  emojiPerLine: _getEmojiPerLine(),
                   onEmojiSelected: (_, emoji) {
                     widget.onSelected(
                       EmojiPickerResult(
@@ -115,6 +116,11 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
         ],
       ),
     );
+  }
+
+  int _getEmojiPerLine() {
+    final width = MediaQuery.of(context).size.width;
+    return width ~/ 46.0; // the size of the emoji
   }
 }
 

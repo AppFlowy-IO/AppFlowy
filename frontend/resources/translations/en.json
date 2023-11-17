@@ -504,7 +504,7 @@
     },
     "rowPage": {
       "newField": "Add a new field",
-      "fieldDragEelementTooltip": "Click to open menu",
+      "fieldDragElementTooltip": "Click to open menu",
       "showHiddenFields": {
         "one": "Show {} hidden field",
         "many": "Show {} hidden fields",
@@ -650,6 +650,7 @@
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
       "mathEquation": {
+        "name": "Math Equation",
         "addMathEquation": "Add a TeX equation",
         "editMathEquation": "Edit Math Equation"
       },
@@ -1062,8 +1063,16 @@
   "cardDetails": {
     "notesPlaceholder": "Enter a / to insert a block, or start typing"
   },
+  "blockPlaceholders": {
+    "todoList": "To-do",
+    "bulletList": "List",
+    "numberList": "List",
+    "quote": "Quote",
+    "heading": "Heading {}"
+  },
   "titleBar": {
     "pageIcon": "Page icon",
-    "language": "Language"
+    "language": "Language",
+    "font": "Font"
   }
 }

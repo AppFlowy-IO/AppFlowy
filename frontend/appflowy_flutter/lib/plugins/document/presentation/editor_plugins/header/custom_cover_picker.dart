@@ -243,7 +243,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             },
             useIntrinsicWidth: true,
             leftIcon: const FlowySvg(
-              FlowySvgs.page_s,
+              FlowySvgs.document_s,
               size: Size(20, 20),
             ),
             text: FlowyText(

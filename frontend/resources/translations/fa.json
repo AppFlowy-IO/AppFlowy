@@ -596,7 +596,7 @@
     "menuName": "بورد",
     "referencedBoardPrefix": "نمای",
     "column": {
-      "create_new_card": "ایجاد"
+      "createNewCard": "ایجاد"
     }
   },
   "calendar": {
