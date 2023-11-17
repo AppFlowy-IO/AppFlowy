@@ -549,7 +549,7 @@
     "menuName": "Pano",
     "referencedBoardPrefix": "görünümü",
     "column": {
-      "create_new_card": "Yeni"
+      "createNewCard": "Yeni"
     }
   },
   "calendar": {

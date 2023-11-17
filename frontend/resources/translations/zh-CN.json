@@ -550,7 +550,7 @@
     "menuName": "看板",
     "referencedBoardPrefix": "视图",
     "column": {
-      "create_new_card": "新建"
+      "createNewCard": "新建"
     }
   },
   "calendar": {

@@ -552,7 +552,7 @@
     "menuName": "판자",
     "referencedBoardPrefix": "관점",
     "column": {
-      "create_new_card": "추가"
+      "createNewCard": "추가"
     }
   },
   "calendar": {

@@ -633,7 +633,7 @@
     "menuName": "Conseil",
     "referencedBoardPrefix": "Vue",
     "column": {
-      "create_new_card": "Nouveau"
+      "createNewCard": "Nouveau"
     }
   },
   "calendar": {

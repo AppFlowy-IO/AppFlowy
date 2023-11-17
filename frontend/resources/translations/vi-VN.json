@@ -70,7 +70,7 @@
   "board": {
     "menuName": "Bảng",
     "column": {
-      "create_new_card": "Mới"
+      "createNewCard": "Mới"
     }
   },
   "calendar": {
