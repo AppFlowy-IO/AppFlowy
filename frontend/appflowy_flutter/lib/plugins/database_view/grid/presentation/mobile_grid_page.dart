@@ -75,8 +75,8 @@ class MobileGridPage extends StatefulWidget {
     required this.view,
     required this.databaseController,
     this.onDeleted,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final ViewPB view;
   final VoidCallback? onDeleted;
@@ -86,11 +86,6 @@ class MobileGridPage extends StatefulWidget {
 }
 
 class _MobileGridPageState extends State<MobileGridPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -420,7 +415,7 @@ class _GridFooter extends StatelessWidget {
           padding: GridSize.contentInsets,
           child: RichText(
             text: TextSpan(
-              text: rowCountString(),
+              text: "${LocaleKeys.grid_row_count.tr()} :",
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: Theme.of(context).hintColor,
                   ),
@@ -438,8 +433,4 @@ class _GridFooter extends StatelessWidget {
       },
     );
   }
-}
-
-String rowCountString() {
-  return '${LocaleKeys.grid_row_count.tr()} :';
 }
