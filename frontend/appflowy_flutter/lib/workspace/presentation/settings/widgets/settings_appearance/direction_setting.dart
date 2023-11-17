@@ -141,3 +141,28 @@ class TextDirectionSetting extends StatelessWidget {
     }
   }
 }
+
+class EnableRTLToolbarItemsSetting extends StatelessWidget {
+  const EnableRTLToolbarItemsSetting({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ThemeSettingEntryTemplateWidget(
+      label: LocaleKeys.settings_appearance_enableRTLToolbarItems.tr(),
+      trailing: [
+        Switch(
+          value: context.read<AppearanceSettingsCubit>().state.enableRtlToolbarItems,
+          splashRadius: 0,
+          activeColor: Theme.of(context).colorScheme.primary,
+          onChanged: (value) {
+            context
+                .read<AppearanceSettingsCubit>()
+                .setEnableRTLToolbarItems(value);
+          },
+        ),
+      ],
+    );
+  }
+}

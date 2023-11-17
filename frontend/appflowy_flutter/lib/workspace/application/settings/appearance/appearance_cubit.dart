@@ -47,6 +47,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             appearanceSettings.monospaceFont,
             appearanceSettings.layoutDirection,
             appearanceSettings.textDirection,
+            appearanceSettings.enableRtlToolbarItems,
             appearanceSettings.locale,
             appearanceSettings.isMenuCollapsed,
             appearanceSettings.menuOffset,
@@ -98,6 +99,12 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
         textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
     _saveAppearanceSettings();
     emit(state.copyWith(textDirection: textDirection));
+  }
+
+  void setEnableRTLToolbarItems(bool value) {
+    _appearanceSettings.enableRtlToolbarItems = value;
+    _saveAppearanceSettings();
+    emit(state.copyWith(enableRtlToolbarItems: value));
   }
 
   /// Update selected font in the user's settings and emit an updated state
@@ -307,6 +314,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required String monospaceFont,
     required LayoutDirection layoutDirection,
     required AppFlowyTextDirection? textDirection,
+    required bool enableRtlToolbarItems,
     required Locale locale,
     required bool isMenuCollapsed,
     required double menuOffset,
@@ -322,6 +330,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     String monospaceFont,
     LayoutDirectionPB layoutDirectionPB,
     TextDirectionPB? textDirectionPB,
+    bool enableRtlToolbarItems,
     LocaleSettingsPB localePB,
     bool isMenuCollapsed,
     double menuOffset,
@@ -335,6 +344,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       monospaceFont: monospaceFont,
       layoutDirection: LayoutDirection.fromLayoutDirectionPB(layoutDirectionPB),
       textDirection: AppFlowyTextDirection.fromTextDirectionPB(textDirectionPB),
+      enableRtlToolbarItems: enableRtlToolbarItems,
       themeMode: _themeModeFromPB(themeModePB),
       locale: Locale(localePB.languageCode, localePB.countryCode),
       isMenuCollapsed: isMenuCollapsed,
