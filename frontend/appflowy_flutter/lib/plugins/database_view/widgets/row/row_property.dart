@@ -156,7 +156,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                   onTap: () => _fieldPopoverController.show(),
                   svg: FlowySvgs.drag_element_s,
                   richMessage: TextSpan(
-                    text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
+                    text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
                   ),
                 )
               : const SizedBox.shrink(),

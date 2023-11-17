@@ -633,7 +633,7 @@
     "menuName": "Quadro",
     "referencedBoardPrefix": "Vista de",
     "column": {
-      "create_new_card": "Novo"
+      "createNewCard": "Novo"
     }
   },
   "calendar": {

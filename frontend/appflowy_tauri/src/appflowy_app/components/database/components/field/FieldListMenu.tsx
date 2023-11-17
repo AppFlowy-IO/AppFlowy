@@ -8,7 +8,7 @@ export interface FieldsMenuProps extends MenuProps {
   onMenuItemClick?: (event: MouseEvent<HTMLLIElement>, field: FieldType) => void;
 }
 
-export const FieldsMenu: FC<FieldsMenuProps> = ({ onMenuItemClick, ...props }) => {
+export const FieldListMenu: FC<FieldsMenuProps> = ({ onMenuItemClick, ...props }) => {
   const fields = useDatabaseVisibilityFields();
 
   return (

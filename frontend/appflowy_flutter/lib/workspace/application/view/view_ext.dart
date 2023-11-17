@@ -41,7 +41,7 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    const Widget widget = FlowySvg(FlowySvgs.page_s);
+    const Widget widget = FlowySvg(FlowySvgs.document_s);
     return widget;
   }
 
@@ -51,8 +51,8 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Board => FlowySvgs.board_s,
         ViewLayoutPB.Calendar => FlowySvgs.date_s,
         ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Document => FlowySvgs.documents_s,
-        _ => FlowySvgs.documents_s,
+        ViewLayoutPB.Document => FlowySvgs.document_s,
+        _ => FlowySvgs.document_s,
       },
     );
   }
@@ -152,7 +152,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
       case ViewLayoutPB.Calendar:
         return FlowySvgs.date_s;
       case ViewLayoutPB.Document:
-        return FlowySvgs.documents_s;
+        return FlowySvgs.document_s;
       default:
         throw Exception('Unknown layout type');
     }
