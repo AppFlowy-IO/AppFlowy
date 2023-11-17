@@ -536,12 +536,16 @@ class DocumentCoverState extends State<DocumentCover> {
             constraints: BoxConstraints.loose(const Size(380, 450)),
             margin: EdgeInsets.zero,
             onClose: () => isPopoverOpen = false,
-            child: RoundedTextButton(
-              onPressed: () => popoverController.show(),
-              hoverColor: Theme.of(context).colorScheme.surface,
-              textColor: Theme.of(context).colorScheme.tertiary,
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-              title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+            child: IntrinsicWidth(
+              child: RoundedTextButton(
+                height: 28.0,
+                onPressed: () => popoverController.show(),
+                hoverColor: Theme.of(context).colorScheme.surface,
+                textColor: Theme.of(context).colorScheme.tertiary,
+                fillColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+              ),
             ),
             popupBuilder: (BuildContext popoverContext) {
               isPopoverOpen = true;
@@ -579,7 +583,7 @@ class DeleteCoverButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.surface,
-      fillColor: Theme.of(context).colorScheme.onSurfaceVariant,
+      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
       iconPadding: const EdgeInsets.all(5),
       width: 28,
       icon: FlowySvg(
