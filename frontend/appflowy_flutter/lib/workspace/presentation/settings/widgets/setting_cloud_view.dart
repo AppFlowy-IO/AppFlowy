@@ -15,13 +15,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SyncSettingView extends StatelessWidget {
+class SettingCloudView extends StatelessWidget {
   final String userId;
-  const SyncSettingView({required this.userId, super.key});
+  const SettingCloudView({required this.userId, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Either<UserCloudConfigPB, FlowyError>>(
+    return FutureBuilder<Either<CloudSettingPB, FlowyError>>(
       future: UserEventGetCloudConfig().send(),
       builder: (context, snapshot) {
         if (snapshot.data != null &&
@@ -39,7 +39,11 @@ class SyncSettingView extends StatelessWidget {
                       children: [
                         const EnableSync(),
                         // Currently the appflowy cloud is not support end-to-end encryption.
-                        if (!isAppFlowyCloudEnabled) const EnableEncrypt()
+                        if (!isAppFlowyCloudEnabled) const EnableEncrypt(),
+                        if (isAppFlowyCloudEnabled)
+                          AppFlowyCloudInformationWidget(
+                            url: state.config.serverUrl,
+                          ),
                       ],
                     );
                   },
@@ -56,6 +60,34 @@ class SyncSettingView extends StatelessWidget {
           );
         }
       },
+    );
+  }
+}
+
+class AppFlowyCloudInformationWidget extends StatelessWidget {
+  final String url;
+
+  const AppFlowyCloudInformationWidget({required this.url, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              // Wrap the Opacity widget with Expanded
+              child: Opacity(
+                opacity: 0.6,
+                child: FlowyText(
+                  "${LocaleKeys.settings_menu_cloudURL.tr()}: $url",
+                  maxLines: null, // Allow the text to wrap
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -123,7 +155,6 @@ class EnableEncrypt extends StatelessWidget {
                         await Clipboard.setData(
                           ClipboardData(text: state.config.encryptSecret),
                         );
-                        // TODO(Lucas): bring the toast to the top of the dialog.
                         showMessageToast(LocaleKeys.message_copy_success.tr());
                       },
                     ),

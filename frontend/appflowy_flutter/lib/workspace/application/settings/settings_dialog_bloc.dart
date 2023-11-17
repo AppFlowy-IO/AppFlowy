@@ -14,7 +14,7 @@ enum SettingsPage {
   files,
   user,
   notifications,
-  syncSetting,
+  cloud,
   shortcuts,
 }
 

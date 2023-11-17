@@ -362,6 +362,7 @@ pub async fn set_cloud_config_handler(
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let mut config = get_cloud_config(session.user_id, &store_preferences)
     .ok_or(FlowyError::internal().with_context("Can't find any cloud config"))?;
+  save_cloud_config(session.user_id, &store_preferences, config.clone())?;
 
   if let Some(enable_sync) = update.enable_sync {
     manager
@@ -385,7 +386,6 @@ pub async fn set_cloud_config_handler(
       manager
         .set_encrypt_secret(session.user_id, encrypt_secret, encryption_type.clone())
         .await?;
-      save_cloud_config(session.user_id, &store_preferences, config.clone())?;
 
       let params =
         UpdateUserProfileParams::new(session.user_id).with_encryption_type(encryption_type);
@@ -393,28 +393,38 @@ pub async fn set_cloud_config_handler(
     }
   }
 
-  let config_pb = UserCloudConfigPB::from(config);
+  let payload = CloudSettingPB {
+    enable_sync: config.enable_sync,
+    enable_encrypt: config.enable_encrypt,
+    encrypt_secret: config.encrypt_secret,
+    server_url: manager.cloud_services.service_url(),
+  };
+
   send_notification(
     &session.user_id.to_string(),
     UserNotification::DidUpdateCloudConfig,
   )
-  .payload(config_pb)
+  .payload(payload)
   .send();
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "info", skip_all, err)]
 pub async fn get_cloud_config_handler(
   manager: AFPluginState<Weak<UserManager>>,
   store_preferences: AFPluginState<Weak<StorePreferences>>,
-) -> DataResult<UserCloudConfigPB, FlowyError> {
+) -> DataResult<CloudSettingPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
-
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   // Generate the default config if the config is not exist
   let config = get_or_create_cloud_config(session.user_id, &store_preferences);
-  data_result_ok(config.into())
+  data_result_ok(CloudSettingPB {
+    enable_sync: config.enable_sync,
+    enable_encrypt: config.enable_encrypt,
+    encrypt_secret: config.encrypt_secret,
+    server_url: manager.cloud_services.service_url(),
+  })
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]

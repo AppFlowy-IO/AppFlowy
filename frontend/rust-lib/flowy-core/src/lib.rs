@@ -4,7 +4,6 @@ use std::sync::Arc;
 use std::sync::Weak;
 use std::time::Duration;
 
-use base64::Engine;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 

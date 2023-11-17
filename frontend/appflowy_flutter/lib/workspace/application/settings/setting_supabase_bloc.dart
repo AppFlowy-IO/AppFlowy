@@ -15,7 +15,7 @@ class CloudSettingBloc extends Bloc<CloudSettingEvent, CloudSettingState> {
 
   CloudSettingBloc({
     required String userId,
-    required UserCloudConfigPB config,
+    required CloudSettingPB config,
   })  : _listener = UserCloudConfigListener(userId: userId),
         super(CloudSettingState.initial(config)) {
     on<CloudSettingEvent>((event, emit) async {
@@ -38,7 +38,7 @@ class CloudSettingBloc extends Bloc<CloudSettingEvent, CloudSettingState> {
           final update = UpdateCloudConfigPB.create()..enableSync = enable;
           updateCloudConfig(update);
         },
-        didReceiveConfig: (UserCloudConfigPB config) {
+        didReceiveConfig: (CloudSettingPB config) {
           emit(
             state.copyWith(
               config: config,
@@ -64,7 +64,7 @@ class CloudSettingBloc extends Bloc<CloudSettingEvent, CloudSettingState> {
 class CloudSettingEvent with _$CloudSettingEvent {
   const factory CloudSettingEvent.initial() = _Initial;
   const factory CloudSettingEvent.didReceiveConfig(
-    UserCloudConfigPB config,
+    CloudSettingPB config,
   ) = _DidSyncSupabaseConfig;
   const factory CloudSettingEvent.enableSync(bool enable) = _EnableSync;
   const factory CloudSettingEvent.enableEncrypt(bool enable) = _EnableEncrypt;
@@ -73,13 +73,12 @@ class CloudSettingEvent with _$CloudSettingEvent {
 @freezed
 class CloudSettingState with _$CloudSettingState {
   const factory CloudSettingState({
-    required UserCloudConfigPB config,
+    required CloudSettingPB config,
     required Either<Unit, String> successOrFailure,
     required LoadingState loadingState,
   }) = _CloudSettingState;
 
-  factory CloudSettingState.initial(UserCloudConfigPB config) =>
-      CloudSettingState(
+  factory CloudSettingState.initial(CloudSettingPB config) => CloudSettingState(
         config: config,
         successOrFailure: left(unit),
         loadingState: LoadingState.finish(left(unit)),
