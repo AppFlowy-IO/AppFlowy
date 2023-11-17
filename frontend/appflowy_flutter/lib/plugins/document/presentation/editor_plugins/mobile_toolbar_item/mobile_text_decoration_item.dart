@@ -1,10 +1,12 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 final customTextDecorationMobileToolbarItem = MobileToolbarItem.withMenu(
-  itemIconBuilder: (_, __, ___) => const AFMobileIcon(
-    afMobileIcons: AFMobileIcons.textDecoration,
+  itemIconBuilder: (_, __, ___) => const FlowySvg(
+    FlowySvgs.text_s,
+    size: Size.square(24),
   ),
   itemMenuBuilder: (_, editorState, __) {
     final selection = editorState.selection;
@@ -82,6 +84,7 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
       return MobileToolbarItemMenuBtn(
         icon: AFMobileIcon(
           afMobileIcons: currentDecoration.icon,
+          color: MobileToolbarTheme.of(context).iconColor,
         ),
         label: FlowyText(currentDecoration.label),
         isSelected: isSelected,
