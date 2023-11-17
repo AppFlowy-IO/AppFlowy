@@ -3,9 +3,8 @@ import { ChangeEventHandler, FC, useCallback, useState } from 'react';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 import { useViewId } from '$app/hooks';
 import { Field, fieldService } from '../../application';
-import { FieldTypeSvg } from './FieldTypeSvg';
-import { FieldTypeText } from './FieldTypeText';
-import { GridFieldMenuActions } from './GridFieldMenuActions';
+import { FieldMenuActions } from './FieldMenuActions';
+import { FieldTypeText, FieldTypeSvg } from '$app/components/database/components/field/index';
 
 export interface GridFieldMenuProps {
   field: Field;
@@ -14,7 +13,7 @@ export interface GridFieldMenuProps {
   onClose: () => void;
 }
 
-export const GridFieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClose }) => {
+export const FieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClose }) => {
   const viewId = useViewId();
   const [inputtingName, setInputtingName] = useState(field.name);
 
@@ -48,7 +47,9 @@ export const GridFieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, o
   const fieldTypeSelect = (
     <MenuItem dense>
       <FieldTypeSvg type={field.type} className='mr-2 text-base' />
-      <span className='flex-1 text-xs font-medium'>{FieldTypeText(field.type)}</span>
+      <span className='flex-1 text-xs font-medium'>
+        <FieldTypeText type={field.type} />
+      </span>
       <MoreSvg className='text-base' />
     </MenuItem>
   );
@@ -56,18 +57,16 @@ export const GridFieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, o
   const isPrimary = field.isPrimary;
 
   return (
-    <>
-      <Menu anchorEl={anchorEl} open={open} onClose={onClose}>
-        {fieldNameInput}
-        {!isPrimary && (
-          <>
-            {fieldTypeSelect}
-            <Divider />
-          </>
-        )}
+    <Menu keepMounted={false} anchorEl={anchorEl} open={open} onClose={onClose}>
+      {fieldNameInput}
+      {!isPrimary && (
+        <div>
+          {fieldTypeSelect}
+          <Divider />
+        </div>
+      )}
 
-        <GridFieldMenuActions isPrimary={isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
-      </Menu>
-    </>
+      <FieldMenuActions isPrimary={isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
+    </Menu>
   );
 };

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { DocumentData } from '../interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '../stores/store';
@@ -87,4 +87,16 @@ export const useDocument = (documentId?: string) => {
   }, [clearDocument, dispatch, initializeDocument, onDocumentChange, documentId]);
 
   return { documentId, documentData, controller };
+};
+
+export enum ContainerType {
+  DocumentPage,
+  EditRecord,
+}
+export const ContainerTypeContext = createContext(ContainerType.DocumentPage);
+
+export const ContainerTypeProvider = ContainerTypeContext.Provider;
+
+export const useContainerType = () => {
+  return useContext(ContainerTypeContext);
 };

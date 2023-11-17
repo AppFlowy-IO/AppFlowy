@@ -42,7 +42,7 @@ interface GridFieldMenuActionsProps {
   onMenuItemClick?: (action: FieldAction) => void;
 }
 
-export const GridFieldMenuActions = ({ fieldId, onMenuItemClick, isPrimary }: GridFieldMenuActionsProps) => {
+export const FieldMenuActions = ({ fieldId, onMenuItemClick, isPrimary }: GridFieldMenuActionsProps) => {
   const viewId = useViewId();
   const [openConfirm, setOpenConfirm] = useState(false);
 

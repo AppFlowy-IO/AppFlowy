@@ -1,8 +1,7 @@
 import { Divider, Menu, MenuItem, MenuProps } from '@mui/material';
 import { FC, useMemo } from 'react';
 import { FieldType } from '@/services/backend';
-import { FieldTypeSvg } from './FieldTypeSvg';
-import { FieldTypeText } from './FieldTypeText';
+import { FieldTypeText, FieldTypeSvg } from '$app/components/database/components/field/index';
 
 const FieldTypeGroup = [
   {
@@ -19,29 +18,31 @@ const FieldTypeGroup = [
   },
   {
     name: 'Advanced',
-    types: [
-      FieldType.LastEditedTime,
-    ],
+    types: [FieldType.LastEditedTime],
   },
 ];
 
 export const FieldTypeMenu: FC<MenuProps> = (props) => {
-  const PopoverClasses = useMemo(() => ({
-    ...props.PopoverClasses,
-    paper: ['w-56', props.PopoverClasses?.paper].join(' '),
-  }), [props.PopoverClasses]);
+  const PopoverClasses = useMemo(
+    () => ({
+      ...props.PopoverClasses,
+      paper: ['w-56', props.PopoverClasses?.paper].join(' '),
+    }),
+    [props.PopoverClasses]
+  );
 
   return (
-    <Menu
-      {...props}
-      PopoverClasses={PopoverClasses}
-    >
+    <Menu {...props} PopoverClasses={PopoverClasses}>
       {FieldTypeGroup.map((group, index) => [
-        <MenuItem key={group.name} dense disabled>{group.name}</MenuItem>,
-        group.types.map(type => (
+        <MenuItem key={group.name} dense disabled>
+          {group.name}
+        </MenuItem>,
+        group.types.map((type) => (
           <MenuItem key={type} dense>
-            <FieldTypeSvg className="mr-2 text-base" type={type} />
-            <span className="font-medium">{FieldTypeText(type)}</span>
+            <FieldTypeSvg className='mr-2 text-base' type={type} />
+            <span className='font-medium'>
+              <FieldTypeText type={type} />
+            </span>
           </MenuItem>
         )),
         index < FieldTypeGroup.length - 1 && <Divider key={`Divider-${group.name}`} />,
