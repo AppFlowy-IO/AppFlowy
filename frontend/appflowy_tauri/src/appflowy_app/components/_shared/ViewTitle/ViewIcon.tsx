@@ -4,13 +4,11 @@ import EmojiPicker from '$app/components/_shared/EmojiPicker';
 import { PageIcon } from '$app_reducers/pages/slice';
 
 function ViewIcon({ icon, onUpdateIcon }: { icon?: PageIcon; onUpdateIcon: (icon: string) => void }) {
-  const [anchorPosition, setAnchorPosition] = useState<
-    | undefined
-    | {
-        top: number;
-        left: number;
-      }
-  >(undefined);
+  const [anchorPosition, setAnchorPosition] = useState<{
+    top: number;
+    left: number;
+  }>();
+
   const open = Boolean(anchorPosition);
   const onOpen = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();

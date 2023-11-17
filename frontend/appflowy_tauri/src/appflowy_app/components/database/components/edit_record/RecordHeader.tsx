@@ -31,7 +31,7 @@ function RecordHeader({ page, cell, icon }: Props) {
   return (
     <div ref={ref} className={'pb-4'}>
       <RecordTitle page={page} cell={cell} icon={icon} />
-      <RecordProperties cell={cell} />
+      <RecordProperties documentId={page?.id} cell={cell} />
       <Divider />
     </div>
   );

@@ -13,6 +13,7 @@ import { useViewId } from '$app/hooks';
 import { DragDropContext, Droppable, DropResult, OnDragEndResponder } from 'react-beautiful-dnd';
 
 interface Props {
+  documentId?: string;
   cell: TextCell;
 }
 
@@ -26,7 +27,7 @@ const reorder = (list: Field[], startIndex: number, endIndex: number) => {
   return result;
 };
 
-function RecordProperties({ cell }: Props) {
+function RecordProperties({ documentId, cell }: Props) {
   const viewId = useViewId();
   const { fieldId, rowId } = cell;
   const { fields } = useDatabase();
@@ -92,6 +93,7 @@ function RecordProperties({ cell }: Props) {
         <Droppable droppableId='droppable' type='droppableItem'>
           {(dropProvided) => (
             <PropertyList
+              documentId={documentId}
               placeholderNode={dropProvided.placeholder}
               ref={dropProvided.innerRef}
               {...dropProvided.droppableProps}
