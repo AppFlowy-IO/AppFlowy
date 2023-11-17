@@ -15,14 +15,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'tab_bar_add_button.dart';
 
-class TabBarHeader extends StatefulWidget {
+class TabBarHeader extends StatelessWidget {
   const TabBarHeader({super.key});
 
-  @override
-  State<TabBarHeader> createState() => _TabBarHeaderState();
-}
-
-class _TabBarHeaderState extends State<TabBarHeader> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -56,7 +51,7 @@ class _TabBarHeaderState extends State<TabBarHeader> {
                     child: Column(
                       children: [
                         const VSpace(3),
-                        pageSettingBarFromState(state),
+                        pageSettingBarFromState(context, state),
                       ],
                     ),
                   );
@@ -69,17 +64,17 @@ class _TabBarHeaderState extends State<TabBarHeader> {
     );
   }
 
-  Widget pageSettingBarFromState(DatabaseTabBarState state) {
+  Widget pageSettingBarFromState(
+    BuildContext context,
+    DatabaseTabBarState state,
+  ) {
     if (state.tabBars.length < state.selectedIndex) {
       return const SizedBox.shrink();
     }
     final tabBar = state.tabBars[state.selectedIndex];
     final controller =
         state.tabBarControllerByViewId[tabBar.viewId]!.controller;
-    return tabBar.builder.settingBar(
-      context,
-      controller,
-    );
+    return tabBar.builder.settingBar(context, controller);
   }
 }
 
