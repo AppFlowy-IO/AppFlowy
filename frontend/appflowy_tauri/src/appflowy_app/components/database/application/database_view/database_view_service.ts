@@ -17,7 +17,7 @@ export async function getDatabaseViews(viewId: string): Promise<Page[]> {
     return [parserViewPBToPage(result.val), ...result.val.child_views.map(parserViewPBToPage)];
   }
 
-  return Promise.reject(result.err);
+  return Promise.reject(result.val);
 }
 
 export async function createDatabaseView(
