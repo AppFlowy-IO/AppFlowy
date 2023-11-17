@@ -67,6 +67,7 @@ pub async fn sync_user_data_to_cloud(
       tracing::error!("🔴sync {} failed: {:?}", view_id, err);
     }
   }
+  tokio::task::yield_now().await;
   Ok(())
 }
 

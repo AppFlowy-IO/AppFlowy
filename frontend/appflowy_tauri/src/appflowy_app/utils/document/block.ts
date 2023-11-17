@@ -100,11 +100,13 @@ export function getPrevNodeId(state: DocumentState, id: string) {
 }
 
 export function newBlock<Type>(type: BlockType, parentId: string, data?: BlockData<Type>): NestedBlock<Type> {
+  const blockData = data || ({} as BlockData<Type>);
+
   return {
     id: generateId(),
     type,
     parent: parentId,
     children: generateId(),
-    data: data ? data : {},
+    data: blockData,
   };
 }

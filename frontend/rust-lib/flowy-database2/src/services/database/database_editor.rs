@@ -113,12 +113,12 @@ impl DatabaseEditor {
     })
   }
 
+  /// Returns bool value indicating whether the database is empty.
+  ///
   #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_view_editor(&self, view_id: &str) -> bool {
     self.database_views.close_view(view_id).await
   }
-
-  pub async fn close(&self) {}
 
   pub async fn get_layout_type(&self, view_id: &str) -> DatabaseLayout {
     let view = self.database_views.get_view_editor(view_id).await.ok();
@@ -546,6 +546,7 @@ impl DatabaseEditor {
         document_id: row_document_id,
         icon: row_meta.icon_url,
         cover: row_meta.cover_url,
+        is_document_empty: row_meta.is_document_empty,
       })
     } else {
       warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
@@ -577,7 +578,8 @@ impl DatabaseEditor {
     self.database.lock().update_row_meta(row_id, |meta_update| {
       meta_update
         .insert_cover_if_not_none(changeset.cover_url)
-        .insert_icon_if_not_none(changeset.icon_url);
+        .insert_icon_if_not_none(changeset.icon_url)
+        .update_is_document_empty_if_not_none(changeset.is_document_empty);
     });
 
     // Use the temporary row meta to get rid of the lock that not implement the `Send` or 'Sync' trait.
@@ -1273,14 +1275,42 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   }
 
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>> {
-    let database = self.database.lock();
-    let rows = database.get_rows_for_view(view_id);
-    let row_details = rows
-      .into_iter()
-      .flat_map(|row| database.get_row_detail(&row.id))
-      .collect::<Vec<RowDetail>>();
+    let database = self.database.clone();
+    let view_id = view_id.to_string();
+    to_fut(async move {
+      let cloned_database = database.clone();
+      // offloads the blocking operation to a thread where blocking is acceptable. This prevents
+      // blocking the main asynchronous runtime
+      let row_orders = tokio::task::spawn_blocking(move || {
+        cloned_database.lock().get_row_orders_for_view(&view_id)
+      })
+      .await
+      .unwrap_or_default();
+      tokio::task::yield_now().await;
 
-    to_fut(async move { row_details.into_iter().map(Arc::new).collect() })
+      let mut all_rows = vec![];
+
+      // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
+      for chunk in row_orders.chunks(10) {
+        let cloned_database = database.clone();
+        let chunk = chunk.to_vec();
+        let rows = tokio::task::spawn_blocking(move || {
+          let orders = cloned_database.lock().get_rows_from_row_orders(&chunk);
+          let lock_guard = cloned_database.lock();
+          orders
+            .into_iter()
+            .flat_map(|row| lock_guard.get_row_detail(&row.id))
+            .collect::<Vec<RowDetail>>()
+        })
+        .await
+        .unwrap_or_default();
+
+        all_rows.extend(rows);
+        tokio::task::yield_now().await;
+      }
+
+      all_rows.into_iter().map(Arc::new).collect()
+    })
   }
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {

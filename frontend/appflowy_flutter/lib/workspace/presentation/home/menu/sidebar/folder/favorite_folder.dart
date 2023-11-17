@@ -63,7 +63,7 @@ class FavoriteFolder extends StatelessWidget {
                     onTertiarySelected: (view) =>
                         context.read<TabsBloc>().openTab(view),
                   ),
-                )
+                ),
             ],
           );
         },

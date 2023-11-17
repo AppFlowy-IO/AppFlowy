@@ -5,10 +5,12 @@ part 'backend_env.g.dart';
 
 @JsonSerializable()
 class AppFlowyEnv {
+  final int cloud_type;
   final SupabaseConfiguration supabase_config;
   final AppFlowyCloudConfiguration appflowy_cloud_config;
 
   AppFlowyEnv({
+    required this.cloud_type,
     required this.supabase_config,
     required this.appflowy_cloud_config,
   });
@@ -22,12 +24,10 @@ class AppFlowyEnv {
 @JsonSerializable()
 class SupabaseConfiguration {
   /// Indicates whether the sync feature is enabled.
-  final bool enable_sync;
   final String url;
   final String anon_key;
 
   SupabaseConfiguration({
-    this.enable_sync = true,
     required this.url,
     required this.anon_key,
   });

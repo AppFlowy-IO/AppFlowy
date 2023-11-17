@@ -100,7 +100,7 @@ class AFCloudAuthService implements AuthService {
           authType: AuthTypePB.AFCloud,
           map: {
             AuthServiceMapKeys.signInURL: uri.toString(),
-            AuthServiceMapKeys.deviceId: deviceId
+            AuthServiceMapKeys.deviceId: deviceId,
           },
         );
         final result = await UserEventOauthSignIn(payload)

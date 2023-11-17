@@ -1,9 +1,9 @@
 import 'package:appflowy/plugins/base/emoji/emoji_picker_header.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_search_bar.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
-import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 
 // use a global value to store the selected emoji to prevent reloading every time.
 EmojiData? _cachedEmojiData;
@@ -12,9 +12,11 @@ class FlowyEmojiPicker extends StatefulWidget {
   const FlowyEmojiPicker({
     super.key,
     required this.onEmojiSelected,
+    this.emojiPerLine = 9,
   });
 
   final EmojiSelectedCallback onEmojiSelected;
+  final int emojiPerLine;
 
   @override
   State<FlowyEmojiPicker> createState() => _FlowyEmojiPickerState();
@@ -61,6 +63,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         showSectionHeader: true,
         showTabs: false,
         defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
+        perLine: widget.emojiPerLine,
       ),
       onEmojiSelected: widget.onEmojiSelected,
       headerBuilder: (context, category) {

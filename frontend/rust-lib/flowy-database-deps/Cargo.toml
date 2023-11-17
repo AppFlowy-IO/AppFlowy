@@ -9,4 +9,4 @@ edition = "2021"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-error = { workspace = true }
 collab-entity = { version = "0.1.0" }
-anyhow = "1.0.71"
+anyhow.workspace = true

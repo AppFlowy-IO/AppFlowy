@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -82,11 +83,14 @@ class EditorStyleCustomizer {
 
   EditorStyle mobile() {
     final theme = Theme.of(context);
-    const fontSize = 14.0;
-    final fontFamily = GoogleFonts.poppins().fontFamily ?? 'Poppins';
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    final defaultTextDirection =
+        context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
     final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.mobile(
       padding: padding,
+      defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
@@ -131,7 +135,7 @@ class EditorStyleCustomizer {
       fontSize + 8,
       fontSize + 4,
       fontSize + 2,
-      fontSize
+      fontSize,
     ];
     return TextStyle(
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
@@ -261,6 +265,19 @@ class EditorStyleCustomizer {
           formula: formula,
           textStyle: style().textStyleConfiguration.text,
         ),
+      );
+    }
+
+    // customize the link on mobile
+    final href = attributes[AppFlowyRichTextKeys.href] as String?;
+    if (PlatformExtension.isMobile && href != null) {
+      return TextSpan(
+        style: textSpan.style,
+        text: text.text,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            safeLaunchUrl(href);
+          },
       );
     }
 

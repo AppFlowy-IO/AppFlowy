@@ -37,7 +37,9 @@ export const useDraggable = ({
     previewRef.current = previewElement;
   }, []);
 
-  const attributes = useMemo(() => {
+  const attributes: {
+    draggable?: boolean;
+  } = useMemo(() => {
     if (disabled) {
       return {};
     }
@@ -89,7 +91,10 @@ export const useDraggable = ({
     context.dragging = null;
   }, [context]);
 
-  const listeners = useMemo(
+  const listeners: {
+    onDragStart?: DragEventHandler;
+    onDragEnd?: DragEventHandler;
+  } = useMemo(
     () => ({
       onDragStart,
       onDragEnd,

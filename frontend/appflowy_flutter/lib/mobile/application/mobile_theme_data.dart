@@ -4,6 +4,7 @@ import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const _primaryColor = Color(0xFF2DA2F6); //primary 100
 const _onBackgroundColor = Color(0xff2F3030); // text/title color
@@ -17,6 +18,8 @@ ThemeData getMobileThemeData(
   String fontFamily,
   String monospaceFontFamily,
 ) {
+  fontFamily = GoogleFonts.getFont(fontFamily).fontFamily ?? fontFamily;
+
   final mobileColorTheme = (brightness == Brightness.light)
       ? ColorScheme(
           brightness: brightness,
@@ -34,6 +37,7 @@ ThemeData getMobileThemeData(
           //Snack bar
           surface: Colors.white,
           onSurface: _onSurfaceColor, // text/body color
+          surfaceVariant: const Color.fromARGB(255, 216, 216, 216),
         )
       : ColorScheme(
           brightness: brightness,
@@ -139,14 +143,14 @@ ThemeData getMobileThemeData(
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
         textStyle: MaterialStateProperty.all(
-          const TextStyle(
-            fontFamily: 'Poppins',
+          TextStyle(
+            fontFamily: fontFamily,
           ),
         ),
       ),
     ),
     // text
-    fontFamily: 'Poppins',
+    fontFamily: fontFamily,
     textTheme: TextTheme(
       displayLarge: const TextStyle(
         color: Color(0xFF57B5F8),
@@ -156,6 +160,7 @@ ThemeData getMobileThemeData(
         letterSpacing: 0.16,
       ),
       displayMedium: TextStyle(
+        fontFamily: fontFamily,
         color: mobileColorTheme.onBackground,
         fontSize: 32,
         fontWeight: FontWeight.w600,
@@ -171,6 +176,7 @@ ThemeData getMobileThemeData(
       ),
       // body2 14 Regular
       bodyMedium: TextStyle(
+        fontFamily: fontFamily,
         color: mobileColorTheme.onBackground,
         fontSize: 14,
         fontWeight: FontWeight.w400,
@@ -223,6 +229,7 @@ ThemeData getMobileThemeData(
       ),
     ),
     colorScheme: mobileColorTheme,
+    indicatorColor: Colors.blue,
     extensions: [
       AFThemeExtension(
         warning: theme.yellow,

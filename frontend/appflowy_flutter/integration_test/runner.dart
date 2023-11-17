@@ -19,8 +19,7 @@ import 'document/document_test_runner.dart' as document_test_runner;
 import 'empty_test.dart' as first_test;
 import 'hotkeys_test.dart' as hotkeys_test;
 import 'import_files_test.dart' as import_files_test;
-import 'settings/user_icon_test.dart' as user_icon_test;
-import 'settings/user_language_test.dart' as user_language_test;
+import 'settings/settings_runner.dart' as settings_test_runner;
 import 'share_markdown_test.dart' as share_markdown_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'switch_folder_test.dart' as switch_folder_test;
@@ -75,8 +74,7 @@ void main() {
   appearance_test_runner.main();
 
   // User settings
-  user_icon_test.main();
-  user_language_test.main();
+  settings_test_runner.main();
 
   if (isCloudEnabled) {
     auth_test_runner.main();

@@ -86,7 +86,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
-      auth_type: user_profile.auth_type.into(),
+      auth_type: user_profile.authenticator.into(),
       encryption_sign,
       encryption_type: encryption_ty,
       workspace_id: user_profile.workspace_id,

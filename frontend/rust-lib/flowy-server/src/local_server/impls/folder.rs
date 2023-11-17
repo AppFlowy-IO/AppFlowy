@@ -6,7 +6,6 @@ use flowy_folder_deps::cloud::{
   gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
 use lib_infra::future::FutureResult;
-use lib_infra::util::timestamp;
 
 use crate::local_server::LocalServerDB;
 
@@ -16,15 +15,14 @@ pub(crate) struct LocalServerFolderCloudServiceImpl {
 }
 
 impl FolderCloudService for LocalServerFolderCloudServiceImpl {
-  fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, Error> {
+  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
     let name = name.to_string();
     FutureResult::new(async move {
-      Ok(Workspace {
-        id: gen_workspace_id().to_string(),
-        name: name.to_string(),
-        child_views: Default::default(),
-        created_at: timestamp(),
-      })
+      Ok(Workspace::new(
+        gen_workspace_id().to_string(),
+        name.to_string(),
+        uid,
+      ))
     })
   }
 

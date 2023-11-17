@@ -373,7 +373,7 @@ final Map<String, String> smileys = Map.fromIterables([
   'Rescue Worker’s Helmet',
   'Lipstick',
   'Ring',
-  'Briefcase'
+  'Briefcase',
 ], [
   '😀',
   '😃',
@@ -734,7 +734,7 @@ final Map<String, String> smileys = Map.fromIterables([
   '⛑',
   '💄',
   '💍',
-  '💼'
+  '💼',
 ]);
 
 /// Map of all possible emojis along with their names in [Category.ANIMALS]
@@ -919,7 +919,7 @@ final Map<String, String> animals = Map.fromIterables([
   'Christmas Tree',
   'Sparkles',
   'Tanabata Tree',
-  'Pine Decoration'
+  'Pine Decoration',
 ], [
   '🐶',
   '🐱',
@@ -1101,7 +1101,7 @@ final Map<String, String> animals = Map.fromIterables([
   '🎄',
   '✨',
   '🎋',
-  '🎍'
+  '🎍',
 ]);
 
 /// Map of all possible emojis along with their names in [Category.FOODS]
@@ -1210,7 +1210,7 @@ final Map<String, String> foods = Map.fromIterables([
   'Chopsticks',
   'Fork and Knife With Plate',
   'Fork and Knife',
-  'Spoon'
+  'Spoon',
 ], [
   '🍇',
   '🍈',
@@ -1316,7 +1316,7 @@ final Map<String, String> foods = Map.fromIterables([
   '🥢',
   '🍽',
   '🍴',
-  '🥄'
+  '🥄',
 ]);
 
 /// Map of all possible emojis along with their names in [Category.TRAVEL]
@@ -1445,7 +1445,7 @@ final Map<String, String> travel = Map.fromIterables([
   'Passport Control',
   'Customs',
   'Baggage Claim',
-  'Left Luggage'
+  'Left Luggage',
 ], [
   '🚣',
   '🗾',
@@ -1571,7 +1571,7 @@ final Map<String, String> travel = Map.fromIterables([
   '🛂',
   '🛃',
   '🛄',
-  '🛅'
+  '🛅',
 ]);
 
 /// Map of all possible emojis along with their names in [Category.ACTIVITIES]
@@ -1667,7 +1667,7 @@ final Map<String, String> activities = Map.fromIterables([
   'Violin',
   'Drum',
   'Clapper Board',
-  'Bow and Arrow'
+  'Bow and Arrow',
 ], [
   '🕴',
   '🧗',
@@ -1760,7 +1760,7 @@ final Map<String, String> activities = Map.fromIterables([
   '🎻',
   '🥁',
   '🎬',
-  '🏹'
+  '🏹',
 ]);
 
 /// Map of all possible emojis along with their names in [Category.OBJECTS]
@@ -1962,7 +1962,7 @@ final Map<String, String> objects = Map.fromIterables([
   'Coffin',
   'Funeral Urn',
   'Moai',
-  'Potable Water'
+  'Potable Water',
 ], [
   '💌',
   '🕳',
@@ -2161,7 +2161,7 @@ final Map<String, String> objects = Map.fromIterables([
   '⚰',
   '⚱',
   '🗿',
-  '🚰'
+  '🚰',
 ]);
 
 /// Map of all possible emojis along with their names in [Category.SYMBOLS]
@@ -2424,7 +2424,7 @@ final Map<String, String> symbols = Map.fromIterables([
   'Red Triangle Pointed Down',
   'Diamond With a Dot',
   'White Square Button',
-  'Black Square Button'
+  'Black Square Button',
 ], [
   '💘',
   '💝',
@@ -2684,7 +2684,7 @@ final Map<String, String> symbols = Map.fromIterables([
   '🔻',
   '💠',
   '🔳',
-  '🔲'
+  '🔲',
 ]);
 
 /// Map of all possible emojis along with their names in [Category.FLAGS]
@@ -2953,7 +2953,7 @@ final Map<String, String> flags = Map.fromIterables([
   'Flag: Mayotte',
   'Flag: South Africa',
   'Flag: Zambia',
-  'Flag: Zimbabwe'
+  'Flag: Zimbabwe',
 ], [
   '🏁',
   '🚩',
@@ -3219,5 +3219,5 @@ final Map<String, String> flags = Map.fromIterables([
   '🇾🇹',
   '🇿🇦',
   '🇿🇲',
-  '🇿🇼'
+  '🇿🇼',
 ]);

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -88,14 +89,25 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
     return StreamBuilder(
       stream: stream,
       builder: (context, snapshot) {
-        if (widget.showActions && widget.actionBuilder != null) {
-          return BlockComponentActionWrapper(
-            node: widget.node,
-            actionBuilder: widget.actionBuilder!,
-            child: _buildOutlineBlock(),
+        Widget child = _buildOutlineBlock();
+
+        if (PlatformExtension.isDesktopOrWeb) {
+          if (widget.showActions && widget.actionBuilder != null) {
+            child = BlockComponentActionWrapper(
+              node: widget.node,
+              actionBuilder: widget.actionBuilder!,
+              child: child,
+            );
+          }
+        } else {
+          child = MobileBlockActionButtons(
+            node: node,
+            editorState: editorState,
+            child: child,
           );
         }
-        return _buildOutlineBlock();
+
+        return child;
       },
     );
   }
@@ -119,33 +131,47 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
           ),
         )
         .toList();
-    if (children.isEmpty) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          LocaleKeys.document_plugins_outline_addHeadingToCreateOutline.tr(),
-          style: configuration.placeholderTextStyle(node),
-        ),
-      );
-    }
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: backgroundColor,
+
+    final child = children.isEmpty
+        ? Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              LocaleKeys.document_plugins_outline_addHeadingToCreateOutline
+                  .tr(),
+              style: configuration.placeholderTextStyle(node),
+            ),
+          )
+        : DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+              color: backgroundColor,
+            ),
+            child: Column(
+              key: ValueKey(children.hashCode),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              textDirection: textDirection,
+              children: children,
+            ),
+          );
+
+    return Container(
+      constraints: const BoxConstraints(
+        minHeight: 40.0,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        textDirection: textDirection,
-        children: children,
-      ),
+      padding: padding,
+      child: child,
     );
   }
 
   Iterable<Node> getHeadingNodes() {
     final children = editorState.document.root.children;
-    return children.where((element) => element.type == HeadingBlockKeys.type);
+    return children.where(
+      (element) =>
+          element.type == HeadingBlockKeys.type &&
+          element.delta?.isNotEmpty == true,
+    );
   }
 }
 
@@ -172,6 +198,7 @@ class OutlineItemWidget extends StatelessWidget {
       ),
       builder: (context, onHover) {
         return GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () => scrollToBlock(context),
           child: Row(
             textDirection: textDirection,
@@ -196,12 +223,13 @@ class OutlineItemWidget extends StatelessWidget {
   void scrollToBlock(BuildContext context) {
     final editorState = context.read<EditorState>();
     final editorScrollController = context.read<EditorScrollController>();
-    editorScrollController.itemScrollController.jumpTo(index: node.path.first);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      editorState.selection = Selection.collapsed(
-        Position(path: node.path, offset: node.delta?.length ?? 0),
-      );
-    });
+    editorScrollController.itemScrollController.jumpTo(
+      index: node.path.first,
+      alignment: 0.5,
+    );
+    editorState.selection = Selection.collapsed(
+      Position(path: node.path, offset: node.delta?.length ?? 0),
+    );
   }
 }
 

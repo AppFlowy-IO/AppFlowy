@@ -3,10 +3,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 
 typedef EmojiKeywordChangedCallback = void Function(String keyword);
 typedef EmojiSkinToneChanged = void Function(EmojiSkinTone skinTone);
@@ -105,10 +105,12 @@ class _SearchTextField extends StatefulWidget {
 
 class _SearchTextFieldState extends State<_SearchTextField> {
   final TextEditingController controller = TextEditingController();
+  final FocusNode focusNode = FocusNode();
 
   @override
   void dispose() {
     controller.dispose();
+    focusNode.dispose();
 
     super.dispose();
   }
@@ -120,7 +122,7 @@ class _SearchTextFieldState extends State<_SearchTextField> {
         maxHeight: 32.0,
       ),
       child: FlowyTextField(
-        autoFocus: true,
+        focusNode: focusNode,
         hintText: LocaleKeys.emoji_search.tr(),
         controller: controller,
         onChanged: widget.onKeywordChanged,
@@ -145,8 +147,12 @@ class _SearchTextFieldState extends State<_SearchTextField> {
             margin: EdgeInsets.zero,
             useIntrinsicWidth: true,
             onTap: () {
-              controller.clear();
-              widget.onKeywordChanged('');
+              if (controller.text.isNotEmpty) {
+                controller.clear();
+                widget.onKeywordChanged('');
+              } else {
+                focusNode.unfocus();
+              }
             },
           ),
         ),

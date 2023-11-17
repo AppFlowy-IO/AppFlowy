@@ -2,9 +2,11 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use anyhow::Error;
+use client_api::collab_sync::collab_msg::CollabMessage;
+use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
-  BusinessID, ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
+  ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::Client;
 use tokio::sync::watch;
@@ -17,7 +19,7 @@ use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_storage::FileStorageService;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::cloud::{UserCloudService, UserUpdate};
 use flowy_user_deps::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
@@ -50,11 +52,7 @@ impl AFCloudServer {
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
 
-    let ws_client = WSClient::new(WSClientConfig {
-      buffer_capacity: 100,
-      ping_per_secs: 8,
-      retry_connect_per_pings: 6,
-    });
+    let ws_client = WSClient::new(WSClientConfig::default(), api_client.clone());
     let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
 
@@ -122,9 +120,26 @@ impl AppFlowyServer for AFCloudServer {
     info!("{} cloud sync: {}", uid, enable);
     self.enable_sync.store(enable, Ordering::SeqCst);
   }
+
   fn user_service(&self) -> Arc<dyn UserCloudService> {
     let server = AFServerImpl(self.get_client());
-    Arc::new(AFCloudUserAuthServiceImpl::new(server))
+    let mut user_change = self.ws_client.subscribe_user_changed();
+    let (tx, rx) = tokio::sync::mpsc::channel(1);
+    tokio::spawn(async move {
+      while let Ok(user_message) = user_change.recv().await {
+        if let UserMessage::ProfileChange(change) = user_message {
+          let user_update = UserUpdate {
+            uid: change.uid,
+            name: change.name,
+            email: change.email,
+            encryption_sign: "".to_string(),
+          };
+          let _ = tx.send(user_update).await;
+        }
+      }
+    });
+
+    Arc::new(AFCloudUserAuthServiceImpl::new(server, rx))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
@@ -142,19 +157,26 @@ impl AppFlowyServer for AFCloudServer {
     Arc::new(AFCloudDocumentCloudServiceImpl(server))
   }
 
+  #[allow(clippy::type_complexity)]
   fn collab_ws_channel(
     &self,
-    object_id: &str,
-  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver, bool)>, anyhow::Error>
-  {
+    _object_id: &str,
+  ) -> FutureResult<
+    Option<(
+      Arc<WebSocketChannel<CollabMessage>>,
+      WSConnectStateReceiver,
+      bool,
+    )>,
+    anyhow::Error,
+  > {
     if self.enable_sync.load(Ordering::SeqCst) {
-      let object_id = object_id.to_string();
+      let object_id = _object_id.to_string();
       let weak_ws_client = Arc::downgrade(&self.ws_client);
       FutureResult::new(async move {
         match weak_ws_client.upgrade() {
           None => Ok(None),
           Some(ws_client) => {
-            let channel = ws_client.subscribe(BusinessID::CollabId, object_id).ok();
+            let channel = ws_client.subscribe_collab(object_id).ok();
             let connect_state_recv = ws_client.subscribe_connect_state();
             Ok(channel.map(|c| (c, connect_state_recv, ws_client.is_connected())))
           },
@@ -193,7 +215,7 @@ fn spawn_ws_conn(
       while let Ok(state) = state_recv.recv().await {
         info!("[websocket] state: {:?}", state);
         match state {
-          ConnectState::PingTimeout => {
+          ConnectState::PingTimeout | ConnectState::Closed => {
             // Try to reconnect if the connection is timed out.
             if let (Some(api_client), Some(device_id)) =
               (weak_api_client.upgrade(), weak_device_id.upgrade())
@@ -203,7 +225,7 @@ fn spawn_ws_conn(
                 match api_client.ws_url(&device_id) {
                   Ok(ws_addr) => {
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
-                    let _ = ws_client.connect(ws_addr).await;
+                    let _ = ws_client.connect(ws_addr, &device_id).await;
                   },
                   Err(err) => error!("Failed to get ws url: {}", err),
                 }
@@ -212,8 +234,8 @@ fn spawn_ws_conn(
           },
           ConnectState::Unauthorized => {
             if let Some(api_client) = weak_api_client.upgrade() {
-              if enable_sync.load(Ordering::SeqCst) {
-                let _ = api_client.refresh().await;
+              if let Err(err) = api_client.refresh_token().await {
+                error!("Failed to refresh token: {}", err);
               }
             }
           },
@@ -239,7 +261,7 @@ fn spawn_ws_conn(
             match api_client.ws_url(&device_id) {
               Ok(ws_addr) => {
                 info!("🟢token state: {:?}, reconnecting websocket", token_state);
-                let _ = ws_client.connect(ws_addr).await;
+                let _ = ws_client.connect(ws_addr, &device_id).await;
               },
               Err(err) => error!("Failed to get ws url: {}", err),
             }

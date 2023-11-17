@@ -84,7 +84,7 @@ extension InsertDatabase on EditorState {
           MentionBlockKeys.mention: {
             MentionBlockKeys.type: MentionType.page.name,
             MentionBlockKeys.pageId: view.id,
-          }
+          },
         },
       );
   }

@@ -39,8 +39,10 @@ RUN source ~/.cargo/env && \
     rustup default 1.70
 
 # Install Flutter
-RUN curl -sSfL --output flutter.tar.xz \
-      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.1-stable.tar.xz && \
+RUN sudo pacman -S --noconfirm git tar gtk3
+RUN curl -sSfL \
+      --output flutter.tar.xz \
+      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop

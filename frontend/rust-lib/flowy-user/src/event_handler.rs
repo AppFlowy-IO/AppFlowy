@@ -100,7 +100,7 @@ pub async fn get_user_profile_handler(
 
   // When the user is logged in with a local account, the email field is a placeholder and should
   // not be exposed to the client. So we set the email field to an empty string.
-  if user_profile.auth_type == AuthType::Local {
+  if user_profile.authenticator == Authenticator::Local {
     user_profile.email = "".to_string();
   }
 
@@ -257,7 +257,7 @@ pub async fn oauth_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let auth_type: AuthType = params.auth_type.into();
+  let auth_type: Authenticator = params.auth_type.into();
   let user_profile = manager.sign_up(auth_type, BoxAny::new(params.map)).await?;
   data_result_ok(user_profile.into())
 }
@@ -269,7 +269,7 @@ pub async fn get_sign_in_url_handler(
 ) -> DataResult<SignInUrlPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let auth_type: AuthType = params.auth_type.into();
+  let auth_type: Authenticator = params.auth_type.into();
   let sign_in_url = manager
     .generate_sign_in_url_with_email(&auth_type, &params.email)
     .await?;
@@ -385,7 +385,6 @@ pub async fn set_cloud_config_handler(
       manager
         .set_encrypt_secret(session.user_id, encrypt_secret, encryption_type.clone())
         .await?;
-      save_cloud_config(session.user_id, &store_preferences, config.clone())?;
 
       let params =
         UpdateUserProfileParams::new(session.user_id).with_encryption_type(encryption_type);
@@ -393,28 +392,40 @@ pub async fn set_cloud_config_handler(
     }
   }
 
-  let config_pb = UserCloudConfigPB::from(config);
+  save_cloud_config(session.user_id, &store_preferences, config.clone())?;
+
+  let payload = CloudSettingPB {
+    enable_sync: config.enable_sync,
+    enable_encrypt: config.enable_encrypt,
+    encrypt_secret: config.encrypt_secret,
+    server_url: manager.cloud_services.service_url(),
+  };
+
   send_notification(
     &session.user_id.to_string(),
     UserNotification::DidUpdateCloudConfig,
   )
-  .payload(config_pb)
+  .payload(payload)
   .send();
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "info", skip_all, err)]
 pub async fn get_cloud_config_handler(
   manager: AFPluginState<Weak<UserManager>>,
   store_preferences: AFPluginState<Weak<StorePreferences>>,
-) -> DataResult<UserCloudConfigPB, FlowyError> {
+) -> DataResult<CloudSettingPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
-
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   // Generate the default config if the config is not exist
   let config = get_or_create_cloud_config(session.user_id, &store_preferences);
-  data_result_ok(config.into())
+  data_result_ok(CloudSettingPB {
+    enable_sync: config.enable_sync,
+    enable_encrypt: config.enable_encrypt,
+    encrypt_secret: config.encrypt_secret,
+    server_url: manager.cloud_services.service_url(),
+  })
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
@@ -469,7 +480,7 @@ pub async fn open_historical_users_handler(
 ) -> Result<(), FlowyError> {
   let user = user.into_inner();
   let manager = upgrade_manager(manager)?;
-  let auth_type = AuthType::from(user.auth_type);
+  let auth_type = Authenticator::from(user.auth_type);
   manager
     .open_historical_user(user.user_id, user.device_id, auth_type)
     .await?;

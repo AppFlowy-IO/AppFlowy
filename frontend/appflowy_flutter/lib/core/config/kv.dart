@@ -70,9 +70,8 @@ class DartKeyValue implements KeyValueStorage {
 
 /// Key-value store
 /// The data is stored in the local storage of the device.
-class RustKeyValue implements KeyValueStorage {
-  @override
-  Future<void> set(String key, String value) async {
+class RustKeyValue {
+  static Future<void> set(String key, String value) async {
     await ConfigEventSetKeyValue(
       KeyValuePB.create()
         ..key = key
@@ -80,15 +79,13 @@ class RustKeyValue implements KeyValueStorage {
     ).send();
   }
 
-  @override
-  Future<Either<FlowyError, String>> get(String key) async {
+  static Future<Either<FlowyError, String>> get(String key) async {
     final payload = KeyPB.create()..key = key;
     final response = await ConfigEventGetKeyValue(payload).send();
     return response.swap().map((r) => r.value);
   }
 
-  @override
-  Future<Either<FlowyError, T>> getWithFormat<T>(
+  static Future<Either<FlowyError, T>> getWithFormat<T>(
     String key,
     T Function(String value) formatter,
   ) async {
@@ -99,15 +96,9 @@ class RustKeyValue implements KeyValueStorage {
     );
   }
 
-  @override
-  Future<void> remove(String key) async {
+  static Future<void> remove(String key) async {
     await ConfigEventRemoveKeyValue(
       KeyPB.create()..key = key,
     ).send();
-  }
-
-  @override
-  Future<void> clear() async {
-    // TODO(Lucas): implement clear
   }
 }

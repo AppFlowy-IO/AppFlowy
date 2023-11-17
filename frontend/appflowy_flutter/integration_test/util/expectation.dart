@@ -5,13 +5,14 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emo
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // const String readme = 'Read me';
-const String gettingStarted = '⭐️ Getting started';
+const String gettingStarted = 'Getting started';
 
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
@@ -164,12 +165,21 @@ extension Expectation on WidgetTester {
   }) {
     return find.byWidgetPredicate(
       (widget) =>
-          widget is ViewItem &&
+          widget is SingleInnerViewItem &&
           widget.view.isFavorite &&
           widget.categoryType == FolderCategoryType.favorite &&
           widget.view.name == name &&
           widget.view.layout == layout,
       skipOffstage: false,
+    );
+  }
+
+  Finder findAllFavoritePages() {
+    return find.byWidgetPredicate(
+      (widget) =>
+          widget is SingleInnerViewItem &&
+          widget.view.isFavorite &&
+          widget.categoryType == FolderCategoryType.favorite,
     );
   }
 
@@ -201,10 +211,21 @@ extension Expectation on WidgetTester {
     );
   }
 
-  void isPageWithIcon(String name, String emoji) {
-    final pageName = findPageName(name);
+  void expectViewHasIcon(String name, ViewLayoutPB layout, String emoji) {
+    final pageName = findPageName(
+      name,
+      layout: layout,
+    );
     final icon = find.descendant(
       of: pageName,
+      matching: find.text(emoji),
+    );
+    expect(icon, findsOneWidget);
+  }
+
+  void expectViewTitleHasIcon(String name, ViewLayoutPB layout, String emoji) {
+    final icon = find.descendant(
+      of: find.byType(ViewTitleBar),
       matching: find.text(emoji),
     );
     expect(icon, findsOneWidget);

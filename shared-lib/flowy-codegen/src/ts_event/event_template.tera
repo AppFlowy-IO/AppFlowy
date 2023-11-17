@@ -24,10 +24,8 @@ export async function {{ event_func_name }}(): Promise<Result<{{ output_deserial
     if (result.code == 0) {
     {%- if has_output  %}
         let object = {{ output_deserializer }}.deserializeBinary(result.payload);
-        console.log({{ event_func_name }}.name, object);
         return Ok(object);
     {%- else %}
-        console.log({{ event_func_name }}.name);
         return Ok.EMPTY;
     {%- endif %}
     } else {

@@ -6,7 +6,9 @@ use collab_database::rows::{Cells, Row, RowDetail};
 
 use flowy_error::FlowyResult;
 
-use crate::entities::{GroupChangesPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB};
+use crate::entities::{
+  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
+};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
 };
@@ -30,6 +32,7 @@ impl DefaultGroupController {
       field.id.clone(),
       "".to_owned(),
       "".to_owned(),
+      true,
     );
     Self {
       field_id: field.id.clone(),
@@ -129,8 +132,8 @@ impl GroupControllerOperation for DefaultGroupController {
   async fn apply_group_changeset(
     &mut self,
     _changeset: &GroupChangesets,
-  ) -> FlowyResult<TypeOptionData> {
-    Ok(TypeOptionData::default())
+  ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
+    Ok((Vec::new(), TypeOptionData::default()))
   }
 }
 

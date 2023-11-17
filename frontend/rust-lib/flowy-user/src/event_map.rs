@@ -66,12 +66,12 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum UserEvent {
-  /// Only use when the [AuthType] is Local or SelfHosted
+  /// Only use when the [Authenticator] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
   SignIn = 0,
 
-  /// Only use when the [AuthType] is Local or SelfHosted
+  /// Only use when the [Authenticator] is Local or SelfHosted
   /// Creating a new account
   #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
   SignUp = 1,
@@ -109,7 +109,7 @@ pub enum UserEvent {
   OauthSignIn = 10,
 
   /// Get the OAuth callback url
-  /// Only use when the [AuthType] is AFCloud
+  /// Only use when the [Authenticator] is AFCloud
   #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
   GetSignInURL = 11,
 
@@ -119,7 +119,7 @@ pub enum UserEvent {
   #[event(input = "UpdateCloudConfigPB")]
   SetCloudConfig = 13,
 
-  #[event(output = "UserCloudConfigPB")]
+  #[event(output = "CloudSettingPB")]
   GetCloudConfig = 14,
 
   #[event(input = "UserSecretPB")]
@@ -145,7 +145,7 @@ pub enum UserEvent {
   OpenHistoricalUser = 26,
 
   /// Push a realtime event to the user. Currently, the realtime event
-  /// is only used when the auth type is: [AuthType::Supabase].
+  /// is only used when the auth type is: [Authenticator::Supabase].
   ///
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
@@ -201,9 +201,9 @@ pub struct SignUpContext {
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
-  /// When the [AuthType] changed, this method will be called. Currently, the auth type
+  /// When the [Authenticator] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
+  fn authenticator_did_changed(&self, _authenticator: Authenticator) {}
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
   fn did_init(
@@ -244,10 +244,11 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
 
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
   fn set_encrypt_secret(&self, secret: String);
-  fn set_auth_type(&self, auth_type: AuthType);
+  fn set_authenticator(&self, authenticator: Authenticator);
+  fn get_authenticator(&self) -> Authenticator;
   fn set_device_id(&self, device_id: &str);
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
-  fn service_name(&self) -> String;
+  fn service_url(&self) -> String;
 }
 
 impl<T> UserCloudServiceProvider for Arc<T>
@@ -266,8 +267,12 @@ where
     (**self).set_encrypt_secret(secret)
   }
 
-  fn set_auth_type(&self, auth_type: AuthType) {
-    (**self).set_auth_type(auth_type)
+  fn set_authenticator(&self, authenticator: Authenticator) {
+    (**self).set_authenticator(authenticator)
+  }
+
+  fn get_authenticator(&self) -> Authenticator {
+    (**self).get_authenticator()
   }
 
   fn set_device_id(&self, device_id: &str) {
@@ -278,8 +283,8 @@ where
     (**self).get_user_service()
   }
 
-  fn service_name(&self) -> String {
-    (**self).service_name()
+  fn service_url(&self) -> String {
+    (**self).service_url()
   }
 }
 

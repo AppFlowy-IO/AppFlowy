@@ -1,4 +1,5 @@
-use flowy_core::{AppFlowyCore, AppFlowyCoreConfig, DEFAULT_NAME};
+use flowy_core::config::AppFlowyCoreConfig;
+use flowy_core::{AppFlowyCore, DEFAULT_NAME};
 
 pub fn init_flowy_core() -> AppFlowyCore {
   let config_json = include_str!("../tauri.conf.json");

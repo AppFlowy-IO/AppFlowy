@@ -9,10 +9,10 @@ import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy/workspace/presentation/widgets/left_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,7 +30,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  FlowySvgData get icon => FlowySvgs.documents_s;
+  FlowySvgData get icon => FlowySvgs.document_s;
 
   @override
   PluginType get pluginType => PluginType.editor;
@@ -104,7 +104,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   }
 
   @override
-  Widget get leftBarItem => ViewLeftBarItem(view: view);
+  Widget get leftBarItem => ViewTitleBar(view: view);
 
   @override
   Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);

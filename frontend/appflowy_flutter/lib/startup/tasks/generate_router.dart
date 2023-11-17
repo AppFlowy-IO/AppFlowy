@@ -3,7 +3,11 @@ import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dar
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
+import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -51,6 +55,12 @@ GoRouter generateRouter(Widget child) {
 
         // emoji picker
         _mobileEmojiPickerPageRoute(),
+        _mobileImagePickerPageRoute(),
+
+        // code language picker
+        _mobileCodeLanguagePickerPageRoute(),
+        _mobileLanguagePickerPageRoute(),
+        _mobileFontPickerPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -209,11 +219,60 @@ GoRoute _mobileEmojiPickerPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileEmojiPickerScreen.routeName,
     pageBuilder: (context, state) {
-      final id = state.uri.queryParameters[MobileEmojiPickerScreen.viewId]!;
+      final title =
+          state.uri.queryParameters[MobileEmojiPickerScreen.pageTitle];
       return MaterialPage(
         child: MobileEmojiPickerScreen(
-          id: id,
+          title: title,
         ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileImagePickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileImagePickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: MobileImagePickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCodeLanguagePickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileCodeLanguagePickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: MobileCodeLanguagePickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileLanguagePickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: LanguagePickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: LanguagePickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileFontPickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: FontPickerScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(
+        child: FontPickerScreen(),
       );
     },
   );

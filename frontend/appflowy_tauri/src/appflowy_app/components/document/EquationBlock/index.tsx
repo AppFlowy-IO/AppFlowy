@@ -84,4 +84,4 @@ function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> })
   );
 }
 
-export default EquationBlock;
+export default React.memo(EquationBlock);

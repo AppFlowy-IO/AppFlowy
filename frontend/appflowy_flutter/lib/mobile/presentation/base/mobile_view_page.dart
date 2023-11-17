@@ -1,7 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
+import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -116,15 +117,19 @@ class _MobileViewPageState extends State<MobileViewPage> {
       appBar: AppBar(
         titleSpacing: 0,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null)
               FlowyText(
                 '$icon ',
                 fontSize: 22.0,
               ),
-            FlowyText.regular(
-              view?.name ?? widget.title ?? '',
-              fontSize: 14.0,
+            Expanded(
+              child: FlowyText.regular(
+                view?.name ?? widget.title ?? '',
+                fontSize: 14.0,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -178,12 +183,21 @@ class _MobileViewPageState extends State<MobileViewPage> {
             context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
             break;
           case MobileViewBottomSheetBodyAction.undo:
+            context.dispatchNotification(
+              const EditorNotification(type: EditorNotificationType.redo),
+            );
+            context.pop();
+            break;
           case MobileViewBottomSheetBodyAction.redo:
+            context.pop();
+            context.dispatchNotification(EditorNotification.redo());
+            break;
           case MobileViewBottomSheetBodyAction.helpCenter:
             // unimplemented
             context.pop();
             break;
           case MobileViewBottomSheetBodyAction.rename:
+            // no need to implement, rename is handled by the onRename callback.
             throw UnimplementedError();
         }
       },

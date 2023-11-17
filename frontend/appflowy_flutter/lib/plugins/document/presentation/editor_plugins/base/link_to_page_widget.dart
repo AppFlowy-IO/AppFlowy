@@ -44,13 +44,15 @@ void showLinkToPageMenu(
             await editorState.insertReferencePage(viewPB, pageType);
             linkToPageMenuEntry.remove();
           } on FlowyError catch (e) {
-            Dialogs.show(
-              child: FlowyErrorPage.message(
-                e.msg,
-                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-              ),
-              context,
-            );
+            if (context.mounted) {
+              Dialogs.show(
+                child: FlowyErrorPage.message(
+                  e.msg,
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                ),
+                context,
+              );
+            }
           }
         },
       ),
@@ -149,7 +151,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       LogicalKeyboardKey.arrowUp,
       LogicalKeyboardKey.arrowDown,
       LogicalKeyboardKey.tab,
-      LogicalKeyboardKey.enter
+      LogicalKeyboardKey.enter,
     ];
 
     if (!acceptedKeys.contains(event.logicalKey)) {

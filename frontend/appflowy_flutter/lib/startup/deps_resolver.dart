@@ -1,6 +1,7 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
@@ -19,7 +20,6 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
-import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
@@ -144,6 +144,7 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton(FToast());
 
   getIt.registerSingleton(MenuSharedState());
+  getIt.registerSingleton(MobileRouterRecord());
 
   getIt.registerFactoryParam<UserListener, UserProfilePB, void>(
     (user, _) => UserListener(userProfile: user),
@@ -164,13 +165,7 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 
-  getIt.registerSingleton<NotificationSettingsCubit>(
-    NotificationSettingsCubit(),
-  );
-
-  getIt.registerSingleton<ReminderBloc>(
-    ReminderBloc(notificationSettings: getIt<NotificationSettingsCubit>()),
-  );
+  getIt.registerSingleton<ReminderBloc>(ReminderBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {

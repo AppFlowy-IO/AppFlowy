@@ -77,4 +77,4 @@ function ImageBlock({ node }: { node: NestedBlock<BlockType.ImageBlock> }) {
   );
 }
 
-export default ImageBlock;
+export default React.memo(ImageBlock);

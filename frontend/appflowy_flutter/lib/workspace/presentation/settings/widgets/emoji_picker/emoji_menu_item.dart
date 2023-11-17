@@ -44,8 +44,8 @@ void showEmojiPickerMenu(
     builder: (context) => Material(
       type: MaterialType.transparency,
       child: Container(
-        width: 300,
-        height: 250,
+        width: 360,
+        height: 380,
         padding: const EdgeInsets.all(4.0),
         decoration: FlowyDecoration.decoration(
           Theme.of(context).cardColor,

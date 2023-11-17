@@ -51,7 +51,7 @@ class HomeSideBar extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
-        )
+        ),
       ],
       child: MultiBlocListener(
         listeners: [

@@ -148,13 +148,19 @@ pub struct GroupData {
 }
 
 impl GroupData {
-  pub fn new(id: String, field_id: String, name: String, filter_content: String) -> Self {
+  pub fn new(
+    id: String,
+    field_id: String,
+    name: String,
+    filter_content: String,
+    is_visible: bool,
+  ) -> Self {
     let is_default = id == field_id;
     Self {
       id,
       field_id,
       is_default,
-      is_visible: true,
+      is_visible,
       name,
       rows: vec![],
       filter_content,

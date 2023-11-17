@@ -12,13 +12,23 @@ enum FlowyIconType {
   custom;
 }
 
+class EmojiPickerResult {
+  const EmojiPickerResult(
+    this.type,
+    this.emoji,
+  );
+
+  final FlowyIconType type;
+  final String emoji;
+}
+
 class FlowyIconPicker extends StatefulWidget {
   const FlowyIconPicker({
     super.key,
     required this.onSelected,
   });
 
-  final void Function(FlowyIconType type, String value) onSelected;
+  final void Function(EmojiPickerResult result) onSelected;
 
   @override
   State<FlowyIconPicker> createState() => _FlowyIconPickerState();
@@ -45,7 +55,12 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
               const Spacer(),
               _RemoveIconButton(
                 onTap: () {
-                  widget.onSelected(FlowyIconType.icon, '');
+                  widget.onSelected(
+                    const EmojiPickerResult(
+                      FlowyIconType.icon,
+                      '',
+                    ),
+                  );
                 },
               ),
             ],
@@ -57,8 +72,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
             child: TabBarView(
               children: [
                 FlowyEmojiPicker(
+                  emojiPerLine: _getEmojiPerLine(),
                   onEmojiSelected: (_, emoji) {
-                    widget.onSelected(FlowyIconType.emoji, emoji);
+                    widget.onSelected(
+                      EmojiPickerResult(
+                        FlowyIconType.emoji,
+                        emoji,
+                      ),
+                    );
                   },
                 ),
               ],
@@ -91,10 +112,15 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
                 LocaleKeys.emoji_emojiTab.tr(),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
+  }
+
+  int _getEmojiPerLine() {
+    final width = MediaQuery.of(context).size.width;
+    return width ~/ 46.0; // the size of the emoji
   }
 }
 

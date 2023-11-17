@@ -1,10 +1,18 @@
 import { RowMeta } from '../../application';
 
+export const GridCalculateCountHeight = 40;
+
+export const DEFAULT_FIELD_WIDTH = 150;
+
 export enum RenderRowType {
   Fields = 'fields',
   Row = 'row',
   NewRow = 'new-row',
-  Calculate = 'calculate',
+  CalculateRow = 'calculate-row',
+}
+
+export interface CalculateRenderRow {
+  type: RenderRowType.CalculateRow;
 }
 
 export interface FieldRenderRow {
@@ -14,7 +22,7 @@ export interface FieldRenderRow {
 export interface CellRenderRow {
   type: RenderRowType.Row;
   data: {
-    meta: RowMeta,
+    meta: RowMeta;
   };
 }
 
@@ -23,11 +31,7 @@ export interface NewRenderRow {
   data: {
     startRowId?: string;
     groupId?: string;
-  },
-}
-
-export interface CalculateRenderRow {
-  type: RenderRowType.Calculate;
+  };
 }
 
 export type RenderRow = FieldRenderRow | CellRenderRow | NewRenderRow | CalculateRenderRow;
@@ -37,7 +41,7 @@ export const rowMetasToRenderRow = (rowMetas: RowMeta[]): RenderRow[] => {
     {
       type: RenderRowType.Fields,
     },
-    ...rowMetas.map<RenderRow>(rowMeta => ({
+    ...rowMetas.map<RenderRow>((rowMeta) => ({
       type: RenderRowType.Row,
       data: {
         meta: rowMeta,
@@ -50,8 +54,7 @@ export const rowMetasToRenderRow = (rowMetas: RowMeta[]): RenderRow[] => {
       },
     },
     {
-      type: RenderRowType.Calculate,
+      type: RenderRowType.CalculateRow,
     },
   ];
 };
-

@@ -1,8 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -21,7 +22,6 @@ void main() {
 
       // Hover over cover toolbar to show 'Add Cover' and 'Add Icon' buttons
       await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
 
       // Insert a document cover
       await tester.editor.tapOnAddCover();
@@ -57,14 +57,10 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      tester.expectToSeeDocumentIcon(null);
-
-      // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
-      await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
+      tester.expectToSeeDocumentIcon('⭐️');
 
       // Insert a document icon
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
       await tester.tapEmoji('😀');
       tester.expectToSeeDocumentIcon('😀');
 
@@ -94,18 +90,15 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      tester.expectToSeeDocumentIcon(null);
+      tester.expectToSeeDocumentIcon('⭐️');
       tester.expectToSeeNoDocumentCover();
 
-      // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
-      await tester.editor.hoverOnCoverToolbar();
-      tester.expectToSeePluginAddCoverAndIconButton();
-
       // Insert a document icon
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
       await tester.tapEmoji('😀');
 
       // Insert a document cover
+      await tester.editor.hoverOnCoverToolbar();
       await tester.editor.tapOnAddCover();
 
       // Expect to see the icon and cover at the same time
@@ -121,8 +114,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.editor.hoverOnCoverToolbar();
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
 
       // click the shuffle button
       await tester.tapButton(
@@ -135,8 +127,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.editor.hoverOnCoverToolbar();
-      await tester.editor.tapAddIconButton();
+      await tester.editor.tapGettingStartedIcon();
 
       final searchEmojiTextField = find.byWidgetPredicate(
         (widget) =>
@@ -155,7 +146,11 @@ void main() {
       const hand = '👋🏿';
       await tester.tapEmoji(hand);
       tester.expectToSeeDocumentIcon(hand);
-      tester.isPageWithIcon(gettingStarted, hand);
+      tester.expectViewHasIcon(
+        gettingStarted,
+        ViewLayoutPB.Document,
+        hand,
+      );
     });
   });
 }
