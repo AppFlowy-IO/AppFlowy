@@ -21,6 +21,13 @@ class MobileAppearance extends BaseAppearance {
     assert(fontFamily.isNotEmpty);
     assert(codeFontFamily.isNotEmpty);
 
+    final fontStyle = getFontStyle(
+      fontFamily: fontFamily,
+    );
+    final codeFontStyle = getFontStyle(
+      fontFamily: codeFontFamily,
+    );
+
     final theme = brightness == Brightness.light
         ? appTheme.lightTheme
         : appTheme.darkTheme;
@@ -149,14 +156,12 @@ class MobileAppearance extends BaseAppearance {
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
           textStyle: MaterialStateProperty.all(
-            getFontStyle(
-              fontFamily: fontFamily,
-            ),
+            fontStyle,
           ),
         ),
       ),
       // text
-      fontFamily: fontFamily,
+      fontFamily: fontStyle.fontFamily,
       textTheme: TextTheme(
         displayLarge: const TextStyle(
           color: Color(0xFF57B5F8),
@@ -165,8 +170,7 @@ class MobileAppearance extends BaseAppearance {
           height: 1.20,
           letterSpacing: 0.16,
         ),
-        displayMedium: TextStyle(
-          fontFamily: fontFamily,
+        displayMedium: fontStyle.copyWith(
           color: colorTheme.onBackground,
           fontSize: 32,
           fontWeight: FontWeight.w600,
@@ -174,15 +178,14 @@ class MobileAppearance extends BaseAppearance {
           letterSpacing: 0.16,
         ),
         // H1 Semi 26
-        displaySmall: TextStyle(
+        displaySmall: fontStyle.copyWith(
           color: colorTheme.onBackground,
           fontWeight: FontWeight.w600,
           height: 1.10,
           letterSpacing: 0.13,
         ),
         // body2 14 Regular
-        bodyMedium: TextStyle(
-          fontFamily: fontFamily,
+        bodyMedium: fontStyle.copyWith(
           color: colorTheme.onBackground,
           fontSize: 14,
           fontWeight: FontWeight.w400,
@@ -190,20 +193,20 @@ class MobileAppearance extends BaseAppearance {
           letterSpacing: 0.07,
         ),
         // Trash empty title
-        labelLarge: TextStyle(
+        labelLarge: fontStyle.copyWith(
           color: colorTheme.onBackground,
           fontSize: 22,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.3,
         ),
         // setting item title
-        labelMedium: TextStyle(
+        labelMedium: fontStyle.copyWith(
           color: colorTheme.onSurface,
           fontSize: 18,
           fontWeight: FontWeight.w500,
         ),
         // setting group title
-        labelSmall: TextStyle(
+        labelSmall: fontStyle.copyWith(
           color: colorTheme.onBackground,
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -258,22 +261,19 @@ class MobileAppearance extends BaseAppearance {
           toggleButtonBGColor: theme.toggleButtonBGColor,
           calendarWeekendBGColor: theme.calendarWeekendBGColor,
           gridRowCountColor: theme.gridRowCountColor,
-          code: getFontStyle(
-            fontFamily: codeFontFamily,
-            fontColor: theme.shader3,
+          code: codeFontStyle.copyWith(
+            color: theme.shader3,
           ),
-          callout: getFontStyle(
-            fontFamily: fontFamily,
+          callout: fontStyle.copyWith(
             fontSize: FontSizes.s11,
-            fontColor: theme.shader3,
+            color: theme.shader3,
           ),
           calloutBGColor: theme.hoverBG3,
           tableCellBGColor: theme.surface,
-          caption: getFontStyle(
-            fontFamily: fontFamily,
+          caption: fontStyle.copyWith(
             fontSize: FontSizes.s11,
             fontWeight: FontWeight.w400,
-            fontColor: theme.hint,
+            color: theme.hint,
           ),
         ),
       ],

@@ -12,14 +12,6 @@ abstract class BaseAppearance {
     MaterialState.dragged,
   };
 
-  // Poppins and SF Mono are not well supported in some languages, so use the
-  // built-in font for the following languages.
-  final useBuiltInFontLanguages = [
-    // chinese language,
-    const Locale('zh', 'CN'),
-    const Locale('zh', 'TW'),
-  ];
-
   TextStyle getFontStyle({
     required String fontFamily,
     double? fontSize,
