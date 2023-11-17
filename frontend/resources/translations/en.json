@@ -817,7 +817,8 @@
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar layout"
     },
-    "referencedCalendarPrefix": "View of"
+    "referencedCalendarPrefix": "View of",
+    "quickJumpYear": "Jump to"
   },
   "errorDialog": {
     "title": "AppFlowy Error",

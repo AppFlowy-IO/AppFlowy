@@ -2,10 +2,12 @@ import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -83,6 +85,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         ],
         child: Column(
           children: [
+            if (PlatformExtension.isMobile) const VSpace(12),
             BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
                 return ValueListenableBuilder<bool>(
@@ -94,11 +97,14 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                     if (value) {
                       return const SizedBox.shrink();
                     }
-                    return const SizedBox(
+
+                    return SizedBox(
                       height: 30,
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 40),
-                        child: TabBarHeader(),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: PlatformExtension.isMobile ? 20 : 40,
+                        ),
+                        child: const TabBarHeader(),
                       ),
                     );
                   },

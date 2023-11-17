@@ -20,20 +20,22 @@ import '../application/calendar_bloc.dart';
 import 'calendar_event_editor.dart';
 
 class EventCard extends StatefulWidget {
-  final CalendarDayEvent event;
-  final String viewId;
-  final RowCache rowCache;
-  final BoxConstraints constraints;
-  final bool autoEdit;
-
   const EventCard({
+    super.key,
     required this.event,
     required this.viewId,
     required this.rowCache,
     required this.constraints,
     required this.autoEdit,
-    super.key,
+    this.isDraggable = true,
   });
+
+  final CalendarDayEvent event;
+  final String viewId;
+  final RowCache rowCache;
+  final BoxConstraints constraints;
+  final bool autoEdit;
+  final bool isDraggable;
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -72,7 +74,7 @@ class _EventCardState extends State<EventCard> {
     );
     final renderHook = _calendarEventCardRenderHook(context);
 
-    final card = RowCard<CalendarDayEvent>(
+    Widget card = RowCard<CalendarDayEvent>(
       // Add the key here to make sure the card is rebuilt when the cells
       // in this row are updated.
       key: ValueKey(widget.event.eventId),
@@ -129,49 +131,55 @@ class _EventCardState extends State<EventCard> {
       ],
     );
 
-    return Draggable<CalendarDayEvent>(
-      data: widget.event,
-      feedback: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: widget.constraints.maxWidth - 8.0,
-        ),
-        child: Opacity(
-          opacity: 0.6,
-          child: DecoratedBox(
-            decoration: decoration,
-            child: card,
-          ),
-        ),
-      ),
-      child: AppFlowyPopover(
-        triggerActions: PopoverTriggerFlags.none,
-        direction: PopoverDirection.rightWithCenterAligned,
-        controller: _popoverController,
-        constraints: const BoxConstraints(maxWidth: 360, maxHeight: 348),
-        asBarrier: true,
-        margin: EdgeInsets.zero,
-        offset: const Offset(10.0, 0),
-        popupBuilder: (BuildContext popoverContext) {
-          final settings = context.watch<CalendarBloc>().state.settings.fold(
-                () => null,
-                (layoutSettings) => layoutSettings,
-              );
-          if (settings == null) {
-            return const SizedBox.shrink();
-          }
-          return CalendarEventEditor(
-            rowCache: widget.rowCache,
-            rowMeta: widget.event.event.rowMeta,
-            viewId: widget.viewId,
-            layoutSettings: settings,
-          );
-        },
-        child: DecoratedBox(
-          decoration: decoration,
-          child: card,
-        ),
+    card = AppFlowyPopover(
+      triggerActions: PopoverTriggerFlags.none,
+      direction: PopoverDirection.rightWithCenterAligned,
+      controller: _popoverController,
+      constraints: const BoxConstraints(maxWidth: 360, maxHeight: 348),
+      asBarrier: true,
+      margin: EdgeInsets.zero,
+      offset: const Offset(10.0, 0),
+      popupBuilder: (BuildContext popoverContext) {
+        final settings = context.watch<CalendarBloc>().state.settings.fold(
+              () => null,
+              (layoutSettings) => layoutSettings,
+            );
+        if (settings == null) {
+          return const SizedBox.shrink();
+        }
+        return CalendarEventEditor(
+          rowCache: widget.rowCache,
+          rowMeta: widget.event.event.rowMeta,
+          viewId: widget.viewId,
+          layoutSettings: settings,
+        );
+      },
+      child: DecoratedBox(
+        decoration: decoration,
+        child: card,
       ),
     );
+
+    if (widget.isDraggable) {
+      return Draggable<CalendarDayEvent>(
+        data: widget.event,
+        feedback: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: widget.constraints.maxWidth - 8.0,
+          ),
+          child: Opacity(
+            opacity: 0.6,
+            child: DecoratedBox(
+              decoration: decoration,
+              child: card,
+            ),
+          ),
+        ),
+        child: card,
+      );
+    }
+
+    return card;
   }
 
   RowCardRenderHook<CalendarDayEvent> _calendarEventCardRenderHook(

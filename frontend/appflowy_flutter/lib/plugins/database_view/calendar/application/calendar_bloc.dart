@@ -11,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -146,19 +147,19 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       (settings) async {
         final dateField = _getCalendarFieldInfo(settings.fieldId);
         if (dateField != null) {
-          final newRow = await databaseController.createRow(
-            withCells: (builder) {
-              builder.insertDate(dateField, date);
-            },
-          ).then(
-            (result) => result.fold(
-              (newRow) => newRow,
-              (err) {
-                Log.error(err);
-                return null;
-              },
-            ),
-          );
+          final newRow = await databaseController
+              .createRow(
+                withCells: (builder) => builder.insertDate(dateField, date),
+              )
+              .then(
+                (result) => result.fold(
+                  (newRow) => newRow,
+                  (err) {
+                    Log.error(err);
+                    return null;
+                  },
+                ),
+              );
 
           if (newRow != null) {
             final event = await _loadEvent(newRow.id);
@@ -207,10 +208,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     final payload = RowIdPB(viewId: viewId, rowId: rowId);
     return DatabaseEventGetCalendarEvent(payload).send().then((result) {
       return result.fold(
-        (eventPB) {
-          final calendarEvent = _calendarEventDataFromEventPB(eventPB);
-          return calendarEvent;
-        },
+        (eventPB) => _calendarEventDataFromEventPB(eventPB),
         (r) {
           Log.error(r);
           return null;
