@@ -162,7 +162,7 @@ class _DeletedFilesListView extends StatelessWidget {
             child: ListTile(
               // TODO(Yijing): implement file type after TrashPB has file type
               leading: FlowySvg(
-                FlowySvgs.page_s,
+                FlowySvgs.document_s,
                 size: const Size.square(24),
                 color: theme.colorScheme.onSurface,
               ),

@@ -25,7 +25,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           children: [
             Expanded(
               child: BottomSheetActionWidget(
-                svg: FlowySvgs.page_s,
+                svg: FlowySvgs.document_s,
                 text: LocaleKeys.document_menuName.tr(),
                 onTap: () => onAction(ViewLayoutPB.Document),
               ),
