@@ -61,13 +61,14 @@ class MobileHomePageHeader extends StatelessWidget {
                 const HSpace(12),
                 Expanded(
                   child: Column(
+                    mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       const FlowyText.medium(
                         'AppFlowy',
                         fontSize: 18,
                       ),
+                      const VSpace(4),
                       FlowyText.regular(
                         userProfile.email.isNotEmpty
                             ? userProfile.email
