@@ -5,7 +5,8 @@ use std::sync::Arc;
 use nanoid::nanoid;
 use parking_lot::RwLock;
 
-use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
+use flowy_core::config::AppFlowyCoreConfig;
+use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
 use flowy_user::entities::AuthTypePB;
 

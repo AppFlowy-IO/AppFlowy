@@ -362,7 +362,6 @@ pub async fn set_cloud_config_handler(
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let mut config = get_cloud_config(session.user_id, &store_preferences)
     .ok_or(FlowyError::internal().with_context("Can't find any cloud config"))?;
-  save_cloud_config(session.user_id, &store_preferences, config.clone())?;
 
   if let Some(enable_sync) = update.enable_sync {
     manager
@@ -392,6 +391,8 @@ pub async fn set_cloud_config_handler(
       manager.update_user_profile(params).await?;
     }
   }
+
+  save_cloud_config(session.user_id, &store_preferences, config.clone())?;
 
   let payload = CloudSettingPB {
     enable_sync: config.enable_sync,
