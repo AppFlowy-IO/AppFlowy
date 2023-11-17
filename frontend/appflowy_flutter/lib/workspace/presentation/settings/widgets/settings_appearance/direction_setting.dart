@@ -153,6 +153,7 @@ class EnableRTLToolbarItemsSetting extends StatelessWidget {
       label: LocaleKeys.settings_appearance_enableRTLToolbarItems.tr(),
       trailing: [
         Switch(
+          key: const ValueKey('enable_rtl_toolbar_items_switch'),
           value: context.read<AppearanceSettingsCubit>().state.enableRtlToolbarItems,
           splashRadius: 0,
           activeColor: Theme.of(context).colorScheme.primary,

@@ -1,4 +1,3 @@
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -10,7 +9,7 @@ void main() {
 
   group('text direction', () {
     testWidgets(
-        '''no text direction items will be displayed in the default/LTR mode,and three text direction items will be displayed in the RTL mode.''',
+        '''no text direction items will be displayed in the default/LTR mode, and three text direction items will be displayed when toggle is enabled.''',
         (tester) async {
       // combine the two tests into one to avoid the time-consuming process of initializing the app
       await tester.initializeAppFlowy();
@@ -32,7 +31,7 @@ void main() {
         'toolbar/text_direction_left',
         'toolbar/text_direction_right',
       ];
-      // no text direction items in default/LTR mode
+      // no text direction items by default
       var button = find.byWidgetPredicate(
         (widget) =>
             widget is SVGIconItemWidget &&
@@ -41,7 +40,7 @@ void main() {
       expect(button, findsNothing);
 
       // switch to the RTL mode
-      await tester.switchLayoutDirectionMode(LayoutDirection.rtlLayout);
+      await tester.toggleEnableRTLToolbarItems();
 
       await tester.editor.tapLineOfEditorAt(0);
       await tester.editor.updateSelection(selection);

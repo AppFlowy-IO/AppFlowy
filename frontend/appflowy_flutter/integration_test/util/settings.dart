@@ -75,32 +75,15 @@ extension AppFlowySettings on WidgetTester {
     await pumpAndSettle();
   }
 
-  // go to settings page and switch the layout direction
-  Future<void> switchLayoutDirectionMode(
-    LayoutDirection layoutDirection,
-  ) async {
+  // go to settings page and toggle enable RTL toolbar items
+  Future<void> toggleEnableRTLToolbarItems() async {
     await openSettings();
     await openSettingsPage(SettingsPage.appearance);
 
-    final button = find.byKey(const ValueKey('layout_direction_option_button'));
-    expect(button, findsOneWidget);
-    await tapButton(button);
-
-    switch (layoutDirection) {
-      case LayoutDirection.ltrLayout:
-        final ltrButton = find.text(
-          LocaleKeys.settings_appearance_layoutDirection_ltr.tr(),
-        );
-        await tapButton(ltrButton);
-        break;
-      case LayoutDirection.rtlLayout:
-        final rtlButton = find.text(
-          LocaleKeys.settings_appearance_layoutDirection_rtl.tr(),
-        );
-        await tapButton(rtlButton);
-        break;
-    }
-
+    final switchButton = find.byKey(const ValueKey('enable_rtl_toolbar_items_switch'));
+    expect(switchButton, findsOneWidget);
+    await tapButton(switchButton);
+    
     // tap anywhere to close the settings page
     await tapAt(Offset.zero);
     await pumpAndSettle();
