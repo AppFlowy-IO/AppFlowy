@@ -29,9 +29,7 @@ class ColorAnalyzer {
     double luminance2 = calculateLuminance(color2);
 
     if (luminance1 < luminance2) {
-      final double temp = luminance1;
-      luminance1 = luminance2;
-      luminance2 = temp;
+      (luminance1, luminance2) = (luminance2, luminance1);
     }
 
     return (luminance1 + 0.05) / (luminance2 + 0.05);
