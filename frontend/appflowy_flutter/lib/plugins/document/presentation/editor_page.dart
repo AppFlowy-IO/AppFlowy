@@ -17,6 +17,7 @@ import 'package:appflowy/workspace/application/notifications/notification_action
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy_code_block/appflowy_code_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -26,7 +27,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
   toggleToggleListCommand,
-  ...codeBlockCommands,
+  ...codeBlockCommandEvents,
   customCopyCommand,
   customPasteCommand,
   customCutCommand,
@@ -80,7 +81,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
-    ...codeBlockCommands,
+    ...codeBlockCommandEvents,
     customCopyCommand,
     customPasteCommand,
     customCutCommand,

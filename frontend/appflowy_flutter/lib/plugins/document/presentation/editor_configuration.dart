@@ -1,3 +1,4 @@
+import 'package:appflowy_code_block/appflowy_code_block.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
@@ -145,6 +146,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration,
     ),
     CodeBlockKeys.type: CodeBlockComponentBuilder(
+      editorState: editorState,
       configuration: configuration.copyWith(
         textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
         placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),

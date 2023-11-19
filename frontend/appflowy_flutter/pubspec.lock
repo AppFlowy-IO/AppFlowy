@@ -50,15 +50,22 @@ packages:
       url: "https://github.com/AppFlowy-IO/appflowy-board.git"
     source: git
     version: "0.1.1"
+  appflowy_code_block:
+    dependency: "direct main"
+    description:
+      name: appflowy_code_block
+      sha256: "0a886e0a4ca94061df8a28e5260ffaf6a5cb2ec83f964553a9109dea53e134bd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "2617f7"
-      resolved-ref: "2617f766a5a4aa83c9f4d5c4d7221c12dbe23b66"
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
-    source: git
-    version: "2.0.0-beta.1"
+      name: appflowy_editor
+      sha256: ca52680e34e5fc2798b1d19a4d058995c93e23c739b2c2e85d63c7be5c37ed8b
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -1122,6 +1129,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  numerus:
+    dependency: transitive
+    description:
+      name: numerus
+      sha256: ada1b55e4a505b8e4578218e57be1ce4b7968bb0e51d824082ac0c74ef18a10d
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.2"
   octo_image:
     dependency: transitive
     description:

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
+import 'package:appflowy_code_block/appflowy_code_block.dart';
 
 class EditorMigration {
   // AppFlowy 0.1.x -> 0.2
