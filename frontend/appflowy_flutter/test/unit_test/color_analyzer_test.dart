@@ -36,4 +36,15 @@ void main() {
       expect(result, altTextColor);
     });
   });
+
+  test('getAppropriateTextColor returns expected color', () {
+    const Color backgroundColor = Color(0xff7E194F);
+    const Color primaryTextColor = Color(0xffBBC3CD);
+    const Color altTextColor = Color(0xff131720);
+
+    final Color result = ColorAnalyzer.getAppropriateTextColor(
+        backgroundColor, primaryTextColor, altTextColor);
+
+    expect(result, primaryTextColor);
+  });
 }
