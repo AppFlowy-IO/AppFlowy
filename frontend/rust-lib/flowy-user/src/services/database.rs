@@ -57,12 +57,22 @@ impl UserDB {
         // Attempt to open the collaboration database using the workspace_id. The workspace_id must already
         // exist in the collab database. If it does not, it may be indicative of corruption in the collab database
         // due to other factors.
-        let is_ok = RocksCollabDB::open_opt(&collab_db_path, true)
-          .map(|db| {
+
+        let is_ok = {
+          let result = RocksCollabDB::open(&collab_db_path).map(|db| {
             let read_txn = db.read_txn();
             read_txn.is_exist(uid, workspace_id)
-          })
-          .unwrap_or(false);
+          });
+          match result {
+            Ok(is_ok) => is_ok,
+            Err(err) => match err {
+              PersistenceError::RocksdbCorruption(_) | PersistenceError::RocksdbRepairFail(_) => {
+                false
+              },
+              _ => true,
+            },
+          }
+        };
 
         let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
         if is_ok {
