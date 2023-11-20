@@ -31,7 +31,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
         .event(DatabaseEvent::MoveField, move_field_handler)
         .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
-        .event(DatabaseEvent::CreateTypeOption, create_field_type_option_data_handler)
+        .event(DatabaseEvent::CreateField, create_field_handler)
         // Row
         .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
@@ -181,9 +181,10 @@ pub enum DatabaseEvent {
   #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
   GetTypeOption = 23,
 
-  /// [CreateTypeOption] event is used to create a new FieldTypeOptionData.
+  /// [CreateField] event is used to create a new field with an optional
+  /// TypeOptionData.
   #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
-  CreateTypeOption = 24,
+  CreateField = 24,
 
   #[event(input = "DatabaseViewIdPB", output = "FieldPB")]
   GetPrimaryField = 25,

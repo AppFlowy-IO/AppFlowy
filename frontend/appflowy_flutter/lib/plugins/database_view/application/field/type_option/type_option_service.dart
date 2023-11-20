@@ -29,8 +29,9 @@ class TypeOptionBackendService {
   }) {
     final payload = CreateFieldPayloadPB.create()
       ..viewId = viewId
-      ..fieldType = FieldType.RichText;
+      ..fieldType = FieldType.RichText
+      ..fieldPosition = CreateFieldPosition.End;
 
-    return DatabaseEventCreateTypeOption(payload).send();
+    return DatabaseEventCreateField(payload).send();
   }
 }

@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::views::FieldOrder;
+use collab_database::views::{FieldOrder, OrderObjectPosition};
 use serde_repr::*;
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
@@ -155,30 +155,94 @@ pub struct CreateFieldPayloadPB {
   #[pb(index = 2)]
   pub field_type: FieldType,
 
+  #[pb(index = 3, one_of)]
+  pub field_name: Option<String>,
+
   /// If the type_option_data is not empty, it will be used to create the field.
   /// Otherwise, the default value will be used.
-  #[pb(index = 3, one_of)]
+  #[pb(index = 4, one_of)]
   pub type_option_data: Option<Vec<u8>>,
+
+  #[pb(index = 5)]
+  pub field_position: CreateFieldPosition,
+
+  #[pb(index = 6, one_of)]
+  pub target_field_id: Option<String>,
+}
+
+#[derive(Debug, Default, ProtoBuf_Enum)]
+#[repr(u8)]
+pub enum CreateFieldPosition {
+  #[default]
+  End = 0,
+  Start = 1,
+  Before = 2,
+  After = 3,
 }
 
 #[derive(Clone)]
 pub struct CreateFieldParams {
   pub view_id: String,
+  pub field_name: Option<String>,
   pub field_type: FieldType,
-  /// If the type_option_data is not empty, it will be used to create the field.
-  /// Otherwise, the default value will be used.
   pub type_option_data: Option<Vec<u8>>,
+  pub position: OrderObjectPosition,
 }
 
 impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+
+    let field_name = match self.field_name {
+      Some(name) => Some(
+        NotEmptyStr::parse(name)
+          .map_err(|_| ErrorCode::InvalidParams)?
+          .0,
+      ),
+      None => None,
+    };
+
+    let position = match &self.field_position {
+      CreateFieldPosition::Start => {
+        if self.target_field_id.is_some() {
+          return Err(ErrorCode::InvalidParams);
+        }
+        OrderObjectPosition::Start
+      },
+      CreateFieldPosition::End => {
+        if self.target_field_id.is_some() {
+          return Err(ErrorCode::InvalidParams);
+        }
+        OrderObjectPosition::End
+      },
+      CreateFieldPosition::Before => {
+        let field_id = self
+          .target_field_id
+          .ok_or_else(|| ErrorCode::InvalidParams)?;
+        let field_id = NotEmptyStr::parse(field_id)
+          .map_err(|_| ErrorCode::InvalidParams)?
+          .0;
+        OrderObjectPosition::Before(field_id)
+      },
+      CreateFieldPosition::After => {
+        let field_id = self
+          .target_field_id
+          .ok_or_else(|| ErrorCode::InvalidParams)?;
+        let field_id = NotEmptyStr::parse(field_id)
+          .map_err(|_| ErrorCode::InvalidParams)?
+          .0;
+        OrderObjectPosition::After(field_id)
+      },
+    };
+
     Ok(CreateFieldParams {
       view_id: view_id.0,
+      field_name,
       field_type: self.field_type,
       type_option_data: self.type_option_data,
+      position,
     })
   }
 }
@@ -471,6 +535,7 @@ pub struct FieldChangesetParams {
 /// it would be better to append it to the end of the list.
 #[derive(
   Debug,
+  Copy,
   Clone,
   PartialEq,
   Hash,
