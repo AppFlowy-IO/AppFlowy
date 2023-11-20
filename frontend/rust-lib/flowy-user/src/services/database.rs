@@ -343,9 +343,10 @@ pub(crate) fn validate_collab_db(
   });
   match result {
     Ok(is_ok) => is_ok,
-    Err(err) => match err {
-      PersistenceError::RocksdbCorruption(_) | PersistenceError::RocksdbRepairFail(_) => false,
-      _ => true,
-    },
+    // return false if the error is not related to corruption
+    Err(err) => !matches!(
+      err,
+      PersistenceError::RocksdbCorruption(_) | PersistenceError::RocksdbRepairFail(_)
+    ),
   }
 }

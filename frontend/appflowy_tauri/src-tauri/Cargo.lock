@@ -164,6 +164,7 @@ dependencies = [
  "tauri-build",
  "tauri-utils",
  "tracing",
+ "uuid",
 ]
 
 [[package]]

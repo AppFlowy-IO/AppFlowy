@@ -66,7 +66,7 @@ fn migrate_local_version_data_folder(root: &str, url: &str) -> String {
 
 impl AppFlowyCoreConfig {
   pub fn new(
-    custom_app_path: String,
+    custom_application_path: String,
     application_path: String,
     device_id: String,
     name: String,
@@ -76,11 +76,11 @@ impl AppFlowyCoreConfig {
       None => {
         let supabase_config = SupabaseConfiguration::from_env().ok();
         match &supabase_config {
-          None => custom_app_path,
-          Some(config) => migrate_local_version_data_folder(&custom_app_path, &config.url),
+          None => custom_application_path,
+          Some(config) => migrate_local_version_data_folder(&custom_application_path, &config.url),
         }
       },
-      Some(config) => migrate_local_version_data_folder(&custom_app_path, &config.base_url),
+      Some(config) => migrate_local_version_data_folder(&custom_application_path, &config.base_url),
     };
 
     AppFlowyCoreConfig {
