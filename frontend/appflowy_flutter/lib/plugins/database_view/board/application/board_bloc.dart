@@ -278,7 +278,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           .where(
             (group) =>
                 fieldController.getField(group.fieldId) != null &&
-                (group.isVisible || (group.isDefault && !hideUngrouped)),
+                ((!group.isDefault && group.isVisible) ||
+                    (group.isDefault && !hideUngrouped)),
           )
           .map((group) => _initializeGroupData(group))
           .toList(),

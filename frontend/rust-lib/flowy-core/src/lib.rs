@@ -1,11 +1,9 @@
 #![allow(unused_doc_comments)]
 
-use std::path::Path;
+use std::sync::Arc;
 use std::sync::Weak;
 use std::time::Duration;
-use std::{fmt, sync::Arc};
 
-use base64::Engine;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
@@ -13,24 +11,24 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_folder2::manager::FolderManager;
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user::manager::{UserManager, UserSessionConfig, URL_SAFE_ENGINE};
+use flowy_user::manager::{UserManager, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
 pub use module::*;
 
+use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
-use crate::integrate::log::{create_log_filter, init_log};
+use crate::integrate::log::init_log;
 use crate::integrate::server::{current_server_type, ServerProvider, ServerType};
 use crate::integrate::user::UserStatusCallbackImpl;
-use crate::integrate::util::copy_dir_recursive;
 
+pub mod config;
 mod deps_resolve;
 mod integrate;
 pub mod module;
@@ -38,72 +36,6 @@ pub mod module;
 /// This name will be used as to identify the current [AppFlowyCore] instance.
 /// Don't change this.
 pub const DEFAULT_NAME: &str = "appflowy";
-
-#[derive(Clone)]
-pub struct AppFlowyCoreConfig {
-  /// Different `AppFlowyCoreConfig` instance should have different name
-  name: String,
-  /// Panics if the `root` path is not existing
-  pub storage_path: String,
-  log_filter: String,
-  cloud_config: Option<AFCloudConfiguration>,
-}
-
-impl fmt::Debug for AppFlowyCoreConfig {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    let mut debug = f.debug_struct("AppFlowy Configuration");
-    debug.field("storage_path", &self.storage_path);
-    if let Some(config) = &self.cloud_config {
-      debug.field("base_url", &config.base_url);
-      debug.field("ws_url", &config.ws_base_url);
-    }
-    debug.finish()
-  }
-}
-
-impl AppFlowyCoreConfig {
-  pub fn new(root: &str, name: String) -> Self {
-    let cloud_config = AFCloudConfiguration::from_env().ok();
-    let storage_path = match &cloud_config {
-      None => root.to_string(),
-      Some(config) => {
-        // Isolate the user data folder by the base url of AppFlowy cloud. This is to avoid
-        // the user data folder being shared by different AppFlowy cloud.
-        let server_base64 = URL_SAFE_ENGINE.encode(&config.base_url);
-        let storage_path = format!("{}_{}", root, server_base64);
-
-        // Copy the user data folder from the root path to the isolated path
-        // The root path only exists when using the local version of appflowy
-        if !Path::new(&storage_path).exists() && Path::new(root).exists() {
-          info!("Copy dir from {} to {}", root, storage_path);
-          let src = Path::new(root);
-          match copy_dir_recursive(&src, Path::new(&storage_path)) {
-            Ok(_) => storage_path,
-            Err(err) => {
-              // when the copy dir failed, use the root path as the storage path
-              error!("Copy dir failed: {}", err);
-              root.to_string()
-            },
-          }
-        } else {
-          storage_path
-        }
-      },
-    };
-
-    AppFlowyCoreConfig {
-      name,
-      storage_path,
-      log_filter: create_log_filter("info".to_owned(), vec![]),
-      cloud_config: AFCloudConfiguration::from_env().ok(),
-    }
-  }
-
-  pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
-    self.log_filter = create_log_filter(level.to_owned(), with_crates);
-    self
-  }
-}
 
 #[derive(Clone)]
 pub struct AppFlowyCore {

@@ -176,8 +176,8 @@ pub struct OauthProviderDataPB {
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum AuthTypePB {
   Local = 0,
-  AFCloud = 1,
-  Supabase = 2,
+  Supabase = 1,
+  AFCloud = 2,
 }
 
 impl Default for AuthTypePB {

@@ -6,7 +6,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 final mobileAlignToolbarItem = MobileToolbarItem.withMenu(
-  itemIconBuilder: (_, editorState) {
+  itemIconBuilder: (_, editorState, __) {
     return onlyShowInTextType(editorState)
         ? const FlowySvg(
             FlowySvgs.toolbar_align_center_s,
@@ -14,7 +14,11 @@ final mobileAlignToolbarItem = MobileToolbarItem.withMenu(
           )
         : null;
   },
-  itemMenuBuilder: (editorState, selection, _) {
+  itemMenuBuilder: (_, editorState, ___) {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return null;
+    }
     return _MobileAlignMenu(
       editorState: editorState,
       selection: selection,
@@ -34,6 +38,7 @@ class _MobileAlignMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.count(
+      padding: EdgeInsets.zero,
       crossAxisCount: 3,
       mainAxisSpacing: 8,
       crossAxisSpacing: 8,

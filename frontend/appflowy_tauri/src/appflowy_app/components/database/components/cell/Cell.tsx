@@ -10,6 +10,9 @@ import { CheckboxCell } from './CheckboxCell';
 export interface CellProps {
   rowId: string;
   field: Field;
+  documentId?: string;
+  icon?: string;
+  placeholder?: string;
 }
 
 const getCellComponent = (fieldType: FieldType) => {
@@ -26,7 +29,7 @@ const getCellComponent = (fieldType: FieldType) => {
   }
 };
 
-export const Cell: FC<CellProps> = ({ rowId, field }) => {
+export const Cell: FC<CellProps> = ({ rowId, field, ...props }) => {
   const cell = useCell(rowId, field.id, field.type);
 
   const Component = getCellComponent(field.type);
@@ -35,5 +38,5 @@ export const Cell: FC<CellProps> = ({ rowId, field }) => {
     return null;
   }
 
-  return <Component field={field} cell={cell} />;
+  return <Component {...props} field={field} cell={cell} />;
 };

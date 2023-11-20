@@ -25,7 +25,13 @@ export async function getCell(viewId: string, rowId: string, fieldId: string, fi
 
   const result = await DatabaseEventGetCell(payload);
 
-  return result.map(value => pbToCell(value, fieldType)).unwrap();
+  if (result.ok === false) {
+    return Promise.reject(result.val);
+  }
+
+  const value = result.val;
+
+  return pbToCell(value, fieldType);
 }
 
 export async function updateCell(viewId: string, rowId: string, fieldId: string, changeset: string): Promise<void> {
@@ -48,7 +54,7 @@ export async function updateSelectCell(
   data: {
     insertOptionIds?: string[];
     deleteOptionIds?: string[];
-  },
+  }
 ): Promise<void> {
   const payload = SelectOptionCellChangesetPB.fromObject({
     cell_identifier: {
@@ -74,7 +80,7 @@ export async function updateChecklistCell(
     selectedOptionIds?: string[];
     deleteOptionIds?: string[];
     updateOptions?: Partial<SelectOption>[];
-  },
+  }
 ): Promise<void> {
   const payload = ChecklistCellDataChangesetPB.fromObject({
     view_id: viewId,
@@ -100,7 +106,7 @@ export async function updateDateCell(
     time?: string;
     includeTime?: boolean;
     clearFlag?: boolean;
-  },
+  }
 ): Promise<void> {
   const payload = DateChangesetPB.fromObject({
     cell_id: {

@@ -262,6 +262,8 @@
       "logoutPrompt": "Are you sure to logout?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
+      "cloudSetting": "Cloud Setting",
+      "cloudURL": "Server URL",
       "enableSync": "Enable sync",
       "enableEncrypt": "Encrypt data",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
@@ -512,7 +514,7 @@
     },
     "rowPage": {
       "newField": "Add a new field",
-      "fieldDragEelementTooltip": "Click to open menu",
+      "fieldDragElementTooltip": "Click to open menu",
       "showHiddenFields": {
         "one": "Show {} hidden field",
         "many": "Show {} hidden fields",
@@ -658,6 +660,7 @@
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
       "mathEquation": {
+        "name": "Math Equation",
         "addMathEquation": "Add a TeX equation",
         "editMathEquation": "Edit Math Equation"
       },
@@ -1077,8 +1080,16 @@
   "cardDetails": {
     "notesPlaceholder": "Enter a / to insert a block, or start typing"
   },
+  "blockPlaceholders": {
+    "todoList": "To-do",
+    "bulletList": "List",
+    "numberList": "List",
+    "quote": "Quote",
+    "heading": "Heading {}"
+  },
   "titleBar": {
     "pageIcon": "Page icon",
-    "language": "Language"
+    "language": "Language",
+    "font": "Font"
   }
 }
