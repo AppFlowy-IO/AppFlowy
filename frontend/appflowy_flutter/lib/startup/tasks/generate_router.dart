@@ -8,6 +8,7 @@ import 'package:appflowy/mobile/presentation/setting/language/language_picker_sc
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_block_settings_screen.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -61,6 +62,7 @@ GoRouter generateRouter(Widget child) {
         _mobileCodeLanguagePickerPageRoute(),
         _mobileLanguagePickerPageRoute(),
         _mobileFontPickerPageRoute(),
+        _mobileBlockSettingsPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -210,6 +212,26 @@ GoRoute _mobileHomeTrashPageRoute() {
     path: MobileHomeTrashPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialPage(child: MobileHomeTrashPage());
+    },
+  );
+}
+
+GoRoute _mobileBlockSettingsPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileBlockSettingsScreen.routeName,
+    pageBuilder: (context, state) {
+      final actionsString =
+          state.uri.queryParameters[MobileBlockSettingsScreen.supportedActions];
+      final actions = actionsString
+          ?.split(',')
+          .map(MobileBlockActionType.fromActionString)
+          .toList();
+      return MaterialPage(
+        child: MobileBlockSettingsScreen(
+          actions: actions ?? MobileBlockActionType.standard,
+        ),
+      );
     },
   );
 }

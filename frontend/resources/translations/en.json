@@ -1075,6 +1075,7 @@
   "titleBar": {
     "pageIcon": "Page icon",
     "language": "Language",
-    "font": "Font"
+    "font": "Font",
+    "actions": "Actions"
   }
 }

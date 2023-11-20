@@ -281,6 +281,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           mobileOutdentToolbarItem,
           undoMobileToolbarItem,
           redoMobileToolbarItem,
+          mobileBlockSettingsToolbarItem,
         ],
         child: Column(
           children: [
