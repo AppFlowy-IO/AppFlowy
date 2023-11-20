@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -111,37 +109,17 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         .replaceAllMapped(camelCase, (m) => ' ${m.group(0)}');
   }
 
-  bool _isTextOverflowing(String text, TextStyle textStyle, double maxWidth) {
-    final textPainter = TextPainter(
-      text: TextSpan(text: text, style: textStyle),
-      maxLines: 1,
-      textDirection: ui.TextDirection.ltr,
-    )..layout(maxWidth: maxWidth);
-
-    return textPainter.didExceedMaxLines;
-  }
-
   Widget _fontFamilyItemButton(BuildContext context, TextStyle style) {
     final buttonFontFamily = parseFontFamilyName(style.fontFamily!);
 
-    final bool isOverFlown = _isTextOverflowing(
-      buttonFontFamily,
-      Theme.of(context).textTheme.bodyMedium!.copyWith(
-            fontWeight: FontWeight.w500,
-            fontFamily: buttonFontFamily,
-          ),
-      110,
-    );
-
     return Tooltip(
-      message: isOverFlown ? buttonFontFamily : "",
-      margin: const EdgeInsets.only(right: 220),
-      waitDuration: const Duration(milliseconds: 300),
+      message: buttonFontFamily,
+      waitDuration: const Duration(milliseconds: 150),
       child: SizedBox(
-        key: UniqueKey(),
+        key: ValueKey(buttonFontFamily),
         height: 32,
         child: FlowyButton(
-          key: Key(buttonFontFamily),
+          // key: Key(buttonFontFamily),
           onHover: (_) => FocusScope.of(context).unfocus(),
           text: FlowyText.medium(
             parseFontFamilyName(style.fontFamily!),
