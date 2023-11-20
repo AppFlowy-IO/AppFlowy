@@ -420,6 +420,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
+    final viewBloc = context.read<ViewBloc>();
     return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
@@ -439,20 +440,20 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               _convertLayoutToHintText(pluginBuilder.layoutType!),
               (viewName) {
                 if (viewName.isNotEmpty) {
-                  context.read<ViewBloc>().add(
-                        ViewEvent.createView(
-                          viewName,
-                          pluginBuilder.layoutType!,
-                          openAfterCreated: openAfterCreated,
-                        ),
-                      );
+                  viewBloc.add(
+                    ViewEvent.createView(
+                      viewName,
+                      pluginBuilder.layoutType!,
+                      openAfterCreated: openAfterCreated,
+                    ),
+                  );
                 }
               },
             );
           }
-          context.read<ViewBloc>().add(
-                const ViewEvent.setIsExpanded(true),
-              );
+          viewBloc.add(
+            const ViewEvent.setIsExpanded(true),
+          );
         },
       ),
     );

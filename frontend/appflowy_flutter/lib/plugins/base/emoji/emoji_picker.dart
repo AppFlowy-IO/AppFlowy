@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_header.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_search_bar.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';

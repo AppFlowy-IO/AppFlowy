@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -95,12 +96,15 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
         continue;
       }
       children.add(
-        _ViewTitle(
-          view: view,
-          behavior: i == views.length - 1
-              ? _ViewTitleBehavior.editable // only the last one is editable
-              : _ViewTitleBehavior.uneditable, // others are not editable
-          onUpdated: () => setState(() => _reloadAncestors()),
+        FlowyTooltip(
+          message: view.name,
+          child: _ViewTitle(
+            view: view,
+            behavior: i == views.length - 1
+                ? _ViewTitleBehavior.editable // only the last one is editable
+                : _ViewTitleBehavior.uneditable, // others are not editable
+            onUpdated: () => setState(() => _reloadAncestors()),
+          ),
         ),
       );
       if (i != views.length - 1) {
