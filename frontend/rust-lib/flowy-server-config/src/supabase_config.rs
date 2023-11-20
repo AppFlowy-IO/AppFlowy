@@ -1,15 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
-pub const ENABLE_SUPABASE_SYNC: &str = "ENABLE_SUPABASE_SYNC";
-pub const SUPABASE_URL: &str = "SUPABASE_URL";
-pub const SUPABASE_ANON_KEY: &str = "SUPABASE_ANON_KEY";
-
-pub const SUPABASE_DB: &str = "SUPABASE_DB";
-pub const SUPABASE_DB_USER: &str = "SUPABASE_DB_USER";
-pub const SUPABASE_DB_PASSWORD: &str = "SUPABASE_DB_PASSWORD";
-pub const SUPABASE_DB_PORT: &str = "SUPABASE_DB_PORT";
+pub const SUPABASE_URL: &str = "APPFLOWY_CLOUD_ENV_SUPABASE_URL";
+pub const SUPABASE_ANON_KEY: &str = "APPFLOWY_CLOUD_ENV_SUPABASE_ANON_KEY";
 
 /// The configuration for the postgres database. It supports deserializing from the json string that
 /// passed from the frontend application. [AppFlowyEnv::parser]
@@ -39,9 +33,21 @@ impl SupabaseConfiguration {
     Ok(Self { url, anon_key })
   }
 
+  pub fn validate(&self) -> Result<(), FlowyError> {
+    if self.url.is_empty() || self.anon_key.is_empty() {
+      return Err(FlowyError::new(
+        ErrorCode::InvalidAuthConfig,
+        "Missing SUPABASE_URL or SUPABASE_ANON_KEY",
+      ));
+    }
+    Ok(())
+  }
+
   /// Write the configuration to the environment variables.
-  pub fn write_env(&self) {
+  pub fn write_env(&self) -> FlowyResult<()> {
+    self.validate()?;
     std::env::set_var(SUPABASE_URL, &self.url);
     std::env::set_var(SUPABASE_ANON_KEY, &self.anon_key);
+    Ok(())
   }
 }

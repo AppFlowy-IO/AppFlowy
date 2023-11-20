@@ -55,12 +55,9 @@ SelectionMenuItem toggleListBlockItem = SelectionMenuItem.node(
 
 class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   ToggleListBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
     this.padding = const EdgeInsets.all(0),
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   final EdgeInsets padding;
 
@@ -109,7 +106,8 @@ class _ToggleListBlockComponentWidgetState
         BlockComponentConfigurable,
         BlockComponentBackgroundColorMixin,
         NestedBlockComponentStatefulWidgetMixin,
-        BlockComponentTextDirectionMixin {
+        BlockComponentTextDirectionMixin,
+        BlockComponentAlignMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -146,7 +144,10 @@ class _ToggleListBlockComponentWidgetState
   }
 
   @override
-  Widget buildComponent(BuildContext context) {
+  Widget buildComponent(
+    BuildContext context, {
+    bool withBackgroundColor = false,
+  }) {
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
@@ -154,23 +155,35 @@ class _ToggleListBlockComponentWidgetState
     Widget child = Container(
       color: backgroundColor,
       width: double.infinity,
+      alignment: alignment,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        textDirection: textDirection,
         children: [
           // the emoji picker button for the note
-          FlowyIconButton(
-            width: 24.0,
-            icon: Icon(
-              collapsed ? Icons.arrow_right : Icons.arrow_drop_down,
+          Container(
+            constraints: const BoxConstraints(minWidth: 26, minHeight: 22),
+            padding: const EdgeInsets.only(right: 4.0),
+            child: AnimatedRotation(
+              turns: collapsed ? 0.0 : 0.25,
+              duration: const Duration(milliseconds: 200),
+              child: FlowyIconButton(
+                width: 18.0,
+                icon: const Icon(
+                  Icons.arrow_right,
+                  size: 18.0,
+                ),
+                onPressed: onCollapsed,
+              ),
             ),
-            onPressed: onCollapsed,
           ),
-          const SizedBox(
-            width: 4.0,
-          ),
-          Expanded(
+
+          Flexible(
             child: AppFlowyRichText(
               key: forwardKey,
+              delegate: this,
               node: widget.node,
               editorState: editorState,
               placeholderText: placeholderText,
@@ -183,6 +196,9 @@ class _ToggleListBlockComponentWidgetState
                 placeholderTextStyle,
               ),
               textDirection: textDirection,
+              textAlign: alignment?.toTextAlign,
+              cursorColor: editorState.editorStyle.cursorColor,
+              selectionColor: editorState.editorStyle.selectionColor,
             ),
           ),
         ],
@@ -192,6 +208,17 @@ class _ToggleListBlockComponentWidgetState
     child = Padding(
       key: blockComponentKey,
       padding: padding,
+      child: child,
+    );
+
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
       child: child,
     );
 

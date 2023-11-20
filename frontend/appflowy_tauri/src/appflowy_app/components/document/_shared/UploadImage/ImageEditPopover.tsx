@@ -1,7 +1,6 @@
 import React from 'react';
 import Popover, { PopoverProps } from '@mui/material/Popover';
 import ImageEdit from './ImageEdit';
-import { PopoverOrigin } from '@mui/material/Popover/Popover';
 
 interface Props extends PopoverProps {
   onSubmitUrl: (url: string) => void;

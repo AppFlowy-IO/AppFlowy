@@ -8,20 +8,24 @@ import '../../../../grid/presentation/layout/sizes.dart';
 import '../../cell_builder.dart';
 
 class GridTextCellStyle extends GridCellStyle {
-  String? placeholder;
-  TextStyle? textStyle;
-  bool? autofocus;
-  double emojiFontSize;
-  double emojiHPadding;
-  bool showEmoji;
+  final String? placeholder;
+  final TextStyle? textStyle;
+  final EdgeInsets? cellPadding;
+  final bool autofocus;
+  final double emojiFontSize;
+  final double emojiHPadding;
+  final bool showEmoji;
+  final bool useRoundedBorder;
 
-  GridTextCellStyle({
+  const GridTextCellStyle({
     this.placeholder,
     this.textStyle,
-    this.autofocus,
+    this.cellPadding,
+    this.autofocus = false,
     this.showEmoji = true,
     this.emojiFontSize = 16,
-    this.emojiHPadding = 0,
+    this.emojiHPadding = 4,
+    this.useRoundedBorder = false,
   });
 }
 
@@ -36,7 +40,7 @@ class GridTextCell extends GridCellWidget {
     if (style != null) {
       cellStyle = (style as GridTextCellStyle);
     } else {
-      cellStyle = GridTextCellStyle();
+      cellStyle = const GridTextCellStyle();
     }
   }
 
@@ -53,12 +57,12 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as TextCellController;
-    _cellBloc = TextCellBloc(cellController: cellController);
-    _cellBloc.add(const TextCellEvent.initial());
+    _cellBloc = TextCellBloc(cellController: cellController)
+      ..add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    super.initState();
   }
 
   @override
@@ -72,10 +76,11 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
           }
         },
         child: Padding(
-          padding: EdgeInsets.only(
-            left: GridSize.cellContentInsets.left,
-            right: GridSize.cellContentInsets.right,
-          ),
+          padding: widget.cellStyle.cellPadding ??
+              EdgeInsets.only(
+                left: GridSize.cellContentInsets.left,
+                right: GridSize.cellContentInsets.right,
+              ),
           child: Row(
             children: [
               if (widget.cellStyle.showEmoji)
@@ -91,24 +96,37 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
                 ),
               HSpace(widget.cellStyle.emojiHPadding),
               Expanded(
-                child: TextField(
-                  controller: _controller,
-                  focusNode: focusNode,
-                  maxLines: null,
-                  style: widget.cellStyle.textStyle ??
-                      Theme.of(context).textTheme.bodyMedium,
-                  autofocus: widget.cellStyle.autofocus ?? false,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(
-                      top: GridSize.cellContentInsets.top,
-                      bottom: GridSize.cellContentInsets.bottom,
-                    ),
-                    border: InputBorder.none,
-                    hintText: widget.cellStyle.placeholder,
-                    isDense: true,
-                  ),
-                ),
-              )
+                child: widget.cellStyle.useRoundedBorder
+                    ? FlowyTextField(
+                        controller: _controller,
+                        textStyle: widget.cellStyle.textStyle ??
+                            Theme.of(context).textTheme.bodyMedium,
+                        focusNode: focusNode,
+                        autoFocus: widget.cellStyle.autofocus,
+                        hintText: widget.cellStyle.placeholder,
+                        onChanged: (text) => _cellBloc.add(
+                          TextCellEvent.updateText(text),
+                        ),
+                        debounceDuration: const Duration(milliseconds: 300),
+                      )
+                    : TextField(
+                        controller: _controller,
+                        focusNode: focusNode,
+                        maxLines: null,
+                        style: widget.cellStyle.textStyle ??
+                            Theme.of(context).textTheme.bodyMedium,
+                        autofocus: widget.cellStyle.autofocus,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(
+                            top: GridSize.cellContentInsets.top,
+                            bottom: GridSize.cellContentInsets.bottom,
+                          ),
+                          border: InputBorder.none,
+                          hintText: widget.cellStyle.placeholder,
+                          isDense: true,
+                        ),
+                      ),
+              ),
             ],
           ),
         ),

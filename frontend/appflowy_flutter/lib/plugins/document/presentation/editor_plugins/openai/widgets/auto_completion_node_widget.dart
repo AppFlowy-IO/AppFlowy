@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
@@ -5,7 +6,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/uti
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -14,8 +17,6 @@ import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 
 class AutoCompletionBlockKeys {
@@ -127,6 +128,7 @@ class _AutoCompletionBlockComponentState
     _onExit();
     _unsubscribeSelectionGesture();
     controller.dispose();
+    textFieldFocusNode.dispose();
 
     super.dispose();
   }
@@ -155,7 +157,7 @@ class _AutoCompletionBlockComponentState
                 onKeep: _onExit,
                 onRewrite: _onRewrite,
                 onDiscard: _onDiscard,
-              )
+              ),
             ],
           ],
         ),
@@ -167,9 +169,12 @@ class _AutoCompletionBlockComponentState
     return FlowyTextField(
       hintText: LocaleKeys.document_plugins_autoGeneratorHintText.tr(),
       controller: controller,
-      maxLines: 3,
+      maxLines: 5,
       focusNode: textFieldFocusNode,
       autoFocus: false,
+      hintTextConstraints: const BoxConstraints(
+        maxHeight: double.infinity,
+      ),
     );
   }
 
@@ -195,9 +200,13 @@ class _AutoCompletionBlockComponentState
         .then((value) => value.toOption().toNullable());
     if (userProfile == null) {
       loading.stop();
-      await _showError(
-        LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
-      );
+      if (mounted) {
+        showSnackBarMessage(
+          context,
+          LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
+          showCancel: true,
+        );
+      }
       return;
     }
 
@@ -230,7 +239,11 @@ class _AutoCompletionBlockComponentState
       },
       onError: (error) async {
         loading.stop();
-        await _showError(error.message);
+        showSnackBarMessage(
+          context,
+          error.message,
+          showCancel: true,
+        );
       },
     );
     await _updateGenerationCount();
@@ -281,9 +294,13 @@ class _AutoCompletionBlockComponentState
         .then((value) => value.toOption().toNullable());
     if (userProfile == null) {
       loading.stop();
-      await _showError(
-        LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
-      );
+      if (mounted) {
+        showSnackBarMessage(
+          context,
+          LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
+          showCancel: true,
+        );
+      }
       return;
     }
     final textRobot = TextRobot(editorState: editorState);
@@ -310,7 +327,11 @@ class _AutoCompletionBlockComponentState
       onEnd: () async {},
       onError: (error) async {
         loading.stop();
-        await _showError(error.message);
+        showSnackBarMessage(
+          context,
+          error.message,
+          showCancel: true,
+        );
       },
     );
     await _updateGenerationCount();
@@ -398,20 +419,6 @@ class _AutoCompletionBlockComponentState
     await editorState.apply(transaction);
   }
 
-  Future<void> _showError(String message) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        action: SnackBarAction(
-          label: LocaleKeys.button_Cancel.tr(),
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-        content: FlowyText(message),
-      ),
-    );
-  }
-
   void _subscribeSelectionGesture() {
     interceptor = SelectionGestureInterceptor(
       key: AutoCompletionBlockKeys.type,
@@ -470,7 +477,7 @@ class AutoCompletionHeader extends StatelessWidget {
           onTap: () async {
             await openLearnMorePage();
           },
-        )
+        ),
       ],
     );
   }
@@ -496,7 +503,7 @@ class AutoCompletionInputFooter extends StatelessWidget {
         ),
         const Space(10, 0),
         SecondaryTextButton(
-          LocaleKeys.button_Cancel.tr(),
+          LocaleKeys.button_cancel.tr(),
           onPressed: onExit,
         ),
         Expanded(

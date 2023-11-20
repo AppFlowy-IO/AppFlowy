@@ -12,17 +12,17 @@ class ChecklistCardCell extends CardCell {
       : super(key: key);
 
   @override
-  State<ChecklistCardCell> createState() => _ChecklistCardCellState();
+  State<ChecklistCardCell> createState() => _ChecklistCellState();
 }
 
-class _ChecklistCardCellState extends State<ChecklistCardCell> {
-  late ChecklistCardCellBloc _cellBloc;
+class _ChecklistCellState extends State<ChecklistCardCell> {
+  late ChecklistCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as ChecklistCellController;
-    _cellBloc = ChecklistCardCellBloc(cellController: cellController);
+    _cellBloc = ChecklistCellBloc(cellController: cellController);
     _cellBloc.add(const ChecklistCellEvent.initial());
     super.initState();
   }
@@ -31,11 +31,19 @@ class _ChecklistCardCellState extends State<ChecklistCardCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
-        builder: (context, state) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: ChecklistProgressBar(percent: state.percent),
-        ),
+      child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+        builder: (context, state) {
+          if (state.tasks.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: ChecklistProgressBar(
+              tasks: state.tasks,
+              percent: state.percent,
+            ),
+          );
+        },
       ),
     );
   }

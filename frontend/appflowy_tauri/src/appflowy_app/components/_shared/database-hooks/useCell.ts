@@ -10,6 +10,7 @@ import { databaseActions, ISelectOptionType } from '$app_reducers/database/slice
 
 export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fieldController: FieldController) => {
   const [data, setData] = useState<DateCellDataPB | URLCellDataPB | SelectOptionCellDataPB | string | undefined>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [cellController, setCellController] = useState<CellController<any, any>>();
   const databaseStore = useAppSelector((state) => state.database);
   const dispatch = useAppDispatch();
@@ -18,12 +19,14 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
     if (!cellIdentifier || !cellCache || !fieldController) return;
     const builder = new CellControllerBuilder(cellIdentifier, cellCache, fieldController);
     const c = builder.build();
+
     setCellController(c);
 
     c.subscribeChanged({
       onCellChanged: (cellData) => {
         if (cellData.some) {
           const value = cellData.val;
+
           setData(value);
 
           // update redux store for database field if there are new select options
@@ -59,6 +62,7 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
     void (async () => {
       try {
         const cellData = await c.getCellData();
+
         if (cellData.some) {
           setData(cellData.unwrap());
         }
@@ -70,6 +74,7 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
     return () => {
       void c.dispose();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cellIdentifier, cellCache, fieldController]);
 
   return {

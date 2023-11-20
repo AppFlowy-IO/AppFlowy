@@ -1,17 +1,10 @@
 import { EditorProps } from '$app/interfaces/document';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ReactEditor } from 'slate-react';
-import { BaseRange, Descendant, Editor, NodeEntry, Range, Selection, Transforms } from 'slate';
-import {
-  converToIndexLength,
-  convertToDelta,
-  convertToSlateSelection,
-  indent,
-  outdent,
-} from '$app/utils/document/slate_editor';
+import { BaseRange, Editor, NodeEntry, Range, Selection, Transforms } from 'slate';
+import { converToIndexLength, convertToSlateSelection, indent, outdent } from '$app/utils/document/slate_editor';
 import { focusNodeByIndex } from '$app/utils/document/node';
 import { Keyboard } from '$app/constants/document/keyboard';
-import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
 import { useSlateYjs } from '$app/components/document/_shared/SlateEditor/useSlateYjs';
 
@@ -27,7 +20,7 @@ export function useEditor({
   isCodeBlock,
   temporarySelection,
 }: EditorProps) {
-  const { editor } = useSlateYjs({ delta });
+  const { editor } = useSlateYjs({ delta, onChange });
   const ref = useRef<HTMLDivElement | null>(null);
   const newValue = useMemo(() => [], []);
   const onSelectionChangeHandler = useCallback(
@@ -39,15 +32,9 @@ export function useEditor({
     [editor, onSelectionChange]
   );
 
-  const onChangeHandler = useCallback(
-    (slateValue: Descendant[]) => {
-      const oldContents = delta || new Delta();
-      const newContents = convertToDelta(slateValue);
-      onChange?.(newContents, oldContents);
-      onSelectionChangeHandler(editor.selection);
-    },
-    [delta, editor, onChange, onSelectionChangeHandler]
-  );
+  const onChangeHandler = useCallback(() => {
+    onSelectionChangeHandler(editor.selection);
+  }, [editor, onSelectionChangeHandler]);
 
   // Prevent attributes from being applied when entering text at the beginning or end of an inline block.
   // For example, when entering text before or after a mentioned page,
@@ -61,12 +48,15 @@ export function useEditor({
       : [];
     const currentSelection = editor.selection || [];
     let removeMark = markKeys.length > 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, path] = editor.node(currentSelection);
+
     if (removeMark) {
       const selectionStart = editor.start(currentSelection);
       const selectionEnd = editor.end(currentSelection);
       const isNodeEnd = editor.isEnd(selectionEnd, path);
       const isNodeStart = editor.isStart(selectionStart, path);
+
       removeMark = isNodeStart || isNodeEnd;
     }
 
@@ -85,6 +75,7 @@ export function useEditor({
       if (e.inputType === 'insertFromComposition') {
         e.preventDefault();
       }
+
       preventInlineBlockAttributeOverride();
     },
     [preventInlineBlockAttributeOverride]
@@ -122,9 +113,10 @@ export function useEditor({
 
   const decorate = useCallback(
     (entry: NodeEntry) => {
-      const [node, path] = entry;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, path] = entry;
 
-      const ranges: Range[] = [
+      return [
         getDecorateRange(path, decorateSelection, {
           selection_high_lighted: true,
         }),
@@ -132,8 +124,6 @@ export function useEditor({
           temporary: true,
         }),
       ].filter((range) => range !== null) as Range[];
-
-      return ranges;
     },
     [temporarySelection, decorateSelection, getDecorateRange]
   );
@@ -195,6 +185,7 @@ export function useEditor({
     if (!slateSelection) return;
 
     const isEqual = JSON.stringify(slateSelection) === JSON.stringify(editor.selection);
+
     if (isFocused && isEqual) return;
 
     // why we didn't use slate api to change selection?

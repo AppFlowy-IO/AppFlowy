@@ -15,7 +15,7 @@ REM   the appflowy_flutter/assets/translation directory
 echo Copying resources/flowy_icons to appflowy_flutter/assets/flowy_icons
 xcopy /E /Y /I ..\resources\flowy_icons assets\flowy_icons
 
-call flutter packages pub get
+REM call flutter packages pub get
 
 echo Generating FlowySvg class
 call dart run flowy_svg

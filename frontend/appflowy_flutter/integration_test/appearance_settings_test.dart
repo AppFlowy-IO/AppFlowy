@@ -80,7 +80,8 @@ void main() {
       await tester.openSettingsPage(SettingsPage.files);
       await tester.openSettingsPage(SettingsPage.appearance);
 
-      expect(find.textContaining(DefaultAppearanceSettings.kDefaultFontFamily),
+      expect(
+        find.textContaining(DefaultAppearanceSettings.kDefaultFontFamily),
         findsOneWidget,
       );
     });

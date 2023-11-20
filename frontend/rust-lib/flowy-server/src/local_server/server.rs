@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
@@ -22,9 +21,8 @@ use crate::local_server::impls::{
 use crate::AppFlowyServer;
 
 pub trait LocalServerDB: Send + Sync + 'static {
-  fn get_user_profile(&self, uid: i64) -> Result<Option<UserProfile>, FlowyError>;
+  fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError>;
   fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError>;
-  fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError>;
 }
 
 pub struct LocalServer {
@@ -67,10 +65,6 @@ impl AppFlowyServer for LocalServer {
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
     Arc::new(LocalServerDocumentCloudServiceImpl())
-  }
-
-  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
-    None
   }
 
   fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {

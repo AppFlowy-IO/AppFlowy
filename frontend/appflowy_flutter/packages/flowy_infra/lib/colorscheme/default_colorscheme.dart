@@ -70,6 +70,8 @@ class DefaultColorScheme extends FlowyColorScheme {
           progressBarBGColor: _lightTint9,
           toolbarColor: _lightShader1,
           toggleButtonBGColor: _lightShader5,
+          calendarWeekendBGColor: const Color(0xFFFBFBFC),
+          gridRowCountColor: const Color(0xff000000),
         );
 
   const DefaultColorScheme.dark()
@@ -109,7 +111,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           icon: _darkShader5,
           text: _darkShader5,
           input: _darkInput,
-          hint: _darkShader5,
+          hint: const Color(0xff59647a),
           primary: _darkMain1,
           onPrimary: _darkShader1,
           hoverBG1: _darkMain1,
@@ -120,5 +122,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           progressBarBGColor: _darkShader3,
           toolbarColor: _darkInput,
           toggleButtonBGColor: _darkShader1,
+          calendarWeekendBGColor: const Color(0xff121212),
+          gridRowCountColor: _darkMain1,
         );
 }

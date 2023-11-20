@@ -27,7 +27,7 @@ void main() {
     // set grouped by the new multi-select field"
     final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
+      databaseController: context.databaseController,
     )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 
@@ -39,7 +39,7 @@ void main() {
     );
     await boardResponseFuture();
 
-    //assert only have the 'No status' group
+    // assert only have the 'No status' group
     final boardBloc = BoardBloc(
       view: context.gridView,
       databaseController: DatabaseController(view: context.gridView),
@@ -82,7 +82,7 @@ void main() {
     // set grouped by the new multi-select field"
     final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
+      databaseController: context.databaseController,
     )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 

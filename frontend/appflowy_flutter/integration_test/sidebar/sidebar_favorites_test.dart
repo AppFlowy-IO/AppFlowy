@@ -99,7 +99,7 @@ void main() {
         );
         expect(
           tester.findFavoritePageName(name),
-          findsNothing,
+          findsOneWidget,
         );
       },
     );
@@ -127,7 +127,7 @@ void main() {
         expect(
           find.byWidgetPredicate(
             (widget) =>
-                widget is ViewItem &&
+                widget is SingleInnerViewItem &&
                 widget.view.isFavorite &&
                 widget.categoryType == FolderCategoryType.favorite,
           ),
@@ -144,12 +144,7 @@ void main() {
         );
 
         expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ViewItem &&
-                widget.view.isFavorite &&
-                widget.categoryType == FolderCategoryType.favorite,
-          ),
+          tester.findAllFavoritePages(),
           findsNWidgets(3),
         );
 
@@ -163,12 +158,7 @@ void main() {
         );
 
         expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ViewItem &&
-                widget.view.isFavorite &&
-                widget.categoryType == FolderCategoryType.favorite,
-          ),
+          tester.findAllFavoritePages(),
           findsNothing,
         );
       },

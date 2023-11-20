@@ -2,8 +2,9 @@ import React from 'react';
 import { AddLinkOutlined } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
-function TemporaryLink({ href = '', text = '' }: { href?: string; text?: string }) {
+function TemporaryLink({ text = '' }: { href?: string; text?: string }) {
   const { t } = useTranslation();
+
   return (
     <span className={'bg-content-blue-100'} contentEditable={false}>
       {text ? (

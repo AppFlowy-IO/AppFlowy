@@ -34,7 +34,7 @@ void main() {
         false,
         false,
         false,
-        false
+        false,
       ];
       for (final (index, content) in checkboxCells.indexed) {
         await tester.assertCheckboxCell(
@@ -54,7 +54,7 @@ void main() {
         '10',
         '11',
         '12',
-        ''
+        '',
       ];
       for (final (index, content) in numberCells.indexed) {
         await tester.assertCellContent(
@@ -122,17 +122,17 @@ void main() {
       }
 
       // check the checklist cell
-      final List<double> checklistCells = [
-        0.6,
-        0.3,
+      final List<double?> checklistCells = [
+        0.67,
+        0.33,
         1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
       ];
       for (final (index, percent) in checklistCells.indexed) {
         await tester.assertChecklistCellInGrid(
@@ -152,12 +152,11 @@ void main() {
         'Jun 16, 2023',
         '',
         '',
-        ''
+        '',
       ];
       for (final (index, content) in dateCells.indexed) {
         await tester.assertDateCellInGrid(
           rowIndex: index,
-          fieldType: FieldType.DateTime,
           content: content,
         );
       }

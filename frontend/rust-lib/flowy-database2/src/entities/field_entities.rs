@@ -521,13 +521,6 @@ impl FieldType {
     self.clone().into()
   }
 
-  pub fn default_cell_width(&self) -> i32 {
-    match self {
-      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => 180,
-      _ => 150,
-    }
-  }
-
   pub fn default_name(&self) -> String {
     let s = match self {
       FieldType::RichText => "Text",
@@ -558,8 +551,6 @@ impl FieldType {
 
   pub fn is_date(&self) -> bool {
     matches!(self, FieldType::DateTime)
-      || matches!(self, FieldType::LastEditedTime)
-      || matches!(self, FieldType::CreatedTime)
   }
 
   pub fn is_single_select(&self) -> bool {

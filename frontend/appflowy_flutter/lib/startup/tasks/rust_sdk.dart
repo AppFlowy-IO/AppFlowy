@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
-import 'package:appflowy_backend/env_serde.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
@@ -23,22 +24,48 @@ class InitRustSDKTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final dir = directory ?? await appFlowyApplicationDataDirectory();
 
+    // Pass the environment variables to the Rust SDK
     final env = getAppFlowyEnv();
-    context.getIt<FlowySDK>().setEnv(env);
-    await context.getIt<FlowySDK>().init(dir);
+    await context.getIt<FlowySDK>().init(dir, jsonEncode(env.toJson()));
   }
+
+  @override
+  Future<void> dispose() async {}
 }
 
 AppFlowyEnv getAppFlowyEnv() {
-  final supabaseConfig = SupabaseConfiguration(
-    enable_sync: true,
-    url: Env.supabaseUrl,
-    anon_key: Env.supabaseAnonKey,
-  );
+  if (isCloudEnabled) {
+    final supabaseConfig = SupabaseConfiguration(
+      url: Env.supabaseUrl,
+      anon_key: Env.supabaseAnonKey,
+    );
 
-  return AppFlowyEnv(
-    supabase_config: supabaseConfig,
-  );
+    final appflowyCloudConfig = AppFlowyCloudConfiguration(
+      base_url: Env.afCloudBaseUrl,
+      ws_base_url: Env.afCloudWSBaseUrl,
+      gotrue_url: Env.afCloudGoTrueUrl,
+    );
+
+    return AppFlowyEnv(
+      cloud_type: Env.cloudType,
+      supabase_config: supabaseConfig,
+      appflowy_cloud_config: appflowyCloudConfig,
+    );
+  } else {
+    // Use the default configuration if the cloud feature is disabled
+    final supabaseConfig = SupabaseConfiguration(url: '', anon_key: '');
+    final appflowyCloudConfig = AppFlowyCloudConfiguration(
+      base_url: '',
+      ws_base_url: '',
+      gotrue_url: '',
+    );
+
+    return AppFlowyEnv(
+      cloud_type: 0,
+      supabase_config: supabaseConfig,
+      appflowy_cloud_config: appflowyCloudConfig,
+    );
+  }
 }
 
 /// The default directory to store the user data. The directory can be

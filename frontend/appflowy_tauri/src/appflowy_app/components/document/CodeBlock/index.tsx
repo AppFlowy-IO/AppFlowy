@@ -8,7 +8,7 @@ import { useSelection } from '$app/components/document/_shared/EditorHooks/useSe
 import { useAppSelector } from '$app/stores/store';
 import { ThemeMode } from '$app/interfaces';
 
-export default function CodeBlock({
+export default React.memo(function CodeBlock({
   node,
   placeholder,
   ...props
@@ -40,4 +40,4 @@ export default function CodeBlock({
       />
     </div>
   );
-}
+});

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +24,9 @@ class FlowyButton extends StatelessWidget {
   final bool disable;
   final double disableOpacity;
   final Size? leftIconSize;
+  final bool expandText;
+  final MainAxisAlignment mainAxisAlignment;
+  final bool showDefaultBoxDecorationOnMobile;
 
   const FlowyButton({
     Key? key,
@@ -39,6 +45,9 @@ class FlowyButton extends StatelessWidget {
     this.disable = false,
     this.disableOpacity = 0.5,
     this.leftIconSize = const Size.square(16),
+    this.expandText = true,
+    this.mainAxisAlignment = MainAxisAlignment.center,
+    this.showDefaultBoxDecorationOnMobile = false,
   }) : super(key: key);
 
   @override
@@ -46,6 +55,14 @@ class FlowyButton extends StatelessWidget {
     final color = hoverColor ?? Theme.of(context).colorScheme.secondary;
     final alpha = (255 * disableOpacity).toInt();
     color.withAlpha(alpha);
+
+    if (Platform.isIOS || Platform.isAndroid) {
+      return InkWell(
+        onTap: disable ? null : onTap,
+        onSecondaryTap: disable ? null : onSecondaryTap,
+        child: _render(context),
+      );
+    }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -60,12 +77,12 @@ class FlowyButton extends StatelessWidget {
         ),
         onHover: disable ? null : onHover,
         isSelected: () => isSelected,
-        builder: (context, onHover) => _render(),
+        builder: (context, onHover) => _render(context),
       ),
     );
   }
 
-  Widget _render() {
+  Widget _render(BuildContext context) {
     List<Widget> children = List.empty(growable: true);
 
     if (leftIcon != null) {
@@ -78,7 +95,11 @@ class FlowyButton extends StatelessWidget {
       children.add(const HSpace(6));
     }
 
-    children.add(Expanded(child: text));
+    if (expandText) {
+      children.add(Expanded(child: text));
+    } else {
+      children.add(text);
+    }
 
     if (rightIcon != null) {
       children.add(const HSpace(6));
@@ -87,7 +108,7 @@ class FlowyButton extends StatelessWidget {
     }
 
     Widget child = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: children,
     );
@@ -96,11 +117,21 @@ class FlowyButton extends StatelessWidget {
       child = IntrinsicWidth(child: child);
     }
 
+    final decoration = this.decoration ??
+        (showDefaultBoxDecorationOnMobile &&
+                (Platform.isIOS || Platform.isAndroid)
+            ? BoxDecoration(
+                border: Border.all(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                width: 1.0,
+              ))
+            : null);
+
     return Container(
       decoration: decoration,
       child: Padding(
         padding:
-            margin ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            margin ?? const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: child,
       ),
     );
@@ -194,7 +225,7 @@ class FlowyTextButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      child = Tooltip(
+      child = FlowyTooltip(
         message: tooltip!,
         child: child,
       );
@@ -283,7 +314,7 @@ class FlowyRichTextButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      child = Tooltip(
+      child = FlowyTooltip(
         message: tooltip!,
         child: child,
       );

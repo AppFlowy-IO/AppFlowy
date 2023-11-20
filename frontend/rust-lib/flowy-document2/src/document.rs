@@ -7,9 +7,9 @@ use collab::core::collab::MutexCollab;
 use collab_document::{blocks::DocumentData, document::Document};
 use futures::StreamExt;
 use parking_lot::Mutex;
-use tokio_stream::wrappers::WatchStream;
 
 use flowy_error::FlowyResult;
+use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{DocEventPB, DocumentSnapshotStatePB, DocumentSyncStatePB};
 use crate::notification::{send_notification, DocumentNotification};
@@ -52,11 +52,6 @@ fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
   document
     .lock()
     .subscribe_block_changed(move |events, is_remote| {
-      tracing::trace!(
-        "document changed: {:?}, from remote: {}",
-        &events,
-        is_remote
-      );
       // send notification to the client.
       send_notification(&doc_id, DocumentNotification::DidReceiveUpdate)
         .payload::<DocEventPB>((events, is_remote).into())
@@ -66,8 +61,8 @@ fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
 
 fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
   let document_id = collab.lock().object_id.clone();
-  let mut snapshot_state = WatchStream::new(collab.lock().subscribe_snapshot_state());
-  tokio::spawn(async move {
+  let mut snapshot_state = collab.lock().subscribe_snapshot_state();
+  af_spawn(async move {
     while let Some(snapshot_state) = snapshot_state.next().await {
       if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
         tracing::debug!("Did create document remote snapshot: {}", new_snapshot_id);
@@ -84,8 +79,8 @@ fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
 
 fn subscribe_document_sync_state(collab: &Arc<MutexCollab>) {
   let document_id = collab.lock().object_id.clone();
-  let mut sync_state_stream = WatchStream::new(collab.lock().subscribe_sync_state());
-  tokio::spawn(async move {
+  let mut sync_state_stream = collab.lock().subscribe_sync_state();
+  af_spawn(async move {
     while let Some(sync_state) = sync_state_stream.next().await {
       send_notification(
         &document_id,

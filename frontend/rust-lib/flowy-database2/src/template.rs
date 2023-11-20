@@ -7,8 +7,8 @@ use crate::services::cell::{insert_select_option_cell, insert_text_cell};
 use crate::services::field::{
   FieldBuilder, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
-use crate::services::field_settings::DatabaseFieldSettingsMapBuilder;
-use crate::services::setting::CalendarLayoutSetting;
+use crate::services::field_settings::default_field_settings_for_fields;
+use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
 pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
@@ -29,8 +29,7 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
 
   let fields = vec![text_field, single_select, checkbox_field];
 
-  let field_settings =
-    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Grid).build();
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   CreateDatabaseParams {
     database_id: gen_database_id(),
@@ -90,15 +89,17 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
 
   let fields = vec![text_field, single_select];
 
-  let field_settings =
-    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Board).build();
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Board);
+
+  let mut layout_settings = LayoutSettings::default();
+  layout_settings.insert(DatabaseLayout::Board, BoardLayoutSetting::new().into());
 
   CreateDatabaseParams {
     database_id: gen_database_id(),
     view_id: view_id.to_string(),
     name: name.to_string(),
     layout: DatabaseLayout::Board,
-    layout_settings: Default::default(),
+    layout_settings,
     filters: vec![],
     groups: vec![],
     sorts: vec![],
@@ -131,8 +132,7 @@ pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams 
 
   let fields = vec![text_field, date_field, multi_select_field];
 
-  let field_settings =
-    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Calendar).build();
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Calendar);
 
   let mut layout_settings = LayoutSettings::default();
   layout_settings.insert(

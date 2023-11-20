@@ -1,15 +1,20 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_popover.dart';
+import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -52,7 +57,27 @@ class EditorOperations {
     await tester.tapButtonWithName(
       LocaleKeys.document_plugins_cover_addIcon.tr(),
     );
-    expect(find.byType(EmojiPopover), findsOneWidget);
+    expect(find.byType(FlowyEmojiPicker), findsOneWidget);
+  }
+
+  Future<void> tapGettingStartedIcon() async {
+    await tester.tapButton(
+      find.descendant(
+        of: find.byType(DocumentHeaderNodeWidget),
+        matching: find.findTextInFlowyText('⭐️'),
+      ),
+    );
+  }
+
+  /// Taps on the 'Skin tone' button
+  ///
+  /// Must call [tapAddIconButton] first.
+  Future<void> changeEmojiSkinTone(EmojiSkinTone skinTone) async {
+    await tester.tapButton(
+      find.byTooltip(LocaleKeys.emoji_selectSkinTone.tr()),
+    );
+    final skinToneButton = find.byKey(emojiSkinToneKey(skinTone.icon));
+    await tester.tapButton(skinToneButton);
   }
 
   /// Taps the 'Remove Icon' button in the cover toolbar and the icon popover
@@ -60,7 +85,10 @@ class EditorOperations {
     Finder button =
         find.text(LocaleKeys.document_plugins_cover_removeIcon.tr());
     if (isInPicker) {
-      button = find.descendant(of: find.byType(EmojiPopover), matching: button);
+      button = find.descendant(
+        of: find.byType(FlowyIconPicker),
+        matching: button,
+      );
     }
 
     await tester.tapButton(button);
@@ -141,7 +169,7 @@ class EditorOperations {
     await tester.ime.insertCharacter('/');
   }
 
-  /// trigger the slash command (selection menu)
+  /// trigger the mention (@) command
   Future<void> showAtMenu() async {
     await tester.ime.insertCharacter('@');
   }
@@ -159,7 +187,7 @@ class EditorOperations {
   /// Must call [showAtMenu] first.
   Future<void> tapAtMenuItemWithName(String name) async {
     final atMenuItem = find.descendant(
-      of: find.byType(SelectionMenuWidget),
+      of: find.byType(InlineActionsHandler),
       matching: find.text(name, findRichText: true),
     );
     await tester.tapButton(atMenuItem);
@@ -173,5 +201,35 @@ class EditorOperations {
       reason: SelectionUpdateReason.uiEvent,
     );
     await tester.pumpAndSettle(const Duration(milliseconds: 200));
+  }
+
+  /// hover and click on the + button beside the block component.
+  Future<void> hoverAndClickOptionAddButton(
+    Path path,
+    bool withModifiedKey, // alt on windows or linux, option on macos
+  ) async {
+    final optionAddButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is BlockComponentActionWrapper &&
+          widget.node.path.equals(path),
+    );
+    await tester.hoverOnWidget(
+      optionAddButton,
+      onHover: () async {
+        if (withModifiedKey) {
+          await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+        }
+        await tester.tapButton(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is BlockAddButton &&
+                widget.blockComponentContext.node.path.equals(path),
+          ),
+        );
+        if (withModifiedKey) {
+          await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+        }
+      },
+    );
   }
 }

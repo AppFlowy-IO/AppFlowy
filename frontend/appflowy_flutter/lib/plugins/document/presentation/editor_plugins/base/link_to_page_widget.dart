@@ -1,4 +1,4 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -6,13 +6,12 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 void showLinkToPageMenu(
   OverlayState container,
@@ -24,16 +23,16 @@ void showLinkToPageMenu(
 
   final alignment = menuService.alignment;
   final offset = menuService.offset;
-  final top = alignment == Alignment.bottomLeft ? offset.dy : null;
-  final bottom = alignment == Alignment.topLeft ? offset.dy : null;
+  final top = alignment == Alignment.topLeft ? offset.dy : null;
+  final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 
-  keepEditorFocusNotifier.value += 1;
+  keepEditorFocusNotifier.increase();
   late OverlayEntry linkToPageMenuEntry;
   linkToPageMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
-    dismissCallback: () => keepEditorFocusNotifier.value -= 1,
+    dismissCallback: () => keepEditorFocusNotifier.decrease(),
     builder: (context) => Material(
       color: Colors.transparent,
       child: LinkToPageMenu(
@@ -42,16 +41,18 @@ void showLinkToPageMenu(
         hintText: pageType.toHintText(),
         onSelected: (appPB, viewPB) async {
           try {
-            await editorState.insertReferencePage(viewPB);
+            await editorState.insertReferencePage(viewPB, pageType);
             linkToPageMenuEntry.remove();
           } on FlowyError catch (e) {
-            Dialogs.show(
-              child: FlowyErrorPage.message(
-                e.msg,
-                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-              ),
-              context,
-            );
+            if (context.mounted) {
+              Dialogs.show(
+                child: FlowyErrorPage.message(
+                  e.msg,
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                ),
+                context,
+              );
+            }
           }
         },
       ),
@@ -150,7 +151,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       LogicalKeyboardKey.arrowUp,
       LogicalKeyboardKey.arrowDown,
       LogicalKeyboardKey.tab,
-      LogicalKeyboardKey.enter
+      LogicalKeyboardKey.enter,
     ];
 
     if (!acceptedKeys.contains(event.logicalKey)) {
@@ -188,6 +189,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   ) {
     int index = 0;
     return FutureBuilder<List<ViewPB>>(
+      future: items,
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
@@ -208,10 +210,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
               children.add(
                 FlowyButton(
                   isSelected: index == _selectedIndex,
-                  leftIcon: FlowySvg(
-                    view.iconData,
-                    color: Theme.of(context).iconTheme.color,
-                  ),
+                  leftIcon: view.defaultIcon(),
                   text: FlowyText.regular(view.name),
                   onTap: () => widget.onSelected(view, view),
                 ),
@@ -225,13 +224,10 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: children,
           );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
         }
+
+        return const Center(child: CircularProgressIndicator());
       },
-      future: items,
     );
   }
 }
@@ -241,14 +237,14 @@ extension on ViewLayoutPB {
     switch (this) {
       case ViewLayoutPB.Grid:
         return LocaleKeys.document_slashMenu_grid_selectAGridToLinkTo.tr();
-
       case ViewLayoutPB.Board:
         return LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr();
-
       case ViewLayoutPB.Calendar:
         return LocaleKeys.document_slashMenu_calendar_selectACalendarToLinkTo
             .tr();
-
+      case ViewLayoutPB.Document:
+        return LocaleKeys.document_slashMenu_document_selectADocumentToLinkTo
+            .tr();
       default:
         throw Exception('Unknown layout type');
     }

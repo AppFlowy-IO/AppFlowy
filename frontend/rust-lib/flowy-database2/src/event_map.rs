@@ -50,17 +50,17 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
         // Checklist
-        .event(DatabaseEvent::GetChecklistCellData, get_checklist_cell_data_handler)
         .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
+        .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
         .event(DatabaseEvent::MoveGroup, move_group_handler)
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
         .event(DatabaseEvent::GetGroups, get_groups_handler)
         .event(DatabaseEvent::GetGroup, get_group_handler)
-        .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
         .event(DatabaseEvent::UpdateGroup, update_group_handler)
+        .event(DatabaseEvent::CreateGroup, create_group_handler)
         // Database
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
@@ -256,17 +256,19 @@ pub enum DatabaseEvent {
   #[event(input = "SelectOptionCellChangesetPB")]
   UpdateSelectOptionCell = 72,
 
-  #[event(input = "CellIdPB", output = "ChecklistCellDataPB")]
-  GetChecklistCellData = 73,
-
   #[event(input = "ChecklistCellDataChangesetPB")]
-  UpdateChecklistCell = 74,
+  UpdateChecklistCell = 73,
 
   /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that
   /// will be used by the `update_cell` function.
   #[event(input = "DateChangesetPB")]
   UpdateDateCell = 80,
+
+  /// [SetGroupByField] event is used to create a new grouping in a database
+  /// view based on the `field_id`
+  #[event(input = "GroupByFieldPayloadPB")]
+  SetGroupByField = 90,
 
   #[event(input = "DatabaseViewIdPB", output = "RepeatedGroupPB")]
   GetGroups = 100,
@@ -280,11 +282,11 @@ pub enum DatabaseEvent {
   #[event(input = "MoveGroupRowPayloadPB")]
   MoveGroupRow = 112,
 
-  #[event(input = "GroupByFieldPayloadPB")]
-  SetGroupByField = 113,
-
   #[event(input = "UpdateGroupPB")]
-  UpdateGroup = 114,
+  UpdateGroup = 113,
+
+  #[event(input = "CreateGroupPayloadPB")]
+  CreateGroup = 114,
 
   /// Returns all the databases
   #[event(output = "RepeatedDatabaseDescriptionPB")]

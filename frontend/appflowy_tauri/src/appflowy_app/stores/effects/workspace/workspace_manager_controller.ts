@@ -1,5 +1,5 @@
 import { WorkspaceBackendService } from './workspace_bd_svc';
-import { CreateWorkspacePayloadPB, RepeatedWorkspacePB } from '@/services/backend';
+import { CreateWorkspacePayloadPB } from '@/services/backend';
 import { WorkspaceItem } from '$app_reducers/workspace/slice';
 import { WorkspaceObserver } from '$app/stores/effects/workspace/workspace_observer';
 
@@ -33,14 +33,14 @@ export class WorkspaceManagerController {
     const result = await this.backendService.getWorkspaces();
 
     if (result.ok) {
-      const items = result.val.items;
+      const item = result.val;
 
-      return items.map((item) => {
-        return {
+      return [
+        {
           id: item.id,
           name: item.name,
-        };
-      });
+        },
+      ];
     }
 
     return [];
@@ -50,7 +50,7 @@ export class WorkspaceManagerController {
     const result = await this.backendService.getCurrentWorkspace();
 
     if (result.ok) {
-      const workspace = result.val.workspace;
+      const workspace = result.val;
 
       return {
         id: workspace.id,
@@ -65,8 +65,8 @@ export class WorkspaceManagerController {
     await this.observer.unsubscribe();
   };
 
-  private didCreateWorkspace = (payload: Uint8Array) => {
-    const data = RepeatedWorkspacePB.deserializeBinary(payload);
+  private didCreateWorkspace = () => {
+    // const data = RepeatedWorkspacePB.deserializeBinary(payload);
     // onWorkspacesChanged(data.toObject().items);
   };
 }

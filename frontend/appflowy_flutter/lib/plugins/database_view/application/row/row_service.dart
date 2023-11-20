@@ -40,6 +40,7 @@ class RowBackendService {
     required String rowId,
     String? iconURL,
     String? coverURL,
+    bool? isDocumentEmpty,
   }) {
     final payload = UpdateRowMetaChangesetPB.create()
       ..viewId = viewId
@@ -50,6 +51,10 @@ class RowBackendService {
     }
     if (coverURL != null) {
       payload.coverUrl = coverURL;
+    }
+
+    if (isDocumentEmpty != null) {
+      payload.isDocumentEmpty = isDocumentEmpty;
     }
 
     return DatabaseEventUpdateRowMeta(payload).send();

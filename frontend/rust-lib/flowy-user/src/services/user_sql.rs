@@ -18,6 +18,8 @@ pub struct UserTable {
   pub(crate) email: String,
   pub(crate) auth_type: i32,
   pub(crate) encryption_type: String,
+  pub(crate) stability_ai_key: String,
+  pub(crate) updated_at: i64,
 }
 
 impl UserTable {
@@ -27,8 +29,8 @@ impl UserTable {
   }
 }
 
-impl From<(UserProfile, AuthType)> for UserTable {
-  fn from(value: (UserProfile, AuthType)) -> Self {
+impl From<(UserProfile, Authenticator)> for UserTable {
+  fn from(value: (UserProfile, Authenticator)) -> Self {
     let (user_profile, auth_type) = value;
     let encryption_type = serde_json::to_string(&user_profile.encryption_type).unwrap_or_default();
     UserTable {
@@ -41,6 +43,8 @@ impl From<(UserProfile, AuthType)> for UserTable {
       email: user_profile.email,
       auth_type: auth_type as i32,
       encryption_type,
+      stability_ai_key: user_profile.stability_ai_key,
+      updated_at: user_profile.updated_at,
     }
   }
 }
@@ -55,8 +59,10 @@ impl From<UserTable> for UserProfile {
       icon_url: table.icon_url,
       openai_key: table.openai_key,
       workspace_id: table.workspace,
-      auth_type: AuthType::from(table.auth_type),
+      authenticator: Authenticator::from(table.auth_type),
       encryption_type: EncryptionType::from_str(&table.encryption_type).unwrap_or_default(),
+      stability_ai_key: table.stability_ai_key,
+      updated_at: table.updated_at,
     }
   }
 }
@@ -71,6 +77,8 @@ pub struct UserTableChangeset {
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
   pub encryption_type: Option<String>,
+  pub token: Option<String>,
+  pub stability_ai_key: Option<String>,
 }
 
 impl UserTableChangeset {
@@ -87,6 +95,8 @@ impl UserTableChangeset {
       icon_url: params.icon_url,
       openai_key: params.openai_key,
       encryption_type,
+      token: params.token,
+      stability_ai_key: params.stability_ai_key,
     }
   }
 
@@ -100,6 +110,8 @@ impl UserTableChangeset {
       icon_url: Some(user_profile.icon_url),
       openai_key: Some(user_profile.openai_key),
       encryption_type: Some(encryption_type),
+      token: Some(user_profile.token),
+      stability_ai_key: Some(user_profile.stability_ai_key),
     }
   }
 }
@@ -108,8 +120,8 @@ impl From<UserUpdate> for UserTableChangeset {
   fn from(value: UserUpdate) -> Self {
     UserTableChangeset {
       id: value.uid.to_string(),
-      name: Some(value.name),
-      email: Some(value.email),
+      name: value.name,
+      email: value.email,
       ..Default::default()
     }
   }

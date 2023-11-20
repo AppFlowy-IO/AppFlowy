@@ -20,7 +20,14 @@ class FieldSettingsBackendService {
 
     return DatabaseEventGetFieldSettings(payload).send().then((result) {
       return result.fold(
-        (fieldSettings) => left(fieldSettings.items.first),
+        (repeatedFieldSettings) {
+          final fieldSetting = repeatedFieldSettings.items.first;
+          if (!fieldSetting.hasVisibility()) {
+            fieldSetting.visibility = FieldVisibility.AlwaysShown;
+          }
+
+          return left(fieldSetting);
+        },
         (r) => right(r),
       );
     });
@@ -31,7 +38,18 @@ class FieldSettingsBackendService {
 
     return DatabaseEventGetAllFieldSettings(payload).send().then((result) {
       return result.fold(
-        (fieldSettings) => left(fieldSettings.items),
+        (repeatedFieldSettings) {
+          final fieldSettings = <FieldSettingsPB>[];
+
+          for (final fieldSetting in repeatedFieldSettings.items) {
+            if (!fieldSetting.hasVisibility()) {
+              fieldSetting.visibility = FieldVisibility.AlwaysShown;
+            }
+            fieldSettings.add(fieldSetting);
+          }
+
+          return left(fieldSettings);
+        },
         (r) => right(r),
       );
     });
@@ -40,6 +58,7 @@ class FieldSettingsBackendService {
   Future<Either<Unit, FlowyError>> updateFieldSettings({
     required String fieldId,
     FieldVisibility? fieldVisibility,
+    double? width,
   }) {
     final FieldSettingsChangesetPB payload = FieldSettingsChangesetPB.create()
       ..viewId = viewId
@@ -47,6 +66,10 @@ class FieldSettingsBackendService {
 
     if (fieldVisibility != null) {
       payload.visibility = fieldVisibility;
+    }
+
+    if (width != null) {
+      payload.width = width.round();
     }
 
     return DatabaseEventUpdateFieldSettings(payload).send();

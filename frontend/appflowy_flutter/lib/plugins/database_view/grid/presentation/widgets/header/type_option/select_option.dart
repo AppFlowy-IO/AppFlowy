@@ -31,7 +31,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    return BlocProvider<SelectOptionTypeOptionBloc>(
       create: (context) => SelectOptionTypeOptionBloc(
         options: options,
         typeOptionAction: typeOptionAction,
@@ -48,7 +48,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
               const VSpace(10),
             if (state.options.isEmpty && !state.isEditingOption)
               const _AddOptionButton(),
-            _OptionList(popoverMutex: popoverMutex)
+            _OptionList(popoverMutex: popoverMutex),
           ];
 
           return ListView.builder(
@@ -77,7 +77,7 @@ class OptionTitle extends StatelessWidget {
             child: FlowyText.medium(
               LocaleKeys.grid_field_optionTitle.tr(),
             ),
-          )
+          ),
         ];
         if (state.options.isNotEmpty && !state.isEditingOption) {
           children.add(const Spacer());
@@ -306,7 +306,6 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: FlowyTextField(
             autoClearWhenDone: true,
-            maxLength: 30,
             text: text,
             focusNode: _focusNode,
             onCanceled: () {
@@ -324,5 +323,16 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex?.close();
+      }
+    });
+    _focusNode.dispose();
+    super.dispose();
   }
 }

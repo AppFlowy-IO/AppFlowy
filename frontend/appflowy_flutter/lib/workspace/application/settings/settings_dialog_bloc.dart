@@ -13,7 +13,8 @@ enum SettingsPage {
   language,
   files,
   user,
-  syncSetting,
+  notifications,
+  cloud,
   shortcuts,
 }
 

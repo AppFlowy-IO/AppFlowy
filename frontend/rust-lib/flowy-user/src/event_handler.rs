@@ -81,35 +81,34 @@ pub async fn init_user_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
-pub async fn check_user_handler(
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  manager.check_user().await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(manager))]
 pub async fn get_user_profile_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let user_profile = manager.get_user_profile(uid).await?;
+  let mut user_profile = manager.get_user_profile(uid).await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
-  tokio::spawn(async move {
+
+  // Refresh the user profile in the background
+  af_spawn(async move {
     if let Some(manager) = weak_manager.upgrade() {
       let _ = manager.refresh_user_profile(&cloned_user_profile).await;
     }
   });
 
+  // When the user is logged in with a local account, the email field is a placeholder and should
+  // not be exposed to the client. So we set the email field to an empty string.
+  if user_profile.authenticator == Authenticator::Local {
+    user_profile.email = "".to_string();
+  }
+
   data_result_ok(user_profile.into())
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
-pub async fn sign_out(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
+pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   manager.sign_out().await?;
   Ok(())
@@ -166,6 +165,82 @@ pub async fn get_appearance_setting(
   }
 }
 
+const DATE_TIME_SETTINGS_CACHE_KEY: &str = "date_time_settings";
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn set_date_time_settings(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  data: AFPluginData<DateTimeSettingsPB>,
+) -> Result<(), FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let mut setting = data.into_inner();
+  if setting.timezone_id.is_empty() {
+    setting.timezone_id = "".to_string();
+  }
+
+  store_preferences.set_object(DATE_TIME_SETTINGS_CACHE_KEY, setting)?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_date_time_settings(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+) -> DataResult<DateTimeSettingsPB, FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  match store_preferences.get_str(DATE_TIME_SETTINGS_CACHE_KEY) {
+    None => data_result_ok(DateTimeSettingsPB::default()),
+    Some(s) => {
+      let setting = match serde_json::from_str(&s) {
+        Ok(setting) => setting,
+        Err(e) => {
+          tracing::error!(
+            "Deserialize DateTimeSettings failed: {:?}, fallback to default",
+            e
+          );
+          DateTimeSettingsPB::default()
+        },
+      };
+      data_result_ok(setting)
+    },
+  }
+}
+
+const NOTIFICATION_SETTINGS_CACHE_KEY: &str = "notification_settings";
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn set_notification_settings(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  data: AFPluginData<NotificationSettingsPB>,
+) -> Result<(), FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let setting = data.into_inner();
+  store_preferences.set_object(NOTIFICATION_SETTINGS_CACHE_KEY, setting)?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_notification_settings(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+) -> DataResult<NotificationSettingsPB, FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  match store_preferences.get_str(NOTIFICATION_SETTINGS_CACHE_KEY) {
+    None => data_result_ok(NotificationSettingsPB::default()),
+    Some(s) => {
+      let setting = match serde_json::from_str(&s) {
+        Ok(setting) => setting,
+        Err(e) => {
+          tracing::error!(
+            "Deserialize NotificationSettings failed: {:?}, fallback to default",
+            e
+          );
+          NotificationSettingsPB::default()
+        },
+      };
+      data_result_ok(setting)
+    },
+  }
+}
+
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_user_setting(
   manager: AFPluginState<Weak<UserManager>>,
@@ -175,18 +250,44 @@ pub async fn get_user_setting(
   data_result_ok(user_setting)
 }
 
-/// Only used for third party auth.
-/// Use [UserEvent::SignIn] or [UserEvent::SignUp] If the [AuthType] is Local or SelfHosted
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn third_party_auth_handler(
-  data: AFPluginData<ThirdPartyAuthPB>,
+pub async fn oauth_handler(
+  data: AFPluginData<OauthSignInPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let auth_type: AuthType = params.auth_type.into();
+  let auth_type: Authenticator = params.auth_type.into();
   let user_profile = manager.sign_up(auth_type, BoxAny::new(params.map)).await?;
   data_result_ok(user_profile.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub async fn get_sign_in_url_handler(
+  data: AFPluginData<SignInUrlPayloadPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<SignInUrlPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  let auth_type: Authenticator = params.auth_type.into();
+  let sign_in_url = manager
+    .generate_sign_in_url_with_email(&auth_type, &params.email)
+    .await?;
+  let resp = SignInUrlPB { sign_in_url };
+  data_result_ok(resp)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn sign_in_with_provider_handler(
+  data: AFPluginData<OauthProviderPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<OauthProviderDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  tracing::debug!("Sign in with provider: {:?}", data.provider.as_str());
+  let sign_in_url = manager.generate_oauth_url(data.provider.as_str()).await?;
+  data_result_ok(OauthProviderDataPB {
+    oauth_url: sign_in_url,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -228,7 +329,7 @@ pub async fn set_encrypt_secret_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn check_encrypt_secret_handler(
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<UserEncryptionSecretCheckPB, FlowyError> {
+) -> DataResult<UserEncryptionConfigurationPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
   let profile = manager.get_user_profile(uid).await?;
@@ -244,7 +345,9 @@ pub async fn check_encrypt_secret_handler(
     },
   };
 
-  data_result_ok(UserEncryptionSecretCheckPB { is_need_secret })
+  data_result_ok(UserEncryptionConfigurationPB {
+    require_secret: is_need_secret,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -282,7 +385,6 @@ pub async fn set_cloud_config_handler(
       manager
         .set_encrypt_secret(session.user_id, encrypt_secret, encryption_type.clone())
         .await?;
-      save_cloud_config(session.user_id, &store_preferences, config.clone())?;
 
       let params =
         UpdateUserProfileParams::new(session.user_id).with_encryption_type(encryption_type);
@@ -290,32 +392,44 @@ pub async fn set_cloud_config_handler(
     }
   }
 
-  let config_pb = UserCloudConfigPB::from(config);
+  save_cloud_config(session.user_id, &store_preferences, config.clone())?;
+
+  let payload = CloudSettingPB {
+    enable_sync: config.enable_sync,
+    enable_encrypt: config.enable_encrypt,
+    encrypt_secret: config.encrypt_secret,
+    server_url: manager.cloud_services.service_url(),
+  };
+
   send_notification(
     &session.user_id.to_string(),
     UserNotification::DidUpdateCloudConfig,
   )
-  .payload(config_pb)
+  .payload(payload)
   .send();
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "info", skip_all, err)]
 pub async fn get_cloud_config_handler(
   manager: AFPluginState<Weak<UserManager>>,
   store_preferences: AFPluginState<Weak<StorePreferences>>,
-) -> DataResult<UserCloudConfigPB, FlowyError> {
+) -> DataResult<CloudSettingPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
-
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   // Generate the default config if the config is not exist
   let config = get_or_create_cloud_config(session.user_id, &store_preferences);
-  data_result_ok(config.into())
+  data_result_ok(CloudSettingPB {
+    enable_sync: config.enable_sync,
+    enable_encrypt: config.enable_encrypt,
+    encrypt_secret: config.encrypt_secret,
+    server_url: manager.cloud_services.service_url(),
+  })
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
-pub async fn get_all_user_workspace_handler(
+pub async fn get_all_workspace_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -326,38 +440,12 @@ pub async fn get_all_user_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn open_workspace_handler(
-  data: AFPluginData<UserWorkspacePB>,
+  data: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager.open_workspace(&params.id).await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn add_user_to_workspace_handler(
-  data: AFPluginData<AddWorkspaceUserPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager
-    .add_user_to_workspace(params.email, params.workspace_id)
-    .await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn remove_user_from_workspace_handler(
-  data: AFPluginData<RemoveWorkspaceUserPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager
-    .remove_user_to_workspace(params.email, params.workspace_id)
-    .await?;
+  let params = data.validate()?.into_inner();
+  manager.open_workspace(&params.workspace_id).await?;
   Ok(())
 }
 
@@ -392,7 +480,7 @@ pub async fn open_historical_users_handler(
 ) -> Result<(), FlowyError> {
   let user = user.into_inner();
   let manager = upgrade_manager(manager)?;
-  let auth_type = AuthType::from(user.auth_type);
+  let auth_type = Authenticator::from(user.auth_type);
   manager
     .open_historical_user(user.user_id, user.device_id, auth_type)
     .await?;
@@ -453,6 +541,86 @@ pub async fn reset_workspace_handler(
       "The workspace id is empty",
     ));
   }
-  manager.reset_workspace(reset_pb).await?;
+  let session = manager.get_session()?;
+  manager.reset_workspace(reset_pb, session.device_id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn remove_reminder_event_handler(
+  data: AFPluginData<ReminderIdentifierPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+
+  let params = data.into_inner();
+  let _ = manager.remove_reminder(params.id.as_str()).await;
+
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn update_reminder_event_handler(
+  data: AFPluginData<ReminderPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  manager.update_reminder(params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn add_workspace_member_handler(
+  data: AFPluginData<AddWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .add_workspace_member(data.email, data.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn delete_workspace_member_handler(
+  data: AFPluginData<RemoveWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .remove_workspace_member(data.email, data.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_member_handler(
+  data: AFPluginData<QueryWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<RepeatedWorkspaceMemberPB, FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  let members = manager
+    .get_workspace_members(data.workspace_id)
+    .await?
+    .into_iter()
+    .map(WorkspaceMemberPB::from)
+    .collect();
+  data_result_ok(RepeatedWorkspaceMemberPB { items: members })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn update_workspace_member_handler(
+  data: AFPluginData<UpdateWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .update_workspace_member(data.email, data.workspace_id, data.role.into())
+    .await?;
   Ok(())
 }

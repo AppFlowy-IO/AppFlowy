@@ -98,9 +98,6 @@ pub enum ErrorCode {
   #[error("user id is empty or whitespace")]
   UserIdInvalid = 30,
 
-  #[error("User not exist")]
-  UserNotExist = 31,
-
   #[error("Text is too long")]
   TextTooLong = 32,
 
@@ -147,7 +144,7 @@ pub enum ErrorCode {
   GroupIdIsEmpty = 46,
 
   #[error("Invalid date time format")]
-  InvalidDateTimeFormat = 47,
+  InvalidDateTimeFormat = 48,
 
   #[error("Invalid params")]
   InvalidParams = 49,
@@ -238,6 +235,27 @@ pub enum ErrorCode {
 
   #[error("Parse url failed")]
   InvalidURL = 78,
+
+  #[error("Require Email Confirmation, Sign in after email confirmation")]
+  AwaitingEmailConfirmation = 79,
+
+  #[error("Text id is empty")]
+  TextIdIsEmpty = 80,
+
+  #[error("Record already exists")]
+  RecordAlreadyExists = 81,
+
+  #[error("Missing payload")]
+  MissingPayload = 82,
+
+  #[error("Permission denied")]
+  NotEnoughPermissions = 83,
+
+  #[error("Internal server error")]
+  InternalServerError = 84,
+
+  #[error("Not support yet")]
+  NotSupportYet = 85,
 }
 
 impl ErrorCode {

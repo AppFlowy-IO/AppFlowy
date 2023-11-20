@@ -21,7 +21,7 @@ use crate::services::filter::{Filter, FilterChangeset, FilterResult, FilterResul
 
 pub trait FilterDelegate: Send + Sync + 'static {
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>>;
-  fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
+  fn get_field(&self, field_id: &str) -> Option<Field>;
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
   fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;

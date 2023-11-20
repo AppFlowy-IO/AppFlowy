@@ -4,8 +4,6 @@ import { BlockData, BlockType, NestedBlock } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
 import { turnToBlockThunk } from '$app_reducers/document/async-actions';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import Delta from 'quill-delta';
-import { getDeltaText } from '$app/utils/document/delta';
 import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 
 export function useTurnInto({ node, onClose }: { node: NestedBlock; onClose?: () => void }) {
@@ -13,43 +11,17 @@ export function useTurnInto({ node, onClose }: { node: NestedBlock; onClose?: ()
 
   const { controller, docId } = useSubscribeDocument();
 
-  const getTurnIntoData = useCallback(
-    (targetType: BlockType, sourceNode: NestedBlock) => {
-      if (targetType === sourceNode.type) return;
-      const config = blockConfig[targetType];
-      const defaultData = config.defaultData;
-      const data: BlockData<any> = {
-        ...defaultData,
-        delta: sourceNode?.data?.delta || [],
-      };
-
-      if (targetType === BlockType.EquationBlock) {
-        data.formula = getDeltaText(new Delta(sourceNode.data.delta));
-        delete data.delta;
-      }
-
-      if (sourceNode.type === BlockType.EquationBlock) {
-        data.delta = [
-          {
-            insert: node.data.formula,
-          },
-        ];
-      }
-
-      return data;
-    },
-    [node.data.formula]
-  );
-
   const turnIntoBlock = useCallback(
-    async (type: BlockType, isSelected: boolean, data?: BlockData<any>) => {
+    async (type: BlockType, isSelected: boolean, data?: BlockData) => {
       if (!controller || isSelected) {
         onClose?.();
         return;
       }
 
+      const config = blockConfig[type];
+      const defaultData = config.defaultData;
       const updateData = {
-        ...getTurnIntoData(type, node),
+        ...defaultData,
         ...data,
       };
 
@@ -63,14 +35,14 @@ export function useTurnInto({ node, onClose }: { node: NestedBlock; onClose?: ()
       );
 
       onClose?.();
-      dispatch(
+      await dispatch(
         setRectSelectionThunk({
           docId,
           selection: [newBlockId as string],
         })
       );
     },
-    [controller, getTurnIntoData, node, dispatch, onClose, docId]
+    [controller, node, dispatch, onClose, docId]
   );
 
   const turnIntoHeading = useCallback(

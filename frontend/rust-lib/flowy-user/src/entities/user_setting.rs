@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::cloud::UserCloudConfig;
 
 use crate::entities::EncryptionTypePB;
+
+use super::date_time::{UserDateFormatPB, UserTimeFormatPB};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -14,6 +15,9 @@ pub struct UserPreferencesPB {
 
   #[pb(index = 2)]
   appearance_setting: AppearanceSettingsPB,
+
+  #[pb(index = 3)]
+  date_time_settings: DateTimeSettingsPB,
 }
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
@@ -50,6 +54,16 @@ pub struct AppearanceSettingsPB {
   #[pb(index = 9)]
   #[serde(default)]
   pub menu_offset: f64,
+
+  #[pb(index = 10)]
+  #[serde(default)]
+  pub layout_direction: LayoutDirectionPB,
+
+  // If the value is FALLBACK which is the default value then it will fall back
+  // to layout direction and it will use that as default text direction.
+  #[pb(index = 11)]
+  #[serde(default)]
+  pub text_direction: TextDirectionPB,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -60,6 +74,22 @@ pub enum ThemeModePB {
   Dark = 1,
   #[default]
   System = 2,
+}
+
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug, Default)]
+pub enum LayoutDirectionPB {
+  #[default]
+  LTRLayout = 0,
+  RTLLayout = 1,
+}
+
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug, Default)]
+pub enum TextDirectionPB {
+  LTR = 0,
+  RTL = 1,
+  AUTO = 2,
+  #[default]
+  FALLBACK = 3,
 }
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
@@ -80,7 +110,7 @@ impl std::default::Default for LocaleSettingsPB {
   }
 }
 
-pub const APPEARANCE_DEFAULT_THEME: &str = "light";
+pub const APPEARANCE_DEFAULT_THEME: &str = "Default";
 pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
 pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
 const APPEARANCE_RESET_AS_DEFAULT: bool = true;
@@ -99,20 +129,25 @@ impl std::default::Default for AppearanceSettingsPB {
       setting_key_value: HashMap::default(),
       is_menu_collapsed: APPEARANCE_DEFAULT_IS_MENU_COLLAPSED,
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
+      layout_direction: LayoutDirectionPB::default(),
+      text_direction: TextDirectionPB::default(),
     }
   }
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UserCloudConfigPB {
+pub struct CloudSettingPB {
   #[pb(index = 1)]
-  enable_sync: bool,
+  pub(crate) enable_sync: bool,
 
   #[pb(index = 2)]
-  enable_encrypt: bool,
+  pub(crate) enable_encrypt: bool,
 
   #[pb(index = 3)]
   pub encrypt_secret: String,
+
+  #[pb(index = 4)]
+  pub server_url: String,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -140,19 +175,9 @@ pub struct UserSecretPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UserEncryptionSecretCheckPB {
+pub struct UserEncryptionConfigurationPB {
   #[pb(index = 1)]
-  pub is_need_secret: bool,
-}
-
-impl From<UserCloudConfig> for UserCloudConfigPB {
-  fn from(value: UserCloudConfig) -> Self {
-    Self {
-      enable_sync: value.enable_sync,
-      enable_encrypt: value.enable_encrypt(),
-      encrypt_secret: value.encrypt_secret,
-    }
-  }
+  pub require_secret: bool,
 }
 
 #[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
@@ -181,4 +206,41 @@ impl NetworkTypePB {
 pub struct NetworkStatePB {
   #[pb(index = 1)]
   pub ty: NetworkTypePB,
+}
+
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
+pub struct DateTimeSettingsPB {
+  #[pb(index = 1)]
+  pub date_format: UserDateFormatPB,
+
+  #[pb(index = 2)]
+  pub time_format: UserTimeFormatPB,
+
+  #[pb(index = 3)]
+  pub timezone_id: String,
+}
+
+impl std::default::Default for DateTimeSettingsPB {
+  fn default() -> Self {
+    DateTimeSettingsPB {
+      date_format: UserDateFormatPB::Friendly,
+      time_format: UserTimeFormatPB::TwentyFourHour,
+      timezone_id: "".to_owned(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
+pub struct NotificationSettingsPB {
+  #[pb(index = 1)]
+  #[serde(default)]
+  pub notifications_enabled: bool,
+}
+
+impl std::default::Default for NotificationSettingsPB {
+  fn default() -> Self {
+    NotificationSettingsPB {
+      notifications_enabled: true,
+    }
+  }
 }

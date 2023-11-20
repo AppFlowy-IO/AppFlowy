@@ -1,0 +1,37 @@
+{
+  "type": "page",
+  "children": [
+    {
+      "type": "bulleted_list",
+      "data": {
+        "delta": [
+          {
+            "insert": "Highlight"
+          }
+        ]
+      },
+      "children": [
+        {
+          "type": "paragraph",
+          "data": {
+            "delta": [
+              {
+                "insert": "You can also"
+              }
+            ]
+          }
+        },
+        {
+          "type": "bulleted_list",
+          "data": {
+            "delta": [
+              {
+                "insert": "nest"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

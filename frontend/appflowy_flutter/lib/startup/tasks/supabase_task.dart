@@ -5,10 +5,11 @@ import 'package:appflowy/env/env.dart';
 import 'package:appflowy/user/application/supabase_realtime.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_protocol/url_protocol.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path/path.dart' as p;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_protocol/url_protocol.dart';
+
 import '../startup.dart';
 
 // ONLY supports in macOS and Windows now.
@@ -53,6 +54,14 @@ class InitSupabaseTask extends LaunchTask {
       // register deep link for Windows
       registerProtocolHandler(appflowyDeepLinkSchema);
     }
+  }
+
+  @override
+  Future<void> dispose() async {
+    await realtimeService?.dispose();
+    realtimeService = null;
+    supabase?.dispose();
+    supabase = null;
   }
 }
 

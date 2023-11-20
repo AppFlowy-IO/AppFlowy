@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,7 +19,7 @@ class ImageMenu extends StatefulWidget {
   });
 
   final Node node;
-  final ImageBlockComponentWidgetState state;
+  final CustomImageBlockComponentState state;
 
   @override
   State<ImageMenu> createState() => _ImageMenuState();
@@ -65,12 +67,9 @@ class _ImageMenuState extends State<ImageMenu> {
     final url = widget.node.attributes[ImageBlockKeys.url];
     if (url != null) {
       Clipboard.setData(ClipboardData(text: url));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: FlowyText(
-            LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
-          ),
-        ),
+      showSnackBarMessage(
+        context,
+        LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
       );
     }
   }
@@ -111,7 +110,7 @@ class _ImageAlignButton extends StatefulWidget {
   });
 
   final Node node;
-  final ImageBlockComponentWidgetState state;
+  final CustomImageBlockComponentState state;
 
   @override
   State<_ImageAlignButton> createState() => _ImageAlignButtonState();

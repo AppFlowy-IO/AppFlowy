@@ -63,6 +63,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           createEvent: (DateTime date) async {
             await _createEvent(date);
           },
+          newEventPopupDisplayed: () {
+            emit(state.copyWith(editingEvent: null));
+          },
           moveEvent: (CalendarDayEvent event, DateTime date) async {
             await _moveEvent(event, date);
           },
@@ -195,7 +198,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   Future<void> _updateCalendarLayoutSetting(
     CalendarLayoutSettingPB layoutSetting,
   ) async {
-    return databaseController.updateLayoutSetting(layoutSetting);
+    return databaseController.updateLayoutSetting(
+      calendarLayoutSetting: layoutSetting,
+    );
   }
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
@@ -278,7 +283,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           return;
         }
         fieldInfoByFieldId = {
-          for (var fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo
+          for (final fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo,
         };
       },
       onRowsCreated: (rowIds) async {
@@ -316,14 +321,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       },
     );
 
-    final onLayoutChanged = DatabaseLayoutSettingCallbacks(
-      onLayoutChanged: _didReceiveLayoutSetting,
-      onLoadLayout: _didReceiveLayoutSetting,
+    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+      onLayoutSettingsChanged: _didReceiveLayoutSetting,
     );
 
     databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
-      onLayoutChanged: onLayoutChanged,
+      onLayoutSettingsChanged: onLayoutSettingsChanged,
     );
   }
 
@@ -377,6 +381,10 @@ class CalendarEvent with _$CalendarEvent {
   const factory CalendarEvent.didCreateEvent(
     CalendarEventData<CalendarDayEvent> event,
   ) = _DidReceiveNewEvent;
+
+  // Called after creating a new event
+  const factory CalendarEvent.newEventPopupDisplayed() =
+      _NewEventPopupDisplayed;
 
   // Called when receive a new event
   const factory CalendarEvent.didReceiveEvent(

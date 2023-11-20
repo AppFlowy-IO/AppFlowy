@@ -1,10 +1,11 @@
 use anyhow::Error;
-use collab_plugins::cloud_storage::CollabType;
+use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{
@@ -29,16 +30,17 @@ where
   fn get_collab_update(
     &self,
     object_id: &str,
-    object_ty: CollabType,
+    collab_type: CollabType,
+    _workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdate, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let object_id = object_id.to_string();
     let (tx, rx) = channel();
-    tokio::spawn(async move {
+    af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
-          let updates = FetchObjectUpdateAction::new(object_id.to_string(), object_ty, postgrest)
+          let updates = FetchObjectUpdateAction::new(object_id.to_string(), collab_type, postgrest)
             .run_with_fix_interval(5, 10)
             .await?;
           Ok(updates)
@@ -53,10 +55,11 @@ where
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
+    _workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdateByOid, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
-    tokio::spawn(async move {
+    af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;

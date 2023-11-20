@@ -36,14 +36,39 @@ cd appflowy_flutter
 flutter test --dart-define=RUST_LOG=${RUST_LOG} -j, --concurrency=1 --coverage
 '''
 
+[tasks.dart_unit_test_no_build]
+script = '''
+cargo make --profile test-macos-$(uname -m) run_dart_unit_test_no_build
+'''
+
+[tasks.dart_unit_test_no_build.windows]
+script = '''
+cargo make --profile test-windows run_dart_unit_test_no_build
+'''
+
+[tasks.dart_unit_test_no_build.linux]
+script = '''
+cargo make --profile test-linux run_dart_unit_test_no_build
+'''
+
+[tasks.run_dart_unit_test_no_build]
+env = { RUST_LOG = "info" }
+dependencies = ["copy-from-build-to-sandbox-folder"]
+description = "Run flutter unit tests"
+script = '''
+cd appflowy_flutter
+flutter test --dart-define=RUST_LOG=${RUST_LOG} -j, --concurrency=1 --coverage
+'''
+script_runner = "@shell"
+
 [tasks.rust_unit_test]
-run_task = { name = ["rust_lib_unit_test", "shared_lib_unit_test"] }
+run_task = { name = ["rust_lib_unit_test"] }
 
 [tasks.supabase_unit_test]
 env = { RUST_LOG = "info" }
 description = "Run cloud unit tests"
 script = '''
-cd rust-lib/flowy-test
+cd rust-lib/event-integration
 RUST_BACKTRACE=1 cargo test supabase_ --features "cloud_test"
 '''
 
@@ -321,6 +346,51 @@ script = [
     rm ${dest}
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${TEST_COMPILE_TARGET}/${TEST_BUILD_FLAG}/${lib} \
     ${dest}
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.copy-from-build-to-sandbox-folder]
+mac_alias = "copy-from-build-to-sandbox-folder-macos"
+windows_alias = "copy-from-build-to-sandbox-folder-windows"
+linux_alias = "copy-from-build-to-sandbox-folder-linux"
+
+[tasks.copy-from-build-to-sandbox-folder-windows]
+private = true
+script = [
+  """
+    # Copy the appflowy_backend lib to system temp directory for flutter unit test.
+    lib = set ${LIB_NAME}.${TEST_LIB_EXT}
+    dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/.sandbox/${lib}
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/windows/flutter/dart_ffi
+    rm ${dest}
+
+    cp ${dart_ffi_dir}/${lib} ${dest}
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.copy-from-build-to-sandbox-folder-macos]
+private = true
+script = [
+  """
+    echo "This is not possible for mac because the tests wont work with .a lib"
+    exit 127
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.copy-from-build-to-sandbox-folder-linux]
+private = true
+script = [
+  """
+    # Copy the appflowy_backend lib to system temp directory for flutter unit test.
+    lib = set lib${LIB_NAME}.${TEST_LIB_EXT}
+    dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/.sandbox/${lib}
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/linux/flutter/dart_ffi
+    rm ${dest}
+
+    cp ${dart_ffi_dir}/${lib} ${dest}
   """,
 ]
 script_runner = "@duckscript"

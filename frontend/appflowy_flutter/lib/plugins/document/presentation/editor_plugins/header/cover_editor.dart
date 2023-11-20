@@ -6,7 +6,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -20,7 +19,7 @@ const String kLocalImagesKey = 'local_images';
 
 List<String> get builtInAssetImages => [
       "assets/images/app_flowy_abstract_cover_1.jpg",
-      "assets/images/app_flowy_abstract_cover_2.jpg"
+      "assets/images/app_flowy_abstract_cover_2.jpg",
     ];
 
 class ChangeCoverPopover extends StatefulWidget {
@@ -42,36 +41,6 @@ class ChangeCoverPopover extends StatefulWidget {
   State<ChangeCoverPopover> createState() => _ChangeCoverPopoverState();
 }
 
-class ColorOption {
-  final String colorHex;
-
-  final String name;
-  const ColorOption({
-    required this.colorHex,
-    required this.name,
-  });
-}
-
-class CoverColorPicker extends StatefulWidget {
-  final String? selectedBackgroundColorHex;
-
-  final Color pickerBackgroundColor;
-  final Color pickerItemHoverColor;
-  final void Function(String color) onSubmittedBackgroundColorHex;
-  final List<ColorOption> backgroundColorOptions;
-  const CoverColorPicker({
-    super.key,
-    this.selectedBackgroundColorHex,
-    required this.pickerBackgroundColor,
-    required this.backgroundColorOptions,
-    required this.pickerItemHoverColor,
-    required this.onSubmittedBackgroundColorHex,
-  });
-
-  @override
-  State<CoverColorPicker> createState() => _CoverColorPickerState();
-}
-
 class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   bool isAddingImage = false;
 
@@ -82,7 +51,15 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         editorState: widget.editorState,
         node: widget.node,
       )..add(const ChangeCoverPopoverEvent.fetchPickedImagePaths()),
-      child: BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+      child: BlocConsumer<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+        listener: (context, state) {
+          if (state is Loaded && state.selectLatestImage) {
+            widget.onCoverChanged(
+              CoverType.file,
+              state.imageNames.last,
+            );
+          }
+        },
         builder: (context, state) {
           return Padding(
             padding: const EdgeInsets.all(12),
@@ -92,14 +69,15 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                       onBackPressed: () => setState(() {
                         isAddingImage = false;
                       }),
-                      onFileSubmit: (List<String> path) {
+                      onFileSubmit: (_) {
                         context.read<ChangeCoverPopoverBloc>().add(
                               const ChangeCoverPopoverEvent
-                                  .fetchPickedImagePaths(),
+                                  .fetchPickedImagePaths(
+                                selectLatestImage: true,
+                              ),
                             );
-                        setState(() {
-                          isAddingImage = false;
-                        });
+
+                        setState(() => isAddingImage = false);
                       },
                     )
                   : _buildCoverSelection(),
@@ -202,7 +180,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               builtInAssetImages[index],
             );
           },
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(builtInAssetImages[index]),
@@ -295,7 +273,8 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
             },
           );
         }
-        return Container();
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -305,7 +284,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         .map(
           (t) => ColorOption(
             colorHex: t.color(context).toHex(),
-            name: t.tintName(AppFlowyEditorLocalizations.current),
+            name: t.tintName(AppFlowyEditorL10n.current),
           ),
         )
         .toList();
@@ -315,11 +294,12 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 @visibleForTesting
 class NewCustomCoverButton extends StatelessWidget {
   final VoidCallback onPressed;
+
   const NewCustomCoverButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(
           color: Theme.of(context).colorScheme.primary,
@@ -338,125 +318,34 @@ class NewCustomCoverButton extends StatelessWidget {
   }
 }
 
-class DeleteImageAlertDialog extends StatelessWidget {
-  const DeleteImageAlertDialog({
-    Key? key,
-    required this.onSubmit,
-  }) : super(key: key);
+class ColorOption {
+  final String colorHex;
 
-  final Function() onSubmit;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: FlowyText.semibold(
-        "Image is used in cover",
-        fontSize: 20,
-        color: Theme.of(context).colorScheme.tertiary,
-      ),
-      content: Container(
-        constraints: const BoxConstraints(minHeight: 100),
-        padding: const EdgeInsets.symmetric(
-          vertical: 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(LocaleKeys.document_plugins_cover_coverRemoveAlert).tr(),
-            const SizedBox(
-              height: 4,
-            ),
-            const Text(
-              LocaleKeys.document_plugins_cover_alertDialogConfirmation,
-            ).tr(),
-          ],
-        ),
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        vertical: 10.0,
-        horizontal: 20.0,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(LocaleKeys.button_Cancel).tr(),
-        ),
-        TextButton(
-          onPressed: onSubmit,
-          child: const Text(LocaleKeys.button_OK).tr(),
-        ),
-      ],
-    );
-  }
+  final String name;
+  const ColorOption({
+    required this.colorHex,
+    required this.name,
+  });
 }
 
-class ImageGridItem extends StatefulWidget {
-  const ImageGridItem({
-    Key? key,
-    required this.onImageSelect,
-    required this.onImageDelete,
-    required this.imagePath,
-  }) : super(key: key);
+class CoverColorPicker extends StatefulWidget {
+  final String? selectedBackgroundColorHex;
 
-  final Function() onImageSelect;
-  final Function() onImageDelete;
-  final String imagePath;
+  final Color pickerBackgroundColor;
+  final Color pickerItemHoverColor;
+  final void Function(String color) onSubmittedBackgroundColorHex;
+  final List<ColorOption> backgroundColorOptions;
+  const CoverColorPicker({
+    super.key,
+    this.selectedBackgroundColorHex,
+    required this.pickerBackgroundColor,
+    required this.backgroundColorOptions,
+    required this.pickerItemHoverColor,
+    required this.onSubmittedBackgroundColorHex,
+  });
 
   @override
-  State<ImageGridItem> createState() => _ImageGridItemState();
-}
-
-class _ImageGridItemState extends State<ImageGridItem> {
-  bool showDeleteButton = false;
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          showDeleteButton = true;
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          showDeleteButton = false;
-        });
-      },
-      child: Stack(
-        children: [
-          InkWell(
-            onTap: widget.onImageSelect,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: FileImage(File(widget.imagePath)),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: Corners.s8Border,
-              ),
-            ),
-          ),
-          if (showDeleteButton)
-            Positioned(
-              right: 2,
-              top: 2,
-              child: FlowyIconButton(
-                fillColor:
-                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                hoverColor:
-                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                iconPadding: const EdgeInsets.all(5),
-                width: 28,
-                icon: FlowySvg(
-                  FlowySvgs.delete_s,
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
-                onPressed: widget.onImageDelete,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+  State<CoverColorPicker> createState() => _CoverColorPickerState();
 }
 
 class _CoverColorPickerState extends State<CoverColorPicker> {
@@ -508,6 +397,122 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
   }
 }
 
+class DeleteImageAlertDialog extends StatelessWidget {
+  const DeleteImageAlertDialog({
+    Key? key,
+    required this.onSubmit,
+  }) : super(key: key);
+
+  final Function() onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: FlowyText.semibold(
+        "Image is used in cover",
+        fontSize: 20,
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
+      content: Container(
+        constraints: const BoxConstraints(minHeight: 100),
+        padding: const EdgeInsets.symmetric(
+          vertical: 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(LocaleKeys.document_plugins_cover_coverRemoveAlert).tr(),
+            const SizedBox(
+              height: 4,
+            ),
+            const Text(
+              LocaleKeys.document_plugins_cover_alertDialogConfirmation,
+            ).tr(),
+          ],
+        ),
+      ),
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 10.0,
+        horizontal: 20.0,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(LocaleKeys.button_cancel).tr(),
+        ),
+        TextButton(
+          onPressed: onSubmit,
+          child: const Text(LocaleKeys.button_ok).tr(),
+        ),
+      ],
+    );
+  }
+}
+
+class ImageGridItem extends StatefulWidget {
+  const ImageGridItem({
+    Key? key,
+    required this.onImageSelect,
+    required this.onImageDelete,
+    required this.imagePath,
+  }) : super(key: key);
+
+  final Function() onImageSelect;
+  final Function() onImageDelete;
+  final String imagePath;
+
+  @override
+  State<ImageGridItem> createState() => _ImageGridItemState();
+}
+
+class _ImageGridItemState extends State<ImageGridItem> {
+  bool showDeleteButton = false;
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          showDeleteButton = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          showDeleteButton = false;
+        });
+      },
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: widget.onImageSelect,
+            child: ClipRRect(
+              borderRadius: Corners.s8Border,
+              child: Image.file(File(widget.imagePath), fit: BoxFit.cover),
+            ),
+          ),
+          if (showDeleteButton)
+            Positioned(
+              right: 2,
+              top: 2,
+              child: FlowyIconButton(
+                fillColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                hoverColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                iconPadding: const EdgeInsets.all(5),
+                width: 28,
+                icon: FlowySvg(
+                  FlowySvgs.delete_s,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+                onPressed: widget.onImageDelete,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 @visibleForTesting
 class ColorItem extends StatelessWidget {
   final ColorOption option;
@@ -524,19 +529,17 @@ class ColorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      customBorder: const RoundedRectangleBorder(
-        borderRadius: Corners.s6Border,
-      ),
-      hoverColor: hoverColor,
-      onTap: () => onTap(option.colorHex),
-      child: Padding(
-        padding: const EdgeInsets.only(right: 10.0),
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        hoverColor: hoverColor,
+        onTap: () => onTap(option.colorHex),
         child: SizedBox.square(
           dimension: 25,
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
-              color: option.colorHex.toColor(),
+              color: option.colorHex.tryToColor(),
               shape: BoxShape.circle,
             ),
             child: isChecked
@@ -548,7 +551,7 @@ class ColorItem extends StatelessWidget {
                           color: Theme.of(context).cardColor,
                           width: 3.0,
                         ),
-                        color: option.colorHex.toColor(),
+                        color: option.colorHex.tryToColor(),
                         shape: BoxShape.circle,
                       ),
                     ),

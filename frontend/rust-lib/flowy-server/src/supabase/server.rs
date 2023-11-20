@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
-use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage, RemoteUpdateSender};
+use collab_entity::CollabObject;
+use collab_plugins::cloud_storage::{RemoteCollabStorage, RemoteUpdateSender};
 use parking_lot::RwLock;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
@@ -136,7 +137,7 @@ impl AppFlowyServer for SupabaseServer {
 
   fn user_service(&self) -> Arc<dyn UserCloudService> {
     // handle the realtime collab update event.
-    let (user_update_tx, _) = tokio::sync::broadcast::channel(100);
+    let (user_update_tx, user_update_rx) = tokio::sync::mpsc::channel(1);
 
     let collab_update_handler = Box::new(RealtimeCollabUpdateHandler::new(
       Arc::downgrade(&self.collab_update_sender),
@@ -151,7 +152,7 @@ impl AppFlowyServer for SupabaseServer {
     Arc::new(SupabaseUserServiceImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
       handlers,
-      Some(user_update_tx),
+      Some(user_update_rx),
     ))
   }
 

@@ -12,7 +12,7 @@ function NewPageButton({ workspaceId }: { workspaceId: string }) {
 
   useEffect(() => {
     return () => {
-      controller.dispose();
+      void controller.dispose();
     };
   }, [controller]);
 
@@ -21,7 +21,7 @@ function NewPageButton({ workspaceId }: { workspaceId: string }) {
       <button
         onClick={async () => {
           const { id } = await controller.createView({
-            name: "",
+            name: '',
             layout: ViewLayoutPB.Document,
             parent_view_id: workspaceId,
           });

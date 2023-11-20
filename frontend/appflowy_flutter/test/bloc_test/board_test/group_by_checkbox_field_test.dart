@@ -35,7 +35,7 @@ void main() {
     final checkboxField = context.fieldContexts.last.field;
     final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
+      databaseController: context.databaseController,
     )..add(const DatabaseGroupEvent.initial());
     gridGroupBloc.add(
       DatabaseGroupEvent.setGroupByField(

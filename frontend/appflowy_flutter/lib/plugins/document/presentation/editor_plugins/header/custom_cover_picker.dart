@@ -148,7 +148,7 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
             title: LocaleKeys.document_plugins_cover_add.tr(),
             borderRadius: Corners.s8Border,
           ),
-        )
+        ),
       ],
     );
   }
@@ -201,7 +201,7 @@ class CoverImagePreviewWidget extends StatefulWidget {
 
 class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
   _buildFilePickerWidget(BuildContext ctx) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: Corners.s6Border,
@@ -243,7 +243,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             },
             useIntrinsicWidth: true,
             leftIcon: const FlowySvg(
-              FlowySvgs.page_s,
+              FlowySvgs.document_s,
               size: Size(20, 20),
             ),
             text: FlowyText(
@@ -263,7 +263,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
         onTap: () {
           ctx.read<CoverImagePickerBloc>().add(const DeleteImage());
         },
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Theme.of(context).colorScheme.onPrimary,
@@ -322,7 +322,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
                     (l) => _buildImageDeleteButton(context),
                     (r) => Container(),
                   )
-                : Container()
+                : Container(),
       ],
     );
   }

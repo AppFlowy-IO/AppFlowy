@@ -88,7 +88,7 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
               }
               Navigator.of(context).pop();
             },
-          )
+          ),
         ],
       ),
     );
@@ -149,8 +149,8 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
                 widget.cancel?.call();
                 Navigator.of(context).pop();
               },
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );
@@ -209,7 +209,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             },
             okTitle: okTitle?.toUpperCase(),
             cancelTitle: cancelTitle?.toUpperCase(),
-          )
+          ),
         ],
       ),
     );
@@ -245,14 +245,14 @@ class OkCancelButton extends StatelessWidget {
         children: <Widget>[
           if (onCancelPressed != null)
             SecondaryTextButton(
-              cancelTitle ?? LocaleKeys.button_Cancel.tr(),
+              cancelTitle ?? LocaleKeys.button_cancel.tr(),
               onPressed: onCancelPressed,
               mode: mode,
             ),
           HSpace(Insets.m),
           if (onOkPressed != null)
             PrimaryTextButton(
-              okTitle ?? LocaleKeys.button_OK.tr(),
+              okTitle ?? LocaleKeys.button_ok.tr(),
               onPressed: onOkPressed,
               mode: mode,
             ),

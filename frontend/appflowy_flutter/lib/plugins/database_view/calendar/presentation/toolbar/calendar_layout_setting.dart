@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -228,14 +227,15 @@ class LayoutDateField extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.leftWithTopAligned,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       constraints: BoxConstraints.loose(const Size(300, 400)),
       mutex: popoverMutex,
-      offset: const Offset(-16, 0),
+      offset: const Offset(-14, 0),
       popupBuilder: (context) {
         return BlocProvider(
-          create: (context) => getIt<DatabasePropertyBloc>(
-            param1: viewId,
-            param2: fieldController,
+          create: (context) => DatabasePropertyBloc(
+            viewId: viewId,
+            fieldController: fieldController,
           )..add(const DatabasePropertyEvent.initial()),
           child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
             builder: (context, state) {
@@ -346,8 +346,9 @@ class FirstDayOfWeek extends StatelessWidget {
     return AppFlowyPopover(
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       mutex: popoverMutex,
-      offset: const Offset(-16, 0),
+      offset: const Offset(-14, 0),
       popupBuilder: (context) {
         final symbols =
             DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;

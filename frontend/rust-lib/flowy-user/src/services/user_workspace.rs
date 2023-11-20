@@ -1,12 +1,14 @@
 use std::convert::TryFrom;
 use std::sync::Arc;
 
-use appflowy_integrate::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
+use tracing::{error, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
-use flowy_user_deps::entities::UserWorkspace;
+use flowy_user_deps::entities::{Role, UserWorkspace, WorkspaceMember};
+use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::manager::UserManager;
@@ -14,8 +16,14 @@ use crate::notification::{send_notification, UserNotification};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
 
 impl UserManager {
+  #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     let uid = self.user_id()?;
+    let _ = self
+      .cloud_services
+      .get_user_service()?
+      .open_workspace(workspace_id)
+      .await;
     if let Some(user_workspace) = self.get_user_workspace(uid, workspace_id) {
       if let Err(err) = self
         .user_status_callback
@@ -24,34 +32,60 @@ impl UserManager {
         .open_workspace(uid, &user_workspace)
         .await
       {
-        tracing::error!("Open workspace failed: {:?}", err);
+        error!("Open workspace failed: {:?}", err);
       }
     }
     Ok(())
   }
 
-  pub async fn add_user_to_workspace(
+  pub async fn add_workspace_member(
     &self,
     user_email: String,
-    to_workspace_id: String,
+    workspace_id: String,
   ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
-      .add_workspace_member(user_email, to_workspace_id)
+      .add_workspace_member(user_email, workspace_id)
       .await?;
     Ok(())
   }
 
-  pub async fn remove_user_to_workspace(
+  pub async fn remove_workspace_member(
     &self,
     user_email: String,
-    from_workspace_id: String,
+    workspace_id: String,
   ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
-      .remove_workspace_member(user_email, from_workspace_id)
+      .remove_workspace_member(user_email, workspace_id)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn get_workspace_members(
+    &self,
+    workspace_id: String,
+  ) -> FlowyResult<Vec<WorkspaceMember>> {
+    let members = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_members(workspace_id)
+      .await?;
+    Ok(members)
+  }
+
+  pub async fn update_workspace_member(
+    &self,
+    user_email: String,
+    workspace_id: String,
+    role: Role,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .update_workspace_member(user_email, workspace_id, role)
       .await?;
     Ok(())
   }
@@ -73,8 +107,8 @@ impl UserManager {
 
     if let Ok(service) = self.cloud_services.get_user_service() {
       if let Ok(pool) = self.db_pool(uid) {
-        tokio::spawn(async move {
-          if let Ok(new_user_workspaces) = service.get_user_workspaces(uid).await {
+        af_spawn(async move {
+          if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
             let _ = save_user_workspaces(uid, pool, &new_user_workspaces);
             let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
             send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
@@ -89,10 +123,18 @@ impl UserManager {
 
   /// Reset the remote workspace using local workspace data. This is useful when a user wishes to
   /// open a workspace on a new device that hasn't fully synchronized with the server.
-  pub async fn reset_workspace(&self, reset: ResetWorkspacePB) -> FlowyResult<()> {
-    let collab_object =
-      CollabObject::new(reset.uid, reset.workspace_id.clone(), CollabType::Folder)
-        .with_workspace_id(reset.workspace_id);
+  pub async fn reset_workspace(
+    &self,
+    reset: ResetWorkspacePB,
+    device_id: String,
+  ) -> FlowyResult<()> {
+    let collab_object = CollabObject::new(
+      reset.uid,
+      reset.workspace_id.clone(),
+      CollabType::Folder,
+      reset.workspace_id.clone(),
+      device_id,
+    );
     self
       .cloud_services
       .get_user_service()?

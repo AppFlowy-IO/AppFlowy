@@ -12,9 +12,18 @@ use collab_document::blocks::{
 };
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{
+  data_result_ok, AFPluginData, AFPluginDataValidator, AFPluginState, DataResult,
+};
 
 use crate::entities::*;
+use crate::parser::document_data_parser::DocumentDataParser;
+use crate::parser::parser_entities::{
+  ConvertDataToJsonParams, ConvertDataToJsonPayloadPB, ConvertDataToJsonResponsePB,
+  ConvertDocumentParams, ConvertDocumentPayloadPB, ConvertDocumentResponsePB,
+};
+
+use crate::parser::external::parser::ExternalDataToNestedJSONParser;
 use crate::{manager::DocumentManager, parser::json::parser::JsonToDocumentParser};
 
 fn upgrade_document(
@@ -88,6 +97,36 @@ pub(crate) async fn apply_action_handler(
   let document = manager.get_document(&doc_id).await?;
   let actions = params.actions;
   document.lock().apply_action(actions);
+  Ok(())
+}
+
+/// Handler for creating a text
+pub(crate) async fn create_text_handler(
+  data: AFPluginData<TextDeltaPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
+  let params: TextDeltaParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_document(&doc_id).await?;
+  let document = document.lock();
+  document.create_text(&params.text_id, params.delta);
+  Ok(())
+}
+
+/// Handler for applying delta to a text
+pub(crate) async fn apply_text_delta_handler(
+  data: AFPluginData<TextDeltaPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
+  let params: TextDeltaParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_document(&doc_id).await?;
+  let text_id = params.text_id;
+  let delta = params.delta;
+  let document = document.lock();
+  document.apply_text_delta(&text_id, delta);
   Ok(())
 }
 
@@ -198,6 +237,8 @@ impl From<BlockActionTypePB> for BlockActionType {
       BlockActionTypePB::Update => Self::Update,
       BlockActionTypePB::Delete => Self::Delete,
       BlockActionTypePB::Move => Self::Move,
+      BlockActionTypePB::InsertText => Self::InsertText,
+      BlockActionTypePB::ApplyTextDelta => Self::ApplyTextDelta,
     }
   }
 }
@@ -205,9 +246,11 @@ impl From<BlockActionTypePB> for BlockActionType {
 impl From<BlockActionPayloadPB> for BlockActionPayload {
   fn from(pb: BlockActionPayloadPB) -> Self {
     Self {
-      block: pb.block.into(),
+      block: pb.block.map(|b| b.into()),
       parent_id: pb.parent_id,
       prev_id: pb.prev_id,
+      text_id: pb.text_id,
+      delta: pb.delta,
     }
   }
 }
@@ -224,8 +267,8 @@ impl From<BlockPB> for Block {
       children: pb.children_id,
       parent: pb.parent_id,
       data,
-      external_id: None,
-      external_type: None,
+      external_id: pb.external_id,
+      external_type: pb.external_type,
     }
   }
 }
@@ -268,4 +311,103 @@ impl From<(&Vec<BlockEvent>, bool)> for DocEventPB {
       is_remote,
     }
   }
+}
+
+/// Handler for converting a document to a JSON string, HTML string, or plain text string.
+///
+/// ConvertDocumentPayloadPB is the input of this event.
+/// ConvertDocumentResponsePB is the output of this event.
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```txt
+/// // document: [{ "block_id": "1", "type": "paragraph", "data": {"delta": [{ "insert": "Hello World!" }] } }, { "block_id": "2", "type": "paragraph", "data": {"delta": [{ "insert": "Hello World!" }] }
+/// let test = DocumentEventTest::new().await;
+/// let view = test.create_document().await;
+/// let payload = ConvertDocumentPayloadPB {
+///   document_id: view.id,
+///   range: Some(RangePB {
+///     start: SelectionPB {
+///       block_id: "1".to_string(),
+///       index: 0,
+///       length: 5,
+///     },
+///     end: SelectionPB {
+///       block_id: "2".to_string(),
+///       index: 5,
+///       length: 7,
+///     }
+///   }),
+///   parse_types: ParseTypePB {
+///     json: true,
+///     text: true,
+///     html: true,
+///   },
+/// };
+/// let result = test.convert_document(payload).await;
+/// assert_eq!(result.json, Some("[{ \"block_id\": \"1\", \"type\": \"paragraph\", \"data\": {\"delta\": [{ \"insert\": \"Hello\" }] } }, { \"block_id\": \"2\", \"type\": \"paragraph\", \"data\": {\"delta\": [{ \"insert\": \" World!\" }] } }".to_string()));
+/// assert_eq!(result.text, Some("Hello\n World!".to_string()));
+/// assert_eq!(result.html, Some("<p>Hello</p><p> World!</p>".to_string()));
+/// ```
+/// #
+pub async fn convert_document_handler(
+  data: AFPluginData<ConvertDocumentPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> DataResult<ConvertDocumentResponsePB, FlowyError> {
+  let manager = upgrade_document(manager)?;
+  let params: ConvertDocumentParams = data.into_inner().try_into()?;
+
+  let document = manager.get_document(&params.document_id).await?;
+  let document_data = document.lock().get_document_data()?;
+  let parser = DocumentDataParser::new(Arc::new(document_data), params.range);
+
+  if !params.parse_types.any_enabled() {
+    return data_result_ok(ConvertDocumentResponsePB::default());
+  }
+
+  let root = &parser.to_json();
+
+  data_result_ok(ConvertDocumentResponsePB {
+    json: params
+      .parse_types
+      .json
+      .then(|| serde_json::to_string(root).unwrap_or_default()),
+    html: params
+      .parse_types
+      .html
+      .then(|| parser.to_html_with_json(root)),
+    text: params
+      .parse_types
+      .text
+      .then(|| parser.to_text_with_json(root)),
+  })
+}
+
+/// Handler for converting a string to a JSON string.
+/// # Examples
+/// Basic usage:
+/// ```txt
+/// let test = DocumentEventTest::new().await;
+/// let payload = ConvertDataToJsonPayloadPB {
+///  data: "<p>Hello</p><p> World!</p>".to_string(),
+///  input_type: InputTypePB::Html,
+/// };
+/// let result: ConvertDataToJsonResponsePB = test.convert_data_to_json(payload).await;
+/// let expect_json = json!({ "type": "page", "data": {}, "children": [{ "type": "paragraph", "children": [], "data": { "delta": [{ "insert": "Hello" }] } }, { "type": "paragraph", "children": [], "data": { "delta": [{ "insert": " World!" }] } }] });
+/// assert!(serde_json::from_str::<NestedBlock>(&result.json).unwrap().eq(&serde_json::from_value::<NestedBlock>(expect_json).unwrap()));
+/// ```
+pub(crate) async fn convert_data_to_json_handler(
+  data: AFPluginData<ConvertDataToJsonPayloadPB>,
+) -> DataResult<ConvertDataToJsonResponsePB, FlowyError> {
+  let payload: ConvertDataToJsonParams = data.validate()?.into_inner().try_into()?;
+  let parser = ExternalDataToNestedJSONParser::new(payload.data, payload.input_type);
+
+  let result = match parser.to_nested_block() {
+    Some(result) => serde_json::to_string(&result)?,
+    None => "".to_string(),
+  };
+
+  data_result_ok(ConvertDataToJsonResponsePB { json: result })
 }

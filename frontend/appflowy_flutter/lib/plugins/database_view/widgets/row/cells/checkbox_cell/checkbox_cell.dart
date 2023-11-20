@@ -1,20 +1,36 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'checkbox_cell_bloc.dart';
-import '../../../../grid/presentation/layout/sizes.dart';
-import '../../cell_builder.dart';
+
+class GridCheckboxCellStyle extends GridCellStyle {
+  EdgeInsets? cellPadding;
+
+  GridCheckboxCellStyle({
+    this.cellPadding,
+  });
+}
 
 class GridCheckboxCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
+  late final GridCheckboxCellStyle cellStyle;
+
   GridCheckboxCell({
     required this.cellControllerBuilder,
+    GridCellStyle? style,
     Key? key,
-  }) : super(key: key);
+  }) : super(key: key) {
+    if (style != null) {
+      cellStyle = (style as GridCheckboxCellStyle);
+    } else {
+      cellStyle = GridCheckboxCellStyle();
+    }
+  }
 
   @override
   GridCellState<GridCheckboxCell> createState() => _CheckboxCellState();
@@ -27,10 +43,8 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as CheckboxCellController;
-    _cellBloc = CheckboxCellBloc(
-      service: CellBackendService(),
-      cellController: cellController,
-    )..add(const CheckboxCellEvent.initial());
+    _cellBloc = CheckboxCellBloc(cellController: cellController)
+      ..add(const CheckboxCellEvent.initial());
     super.initState();
   }
 
@@ -46,7 +60,8 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
           return Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: GridSize.cellContentInsets,
+              padding:
+                  widget.cellStyle.cellPadding ?? GridSize.cellContentInsets,
               child: FlowyIconButton(
                 hoverColor: Colors.transparent,
                 onPressed: () => context
@@ -101,6 +116,9 @@ class CheckboxCellUncheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FlowySvg(FlowySvgs.uncheck_s);
+    return const FlowySvg(
+      FlowySvgs.uncheck_s,
+      blendMode: BlendMode.dst,
+    );
   }
 }

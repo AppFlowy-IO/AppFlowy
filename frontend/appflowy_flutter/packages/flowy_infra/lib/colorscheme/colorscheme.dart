@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'default_colorscheme.dart';
 import 'dandelion.dart';
 import 'lavender.dart';
+import 'lemonade.dart';
 
 part 'colorscheme.g.dart';
 
@@ -22,6 +23,10 @@ const Map<String, List<FlowyColorScheme>> themeMap = {
   BuiltInTheme.dandelion: [
     DandelionColorScheme.light(),
     DandelionColorScheme.dark(),
+  ],
+  BuiltInTheme.lemonade: [
+    LemonadeColorScheme.light(),
+    LemonadeColorScheme.dark(),
   ],
   BuiltInTheme.lavender: [
     LavenderColorScheme.light(),
@@ -85,7 +90,9 @@ class FlowyColorScheme {
   //editor toolbar BG color
   final Color toolbarColor;
   final Color toggleButtonBGColor;
-
+  final Color calendarWeekendBGColor;
+  //grid bottom count color
+  final Color gridRowCountColor;
   const FlowyColorScheme({
     required this.surface,
     required this.hover,
@@ -133,6 +140,8 @@ class FlowyColorScheme {
     required this.progressBarBGColor,
     required this.toolbarColor,
     required this.toggleButtonBGColor,
+    required this.calendarWeekendBGColor,
+    required this.gridRowCountColor,
   });
 
   factory FlowyColorScheme.fromJson(Map<String, dynamic> json) =>

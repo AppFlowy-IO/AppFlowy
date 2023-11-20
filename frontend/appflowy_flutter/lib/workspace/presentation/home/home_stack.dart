@@ -30,8 +30,8 @@ class HomeStack extends StatelessWidget {
   const HomeStack({
     required this.delegate,
     required this.layout,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,10 @@ class HomeStack extends StatelessWidget {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              TabsManager(pageController: pageController),
+              Padding(
+                padding: EdgeInsets.only(left: layout.menuSpacing),
+                child: TabsManager(pageController: pageController),
+              ),
               state.currentPageManager.stackTopBar(layout: layout),
               Expanded(
                 child: PageView(
@@ -108,13 +111,13 @@ class FadingIndexedStack extends StatefulWidget {
   final Duration duration;
 
   const FadingIndexedStack({
-    Key? key,
+    super.key,
     required this.index,
     required this.children,
     this.duration = const Duration(
       milliseconds: 250,
     ),
-  }) : super(key: key);
+  });
 
   @override
   FadingIndexedStackState createState() => FadingIndexedStackState();
@@ -236,6 +239,7 @@ class PageManager {
                     shrinkWrap: false,
                   );
 
+                  // TODO(Xazin): Board should fill up full width
                   return Padding(
                     padding: builder.contentPadding,
                     child: pluginWidget,
@@ -253,7 +257,7 @@ class PageManager {
 }
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({Key? key, required this.layout}) : super(key: key);
+  const HomeTopBar({super.key, required this.layout});
 
   final HomeLayout layout;
 

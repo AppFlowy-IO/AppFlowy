@@ -2,11 +2,12 @@ use anyhow::Error;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
-use collab_plugins::cloud_storage::CollabType;
+use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{get_snapshots_from_server, FetchObjectUpdateAction};
@@ -27,18 +28,22 @@ where
   T: SupabaseServerService,
 {
   #[tracing::instrument(level = "debug", skip(self))]
-  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_document_updates(
+    &self,
+    document_id: &str,
+    workspace_id: &str,
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
-    tokio::spawn(async move {
+    af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
           let action = FetchObjectUpdateAction::new(document_id, CollabType::Document, postgrest);
           let updates = action.run_with_fix_interval(5, 10).await?;
           if updates.is_empty() {
-            return Err(FlowyError::collab_not_sync().into());
+            return Err(FlowyError::collab_not_sync());
           }
           Ok(updates)
         }
@@ -52,6 +57,7 @@ where
     &self,
     document_id: &str,
     limit: usize,
+    _workspace_id: &str,
   ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     let document_id = document_id.to_string();
@@ -72,11 +78,15 @@ where
   }
 
   #[tracing::instrument(level = "debug", skip(self))]
-  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
+  fn get_document_data(
+    &self,
+    document_id: &str,
+    workspace_id: &str,
+  ) -> FutureResult<Option<DocumentData>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
-    tokio::spawn(async move {
+    af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;

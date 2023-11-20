@@ -2,11 +2,11 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
 use bytes::Bytes;
 use tokio::sync::RwLock;
 
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::RocksCollabDB;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
@@ -101,11 +101,14 @@ impl FolderOperationHandler for DocumentFolderOperation {
     FutureResult::new(async move {
       let mut write_guard = workspace_view_builder.write().await;
 
-      // Create a view named "⭐️ Getting started" with built-in README data.
+      // Create a view named "Getting started" with an icon ⭐️ and the built-in README data.
       // Don't modify this code unless you know what you are doing.
       write_guard
         .with_view_builder(|view_builder| async {
-          let view = view_builder.with_name("⭐️ Getting started").build();
+          let view = view_builder
+            .with_name("Getting started")
+            .with_icon("⭐️")
+            .build();
           // create a empty document
           let json_str = include_str!("../../assets/read_me.json");
           let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();

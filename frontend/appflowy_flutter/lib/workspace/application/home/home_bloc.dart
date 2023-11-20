@@ -13,9 +13,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final UserWorkspaceListener _workspaceListener;
 
   HomeBloc(
-    UserProfilePB user,
+    UserProfilePB userProfile,
     WorkspaceSettingPB workspaceSetting,
-  )   : _workspaceListener = UserWorkspaceListener(userProfile: user),
+  )   : _workspaceListener = UserWorkspaceListener(userProfile: userProfile),
         super(HomeState.initial(workspaceSetting)) {
     on<HomeEvent>(
       (event, emit) async {
@@ -41,8 +41,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             emit(state.copyWith(isLoading: e.isLoading));
           },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
-            final latestView = workspaceSetting.hasLatestView()
-                ? workspaceSetting.latestView
+            final latestView = value.setting.hasLatestView()
+                ? value.setting.latestView
                 : state.latestView;
 
             emit(

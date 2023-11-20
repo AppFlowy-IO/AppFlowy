@@ -10,6 +10,7 @@ import 'cells/date_card_cell.dart';
 import 'cells/number_card_cell.dart';
 import 'cells/select_option_card_cell.dart';
 import 'cells/text_card_cell.dart';
+import 'cells/timestamp_card_cell.dart';
 import 'cells/url_card_cell.dart';
 
 // T represents as the Generic card data
@@ -24,6 +25,7 @@ class CardCellBuilder<CustomCardData> {
     required DatabaseCellContext cellContext,
     EditableCardNotifier? cellNotifier,
     RowCardRenderHook<CustomCardData>? renderHook,
+    required bool hasNotes,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellContext: cellContext,
@@ -39,10 +41,20 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.DateTime:
-      case FieldType.LastEditedTime:
-      case FieldType.CreatedTime:
         return DateCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.DateTime],
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
+      case FieldType.LastEditedTime:
+        return TimestampCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.LastEditedTime],
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
+      case FieldType.CreatedTime:
+        return TimestampCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.CreatedTime],
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
@@ -75,12 +87,13 @@ class CardCellBuilder<CustomCardData> {
         );
       case FieldType.RichText:
         return TextCardCell<CustomCardData>(
+          key: key,
+          style: isStyleOrNull<TextCardCellStyle>(style),
+          cardData: cardData,
           renderHook: renderHook?.renderHook[FieldType.RichText],
           cellControllerBuilder: cellControllerBuilder,
           editableNotifier: cellNotifier,
-          cardData: cardData,
-          style: isStyleOrNull<TextCardCellStyle>(style),
-          key: key,
+          showNotes: cellContext.fieldInfo.isPrimary && hasNotes,
         );
       case FieldType.URL:
         return URLCardCell<CustomCardData>(

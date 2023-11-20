@@ -24,6 +24,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color toggleButtonBGColor;
   final Color calloutBGColor;
   final Color tableCellBGColor;
+  final Color calendarWeekendBGColor;
+  final Color gridRowCountColor;
 
   final TextStyle code;
   final TextStyle callout;
@@ -48,11 +50,13 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.textColor,
     required this.calloutBGColor,
     required this.tableCellBGColor,
+    required this.calendarWeekendBGColor,
     required this.code,
     required this.callout,
     required this.caption,
     required this.progressBarBGColor,
     required this.toggleButtonBGColor,
+    required this.gridRowCountColor,
   });
 
   static AFThemeExtension of(BuildContext context) {
@@ -81,6 +85,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? toggleOffFill,
     Color? progressBarBGColor,
     Color? toggleButtonBGColor,
+    Color? calendarWeekendBGColor,
+    Color? gridRowCountColor,
     TextStyle? code,
     TextStyle? callout,
     TextStyle? caption,
@@ -106,6 +112,9 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       toggleOffFill: toggleOffFill ?? this.toggleOffFill,
       progressBarBGColor: progressBarBGColor ?? this.progressBarBGColor,
       toggleButtonBGColor: toggleButtonBGColor ?? this.toggleButtonBGColor,
+      calendarWeekendBGColor:
+          calendarWeekendBGColor ?? this.calendarWeekendBGColor,
+      gridRowCountColor: gridRowCountColor ?? this.gridRowCountColor,
       code: code ?? this.code,
       callout: callout ?? this.callout,
       caption: caption ?? this.caption,
@@ -142,6 +151,10 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
           Color.lerp(progressBarBGColor, other.progressBarBGColor, t)!,
       toggleButtonBGColor:
           Color.lerp(toggleButtonBGColor, other.toggleButtonBGColor, t)!,
+      calendarWeekendBGColor:
+          Color.lerp(calendarWeekendBGColor, other.calendarWeekendBGColor, t)!,
+      gridRowCountColor:
+          Color.lerp(gridRowCountColor, other.gridRowCountColor, t)!,
       code: other.code,
       callout: other.callout,
       caption: other.caption,
@@ -189,6 +202,30 @@ enum FlowyTint {
         return AFThemeExtension.of(context).tint8;
       case FlowyTint.tint9:
         return AFThemeExtension.of(context).tint9;
+    }
+  }
+
+  String get id {
+    switch (this) {
+      // DON'T change this name because it's saved in the database!
+      case FlowyTint.tint1:
+        return 'appflowy_them_color_tint1';
+      case FlowyTint.tint2:
+        return 'appflowy_them_color_tint2';
+      case FlowyTint.tint3:
+        return 'appflowy_them_color_tint3';
+      case FlowyTint.tint4:
+        return 'appflowy_them_color_tint4';
+      case FlowyTint.tint5:
+        return 'appflowy_them_color_tint5';
+      case FlowyTint.tint6:
+        return 'appflowy_them_color_tint6';
+      case FlowyTint.tint7:
+        return 'appflowy_them_color_tint7';
+      case FlowyTint.tint8:
+        return 'appflowy_them_color_tint8';
+      case FlowyTint.tint9:
+        return 'appflowy_them_color_tint9';
     }
   }
 }

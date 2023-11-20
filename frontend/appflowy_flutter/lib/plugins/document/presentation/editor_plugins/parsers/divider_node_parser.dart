@@ -4,10 +4,10 @@ class DividerNodeParser extends NodeParser {
   const DividerNodeParser();
 
   @override
-  String get id => 'divider';
+  String get id => DividerBlockKeys.type;
 
   @override
-  String transform(Node node) {
+  String transform(Node node, DocumentMarkdownEncoder? encoder) {
     return '---\n';
   }
 }

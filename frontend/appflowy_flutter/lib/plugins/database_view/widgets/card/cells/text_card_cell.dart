@@ -1,9 +1,11 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../row/cell_builder.dart';
-import '../bloc/text_card_cell_bloc.dart';
 import '../define.dart';
 import 'card_cell.dart';
 
@@ -15,26 +17,28 @@ class TextCardCellStyle extends CardCellStyle {
 
 class TextCardCell<CustomCardData>
     extends CardCell<CustomCardData, TextCardCellStyle> with EditableCell {
+  const TextCardCell({
+    super.key,
+    super.cardData,
+    super.style,
+    required this.cellControllerBuilder,
+    this.editableNotifier,
+    this.renderHook,
+    this.showNotes = false,
+  });
+
   @override
   final EditableCardNotifier? editableNotifier;
   final CellControllerBuilder cellControllerBuilder;
   final CellRenderHook<String, CustomCardData>? renderHook;
-
-  const TextCardCell({
-    required this.cellControllerBuilder,
-    required CustomCardData? cardData,
-    this.editableNotifier,
-    this.renderHook,
-    TextCardCellStyle? style,
-    Key? key,
-  }) : super(key: key, style: style, cardData: cardData);
+  final bool showNotes;
 
   @override
-  State<TextCardCell> createState() => _TextCardCellState();
+  State<TextCardCell> createState() => _TextCellState();
 }
 
-class _TextCardCellState extends State<TextCardCell> {
-  late TextCardCellBloc _cellBloc;
+class _TextCellState extends State<TextCardCell> {
+  late TextCellBloc _cellBloc;
   late TextEditingController _controller;
   bool focusWhenInit = false;
   final focusNode = SingleListenerFocusNode();
@@ -43,8 +47,8 @@ class _TextCardCellState extends State<TextCardCell> {
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as TextCellController;
-    _cellBloc = TextCardCellBloc(cellController: cellController)
-      ..add(const TextCardCellEvent.initial());
+    _cellBloc = TextCellBloc(cellController: cellController)
+      ..add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
     focusWhenInit = widget.editableNotifier?.isCellEditing.value ?? false;
     if (focusWhenInit) {
@@ -58,7 +62,7 @@ class _TextCardCellState extends State<TextCardCell> {
       if (!focusNode.hasFocus) {
         focusWhenInit = false;
         widget.editableNotifier?.isCellEditing.value = false;
-        _cellBloc.add(const TextCardCellEvent.enableEdit(false));
+        _cellBloc.add(const TextCellEvent.enableEdit(false));
       }
     });
     _bindEditableNotifier();
@@ -75,7 +79,7 @@ class _TextCardCellState extends State<TextCardCell> {
           focusNode.requestFocus();
         });
       }
-      _cellBloc.add(TextCardCellEvent.enableEdit(isEditing));
+      _cellBloc.add(TextCellEvent.enableEdit(isEditing));
     });
   }
 
@@ -89,13 +93,13 @@ class _TextCardCellState extends State<TextCardCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocListener<TextCardCellBloc, TextCardCellState>(
+      child: BlocListener<TextCellBloc, TextCellState>(
         listener: (context, state) {
           if (_controller.text != state.content) {
             _controller.text = state.content;
           }
         },
-        child: BlocBuilder<TextCardCellBloc, TextCardCellState>(
+        child: BlocBuilder<TextCellBloc, TextCellState>(
           buildWhen: (previous, current) {
             if (previous.content != current.content &&
                 _controller.text == current.content &&
@@ -122,14 +126,19 @@ class _TextCardCellState extends State<TextCardCell> {
               return const SizedBox();
             }
 
-            //
-            Widget child;
-            if (state.enableEdit || focusWhenInit) {
-              child = _buildTextField();
-            } else {
-              child = _buildText(state);
-            }
-            return Align(alignment: Alignment.centerLeft, child: child);
+            final child = state.enableEdit || focusWhenInit
+                ? _buildTextField()
+                : _buildText(state);
+
+            return Row(
+              children: [
+                if (widget.showNotes) ...[
+                  const FlowySvg(FlowySvgs.notes_s),
+                  const HSpace(4),
+                ],
+                Expanded(child: child),
+              ],
+            );
           },
         ),
       ),
@@ -137,7 +146,7 @@ class _TextCardCellState extends State<TextCardCell> {
   }
 
   Future<void> focusChanged() async {
-    _cellBloc.add(TextCardCellEvent.updateText(_controller.text));
+    _cellBloc.add(TextCellEvent.updateText(_controller.text));
   }
 
   @override
@@ -151,12 +160,12 @@ class _TextCardCellState extends State<TextCardCell> {
   double _fontSize() {
     if (widget.style != null) {
       return widget.style!.fontSize;
-    } else {
-      return 14;
     }
+
+    return 14;
   }
 
-  Widget _buildText(TextCardCellState state) {
+  Widget _buildText(TextCellState state) {
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: CardSizes.cardCellVPadding,

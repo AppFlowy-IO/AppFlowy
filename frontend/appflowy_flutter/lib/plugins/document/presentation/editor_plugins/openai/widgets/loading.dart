@@ -18,7 +18,7 @@ class Loading {
             children: [
               Center(
                 child: CircularProgressIndicator(),
-              )
+              ),
             ],
           );
         },

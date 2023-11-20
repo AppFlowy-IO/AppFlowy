@@ -93,7 +93,8 @@ class ShortcutsListView extends StatelessWidget {
               },
             ),
           ],
-        )
+        ),
+        const VSpace(10),
       ],
     );
   }
@@ -126,12 +127,12 @@ class ShortcutsListTile extends StatelessWidget {
               onPressed: () {
                 showKeyListenerDialog(context);
               },
-            )
+            ),
           ],
         ),
         Divider(
           color: Theme.of(context).dividerColor,
-        )
+        ),
       ],
     );
   }

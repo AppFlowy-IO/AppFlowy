@@ -42,7 +42,6 @@ void main() {
       await tester.hoverRowBanner();
 
       await tester.openEmojiPicker();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
 
       // After select the emoji, the EmojiButton will show up
@@ -60,12 +59,10 @@ void main() {
       await tester.openFirstRowDetailPage();
       await tester.hoverRowBanner();
       await tester.openEmojiPicker();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
 
       // Update existing selected emoji
       await tester.tapButton(find.byType(EmojiButton));
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😅');
 
       // The emoji already displayed in the row banner
@@ -89,7 +86,6 @@ void main() {
       await tester.openFirstRowDetailPage();
       await tester.hoverRowBanner();
       await tester.openEmojiPicker();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
 
       // Remove the emoji
@@ -135,7 +131,88 @@ void main() {
       }
     });
 
-    testWidgets('check document is exist in row detail page', (tester) async {
+    testWidgets('change order of fields and cells', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      // Assert that the first field in the row details page is the select
+      // option type
+      tester.assertFirstFieldInRowDetailByType(FieldType.SingleSelect);
+
+      // Reorder first field in list
+      final gesture = await tester.hoverOnFieldInRowDetail(index: 0);
+      await tester.pumpAndSettle();
+      await tester.reorderFieldInRowDetail(offset: 30);
+
+      // Orders changed, now the checkbox is first
+      tester.assertFirstFieldInRowDetailByType(FieldType.Checkbox);
+      await gesture.removePointer();
+      await tester.pumpAndSettle();
+
+      // Reorder second field in list
+      await tester.hoverOnFieldInRowDetail(index: 1);
+      await tester.pumpAndSettle();
+      await tester.reorderFieldInRowDetail(offset: -30);
+
+      // First field is now back to select option
+      tester.assertFirstFieldInRowDetailByType(FieldType.SingleSelect);
+    });
+
+    testWidgets('hide and show hidden fields', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      // Assert that the show hidden fields button isn't visible
+      tester.assertToggleShowHiddenFieldsVisibility(false);
+
+      // Hide the first field in the field list
+      await tester.tapGridFieldWithNameInRowDetailPage("Type");
+      await tester.tapHidePropertyButtonInFieldEditor();
+
+      // Assert that the field is now hidden
+      tester.noFieldWithName("Type");
+
+      // Assert that the show hidden fields button appears
+      tester.assertToggleShowHiddenFieldsVisibility(true);
+
+      // Click on the show hidden fields button
+      await tester.toggleShowHiddenFields();
+
+      // Assert that the hidden field is shown again and that the show
+      // hidden fields button is still present
+      tester.findFieldWithName("Type");
+      tester.assertToggleShowHiddenFieldsVisibility(true);
+
+      // Click hide hidden fields
+      await tester.toggleShowHiddenFields();
+
+      // Assert that the hidden field has vanished
+      tester.noFieldWithName("Type");
+
+      // Click show hidden fields
+      await tester.toggleShowHiddenFields();
+
+      // delete the hidden field
+      await tester.tapGridFieldWithNameInRowDetailPage("Type");
+      await tester.tapDeletePropertyInFieldEditor();
+
+      // Assert that the that the show hidden fields button is gone
+      tester.assertToggleShowHiddenFieldsVisibility(false);
+    });
+
+    testWidgets('check document exists in row detail page', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -149,7 +226,7 @@ void main() {
       await tester.assertDocumentExistInRowDetailPage();
     });
 
-    testWidgets('update the content of the document and re-open it',
+    testWidgets('update the contents of the document and re-open it',
         (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
@@ -164,7 +241,7 @@ void main() {
       await tester.wait(500);
 
       // Focus on the editor
-      final textBlock = find.byType(TextBlockComponentWidget);
+      final textBlock = find.byType(ParagraphBlockComponentWidget);
       await tester.tapAt(tester.getCenter(textBlock));
       await tester.pumpAndSettle();
 
@@ -239,6 +316,7 @@ void main() {
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
 
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDeleteRowButton();
       await tester.tapEscButton();
 
@@ -255,6 +333,7 @@ void main() {
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
 
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDuplicateRowButton();
       await tester.tapEscButton();
 

@@ -6,13 +6,6 @@ class KVKeys {
   /// The key for the path location of the local data for the whole app.
   static const String pathLocation = '$prefix.path_location';
 
-  /// The key for the last time login type.
-  ///
-  /// The value is one of the following:
-  /// - local
-  /// - supabase
-  static const String loginType = '$prefix.login_type';
-
   /// The key for saving the window size
   ///
   /// The value is a json string with the following format:
@@ -29,6 +22,8 @@ class KVKeys {
       'kDocumentAppearanceFontSize';
   static const String kDocumentAppearanceFontFamily =
       'kDocumentAppearanceFontFamily';
+  static const String kDocumentAppearanceDefaultTextDirection =
+      'kDocumentAppearanceDefaultTextDirection';
 
   /// The key for saving the expanded views
   ///
@@ -41,4 +36,10 @@ class KVKeys {
   /// The value is a json string with the following format:
   ///  {'SidebarFolderCategoryType.value': true}
   static const String expandedFolders = 'expandedFolders';
+
+  /// The key for saving if showing the rename dialog when creating a new file
+  ///
+  /// The value is a boolean string.
+  static const String showRenameDialogWhenCreatingNewFile =
+      'showRenameDialogWhenCreatingNewFile';
 }

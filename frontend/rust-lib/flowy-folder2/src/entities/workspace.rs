@@ -1,7 +1,7 @@
 use std::convert::TryInto;
 
 use collab::core::collab_state::SyncState;
-use collab_folder::core::Workspace;
+use collab_folder::Workspace;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
@@ -38,16 +38,16 @@ impl std::convert::From<(Workspace, Vec<ViewPB>)> for WorkspacePB {
   }
 }
 
-impl std::convert::From<Workspace> for WorkspacePB {
-  fn from(workspace: Workspace) -> Self {
-    WorkspacePB {
-      id: workspace.id,
-      name: workspace.name,
-      views: Default::default(),
-      create_time: workspace.created_at,
-    }
-  }
-}
+// impl std::convert::From<Workspace> for WorkspacePB {
+//   fn from(workspace: Workspace) -> Self {
+//     WorkspacePB {
+//       id: workspace.id,
+//       name: workspace.name,
+//       views: Default::default(),
+//       create_time: workspace.created_at,
+//     }
+//   }
+// }
 
 #[derive(PartialEq, Eq, Debug, Default, ProtoBuf)]
 pub struct RepeatedWorkspacePB {
@@ -55,14 +55,9 @@ pub struct RepeatedWorkspacePB {
   pub items: Vec<WorkspacePB>,
 }
 
-impl From<Vec<Workspace>> for RepeatedWorkspacePB {
-  fn from(workspaces: Vec<Workspace>) -> Self {
-    Self {
-      items: workspaces
-        .into_iter()
-        .map(|workspace| workspace.into())
-        .collect::<Vec<WorkspacePB>>(),
-    }
+impl From<Vec<WorkspacePB>> for RepeatedWorkspacePB {
+  fn from(workspaces: Vec<WorkspacePB>) -> Self {
+    Self { items: workspaces }
   }
 }
 
@@ -98,22 +93,14 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspacePayloadPB {
 // Read all workspaces if the workspace_id is None
 #[derive(Clone, ProtoBuf, Default, Debug)]
 pub struct WorkspaceIdPB {
-  #[pb(index = 1, one_of)]
-  pub value: Option<String>,
-}
-
-impl WorkspaceIdPB {
-  pub fn new(workspace_id: Option<String>) -> Self {
-    Self {
-      value: workspace_id,
-    }
-  }
+  #[pb(index = 1)]
+  pub value: String,
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct WorkspaceSettingPB {
   #[pb(index = 1)]
-  pub workspace: WorkspacePB,
+  pub workspace_id: String,
 
   #[pb(index = 2, one_of)]
   pub latest_view: Option<ViewPB>,

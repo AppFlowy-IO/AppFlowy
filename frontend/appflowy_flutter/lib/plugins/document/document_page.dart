@@ -10,6 +10,10 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/export_page_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/base64_string.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart'
     hide DocumentEvent;
@@ -17,11 +21,26 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
+
+enum EditorNotificationType {
+  undo,
+  redo,
+}
+
+class EditorNotification extends Notification {
+  const EditorNotification({
+    required this.type,
+  });
+
+  EditorNotification.undo() : type = EditorNotificationType.undo;
+  EditorNotification.redo() : type = EditorNotificationType.redo;
+
+  final EditorNotificationType type;
+}
 
 class DocumentPage extends StatefulWidget {
   const DocumentPage({
@@ -60,39 +79,48 @@ class _DocumentPageState extends State<DocumentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: documentBloc,
-      child: BlocBuilder<DocumentBloc, DocumentState>(
-        builder: (context, state) {
-          return state.loadingState.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator.adaptive()),
-            finish: (result) => result.fold(
-              (error) {
-                Log.error(error);
-                return FlowyErrorPage.message(
-                  error.toString(),
-                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-                );
-              },
-              (data) {
-                if (state.forceClose) {
-                  widget.onDeleted();
-                  return const SizedBox.shrink();
-                } else if (documentBloc.editorState == null) {
-                  return Center(
-                    child: ExportPageWidget(
-                      onTap: () async => await _exportPage(data),
-                    ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: getIt<NotificationActionBloc>()),
+        BlocProvider.value(value: documentBloc),
+      ],
+      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+        listener: _onNotificationAction,
+        child: BlocBuilder<DocumentBloc, DocumentState>(
+          builder: (context, state) {
+            return state.loadingState.when(
+              loading: () =>
+                  const Center(child: CircularProgressIndicator.adaptive()),
+              finish: (result) => result.fold(
+                (error) {
+                  Log.error(error);
+                  return FlowyErrorPage.message(
+                    error.toString(),
+                    howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
                   );
-                } else {
-                  editorState = documentBloc.editorState!;
-                  return _buildEditorPage(context, state);
-                }
-              },
-            ),
-          );
-        },
+                },
+                (data) {
+                  if (state.forceClose) {
+                    widget.onDeleted();
+                    return const SizedBox.shrink();
+                  } else if (documentBloc.editorState == null) {
+                    return Center(
+                      child: ExportPageWidget(
+                        onTap: () async => await _exportPage(data),
+                      ),
+                    );
+                  } else {
+                    editorState = documentBloc.editorState!;
+                    return _buildEditorPage(
+                      context,
+                      state,
+                    );
+                  }
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -103,16 +131,15 @@ class _DocumentPageState extends State<DocumentPage> {
       styleCustomizer: EditorStyleCustomizer(
         context: context,
         // the 44 is the width of the left action list
-        padding: const EdgeInsets.only(left: 40, right: 40 + 44),
+        padding: EditorStyleCustomizer.documentPadding,
       ),
       header: _buildCoverAndIcon(context),
     );
+
     return Column(
       children: [
         if (state.isDeleted) _buildBanner(context),
-        Expanded(
-          child: appflowyEditorPage,
-        ),
+        Expanded(child: appflowyEditorPage),
       ],
     );
   }
@@ -132,6 +159,13 @@ class _DocumentPageState extends State<DocumentPage> {
     return DocumentHeaderNodeWidget(
       node: page,
       editorState: editorState!,
+      view: widget.view,
+      onIconChanged: (icon) async {
+        await ViewBackendService.updateViewIcon(
+          viewId: widget.view.id,
+          viewIcon: icon,
+        );
+      },
     );
   }
 
@@ -145,18 +179,26 @@ class _DocumentPageState extends State<DocumentPage> {
     const encoder = JsonEncoder.withIndent('  ');
     final json = encoder.convert(data.toProto3Json());
     await File(path).writeAsString(json.base64.base64);
-
-    _showMessage('Export success to $path');
+    if (mounted) {
+      showSnackBarMessage(context, 'Export success to $path');
+    }
   }
 
-  void _showMessage(String message) {
-    if (!mounted) {
-      return;
+  Future<void> _onNotificationAction(
+    BuildContext context,
+    NotificationActionState state,
+  ) async {
+    if (state.action != null && state.action!.type == ActionType.jumpToBlock) {
+      final path = state.action?.arguments?[ActionArgumentKeys.nodePath.name];
+
+      if (editorState != null && widget.view.id == state.action?.objectId) {
+        editorState!.updateSelectionWithReason(
+          Selection.collapsed(
+            Position(path: [path]),
+          ),
+          reason: SelectionUpdateReason.transaction,
+        );
+      }
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: FlowyText(message),
-      ),
-    );
   }
 }

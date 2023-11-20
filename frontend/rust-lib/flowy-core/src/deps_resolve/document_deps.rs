@@ -1,8 +1,7 @@
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
-
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::RocksCollabDB;
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::DocumentCloudService;
@@ -37,6 +36,14 @@ impl DocumentUser for DocumentUserImpl {
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
+  }
+
+  fn workspace_id(&self) -> Result<String, FlowyError> {
+    self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
+      .workspace_id()
   }
 
   fn token(&self) -> Result<Option<String>, FlowyError> {

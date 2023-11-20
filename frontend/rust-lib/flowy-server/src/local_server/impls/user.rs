@@ -1,15 +1,17 @@
 use std::sync::Arc;
 
 use anyhow::Error;
-use collab_plugins::cloud_storage::CollabObject;
+use collab_entity::CollabObject;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
+use flowy_error::FlowyError;
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use lib_infra::util::timestamp;
 
 use crate::local_server::uid::UserIDGenerator;
 use crate::local_server::LocalServerDB;
@@ -24,7 +26,7 @@ pub(crate) struct LocalServerUserAuthServiceImpl {
 }
 
 impl UserCloudService for LocalServerUserAuthServiceImpl {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
       let uid = ID_GEN.lock().next_id();
@@ -35,7 +37,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
       } else {
         params.name.clone()
       };
-      Ok(SignUpResponse {
+      Ok(AuthResponse {
         user_id: uid,
         name: user_name,
         latest_workspace: user_workspace.clone(),
@@ -45,11 +47,13 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::NoEncryption,
+        updated_at: timestamp(),
+        metadata: None,
       })
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     let db = self.db.clone();
     FutureResult::new(async move {
       let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
@@ -58,21 +62,36 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
       let user_workspace = db
         .get_user_workspace(uid)?
         .unwrap_or_else(make_user_workspace);
-      Ok(SignInResponse {
+      Ok(AuthResponse {
         user_id: uid,
         name: params.name,
         latest_workspace: user_workspace.clone(),
         user_workspaces: vec![user_workspace],
+        is_new_user: false,
         email: Some(params.email),
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::NoEncryption,
+        updated_at: timestamp(),
+        metadata: None,
       })
     })
   }
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
+  }
+
+  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async {
+      Err(anyhow::anyhow!(
+        "Can't generate callback url when using offline mode"
+      ))
+    })
+  }
+
+  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async { Err(anyhow::anyhow!("Can't oauth url when using offline mode")) })
   }
 
   fn update_user(
@@ -83,35 +102,28 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn get_user_profile(
-    &self,
-    _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error> {
-    FutureResult::new(async { Ok(None) })
+  fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError> {
+    let result = match credential.uid {
+      None => Err(FlowyError::record_not_found()),
+      Some(uid) => {
+        self.db.get_user_profile(uid).map(|mut profile| {
+          // We don't want to expose the email in the local server
+          profile.email = "".to_string();
+          profile
+        })
+      },
+    };
+    FutureResult::new(async { result })
   }
 
-  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn open_workspace(&self, _workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("local server doesn't support open workspace"))
+    })
+  }
+
+  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     FutureResult::new(async { Ok(vec![]) })
-  }
-
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn add_workspace_member(
-    &self,
-    _user_email: String,
-    _workspace_id: String,
-  ) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn remove_workspace_member(
-    &self,
-    _user_email: String,
-    _workspace_id: String,
-  ) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
   }
 
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {

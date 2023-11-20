@@ -1,8 +1,6 @@
 import { DateFormatPopup } from '$app/components/_shared/EditRow/Date/DateFormatPopup';
 import { TimeFormatPopup } from '$app/components/_shared/EditRow/Date/TimeFormatPopup';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
-import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
-import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 import { MouseEventHandler, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IDateType } from '$app_reducers/database/slice';
@@ -27,14 +25,16 @@ export const DateTypeOptions = ({
   const [showTimeFormatPopup, setShowTimeFormatPopup] = useState(false);
   const [timeFormatTop, setTimeFormatTop] = useState(0);
   const [timeFormatLeft, setTimeFormatLeft] = useState(0);
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [dateType, setDateType] = useState<IDateType | undefined>();
 
   const databaseStore = useAppSelector((state) => state.database);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { includeTime } = useDateTimeFormat(cellIdentifier, fieldController);
 
   useEffect(() => {
     setDateType(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as IDateType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [databaseStore]);
 
   const onDateFormatClick = (_left: number, _top: number) => {
@@ -87,7 +87,7 @@ export const DateTypeOptions = ({
 
   return (
     <div className={'flex flex-col'}>
-      <hr className={'border-line-divider -mx-2 my-2'} />
+      <hr className={'-mx-2 my-2 border-line-divider'} />
       <button
         onClick={_onDateFormatClick}
         className={

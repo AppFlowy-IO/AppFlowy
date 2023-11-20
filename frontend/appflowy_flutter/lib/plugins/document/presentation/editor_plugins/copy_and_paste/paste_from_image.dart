@@ -15,9 +15,9 @@ extension PasteFromImage on EditorState {
     'gif',
   ];
 
-  Future<void> pasteImage(String format, Uint8List imageBytes) async {
+  Future<bool> pasteImage(String format, Uint8List imageBytes) async {
     if (!supportedImageFormats.contains(format)) {
-      return;
+      return false;
     }
 
     final path = await getIt<ApplicationDataStorage>().getPath();
@@ -37,8 +37,10 @@ extension PasteFromImage on EditorState {
       );
       await File(copyToPath).writeAsBytes(imageBytes);
       await insertImageNode(copyToPath);
+      return true;
     } catch (e) {
       Log.error('cannot copy image file', e);
     }
+    return false;
   }
 }

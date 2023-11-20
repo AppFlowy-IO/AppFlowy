@@ -60,13 +60,22 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
           ..afterSelection = Selection.collapsed(
             Position(path: selection.start.path, offset: 0),
           );
+      } else if (selection.startIndex == 0) {
+        // insert a paragraph block above the current toggle list block
+        transaction.insertNode(selection.start.path, paragraphNode());
+        transaction.afterSelection = Selection.collapsed(
+          Position(path: selection.start.path.next, offset: 0),
+        );
       } else {
         // insert a toggle list block below the current toggle list block
         transaction
           ..deleteText(node, selection.startIndex, slicedDelta.length)
-          ..insertNode(
+          ..insertNodes(
             selection.start.path.next,
-            toggleListBlockNode(collapsed: true, delta: slicedDelta),
+            [
+              toggleListBlockNode(collapsed: true, delta: slicedDelta),
+              paragraphNode(),
+            ],
           )
           ..afterSelection = Selection.collapsed(
             Position(path: selection.start.path.next, offset: 0),

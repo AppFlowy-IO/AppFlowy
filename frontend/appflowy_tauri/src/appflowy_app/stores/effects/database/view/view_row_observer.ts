@@ -47,6 +47,7 @@ export class DatabaseViewRowsObserver {
             } else {
               this.rowsVisibilityNotifier.notify(result);
             }
+
             break;
           case DatabaseNotification.DidUpdateViewRows:
             if (result.ok) {
@@ -54,6 +55,7 @@ export class DatabaseViewRowsObserver {
             } else {
               this.rowsNotifier.notify(result);
             }
+
             break;
           case DatabaseNotification.DidReorderRows:
             if (result.ok) {
@@ -61,6 +63,7 @@ export class DatabaseViewRowsObserver {
             } else {
               this.reorderRowsNotifier.notify(result);
             }
+
             break;
           case DatabaseNotification.DidReorderSingleRow:
             if (result.ok) {
@@ -68,6 +71,7 @@ export class DatabaseViewRowsObserver {
             } else {
               this.reorderSingleRowNotifier.notify(result);
             }
+
             break;
           default:
             break;

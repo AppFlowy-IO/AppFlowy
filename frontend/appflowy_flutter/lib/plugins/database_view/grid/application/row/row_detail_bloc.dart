@@ -1,70 +1,85 @@
+import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
-import '../../../application/cell/cell_service.dart';
-import '../../../application/field/field_service.dart';
-import '../../../application/row/row_controller.dart';
+
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
-  final RowBackendService rowService;
   final RowController rowController;
 
   RowDetailBloc({
     required this.rowController,
-  })  : rowService = RowBackendService(viewId: rowController.viewId),
-        super(RowDetailState.initial()) {
+  }) : super(RowDetailState.initial(rowController.loadData())) {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
             await _startListening();
-            final cells = rowController.loadData();
-            if (!isClosed) {
-              add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
-            }
           },
-          didReceiveCellDatas: (cells) {
-            emit(state.copyWith(cells: cells));
+          didReceiveCellDatas: (visibleCells, allCells, numHiddenFields) {
+            emit(
+              state.copyWith(
+                visibleCells: visibleCells,
+                allCells: allCells,
+                numHiddenFields: numHiddenFields,
+              ),
+            );
           },
           deleteField: (fieldId) {
-            _fieldBackendService(fieldId).deleteField();
+            final fieldService = FieldBackendService(
+              viewId: rowController.viewId,
+              fieldId: fieldId,
+            );
+            fieldService.deleteField();
           },
-          showField: (fieldId) async {
+          toggleFieldVisibility: (fieldId) async {
+            final fieldInfo = state.allCells
+                .where((cellContext) => cellContext.fieldId == fieldId)
+                .first
+                .fieldInfo;
+            final fieldVisibility =
+                fieldInfo.visibility == FieldVisibility.AlwaysShown
+                    ? FieldVisibility.AlwaysHidden
+                    : FieldVisibility.AlwaysShown;
             final result =
                 await FieldSettingsBackendService(viewId: rowController.viewId)
                     .updateFieldSettings(
               fieldId: fieldId,
-              fieldVisibility: FieldVisibility.AlwaysShown,
+              fieldVisibility: fieldVisibility,
             );
             result.fold(
               (l) {},
               (err) => Log.error(err),
             );
           },
-          hideField: (fieldId) async {
-            final result =
-                await FieldSettingsBackendService(viewId: rowController.viewId)
-                    .updateFieldSettings(
-              fieldId: fieldId,
-              fieldVisibility: FieldVisibility.AlwaysHidden,
-            );
-            result.fold(
-              (l) {},
-              (err) => Log.error(err),
+          reorderField:
+              (reorderedFieldId, targetFieldId, fromIndex, toIndex) async {
+            await _reorderField(
+              reorderedFieldId,
+              targetFieldId,
+              fromIndex,
+              toIndex,
+              emit,
             );
           },
-          deleteRow: (rowId) async {
-            await rowService.deleteRow(rowId);
-          },
-          duplicateRow: (String rowId, String? groupId) async {
-            await rowService.duplicateRow(
-              rowId: rowId,
-              groupId: groupId,
+          toggleHiddenFieldVisibility: () {
+            final showHiddenFields = !state.showHiddenFields;
+            final visibleCells = List<DatabaseCellContext>.from(state.allCells);
+            visibleCells.retainWhere(
+              (cellContext) =>
+                  !cellContext.fieldInfo.isPrimary &&
+                  cellContext.isVisible(showHiddenFields: showHiddenFields),
+            );
+            emit(
+              state.copyWith(
+                showHiddenFields: showHiddenFields,
+                visibleCells: visibleCells,
+              ),
             );
           },
         );
@@ -80,19 +95,62 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   Future<void> _startListening() async {
     rowController.addListener(
-      onRowChanged: (cells, reason) {
-        if (!isClosed) {
-          add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
+      onRowChanged: (cellMap, reason) {
+        if (isClosed) {
+          return;
         }
+        final allCells = cellMap.values.toList();
+        int numHiddenFields = 0;
+        final visibleCells = <DatabaseCellContext>[];
+        for (final cell in allCells) {
+          final isPrimary = cell.fieldInfo.isPrimary;
+
+          if (cell.isVisible(showHiddenFields: state.showHiddenFields) &&
+              !isPrimary) {
+            visibleCells.add(cell);
+          }
+
+          if (!cell.isVisible() && !isPrimary) {
+            numHiddenFields++;
+          }
+        }
+
+        add(
+          RowDetailEvent.didReceiveCellDatas(
+            visibleCells,
+            allCells,
+            numHiddenFields,
+          ),
+        );
       },
     );
   }
 
-  FieldBackendService _fieldBackendService(String fieldId) {
-    return FieldBackendService(
+  Future<void> _reorderField(
+    String reorderedFieldId,
+    String targetFieldId,
+    int fromIndex,
+    int toIndex,
+    Emitter<RowDetailState> emit,
+  ) async {
+    final cells = List<DatabaseCellContext>.from(state.visibleCells);
+    cells.insert(toIndex, cells.removeAt(fromIndex));
+    emit(state.copyWith(visibleCells: cells));
+
+    final fromIndexInAllFields =
+        state.allCells.indexWhere((cell) => cell.fieldId == reorderedFieldId);
+    final toIndexInAllFields =
+        state.allCells.indexWhere((cell) => cell.fieldId == targetFieldId);
+
+    final fieldService = FieldBackendService(
       viewId: rowController.viewId,
-      fieldId: fieldId,
+      fieldId: reorderedFieldId,
     );
+    final result = await fieldService.moveField(
+      fromIndexInAllFields,
+      toIndexInAllFields,
+    );
+    result.fold((l) {}, (err) => Log.error(err));
   }
 }
 
@@ -100,23 +158,54 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
-  const factory RowDetailEvent.showField(String fieldId) = _ShowField;
-  const factory RowDetailEvent.hideField(String fieldId) = _HideField;
-  const factory RowDetailEvent.deleteRow(String rowId) = _DeleteRow;
-  const factory RowDetailEvent.duplicateRow(String rowId, String? groupId) =
-      _DuplicateRow;
+  const factory RowDetailEvent.toggleFieldVisibility(String fieldId) =
+      _ToggleFieldVisibility;
+  const factory RowDetailEvent.reorderField(
+    String reorderFieldID,
+    String targetFieldID,
+    int fromIndex,
+    int toIndex,
+  ) = _ReorderField;
+  const factory RowDetailEvent.toggleHiddenFieldVisibility() =
+      _ToggleHiddenFieldVisibility;
   const factory RowDetailEvent.didReceiveCellDatas(
-    List<DatabaseCellContext> gridCells,
+    List<DatabaseCellContext> visibleCells,
+    List<DatabaseCellContext> allCells,
+    int numHiddenFields,
   ) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required List<DatabaseCellContext> cells,
+    required List<DatabaseCellContext> visibleCells,
+    required List<DatabaseCellContext> allCells,
+    required bool showHiddenFields,
+    required int numHiddenFields,
   }) = _RowDetailState;
 
-  factory RowDetailState.initial() => RowDetailState(
-        cells: List.empty(),
-      );
+  factory RowDetailState.initial(CellContextByFieldId cellByFieldId) {
+    final allCells = cellByFieldId.values.toList();
+    int numHiddenFields = 0;
+    final visibleCells = <DatabaseCellContext>[];
+    for (final cell in allCells) {
+      final isVisible = cell.isVisible();
+      final isPrimary = cell.fieldInfo.isPrimary;
+
+      if (isVisible && !isPrimary) {
+        visibleCells.add(cell);
+      }
+
+      if (!isVisible && !isPrimary) {
+        numHiddenFields++;
+      }
+    }
+
+    return RowDetailState(
+      visibleCells: visibleCells,
+      allCells: allCells,
+      showHiddenFields: false,
+      numHiddenFields: numHiddenFields,
+    );
+  }
 }
