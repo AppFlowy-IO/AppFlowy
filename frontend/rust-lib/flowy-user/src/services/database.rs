@@ -25,7 +25,7 @@ use crate::services::user_workspace_sql::UserWorkspaceTable;
 pub trait UserDBPath: Send + Sync + 'static {
   fn user_db_path(&self, uid: i64) -> PathBuf;
   fn collab_db_path(&self, uid: i64) -> PathBuf;
-  fn collab_db_history(&self, uid: i64) -> std::io::Result<PathBuf>;
+  fn collab_db_history(&self, uid: i64, create_if_not_exist: bool) -> std::io::Result<PathBuf>;
 }
 
 pub struct UserDB {
@@ -50,30 +50,11 @@ impl UserDB {
   ///         attempts to restore the database from the latest backup.
   ///   - If the CollabDB does not exist, it immediately attempts to restore from the latest backup.
   ///
-  pub fn backup_if_need(&self, uid: i64, workspace_id: &str) {
+  pub fn backup_or_restore(&self, uid: i64, workspace_id: &str) {
     let collab_db_path = self.paths.collab_db_path(uid);
-    if let Ok(history_folder) = self.paths.collab_db_history(uid) {
+    if let Ok(history_folder) = self.paths.collab_db_history(uid, true) {
       if collab_db_path.exists() {
-        // Attempt to open the collaboration database using the workspace_id. The workspace_id must already
-        // exist in the collab database. If it does not, it may be indicative of corruption in the collab database
-        // due to other factors.
-
-        let is_ok = {
-          let result = RocksCollabDB::open(&collab_db_path).map(|db| {
-            let read_txn = db.read_txn();
-            read_txn.is_exist(uid, workspace_id)
-          });
-          match result {
-            Ok(is_ok) => is_ok,
-            Err(err) => match err {
-              PersistenceError::RocksdbCorruption(_) | PersistenceError::RocksdbRepairFail(_) => {
-                false
-              },
-              _ => true,
-            },
-          }
-        };
-
+        let is_ok = validate_collab_db(&collab_db_path, uid, workspace_id);
         let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
         if is_ok {
           // If the database opens successfully, it attempts to back it up in the background.
@@ -90,6 +71,19 @@ impl UserDB {
         }
       } else {
         let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
+        if let Err(err) = zip_backup.restore_latest_backup() {
+          error!("restore collab db failed, {:?}", err);
+        }
+      }
+    }
+  }
+
+  pub fn restore_if_need(&self, uid: i64, workspace_id: &str) {
+    if let Ok(history_folder) = self.paths.collab_db_history(uid, false) {
+      let collab_db_path = self.paths.collab_db_path(uid);
+      let is_ok = validate_collab_db(&collab_db_path, uid, workspace_id);
+      let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
+      if !is_ok {
         if let Err(err) = zip_backup.restore_latest_backup() {
           error!("restore collab db failed, {:?}", err);
         }
@@ -132,7 +126,7 @@ impl UserDB {
     let collab_db = open_collab_db(
       self.paths.user_db_path(user_id),
       self.paths.collab_db_path(user_id),
-      self.paths.collab_db_history(user_id).ok(),
+      self.paths.collab_db_history(user_id, false).ok(),
       user_id,
     )?;
     Ok(collab_db)
@@ -333,4 +327,25 @@ fn today_zip_timestamp() -> String {
 
 fn zip_time_format() -> &'static str {
   "%Y%m%d"
+}
+
+pub(crate) fn validate_collab_db(
+  collab_db_path: impl AsRef<Path>,
+  uid: i64,
+  workspace_id: &str,
+) -> bool {
+  // Attempt to open the collaboration database using the workspace_id. The workspace_id must already
+  // exist in the collab database. If it does not, it may be indicative of corruption in the collab database
+  // due to other factors.
+  let result = RocksCollabDB::open(&collab_db_path).map(|db| {
+    let read_txn = db.read_txn();
+    read_txn.is_exist(uid, workspace_id)
+  });
+  match result {
+    Ok(is_ok) => is_ok,
+    Err(err) => match err {
+      PersistenceError::RocksdbCorruption(_) | PersistenceError::RocksdbRepairFail(_) => false,
+      _ => true,
+    },
+  }
 }

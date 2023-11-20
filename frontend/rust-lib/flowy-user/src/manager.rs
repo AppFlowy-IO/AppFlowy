@@ -498,7 +498,11 @@ impl UserManager {
     if self.user_config.is_custom_storage_path() {
       self
         .database
-        .backup_if_need(session.user_id, &session.user_workspace.id);
+        .backup_or_restore(session.user_id, &session.user_workspace.id);
+    } else {
+      self
+        .database
+        .restore_if_need(session.user_id, &session.user_workspace.id);
     }
   }
 
@@ -871,9 +875,9 @@ impl UserDBPath for UserPaths {
     path
   }
 
-  fn collab_db_history(&self, uid: i64) -> std::io::Result<PathBuf> {
+  fn collab_db_history(&self, uid: i64, create_if_not_exist: bool) -> std::io::Result<PathBuf> {
     let path = PathBuf::from(self.user_dir(uid)).join("collab_db_history");
-    if !path.exists() {
+    if !path.exists() && create_if_not_exist {
       fs::create_dir_all(&path)?;
     }
     Ok(path)
