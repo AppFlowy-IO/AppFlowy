@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 flowy-error  = { workspace = true }
 serde.workspace = true
+serde_repr.workspace = true
