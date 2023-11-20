@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 use std::{fs, io};
 
+use tempfile::tempdir;
 use walkdir::WalkDir;
 use zip::write::FileOptions;
 use zip::ZipArchive;
@@ -110,22 +111,18 @@ pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()
 }
 
 pub fn unzip_and_replace(zip_path: impl AsRef<Path>, target_folder: &Path) -> io::Result<()> {
-  if !target_folder.exists() {
-    fs::create_dir_all(target_folder)?;
-  }
-
   // Create a temporary directory for unzipping
-  let temp_dir = tempfile::tempdir()?;
+  let temp_dir = tempdir()?;
 
   // Unzip the file
-  let file = fs::File::open(zip_path)?;
+  let file = File::open(zip_path.as_ref())?;
   let mut archive = ZipArchive::new(file)?;
 
   for i in 0..archive.len() {
     let mut file = archive.by_index(i)?;
     let outpath = temp_dir.path().join(file.mangled_name());
 
-    if (*file.name()).ends_with('/') {
+    if file.name().ends_with('/') {
       fs::create_dir_all(&outpath)?;
     } else {
       if let Some(p) = outpath.parent() {
@@ -133,18 +130,21 @@ pub fn unzip_and_replace(zip_path: impl AsRef<Path>, target_folder: &Path) -> io
           fs::create_dir_all(p)?;
         }
       }
-      let mut outfile = fs::File::create(&outpath)?;
+      let mut outfile = File::create(&outpath)?;
       io::copy(&mut file, &mut outfile)?;
     }
   }
 
-  // Delete the old collab_db folder
+  // Replace the contents of the target folder
   if target_folder.exists() {
     fs::remove_dir_all(target_folder)?;
   }
 
-  // Move the unzipped data to the target_folder location
-  fs::rename(temp_dir.path(), target_folder)?;
+  fs::create_dir_all(target_folder)?;
+  for entry in fs::read_dir(temp_dir.path())? {
+    let entry = entry?;
+    fs::rename(entry.path(), target_folder.join(entry.file_name()))?;
+  }
 
   Ok(())
 }
