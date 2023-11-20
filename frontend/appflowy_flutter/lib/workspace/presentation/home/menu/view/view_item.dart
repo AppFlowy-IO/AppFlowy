@@ -301,7 +301,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.secondary,
       ),
-      resetHoverOnRebuild: widget.showActions,
+      resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
       buildWhenOnHover: () =>
           !widget.showActions && !_isDragging && !isIconPickerOpened,
       builder: (_, onHover) => _buildViewItem(onHover),
