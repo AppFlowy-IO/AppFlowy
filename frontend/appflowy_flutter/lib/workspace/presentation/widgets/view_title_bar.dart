@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -170,6 +169,12 @@ class _ViewTitleState extends State<_ViewTitle> {
   }
 
   @override
+  void didUpdateWidget(covariant _ViewTitle oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     textEditingController.dispose();
     popoverController.close();
@@ -190,26 +195,23 @@ class _ViewTitleState extends State<_ViewTitle> {
       );
     }
 
-    final child = FlowyTooltip(
-      message: name,
-      child: Row(
-        children: [
-          FlowyText.regular(
-            icon,
-            fontSize: 18.0,
+    final child = Row(
+      children: [
+        FlowyText.regular(
+          icon,
+          fontSize: 18.0,
+        ),
+        const HSpace(2.0),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: widget.maxTitleWidth,
           ),
-          const HSpace(2.0),
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: widget.maxTitleWidth,
-            ),
-            child: FlowyText.regular(
-              name,
-              overflow: TextOverflow.ellipsis,
-            ),
+          child: FlowyText.regular(
+            name,
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+        ),
+      ],
     );
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {
@@ -232,6 +234,7 @@ class _ViewTitleState extends State<_ViewTitle> {
       offset: const Offset(0, 18),
       popupBuilder: (context) {
         // icon + textfield
+        _resetTextEditingController();
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -261,8 +264,8 @@ class _ViewTitleState extends State<_ViewTitle> {
                       viewId: widget.view.id,
                       name: text,
                     );
-                    popoverController.close();
                   }
+                  popoverController.close();
                 },
               ),
             ),
