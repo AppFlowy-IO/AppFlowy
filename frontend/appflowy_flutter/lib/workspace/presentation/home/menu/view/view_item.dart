@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -356,8 +357,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewIconButton() {
     final icon = widget.view.icon.value.isNotEmpty
-        ? FlowyText(
-            widget.view.icon.value,
+        ? EmojiText(
+            emoji: widget.view.icon.value,
             fontSize: 18.0,
           )
         : SizedBox.square(

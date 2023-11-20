@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -169,12 +170,6 @@ class _ViewTitleState extends State<_ViewTitle> {
   }
 
   @override
-  void didUpdateWidget(covariant _ViewTitle oldWidget) {
-    // TODO: implement didUpdateWidget
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   void dispose() {
     textEditingController.dispose();
     popoverController.close();
@@ -197,8 +192,8 @@ class _ViewTitleState extends State<_ViewTitle> {
 
     final child = Row(
       children: [
-        FlowyText.regular(
-          icon,
+        EmojiText(
+          emoji: icon,
           fontSize: 18.0,
         ),
         const HSpace(2.0),

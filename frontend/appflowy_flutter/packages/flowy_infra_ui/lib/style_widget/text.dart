@@ -75,6 +75,22 @@ class FlowyText extends StatelessWidget {
   })  : fontWeight = FontWeight.w600,
         super(key: key);
 
+  // Some emojis are not supported on Linux and Android, fallback to noto color emoji
+  const FlowyText.emoji(
+    this.text, {
+    this.fontSize,
+    this.overflow,
+    this.color,
+    this.textAlign,
+    this.maxLines = 1,
+    this.decoration,
+    this.selectable = false,
+    Key? key,
+  })  : fontWeight = FontWeight.w400,
+        fontFamily = 'noto color emoji',
+        fallbackFontFamily = null,
+        super(key: key);
+
   @override
   Widget build(BuildContext context) {
     if (selectable) {
