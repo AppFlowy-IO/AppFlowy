@@ -13,6 +13,7 @@ class FlowyText extends StatelessWidget {
   final TextDecoration? decoration;
   final bool selectable;
   final String? fontFamily;
+  final List<String>? fallbackFontFamily;
 
   const FlowyText(
     this.text, {
@@ -25,6 +26,7 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    this.fallbackFontFamily,
     Key? key,
   }) : super(key: key);
 
@@ -38,6 +40,7 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    this.fallbackFontFamily,
     Key? key,
   })  : fontWeight = FontWeight.w400,
         super(key: key);
@@ -52,6 +55,7 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    this.fallbackFontFamily,
     Key? key,
   })  : fontWeight = FontWeight.w500,
         super(key: key);
@@ -66,6 +70,7 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    this.fallbackFontFamily,
     Key? key,
   })  : fontWeight = FontWeight.w600,
         super(key: key);
@@ -83,6 +88,7 @@ class FlowyText extends StatelessWidget {
               color: color,
               decoration: decoration,
               fontFamily: fontFamily,
+              fontFamilyFallback: fallbackFontFamily,
             ),
       );
     } else {
@@ -103,6 +109,7 @@ class FlowyText extends StatelessWidget {
               color: color,
               decoration: decoration,
               fontFamily: fontFamily,
+              fontFamilyFallback: fallbackFontFamily,
             ),
       );
     }

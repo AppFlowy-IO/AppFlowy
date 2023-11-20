@@ -266,23 +266,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     _setInitialSelection(editorScrollController);
 
     if (PlatformExtension.isMobile) {
+      final theme = Theme.of(context);
       return MobileToolbarV2(
         toolbarHeight: 48.0,
+        backgroundColor: theme.colorScheme.background,
+        foregroundColor: theme.colorScheme.onSurface,
+        iconColor: theme.iconTheme.color ?? theme.colorScheme.onSurface,
+        tabBarSelectedBackgroundColor: theme.colorScheme.background,
+        tabBarSelectedForegroundColor: theme.colorScheme.onSurface,
         editorState: editorState,
-        toolbarItems: [
-          customTextDecorationMobileToolbarItem,
-          buildTextAndBackgroundColorMobileToolbarItem(),
-          mobileAddBlockToolbarItem,
-          mobileConvertBlockToolbarItem,
-          linkMobileToolbarItem,
-          imageMobileToolbarItem,
-          mobileAlignToolbarItem,
-          mobileIndentToolbarItem,
-          mobileOutdentToolbarItem,
-          undoMobileToolbarItem,
-          redoMobileToolbarItem,
-          mobileBlockSettingsToolbarItem,
-        ],
+        toolbarItems: getMobileToolbarItems(),
         child: Column(
           children: [
             Expanded(
