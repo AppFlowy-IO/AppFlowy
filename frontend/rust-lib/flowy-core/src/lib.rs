@@ -15,13 +15,14 @@ use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user::manager::{UserManager, UserSessionConfig};
+use flowy_user::manager::{UserConfig, UserManager};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
 pub use module::*;
 
 use crate::config::AppFlowyCoreConfig;
+use crate::deps_resolve::collab_backup::RocksdbBackupImpl;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::init_log;
@@ -108,7 +109,10 @@ impl AppFlowyCore {
     ) = async {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
-      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(server_provider.clone()));
+      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
+        server_provider.clone(),
+        config.device_id.clone(),
+      ));
       let user_manager = init_user_manager(
         &config,
         &store_preference,
@@ -118,6 +122,8 @@ impl AppFlowyCore {
 
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_manager))));
+
+      collab_builder.set_rocksdb_backup(Arc::new(RocksdbBackupImpl(Arc::downgrade(&user_manager))));
 
       let database_manager = DatabaseDepsResolver::resolve(
         Arc::downgrade(&user_manager),
@@ -169,9 +175,9 @@ impl AppFlowyCore {
       document_manager: Arc::downgrade(&document_manager),
     };
 
-    let cloned_user_session = Arc::downgrade(&user_manager);
-    if let Some(user_session) = cloned_user_session.upgrade() {
-      if let Err(err) = user_session
+    let cloned_user_manager = Arc::downgrade(&user_manager);
+    if let Some(user_manager) = cloned_user_manager.upgrade() {
+      if let Err(err) = user_manager
         .init(user_status_callback, collab_interact_impl)
         .await
       {
@@ -212,7 +218,12 @@ fn init_user_manager(
   user_cloud_service_provider: Arc<dyn UserCloudServiceProvider>,
   collab_builder: Weak<AppFlowyCollabBuilder>,
 ) -> Arc<UserManager> {
-  let user_config = UserSessionConfig::new(&config.name, &config.storage_path);
+  let user_config = UserConfig::new(
+    &config.name,
+    &config.storage_path,
+    &config.application_path,
+    &config.device_id,
+  );
   UserManager::new(
     user_config,
     user_cloud_service_provider,
