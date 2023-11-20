@@ -3486,6 +3486,7 @@ dependencies = [
  "pin-project",
  "rand 0.8.5",
  "tokio",
+ "walkdir",
 ]
 
 [[package]]

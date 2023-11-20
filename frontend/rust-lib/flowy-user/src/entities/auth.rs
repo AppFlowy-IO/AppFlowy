@@ -37,7 +37,6 @@ impl TryInto<SignInParams> for SignInPayloadPB {
       password: password.0,
       name: self.name,
       auth_type: self.auth_type.into(),
-      device_id: self.device_id,
     })
   }
 }

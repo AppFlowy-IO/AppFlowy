@@ -482,7 +482,7 @@ pub async fn open_historical_users_handler(
   let manager = upgrade_manager(manager)?;
   let auth_type = Authenticator::from(user.auth_type);
   manager
-    .open_historical_user(user.user_id, user.device_id, auth_type)
+    .open_historical_user(user.user_id, auth_type)
     .await?;
   Ok(())
 }
@@ -541,8 +541,8 @@ pub async fn reset_workspace_handler(
       "The workspace id is empty",
     ));
   }
-  let session = manager.get_session()?;
-  manager.reset_workspace(reset_pb, session.device_id).await?;
+  let _session = manager.get_session()?;
+  manager.reset_workspace(reset_pb).await?;
   Ok(())
 }
 

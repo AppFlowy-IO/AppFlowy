@@ -1,3 +1,14 @@
+use std::{
+  cmp::{min, Ordering},
+  fmt,
+  iter::FromIterator,
+  str,
+  str::FromStr,
+};
+
+use bytes::Bytes;
+use serde::de::DeserializeOwned;
+
 use crate::core::delta::operation::{
   DeltaOperation, EmptyAttributes, OperationAttributes, OperationTransform,
 };
@@ -6,15 +17,6 @@ use crate::core::interval::Interval;
 use crate::core::ot_str::OTString;
 use crate::core::DeltaOperationBuilder;
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
-use bytes::Bytes;
-use serde::de::DeserializeOwned;
-use std::{
-  cmp::{min, Ordering},
-  fmt,
-  iter::FromIterator,
-  str,
-  str::FromStr,
-};
 
 pub type DeltaBuilder = DeltaOperationBuilder<EmptyAttributes>;
 
@@ -564,7 +566,7 @@ fn invert_other<T: OperationAttributes>(
       base.retain(other_op.len(), inverted_attrs);
     },
     DeltaOperation::Insert(_) => {
-      log::error!("Impossible to here. Insert operation should be treated as delete")
+      tracing::error!("Impossible to here. Insert operation should be treated as delete")
     },
   });
 }

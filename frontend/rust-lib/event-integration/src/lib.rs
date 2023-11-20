@@ -34,15 +34,18 @@ impl EventIntegrationTest {
     std::fs::create_dir_all(&temp_dir).unwrap();
     Self::new_with_user_data_path(temp_dir, nanoid!(6)).await
   }
-  pub async fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
-    let config = AppFlowyCoreConfig::new(path.to_str().unwrap(), name).log_filter(
-      "trace",
-      vec![
-        "flowy_test".to_string(),
-        "tokio".to_string(),
-        "lib_dispatch".to_string(),
-      ],
-    );
+  pub async fn new_with_user_data_path(path_buf: PathBuf, name: String) -> Self {
+    let path = path_buf.to_str().unwrap().to_string();
+    let config =
+      AppFlowyCoreConfig::new(path.clone(), path, name, uuid::Uuid::new_v4().to_string())
+        .log_filter(
+          "trace",
+          vec![
+            "flowy_test".to_string(),
+            "tokio".to_string(),
+            "lib_dispatch".to_string(),
+          ],
+        );
 
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
@@ -53,7 +56,7 @@ impl EventIntegrationTest {
       inner,
       auth_type,
       notification_sender,
-      cleaner: Arc::new(Cleaner(path)),
+      cleaner: Arc::new(Cleaner(path_buf)),
     }
   }
 }
