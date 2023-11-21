@@ -147,7 +147,7 @@ pub struct CloudSettingPB {
   pub encrypt_secret: String,
 
   #[pb(index = 4)]
-  pub server_url: String,
+  pub appflowy_cloud_config: AppFlowyCloudSettingPB,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -243,4 +243,16 @@ impl std::default::Default for NotificationSettingsPB {
       notifications_enabled: true,
     }
   }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct AppFlowyCloudSettingPB {
+  #[pb(index = 1)]
+  pub base_url: bool,
+
+  #[pb(index = 2)]
+  pub ws_addr: bool,
+
+  #[pb(index = 3)]
+  pub gotrue_url: String,
 }

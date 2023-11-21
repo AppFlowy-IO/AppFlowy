@@ -8,18 +8,18 @@ import 'package:dartz/dartz.dart';
 
 import 'cloud_setting_listener.dart';
 
-part 'setting_supabase_bloc.freezed.dart';
+part 'cloud_setting_bloc.freezed.dart';
 
-class SupabaseCloudSettingBloc
-    extends Bloc<SupabaseCloudSettingEvent, SupabaseCloudSettingState> {
+class AppFlowyCloudSettingBloc
+    extends Bloc<AppFlowyCloudSettingEvent, AppFlowyCloudSettingState> {
   final UserCloudConfigListener _listener;
 
-  SupabaseCloudSettingBloc({
+  AppFlowyCloudSettingBloc({
     required String userId,
-    required CloudSettingPB config,
+    required AppFlowyCloudSettingPB config,
   })  : _listener = UserCloudConfigListener(userId: userId),
-        super(SupabaseCloudSettingState.initial(config)) {
-    on<SupabaseCloudSettingEvent>((event, emit) async {
+        super(AppFlowyCloudSettingState.initial(config)) {
+    on<AppFlowyCloudSettingEvent>((event, emit) async {
       await event.when(
         initial: () async {
           _listener.start(
@@ -30,15 +30,11 @@ class SupabaseCloudSettingBloc
 
               result.fold(
                 (config) =>
-                    add(SupabaseCloudSettingEvent.didReceiveConfig(config)),
+                    add(AppFlowyCloudSettingEvent.didReceiveConfig(config)),
                 (error) => Log.error(error),
               );
             },
           );
-        },
-        enableSync: (bool enable) async {
-          final update = UpdateCloudConfigPB.create()..enableSync = enable;
-          updateCloudConfig(update);
         },
         didReceiveConfig: (CloudSettingPB config) {
           emit(
@@ -47,11 +43,6 @@ class SupabaseCloudSettingBloc
               loadingState: LoadingState.finish(left(unit)),
             ),
           );
-        },
-        enableEncrypt: (bool enable) {
-          final update = UpdateCloudConfigPB.create()..enableEncrypt = enable;
-          updateCloudConfig(update);
-          emit(state.copyWith(loadingState: const LoadingState.loading()));
         },
       );
     });
@@ -63,26 +54,23 @@ class SupabaseCloudSettingBloc
 }
 
 @freezed
-class SupabaseCloudSettingEvent with _$SupabaseCloudSettingEvent {
-  const factory SupabaseCloudSettingEvent.initial() = _Initial;
-  const factory SupabaseCloudSettingEvent.didReceiveConfig(
+class AppFlowyCloudSettingEvent with _$AppFlowyCloudSettingEvent {
+  const factory AppFlowyCloudSettingEvent.initial() = _Initial;
+  const factory AppFlowyCloudSettingEvent.didReceiveConfig(
     CloudSettingPB config,
   ) = _DidSyncSupabaseConfig;
-  const factory SupabaseCloudSettingEvent.enableSync(bool enable) = _EnableSync;
-  const factory SupabaseCloudSettingEvent.enableEncrypt(bool enable) =
-      _EnableEncrypt;
 }
 
 @freezed
-class SupabaseCloudSettingState with _$SupabaseCloudSettingState {
-  const factory SupabaseCloudSettingState({
-    required CloudSettingPB config,
+class AppFlowyCloudSettingState with _$AppFlowyCloudSettingState {
+  const factory AppFlowyCloudSettingState({
+    required AppFlowyCloudSettingPB config,
     required Either<Unit, String> successOrFailure,
     required LoadingState loadingState,
-  }) = _SupabaseCloudSettingState;
+  }) = _AppFlowyCloudSettingState;
 
-  factory SupabaseCloudSettingState.initial(CloudSettingPB config) =>
-      SupabaseCloudSettingState(
+  factory AppFlowyCloudSettingState.initial(AppFlowyCloudSettingPB config) =>
+      AppFlowyCloudSettingState(
         config: config,
         successOrFailure: left(unit),
         loadingState: LoadingState.finish(left(unit)),

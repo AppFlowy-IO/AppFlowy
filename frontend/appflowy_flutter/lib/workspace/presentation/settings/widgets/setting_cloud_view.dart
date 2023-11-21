@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/setting_supabase_bloc.dart';
@@ -15,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'setting_cloud_url.dart';
+
 class SettingCloudView extends StatelessWidget {
   final String userId;
   const SettingCloudView({required this.userId, super.key});
@@ -29,11 +33,12 @@ class SettingCloudView extends StatelessWidget {
           return snapshot.data!.fold(
             (config) {
               return BlocProvider(
-                create: (context) => CloudSettingBloc(
+                create: (context) => SupabaseCloudSettingBloc(
                   userId: userId,
                   config: config,
-                )..add(const CloudSettingEvent.initial()),
-                child: BlocBuilder<CloudSettingBloc, CloudSettingState>(
+                )..add(const SupabaseCloudSettingEvent.initial()),
+                child: BlocBuilder<SupabaseCloudSettingBloc,
+                    SupabaseCloudSettingState>(
                   builder: (context, state) {
                     return Column(
                       children: [
@@ -71,22 +76,23 @@ class AppFlowyCloudInformationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              // Wrap the Opacity widget with Expanded
-              child: Opacity(
-                opacity: 0.6,
-                child: FlowyText(
-                  "${LocaleKeys.settings_menu_cloudURL.tr()}: $url",
-                  maxLines: null, // Allow the text to wrap
-                ),
-              ),
-            ),
-          ],
-        ),
+        CloudURLConfiguration(),
+        // Row(
+        //   children: [
+        //     Expanded(
+        //       // Wrap the Opacity widget with Expanded
+        //       child: Opacity(
+        //         opacity: 0.6,
+        //         child: FlowyText(
+        //           "${LocaleKeys.settings_menu_cloudURL.tr()}: $url",
+        //           maxLines: null, // Allow the text to wrap
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }
@@ -97,7 +103,7 @@ class EnableEncrypt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CloudSettingBloc, CloudSettingState>(
+    return BlocBuilder<SupabaseCloudSettingBloc, SupabaseCloudSettingState>(
       builder: (context, state) {
         final indicator = state.loadingState.when(
           loading: () => const CircularProgressIndicator.adaptive(),
@@ -116,9 +122,8 @@ class EnableEncrypt extends StatelessWidget {
                   onChanged: state.config.enableEncrypt
                       ? null
                       : (bool value) {
-                          context
-                              .read<CloudSettingBloc>()
-                              .add(CloudSettingEvent.enableEncrypt(value));
+                          context.read<SupabaseCloudSettingBloc>().add(
+                              SupabaseCloudSettingEvent.enableEncrypt(value));
                         },
                   value: state.config.enableEncrypt,
                 ),
@@ -174,7 +179,7 @@ class EnableSync extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CloudSettingBloc, CloudSettingState>(
+    return BlocBuilder<SupabaseCloudSettingBloc, SupabaseCloudSettingState>(
       builder: (context, state) {
         return Row(
           children: [
@@ -182,8 +187,8 @@ class EnableSync extends StatelessWidget {
             const Spacer(),
             Switch(
               onChanged: (bool value) {
-                context.read<CloudSettingBloc>().add(
-                      CloudSettingEvent.enableSync(value),
+                context.read<SupabaseCloudSettingBloc>().add(
+                      SupabaseCloudSettingEvent.enableSync(value),
                     );
               },
               value: state.config.enableSync,
