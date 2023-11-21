@@ -173,7 +173,7 @@ class _BoardContentState extends State<BoardContent> {
               controller: context.read<BoardBloc>().boardController,
               groupConstraints: const BoxConstraints.tightFor(width: 300),
               config: const AppFlowyBoardConfig(
-                groupPadding: EdgeInsets.symmetric(horizontal: 4),
+                groupMargin: EdgeInsets.symmetric(horizontal: 4),
                 groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
               ),
               leading: HiddenGroupsColumn(margin: config.headerPadding),

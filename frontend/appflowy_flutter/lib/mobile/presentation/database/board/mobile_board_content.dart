@@ -1,11 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/board/group_card_header.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_hidden_groups.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
@@ -39,14 +39,6 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
   late final ScrollController scrollController;
   late final AppFlowyBoardScrollController scrollManager;
 
-  final config = const AppFlowyBoardConfig(
-    groupBackgroundColor: Colors.green,
-    headerPadding: EdgeInsets.symmetric(horizontal: 8),
-    cardPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-    groupPadding: EdgeInsets.symmetric(horizontal: 4),
-    groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
-  );
-
   @override
   void initState() {
     super.initState();
@@ -69,6 +61,15 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final config = AppFlowyBoardConfig(
+      boardPadding: const EdgeInsets.symmetric(horizontal: 16),
+      groupBackgroundColor: Theme.of(context).colorScheme.secondary,
+      groupMargin: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+      cardPadding: const EdgeInsets.all(4),
+      groupItemPadding: const EdgeInsets.all(4),
+    );
+
     return BlocListener<BoardBloc, BoardState>(
       listener: (context, state) {
         _handleEditStateChanged(state, context);
@@ -78,31 +79,28 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
         builder: (context, state) {
           final showCreateGroupButton =
               context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
-          return Container(
-            color: Colors.amber,
-            child: AppFlowyBoard(
-              boardScrollController: scrollManager,
-              scrollController: scrollController,
-              controller: context.read<BoardBloc>().boardController,
-              groupConstraints: const BoxConstraints.tightFor(width: 300),
-              config: config,
-              leading: HiddenGroupsColumn(margin: config.headerPadding),
-              trailing: showCreateGroupButton
-                  ? BoardTrailing(scrollController: scrollController)
-                  : null,
-              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-                value: context.read<BoardBloc>(),
-                child: BoardColumnHeader(
-                  groupData: groupData,
-                  margin: config.headerPadding,
-                ),
+          return AppFlowyBoard(
+            boardScrollController: scrollManager,
+            scrollController: scrollController,
+            controller: context.read<BoardBloc>().boardController,
+            groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
+            config: config,
+            // leading: HiddenGroupsColumn(margin: config.headerPadding),
+            trailing: showCreateGroupButton
+                ? BoardTrailing(scrollController: scrollController)
+                : null,
+            headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
+              value: context.read<BoardBloc>(),
+              child: GroupCardHeader(
+                groupData: groupData,
               ),
-              footerBuilder: _buildFooter,
-              cardBuilder: (_, column, columnItem) => _buildCard(
-                context,
-                column,
-                columnItem,
-              ),
+            ),
+            footerBuilder: _buildFooter,
+            cardBuilder: (_, column, columnItem) => _buildCard(
+              context: context,
+              afGroupData: column,
+              afGroupItem: columnItem,
+              cardPadding: config.cardPadding,
             ),
           );
         },
@@ -123,33 +121,39 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
   }
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
-    return AppFlowyGroupFooter(
-      height: 50,
-      margin: config.footerPadding,
-      icon: SizedBox(
-        height: 20,
-        width: 20,
-        child: FlowySvg(
-          FlowySvgs.add_s,
-          color: Theme.of(context).hintColor,
+    final style = Theme.of(context);
+
+    return SizedBox(
+      height: 42,
+      width: double.infinity,
+      child: TextButton.icon(
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.only(left: 8),
+          alignment: Alignment.centerLeft,
         ),
+        icon: FlowySvg(
+          FlowySvgs.add_m,
+          color: style.hintColor,
+        ),
+        label: Text(
+          LocaleKeys.board_column_createNewCard.tr(),
+          style: style.textTheme.bodyMedium?.copyWith(
+            color: style.hintColor,
+          ),
+        ),
+        onPressed: () {
+          // TODO(yijing): add a new card/link to card detail page
+        },
       ),
-      title: FlowyText.medium(
-        LocaleKeys.board_column_createNewCard.tr(),
-        color: Theme.of(context).hintColor,
-        fontSize: 14,
-      ),
-      onAddButtonClick: () => context
-          .read<BoardBloc>()
-          .add(BoardEvent.createBottomRow(columnData.id)),
     );
   }
 
-  Widget _buildCard(
-    BuildContext context,
-    AppFlowyGroupData afGroupData,
-    AppFlowyGroupItem afGroupItem,
-  ) {
+  Widget _buildCard({
+    required BuildContext context,
+    required AppFlowyGroupData afGroupData,
+    required AppFlowyGroupItem afGroupItem,
+    required EdgeInsets cardPadding,
+  }) {
     final boardBloc = context.read<BoardBloc>();
     final groupItem = afGroupItem as GroupItem;
     final groupData = afGroupData.customData as GroupData;
@@ -170,7 +174,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
 
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
-      margin: config.cardPadding,
+      margin: cardPadding,
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
         rowMeta: rowMeta,
@@ -201,23 +205,18 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
   BoxDecoration _makeBoxDecoration(BuildContext context) {
     return BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: const BorderRadius.all(Radius.circular(6)),
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
       border: Border.fromBorderSide(
         BorderSide(
-          color: Theme.of(context).dividerColor,
-          width: 1.4,
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
         ),
       ),
       boxShadow: [
+        // card shadow
         BoxShadow(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
           blurRadius: 4,
-          spreadRadius: 0,
-          color: const Color(0xFF1F2329).withOpacity(0.02),
-        ),
-        BoxShadow(
-          blurRadius: 4,
-          spreadRadius: -2,
-          color: const Color(0xFF1F2329).withOpacity(0.02),
+          offset: const Offset(0, 2),
         ),
       ],
     );

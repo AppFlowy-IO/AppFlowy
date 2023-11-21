@@ -22,8 +22,10 @@ ThemeData getMobileThemeData(
           brightness: brightness,
           primary: _primaryColor,
           onPrimary: Colors.white,
-          // TODO(yijing): add color later
-          secondary: Colors.white,
+          // group card header background color
+          primaryContainer: const Color(0xffF1F1F4), // primary 20
+          // group card background color
+          secondary: const Color(0xfff7f8fc), // shade 10
           onSecondary: _onSecondaryColor,
           error: const Color(0xffFB006D),
           onError: const Color(0xffFB006D),
