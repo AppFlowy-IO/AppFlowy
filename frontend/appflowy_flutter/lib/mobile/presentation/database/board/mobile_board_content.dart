@@ -247,11 +247,30 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
       groupId: groupId,
     );
 
-    context.push(
-      MobileCardDetailScreen.routeName,
-      extra: {
-        'rowController': dataController,
-      },
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      // To avoid the appbar of [MobileCardDetailScreen] being covered by status bar.
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(8),
+        ),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.4,
+        minChildSize: 0.4,
+        snapSizes: const [0.4, 1],
+        snap: true,
+        builder: (context, scrollController) {
+          return MobileCardDetailScreen(
+            rowController: dataController,
+            scrollController: scrollController,
+          );
+        },
+      ),
     );
   }
 }

@@ -24,34 +24,28 @@ class MobileCardDetailScreen extends StatefulWidget {
   const MobileCardDetailScreen({
     super.key,
     required this.rowController,
+    this.scrollController,
   });
 
   static const routeName = '/MobileCardDetailScreen';
   static const argRowController = 'rowController';
   static const argCellBuilder = 'cellBuilder';
   final RowController rowController;
+  final ScrollController? scrollController;
 
   @override
   State<MobileCardDetailScreen> createState() => _MobileCardDetailScreenState();
 }
 
 class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
-  late final ScrollController _scrollController;
   late final GridCellBuilder _cellBuilder;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
     _cellBuilder = GridCellBuilder(
       cellCache: widget.rowController.cellCache,
     );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -130,9 +124,9 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           child: ListView(
-            controller: _scrollController,
+            controller: widget.scrollController,
             children: [
               BlocProvider<RowBannerBloc>(
                 create: (context) => RowBannerBloc(
@@ -175,7 +169,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
               RowDocument(
                 viewId: widget.rowController.viewId,
                 rowId: widget.rowController.rowId,
-                scrollController: _scrollController,
+                scrollController: widget.scrollController ?? ScrollController(),
               ),
             ],
           ),
