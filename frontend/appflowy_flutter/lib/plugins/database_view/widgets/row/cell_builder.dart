@@ -26,7 +26,7 @@ class GridCellBuilder {
 
   GridCellWidget build(
     DatabaseCellContext cellContext, {
-    required GridCellStyle? style,
+    GridCellStyle? style,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellContext: cellContext,
