@@ -134,7 +134,7 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   @override
   Widget build(BuildContext context) {
-    final style = _customCellStyle(widget.cellContext.fieldType);
+    final style = customCellStyle(widget.cellContext.fieldType);
     final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 
     final dragThumb = MouseRegion(
@@ -247,7 +247,7 @@ class _PropertyCellState extends State<_PropertyCell> {
   }
 }
 
-GridCellStyle? _customCellStyle(FieldType fieldType) {
+GridCellStyle? customCellStyle(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return GridCheckboxCellStyle(
