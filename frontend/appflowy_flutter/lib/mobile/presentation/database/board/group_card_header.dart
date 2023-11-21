@@ -104,7 +104,7 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                 IconButton(
                   icon: Icon(
                     Icons.more_horiz_rounded,
-                    color: Theme.of(context).hintColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   splashRadius: 5,
                   onPressed: () => showFlowyMobileBottomSheet(
@@ -152,7 +152,7 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                 IconButton(
                   icon: Icon(
                     Icons.add,
-                    color: Theme.of(context).hintColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   splashRadius: 5,
                   onPressed: () {

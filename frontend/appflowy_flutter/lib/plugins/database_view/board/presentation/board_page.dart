@@ -95,7 +95,7 @@ class BoardPage extends StatelessWidget {
                 ? MobileBoardContent(
                     onEditStateChanged: onEditStateChanged,
                   )
-                : BoardContent(onEditStateChanged: onEditStateChanged),
+                : DesktopBoardContent(onEditStateChanged: onEditStateChanged),
             (err) => PlatformExtension.isMobile
                 ? FlowyMobileStateContainer.error(
                     emoji: '🛸',
@@ -113,8 +113,8 @@ class BoardPage extends StatelessWidget {
   }
 }
 
-class BoardContent extends StatefulWidget {
-  const BoardContent({
+class DesktopBoardContent extends StatefulWidget {
+  const DesktopBoardContent({
     super.key,
     this.onEditStateChanged,
   });
@@ -122,10 +122,10 @@ class BoardContent extends StatefulWidget {
   final VoidCallback? onEditStateChanged;
 
   @override
-  State<BoardContent> createState() => _BoardContentState();
+  State<DesktopBoardContent> createState() => _DesktopBoardContentState();
 }
 
-class _BoardContentState extends State<BoardContent> {
+class _DesktopBoardContentState extends State<DesktopBoardContent> {
   final renderHook = RowCardRenderHook<String>();
   late final ScrollController scrollController;
   late final AppFlowyBoardScrollController scrollManager;
@@ -334,23 +334,13 @@ class _BoardContentState extends State<BoardContent> {
       groupId: groupId,
     );
 
-    // navigate to card detail screen when it is in mobile
-    if (PlatformExtension.isMobile) {
-      context.push(
-        MobileCardDetailScreen.routeName,
-        extra: {
-          'rowController': dataController,
-        },
-      );
-    } else {
-      FlowyOverlay.show(
-        context: context,
-        builder: (_) => RowDetailPage(
-          cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-          rowController: dataController,
-        ),
-      );
-    }
+    FlowyOverlay.show(
+      context: context,
+      builder: (_) => RowDetailPage(
+        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+        rowController: dataController,
+      ),
+    );
   }
 }
 
