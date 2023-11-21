@@ -202,8 +202,6 @@ class _GridHeader extends StatelessWidget {
       builder: (context, state) {
         return GridHeaderSliverAdaptor(
           viewId: state.viewId,
-          fieldController:
-              context.read<GridBloc>().databaseController.fieldController,
           anchorScrollController: headerScrollController,
         );
       },
@@ -360,6 +358,7 @@ class _GridRows extends StatelessWidget {
           return RowDetailPage(
             cellBuilder: cellBuilder,
             rowController: dataController,
+            fieldController: fieldController,
           );
         },
       );

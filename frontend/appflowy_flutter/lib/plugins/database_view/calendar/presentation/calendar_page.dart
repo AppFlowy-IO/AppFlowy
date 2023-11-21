@@ -319,6 +319,7 @@ void showEventDetails({
           cellCache: rowCache.cellCache,
         ),
         rowController: dataController,
+        fieldController: context.read<CalendarBloc>().fieldController,
       );
     },
   );

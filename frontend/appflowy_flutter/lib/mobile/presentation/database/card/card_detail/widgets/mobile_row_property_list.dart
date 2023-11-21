@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/mobile_create_row_field_button.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
@@ -23,10 +24,12 @@ class MobileRowPropertyList extends StatelessWidget {
   const MobileRowPropertyList({
     super.key,
     required this.viewId,
+    required this.fieldController,
     required this.cellBuilder,
   });
 
   final String viewId;
+  final FieldController fieldController;
   final GridCellBuilder cellBuilder;
 
   @override
@@ -44,6 +47,7 @@ class MobileRowPropertyList extends StatelessWidget {
           itemBuilder: (context, index) => _PropertyCell(
             key: ValueKey('row_detail_${visibleCells[index].fieldId}'),
             cellContext: visibleCells[index],
+            fieldController: fieldController,
             cellBuilder: cellBuilder,
             index: index,
           ),
@@ -75,6 +79,7 @@ class MobileRowPropertyList extends StatelessWidget {
                 // add new field
                 MobileCreateRowFieldButton(
                   viewId: viewId,
+                  fieldController: fieldController,
                 ),
               ],
             ),
@@ -93,11 +98,13 @@ class _PropertyCell extends StatefulWidget {
   const _PropertyCell({
     super.key,
     required this.cellContext,
+    required this.fieldController,
     required this.cellBuilder,
     required this.index,
   });
 
   final DatabaseCellContext cellContext;
+  final FieldController fieldController;
   final GridCellBuilder cellBuilder;
   final int index;
 
@@ -142,6 +149,7 @@ class _PropertyCellState extends State<_PropertyCell> {
             CardPropertyEditScreen.routeName,
             extra: {
               CardPropertyEditScreen.argCellContext: widget.cellContext,
+              CardPropertyEditScreen.argFieldController: widget.fieldController,
               CardPropertyEditScreen.argRowDetailBloc:
                   context.read<RowDetailBloc>(),
             },

@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/mobile_field_cell.dart';
 import 'package:appflowy_backend/log.dart';
@@ -22,15 +22,13 @@ import 'field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatefulWidget {
   final String viewId;
-  final FieldController fieldController;
   final ScrollController anchorScrollController;
 
   const GridHeaderSliverAdaptor({
     required this.viewId,
-    required this.fieldController,
     required this.anchorScrollController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<GridHeaderSliverAdaptor> createState() =>
@@ -40,11 +38,13 @@ class GridHeaderSliverAdaptor extends StatefulWidget {
 class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   @override
   Widget build(BuildContext context) {
+    final fieldController =
+        context.read<GridBloc>().databaseController.fieldController;
     return BlocProvider(
       create: (context) {
         return GridHeaderBloc(
           viewId: widget.viewId,
-          fieldController: widget.fieldController,
+          fieldController: fieldController,
         )..add(const GridHeaderEvent.initial());
       },
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
@@ -54,7 +54,10 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             controller: widget.anchorScrollController,
-            child: _GridHeader(viewId: widget.viewId),
+            child: _GridHeader(
+              viewId: widget.viewId,
+              fieldController: fieldController,
+            ),
           );
         },
       ),
@@ -64,7 +67,8 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
 
 class _GridHeader extends StatefulWidget {
   final String viewId;
-  const _GridHeader({Key? key, required this.viewId}) : super(key: key);
+  final FieldController fieldController;
+  const _GridHeader({required this.viewId, required this.fieldController});
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -98,6 +102,7 @@ class _GridHeaderState extends State<_GridHeader> {
                       key: _getKeyById(fieldInfo.id),
                       viewId: widget.viewId,
                       fieldInfo: fieldInfo,
+                      fieldController: widget.fieldController,
                     )
                   : MobileFieldButton(
                       key: _getKeyById(fieldInfo.id),
@@ -159,8 +164,9 @@ class _CellLeading extends StatelessWidget {
 }
 
 class _CellTrailing extends StatelessWidget {
+  const _CellTrailing({required this.viewId});
+
   final String viewId;
-  const _CellTrailing({required this.viewId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +185,10 @@ class _CellTrailing extends StatelessWidget {
 
 class CreateFieldButton extends StatefulWidget {
   final String viewId;
-  const CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
+  const CreateFieldButton({
+    super.key,
+    required this.viewId,
+  });
 
   @override
   State<CreateFieldButton> createState() => _CreateFieldButtonState();
@@ -191,6 +200,8 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
 
   @override
   Widget build(BuildContext context) {
+    final fieldController =
+        context.read<GridBloc>().databaseController.fieldController;
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.bottomWithRightAligned,
@@ -222,49 +233,13 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
         },
         leftIcon: const FlowySvg(FlowySvgs.add_s),
       ),
-      popupBuilder: (BuildContext popover) {
+      popupBuilder: (BuildContext popoverContext) {
         return FieldEditor(
           viewId: widget.viewId,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.viewId,
-            field: typeOption.field_2,
-          ),
+          fieldController: fieldController,
+          fieldInfo: fieldController.getField(typeOption.field_2.id)!,
         );
       },
     );
-  }
-}
-
-class SliverHeaderDelegateImplementation
-    extends SliverPersistentHeaderDelegate {
-  final String gridId;
-  final List<FieldPB> fields;
-
-  SliverHeaderDelegateImplementation({
-    required this.gridId,
-    required this.fields,
-  });
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return _GridHeader(viewId: gridId);
-  }
-
-  @override
-  double get maxExtent => GridSize.headerHeight;
-
-  @override
-  double get minExtent => GridSize.headerHeight;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is SliverHeaderDelegateImplementation) {
-      return fields.length != oldDelegate.fields.length;
-    }
-    return true;
   }
 }

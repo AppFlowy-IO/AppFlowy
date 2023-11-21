@@ -21,7 +21,6 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
@@ -688,7 +687,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapDeletePropertyInFieldEditor() async {
-    final deleteButton = find.byType(DeleteFieldButton);
+    final deleteButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell && widget.action == FieldAction.delete,
+    );
     await tapButton(deleteButton);
 
     final confirmButton = find.descendant(
@@ -765,13 +767,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapHidePropertyButton() async {
     final field = find.byWidgetPredicate(
       (widget) =>
-          widget is FieldActionCell && widget.action == FieldAction.hide,
+          widget is FieldActionCell &&
+          widget.action == FieldAction.toggleVisibility,
     );
     await tapButton(field);
   }
 
   Future<void> tapHidePropertyButtonInFieldEditor() async {
-    final button = find.byType(FieldVisibilityToggleButton);
+    final button = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell &&
+          widget.action == FieldAction.toggleVisibility,
+    );
     await tapButton(button);
   }
 

@@ -44,7 +44,6 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
       },
       popoverMutex: popoverMutex,
       typeOptionAction: selectOptionAction,
-      // key: ValueKey(state.typeOption.hashCode),
     );
   }
 }

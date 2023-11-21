@@ -454,10 +454,12 @@ GoRoute _mobileCardDetailScreenRoute() {
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
       final rowController = args[MobileCardDetailScreen.argRowController];
+      final fieldController = args[MobileCardDetailScreen.argFieldController];
 
       return MaterialPage(
         child: MobileCardDetailScreen(
           rowController: rowController,
+          fieldController: fieldController,
         ),
       );
     },
@@ -471,6 +473,7 @@ GoRoute _mobileCardPropertyEditScreenRoute() {
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
       final cellContext = args[CardPropertyEditScreen.argCellContext];
+      final fieldController = args[CardPropertyEditScreen.argFieldController];
       final rowDetailBloc = args[CardPropertyEditScreen.argRowDetailBloc];
 
       return MaterialPage(
@@ -478,6 +481,7 @@ GoRoute _mobileCardPropertyEditScreenRoute() {
           value: rowDetailBloc as RowDetailBloc,
           child: CardPropertyEditScreen(
             cellContext: cellContext,
+            fieldController: fieldController,
           ),
         ),
       );
@@ -508,11 +512,16 @@ GoRoute _mobileCreateRowFieldScreenRoute() {
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
       final viewId = args[MobileCreateRowFieldScreen.argViewId];
+      final fieldController =
+          args[MobileCreateRowFieldScreen.argFieldController];
       final typeOption = args[MobileCreateRowFieldScreen.argTypeOption];
 
       return MaterialPage(
-        child:
-            MobileCreateRowFieldScreen(viewId: viewId, typeOption: typeOption),
+        child: MobileCreateRowFieldScreen(
+          viewId: viewId,
+          typeOption: typeOption,
+          fieldController: fieldController,
+        ),
         fullscreenDialog: true,
       );
     },
