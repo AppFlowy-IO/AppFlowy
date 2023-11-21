@@ -296,17 +296,17 @@ GoRoute _mobileFontPickerPageRoute() {
 GoRoute _mobileCalendarEventsPageRoute() {
   return GoRoute(
     parentNavigatorKey: AppGlobals.rootNavKey,
-    path: MobileCalendatEventsScreen.routeName,
+    path: MobileCalendarEventsScreen.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
 
       return MaterialPage(
-        child: MobileCalendatEventsScreen(
-          calendarBloc: args[MobileCalendatEventsScreen.calendarBlocKey],
-          date: args[MobileCalendatEventsScreen.calendarDateKey],
-          events: args[MobileCalendatEventsScreen.calendarEventsKey],
-          rowCache: args[MobileCalendatEventsScreen.calendarRowCacheKey],
-          viewId: args[MobileCalendatEventsScreen.calendarViewIdKey],
+        child: MobileCalendarEventsScreen(
+          calendarBloc: args[MobileCalendarEventsScreen.calendarBlocKey],
+          date: args[MobileCalendarEventsScreen.calendarDateKey],
+          events: args[MobileCalendarEventsScreen.calendarEventsKey],
+          rowCache: args[MobileCalendarEventsScreen.calendarRowCacheKey],
+          viewId: args[MobileCalendarEventsScreen.calendarViewIdKey],
         ),
       );
     },

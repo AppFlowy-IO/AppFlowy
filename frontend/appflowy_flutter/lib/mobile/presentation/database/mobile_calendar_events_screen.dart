@@ -2,12 +2,11 @@ import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_card.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileCalendatEventsScreen extends StatelessWidget {
+class MobileCalendarEventsScreen extends StatelessWidget {
   static const routeName = "/calendar-events";
 
   // GoRouter Arguments
@@ -17,7 +16,7 @@ class MobileCalendatEventsScreen extends StatelessWidget {
   static const calendarRowCacheKey = "row_cache";
   static const calendarViewIdKey = "view_id";
 
-  const MobileCalendatEventsScreen({
+  const MobileCalendarEventsScreen({
     super.key,
     required this.calendarBloc,
     required this.date,
@@ -67,15 +66,6 @@ class MobileCalendatEventsScreen extends StatelessWidget {
                   ),
                 );
               }),
-              // const VSpace(6),
-              // ListTile(
-              //   dense: true,
-              //   title: const Padding(
-              //     padding: EdgeInsets.symmetric(horizontal: 8),
-              //     child: FlowyText.medium("+ Add new event", fontSize: 14.0),
-              //   ),
-              //   onTap: () => calendarBloc.add(CalendarEvent.createEvent(date)),
-              // ),
               const VSpace(24),
             ],
           ),

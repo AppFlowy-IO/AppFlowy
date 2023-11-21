@@ -326,7 +326,7 @@ class _BoardContentState extends State<BoardContent> {
       context.push(
         MobileCardDetailScreen.routeName,
         extra: {
-          'rowController': dataController,
+          MobileCardDetailScreen.argRowController: dataController,
         },
       );
     } else {

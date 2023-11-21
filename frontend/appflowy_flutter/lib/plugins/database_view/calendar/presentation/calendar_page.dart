@@ -67,15 +67,16 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 }
 
 class CalendarPage extends StatefulWidget {
-  final ViewPB view;
-  final DatabaseController databaseController;
-  final bool shrinkWrap;
   const CalendarPage({
+    super.key,
     required this.view,
     required this.databaseController,
     this.shrinkWrap = false,
-    super.key,
   });
+
+  final ViewPB view;
+  final DatabaseController databaseController;
+  final bool shrinkWrap;
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -83,8 +84,8 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   final _eventController = EventController<CalendarDayEvent>();
+  late final CalendarBloc _calendarBloc;
   GlobalKey<MonthViewState>? _calendarState;
-  late CalendarBloc _calendarBloc;
 
   @override
   void initState() {

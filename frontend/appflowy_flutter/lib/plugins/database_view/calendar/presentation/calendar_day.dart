@@ -143,14 +143,14 @@ class CalendarDayCard extends StatelessWidget {
 
   void _mobileOnTap(BuildContext context) {
     context.push(
-      MobileCalendatEventsScreen.routeName,
+      MobileCalendarEventsScreen.routeName,
       extra: {
-        MobileCalendatEventsScreen.calendarBlocKey:
+        MobileCalendarEventsScreen.calendarBlocKey:
             context.read<CalendarBloc>(),
-        MobileCalendatEventsScreen.calendarDateKey: date,
-        MobileCalendatEventsScreen.calendarEventsKey: events,
-        MobileCalendatEventsScreen.calendarRowCacheKey: rowCache,
-        MobileCalendatEventsScreen.calendarViewIdKey: viewId,
+        MobileCalendarEventsScreen.calendarDateKey: date,
+        MobileCalendarEventsScreen.calendarEventsKey: events,
+        MobileCalendarEventsScreen.calendarRowCacheKey: rowCache,
+        MobileCalendarEventsScreen.calendarViewIdKey: viewId,
       },
     );
   }
