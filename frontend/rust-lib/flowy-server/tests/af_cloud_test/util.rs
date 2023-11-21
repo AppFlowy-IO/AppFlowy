@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use parking_lot::RwLock;
 use uuid::Uuid;
 
-use flowy_server::af_cloud::AFCloudServer;
+use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 
@@ -24,10 +23,9 @@ pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
   AFCloudConfiguration::from_env().ok()
 }
 
-pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AFCloudServer> {
+pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer> {
   let fake_device_id = uuid::Uuid::new_v4().to_string();
-  let device_id = Arc::new(RwLock::new(fake_device_id));
-  Arc::new(AFCloudServer::new(config, true, device_id))
+  Arc::new(AppFlowyCloudServer::new(config, true, fake_device_id))
 }
 
 pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguration) -> String {
@@ -42,7 +40,7 @@ pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguratio
     .unwrap();
 
   let action_link = admin_client
-    .generate_sign_in_action_link(&user_email)
+    .generate_sign_in_action_link(user_email)
     .await
     .unwrap();
   client.extract_sign_in_url(&action_link).await.unwrap()

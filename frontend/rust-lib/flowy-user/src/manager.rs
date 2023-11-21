@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::PathBuf;
 use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
@@ -41,28 +42,42 @@ use crate::services::user_workspace::save_user_workspaces;
 use crate::{errors::FlowyError, notification::*};
 
 pub const URL_SAFE_ENGINE: GeneralPurpose = GeneralPurpose::new(&URL_SAFE, PAD);
-pub struct UserSessionConfig {
-  root_dir: String,
+pub struct UserConfig {
+  /// Used to store the user data
+  storage_path: String,
+  /// application_path is the path of the application binary. By default, the
+  /// storage_path is the same as the application_path. However, when the user
+  /// choose a custom path for the user data, the storage_path will be different from
+  /// the application_path.
+  application_path: String,
+  pub device_id: String,
   /// Used as the key of `Session` when saving session information to KV.
   session_cache_key: String,
 }
 
-impl UserSessionConfig {
+impl UserConfig {
   /// The `root_dir` represents as the root of the user folders. It must be unique for each
   /// users.
-  pub fn new(name: &str, root_dir: &str) -> Self {
+  pub fn new(name: &str, storage_path: &str, application_path: &str, device_id: &str) -> Self {
     let session_cache_key = format!("{}_session_cache", name);
     Self {
-      root_dir: root_dir.to_owned(),
+      storage_path: storage_path.to_owned(),
+      application_path: application_path.to_owned(),
       session_cache_key,
+      device_id: device_id.to_owned(),
     }
+  }
+
+  /// Returns bool whether the user choose a custom path for the user data.
+  pub fn is_custom_storage_path(&self) -> bool {
+    self.storage_path != self.application_path
   }
 }
 
 pub struct UserManager {
   database: Arc<UserDB>,
   user_paths: UserPaths,
-  session_config: UserSessionConfig,
+  pub(crate) user_config: UserConfig,
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<StorePreferences>,
   pub(crate) user_awareness: Arc<Mutex<Option<MutexUserAwareness>>>,
@@ -76,14 +91,12 @@ pub struct UserManager {
 
 impl UserManager {
   pub fn new(
-    session_config: UserSessionConfig,
+    user_config: UserConfig,
     cloud_services: Arc<dyn UserCloudServiceProvider>,
     store_preferences: Arc<StorePreferences>,
     collab_builder: Weak<AppFlowyCollabBuilder>,
   ) -> Arc<Self> {
-    let user_paths = UserPaths {
-      root: session_config.root_dir.clone(),
-    };
+    let user_paths = UserPaths::new(user_config.storage_path.clone());
     let database = Arc::new(UserDB::new(user_paths.clone()));
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
@@ -92,7 +105,7 @@ impl UserManager {
     let user_manager = Arc::new(Self {
       database,
       user_paths,
-      session_config,
+      user_config,
       cloud_services,
       store_preferences,
       user_awareness: Arc::new(Default::default()),
@@ -183,11 +196,14 @@ impl UserManager {
           }
         });
       }
+      self.prepare_user(&session).await;
 
       // Do the user data migration if needed
       event!(tracing::Level::INFO, "Prepare user data migration");
       match (
-        self.database.get_collab_db(session.user_id),
+        self
+          .database
+          .get_collab_db(session.user_id, &self.user_config.device_id),
         self.database.get_pool(session.user_id),
       ) {
         (Ok(collab_db), Ok(sqlite_pool)) => {
@@ -209,7 +225,6 @@ impl UserManager {
         },
         _ => error!("Failed to get collab db or sqlite pool"),
       }
-      self.set_collab_config(&session);
       // Init the user awareness
       self
         .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
@@ -221,7 +236,7 @@ impl UserManager {
           session.user_id,
           &cloud_config,
           &session.user_workspace,
-          &session.device_id,
+          &self.user_config.device_id,
         )
         .await
       {
@@ -242,7 +257,7 @@ impl UserManager {
   pub fn get_collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
     self
       .database
-      .get_collab_db(uid)
+      .get_collab_db(uid, "")
       .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
@@ -267,13 +282,14 @@ impl UserManager {
       .sign_in(params)
       .await?;
     let session = Session::from(&response);
-    self.set_collab_config(&session);
+    self.prepare_user(&session).await;
 
     let latest_workspace = response.latest_workspace.clone();
     let user_profile = UserProfile::from((&response, &authenticator));
     self
       .save_auth_data(&response, &authenticator, &session)
       .await?;
+
     let _ = self
       .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
       .await;
@@ -282,7 +298,11 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_sign_in(user_profile.uid, &latest_workspace, &session.device_id)
+      .did_sign_in(
+        user_profile.uid,
+        &latest_workspace,
+        &self.user_config.device_id,
+      )
       .await
     {
       error!("Failed to call did_sign_in callback: {:?}", e);
@@ -373,7 +393,7 @@ impl UserManager {
     authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     let new_session = Session::from(&response);
-    self.set_collab_config(&new_session);
+    self.prepare_user(&new_session).await;
 
     let user_awareness_source = if response.is_new_user {
       UserAwarenessDataSource::Local
@@ -415,7 +435,7 @@ impl UserManager {
         response.is_new_user,
         user_profile,
         &new_session.user_workspace,
-        &new_session.device_id,
+        &self.user_config.device_id,
       )
       .await?;
 
@@ -466,6 +486,24 @@ impl UserManager {
 
   pub async fn init_user(&self) -> Result<(), FlowyError> {
     Ok(())
+  }
+
+  pub async fn prepare_user(&self, session: &Session) {
+    self.set_collab_config(session);
+    // Ensure to backup user data if a cloud drive is used for storage. While using a cloud drive
+    // for storing user data is not advised due to potential data corruption risks, in scenarios where
+    // users opt for cloud storage, the application should automatically create a backup of the user
+    // data. This backup should be in the form of a zip file and stored locally on the user's disk
+    // for safety and data integrity purposes
+    if self.user_config.is_custom_storage_path() {
+      self
+        .database
+        .backup_or_restore(session.user_id, &session.user_workspace.id);
+    } else {
+      self
+        .database
+        .restore_if_need(session.user_id, &session.user_workspace.id);
+    }
   }
 
   /// Fetches the user profile for the given user ID.
@@ -623,7 +661,7 @@ impl UserManager {
 
     match self
       .store_preferences
-      .get_object::<Session>(&self.session_config.session_cache_key)
+      .get_object::<Session>(&self.user_config.session_cache_key)
     {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
@@ -643,13 +681,13 @@ impl UserManager {
         self.current_session.write().take();
         self
           .store_preferences
-          .remove(&self.session_config.session_cache_key)
+          .remove(&self.user_config.session_cache_key)
       },
       Some(session) => {
         self.current_session.write().replace(session.clone());
         self
           .store_preferences
-          .set_object(&self.session_config.session_cache_key, session.clone())
+          .set_object(&self.user_config.session_cache_key, session.clone())
           .map_err(internal_error)?;
       },
     }
@@ -695,7 +733,7 @@ impl UserManager {
     event!(tracing::Level::DEBUG, "Save new history user: {:?}", uid);
     self.add_historical_user(
       uid,
-      response.device_id(),
+      &self.user_config.device_id,
       response.user_name().to_string(),
       authenticator,
       self.user_dir(uid),
@@ -712,9 +750,7 @@ impl UserManager {
 
   fn set_collab_config(&self, session: &Session) {
     let collab_builder = self.collab_builder.upgrade().unwrap();
-    collab_builder.set_sync_device(session.device_id.clone());
     collab_builder.initialize(session.user_workspace.id.clone());
-    self.cloud_services.set_device_id(&session.device_id);
   }
 
   async fn handler_user_update(&self, user_update: UserUpdate) -> FlowyResult<()> {
@@ -742,13 +778,17 @@ impl UserManager {
     old_user: &MigrationUser,
     new_user: &MigrationUser,
   ) -> Result<(), FlowyError> {
-    let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
-    let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
+    let old_collab_db = self
+      .database
+      .get_collab_db(old_user.session.user_id, &self.user_config.device_id)?;
+    let new_collab_db = self
+      .database
+      .get_collab_db(new_user.session.user_id, &self.user_config.device_id)?;
     migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
 
     if let Err(err) = sync_user_data_to_cloud(
       self.cloud_services.get_user_service()?,
-      "",
+      &self.user_config.device_id,
       new_user,
       &new_collab_db,
     )
@@ -816,6 +856,9 @@ struct UserPaths {
 }
 
 impl UserPaths {
+  fn new(root: String) -> Self {
+    Self { root }
+  }
   fn user_dir(&self, uid: i64) -> String {
     format!("{}/{}", self.root, uid)
   }
@@ -830,5 +873,13 @@ impl UserDBPath for UserPaths {
     let mut path = PathBuf::from(self.user_dir(uid));
     path.push("collab_db");
     path
+  }
+
+  fn collab_db_history(&self, uid: i64, create_if_not_exist: bool) -> std::io::Result<PathBuf> {
+    let path = PathBuf::from(self.user_dir(uid)).join("collab_db_history");
+    if !path.exists() && create_if_not_exist {
+      fs::create_dir_all(&path)?;
+    }
+    Ok(path)
   }
 }

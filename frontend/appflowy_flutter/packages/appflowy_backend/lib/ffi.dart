@@ -20,8 +20,7 @@ DynamicLibrary _open() {
       return DynamicLibrary.open('${prefix}/libdart_ffi.so');
     if (Platform.isMacOS)
       return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');
-    if (Platform.isIOS) 
-      return DynamicLibrary.open('${prefix}/libdart_ffi.a');
+    if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isWindows)
       return DynamicLibrary.open('${prefix}/dart_ffi.dll');
   } else {
@@ -78,9 +77,9 @@ typedef _invoke_sync_Dart = Pointer<Uint8> Function(
 
 /// C function `init_sdk`.
 int init_sdk(
-  Pointer<ffi.Utf8> path,
+  Pointer<ffi.Utf8> data,
 ) {
-  return _init_sdk(path);
+  return _init_sdk(data);
 }
 
 final _init_sdk_Dart _init_sdk =
