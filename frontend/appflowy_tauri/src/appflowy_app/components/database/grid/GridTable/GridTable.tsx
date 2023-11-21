@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { FC, useMemo, useRef } from 'react';
+import React, { FC, useMemo, useRef } from 'react';
 import { RowMeta } from '../../application';
 import { useDatabase, useDatabaseVisibilityFields } from '../../Database.hooks';
 import { VirtualizedList } from '../../_shared';
@@ -13,7 +13,7 @@ const getRenderRowKey = (row: RenderRow) => {
   return row.type;
 };
 
-export const GridTable: FC<{ tableHeight: number }> = ({ tableHeight }) => {
+export const GridTable: FC<{ tableHeight: number }> = React.memo(({ tableHeight }) => {
   const verticalScrollElementRef = useRef<HTMLDivElement | null>(null);
   const horizontalScrollElementRef = useRef<HTMLDivElement | null>(null);
   const { rowMetas } = useDatabase();
@@ -21,7 +21,7 @@ export const GridTable: FC<{ tableHeight: number }> = ({ tableHeight }) => {
   const fields = useDatabaseVisibilityFields();
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
     count: renderRows.length,
-    overscan: 20,
+    overscan: 5,
     getItemKey: (i) => getRenderRowKey(renderRows[i]),
     getScrollElement: () => verticalScrollElementRef.current,
     estimateSize: () => 37,
@@ -73,4 +73,4 @@ export const GridTable: FC<{ tableHeight: number }> = ({ tableHeight }) => {
       </div>
     </div>
   );
-};
+});

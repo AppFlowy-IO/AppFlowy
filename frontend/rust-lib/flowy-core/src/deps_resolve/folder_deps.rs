@@ -128,7 +128,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      manager.close_document(&view_id)?;
+      manager.close_document(&view_id).await?;
       Ok(())
     })
   }

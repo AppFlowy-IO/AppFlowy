@@ -54,8 +54,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "4f073f3"
-      resolved-ref: "4f073f3381a05a2379144f282c6f65462c4ce9c6"
+      ref: ec3ecf5
+      resolved-ref: ec3ecf58a0de453561d30e809c6dc1eed3d1aa9a
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.0.0-beta.1"
@@ -713,10 +713,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "5668e6d3dbcb2d0dfa25f7567554b88c57e1e3f3c440b672b24d4a9477017d5b"
+      sha256: c247a4f76071c3b97bb5ae8912968870d5565644801c5e09f3bc961b4d874895
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.2"
+    version: "12.1.1"
   google_fonts:
     dependency: "direct main"
     description:
@@ -970,6 +970,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
+  keyboard_height_plugin:
+    dependency: transitive
+    description:
+      name: keyboard_height_plugin
+      sha256: "9fd5cd9e3e80d8f530aaa26ad17b4d18d34a63956cf0d530920a54c228200510"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   linked_scroll_controller:
     dependency: "direct main"
     description:

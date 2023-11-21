@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 class FlowyText extends StatelessWidget {
@@ -91,12 +89,6 @@ class FlowyText extends StatelessWidget {
         maxLines: maxLines,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
-        textHeightBehavior: Platform.isAndroid || Platform.isIOS
-            ? const TextHeightBehavior(
-                applyHeightToFirstAscent: false,
-                applyHeightToLastDescent: false,
-              )
-            : null,
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: fontSize,
               fontWeight: fontWeight,

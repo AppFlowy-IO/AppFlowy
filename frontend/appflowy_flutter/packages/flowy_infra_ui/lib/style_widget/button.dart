@@ -56,6 +56,14 @@ class FlowyButton extends StatelessWidget {
     final alpha = (255 * disableOpacity).toInt();
     color.withAlpha(alpha);
 
+    if (Platform.isIOS || Platform.isAndroid) {
+      return InkWell(
+        onTap: disable ? null : onTap,
+        onSecondaryTap: disable ? null : onSecondaryTap,
+        child: _render(context),
+      );
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: disable ? null : onTap,

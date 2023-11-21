@@ -6,26 +6,23 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class IconPickerPage extends StatefulWidget {
+class IconPickerPage extends StatelessWidget {
   const IconPickerPage({
     super.key,
+    this.title,
     required this.onSelected,
   });
 
   final void Function(EmojiPickerResult) onSelected;
+  final String? title;
 
-  @override
-  State<IconPickerPage> createState() => _IconPickerPageState();
-}
-
-class _IconPickerPageState extends State<IconPickerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
         title: FlowyText.semibold(
-          LocaleKeys.titleBar_pageIcon.tr(),
+          title ?? LocaleKeys.titleBar_pageIcon.tr(),
           fontSize: 14.0,
         ),
         leading: AppBarBackButton(
@@ -34,7 +31,7 @@ class _IconPickerPageState extends State<IconPickerPage> {
       ),
       body: SafeArea(
         child: FlowyIconPicker(
-          onSelected: widget.onSelected,
+          onSelected: onSelected,
         ),
       ),
     );

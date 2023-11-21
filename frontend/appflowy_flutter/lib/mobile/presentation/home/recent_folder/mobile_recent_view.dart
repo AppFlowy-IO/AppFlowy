@@ -133,7 +133,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
                 child: FlowyText(
                   view.name,
                   maxLines: 2,
-                  fontSize: 16.0,
+                  fontSize: 14.0,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

@@ -3,7 +3,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/mobile_field_cell.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -52,10 +54,7 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             controller: widget.anchorScrollController,
-            child: SizedBox(
-              height: GridSize.headerHeight,
-              child: _GridHeader(viewId: widget.viewId),
-            ),
+            child: _GridHeader(viewId: widget.viewId),
           );
         },
       ),
@@ -94,25 +93,36 @@ class _GridHeaderState extends State<_GridHeader> {
       builder: (context, state) {
         final cells = state.fields
             .map(
-              (fieldInfo) => GridFieldCell(
-                key: _getKeyById(fieldInfo.id),
-                viewId: widget.viewId,
-                fieldInfo: fieldInfo,
-              ),
+              (fieldInfo) => PlatformExtension.isDesktop
+                  ? GridFieldCell(
+                      key: _getKeyById(fieldInfo.id),
+                      viewId: widget.viewId,
+                      fieldInfo: fieldInfo,
+                    )
+                  : MobileFieldButton(
+                      key: _getKeyById(fieldInfo.id),
+                      viewId: widget.viewId,
+                      field: fieldInfo,
+                    ),
             )
             .toList();
 
-        return Container(
+        return ColoredBox(
           color: Theme.of(context).colorScheme.surface,
           child: RepaintBoundary(
             child: ReorderableRow(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               scrollController: ScrollController(),
               header: const _CellLeading(),
-              needsLongPressDraggable: false,
+              needsLongPressDraggable: PlatformExtension.isMobile,
               footer: _CellTrailing(viewId: widget.viewId),
               onReorder: (int oldIndex, int newIndex) {
-                _onReorder(cells, oldIndex, context, newIndex);
+                _onReorder(
+                  cells,
+                  oldIndex,
+                  context,
+                  newIndex,
+                );
               },
               children: cells,
             ),
@@ -123,13 +133,13 @@ class _GridHeaderState extends State<_GridHeader> {
   }
 
   void _onReorder(
-    List<GridFieldCell> cells,
+    List<Widget> cells,
     int oldIndex,
     BuildContext context,
     int newIndex,
   ) {
     if (cells.length > oldIndex) {
-      final field = cells[oldIndex].fieldInfo.field;
+      final field = (cells[oldIndex] as GridFieldCell).fieldInfo.field;
       context
           .read<GridHeaderBloc>()
           .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
@@ -159,7 +169,7 @@ class _CellTrailing extends StatelessWidget {
     return Container(
       width: GridSize.trailHeaderPadding,
       decoration: BoxDecoration(
-        border: Border(top: borderSide, bottom: borderSide),
+        border: Border(bottom: borderSide),
       ),
       padding: GridSize.headerContentInsets,
       child: CreateFieldButton(viewId: viewId),
@@ -189,8 +199,14 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       constraints: BoxConstraints.loose(const Size(240, 600)),
       triggerActions: PopoverTriggerFlags.none,
       child: FlowyButton(
+        margin: PlatformExtension.isDesktop
+            ? GridSize.cellContentInsets
+            : const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         radius: BorderRadius.zero,
-        text: FlowyText.medium(LocaleKeys.grid_field_newProperty.tr()),
+        text: FlowyText.medium(
+          LocaleKeys.grid_field_newProperty.tr(),
+          overflow: TextOverflow.ellipsis,
+        ),
         hoverColor: AFThemeExtension.of(context).greyHover,
         onTap: () async {
           final result = await TypeOptionBackendService.createFieldTypeOption(

@@ -1,3 +1,4 @@
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class MobileSettingItem extends StatelessWidget {
@@ -15,13 +16,12 @@ class MobileSettingItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 4),
       child: ListTile(
-        title: Text(
+        title: FlowyText.medium(
           name,
-          style: theme.textTheme.labelMedium,
+          fontSize: 14.0,
         ),
         subtitle: subtitle,
         trailing: trailing,

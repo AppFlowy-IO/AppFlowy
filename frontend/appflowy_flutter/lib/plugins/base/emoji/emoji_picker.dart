@@ -12,9 +12,11 @@ class FlowyEmojiPicker extends StatefulWidget {
   const FlowyEmojiPicker({
     super.key,
     required this.onEmojiSelected,
+    this.emojiPerLine = 9,
   });
 
   final EmojiSelectedCallback onEmojiSelected;
+  final int emojiPerLine;
 
   @override
   State<FlowyEmojiPicker> createState() => _FlowyEmojiPickerState();
@@ -61,6 +63,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         showSectionHeader: true,
         showTabs: false,
         defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
+        perLine: widget.emojiPerLine,
       ),
       onEmojiSelected: widget.onEmojiSelected,
       headerBuilder: (context, category) {
