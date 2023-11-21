@@ -4,9 +4,7 @@ import 'package:appflowy/plugins/database_view/application/row/row_controller.da
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -274,8 +272,7 @@ class RowContent extends StatelessWidget {
   ) {
     return cellByFieldId.values.map(
       (cellId) {
-        final cellStyle = customCellStyle(cellId.fieldType);
-        final GridCellWidget child = builder.build(cellId, style: cellStyle);
+        final GridCellWidget child = builder.build(cellId);
 
         return CellContainer(
           width: cellId.fieldInfo.fieldSettings?.width.toDouble() ?? 140,
