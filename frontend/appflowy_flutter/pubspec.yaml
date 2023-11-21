@@ -125,6 +125,7 @@ dependencies:
   image_picker: ^1.0.4
   image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
+  leak_tracker: ^9.0.6
 
 dev_dependencies:
   flutter_lints: ^2.0.1
