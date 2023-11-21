@@ -9,6 +9,7 @@ use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
+use tracing::event;
 
 use crate::entities::*;
 use crate::manager::UserManager;
@@ -285,6 +286,7 @@ pub async fn sign_in_with_provider_handler(
   let manager = upgrade_manager(manager)?;
   tracing::debug!("Sign in with provider: {:?}", data.provider.as_str());
   let sign_in_url = manager.generate_oauth_url(data.provider.as_str()).await?;
+  event!(tracing::Level::DEBUG, "Sign in url: {}", sign_in_url);
   data_result_ok(OauthProviderDataPB {
     oauth_url: sign_in_url,
   })

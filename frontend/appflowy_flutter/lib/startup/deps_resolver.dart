@@ -43,6 +43,10 @@ class DependencyResolver {
     GetIt getIt,
     IntegrationMode mode,
   ) async {
+    // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
+    getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
+
+    await _resolveCloudDeps(getIt);
     _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
@@ -52,12 +56,21 @@ class DependencyResolver {
   }
 }
 
+Future<void> _resolveCloudDeps(GetIt getIt) async {
+  final appflowyCloudConfig = await getAppFlowyCloudConfig();
+  final supabaseCloudConfig = await getSupabaseCloudConfig();
+  getIt.registerFactory<AppFlowyCloudSharedEnv>(() {
+    return AppFlowyCloudSharedEnv(
+      appflowyCloudConfig: appflowyCloudConfig,
+      supabaseConfig: supabaseCloudConfig,
+    );
+  });
+}
+
 void _resolveCommonService(
   GetIt getIt,
   IntegrationMode mode,
 ) async {
-  // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
-  getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
   if (mode.isTest) {
     getIt.registerFactory<ApplicationDataStorage>(

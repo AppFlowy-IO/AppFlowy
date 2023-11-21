@@ -35,6 +35,7 @@ impl fmt::Debug for AppFlowyCoreConfig {
     if let Some(config) = &self.cloud_config {
       debug.field("base_url", &config.base_url);
       debug.field("ws_url", &config.ws_base_url);
+      debug.field("gotrue_url", &config.gotrue_url);
     }
     debug.finish()
   }

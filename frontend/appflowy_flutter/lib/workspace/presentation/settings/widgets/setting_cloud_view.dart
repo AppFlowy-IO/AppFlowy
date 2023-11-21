@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/setting_supabase_bloc.dart';

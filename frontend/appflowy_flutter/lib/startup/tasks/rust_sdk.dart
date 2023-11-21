@@ -45,41 +45,14 @@ AppFlowyConfiguration _getAppFlowyConfiguration(
   String originAppPath,
   String deviceId,
 ) {
-  if (isCloudEnabled) {
-    final supabaseConfig = SupabaseConfiguration(
-      url: Env.supabaseUrl,
-      anon_key: Env.supabaseAnonKey,
-    );
-
-    final appflowyCloudConfig = AppFlowyCloudConfiguration(
-      base_url: Env.afCloudBaseUrl,
-      ws_base_url: Env.afCloudWSBaseUrl,
-      gotrue_url: Env.afCloudGoTrueUrl,
-    );
-
-    return AppFlowyConfiguration(
-      custom_app_path: customAppPath,
-      origin_app_path: originAppPath,
-      device_id: deviceId,
-      cloud_type: Env.cloudType,
-      supabase_config: supabaseConfig,
-      appflowy_cloud_config: appflowyCloudConfig,
-    );
-  } else {
-    // Use the default configuration if the cloud feature is disabled
-    final supabaseConfig = SupabaseConfiguration.defaultConfig();
-    final appflowyCloudConfig = AppFlowyCloudConfiguration.defaultConfig();
-
-    return AppFlowyConfiguration(
-      custom_app_path: customAppPath,
-      origin_app_path: originAppPath,
-      device_id: deviceId,
-      // 0 means the cloud type is local
-      cloud_type: 0,
-      supabase_config: supabaseConfig,
-      appflowy_cloud_config: appflowyCloudConfig,
-    );
-  }
+  return AppFlowyConfiguration(
+    custom_app_path: customAppPath,
+    origin_app_path: originAppPath,
+    device_id: deviceId,
+    cloud_type: getIt<AppFlowyCloudSharedEnv>().cloudType,
+    supabase_config: getIt<AppFlowyCloudSharedEnv>().supabaseConfig,
+    appflowy_cloud_config: getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig,
+  );
 }
 
 /// The default directory to store the user data. The directory can be

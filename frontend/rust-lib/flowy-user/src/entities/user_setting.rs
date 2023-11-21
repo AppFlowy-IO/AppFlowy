@@ -147,7 +147,7 @@ pub struct CloudSettingPB {
   pub encrypt_secret: String,
 
   #[pb(index = 4)]
-  pub appflowy_cloud_config: AppFlowyCloudSettingPB,
+  pub server_url: String,
 }
 
 #[derive(Default, ProtoBuf)]

@@ -1,4 +1,7 @@
 // lib/env/env.dart
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:envied/envied.dart';
@@ -17,13 +20,13 @@ part 'env.g.dart';
 /// Follow the guide on https://supabase.com/docs/guides/auth/social-login/auth-google to setup the auth provider.
 ///
 @Envied(path: '.env')
-abstract class Env {
+abstract class _Env {
   @EnviedField(
     obfuscate: true,
     varName: 'CLOUD_TYPE',
     defaultValue: '0',
   )
-  static final int cloudType = _Env.cloudType;
+  static final int cloudType = __Env.cloudType;
 
   /// AppFlowy Cloud Configuration
   @EnviedField(
@@ -31,21 +34,14 @@ abstract class Env {
     varName: 'APPFLOWY_CLOUD_BASE_URL',
     defaultValue: '',
   )
-  static final String afCloudBaseUrl = _Env.afCloudBaseUrl;
+  static final String afCloudBaseUrl = __Env.afCloudBaseUrl;
 
   @EnviedField(
     obfuscate: true,
     varName: 'APPFLOWY_CLOUD_WS_BASE_URL',
     defaultValue: '',
   )
-  static final String afCloudWSBaseUrl = _Env.afCloudWSBaseUrl;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'APPFLOWY_CLOUD_GOTRUE_URL',
-    defaultValue: '',
-  )
-  static final String afCloudGoTrueUrl = _Env.afCloudGoTrueUrl;
+  static final String afCloudWSBaseUrl = __Env.afCloudWSBaseUrl;
 
   // Supabase Configuration:
   @EnviedField(
@@ -53,13 +49,13 @@ abstract class Env {
     varName: 'SUPABASE_URL',
     defaultValue: '',
   )
-  static final String supabaseUrl = _Env.supabaseUrl;
+  static final String supabaseUrl = __Env.supabaseUrl;
   @EnviedField(
     obfuscate: true,
     varName: 'SUPABASE_ANON_KEY',
     defaultValue: '',
   )
-  static final String supabaseAnonKey = _Env.supabaseAnonKey;
+  static final String supabaseAnonKey = __Env.supabaseAnonKey;
 }
 
 bool get isCloudEnabled {
@@ -98,12 +94,12 @@ enum CloudType {
 }
 
 CloudType currentCloudType() {
-  final value = Env.cloudType;
+  final value = _Env.cloudType;
   if (value == 1) {
-    if (Env.supabaseUrl.isEmpty || Env.supabaseAnonKey.isEmpty) {
+    if (_Env.supabaseUrl.isEmpty || _Env.supabaseAnonKey.isEmpty) {
       Log.error(
         "Supabase is not configured correctly. The values are: "
-        "url: ${Env.supabaseUrl}, anonKey: ${Env.supabaseAnonKey}",
+        "url: ${_Env.supabaseUrl}, anonKey: ${_Env.supabaseAnonKey}",
       );
       return CloudType.unknown;
     } else {
@@ -112,12 +108,15 @@ CloudType currentCloudType() {
   }
 
   if (value == 2) {
-    if (Env.afCloudBaseUrl.isEmpty ||
-        Env.afCloudWSBaseUrl.isEmpty ||
-        Env.afCloudGoTrueUrl.isEmpty) {
+    final cloudURL =
+        getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url;
+    final wsURL =
+        getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.ws_base_url;
+
+    if (cloudURL.isEmpty || wsURL.isEmpty) {
       Log.error(
         "AppFlowy cloud is not configured correctly. The values are: "
-        "baseUrl: ${Env.afCloudBaseUrl}, wsBaseUrl: ${Env.afCloudWSBaseUrl}, gotrueUrl: ${Env.afCloudGoTrueUrl}",
+        "baseUrl: ${_Env.afCloudBaseUrl}, wsBaseUrl: ${_Env.afCloudWSBaseUrl}",
       );
       return CloudType.unknown;
     } else {
@@ -126,4 +125,62 @@ CloudType currentCloudType() {
   }
 
   return CloudType.unknown;
+}
+
+Future<void> setAppFlowyCloudBaseUrl(String url) async {
+  await getIt<KeyValueStorage>().set(KVKeys.appflowyCloudBaseURL, url);
+}
+
+Future<void> setAppFlowyCloudWSUrl(String url) async {
+  await getIt<KeyValueStorage>().set(KVKeys.appflowyCloudWSBaseURL, url);
+}
+
+/// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
+class AppFlowyCloudSharedEnv {
+  final int cloudType;
+  final AppFlowyCloudConfiguration appflowyCloudConfig;
+  final SupabaseConfiguration supabaseConfig;
+
+  AppFlowyCloudSharedEnv({
+    required this.appflowyCloudConfig,
+    required this.supabaseConfig,
+  }) : cloudType = _Env.cloudType;
+}
+
+Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig() async {
+  return AppFlowyCloudConfiguration(
+    base_url: await getAppFlowyCloudUrl(),
+    ws_base_url: await getAppFlowyCloudWSUrl(),
+    gotrue_url: await getAppFlowyCloudGotrueUrl(),
+  );
+}
+
+Future<SupabaseConfiguration> getSupabaseCloudConfig() async {
+  return SupabaseConfiguration(
+    url: _Env.supabaseUrl,
+    anon_key: _Env.supabaseAnonKey,
+  );
+}
+
+Future<String> getAppFlowyCloudUrl() async {
+  final result =
+      await getIt<KeyValueStorage>().get(KVKeys.appflowyCloudBaseURL);
+  return result.fold(
+    (l) => _Env.afCloudBaseUrl,
+    (url) => url.isEmpty ? _Env.afCloudBaseUrl : url,
+  );
+}
+
+Future<String> getAppFlowyCloudWSUrl() async {
+  final result =
+      await getIt<KeyValueStorage>().get(KVKeys.appflowyCloudWSBaseURL);
+  return result.fold(
+    (l) => _Env.afCloudWSBaseUrl,
+    (url) => url.isEmpty ? _Env.afCloudWSBaseUrl : url,
+  );
+}
+
+Future<String> getAppFlowyCloudGotrueUrl() async {
+  final base = await getAppFlowyCloudUrl();
+  return "$base/gotrue";
 }
