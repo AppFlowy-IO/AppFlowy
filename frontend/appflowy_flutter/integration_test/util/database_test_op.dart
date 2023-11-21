@@ -36,8 +36,8 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/so
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/sort_button.dart';
-import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_header.dart';
-import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_add_button.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/desktop/tab_bar_add_button.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/desktop/tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
@@ -1381,13 +1381,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(unscheduledEvent);
   }
 
-  Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {
+  Future<void> tapCreateLinkedDatabaseViewButton(
+    DatabaseLayoutPB layoutType,
+  ) async {
     final findAddButton = find.byType(AddDatabaseViewButton);
     await tapButton(findAddButton);
 
     final findCreateButton = find.byWidgetPredicate(
       (widget) =>
-          widget is TarBarAddButtonActionCell && widget.action == action,
+          widget is TabBarAddButtonActionCell && widget.action == layoutType,
     );
     await tapButton(findCreateButton);
   }
@@ -1554,7 +1556,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> selectDatabaseLayoutType(DatabaseLayoutPB layout) async {
     final findLayoutCell = find.byType(DatabaseViewLayoutCell);
     final findText = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.text == layout.layoutName(),
+      (widget) => widget is FlowyText && widget.text == layout.layoutName,
     );
 
     final button = find.descendant(
