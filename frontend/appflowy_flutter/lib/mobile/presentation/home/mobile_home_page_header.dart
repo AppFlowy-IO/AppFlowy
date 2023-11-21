@@ -27,8 +27,8 @@ class MobileHomePageHeader extends StatelessWidget {
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
         builder: (context, state) {
           final userIcon = state.userProfile.iconUrl;
-          return SizedBox(
-            height: 48,
+          return ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
             child: Row(
               children: [
                 FlowyButton(
@@ -61,13 +61,14 @@ class MobileHomePageHeader extends StatelessWidget {
                 const HSpace(12),
                 Expanded(
                   child: Column(
+                    mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       const FlowyText.medium(
                         'AppFlowy',
                         fontSize: 18,
                       ),
+                      const VSpace(4),
                       FlowyText.regular(
                         userProfile.email.isNotEmpty
                             ? userProfile.email

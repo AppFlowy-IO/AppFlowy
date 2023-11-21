@@ -18,12 +18,11 @@ use lib_dispatch::prelude::{
 
 use crate::entities::*;
 use crate::parser::document_data_parser::DocumentDataParser;
+use crate::parser::external::parser::ExternalDataToNestedJSONParser;
 use crate::parser::parser_entities::{
   ConvertDataToJsonParams, ConvertDataToJsonPayloadPB, ConvertDataToJsonResponsePB,
   ConvertDocumentParams, ConvertDocumentPayloadPB, ConvertDocumentResponsePB,
 };
-
-use crate::parser::external::parser::ExternalDataToNestedJSONParser;
 use crate::{manager::DocumentManager, parser::json::parser::JsonToDocumentParser};
 
 fn upgrade_document(
@@ -69,7 +68,7 @@ pub(crate) async fn close_document_handler(
   let manager = upgrade_document(manager)?;
   let params: CloseDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  manager.close_document(&doc_id)?;
+  manager.close_document(&doc_id).await?;
   Ok(())
 }
 
