@@ -1,15 +1,14 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_accessory_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_menu.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_menu.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-
-import '../application/field/field_controller.dart';
-import '../grid/presentation/layout/sizes.dart';
-import '../grid/presentation/widgets/filter/filter_menu.dart';
-import '../grid/presentation/widgets/sort/sort_menu.dart';
 
 class DatabaseViewSettingExtension extends StatelessWidget {
   final String viewId;
@@ -57,26 +56,32 @@ class _DatabaseViewSettingContent extends StatelessWidget {
     return BlocBuilder<DatabaseViewSettingExtensionBloc,
         DatabaseViewSettingExtensionState>(
       builder: (context, state) {
-        return _wrapPadding(
-          Row(
-            children: [
-              SortMenu(fieldController: fieldController),
-              const HSpace(6),
-              FilterMenu(fieldController: fieldController),
-            ],
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: GridSize.leadingHeaderPadding,
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  SortMenu(fieldController: fieldController),
+                  const HSpace(6),
+                  FilterMenu(fieldController: fieldController),
+                ],
+              ),
+            ),
           ),
         );
       },
-    );
-  }
-
-  Widget _wrapPadding(Widget child) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: GridSize.leadingHeaderPadding,
-        vertical: 8,
-      ),
-      child: child,
     );
   }
 }

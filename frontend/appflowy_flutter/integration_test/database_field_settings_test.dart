@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_add_button.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pbenum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -16,7 +16,7 @@ void main() {
       await tester.tapGoButton();
 
       await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
-      await tester.tapCreateLinkedDatabaseViewButton(AddButtonAction.grid);
+      await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Grid);
 
       // create a field
       await tester.scrollToRight(find.byType(GridPage));
@@ -34,7 +34,7 @@ void main() {
       await tester.findFieldWithName('New field 1');
 
       // go back to linked database view, expect field to be hidden
-      await tester.tapTabBarLinkedViewByViewName('grid');
+      await tester.tapTabBarLinkedViewByViewName('Grid');
       await tester.noFieldWithName('New field 1');
 
       // use the settings button to show the field
