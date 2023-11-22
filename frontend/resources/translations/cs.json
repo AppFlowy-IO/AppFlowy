@@ -69,6 +69,7 @@
       "notifications": "Upozornění",
       "cloudURL": "URL adresa serveru",
       "enableEncryptPrompt": "Zapněte šifrování a zabezpečte svá ",
+      "inputTextFieldHint": "Váš klíč",
       "customPathPrompt": "Uložením složky s daty AppFlowy ve složce synchronizovanéí jako např. Google Drive může nést rizika. Pokud se databáze v  složce navštíví nebo změní "
     },
     "notifications": {
@@ -87,7 +88,8 @@
       "themeUpload": {
         "failure": "Nahrané téma vzhledu má neplatný formát."
       },
-      "pluginsLabel": "Dopl"
+      "pluginsLabel": "Dopl",
+      "showNamingDialogWhenCreatingPage": "Zobrazit d"
     },
     "files": {
       "copy": "Kopíá",
@@ -125,6 +127,25 @@
     "checklistFilter": {
       "isComplete": "je hotový",
       "isIncomplted": "není hotový"
+    },
+    "multiSelectOptionFilter": {
+      "isNotEmpty": "Není prázdný"
+    },
+    "field": {
+      "numberFieldName": "Čísla",
+      "numberFormat": "Formát čásel"
     }
+  },
+  "editor": {
+    "lightLightTint5": "Žlutá",
+    "lightLightTint6": "Limetková",
+    "lightLightTint7": "Zelená",
+    "lightLightTint8": "Akvamarínová",
+    "hexValue": "Hex hodnota",
+    "loading": "Načítání",
+    "imageLoadFailed": "Nepodařilo se načíst obrázek"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Napište / k "
   }
 }
