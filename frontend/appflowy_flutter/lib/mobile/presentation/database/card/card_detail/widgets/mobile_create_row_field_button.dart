@@ -27,22 +27,22 @@ class MobileCreateRowFieldButton extends StatelessWidget {
               color: Theme.of(context).hintColor,
             ),
       ),
-      onPressed: () async {
-        final result = await TypeOptionBackendService.createFieldTypeOption(
-          viewId: viewId,
-        );
-        result.fold(
-          (typeOption) {
-            context.push(
-              MobileCreateRowFieldScreen.routeName,
-              extra: {
-                MobileCreateRowFieldScreen.argViewId: viewId,
-                MobileCreateRowFieldScreen.argTypeOption: typeOption,
-                MobileCreateRowFieldScreen.argFieldController: fieldController,
-              },
-            );
-          },
-          (r) => Log.error("Failed to create field type option: $r"),
+      onPressed: () {
+        TypeOptionBackendService.createFieldTypeOption(viewId: viewId).then(
+          (result) => result.fold(
+            (typeOption) {
+              context.push(
+                MobileCreateRowFieldScreen.routeName,
+                extra: {
+                  MobileCreateRowFieldScreen.argViewId: viewId,
+                  MobileCreateRowFieldScreen.argTypeOption: typeOption,
+                  MobileCreateRowFieldScreen.argFieldController:
+                      fieldController,
+                },
+              );
+            },
+            (r) => Log.error("Failed to create field type option: $r"),
+          ),
         );
       },
       icon: FlowySvg(

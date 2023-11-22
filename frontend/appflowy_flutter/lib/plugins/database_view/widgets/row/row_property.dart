@@ -385,7 +385,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
           ),
         ),
       ),
-      popupBuilder: (BuildContext popOverContext) {
+      popupBuilder: (BuildContext popoverContext) {
         return FieldEditor(
           viewId: widget.viewId,
           fieldInfo: widget.fieldController.getField(typeOption.field_2.id)!,
