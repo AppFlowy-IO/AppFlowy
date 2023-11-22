@@ -1,4 +1,4 @@
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:flutter/material.dart';
 
 class EmojiIconWidget extends StatefulWidget {
@@ -32,8 +32,8 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
           borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,
-        child: FlowyText(
-          widget.emoji,
+        child: EmojiText(
+          emoji: widget.emoji,
           fontSize: widget.emojiSize,
           textAlign: TextAlign.center,
         ),
