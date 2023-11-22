@@ -546,11 +546,11 @@
     }
   },
   "board": {
-    "menuName": "Tábla",
-    "referencedBoardPrefix": "Nézet",
     "column": {
       "createNewCard": "Új"
-    }
+    },
+    "menuName": "Tábla",
+    "referencedBoardPrefix": "Nézet"
   },
   "calendar": {
     "menuName": "Naptár",

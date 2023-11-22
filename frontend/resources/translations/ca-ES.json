@@ -546,11 +546,11 @@
     }
   },
   "board": {
-    "menuName": "Pissarra",
-    "referencedBoardPrefix": "Vista de",
     "column": {
       "createNewCard": "Nou"
-    }
+    },
+    "menuName": "Pissarra",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendari",

@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "ボード",
-    "referencedBoardPrefix": "のビュー",
     "column": {
       "createNewCard": "新しい"
-    }
+    },
+    "menuName": "ボード",
+    "referencedBoardPrefix": "のビュー"
   },
   "calendar": {
     "menuName": "カレンダー",

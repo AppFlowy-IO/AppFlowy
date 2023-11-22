@@ -552,11 +552,11 @@
     }
   },
   "board": {
-    "menuName": "Kontseilua",
-    "referencedBoardPrefix": "-ren ikuspegia",
     "column": {
       "createNewCard": "Berria"
-    }
+    },
+    "menuName": "Kontseilua",
+    "referencedBoardPrefix": "-ren ikuspegia"
   },
   "calendar": {
     "menuName": "Egutegia",

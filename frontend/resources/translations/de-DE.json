@@ -591,11 +591,11 @@
     }
   },
   "board": {
-    "menuName": "Planke",
-    "referencedBoardPrefix": "Sicht von",
     "column": {
       "createNewCard": "Neu"
-    }
+    },
+    "menuName": "Planke",
+    "referencedBoardPrefix": "Sicht von"
   },
   "calendar": {
     "menuName": "Kalender",

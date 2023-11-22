@@ -546,11 +546,11 @@
     }
   },
   "board": {
-    "menuName": "Pano",
-    "referencedBoardPrefix": "görünümü",
     "column": {
       "createNewCard": "Yeni"
-    }
+    },
+    "menuName": "Pano",
+    "referencedBoardPrefix": "görünümü"
   },
   "calendar": {
     "menuName": "Takvim",

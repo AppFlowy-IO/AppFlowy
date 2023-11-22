@@ -1,0 +1,96 @@
+{
+  "appName": "AppFlowy",
+  "subscribeNewsletterText": "Přihlásit k odběru newsletteru",
+  "blockActions": {
+    "addAboveTooltip": "Přidat "
+  },
+  "signUp": {
+    "buttonText": "Regi",
+    "repeatPasswordEmptyError": "Heslo pro potvrzení nesmí být prázdné",
+    "unmatchedPasswordError": "Hesla se neshodují"
+  },
+  "signIn": {
+    "continueAnonymousUser": "Pokra"
+  },
+  "workspace": {
+    "chooseWorkspace": "Vyberte pracovní ůplochu",
+    "reset": "Resetovat plochu",
+    "hint": "pracovní plocha"
+  },
+  "shareAction": {
+    "workInProgress": "Ji brzy"
+  },
+  "moreAction": {
+    "moreOptions": "Ví"
+  },
+  "disclosureAction": {
+    "duplicate": "Duplikovat"
+  },
+  "trash": {
+    "text": "Koš",
+    "confirmRestoreAll": {
+      "caption": "Tuto kci ne"
+    },
+    "mobile": {
+      "isRestored": "je "
+    }
+  },
+  "questionBubble": {
+    "debug": {
+      "fail": "Nepodařilo se zkopáí"
+    }
+  },
+  "toolbar": {
+    "redo": "Znovu",
+    "highlight": "Zv"
+  },
+  "tooltip": {
+    "dragRow": "Dlou"
+  },
+  "sideBar": {
+    "personal": "Osobní"
+  },
+  "contactsPage": {
+    "title": "KontaktyCo se "
+  },
+  "button": {
+    "keep": "Z",
+    "removeFromFavorites": "Odstranit z oblíbených"
+  },
+  "oAuth": {
+    "google": {
+      "title": "Goohle přihlašování",
+      "instruction2": "Zkopírujte tento k=od do schránky kliknutím na ikonku nebo označením textu"
+    }
+  },
+  "settings": {
+    "menu": {
+      "notifications": "Upozornění",
+      "cloudURL": "URL adresa serveru",
+      "enableEncryptPrompt": "Zapněte šifrování a zabezpečte svá ",
+      "customPathPrompt": "Uložením složky s daty AppFlowy ve složce synchronizovanéí jako např. Google Drive může nést rizika. Pokud se databáze v  složce navštíví nebo změní "
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Po",
+        "hint": "Vypn"
+      }
+    },
+    "appearance": {
+      "layoutDirection": {
+        "hint": "Ovládejte tok obsahu na "
+      },
+      "textDirection": {
+        "fallback": "Stejné jako směr rozvržení"
+      },
+      "themeUpload": {
+        "failure": "Nahrané téma vzhledu má neplatný formát."
+      },
+      "pluginsLabel": "Dopl"
+    },
+    "files": {
+      "copy": "Kopíá",
+      "customizeLocation": "OtevřítProsím tre další složku"
+    }
+  }
+}

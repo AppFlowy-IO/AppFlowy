@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "سبورة",
-    "referencedBoardPrefix": "نظرا ل",
     "column": {
       "createNewCard": "جديد"
-    }
+    },
+    "menuName": "سبورة",
+    "referencedBoardPrefix": "نظرا ل"
   },
   "calendar": {
     "menuName": "تقويم",

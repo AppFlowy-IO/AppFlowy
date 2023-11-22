@@ -558,11 +558,11 @@
     }
   },
   "board": {
-    "menuName": "Asse",
-    "referencedBoardPrefix": "Vista di",
     "column": {
       "createNewCard": "Nuovo"
-    }
+    },
+    "menuName": "Asse",
+    "referencedBoardPrefix": "Vista di"
   },
   "calendar": {
     "menuName": "Calendario",

@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "Junta",
-    "referencedBoardPrefix": "Vista de",
     "column": {
       "createNewCard": "Nuevo"
-    }
+    },
+    "menuName": "Junta",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendario",

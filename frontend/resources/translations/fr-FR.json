@@ -630,11 +630,11 @@
     }
   },
   "board": {
-    "menuName": "Conseil",
-    "referencedBoardPrefix": "Vue",
     "column": {
       "createNewCard": "Nouveau"
-    }
+    },
+    "menuName": "Conseil",
+    "referencedBoardPrefix": "Vue"
   },
   "calendar": {
     "menuName": "Calendrier",

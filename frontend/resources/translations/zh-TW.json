@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "看板",
-    "referencedBoardPrefix": "視圖",
     "column": {
       "createNewCard": "建立"
-    }
+    },
+    "menuName": "看板",
+    "referencedBoardPrefix": "視圖"
   },
   "calendar": {
     "menuName": "月曆",

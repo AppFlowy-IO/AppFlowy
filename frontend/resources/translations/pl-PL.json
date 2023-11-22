@@ -656,11 +656,11 @@
     }
   },
   "board": {
-    "menuName": "Tablica",
-    "referencedBoardPrefix": "Widok",
     "column": {
       "createNewCard": "Nowy"
-    }
+    },
+    "menuName": "Tablica",
+    "referencedBoardPrefix": "Widok"
   },
   "calendar": {
     "menuName": "Kalendarz",
