@@ -45,7 +45,8 @@
     "highlight": "Zv"
   },
   "tooltip": {
-    "dragRow": "Dlou"
+    "dragRow": "Dlou",
+    "referencePage": "Zdroj"
   },
   "sideBar": {
     "personal": "Osobní"
@@ -113,7 +114,17 @@
     },
     "textFilter": {
       "contains": "Obsahuje",
-      "doesNotContain": "Neobsahuje"
+      "doesNotContain": "Neobsahuje",
+      "isEmpty": "Je pr"
+    },
+    "checkboxFilter": {
+      "choicechipPrefix": {
+        "is": "je"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "je hotový",
+      "isIncomplted": "není hotový"
     }
   }
 }
