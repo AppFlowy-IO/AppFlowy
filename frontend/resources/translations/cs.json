@@ -136,7 +136,8 @@
       "numberFormat": "Formát čásel",
       "includeTime": "Včetně času",
       "isRange": "Datum kon",
-      "failedToLoadDate": "Nepodařilo načíst datum"
+      "failedToLoadDate": "Nepodařilo načíst datum",
+      "deleteFieldPromptMessage": "Jste si jistí? Tato vlastnost bude smazána"
     }
   },
   "document": {
