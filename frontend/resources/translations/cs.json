@@ -90,7 +90,30 @@
     },
     "files": {
       "copy": "Kopíá",
-      "customizeLocation": "OtevřítProsím tre další složku"
+      "customizeLocation": "OtevřítProsím tre další složku",
+      "createNewFolder": "V",
+      "openFolderDesc": "Číst a zapisovat do existující AppFlowy složky",
+      "folderPath": "Umístění složkyU",
+      "recoverLocationTooltips": "Obnovit výchozí složku s daty "
+    },
+    "user": {
+      "clickToLogout": "Klin"
+    },
+    "shortcuts": {
+      "shortcutIsAlreadyUsed": "Tato zkratka je již použita pro: @@",
+      "couldNotSaveErrorMsg": "Nepodařilo seuložit klávesové zkta"
+    },
+    "mobile": {
+      "userAgreement": "Uživatels"
+    }
+  },
+  "grid": {
+    "title": {
+      "placeholder": "Bez nýzvu"
+    },
+    "textFilter": {
+      "contains": "Obsahuje",
+      "doesNotContain": "Neobsahuje"
     }
   }
 }
