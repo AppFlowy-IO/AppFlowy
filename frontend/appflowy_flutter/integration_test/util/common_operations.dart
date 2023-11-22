@@ -303,7 +303,7 @@ extension CommonOperations on WidgetTester {
       KVKeys.showRenameDialogWhenCreatingNewFile,
       (value) => bool.parse(value),
     );
-    final showRenameDialog = settingsOrFailure.fold((l) => false, (r) => r);
+    final showRenameDialog = settingsOrFailure.fold(() => false, (r) => r);
     if (showRenameDialog) {
       await tapOKButton();
     }

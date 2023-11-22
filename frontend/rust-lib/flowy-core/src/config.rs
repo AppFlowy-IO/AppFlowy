@@ -44,8 +44,12 @@ impl fmt::Debug for AppFlowyCoreConfig {
 fn migrate_local_version_data_folder(root: &str, url: &str) -> String {
   // Isolate the user data folder by using the base url of AppFlowy cloud. This is to avoid
   // the user data folder being shared by different AppFlowy cloud.
-  let server_base64 = URL_SAFE_ENGINE.encode(url);
-  let storage_path = format!("{}_{}", root, server_base64);
+  let storage_path = if !url.is_empty() {
+    let server_base64 = URL_SAFE_ENGINE.encode(url);
+    format!("{}_{}", root, server_base64)
+  } else {
+    root.to_string()
+  };
 
   // Copy the user data folder from the root path to the isolated path
   // The root path without any suffix is the created by the local version AppFlowy

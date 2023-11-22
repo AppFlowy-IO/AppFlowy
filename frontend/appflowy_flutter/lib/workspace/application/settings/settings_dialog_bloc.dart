@@ -14,7 +14,8 @@ enum SettingsPage {
   files,
   user,
   notifications,
-  cloud,
+  supabaseCloud,
+  appflowyCloud,
   shortcuts,
 }
 

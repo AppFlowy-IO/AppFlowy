@@ -1,4 +1,3 @@
-import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/setting_supabase_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -15,11 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'setting_cloud_url.dart';
-
-class SettingCloudView extends StatelessWidget {
+class SettingSupabaseCloudView extends StatelessWidget {
   final String userId;
-  const SettingCloudView({required this.userId, super.key});
+  const SettingSupabaseCloudView({required this.userId, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,15 +35,11 @@ class SettingCloudView extends StatelessWidget {
                 child: BlocBuilder<SupabaseCloudSettingBloc,
                     SupabaseCloudSettingState>(
                   builder: (context, state) {
-                    return Column(
+                    return const Column(
                       children: [
-                        const EnableSync(),
+                        SupabaseEnableSync(),
                         // Currently the appflowy cloud is not support end-to-end encryption.
-                        if (!isAppFlowyCloudEnabled) const EnableEncrypt(),
-                        if (isAppFlowyCloudEnabled)
-                          AppFlowyCloudInformationWidget(
-                            url: state.config.serverUrl,
-                          ),
+                        EnableEncrypt(),
                       ],
                     );
                   },
@@ -63,35 +56,6 @@ class SettingCloudView extends StatelessWidget {
           );
         }
       },
-    );
-  }
-}
-
-class AppFlowyCloudInformationWidget extends StatelessWidget {
-  final String url;
-
-  const AppFlowyCloudInformationWidget({required this.url, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        CloudURLConfiguration(),
-        // Row(
-        //   children: [
-        //     Expanded(
-        //       // Wrap the Opacity widget with Expanded
-        //       child: Opacity(
-        //         opacity: 0.6,
-        //         child: FlowyText(
-        //           "${LocaleKeys.settings_menu_cloudURL.tr()}: $url",
-        //           maxLines: null, // Allow the text to wrap
-        //         ),
-        //       ),
-        //     ),
-        //   ],
-        // ),
-      ],
     );
   }
 }
@@ -172,8 +136,8 @@ class EnableEncrypt extends StatelessWidget {
   }
 }
 
-class EnableSync extends StatelessWidget {
-  const EnableSync({super.key});
+class SupabaseEnableSync extends StatelessWidget {
+  const SupabaseEnableSync({super.key});
 
   @override
   Widget build(BuildContext context) {

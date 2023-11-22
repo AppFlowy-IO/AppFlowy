@@ -4,6 +4,7 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:dartz/dartz.dart';
 import 'package:envied/envied.dart';
 
 part 'env.g.dart';
@@ -28,21 +29,6 @@ abstract class _Env {
   )
   static final int cloudType = __Env.cloudType;
 
-  /// AppFlowy Cloud Configuration
-  @EnviedField(
-    obfuscate: true,
-    varName: 'APPFLOWY_CLOUD_BASE_URL',
-    defaultValue: '',
-  )
-  static final String afCloudBaseUrl = __Env.afCloudBaseUrl;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'APPFLOWY_CLOUD_WS_BASE_URL',
-    defaultValue: '',
-  )
-  static final String afCloudWSBaseUrl = __Env.afCloudWSBaseUrl;
-
   // Supabase Configuration:
   @EnviedField(
     obfuscate: true,
@@ -62,6 +48,16 @@ bool get isCloudEnabled {
   // Only enable supabase in release and develop mode.
   if (integrationMode().isRelease || integrationMode().isDevelop) {
     return currentCloudType().isEnabled;
+  } else {
+    return false;
+  }
+}
+
+bool get isAuthEnabled {
+  // Only enable supabase in release and develop mode.
+  if (integrationMode().isRelease || integrationMode().isDevelop) {
+    final env = getIt<AppFlowyCloudSharedEnv>();
+    return env.appflowyCloudConfig.isValid || env.supabaseConfig.isValid;
   } else {
     return false;
   }
@@ -108,31 +104,31 @@ CloudType currentCloudType() {
   }
 
   if (value == 2) {
-    final cloudURL =
-        getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url;
-    final wsURL =
-        getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.ws_base_url;
+    // final cloudURL =
+    //     getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url;
+    // final wsURL =
+    //     getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.ws_base_url;
 
-    if (cloudURL.isEmpty || wsURL.isEmpty) {
-      Log.error(
-        "AppFlowy cloud is not configured correctly. The values are: "
-        "baseUrl: ${_Env.afCloudBaseUrl}, wsBaseUrl: ${_Env.afCloudWSBaseUrl}",
-      );
-      return CloudType.unknown;
-    } else {
-      return CloudType.appflowyCloud;
-    }
+    // if (cloudURL.isEmpty || wsURL.isEmpty) {
+    //   Log.error(
+    //     "AppFlowy cloud is not configured correctly. The values are: "
+    //     "baseUrl: ${_Env.afCloudBaseUrl}, wsBaseUrl: ${_Env.afCloudWSBaseUrl}",
+    //   );
+    //   return CloudType.unknown;
+    // } else {
+    //   return CloudType.appflowyCloud;
+    // }
+    return CloudType.appflowyCloud;
   }
 
   return CloudType.unknown;
 }
 
-Future<void> setAppFlowyCloudBaseUrl(String url) async {
-  await getIt<KeyValueStorage>().set(KVKeys.appflowyCloudBaseURL, url);
-}
-
-Future<void> setAppFlowyCloudWSUrl(String url) async {
-  await getIt<KeyValueStorage>().set(KVKeys.appflowyCloudWSBaseURL, url);
+Future<void> setAppFlowyCloudBaseUrl(Option<String> url) async {
+  await url.fold(
+    () => getIt<KeyValueStorage>().remove(KVKeys.appflowyCloudBaseURL),
+    (s) => getIt<KeyValueStorage>().set(KVKeys.appflowyCloudBaseURL, s),
+  );
 }
 
 /// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
@@ -166,21 +162,28 @@ Future<String> getAppFlowyCloudUrl() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.appflowyCloudBaseURL);
   return result.fold(
-    (l) => _Env.afCloudBaseUrl,
-    (url) => url.isEmpty ? _Env.afCloudBaseUrl : url,
+    () => "",
+    (url) => url,
   );
 }
 
 Future<String> getAppFlowyCloudWSUrl() async {
-  final result =
-      await getIt<KeyValueStorage>().get(KVKeys.appflowyCloudWSBaseURL);
-  return result.fold(
-    (l) => _Env.afCloudWSBaseUrl,
-    (url) => url.isEmpty ? _Env.afCloudWSBaseUrl : url,
-  );
+  try {
+    final serverUrl = await getAppFlowyCloudUrl();
+    final uri = Uri.parse(serverUrl);
+    final host = uri.host;
+    if (uri.isScheme('HTTPS')) {
+      return 'wss://$host/ws';
+    } else {
+      return 'ws://$host/ws';
+    }
+  } catch (e) {
+    Log.error("Failed to get websocket url: $e");
+    return "";
+  }
 }
 
 Future<String> getAppFlowyCloudGotrueUrl() async {
-  final base = await getAppFlowyCloudUrl();
-  return "$base/gotrue";
+  final serverUrl = await getAppFlowyCloudUrl();
+  return "$serverUrl/gotrue";
 }

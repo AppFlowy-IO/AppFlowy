@@ -45,13 +45,14 @@ AppFlowyConfiguration _getAppFlowyConfiguration(
   String originAppPath,
   String deviceId,
 ) {
+  final env = getIt<AppFlowyCloudSharedEnv>();
   return AppFlowyConfiguration(
     custom_app_path: customAppPath,
     origin_app_path: originAppPath,
     device_id: deviceId,
-    cloud_type: getIt<AppFlowyCloudSharedEnv>().cloudType,
-    supabase_config: getIt<AppFlowyCloudSharedEnv>().supabaseConfig,
-    appflowy_cloud_config: getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig,
+    cloud_type: env.cloudType,
+    supabase_config: env.supabaseConfig,
+    appflowy_cloud_config: env.appflowyCloudConfig,
   );
 }
 

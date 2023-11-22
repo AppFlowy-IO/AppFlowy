@@ -44,5 +44,4 @@ class KVKeys {
       'showRenameDialogWhenCreatingNewFile';
 
   static const String appflowyCloudBaseURL = 'AppFlowyCloudBaseURL';
-  static const String appflowyCloudWSBaseURL = 'AppFlowyCloudWSBaseURL';
 }

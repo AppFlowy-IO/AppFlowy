@@ -190,7 +190,7 @@ class SettingsUserView extends StatelessWidget {
     BuildContext context,
     SettingsUserState state,
   ) {
-    if (!isCloudEnabled) {
+    if (!isAuthEnabled) {
       return const SizedBox.shrink();
     }
 
