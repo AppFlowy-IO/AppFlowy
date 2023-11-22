@@ -166,7 +166,7 @@ class MobileDBFieldBottomSheetBody extends StatelessWidget {
       children: [
         // field name editor
         MobileBottomSheetRenameWidget(
-          name: "Name",
+          name: context.read<FieldEditorBloc>().state.field.name,
           onRename: (newName) => onRename(newName),
           padding: EdgeInsets.zero,
         ),
