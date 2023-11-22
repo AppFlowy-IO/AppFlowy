@@ -130,16 +130,16 @@ GridCellWidget _getMobileCardCellWidget(
 ) {
   switch (cellContext.fieldType) {
     case FieldType.RichText:
-      style as GridTextCellStyle;
+      style as GridTextCellStyle?;
       return MobileTextCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style.placeholder,
+        hintText: style?.placeholder,
       );
     case FieldType.Number:
-      style as GridNumberCellStyle;
+      style as GridNumberCellStyle?;
       return MobileNumberCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style.placeholder,
+        hintText: style?.placeholder,
       );
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
@@ -153,17 +153,17 @@ GridCellWidget _getMobileCardCellWidget(
         key: key,
       );
     case FieldType.DateTime:
-      style as DateCellStyle;
+      style as DateCellStyle?;
       return MobileDateCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style.placeholder,
+        hintText: style?.placeholder,
         key: key,
       );
     case FieldType.URL:
-      style as GridURLCellStyle;
+      style as GridURLCellStyle?;
       return MobileURLCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style.placeholder,
+        hintText: style?.placeholder,
         key: key,
       );
     // TODO(yijing):  implement the following mobile select option cell
