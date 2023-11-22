@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/action.dart';
@@ -125,7 +126,6 @@ class _RowCardState<T> extends State<RowCard<T>> {
         builder: (context, state) {
           // mobile
           if (PlatformExtension.isMobile) {
-            // TODO(yijing): refactor it in mobile to display card in database view
             return RowCardContainer(
               buildAccessoryWhen: () => state.isEditing == false,
               accessoryBuilder: (context) {
@@ -133,8 +133,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
               },
               openAccessory: (p0) {},
               openCard: (context) => widget.openCard(context),
-              child: _CardContent<T>(
-                rowNotifier: rowNotifier,
+              child: MobileCardContent<T>(
                 cellBuilder: widget.cellBuilder,
                 styleConfiguration: widget.styleConfiguration,
                 cells: state.cells,

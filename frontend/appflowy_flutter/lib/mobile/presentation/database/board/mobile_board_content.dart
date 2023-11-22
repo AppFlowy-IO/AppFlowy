@@ -174,7 +174,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
 
     final groupItemId = groupItem.row.id + groupData.group.groupId;
 
-    return AppFlowyGroupCard(
+    return Container(
       key: ValueKey(groupItemId),
       margin: cardPadding,
       decoration: _makeBoxDecoration(context),
@@ -200,6 +200,12 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
         onEndEditing: () =>
             boardBloc.add(BoardEvent.endEditingRow(groupItem.row.id)),
+        styleConfiguration: const RowCardStyleConfiguration(
+          showAccessory: false,
+          hoverStyle: null,
+          cardPadding: EdgeInsets.all(8),
+          cellPadding: EdgeInsets.zero,
+        ),
       ),
     );
   }
@@ -224,7 +230,6 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     );
   }
 
-  //TODO(yijing): connect to card detail PR
   void _openCard({
     required BuildContext context,
     required String viewId,
