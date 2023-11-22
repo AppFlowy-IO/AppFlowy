@@ -219,16 +219,16 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
           overflow: TextOverflow.ellipsis,
         ),
         hoverColor: AFThemeExtension.of(context).greyHover,
-        onTap: () async {
-          final result = await TypeOptionBackendService.createFieldTypeOption(
-            viewId: widget.viewId,
-          );
-          result.fold(
-            (l) {
-              typeOption = l;
-              popoverController.show();
-            },
-            (r) => Log.error("Failed to create field type option: $r"),
+        onTap: () {
+          TypeOptionBackendService.createFieldTypeOption(viewId: widget.viewId)
+              .then(
+            (result) => result.fold(
+              (l) {
+                typeOption = l;
+                popoverController.show();
+              },
+              (r) => Log.error("Failed to create field type option: $r"),
+            ),
           );
         },
         leftIcon: const FlowySvg(FlowySvgs.add_s),

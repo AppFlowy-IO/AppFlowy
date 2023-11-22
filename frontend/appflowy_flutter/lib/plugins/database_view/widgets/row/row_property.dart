@@ -367,16 +367,17 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
             color: Theme.of(context).hintColor,
           ),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          onTap: () async {
-            final result = await TypeOptionBackendService.createFieldTypeOption(
+          onTap: () {
+            TypeOptionBackendService.createFieldTypeOption(
               viewId: widget.viewId,
-            );
-            result.fold(
-              (l) {
-                typeOption = l;
-                popoverController.show();
-              },
-              (r) => Log.error("Failed to create field type option: $r"),
+            ).then(
+              (result) => result.fold(
+                (l) {
+                  typeOption = l;
+                  popoverController.show();
+                },
+                (r) => Log.error("Failed to create field type option: $r"),
+              ),
             );
           },
           leftIcon: FlowySvg(
