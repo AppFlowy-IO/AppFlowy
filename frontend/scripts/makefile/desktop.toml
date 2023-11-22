@@ -63,7 +63,7 @@ script = [
         rm appflowy-static-libs-macos.tar.gz
       fi
 
-      sed -i "s|APPFLOWY_PWD|${PWD}|g" $(echo "${static_lib_path}/*.pc")
+       sed -i.bak "s|APPFLOWY_PWD|${PWD}|g" "${static_lib_path}"/*.pc
 
       build_cmd="ROCKSDB_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 OPENSSL_NO_VENDOR=1 ROCKSDB_LIB_DIR=${static_lib_path} PKG_CONFIG_PATH=${static_lib_path} OPENSSL_DIR=${static_lib_path}/openssl ${build_cmd}"
     fi
