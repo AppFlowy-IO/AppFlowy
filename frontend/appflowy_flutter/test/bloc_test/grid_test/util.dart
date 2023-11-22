@@ -149,7 +149,7 @@ Future<FieldEditorBloc> createFieldEditor({
         viewId: databaseController.viewId,
         fieldController: databaseController.fieldController,
         loader: loader,
-        field: databaseController.fieldController.getField(data.field_2.id)!,
+        field: data.field_2,
       );
     },
     (err) => throw Exception(err),

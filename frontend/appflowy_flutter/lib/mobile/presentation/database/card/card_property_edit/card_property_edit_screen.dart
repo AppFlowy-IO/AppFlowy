@@ -62,7 +62,7 @@ class CardPropertyEditScreen extends StatelessWidget {
           field: cellContext.fieldInfo.field,
         ),
         fieldController: fieldController,
-        fieldInfo: cellContext.fieldInfo,
+        field: cellContext.fieldInfo.field,
       ),
     );
   }

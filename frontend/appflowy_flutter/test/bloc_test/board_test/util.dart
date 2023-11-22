@@ -91,7 +91,7 @@ class BoardTestContext {
       viewId: databaseController.viewId,
       fieldController: fieldController,
       loader: loader,
-      field: fieldInfo,
+      field: fieldInfo.field,
     );
     return editorBloc;
   }

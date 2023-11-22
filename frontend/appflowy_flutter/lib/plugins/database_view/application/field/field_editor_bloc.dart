@@ -17,7 +17,7 @@ import 'type_option/type_option_data_controller.dart';
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
-  FieldInfo field;
+  final FieldPB field;
 
   final String viewId;
   final FieldController fieldController;
@@ -32,7 +32,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     required this.fieldController,
     required FieldTypeOptionLoader loader,
   })  : typeOptionController = TypeOptionController(
-          field: field.field,
+          field: field,
           loader: loader,
         ),
         _singleFieldListener = SingleFieldListener(fieldId: field.id),
@@ -41,28 +41,29 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
           fieldId: field.id,
         ),
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
-        super(FieldEditorState(field: field)) {
+        super(FieldEditorState(field: FieldInfo.initial(field))) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
+            final fieldId = field.id;
             typeOptionController.addFieldListener((field) {
               if (!isClosed) {
-                add(FieldEditorEvent.didReceiveFieldChanged(field));
+                add(FieldEditorEvent.didReceiveFieldChanged(fieldId));
               }
             });
             _singleFieldListener.start(
               onFieldChanged: (field) {
                 if (!isClosed) {
-                  add(FieldEditorEvent.didReceiveFieldChanged(field));
+                  add(FieldEditorEvent.didReceiveFieldChanged(fieldId));
                 }
               },
             );
             await typeOptionController.reloadTypeOption();
-            add(FieldEditorEvent.didReceiveFieldChanged(field.field));
+            add(FieldEditorEvent.didReceiveFieldChanged(fieldId));
           },
-          didReceiveFieldChanged: (field) {
-            emit(state.copyWith(field: fieldController.getField(field.id)!));
+          didReceiveFieldChanged: (fieldId) {
+            emit(state.copyWith(field: fieldController.getField(fieldId)!));
           },
           switchFieldType: (fieldType) async {
             await typeOptionController.switchToField(fieldType);
@@ -79,7 +80,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
                     ? FieldVisibility.AlwaysShown
                     : FieldVisibility.AlwaysHidden;
             final result = await fieldSettingsService.updateFieldSettings(
-              fieldId: field.id,
+              fieldId: state.field.id,
               fieldVisibility: newVisibility,
             );
             _logIfError(result);
@@ -114,7 +115,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 @freezed
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
-  const factory FieldEditorEvent.didReceiveFieldChanged(FieldPB field) =
+  const factory FieldEditorEvent.didReceiveFieldChanged(String fieldId) =
       _DidReceiveFieldChanged;
   const factory FieldEditorEvent.switchFieldType(FieldType fieldType) =
       _SwitchFieldType;

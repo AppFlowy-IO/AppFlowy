@@ -4,10 +4,9 @@ import 'package:appflowy/mobile/presentation/database/card/card_property_edit/mo
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/property_title.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -19,14 +18,14 @@ class MobileFieldEditor extends StatelessWidget {
     super.key,
     required this.viewId,
     required this.typeOptionLoader,
-    required this.fieldInfo,
+    required this.field,
     required this.fieldController,
   });
 
   final String viewId;
   final FieldController fieldController;
   final FieldTypeOptionLoader typeOptionLoader;
-  final FieldInfo fieldInfo;
+  final FieldPB field;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,7 @@ class MobileFieldEditor extends StatelessWidget {
         return FieldEditorBloc(
           viewId: viewId,
           loader: typeOptionLoader,
-          field: fieldInfo,
+          field: field,
           fieldController: fieldController,
         )..add(const FieldEditorEvent.initial());
       },

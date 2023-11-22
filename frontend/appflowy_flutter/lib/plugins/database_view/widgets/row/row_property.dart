@@ -227,7 +227,7 @@ class _PropertyCellState extends State<_PropertyCell> {
   Widget buildFieldEditor() {
     return FieldEditor(
       viewId: widget.cellContext.viewId,
-      fieldInfo: widget.cellContext.fieldInfo,
+      field: widget.cellContext.fieldInfo.field,
       fieldController: widget.fieldController,
     );
   }
@@ -367,17 +367,16 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
             color: Theme.of(context).hintColor,
           ),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          onTap: () {
-            TypeOptionBackendService.createFieldTypeOption(
+          onTap: () async {
+            final result = await TypeOptionBackendService.createFieldTypeOption(
               viewId: widget.viewId,
-            ).then(
-              (result) => result.fold(
-                (l) {
-                  typeOption = l;
-                  popoverController.show();
-                },
-                (r) => Log.error("Failed to create field type option: $r"),
-              ),
+            );
+            result.fold(
+              (l) {
+                typeOption = l;
+                popoverController.show();
+              },
+              (r) => Log.error("Failed to create field type option: $r"),
             );
           },
           leftIcon: FlowySvg(
@@ -389,7 +388,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
       popupBuilder: (BuildContext popoverContext) {
         return FieldEditor(
           viewId: widget.viewId,
-          fieldInfo: widget.fieldController.getField(typeOption.field_2.id)!,
+          field: typeOption.field_2,
           fieldController: widget.fieldController,
         );
       },

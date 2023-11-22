@@ -46,7 +46,7 @@ class MobileFieldButton extends StatelessWidget {
             context: context,
             builder: (context) => MobileDBBottomSheetFieldEditor(
               viewId: viewId,
-              field: field,
+              field: field.field,
               fieldController: fieldController,
             ),
           );

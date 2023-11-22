@@ -58,8 +58,7 @@ class _MobileCreateRowFieldScreenState
           field: widget.typeOption.field_2,
         ),
         fieldController: widget.fieldController,
-        fieldInfo:
-            widget.fieldController.getField(widget.typeOption.field_2.id)!,
+        field: widget.typeOption.field_2,
       ),
     );
   }

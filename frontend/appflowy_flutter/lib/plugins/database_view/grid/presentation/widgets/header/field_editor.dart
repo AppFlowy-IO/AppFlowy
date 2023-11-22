@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -26,13 +27,13 @@ enum FieldEditorPage {
 class FieldEditor extends StatefulWidget {
   final String viewId;
   final FieldController fieldController;
-  final FieldInfo fieldInfo;
+  final FieldPB field;
   final FieldEditorPage initialPage;
 
   const FieldEditor({
     super.key,
     required this.viewId,
-    required this.fieldInfo,
+    required this.field,
     required this.fieldController,
     this.initialPage = FieldEditorPage.details,
   });
@@ -49,7 +50,7 @@ class _FieldEditorState extends State<FieldEditor> {
   void initState() {
     super.initState();
     _currentPage = widget.initialPage;
-    textController = TextEditingController(text: widget.fieldInfo.name);
+    textController = TextEditingController(text: widget.field.name);
   }
 
   @override
@@ -57,11 +58,11 @@ class _FieldEditorState extends State<FieldEditor> {
     return BlocProvider(
       create: (_) => FieldEditorBloc(
         viewId: widget.viewId,
-        field: widget.fieldInfo,
+        field: widget.field,
         fieldController: widget.fieldController,
         loader: FieldTypeOptionLoader(
           viewId: widget.viewId,
-          field: widget.fieldInfo.field,
+          field: widget.field,
         ),
       )..add(const FieldEditorEvent.initial()),
       child: _currentPage == FieldEditorPage.details
@@ -102,7 +103,6 @@ class _FieldEditorState extends State<FieldEditor> {
       width: 260,
       child: FieldDetailsEditor(
         viewId: widget.viewId,
-        fieldInfo: widget.fieldInfo,
         textEditingController: textController,
       ),
     );
@@ -252,13 +252,10 @@ class FieldDetailsEditor extends StatefulWidget {
   final TextEditingController textEditingController;
   final Function()? onAction;
 
-  final FieldInfo fieldInfo;
-
   const FieldDetailsEditor({
     super.key,
     required this.viewId,
     required this.textEditingController,
-    required this.fieldInfo,
     this.onAction,
   });
 
@@ -290,10 +287,7 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
         textEditingController: widget.textEditingController,
       ),
       const VSpace(8),
-      if (!widget.fieldInfo.isPrimary) ...[
-        FieldTypeOptionCell(popoverMutex: popoverMutex),
-        const VSpace(2),
-      ],
+      FieldTypeOptionCell(popoverMutex: popoverMutex),
       const TypeOptionSeparator(),
       _addFieldVisibilityToggleButton(),
       _addDuplicateFieldButton(),
@@ -381,9 +375,12 @@ class FieldTypeOptionCell extends StatelessWidget {
         }
         final dataController =
             context.read<FieldEditorBloc>().typeOptionController;
-        return FieldTypeOptionEditor(
-          dataController: dataController,
-          popoverMutex: popoverMutex,
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 2.0),
+          child: FieldTypeOptionEditor(
+            dataController: dataController,
+            popoverMutex: popoverMutex,
+          ),
         );
       },
     );

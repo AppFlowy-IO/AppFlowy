@@ -42,7 +42,7 @@ void main() {
     final editorBloc = FieldEditorBloc(
       viewId: context.gridView.id,
       loader: loader,
-      field: fieldInfo,
+      field: fieldInfo.field,
       fieldController: context.fieldController,
     )..add(const FieldEditorEvent.initial());
     await boardResponseFuture();
