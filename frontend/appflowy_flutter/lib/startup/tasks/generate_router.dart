@@ -295,7 +295,6 @@ GoRoute _mobileFontPickerPageRoute() {
 
 GoRoute _mobileCalendarEventsPageRoute() {
   return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileCalendarEventsScreen.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
