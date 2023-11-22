@@ -165,9 +165,14 @@ impl DocumentManager {
   }
 
   #[instrument(level = "debug", skip(self), err)]
-  pub fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
-    // TODO(nathan): remove the document from lru cache. Currently, we don't remove it from the cache.
+  pub async fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
     // The lru will pop the least recently used document when the cache is full.
+    if let Ok(doc) = self.get_document(doc_id).await {
+      if let Some(doc) = doc.try_lock() {
+        let _ = doc.flush();
+      }
+    }
+
     Ok(())
   }
 

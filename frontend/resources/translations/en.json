@@ -272,7 +272,8 @@
       "inputTextFieldHint": "Your secret",
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
-      "openHistoricalUser": "Click to open the anonymous account"
+      "openHistoricalUser": "Click to open the anonymous account",
+      "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption"
     },
     "notifications": {
       "enableNotifications": {
@@ -496,6 +497,14 @@
       "timeFormatTwelveHour": "12 hour",
       "timeFormatTwentyFourHour": "24 hour",
       "clearDate": "Clear date",
+      "dateTime": "Date time",
+      "startDateTime": "Start date time",
+      "endDateTime": "End date time",
+      "failedToLoadDate": "Failed to load date value",
+      "selectTime": "Select time",
+      "selectDate": "Select date",
+      "visibility": "Visibility",
+      "propertyType": "Property type",
       "addSelectOption": "Add an option",
       "optionTitle": "Options",
       "addOption": "Add option",
@@ -785,13 +794,20 @@
       "collapseTooltip": "Hide the hidden groups",
       "expandTooltip": "View the hidden groups"
     },
+    "cardDetail": "Card Detail",
+    "cardActions": "Card Actions",
+    "cardDuplicated": "Card has been duplicated",
+    "cardDeleted": "Card has been deleted",
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
     "ungroupedButtonText": "Ungrouped",
     "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
-    "referencedBoardPrefix": "View of"
+    "referencedBoardPrefix": "View of",
+    "mobile": {
+      "editURL": "Edit URL"
+    }
   },
   "calendar": {
     "menuName": "Calendar",
@@ -1075,6 +1091,7 @@
   "titleBar": {
     "pageIcon": "Page icon",
     "language": "Language",
-    "font": "Font"
+    "font": "Font",
+    "actions": "Actions"
   }
 }

@@ -1,5 +1,4 @@
 export 'package:async/async.dart';
-import 'dart:io';
 import 'dart:async';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:flutter/services.dart';
@@ -27,12 +26,11 @@ class FlowySDK {
 
   void dispose() {}
 
-  Future<void> init(Directory sdkDir, String env) async {
+  Future<void> init(String configuration) async {
     final port = RustStreamReceiver.shared.port;
     ffi.set_stream_port(port);
 
     ffi.store_dart_post_cobject(NativeApi.postCObject);
-    ffi.set_env(env.toNativeUtf8());
-    ffi.init_sdk(sdkDir.path.toNativeUtf8());
+    ffi.init_sdk(configuration.toNativeUtf8());
   }
 }

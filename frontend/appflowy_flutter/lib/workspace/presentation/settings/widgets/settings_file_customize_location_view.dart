@@ -44,14 +44,28 @@ class SettingsFileLocationCustomizerState
               child: CircularProgressIndicator(),
             ),
             didReceivedPath: (path) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
+              return Column(
                 children: [
-                  // display file paths.
-                  _path(path),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // display file paths.
+                      _path(path),
 
-                  // display the icons
-                  _buttons(path),
+                      // display the icons
+                      _buttons(path),
+                    ],
+                  ),
+                  const VSpace(10),
+                  IntrinsicHeight(
+                    child: Opacity(
+                      opacity: 0.6,
+                      child: FlowyText.medium(
+                        LocaleKeys.settings_menu_customPathPrompt.tr(),
+                        maxLines: 13,
+                      ),
+                    ),
+                  ),
                 ],
               );
             },
