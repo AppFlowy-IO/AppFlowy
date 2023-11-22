@@ -6,7 +6,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileCalendarEventsScreen extends StatelessWidget {
+class MobileCalendarEventsScreen extends StatefulWidget {
   static const routeName = "/calendar-events";
 
   // GoRouter Arguments
@@ -32,44 +32,64 @@ class MobileCalendarEventsScreen extends StatelessWidget {
   final String viewId;
 
   @override
+  State<MobileCalendarEventsScreen> createState() =>
+      _MobileCalendarEventsScreenState();
+}
+
+class _MobileCalendarEventsScreenState
+    extends State<MobileCalendarEventsScreen> {
+  late List<CalendarDayEvent> _events = widget.events;
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: calendarBloc,
-      child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          key: const Key('add_event_fab'),
-          elevation: 6,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          onPressed: () => calendarBloc.add(CalendarEvent.createEvent(date)),
-          child: const Text('+'),
-        ),
-        appBar: AppBar(
-          title: Text(
-            DateFormat.yMMMMd(context.locale.toLanguageTag()).format(date),
-          ),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const VSpace(10),
-              ...events.map((event) {
-                return ListTile(
-                  dense: true,
-                  title: EventCard(
-                    event: event,
-                    viewId: viewId,
-                    rowCache: rowCache,
-                    constraints: const BoxConstraints.expand(),
-                    autoEdit: false,
-                    isDraggable: false,
-                  ),
-                );
-              }),
-              const VSpace(24),
-            ],
-          ),
-        ),
+      value: widget.calendarBloc,
+      child: BlocBuilder<CalendarBloc, CalendarState>(
+        buildWhen: (p, c) => p.newEvent != c.newEvent,
+        builder: (context, state) {
+          if (state.newEvent?.event != null) {
+            _events.add(state.newEvent!.event!);
+          }
+
+          return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              key: const Key('add_event_fab'),
+              elevation: 6,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              onPressed: () => widget.calendarBloc
+                  .add(CalendarEvent.createEvent(widget.date)),
+              child: const Text('+'),
+            ),
+            appBar: AppBar(
+              title: Text(
+                DateFormat.yMMMMd(context.locale.toLanguageTag())
+                    .format(widget.date),
+              ),
+            ),
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const VSpace(10),
+                  ...widget.events.map((event) {
+                    return ListTile(
+                      dense: true,
+                      title: EventCard(
+                        event: event,
+                        viewId: widget.viewId,
+                        rowCache: widget.rowCache,
+                        constraints: const BoxConstraints.expand(),
+                        autoEdit: false,
+                        isDraggable: false,
+                      ),
+                    );
+                  }),
+                  const VSpace(24),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
