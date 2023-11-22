@@ -22,6 +22,7 @@ List<MobileToolbarItem> getMobileToolbarItems() {
     mobileOutdentToolbarItem,
     undoMobileToolbarItem,
     redoMobileToolbarItem,
+    mobileBlockSettingsToolbarItem,
   ];
 }
 

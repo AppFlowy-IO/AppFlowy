@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
@@ -108,8 +109,8 @@ class _MobileRecentViewState extends State<MobileRecentView> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
                 child: icon.isNotEmpty
-                    ? FlowyText(
-                        icon,
+                    ? EmojiText(
+                        emoji: icon,
                         fontSize: 30.0,
                       )
                     : SizedBox.square(
