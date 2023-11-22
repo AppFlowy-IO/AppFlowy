@@ -133,10 +133,62 @@
     },
     "field": {
       "numberFieldName": "Čísla",
-      "numberFormat": "Formát čásel"
+      "numberFormat": "Formát čásel",
+      "includeTime": "Včetně času",
+      "isRange": "Datum kon",
+      "failedToLoadDate": "Nepodařilo načíst datum"
     }
   },
+  "document": {
+    "imageBlock": {
+      "ai": {
+        "placeholder": "Prosím vlo"
+      },
+      "stability_ai": {
+        "label": "Generovat obrázek ze Stability AI"
+      },
+      "pleaseInputYourStabilityAIKey": "prosím vložte svůjStability AI klíč v Nastavení"
+    }
+  },
+  "board": {
+    "column": {
+      "createNewCard": "Nová",
+      "renameGroupTooltip": "Zmáčknutím přejmenujete skupinu"
+    },
+    "ungroupedButtonTooltip": "Obsahuje karty, které ",
+    "ungroupedItemsTitle": "Kliknutím přidáte na nástěnku"
+  },
+  "calendar": {
+    "referencedCalendarPrefix": "Pohled na"
+  },
+  "views": {
+    "deleteContentCaption": "pokud "
+  },
+  "colors": {
+    "custom": "Vlastní"
+  },
+  "emoji": {
+    "categories": {
+      "flags": "Vlajky",
+      "nature": "Příroda"
+    }
+  },
+  "notificationHub": {
+    "title": "Upozornění",
+    "filters": {
+      "showUnreadsOnly": "Zobrazit pouze nepřečtené"
+    }
+  },
+  "error": {
+    "weAreSorry": "Omluváme se"
+  },
   "editor": {
+    "text": "Text",
+    "underline": "Podtržení",
+    "fontColorDefault": "Výchozí",
+    "tint4": "Odstín 4",
+    "tint5": "Odstín 5",
+    "tint6": "Odstín 6",
     "lightLightTint5": "Žlutá",
     "lightLightTint6": "Limetková",
     "lightLightTint7": "Zelená",
