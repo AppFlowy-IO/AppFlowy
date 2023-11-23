@@ -79,27 +79,26 @@ class CalendarDayCard extends StatelessWidget {
               ],
             );
 
-            return Stack(
-              children: [
-                GestureDetector(
-                  onDoubleTap: () => onCreateEvent(date),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: date.isWeekend
-                          ? AFThemeExtension.of(context).calendarWeekendBGColor
-                          : Colors.transparent,
-                    ),
-                  ),
-                ),
-                DragTarget<CalendarDayEvent>(
-                  builder: (context, candidate, __) {
-                    return Stack(
-                      children: [
-                        GestureDetector(
-                          onTap: PlatformExtension.isMobile
-                              ? () => _mobileOnTap(context)
-                              : null,
-                          child: Container(
+            return MouseRegion(
+              onEnter: (p) => notifyEnter(context, true),
+              onExit: (p) => notifyEnter(context, false),
+              opaque: false,
+              hitTestBehavior: HitTestBehavior.translucent,
+              child: GestureDetector(
+                onDoubleTap: () => onCreateEvent(date),
+                onTap: PlatformExtension.isMobile
+                    ? () => _mobileOnTap(context)
+                    : null,
+                behavior: HitTestBehavior.deferToChild,
+                child: Container(
+                  color: date.isWeekend
+                      ? AFThemeExtension.of(context).calendarWeekendBGColor
+                      : Colors.transparent,
+                  child: DragTarget<CalendarDayEvent>(
+                    builder: (context, candidate, __) {
+                      return Stack(
+                        children: [
+                          Container(
                             width: double.infinity,
                             height: double.infinity,
                             decoration: BoxDecoration(
@@ -111,29 +110,23 @@ class CalendarDayCard extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 5.0),
                             child: child,
                           ),
-                        ),
-                        if (candidate.isEmpty && !PlatformExtension.isMobile)
-                          NewEventButton(onCreate: () => onCreateEvent(date)),
-                      ],
-                    );
-                  },
-                  onAccept: (CalendarDayEvent event) {
-                    if (event.date == date) {
-                      return;
-                    }
+                          if (candidate.isEmpty && !PlatformExtension.isMobile)
+                            NewEventButton(onCreate: () => onCreateEvent(date)),
+                        ],
+                      );
+                    },
+                    onAccept: (CalendarDayEvent event) {
+                      if (event.date == date) {
+                        return;
+                      }
 
-                    context
-                        .read<CalendarBloc>()
-                        .add(CalendarEvent.moveEvent(event, date));
-                  },
+                      context
+                          .read<CalendarBloc>()
+                          .add(CalendarEvent.moveEvent(event, date));
+                    },
+                  ),
                 ),
-                MouseRegion(
-                  onEnter: (p) => notifyEnter(context, true),
-                  onExit: (p) => notifyEnter(context, false),
-                  opaque: false,
-                  hitTestBehavior: HitTestBehavior.translucent,
-                ),
-              ],
+              ),
             );
           },
         );
