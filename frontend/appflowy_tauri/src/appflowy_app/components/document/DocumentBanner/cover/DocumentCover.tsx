@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ChangeCoverButton from '$app/components/document/DocumentBanner/cover/ChangeCoverButton';
 import { readImage } from '$app/utils/document/image';
 import { CoverType } from '$app/interfaces/document';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 function DocumentCover({
   cover,
@@ -14,6 +15,7 @@ function DocumentCover({
   className?: string;
   onUpdateCover: (coverType: CoverType | null, cover: string | null) => void;
 }) {
+  const { docId } = useSubscribeDocument();
   const [hover, setHover] = useState(false);
   const [leftOffset, setLeftOffset] = useState(0);
   const [width, setWidth] = useState(0);
@@ -47,13 +49,13 @@ function DocumentCover({
 
   useEffect(() => {
     const observer = new ResizeObserver(handleWidthChange);
-    const docPage = document.getElementById('appflowy-block-doc') as HTMLElement;
+    const docPage = document.getElementById(`appflowy-block-doc-${docId}`) as HTMLElement;
 
     observer.observe(docPage);
     return () => {
       observer.disconnect();
     };
-  }, [handleWidthChange]);
+  }, [handleWidthChange, docId]);
 
   useEffect(() => {
     if (coverType === CoverType.Image && cover) {

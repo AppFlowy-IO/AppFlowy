@@ -97,11 +97,7 @@ where
       }
 
       // Query the user profile and workspaces
-      tracing::debug!(
-        "user uuid: {}, device_id: {}",
-        params.uuid,
-        params.device_id
-      );
+      tracing::debug!("user uuid: {}", params.uuid,);
       let user_profile =
         get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid))
           .await?
@@ -126,7 +122,6 @@ where
         is_new_user,
         email: Some(user_profile.email),
         token: None,
-        device_id: params.device_id,
         encryption_type: EncryptionType::from_sign(&user_profile.encryption_sign),
         updated_at: user_profile.updated_at.timestamp(),
         metadata: None,
@@ -157,7 +152,6 @@ where
         is_new_user: false,
         email: None,
         token: None,
-        device_id: params.device_id,
         encryption_type: EncryptionType::from_sign(&response.encryption_sign),
         updated_at: response.updated_at.timestamp(),
         metadata: None,
@@ -529,11 +523,16 @@ impl RealtimeEventHandler for RealtimeUserHandler {
 
   fn handler_event(&self, event: &RealtimeEvent) {
     if let Ok(user_event) = serde_json::from_value::<RealtimeUserEvent>(event.new.clone()) {
-      let _ = self.0.send(UserUpdate {
-        uid: user_event.uid,
-        name: Some(user_event.name),
-        email: Some(user_event.email),
-        encryption_sign: user_event.encryption_sign,
+      let sender = self.0.clone();
+      tokio::spawn(async move {
+        let _ = sender
+          .send(UserUpdate {
+            uid: user_event.uid,
+            name: Some(user_event.name),
+            email: Some(user_event.email),
+            encryption_sign: user_event.encryption_sign,
+          })
+          .await;
       });
     }
   }
@@ -541,14 +540,14 @@ impl RealtimeEventHandler for RealtimeUserHandler {
 
 pub struct RealtimeCollabUpdateHandler {
   sender_by_oid: Weak<CollabUpdateSenderByOid>,
-  device_id: Arc<RwLock<String>>,
+  device_id: String,
   encryption: Weak<dyn AppFlowyEncryption>,
 }
 
 impl RealtimeCollabUpdateHandler {
   pub fn new(
     sender_by_oid: Weak<CollabUpdateSenderByOid>,
-    device_id: Arc<RwLock<String>>,
+    device_id: String,
     encryption: Weak<dyn AppFlowyEncryption>,
   ) -> Self {
     Self {
@@ -571,10 +570,10 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
         if let Some(sender) = sender_by_oid.read().get(collab_update.oid.as_str()) {
           tracing::trace!(
             "current device: {}, event device: {}",
-            self.device_id.read(),
+            self.device_id,
             collab_update.did.as_str()
           );
-          if *self.device_id.read() != collab_update.did.as_str() {
+          if self.device_id != collab_update.did {
             let encryption_secret = self
               .encryption
               .upgrade()
@@ -623,10 +622,5 @@ fn oauth_params_from_box_any(any: BoxAny) -> Result<SupabaseOAuthParams, Error> 
   let map: HashMap<String, String> = any.unbox_or_error()?;
   let uuid = uuid_from_map(&map)?;
   let email = map.get("email").cloned().unwrap_or_default();
-  let device_id = map.get("device_id").cloned().unwrap_or_default();
-  Ok(SupabaseOAuthParams {
-    uuid,
-    email,
-    device_id,
-  })
+  Ok(SupabaseOAuthParams { uuid, email })
 }

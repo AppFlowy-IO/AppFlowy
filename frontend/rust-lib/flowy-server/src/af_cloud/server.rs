@@ -30,24 +30,20 @@ use crate::af_cloud::impls::{
 };
 use crate::AppFlowyServer;
 
-pub(crate) type AFCloudClient = client_api::Client;
+pub(crate) type AFCloudClient = Client;
 
-pub struct AFCloudServer {
+pub struct AppFlowyCloudServer {
   #[allow(dead_code)]
   pub(crate) config: AFCloudConfiguration,
   pub(crate) client: Arc<AFCloudClient>,
   enable_sync: Arc<AtomicBool>,
   #[allow(dead_code)]
-  device_id: Arc<parking_lot::RwLock<String>>,
+  device_id: String,
   ws_client: Arc<WSClient>,
 }
 
-impl AFCloudServer {
-  pub fn new(
-    config: AFCloudConfiguration,
-    enable_sync: bool,
-    device_id: Arc<parking_lot::RwLock<String>>,
-  ) -> Self {
+impl AppFlowyCloudServer {
+  pub fn new(config: AFCloudConfiguration, enable_sync: bool, device_id: String) -> Self {
     let api_client = AFCloudClient::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
@@ -81,7 +77,7 @@ impl AFCloudServer {
   }
 }
 
-impl AppFlowyServer for AFCloudServer {
+impl AppFlowyServer for AppFlowyCloudServer {
   fn set_token(&self, token: &str) -> Result<(), Error> {
     self
       .client
@@ -167,7 +163,7 @@ impl AppFlowyServer for AFCloudServer {
       WSConnectStateReceiver,
       bool,
     )>,
-    anyhow::Error,
+    Error,
   > {
     if self.enable_sync.load(Ordering::SeqCst) {
       let object_id = _object_id.to_string();
@@ -198,13 +194,13 @@ impl AppFlowyServer for AFCloudServer {
 /// This function listens to the `token_state_rx` channel for token state updates. Depending on the
 /// received state, it either refreshes the WebSocket connection or disconnects from it.
 fn spawn_ws_conn(
-  device_id: &Arc<parking_lot::RwLock<String>>,
+  device_id: &String,
   mut token_state_rx: TokenStateReceiver,
   ws_client: &Arc<WSClient>,
   api_client: &Arc<Client>,
   enable_sync: &Arc<AtomicBool>,
 ) {
-  let weak_device_id = Arc::downgrade(device_id);
+  let cloned_device_id = device_id.to_owned();
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
   let enable_sync = enable_sync.clone();
@@ -217,15 +213,12 @@ fn spawn_ws_conn(
         match state {
           ConnectState::PingTimeout | ConnectState::Closed => {
             // Try to reconnect if the connection is timed out.
-            if let (Some(api_client), Some(device_id)) =
-              (weak_api_client.upgrade(), weak_device_id.upgrade())
-            {
+            if let Some(api_client) = weak_api_client.upgrade() {
               if enable_sync.load(Ordering::SeqCst) {
-                let device_id = device_id.read().clone();
-                match api_client.ws_url(&device_id) {
+                match api_client.ws_url(&cloned_device_id) {
                   Ok(ws_addr) => {
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
-                    let _ = ws_client.connect(ws_addr, &device_id).await;
+                    let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
                   },
                   Err(err) => error!("Failed to get ws url: {}", err),
                 }
@@ -245,19 +238,16 @@ fn spawn_ws_conn(
     }
   });
 
-  let weak_device_id = Arc::downgrade(device_id);
+  let device_id = device_id.to_owned();
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
   af_spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
       match token_state {
         TokenState::Refresh => {
-          if let (Some(api_client), Some(ws_client), Some(device_id)) = (
-            weak_api_client.upgrade(),
-            weak_ws_client.upgrade(),
-            weak_device_id.upgrade(),
-          ) {
-            let device_id = device_id.read().clone();
+          if let (Some(api_client), Some(ws_client)) =
+            (weak_api_client.upgrade(), weak_ws_client.upgrade())
+          {
             match api_client.ws_url(&device_id) {
               Ok(ws_addr) => {
                 info!("🟢token state: {:?}, reconnecting websocket", token_state);

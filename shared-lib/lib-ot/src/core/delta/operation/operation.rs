@@ -1,7 +1,3 @@
-use crate::core::interval::Interval;
-use crate::core::ot_str::OTString;
-use crate::errors::OTError;
-use serde::{Deserialize, Serialize, __private::Formatter};
 use std::fmt::Display;
 use std::{
   cmp::min,
@@ -9,6 +5,12 @@ use std::{
   fmt::Debug,
   ops::{Deref, DerefMut},
 };
+
+use serde::{Deserialize, Serialize, __private::Formatter};
+
+use crate::core::interval::Interval;
+use crate::core::ot_str::OTString;
+use crate::errors::OTError;
 
 pub trait OperationTransform {
   /// Merges the operation with `other` into one operation while preserving
@@ -156,7 +158,7 @@ where
 
   pub fn set_attributes(&mut self, attributes: T) {
     match self {
-      DeltaOperation::Delete(_) => log::error!("Delete should not contains attributes"),
+      DeltaOperation::Delete(_) => tracing::error!("Delete should not contains attributes"),
       DeltaOperation::Retain(retain) => retain.attributes = attributes,
       DeltaOperation::Insert(insert) => insert.attributes = attributes,
     }

@@ -13,8 +13,8 @@ use flowy_notification::entities::SubscribeObject;
 use flowy_notification::NotificationSender;
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_URL, USER_UUID};
 use flowy_user::entities::{
-  AuthTypePB, OauthSignInPB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB,
-  UpdateUserProfilePayloadPB, UserCloudConfigPB, UserProfilePB,
+  AuthTypePB, CloudSettingPB, OauthSignInPB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB,
+  UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
@@ -29,7 +29,7 @@ impl EventIntegrationTest {
       .event(GetCloudConfig)
       .async_send()
       .await
-      .parse::<UserCloudConfigPB>();
+      .parse::<CloudSettingPB>();
     let update = UpdateCloudConfigPB {
       enable_sync: None,
       enable_encrypt: Some(true),

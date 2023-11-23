@@ -144,16 +144,16 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
             constraints: BoxConstraints.loose(const Size(360, 400)),
             direction: PopoverDirection.bottomWithLeftAligned,
             triggerActions: PopoverTriggerFlags.none,
-            popupBuilder: (BuildContext context) {
+            popupBuilder: (BuildContext popoverContext) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                widget.onCellFocus.value = true;
+                widget.cellContainerNotifier.isFocus = true;
               });
               return GridChecklistCellEditor(
                 cellController: widget.cellControllerBuilder.build()
                     as ChecklistCellController,
               );
             },
-            onClose: () => widget.onCellFocus.value = false,
+            onClose: () => widget.cellContainerNotifier.isFocus = false,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Padding(

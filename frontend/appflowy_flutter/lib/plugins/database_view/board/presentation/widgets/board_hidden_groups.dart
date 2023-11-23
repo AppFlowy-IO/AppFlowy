@@ -421,6 +421,8 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return RowDetailPage(
+                          fieldController:
+                              context.read<BoardBloc>().fieldController,
                           cellBuilder: GridCellBuilder(
                             cellCache: rowController.cellCache,
                           ),

@@ -197,8 +197,8 @@ pub enum ErrorCode {
   #[error("Missing auth field")]
   MissingAuthField = 65,
 
-  #[error("Only one application can access the database")]
-  MultipleDBInstance = 66,
+  #[error("Rocksdb IO error")]
+  RocksdbIOError = 66,
 
   #[error("Document id is empty")]
   DocumentIdIsEmpty = 67,
@@ -256,6 +256,12 @@ pub enum ErrorCode {
 
   #[error("Not support yet")]
   NotSupportYet = 85,
+
+  #[error("rocksdb corruption")]
+  RocksdbCorruption = 86,
+
+  #[error("rocksdb internal error")]
+  RocksdbInternal = 87,
 }
 
 impl ErrorCode {

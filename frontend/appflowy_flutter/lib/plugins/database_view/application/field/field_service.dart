@@ -27,7 +27,6 @@ class FieldBackendService {
   Future<Either<Unit, FlowyError>> updateField({
     String? name,
     bool? frozen,
-    double? width,
   }) {
     final payload = FieldChangesetPB.create()
       ..viewId = viewId
@@ -39,10 +38,6 @@ class FieldBackendService {
 
     if (frozen != null) {
       payload.frozen = frozen;
-    }
-
-    if (width != null) {
-      payload.width = width.toInt();
     }
 
     return DatabaseEventUpdateField(payload).send();

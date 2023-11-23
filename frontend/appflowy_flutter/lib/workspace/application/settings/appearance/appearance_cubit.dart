@@ -1,24 +1,19 @@
 import 'dart:async';
 
-import 'package:appflowy/mobile/application/mobile_theme_data.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 part 'appearance_cubit.freezed.dart';
-
-const _white = Color(0xFFFFFFFF);
 
 /// [AppearanceSettingsCubit] is used to modify the appearance of AppFlowy.
 /// It includes:
@@ -349,251 +344,11 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   ThemeData get darkTheme => _getThemeData(Brightness.dark);
 
   ThemeData _getThemeData(Brightness brightness) {
-    // Poppins and SF Mono are not well supported in some languages, so use the
-    // built-in font for the following languages.
-    final useBuiltInFontLanguages = [
-      const Locale('zh', 'CN'),
-      const Locale('zh', 'TW'),
-    ];
-    String fontFamily = font;
-    String monospaceFontFamily = monospaceFont;
-    if (useBuiltInFontLanguages.contains(locale)) {
-      fontFamily = '';
-      monospaceFontFamily = '';
-    }
-
-    final theme = brightness == Brightness.light
-        ? appTheme.lightTheme
-        : appTheme.darkTheme;
-
-    final colorScheme = ColorScheme(
-      brightness: brightness,
-      primary: theme.primary,
-      onPrimary: theme.onPrimary,
-      primaryContainer: theme.main2,
-      onPrimaryContainer: _white,
-      // page title hover color
-      secondary: theme.hoverBG1,
-      onSecondary: theme.shader1,
-      // setting value hover color
-      secondaryContainer: theme.selector,
-      onSecondaryContainer: theme.topbarBg,
-      tertiary: theme.shader7,
-      // Editor: toolbarColor
-      onTertiary: theme.toolbarColor,
-      tertiaryContainer: theme.questionBubbleBG,
-      background: theme.surface,
-      onBackground: theme.text,
-      surface: theme.surface,
-      // text&icon color when it is hovered
-      onSurface: theme.hoverFG,
-      // grey hover color
-      inverseSurface: theme.hoverBG3,
-      onError: theme.onPrimary,
-      error: theme.red,
-      outline: theme.shader4,
-      surfaceVariant: theme.sidebarBg,
-      shadow: theme.shadow,
-    );
-
-    const Set<MaterialState> scrollbarInteractiveStates = <MaterialState>{
-      MaterialState.pressed,
-      MaterialState.hovered,
-      MaterialState.dragged,
-    };
-
-    if (PlatformExtension.isMobile) {
-      // Mobile version has only one theme(light mode) for now.
-      // The desktop theme and the mobile theme are independent.
-      final mobileThemeData = getMobileThemeData(
-        brightness,
-        theme,
-        fontFamily,
-        monospaceFontFamily,
-      );
-      return mobileThemeData;
-    }
-
-    // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
-    final desktopThemeData = ThemeData(
-      brightness: brightness,
-      dialogBackgroundColor: theme.surface,
-      textTheme: getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: theme.main2,
-        selectionHandleColor: theme.main2,
-      ),
-      iconTheme: IconThemeData(color: theme.icon),
-      tooltipTheme: TooltipThemeData(
-        textStyle: getFontStyle(
-          fontFamily: fontFamily,
-          fontSize: FontSizes.s11,
-          fontWeight: FontWeight.w400,
-          fontColor: theme.surface,
-        ),
-      ),
-      scaffoldBackgroundColor: theme.surface,
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: colorScheme.primary,
-        contentTextStyle: TextStyle(color: colorScheme.onSurface),
-      ),
-      scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.any(scrollbarInteractiveStates.contains)) {
-            return theme.shader7;
-          }
-          return theme.shader5;
-        }),
-        thickness: MaterialStateProperty.resolveWith((states) {
-          if (states.any(scrollbarInteractiveStates.contains)) {
-            return 4;
-          }
-          return 3.0;
-        }),
-        crossAxisMargin: 0.0,
-        mainAxisMargin: 6.0,
-        radius: Corners.s10Radius,
-      ),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      //dropdown menu color
-      canvasColor: theme.surface,
-      dividerColor: theme.divider,
-      hintColor: theme.hint,
-      //action item hover color
-      hoverColor: theme.hoverBG2,
-      disabledColor: theme.shader4,
-      highlightColor: theme.main1,
-      indicatorColor: theme.main1,
-      cardColor: theme.input,
-      colorScheme: colorScheme,
-      extensions: [
-        AFThemeExtension(
-          warning: theme.yellow,
-          success: theme.green,
-          tint1: theme.tint1,
-          tint2: theme.tint2,
-          tint3: theme.tint3,
-          tint4: theme.tint4,
-          tint5: theme.tint5,
-          tint6: theme.tint6,
-          tint7: theme.tint7,
-          tint8: theme.tint8,
-          tint9: theme.tint9,
-          textColor: theme.text,
-          greyHover: theme.hoverBG1,
-          greySelect: theme.bg3,
-          lightGreyHover: theme.hoverBG3,
-          toggleOffFill: theme.shader5,
-          progressBarBGColor: theme.progressBarBGColor,
-          toggleButtonBGColor: theme.toggleButtonBGColor,
-          calendarWeekendBGColor: theme.calendarWeekendBGColor,
-          gridRowCountColor: theme.gridRowCountColor,
-          code: getFontStyle(
-            fontFamily: monospaceFontFamily,
-            fontColor: theme.shader3,
-          ),
-          callout: getFontStyle(
-            fontFamily: fontFamily,
-            fontSize: FontSizes.s11,
-            fontColor: theme.shader3,
-          ),
-          calloutBGColor: theme.hoverBG3,
-          tableCellBGColor: theme.surface,
-          caption: getFontStyle(
-            fontFamily: fontFamily,
-            fontSize: FontSizes.s11,
-            fontWeight: FontWeight.w400,
-            fontColor: theme.hint,
-          ),
-        ),
-      ],
-    );
-    return desktopThemeData;
-  }
-}
-
-TextStyle getFontStyle({
-  required String fontFamily,
-  double? fontSize,
-  FontWeight? fontWeight,
-  Color? fontColor,
-  double? letterSpacing,
-  double? lineHeight,
-}) {
-  try {
-    return GoogleFonts.getFont(
-      fontFamily,
-      fontSize: fontSize ?? FontSizes.s12,
-      color: fontColor,
-      fontWeight: fontWeight ?? FontWeight.w500,
-      letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
-      height: lineHeight,
-    );
-  } catch (e) {
-    return TextStyle(
-      fontFamily: fontFamily,
-      fontSize: fontSize ?? FontSizes.s12,
-      color: fontColor,
-      fontWeight: fontWeight ?? FontWeight.w500,
-      fontFamilyFallback: const ["Noto Color Emoji"],
-      letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
-      height: lineHeight,
+    return getIt<BaseAppearance>().getThemeData(
+      appTheme,
+      brightness,
+      font,
+      monospaceFont,
     );
   }
-}
-
-TextTheme getTextTheme({
-  required String fontFamily,
-  required Color fontColor,
-}) {
-  return TextTheme(
-    displayLarge: getFontStyle(
-      fontFamily: fontFamily,
-      fontSize: FontSizes.s32,
-      fontColor: fontColor,
-      fontWeight: FontWeight.w600,
-      lineHeight: 42.0,
-    ), // h2
-    displayMedium: getFontStyle(
-      fontFamily: fontFamily,
-      fontSize: FontSizes.s24,
-      fontColor: fontColor,
-      fontWeight: FontWeight.w600,
-      lineHeight: 34.0,
-    ), // h3
-    displaySmall: getFontStyle(
-      fontFamily: fontFamily,
-      fontSize: FontSizes.s20,
-      fontColor: fontColor,
-      fontWeight: FontWeight.w600,
-      lineHeight: 28.0,
-    ), // h4
-    titleLarge: getFontStyle(
-      fontFamily: fontFamily,
-      fontSize: FontSizes.s18,
-      fontColor: fontColor,
-      fontWeight: FontWeight.w600,
-    ), // title
-    titleMedium: getFontStyle(
-      fontFamily: fontFamily,
-      fontSize: FontSizes.s16,
-      fontColor: fontColor,
-      fontWeight: FontWeight.w600,
-    ), // heading
-    titleSmall: getFontStyle(
-      fontFamily: fontFamily,
-      fontSize: FontSizes.s14,
-      fontColor: fontColor,
-      fontWeight: FontWeight.w600,
-    ), // subheading
-    bodyMedium: getFontStyle(
-      fontFamily: fontFamily,
-      fontColor: fontColor,
-    ), // body-regular
-    bodySmall: getFontStyle(
-      fontFamily: fontFamily,
-      fontColor: fontColor,
-      fontWeight: FontWeight.w400,
-    ), // body-thin
-  );
 }

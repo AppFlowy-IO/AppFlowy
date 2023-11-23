@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_type_option_edit_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_controller.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 
@@ -10,7 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../layout/sizes.dart';
+
 import 'field_type_extension.dart';
 import 'field_type_list.dart';
 import 'type_option/builder.dart';
@@ -27,19 +28,17 @@ class FieldTypeOptionEditor extends StatelessWidget {
   final PopoverMutex popoverMutex;
 
   const FieldTypeOptionEditor({
+    super.key,
     required TypeOptionController dataController,
     required this.popoverMutex,
-    Key? key,
-  })  : _dataController = dataController,
-        super(key: key);
+  }) : _dataController = dataController;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc = FieldTypeOptionEditBloc(_dataController);
-        bloc.add(const FieldTypeOptionEditEvent.initial());
-        return bloc;
+        return FieldTypeOptionEditBloc(_dataController)
+          ..add(const FieldTypeOptionEditEvent.initial());
       },
       child: BlocBuilder<FieldTypeOptionEditBloc, FieldTypeOptionEditState>(
         builder: (context, state) {
@@ -53,8 +52,8 @@ class FieldTypeOptionEditor extends StatelessWidget {
             if (typeOptionWidget != null) typeOptionWidget,
           ];
 
-          return ListView(
-            shrinkWrap: true,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
             children: children,
           );
         },
@@ -74,22 +73,30 @@ class FieldTypeOptionEditor extends StatelessWidget {
   }
 }
 
-class SwitchFieldButton extends StatelessWidget {
+class SwitchFieldButton extends StatefulWidget {
   final PopoverMutex popoverMutex;
   const SwitchFieldButton({
+    super.key,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  @override
+  State<SwitchFieldButton> createState() => _SwitchFieldButtonState();
+}
+
+class _SwitchFieldButtonState extends State<SwitchFieldButton> {
+  final PopoverController _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
-    final widget = AppFlowyPopover(
+    final child = AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(460, 540)),
-      asBarrier: true,
-      triggerActions: PopoverTriggerFlags.click,
-      mutex: popoverMutex,
+      triggerActions: PopoverTriggerFlags.hover,
+      mutex: widget.popoverMutex,
+      controller: _popoverController,
       offset: const Offset(8, 0),
-      popupBuilder: (popOverContext) {
+      margin: const EdgeInsets.all(8),
+      popupBuilder: (BuildContext popoverContext) {
         return FieldTypeList(
           onSelectField: (newFieldType) {
             context
@@ -99,20 +106,21 @@ class SwitchFieldButton extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: _buildMoreButton(context),
       ),
     );
 
     return SizedBox(
       height: GridSize.popoverItemHeight,
-      child: widget,
+      child: child,
     );
   }
 
   Widget _buildMoreButton(BuildContext context) {
     final bloc = context.read<FieldTypeOptionEditBloc>();
     return FlowyButton(
+      onTap: () => _popoverController.show(),
       text: FlowyText.medium(
         bloc.state.field.fieldType.title(),
       ),
@@ -123,5 +131,5 @@ class SwitchFieldButton extends StatelessWidget {
 }
 
 abstract class TypeOptionWidget extends StatelessWidget {
-  const TypeOptionWidget({Key? key}) : super(key: key);
+  const TypeOptionWidget({super.key});
 }

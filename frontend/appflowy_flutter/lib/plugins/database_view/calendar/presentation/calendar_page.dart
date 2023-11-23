@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
@@ -304,6 +305,7 @@ void showEventDetails({
   required CalendarEventPB event,
   required String viewId,
   required RowCache rowCache,
+  required FieldController fieldController,
 }) {
   final dataController = RowController(
     rowMeta: event.rowMeta,
@@ -313,12 +315,13 @@ void showEventDetails({
 
   FlowyOverlay.show(
     context: context,
-    builder: (BuildContext context) {
+    builder: (BuildContext overlayContext) {
       return RowDetailPage(
         cellBuilder: GridCellBuilder(
           cellCache: rowCache.cellCache,
         ),
         rowController: dataController,
+        fieldController: fieldController,
       );
     },
   );
@@ -387,8 +390,7 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
             ),
             popupBuilder: (context) {
               return UnscheduleEventsList(
-                viewId: widget.databaseController.viewId,
-                rowCache: widget.databaseController.rowCache,
+                databaseController: widget.databaseController,
                 unscheduleEvents: state.unscheduleEvents,
               );
             },
@@ -400,14 +402,12 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
 }
 
 class UnscheduleEventsList extends StatelessWidget {
-  final String viewId;
-  final RowCache rowCache;
+  final DatabaseController databaseController;
   final List<CalendarEventPB> unscheduleEvents;
   const UnscheduleEventsList({
-    required this.viewId,
-    required this.unscheduleEvents,
-    required this.rowCache,
     super.key,
+    required this.unscheduleEvents,
+    required this.databaseController,
   });
 
   @override
@@ -429,8 +429,9 @@ class UnscheduleEventsList extends StatelessWidget {
             showEventDetails(
               context: context,
               event: e,
-              viewId: viewId,
-              rowCache: rowCache,
+              viewId: databaseController.viewId,
+              rowCache: databaseController.rowCache,
+              fieldController: databaseController.fieldController,
             );
             PopoverContainer.of(context).close();
           },
