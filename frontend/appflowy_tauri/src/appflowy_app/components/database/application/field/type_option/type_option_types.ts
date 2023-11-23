@@ -38,7 +38,6 @@ export interface CheckboxTypeOption {
   isSelected?: boolean;
 }
 
-
 function pbToSelectTypeOption(pb: SingleSelectTypeOptionPB | MultiSelectTypeOptionPB): SelectTypeOption {
   return {
     options: pb.options?.map(pbToSelectOption),

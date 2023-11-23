@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
-import { MenuItem, SelectProps, FormControl } from '@mui/material';
-import Select from '@mui/material/Select';
+import { SelectProps } from '@mui/material';
+
 import { TextFilterConditionPB } from '@/services/backend';
 import { useTranslation } from 'react-i18next';
+import ConditionSelect from '$app/components/database/components/filter/ConditionSelect';
 
 const TextFilterConditions = Object.values(TextFilterConditionPB).filter(
   (item) => typeof item !== 'string'
@@ -37,17 +38,13 @@ function TextFilterConditionSelect(props: SelectProps) {
   );
 
   return (
-    <FormControl size={'small'} variant={'standard'}>
-      <Select {...props}>
-        {TextFilterConditions.map((value) => {
-          return (
-            <MenuItem key={value} value={value}>
-              {getText(value)}
-            </MenuItem>
-          );
-        })}
-      </Select>
-    </FormControl>
+    <ConditionSelect
+      conditions={TextFilterConditions.map((condition) => ({
+        value: condition,
+        text: getText(condition),
+      }))}
+      {...props}
+    />
   );
 }
 

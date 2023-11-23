@@ -17,17 +17,17 @@ export interface GridFieldProps {
 export const GridField: FC<GridFieldProps> = ({ field }) => {
   const viewId = useViewId();
   const { fields } = useDatabase();
-  const [openMenu, setOpenMenu] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [openTooltip, setOpenTooltip] = useState(false);
   const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
   const [fieldWidth, setFieldWidth] = useState(field.width || DEFAULT_FIELD_WIDTH);
-
-  const handleClick = useCallback(() => {
-    setOpenMenu(true);
+  const openMenu = Boolean(menuAnchorEl);
+  const handleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchorEl(e.currentTarget);
   }, []);
 
   const handleMenuClose = useCallback(() => {
-    setOpenMenu(false);
+    setMenuAnchorEl(null);
   }, []);
 
   const handleTooltipOpen = useCallback(() => {
@@ -115,7 +115,7 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
           onContextMenu={(event) => {
             event.stopPropagation();
             event.preventDefault();
-            handleClick();
+            handleClick(event);
           }}
           onClick={handleClick}
           {...attributes}
@@ -134,7 +134,7 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
           <GridResizer field={field} onWidthChange={(width) => setFieldWidth(width)} />
         </Button>
       </Tooltip>
-      {openMenu && <FieldMenu field={field} open={openMenu} anchorEl={previewRef.current} onClose={handleMenuClose} />}
+      {openMenu && <FieldMenu field={field} open={openMenu} anchorEl={menuAnchorEl} onClose={handleMenuClose} />}
     </div>
   );
 };

@@ -52,7 +52,7 @@ export async function getFields(viewId: string, fieldIds?: string[]): Promise<Fi
     result.val.items.map(async (item) => {
       const setting = settings.val.items.find((setting) => setting.field_id === item.id);
       const field = pbToField(item);
-      const typeOption = await getTypeOption(viewId, field.id, field.type);
+      const typeOption = await getTypeOption(viewId, item.id, item.field_type);
 
       return {
         ...field,

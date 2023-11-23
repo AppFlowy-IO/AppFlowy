@@ -5,7 +5,7 @@ import { CellText } from '../../_shared';
 import { useGridUIStateDispatcher, useGridUIStateSelector } from '$app/components/database/proxy/grid/ui_state/actions';
 
 const ExpandButton = lazy(() => import('$app/components/database/components/cell/ExpandButton'));
-const EditTextCellInput = lazy(() => import('$app/components/database/components/cell/EditTextCellInput'));
+const EditTextCellInput = lazy(() => import('$app/components/database/components/field_types/text/EditTextCellInput'));
 
 export const TextCell: FC<{
   field: Field;
@@ -72,7 +72,7 @@ export const TextCell: FC<{
       <CellText ref={cellRef} onClick={handleClick}>
         <div className='flex w-full items-center'>
           {icon && <div className={'mr-2'}>{icon}</div>}
-          {cell?.data || <div className={'text-text-placeholder'}>{placeholder}</div>}
+          {typeof cell?.data === 'string' ? cell?.data : <div className={'text-text-placeholder'}>{placeholder}</div>}
         </div>
       </CellText>
       <Suspense>

@@ -111,7 +111,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
       ref={ref}
       className='relative -ml-16 flex grow pl-16'
       onMouseLeave={onMouseLeave}
-      onMouseEnter={onMouseEnter}
+      onMouseMove={onMouseEnter}
       {...dropListeners}
     >
       <div

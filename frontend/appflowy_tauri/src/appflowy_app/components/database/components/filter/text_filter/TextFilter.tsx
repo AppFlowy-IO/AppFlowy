@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Field, TextFilter as TextFilterType, TextFilterData } from '$app/components/database/application';
-import TextFilterConditionSelect from '$app/components/database/components/filter/field_filter/TextFilterConditionSelect';
+import TextFilterConditionSelect from '$app/components/database/components/filter/text_filter/TextFilterConditionSelect';
 import { TextField } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -16,8 +16,8 @@ function TextFilter({ filter, field, onChange }: Props) {
 
   return (
     <div className={'flex flex-col'}>
-      <div className={'mb-3 flex gap-[20px]'}>
-        <div className={'text-text-caption'}>{field.name}</div>
+      <div className={'flex justify-between gap-[20px] p-2 pb-0 pr-10'}>
+        <div className={'flex-1 text-sm text-text-caption'}>{field.name}</div>
         <TextFilterConditionSelect
           onChange={(e) => {
             const value = Number(e.target.value);
@@ -32,6 +32,7 @@ function TextFilter({ filter, field, onChange }: Props) {
         />
       </div>
       <TextField
+        className={'p-2'}
         size={'small'}
         value={content}
         placeholder={t('grid.settings.typeAValue')}

@@ -592,7 +592,9 @@
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search or create an option...",
       "createNew": "Create an new",
-      "orSelectOne": "Or select an option"
+      "orSelectOne": "Or select an option",
+      "typeANewOption": "Type a new option",
+      "tagName": "Tag name"
     },
     "checklist": {
       "taskHint": "Task description",
