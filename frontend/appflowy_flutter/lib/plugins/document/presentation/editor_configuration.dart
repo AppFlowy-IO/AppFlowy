@@ -15,7 +15,6 @@ List<MobileToolbarItem> getMobileToolbarItems() {
     buildTextAndBackgroundColorMobileToolbarItem(),
     mobileAddBlockToolbarItem,
     mobileConvertBlockToolbarItem,
-    linkMobileToolbarItem,
     imageMobileToolbarItem,
     mobileAlignToolbarItem,
     mobileIndentToolbarItem,
