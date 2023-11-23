@@ -2,6 +2,7 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
+use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -9,7 +10,6 @@ use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
-use tracing::event;
 
 use crate::entities::*;
 use crate::manager::UserManager;
@@ -404,7 +404,8 @@ pub async fn set_cloud_config_handler(
   };
 
   send_notification(
-    &session.user_id.to_string(),
+    // Don't change this key. it's also used in the frontend
+    "user_cloud_config",
     UserNotification::DidUpdateCloudConfig,
   )
   .payload(payload)

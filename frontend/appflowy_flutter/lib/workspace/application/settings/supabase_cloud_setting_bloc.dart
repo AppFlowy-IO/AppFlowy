@@ -1,4 +1,7 @@
+import 'package:appflowy/env/backend_env.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/plugins/database_view/application/defines.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -8,17 +11,16 @@ import 'package:dartz/dartz.dart';
 
 import 'cloud_setting_listener.dart';
 
-part 'setting_supabase_bloc.freezed.dart';
+part 'supabase_cloud_setting_bloc.freezed.dart';
 
 class SupabaseCloudSettingBloc
     extends Bloc<SupabaseCloudSettingEvent, SupabaseCloudSettingState> {
   final UserCloudConfigListener _listener;
 
   SupabaseCloudSettingBloc({
-    required String userId,
-    required CloudSettingPB config,
-  })  : _listener = UserCloudConfigListener(userId: userId),
-        super(SupabaseCloudSettingState.initial(config)) {
+    required CloudSettingPB setting,
+  })  : _listener = UserCloudConfigListener(),
+        super(SupabaseCloudSettingState.initial(setting)) {
     on<SupabaseCloudSettingEvent>((event, emit) async {
       await event.when(
         initial: () async {
@@ -27,10 +29,9 @@ class SupabaseCloudSettingBloc
               if (isClosed) {
                 return;
               }
-
               result.fold(
-                (config) =>
-                    add(SupabaseCloudSettingEvent.didReceiveConfig(config)),
+                (setting) =>
+                    add(SupabaseCloudSettingEvent.didReceiveSetting(setting)),
                 (error) => Log.error(error),
               );
             },
@@ -40,10 +41,10 @@ class SupabaseCloudSettingBloc
           final update = UpdateCloudConfigPB.create()..enableSync = enable;
           updateCloudConfig(update);
         },
-        didReceiveConfig: (CloudSettingPB config) {
+        didReceiveSetting: (CloudSettingPB setting) {
           emit(
             state.copyWith(
-              config: config,
+              setting: setting,
               loadingState: LoadingState.finish(left(unit)),
             ),
           );
@@ -57,16 +58,22 @@ class SupabaseCloudSettingBloc
     });
   }
 
-  Future<void> updateCloudConfig(UpdateCloudConfigPB config) async {
-    await UserEventSetCloudConfig(config).send();
+  Future<void> updateCloudConfig(UpdateCloudConfigPB setting) async {
+    await UserEventSetCloudConfig(setting).send();
+  }
+
+  @override
+  Future<void> close() async {
+    _listener.stop();
+    return super.close();
   }
 }
 
 @freezed
 class SupabaseCloudSettingEvent with _$SupabaseCloudSettingEvent {
   const factory SupabaseCloudSettingEvent.initial() = _Initial;
-  const factory SupabaseCloudSettingEvent.didReceiveConfig(
-    CloudSettingPB config,
+  const factory SupabaseCloudSettingEvent.didReceiveSetting(
+    CloudSettingPB setting,
   ) = _DidSyncSupabaseConfig;
   const factory SupabaseCloudSettingEvent.enableSync(bool enable) = _EnableSync;
   const factory SupabaseCloudSettingEvent.enableEncrypt(bool enable) =
@@ -76,15 +83,15 @@ class SupabaseCloudSettingEvent with _$SupabaseCloudSettingEvent {
 @freezed
 class SupabaseCloudSettingState with _$SupabaseCloudSettingState {
   const factory SupabaseCloudSettingState({
-    required CloudSettingPB config,
-    required Either<Unit, String> successOrFailure,
     required LoadingState loadingState,
+    required SupabaseConfiguration config,
+    required CloudSettingPB setting,
   }) = _SupabaseCloudSettingState;
 
-  factory SupabaseCloudSettingState.initial(CloudSettingPB config) =>
+  factory SupabaseCloudSettingState.initial(CloudSettingPB setting) =>
       SupabaseCloudSettingState(
-        config: config,
-        successOrFailure: left(unit),
         loadingState: LoadingState.finish(left(unit)),
+        setting: setting,
+        config: getIt<AppFlowyCloudSharedEnv>().supabaseConfig,
       );
 }

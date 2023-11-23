@@ -1,14 +1,18 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/settings/cloud_setting_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingAppFlowyCloudView extends StatelessWidget {
@@ -41,24 +45,47 @@ class SettingAppFlowyCloudView extends StatelessWidget {
     return BlocProvider(
       create: (context) => AppFlowyCloudSettingBloc(setting)
         ..add(const AppFlowyCloudSettingEvent.initial()),
-      child: BlocBuilder<AppFlowyCloudSettingBloc, AppFlowyCloudSettingState>(
-        builder: (context, state) {
-          return BlocListener<AppFlowyCloudSettingBloc,
-              AppFlowyCloudSettingState>(
-            listenWhen: (previous, current) => current.restartApp,
-            listener: (context, state) {
-              didResetServerUrl();
-            },
-            child: Column(
+      child: Column(
+        children: [
+          const AppFlowyCloudEnableSync(),
+          const VSpace(30),
+          AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
+        ],
+      ),
+    );
+  }
+}
+
+class AppFlowyCloudURLs extends StatelessWidget {
+  final VoidCallback didUpdateUrls;
+  const AppFlowyCloudURLs({
+    required this.didUpdateUrls,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          AppFlowyCloudURLsBloc()..add(const AppFlowyCloudURLsEvent.initial()),
+      child: BlocListener<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
+        listener: (context, state) {
+          if (state.restartApp) {
+            didUpdateUrls();
+          }
+        },
+        child: BlocBuilder<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
+          builder: (context, state) {
+            return Column(
               children: [
-                const AppFlowyCloudEnableSync(),
+                const AppFlowySelfhostTip(),
                 CloudURLInput(
                   title: LocaleKeys.settings_menu_cloudURL.tr(),
                   url: state.config.base_url,
                   hint: LocaleKeys.settings_menu_cloudURLHint.tr(),
                   onChanged: (text) {
-                    context.read<AppFlowyCloudSettingBloc>().add(
-                          AppFlowyCloudSettingEvent.updateServerUrl(
+                    context.read<AppFlowyCloudURLsBloc>().add(
+                          AppFlowyCloudURLsEvent.updateServerUrl(
                             text,
                           ),
                         );
@@ -77,19 +104,58 @@ class SettingAppFlowyCloudView extends StatelessWidget {
                   onTap: () {
                     NavigatorAlertDialog(
                       title: LocaleKeys.settings_menu_restartAppTip.tr(),
-                      confirm: () =>
-                          context.read<AppFlowyCloudSettingBloc>().add(
-                                const AppFlowyCloudSettingEvent.confirmUpdate(),
-                              ),
+                      confirm: () => context.read<AppFlowyCloudURLsBloc>().add(
+                            const AppFlowyCloudURLsEvent.confirmUpdate(),
+                          ),
                     ).show(context);
                   },
                 ),
-                const VSpace(10),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
+    );
+  }
+}
+
+class AppFlowySelfhostTip extends StatelessWidget {
+  final url =
+      "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy#build-appflowy-with-a-self-hosted-server";
+  const AppFlowySelfhostTip({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        FlowyText(
+          LocaleKeys.settings_menu_appFlowySelfHost.tr(),
+          maxLines: null,
+        ),
+        const VSpace(6),
+        Tooltip(
+          message: LocaleKeys.settings_menu_clickToCopy.tr(),
+          child: GestureDetector(
+            child: RichText(
+              textAlign: TextAlign.left,
+              text: TextSpan(
+                text: url,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: FontSizes.s14,
+                      color: Theme.of(context).colorScheme.primary,
+                      decoration: TextDecoration.underline,
+                    ),
+              ),
+            ),
+            onTap: () async {
+              await Clipboard.setData(
+                ClipboardData(text: url),
+              );
+              showMessageToast(LocaleKeys.message_copy_success.tr());
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -99,6 +165,7 @@ class CloudURLInput extends StatefulWidget {
   final String title;
   final String url;
   final String hint;
+
   final Function(String) onChanged;
 
   const CloudURLInput({
@@ -142,11 +209,8 @@ class CloudURLInputState extends State<CloudURLInput> {
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
         hintText: widget.hint,
-
-        // errorBorderColor: Theme.of(context).colorScheme.error,
-        // cursorColor: Theme.of(context).colorScheme.primary,
         errorText: context
-            .read<AppFlowyCloudSettingBloc>()
+            .read<AppFlowyCloudURLsBloc>()
             .state
             .urlError
             .fold(() => null, (error) => error),

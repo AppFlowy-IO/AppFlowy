@@ -1,4 +1,3 @@
-import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
@@ -58,27 +57,14 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.notifications_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
-        // Only show supabase setting if supabase is enabled and the current auth type is not local
-        if (isSupabaseEnabled) ...[
-          const SizedBox(height: 10),
-          SettingsMenuElement(
-            page: SettingsPage.supabaseCloud,
-            selectedPage: currentPage,
-            label: LocaleKeys.settings_menu_cloudSetting.tr(),
-            icon: Icons.sync,
-            changeSelectedPage: changeSelectedPage,
-          ),
-        ],
-        if (isAppFlowyCloudEnabled) ...[
-          const SizedBox(height: 10),
-          SettingsMenuElement(
-            page: SettingsPage.appflowyCloud,
-            selectedPage: currentPage,
-            label: LocaleKeys.settings_menu_cloudSetting.tr(),
-            icon: Icons.sync,
-            changeSelectedPage: changeSelectedPage,
-          ),
-        ],
+        const SizedBox(height: 10),
+        SettingsMenuElement(
+          page: SettingsPage.cloud,
+          selectedPage: currentPage,
+          label: LocaleKeys.settings_menu_cloudSetting.tr(),
+          icon: Icons.sync,
+          changeSelectedPage: changeSelectedPage,
+        ),
         const SizedBox(height: 10),
         SettingsMenuElement(
           page: SettingsPage.shortcuts,

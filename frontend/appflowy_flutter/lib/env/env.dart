@@ -5,43 +5,35 @@ import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:dartz/dartz.dart';
-import 'package:envied/envied.dart';
 
-part 'env.g.dart';
+Future<void> setCloudType(CloudType ty) async {
+  switch (ty) {
+    case CloudType.local:
+      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
+      break;
+    case CloudType.supabase:
+      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 1.toString());
+      break;
+    case CloudType.appflowyCloud:
+      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
+      break;
+  }
+}
 
-/// The environment variables are defined in `.env` file that is located in the
-/// appflowy_flutter.
-///   Run `dart run build_runner build --delete-conflicting-outputs`
-///   to generate the keys from the env file.
-///
-///   If you want to regenerate the keys, you need to run `dart run
-///   build_runner clean` before running `dart run build_runner build
-///    --delete-conflicting-outputs`.
-
-/// Follow the guide on https://supabase.com/docs/guides/auth/social-login/auth-google to setup the auth provider.
-///
-@Envied(path: '.env')
-abstract class _Env {
-  @EnviedField(
-    obfuscate: true,
-    varName: 'CLOUD_TYPE',
-    defaultValue: '0',
-  )
-  static final int cloudType = __Env.cloudType;
-
-  // Supabase Configuration:
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_URL',
-    defaultValue: '',
-  )
-  static final String supabaseUrl = __Env.supabaseUrl;
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_ANON_KEY',
-    defaultValue: '',
-  )
-  static final String supabaseAnonKey = __Env.supabaseAnonKey;
+Future<CloudType> getCloudType() async {
+  final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
+  return value.fold(() => CloudType.local, (s) {
+    switch (s) {
+      case "0":
+        return CloudType.local;
+      case "1":
+        return CloudType.supabase;
+      case "2":
+        return CloudType.appflowyCloud;
+      default:
+        return CloudType.local;
+    }
+  });
 }
 
 bool get isCloudEnabled {
@@ -82,65 +74,45 @@ bool get isAppFlowyCloudEnabled {
 }
 
 enum CloudType {
-  unknown,
+  local,
   supabase,
   appflowyCloud;
 
-  bool get isEnabled => this != CloudType.unknown;
+  bool get isEnabled => this != CloudType.local;
+  int get value {
+    switch (this) {
+      case CloudType.local:
+        return 0;
+      case CloudType.supabase:
+        return 1;
+      case CloudType.appflowyCloud:
+        return 2;
+    }
+  }
 }
 
 CloudType currentCloudType() {
-  final value = _Env.cloudType;
-  if (value == 1) {
-    if (_Env.supabaseUrl.isEmpty || _Env.supabaseAnonKey.isEmpty) {
-      Log.error(
-        "Supabase is not configured correctly. The values are: "
-        "url: ${_Env.supabaseUrl}, anonKey: ${_Env.supabaseAnonKey}",
-      );
-      return CloudType.unknown;
-    } else {
-      return CloudType.supabase;
-    }
-  }
-
-  if (value == 2) {
-    // final cloudURL =
-    //     getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url;
-    // final wsURL =
-    //     getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.ws_base_url;
-
-    // if (cloudURL.isEmpty || wsURL.isEmpty) {
-    //   Log.error(
-    //     "AppFlowy cloud is not configured correctly. The values are: "
-    //     "baseUrl: ${_Env.afCloudBaseUrl}, wsBaseUrl: ${_Env.afCloudWSBaseUrl}",
-    //   );
-    //   return CloudType.unknown;
-    // } else {
-    //   return CloudType.appflowyCloud;
-    // }
-    return CloudType.appflowyCloud;
-  }
-
-  return CloudType.unknown;
+  return getIt<AppFlowyCloudSharedEnv>().cloudType;
 }
 
 Future<void> setAppFlowyCloudBaseUrl(Option<String> url) async {
   await url.fold(
-    () => getIt<KeyValueStorage>().remove(KVKeys.appflowyCloudBaseURL),
-    (s) => getIt<KeyValueStorage>().set(KVKeys.appflowyCloudBaseURL, s),
+    () => getIt<KeyValueStorage>().remove(KVKeys.kAppflowyCloudBaseURL),
+    (s) => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, s),
   );
 }
 
 /// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
 class AppFlowyCloudSharedEnv {
-  final int cloudType;
+  final CloudType cloudType;
   final AppFlowyCloudConfiguration appflowyCloudConfig;
   final SupabaseConfiguration supabaseConfig;
 
   AppFlowyCloudSharedEnv({
+    required this.cloudType,
     required this.appflowyCloudConfig,
     required this.supabaseConfig,
-  }) : cloudType = _Env.cloudType;
+  });
 }
 
 Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig() async {
@@ -151,16 +123,9 @@ Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig() async {
   );
 }
 
-Future<SupabaseConfiguration> getSupabaseCloudConfig() async {
-  return SupabaseConfiguration(
-    url: _Env.supabaseUrl,
-    anon_key: _Env.supabaseAnonKey,
-  );
-}
-
 Future<String> getAppFlowyCloudUrl() async {
   final result =
-      await getIt<KeyValueStorage>().get(KVKeys.appflowyCloudBaseURL);
+      await getIt<KeyValueStorage>().get(KVKeys.kAppflowyCloudBaseURL);
   return result.fold(
     () => "",
     (url) => url,
@@ -186,4 +151,43 @@ Future<String> getAppFlowyCloudWSUrl() async {
 Future<String> getAppFlowyCloudGotrueUrl() async {
   final serverUrl = await getAppFlowyCloudUrl();
   return "$serverUrl/gotrue";
+}
+
+Future<void> setSupbaseServer(
+  Option<String> url,
+  Option<String> anonKey,
+) async {
+  await url.fold(
+    () => getIt<KeyValueStorage>().remove(KVKeys.kSupabaseURL),
+    (s) => getIt<KeyValueStorage>().set(KVKeys.kSupabaseURL, s),
+  );
+  await anonKey.fold(
+    () => getIt<KeyValueStorage>().remove(KVKeys.kSupabaseAnonKey),
+    (s) => getIt<KeyValueStorage>().set(KVKeys.kSupabaseAnonKey, s),
+  );
+}
+
+Future<SupabaseConfiguration> getSupabaseCloudConfig() async {
+  final url = await getSupbaseUrl();
+  final anonKey = await getSupabaseAnonKey();
+  return SupabaseConfiguration(
+    url: url,
+    anon_key: anonKey,
+  );
+}
+
+Future<String> getSupbaseUrl() async {
+  final result = await getIt<KeyValueStorage>().get(KVKeys.kSupabaseURL);
+  return result.fold(
+    () => "",
+    (url) => url,
+  );
+}
+
+Future<String> getSupabaseAnonKey() async {
+  final result = await getIt<KeyValueStorage>().get(KVKeys.kSupabaseAnonKey);
+  return result.fold(
+    () => "",
+    (url) => url,
+  );
 }

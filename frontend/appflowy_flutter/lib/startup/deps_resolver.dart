@@ -57,10 +57,12 @@ class DependencyResolver {
 }
 
 Future<void> _resolveCloudDeps(GetIt getIt) async {
+  final cloudType = await getCloudType();
   final appflowyCloudConfig = await getAppFlowyCloudConfig();
   final supabaseCloudConfig = await getSupabaseCloudConfig();
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() {
     return AppFlowyCloudSharedEnv(
+      cloudType: cloudType,
       appflowyCloudConfig: appflowyCloudConfig,
       supabaseConfig: supabaseCloudConfig,
     );
@@ -128,7 +130,7 @@ void _resolveCommonService(
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   switch (currentCloudType()) {
-    case CloudType.unknown:
+    case CloudType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
           AuthTypePB.Local,

@@ -1,7 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/setting_supabase_cloud.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
@@ -14,8 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'widgets/setting_appflowy_cloud.dart';
+import 'widgets/setting_cloud.dart';
 
 const _dialogHorizontalPadding = EdgeInsets.symmetric(horizontal: 12);
 const _contentInsetPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
@@ -106,10 +104,8 @@ class SettingsDialog extends StatelessWidget {
         );
       case SettingsPage.notifications:
         return const SettingsNotificationsView();
-      case SettingsPage.supabaseCloud:
-        return SettingSupabaseCloudView(userId: user.id.toString());
-      case SettingsPage.appflowyCloud:
-        return SettingAppFlowyCloudView(
+      case SettingsPage.cloud:
+        return SettingCloud(
           didResetServerUrl: () => restartApp(),
         );
       case SettingsPage.shortcuts:

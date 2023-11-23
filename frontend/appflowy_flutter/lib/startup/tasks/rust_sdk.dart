@@ -50,7 +50,7 @@ AppFlowyConfiguration _getAppFlowyConfiguration(
     custom_app_path: customAppPath,
     origin_app_path: originAppPath,
     device_id: deviceId,
-    cloud_type: env.cloudType,
+    cloud_type: env.cloudType.value,
     supabase_config: env.supabaseConfig,
     appflowy_cloud_config: env.appflowyCloudConfig,
   );
