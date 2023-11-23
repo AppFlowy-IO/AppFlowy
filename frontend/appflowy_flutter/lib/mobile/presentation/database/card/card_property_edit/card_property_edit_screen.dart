@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/mobile_field_editor.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -14,13 +15,16 @@ class CardPropertyEditScreen extends StatelessWidget {
   const CardPropertyEditScreen({
     super.key,
     required this.cellContext,
+    required this.fieldController,
   });
 
   static const routeName = '/CardPropertyEditScreen';
   static const argCellContext = 'cellContext';
+  static const argFieldController = 'fieldController';
   static const argRowDetailBloc = 'rowDetailBloc';
 
   final DatabaseCellContext cellContext;
+  final FieldController fieldController;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +61,8 @@ class CardPropertyEditScreen extends StatelessWidget {
           viewId: cellContext.viewId,
           field: cellContext.fieldInfo.field,
         ),
-        fieldInfo: cellContext.fieldInfo,
+        fieldController: fieldController,
+        field: cellContext.fieldInfo.field,
       ),
     );
   }
