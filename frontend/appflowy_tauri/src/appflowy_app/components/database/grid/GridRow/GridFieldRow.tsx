@@ -9,14 +9,14 @@ export const GridFieldRow = () => {
 
   return (
     <>
-      <div className='z-10 flex border-b border-line-divider'>
-        <div className={'flex'}>
+      <div className='z-10  flex border-b border-line-divider '>
+        <div className={'flex '}>
           {fields.map((field) => {
             return <GridField key={field.id} field={field} />;
           })}
         </div>
 
-        <div className={`w-[${DEFAULT_FIELD_WIDTH}px]`}>
+        <div className={` w-[${DEFAULT_FIELD_WIDTH}px]`}>
           <NewProperty />
         </div>
       </div>

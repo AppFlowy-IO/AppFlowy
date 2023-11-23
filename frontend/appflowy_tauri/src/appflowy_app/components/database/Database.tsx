@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useViewId } from '$app/hooks/ViewId.hooks';
 import { databaseViewService } from './application';
 import { DatabaseTabBar } from './components';
@@ -9,6 +9,10 @@ import { PageController } from '$app/stores/effects/workspace/page/page_controll
 import SwipeableViews from 'react-swipeable-views';
 import { TabPanel } from '$app/components/database/components/tab_bar/ViewTabs';
 import { useDatabaseResize } from '$app/components/database/Database.hooks';
+import DatabaseSettings from '$app/components/database/components/database_settings/DatabaseSettings';
+import { Portal } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { ErrorCode } from '@/services/backend';
 
 interface Props {
   selectedViewId?: string;
@@ -17,14 +21,24 @@ interface Props {
 
 export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
   const viewId = useViewId();
+  const { t } = useTranslation();
+  const [notFound, setNotFound] = useState(false);
   const [childViewIds, setChildViewIds] = useState<string[]>([]);
   const { ref, collectionRef, tableHeight } = useDatabaseResize();
+  const [openCollections, setOpenCollections] = useState<string[]>([]);
 
   useEffect(() => {
     const onPageChanged = () => {
-      void databaseViewService.getDatabaseViews(viewId).then((value) => {
-        setChildViewIds(value.map((view) => view.id));
-      });
+      void databaseViewService
+        .getDatabaseViews(viewId)
+        .then((value) => {
+          setChildViewIds(value.map((view) => view.id));
+        })
+        .catch((err) => {
+          if (err.code === ErrorCode.RecordNotFound) {
+            setNotFound(true);
+          }
+        });
     };
 
     onPageChanged();
@@ -44,8 +58,38 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
     return Math.max(0, childViewIds.indexOf(selectedViewId ?? viewId));
   }, [childViewIds, selectedViewId, viewId]);
 
+  const onToggleCollection = useCallback(
+    (id: string, forceOpen?: boolean) => {
+      if (forceOpen) {
+        setOpenCollections((prev) => {
+          if (prev.includes(id)) {
+            return prev;
+          }
+
+          return [...prev, id];
+        });
+        return;
+      }
+
+      if (openCollections.includes(id)) {
+        setOpenCollections((prev) => prev.filter((item) => item !== id));
+      } else {
+        setOpenCollections((prev) => [...prev, id]);
+      }
+    },
+    [openCollections]
+  );
+
+  if (notFound) {
+    return (
+      <div className='mb-2 flex h-full w-full items-center justify-center rounded border border-dashed border-line-divider'>
+        <p className={'text-xl text-text-caption'}>{t('deletePagePrompt.text')}</p>
+      </div>
+    );
+  }
+
   return (
-    <div ref={ref} className='appflowy-database flex flex-1 flex-col overflow-y-hidden'>
+    <div ref={ref} className='appflowy-database relative flex flex-1 flex-col overflow-y-hidden'>
       <DatabaseTabBar
         pageId={viewId}
         setSelectedViewId={setSelectedViewId}
@@ -63,9 +107,20 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
         {childViewIds.map((id) => (
           <TabPanel key={id} index={index} value={index}>
             <DatabaseLoader viewId={id}>
-              <div ref={collectionRef}>
-                <DatabaseCollection />
-              </div>
+              {selectedViewId === id && (
+                <>
+                  <Portal container={ref.current}>
+                    <div className={'absolute right-16 top-0 py-1'}>
+                      <DatabaseSettings
+                        onToggleCollection={(forceOpen?: boolean) => onToggleCollection(id, forceOpen)}
+                      />
+                    </div>
+                  </Portal>
+                  <div ref={collectionRef}>
+                    <DatabaseCollection open={openCollections.includes(id)} />
+                  </div>
+                </>
+              )}
 
               <DatabaseView isActivated={selectedViewId === id} tableHeight={tableHeight} />
             </DatabaseLoader>
