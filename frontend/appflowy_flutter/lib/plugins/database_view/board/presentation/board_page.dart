@@ -1,4 +1,5 @@
 import 'dart:collection';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
@@ -16,7 +17,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
@@ -326,13 +326,15 @@ class _BoardContentState extends State<BoardContent> {
       context.push(
         MobileCardDetailScreen.routeName,
         extra: {
-          'rowController': dataController,
+          MobileCardDetailScreen.argRowController: dataController,
+          MobileCardDetailScreen.argFieldController: fieldController,
         },
       );
     } else {
       FlowyOverlay.show(
         context: context,
         builder: (_) => RowDetailPage(
+          fieldController: fieldController,
           cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
           rowController: dataController,
         ),

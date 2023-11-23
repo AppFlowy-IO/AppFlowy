@@ -14,7 +14,7 @@ export const DatabasePage = () => {
   }
 
   return (
-    <div className='flex h-full w-full flex-col overflow-hidden px-16 caret-text-title'>
+    <div className='flex h-full w-full flex-col overflow-hidden caret-text-title'>
       <ViewIdProvider value={viewId}>
         <DatabaseTitle />
         <Database selectedViewId={selectedViewId} setSelectedViewId={onChange} />

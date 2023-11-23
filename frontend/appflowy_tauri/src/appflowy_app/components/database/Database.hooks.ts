@@ -4,6 +4,8 @@ import { proxy, useSnapshot } from 'valtio';
 import { DatabaseLayoutPB, DatabaseNotification, FieldVisibility } from '@/services/backend';
 import { subscribeNotifications } from '$app/hooks';
 import { Database, databaseService, fieldListeners, fieldService, rowListeners, sortListeners } from './application';
+import { didUpdateFilter } from '$app/components/database/application/filter/filter_listeners';
+import { didUpdateViewRowsVisibility } from '$app/components/database/application/row/row_listeners';
 
 export function useSelectDatabaseView({ viewId }: { viewId?: string }) {
   const key = 'v';
@@ -39,6 +41,12 @@ const DatabaseContext = createContext<Database>({
 export const DatabaseProvider = DatabaseContext.Provider;
 
 export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
+
+export const useDatabaseVisibilityRows = () => {
+  const { rowMetas } = useDatabase();
+
+  return useMemo(() => rowMetas.filter((row) => !row.isHidden), [rowMetas]);
+};
 
 export const useDatabaseVisibilityFields = () => {
   const database = useDatabase();
@@ -89,6 +97,13 @@ export const useConnectDatabase = (viewId: string) => {
 
         [DatabaseNotification.DidUpdateSort]: (changeset) => {
           sortListeners.didUpdateSort(database, changeset);
+        },
+
+        [DatabaseNotification.DidUpdateFilter]: (changeset) => {
+          didUpdateFilter(database, changeset);
+        },
+        [DatabaseNotification.DidUpdateViewRowsVisibility]: (changeset) => {
+          didUpdateViewRowsVisibility(database, changeset);
         },
       },
       { id: viewId }

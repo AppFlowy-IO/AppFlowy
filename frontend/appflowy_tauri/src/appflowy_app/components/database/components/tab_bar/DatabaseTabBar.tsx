@@ -1,4 +1,4 @@
-import { FC, FunctionComponent, SVGProps, useEffect } from 'react';
+import { FC, FunctionComponent, SVGProps, useEffect, useState } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useAppSelector } from '$app/stores/store';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,8 @@ import { ViewLayoutPB } from '@/services/backend';
 import { ReactComponent as GridSvg } from '$app/assets/grid.svg';
 import { ReactComponent as BoardSvg } from '$app/assets/board.svg';
 import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
+import ViewActions from '$app/components/database/components/tab_bar/ViewActions';
+import { Page } from '$app_reducers/pages/slice';
 
 export interface DatabaseTabBarProps {
   childViewIds: string[];
@@ -26,6 +28,9 @@ const DatabaseIcons: {
 
 export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViewIds, selectedViewId, setSelectedViewId }) => {
   const { t } = useTranslation();
+  const [contextMenuAnchorEl, setContextMenuAnchorEl] = useState<HTMLElement | null>(null);
+  const [contextMenuView, setContextMenuView] = useState<Page | null>(null);
+  const open = Boolean(contextMenuAnchorEl);
   const views = useAppSelector((state) => {
     const map = state.pages.pageMap;
 
@@ -43,14 +48,20 @@ export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViewIds, 
   }, [selectedViewId, setSelectedViewId, views]);
 
   return (
-    <div className='-mb-px flex items-center border-b border-line-divider'>
-      <div className='flex flex-1 items-center'>
+    <div className='-mb-px flex items-center px-16'>
+      <div className='flex flex-1 items-center border-b border-line-divider'>
         <ViewTabs value={selectedViewId} onChange={handleChange}>
           {views.map((view) => {
             const Icon = DatabaseIcons[view.layout];
 
             return (
               <ViewTab
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setContextMenuView(view);
+                  setContextMenuAnchorEl(e.currentTarget);
+                }}
                 key={view.id}
                 icon={<Icon />}
                 iconPosition='start'
@@ -61,8 +72,20 @@ export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViewIds, 
             );
           })}
         </ViewTabs>
-        <AddViewBtn pageId={pageId} />
+        <AddViewBtn pageId={pageId} onCreated={(id) => setSelectedViewId?.(id)} />
       </div>
+      {open && contextMenuView && (
+        <ViewActions
+          view={contextMenuView}
+          keepMounted={false}
+          open={open}
+          anchorEl={contextMenuAnchorEl}
+          onClose={() => {
+            setContextMenuAnchorEl(null);
+            setContextMenuView(null);
+          }}
+        />
+      )}
     </div>
   );
 };
