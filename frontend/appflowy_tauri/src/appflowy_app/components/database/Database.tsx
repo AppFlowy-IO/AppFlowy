@@ -12,6 +12,7 @@ import { useDatabaseResize } from '$app/components/database/Database.hooks';
 import DatabaseSettings from '$app/components/database/components/database_settings/DatabaseSettings';
 import { Portal } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { ErrorCode } from '@/services/backend';
 
 interface Props {
   selectedViewId?: string;
@@ -34,7 +35,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
           setChildViewIds(value.map((view) => view.id));
         })
         .catch((err) => {
-          if (err.code === 3) {
+          if (err.code === ErrorCode.RecordNotFound) {
             setNotFound(true);
           }
         });

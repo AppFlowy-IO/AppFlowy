@@ -12,11 +12,7 @@ interface FieldListProps {
 
 function FieldList({ showSearch, onItemClick, searchPlaceholder }: FieldListProps) {
   const { fields } = useDatabase();
-  const [fieldsResult, setFieldsResult] = useState<FieldType[]>(() => {
-    return fields.map((field) => ({
-      ...field,
-    }));
-  });
+  const [fieldsResult, setFieldsResult] = useState<FieldType[]>(fields as FieldType[]);
 
   const onInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
