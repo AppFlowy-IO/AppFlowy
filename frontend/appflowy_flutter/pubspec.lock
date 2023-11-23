@@ -713,10 +713,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "5668e6d3dbcb2d0dfa25f7567554b88c57e1e3f3c440b672b24d4a9477017d5b"
+      sha256: c247a4f76071c3b97bb5ae8912968870d5565644801c5e09f3bc961b4d874895
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.2"
+    version: "12.1.1"
   google_fonts:
     dependency: "direct main"
     description:
@@ -729,10 +729,10 @@ packages:
     dependency: transitive
     description:
       name: gotrue
-      sha256: "6ba95e38c06af30d4a365112b433567df70f83d5853923274cb894ea9702c5fa"
+      sha256: f3a47cdbc59e543f453a1ef150050cd7650fe756254ac1fcac1d2a2f6f2b5a21
       url: "https://pub.dev"
     source: hosted
-    version: "1.11.2"
+    version: "1.12.6"
   graphs:
     dependency: transitive
     description:
@@ -970,6 +970,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
+  keyboard_height_plugin:
+    dependency: transitive
+    description:
+      name: keyboard_height_plugin
+      sha256: "9fd5cd9e3e80d8f530aaa26ad17b4d18d34a63956cf0d530920a54c228200510"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   linked_scroll_controller:
     dependency: "direct main"
     description:
@@ -1286,10 +1294,10 @@ packages:
     dependency: transitive
     description:
       name: postgrest
-      sha256: d6cc0f60c7dc761f84d1c6d11d9e02b3ad90399bd84639a28c1c024adbaa9bde
+      sha256: f190eddc5779842dfa529fa239ec4b1025f6f968c18052ba6fffc0aecac93e6b
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.0"
+    version: "1.5.2"
   process:
     dependency: transitive
     description:
@@ -1334,10 +1342,10 @@ packages:
     dependency: transitive
     description:
       name: realtime_client
-      sha256: b4b7bb293417dafc73943ed639209b2dcb796db8495e56bba29a4e26fadef5cd
+      sha256: "2027358cdbe65d5f1770c3f768aa9adecd394de486c5dbbd2cfe19d5c6dbbc4a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.4.0"
   reorderables:
     dependency: "direct main"
     description:
@@ -1651,10 +1659,10 @@ packages:
     dependency: transitive
     description:
       name: storage_client
-      sha256: a3024569213b064587d616827747b766f9bc796e80cec99bd5ffb597b8aeb018
+      sha256: f02d4d8967bec77767dcaf9daf24ca5b8d5a9f1cc093f14dffb77930b52589a3
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.1"
+    version: "1.5.4"
   stream_channel:
     dependency: transitive
     description:
@@ -1699,19 +1707,19 @@ packages:
     dependency: transitive
     description:
       name: supabase
-      sha256: c48671b62720f15067f6b31abe964950bf1405b7eec367a97f683dee25715a77
+      sha256: "1434bb9375f88f51802dadf7b99568117c434f6a9af7f8a55e5be94c8b4da7c9"
       url: "https://pub.dev"
     source: hosted
-    version: "1.11.1"
+    version: "1.11.11"
   supabase_flutter:
     dependency: "direct main"
     description:
       path: "packages/supabase_flutter"
-      ref: "852119e"
-      resolved-ref: "852119e110224cce83b332e8681bc6f216a56c05"
+      ref: "4bd9139"
+      resolved-ref: "4bd9139826d9c5125b737a43ebe56211dd0a9be5"
       url: "https://github.com/LucasXu0/supabase-flutter"
     source: git
-    version: "1.10.14"
+    version: "1.10.25"
   super_clipboard:
     dependency: "direct main"
     description:
