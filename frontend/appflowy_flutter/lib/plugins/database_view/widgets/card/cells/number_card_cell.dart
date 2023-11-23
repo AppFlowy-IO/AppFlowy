@@ -52,30 +52,28 @@ class _NumberCellState extends State<NumberCardCell> {
             previous.cellContent != current.cellContent,
         builder: (context, state) {
           if (state.cellContent.isEmpty) {
-            return const SizedBox();
-          } else {
-            final Widget? custom = widget.renderHook?.call(
-              state.cellContent,
-              widget.cardData,
-              context,
-            );
-            if (custom != null) {
-              return custom;
-            }
-
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: CardSizes.cardCellVPadding,
-                ),
-                child: FlowyText.medium(
-                  state.cellContent,
-                  fontSize: widget.style?.fontSize ?? 14,
-                ),
-              ),
-            );
+            return const SizedBox.shrink();
           }
+          final Widget? custom = widget.renderHook?.call(
+            state.cellContent,
+            widget.cardData,
+            context,
+          );
+          if (custom != null) {
+            return custom;
+          }
+
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: CardSizes.cardCellPadding,
+              child: FlowyText.regular(
+                state.cellContent,
+                fontSize: widget.style?.fontSize ?? 11,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+          );
         },
       ),
     );
