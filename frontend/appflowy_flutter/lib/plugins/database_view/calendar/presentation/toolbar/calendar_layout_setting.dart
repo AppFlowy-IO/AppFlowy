@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
@@ -9,13 +11,13 @@ import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:protobuf/protobuf.dart';
 
 abstract class ICalendarSetting {
+  const ICalendarSetting();
+
   /// Returns the current layout settings for the calendar view.
   CalendarLayoutSettingPB? getLayoutSetting();
 
@@ -42,25 +44,15 @@ class CalendarLayoutSetting extends StatefulWidget {
 }
 
 class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
-  late final PopoverMutex popoverMutex;
-
-  @override
-  void initState() {
-    popoverMutex = PopoverMutex();
-    super.initState();
-  }
+  late final PopoverMutex popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        return CalendarSettingBloc(
-          viewId: widget.viewId,
-          layoutSettings: widget.calendarSettingController.getLayoutSetting(),
-        )..add(
-            const CalendarSettingEvent.init(),
-          );
-      },
+      create: (context) => CalendarSettingBloc(
+        viewId: widget.viewId,
+        layoutSettings: widget.calendarSettingController.getLayoutSetting(),
+      )..add(const CalendarSettingEvent.init()),
       child: BlocBuilder<CalendarSettingBloc, CalendarSettingState>(
         builder: (context, state) {
           final CalendarLayoutSettingPB? settings = state.layoutSetting
@@ -69,39 +61,34 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
           if (settings == null) {
             return const CircularProgressIndicator();
           }
+
           final availableSettings = _availableCalendarSettings(settings);
           final items = availableSettings.map((setting) {
             switch (setting) {
               case CalendarLayoutSettingAction.showWeekNumber:
                 return ShowWeekNumber(
                   showWeekNumbers: settings.showWeekNumbers,
-                  onUpdated: (showWeekNumbers) {
-                    _updateLayoutSettings(
-                      context,
-                      showWeekNumbers: showWeekNumbers,
-                    );
-                  },
+                  onUpdated: (showWeekNumbers) => _updateLayoutSettings(
+                    context,
+                    showWeekNumbers: showWeekNumbers,
+                  ),
                 );
               case CalendarLayoutSettingAction.showWeekends:
                 return ShowWeekends(
                   showWeekends: settings.showWeekends,
-                  onUpdated: (showWeekends) {
-                    _updateLayoutSettings(
-                      context,
-                      showWeekends: showWeekends,
-                    );
-                  },
+                  onUpdated: (showWeekends) => _updateLayoutSettings(
+                    context,
+                    showWeekends: showWeekends,
+                  ),
                 );
               case CalendarLayoutSettingAction.firstDayOfWeek:
                 return FirstDayOfWeek(
                   firstDayOfWeek: settings.firstDayOfWeek,
                   popoverMutex: popoverMutex,
-                  onUpdated: (firstDayOfWeek) {
-                    _updateLayoutSettings(
-                      context,
-                      firstDayOfWeek: firstDayOfWeek,
-                    );
-                  },
+                  onUpdated: (firstDayOfWeek) => _updateLayoutSettings(
+                    context,
+                    firstDayOfWeek: firstDayOfWeek,
+                  ),
                 );
               case CalendarLayoutSettingAction.layoutField:
                 return LayoutDateField(
@@ -109,15 +96,13 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
                   viewId: widget.viewId,
                   fieldId: settings.fieldId,
                   popoverMutex: popoverMutex,
-                  onUpdated: (fieldId) {
-                    _updateLayoutSettings(
-                      context,
-                      layoutFieldId: fieldId,
-                    );
-                  },
+                  onUpdated: (fieldId) => _updateLayoutSettings(
+                    context,
+                    layoutFieldId: fieldId,
+                  ),
                 );
               default:
-                return const SizedBox();
+                return const SizedBox.shrink();
             }
           }).toList();
 
@@ -127,10 +112,10 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
               shrinkWrap: true,
               controller: ScrollController(),
               itemCount: items.length,
-              separatorBuilder: (context, index) =>
+              separatorBuilder: (_, __) =>
                   VSpace(GridSize.typeOptionSeparatorHeight),
               physics: StyledScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) => items[index],
+              itemBuilder: (_, int index) => items[index],
               padding: const EdgeInsets.all(6.0),
             ),
           );
@@ -144,28 +129,14 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
   ) {
     final List<CalendarLayoutSettingAction> settings = [
       CalendarLayoutSettingAction.layoutField,
-      // CalendarLayoutSettingAction.layoutType,
-      // CalendarLayoutSettingAction.showWeekNumber,
     ];
 
     switch (layoutSettings.layoutTy) {
       case CalendarLayoutPB.DayLayout:
-        // settings.add(CalendarLayoutSettingAction.showTimeLine);
         break;
       case CalendarLayoutPB.MonthLayout:
-        settings.addAll([
-          // CalendarLayoutSettingAction.showWeekends,
-          // if (layoutSettings.showWeekends)
-          CalendarLayoutSettingAction.firstDayOfWeek,
-        ]);
-        break;
       case CalendarLayoutPB.WeekLayout:
-        settings.addAll([
-          // CalendarLayoutSettingAction.showWeekends,
-          // if (layoutSettings.showWeekends)
-          CalendarLayoutSettingAction.firstDayOfWeek,
-          // CalendarLayoutSettingAction.showTimeLine,
-        ]);
+        settings.add(CalendarLayoutSettingAction.firstDayOfWeek);
         break;
     }
 
@@ -189,16 +160,20 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
       if (showWeekends != null) {
         setting.showWeekends = !showWeekends;
       }
+
       if (showWeekNumbers != null) {
         setting.showWeekNumbers = !showWeekNumbers;
       }
+
       if (firstDayOfWeek != null) {
         setting.firstDayOfWeek = firstDayOfWeek;
       }
+
       if (layoutFieldId != null) {
         setting.fieldId = layoutFieldId;
       }
     });
+
     context
         .read<CalendarSettingBloc>()
         .add(CalendarSettingEvent.updateLayoutSetting(setting));
@@ -208,20 +183,20 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
 }
 
 class LayoutDateField extends StatelessWidget {
-  final String fieldId;
-  final String viewId;
-  final FieldController fieldController;
-  final PopoverMutex popoverMutex;
-  final Function(String fieldId) onUpdated;
-
   const LayoutDateField({
+    super.key,
     required this.fieldId,
     required this.fieldController,
     required this.viewId,
     required this.popoverMutex,
     required this.onUpdated,
-    super.key,
   });
+
+  final String fieldId;
+  final String viewId;
+  final FieldController fieldController;
+  final PopoverMutex popoverMutex;
+  final Function(String fieldId) onUpdated;
 
   @override
   Widget build(BuildContext context) {
@@ -264,8 +239,8 @@ class LayoutDateField extends StatelessWidget {
                 width: 200,
                 child: ListView.separated(
                   shrinkWrap: true,
-                  itemBuilder: (context, index) => items[index],
-                  separatorBuilder: (context, index) =>
+                  itemBuilder: (_, index) => items[index],
+                  separatorBuilder: (_, __) =>
                       VSpace(GridSize.typeOptionSeparatorHeight),
                   itemCount: items.length,
                 ),
@@ -288,21 +263,19 @@ class LayoutDateField extends StatelessWidget {
 }
 
 class ShowWeekNumber extends StatelessWidget {
-  final bool showWeekNumbers;
-  final Function(bool showWeekNumbers) onUpdated;
-
   const ShowWeekNumber({
+    super.key,
     required this.showWeekNumbers,
     required this.onUpdated,
-    super.key,
   });
+
+  final bool showWeekNumbers;
+  final Function(bool showWeekNumbers) onUpdated;
 
   @override
   Widget build(BuildContext context) {
     return _toggleItem(
-      onToggle: (showWeekNumbers) {
-        onUpdated(!showWeekNumbers);
-      },
+      onToggle: (showWeekNumbers) => onUpdated(!showWeekNumbers),
       value: showWeekNumbers,
       text: LocaleKeys.calendar_settings_showWeekNumbers.tr(),
     );
@@ -310,20 +283,19 @@ class ShowWeekNumber extends StatelessWidget {
 }
 
 class ShowWeekends extends StatelessWidget {
-  final bool showWeekends;
-  final Function(bool showWeekends) onUpdated;
   const ShowWeekends({
     super.key,
     required this.showWeekends,
     required this.onUpdated,
   });
 
+  final bool showWeekends;
+  final Function(bool showWeekends) onUpdated;
+
   @override
   Widget build(BuildContext context) {
     return _toggleItem(
-      onToggle: (showWeekends) {
-        onUpdated(!showWeekends);
-      },
+      onToggle: (showWeekends) => onUpdated(!showWeekends),
       value: showWeekends,
       text: LocaleKeys.calendar_settings_showWeekends.tr(),
     );
@@ -331,15 +303,16 @@ class ShowWeekends extends StatelessWidget {
 }
 
 class FirstDayOfWeek extends StatelessWidget {
-  final int firstDayOfWeek;
-  final PopoverMutex popoverMutex;
-  final Function(int firstDayOfWeek) onUpdated;
   const FirstDayOfWeek({
     super.key,
     required this.firstDayOfWeek,
-    required this.onUpdated,
     required this.popoverMutex,
+    required this.onUpdated,
   });
+
+  final int firstDayOfWeek;
+  final PopoverMutex popoverMutex;
+  final Function(int firstDayOfWeek) onUpdated;
 
   @override
   Widget build(BuildContext context) {
@@ -370,8 +343,8 @@ class FirstDayOfWeek extends StatelessWidget {
           width: 100,
           child: ListView.separated(
             shrinkWrap: true,
-            itemBuilder: (context, index) => items[index],
-            separatorBuilder: (context, index) =>
+            itemBuilder: (_, index) => items[index],
+            separatorBuilder: (_, __) =>
                 VSpace(GridSize.typeOptionSeparatorHeight),
             itemCount: len,
           ),
@@ -425,17 +398,18 @@ enum CalendarLayoutSettingAction {
 }
 
 class StartFromButton extends StatelessWidget {
-  final int dayIndex;
-  final String title;
-  final bool isSelected;
-  final void Function(int) onTap;
   const StartFromButton({
+    super.key,
     required this.title,
     required this.dayIndex,
     required this.onTap,
     required this.isSelected,
-    super.key,
   });
+
+  final String title;
+  final int dayIndex;
+  final void Function(int) onTap;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {

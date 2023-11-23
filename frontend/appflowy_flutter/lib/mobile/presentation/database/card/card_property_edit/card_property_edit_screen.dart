@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/presentation/database/card/card_property_edit/mo
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -57,10 +56,6 @@ class CardPropertyEditScreen extends StatelessWidget {
       ),
       body: MobileFieldEditor(
         viewId: cellContext.viewId,
-        typeOptionLoader: FieldTypeOptionLoader(
-          viewId: cellContext.viewId,
-          field: cellContext.fieldInfo.field,
-        ),
         fieldController: fieldController,
         field: cellContext.fieldInfo.field,
       ),

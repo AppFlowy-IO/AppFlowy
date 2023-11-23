@@ -424,7 +424,9 @@
       "privacyPolicy": "Privacy Policy",
       "userAgreement": "User Agreement",
       "userprofileError": "Failed to load user profile",
-      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists."
+      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
+      "selectLayout": "Select layout",
+      "selectStartingDay": "Select starting day"
     }
   },
   "grid": {
@@ -852,7 +854,7 @@
         "other": "{} unscheduled events"
       },
       "clickToAdd": "Click to add to the calendar",
-      "name": "Calendar layout"
+      "name": "Calendar settings"
     },
     "referencedCalendarPrefix": "View of",
     "quickJumpYear": "Jump to"
