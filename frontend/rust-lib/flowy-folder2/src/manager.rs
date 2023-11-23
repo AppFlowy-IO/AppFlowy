@@ -159,7 +159,7 @@ impl FolderManager {
       } => {
         let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
         if is_exist {
-          event!(Level::INFO, "Restore folder from local disk");
+          event!(Level::INFO, "Init folder from local disk");
           let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db, vec![])
             .await?;

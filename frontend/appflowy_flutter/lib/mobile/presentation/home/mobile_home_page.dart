@@ -18,7 +18,7 @@ import 'home.dart';
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
 
-  static const routeName = "/MobileHomeScreen";
+  static const routeName = '/home';
 
   @override
   Widget build(BuildContext context) {

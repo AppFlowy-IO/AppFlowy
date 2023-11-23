@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/action.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
@@ -122,6 +123,27 @@ class _RowCardState<T> extends State<RowCard<T>> {
           return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {
+          // mobile
+          if (PlatformExtension.isMobile) {
+            // TODO(yijing): refactor it in mobile to display card in database view
+            return RowCardContainer(
+              buildAccessoryWhen: () => state.isEditing == false,
+              accessoryBuilder: (context) {
+                return [];
+              },
+              openAccessory: (p0) {},
+              openCard: (context) => widget.openCard(context),
+              child: _CardContent<T>(
+                rowNotifier: rowNotifier,
+                cellBuilder: widget.cellBuilder,
+                styleConfiguration: widget.styleConfiguration,
+                cells: state.cells,
+                renderHook: widget.renderHook,
+                cardData: widget.cardData,
+              ),
+            );
+          }
+          // desktop
           return AppFlowyPopover(
             controller: popoverController,
             triggerActions: PopoverTriggerFlags.none,

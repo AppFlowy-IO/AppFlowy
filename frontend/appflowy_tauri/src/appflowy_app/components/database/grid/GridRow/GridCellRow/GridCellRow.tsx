@@ -116,7 +116,13 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
           className='flex'
           itemClassName='flex border-r border-line-divider'
           virtualizer={virtualizer}
-          renderItem={(index) => <GridCell rowId={rowMeta.id} field={fields[index]} />}
+          renderItem={(index) => {
+            const field = fields[index];
+            const icon = field.isPrimary ? rowMeta.icon : undefined;
+            const documentId = field.isPrimary ? rowMeta.documentId : undefined;
+
+            return <GridCell rowId={rowMeta.id} documentId={documentId} icon={icon} field={field} />;
+          }}
         />
         <div className={`w-[${DEFAULT_FIELD_WIDTH}px]`} />
         {isOver && (

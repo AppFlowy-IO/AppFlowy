@@ -5,8 +5,8 @@ import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
 import { fieldService, Field } from '../../application';
 import { useDatabase } from '../../Database.hooks';
-import { FieldTypeSvg } from './FieldTypeSvg';
-import { GridFieldMenu } from './GridFieldMenu';
+import { FieldTypeSvg } from '$app/components/database/components/field';
+import { FieldMenu } from '../../components/field/FieldMenu';
 import GridResizer from '$app/components/database/grid/GridField/GridResizer';
 import { DEFAULT_FIELD_WIDTH } from '$app/components/database/grid/GridRow';
 
@@ -134,9 +134,7 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
           <GridResizer field={field} onWidthChange={(width) => setFieldWidth(width)} />
         </Button>
       </Tooltip>
-      {openMenu && (
-        <GridFieldMenu field={field} open={openMenu} anchorEl={previewRef.current} onClose={handleMenuClose} />
-      )}
+      {openMenu && <FieldMenu field={field} open={openMenu} anchorEl={previewRef.current} onClose={handleMenuClose} />}
     </div>
   );
 };

@@ -64,7 +64,7 @@ class FlowyRunner {
         // init the app window
         const InitAppWindowTask(),
         // Init Rust SDK
-        InitRustSDKTask(directory: applicationDataDirectory),
+        InitRustSDKTask(customApplicationPath: applicationDataDirectory),
         // Load Plugins, like document, grid ...
         const PluginLoadTask(),
 

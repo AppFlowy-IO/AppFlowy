@@ -31,7 +31,7 @@ enum ImportType {
         final FlowySvgData svg;
         switch (this) {
           case ImportType.historyDatabase:
-            svg = FlowySvgs.documents_s;
+            svg = FlowySvgs.document_s;
           case ImportType.historyDocument:
           case ImportType.databaseCSV:
           case ImportType.databaseRawData:

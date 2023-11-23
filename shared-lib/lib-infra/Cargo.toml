@@ -15,3 +15,6 @@ rand = "0.8.5"
 async-trait.workspace = true
 md5 = "0.7.0"
 anyhow.workspace = true
+walkdir = "2.4.0"
+zip = "0.6.6"
+tempfile = "3.8.1"
