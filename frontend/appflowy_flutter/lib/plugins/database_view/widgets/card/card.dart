@@ -109,17 +109,13 @@ class _RowCardState<T> extends State<RowCard<T>> {
       child: BlocBuilder<CardBloc, RowCardState>(
         buildWhen: (previous, current) {
           // Rebuild when:
-          // 1. If the length of the cells is not the same
-          if (previous.cells.length != current.cells.length) {
+          // 1. If the length of the cells is not the same or isEditing changed
+          if (previous.cells.length != current.cells.length ||
+              previous.isEditing != current.isEditing) {
             return true;
           }
 
-          // 2. isEditing changed
-          if (previous.isEditing != current.isEditing) {
-            return true;
-          }
-
-          // 3. the content of the cells changed
+          // 2. the content of the cells changed
           return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {

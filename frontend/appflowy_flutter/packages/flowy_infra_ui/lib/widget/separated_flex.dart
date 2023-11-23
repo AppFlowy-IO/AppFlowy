@@ -3,53 +3,31 @@ import 'package:flutter/material.dart';
 typedef SeparatorBuilder = Widget Function();
 
 class SeparatedColumn extends Column {
-  final SeparatorBuilder separatorBuilder;
-
   SeparatedColumn({
-    Key? key,
-    MainAxisAlignment? mainAxisAlignment,
-    CrossAxisAlignment? crossAxisAlignment,
-    MainAxisSize? mainAxisSize,
-    TextBaseline? textBaseline,
-    TextDirection? textDirection,
-    VerticalDirection? verticalDirection,
-    List<Widget> children = const <Widget>[],
-    required this.separatorBuilder,
-  }) : super(
-          key: key,
-          children: _insertSeparators(children, separatorBuilder),
-          mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
-          crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          textBaseline: textBaseline,
-          textDirection: textDirection,
-          verticalDirection: verticalDirection ?? VerticalDirection.down,
-        );
+    super.key,
+    super.mainAxisAlignment,
+    super.crossAxisAlignment,
+    super.mainAxisSize,
+    super.textBaseline,
+    super.textDirection,
+    super.verticalDirection,
+    required SeparatorBuilder separatorBuilder,
+    required List<Widget> children,
+  }) : super(children: _insertSeparators(children, separatorBuilder));
 }
 
 class SeparatedRow extends Row {
-  final SeparatorBuilder separatorBuilder;
-
   SeparatedRow({
-    Key? key,
-    MainAxisAlignment? mainAxisAlignment,
-    CrossAxisAlignment? crossAxisAlignment,
-    MainAxisSize? mainAxisSize,
-    TextBaseline? textBaseline,
-    TextDirection? textDirection,
-    VerticalDirection? verticalDirection,
-    List<Widget> children = const <Widget>[],
-    required this.separatorBuilder,
-  }) : super(
-          key: key,
-          children: _insertSeparators(children, separatorBuilder),
-          mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
-          crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          textBaseline: textBaseline,
-          textDirection: textDirection,
-          verticalDirection: verticalDirection ?? VerticalDirection.down,
-        );
+    super.key,
+    super.mainAxisAlignment,
+    super.crossAxisAlignment,
+    super.mainAxisSize,
+    super.textBaseline,
+    super.textDirection,
+    super.verticalDirection,
+    required SeparatorBuilder separatorBuilder,
+    required List<Widget> children,
+  }) : super(children: _insertSeparators(children, separatorBuilder));
 }
 
 List<Widget> _insertSeparators(
