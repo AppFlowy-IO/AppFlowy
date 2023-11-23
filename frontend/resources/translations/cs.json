@@ -138,9 +138,32 @@
       "isRange": "Datum kon",
       "failedToLoadDate": "Nepodařilo načíst datum",
       "deleteFieldPromptMessage": "Jste si jistí? Tato vlastnost bude smazána"
-    }
+    },
+    "rowPage": {
+      "fieldDragElementTooltip": "Kli"
+    },
+    "row": {
+      "titlePlaceholder": "Bez názvu",
+      "textPlaceholder": "Prázdné"
+    },
+    "referencedGridPrefix": "Pohled na"
   },
   "document": {
+    "menuName": "Dokument",
+    "slashMenu": {
+      "calendar": {
+        "createANewCalendar": "Vyto"
+      }
+    },
+    "plugins": {
+      "autoGeneratorTitleName": "OpenAI: Zeptej se AI na cokoliv...",
+      "cover": {
+        "alertDialogConfirmation": "Jste si jistí, že chcete pokračovat?"
+      },
+      "mathEquation": {
+        "name": "Matematick"
+      }
+    },
     "imageBlock": {
       "ai": {
         "placeholder": "Prosím vlo"
