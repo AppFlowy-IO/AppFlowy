@@ -109,7 +109,6 @@ class _OptionList extends StatelessWidget {
 
         return ListView.separated(
           shrinkWrap: true,
-          controller: ScrollController(),
           itemCount: cells.length,
           separatorBuilder: (_, __) =>
               VSpace(GridSize.typeOptionSeparatorHeight),
@@ -302,7 +301,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
   @override
   Widget build(BuildContext context) {
     final child = SizedBox(
-      height: GridSize.popoverItemHeight,
+      height: 28,
       child: SelectOptionTagCell(
         option: widget.option,
         onSelected: (option) {
@@ -328,7 +327,6 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
           FlowyIconButton(
             onPressed: () => _popoverController.show(),
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
-            // If hover color is none, it will use secondary color from the theme, we use [Colors.transparent] to remove the hover color
             hoverColor: Colors.transparent,
             icon: FlowySvg(
               FlowySvgs.details_s,

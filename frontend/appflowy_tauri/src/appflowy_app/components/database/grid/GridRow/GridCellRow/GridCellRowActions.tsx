@@ -58,7 +58,7 @@ export const GridCellRowActions: FC<PropsWithChildren<GridCellRowActionsProps>> 
   return (
     <>
       {!isHidden && (
-        <div ref={ref} className={`relative inline-flex items-center ${className || ''}`} {...props}>
+        <div ref={ref} className={`inline-flex items-center ${className || ''}`} {...props}>
           <Tooltip placement='top' title={t('grid.row.add')}>
             <IconButton onClick={handleInsertRecordBelow}>
               <AddSvg />

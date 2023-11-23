@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/mobile_grid_page.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -90,18 +91,30 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  DatabaseTabBarItemBuilder tarBarItem() {
+  DatabaseTabBarItemBuilder tabBarItem() {
     switch (layout) {
       case ViewLayoutPB.Board:
         return BoardPageTabBarBuilderImpl();
       case ViewLayoutPB.Calendar:
         return CalendarPageTabBarBuilderImpl();
       case ViewLayoutPB.Grid:
-        return GridPageTabBarBuilderImpl();
-      case ViewLayoutPB.Document:
+        return DesktopGridTabBarBuilderImpl();
+      default:
         throw UnimplementedError;
     }
-    throw UnimplementedError;
+  }
+
+  DatabaseTabBarItemBuilder mobileTabBarItem() {
+    switch (layout) {
+      case ViewLayoutPB.Board:
+        return BoardPageTabBarBuilderImpl();
+      case ViewLayoutPB.Calendar:
+        return CalendarPageTabBarBuilderImpl();
+      case ViewLayoutPB.Grid:
+        return MobileGridTabBarBuilderImpl();
+      default:
+        throw UnimplementedError;
+    }
   }
 
   FlowySvgData get iconData => layout.icon;

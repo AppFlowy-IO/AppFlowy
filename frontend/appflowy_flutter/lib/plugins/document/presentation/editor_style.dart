@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
@@ -10,6 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EditorStyleCustomizer {
@@ -276,7 +278,23 @@ class EditorStyleCustomizer {
         text: text.text,
         recognizer: TapGestureRecognizer()
           ..onTap = () {
-            safeLaunchUrl(href);
+            showEditLinkBottomSheet(
+              context,
+              text.text,
+              href,
+              (linkContext, newText, newHref) {
+                _updateTextAndHref(
+                  context,
+                  node,
+                  index,
+                  text.text,
+                  href,
+                  newText,
+                  newHref,
+                );
+                linkContext.pop();
+              },
+            );
           },
       );
     }
@@ -288,5 +306,38 @@ class EditorStyleCustomizer {
       text,
       textSpan,
     );
+  }
+
+  void _updateTextAndHref(
+    BuildContext context,
+    Node node,
+    int index,
+    String prevText,
+    String? prevHref,
+    String text,
+    String href,
+  ) async {
+    final selection = Selection.single(
+      path: node.path,
+      startOffset: index,
+      endOffset: index + prevText.length,
+    );
+    final editorState = context.read<EditorState>();
+    final transaction = editorState.transaction;
+    if (prevText != text) {
+      transaction.replaceText(
+        node,
+        selection.startIndex,
+        selection.length,
+        text,
+      );
+    }
+    // if the text is empty, it means the user wants to remove the text
+    if (text.isNotEmpty && prevHref != href) {
+      transaction.formatText(node, selection.startIndex, text.length, {
+        AppFlowyRichTextKeys.href: href.isEmpty ? null : href,
+      });
+    }
+    await editorState.apply(transaction);
   }
 }

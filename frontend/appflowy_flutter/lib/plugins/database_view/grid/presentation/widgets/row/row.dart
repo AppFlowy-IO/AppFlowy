@@ -4,9 +4,7 @@ import 'package:appflowy/plugins/database_view/application/row/row_controller.da
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -56,33 +54,30 @@ class _GridRowState extends State<GridRow> {
       rowId: widget.rowId,
       dataController: widget.dataController,
       viewId: widget.viewId,
-    );
-    _rowBloc.add(const RowEvent.initial());
+    )..add(const RowEvent.initial());
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _rowBloc,
-      child: _RowEnterRegion(
-        child: BlocBuilder<RowBloc, RowState>(
-          // The row need to rebuild when the cell count changes.
-          buildWhen: (p, c) =>
-              p.cellByFieldId.length != c.cellByFieldId.length ||
-              p.rowSource != c.rowSource,
-          builder: (context, state) {
-            final content = Expanded(
-              child: RowContent(
-                builder: widget.cellBuilder,
-                onExpand: () => widget.openDetailPage(
-                  context,
-                  widget.cellBuilder,
-                ),
+      child: BlocBuilder<RowBloc, RowState>(
+        // The row need to rebuild when the cell count changes.
+        buildWhen: (p, c) => p.rowSource != c.rowSource,
+        builder: (context, state) {
+          final content = Expanded(
+            child: RowContent(
+              builder: widget.cellBuilder,
+              onExpand: () => widget.openDetailPage(
+                context,
+                widget.cellBuilder,
               ),
-            );
+            ),
+          );
 
-            return Row(
-              key: ValueKey(state.rowSource),
+          return _RowEnterRegion(
+            key: ValueKey(state.rowSource),
+            child: Row(
               children: [
                 _RowLeading(
                   index: widget.index,
@@ -90,9 +85,9 @@ class _GridRowState extends State<GridRow> {
                 ),
                 content,
               ],
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -157,19 +152,18 @@ class _RowLeadingState extends State<_RowLeading> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const InsertRowButton(),
-        if (isDraggable) ...[
+        if (isDraggable)
           ReorderableDragStartListener(
             index: widget.index!,
             child: RowMenuButton(
               isDragEnabled: isDraggable,
               openMenu: popoverController.show,
             ),
-          ),
-        ] else ...[
+          )
+        else
           RowMenuButton(
             openMenu: popoverController.show,
           ),
-        ],
       ],
     );
   }
@@ -255,8 +249,6 @@ class RowContent extends StatelessWidget {
       builder: (context, state) {
         return IntrinsicHeight(
           child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ..._makeCells(context, state.cellByFieldId),
@@ -274,13 +266,11 @@ class RowContent extends StatelessWidget {
   ) {
     return cellByFieldId.values.map(
       (cellId) {
-        final cellStyle = customCellStyle(cellId.fieldType);
-        final GridCellWidget child = builder.build(cellId, style: cellStyle);
+        final GridCellWidget child = builder.build(cellId);
 
         return CellContainer(
           width: cellId.fieldInfo.fieldSettings?.width.toDouble() ?? 140,
           isPrimary: cellId.fieldInfo.field.isPrimary,
-          cellContainerNotifier: CellContainerNotifier(child),
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
             final List<GridCellAccessoryBuilder> accessories = [];
@@ -320,7 +310,6 @@ class RowContent extends StatelessWidget {
             bottom: BorderSide(color: Theme.of(context).dividerColor),
           ),
         ),
-        child: const SizedBox.shrink(),
       ),
     );
   }

@@ -1,7 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -11,7 +12,7 @@ import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flutter/material.dart';
 
 class AddDatabaseViewButton extends StatefulWidget {
-  final Function(AddButtonAction) onTap;
+  final Function(DatabaseLayoutPB) onTap;
   const AddDatabaseViewButton({
     required this.onTap,
     super.key,
@@ -57,7 +58,7 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
         ),
       ),
       popupBuilder: (BuildContext context) {
-        return TarBarAddButtonAction(
+        return TabBarAddButtonAction(
           onTap: (action) {
             popoverController.close();
             widget.onTap(action);
@@ -68,38 +69,37 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
   }
 }
 
-class TarBarAddButtonAction extends StatelessWidget {
-  final Function(AddButtonAction) onTap;
-  const TarBarAddButtonAction({
+class TabBarAddButtonAction extends StatelessWidget {
+  final Function(DatabaseLayoutPB) onTap;
+  const TabBarAddButtonAction({
     required this.onTap,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    final cells = AddButtonAction.values.map((layout) {
-      return TarBarAddButtonActionCell(
+    final cells = DatabaseLayoutPB.values.map((layout) {
+      return TabBarAddButtonActionCell(
         action: layout,
         onTap: onTap,
       );
     }).toList();
 
     return ListView.separated(
-      controller: ScrollController(),
       shrinkWrap: true,
       itemCount: cells.length,
       itemBuilder: (BuildContext context, int index) => cells[index],
       separatorBuilder: (BuildContext context, int index) =>
           VSpace(GridSize.typeOptionSeparatorHeight),
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
     );
   }
 }
 
-class TarBarAddButtonActionCell extends StatelessWidget {
-  final AddButtonAction action;
-  final void Function(AddButtonAction) onTap;
-  const TarBarAddButtonActionCell({
+class TabBarAddButtonActionCell extends StatelessWidget {
+  final DatabaseLayoutPB action;
+  final void Function(DatabaseLayoutPB) onTap;
+  const TabBarAddButtonActionCell({
     required this.action,
     required this.onTap,
     super.key,
@@ -112,7 +112,7 @@ class TarBarAddButtonActionCell extends StatelessWidget {
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
-          '${LocaleKeys.grid_createView.tr()} ${action.title}',
+          '${LocaleKeys.grid_createView.tr()} ${action.layoutName}',
           color: AFThemeExtension.of(context).textColor,
         ),
         leftIcon: FlowySvg(
@@ -122,48 +122,5 @@ class TarBarAddButtonActionCell extends StatelessWidget {
         onTap: () => onTap(action),
       ).padding(horizontal: 6.0),
     );
-  }
-}
-
-enum AddButtonAction {
-  grid,
-  calendar,
-  board;
-
-  String get title {
-    switch (this) {
-      case AddButtonAction.board:
-        return LocaleKeys.board_menuName.tr();
-      case AddButtonAction.calendar:
-        return LocaleKeys.calendar_menuName.tr();
-      case AddButtonAction.grid:
-        return LocaleKeys.grid_menuName.tr();
-      default:
-        return "";
-    }
-  }
-
-  ViewLayoutPB get layoutType {
-    switch (this) {
-      case AddButtonAction.board:
-        return ViewLayoutPB.Board;
-      case AddButtonAction.calendar:
-        return ViewLayoutPB.Calendar;
-      case AddButtonAction.grid:
-        return ViewLayoutPB.Grid;
-      default:
-        return ViewLayoutPB.Grid;
-    }
-  }
-
-  FlowySvgData get icon {
-    switch (this) {
-      case AddButtonAction.board:
-        return FlowySvgs.board_s;
-      case AddButtonAction.calendar:
-        return FlowySvgs.date_s;
-      case AddButtonAction.grid:
-        return FlowySvgs.grid_s;
-    }
   }
 }

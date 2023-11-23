@@ -38,7 +38,7 @@ class _MobileFieldNameTextFieldState extends State<MobileFieldNameTextField> {
       onChanged: (newName) {
         context
             .read<FieldEditorBloc>()
-            .add(FieldEditorEvent.updateName(newName));
+            .add(FieldEditorEvent.renameField(newName));
       },
     );
   }

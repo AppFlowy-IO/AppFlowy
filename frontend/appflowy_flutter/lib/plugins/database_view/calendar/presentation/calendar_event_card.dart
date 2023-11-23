@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
@@ -26,6 +27,7 @@ import 'calendar_event_editor.dart';
 class EventCard extends StatefulWidget {
   const EventCard({
     super.key,
+    required this.fieldController,
     required this.event,
     required this.viewId,
     required this.rowCache,
@@ -34,6 +36,7 @@ class EventCard extends StatefulWidget {
     this.isDraggable = true,
   });
 
+  final FieldController fieldController;
   final CalendarDayEvent event;
   final String viewId;
   final RowCache rowCache;
@@ -169,6 +172,7 @@ class _EventCardState extends State<EventCard> {
           return const SizedBox.shrink();
         }
         return CalendarEventEditor(
+          fieldController: widget.fieldController,
           rowCache: widget.rowCache,
           rowMeta: widget.event.event.rowMeta,
           viewId: widget.viewId,

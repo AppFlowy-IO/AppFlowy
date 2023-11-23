@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../application/cell/cell_service.dart';
 import 'accessory/cell_accessory.dart';
 import 'accessory/cell_shortcuts.dart';
+import 'cells/cell_container.dart';
 import 'cells/checkbox_cell/checkbox_cell.dart';
 import 'cells/checklist_cell/checklist_cell.dart';
 import 'cells/date_cell/date_cell.dart';
@@ -25,7 +26,7 @@ class GridCellBuilder {
 
   GridCellWidget build(
     DatabaseCellContext cellContext, {
-    required GridCellStyle? style,
+    GridCellStyle? style,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellContext: cellContext,
@@ -129,16 +130,16 @@ GridCellWidget _getMobileCardCellWidget(
 ) {
   switch (cellContext.fieldType) {
     case FieldType.RichText:
-      style as GridTextCellStyle;
+      style as GridTextCellStyle?;
       return MobileTextCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style.placeholder,
+        hintText: style?.placeholder,
       );
     case FieldType.Number:
-      style as GridNumberCellStyle;
+      style as GridNumberCellStyle?;
       return MobileNumberCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style.placeholder,
+        hintText: style?.placeholder,
       );
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
@@ -152,17 +153,17 @@ GridCellWidget _getMobileCardCellWidget(
         key: key,
       );
     case FieldType.DateTime:
-      style as DateCellStyle;
+      style as DateCellStyle?;
       return MobileDateCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style.placeholder,
+        hintText: style?.placeholder,
         key: key,
       );
     case FieldType.URL:
-      style as GridURLCellStyle;
+      style as GridURLCellStyle?;
       return MobileURLCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style.placeholder,
+        hintText: style?.placeholder,
         key: key,
       );
     // TODO(yijing):  implement the following mobile select option cell
@@ -200,7 +201,7 @@ class BlankCell extends StatelessWidget {
 abstract class CellEditable {
   RequestFocusListener get requestFocus;
 
-  ValueNotifier<bool> get onCellFocus;
+  CellContainerNotifier get cellContainerNotifier;
 
   // ValueNotifier<bool> get onCellEditing;
 }
@@ -223,11 +224,11 @@ abstract class GridCellWidget extends StatefulWidget
   GridCellWidget({super.key});
 
   @override
-  final ValueNotifier<bool> onCellFocus = ValueNotifier<bool>(false);
+  final CellContainerNotifier cellContainerNotifier = CellContainerNotifier();
 
   // When the cell is focused, we assume that the accessory also be hovered.
   @override
-  ValueNotifier<bool> get onAccessoryHover => onCellFocus;
+  ValueNotifier<bool> get onAccessoryHover => ValueNotifier(false);
 
   // @override
   // final ValueNotifier<bool> onCellEditing = ValueNotifier<bool>(false);
@@ -278,17 +279,19 @@ abstract class GridEditableTextCell<T extends GridCellWidget>
 
   @override
   void initState() {
+    super.initState();
     widget.shortcutHandlers[CellKeyboardKey.onEnter] =
         () => focusNode.unfocus();
     _listenOnFocusNodeChanged();
-    super.initState();
   }
 
   @override
   void didUpdateWidget(covariant T oldWidget) {
-    if (oldWidget != this) {
-      _listenOnFocusNodeChanged();
-    }
+    // if (!focusNode.hasFocus && widget.cellContainerNotifier.isFocus) {
+    //   focusNode.requestFocus();
+    // } else if (focusNode.hasFocus && !widget.cellContainerNotifier.isFocus) {
+    //   focusNode.unfocus();
+    // }
     super.didUpdateWidget(oldWidget);
   }
 
@@ -302,15 +305,15 @@ abstract class GridEditableTextCell<T extends GridCellWidget>
 
   @override
   void requestBeginFocus() {
-    if (focusNode.hasFocus == false && focusNode.canRequestFocus) {
+    if (!focusNode.hasFocus && focusNode.canRequestFocus) {
       FocusScope.of(context).requestFocus(focusNode);
     }
   }
 
   void _listenOnFocusNodeChanged() {
-    widget.onCellFocus.value = focusNode.hasFocus;
+    widget.cellContainerNotifier.isFocus = focusNode.hasFocus;
     focusNode.setListener(() {
-      widget.onCellFocus.value = focusNode.hasFocus;
+      widget.cellContainerNotifier.isFocus = focusNode.hasFocus;
       focusChanged();
     });
   }
