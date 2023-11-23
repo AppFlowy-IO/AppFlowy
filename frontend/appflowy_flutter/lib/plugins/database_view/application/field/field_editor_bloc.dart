@@ -62,7 +62,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             await typeOptionController.reloadTypeOption();
             add(FieldEditorEvent.didReceiveFieldChanged(fieldId));
           },
-          didReceiveFieldChanged: (fieldId) {
+          didReceiveFieldChanged: (fieldId) async {
+            await Future.delayed(const Duration(milliseconds: 50));
             emit(state.copyWith(field: fieldController.getField(fieldId)!));
           },
           switchFieldType: (fieldType) async {

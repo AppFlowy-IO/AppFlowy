@@ -27,13 +27,13 @@ void main() {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
 
-  // test('rename field', () async {
-  //   final editorBloc = await createEditorBloc(gridTest);
-  //   editorBloc.add(const FieldEditorEvent.renameField('Hello world'));
+  test('rename field', () async {
+    final editorBloc = await createEditorBloc(gridTest);
+    editorBloc.add(const FieldEditorEvent.renameField('Hello world'));
 
-  //   await gridResponseFuture();
-  //   expect(editorBloc.state.field.name, equals("Hello world"));
-  // });
+    await gridResponseFuture();
+    expect(editorBloc.state.field.name, equals("Hello world"));
+  });
 
   test('switch to text field', () async {
     final editorBloc = await createEditorBloc(gridTest);
