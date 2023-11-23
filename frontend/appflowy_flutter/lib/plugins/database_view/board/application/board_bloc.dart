@@ -85,7 +85,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               startRowId: startRowId,
             );
 
-            result.fold((_) {}, (err) => Log.error(err));
+            result.fold(
+              (rowMeta) {
+                emit(state.copyWith(recentAddedRowMeta: rowMeta));
+              },
+              (err) => Log.error(err),
+            );
           },
           createHeaderRow: (String groupId) async {
             final result = await databaseController.createRow(
@@ -93,7 +98,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               fromBeginning: true,
             );
 
-            result.fold((_) {}, (err) => Log.error(err));
+            result.fold((rowMeta) {
+              emit(state.copyWith(recentAddedRowMeta: rowMeta));
+            }, (err) => Log.error(err));
           },
           createGroup: (name) async {
             final result = await groupBackendSvc.createGroup(name: name);
@@ -522,6 +529,7 @@ class BoardState with _$BoardState {
     required BoardLayoutSettingPB? layoutSettings,
     String? editingHeaderId,
     BoardEditingRow? editingRow,
+    RowMetaPB? recentAddedRowMeta,
     required List<GroupPB> hiddenGroups,
   }) = _BoardState;
 

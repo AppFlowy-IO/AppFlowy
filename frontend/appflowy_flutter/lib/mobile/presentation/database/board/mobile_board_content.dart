@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-//TODO(yijing): refactor for mobile
 class MobileBoardContent extends StatefulWidget {
   const MobileBoardContent({
     super.key,
@@ -73,9 +72,22 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     );
 
     return BlocListener<BoardBloc, BoardState>(
+      listenWhen: (previous, current) =>
+          previous.recentAddedRowMeta != current.recentAddedRowMeta,
       listener: (context, state) {
-        _handleEditStateChanged(state, context);
-        widget.onEditStateChanged?.call();
+        // when add a new card
+        // it push to the card detail screen of the new card
+        final rowCache = context.read<BoardBloc>().getRowCache()!;
+        context.push(
+          MobileCardDetailScreen.routeName,
+          extra: {
+            MobileCardDetailScreen.argRowController: RowController(
+              rowMeta: state.recentAddedRowMeta!,
+              viewId: state.viewId,
+              rowCache: rowCache,
+            ),
+          },
+        );
       },
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
@@ -110,18 +122,6 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     );
   }
 
-  /// when add a new card, it got trigger
-  /// todo refactor
-  void _handleEditStateChanged(BoardState state, BuildContext context) {
-    if (state.isEditingRow && state.editingRow != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (state.editingRow!.index == null) {
-          scrollManager.scrollToBottom(state.editingRow!.group.groupId);
-        }
-      });
-    }
-  }
-
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
     final style = Theme.of(context);
 
@@ -143,9 +143,8 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             color: style.colorScheme.onSurface,
           ),
         ),
-        onPressed: () {
-          // TODO(yijing): add a new card/link to card detail page
-        },
+        onPressed: () => context.read<BoardBloc>()
+          ..add(BoardEvent.createBottomRow(columnData.id)),
       ),
     );
   }

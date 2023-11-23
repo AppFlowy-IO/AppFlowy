@@ -155,9 +155,9 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   splashRadius: 5,
-                  onPressed: () {
-                    // TODO(yijing): add new card/link to card detai page
-                  },
+                  onPressed: () => context.read<BoardBloc>().add(
+                        BoardEvent.createHeaderRow(widget.groupData.id),
+                      ),
                 ),
               ],
             ),
