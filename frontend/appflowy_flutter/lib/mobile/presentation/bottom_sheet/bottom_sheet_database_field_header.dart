@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,7 +33,7 @@ class MobileDBFieldBottomSheetHeader extends StatelessWidget {
         // field name
         Expanded(
           child: Text(
-            "Edit Field",
+            LocaleKeys.grid_field_editProperty.tr(),
             style: theme.textTheme.labelSmall,
           ),
         ),

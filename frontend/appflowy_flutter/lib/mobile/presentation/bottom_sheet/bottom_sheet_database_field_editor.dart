@@ -100,10 +100,6 @@ class _MobileDBBottomSheetFieldEditorState
           onAction: (action) {
             switch (action) {
               case MobileDBBottomSheetGeneralAction.typeOption:
-                debugPrint("gimme the type option editor!");
-                // setState(() {
-                //   viewMode = MobileDBBottomSheetViewMode.typeOption;
-                // });
                 break;
               case MobileDBBottomSheetGeneralAction.toggleVisibility:
                 _fieldEditorBloc
@@ -124,19 +120,6 @@ class _MobileDBBottomSheetFieldEditorState
           },
         ),
       MobileDBBottomSheetViewMode.typeOption => const SizedBox.shrink(),
-      // MobileDatabaseFieldBottomSheetBody(
-      //   onAction: (action) {
-      //     switch (action) {
-      //       case MobileDBBottomSheetGeneralAction.typeOption:
-      //         setState(() {
-      //           viewMode = MobileDBBottomSheetViewMode.typeOption;
-      //         });
-      //         break;
-      //       default:
-      //         break;
-      //     }
-      //   },
-      // ),
     };
   }
 }

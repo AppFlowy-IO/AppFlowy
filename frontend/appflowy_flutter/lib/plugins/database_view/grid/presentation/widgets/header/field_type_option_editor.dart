@@ -85,13 +85,7 @@ class SwitchFieldButton extends StatefulWidget {
 }
 
 class _SwitchFieldButtonState extends State<SwitchFieldButton> {
-  late final PopoverController _popoverController;
-
-  @override
-  void initState() {
-    super.initState();
-    _popoverController = PopoverController();
-  }
+  final PopoverController _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
