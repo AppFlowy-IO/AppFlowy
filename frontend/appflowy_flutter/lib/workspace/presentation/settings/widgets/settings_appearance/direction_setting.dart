@@ -20,12 +20,15 @@ class LayoutDirectionSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    @visibleForTesting
+    const key = ValueKey('layout_direction_option_button');
+
     return ThemeSettingEntryTemplateWidget(
       label: LocaleKeys.settings_appearance_layoutDirection_label.tr(),
       hint: LocaleKeys.settings_appearance_layoutDirection_hint.tr(),
       trailing: [
         ThemeValueDropDown(
-          key: const ValueKey('layout_direction_option_button'),
+          key: key,
           currentValue: _layoutDirectionLabelText(currentLayoutDirection),
           popupBuilder: (context) => Column(
             mainAxisSize: MainAxisSize.min,
