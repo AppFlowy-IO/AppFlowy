@@ -73,9 +73,9 @@ class RowCard<CustomCardData> extends StatefulWidget {
 }
 
 class _RowCardState<T> extends State<RowCard<T>> {
+  final popoverController = PopoverController();
   late final CardBloc _cardBloc;
   late final EditableRowNotifier rowNotifier;
-  late final PopoverController popoverController;
   AccessoryType? accessoryType;
 
   @override
@@ -100,8 +100,6 @@ class _RowCardState<T> extends State<RowCard<T>> {
         widget.onEndEditing();
       }
     });
-
-    popoverController = PopoverController();
   }
 
   @override
@@ -143,26 +141,36 @@ class _RowCardState<T> extends State<RowCard<T>> {
             );
           }
 
-          return RowCardContainer(
-            buildAccessoryWhen: () => state.isEditing == false,
-            accessories: widget.styleConfiguration.showAccessory
-                ? [
-                    _CardEditOption(rowNotifier: rowNotifier),
-                    CardMoreOption(
-                      popoverController: popoverController,
-                      groupId: widget.groupId,
-                    ),
-                  ]
-                : [],
-            openAccessory: _handleOpenAccessory,
-            openCard: (context) => widget.openCard(context),
-            child: _CardContent<T>(
-              rowNotifier: rowNotifier,
-              cellBuilder: widget.cellBuilder,
-              styleConfiguration: widget.styleConfiguration,
-              cells: state.cells,
-              renderHook: widget.renderHook,
-              cardData: widget.cardData,
+          return AppFlowyPopover(
+            controller: popoverController,
+            triggerActions: PopoverTriggerFlags.none,
+            constraints: BoxConstraints.loose(const Size(140, 200)),
+            direction: PopoverDirection.rightWithCenterAligned,
+            popupBuilder: (popoverContext) {
+              return RowActions(
+                viewId: context.read<CardBloc>().viewId,
+                rowId: context.read<CardBloc>().rowMeta.id,
+                groupId: widget.groupId,
+              );
+            },
+            child: RowCardContainer(
+              buildAccessoryWhen: () => state.isEditing == false,
+              accessories: widget.styleConfiguration.showAccessory
+                  ? [
+                      _CardEditOption(rowNotifier: rowNotifier),
+                      const CardMoreOption(),
+                    ]
+                  : [],
+              openAccessory: _handleOpenAccessory,
+              openCard: (context) => widget.openCard(context),
+              child: _CardContent<T>(
+                rowNotifier: rowNotifier,
+                cellBuilder: widget.cellBuilder,
+                styleConfiguration: widget.styleConfiguration,
+                cells: state.cells,
+                renderHook: widget.renderHook,
+                cardData: widget.cardData,
+              ),
             ),
           );
         },
@@ -267,44 +275,19 @@ class _CardContent<CustomCardData> extends StatelessWidget {
   }
 }
 
-class CardMoreOption extends StatefulWidget with CardAccessory {
-  CardMoreOption({
-    super.key,
-    required this.popoverController,
-    this.groupId,
-  });
-
-  final PopoverController popoverController;
-  final String? groupId;
+class CardMoreOption extends StatelessWidget with CardAccessory {
+  const CardMoreOption({super.key});
 
   @override
   AccessoryType get type => AccessoryType.more;
 
   @override
-  State<CardMoreOption> createState() => _CardMoreOptionState();
-}
-
-class _CardMoreOptionState extends State<CardMoreOption> {
-  @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      controller: widget.popoverController,
-      triggerActions: PopoverTriggerFlags.none,
-      constraints: BoxConstraints.loose(const Size(140, 200)),
-      direction: PopoverDirection.bottomWithLeftAligned,
-      popupBuilder: (popoverContext) {
-        return RowActions(
-          viewId: context.read<CardBloc>().viewId,
-          rowId: context.read<CardBloc>().rowMeta.id,
-          groupId: widget.groupId,
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(3.0),
-        child: FlowySvg(
-          FlowySvgs.three_dots_s,
-          color: Theme.of(context).hintColor,
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: FlowySvg(
+        FlowySvgs.three_dots_s,
+        color: Theme.of(context).hintColor,
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -121,15 +123,18 @@ class _TextCellState extends State<TextCardCell> {
               return custom;
             }
 
+            final isTitle =
+                context.read<TextCellBloc>().cellController.fieldInfo.isPrimary;
             if (state.content.isEmpty &&
                 state.enableEdit == false &&
-                focusWhenInit == false) {
+                focusWhenInit == false &&
+                !isTitle) {
               return const SizedBox.shrink();
             }
 
             final child = state.enableEdit || focusWhenInit
                 ? _buildTextField()
-                : _buildText(state);
+                : _buildText(state, isTitle);
 
             return Padding(
               padding: CardSizes.cardCellPadding,
@@ -161,16 +166,26 @@ class _TextCellState extends State<TextCardCell> {
     super.dispose();
   }
 
-  double _fontSize(bool isTitle) {
-    return widget.style?.fontSize ?? (isTitle ? 12 : 12);
-  }
-
-  Widget _buildText(TextCellState state) {
-    return FlowyText.medium(
-      state.content,
-      fontSize: _fontSize(state.enableEdit),
+  Widget _buildText(TextCellState state, bool isTitle) {
+    final text = state.content.isEmpty
+        ? LocaleKeys.grid_row_titlePlaceholder.tr()
+        : state.content;
+    final color = state.content.isEmpty ? Theme.of(context).hintColor : null;
+    return FlowyText(
+      text,
+      fontSize: _fontSize(isTitle),
+      fontWeight: _fontWeight(isTitle),
+      color: color,
       maxLines: null, // Enable multiple lines
     );
+  }
+
+  double _fontSize(bool isTitle) {
+    return widget.style?.fontSize ?? (isTitle ? 12 : 11);
+  }
+
+  FontWeight _fontWeight(bool isTitle) {
+    return isTitle ? FontWeight.w500 : FontWeight.w400;
   }
 
   Widget _buildTextField() {
@@ -186,10 +201,11 @@ class _TextCellState extends State<TextCardCell> {
           .copyWith(fontSize: _fontSize(true)),
       decoration: InputDecoration(
         contentPadding:
-            EdgeInsets.symmetric(vertical: CardSizes.cardCellPadding.top + 0.5),
+            EdgeInsets.symmetric(vertical: CardSizes.cardCellPadding.top),
         border: InputBorder.none,
         isDense: true,
         isCollapsed: true,
+        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
       ),
     );
   }
