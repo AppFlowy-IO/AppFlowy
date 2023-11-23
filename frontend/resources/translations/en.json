@@ -227,7 +227,10 @@
     "removeFromFavorites": "Remove from favorites",
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
-    "helpCenter": "Help Center"
+    "helpCenter": "Help Center",
+    "OK": "Ok",
+    "Done": "Done",
+    "Cancel": "Cancel"
   },
   "label": {
     "welcome": "Welcome!",
@@ -1072,7 +1075,7 @@
     "rowDuplicate": "Duplicate",
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
-    "slashPlaceHolder": "Enter a / to insert a block, or start typing"
+    "slashPlaceHolder": "Type '/' to insert a block, or start typing"
   },
   "favorite": {
     "noFavorite": "No favorite page",
