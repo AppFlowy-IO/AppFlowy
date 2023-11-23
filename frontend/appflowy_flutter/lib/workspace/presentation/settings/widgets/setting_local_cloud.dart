@@ -29,7 +29,7 @@ class SettingLocalCloud extends StatelessWidget {
           onTap: () {
             NavigatorAlertDialog(
               title: LocaleKeys.settings_menu_restartAppTip.tr(),
-              confirm: () {},
+              confirm: didResetServerUrl,
             ).show(context);
           },
         ),

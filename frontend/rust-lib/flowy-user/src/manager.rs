@@ -159,13 +159,17 @@ impl UserManager {
 
     if let Ok(session) = self.get_session() {
       let user = self.get_user_profile_from_disk(session.user_id).await?;
+
+      // Get the current authenticator from the environment variable
       let current_authenticator = match AuthenticatorType::from_env() {
         AuthenticatorType::Local => Authenticator::Local,
         AuthenticatorType::Supabase => Authenticator::Supabase,
         AuthenticatorType::AppFlowyCloud => Authenticator::AppFlowyCloud,
       };
 
-      if user.authenticator != current_authenticator {
+      // If the current authenticator is different from the authenticator in the session and it's
+      // not a local authenticator, we need to sign out the user.
+      if user.authenticator != Authenticator::Local && user.authenticator != current_authenticator {
         event!(
           tracing::Level::INFO,
           "Authenticator changed from {:?} to {:?}",
@@ -562,27 +566,6 @@ impl UserManager {
 
     match result {
       Ok(new_user_profile) => {
-        // If the authentication type has changed, it indicates that the user has signed in
-        // using a different release package but is sharing the same data folder.
-        // In such cases, notify the frontend to log out.
-        if old_user_profile.authenticator != Authenticator::Local
-          && new_user_profile.authenticator != old_user_profile.authenticator
-        {
-          event!(
-            tracing::Level::INFO,
-            "User login with different authenticator: {:?} -> {:?}",
-            old_user_profile.authenticator,
-            new_user_profile.authenticator
-          );
-
-          send_auth_state_notification(AuthStateChangedPB {
-            state: AuthStatePB::InvalidAuth,
-            message: "User login with different cloud".to_string(),
-          })
-          .send();
-          return Ok(());
-        }
-
         // If the user profile is updated, save the new user profile
         if new_user_profile.updated_at > old_user_profile.updated_at {
           validate_encryption_sign(old_user_profile, &new_user_profile.encryption_type.sign());

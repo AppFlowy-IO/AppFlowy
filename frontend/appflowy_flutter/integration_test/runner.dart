@@ -76,7 +76,7 @@ void main() {
   // User settings
   settings_test_runner.main();
 
-  if (isCloudEnabled) {
+  if (isAuthEnabled) {
     auth_test_runner.main();
   }
 
