@@ -57,7 +57,7 @@ pub fn user_profile_from_af_profile(
     openai_key: openai_key.unwrap_or_default(),
     stability_ai_key: stability_ai_key.unwrap_or_default(),
     workspace_id: profile.latest_workspace_id.to_string(),
-    authenticator: Authenticator::AFCloud,
+    authenticator: Authenticator::AppFlowyCloud,
     encryption_type,
     uid: profile.uid,
     updated_at: profile.updated_at,

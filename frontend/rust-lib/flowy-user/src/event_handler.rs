@@ -87,7 +87,7 @@ pub async fn get_user_profile_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let mut user_profile = manager.get_user_profile(uid).await?;
+  let mut user_profile = manager.get_user_profile_from_disk(uid).await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
@@ -334,7 +334,7 @@ pub async fn check_encrypt_secret_handler(
 ) -> DataResult<UserEncryptionConfigurationPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let profile = manager.get_user_profile(uid).await?;
+  let profile = manager.get_user_profile_from_disk(uid).await?;
 
   let is_need_secret = match profile.encryption_type {
     EncryptionType::NoEncryption => false,

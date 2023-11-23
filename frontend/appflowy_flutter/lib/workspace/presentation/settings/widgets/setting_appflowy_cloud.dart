@@ -92,13 +92,14 @@ class AppFlowyCloudURLs extends StatelessWidget {
                 ),
                 const VSpace(20),
                 FlowyButton(
+                  isSelected: true,
                   useIntrinsicWidth: true,
                   margin: const EdgeInsets.symmetric(
                     horizontal: 30,
                     vertical: 10,
                   ),
                   text: FlowyText(
-                    LocaleKeys.settings_menu_save.tr(),
+                    LocaleKeys.settings_menu_restartApp.tr(),
                   ),
                   onTap: () {
                     NavigatorAlertDialog(

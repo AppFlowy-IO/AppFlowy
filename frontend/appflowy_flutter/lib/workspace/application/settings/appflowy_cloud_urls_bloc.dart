@@ -32,18 +32,14 @@ class AppFlowyCloudURLsBloc
             validateUrl(state.updatedServerUrl).fold(
               (error) => emit(state.copyWith(urlError: Some(error))),
               (_) async {
+                emit(
+                  state.copyWith(
+                    urlError: none(),
+                    restartApp: true,
+                  ),
+                );
                 if (state.config.base_url != state.updatedServerUrl) {
-                  emit(
-                    state.copyWith(
-                      urlError: none(),
-                      restartApp: true,
-                    ),
-                  );
                   await setAppFlowyCloudBaseUrl(Some(state.updatedServerUrl));
-                } else {
-                  emit(
-                    state.copyWith(urlError: const Some('URL is the same')),
-                  );
                 }
               },
             );

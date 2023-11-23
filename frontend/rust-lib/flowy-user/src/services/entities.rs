@@ -155,7 +155,7 @@ impl From<AuthTypePB> for Authenticator {
     match pb {
       AuthTypePB::Supabase => Authenticator::Supabase,
       AuthTypePB::Local => Authenticator::Local,
-      AuthTypePB::AFCloud => Authenticator::AFCloud,
+      AuthTypePB::AFCloud => Authenticator::AppFlowyCloud,
     }
   }
 }
@@ -165,7 +165,7 @@ impl From<Authenticator> for AuthTypePB {
     match auth_type {
       Authenticator::Supabase => AuthTypePB::Supabase,
       Authenticator::Local => AuthTypePB::Local,
-      Authenticator::AFCloud => AuthTypePB::AFCloud,
+      Authenticator::AppFlowyCloud => AuthTypePB::AFCloud,
     }
   }
 }

@@ -16,6 +16,7 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_server_config::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
@@ -157,7 +158,23 @@ impl UserManager {
     *self.collab_interact.write().await = Arc::new(collab_interact);
 
     if let Ok(session) = self.get_session() {
-      let user = self.get_user_profile(session.user_id).await?;
+      let user = self.get_user_profile_from_disk(session.user_id).await?;
+      let current_authenticator = match AuthenticatorType::from_env() {
+        AuthenticatorType::Local => Authenticator::Local,
+        AuthenticatorType::Supabase => Authenticator::Supabase,
+        AuthenticatorType::AppFlowyCloud => Authenticator::AppFlowyCloud,
+      };
+
+      if user.authenticator != current_authenticator {
+        event!(
+          tracing::Level::INFO,
+          "Authenticator changed from {:?} to {:?}",
+          user.authenticator,
+          current_authenticator
+        );
+        self.sign_out().await?;
+        return Ok(());
+      }
 
       event!(
         tracing::Level::INFO,
@@ -477,7 +494,7 @@ impl UserManager {
     let session = self.get_session()?;
     upsert_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
 
-    let profile = self.get_user_profile(session.user_id).await?;
+    let profile = self.get_user_profile_from_disk(session.user_id).await?;
     self
       .update_user(session.user_id, profile.token, params)
       .await?;
@@ -507,7 +524,7 @@ impl UserManager {
   }
 
   /// Fetches the user profile for the given user ID.
-  pub async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+  pub async fn get_user_profile_from_disk(&self, uid: i64) -> Result<UserProfile, FlowyError> {
     let user: UserProfile = user_table::dsl::user_table
       .filter(user_table::id.eq(&uid.to_string()))
       .first::<UserTable>(&*(self.db_connection(uid)?))
@@ -524,14 +541,18 @@ impl UserManager {
 
   #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn refresh_user_profile(&self, old_user_profile: &UserProfile) -> FlowyResult<()> {
-    let now = chrono::Utc::now().timestamp();
+    // If the user is a local user, no need to refresh the user profile
+    if old_user_profile.authenticator.is_local() {
+      return Ok(());
+    }
 
+    let now = chrono::Utc::now().timestamp();
     // Add debounce to avoid too many requests
     if now - self.refresh_user_profile_since.load(Ordering::SeqCst) < 5 {
       return Ok(());
     }
-
     self.refresh_user_profile_since.store(now, Ordering::SeqCst);
+
     let uid = old_user_profile.uid;
     let result: Result<UserProfile, FlowyError> = self
       .cloud_services
@@ -601,7 +622,7 @@ impl UserManager {
 
   #[instrument(level = "info", skip_all)]
   pub fn user_dir(&self, uid: i64) -> String {
-    self.user_paths.user_dir(uid)
+    self.user_paths.user_data_dir(uid)
   }
 
   pub fn user_setting(&self) -> Result<UserSettingPB, FlowyError> {
@@ -722,7 +743,9 @@ impl UserManager {
     &self,
     oauth_provider: &str,
   ) -> Result<String, FlowyError> {
-    self.update_authenticator(&Authenticator::AFCloud).await;
+    self
+      .update_authenticator(&Authenticator::AppFlowyCloud)
+      .await;
     let auth_service = self.cloud_services.get_user_service()?;
     let url = auth_service
       .generate_oauth_url_with_provider(oauth_provider)
@@ -766,7 +789,7 @@ impl UserManager {
     let session = self.get_session()?;
     if session.user_id == user_update.uid {
       debug!("Receive user update: {:?}", user_update);
-      let user_profile = self.get_user_profile(user_update.uid).await?;
+      let user_profile = self.get_user_profile_from_disk(user_update.uid).await?;
       if !validate_encryption_sign(&user_profile, &user_update.encryption_sign) {
         return Ok(());
       }
@@ -868,24 +891,26 @@ impl UserPaths {
   fn new(root: String) -> Self {
     Self { root }
   }
-  fn user_dir(&self, uid: i64) -> String {
+
+  /// Returns the path to the user's data directory.
+  fn user_data_dir(&self, uid: i64) -> String {
     format!("{}/{}", self.root, uid)
   }
 }
 
 impl UserDBPath for UserPaths {
   fn user_db_path(&self, uid: i64) -> PathBuf {
-    PathBuf::from(self.user_dir(uid))
+    PathBuf::from(self.user_data_dir(uid))
   }
 
   fn collab_db_path(&self, uid: i64) -> PathBuf {
-    let mut path = PathBuf::from(self.user_dir(uid));
+    let mut path = PathBuf::from(self.user_data_dir(uid));
     path.push("collab_db");
     path
   }
 
   fn collab_db_history(&self, uid: i64, create_if_not_exist: bool) -> std::io::Result<PathBuf> {
-    let path = PathBuf::from(self.user_dir(uid)).join("collab_db_history");
+    let path = PathBuf::from(self.user_data_dir(uid)).join("collab_db_history");
     if !path.exists() && create_if_not_exist {
       fs::create_dir_all(&path)?;
     }

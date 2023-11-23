@@ -36,7 +36,10 @@ class SettingCloud extends StatelessWidget {
                             LocaleKeys.settings_menu_cloudServerType.tr(),
                           ),
                         ),
-                        CloudTypeSwitcher(
+                        Tooltip(
+                          message:
+                              LocaleKeys.settings_menu_cloudServerTypeTip.tr(),
+                          child: CloudTypeSwitcher(
                             cloudType: state.cloudType,
                             onSelected: (newCloudType) {
                               context.read<CloudSettingBloc>().add(
@@ -44,7 +47,9 @@ class SettingCloud extends StatelessWidget {
                                       newCloudType,
                                     ),
                                   );
-                            }),
+                            },
+                          ),
+                        ),
                       ],
                     ),
                     _viewFromCloudType(state.cloudType),
@@ -65,7 +70,7 @@ class SettingCloud extends StatelessWidget {
   Widget _viewFromCloudType(CloudType cloudType) {
     switch (cloudType) {
       case CloudType.local:
-        return const SettingLocalCloud();
+        return SettingLocalCloud(didResetServerUrl: didResetServerUrl);
       case CloudType.supabase:
         return SettingSupabaseCloudView(
           didResetServerUrl: didResetServerUrl,

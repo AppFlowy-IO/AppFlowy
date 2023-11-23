@@ -23,31 +23,22 @@ class SupabaseCloudURLsBloc
           emit(state.copyWith(upatedAnonKey: anonKey));
         },
         confirmUpdate: () async {
-          try {
-            validateUrl(state.updatedUrl).fold(
-              (error) => emit(state.copyWith(urlError: Some(error))),
-              (_) async {
-                if (state.config.url != state.updatedUrl ||
-                    state.config.anon_key != state.upatedAnonKey) {
-                  await setSupbaseServer(
-                    Some(state.updatedUrl),
-                    Some(state.upatedAnonKey),
-                  );
-                  emit(
-                    state.copyWith(
-                      urlError: none(),
-                      anonKeyError: none(),
-                      restartApp: true,
-                    ),
-                  );
-                }
-              },
-            );
-          } catch (e) {
-            emit(
-              state.copyWith(urlError: Some(e.toString())),
-            );
-          }
+          validateUrl(state.updatedUrl).fold(
+            (error) => emit(state.copyWith(urlError: Some(error))),
+            (_) async {
+              emit(
+                state.copyWith(
+                  urlError: none(),
+                  anonKeyError: none(),
+                  restartApp: true,
+                ),
+              );
+              await setSupbaseServer(
+                Some(state.updatedUrl),
+                Some(state.upatedAnonKey),
+              );
+            },
+          );
         },
       );
     });
@@ -77,12 +68,15 @@ class SupabaseCloudURLsState with _$SupabaseCloudURLsState {
     required bool restartApp,
   }) = _SupabaseCloudURLsState;
 
-  factory SupabaseCloudURLsState.initial() => SupabaseCloudURLsState(
-        updatedUrl: '',
-        upatedAnonKey: '',
-        urlError: none(),
-        anonKeyError: none(),
-        restartApp: false,
-        config: getIt<AppFlowyCloudSharedEnv>().supabaseConfig,
-      );
+  factory SupabaseCloudURLsState.initial() {
+    final config = getIt<AppFlowyCloudSharedEnv>().supabaseConfig;
+    return SupabaseCloudURLsState(
+      updatedUrl: config.url,
+      upatedAnonKey: config.anon_key,
+      urlError: none(),
+      anonKeyError: none(),
+      restartApp: false,
+      config: config,
+    );
+  }
 }

@@ -50,7 +50,7 @@ class SettingSupabaseCloudView extends StatelessWidget {
                     const SupabaseSelfhostTip(),
                     SupabaseCloudURLs(
                       didUpdateUrls: didResetServerUrl,
-                    )
+                    ),
                   ],
                 ),
               );
@@ -81,9 +81,10 @@ class SupabaseCloudURLs extends StatelessWidget {
     return BlocProvider(
       create: (context) => SupabaseCloudURLsBloc(),
       child: BlocListener<SupabaseCloudURLsBloc, SupabaseCloudURLsState>(
-        listenWhen: (previous, current) => current.restartApp,
         listener: (context, state) {
-          didUpdateUrls();
+          if (state.restartApp) {
+            didUpdateUrls();
+          }
         },
         child: BlocBuilder<SupabaseCloudURLsBloc, SupabaseCloudURLsState>(
           builder: (context, state) {
@@ -93,25 +94,34 @@ class SupabaseCloudURLs extends StatelessWidget {
                   title: LocaleKeys.settings_menu_cloudSupabaseUrl.tr(),
                   url: state.config.url,
                   hint: LocaleKeys.settings_menu_cloudURLHint.tr(),
-                  onChanged: (text) {},
+                  onChanged: (text) {
+                    context
+                        .read<SupabaseCloudURLsBloc>()
+                        .add(SupabaseCloudURLsEvent.updateUrl(text));
+                  },
                   error: state.urlError.fold(() => null, (a) => a),
                 ),
                 SupabaseInput(
                   title: LocaleKeys.settings_menu_cloudSupabaseAnonKey.tr(),
                   url: state.config.anon_key,
                   hint: LocaleKeys.settings_menu_cloudURLHint.tr(),
-                  onChanged: (text) {},
+                  onChanged: (text) {
+                    context
+                        .read<SupabaseCloudURLsBloc>()
+                        .add(SupabaseCloudURLsEvent.updateAnonKey(text));
+                  },
                   error: state.anonKeyError.fold(() => null, (a) => a),
                 ),
                 const VSpace(6),
                 FlowyButton(
+                  isSelected: true,
                   useIntrinsicWidth: true,
                   margin: const EdgeInsets.symmetric(
                     horizontal: 30,
                     vertical: 10,
                   ),
                   text: FlowyText(
-                    LocaleKeys.settings_menu_save.tr(),
+                    LocaleKeys.settings_menu_restartApp.tr(),
                   ),
                   onTap: () {
                     NavigatorAlertDialog(
@@ -121,7 +131,7 @@ class SupabaseCloudURLs extends StatelessWidget {
                           .add(const SupabaseCloudURLsEvent.confirmUpdate()),
                     ).show(context);
                   },
-                )
+                ),
               ],
             );
           },
@@ -156,7 +166,8 @@ class EnableEncrypt extends StatelessWidget {
                       ? null
                       : (bool value) {
                           context.read<SupabaseCloudSettingBloc>().add(
-                              SupabaseCloudSettingEvent.enableEncrypt(value));
+                                SupabaseCloudSettingEvent.enableEncrypt(value),
+                              );
                         },
                   value: state.setting.enableEncrypt,
                 ),

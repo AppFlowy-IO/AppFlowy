@@ -55,14 +55,8 @@ pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
   let configuration = AppFlowyDartConfiguration::from_str(serde_str);
 
   configuration.cloud_type.write_env();
-  let is_valid = configuration.appflowy_cloud_config.write_env().is_ok();
-  // Note on Configuration Priority:
-  // If both Supabase config and AppFlowy cloud config are provided in the '.env' file,
-  // the AppFlowy cloud config will be prioritized and the Supabase config ignored.
-  // Ensure only one of these configurations is active at any given time.
-  if !is_valid {
-    let _ = configuration.supabase_config.write_env();
-  }
+  configuration.appflowy_cloud_config.write_env();
+  configuration.supabase_config.write_env();
 
   let log_crates = vec!["flowy-ffi".to_string()];
   let config = AppFlowyCoreConfig::new(

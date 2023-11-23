@@ -49,6 +49,10 @@ bool get isAuthEnabled {
   // Only enable supabase in release and develop mode.
   if (integrationMode().isRelease || integrationMode().isDevelop) {
     final env = getIt<AppFlowyCloudSharedEnv>();
+    if (env.cloudType == CloudType.local) {
+      return false;
+    }
+
     return env.appflowyCloudConfig.isValid || env.supabaseConfig.isValid;
   } else {
     return false;
