@@ -16,11 +16,10 @@ class AppFlowyCloudURLsBloc
       await event.when(
         initial: () async {},
         updateServerUrl: (url) {
-          emit(state.copyWith(updatedServerUrl: url, restartApp: false));
+          emit(state.copyWith(updatedServerUrl: url));
         },
         confirmUpdate: () async {
           if (state.updatedServerUrl.isEmpty) {
-            await setAppFlowyCloudBaseUrl(none());
             emit(
               state.copyWith(
                 updatedServerUrl: "",
@@ -28,18 +27,19 @@ class AppFlowyCloudURLsBloc
                 restartApp: true,
               ),
             );
+            await setAppFlowyCloudBaseUrl(none());
           } else {
             validateUrl(state.updatedServerUrl).fold(
               (error) => emit(state.copyWith(urlError: Some(error))),
               (_) async {
                 if (state.config.base_url != state.updatedServerUrl) {
-                  await setAppFlowyCloudBaseUrl(Some(state.updatedServerUrl));
                   emit(
                     state.copyWith(
                       urlError: none(),
                       restartApp: true,
                     ),
                   );
+                  await setAppFlowyCloudBaseUrl(Some(state.updatedServerUrl));
                 } else {
                   emit(
                     state.copyWith(urlError: const Some('URL is the same')),

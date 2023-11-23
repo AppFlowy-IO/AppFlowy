@@ -188,7 +188,7 @@ fn open_collab_db(
   let db = match RocksCollabDB::open(&collab_db_path) {
     Ok(db) => Ok(db),
     Err(err) => {
-      tracing::error!("open collab db error, {:?}", err);
+      error!("open collab db error, {:?}", err);
       match err {
         PersistenceError::RocksdbCorruption(_) => {
           // try restore from the backup db

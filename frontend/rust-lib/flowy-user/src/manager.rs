@@ -578,6 +578,15 @@ impl UserManager {
             tracing::Level::ERROR,
             "User is unauthorized, sign out the user"
           );
+
+          self.add_historical_user(
+            uid,
+            &self.user_config.device_id,
+            old_user_profile.name.clone(),
+            &old_user_profile.authenticator,
+            self.user_dir(uid),
+          );
+
           self.sign_out().await?;
           send_auth_state_notification(AuthStateChangedPB {
             state: AuthStatePB::InvalidAuth,

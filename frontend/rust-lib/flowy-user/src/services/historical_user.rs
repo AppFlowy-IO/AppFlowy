@@ -44,7 +44,7 @@ impl UserManager {
     uid: i64,
     device_id: &str,
     user_name: String,
-    auth_type: &Authenticator,
+    authenticator: &Authenticator,
     storage_path: String,
   ) {
     let mut logger_users = self
@@ -54,7 +54,7 @@ impl UserManager {
     logger_users.add_user(HistoricalUser {
       user_id: uid,
       user_name,
-      auth_type: auth_type.clone(),
+      auth_type: authenticator.clone(),
       sign_in_timestamp: timestamp(),
       storage_path,
       device_id: device_id.to_string(),

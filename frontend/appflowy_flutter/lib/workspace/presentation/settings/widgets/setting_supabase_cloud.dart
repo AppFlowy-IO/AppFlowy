@@ -46,7 +46,8 @@ class SettingSupabaseCloudView extends StatelessWidget {
                         );
                       },
                     ),
-                    const VSpace(26),
+                    const VSpace(40),
+                    const SupabaseSelfhostTip(),
                     SupabaseCloudURLs(
                       didUpdateUrls: didResetServerUrl,
                     )
@@ -292,5 +293,46 @@ class SupabaseInputState extends State<SupabaseInput> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+}
+
+class SupabaseSelfhostTip extends StatelessWidget {
+  final url =
+      "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy-using-supabase";
+  const SupabaseSelfhostTip({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Opacity(
+          opacity: 0.6,
+          child: FlowyText(
+            LocaleKeys.settings_menu_appFlowySelfHost.tr(),
+            maxLines: null,
+          ),
+        ),
+        const VSpace(6),
+        Tooltip(
+          message: LocaleKeys.settings_menu_clickToCopy.tr(),
+          child: GestureDetector(
+            child: RichText(
+              textAlign: TextAlign.left,
+              text: TextSpan(
+                text: url,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: FontSizes.s14,
+                      color: Theme.of(context).colorScheme.primary,
+                      decoration: TextDecoration.underline,
+                    ),
+              ),
+            ),
+            onTap: () async {
+              await Clipboard.setData(ClipboardData(text: url));
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

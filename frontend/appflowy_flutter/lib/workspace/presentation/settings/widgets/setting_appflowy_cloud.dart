@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -48,7 +47,7 @@ class SettingAppFlowyCloudView extends StatelessWidget {
       child: Column(
         children: [
           const AppFlowyCloudEnableSync(),
-          const VSpace(30),
+          const VSpace(40),
           AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
         ],
       ),
@@ -128,9 +127,12 @@ class AppFlowySelfhostTip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FlowyText(
-          LocaleKeys.settings_menu_appFlowySelfHost.tr(),
-          maxLines: null,
+        Opacity(
+          opacity: 0.6,
+          child: FlowyText(
+            LocaleKeys.settings_menu_appFlowySelfHost.tr(),
+            maxLines: null,
+          ),
         ),
         const VSpace(6),
         Tooltip(
@@ -148,10 +150,7 @@ class AppFlowySelfhostTip extends StatelessWidget {
               ),
             ),
             onTap: () async {
-              await Clipboard.setData(
-                ClipboardData(text: url),
-              );
-              showMessageToast(LocaleKeys.message_copy_success.tr());
+              await Clipboard.setData(ClipboardData(text: url));
             },
           ),
         ),

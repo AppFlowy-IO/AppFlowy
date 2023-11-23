@@ -56,8 +56,6 @@ pub struct ServerProvider {
   providers: RwLock<HashMap<ServerType, Arc<dyn AppFlowyServer>>>,
   pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   pub(crate) store_preferences: Weak<StorePreferences>,
-  pub(crate) cache_user_service: RwLock<HashMap<ServerType, Arc<dyn UserCloudService>>>,
-
   pub(crate) enable_sync: RwLock<bool>,
   pub(crate) uid: Arc<RwLock<Option<i64>>>,
 }
@@ -76,7 +74,6 @@ impl ServerProvider {
       enable_sync: RwLock::new(true),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
-      cache_user_service: Default::default(),
       uid: Default::default(),
     }
   }
