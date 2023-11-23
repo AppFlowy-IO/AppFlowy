@@ -1,11 +1,11 @@
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState, Suspense, lazy } from 'react';
 import { MenuProps, Menu } from '@mui/material';
-
 import { SelectField, SelectCell as SelectCellType } from '../../application';
 import { Tag } from '../field_types/select/Tag';
 
-import SelectCellActions from '$app/components/database/components/field_types/select/select_cell_actions/SelectCellActions';
-
+const SelectCellActions = lazy(
+  () => import('$app/components/database/components/field_types/select/select_cell_actions/SelectCellActions')
+);
 const menuProps: Partial<MenuProps> = {
   classes: {
     list: 'py-5',
@@ -45,22 +45,24 @@ export const SelectCell: FC<{
         onClick={(e) => {
           setAnchorEl(e.currentTarget);
         }}
-        className={'absolute left-0 top-0 flex h-full w-full items-center gap-2 px-4 py-1'}
+        className={'flex h-full w-full cursor-pointer items-center gap-2 overflow-x-hidden px-4 py-1'}
       >
         {renderSelectedOptions(selectedIds)}
       </div>
-      {open && cell ? (
-        <Menu
-          keepMounted={false}
-          className='h-full w-full'
-          open={open}
-          anchorEl={anchorEl}
-          {...menuProps}
-          onClose={handleClose}
-        >
-          <SelectCellActions field={field} cell={cell} />
-        </Menu>
-      ) : null}
+      <Suspense>
+        {open && cell ? (
+          <Menu
+            keepMounted={false}
+            className='h-full w-full'
+            open={open}
+            anchorEl={anchorEl}
+            {...menuProps}
+            onClose={handleClose}
+          >
+            <SelectCellActions field={field} cell={cell} />
+          </Menu>
+        ) : null}
+      </Suspense>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { FormEvent, useCallback, useMemo, useState } from 'react';
 import { ListSubheader, MenuItem, OutlinedInput } from '@mui/material';
 import { t } from 'i18next';
-import { CreateOption } from '$app/components/database/components/field_types/select/CreateOption';
+import { CreateOption } from '$app/components/database/components/field_types/select/select_cell_actions/CreateOption';
 import { SelectOptionItem } from '$app/components/database/components/field_types/select/select_cell_actions/SelectOptionItem';
 import { cellService, SelectCell as SelectCellType, SelectField } from '$app/components/database/application';
 import { useViewId } from '$app/hooks';
@@ -64,13 +64,35 @@ function SelectCellActions({
     return option;
   }, [viewId, field.id, newOptionName]);
 
+  const handleClickOption = useCallback(
+    (optionId: string) => {
+      const prev = selectedOptionIds;
+      let newOptionIds = [];
+
+      if (!prev) {
+        newOptionIds.push(optionId);
+      } else {
+        const isSelected = prev.includes(optionId);
+
+        if (isSelected) {
+          newOptionIds = prev.filter((id) => id !== optionId);
+        } else {
+          newOptionIds = [...prev, optionId];
+        }
+      }
+
+      void updateCell(newOptionIds);
+    },
+    [selectedOptionIds, updateCell]
+  );
+
   const handleNewTagClick = useCallback(async () => {
     if (!cell || !rowId) return;
     const option = await createOption();
 
     if (!option) return;
-    void updateCell([option.id]);
-  }, [cell, createOption, rowId, updateCell]);
+    handleClickOption(option.id);
+  }, [cell, createOption, handleClickOption, rowId]);
 
   const searchInput = (
     <ListSubheader className='flex'>
@@ -95,13 +117,13 @@ function SelectCellActions({
         filteredOptions.map((option) => (
           <MenuItem
             onClick={() => {
-              void updateCell([option.id]);
+              handleClickOption(option.id);
             }}
             key={option.id}
             value={option.id}
           >
             <SelectOptionItem
-              isSelected={selectedOptionIds?.find((id) => id === option.id) !== undefined}
+              isSelected={selectedOptionIds?.includes(option.id)}
               fieldId={cell?.fieldId || ''}
               option={option}
             />

@@ -3,12 +3,12 @@ import { Filter as FilterType, Field as FieldData, UndeterminedFilter } from '$a
 import { Chip, Popover } from '@mui/material';
 import { Field } from '$app/components/database/components/field';
 import { ReactComponent as DropDownSvg } from '$app/assets/dropdown.svg';
-import TextFilter from '$app/components/database/components/filter/text_filter/TextFilter';
+import TextFilter from './text_filter/TextFilter';
 import { FieldType } from '@/services/backend';
 import FilterActions from '$app/components/database/components/filter/FilterActions';
 import { updateFilter } from '$app/components/database/application/filter/filter_service';
 import { useViewId } from '$app/hooks';
-import SelectFilter from '$app/components/database/components/filter/select_filter/SelectFilter';
+import SelectFilter from './select_filter/SelectFilter';
 
 interface Props {
   filter: FilterType;
@@ -24,6 +24,7 @@ const getFilterComponent = (field: FieldData) => {
         onChange: (data: UndeterminedFilter['data']) => void;
       }>;
     case FieldType.SingleSelect:
+    case FieldType.MultiSelect:
       return SelectFilter as FC<{
         filter: FilterType;
         field: FieldData;

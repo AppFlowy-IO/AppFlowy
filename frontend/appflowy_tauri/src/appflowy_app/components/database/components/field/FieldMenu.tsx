@@ -6,6 +6,7 @@ import { FieldMenuActions } from './FieldMenuActions';
 import FieldTypeMenuExtension from '$app/components/database/components/field/FieldTypeMenuExtension';
 import FieldTypeSelect from '$app/components/database/components/field/FieldTypeSelect';
 import { FieldType } from '@/services/backend';
+import { Log } from '$app/utils/log';
 
 export interface GridFieldMenuProps {
   field: Field;
@@ -30,7 +31,7 @@ export const FieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClo
         });
       } catch (e) {
         // TODO
-        console.error(`change field ${field.id} name from '${field.name}' to ${inputtingName} fail`, e);
+        Log.error(`change field ${field.id} name from '${field.name}' to ${inputtingName} fail`, e);
       }
     }
   }, [viewId, field, inputtingName]);
@@ -53,7 +54,7 @@ export const FieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClo
         await fieldService.updateFieldType(viewId, field.id, type);
       } catch (e) {
         // TODO
-        console.error(`change field ${field.id} type from '${field.type}' to ${type} fail`, e);
+        Log.error(`change field ${field.id} type from '${field.type}' to ${type} fail`, e);
       }
     },
     [viewId, field]

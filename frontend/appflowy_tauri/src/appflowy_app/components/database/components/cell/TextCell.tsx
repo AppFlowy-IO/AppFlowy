@@ -1,4 +1,15 @@
-import { FC, FormEventHandler, Suspense, lazy, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  FC,
+  FormEventHandler,
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import { useViewId } from '$app/hooks';
 import { cellService, Field, TextCell as TextCellType } from '../../application';
 import { CellText } from '../../_shared';
@@ -67,12 +78,20 @@ export const TextCell: FC<{
     }
   }, []);
 
+  const content = useMemo(() => {
+    if (cell && typeof cell.data === 'string') {
+      return cell.data;
+    }
+
+    return <div className={'text-text-placeholder'}>{placeholder}</div>;
+  }, [cell, placeholder]);
+
   return (
     <>
       <CellText ref={cellRef} onClick={handleClick}>
         <div className='flex w-full items-center'>
           {icon && <div className={'mr-2'}>{icon}</div>}
-          {typeof cell?.data === 'string' ? cell?.data : <div className={'text-text-placeholder'}>{placeholder}</div>}
+          {content}
         </div>
       </CellText>
       <Suspense>

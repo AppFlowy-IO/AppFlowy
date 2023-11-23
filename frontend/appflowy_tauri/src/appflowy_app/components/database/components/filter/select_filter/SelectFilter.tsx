@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SelectField, SelectFilterData, SelectFilter as SelectFilterType } from '$app/components/database/application';
-import { MenuItem, MenuList } from '@mui/material';
+import { MenuItem } from '@mui/material';
 import SelectFilterConditionsSelect from '$app/components/database/components/filter/select_filter/SelectFilterConditionSelect';
 import { Tag } from '$app/components/database/components/field_types/select/Tag';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
@@ -55,6 +55,7 @@ function SelectFilter({ filter, field, onChange }: Props) {
       <div className={'flex justify-between gap-[20px] p-2 pb-1 pr-10'}>
         <div className={'flex-1 text-text-caption'}>{field.name}</div>
         <SelectFilterConditionsSelect
+          fieldType={field.type}
           onChange={(e) => {
             const value = Number(e.target.value);
 
