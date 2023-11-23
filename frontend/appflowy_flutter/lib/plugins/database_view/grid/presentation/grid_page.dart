@@ -1,9 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
-import 'package:appflowy/plugins/database_view/tab_bar/setting_menu.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
@@ -40,7 +41,7 @@ class ToggleExtensionNotifier extends ChangeNotifier {
   }
 }
 
-class GridPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
 
   @override
@@ -255,6 +256,15 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
+    final children = rowInfos.mapIndexed((index, rowInfo) {
+      return _renderRow(
+        context,
+        rowInfo.rowId,
+        isDraggable: state.reorderable,
+        index: index,
+      );
+    }).toList()
+      ..add(const GridRowBottomBar(key: Key('gridFooter')));
     return ReorderableListView.builder(
       /// TODO(Xazin): Resolve inconsistent scrollbar behavior
       ///  This is a workaround related to
@@ -274,18 +284,7 @@ class _GridRows extends StatelessWidget {
         context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
       },
       itemCount: rowInfos.length + 1, // the extra item is the footer
-      itemBuilder: (context, index) {
-        if (index < rowInfos.length) {
-          final rowInfo = rowInfos[index];
-          return _renderRow(
-            context,
-            rowInfo.rowId,
-            isDraggable: state.reorderable,
-            index: index,
-          );
-        }
-        return const GridRowBottomBar(key: Key('gridFooter'));
-      },
+      itemBuilder: (context, index) => children[index],
     );
   }
 
