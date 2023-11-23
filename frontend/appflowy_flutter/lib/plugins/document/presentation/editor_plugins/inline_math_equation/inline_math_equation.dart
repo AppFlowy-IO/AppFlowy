@@ -142,7 +142,7 @@ class _MathInputTextFieldState extends State<MathInputTextField> {
           ),
           const HSpace(4.0),
           FlowyButton(
-            text: FlowyText(LocaleKeys.button_Done.tr()),
+            text: FlowyText(LocaleKeys.button_done.tr()),
             useIntrinsicWidth: true,
             onTap: () => widget.onSubmit(textEditingController.text),
           ),

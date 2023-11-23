@@ -1,11 +1,6 @@
-import { useAppDispatch, useAppSelector } from '../../stores/store';
-import { useEffect, useState } from 'react';
-import { databaseActions, IDatabase } from '../../stores/reducers/database/slice';
-import { nanoid } from 'nanoid';
-import { FieldType } from '../../../services/backend';
+import { useAppSelector } from '$app/stores/store';
 
 export const useDatabase = () => {
-  const dispatch = useAppDispatch();
   const database = useAppSelector((state) => state.database);
 
   const newField = () => {
@@ -22,7 +17,7 @@ export const useDatabase = () => {
     console.log('depreciated');
   };
 
-  const renameField = (fieldId: string, newTitle: string) => {
+  const renameField = (_fieldId: string, _newTitle: string) => {
     /*   const field = database.fields[fieldId];
     field.title = newTitle;
 

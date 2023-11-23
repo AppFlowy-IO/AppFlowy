@@ -1,6 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
-use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
+use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -40,8 +40,7 @@ pub fn make_test_calendar() -> DatabaseData {
 
   let calendar_setting: LayoutSetting = CalendarLayoutSetting::new(date_field_id).into();
 
-  let field_settings =
-    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Calendar).build();
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Calendar);
 
   for i in 0..5 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);

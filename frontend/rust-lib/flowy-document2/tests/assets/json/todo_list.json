@@ -1,0 +1,39 @@
+{
+  "type": "page",
+  "children": [
+    {
+      "type": "todo_list",
+      "data": {
+        "checked": true,
+        "delta": [
+          {
+            "insert": "Highlight"
+          }
+        ]
+      },
+      "children": [
+        {
+          "type": "paragraph",
+          "data": {
+            "delta": [
+              {
+                "insert": "You can also"
+              }
+            ]
+          }
+        },
+        {
+          "type": "todo_list",
+          "checked": false,
+          "data": {
+            "delta": [
+              {
+                "insert": "nest"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -660,7 +660,7 @@
     },
     "board": {
       "column": {
-        "create_new_card": "नया"
+        "createNewCard": "नया"
       },
       "menuName": "बोर्ड",
       "referencedBoardPrefix": "का दृश्य"

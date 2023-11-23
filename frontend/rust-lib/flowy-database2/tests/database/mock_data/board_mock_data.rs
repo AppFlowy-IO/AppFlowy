@@ -1,6 +1,7 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
-use collab_database::views::{DatabaseLayout, DatabaseView};
-use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
+use flowy_database2::services::field_settings::default_field_settings_for_fields;
+use flowy_database2::services::setting::BoardLayoutSetting;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -128,8 +129,9 @@ pub fn make_test_board() -> DatabaseData {
     }
   }
 
-  let field_settings =
-    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Board).build();
+  let board_setting: LayoutSetting = BoardLayoutSetting::new().into();
+
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Board);
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {
@@ -238,12 +240,15 @@ pub fn make_test_board() -> DatabaseData {
     rows.push(row);
   }
 
+  let mut layout_settings = LayoutSettings::new();
+  layout_settings.insert(DatabaseLayout::Board, board_setting);
+
   let view = DatabaseView {
     id: gen_database_view_id(),
     database_id: gen_database_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Board,
-    layout_settings: Default::default(),
+    layout_settings,
     filters: vec![],
     group_settings: vec![],
     sorts: vec![],

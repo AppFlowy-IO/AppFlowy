@@ -1,4 +1,4 @@
-use event_integration::FlowyCoreTest;
+use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_folder2::entities::ViewLayoutPB;
 
@@ -11,7 +11,8 @@ async fn migrate_historical_empty_document_test() {
     "historical_empty_document",
   )
   .unwrap();
-  let test = FlowyCoreTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string());
+  let test =
+    EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
 
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);

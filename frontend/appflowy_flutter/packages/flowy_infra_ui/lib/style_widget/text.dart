@@ -11,6 +11,7 @@ class FlowyText extends StatelessWidget {
   final TextDecoration? decoration;
   final bool selectable;
   final String? fontFamily;
+  final List<String>? fallbackFontFamily;
 
   const FlowyText(
     this.text, {
@@ -23,6 +24,7 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    this.fallbackFontFamily,
     Key? key,
   }) : super(key: key);
 
@@ -36,6 +38,7 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    this.fallbackFontFamily,
     Key? key,
   })  : fontWeight = FontWeight.w400,
         super(key: key);
@@ -50,6 +53,7 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    this.fallbackFontFamily,
     Key? key,
   })  : fontWeight = FontWeight.w500,
         super(key: key);
@@ -64,8 +68,25 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    this.fallbackFontFamily,
     Key? key,
   })  : fontWeight = FontWeight.w600,
+        super(key: key);
+
+  // Some emojis are not supported on Linux and Android, fallback to noto color emoji
+  const FlowyText.emoji(
+    this.text, {
+    this.fontSize,
+    this.overflow,
+    this.color,
+    this.textAlign,
+    this.maxLines = 1,
+    this.decoration,
+    this.selectable = false,
+    Key? key,
+  })  : fontWeight = FontWeight.w400,
+        fontFamily = 'noto color emoji',
+        fallbackFontFamily = null,
         super(key: key);
 
   @override
@@ -81,6 +102,7 @@ class FlowyText extends StatelessWidget {
               color: color,
               decoration: decoration,
               fontFamily: fontFamily,
+              fontFamilyFallback: fallbackFontFamily,
             ),
       );
     } else {
@@ -95,6 +117,7 @@ class FlowyText extends StatelessWidget {
               color: color,
               decoration: decoration,
               fontFamily: fontFamily,
+              fontFamilyFallback: fallbackFontFamily,
             ),
       );
     }

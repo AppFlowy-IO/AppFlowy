@@ -25,8 +25,8 @@ void main() {
       await tester.openSettingsPage(SettingsPage.user);
       await tester.tapButton(find.byType(SettingLogoutButton));
 
-      tester.expectToSeeText(LocaleKeys.button_OK.tr());
-      await tester.tapButtonWithName(LocaleKeys.button_OK.tr());
+      tester.expectToSeeText(LocaleKeys.button_ok.tr());
+      await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
 
       // Go to the sign in page again
       await tester.pumpAndSettle(const Duration(seconds: 1));
@@ -39,7 +39,7 @@ void main() {
 
       // should not see the sync setting page when sign in as annoymous
       await tester.openSettings();
-      await tester.expectNoSettingsPage(SettingsPage.syncSetting);
+      await tester.expectNoSettingsPage(SettingsPage.cloud);
     });
 
     testWidgets('enable encryption', (tester) async {
@@ -48,7 +48,7 @@ void main() {
 
       // Open the setting page and sign out
       await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.syncSetting);
+      await tester.openSettingsPage(SettingsPage.cloud);
 
       // the switch should be off by default
       tester.assertEnableEncryptSwitchValue(false);
@@ -68,7 +68,7 @@ void main() {
 
       // Open the setting page and sign out
       await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.syncSetting);
+      await tester.openSettingsPage(SettingsPage.cloud);
 
       // the switch should be on by default
       tester.assertEnableSyncSwitchValue(true);

@@ -1,3 +1,5 @@
+use validator::ValidationError;
+
 pub use user_email::*;
 pub use user_icon::*;
 pub use user_id::*;
@@ -14,3 +16,10 @@ mod user_name;
 mod user_openai_key;
 mod user_password;
 mod user_stability_ai_key;
+
+pub fn validate_not_empty_str(s: &str) -> Result<(), ValidationError> {
+  if s.is_empty() {
+    return Err(ValidationError::new("should not be empty string"));
+  }
+  Ok(())
+}

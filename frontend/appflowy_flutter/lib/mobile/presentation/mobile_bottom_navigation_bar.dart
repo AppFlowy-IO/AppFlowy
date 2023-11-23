@@ -23,10 +23,7 @@ class MobileBottomNavigationBar extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,
-        // Here, the items of BottomNavigationBar are hard coded. In a real
-        // world scenario, the items would most likely be generated from the
-        // branches of the shell route, which can be fetched using
-        // `navigationShell.route.branches`.
+        enableFeedback: true,
         type: BottomNavigationBarType.fixed,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -43,13 +40,6 @@ class MobileBottomNavigationBar extends StatelessWidget {
             icon: FlowySvg(FlowySvgs.m_favorite_unselected_lg),
             activeIcon: FlowySvg(
               FlowySvgs.m_favorite_selected_lg,
-              blendMode: null,
-            ),
-          ),
-          const BottomNavigationBarItem(
-            label: 'add',
-            icon: FlowySvg(
-              FlowySvgs.m_add_circle_xl,
               blendMode: null,
             ),
           ),

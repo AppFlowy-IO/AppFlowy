@@ -8,7 +8,7 @@ use collab::preclude::{CollabBuilder, CollabPlugin};
 use collab_entity::{CollabObject, CollabType};
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use collab_plugins::cloud_storage::network_state::{CollabNetworkReachability, CollabNetworkState};
-use collab_plugins::local_storage::rocksdb::RocksdbDiskPlugin;
+use collab_plugins::local_storage::rocksdb::{RocksdbBackup, RocksdbDiskPlugin};
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_plugins::snapshot::{CollabSnapshotPlugin, SnapshotPersistence};
 use parking_lot::{Mutex, RwLock};
@@ -41,10 +41,7 @@ pub enum CollabPluginContext {
 pub trait CollabStorageProvider: Send + Sync + 'static {
   fn storage_source(&self) -> CollabSource;
 
-  fn get_plugins(
-    &self,
-    context: CollabPluginContext,
-  ) -> Fut<Vec<Arc<dyn collab::core::collab_plugin::CollabPlugin>>>;
+  fn get_plugins(&self, context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>>;
 
   fn is_sync_enabled(&self) -> bool;
 }
@@ -71,17 +68,19 @@ pub struct AppFlowyCollabBuilder {
   workspace_id: RwLock<Option<String>>,
   cloud_storage: tokio::sync::RwLock<Arc<dyn CollabStorageProvider>>,
   snapshot_persistence: Mutex<Option<Arc<dyn SnapshotPersistence>>>,
-  device_id: Mutex<String>,
+  rocksdb_backup: Mutex<Option<Arc<dyn RocksdbBackup>>>,
+  device_id: String,
 }
 
 impl AppFlowyCollabBuilder {
-  pub fn new<T: CollabStorageProvider>(storage_provider: T) -> Self {
+  pub fn new<T: CollabStorageProvider>(storage_provider: T, device_id: String) -> Self {
     Self {
       network_reachability: CollabNetworkReachability::new(),
       workspace_id: Default::default(),
       cloud_storage: tokio::sync::RwLock::new(Arc::new(storage_provider)),
       snapshot_persistence: Default::default(),
-      device_id: Default::default(),
+      rocksdb_backup: Default::default(),
+      device_id,
     }
   }
 
@@ -89,12 +88,12 @@ impl AppFlowyCollabBuilder {
     *self.snapshot_persistence.lock() = Some(snapshot_persistence);
   }
 
-  pub fn initialize(&self, workspace_id: String) {
-    *self.workspace_id.write() = Some(workspace_id);
+  pub fn set_rocksdb_backup(&self, rocksdb_backup: Arc<dyn RocksdbBackup>) {
+    *self.rocksdb_backup.lock() = Some(rocksdb_backup);
   }
 
-  pub fn set_sync_device(&self, device_id: String) {
-    *self.device_id.lock() = device_id;
+  pub fn initialize(&self, workspace_id: String) {
+    *self.workspace_id.write() = Some(workspace_id);
   }
 
   pub fn update_network(&self, reachable: bool) {
@@ -123,7 +122,7 @@ impl AppFlowyCollabBuilder {
       object_id.to_string(),
       collab_type,
       workspace_id,
-      self.device_id.lock().clone(),
+      self.device_id.clone(),
     ))
   }
 
@@ -149,15 +148,9 @@ impl AppFlowyCollabBuilder {
     raw_data: CollabRawData,
     collab_db: Weak<RocksCollabDB>,
   ) -> Result<Arc<MutexCollab>, Error> {
+    let config = CollabPersistenceConfig::default();
     self
-      .build_with_config(
-        uid,
-        object_id,
-        object_type,
-        collab_db,
-        raw_data,
-        &CollabPersistenceConfig::default(),
-      )
+      .build_with_config(uid, object_id, object_type, collab_db, raw_data, &config)
       .await
   }
 
@@ -191,13 +184,16 @@ impl AppFlowyCollabBuilder {
           uid,
           collab_db.clone(),
           config.clone(),
+          self.rocksdb_backup.lock().clone(),
         ))
-        .with_device_id(self.device_id.lock().clone())
+        .with_device_id(self.device_id.clone())
         .build()?,
     );
     {
       let cloud_storage_type = self.cloud_storage.read().await.storage_source();
       let collab_object = self.collab_object(uid, object_id, object_type)?;
+      let span = tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object_id);
+      let _enter = span.enter();
       match cloud_storage_type {
         CollabSource::AFCloud => {
           #[cfg(feature = "appflowy_cloud_integrate")]
@@ -262,6 +258,7 @@ impl AppFlowyCollabBuilder {
     }
 
     collab.lock().initialize();
+    trace!("collab initialized: {}", object_id);
     Ok(collab)
   }
 }

@@ -66,7 +66,9 @@ export const EditRow = ({
   const [editCheckListLeft, setEditCheckListLeft] = useState(0);
 
   const [showNumberFormatPopup, setShowNumberFormatPopup] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [numberFormatTop, setNumberFormatTop] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [numberFormatLeft, setNumberFormatLeft] = useState(0);
 
   const [showCheckListPopup, setShowCheckListPopup] = useState(false);

@@ -50,7 +50,7 @@ class FieldTypeOptionEditor extends StatelessWidget {
 
           final List<Widget> children = [
             SwitchFieldButton(popoverMutex: popoverMutex),
-            if (typeOptionWidget != null) typeOptionWidget
+            if (typeOptionWidget != null) typeOptionWidget,
           ];
 
           return ListView(
@@ -123,5 +123,5 @@ class SwitchFieldButton extends StatelessWidget {
 }
 
 abstract class TypeOptionWidget extends StatelessWidget {
-  const TypeOptionWidget({Key? key}) : super(key: key);
+  const TypeOptionWidget({super.key});
 }

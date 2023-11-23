@@ -1,5 +1,5 @@
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/sync_setting_view.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_cloud_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

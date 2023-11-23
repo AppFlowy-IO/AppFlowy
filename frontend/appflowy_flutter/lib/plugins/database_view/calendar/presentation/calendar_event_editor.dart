@@ -126,9 +126,11 @@ class EventPropertyList extends StatelessWidget {
             state.cells.firstWhereOrNull((cell) => cell.fieldInfo.isPrimary);
         final dateFieldIndex =
             reorderedList.indexWhere((cell) => cell.fieldId == dateFieldId);
+
         if (primaryCellContext == null || dateFieldIndex == -1) {
           return const SizedBox.shrink();
         }
+
         reorderedList.insert(0, reorderedList.removeAt(dateFieldIndex));
 
         final children = <Widget>[
@@ -142,7 +144,7 @@ class EventPropertyList extends StatelessWidget {
                 textStyle: Theme.of(context)
                     .textTheme
                     .bodyMedium
-                    ?.copyWith(fontSize: 11),
+                    ?.copyWith(fontSize: 11, overflow: TextOverflow.ellipsis),
                 autofocus: true,
                 useRoundedBorder: true,
               ),
@@ -185,7 +187,10 @@ class _PropertyCellState extends State<PropertyCell> {
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
-      child: AccessoryHover(child: cell),
+      child: AccessoryHover(
+        fieldType: widget.cellContext.fieldType,
+        child: cell,
+      ),
     );
 
     return Container(
@@ -208,10 +213,13 @@ class _PropertyCellState extends State<PropertyCell> {
                     size: const Size.square(14),
                   ),
                   const HSpace(4.0),
-                  FlowyText.regular(
-                    widget.cellContext.fieldInfo.name,
-                    color: Theme.of(context).hintColor,
-                    fontSize: 11,
+                  Expanded(
+                    child: FlowyText.regular(
+                      widget.cellContext.fieldInfo.name,
+                      color: Theme.of(context).hintColor,
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),

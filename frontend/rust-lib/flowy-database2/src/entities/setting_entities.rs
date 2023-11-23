@@ -13,7 +13,9 @@ use crate::entities::{
   RepeatedSortPB, UpdateFilterParams, UpdateFilterPayloadPB, UpdateGroupPB, UpdateSortParams,
   UpdateSortPayloadPB,
 };
-use crate::services::setting::CalendarLayoutSetting;
+use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
+
+use super::BoardLayoutSettingPB;
 
 /// [DatabaseViewSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -151,19 +153,51 @@ pub struct DatabaseLayoutSettingPB {
   pub layout_type: DatabaseLayoutPB,
 
   #[pb(index = 2, one_of)]
+  pub board: Option<BoardLayoutSettingPB>,
+
+  #[pb(index = 3, one_of)]
   pub calendar: Option<CalendarLayoutSettingPB>,
+}
+
+impl DatabaseLayoutSettingPB {
+  pub fn from_board(layout_setting: BoardLayoutSetting) -> Self {
+    Self {
+      layout_type: DatabaseLayoutPB::Board,
+      board: Some(layout_setting.into()),
+      calendar: None,
+    }
+  }
+
+  pub fn from_calendar(layout_setting: CalendarLayoutSetting) -> Self {
+    Self {
+      layout_type: DatabaseLayoutPB::Calendar,
+      calendar: Some(layout_setting.into()),
+      board: None,
+    }
+  }
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct LayoutSettingParams {
   pub layout_type: DatabaseLayout,
+  pub board: Option<BoardLayoutSetting>,
   pub calendar: Option<CalendarLayoutSetting>,
+}
+
+impl LayoutSettingParams {
+  pub fn new(layout_type: DatabaseLayout) -> Self {
+    Self {
+      layout_type,
+      ..Default::default()
+    }
+  }
 }
 
 impl From<LayoutSettingParams> for DatabaseLayoutSettingPB {
   fn from(data: LayoutSettingParams) -> Self {
     Self {
       layout_type: data.layout_type.into(),
+      board: data.board.map(|board| board.into()),
       calendar: data.calendar.map(|calendar| calendar.into()),
     }
   }
@@ -178,6 +212,9 @@ pub struct LayoutSettingChangesetPB {
   pub layout_type: DatabaseLayoutPB,
 
   #[pb(index = 3, one_of)]
+  pub board: Option<BoardLayoutSettingPB>,
+
+  #[pb(index = 4, one_of)]
   pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
@@ -185,7 +222,15 @@ pub struct LayoutSettingChangesetPB {
 pub struct LayoutSettingChangeset {
   pub view_id: String,
   pub layout_type: DatabaseLayout,
+  pub board: Option<BoardLayoutSetting>,
   pub calendar: Option<CalendarLayoutSetting>,
+}
+
+impl LayoutSettingChangeset {
+  pub fn is_valid(&self) -> bool {
+    self.board.is_some() && self.layout_type == DatabaseLayout::Board
+      || self.calendar.is_some() && self.layout_type == DatabaseLayout::Calendar
+  }
 }
 
 impl TryInto<LayoutSettingChangeset> for LayoutSettingChangesetPB {
@@ -199,7 +244,8 @@ impl TryInto<LayoutSettingChangeset> for LayoutSettingChangesetPB {
     Ok(LayoutSettingChangeset {
       view_id,
       layout_type: self.layout_type.into(),
-      calendar: self.calendar.map(|calendar| calendar.into()),
+      board: self.board.map(Into::into),
+      calendar: self.calendar.map(Into::into),
     })
   }
 }

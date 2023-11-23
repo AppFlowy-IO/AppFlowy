@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-int64_t init_sdk(char *path);
+int64_t init_sdk(char *data);
 
 void async_event(int64_t port, const uint8_t *input, uintptr_t len);
 

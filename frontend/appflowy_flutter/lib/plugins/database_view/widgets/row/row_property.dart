@@ -134,7 +134,7 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   @override
   Widget build(BuildContext context) {
-    final style = _customCellStyle(widget.cellContext.fieldType);
+    final style = customCellStyle(widget.cellContext.fieldType);
     final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 
     final dragThumb = MouseRegion(
@@ -156,7 +156,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                   onTap: () => _fieldPopoverController.show(),
                   svg: FlowySvgs.drag_element_s,
                   richMessage: TextSpan(
-                    text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
+                    text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
                   ),
                 )
               : const SizedBox.shrink(),
@@ -167,7 +167,10 @@ class _PropertyCellState extends State<_PropertyCell> {
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
-      child: AccessoryHover(child: cell),
+      child: AccessoryHover(
+        fieldType: widget.cellContext.fieldType,
+        child: cell,
+      ),
     );
 
     return Container(
@@ -244,7 +247,7 @@ class _PropertyCellState extends State<_PropertyCell> {
   }
 }
 
-GridCellStyle? _customCellStyle(FieldType fieldType) {
+GridCellStyle? customCellStyle(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return GridCheckboxCellStyle(
@@ -271,7 +274,8 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.Checklist:
       return ChecklistCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        cellPadding: EdgeInsets.zero,
+        showTasksInline: true,
       );
     case FieldType.Number:
       return GridNumberCellStyle(

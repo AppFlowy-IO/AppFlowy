@@ -98,9 +98,6 @@ pub enum ErrorCode {
   #[error("user id is empty or whitespace")]
   UserIdInvalid = 30,
 
-  #[error("User not exist")]
-  UserNotExist = 31,
-
   #[error("Text is too long")]
   TextTooLong = 32,
 
@@ -147,7 +144,7 @@ pub enum ErrorCode {
   GroupIdIsEmpty = 46,
 
   #[error("Invalid date time format")]
-  InvalidDateTimeFormat = 47,
+  InvalidDateTimeFormat = 48,
 
   #[error("Invalid params")]
   InvalidParams = 49,
@@ -200,8 +197,8 @@ pub enum ErrorCode {
   #[error("Missing auth field")]
   MissingAuthField = 65,
 
-  #[error("Only one application can access the database")]
-  MultipleDBInstance = 66,
+  #[error("Rocksdb IO error")]
+  RocksdbIOError = 66,
 
   #[error("Document id is empty")]
   DocumentIdIsEmpty = 67,
@@ -256,6 +253,15 @@ pub enum ErrorCode {
 
   #[error("Internal server error")]
   InternalServerError = 84,
+
+  #[error("Not support yet")]
+  NotSupportYet = 85,
+
+  #[error("rocksdb corruption")]
+  RocksdbCorruption = 86,
+
+  #[error("rocksdb internal error")]
+  RocksdbInternal = 87,
 }
 
 impl ErrorCode {

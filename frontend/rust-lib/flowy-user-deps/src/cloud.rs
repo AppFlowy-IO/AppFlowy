@@ -13,13 +13,14 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::entities::{
-  AuthResponse, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
+  AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
+  WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserCloudConfig {
   pub enable_sync: bool,
-  enable_encrypt: bool,
+  pub enable_encrypt: bool,
   // The secret used to encrypt the user's data
   pub encrypt_secret: String,
 }
@@ -31,10 +32,6 @@ impl UserCloudConfig {
       enable_encrypt: false,
       encrypt_secret,
     }
-  }
-
-  pub fn enable_encrypt(&self) -> bool {
-    self.enable_encrypt
   }
 
   pub fn with_enable_encrypt(mut self, enable_encrypt: bool) -> Self {
@@ -57,6 +54,7 @@ impl Display for UserCloudConfig {
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
+#[allow(unused_variables)]
 pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
@@ -71,6 +69,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;
 
   /// Generate a sign in url for the user with the given email
+  /// Currently, only use the admin client for testing
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error>;
 
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
@@ -89,27 +88,44 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   /// Get the user information using the user's token or uid
   /// return None if the user is not found
-  fn get_user_profile(
-    &self,
-    credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError>;
+  fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError>;
+
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError>;
 
   /// Return the all the workspaces of the user  
-  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
-
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error>;
+  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
 
   fn add_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), Error>;
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
 
   fn remove_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), Error>;
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn update_workspace_member(
+    &self,
+    user_email: String,
+    workspace_id: String,
+    role: Role,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_workspace_members(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<Vec<WorkspaceMember>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
+  }
 
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 
@@ -128,13 +144,13 @@ pub trait UserCloudService: Send + Sync + 'static {
   ) -> FutureResult<(), Error>;
 }
 
-pub type UserUpdateReceiver = tokio::sync::broadcast::Receiver<UserUpdate>;
-pub type UserUpdateSender = tokio::sync::broadcast::Sender<UserUpdate>;
+pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;
+pub type UserUpdateSender = tokio::sync::mpsc::Sender<UserUpdate>;
 #[derive(Debug, Clone)]
 pub struct UserUpdate {
   pub uid: i64,
-  pub name: String,
-  pub email: String,
+  pub name: Option<String>,
+  pub email: Option<String>,
   pub encryption_sign: String,
 }
 

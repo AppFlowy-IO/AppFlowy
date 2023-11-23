@@ -39,7 +39,7 @@ class DesktopHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Future.wait([
-        FolderEventGetCurrentWorkspace().send(),
+        FolderEventGetCurrentWorkspaceSetting().send(),
         getIt<AuthService>().getUser(),
       ]),
       builder: (context, snapshots) {
@@ -255,7 +255,7 @@ class DesktopHomeScreen extends StatelessWidget {
               top: 0,
               animate: true,
             )
-            .animate(layout.animDuration, Curves.easeOut),
+            .animate(layout.animDuration, Curves.easeOutQuad),
         bubble
             .positioned(
               right: 20,
@@ -268,6 +268,7 @@ class DesktopHomeScreen extends StatelessWidget {
               duration: layout.animDuration.inMilliseconds * 0.001,
               closeX: layout.editPanelWidth,
               isClosed: !layout.showEditPanel,
+              curve: Curves.easeOutQuad,
             )
             .positioned(
               right: 0,
@@ -279,18 +280,18 @@ class DesktopHomeScreen extends StatelessWidget {
             .animatedPanelX(
               closeX: -layout.menuWidth,
               isClosed: !layout.showMenu,
+              curve: Curves.easeOutQuad,
+              duration: layout.animDuration.inMilliseconds * 0.001,
             )
             .positioned(
               left: 0,
               top: 0,
               width: layout.menuWidth,
               bottom: 0,
-              animate: true,
-            )
-            .animate(layout.animDuration, Curves.easeOut),
+            ),
         homeMenuResizer
             .positioned(left: layout.menuWidth - 5)
-            .animate(layout.animDuration, Curves.easeOut),
+            .animate(layout.animDuration, Curves.easeOutQuad),
       ],
     );
   }

@@ -4,16 +4,20 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class InlinePageReferenceService {
-  InlinePageReferenceService({required this.currentViewId}) {
+  InlinePageReferenceService({
+    required this.currentViewId,
+  }) {
     init();
   }
 
   final Completer _initCompleter = Completer<void>();
+
   final String currentViewId;
 
   late final ViewBackendService service;
@@ -79,6 +83,7 @@ class InlinePageReferenceService {
       final pageSelectionMenuItem = InlineActionsMenuItem(
         keywords: [view.name.toLowerCase()],
         label: view.name,
+        icon: (onSelected) => view.defaultIcon(),
         onSelected: (context, editorState, menuService, replace) async {
           final selection = editorState.selection;
           if (selection == null || !selection.isCollapsed) {
@@ -104,7 +109,7 @@ class InlinePageReferenceService {
                 MentionBlockKeys.mention: {
                   MentionBlockKeys.type: MentionType.page.name,
                   MentionBlockKeys.pageId: view.id,
-                }
+                },
               },
             );
 

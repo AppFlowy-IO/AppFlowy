@@ -6,7 +6,7 @@ use std::sync::Arc;
 use crate::entities::FieldType;
 use crate::services::field::{DateTypeOption, SingleSelectTypeOption};
 use crate::services::field_settings::default_field_settings_by_layout_map;
-use crate::services::setting::CalendarLayoutSetting;
+use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
 /// When creating a database, we need to resolve the dependencies of the views.
 /// Different database views have different dependencies. For example, a board
@@ -32,6 +32,7 @@ impl DatabaseLayoutDepsResolver {
     match self.database_layout {
       DatabaseLayout::Grid => (None, None),
       DatabaseLayout::Board => {
+        let layout_settings = BoardLayoutSetting::new().into();
         if !self
           .database
           .lock()
@@ -40,9 +41,9 @@ impl DatabaseLayoutDepsResolver {
           .any(|field| FieldType::from(field.field_type).can_be_group())
         {
           let select_field = self.create_select_field();
-          (Some(select_field), None)
+          (Some(select_field), Some(layout_settings))
         } else {
-          (None, None)
+          (None, Some(layout_settings))
         }
       },
       DatabaseLayout::Calendar => {
@@ -74,7 +75,9 @@ impl DatabaseLayoutDepsResolver {
     // Insert the layout setting if it's not exist
     match &self.database_layout {
       DatabaseLayout::Grid => {},
-      DatabaseLayout::Board => {},
+      DatabaseLayout::Board => {
+        self.create_board_layout_setting_if_need(view_id);
+      },
       DatabaseLayout::Calendar => {
         let date_field_id = match fields
           .into_iter()
@@ -94,6 +97,21 @@ impl DatabaseLayoutDepsResolver {
         };
         self.create_calendar_layout_setting_if_need(view_id, &date_field_id);
       },
+    }
+  }
+
+  fn create_board_layout_setting_if_need(&self, view_id: &str) {
+    if self
+      .database
+      .lock()
+      .get_layout_setting::<BoardLayoutSetting>(view_id, &self.database_layout)
+      .is_none()
+    {
+      let layout_setting = BoardLayoutSetting::new();
+      self
+        .database
+        .lock()
+        .insert_layout_setting(view_id, &self.database_layout, layout_setting);
     }
   }
 

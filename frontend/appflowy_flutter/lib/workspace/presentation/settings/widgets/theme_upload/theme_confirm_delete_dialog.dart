@@ -36,7 +36,7 @@ class ThemeConfirmDeleteDialog extends StatelessWidget {
             width: ThemeUploadWidget.buttonSize.width,
             child: FlowyButton(
               text: FlowyText.semibold(
-                LocaleKeys.button_OK.tr(),
+                LocaleKeys.button_ok.tr(),
                 fontSize: ThemeUploadWidget.buttonFontSize,
               ),
               onTap: () => onConfirm(context),
@@ -46,7 +46,7 @@ class ThemeConfirmDeleteDialog extends StatelessWidget {
             width: ThemeUploadWidget.buttonSize.width,
             child: FlowyButton(
               text: FlowyText.semibold(
-                LocaleKeys.button_Cancel.tr(),
+                LocaleKeys.button_cancel.tr(),
                 fontSize: ThemeUploadWidget.buttonFontSize,
               ),
               onTap: () => onCancel(context),

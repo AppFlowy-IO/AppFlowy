@@ -12,8 +12,6 @@ import { useAppDispatch } from '$app/stores/store';
 import { isFormatHotkey, parseFormat } from '$app/utils/document/format';
 import { toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
-import Delta from 'quill-delta';
 
 export function useCommonKeyEvents(id: string) {
   const { focused, caretRef } = useFocused(id);
@@ -35,7 +33,7 @@ export function useCommonKeyEvents(id: string) {
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
           if (!controller) return;
-          dispatch(backspaceDeleteActionForBlockThunk({ id, controller }));
+          void dispatch(backspaceDeleteActionForBlockThunk({ id, controller }));
         },
       },
       {
@@ -45,7 +43,7 @@ export function useCommonKeyEvents(id: string) {
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
-          dispatch(upDownActionForBlockThunk({ docId, id }));
+          void dispatch(upDownActionForBlockThunk({ docId, id }));
         },
       },
       {
@@ -55,7 +53,7 @@ export function useCommonKeyEvents(id: string) {
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
-          dispatch(upDownActionForBlockThunk({ docId, id, down: true }));
+          void dispatch(upDownActionForBlockThunk({ docId, id, down: true }));
         },
       },
       {
@@ -66,7 +64,7 @@ export function useCommonKeyEvents(id: string) {
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
           e.stopPropagation();
-          dispatch(leftActionForBlockThunk({ docId, id }));
+          void dispatch(leftActionForBlockThunk({ docId, id }));
         },
       },
       {
@@ -76,7 +74,7 @@ export function useCommonKeyEvents(id: string) {
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
-          dispatch(rightActionForBlockThunk({ docId, id }));
+          void dispatch(rightActionForBlockThunk({ docId, id }));
         },
       },
       {
@@ -87,7 +85,7 @@ export function useCommonKeyEvents(id: string) {
           const format = parseFormat(e);
 
           if (!format) return;
-          dispatch(
+          void dispatch(
             toggleFormatThunk({
               format,
               controller,

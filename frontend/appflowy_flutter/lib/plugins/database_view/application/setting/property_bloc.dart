@@ -25,34 +25,44 @@ class DatabasePropertyBloc
         ) {
     on<DatabasePropertyEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_Initial value) {
+        await event.when(
+          initial: () {
             _startListening();
           },
-          setFieldVisibility: (_SetFieldVisibility value) async {
+          setFieldVisibility: (fieldId, visibility) async {
             final fieldSettingsSvc = FieldSettingsBackendService(
               viewId: viewId,
             );
 
             final result = await fieldSettingsSvc.updateFieldSettings(
-              fieldId: value.fieldId,
-              fieldVisibility: value.visibility,
+              fieldId: fieldId,
+              fieldVisibility: visibility,
             );
 
             result.fold((l) => null, (err) => Log.error(err));
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(fieldContexts: value.fields));
+          didReceiveFieldUpdate: (fields) {
+            emit(state.copyWith(fieldContexts: fields));
           },
-          moveField: (_MoveField value) async {
+          moveField: (fieldId, fromIndex, toIndex) async {
+            if (fromIndex < toIndex) {
+              toIndex--;
+            }
+            final fieldContexts = List<FieldInfo>.from(state.fieldContexts);
+            fieldContexts.insert(
+              toIndex,
+              fieldContexts.removeAt(fromIndex),
+            );
+            emit(state.copyWith(fieldContexts: fieldContexts));
+
             final fieldBackendService = FieldBackendService(
               viewId: viewId,
-              fieldId: value.fieldId,
+              fieldId: fieldId,
             );
 
             final result = await fieldBackendService.moveField(
-              value.fromIndex,
-              value.toIndex,
+              fromIndex,
+              toIndex,
             );
 
             result.fold((l) => null, (r) => Log.error(r));

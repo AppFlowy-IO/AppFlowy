@@ -1,6 +1,6 @@
 import React from 'react';
 
-function CodeInline({ text, children, selected }: { text: string; children: React.ReactNode; selected: boolean }) {
+function CodeInline({ children, selected }: { text: string; children: React.ReactNode; selected: boolean }) {
   return (
     <span
       className={'bg-content-blue-50 py-1'}

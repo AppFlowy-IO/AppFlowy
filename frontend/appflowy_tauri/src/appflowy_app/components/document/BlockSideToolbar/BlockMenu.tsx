@@ -93,9 +93,7 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
         if (hovered) {
           const option = options.find((option) => option.key === hovered);
 
-          if (option) {
-            option.operate?.();
-          }
+          void option?.operate?.();
         } else {
           onClose();
         }

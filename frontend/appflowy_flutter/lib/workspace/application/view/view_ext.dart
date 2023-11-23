@@ -2,9 +2,11 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/mobile_grid_page.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +41,7 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    const Widget widget = FlowySvg(FlowySvgs.page_s);
+    const Widget widget = FlowySvg(FlowySvgs.document_s);
     return widget;
   }
 
@@ -49,8 +51,8 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Board => FlowySvgs.board_s,
         ViewLayoutPB.Calendar => FlowySvgs.date_s,
         ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Document => FlowySvgs.documents_s,
-        _ => FlowySvgs.documents_s,
+        ViewLayoutPB.Document => FlowySvgs.document_s,
+        _ => FlowySvgs.document_s,
       },
     );
   }
@@ -89,21 +91,55 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  DatabaseTabBarItemBuilder tarBarItem() {
+  DatabaseTabBarItemBuilder tabBarItem() {
     switch (layout) {
       case ViewLayoutPB.Board:
         return BoardPageTabBarBuilderImpl();
       case ViewLayoutPB.Calendar:
         return CalendarPageTabBarBuilderImpl();
       case ViewLayoutPB.Grid:
-        return GridPageTabBarBuilderImpl();
-      case ViewLayoutPB.Document:
+        return DesktopGridTabBarBuilderImpl();
+      default:
         throw UnimplementedError;
     }
-    throw UnimplementedError;
+  }
+
+  DatabaseTabBarItemBuilder mobileTabBarItem() {
+    switch (layout) {
+      case ViewLayoutPB.Board:
+        return BoardPageTabBarBuilderImpl();
+      case ViewLayoutPB.Calendar:
+        return CalendarPageTabBarBuilderImpl();
+      case ViewLayoutPB.Grid:
+        return MobileGridTabBarBuilderImpl();
+      default:
+        throw UnimplementedError;
+    }
   }
 
   FlowySvgData get iconData => layout.icon;
+
+  Future<List<ViewPB>> getAncestors({
+    bool includeSelf = false,
+    bool includeRoot = false,
+  }) async {
+    final ancestors = <ViewPB>[];
+    if (includeSelf) {
+      final self = await ViewBackendService.getView(id);
+      ancestors.add(self.getLeftOrNull<ViewPB>() ?? this);
+    }
+    var parent = await ViewBackendService.getView(parentViewId);
+    while (parent.isLeft()) {
+      // parent is not null
+      final view = parent.getLeftOrNull<ViewPB>();
+      if (view == null || (!includeRoot && view.parentViewId.isEmpty)) {
+        break;
+      }
+      ancestors.add(view);
+      parent = await ViewBackendService.getView(view.parentViewId);
+    }
+    return ancestors.reversed.toList();
+  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
@@ -116,7 +152,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
       case ViewLayoutPB.Calendar:
         return FlowySvgs.date_s;
       case ViewLayoutPB.Document:
-        return FlowySvgs.documents_s;
+        return FlowySvgs.document_s;
       default:
         throw Exception('Unknown layout type');
     }
@@ -133,5 +169,24 @@ extension ViewLayoutExtension on ViewLayoutPB {
       default:
         throw Exception('Unknown layout type');
     }
+  }
+}
+
+extension ViewFinder on List<ViewPB> {
+  ViewPB? findView(String id) {
+    for (final view in this) {
+      if (view.id == id) {
+        return view;
+      }
+
+      if (view.childViews.isNotEmpty) {
+        final v = view.childViews.findView(id);
+        if (v != null) {
+          return v;
+        }
+      }
+    }
+
+    return null;
   }
 }

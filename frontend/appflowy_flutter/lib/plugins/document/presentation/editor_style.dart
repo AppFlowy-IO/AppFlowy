@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -5,6 +7,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,13 +30,17 @@ class EditorStyleCustomizer {
     throw UnimplementedError();
   }
 
+  static EdgeInsets get documentPadding => PlatformExtension.isMobile
+      ? const EdgeInsets.only(left: 20, right: 20)
+      : const EdgeInsets.only(left: 40, right: 40 + 44);
+
   EditorStyle desktop() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
-
+    final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.desktop(
       padding: padding,
       cursorColor: theme.colorScheme.primary,
@@ -60,9 +67,9 @@ class EditorStyleCustomizer {
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
-        code: GoogleFonts.arefRuqaaInk(
+        code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize,
+            fontSize: codeFontSize,
             fontWeight: FontWeight.normal,
             fontStyle: FontStyle.italic,
             color: Colors.red,
@@ -78,37 +85,45 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
-
-    return EditorStyle.desktop(
+    final defaultTextDirection =
+        context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
+    final codeFontSize = max(0.0, fontSize - 2);
+    return EditorStyle.mobile(
       padding: padding,
-      cursorColor: theme.colorScheme.primary,
+      defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: baseTextStyle(fontFamily).copyWith(
+        bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
-        underline: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.underline),
-        strikethrough: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.lineThrough),
+        italic: baseTextStyle(fontFamily).copyWith(
+          fontStyle: FontStyle.italic,
+        ),
+        underline: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.underline,
+        ),
+        strikethrough: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.lineThrough,
+        ),
         href: baseTextStyle(fontFamily).copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
-        code: GoogleFonts.arefRuqaaInk(
+        code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize,
+            fontSize: codeFontSize,
             fontWeight: FontWeight.normal,
+            fontStyle: FontStyle.italic,
             color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface,
+            backgroundColor: Colors.grey.withOpacity(0.3),
           ),
         ),
       ),
+      textSpanDecorator: customizeAttributeDecorator,
     );
   }
 
@@ -120,7 +135,7 @@ class EditorStyleCustomizer {
       fontSize + 8,
       fontSize + 4,
       fontSize + 2,
-      fontSize
+      fontSize,
     ];
     return TextStyle(
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
@@ -168,7 +183,7 @@ class EditorStyleCustomizer {
       backgroundColor: theme.cardColor,
       groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
       menuItemTextColor: theme.colorScheme.onBackground,
-      menuItemSelectedColor: theme.hoverColor,
+      menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );
   }
@@ -250,6 +265,19 @@ class EditorStyleCustomizer {
           formula: formula,
           textStyle: style().textStyleConfiguration.text,
         ),
+      );
+    }
+
+    // customize the link on mobile
+    final href = attributes[AppFlowyRichTextKeys.href] as String?;
+    if (PlatformExtension.isMobile && href != null) {
+      return TextSpan(
+        style: textSpan.style,
+        text: text.text,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            safeLaunchUrl(href);
+          },
       );
     }
 

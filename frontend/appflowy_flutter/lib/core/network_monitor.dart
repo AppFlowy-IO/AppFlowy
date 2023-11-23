@@ -27,8 +27,8 @@ class NetworkListener {
     return _updateConnectionStatus(result);
   }
 
-  void stop() {
-    _connectivitySubscription.cancel();
+  Future<void> stop() async {
+    await _connectivitySubscription.cancel();
   }
 
   Future<void> _updateConnectionStatus(ConnectivityResult result) async {

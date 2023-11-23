@@ -97,7 +97,7 @@ class SupabaseAuthService implements AuthService {
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
-            AuthServiceMapKeys.deviceId: await getDeviceId()
+            AuthServiceMapKeys.deviceId: await getDeviceId(),
           },
         );
       },
@@ -140,7 +140,7 @@ class SupabaseAuthService implements AuthService {
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
-            AuthServiceMapKeys.deviceId: await getDeviceId()
+            AuthServiceMapKeys.deviceId: await getDeviceId(),
           },
         );
       },

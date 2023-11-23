@@ -100,7 +100,7 @@ class RowList {
     final List<RowInfo> newRows = [];
     final DeletedIndexs deletedIndex = [];
     final Map<String, String> deletedRowByRowId = {
-      for (var rowId in rowIds) rowId: rowId
+      for (final rowId in rowIds) rowId: rowId,
     };
 
     _rowInfos.asMap().forEach((index, RowInfo rowInfo) {

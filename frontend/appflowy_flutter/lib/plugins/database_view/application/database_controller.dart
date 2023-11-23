@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
@@ -23,18 +24,21 @@ import 'row/row_cache.dart';
 import 'group/group_listener.dart';
 import 'row/row_service.dart';
 
+typedef OnGroupConfigurationChanged = void Function(List<GroupSettingPB>);
 typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdateGroup = void Function(List<GroupPB>);
 typedef OnDeleteGroup = void Function(List<String>);
 typedef OnInsertGroup = void Function(InsertedGroupPB);
 
 class GroupCallbacks {
+  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
   final OnGroupByField? onGroupByField;
   final OnUpdateGroup? onUpdateGroup;
   final OnDeleteGroup? onDeleteGroup;
   final OnInsertGroup? onInsertGroup;
 
   GroupCallbacks({
+    this.onGroupConfigurationChanged,
     this.onGroupByField,
     this.onUpdateGroup,
     this.onDeleteGroup,
@@ -43,12 +47,10 @@ class GroupCallbacks {
 }
 
 class DatabaseLayoutSettingCallbacks {
-  final void Function(DatabaseLayoutSettingPB) onLayoutChanged;
-  final void Function(DatabaseLayoutSettingPB) onLoadLayout;
+  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
 
   DatabaseLayoutSettingCallbacks({
-    required this.onLayoutChanged,
-    required this.onLoadLayout,
+    required this.onLayoutSettingsChanged,
   });
 }
 
@@ -121,11 +123,11 @@ class DatabaseController {
 
   void addListener({
     DatabaseCallbacks? onDatabaseChanged,
-    DatabaseLayoutSettingCallbacks? onLayoutChanged,
+    DatabaseLayoutSettingCallbacks? onLayoutSettingsChanged,
     GroupCallbacks? onGroupChanged,
   }) {
-    if (onLayoutChanged != null) {
-      _layoutCallbacks.add(onLayoutChanged);
+    if (onLayoutSettingsChanged != null) {
+      _layoutCallbacks.add(onLayoutSettingsChanged);
     }
 
     if (onDatabaseChanged != null) {
@@ -175,6 +177,7 @@ class DatabaseController {
   Future<Either<RowMetaPB, FlowyError>> createRow({
     RowId? startRowId,
     String? groupId,
+    bool fromBeginning = false,
     void Function(RowDataBuilder builder)? withCells,
   }) {
     Map<String, String>? cellDataByFieldId;
@@ -189,6 +192,7 @@ class DatabaseController {
       startRowId: startRowId,
       groupId: groupId,
       cellDataByFieldId: cellDataByFieldId,
+      fromBeginning: fromBeginning,
     );
   }
 
@@ -224,12 +228,14 @@ class DatabaseController {
     );
   }
 
-  Future<void> updateLayoutSetting(
-    CalendarLayoutSettingPB calendarlLayoutSetting,
-  ) async {
+  Future<void> updateLayoutSetting({
+    BoardLayoutSettingPB? boardLayoutSetting,
+    CalendarLayoutSettingPB? calendarLayoutSetting,
+  }) async {
     await _databaseViewBackendSvc
         .updateLayoutSetting(
-      calendarLayoutSetting: calendarlLayoutSetting,
+      boardLayoutSetting: boardLayoutSetting,
+      calendarLayoutSetting: calendarLayoutSetting,
       layoutType: databaseLayout,
     )
         .then((result) {
@@ -248,16 +254,14 @@ class DatabaseController {
   }
 
   Future<void> _loadGroups() async {
-    final result = await _databaseViewBackendSvc.loadGroups();
-    return Future(
-      () => result.fold(
-        (groups) {
-          for (final callback in _groupCallbacks) {
-            callback.onGroupByField?.call(groups.items);
-          }
-        },
-        (err) => Log.error(err),
-      ),
+    final groupsResult = await _databaseViewBackendSvc.loadGroups();
+    groupsResult.fold(
+      (groups) {
+        for (final callback in _groupCallbacks) {
+          callback.onGroupByField?.call(groups.items);
+        }
+      },
+      (err) => Log.error(err),
     );
   }
 
@@ -266,10 +270,9 @@ class DatabaseController {
       result.fold(
         (newDatabaseLayoutSetting) {
           databaseLayoutSetting = newDatabaseLayoutSetting;
-          databaseLayoutSetting?.freeze();
 
           for (final callback in _layoutCallbacks) {
-            callback.onLoadLayout(newDatabaseLayoutSetting);
+            callback.onLayoutSettingsChanged(newDatabaseLayoutSetting);
           }
         },
         (r) => Log.error(r),
@@ -371,7 +374,7 @@ class DatabaseController {
             databaseLayoutSetting?.freeze();
 
             for (final callback in _layoutCallbacks) {
-              callback.onLayoutChanged(newLayout);
+              callback.onLayoutSettingsChanged(newLayout);
             }
           },
           (r) => Log.error(r),

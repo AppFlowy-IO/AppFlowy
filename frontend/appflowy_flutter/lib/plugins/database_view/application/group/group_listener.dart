@@ -8,6 +8,8 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
 
+typedef GroupConfigurationUpdateValue
+    = Either<List<GroupSettingPB>, FlowyError>;
 typedef GroupUpdateValue = Either<GroupChangesPB, FlowyError>;
 typedef GroupByNewFieldValue = Either<List<GroupPB>, FlowyError>;
 

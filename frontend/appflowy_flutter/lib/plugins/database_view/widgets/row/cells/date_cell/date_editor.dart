@@ -136,7 +136,7 @@ class StartTextField extends StatelessWidget {
           child: state.includeTime
               ? _TimeTextField(
                   isEndTime: false,
-                  timeStr: state.time,
+                  timeStr: state.timeStr,
                   popoverMutex: popoverMutex,
                 )
               : const SizedBox.shrink(),
@@ -161,7 +161,7 @@ class EndTextField extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8.0),
                   child: _TimeTextField(
                     isEndTime: true,
-                    timeStr: state.endTime,
+                    timeStr: state.endTimeStr,
                     popoverMutex: popoverMutex,
                   ),
                 )
@@ -366,6 +366,9 @@ class EndTimeButton extends StatelessWidget {
   }
 }
 
+const _maxLengthTwelveHour = 8;
+const _maxLengthTwentyFourHour = 5;
+
 class _TimeTextField extends StatefulWidget {
   final bool isEndTime;
   final String? timeStr;
@@ -410,17 +413,17 @@ class _TimeTextFieldState extends State<_TimeTextField> {
     return BlocConsumer<DateCellCalendarBloc, DateCellCalendarState>(
       listener: (context, state) {
         if (widget.isEndTime) {
-          _textController.text = state.endTime ?? "";
+          _textController.text = state.endTimeStr ?? "";
         } else {
-          _textController.text = state.time ?? "";
+          _textController.text = state.timeStr ?? "";
         }
       },
       builder: (context, state) {
         String text = "";
-        if (!widget.isEndTime && state.time != null) {
-          text = state.time!;
-        } else if (state.endTime != null) {
-          text = state.endTime!;
+        if (!widget.isEndTime && state.timeStr != null) {
+          text = state.timeStr!;
+        } else if (state.endTimeStr != null) {
+          text = state.endTimeStr!;
         }
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -433,6 +436,11 @@ class _TimeTextFieldState extends State<_TimeTextField> {
             errorText: widget.isEndTime
                 ? state.parseEndTimeError
                 : state.parseTimeError,
+            maxLength:
+                state.dateTypeOptionPB.timeFormat == TimeFormatPB.TwelveHour
+                    ? _maxLengthTwelveHour
+                    : _maxLengthTwentyFourHour,
+            showCounter: false,
             onSubmitted: (timeStr) {
               if (widget.isEndTime) {
                 context

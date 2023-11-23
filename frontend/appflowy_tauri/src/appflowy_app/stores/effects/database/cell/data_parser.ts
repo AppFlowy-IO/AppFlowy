@@ -1,4 +1,3 @@
-import utf8 from 'utf8';
 import { CellBackendService, CellIdentifier } from './cell_bd_svc';
 import { SelectOptionCellDataPB, URLCellDataPB, DateCellDataPB } from '@/services/backend';
 import { Err, None, Ok, Option, Some } from 'ts-results';
@@ -19,6 +18,7 @@ class CellDataLoader<T> {
 
   loadData = async () => {
     const result = await this.service.getCell(this.cellId);
+
     if (result.ok) {
       return Ok(this.parser.parserData(result.val.data));
     } else {
@@ -48,6 +48,7 @@ class SelectOptionCellDataParser extends CellDataParser<SelectOptionCellDataPB> 
     if (data.length === 0) {
       return None;
     }
+
     return Some(SelectOptionCellDataPB.deserializeBinary(data));
   }
 }
@@ -57,6 +58,7 @@ class URLCellDataParser extends CellDataParser<URLCellDataPB> {
     if (data.length === 0) {
       return None;
     }
+
     return Some(URLCellDataPB.deserializeBinary(data));
   }
 }

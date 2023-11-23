@@ -28,12 +28,12 @@ function FormulaInline({
   const { docId } = useSubscribeDocument();
   const dispatch = useAppDispatch();
   const onClick = useCallback(
-    (node: HTMLSpanElement) => {
+    async (node: HTMLSpanElement) => {
       const selection = getSelection(node);
 
       if (!selection) return;
 
-      dispatch(
+      await dispatch(
         createTemporary({
           docId,
           state: {
@@ -57,7 +57,7 @@ function FormulaInline({
       getSelection={getSelection}
       isFirst={isFirst}
       isLast={isLast}
-      renderNode={() => <KatexMath latex={data.latex!} isInline />}
+      renderNode={() => <KatexMath latex={data.latex || ''} isInline />}
     >
       {children}
     </FakeCursorContainer>

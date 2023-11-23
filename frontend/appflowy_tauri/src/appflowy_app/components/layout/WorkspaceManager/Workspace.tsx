@@ -2,11 +2,9 @@ import React from 'react';
 import { WorkspaceItem } from '$app_reducers/workspace/slice';
 import NestedViews from '$app/components/layout/WorkspaceManager/NestedPages';
 import { useLoadWorkspace } from '$app/components/layout/WorkspaceManager/Workspace.hooks';
-import WorkspaceTitle from '$app/components/layout/WorkspaceManager/WorkspaceTitle';
 
 function Workspace({ workspace, opened }: { workspace: WorkspaceItem; opened: boolean }) {
-  const { openWorkspace, deleteWorkspace } = useLoadWorkspace(workspace);
-
+  useLoadWorkspace(workspace);
   return (
     <div className={'flex h-[100%] flex-col'}>
       <div

@@ -1,20 +1,21 @@
-use collab_folder::core::ViewLayout;
+use collab_folder::ViewLayout;
 
 use event_integration::event_builder::EventBuilder;
-use event_integration::FlowyCoreTest;
+use event_integration::EventIntegrationTest;
 use flowy_folder2::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB};
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent::*;
 
 pub enum FolderScript {
-  // Workspace
-  ReadAllWorkspaces,
+  #[allow(dead_code)]
   CreateWorkspace {
     name: String,
     desc: String,
   },
+  #[allow(dead_code)]
   AssertWorkspace(WorkspacePB),
-  ReadWorkspace(Option<String>),
+  #[allow(dead_code)]
+  ReadWorkspace(String),
 
   // App
   CreateParentView {
@@ -64,8 +65,7 @@ pub enum FolderScript {
 }
 
 pub struct FolderTest {
-  pub sdk: FlowyCoreTest,
-  pub all_workspace: Vec<WorkspacePB>,
+  pub sdk: EventIntegrationTest,
   pub workspace: WorkspacePB,
   pub parent_view: ViewPB,
   pub child_view: ViewPB,
@@ -75,10 +75,17 @@ pub struct FolderTest {
 
 impl FolderTest {
   pub async fn new() -> Self {
-    let sdk = FlowyCoreTest::new();
-    let _ = sdk.init_user().await;
-    let workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
-    let parent_view = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
+    let sdk = EventIntegrationTest::new().await;
+    let _ = sdk.init_anon_user().await;
+    let workspace = sdk.folder_manager.get_current_workspace().await.unwrap();
+    let parent_view = create_view(
+      &sdk,
+      &workspace.id,
+      "Folder App",
+      "Folder test app",
+      ViewLayout::Document,
+    )
+    .await;
     let view = create_view(
       &sdk,
       &parent_view.id,
@@ -89,7 +96,6 @@ impl FolderTest {
     .await;
     Self {
       sdk,
-      all_workspace: vec![],
       workspace,
       parent_view,
       child_view: view,
@@ -107,10 +113,6 @@ impl FolderTest {
   pub async fn run_script(&mut self, script: FolderScript) {
     let sdk = &self.sdk;
     match script {
-      FolderScript::ReadAllWorkspaces => {
-        let all_workspace = read_workspace(sdk, None).await;
-        self.all_workspace = all_workspace;
-      },
       FolderScript::CreateWorkspace { name, desc } => {
         let workspace = create_workspace(sdk, &name, &desc).await;
         self.workspace = workspace;
@@ -119,11 +121,11 @@ impl FolderTest {
         assert_eq!(self.workspace, workspace, "Workspace not equal");
       },
       FolderScript::ReadWorkspace(workspace_id) => {
-        let workspace = read_workspace(sdk, workspace_id).await.pop().unwrap();
+        let workspace = read_workspace(sdk, workspace_id).await;
         self.workspace = workspace;
       },
       FolderScript::CreateParentView { name, desc } => {
-        let app = create_app(sdk, &self.workspace.id, &name, &desc).await;
+        let app = create_view(sdk, &self.workspace.id, &name, &desc, ViewLayout::Document).await;
         self.parent_view = app;
       },
       FolderScript::AssertParentView(app) => {
@@ -201,7 +203,7 @@ impl FolderTest {
     }
   }
 }
-pub async fn create_workspace(sdk: &FlowyCoreTest, name: &str, desc: &str) -> WorkspacePB {
+pub async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) -> WorkspacePB {
   let request = CreateWorkspacePayloadPB {
     name: name.to_owned(),
     desc: desc.to_owned(),
@@ -215,62 +217,27 @@ pub async fn create_workspace(sdk: &FlowyCoreTest, name: &str, desc: &str) -> Wo
     .parse::<WorkspacePB>()
 }
 
-pub async fn read_workspace(sdk: &FlowyCoreTest, workspace_id: Option<String>) -> Vec<WorkspacePB> {
+pub async fn read_workspace(sdk: &EventIntegrationTest, workspace_id: String) -> WorkspacePB {
   let request = WorkspaceIdPB {
     value: workspace_id,
   };
-  let repeated_workspace = EventBuilder::new(sdk.clone())
-    .event(ReadAllWorkspaces)
+  EventBuilder::new(sdk.clone())
+    .event(ReadCurrentWorkspace)
     .payload(request.clone())
     .async_send()
     .await
-    .parse::<RepeatedWorkspacePB>();
-
-  let workspaces;
-  if let Some(workspace_id) = &request.value {
-    workspaces = repeated_workspace
-      .items
-      .into_iter()
-      .filter(|workspace| &workspace.id == workspace_id)
-      .collect::<Vec<WorkspacePB>>();
-    debug_assert_eq!(workspaces.len(), 1);
-  } else {
-    workspaces = repeated_workspace.items;
-  }
-
-  workspaces
-}
-
-pub async fn create_app(sdk: &FlowyCoreTest, workspace_id: &str, name: &str, desc: &str) -> ViewPB {
-  let create_view_request = CreateViewPayloadPB {
-    parent_view_id: workspace_id.to_owned(),
-    name: name.to_string(),
-    desc: desc.to_string(),
-    thumbnail: None,
-    layout: ViewLayout::Document.into(),
-    initial_data: vec![],
-    meta: Default::default(),
-    set_as_current: true,
-    index: None,
-  };
-
-  EventBuilder::new(sdk.clone())
-    .event(CreateView)
-    .payload(create_view_request)
-    .async_send()
-    .await
-    .parse::<ViewPB>()
+    .parse::<WorkspacePB>()
 }
 
 pub async fn create_view(
-  sdk: &FlowyCoreTest,
-  app_id: &str,
+  sdk: &EventIntegrationTest,
+  parent_view_id: &str,
   name: &str,
   desc: &str,
   layout: ViewLayout,
 ) -> ViewPB {
   let request = CreateViewPayloadPB {
-    parent_view_id: app_id.to_string(),
+    parent_view_id: parent_view_id.to_string(),
     name: name.to_string(),
     desc: desc.to_string(),
     thumbnail: None,
@@ -288,7 +255,7 @@ pub async fn create_view(
     .parse::<ViewPB>()
 }
 
-pub async fn read_view(sdk: &FlowyCoreTest, view_id: &str) -> ViewPB {
+pub async fn read_view(sdk: &EventIntegrationTest, view_id: &str) -> ViewPB {
   let view_id = ViewIdPB::from(view_id);
   EventBuilder::new(sdk.clone())
     .event(ReadView)
@@ -299,7 +266,7 @@ pub async fn read_view(sdk: &FlowyCoreTest, view_id: &str) -> ViewPB {
 }
 
 pub async fn move_view(
-  sdk: &FlowyCoreTest,
+  sdk: &EventIntegrationTest,
   view_id: String,
   parent_id: String,
   prev_view_id: Option<String>,
@@ -319,7 +286,7 @@ pub async fn move_view(
   assert!(error.is_none());
 }
 pub async fn update_view(
-  sdk: &FlowyCoreTest,
+  sdk: &EventIntegrationTest,
   view_id: &str,
   name: Option<String>,
   desc: Option<String>,
@@ -340,7 +307,7 @@ pub async fn update_view(
     .await;
 }
 
-pub async fn update_view_icon(sdk: &FlowyCoreTest, view_id: &str, icon: Option<ViewIconPB>) {
+pub async fn update_view_icon(sdk: &EventIntegrationTest, view_id: &str, icon: Option<ViewIconPB>) {
   let request = UpdateViewIconPayloadPB {
     view_id: view_id.to_string(),
     icon,
@@ -352,7 +319,7 @@ pub async fn update_view_icon(sdk: &FlowyCoreTest, view_id: &str, icon: Option<V
     .await;
 }
 
-pub async fn delete_view(sdk: &FlowyCoreTest, view_ids: Vec<String>) {
+pub async fn delete_view(sdk: &EventIntegrationTest, view_ids: Vec<String>) {
   let request = RepeatedViewIdPB { items: view_ids };
   EventBuilder::new(sdk.clone())
     .event(DeleteView)
@@ -361,7 +328,7 @@ pub async fn delete_view(sdk: &FlowyCoreTest, view_ids: Vec<String>) {
     .await;
 }
 
-pub async fn read_trash(sdk: &FlowyCoreTest) -> RepeatedTrashPB {
+pub async fn read_trash(sdk: &EventIntegrationTest) -> RepeatedTrashPB {
   EventBuilder::new(sdk.clone())
     .event(ReadTrash)
     .async_send()
@@ -369,7 +336,7 @@ pub async fn read_trash(sdk: &FlowyCoreTest) -> RepeatedTrashPB {
     .parse::<RepeatedTrashPB>()
 }
 
-pub async fn restore_app_from_trash(sdk: &FlowyCoreTest, app_id: &str) {
+pub async fn restore_app_from_trash(sdk: &EventIntegrationTest, app_id: &str) {
   let id = TrashIdPB {
     id: app_id.to_owned(),
   };
@@ -380,7 +347,7 @@ pub async fn restore_app_from_trash(sdk: &FlowyCoreTest, app_id: &str) {
     .await;
 }
 
-pub async fn restore_view_from_trash(sdk: &FlowyCoreTest, view_id: &str) {
+pub async fn restore_view_from_trash(sdk: &EventIntegrationTest, view_id: &str) {
   let id = TrashIdPB {
     id: view_id.to_owned(),
   };
@@ -391,14 +358,14 @@ pub async fn restore_view_from_trash(sdk: &FlowyCoreTest, view_id: &str) {
     .await;
 }
 
-pub async fn delete_all_trash(sdk: &FlowyCoreTest) {
+pub async fn delete_all_trash(sdk: &EventIntegrationTest) {
   EventBuilder::new(sdk.clone())
     .event(DeleteAllTrash)
     .async_send()
     .await;
 }
 
-pub async fn toggle_favorites(sdk: &FlowyCoreTest, view_id: Vec<String>) {
+pub async fn toggle_favorites(sdk: &EventIntegrationTest, view_id: Vec<String>) {
   let request = RepeatedViewIdPB { items: view_id };
   EventBuilder::new(sdk.clone())
     .event(ToggleFavorite)
@@ -407,7 +374,7 @@ pub async fn toggle_favorites(sdk: &FlowyCoreTest, view_id: Vec<String>) {
     .await;
 }
 
-pub async fn read_favorites(sdk: &FlowyCoreTest) -> RepeatedViewPB {
+pub async fn read_favorites(sdk: &EventIntegrationTest) -> RepeatedViewPB {
   EventBuilder::new(sdk.clone())
     .event(ReadFavorites)
     .async_send()

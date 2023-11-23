@@ -54,9 +54,9 @@ class SettingsUserView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildUserIconSetting(context),
-              if (isCloudEnabled) ...[
+              if (isCloudEnabled && user.authType != AuthTypePB.Local) ...[
                 const VSpace(12),
-                UserEmailInput(user.email)
+                UserEmailInput(user.email),
               ],
               const VSpace(12),
               _renderCurrentOpenaiKey(context),

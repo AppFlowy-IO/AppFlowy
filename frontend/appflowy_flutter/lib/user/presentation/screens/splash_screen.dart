@@ -14,16 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-// [[diagram: splash screen]]
-// ┌────────────────┐1.get user ┌──────────┐     ┌────────────┐ 2.send UserEventCheckUser
-// │  SplashScreen  │──────────▶│SplashBloc│────▶│ISplashUser │─────┐
-// └────────────────┘           └──────────┘     └────────────┘     │
-//                                                                  │
-//                                                                  ▼
-//    ┌───────────┐            ┌─────────────┐                 ┌────────┐
-//    │HomeScreen │◀───────────│BlocListener │◀────────────────│RustSDK │
-//    └───────────┘            └─────────────┘                 └────────┘
-//           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
   /// Root Page of the app.
   const SplashScreen({
@@ -82,10 +72,10 @@ class SplashScreen extends StatelessWidget {
       (check) async {
         /// If encryption is needed, the user is navigated to the encryption screen.
         /// Otherwise, it fetches the current workspace for the user and navigates them
-        if (check.isNeedSecret) {
+        if (check.requireSecret) {
           getIt<AuthRouter>().pushEncryptionScreen(context, userProfile);
         } else {
-          final result = await FolderEventGetCurrentWorkspace().send();
+          final result = await FolderEventGetCurrentWorkspaceSetting().send();
           result.fold(
             (workspaceSetting) {
               // After login, replace Splash screen by corresponding home screen

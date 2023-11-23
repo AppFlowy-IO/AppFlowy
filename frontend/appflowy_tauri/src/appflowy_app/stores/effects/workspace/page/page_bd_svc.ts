@@ -17,6 +17,8 @@ import {
   ViewIconPB,
   UpdateViewIconPayloadPB,
   FolderEventUpdateViewIcon,
+  FolderEventCreateOrphanView,
+  CreateOrphanViewPayloadPB,
 } from '@/services/backend/events/flowy-folder2';
 import { Page, PageIcon } from '$app_reducers/pages/slice';
 
@@ -86,6 +88,12 @@ export class PageBackendService {
     const payload = ViewPB.fromObject(params);
 
     return FolderEventDuplicateView(payload);
+  };
+
+  createOrphanPage = async (params: ReturnType<typeof CreateOrphanViewPayloadPB.prototype.toObject>) => {
+    const payload = CreateOrphanViewPayloadPB.fromObject(params);
+
+    return FolderEventCreateOrphanView(payload);
   };
 
   closePage = async (viewId: string) => {

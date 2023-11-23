@@ -189,9 +189,7 @@
     "editContact": "Kontakt bearbeiten"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Erledigt",
-    "Cancel": "Abbrechen",
+    "done": "Erledigt",
     "signIn": "Anmelden",
     "signOut": "Abmelden",
     "complete": "Fertig",
@@ -207,8 +205,10 @@
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "duplicate": "Duplikat",
-    "done": "Erledigt",
-    "putback": "Zurück geben"
+    "putback": "Zurück geben",
+    "OK": "OK",
+    "Done": "Erledigt",
+    "Cancel": "Abbrechen"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -398,11 +398,11 @@
       "numberFormat": "Zahlenformat",
       "dateFormat": "Datumsformat",
       "includeTime": "Zeit einbeziehen",
-      "dateFormatFriendly": "Monat Tag Jahr",
-      "dateFormatISO": "Jahr Monat Tag",
-      "dateFormatLocal": "Monat Tag Jahr",
-      "dateFormatUS": "Jahr Monat Tag",
-      "dateFormatDayMonthYear": "Tag Monat Jahr",
+      "dateFormatFriendly": "Monat Tag, Jahr",
+      "dateFormatISO": "Jahr-Monat-Tag",
+      "dateFormatLocal": "Monat/Tag/Jahr",
+      "dateFormatUS": "Jahr/Monat/Tag",
+      "dateFormatDayMonthYear": "Tag/Monat/Jahr",
       "timeFormat": "Zeitformat",
       "invalidTimeFormat": "Ungültiges Format",
       "timeFormatTwelveHour": "12 Stunden",
@@ -442,7 +442,7 @@
       "blueColor": "Blau",
       "deleteTag": "Tag löschen",
       "colorPanelTitle": "Farben",
-      "panelTitle": "Wählen Sie eine Option aus oder erstellen Sie eine",
+      "panelTitle": "Eine Option auswählen oder erstellen",
       "searchOption": "Suchen Sie nach einer Option"
     },
     "checklist": {
@@ -591,11 +591,11 @@
     }
   },
   "board": {
-    "column": {
-      "create_new_card": "Neu"
-    },
     "menuName": "Planke",
-    "referencedBoardPrefix": "Sicht von"
+    "referencedBoardPrefix": "Sicht von",
+    "column": {
+      "createNewCard": "Neu"
+    }
   },
   "calendar": {
     "menuName": "Kalender",
@@ -612,9 +612,9 @@
       "firstDayOfWeek": "Beginnen Sie die Woche am",
       "layoutDateField": "Layoutkalender von",
       "noDateTitle": "Kein Datum",
-      "noDateHint": "Außerplanmäßige Ereignisse werden hier angezeigt",
       "clickToAdd": "Klicken Sie, um es zum Kalender hinzuzufügen",
-      "name": "Kalenderlayout"
+      "name": "Kalenderlayout",
+      "noDateHint": "Außerplanmäßige Ereignisse werden hier angezeigt"
     },
     "referencedCalendarPrefix": "Sicht von"
   },

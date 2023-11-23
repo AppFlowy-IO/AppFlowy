@@ -33,10 +33,10 @@ where
             .to_string();
           let mut buffer = Vec::new();
           file.read_to_end(&mut buffer).await?;
-          Ok(client.put_file(&object.workspace_id, buffer, mime).await?)
+          Ok(client.put_blob(&object.workspace_id, buffer, mime).await?)
         },
         ObjectValue::Bytes { bytes, mime } => {
-          Ok(client.put_file(&object.workspace_id, bytes, mime).await?)
+          Ok(client.put_blob(&object.workspace_id, bytes, mime).await?)
         },
       }
     })
@@ -46,7 +46,7 @@ where
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      client.delete_file(&object_url).await?;
+      client.delete_blob(&object_url).await?;
       Ok(())
     })
   }
@@ -55,7 +55,7 @@ where
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let bytes = client.get_file(&object_url).await?;
+      let bytes = client.get_blob(&object_url).await?;
       Ok(bytes)
     })
   }

@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { nanoid } from 'nanoid';
 import { WorkspaceSettingPB } from '@/services/backend/models/flowy-folder2/workspace';
 import { UserSetting } from '$app/interfaces';
 
