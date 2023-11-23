@@ -288,7 +288,7 @@ class _BoardContentState extends State<BoardContent> {
         BorderSide(
           color: Theme.of(context).brightness == Brightness.light
               ? const Color(0xFF1F2329).withOpacity(0.12)
-              : const Color(0xff59647a),
+              : const Color(0xFF59647A),
           width: 1.0,
         ),
       ),

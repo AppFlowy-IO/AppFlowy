@@ -65,6 +65,5 @@ List<Widget> _insertSeparators(
     newChildren.add(children[i]);
     newChildren.add(separatorBuilder());
   }
-  newChildren.add(children.last);
-  return newChildren;
+  return newChildren..add(children.last);
 }

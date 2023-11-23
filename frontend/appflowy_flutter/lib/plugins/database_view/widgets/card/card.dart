@@ -148,19 +148,19 @@ class _RowCardState<T> extends State<RowCard<T>> {
             direction: PopoverDirection.rightWithCenterAligned,
             popupBuilder: (popoverContext) {
               return RowActions(
-                viewId: context.read<CardBloc>().viewId,
-                rowId: context.read<CardBloc>().rowMeta.id,
+                viewId: _cardBloc.viewId,
+                rowId: _cardBloc.rowMeta.id,
                 groupId: widget.groupId,
               );
             },
             child: RowCardContainer(
               buildAccessoryWhen: () => state.isEditing == false,
-              accessories: widget.styleConfiguration.showAccessory
-                  ? [
-                      _CardEditOption(rowNotifier: rowNotifier),
-                      const CardMoreOption(),
-                    ]
-                  : [],
+              accessories: [
+                if (widget.styleConfiguration.showAccessory) ...[
+                  _CardEditOption(rowNotifier: rowNotifier),
+                  const CardMoreOption(),
+                ],
+              ],
               openAccessory: _handleOpenAccessory,
               openCard: (context) => widget.openCard(context),
               child: _CardContent<T>(
