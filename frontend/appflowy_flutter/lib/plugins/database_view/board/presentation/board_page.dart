@@ -326,13 +326,15 @@ class _BoardContentState extends State<BoardContent> {
       context.push(
         MobileCardDetailScreen.routeName,
         extra: {
-          'rowController': dataController,
+          MobileCardDetailScreen.argRowController: dataController,
+          MobileCardDetailScreen.argFieldController: fieldController,
         },
       );
     } else {
       FlowyOverlay.show(
         context: context,
         builder: (_) => RowDetailPage(
+          fieldController: fieldController,
           cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
           rowController: dataController,
         ),

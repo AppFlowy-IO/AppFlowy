@@ -54,11 +54,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: ec3ecf5
-      resolved-ref: ec3ecf58a0de453561d30e809c6dc1eed3d1aa9a
+      ref: "31acaff"
+      resolved-ref: "31acaff4f0bcd36a2946c9351dc1b5b5601b3994"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "2.0.0-beta.1"
+    version: "2.0.0"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -1130,6 +1130,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  numerus:
+    dependency: transitive
+    description:
+      name: numerus
+      sha256: ada1b55e4a505b8e4578218e57be1ce4b7968bb0e51d824082ac0c74ef18a10d
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.2"
   octo_image:
     dependency: transitive
     description:

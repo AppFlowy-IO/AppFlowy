@@ -185,7 +185,7 @@ class FlowyTextButton extends StatelessWidget {
     List<Widget> children = [];
     if (heading != null) {
       children.add(heading!);
-      children.add(const HSpace(6));
+      children.add(const HSpace(8));
     }
     children.add(
       FlowyText(

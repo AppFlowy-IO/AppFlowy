@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:leak_tracker/leak_tracker.dart';
 
 import '../startup.dart';
 
-bool _enable = true;
-const JsonEncoder _encoder = JsonEncoder.withIndent('  ');
+bool _enable = false;
 
 class MemoryLeakDetectorTask extends LaunchTask {
   MemoryLeakDetectorTask();

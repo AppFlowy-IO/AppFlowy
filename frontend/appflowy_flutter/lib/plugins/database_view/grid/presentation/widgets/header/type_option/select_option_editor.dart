@@ -62,20 +62,14 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
               ),
               const VSpace(10),
               const _DeleteTag(),
+              const TypeOptionSeparator(),
+              SelectOptionColorList(
+                selectedColor: state.option.color,
+                onSelectedColor: (color) => context
+                    .read<EditSelectOptionBloc>()
+                    .add(EditSelectOptionEvent.updateColor(color)),
+              ),
             ];
-
-            if (showOptions) {
-              cells.add(const TypeOptionSeparator());
-              cells.add(
-                SelectOptionColorList(
-                  selectedColor: state.option.color,
-                  onSelectedColor: (color) => context
-                      .read<EditSelectOptionBloc>()
-                      .add(EditSelectOptionEvent.updateColor(color)),
-                ),
-              );
-            }
-
             return SizedBox(
               width: 180,
               child: ListView.builder(
@@ -188,7 +182,6 @@ class SelectOptionColorList extends StatelessWidget {
         ),
         ListView.separated(
           shrinkWrap: true,
-          controller: ScrollController(),
           separatorBuilder: (context, index) {
             return VSpace(GridSize.typeOptionSeparatorHeight);
           },

@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 class BottomSheetActionWidget extends StatelessWidget {
   const BottomSheetActionWidget({
     super.key,
-    required this.svg,
+    this.svg,
     required this.text,
     required this.onTap,
     this.iconColor,
   });
 
-  final FlowySvgData svg;
+  final FlowySvgData? svg;
   final String text;
   final VoidCallback onTap;
   final Color? iconColor;
@@ -21,9 +21,23 @@ class BottomSheetActionWidget extends StatelessWidget {
     final iconColor =
         this.iconColor ?? Theme.of(context).colorScheme.onBackground;
 
+    if (svg == null) {
+      return OutlinedButton(
+        style: Theme.of(context)
+            .outlinedButtonTheme
+            .style
+            ?.copyWith(alignment: Alignment.center),
+        onPressed: onTap,
+        child: FlowyText(
+          text,
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     return OutlinedButton.icon(
       icon: FlowySvg(
-        svg,
+        svg!,
         size: const Size.square(22.0),
         color: iconColor,
       ),
