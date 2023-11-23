@@ -103,6 +103,7 @@ class _EventCardState extends State<EventCard> {
             MobileCardDetailScreen.routeName,
             extra: {
               MobileCardDetailScreen.argRowController: dataController,
+              MobileCardDetailScreen.argFieldController: widget.fieldController,
             },
           );
         } else {
