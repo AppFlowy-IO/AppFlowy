@@ -99,16 +99,13 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                       return const SizedBox.shrink();
                     }
 
-                    return SizedBox(
-                      height: 30,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: PlatformExtension.isMobile ? 20 : 40,
-                        ),
-                        child: PlatformExtension.isMobile
-                            ? const MobileTabBarHeader()
-                            : const TabBarHeader(),
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: PlatformExtension.isMobile ? 20 : 40,
                       ),
+                      child: PlatformExtension.isMobile
+                          ? const MobileTabBarHeader()
+                          : const TabBarHeader(),
                     );
                   },
                 );

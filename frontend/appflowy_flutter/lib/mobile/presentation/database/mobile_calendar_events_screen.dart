@@ -38,7 +38,7 @@ class MobileCalendarEventsScreen extends StatefulWidget {
 
 class _MobileCalendarEventsScreenState
     extends State<MobileCalendarEventsScreen> {
-  late List<CalendarDayEvent> _events = widget.events;
+  late final List<CalendarDayEvent> _events = widget.events;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +75,7 @@ class _MobileCalendarEventsScreenState
                     return ListTile(
                       dense: true,
                       title: EventCard(
+                        fieldController: widget.calendarBloc.fieldController,
                         event: event,
                         viewId: widget.viewId,
                         rowCache: widget.rowCache,
