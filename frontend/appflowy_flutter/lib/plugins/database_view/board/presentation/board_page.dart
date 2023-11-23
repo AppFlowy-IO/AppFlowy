@@ -10,23 +10,22 @@ import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../widgets/card/cells/card_cell.dart';
+import '../../widgets/card/card.dart';
 import '../../widgets/card/card_cell_builder.dart';
+import '../../widgets/card/cells/card_cell.dart';
 import '../../widgets/row/cell_builder.dart';
 import '../application/board_bloc.dart';
-import '../../widgets/card/card.dart';
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';
 
@@ -361,11 +360,15 @@ class _BoardTrailingState extends State<BoardTrailing> {
         }
         return KeyEventResult.ignored;
       },
-    )..addListener(() {
-        if (!_focusNode.hasFocus) {
-          _cancelAddNewGroup();
-        }
-      });
+    )..addListener(_onFocusChanged);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChanged);
+    _focusNode.dispose();
+    _textController.dispose();
+    super.dispose();
   }
 
   @override
@@ -429,5 +432,11 @@ class _BoardTrailingState extends State<BoardTrailing> {
         ),
       ),
     );
+  }
+
+  void _onFocusChanged() {
+    if (!_focusNode.hasFocus) {
+      _cancelAddNewGroup();
+    }
   }
 }

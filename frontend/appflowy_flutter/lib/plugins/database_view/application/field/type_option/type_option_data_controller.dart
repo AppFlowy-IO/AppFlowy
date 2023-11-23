@@ -1,10 +1,10 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:flowy_infra/notifier.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:dartz/dartz.dart';
-import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
 import '../field_service.dart';
 import 'type_option_context.dart';
@@ -109,5 +109,9 @@ class TypeOptionController {
 
   void removeFieldListener(void Function() listener) {
     _fieldNotifier.removeListener(listener);
+  }
+
+  void dispose() {
+    _fieldNotifier.dispose();
   }
 }

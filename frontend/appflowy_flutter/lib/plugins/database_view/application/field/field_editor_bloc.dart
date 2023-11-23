@@ -1,9 +1,10 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'field_service.dart';
 import 'type_option/type_option_context.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'type_option/type_option_data_controller.dart';
 
 part 'field_editor_bloc.freezed.dart';
@@ -71,6 +72,12 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
         );
       },
     );
+  }
+
+  @override
+  Future<void> close() {
+    dataController.dispose();
+    return super.close();
   }
 }
 

@@ -1,7 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
 import '../../application/cell/cell_service.dart';
 import 'accessory/cell_accessory.dart';
 import 'accessory/cell_shortcuts.dart';
@@ -168,7 +169,9 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
 
   @override
   void dispose() {
+    widget.onCellFocus.dispose();
     widget.requestFocus.removeAllListener();
+    widget.requestFocus.dispose();
     super.dispose();
   }
 
@@ -239,6 +242,7 @@ class RequestFocusListener extends ChangeNotifier {
   void removeAllListener() {
     if (_listener != null) {
       removeListener(_listener!);
+      _listener = null;
     }
   }
 

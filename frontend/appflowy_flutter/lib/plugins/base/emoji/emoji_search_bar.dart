@@ -33,6 +33,12 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
   final TextEditingController controller = TextEditingController();
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
