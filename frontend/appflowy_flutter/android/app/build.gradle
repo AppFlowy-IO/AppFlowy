@@ -53,7 +53,7 @@ android {
         multiDexEnabled true
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_STL=c++_shared"
+                arguments "-DANDROID_ARM_NEON=TRUE"
             }
         }
     }
