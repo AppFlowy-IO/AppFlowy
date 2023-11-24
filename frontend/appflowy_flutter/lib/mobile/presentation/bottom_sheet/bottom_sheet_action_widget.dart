@@ -41,7 +41,10 @@ class BottomSheetActionWidget extends StatelessWidget {
         size: const Size.square(22.0),
         color: iconColor,
       ),
-      label: FlowyText(text),
+      label: FlowyText(
+        text,
+        overflow: TextOverflow.ellipsis,
+      ),
       style: Theme.of(context)
           .outlinedButtonTheme
           .style
