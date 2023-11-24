@@ -91,7 +91,7 @@ class SelectOptionTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 2, horizontal: 8.0);
+        const EdgeInsets.symmetric(vertical: 1, horizontal: 8.0);
     if (onRemove != null) {
       padding = padding.copyWith(right: 2.0);
     }
@@ -106,7 +106,7 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(
+            child: FlowyText.regular(
               name,
               fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
@@ -135,11 +135,11 @@ class SelectOptionTagCell extends StatelessWidget {
   final void Function(SelectOptionPB) onSelected;
   final SelectOptionPB option;
   const SelectOptionTagCell({
+    super.key,
     required this.option,
     required this.onSelected,
     this.children = const [],
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

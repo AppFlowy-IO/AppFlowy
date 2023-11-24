@@ -3,21 +3,18 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
-
-import '../../grid/presentation/layout/sizes.dart';
-import '../../grid/presentation/widgets/header/field_editor.dart';
 
 class DatabasePropertyList extends StatefulWidget {
   final String viewId;
@@ -49,6 +46,7 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
             return DatabasePropertyCell(
               key: ValueKey(field.id),
               viewId: widget.viewId,
+              fieldController: widget.fieldController,
               fieldInfo: field,
               popoverMutex: _popoverMutex,
               index: index,
@@ -93,6 +91,7 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
 
 @visibleForTesting
 class DatabasePropertyCell extends StatefulWidget {
+  final FieldController fieldController;
   final FieldInfo fieldInfo;
   final String viewId;
   final PopoverMutex popoverMutex;
@@ -104,6 +103,7 @@ class DatabasePropertyCell extends StatefulWidget {
     required this.viewId,
     required this.popoverMutex,
     required this.index,
+    required this.fieldController,
   });
 
   @override
@@ -120,6 +120,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
       visiblity != null && visiblity != FieldVisibility.AlwaysHidden
           ? FlowySvgs.show_m
           : FlowySvgs.hide_m,
+      size: const Size.square(16),
       color: Theme.of(context).iconTheme.color,
     );
 
@@ -182,7 +183,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
                     ),
                   );
             },
-            icon: visibleIcon.padding(all: 4.0),
+            icon: visibleIcon,
           ),
           onTap: () => _popoverController.show(),
         ).padding(horizontal: 6.0),
@@ -190,11 +191,8 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
       popupBuilder: (BuildContext context) {
         return FieldEditor(
           viewId: widget.viewId,
-          fieldInfo: widget.fieldInfo,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.viewId,
-            field: widget.fieldInfo.field,
-          ),
+          field: widget.fieldInfo.field,
+          fieldController: widget.fieldController,
         );
       },
     );

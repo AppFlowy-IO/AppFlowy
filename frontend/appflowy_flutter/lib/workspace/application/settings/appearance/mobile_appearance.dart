@@ -239,6 +239,9 @@ class MobileAppearance extends BaseAppearance {
       ),
       colorScheme: colorTheme,
       indicatorColor: Colors.blue,
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: colorTheme.onBackground,
+      ),
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,

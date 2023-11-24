@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
+import 'package:appflowy/plugins/database_view/widgets/card/container/card_container.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -15,8 +16,8 @@ const defaultLastCardName = 'Card 3';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('board add row test', () {
-    testWidgets('Add card from header', (tester) async {
+  group('board add row test:', () {
+    testWidgets('from header', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -45,7 +46,7 @@ void main() {
       const newCardName = 'Card 4';
       await tester.enterText(
         find.descendant(
-          of: find.byType(IntrinsicHeight),
+          of: find.byType(RowCardContainer),
           matching: find.byType(TextField),
         ),
         newCardName,
@@ -59,7 +60,7 @@ void main() {
       expect(firstCardText.text, newCardName);
     });
 
-    testWidgets('Add card from footer', (tester) async {
+    testWidgets('from footer', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -87,7 +88,7 @@ void main() {
       const newCardName = 'Card 4';
       await tester.enterText(
         find.descendant(
-          of: find.byType(IntrinsicHeight),
+          of: find.byType(RowCardContainer),
           matching: find.byType(TextField),
         ),
         newCardName,

@@ -47,7 +47,7 @@ dependencies:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: 'ec3ecf5'
+      ref: '31acaff'
 
   appflowy_popover:
     path: packages/appflowy_popover
@@ -108,7 +108,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   super_clipboard: ^0.6.3
-  go_router: ^10.1.2
+  go_router: ^12.1.1
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
   flutter_emoji_mart:
@@ -149,8 +149,9 @@ dependency_overrides:
   supabase_flutter:
     git:
       url: https://github.com/LucasXu0/supabase-flutter
-      ref: 852119e
+      ref: 4bd9139
       path: packages/supabase_flutter
+
   app_links:
     git:
       url: https://github.com/LucasXu0/app_links

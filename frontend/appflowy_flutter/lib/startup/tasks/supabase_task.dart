@@ -24,7 +24,7 @@ const hiveBoxName = 'appflowy_supabase_authentication';
 
 // Used to store the session of the supabase in case of the user switch the different folder.
 Supabase? supabase;
-SupbaseRealtimeService? realtimeService;
+SupabaseRealtimeService? realtimeService;
 
 class InitSupabaseTask extends LaunchTask {
   @override
@@ -46,7 +46,7 @@ class InitSupabaseTask extends LaunchTask {
       await realtimeService?.dispose();
       realtimeService = null;
     }
-    realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
+    realtimeService = SupabaseRealtimeService(supabase: initializedSupabase);
 
     supabase = initializedSupabase;
 

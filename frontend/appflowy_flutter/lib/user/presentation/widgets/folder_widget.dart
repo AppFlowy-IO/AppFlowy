@@ -257,13 +257,15 @@ class _FolderCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      FlowyText.regular(
-                        title,
-                        fontSize: FontSizes.s14,
-                        fontFamily: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w500,
-                        ).fontFamily,
-                        maxLines: null,
+                      Flexible(
+                        child: FlowyText.regular(
+                          title,
+                          fontSize: FontSizes.s14,
+                          fontFamily: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w500,
+                          ).fontFamily,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       Tooltip(
                         decoration: BoxDecoration(

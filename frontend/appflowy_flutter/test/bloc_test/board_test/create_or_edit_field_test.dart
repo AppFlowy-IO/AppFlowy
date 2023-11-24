@@ -40,13 +40,14 @@ void main() {
     );
 
     final editorBloc = FieldEditorBloc(
-      isGroupField: fieldInfo.isGroupField,
+      viewId: context.gridView.id,
       loader: loader,
       field: fieldInfo.field,
+      fieldController: context.fieldController,
     )..add(const FieldEditorEvent.initial());
     await boardResponseFuture();
 
-    editorBloc.add(const FieldEditorEvent.updateName('Hello world'));
+    editorBloc.add(const FieldEditorEvent.renameField('Hello world'));
     await boardResponseFuture();
 
     // assert the groups were not changed

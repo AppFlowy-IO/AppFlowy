@@ -17,7 +17,7 @@ import 'auth/auth_service.dart';
 /// based on the authentication state of a user. The service is initialized with
 /// a reference to a Supabase instance and sets up the necessary subscriptions
 /// accordingly.
-class SupbaseRealtimeService {
+class SupabaseRealtimeService {
   final Supabase supabase;
   final _authStateListener = UserAuthStateListener();
 
@@ -26,7 +26,7 @@ class SupbaseRealtimeService {
   RealtimeChannel? channel;
   StreamSubscription<AuthState>? authStateSubscription;
 
-  SupbaseRealtimeService({required this.supabase}) {
+  SupabaseRealtimeService({required this.supabase}) {
     _subscribeAuthState();
     _subscribeTablesChanges();
 
