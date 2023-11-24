@@ -42,4 +42,9 @@ class KVKeys {
   /// The value is a boolean string.
   static const String showRenameDialogWhenCreatingNewFile =
       'showRenameDialogWhenCreatingNewFile';
+
+  static const String kCloudType = 'kCloudType';
+  static const String kAppflowyCloudBaseURL = 'kAppFlowyCloudBaseURL';
+  static const String kSupabaseURL = 'kSupbaseURL';
+  static const String kSupabaseAnonKey = 'kSupabaseAnonKey';
 }

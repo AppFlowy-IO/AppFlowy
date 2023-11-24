@@ -10,9 +10,10 @@ import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart'
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
+import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_block_settings_screen.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -69,6 +70,9 @@ GoRouter generateRouter(Widget child) {
         // emoji picker
         _mobileEmojiPickerPageRoute(),
         _mobileImagePickerPageRoute(),
+
+        // color picker
+        _mobileColorPickerPageRoute(),
 
         // code language picker
         _mobileCodeLanguagePickerPageRoute(),
@@ -261,6 +265,22 @@ GoRoute _mobileEmojiPickerPageRoute() {
           state.uri.queryParameters[MobileEmojiPickerScreen.pageTitle];
       return MaterialPage(
         child: MobileEmojiPickerScreen(
+          title: title,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileColorPickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileColorPickerScreen.routeName,
+    pageBuilder: (context, state) {
+      final title =
+          state.uri.queryParameters[MobileColorPickerScreen.pageTitle] ?? '';
+      return MaterialPage(
+        child: MobileColorPickerScreen(
           title: title,
         ),
       );

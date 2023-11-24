@@ -33,7 +33,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
             settingItemList: [
               MobileSettingItem(
                 name: userName,
-                subtitle: isCloudEnabled
+                subtitle: isAuthEnabled
                     ? Text(
                         userProfile.email,
                         style: theme.textTheme.bodyMedium?.copyWith(

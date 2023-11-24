@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/define.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -158,10 +157,8 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
             filled: true,
             fillColor: Theme.of(context).colorScheme.surface,
             hoverColor: Colors.transparent,
-            contentPadding: EdgeInsets.symmetric(
-              vertical: CardSizes.cardCellVPadding + 4,
-              horizontal: 8,
-            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.primary,

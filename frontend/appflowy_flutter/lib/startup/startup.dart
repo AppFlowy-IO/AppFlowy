@@ -45,7 +45,7 @@ class FlowyRunner {
     await getIt.reset();
 
     // Specify the env
-    initGetIt(getIt, mode, f, config);
+    await initGetIt(getIt, mode, f, config);
 
     final applicationDataDirectory =
         await getIt<ApplicationDataStorage>().getPath().then(

@@ -68,8 +68,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         ),
         const VSpace(32),
         SizedBox(
-          width:
-              PlatformExtension.isMobile ? size.width - 32 : size.width * 0.5,
+          width: size.width * 0.7,
           child: FolderWidget(
             createFolderCallback: () async {
               _didCustomizeFolder = true;
