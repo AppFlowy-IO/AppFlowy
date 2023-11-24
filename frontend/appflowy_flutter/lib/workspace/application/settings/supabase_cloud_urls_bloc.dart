@@ -1,8 +1,10 @@
 import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
@@ -33,6 +35,21 @@ class SupabaseCloudURLsBloc
             );
             await setSupbaseServer(none(), none());
           } else {
+            // The anon key can't be empty if the url is not empty.
+            if (state.upatedAnonKey.isEmpty) {
+              emit(
+                state.copyWith(
+                  urlError: none(),
+                  anonKeyError: some(
+                    LocaleKeys.settings_menu_cloudSupabaseAnonKeyCanNotBeEmpty
+                        .tr(),
+                  ),
+                  restartApp: false,
+                ),
+              );
+              return;
+            }
+
             validateUrl(state.updatedUrl).fold(
               (error) => emit(state.copyWith(urlError: Some(error))),
               (_) async {
