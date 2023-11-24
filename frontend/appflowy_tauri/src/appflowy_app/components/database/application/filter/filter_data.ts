@@ -1,9 +1,10 @@
-import { TextFilterConditionPB, FieldType, NumberFilterConditionPB } from '@/services/backend';
+import { FieldType, NumberFilterConditionPB, TextFilterConditionPB } from '@/services/backend';
 import { UndeterminedFilter } from '$app/components/database/application';
 
 export function getDefaultFilter(fieldType: FieldType): UndeterminedFilter['data'] | undefined {
   switch (fieldType) {
     case FieldType.RichText:
+    case FieldType.URL:
       return {
         condition: TextFilterConditionPB.Contains,
         content: '',

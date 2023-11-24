@@ -51,6 +51,7 @@ export type UndeterminedFilter = TextFilter | SelectFilter | NumberFilter;
 export function filterDataToPB(data: UndeterminedFilter['data'], fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
+    case FieldType.URL:
       return TextFilterPB.fromObject({
         condition: (data as TextFilterData).condition,
         content: (data as TextFilterData).content,
@@ -93,6 +94,7 @@ export function pbToNumberFilterData(pb: NumberFilterPB): NumberFilterData {
 export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
+    case FieldType.URL:
       return pbToTextFilterData(TextFilterPB.deserialize(bytes));
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:

@@ -16,6 +16,7 @@ const FieldTypeGroup = [
       FieldType.DateTime,
       FieldType.Checkbox,
       FieldType.Checklist,
+      FieldType.URL,
     ],
   },
   {

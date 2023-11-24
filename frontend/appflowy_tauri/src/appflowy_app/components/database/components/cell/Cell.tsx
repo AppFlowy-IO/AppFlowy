@@ -7,6 +7,7 @@ import { TextCell } from './TextCell';
 import { SelectCell } from './SelectCell';
 import { CheckboxCell } from './CheckboxCell';
 import NumberCell from '$app/components/database/components/cell/NumberCell';
+import URLCell from '$app/components/database/components/cell/URLCell';
 
 export interface CellProps {
   rowId: string;
@@ -31,6 +32,8 @@ const getCellComponent = (fieldType: FieldType) => {
       return CheckboxCell as FC<CellComponentProps>;
     case FieldType.Number:
       return NumberCell as FC<CellComponentProps>;
+    case FieldType.URL:
+      return URLCell as FC<CellComponentProps>;
     default:
       return null;
   }

@@ -26,6 +26,7 @@ type FilterComponent = FC<FilterComponentProps>;
 const getFilterComponent = (field: FieldData) => {
   switch (field.type) {
     case FieldType.RichText:
+    case FieldType.URL:
       return TextFilter as FilterComponent;
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:

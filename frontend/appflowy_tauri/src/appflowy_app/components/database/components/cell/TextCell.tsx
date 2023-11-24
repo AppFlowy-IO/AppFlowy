@@ -21,7 +21,6 @@ export const TextCell: FC<{
   const { hoverRowId } = useGridUIStateSelector();
   const isHover = hoverRowId === cell?.rowId;
   const { setRowHover } = useGridUIStateDispatcher();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const showExpandIcon = cell && !editing && isHover && isPrimary;
   const handleClose = () => {
@@ -48,14 +47,6 @@ export const TextCell: FC<{
     }
   }, [editing, setRowHover]);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-      // set the cursor to the end of the text
-      textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
-    }
-  }, []);
-
   const content = useMemo(() => {
     if (cell && typeof cell.data === 'string') {
       return cell.data;
@@ -65,7 +56,7 @@ export const TextCell: FC<{
   }, [cell, placeholder]);
 
   return (
-    <div className={'relative'}>
+    <div className={'relative h-full'}>
       <CellText
         style={{
           width: `${field.width}px`,
@@ -74,7 +65,7 @@ export const TextCell: FC<{
         ref={cellRef}
         onClick={handleClick}
       >
-        <div className={`flex w-full items-center whitespace-break-spaces break-all`}>
+        <div className={`flex h-full w-full items-center whitespace-break-spaces break-all`}>
           {icon && <div className={'mr-2'}>{icon}</div>}
           {content}
         </div>
