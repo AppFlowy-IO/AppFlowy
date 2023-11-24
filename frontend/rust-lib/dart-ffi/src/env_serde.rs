@@ -25,13 +25,7 @@ impl AppFlowyDartConfiguration {
   pub fn write_env_from(env_str: &str) {
     let configuration = Self::from_str(env_str);
     configuration.cloud_type.write_env();
-    let is_valid = configuration.appflowy_cloud_config.write_env().is_ok();
-    // Note on Configuration Priority:
-    // If both Supabase config and AppFlowy cloud config are provided in the '.env' file,
-    // the AppFlowy cloud config will be prioritized and the Supabase config ignored.
-    // Ensure only one of these configurations is active at any given time.
-    if !is_valid {
-      let _ = configuration.supabase_config.write_env();
-    }
+    configuration.appflowy_cloud_config.write_env();
+    configuration.supabase_config.write_env();
   }
 }

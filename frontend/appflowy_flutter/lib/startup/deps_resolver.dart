@@ -43,6 +43,10 @@ class DependencyResolver {
     GetIt getIt,
     IntegrationMode mode,
   ) async {
+    // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
+    getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
+
+    await _resolveCloudDeps(getIt);
     _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
@@ -52,12 +56,23 @@ class DependencyResolver {
   }
 }
 
+Future<void> _resolveCloudDeps(GetIt getIt) async {
+  final cloudType = await getCloudType();
+  final appflowyCloudConfig = await getAppFlowyCloudConfig();
+  final supabaseCloudConfig = await getSupabaseCloudConfig();
+  getIt.registerFactory<AppFlowyCloudSharedEnv>(() {
+    return AppFlowyCloudSharedEnv(
+      cloudType: cloudType,
+      appflowyCloudConfig: appflowyCloudConfig,
+      supabaseConfig: supabaseCloudConfig,
+    );
+  });
+}
+
 void _resolveCommonService(
   GetIt getIt,
   IntegrationMode mode,
 ) async {
-  // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
-  getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
   if (mode.isTest) {
     getIt.registerFactory<ApplicationDataStorage>(
@@ -115,7 +130,7 @@ void _resolveCommonService(
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   switch (currentCloudType()) {
-    case CloudType.unknown:
+    case CloudType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
           AuthTypePB.Local,

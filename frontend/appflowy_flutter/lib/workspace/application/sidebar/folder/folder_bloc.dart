@@ -35,7 +35,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
   Future<void> _setFolderExpandStatus(bool isExpanded) async {
     final result = await getIt<KeyValueStorage>().get(KVKeys.expandedViews);
     final map = result.fold(
-      (l) => {},
+      () => {},
       (r) => jsonDecode(r),
     );
     if (isExpanded) {
@@ -50,7 +50,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
   Future<bool> _getFolderExpandStatus() async {
     return getIt<KeyValueStorage>().get(KVKeys.expandedViews).then((result) {
-      return result.fold((l) => true, (r) {
+      return result.fold(() => true, (r) {
         final map = jsonDecode(r);
         return map[state.type.name] ?? true;
       });

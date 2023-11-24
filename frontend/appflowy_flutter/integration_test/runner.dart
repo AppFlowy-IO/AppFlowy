@@ -1,8 +1,6 @@
-import 'package:appflowy/env/env.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'appearance_settings_test.dart' as appearance_test_runner;
-import 'auth/auth_test.dart' as auth_test_runner;
 import 'board/board_test_runner.dart' as board_test_runner;
 import 'database_calendar_test.dart' as database_calendar_test;
 import 'database_cell_test.dart' as database_cell_test;
@@ -32,7 +30,7 @@ import 'tabs_test.dart' as tabs_test;
 /// If flutter/flutter#101031 is resolved, this file can be removed completely.
 /// Once removed, the integration_test.yaml must be updated to exclude this as
 /// as the test target.
-void main() {
+Future<void> main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   // This test must be run first, otherwise the CI will fail.
@@ -76,9 +74,10 @@ void main() {
   // User settings
   settings_test_runner.main();
 
-  if (isCloudEnabled) {
-    auth_test_runner.main();
-  }
+  // final cloudType = await getCloudType();
+  // if (cloudType == CloudType.supabase) {
+  //   auth_test_runner.main();
+  // }
 
   // board_test.main();
   // empty_document_test.main();

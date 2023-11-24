@@ -36,8 +36,8 @@ class InitSupabaseTask extends LaunchTask {
     supabase?.dispose();
     supabase = null;
     final initializedSupabase = await Supabase.initialize(
-      url: Env.supabaseUrl,
-      anonKey: Env.supabaseAnonKey,
+      url: getIt<AppFlowyCloudSharedEnv>().supabaseConfig.url,
+      anonKey: getIt<AppFlowyCloudSharedEnv>().supabaseConfig.anon_key,
       debug: kDebugMode,
       localStorage: const SupabaseLocalStorage(),
     );

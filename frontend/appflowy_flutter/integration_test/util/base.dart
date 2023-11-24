@@ -83,7 +83,7 @@ extension AppFlowyTestBase on WidgetTester {
   }
 
   Future<void> waitUntilSignInPageShow() async {
-    if (isCloudEnabled) {
+    if (isAuthEnabled) {
       final finder = find.byType(SignInAnonymousButton);
       await pumpUntilFound(finder);
       expect(finder, findsOneWidget);
