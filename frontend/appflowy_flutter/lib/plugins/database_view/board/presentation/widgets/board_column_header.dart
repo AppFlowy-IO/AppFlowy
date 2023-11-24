@@ -118,6 +118,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                 const HSpace(4),
                 FlowyTooltip(
                   message: LocaleKeys.board_column_addToColumnTopTooltip.tr(),
+                  preferBelow: false,
                   child: FlowyIconButton(
                     width: 20,
                     icon: const FlowySvg(FlowySvgs.add_s),
