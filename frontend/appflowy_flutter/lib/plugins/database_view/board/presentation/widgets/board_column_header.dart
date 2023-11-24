@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -260,7 +261,14 @@ enum GroupOptions {
             .add(BoardEvent.toggleGroupVisibility(group, false));
         break;
       case delete:
-        context.read<BoardBloc>().add(BoardEvent.deleteGroup(group.groupId));
+        NavigatorAlertDialog(
+          title: LocaleKeys.board_column_deleteColumnConfirmation.tr(),
+          confirm: () {
+            context
+                .read<BoardBloc>()
+                .add(BoardEvent.deleteGroup(group.groupId));
+          },
+        ).show(context);
         break;
     }
   }
