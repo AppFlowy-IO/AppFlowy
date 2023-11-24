@@ -1,4 +1,4 @@
-import { Divider, Menu, MenuProps, OutlinedInput } from '@mui/material';
+import { Divider, Menu, MenuList, MenuProps } from '@mui/material';
 import { ChangeEventHandler, FC, useCallback, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { Field, fieldService } from '../../application';
@@ -7,6 +7,8 @@ import FieldTypeMenuExtension from '$app/components/database/components/field/Fi
 import FieldTypeSelect from '$app/components/database/components/field/FieldTypeSelect';
 import { FieldType } from '@/services/backend';
 import { Log } from '$app/utils/log';
+import TextField from '@mui/material/TextField';
+import Popover from '@mui/material/Popover';
 
 export interface GridFieldMenuProps {
   field: Field;
@@ -36,16 +38,6 @@ export const FieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClo
     }
   }, [viewId, field, inputtingName]);
 
-  const fieldNameInput = (
-    <OutlinedInput
-      className='mx-3 mb-5 mt-1 !rounded-[10px]'
-      size='small'
-      value={inputtingName}
-      onChange={handleInput}
-      onBlur={handleBlur}
-    />
-  );
-
   const isPrimary = field.isPrimary;
 
   const onUpdateFieldType = useCallback(
@@ -61,18 +53,40 @@ export const FieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClo
   );
 
   return (
-    <Menu keepMounted={false} anchorEl={anchorEl} open={open} onClose={onClose}>
-      <div>
-        {fieldNameInput}
-        {!isPrimary && (
-          <>
-            <FieldTypeSelect field={field} onUpdateFieldType={onUpdateFieldType} />
-            <Divider />
-          </>
-        )}
-        <FieldTypeMenuExtension field={field} />
-        <FieldMenuActions isPrimary={isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
-      </div>
-    </Menu>
+    <Popover
+      transformOrigin={{
+        vertical: -4,
+        horizontal: 'left',
+      }}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'left',
+      }}
+      keepMounted={false}
+      anchorEl={anchorEl}
+      open={open}
+      onClose={onClose}
+    >
+      <TextField
+        className='mx-5 mb-2 mt-3 rounded-[10px]'
+        size='small'
+        autoFocus={true}
+        value={inputtingName}
+        onChange={handleInput}
+        onBlur={handleBlur}
+      />
+      <MenuList>
+        <div>
+          {!isPrimary && (
+            <>
+              <FieldTypeSelect field={field} onUpdateFieldType={onUpdateFieldType} />
+              <Divider />
+            </>
+          )}
+          <FieldTypeMenuExtension field={field} />
+          <FieldMenuActions isPrimary={isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
+        </div>
+      </MenuList>
+    </Popover>
   );
 };

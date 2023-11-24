@@ -9,28 +9,29 @@ import FilterActions from '$app/components/database/components/filter/FilterActi
 import { updateFilter } from '$app/components/database/application/filter/filter_service';
 import { useViewId } from '$app/hooks';
 import SelectFilter from './select_filter/SelectFilter';
+import NumberFilter from '$app/components/database/components/filter/number_filter/NumberFilter';
 
 interface Props {
   filter: FilterType;
   field: FieldData;
 }
 
+interface FilterComponentProps {
+  filter: FilterType;
+  field: FieldData;
+  onChange: (data: UndeterminedFilter['data']) => void;
+}
+
+type FilterComponent = FC<FilterComponentProps>;
 const getFilterComponent = (field: FieldData) => {
   switch (field.type) {
     case FieldType.RichText:
-      return TextFilter as FC<{
-        filter: FilterType;
-        field: FieldData;
-        onChange: (data: UndeterminedFilter['data']) => void;
-      }>;
+      return TextFilter as FilterComponent;
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:
-      return SelectFilter as FC<{
-        filter: FilterType;
-        field: FieldData;
-        onChange: (data: UndeterminedFilter['data']) => void;
-      }>;
-
+      return SelectFilter as FilterComponent;
+    case FieldType.Number:
+      return NumberFilter as FilterComponent;
     default:
       return null;
   }

@@ -38,6 +38,17 @@ export interface CheckboxTypeOption {
   isSelected?: boolean;
 }
 
+export type UndeterminedTypeOptionData = TextTypeOption | NumberTypeOption | SelectTypeOption | CheckboxTypeOption;
+
+export function typeOptionDataToPB(data: UndeterminedTypeOptionData, fieldType: FieldType) {
+  switch (fieldType) {
+    case FieldType.Number:
+      return NumberTypeOptionPB.fromObject(data as NumberTypeOption);
+    default:
+      return null;
+  }
+}
+
 function pbToSelectTypeOption(pb: SingleSelectTypeOptionPB | MultiSelectTypeOptionPB): SelectTypeOption {
   return {
     options: pb.options?.map(pbToSelectOption),

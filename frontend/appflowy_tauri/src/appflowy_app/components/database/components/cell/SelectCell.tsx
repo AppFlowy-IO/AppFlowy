@@ -45,7 +45,7 @@ export const SelectCell: FC<{
         onClick={(e) => {
           setAnchorEl(e.currentTarget);
         }}
-        className={'flex h-full w-full cursor-pointer items-center gap-2 overflow-x-hidden px-4 py-1'}
+        className={'flex h-full w-full cursor-pointer items-center gap-2 overflow-x-hidden px-2 py-1'}
       >
         {renderSelectedOptions(selectedIds)}
       </div>

@@ -106,16 +106,17 @@ function SelectCellActions({
   );
 
   return (
-    <div>
+    <div className={'text-base'}>
       {searchInput}
-      <ListSubheader className='mb-2 mt-4 text-xs'>
+      <div className='mx-4 mb-2 mt-4 text-xs'>
         {shouldCreateOption ? t('grid.selectOption.createNew') : t('grid.selectOption.orSelectOne')}
-      </ListSubheader>
+      </div>
       {shouldCreateOption ? (
         <CreateOption label={newOptionName} onClick={handleNewTagClick} />
       ) : (
         filteredOptions.map((option) => (
           <MenuItem
+            className={'px-2'}
             onClick={() => {
               handleClickOption(option.id);
             }}

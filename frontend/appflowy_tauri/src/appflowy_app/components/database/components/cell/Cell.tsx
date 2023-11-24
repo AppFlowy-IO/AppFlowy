@@ -6,6 +6,7 @@ import { useCell } from './Cell.hooks';
 import { TextCell } from './TextCell';
 import { SelectCell } from './SelectCell';
 import { CheckboxCell } from './CheckboxCell';
+import NumberCell from '$app/components/database/components/cell/NumberCell';
 
 export interface CellProps {
   rowId: string;
@@ -15,22 +16,28 @@ export interface CellProps {
   placeholder?: string;
 }
 
+interface CellComponentProps {
+  field: Field;
+  cell?: CellType;
+}
 const getCellComponent = (fieldType: FieldType) => {
   switch (fieldType) {
     case FieldType.RichText:
-      return TextCell as FC<{ field: Field; cell?: CellType }>;
+      return TextCell as FC<CellComponentProps>;
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:
-      return SelectCell as FC<{ field: Field; cell?: CellType }>;
+      return SelectCell as FC<CellComponentProps>;
     case FieldType.Checkbox:
-      return CheckboxCell as FC<{ field: Field; cell?: CellType }>;
+      return CheckboxCell as FC<CellComponentProps>;
+    case FieldType.Number:
+      return NumberCell as FC<CellComponentProps>;
     default:
       return null;
   }
 };
 
 export const Cell: FC<CellProps> = ({ rowId, field, ...props }) => {
-  const cell = useCell(rowId, field.id, field.type);
+  const cell = useCell(rowId, field);
 
   const Component = getCellComponent(field.type);
 

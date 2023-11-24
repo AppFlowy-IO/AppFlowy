@@ -20,10 +20,6 @@ function FilterFieldsMenu({
     async (event: MouseEvent, field: Field) => {
       const filterData = getDefaultFilter(field.type);
 
-      if (!filterData) {
-        return;
-      }
-
       await insertFilter({
         viewId,
         fieldId: field.id,

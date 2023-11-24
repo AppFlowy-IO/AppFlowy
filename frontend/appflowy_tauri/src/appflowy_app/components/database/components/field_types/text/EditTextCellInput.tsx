@@ -36,6 +36,7 @@ function EditTextCellInput({ editing, anchorEl, width, onClose, text, onInput }:
       }}
       transitionDuration={0}
       onClose={onClose}
+      keepMounted={false}
     >
       <TextareaAutosize
         ref={textareaRef}

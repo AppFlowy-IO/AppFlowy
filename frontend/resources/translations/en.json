@@ -538,7 +538,8 @@
       "editProperty": "Edit property",
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
-      "newColumn": "New Column"
+      "newColumn": "New Column",
+      "format": "format"
     },
     "rowPage": {
       "newField": "Add a new field",

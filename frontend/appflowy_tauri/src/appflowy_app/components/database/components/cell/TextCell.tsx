@@ -1,19 +1,8 @@
-import {
-  FC,
-  FormEventHandler,
-  Suspense,
-  lazy,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  useMemo,
-} from 'react';
-import { useViewId } from '$app/hooks';
-import { cellService, Field, TextCell as TextCellType } from '../../application';
+import { FC, FormEventHandler, Suspense, lazy, useCallback, useEffect, useRef, useMemo } from 'react';
+import { Field, TextCell as TextCellType } from '../../application';
 import { CellText } from '../../_shared';
 import { useGridUIStateDispatcher, useGridUIStateSelector } from '$app/components/database/proxy/grid/ui_state/actions';
+import { useInputCell } from '$app/components/database/components/cell/Cell.hooks';
 
 const ExpandButton = lazy(() => import('$app/components/database/components/cell/ExpandButton'));
 const EditTextCellInput = lazy(() => import('$app/components/database/components/field_types/text/EditTextCellInput'));
@@ -26,11 +15,9 @@ export const TextCell: FC<{
   placeholder?: string;
 }> = ({ field, cell, documentId, icon, placeholder }) => {
   const isPrimary = field.isPrimary;
-  const viewId = useViewId();
   const cellRef = useRef<HTMLDivElement>(null);
-  const [editing, setEditing] = useState(false);
-  const [text, setText] = useState('');
-  const [width, setWidth] = useState<number | undefined>(undefined);
+  const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);
+
   const { hoverRowId } = useGridUIStateSelector();
   const isHover = hoverRowId === cell?.rowId;
   const { setRowHover } = useGridUIStateDispatcher();
@@ -39,30 +26,21 @@ export const TextCell: FC<{
   const showExpandIcon = cell && !editing && isHover && isPrimary;
   const handleClose = () => {
     if (!cell) return;
-    if (editing) {
-      if (text !== cell.data) {
-        void cellService.updateCell(viewId, cell.rowId, field.id, text);
-      }
-
-      setEditing(false);
-    }
+    updateCell();
   };
 
   const handleClick = useCallback(() => {
     if (!cell) return;
-    setText(cell.data);
+    setValue(cell.data);
     setEditing(true);
-  }, [cell]);
+  }, [cell, setEditing, setValue]);
 
-  const handleInput = useCallback<FormEventHandler<HTMLTextAreaElement>>((event) => {
-    setText((event.target as HTMLTextAreaElement).value);
-  }, []);
-
-  useLayoutEffect(() => {
-    if (cellRef.current) {
-      setWidth(cellRef.current.clientWidth);
-    }
-  }, [editing]);
+  const handleInput = useCallback<FormEventHandler<HTMLTextAreaElement>>(
+    (event) => {
+      setValue((event.target as HTMLTextAreaElement).value);
+    },
+    [setValue]
+  );
 
   useEffect(() => {
     if (editing) {
@@ -87,9 +65,16 @@ export const TextCell: FC<{
   }, [cell, placeholder]);
 
   return (
-    <>
-      <CellText ref={cellRef} onClick={handleClick}>
-        <div className='flex w-full items-center'>
+    <div className={'relative'}>
+      <CellText
+        style={{
+          width: `${field.width}px`,
+          minHeight: 37,
+        }}
+        ref={cellRef}
+        onClick={handleClick}
+      >
+        <div className={`flex w-full items-center whitespace-break-spaces break-all`}>
           {icon && <div className={'mr-2'}>{icon}</div>}
           {content}
         </div>
@@ -100,13 +85,13 @@ export const TextCell: FC<{
           <EditTextCellInput
             editing={editing}
             anchorEl={cellRef.current}
-            width={width}
+            width={field.width}
             onClose={handleClose}
-            text={text}
+            text={value}
             onInput={handleInput}
           />
         )}
       </Suspense>
-    </>
+    </div>
   );
 };

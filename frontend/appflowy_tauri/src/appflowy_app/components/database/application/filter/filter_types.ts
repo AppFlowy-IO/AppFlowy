@@ -5,6 +5,8 @@ import {
   TextFilterPB,
   SelectOptionFilterPB,
   FilterPB,
+  NumberFilterConditionPB,
+  NumberFilterPB,
 } from '@/services/backend';
 
 export interface Filter {
@@ -29,12 +31,22 @@ export interface SelectFilter extends Filter {
   data: SelectFilterData;
 }
 
+export interface NumberFilter extends Filter {
+  fieldType: FieldType.Number;
+  data: NumberFilterData;
+}
+
 export interface SelectFilterData {
   condition?: SelectOptionConditionPB;
   optionIds?: string[];
 }
 
-export type UndeterminedFilter = TextFilter | SelectFilter;
+export interface NumberFilterData {
+  condition: NumberFilterConditionPB;
+  content?: string;
+}
+
+export type UndeterminedFilter = TextFilter | SelectFilter | NumberFilter;
 
 export function filterDataToPB(data: UndeterminedFilter['data'], fieldType: FieldType) {
   switch (fieldType) {
@@ -48,6 +60,11 @@ export function filterDataToPB(data: UndeterminedFilter['data'], fieldType: Fiel
       return SelectOptionFilterPB.fromObject({
         condition: (data as SelectFilterData).condition,
         option_ids: (data as SelectFilterData).optionIds,
+      });
+    case FieldType.Number:
+      return NumberFilterPB.fromObject({
+        condition: (data as NumberFilterData).condition,
+        content: (data as NumberFilterData).content,
       });
   }
 }
@@ -66,6 +83,13 @@ export function pbToSelectFilterData(pb: SelectOptionFilterPB): SelectFilterData
   };
 }
 
+export function pbToNumberFilterData(pb: NumberFilterPB): NumberFilterData {
+  return {
+    condition: pb.condition,
+    content: pb.content,
+  };
+}
+
 export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
@@ -73,6 +97,8 @@ export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:
       return pbToSelectFilterData(SelectOptionFilterPB.deserialize(bytes));
+    case FieldType.Number:
+      return pbToNumberFilterData(NumberFilterPB.deserialize(bytes));
   }
 }
 
