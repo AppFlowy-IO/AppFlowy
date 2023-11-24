@@ -60,20 +60,18 @@ class _MobileGridRowState extends State<MobileGridRow> {
         // The row need to rebuild when the cell count changes.
         buildWhen: (p, c) => p.rowSource != c.rowSource,
         builder: (context, state) {
-          final content = Expanded(
-            child: RowContent(
-              builder: widget.cellBuilder,
-              onExpand: () => widget.openDetailPage(
-                context,
-                widget.cellBuilder,
-              ),
-            ),
-          );
-
           return Row(
             children: [
               SizedBox(width: GridSize.leadingHeaderPadding),
-              content,
+              Expanded(
+                child: RowContent(
+                  builder: widget.cellBuilder,
+                  onExpand: () => widget.openDetailPage(
+                    context,
+                    widget.cellBuilder,
+                  ),
+                ),
+              ),
             ],
           );
         },

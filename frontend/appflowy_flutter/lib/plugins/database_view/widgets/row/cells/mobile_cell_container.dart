@@ -68,11 +68,13 @@ class MobileCellContainer extends StatelessWidget {
 
   BoxDecoration _makeBoxDecoration(BuildContext context, bool isFocus) {
     if (isFocus) {
-      final borderSide = BorderSide(
-        color: Theme.of(context).colorScheme.primary,
+      return BoxDecoration(
+        border: Border.fromBorderSide(
+          BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
       );
-
-      return BoxDecoration(border: Border.fromBorderSide(borderSide));
     }
 
     final borderSide = BorderSide(color: Theme.of(context).dividerColor);
