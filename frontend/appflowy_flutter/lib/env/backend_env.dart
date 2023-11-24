@@ -49,6 +49,10 @@ class SupabaseConfiguration {
       anon_key: '',
     );
   }
+
+  bool get isValid {
+    return url.isNotEmpty && anon_key.isNotEmpty;
+  }
 }
 
 @JsonSerializable()
@@ -74,5 +78,11 @@ class AppFlowyCloudConfiguration {
       ws_base_url: '',
       gotrue_url: '',
     );
+  }
+
+  bool get isValid {
+    return base_url.isNotEmpty &&
+        ws_base_url.isNotEmpty &&
+        gotrue_url.isNotEmpty;
   }
 }

@@ -113,16 +113,8 @@ impl UserCloudServiceProvider for ServerProvider {
   /// Returns the [UserCloudService] base on the current [ServerType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    if let Some(user_service) = self.cache_user_service.read().get(&self.get_server_type()) {
-      return Ok(user_service.clone());
-    }
-
     let server_type = self.get_server_type();
     let user_service = self.get_server(&server_type)?.user_service();
-    self
-      .cache_user_service
-      .write()
-      .insert(server_type, user_service.clone());
     Ok(user_service)
   }
 

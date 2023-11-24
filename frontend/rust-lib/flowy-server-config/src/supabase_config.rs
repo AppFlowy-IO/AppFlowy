@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError};
 
 pub const SUPABASE_URL: &str = "APPFLOWY_CLOUD_ENV_SUPABASE_URL";
 pub const SUPABASE_ANON_KEY: &str = "APPFLOWY_CLOUD_ENV_SUPABASE_ANON_KEY";
@@ -33,21 +33,9 @@ impl SupabaseConfiguration {
     Ok(Self { url, anon_key })
   }
 
-  pub fn validate(&self) -> Result<(), FlowyError> {
-    if self.url.is_empty() || self.anon_key.is_empty() {
-      return Err(FlowyError::new(
-        ErrorCode::InvalidAuthConfig,
-        "Missing SUPABASE_URL or SUPABASE_ANON_KEY",
-      ));
-    }
-    Ok(())
-  }
-
   /// Write the configuration to the environment variables.
-  pub fn write_env(&self) -> FlowyResult<()> {
-    self.validate()?;
+  pub fn write_env(&self) {
     std::env::set_var(SUPABASE_URL, &self.url);
     std::env::set_var(SUPABASE_ANON_KEY, &self.anon_key);
-    Ok(())
   }
 }
