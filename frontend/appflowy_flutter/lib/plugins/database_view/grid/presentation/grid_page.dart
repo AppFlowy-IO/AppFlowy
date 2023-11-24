@@ -15,7 +15,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
-import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
 import '../application/grid_bloc.dart';
@@ -297,11 +296,14 @@ class _GridRows extends StatelessWidget {
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
     /// Return placeholder widget if the rowMeta is null.
-    if (rowMeta == null) return const SizedBox.shrink();
+    if (rowMeta == null) {
+      Log.warn('RowMeta is null for rowId: $rowId');
+      return const SizedBox.shrink();
+    }
 
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
-    final dataController = RowController(
+    final rowController = RowController(
       viewId: viewId,
       rowMeta: rowMeta,
       rowCache: rowCache,
@@ -313,15 +315,18 @@ class _GridRows extends StatelessWidget {
       viewId: viewId,
       index: index,
       isDraggable: isDraggable,
-      dataController: dataController,
-      cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+      dataController: rowController,
+      cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
       openDetailPage: (context, cellBuilder) {
-        _openRowDetailPage(
-          context,
-          rowId,
-          fieldController,
-          rowCache,
-          cellBuilder,
+        FlowyOverlay.show(
+          context: context,
+          builder: (BuildContext context) {
+            return RowDetailPage(
+              cellBuilder: cellBuilder,
+              rowController: rowController,
+              fieldController: fieldController,
+            );
+          },
         );
       },
     );
@@ -334,37 +339,6 @@ class _GridRows extends StatelessWidget {
     }
 
     return child;
-  }
-
-  void _openRowDetailPage(
-    BuildContext context,
-    RowId rowId,
-    FieldController fieldController,
-    RowCache rowCache,
-    GridCellBuilder cellBuilder,
-  ) {
-    final rowMeta = rowCache.getRow(rowId)?.rowMeta;
-    // Most of the cases, the rowMeta should not be null.
-    if (rowMeta != null) {
-      final dataController = RowController(
-        viewId: viewId,
-        rowMeta: rowMeta,
-        rowCache: rowCache,
-      );
-
-      FlowyOverlay.show(
-        context: context,
-        builder: (BuildContext context) {
-          return RowDetailPage(
-            cellBuilder: cellBuilder,
-            rowController: dataController,
-            fieldController: fieldController,
-          );
-        },
-      );
-    } else {
-      Log.warn('RowMeta is null for rowId: $rowId');
-    }
   }
 }
 
