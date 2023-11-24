@@ -23,22 +23,33 @@ class SupabaseCloudURLsBloc
           emit(state.copyWith(upatedAnonKey: anonKey));
         },
         confirmUpdate: () async {
-          validateUrl(state.updatedUrl).fold(
-            (error) => emit(state.copyWith(urlError: Some(error))),
-            (_) async {
-              emit(
-                state.copyWith(
-                  urlError: none(),
-                  anonKeyError: none(),
-                  restartApp: true,
-                ),
-              );
-              await setSupbaseServer(
-                Some(state.updatedUrl),
-                Some(state.upatedAnonKey),
-              );
-            },
-          );
+          if (state.updatedUrl.isEmpty) {
+            emit(
+              state.copyWith(
+                urlError: none(),
+                anonKeyError: none(),
+                restartApp: true,
+              ),
+            );
+            await setSupbaseServer(none(), none());
+          } else {
+            validateUrl(state.updatedUrl).fold(
+              (error) => emit(state.copyWith(urlError: Some(error))),
+              (_) async {
+                emit(
+                  state.copyWith(
+                    urlError: none(),
+                    anonKeyError: none(),
+                    restartApp: true,
+                  ),
+                );
+                await setSupbaseServer(
+                  Some(state.updatedUrl),
+                  Some(state.upatedAnonKey),
+                );
+              },
+            );
+          }
         },
       );
     });

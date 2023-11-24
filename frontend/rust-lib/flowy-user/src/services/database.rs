@@ -7,7 +7,7 @@ use parking_lot::RwLock;
 use tracing::{error, event, info, instrument};
 
 use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::FlowyError;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
@@ -50,40 +50,47 @@ impl UserDB {
   ///         attempts to restore the database from the latest backup.
   ///   - If the CollabDB does not exist, it immediately attempts to restore from the latest backup.
   ///
+  #[instrument(level = "debug", skip_all)]
   pub fn backup_or_restore(&self, uid: i64, workspace_id: &str) {
+    // Obtain the path for the collaboration database.
     let collab_db_path = self.paths.collab_db_path(uid);
+
+    // Obtain the history folder path, proceed if successful.
     if let Ok(history_folder) = self.paths.collab_db_history(uid, true) {
+      // Initialize the backup utility for the collaboration database.
+      let zip_backup = CollabDBZipBackup::new(collab_db_path.clone(), history_folder);
+
       if collab_db_path.exists() {
+        // Validate the existing collaboration database.
         let is_ok = validate_collab_db(&collab_db_path, uid, workspace_id);
-        let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
+
         if is_ok {
-          // If the database opens successfully, it attempts to back it up in the background.
+          // If database is valid, update the shared map and initiate backup.
+          // Asynchronous backup operation.
           af_spawn(async move {
-            let _ = tokio::task::spawn_blocking(move || {
-              if let Err(err) = zip_backup.backup() {
-                error!("backup collab db failed, {:?}", err);
-              }
-            })
-            .await;
+            if let Err(err) = tokio::task::spawn_blocking(move || zip_backup.backup()).await {
+              error!("Backup of collab db failed: {:?}", err);
+            }
           });
         } else if let Err(err) = zip_backup.restore_latest_backup() {
-          error!("restore collab db failed, {:?}", err);
+          // If validation fails, attempt to restore from the latest backup.
+          error!("Restoring collab db failed: {:?}", err);
         }
-      } else {
-        let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
-        if let Err(err) = zip_backup.restore_latest_backup() {
-          error!("restore collab db failed, {:?}", err);
-        }
+      } else if let Err(err) = zip_backup.restore_latest_backup() {
+        // If collab database does not exist, attempt to restore from the latest backup.
+        error!("Restoring collab db failed: {:?}", err);
       }
     }
   }
 
+  #[instrument(level = "debug", skip_all)]
   pub fn restore_if_need(&self, uid: i64, workspace_id: &str) {
     if let Ok(history_folder) = self.paths.collab_db_history(uid, false) {
       let collab_db_path = self.paths.collab_db_path(uid);
       let is_ok = validate_collab_db(&collab_db_path, uid, workspace_id);
-      let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
+
       if !is_ok {
+        let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
         if let Err(err) = zip_backup.restore_latest_backup() {
           error!("restore collab db failed, {:?}", err);
         }
@@ -118,15 +125,11 @@ impl UserDB {
     Ok(pool)
   }
 
-  pub(crate) fn get_collab_db(
-    &self,
-    user_id: i64,
-    _device_id: &str,
-  ) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
     let collab_db = open_collab_db(
-      self.paths.user_db_path(user_id),
+      // self.paths.user_db_path(user_id),
       self.paths.collab_db_path(user_id),
-      self.paths.collab_db_history(user_id, false).ok(),
+      // self.paths.collab_db_history(user_id, false).ok(),
       user_id,
     )?;
     Ok(collab_db)
@@ -175,31 +178,24 @@ pub fn get_user_workspace(
 /// Open a collab db for the user. If the db is already opened, return the opened db.
 ///
 fn open_collab_db(
-  _collab_backup_db_path: impl AsRef<Path>,
   collab_db_path: impl AsRef<Path>,
-  _collab_db_history: Option<PathBuf>,
   uid: i64,
-) -> Result<Arc<RocksCollabDB>, FlowyError> {
+) -> Result<Arc<RocksCollabDB>, PersistenceError> {
   if let Some(collab_db) = COLLAB_DB_MAP.read().get(&uid) {
     return Ok(collab_db.clone());
   }
 
   let mut write_guard = COLLAB_DB_MAP.write();
+  info!(
+    "open collab db for user {} at path: {:?}",
+    uid,
+    collab_db_path.as_ref()
+  );
   let db = match RocksCollabDB::open(&collab_db_path) {
     Ok(db) => Ok(db),
     Err(err) => {
       error!("open collab db error, {:?}", err);
-      match err {
-        PersistenceError::RocksdbCorruption(_) => {
-          // try restore from the backup db
-          Err(FlowyError::new(ErrorCode::RocksdbCorruption, err))
-        },
-        PersistenceError::RocksdbIOError(_) => {
-          //
-          Err(FlowyError::new(ErrorCode::RocksdbIOError, err))
-        },
-        _ => Err(FlowyError::new(ErrorCode::RocksdbInternal, err)),
-      }
+      Err(err)
     },
   }?;
 
@@ -337,12 +333,17 @@ pub(crate) fn validate_collab_db(
   // Attempt to open the collaboration database using the workspace_id. The workspace_id must already
   // exist in the collab database. If it does not, it may be indicative of corruption in the collab database
   // due to other factors.
-  let result = RocksCollabDB::open(&collab_db_path).map(|db| {
-    let read_txn = db.read_txn();
-    read_txn.is_exist(uid, workspace_id)
-  });
-  match result {
-    Ok(is_ok) => is_ok,
+  info!(
+    "open collab db to validate data integration for user {} at path: {:?}",
+    uid,
+    collab_db_path.as_ref()
+  );
+
+  match open_collab_db(&collab_db_path, uid) {
+    Ok(db) => {
+      let read_txn = db.read_txn();
+      read_txn.is_exist(uid, workspace_id)
+    },
     // return false if the error is not related to corruption
     Err(err) => !matches!(
       err,

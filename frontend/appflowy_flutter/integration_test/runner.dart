@@ -32,7 +32,7 @@ import 'tabs_test.dart' as tabs_test;
 /// If flutter/flutter#101031 is resolved, this file can be removed completely.
 /// Once removed, the integration_test.yaml must be updated to exclude this as
 /// as the test target.
-void main() {
+Future<void> main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   // This test must be run first, otherwise the CI will fail.
@@ -76,7 +76,8 @@ void main() {
   // User settings
   settings_test_runner.main();
 
-  if (isAuthEnabled) {
+  final cloudType = await getCloudType();
+  if (cloudType == CloudType.supabase) {
     auth_test_runner.main();
   }
 

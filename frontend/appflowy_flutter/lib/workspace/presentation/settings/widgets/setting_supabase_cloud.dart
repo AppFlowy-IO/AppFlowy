@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/settings/supabase_cloud_urls_bloc
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:dartz/dartz.dart' show Either;
@@ -12,9 +13,11 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingSupabaseCloudView extends StatelessWidget {
   final VoidCallback didResetServerUrl;
@@ -112,7 +115,7 @@ class SupabaseCloudURLs extends StatelessWidget {
                   },
                   error: state.anonKeyError.fold(() => null, (a) => a),
                 ),
-                const VSpace(6),
+                const VSpace(20),
                 FlowyButton(
                   isSelected: true,
                   useIntrinsicWidth: true,
@@ -314,36 +317,40 @@ class SupabaseSelfhostTip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Opacity(
-          opacity: 0.6,
-          child: FlowyText(
-            LocaleKeys.settings_menu_appFlowySelfHost.tr(),
-            maxLines: null,
-          ),
-        ),
-        const VSpace(6),
-        Tooltip(
-          message: LocaleKeys.settings_menu_clickToCopy.tr(),
-          child: GestureDetector(
-            child: RichText(
-              textAlign: TextAlign.left,
-              text: TextSpan(
-                text: url,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: FontSizes.s14,
-                      color: Theme.of(context).colorScheme.primary,
-                      decoration: TextDecoration.underline,
-                    ),
-              ),
+    return Opacity(
+      opacity: 0.6,
+      child: RichText(
+        text: TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+              text: LocaleKeys.settings_menu_selfHostStart.tr(),
+              style: Theme.of(context).textTheme.bodySmall!,
             ),
-            onTap: () async {
-              await Clipboard.setData(ClipboardData(text: url));
-            },
-          ),
+            TextSpan(
+              text: " ${LocaleKeys.settings_menu_selfHostContent.tr()} ",
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: FontSizes.s14,
+                    color: Theme.of(context).colorScheme.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+              recognizer: TapGestureRecognizer()..onTap = () => _launchURL(),
+            ),
+            TextSpan(
+              text: LocaleKeys.settings_menu_selfHostEnd.tr(),
+              style: Theme.of(context).textTheme.bodySmall!,
+            ),
+          ],
         ),
-      ],
+      ),
     );
+  }
+
+  Future<void> _launchURL() async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      Log.error("Could not launch $url");
+    }
   }
 }

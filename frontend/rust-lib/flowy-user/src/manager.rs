@@ -222,9 +222,7 @@ impl UserManager {
       // Do the user data migration if needed
       event!(tracing::Level::INFO, "Prepare user data migration");
       match (
-        self
-          .database
-          .get_collab_db(session.user_id, &self.user_config.device_id),
+        self.database.get_collab_db(session.user_id),
         self.database.get_pool(session.user_id),
       ) {
         (Ok(collab_db), Ok(sqlite_pool)) => {
@@ -278,7 +276,7 @@ impl UserManager {
   pub fn get_collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
     self
       .database
-      .get_collab_db(uid, "")
+      .get_collab_db(uid)
       .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
@@ -793,12 +791,8 @@ impl UserManager {
     old_user: &MigrationUser,
     new_user: &MigrationUser,
   ) -> Result<(), FlowyError> {
-    let old_collab_db = self
-      .database
-      .get_collab_db(old_user.session.user_id, &self.user_config.device_id)?;
-    let new_collab_db = self
-      .database
-      .get_collab_db(new_user.session.user_id, &self.user_config.device_id)?;
+    let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
+    let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
     migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
 
     if let Err(err) = sync_user_data_to_cloud(
