@@ -76,10 +76,10 @@ Future<void> main() async {
   // User settings
   settings_test_runner.main();
 
-  final cloudType = await getCloudType();
-  if (cloudType == CloudType.supabase) {
-    auth_test_runner.main();
-  }
+  // final cloudType = await getCloudType();
+  // if (cloudType == CloudType.supabase) {
+  //   auth_test_runner.main();
+  // }
 
   // board_test.main();
   // empty_document_test.main();

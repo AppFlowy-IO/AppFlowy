@@ -263,6 +263,7 @@ class _FolderCard extends StatelessWidget {
                         fontFamily: GoogleFonts.poppins(
                           fontWeight: FontWeight.w500,
                         ).fontFamily,
+                        maxLines: null,
                       ),
                       Tooltip(
                         decoration: BoxDecoration(
