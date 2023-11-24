@@ -2,21 +2,22 @@ import 'dart:io';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
 import 'package:appflowy/workspace/application/settings/share/export_service.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
+
 import '../../../../generated/locale_keys.g.dart';
 
 class FileExporterWidget extends StatefulWidget {
@@ -69,13 +70,13 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                                 .selectOrDeselectAllItems();
                           },
                         ),
-                      )
+                      ),
                     ],
                   ),
                   const VSpace(8),
                   const Expanded(child: _ExpandedList()),
                   const VSpace(8),
-                  _buildButtons()
+                  _buildButtons(),
                 ],
               ),
             );
@@ -107,18 +108,20 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                 final views = cubit!.state.selectedViews;
                 final result =
                     await _AppFlowyFileExporter.exportToPath(exportPath, views);
-                if (result.$1 && mounted) {
-                  // success
-                  showSnackBarMessage(
-                    context,
-                    LocaleKeys.settings_files_exportFileSuccess.tr(),
-                  );
-                } else {
-                  showSnackBarMessage(
-                    context,
-                    LocaleKeys.settings_files_exportFileFail.tr() +
-                        result.$2.join('\n'),
-                  );
+                if (mounted) {
+                  if (result.$1) {
+                    // success
+                    showSnackBarMessage(
+                      context,
+                      LocaleKeys.settings_files_exportFileSuccess.tr(),
+                    );
+                  } else {
+                    showSnackBarMessage(
+                      context,
+                      LocaleKeys.settings_files_exportFileFail.tr() +
+                          result.$2.join('\n'),
+                    );
+                  }
                 }
               } else {
                 showSnackBarMessage(

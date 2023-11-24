@@ -37,7 +37,7 @@ Future<void> _insertDateReference(EditorState editorState) async {
         MentionBlockKeys.mention: {
           MentionBlockKeys.type: MentionType.date.name,
           MentionBlockKeys.date: DateTime.now().toIso8601String(),
-        }
+        },
       },
     );
 

@@ -1,3 +1,4 @@
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
@@ -49,13 +50,13 @@ class SettingThirdPartyLogin extends StatelessWidget {
                     fontSize: 16,
                   ),
                   const HSpace(6),
-                  indicator
+                  indicator,
                 ],
               ),
               const VSpace(6),
               promptMessage,
               const VSpace(6),
-              const ThirdPartySignInButtons(),
+              if (isAuthEnabled) const ThirdPartySignInButtons(),
               const VSpace(6),
             ],
           );

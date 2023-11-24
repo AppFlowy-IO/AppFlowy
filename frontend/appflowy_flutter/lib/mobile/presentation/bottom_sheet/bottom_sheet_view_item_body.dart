@@ -98,7 +98,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
                 ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
                 : MobileViewItemBottomSheetBodyAction.addToFavorites,
           ),
-        )
+        ),
       ],
     );
   }

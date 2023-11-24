@@ -5,6 +5,7 @@ export interface RowMeta {
   documentId?: string;
   icon?: string;
   cover?: string;
+  isHidden?: boolean;
 }
 
 export function pbToRowMeta(pb: RowMetaPB): RowMeta {

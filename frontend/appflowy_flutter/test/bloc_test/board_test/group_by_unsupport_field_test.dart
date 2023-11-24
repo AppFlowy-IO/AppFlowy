@@ -29,13 +29,10 @@ void main() {
       build: () => editorBloc,
       wait: boardResponseDuration(),
       act: (bloc) async {
-        bloc.add(const FieldEditorEvent.switchToField(FieldType.RichText));
+        bloc.add(const FieldEditorEvent.switchFieldType(FieldType.RichText));
       },
       verify: (bloc) {
-        bloc.state.field.fold(
-          () => throw Exception(),
-          (field) => field.fieldType == FieldType.RichText,
-        );
+        assert(bloc.state.field.fieldType == FieldType.RichText);
       },
     );
     blocTest<BoardBloc, BoardState>(

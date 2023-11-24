@@ -53,14 +53,14 @@ export class PageController {
     return [];
   };
 
-  getPage = async (id?: string): Promise<Page> => {
+  getPage = async (id?: string) => {
     const result = await this.backendService.getPage(id || this.id);
 
     if (result.ok) {
       return parserViewPBToPage(result.val);
     }
 
-    return Promise.reject(result.err);
+    return Promise.reject(result.val);
   };
 
   getParentPage = async (): Promise<Page> => {
@@ -127,5 +127,19 @@ export class PageController {
     }
 
     return Promise.reject(result.err);
+  };
+
+  createOrphanPage = async (params: { name: string; layout: ViewLayoutPB }): Promise<Page> => {
+    const result = await this.backendService.createOrphanPage({
+      view_id: this.id,
+      name: params.name,
+      layout: params.layout,
+    });
+
+    if (result.ok) {
+      return parserViewPBToPage(result.val);
+    }
+
+    return Promise.reject(result.val);
   };
 }

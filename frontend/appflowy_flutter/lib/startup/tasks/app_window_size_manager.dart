@@ -50,7 +50,7 @@ class WindowSizeManager {
   Future<Offset?> getPosition() async {
     final position = await getIt<KeyValueStorage>().get(KVKeys.windowPosition);
     return position.fold(
-      (l) => null,
+      () => null,
       (r) {
         final offset = json.decode(r);
         return Offset(offset[dx], offset[dy]);

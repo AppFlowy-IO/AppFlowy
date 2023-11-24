@@ -29,57 +29,69 @@ export const GridCellRowActions: FC<PropsWithChildren<GridCellRowActionsProps>> 
 }) => {
   const viewId = useViewId();
   const ref = useRef<HTMLDivElement | null>(null);
-  const [openMenu, setOpenMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{
+    top: number;
+    left: number;
+  }>();
   const handleInsertRecordBelow = useCallback(() => {
     void rowService.createRow(viewId, {
       startRowId: rowId,
     });
   }, [viewId, rowId]);
 
-  const handleOpenMenu = () => {
-    setOpenMenu(true);
+  const handleOpenMenu = (e: React.MouseEvent) => {
+    const target = e.target as HTMLButtonElement;
+    const rect = target.getBoundingClientRect();
+
+    setMenuPosition({
+      top: rect.top + rect.height / 2,
+      left: rect.left + rect.width,
+    });
   };
 
   const handleCloseMenu = () => {
-    setOpenMenu(false);
+    setMenuPosition(undefined);
   };
 
-  if (isHidden) return null;
+  const openMenu = !!menuPosition;
 
   return (
-    <div ref={ref} className={`relative inline-flex items-center ${className || ''}`} {...props}>
-      <Tooltip placement='top' title={t('grid.row.add')}>
-        <IconButton onClick={handleInsertRecordBelow}>
-          <AddSvg />
-        </IconButton>
-      </Tooltip>
-      <Tooltip placement='top' title={t('grid.row.dragAndClick')}>
-        <IconButton
-          onClick={handleOpenMenu}
-          className='mx-1 cursor-grab active:cursor-grabbing'
-          draggable={draggable}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
+    <>
+      {!isHidden && (
+        <div ref={ref} className={`inline-flex items-center ${className || ''}`} {...props}>
+          <Tooltip placement='top' title={t('grid.row.add')}>
+            <IconButton onClick={handleInsertRecordBelow}>
+              <AddSvg />
+            </IconButton>
+          </Tooltip>
+          <Tooltip placement='top' title={t('grid.row.dragAndClick')}>
+            <IconButton
+              onClick={handleOpenMenu}
+              className='mx-1 cursor-grab active:cursor-grabbing'
+              draggable={draggable}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+            >
+              <DragSvg className='-mx-1' />
+            </IconButton>
+          </Tooltip>
+        </div>
+      )}
+
+      {openMenu && (
+        <Popover
+          open={openMenu}
+          onClose={handleCloseMenu}
+          transformOrigin={{
+            vertical: 'center',
+            horizontal: 'left',
+          }}
+          anchorReference={'anchorPosition'}
+          anchorPosition={menuPosition}
         >
-          <DragSvg className='-mx-1' />
-        </IconButton>
-      </Tooltip>
-      <Popover
-        open={openMenu}
-        onClose={handleCloseMenu}
-        transformOrigin={{
-          vertical: 'center',
-          horizontal: 'left',
-        }}
-        anchorOrigin={{
-          vertical: 'center',
-          horizontal: 'right',
-        }}
-        container={ref.current}
-        anchorEl={ref.current}
-      >
-        <GridCellRowMenu onClickItem={() => handleCloseMenu} rowId={rowId} getPrevRowId={getPrevRowId} />
-      </Popover>
-    </div>
+          <GridCellRowMenu onClickItem={handleCloseMenu} rowId={rowId} getPrevRowId={getPrevRowId} />
+        </Popover>
+      )}
+    </>
   );
 };

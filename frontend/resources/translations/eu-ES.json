@@ -555,7 +555,7 @@
     "menuName": "Kontseilua",
     "referencedBoardPrefix": "-ren ikuspegia",
     "column": {
-      "create_new_card": "Berria"
+      "createNewCard": "Berria"
     }
   },
   "calendar": {

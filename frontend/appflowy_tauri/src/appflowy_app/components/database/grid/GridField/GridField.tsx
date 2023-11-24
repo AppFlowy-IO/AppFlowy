@@ -5,8 +5,10 @@ import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
 import { fieldService, Field } from '../../application';
 import { useDatabase } from '../../Database.hooks';
-import { FieldTypeSvg } from './FieldTypeSvg';
-import { GridFieldMenu } from './GridFieldMenu';
+import { FieldTypeSvg } from '$app/components/database/components/field';
+import { FieldMenu } from '../../components/field/FieldMenu';
+import GridResizer from '$app/components/database/grid/GridField/GridResizer';
+import { DEFAULT_FIELD_WIDTH } from '$app/components/database/grid/GridRow';
 
 export interface GridFieldProps {
   field: Field;
@@ -18,6 +20,7 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
   const [openMenu, setOpenMenu] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(false);
   const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
+  const [fieldWidth, setFieldWidth] = useState(field.width || DEFAULT_FIELD_WIDTH);
 
   const handleClick = useCallback(() => {
     setOpenMenu(true);
@@ -89,7 +92,12 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
   });
 
   return (
-    <>
+    <div
+      className={'flex border-r border-line-divider'}
+      style={{
+        width: fieldWidth,
+      }}
+    >
       <Tooltip
         open={openTooltip && !isDragging}
         title={field.name}
@@ -104,6 +112,11 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
           ref={setPreviewRef}
           className='relative flex w-full items-center px-2'
           disableRipple
+          onContextMenu={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            handleClick();
+          }}
           onClick={handleClick}
           {...attributes}
           {...listeners}
@@ -118,11 +131,10 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
               }`}
             />
           )}
+          <GridResizer field={field} onWidthChange={(width) => setFieldWidth(width)} />
         </Button>
       </Tooltip>
-      {openMenu && (
-        <GridFieldMenu field={field} open={openMenu} anchorEl={previewRef.current} onClose={handleMenuClose} />
-      )}
-    </>
+      {openMenu && <FieldMenu field={field} open={openMenu} anchorEl={previewRef.current} onClose={handleMenuClose} />}
+    </div>
   );
 };

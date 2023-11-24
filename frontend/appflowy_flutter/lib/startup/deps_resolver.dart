@@ -1,6 +1,7 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
@@ -16,9 +17,13 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/desktop_appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/mobile_appearance.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
@@ -38,6 +43,10 @@ class DependencyResolver {
     GetIt getIt,
     IntegrationMode mode,
   ) async {
+    // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
+    getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
+
+    await _resolveCloudDeps(getIt);
     _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
@@ -47,12 +56,23 @@ class DependencyResolver {
   }
 }
 
+Future<void> _resolveCloudDeps(GetIt getIt) async {
+  final cloudType = await getCloudType();
+  final appflowyCloudConfig = await getAppFlowyCloudConfig();
+  final supabaseCloudConfig = await getSupabaseCloudConfig();
+  getIt.registerFactory<AppFlowyCloudSharedEnv>(() {
+    return AppFlowyCloudSharedEnv(
+      cloudType: cloudType,
+      appflowyCloudConfig: appflowyCloudConfig,
+      supabaseConfig: supabaseCloudConfig,
+    );
+  });
+}
+
 void _resolveCommonService(
   GetIt getIt,
   IntegrationMode mode,
 ) async {
-  // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
-  getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
   if (mode.isTest) {
     getIt.registerFactory<ApplicationDataStorage>(
@@ -101,11 +121,16 @@ void _resolveCommonService(
   getIt.registerFactory<ClipboardService>(
     () => ClipboardService(),
   );
+
+  // theme
+  getIt.registerFactory<BaseAppearance>(
+    () => PlatformExtension.isMobile ? MobileAppearance() : DesktopAppearance(),
+  );
 }
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   switch (currentCloudType()) {
-    case CloudType.unknown:
+    case CloudType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
           AuthTypePB.Local,
@@ -143,6 +168,7 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton(FToast());
 
   getIt.registerSingleton(MenuSharedState());
+  getIt.registerSingleton(MobileRouterRecord());
 
   getIt.registerFactoryParam<UserListener, UserProfilePB, void>(
     (user, _) => UserListener(userProfile: user),

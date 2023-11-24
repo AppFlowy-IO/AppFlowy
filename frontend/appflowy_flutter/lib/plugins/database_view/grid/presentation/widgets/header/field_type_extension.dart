@@ -65,6 +65,7 @@ extension FieldTypeListExtension on FieldType {
         FieldType.SingleSelect => true,
         _ => false,
       };
+<<<<<<< HEAD
 
   bool get canDeleteGroup => switch (this) {
         FieldType.URL ||
@@ -74,4 +75,6 @@ extension FieldTypeListExtension on FieldType {
           true,
         _ => false,
       };
+=======
+>>>>>>> upstream/main
 }

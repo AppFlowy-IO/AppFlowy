@@ -53,7 +53,7 @@ class HiddenGroupsColumn extends StatelessWidget {
                   ),
                 )
               : SizedBox(
-                  width: 260,
+                  width: 234,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -62,7 +62,7 @@ class HiddenGroupsColumn extends StatelessWidget {
                         child: Padding(
                           padding: EdgeInsets.only(
                             left: 40 + margin.left,
-                            right: margin.right,
+                            right: margin.right + 4,
                           ),
                           child: Row(
                             children: [
@@ -99,6 +99,7 @@ class HiddenGroupsColumn extends StatelessWidget {
       message: isCollapsed
           ? LocaleKeys.board_hiddenGroupSection_expandTooltip.tr()
           : LocaleKeys.board_hiddenGroupSection_collapseTooltip.tr(),
+      preferBelow: false,
       child: FlowyIconButton(
         width: 20,
         height: 20,
@@ -252,7 +253,7 @@ class HiddenGroupButtonContent extends StatelessWidget {
                   }
 
                   return SizedBox(
-                    height: 30,
+                    height: 32,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 4,
@@ -420,6 +421,8 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return RowDetailPage(
+                          fieldController:
+                              context.read<BoardBloc>().fieldController,
                           cellBuilder: GridCellBuilder(
                             cellCache: rowController.cellCache,
                           ),
@@ -431,7 +434,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                   },
                 );
               },
-            )
+            ),
           ];
 
           return ListView.separated(

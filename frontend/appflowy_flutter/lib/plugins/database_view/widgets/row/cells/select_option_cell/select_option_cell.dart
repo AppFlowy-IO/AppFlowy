@@ -64,7 +64,8 @@ class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
           return SelectOptionWrap(
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
-            onCellEditing: widget.onCellFocus,
+            onCellEditing: (isFocus) =>
+                widget.cellContainerNotifier.isFocus = isFocus,
             popoverController: _popover,
             cellControllerBuilder: widget.cellControllerBuilder,
           );
@@ -127,7 +128,8 @@ class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
           return SelectOptionWrap(
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
-            onCellEditing: widget.onCellFocus,
+            onCellEditing: (isFocus) =>
+                widget.cellContainerNotifier.isFocus = isFocus,
             popoverController: _popover,
             cellControllerBuilder: widget.cellControllerBuilder,
           );
@@ -151,7 +153,7 @@ class SelectOptionWrap extends StatefulWidget {
   final SelectOptionCellStyle? cellStyle;
   final CellControllerBuilder cellControllerBuilder;
   final PopoverController popoverController;
-  final ValueNotifier onCellEditing;
+  final void Function(bool) onCellEditing;
 
   const SelectOptionWrap({
     required this.selectOptions,
@@ -179,16 +181,16 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       constraints: constraints,
       margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (BuildContext popoverContext) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onCellEditing.value = true;
+          widget.onCellEditing(true);
         });
         return SelectOptionCellEditor(
           cellController: widget.cellControllerBuilder.build()
               as SelectOptionCellController,
         );
       },
-      onClose: () => widget.onCellEditing.value = false,
+      onClose: () => widget.onCellEditing(false),
       child: Padding(
         padding: widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
         child: child,

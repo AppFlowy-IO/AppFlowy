@@ -34,7 +34,7 @@ void main() {
         false,
         false,
         false,
-        false
+        false,
       ];
       for (final (index, content) in checkboxCells.indexed) {
         await tester.assertCheckboxCell(
@@ -54,7 +54,7 @@ void main() {
         '10',
         '11',
         '12',
-        ''
+        '',
       ];
       for (final (index, content) in numberCells.indexed) {
         await tester.assertCellContent(
@@ -152,7 +152,7 @@ void main() {
         'Jun 16, 2023',
         '',
         '',
-        ''
+        '',
       ];
       for (final (index, content) in dateCells.indexed) {
         await tester.assertDateCellInGrid(

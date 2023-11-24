@@ -251,7 +251,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
         header: widget.header,
-        footer: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
+        footer: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () async {
+            // if the last one isn't a empty node, insert a new empty node.
+            await _focusOnLastEmptyParagraph();
+          },
+          child: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
+        ),
       ),
     );
 
@@ -259,44 +266,43 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     _setInitialSelection(editorScrollController);
 
     if (PlatformExtension.isMobile) {
-      return Column(
-        children: [
-          Expanded(
-            child: MobileFloatingToolbar(
-              editorState: editorState,
-              editorScrollController: editorScrollController,
-              toolbarBuilder: (context, anchor) {
-                return AdaptiveTextSelectionToolbar.editable(
-                  clipboardStatus: ClipboardStatus.pasteable,
-                  onCopy: () => copyCommand.execute(editorState),
-                  onCut: () => cutCommand.execute(editorState),
-                  onPaste: () => pasteCommand.execute(editorState),
-                  onSelectAll: () => selectAllCommand.execute(editorState),
-                  anchors: TextSelectionToolbarAnchors(
-                    primaryAnchor: anchor,
-                  ),
-                );
-              },
-              child: editor,
+      final theme = Theme.of(context);
+      return MobileToolbarV2(
+        toolbarHeight: 48.0,
+        backgroundColor: theme.colorScheme.background,
+        foregroundColor: theme.colorScheme.onSurface,
+        iconColor: theme.iconTheme.color ?? theme.colorScheme.onSurface,
+        tabBarSelectedBackgroundColor: theme.colorScheme.background,
+        tabBarSelectedForegroundColor: theme.colorScheme.onSurface,
+        editorState: editorState,
+        toolbarItems: getMobileToolbarItems(),
+        child: Column(
+          children: [
+            Expanded(
+              child: MobileFloatingToolbar(
+                editorState: editorState,
+                editorScrollController: editorScrollController,
+                toolbarBuilder: (context, anchor, closeToolbar) {
+                  return AdaptiveTextSelectionToolbar.editable(
+                    clipboardStatus: ClipboardStatus.pasteable,
+                    onCopy: () {
+                      copyCommand.execute(editorState);
+                      closeToolbar();
+                    },
+                    onCut: () => cutCommand.execute(editorState),
+                    onPaste: () => pasteCommand.execute(editorState),
+                    onSelectAll: () => selectAllCommand.execute(editorState),
+                    onLiveTextInput: null,
+                    anchors: TextSelectionToolbarAnchors(
+                      primaryAnchor: anchor,
+                    ),
+                  );
+                },
+                child: editor,
+              ),
             ),
-          ),
-          MobileToolbar(
-            editorState: editorState,
-            toolbarItems: [
-              textDecorationMobileToolbarItem,
-              buildTextAndBackgroundColorMobileToolbarItem(),
-              headingMobileToolbarItem,
-              customListMobileToolbarItem,
-              linkMobileToolbarItem,
-              dividerMobileToolbarItem,
-              imageMobileToolbarItem,
-              mathEquationMobileToolbarItem,
-              codeMobileToolbarItem,
-              undoMobileToolbarItem,
-              redoMobileToolbarItem,
-            ],
-          ),
-        ],
+          ],
+        ),
       );
     }
 
@@ -466,5 +472,25 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   void _initEditorL10n() {
     AppFlowyEditorL10n.current = EditorI18n();
+  }
+
+  Future<void> _focusOnLastEmptyParagraph() async {
+    final editorState = widget.editorState;
+    final root = editorState.document.root;
+    final lastNode = root.children.lastOrNull;
+    final transaction = editorState.transaction;
+    if (lastNode == null ||
+        lastNode.delta?.isEmpty == false ||
+        lastNode.type != ParagraphBlockKeys.type) {
+      transaction.insertNode([root.children.length], paragraphNode());
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: [root.children.length]),
+      );
+    } else {
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: lastNode.path),
+      );
+    }
+    await editorState.apply(transaction);
   }
 }

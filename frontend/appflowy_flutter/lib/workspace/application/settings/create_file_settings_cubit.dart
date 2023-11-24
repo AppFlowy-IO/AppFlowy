@@ -22,7 +22,7 @@ class CreateFileSettingsCubit extends Cubit<bool> {
       (value) => bool.parse(value),
     );
     settingsOrFailure.fold(
-      (_) => emit(false),
+      () => emit(false),
       (settings) => emit(settings),
     );
   }

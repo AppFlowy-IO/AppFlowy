@@ -16,7 +16,6 @@ pub trait UserAuthResponse {
   fn user_name(&self) -> &str;
   fn latest_workspace(&self) -> &UserWorkspace;
   fn user_workspaces(&self) -> &[UserWorkspace];
-  fn device_id(&self) -> &str;
   fn user_token(&self) -> Option<String>;
   fn user_email(&self) -> Option<String>;
   fn encryption_type(&self) -> EncryptionType;
@@ -30,7 +29,6 @@ pub struct SignInParams {
   pub password: String,
   pub name: String,
   pub auth_type: Authenticator,
-  pub device_id: String,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -51,7 +49,6 @@ pub struct AuthResponse {
   pub is_new_user: bool,
   pub email: Option<String>,
   pub token: Option<String>,
-  pub device_id: String,
   pub encryption_type: EncryptionType,
   pub updated_at: i64,
   pub metadata: Option<serde_json::Value>,
@@ -72,10 +69,6 @@ impl UserAuthResponse for AuthResponse {
 
   fn user_workspaces(&self) -> &[UserWorkspace] {
     &self.user_workspaces
-  }
-
-  fn device_id(&self) -> &str {
-    &self.device_id
   }
 
   fn user_token(&self) -> Option<String> {
@@ -334,7 +327,7 @@ pub enum Authenticator {
   Local = 0,
   /// Currently not supported. It will be supported in the future when the
   /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
-  AFCloud = 1,
+  AppFlowyCloud = 1,
   /// It uses Supabase as the backend.
   Supabase = 2,
 }
@@ -355,7 +348,7 @@ impl From<i32> for Authenticator {
   fn from(value: i32) -> Self {
     match value {
       0 => Authenticator::Local,
-      1 => Authenticator::AFCloud,
+      1 => Authenticator::AppFlowyCloud,
       2 => Authenticator::Supabase,
       _ => Authenticator::Local,
     }
@@ -364,12 +357,10 @@ impl From<i32> for Authenticator {
 pub struct SupabaseOAuthParams {
   pub uuid: Uuid,
   pub email: String,
-  pub device_id: String,
 }
 
 pub struct AFCloudOAuthParams {
   pub sign_in_url: String,
-  pub device_id: String,
 }
 
 #[derive(Clone, Debug)]

@@ -549,7 +549,7 @@
     "menuName": "Pissarra",
     "referencedBoardPrefix": "Vista de",
     "column": {
-      "create_new_card": "Nou"
+      "createNewCard": "Nou"
     }
   },
   "calendar": {

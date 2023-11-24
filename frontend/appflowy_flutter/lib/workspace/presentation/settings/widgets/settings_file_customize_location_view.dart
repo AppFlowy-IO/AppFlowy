@@ -2,18 +2,19 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/entry_point.dart';
-import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../../../generated/locale_keys.g.dart';
 import '../../../../startup/launch_configuration.dart';
 import '../../../../startup/startup.dart';
@@ -43,47 +44,26 @@ class SettingsFileLocationCustomizerState
               child: CircularProgressIndicator(),
             ),
             didReceivedPath: (path) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
+              return Column(
                 children: [
-                  // display file paths.
-                  Flexible(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FlowyText.medium(
-                          LocaleKeys.settings_files_defaultLocation.tr(),
-                          fontSize: 13,
-                          overflow: TextOverflow.visible,
-                        ).padding(horizontal: 5),
-                        const VSpace(5),
-                        _CopyableText(
-                          usingPath: path,
-                        ),
-                      ],
-                    ),
-                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // display file paths.
+                      _path(path),
 
-                  // display the icons
-                  Flexible(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: _ChangeStoragePathButton(
-                            usingPath: path,
-                          ),
-                        ),
-                        const HSpace(10),
-                        _OpenStorageButton(
-                          usingPath: path,
-                        ),
-                        _RecoverDefaultStorageButton(
-                          usingPath: path,
-                        ),
-                      ],
+                      // display the icons
+                      _buttons(path),
+                    ],
+                  ),
+                  const VSpace(10),
+                  IntrinsicHeight(
+                    child: Opacity(
+                      opacity: 0.6,
+                      child: FlowyText.medium(
+                        LocaleKeys.settings_menu_customPathPrompt.tr(),
+                        maxLines: 13,
+                      ),
                     ),
                   ),
                 ],
@@ -92,6 +72,55 @@ class SettingsFileLocationCustomizerState
           );
         },
       ),
+    );
+  }
+
+  Widget _path(String path) {
+    return Flexible(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlowyText.medium(
+            LocaleKeys.settings_files_defaultLocation.tr(),
+            fontSize: 13,
+            overflow: TextOverflow.visible,
+          ).padding(horizontal: 5),
+          const VSpace(5),
+          _CopyableText(
+            usingPath: path,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buttons(String path) {
+    final List<Widget> children = [];
+    children.addAll([
+      Flexible(
+        child: _ChangeStoragePathButton(
+          usingPath: path,
+        ),
+      ),
+      const HSpace(10),
+    ]);
+
+    children.add(
+      _OpenStorageButton(
+        usingPath: path,
+      ),
+    );
+
+    children.add(
+      _RecoverDefaultStorageButton(
+        usingPath: path,
+      ),
+    );
+
+    return Flexible(
+      child: Row(mainAxisAlignment: MainAxisAlignment.end, children: children),
     );
   }
 }
@@ -172,7 +201,10 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
         onPressed: () async {
           // pick the new directory and reload app
           final path = await getIt<FilePickerService>().getDirectoryPath();
-          if (path == null || !mounted || widget.usingPath == path) {
+          if (path == null || widget.usingPath == path) {
+            return;
+          }
+          if (!mounted) {
             return;
           }
           await context.read<SettingsLocationCubit>().setCustomPath(path);
@@ -245,7 +277,10 @@ class _RecoverDefaultStorageButtonState
         // reset to the default directory and reload app
         final directory = await appFlowyApplicationDataDirectory();
         final path = directory.path;
-        if (!mounted || widget.usingPath == path) {
+        if (widget.usingPath == path) {
+          return;
+        }
+        if (!mounted) {
           return;
         }
         await context

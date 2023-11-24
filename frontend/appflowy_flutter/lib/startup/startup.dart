@@ -45,7 +45,7 @@ class FlowyRunner {
     await getIt.reset();
 
     // Specify the env
-    initGetIt(getIt, mode, f, config);
+    await initGetIt(getIt, mode, f, config);
 
     final applicationDataDirectory =
         await getIt<ApplicationDataStorage>().getPath().then(
@@ -64,7 +64,7 @@ class FlowyRunner {
         // init the app window
         const InitAppWindowTask(),
         // Init Rust SDK
-        InitRustSDKTask(directory: applicationDataDirectory),
+        InitRustSDKTask(customApplicationPath: applicationDataDirectory),
         // Load Plugins, like document, grid ...
         const PluginLoadTask(),
 
@@ -75,7 +75,7 @@ class FlowyRunner {
           InitSupabaseTask(),
           InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
-          const InitPlatformServiceTask()
+          const InitPlatformServiceTask(),
         ],
       ],
     );

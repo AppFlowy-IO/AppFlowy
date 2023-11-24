@@ -16,7 +16,6 @@ const DB_NAME: &str = "cache.db";
 pub struct StorePreferences {
   database: Option<Database>,
 }
-
 impl StorePreferences {
   #[tracing::instrument(level = "trace", err)]
   pub fn new(root: &str) -> Result<Self, anyhow::Error> {
@@ -86,7 +85,6 @@ impl StorePreferences {
       .and_then(|v| serde_json::from_str(&v).ok())
   }
 
-  #[allow(dead_code)]
   pub fn remove(&self, key: &str) {
     if let Some(conn) = self
       .database

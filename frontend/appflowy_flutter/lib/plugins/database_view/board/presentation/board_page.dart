@@ -2,25 +2,28 @@ import 'dart:collection';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../widgets/card/cells/card_cell.dart';
 import '../../widgets/card/card_cell_builder.dart';
@@ -150,18 +153,19 @@ class _BoardContentState extends State<BoardContent> {
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
           final showCreateGroupButton =
-              context.read<BoardBloc>().groupingFieldType?.canCreateNewGroup ??
-                  false;
+              context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
           return Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: AppFlowyBoard(
               boardScrollController: scrollManager,
               scrollController: scrollController,
               controller: context.read<BoardBloc>().boardController,
-              groupConstraints: const BoxConstraints.tightFor(width: 300),
+              groupConstraints: const BoxConstraints.tightFor(width: 256),
               config: const AppFlowyBoardConfig(
                 groupPadding: EdgeInsets.symmetric(horizontal: 4),
                 groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
+                footerPadding: EdgeInsets.fromLTRB(4, 14, 4, 4),
+                stretchGroupHeight: false,
               ),
               leading: HiddenGroupsColumn(margin: config.headerPadding),
               trailing: showCreateGroupButton
@@ -199,20 +203,15 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
     return AppFlowyGroupFooter(
-      height: 50,
+      height: 36,
       margin: config.footerPadding,
-      icon: SizedBox(
-        height: 20,
-        width: 20,
-        child: FlowySvg(
-          FlowySvgs.add_s,
-          color: Theme.of(context).hintColor,
-        ),
+      icon: FlowySvg(
+        FlowySvgs.add_s,
+        color: Theme.of(context).hintColor,
       ),
       title: FlowyText.medium(
         LocaleKeys.board_column_createNewCard.tr(),
         color: Theme.of(context).hintColor,
-        fontSize: 14,
       ),
       onAddButtonClick: () => context
           .read<BoardBloc>()
@@ -265,6 +264,14 @@ class _BoardContentState extends State<BoardContent> {
           rowMeta: rowMeta,
           rowCache: rowCache,
         ),
+        styleConfiguration: RowCardStyleConfiguration(
+          hoverStyle: HoverStyle(
+            hoverColor: Theme.of(context).brightness == Brightness.light
+                ? const Color(0x0F1F2329)
+                : const Color(0x0FEFF4FB),
+            foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
         onStartEditing: () => boardBloc
             .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
         onEndEditing: () =>
@@ -279,8 +286,10 @@ class _BoardContentState extends State<BoardContent> {
       borderRadius: const BorderRadius.all(Radius.circular(6)),
       border: Border.fromBorderSide(
         BorderSide(
-          color: Theme.of(context).dividerColor,
-          width: 1.4,
+          color: Theme.of(context).brightness == Brightness.light
+              ? const Color(0xFF1F2329).withOpacity(0.12)
+              : const Color(0xFF59647A),
+          width: 1.0,
         ),
       ),
       boxShadow: [
@@ -320,13 +329,25 @@ class _BoardContentState extends State<BoardContent> {
       groupId: groupId,
     );
 
-    FlowyOverlay.show(
-      context: context,
-      builder: (_) => RowDetailPage(
-        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-        rowController: dataController,
-      ),
-    );
+    // navigate to card detail screen when it is in mobile
+    if (PlatformExtension.isMobile) {
+      context.push(
+        MobileCardDetailScreen.routeName,
+        extra: {
+          MobileCardDetailScreen.argRowController: dataController,
+          MobileCardDetailScreen.argFieldController: fieldController,
+        },
+      );
+    } else {
+      FlowyOverlay.show(
+        context: context,
+        builder: (_) => RowDetailPage(
+          fieldController: fieldController,
+          cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+          rowController: dataController,
+        ),
+      );
+    }
   }
 }
 

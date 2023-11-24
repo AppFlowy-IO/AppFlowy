@@ -16,7 +16,6 @@ use crate::migrations::MigrationUser;
 #[derive(Debug, Clone, Serialize)]
 pub struct Session {
   pub user_id: i64,
-  pub device_id: String,
   pub user_workspace: UserWorkspace,
 }
 
@@ -36,7 +35,6 @@ impl<'de> Visitor<'de> for SessionVisitor {
     // For historical reasons, the session used to contain a workspace_id field.
     // This field is no longer used, and is replaced by user_workspace.
     let mut workspace_id = None;
-    let mut device_id = "phantom".to_string();
     let mut user_workspace = None;
 
     while let Some(key) = map.next_key::<String>()? {
@@ -46,9 +44,6 @@ impl<'de> Visitor<'de> for SessionVisitor {
         },
         "workspace_id" => {
           workspace_id = Some(map.next_value()?);
-        },
-        "device_id" => {
-          device_id = map.next_value()?;
         },
         "user_workspace" => {
           user_workspace = Some(map.next_value()?);
@@ -73,7 +68,6 @@ impl<'de> Visitor<'de> for SessionVisitor {
 
     let session = Session {
       user_id,
-      device_id,
       user_workspace: user_workspace.ok_or(serde::de::Error::missing_field("user_workspace"))?,
     };
 
@@ -97,7 +91,6 @@ where
   fn from(value: &T) -> Self {
     Self {
       user_id: value.user_id(),
-      device_id: value.device_id().to_string(),
       user_workspace: value.latest_workspace().clone(),
     }
   }
@@ -162,7 +155,7 @@ impl From<AuthTypePB> for Authenticator {
     match pb {
       AuthTypePB::Supabase => Authenticator::Supabase,
       AuthTypePB::Local => Authenticator::Local,
-      AuthTypePB::AFCloud => Authenticator::AFCloud,
+      AuthTypePB::AFCloud => Authenticator::AppFlowyCloud,
     }
   }
 }
@@ -172,7 +165,7 @@ impl From<Authenticator> for AuthTypePB {
     match auth_type {
       Authenticator::Supabase => AuthTypePB::Supabase,
       Authenticator::Local => AuthTypePB::Local,
-      Authenticator::AFCloud => AuthTypePB::AFCloud,
+      Authenticator::AppFlowyCloud => AuthTypePB::AFCloud,
     }
   }
 }

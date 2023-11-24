@@ -261,11 +261,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       databaseController.databaseLayoutSetting?.board.hideUngroupedColumn ??
       false;
 
-  FieldType? get groupingFieldType {
-    final fieldInfo = databaseController.fieldController.fieldInfos
-        .firstWhereOrNull((field) => field.isGroupField);
+  FieldType get groupingFieldType {
+    final fieldInfo =
+        databaseController.fieldController.getField(groupList.first.fieldId)!;
 
-    return fieldInfo?.fieldType;
+    return fieldInfo.fieldType;
   }
 
   void initializeGroups(List<GroupPB> groups) {
@@ -283,7 +283,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           .where(
             (group) =>
                 fieldController.getField(group.fieldId) != null &&
-                (group.isVisible || (group.isDefault && !hideUngrouped)),
+                ((!group.isDefault && group.isVisible) ||
+                    (group.isDefault && !hideUngrouped)),
           )
           .map((group) => _initializeGroupData(group))
           .toList(),

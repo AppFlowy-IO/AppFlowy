@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
@@ -11,44 +12,47 @@ import '../startup.dart';
 
 class InitRustSDKTask extends LaunchTask {
   const InitRustSDKTask({
-    this.directory,
+    this.customApplicationPath,
   });
 
   // Customize the RustSDK initialization path
-  final Directory? directory;
+  final Directory? customApplicationPath;
 
   @override
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    final dir = directory ?? await appFlowyApplicationDataDirectory();
+    final applicationPath = await appFlowyApplicationDataDirectory();
+    final dir = customApplicationPath ?? applicationPath;
+    final deviceId = await getDeviceId();
 
     // Pass the environment variables to the Rust SDK
-    final env = getAppFlowyEnv();
-    await context.getIt<FlowySDK>().init(dir, jsonEncode(env.toJson()));
+    final env = _getAppFlowyConfiguration(
+      dir.path,
+      applicationPath.path,
+      deviceId,
+    );
+    await context.getIt<FlowySDK>().init(jsonEncode(env.toJson()));
   }
 
   @override
   Future<void> dispose() async {}
 }
 
-AppFlowyEnv getAppFlowyEnv() {
-  final supabaseConfig = SupabaseConfiguration(
-    enable_sync: true,
-    url: Env.supabaseUrl,
-    anon_key: Env.supabaseAnonKey,
-  );
-
-  final appflowyCloudConfig = AppFlowyCloudConfiguration(
-    base_url: Env.afCloudBaseUrl,
-    ws_base_url: Env.afCloudWSBaseUrl,
-    gotrue_url: Env.afCloudGoTrueUrl,
-  );
-
-  return AppFlowyEnv(
-    supabase_config: supabaseConfig,
-    appflowy_cloud_config: appflowyCloudConfig,
+AppFlowyConfiguration _getAppFlowyConfiguration(
+  String customAppPath,
+  String originAppPath,
+  String deviceId,
+) {
+  final env = getIt<AppFlowyCloudSharedEnv>();
+  return AppFlowyConfiguration(
+    custom_app_path: customAppPath,
+    origin_app_path: originAppPath,
+    device_id: deviceId,
+    cloud_type: env.cloudType.value,
+    supabase_config: env.supabaseConfig,
+    appflowy_cloud_config: env.appflowyCloudConfig,
   );
 }
 

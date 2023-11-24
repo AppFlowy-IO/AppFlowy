@@ -19,7 +19,7 @@ const String kLocalImagesKey = 'local_images';
 
 List<String> get builtInAssetImages => [
       "assets/images/app_flowy_abstract_cover_1.jpg",
-      "assets/images/app_flowy_abstract_cover_2.jpg"
+      "assets/images/app_flowy_abstract_cover_2.jpg",
     ];
 
 class ChangeCoverPopover extends StatefulWidget {
@@ -529,14 +529,12 @@ class ColorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      customBorder: const RoundedRectangleBorder(
-        borderRadius: Corners.s6Border,
-      ),
-      hoverColor: hoverColor,
-      onTap: () => onTap(option.colorHex),
-      child: Padding(
-        padding: const EdgeInsets.only(right: 10.0),
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        hoverColor: hoverColor,
+        onTap: () => onTap(option.colorHex),
         child: SizedBox.square(
           dimension: 25,
           child: DecoratedBox(

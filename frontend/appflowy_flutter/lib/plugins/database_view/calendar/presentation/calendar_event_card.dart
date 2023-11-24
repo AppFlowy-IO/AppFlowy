@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
@@ -20,6 +21,7 @@ import '../application/calendar_bloc.dart';
 import 'calendar_event_editor.dart';
 
 class EventCard extends StatefulWidget {
+  final FieldController fieldController;
   final CalendarDayEvent event;
   final String viewId;
   final RowCache rowCache;
@@ -27,12 +29,13 @@ class EventCard extends StatefulWidget {
   final bool autoEdit;
 
   const EventCard({
+    super.key,
     required this.event,
     required this.viewId,
     required this.rowCache,
     required this.constraints,
     required this.autoEdit,
-    super.key,
+    required this.fieldController,
   });
 
   @override
@@ -164,6 +167,7 @@ class _EventCardState extends State<EventCard> {
             rowMeta: widget.event.event.rowMeta,
             viewId: widget.viewId,
             layoutSettings: settings,
+            fieldController: widget.fieldController,
           );
         },
         child: DecoratedBox(
@@ -230,7 +234,7 @@ class _EventCardState extends State<EventCard> {
                     color: Theme.of(context).hintColor,
                     overflow: TextOverflow.ellipsis,
                   ),
-                )
+                ),
             ],
           ),
         ),

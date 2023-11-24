@@ -6,7 +6,7 @@ use parking_lot::RwLock;
 use serde_repr::*;
 
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_server::af_cloud::AFCloudServer;
+use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
@@ -14,7 +14,6 @@ use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::database::{get_user_profile, get_user_workspace, open_user_db};
-use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 
 use crate::AppFlowyCoreConfig;
@@ -56,9 +55,6 @@ pub struct ServerProvider {
   providers: RwLock<HashMap<ServerType, Arc<dyn AppFlowyServer>>>,
   pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   pub(crate) store_preferences: Weak<StorePreferences>,
-  pub(crate) cache_user_service: RwLock<HashMap<ServerType, Arc<dyn UserCloudService>>>,
-
-  pub(crate) device_id: Arc<RwLock<String>>,
   pub(crate) enable_sync: RwLock<bool>,
   pub(crate) uid: Arc<RwLock<Option<i64>>>,
 }
@@ -73,12 +69,10 @@ impl ServerProvider {
     Self {
       config,
       server_type: RwLock::new(server_type),
-      device_id: Arc::new(RwLock::new(uuid::Uuid::new_v4().to_string())),
       providers: RwLock::new(HashMap::new()),
       enable_sync: RwLock::new(true),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
-      cache_user_service: Default::default(),
       uid: Default::default(),
     }
   }
@@ -115,22 +109,16 @@ impl ServerProvider {
       },
       ServerType::AFCloud => {
         let config = AFCloudConfiguration::from_env()?;
-        let server = Arc::new(AFCloudServer::new(
+        let server = Arc::new(AppFlowyCloudServer::new(
           config,
           *self.enable_sync.read(),
-          self.device_id.clone(),
+          self.config.device_id.clone(),
         ));
 
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       ServerType::Supabase => {
-        let config = match SupabaseConfiguration::from_env() {
-          Ok(config) => config,
-          Err(e) => {
-            *self.enable_sync.write() = false;
-            return Err(e);
-          },
-        };
+        let config = SupabaseConfiguration::from_env()?;
         let uid = self.uid.clone();
         tracing::trace!("🔑Supabase config: {:?}", config);
         let encryption = Arc::downgrade(&*self.encryption.read());
@@ -138,7 +126,7 @@ impl ServerProvider {
           uid,
           config,
           *self.enable_sync.read(),
-          self.device_id.clone(),
+          self.config.device_id.clone(),
           encryption,
         )))
       },
@@ -156,7 +144,7 @@ impl From<Authenticator> for ServerType {
   fn from(auth_provider: Authenticator) -> Self {
     match auth_provider {
       Authenticator::Local => ServerType::Local,
-      Authenticator::AFCloud => ServerType::AFCloud,
+      Authenticator::AppFlowyCloud => ServerType::AFCloud,
       Authenticator::Supabase => ServerType::Supabase,
     }
   }
@@ -166,7 +154,7 @@ impl From<ServerType> for Authenticator {
   fn from(ty: ServerType) -> Self {
     match ty {
       ServerType::Local => Authenticator::Local,
-      ServerType::AFCloud => Authenticator::AFCloud,
+      ServerType::AFCloud => Authenticator::AppFlowyCloud,
       ServerType::Supabase => Authenticator::Supabase,
     }
   }

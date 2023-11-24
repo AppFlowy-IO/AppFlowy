@@ -108,7 +108,7 @@ void main() {
         root: Node(
           type: 'page',
           children: [
-            paragraphNode(children: [paragraphNode(text: '1')])
+            paragraphNode(children: [paragraphNode(text: '1')]),
           ],
         ),
       );

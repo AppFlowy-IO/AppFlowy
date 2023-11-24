@@ -3,10 +3,8 @@ import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart'
 
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -93,7 +91,7 @@ class SelectOptionTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8.0);
+        const EdgeInsets.symmetric(vertical: 1, horizontal: 8.0);
     if (onRemove != null) {
       padding = padding.copyWith(right: 2.0);
     }
@@ -108,7 +106,7 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(
+            child: FlowyText.regular(
               name,
               fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
@@ -125,7 +123,7 @@ class SelectOptionTag extends StatelessWidget {
                 FlowySvgs.close_s,
               ),
             ),
-          ]
+          ],
         ],
       ),
     );
@@ -137,11 +135,11 @@ class SelectOptionTagCell extends StatelessWidget {
   final void Function(SelectOptionPB) onSelected;
   final SelectOptionPB option;
   const SelectOptionTagCell({
+    super.key,
     required this.option,
     required this.onSelected,
     this.children = const [],
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

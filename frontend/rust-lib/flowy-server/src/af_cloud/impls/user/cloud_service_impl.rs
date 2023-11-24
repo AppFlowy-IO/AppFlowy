@@ -5,9 +5,10 @@ use anyhow::{anyhow, Error};
 use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
 use client_api::entity::{AFRole, AFWorkspace, InsertCollabParams, OAuthProvider};
 use collab_entity::CollabObject;
+use parking_lot::RwLock;
 
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::cloud::{UserCloudService, UserUpdate, UserUpdateReceiver};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -17,15 +18,19 @@ use crate::af_cloud::impls::user::dto::{
 };
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::{AFCloudClient, AFServer};
-use crate::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
+use crate::supabase::define::USER_SIGN_IN_URL;
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
+  user_change_recv: RwLock<Option<tokio::sync::mpsc::Receiver<UserUpdate>>>,
 }
 
 impl<T> AFCloudUserAuthServiceImpl<T> {
-  pub(crate) fn new(server: T) -> Self {
-    Self { server }
+  pub(crate) fn new(server: T, user_change_recv: tokio::sync::mpsc::Receiver<UserUpdate>) -> Self {
+    Self {
+      server,
+      user_change_recv: RwLock::new(Some(user_change_recv)),
+    }
   }
 }
 
@@ -212,12 +217,14 @@ where
   }
 
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
-    // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(vec![]) })
   }
 
+  fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
+    self.user_change_recv.write().take()
+  }
+
   fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), Error> {
-    // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(()) })
   }
 
@@ -269,7 +276,6 @@ pub async fn user_sign_in_with_url(
     user_workspaces,
     email: user_profile.email,
     token: Some(client.get_token()?),
-    device_id: params.device_id,
     encryption_type,
     is_new_user,
     updated_at: user_profile.updated_at,
@@ -300,9 +306,7 @@ fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, Error> {
     .get(USER_SIGN_IN_URL)
     .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing token field"))?
     .as_str();
-  let device_id = map.get(USER_DEVICE_ID).cloned().unwrap_or_default();
   Ok(AFCloudOAuthParams {
     sign_in_url: sign_in_url.to_string(),
-    device_id,
   })
 }

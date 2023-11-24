@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 class CardSizes {
-  static double get cardCellVPadding => 6;
+  static EdgeInsets get cardCellPadding => const EdgeInsets.all(4);
 }

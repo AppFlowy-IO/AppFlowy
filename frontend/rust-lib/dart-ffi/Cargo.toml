@@ -17,6 +17,7 @@ byteorder = { version = "1.4.3" }
 protobuf.workspace = true
 tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
 serde.workspace = true
+serde_repr.workspace = true
 serde_json.workspace = true
 bytes.workspace = true
 crossbeam-utils = "0.8.15"

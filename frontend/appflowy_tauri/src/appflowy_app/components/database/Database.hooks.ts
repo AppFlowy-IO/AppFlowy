@@ -1,9 +1,11 @@
-import { createContext, useContext, useCallback, useMemo, useEffect, useState, useRef } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { proxy, useSnapshot } from 'valtio';
-import { DatabaseLayoutPB, DatabaseNotification } from '@/services/backend';
+import { DatabaseLayoutPB, DatabaseNotification, FieldVisibility } from '@/services/backend';
 import { subscribeNotifications } from '$app/hooks';
-import { Database, databaseService, fieldService, rowListeners, sortListeners } from './application';
+import { Database, databaseService, fieldListeners, fieldService, rowListeners, sortListeners } from './application';
+import { didUpdateFilter } from '$app/components/database/application/filter/filter_listeners';
+import { didUpdateViewRowsVisibility } from '$app/components/database/application/row/row_listeners';
 
 export function useSelectDatabaseView({ viewId }: { viewId?: string }) {
   const key = 'v';
@@ -40,6 +42,21 @@ export const DatabaseProvider = DatabaseContext.Provider;
 
 export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
 
+export const useDatabaseVisibilityRows = () => {
+  const { rowMetas } = useDatabase();
+
+  return useMemo(() => rowMetas.filter((row) => !row.isHidden), [rowMetas]);
+};
+
+export const useDatabaseVisibilityFields = () => {
+  const database = useDatabase();
+
+  return useMemo(
+    () => database.fields.filter((field) => field.visibility !== FieldVisibility.AlwaysHidden),
+    [database.fields]
+  );
+};
+
 export const useConnectDatabase = (viewId: string) => {
   const database = useMemo(() => {
     const proxyDatabase = proxy<Database>({
@@ -65,6 +82,9 @@ export const useConnectDatabase = (viewId: string) => {
         [DatabaseNotification.DidUpdateFields]: async () => {
           database.fields = await fieldService.getFields(viewId);
         },
+        [DatabaseNotification.DidUpdateFieldSettings]: async (changeset) => {
+          fieldListeners.didUpdateFieldSettings(database, changeset);
+        },
         [DatabaseNotification.DidUpdateViewRows]: (changeset) => {
           rowListeners.didUpdateViewRows(database, changeset);
         },
@@ -77,6 +97,13 @@ export const useConnectDatabase = (viewId: string) => {
 
         [DatabaseNotification.DidUpdateSort]: (changeset) => {
           sortListeners.didUpdateSort(database, changeset);
+        },
+
+        [DatabaseNotification.DidUpdateFilter]: (changeset) => {
+          didUpdateFilter(database, changeset);
+        },
+        [DatabaseNotification.DidUpdateViewRowsVisibility]: (changeset) => {
+          didUpdateViewRowsVisibility(database, changeset);
         },
       },
       { id: viewId }

@@ -48,7 +48,7 @@ function UserSettings({ open, onClose }: { open: boolean; onClose: () => void })
       onMouseDown={(e) => e.stopPropagation()}
       open={open}
       TransitionComponent={SlideTransition}
-      keepMounted
+      keepMounted={false}
       onClose={onClose}
     >
       <DialogTitle>{t('settings.title')}</DialogTitle>
