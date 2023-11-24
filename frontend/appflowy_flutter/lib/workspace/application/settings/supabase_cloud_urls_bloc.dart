@@ -53,20 +53,24 @@ class SupabaseCloudURLsBloc
             validateUrl(state.updatedUrl).fold(
               (error) => emit(state.copyWith(urlError: Some(error))),
               (_) async {
-                emit(
-                  state.copyWith(
-                    urlError: none(),
-                    anonKeyError: none(),
-                    restartApp: true,
-                  ),
-                );
                 await setSupbaseServer(
                   Some(state.updatedUrl),
                   Some(state.upatedAnonKey),
                 );
+
+                add(const SupabaseCloudURLsEvent.didSaveConfig());
               },
             );
           }
+        },
+        didSaveConfig: () {
+          emit(
+            state.copyWith(
+              urlError: none(),
+              anonKeyError: none(),
+              restartApp: true,
+            ),
+          );
         },
       );
     });
@@ -83,6 +87,7 @@ class SupabaseCloudURLsEvent with _$SupabaseCloudURLsEvent {
   const factory SupabaseCloudURLsEvent.updateAnonKey(String text) =
       _UpdateAnonKey;
   const factory SupabaseCloudURLsEvent.confirmUpdate() = _UpdateConfig;
+  const factory SupabaseCloudURLsEvent.didSaveConfig() = _DidSaveConfig;
 }
 
 @freezed

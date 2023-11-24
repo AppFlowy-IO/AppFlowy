@@ -76,7 +76,15 @@ bool get isAuthEnabled {
       return false;
     }
 
-    return env.appflowyCloudConfig.isValid || env.supabaseConfig.isValid;
+    if (env.cloudType == CloudType.supabase) {
+      return env.supabaseConfig.isValid;
+    }
+
+    if (env.cloudType == CloudType.appflowyCloud) {
+      return env.appflowyCloudConfig.isValid;
+    }
+
+    return false;
   } else {
     return false;
   }

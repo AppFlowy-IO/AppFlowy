@@ -32,18 +32,21 @@ class AppFlowyCloudURLsBloc
             validateUrl(state.updatedServerUrl).fold(
               (error) => emit(state.copyWith(urlError: Some(error))),
               (_) async {
-                emit(
-                  state.copyWith(
-                    urlError: none(),
-                    restartApp: true,
-                  ),
-                );
                 if (state.config.base_url != state.updatedServerUrl) {
                   await setAppFlowyCloudBaseUrl(Some(state.updatedServerUrl));
+                  add(const AppFlowyCloudURLsEvent.didSaveConfig());
                 }
               },
             );
           }
+        },
+        didSaveConfig: () {
+          emit(
+            state.copyWith(
+              urlError: none(),
+              restartApp: true,
+            ),
+          );
         },
       );
     });
@@ -56,6 +59,7 @@ class AppFlowyCloudURLsEvent with _$AppFlowyCloudURLsEvent {
   const factory AppFlowyCloudURLsEvent.updateServerUrl(String text) =
       _ServerUrl;
   const factory AppFlowyCloudURLsEvent.confirmUpdate() = _UpdateConfig;
+  const factory AppFlowyCloudURLsEvent.didSaveConfig() = _DidSaveConfig;
 }
 
 @freezed
