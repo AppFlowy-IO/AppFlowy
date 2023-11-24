@@ -246,27 +246,30 @@ class _CreateOptionCell extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
-        height: GridSize.popoverItemHeight,
-        child: Row(
-          children: [
-            FlowyText.medium(
-              LocaleKeys.grid_selectOption_create.tr(),
-              color: Theme.of(context).hintColor,
-            ),
-            const HSpace(10),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SelectOptionTag(
-                  name: name,
-                  color: AFThemeExtension.of(context).greyHover,
-                  // onSelected: () => context
-                  //     .read<SelectOptionCellEditorBloc>()
-                  //     .add(SelectOptionEditorEvent.newOption(name)),
+        height: 28,
+        child: FlowyButton(
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          onTap: () => context
+              .read<SelectOptionCellEditorBloc>()
+              .add(SelectOptionEditorEvent.newOption(name)),
+          text: Row(
+            children: [
+              FlowyText.medium(
+                LocaleKeys.grid_selectOption_create.tr(),
+                color: Theme.of(context).hintColor,
+              ),
+              const HSpace(10),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SelectOptionTag(
+                    name: name,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
