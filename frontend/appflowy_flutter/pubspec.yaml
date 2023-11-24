@@ -150,8 +150,9 @@ dependency_overrides:
   supabase_flutter:
     git:
       url: https://github.com/LucasXu0/supabase-flutter
-      ref: 852119e
+      ref: 4bd9139
       path: packages/supabase_flutter
+
   app_links:
     git:
       url: https://github.com/LucasXu0/app_links

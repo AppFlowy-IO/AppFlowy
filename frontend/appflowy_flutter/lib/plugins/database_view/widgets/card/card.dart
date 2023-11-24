@@ -73,9 +73,9 @@ class RowCard<CustomCardData> extends StatefulWidget {
 }
 
 class _RowCardState<T> extends State<RowCard<T>> {
+  final popoverController = PopoverController();
   late final CardBloc _cardBloc;
   late final EditableRowNotifier rowNotifier;
-  late final PopoverController popoverController;
   AccessoryType? accessoryType;
 
   @override
@@ -100,8 +100,6 @@ class _RowCardState<T> extends State<RowCard<T>> {
         widget.onEndEditing();
       }
     });
-
-    popoverController = PopoverController();
   }
 
   @override
@@ -111,26 +109,21 @@ class _RowCardState<T> extends State<RowCard<T>> {
       child: BlocBuilder<CardBloc, RowCardState>(
         buildWhen: (previous, current) {
           // Rebuild when:
-          // 1.If the length of the cells is not the same
-          // 2.isEditing changed
+          // 1. If the length of the cells is not the same or isEditing changed
           if (previous.cells.length != current.cells.length ||
               previous.isEditing != current.isEditing) {
             return true;
           }
 
-          // 3.Compare the content of the cells. The cells consists of
-          // list of [BoardCellEquatable] that extends the [Equatable].
+          // 2. the content of the cells changed
           return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {
-          // mobile
           if (PlatformExtension.isMobile) {
             // TODO(yijing): refactor it in mobile to display card in database view
             return RowCardContainer(
               buildAccessoryWhen: () => state.isEditing == false,
-              accessoryBuilder: (context) {
-                return [];
-              },
+              accessories: const [],
               openAccessory: (p0) {},
               openCard: (context) => widget.openCard(context),
               child: _CardContent<T>(
@@ -143,29 +136,27 @@ class _RowCardState<T> extends State<RowCard<T>> {
               ),
             );
           }
-          // desktop
+
           return AppFlowyPopover(
             controller: popoverController,
             triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(140, 200)),
-            margin: const EdgeInsets.all(6),
             direction: PopoverDirection.rightWithCenterAligned,
-            popupBuilder: (popoverContext) => _handlePopoverBuilder(
-              context,
-              popoverContext,
-            ),
+            popupBuilder: (popoverContext) {
+              return RowActions(
+                viewId: _cardBloc.viewId,
+                rowId: _cardBloc.rowMeta.id,
+                groupId: widget.groupId,
+              );
+            },
             child: RowCardContainer(
               buildAccessoryWhen: () => state.isEditing == false,
-              accessoryBuilder: (context) {
-                if (widget.styleConfiguration.showAccessory == false) {
-                  return [];
-                } else {
-                  return [
-                    _CardEditOption(rowNotifier: rowNotifier),
-                    CardMoreOption(),
-                  ];
-                }
-              },
+              accessories: [
+                if (widget.styleConfiguration.showAccessory) ...[
+                  _CardEditOption(rowNotifier: rowNotifier),
+                  const CardMoreOption(),
+                ],
+              ],
               openAccessory: _handleOpenAccessory,
               openCard: (context) => widget.openCard(context),
               child: _CardContent<T>(
@@ -191,22 +182,6 @@ class _RowCardState<T> extends State<RowCard<T>> {
       case AccessoryType.more:
         popoverController.show();
         break;
-    }
-  }
-
-  Widget _handlePopoverBuilder(
-    BuildContext context,
-    BuildContext popoverContext,
-  ) {
-    switch (accessoryType!) {
-      case AccessoryType.edit:
-        throw UnimplementedError();
-      case AccessoryType.more:
-        return RowActions(
-          viewId: context.read<CardBloc>().viewId,
-          rowId: context.read<CardBloc>().rowMeta.id,
-          groupId: widget.groupId,
-        );
     }
   }
 
@@ -259,6 +234,7 @@ class _CardContentState<CustomCardData>
     if (widget.styleConfiguration.hoverStyle != null) {
       return FlowyHover(
         style: widget.styleConfiguration.hoverStyle,
+        buildWhenOnHover: () => !widget.rowNotifier.isEditing.value,
         child: Padding(
           padding: widget.styleConfiguration.cardPadding,
           child: Column(
@@ -316,21 +292,21 @@ class _CardContentState<CustomCardData>
 }
 
 class CardMoreOption extends StatelessWidget with CardAccessory {
-  CardMoreOption({Key? key}) : super(key: key);
+  const CardMoreOption({super.key});
+
+  @override
+  AccessoryType get type => AccessoryType.more;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: FlowySvg(
-        FlowySvgs.details_s,
-        color: Theme.of(context).iconTheme.color,
+        FlowySvgs.three_dots_s,
+        color: Theme.of(context).hintColor,
       ),
     );
   }
-
-  @override
-  AccessoryType get type => AccessoryType.more;
 }
 
 class _CardEditOption extends StatelessWidget with CardAccessory {
@@ -346,7 +322,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
       padding: const EdgeInsets.all(3.0),
       child: FlowySvg(
         FlowySvgs.edit_s,
-        color: Theme.of(context).iconTheme.color,
+        color: Theme.of(context).hintColor,
       ),
     );
   }
@@ -366,7 +342,7 @@ class RowCardStyleConfiguration {
 
   const RowCardStyleConfiguration({
     this.showAccessory = true,
-    this.cellPadding = const EdgeInsets.only(left: 4, right: 4),
+    this.cellPadding = EdgeInsets.zero,
     this.cardPadding = const EdgeInsets.all(8),
     this.hoverStyle,
   });

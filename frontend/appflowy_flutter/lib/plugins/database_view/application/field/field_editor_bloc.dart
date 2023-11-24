@@ -108,7 +108,6 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 
   @override
   Future<void> close() {
-    fieldController.dispose();
     _singleFieldListener.stop();
 
     return super.close();

@@ -106,7 +106,7 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(
+            child: FlowyText.regular(
               name,
               fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
@@ -135,11 +135,11 @@ class SelectOptionTagCell extends StatelessWidget {
   final void Function(SelectOptionPB) onSelected;
   final SelectOptionPB option;
   const SelectOptionTagCell({
+    super.key,
     required this.option,
     required this.onSelected,
     this.children = const [],
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
