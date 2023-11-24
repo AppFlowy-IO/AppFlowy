@@ -1,5 +1,5 @@
 import 'package:appflowy/env/backend_env.dart';
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';

@@ -37,6 +37,7 @@ class FlowyRunner {
   static Future<FlowyRunnerContext> run(
     EntryPoint f,
     IntegrationMode mode, {
+    VoidCallback? didInitGetIt,
     LaunchConfiguration config = const LaunchConfiguration(
       autoRegistrationSupported: false,
     ),
@@ -46,6 +47,7 @@ class FlowyRunner {
 
     // Specify the env
     await initGetIt(getIt, mode, f, config);
+    didInitGetIt?.call();
 
     final applicationDataDirectory =
         await getIt<ApplicationDataStorage>().getPath().then(

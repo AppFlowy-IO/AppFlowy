@@ -1,4 +1,4 @@
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_auth_listener.dart';
 import 'package:appflowy_backend/log.dart';

@@ -1,3 +1,4 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -11,13 +12,13 @@ void main() {
 
   group('auth', () {
     testWidgets('sign in with supabase', (tester) async {
-      await tester.initializeAppFlowy();
+      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
       await tester.tapGoogleLoginInButton();
       tester.expectToSeeHomePage();
     });
 
     testWidgets('sign out with supabase', (tester) async {
-      await tester.initializeAppFlowy();
+      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out
@@ -34,7 +35,7 @@ void main() {
     });
 
     testWidgets('sign in as annoymous', (tester) async {
-      await tester.initializeAppFlowy();
+      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
       await tester.tapSignInAsGuest();
 
       // should not see the sync setting page when sign in as annoymous
@@ -43,7 +44,7 @@ void main() {
     });
 
     testWidgets('enable encryption', (tester) async {
-      await tester.initializeAppFlowy();
+      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out
@@ -63,7 +64,7 @@ void main() {
     });
 
     testWidgets('enable sync', (tester) async {
-      await tester.initializeAppFlowy();
+      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out

@@ -142,13 +142,26 @@ enum CloudType {
         return 2;
     }
   }
+
+  static fromValue(int value) {
+    switch (value) {
+      case 0:
+        return CloudType.local;
+      case 1:
+        return CloudType.supabase;
+      case 2:
+        return CloudType.appflowyCloud;
+      default:
+        return CloudType.local;
+    }
+  }
 }
 
 CloudType currentCloudType() {
   return getIt<AppFlowyCloudSharedEnv>().cloudType;
 }
 
-Future<void> setAppFlowyCloudBaseUrl(Option<String> url) async {
+Future<void> setAppFlowyCloudUrl(Option<String> url) async {
   await url.fold(
     () => getIt<KeyValueStorage>().remove(KVKeys.kAppflowyCloudBaseURL),
     (s) => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, s),
