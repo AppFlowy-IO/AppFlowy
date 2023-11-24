@@ -73,7 +73,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
         Widget title = Expanded(
           child: FlowyText.medium(
             widget.groupData.headerData.groupName,
-            fontSize: 14,
             overflow: TextOverflow.ellipsis,
           ),
         );
@@ -92,7 +91,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                       .add(BoardEvent.startEditingHeader(widget.groupData.id)),
                   child: FlowyText.medium(
                     widget.groupData.headerData.groupName,
-                    fontSize: 14,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -199,7 +197,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   Widget _groupOptionsButton(BuildContext context) {
     return AppFlowyPopover(
       clickHandler: PopoverClickHandler.gestureDetector,
-      margin: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      margin: const EdgeInsets.all(8),
       constraints: BoxConstraints.loose(const Size(168, 300)),
       direction: PopoverDirection.bottomWithLeftAligned,
       child: FlowyIconButton(
@@ -217,25 +215,23 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
         if (!customGroupData.fieldType.canDeleteGroup || isDefault) {
           menuItems.remove(GroupOptions.delete);
         }
-        return Column(
+        return SeparatedColumn(
           mainAxisSize: MainAxisSize.min,
+          separatorBuilder: () => const VSpace(4),
           children: [
             ...menuItems.map(
               (action) => SizedBox(
                 height: GridSize.popoverItemHeight,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0),
-                  child: FlowyButton(
-                    leftIcon: FlowySvg(action.icon),
-                    text: FlowyText.medium(
-                      action.text,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: () {
-                      action.call(context, customGroupData.group);
-                      PopoverContainer.of(popoverContext).close();
-                    },
+                child: FlowyButton(
+                  leftIcon: FlowySvg(action.icon),
+                  text: FlowyText.medium(
+                    action.text,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  onTap: () {
+                    action.call(context, customGroupData.group);
+                    PopoverContainer.of(popoverContext).close();
+                  },
                 ),
               ),
             ),

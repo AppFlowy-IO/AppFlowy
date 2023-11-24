@@ -71,7 +71,6 @@ class HiddenGroupsColumn extends StatelessWidget {
                                   LocaleKeys
                                       .board_hiddenGroupSection_sectionTitle
                                       .tr(),
-                                  fontSize: 14,
                                   overflow: TextOverflow.ellipsis,
                                   color: Theme.of(context).hintColor,
                                 ),

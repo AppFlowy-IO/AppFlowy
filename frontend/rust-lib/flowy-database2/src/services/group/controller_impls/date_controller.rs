@@ -7,7 +7,7 @@ use chrono::{
 };
 use chrono_tz::Tz;
 use collab_database::database::timestamp;
-use collab_database::fields::Field;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
