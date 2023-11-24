@@ -1,8 +1,10 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Já",
+  "welcomeText": "Vítej",
   "githubStarText": "Ohvě",
   "subscribeNewsletterText": "Přihlásit k odběru newsletteru",
+  "letsGoButtonText": "Rychlá",
   "blockActions": {
     "addAboveTooltip": "Přidat "
   },
