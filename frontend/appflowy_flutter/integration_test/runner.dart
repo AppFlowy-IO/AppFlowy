@@ -1,8 +1,6 @@
-import 'package:appflowy/env/env.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'appearance_settings_test.dart' as appearance_test_runner;
-import 'auth/auth_test.dart' as auth_test_runner;
 import 'board/board_test_runner.dart' as board_test_runner;
 import 'database_calendar_test.dart' as database_calendar_test;
 import 'database_cell_test.dart' as database_cell_test;
