@@ -64,26 +64,23 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
 class SelectOptionTag extends StatelessWidget {
   final String name;
   final Color color;
-  final VoidCallback? onSelected;
   final void Function(String)? onRemove;
+
   const SelectOptionTag({
     required this.name,
     required this.color,
-    this.onSelected,
     this.onRemove,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   factory SelectOptionTag.fromOption({
     required BuildContext context,
     required SelectOptionPB option,
-    VoidCallback? onSelected,
     Function(String)? onRemove,
   }) {
     return SelectOptionTag(
       name: option.name,
       color: option.color.toColor(context),
-      onSelected: onSelected,
       onRemove: onRemove,
     );
   }
@@ -119,9 +116,7 @@ class SelectOptionTag extends StatelessWidget {
               width: 18.0,
               onPressed: () => onRemove?.call(name),
               hoverColor: Colors.transparent,
-              icon: const FlowySvg(
-                FlowySvgs.close_s,
-              ),
+              icon: const FlowySvg(FlowySvgs.close_s),
             ),
           ],
         ],
@@ -131,9 +126,6 @@ class SelectOptionTag extends StatelessWidget {
 }
 
 class SelectOptionTagCell extends StatelessWidget {
-  final List<Widget> children;
-  final void Function(SelectOptionPB) onSelected;
-  final SelectOptionPB option;
   const SelectOptionTagCell({
     super.key,
     required this.option,
@@ -141,34 +133,37 @@ class SelectOptionTagCell extends StatelessWidget {
     this.children = const [],
   });
 
+  final SelectOptionPB option;
+  final VoidCallback onSelected;
+  final List<Widget> children;
+
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
       style: HoverStyle(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
       ),
-      child: InkWell(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onSelected,
               child: Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: SelectOptionTag.fromOption(
                     context: context,
                     option: option,
-                    onSelected: () => onSelected(option),
                   ),
                 ),
               ),
             ),
-            ...children,
-          ],
-        ),
-        // TODO(richard): find alternative solution to onTapDown
-        onTapDown: (_) => onSelected(option),
+          ),
+          ...children,
+        ],
       ),
     );
   }
