@@ -12,7 +12,7 @@ abstract class TestEnv {
     varName: 'CLOUD_TYPE',
     defaultValue: '0',
   )
-  static final int cloudType = _Env.cloudType;
+  static final int cloudType = _TestEnv.cloudType;
 
   /// AppFlowy Cloud Configuration
   @EnviedField(
@@ -20,7 +20,7 @@ abstract class TestEnv {
     varName: 'APPFLOWY_CLOUD_URL',
     defaultValue: '',
   )
-  static final String afCloudUrl = _Env.afCloudUrl;
+  static final String afCloudUrl = _TestEnv.afCloudUrl;
 
   // Supabase Configuration:
   @EnviedField(
@@ -28,11 +28,11 @@ abstract class TestEnv {
     varName: 'SUPABASE_URL',
     defaultValue: '',
   )
-  static final String supabaseUrl = _Env.supabaseUrl;
+  static final String supabaseUrl = _TestEnv.supabaseUrl;
   @EnviedField(
     obfuscate: true,
     varName: 'SUPABASE_ANON_KEY',
     defaultValue: '',
   )
-  static final String supabaseAnonKey = _Env.supabaseAnonKey;
+  static final String supabaseAnonKey = _TestEnv.supabaseAnonKey;
 }

@@ -40,7 +40,8 @@ void main() {
 
       // should not see the sync setting page when sign in as annoymous
       await tester.openSettings();
-      await tester.expectNoSettingsPage(SettingsPage.cloud);
+      await tester.openSettingsPage(SettingsPage.user);
+      tester.expectToSeeGoogleLoginButton();
     });
 
     testWidgets('enable encryption', (tester) async {
