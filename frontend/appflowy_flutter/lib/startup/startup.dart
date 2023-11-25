@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/workspace/application/settings/prelude.dart';
@@ -37,6 +38,7 @@ class FlowyRunner {
   static Future<FlowyRunnerContext> run(
     EntryPoint f,
     IntegrationMode mode, {
+    Future? didInitGetIt,
     LaunchConfiguration config = const LaunchConfiguration(
       autoRegistrationSupported: false,
     ),
@@ -46,6 +48,8 @@ class FlowyRunner {
 
     // Specify the env
     await initGetIt(getIt, mode, f, config);
+
+    await didInitGetIt;
 
     final applicationDataDirectory =
         await getIt<ApplicationDataStorage>().getPath().then(

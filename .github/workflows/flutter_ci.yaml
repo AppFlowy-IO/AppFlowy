@@ -300,6 +300,14 @@ jobs:
       - name: Uncompress appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
 
+#      - name: Create .env.cloud.test file in flowy-server
+#        working-directory: frontend/appflowy_flutter
+#        run: |
+#          touch .env.cloud.test
+#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.cloud.test
+#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.cloud.test
+#          echo APPFLOWY_CLOUD_URL=${{ secrets.APPFLOWY_CLOUD_URL }} >> .env.cloud.test
+
       - name: Run flutter pub get
         working-directory: frontend
         run: cargo make pub_get

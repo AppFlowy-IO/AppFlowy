@@ -1,4 +1,4 @@
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';

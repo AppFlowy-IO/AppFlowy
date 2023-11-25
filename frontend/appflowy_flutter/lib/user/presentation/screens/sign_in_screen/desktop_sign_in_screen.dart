@@ -1,5 +1,5 @@
 import 'package:appflowy/core/frameless_window.dart';
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';

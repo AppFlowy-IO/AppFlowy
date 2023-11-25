@@ -1,5 +1,5 @@
 import 'package:appflowy/env/backend_env.dart';
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -27,15 +27,15 @@ class AppFlowyCloudURLsBloc
                 restartApp: true,
               ),
             );
-            await setAppFlowyCloudBaseUrl(none());
+            await setAppFlowyCloudUrl(none());
           } else {
             validateUrl(state.updatedServerUrl).fold(
               (error) => emit(state.copyWith(urlError: Some(error))),
               (_) async {
                 if (state.config.base_url != state.updatedServerUrl) {
-                  await setAppFlowyCloudBaseUrl(Some(state.updatedServerUrl));
-                  add(const AppFlowyCloudURLsEvent.didSaveConfig());
+                  await setAppFlowyCloudUrl(Some(state.updatedServerUrl));
                 }
+                add(const AppFlowyCloudURLsEvent.didSaveConfig());
               },
             );
           }

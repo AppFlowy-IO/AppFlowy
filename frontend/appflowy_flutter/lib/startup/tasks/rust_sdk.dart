@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/env/backend_env.dart';
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:path_provider/path_provider.dart';
