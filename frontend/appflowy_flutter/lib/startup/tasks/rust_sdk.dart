@@ -23,12 +23,14 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    final root = await getApplicationSupportDirectory();
     final applicationPath = await appFlowyApplicationDataDirectory();
     final dir = customApplicationPath ?? applicationPath;
     final deviceId = await getDeviceId();
 
     // Pass the environment variables to the Rust SDK
     final env = _getAppFlowyConfiguration(
+      root.path,
       dir.path,
       applicationPath.path,
       deviceId,
@@ -41,12 +43,14 @@ class InitRustSDKTask extends LaunchTask {
 }
 
 AppFlowyConfiguration _getAppFlowyConfiguration(
+  String root,
   String customAppPath,
   String originAppPath,
   String deviceId,
 ) {
   final env = getIt<AppFlowyCloudSharedEnv>();
   return AppFlowyConfiguration(
+    root: root,
     custom_app_path: customAppPath,
     origin_app_path: originAppPath,
     device_id: deviceId,

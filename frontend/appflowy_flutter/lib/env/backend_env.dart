@@ -5,6 +5,7 @@ part 'backend_env.g.dart';
 
 @JsonSerializable()
 class AppFlowyConfiguration {
+  final String root;
   final String custom_app_path;
   final String origin_app_path;
   final String device_id;
@@ -13,6 +14,7 @@ class AppFlowyConfiguration {
   final AppFlowyCloudConfiguration appflowy_cloud_config;
 
   AppFlowyConfiguration({
+    required this.root,
     required this.custom_app_path,
     required this.origin_app_path,
     required this.device_id,

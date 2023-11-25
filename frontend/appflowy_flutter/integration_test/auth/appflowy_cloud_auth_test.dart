@@ -10,15 +10,15 @@ import '../util/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('supabase auth', () {
-    testWidgets('sign in with supabase', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+  group('appflowy cloud auth', () {
+    testWidgets('sign in', (tester) async {
+      await tester.initializeAppFlowy(cloudType: CloudType.appflowyCloud);
       await tester.tapGoogleLoginInButton();
       tester.expectToSeeHomePage();
     });
 
-    testWidgets('sign out with supabase', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+    testWidgets('sign out', (tester) async {
+      await tester.initializeAppFlowy(cloudType: CloudType.appflowyCloud);
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out
@@ -35,7 +35,7 @@ void main() {
     });
 
     testWidgets('sign in as annoymous', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+      await tester.initializeAppFlowy(cloudType: CloudType.appflowyCloud);
       await tester.tapSignInAsGuest();
 
       // should not see the sync setting page when sign in as annoymous
@@ -44,28 +44,8 @@ void main() {
       tester.expectToSeeGoogleLoginButton();
     });
 
-    // testWidgets('enable encryption', (tester) async {
-    //   await tester.initializeAppFlowy(cloudType: CloudType.supabase);
-    //   await tester.tapGoogleLoginInButton();
-
-    //   // Open the setting page and sign out
-    //   await tester.openSettings();
-    //   await tester.openSettingsPage(SettingsPage.cloud);
-
-    //   // the switch should be off by default
-    //   tester.assertEnableEncryptSwitchValue(false);
-    //   await tester.toggleEnableEncrypt();
-
-    //   // the switch should be on after toggling
-    //   tester.assertEnableEncryptSwitchValue(true);
-
-    //   // the switch can not be toggled back to off
-    //   await tester.toggleEnableEncrypt();
-    //   tester.assertEnableEncryptSwitchValue(true);
-    // });
-
     testWidgets('enable sync', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+      await tester.initializeAppFlowy(cloudType: CloudType.appflowyCloud);
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out
