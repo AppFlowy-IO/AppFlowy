@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FlowyLogoTitle extends StatelessWidget {
-  final String title;
-  final Size logoSize;
   const FlowyLogoTitle({
     super.key,
     required this.title,
     this.logoSize = const Size.square(40),
   });
+
+  final String title;
+  final Size logoSize;
 
   @override
   Widget build(BuildContext context) {

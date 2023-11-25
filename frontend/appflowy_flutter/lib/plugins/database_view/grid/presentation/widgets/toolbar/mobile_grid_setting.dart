@@ -7,13 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileGridSettingButton extends StatelessWidget {
-  final DatabaseController controller;
-  final ToggleExtensionNotifier toggleExtension;
   const MobileGridSettingButton({
+    super.key,
     required this.controller,
     required this.toggleExtension,
-    super.key,
   });
+
+  final DatabaseController controller;
+  final ToggleExtensionNotifier toggleExtension;
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +50,18 @@ class MobileGridSettingButton extends StatelessWidget {
             if (isLoading) {
               return const SizedBox.shrink();
             }
-            return IconButton(
-              onPressed: () {},
-              icon: const FlowySvg(
-                FlowySvgs.m_setting_m,
+
+            return SizedBox(
+              height: 24,
+              width: 24,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                // TODO(Xazin): Database Settings
+                onPressed: () {},
+                icon: const FlowySvg(
+                  FlowySvgs.m_setting_m,
+                  size: Size.square(24),
+                ),
               ),
             );
           },

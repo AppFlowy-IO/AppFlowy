@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_cr
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
@@ -77,6 +78,10 @@ GoRouter generateRouter(Widget child) {
         _mobileCodeLanguagePickerPageRoute(),
         _mobileLanguagePickerPageRoute(),
         _mobileFontPickerPageRoute(),
+
+        // calendar related
+        _mobileCalendarEventsPageRoute(),
+
         _mobileBlockSettingsPageRoute(),
       ],
 
@@ -326,6 +331,25 @@ GoRoute _mobileFontPickerPageRoute() {
     pageBuilder: (context, state) {
       return const MaterialPage(
         child: FontPickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCalendarEventsPageRoute() {
+  return GoRoute(
+    path: MobileCalendarEventsScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+
+      return MaterialPage(
+        child: MobileCalendarEventsScreen(
+          calendarBloc: args[MobileCalendarEventsScreen.calendarBlocKey],
+          date: args[MobileCalendarEventsScreen.calendarDateKey],
+          events: args[MobileCalendarEventsScreen.calendarEventsKey],
+          rowCache: args[MobileCalendarEventsScreen.calendarRowCacheKey],
+          viewId: args[MobileCalendarEventsScreen.calendarViewIdKey],
+        ),
       );
     },
   );

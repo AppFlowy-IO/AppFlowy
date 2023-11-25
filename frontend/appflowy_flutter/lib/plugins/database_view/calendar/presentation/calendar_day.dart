@@ -1,6 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
+import 'package:appflowy/util/platform_extension.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 
@@ -8,6 +11,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
@@ -15,6 +19,18 @@ import '../application/calendar_bloc.dart';
 import 'calendar_event_card.dart';
 
 class CalendarDayCard extends StatelessWidget {
+  const CalendarDayCard({
+    super.key,
+    required this.viewId,
+    required this.isToday,
+    required this.isInMonth,
+    required this.date,
+    required this.rowCache,
+    required this.events,
+    required this.onCreateEvent,
+    required this.position,
+  });
+
   final String viewId;
   final bool isToday;
   final bool isInMonth;
@@ -22,24 +38,10 @@ class CalendarDayCard extends StatelessWidget {
   final RowCache rowCache;
   final List<CalendarDayEvent> events;
   final void Function(DateTime) onCreateEvent;
-
-  const CalendarDayCard({
-    required this.viewId,
-    required this.isToday,
-    required this.isInMonth,
-    required this.date,
-    required this.onCreateEvent,
-    required this.rowCache,
-    required this.events,
-    super.key,
-  });
+  final CellPosition position;
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Colors.transparent;
-    if (date.isWeekend) {
-      backgroundColor = AFThemeExtension.of(context).calendarWeekendBGColor;
-    }
     final hoverBackgroundColor =
         Theme.of(context).brightness == Brightness.light
             ? Theme.of(context).colorScheme.secondaryContainer
@@ -64,55 +66,67 @@ class CalendarDayCard extends StatelessWidget {
                 const VSpace(6.0),
 
                 // List of cards or empty space
-                if (events.isNotEmpty)
+                if (events.isNotEmpty && !PlatformExtension.isMobile) ...[
                   _EventList(
                     events: events,
                     viewId: viewId,
                     rowCache: rowCache,
                     constraints: constraints,
                   ),
+                ] else if (events.isNotEmpty && PlatformExtension.isMobile) ...[
+                  const _EventIndicator(),
+                ],
               ],
             );
 
-            return Stack(
-              children: <Widget>[
-                GestureDetector(
-                  onDoubleTap: () => onCreateEvent(date),
-                  child: Container(color: backgroundColor),
+            return MouseRegion(
+              onEnter: (p) => notifyEnter(context, true),
+              onExit: (p) => notifyEnter(context, false),
+              opaque: false,
+              hitTestBehavior: HitTestBehavior.translucent,
+              child: GestureDetector(
+                onDoubleTap: () => onCreateEvent(date),
+                onTap: PlatformExtension.isMobile
+                    ? () => _mobileOnTap(context)
+                    : null,
+                behavior: HitTestBehavior.deferToChild,
+                child: Container(
+                  color: date.isWeekend
+                      ? AFThemeExtension.of(context).calendarWeekendBGColor
+                      : Colors.transparent,
+                  child: DragTarget<CalendarDayEvent>(
+                    builder: (context, candidate, __) {
+                      return Stack(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                              color: candidate.isEmpty
+                                  ? null
+                                  : hoverBackgroundColor,
+                              border: _borderFromPosition(context, position),
+                            ),
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: child,
+                          ),
+                          if (candidate.isEmpty && !PlatformExtension.isMobile)
+                            NewEventButton(onCreate: () => onCreateEvent(date)),
+                        ],
+                      );
+                    },
+                    onAccept: (CalendarDayEvent event) {
+                      if (event.date == date) {
+                        return;
+                      }
+
+                      context
+                          .read<CalendarBloc>()
+                          .add(CalendarEvent.moveEvent(event, date));
+                    },
+                  ),
                 ),
-                DragTarget<CalendarDayEvent>(
-                  builder: (context, candidate, __) {
-                    return Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          color:
-                              candidate.isEmpty ? null : hoverBackgroundColor,
-                          padding: const EdgeInsets.only(top: 5.0),
-                          child: child,
-                        ),
-                        if (candidate.isEmpty)
-                          NewEventButton(onCreate: () => onCreateEvent(date)),
-                      ],
-                    );
-                  },
-                  onAccept: (CalendarDayEvent event) {
-                    if (event.date == date) {
-                      return;
-                    }
-                    context
-                        .read<CalendarBloc>()
-                        .add(CalendarEvent.moveEvent(event, date));
-                  },
-                ),
-                MouseRegion(
-                  onEnter: (p) => notifyEnter(context, true),
-                  onExit: (p) => notifyEnter(context, false),
-                  opaque: false,
-                  hitTestBehavior: HitTestBehavior.translucent,
-                ),
-              ],
+              ),
             );
           },
         );
@@ -120,42 +134,94 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  notifyEnter(BuildContext context, bool isEnter) {
-    Provider.of<_CardEnterNotifier>(
-      context,
-      listen: false,
-    ).onEnter = isEnter;
+  void _mobileOnTap(BuildContext context) {
+    context.push(
+      MobileCalendarEventsScreen.routeName,
+      extra: {
+        MobileCalendarEventsScreen.calendarBlocKey:
+            context.read<CalendarBloc>(),
+        MobileCalendarEventsScreen.calendarDateKey: date,
+        MobileCalendarEventsScreen.calendarEventsKey: events,
+        MobileCalendarEventsScreen.calendarRowCacheKey: rowCache,
+        MobileCalendarEventsScreen.calendarViewIdKey: viewId,
+      },
+    );
+  }
+
+  notifyEnter(BuildContext context, bool isEnter) =>
+      Provider.of<_CardEnterNotifier>(context, listen: false).onEnter = isEnter;
+
+  Border _borderFromPosition(BuildContext context, CellPosition position) {
+    final BorderSide borderSide =
+        BorderSide(color: Theme.of(context).dividerColor);
+
+    return Border(
+      top: borderSide,
+      left: borderSide,
+      bottom: [
+        CellPosition.bottom,
+        CellPosition.bottomLeft,
+        CellPosition.bottomRight,
+      ].contains(position)
+          ? borderSide
+          : BorderSide.none,
+      right: [
+        CellPosition.topRight,
+        CellPosition.bottomRight,
+        CellPosition.right,
+      ].contains(position)
+          ? borderSide
+          : BorderSide.none,
+    );
+  }
+}
+
+class _EventIndicator extends StatelessWidget {
+  const _EventIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).hintColor,
+          ),
+        ),
+      ],
+    );
   }
 }
 
 class _Header extends StatelessWidget {
-  final bool isToday;
-  final bool isInMonth;
-  final DateTime date;
   const _Header({
     required this.isToday,
     required this.isInMonth,
     required this.date,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final bool isToday;
+  final bool isInMonth;
+  final DateTime date;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: _DayBadge(
-        isToday: isToday,
-        isInMonth: isInMonth,
-        date: date,
-      ),
+      child: _DayBadge(isToday: isToday, isInMonth: isInMonth, date: date),
     );
   }
 }
 
 @visibleForTesting
 class NewEventButton extends StatelessWidget {
+  const NewEventButton({super.key, required this.onCreate});
+
   final VoidCallback onCreate;
-  const NewEventButton({required this.onCreate, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +230,7 @@ class NewEventButton extends StatelessWidget {
         if (!notifier.onEnter) {
           return const SizedBox.shrink();
         }
+
         return Padding(
           padding: const EdgeInsets.all(4.0),
           child: FlowyIconButton(
@@ -210,15 +277,15 @@ class NewEventButton extends StatelessWidget {
 }
 
 class _DayBadge extends StatelessWidget {
-  final bool isToday;
-  final bool isInMonth;
-  final DateTime date;
   const _DayBadge({
     required this.isToday,
     required this.isInMonth,
     required this.date,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final bool isToday;
+  final bool isInMonth;
+  final DateTime date;
 
   @override
   Widget build(BuildContext context) {
@@ -239,10 +306,12 @@ class _DayBadge extends StatelessWidget {
     return SizedBox(
       height: 18,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: PlatformExtension.isMobile
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (date.day == 1)
+          if (date.day == 1 && !PlatformExtension.isMobile)
             FlowyText.medium(
               monthString,
               fontSize: 11,
@@ -255,7 +324,6 @@ class _DayBadge extends StatelessWidget {
             ),
             width: isToday ? 18 : null,
             height: isToday ? 18 : null,
-            // padding: GridSize.typeOptionContentInsets,
             child: Center(
               child: FlowyText.medium(
                 dayString,
@@ -271,27 +339,25 @@ class _DayBadge extends StatelessWidget {
 }
 
 class _EventList extends StatelessWidget {
-  final List<CalendarDayEvent> events;
-  final String viewId;
-  final RowCache rowCache;
-  final BoxConstraints constraints;
-
   const _EventList({
     required this.events,
     required this.viewId,
     required this.rowCache,
     required this.constraints,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final List<CalendarDayEvent> events;
+  final String viewId;
+  final RowCache rowCache;
+  final BoxConstraints constraints;
 
   @override
   Widget build(BuildContext context) {
     final editingEvent = context.watch<CalendarBloc>().state.editingEvent;
+
     return Flexible(
       child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          scrollbars: true,
-        ),
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: true),
         child: ListView.separated(
           itemBuilder: (BuildContext context, int index) {
             final autoEdit =
@@ -307,7 +373,7 @@ class _EventList extends StatelessWidget {
           },
           itemCount: events.length,
           padding: const EdgeInsets.fromLTRB(4.0, 0, 4.0, 4.0),
-          separatorBuilder: (BuildContext context, int index) =>
+          separatorBuilder: (_, __) =>
               VSpace(GridSize.typeOptionSeparatorHeight),
           shrinkWrap: true,
         ),

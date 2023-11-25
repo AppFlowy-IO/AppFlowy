@@ -65,13 +65,14 @@ class CalendarEventEditor extends StatelessWidget {
 }
 
 class EventEditorControls extends StatelessWidget {
-  final RowController rowController;
-  final FieldController fieldController;
   const EventEditorControls({
     super.key,
     required this.rowController,
     required this.fieldController,
   });
+
+  final RowController rowController;
+  final FieldController fieldController;
 
   @override
   Widget build(BuildContext context) {
