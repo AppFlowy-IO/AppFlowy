@@ -34,8 +34,8 @@ class AppFlowyCloudURLsBloc
               (_) async {
                 if (state.config.base_url != state.updatedServerUrl) {
                   await setAppFlowyCloudUrl(Some(state.updatedServerUrl));
-                  add(const AppFlowyCloudURLsEvent.didSaveConfig());
                 }
+                add(const AppFlowyCloudURLsEvent.didSaveConfig());
               },
             );
           }

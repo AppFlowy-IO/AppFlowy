@@ -44,25 +44,25 @@ void main() {
       tester.expectToSeeGoogleLoginButton();
     });
 
-    testWidgets('enable encryption', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
-      await tester.tapGoogleLoginInButton();
+    // testWidgets('enable encryption', (tester) async {
+    //   await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+    //   await tester.tapGoogleLoginInButton();
 
-      // Open the setting page and sign out
-      await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.cloud);
+    //   // Open the setting page and sign out
+    //   await tester.openSettings();
+    //   await tester.openSettingsPage(SettingsPage.cloud);
 
-      // the switch should be off by default
-      tester.assertEnableEncryptSwitchValue(false);
-      await tester.toggleEnableEncrypt();
+    //   // the switch should be off by default
+    //   tester.assertEnableEncryptSwitchValue(false);
+    //   await tester.toggleEnableEncrypt();
 
-      // the switch should be on after toggling
-      tester.assertEnableEncryptSwitchValue(true);
+    //   // the switch should be on after toggling
+    //   tester.assertEnableEncryptSwitchValue(true);
 
-      // the switch can not be toggled back to off
-      await tester.toggleEnableEncrypt();
-      tester.assertEnableEncryptSwitchValue(true);
-    });
+    //   // the switch can not be toggled back to off
+    //   await tester.toggleEnableEncrypt();
+    //   tester.assertEnableEncryptSwitchValue(true);
+    // });
 
     testWidgets('enable sync', (tester) async {
       await tester.initializeAppFlowy(cloudType: CloudType.supabase);

@@ -8,7 +8,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
-import 'package:nanoid/nanoid.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth_error.dart';
@@ -16,6 +15,7 @@ import 'auth_error.dart';
 /// Only used for testing.
 class MockAuthService implements AuthService {
   MockAuthService();
+  static OauthSignInPB? signInPayload;
 
   SupabaseClient get _client => Supabase.instance.client;
   GoTrueClient get _auth => _client.auth;
@@ -47,15 +47,25 @@ class MockAuthService implements AuthService {
     required String platform,
     Map<String, String> params = const {},
   }) async {
+    const password = "AppFlowyTest123!";
+    const email = "supabase_integration_test@appflowy.io";
     try {
-      final response = await _auth.signUp(
-        email: "${nanoid(10)}@appflowy.io",
-        password: "AppFlowyTest123!",
-      );
+      if (_auth.currentSession == null) {
+        try {
+          await _auth.signInWithPassword(
+            password: password,
+            email: email,
+          );
+        } catch (e) {
+          Log.error(e);
+          return Left(AuthError.supabaseSignUpError);
+        }
+      }
+      // Check if the user is already logged in.
+      final session = _auth.currentSession!;
+      final uuid = session.user.id;
 
-      final uuid = response.user!.id;
-      final email = response.user!.email!;
-
+      // Create the OAuth sign-in payload.
       final payload = OauthSignInPB(
         authType: AuthTypePB.Supabase,
         map: {
@@ -65,6 +75,7 @@ class MockAuthService implements AuthService {
         },
       );
 
+      // Send the sign-in event and handle the response.
       return UserEventOauthSignIn(payload).send().then((value) => value.swap());
     } on AuthException catch (e) {
       Log.error(e);
@@ -74,7 +85,7 @@ class MockAuthService implements AuthService {
 
   @override
   Future<void> signOut() async {
-    await _auth.signOut();
+    // await _auth.signOut();
     await _appFlowyAuthService.signOut();
   }
 

@@ -45,20 +45,22 @@ extension AppFlowyTestBase on WidgetTester {
     await FlowyRunner.run(
       FlowyApp(),
       IntegrationMode.integrationTest,
-      didInitGetIt: () {
-        if (cloudType != null) {
-          switch (cloudType) {
-            case CloudType.local:
-              break;
-            case CloudType.supabase:
-              useSupabaseCloud();
-              break;
-            case CloudType.appflowyCloud:
-              useAppFlowyCloud();
-              break;
+      didInitGetIt: Future(
+        () async {
+          if (cloudType != null) {
+            switch (cloudType) {
+              case CloudType.local:
+                break;
+              case CloudType.supabase:
+                await useSupabaseCloud();
+                break;
+              case CloudType.appflowyCloud:
+                await useAppFlowyCloud();
+                break;
+            }
           }
-        }
-      },
+        },
+      ),
     );
     await waitUntilSignInPageShow();
     return FlowyTestContext(
@@ -224,12 +226,15 @@ extension AppFlowyFinderTestBase on CommonFinders {
   }
 }
 
-void useSupabaseCloud() {
-  setCloudType(CloudType.supabase);
-  setSupbaseServer(Some(TestEnv.supabaseUrl), Some(TestEnv.supabaseAnonKey));
+Future<void> useSupabaseCloud() async {
+  await setCloudType(CloudType.supabase);
+  await setSupbaseServer(
+    Some(TestEnv.supabaseUrl),
+    Some(TestEnv.supabaseAnonKey),
+  );
 }
 
-void useAppFlowyCloud() {
-  setCloudType(CloudType.appflowyCloud);
-  setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
+Future<void> useAppFlowyCloud() async {
+  await setCloudType(CloudType.appflowyCloud);
+  await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
 }
