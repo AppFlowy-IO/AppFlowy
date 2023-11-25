@@ -39,11 +39,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_text.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         paragraphNode(),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -54,11 +54,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_checkbox.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         todoListNode(checked: false),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -69,11 +69,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_heading1.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         headingNode(level: 1),
       );
-      service.closeItemMenu();
     },
   ),
   BlockMenuItem(
@@ -82,11 +82,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_heading2.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         headingNode(level: 2),
       );
-      service.closeItemMenu();
     },
   ),
   BlockMenuItem(
@@ -95,11 +95,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_heading3.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         headingNode(level: 3),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -110,11 +110,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_bulletedList.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         bulletedListNode(),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -125,11 +125,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_numberedList.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         numberedListNode(),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -140,11 +140,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.document_plugins_toggleList.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         toggleListBlockNode(),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -155,11 +155,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_quote.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         quoteNode(),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -171,11 +171,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.document_plugins_callout.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         calloutNode(),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -186,11 +186,11 @@ final _addBlockMenuItems = [
     label: LocaleKeys.document_selectionMenu_codeBlock.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
+      service.closeItemMenu();
       await editorState.insertBlockOrReplaceCurrentBlock(
         selection,
         codeBlockNode(),
       );
-      service.closeItemMenu();
     },
   ),
 
@@ -201,8 +201,8 @@ final _addBlockMenuItems = [
     label: LocaleKeys.editor_divider.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
-      await editorState.insertDivider(selection);
       service.closeItemMenu();
+      await editorState.insertDivider(selection);
     },
   ),
 
@@ -216,8 +216,8 @@ final _addBlockMenuItems = [
     label: LocaleKeys.document_plugins_mathEquation_name.tr(),
     isSelected: _unSelectable,
     onTap: (editorState, selection, service) async {
-      await editorState.insertMathEquation(selection);
       service.closeItemMenu();
+      await editorState.insertMathEquation(selection);
     },
   ),
 ];
