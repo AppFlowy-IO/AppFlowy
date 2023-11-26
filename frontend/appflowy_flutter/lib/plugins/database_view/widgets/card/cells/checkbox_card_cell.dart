@@ -5,6 +5,7 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../define.dart';
 import 'card_cell.dart';
 
 class CheckboxCardCell extends CardCell {
@@ -24,11 +25,11 @@ class _CheckboxCellState extends State<CheckboxCardCell> {
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as CheckboxCellController;
-    _cellBloc = CheckboxCellBloc(cellController: cellController);
-    _cellBloc.add(const CheckboxCellEvent.initial());
-    super.initState();
+    _cellBloc = CheckboxCellBloc(cellController: cellController)
+      ..add(const CheckboxCellEvent.initial());
   }
 
   @override
@@ -47,7 +48,7 @@ class _CheckboxCellState extends State<CheckboxCardCell> {
           return Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
+              padding: CardSizes.cardCellPadding,
               child: FlowyIconButton(
                 iconPadding: EdgeInsets.zero,
                 icon: icon,

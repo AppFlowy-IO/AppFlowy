@@ -18,7 +18,7 @@ use crate::af_cloud::impls::user::dto::{
 };
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::{AFCloudClient, AFServer};
-use crate::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
+use crate::supabase::define::USER_SIGN_IN_URL;
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
@@ -276,7 +276,6 @@ pub async fn user_sign_in_with_url(
     user_workspaces,
     email: user_profile.email,
     token: Some(client.get_token()?),
-    device_id: params.device_id,
     encryption_type,
     is_new_user,
     updated_at: user_profile.updated_at,
@@ -307,9 +306,7 @@ fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, Error> {
     .get(USER_SIGN_IN_URL)
     .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing token field"))?
     .as_str();
-  let device_id = map.get(USER_DEVICE_ID).cloned().unwrap_or_default();
   Ok(AFCloudOAuthParams {
     sign_in_url: sign_in_url.to_string(),
-    device_id,
   })
 }

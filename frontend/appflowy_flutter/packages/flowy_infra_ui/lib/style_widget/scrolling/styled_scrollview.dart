@@ -17,7 +17,7 @@ class StyledSingleChildScrollView extends StatefulWidget {
 
   const StyledSingleChildScrollView({
     Key? key,
-    @required this.child,
+    required this.child,
     this.contentSize,
     this.axis = Axis.vertical,
     this.trackColor,

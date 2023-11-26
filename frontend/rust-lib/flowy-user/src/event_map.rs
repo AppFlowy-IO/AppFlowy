@@ -246,7 +246,6 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   fn set_encrypt_secret(&self, secret: String);
   fn set_authenticator(&self, authenticator: Authenticator);
   fn get_authenticator(&self) -> Authenticator;
-  fn set_device_id(&self, device_id: &str);
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
   fn service_url(&self) -> String;
 }
@@ -273,10 +272,6 @@ where
 
   fn get_authenticator(&self) -> Authenticator {
     (**self).get_authenticator()
-  }
-
-  fn set_device_id(&self, device_id: &str) {
-    (**self).set_device_id(device_id)
   }
 
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {

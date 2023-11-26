@@ -55,6 +55,8 @@ String languageFromLocale(Locale locale) {
       return "русский";
     case "sv":
       return "Svenska";
+    case "th":
+      return "ไทย";
     case "tr":
       return "Türkçe";
     case "fa":

@@ -123,7 +123,6 @@ void main() {
         await tester.tapTypeOptionButton();
 
         await tester.selectFieldType(fieldType);
-        await tester.dismissFieldEditor();
 
         // After update the field type, the cells should be updated
         await tester.findCellByFieldType(fieldType);

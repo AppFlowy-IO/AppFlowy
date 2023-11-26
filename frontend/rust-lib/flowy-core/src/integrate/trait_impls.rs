@@ -110,28 +110,11 @@ impl UserCloudServiceProvider for ServerProvider {
     Authenticator::from(server_type)
   }
 
-  fn set_device_id(&self, device_id: &str) {
-    if device_id.is_empty() {
-      tracing::error!("🔴Device id is empty");
-      return;
-    }
-
-    *self.device_id.write() = device_id.to_string();
-  }
-
   /// Returns the [UserCloudService] base on the current [ServerType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    if let Some(user_service) = self.cache_user_service.read().get(&self.get_server_type()) {
-      return Ok(user_service.clone());
-    }
-
     let server_type = self.get_server_type();
     let user_service = self.get_server(&server_type)?.user_service();
-    self
-      .cache_user_service
-      .write()
-      .insert(server_type, user_service.clone());
     Ok(user_service)
   }
 

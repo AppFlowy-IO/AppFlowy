@@ -1,7 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { FC, useMemo, useRef } from 'react';
 import { RowMeta } from '../../application';
-import { useDatabase, useDatabaseVisibilityFields } from '../../Database.hooks';
+import { useDatabaseVisibilityFields, useDatabaseVisibilityRows } from '../../Database.hooks';
 import { VirtualizedList } from '../../_shared';
 import { DEFAULT_FIELD_WIDTH, GridRow, RenderRow, RenderRowType, rowMetasToRenderRow } from '../GridRow';
 
@@ -16,7 +16,7 @@ const getRenderRowKey = (row: RenderRow) => {
 export const GridTable: FC<{ tableHeight: number }> = React.memo(({ tableHeight }) => {
   const verticalScrollElementRef = useRef<HTMLDivElement | null>(null);
   const horizontalScrollElementRef = useRef<HTMLDivElement | null>(null);
-  const { rowMetas } = useDatabase();
+  const rowMetas = useDatabaseVisibilityRows();
   const renderRows = useMemo<RenderRow[]>(() => rowMetasToRenderRow(rowMetas as RowMeta[]), [rowMetas]);
   const fields = useDatabaseVisibilityFields();
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
@@ -63,7 +63,7 @@ export const GridTable: FC<{ tableHeight: number }> = React.memo(({ tableHeight 
         }}
       >
         <VirtualizedList
-          className='flex w-fit basis-full flex-col'
+          className='flex w-fit basis-full flex-col px-16'
           virtualizer={rowVirtualizer}
           itemClassName='flex'
           renderItem={(index) => (

@@ -29,7 +29,7 @@ async fn restore_document() {
     .get_document_data()
     .unwrap();
   // close a document
-  _ = test.close_document(&doc_id);
+  _ = test.close_document(&doc_id).await;
   assert_eq!(data_b, data);
 
   // restore
@@ -43,7 +43,7 @@ async fn restore_document() {
     .get_document_data()
     .unwrap();
   // close a document
-  _ = test.close_document(&doc_id);
+  _ = test.close_document(&doc_id).await;
 
   assert_eq!(data_b, data);
 }
@@ -85,7 +85,7 @@ async fn document_apply_insert_action() {
   document.lock().apply_action(vec![insert_text_action]);
   let data_a = document.lock().get_document_data().unwrap();
   // close the original document
-  _ = test.close_document(&doc_id);
+  _ = test.close_document(&doc_id).await;
 
   // re-open the document
   let data_b = test
@@ -96,7 +96,7 @@ async fn document_apply_insert_action() {
     .get_document_data()
     .unwrap();
   // close a document
-  _ = test.close_document(&doc_id);
+  _ = test.close_document(&doc_id).await;
 
   assert_eq!(data_b, data_a);
 }
@@ -135,7 +135,7 @@ async fn document_apply_update_page_action() {
   tracing::trace!("{:?}", &actions);
   document.lock().apply_action(actions);
   let page_block_old = document.lock().get_block(&data.page_id).unwrap();
-  _ = test.close_document(&doc_id);
+  _ = test.close_document(&doc_id).await;
 
   // re-open the document
   let document = test.get_document(&doc_id).await.unwrap();
@@ -206,12 +206,12 @@ async fn document_apply_update_action() {
   };
   document.lock().apply_action(vec![update_text_action]);
   // close the original document
-  _ = test.close_document(&doc_id);
+  _ = test.close_document(&doc_id).await;
 
   // re-open the document
   let document = test.get_document(&doc_id).await.unwrap();
   let block = document.lock().get_block(&text_block_id).unwrap();
   assert_eq!(block.data, updated_text_block_data);
   // close a document
-  _ = test.close_document(&doc_id);
+  _ = test.close_document(&doc_id).await;
 }

@@ -27,12 +27,16 @@ function EditRecord({ documentId: id, cell, icon }: Props) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (e.code === 3) {
-        const page = await controller.createOrphanPage({
-          name: '',
-          layout: ViewLayoutPB.Document,
-        });
+        try {
+          const page = await controller.createOrphanPage({
+            name: '',
+            layout: ViewLayoutPB.Document,
+          });
 
-        setPage(page);
+          setPage(page);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
   }, [id]);
@@ -47,7 +51,7 @@ function EditRecord({ documentId: id, cell, icon }: Props) {
 
   return (
     <div className={'h-full px-12 py-6'}>
-      <RecordDocument getDocumentTitle={getDocumentTitle} documentId={id} />
+      {page && <RecordDocument getDocumentTitle={getDocumentTitle} documentId={id} />}
     </div>
   );
 }

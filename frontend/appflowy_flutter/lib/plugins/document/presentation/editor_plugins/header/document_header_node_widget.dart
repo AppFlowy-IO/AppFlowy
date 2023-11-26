@@ -581,14 +581,20 @@ class DeleteCoverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fillColor = PlatformExtension.isDesktopOrWeb
+        ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
+        : Theme.of(context).colorScheme.onSurfaceVariant;
+    final svgColor = PlatformExtension.isDesktopOrWeb
+        ? Theme.of(context).colorScheme.tertiary
+        : Theme.of(context).colorScheme.onPrimary;
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.surface,
-      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+      fillColor: fillColor,
       iconPadding: const EdgeInsets.all(5),
       width: 28,
       icon: FlowySvg(
         FlowySvgs.delete_s,
-        color: Theme.of(context).colorScheme.tertiary,
+        color: svgColor,
       ),
       onPressed: onTap,
     );

@@ -9,6 +9,22 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+List<MobileToolbarItem> getMobileToolbarItems() {
+  return [
+    customTextDecorationMobileToolbarItem,
+    buildTextAndBackgroundColorMobileToolbarItem(),
+    mobileAddBlockToolbarItem,
+    mobileConvertBlockToolbarItem,
+    imageMobileToolbarItem,
+    mobileAlignToolbarItem,
+    mobileIndentToolbarItem,
+    mobileOutdentToolbarItem,
+    undoMobileToolbarItem,
+    redoMobileToolbarItem,
+    mobileBlockSettingsToolbarItem,
+  ];
+}
+
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
   required EditorState editorState,

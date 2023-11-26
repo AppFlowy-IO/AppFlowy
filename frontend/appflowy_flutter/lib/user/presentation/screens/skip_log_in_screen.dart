@@ -8,6 +8,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -53,7 +54,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         const Spacer(),
         FlowyLogoTitle(
           title: LocaleKeys.welcomeText.tr(),
-          logoSize: const Size.square(40),
+          logoSize: Size.square(PlatformExtension.isMobile ? 80 : 40),
         ),
         const VSpace(32),
         GoButton(
@@ -67,7 +68,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         ),
         const VSpace(32),
         SizedBox(
-          width: size.width * 0.5,
+          width: size.width * 0.7,
           child: FolderWidget(
             createFolderCallback: () async {
               _didCustomizeFolder = true;
@@ -113,14 +114,14 @@ class SkipLoginPageFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     // The placeholderWidth should be greater than the longest width of the LanguageSelectorOnWelcomePage
     const double placeholderWidth = 180;
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          HSpace(placeholderWidth),
-          Expanded(child: SubscribeButtons()),
-          SizedBox(
+          if (!PlatformExtension.isMobile) const HSpace(placeholderWidth),
+          const Expanded(child: SubscribeButtons()),
+          const SizedBox(
             width: placeholderWidth,
             height: 28,
             child: Row(
