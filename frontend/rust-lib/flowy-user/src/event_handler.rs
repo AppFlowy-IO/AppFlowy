@@ -2,6 +2,7 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
+use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -86,7 +87,7 @@ pub async fn get_user_profile_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let mut user_profile = manager.get_user_profile(uid).await?;
+  let mut user_profile = manager.get_user_profile_from_disk(uid).await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
@@ -285,6 +286,7 @@ pub async fn sign_in_with_provider_handler(
   let manager = upgrade_manager(manager)?;
   tracing::debug!("Sign in with provider: {:?}", data.provider.as_str());
   let sign_in_url = manager.generate_oauth_url(data.provider.as_str()).await?;
+  event!(tracing::Level::DEBUG, "Sign in url: {}", sign_in_url);
   data_result_ok(OauthProviderDataPB {
     oauth_url: sign_in_url,
   })
@@ -332,7 +334,7 @@ pub async fn check_encrypt_secret_handler(
 ) -> DataResult<UserEncryptionConfigurationPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let profile = manager.get_user_profile(uid).await?;
+  let profile = manager.get_user_profile_from_disk(uid).await?;
 
   let is_need_secret = match profile.encryption_type {
     EncryptionType::NoEncryption => false,
@@ -385,7 +387,6 @@ pub async fn set_cloud_config_handler(
       manager
         .set_encrypt_secret(session.user_id, encrypt_secret, encryption_type.clone())
         .await?;
-      save_cloud_config(session.user_id, &store_preferences, config.clone())?;
 
       let params =
         UpdateUserProfileParams::new(session.user_id).with_encryption_type(encryption_type);
@@ -393,28 +394,41 @@ pub async fn set_cloud_config_handler(
     }
   }
 
-  let config_pb = UserCloudConfigPB::from(config);
+  save_cloud_config(session.user_id, &store_preferences, config.clone())?;
+
+  let payload = CloudSettingPB {
+    enable_sync: config.enable_sync,
+    enable_encrypt: config.enable_encrypt,
+    encrypt_secret: config.encrypt_secret,
+    server_url: manager.cloud_services.service_url(),
+  };
+
   send_notification(
-    &session.user_id.to_string(),
+    // Don't change this key. it's also used in the frontend
+    "user_cloud_config",
     UserNotification::DidUpdateCloudConfig,
   )
-  .payload(config_pb)
+  .payload(payload)
   .send();
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "info", skip_all, err)]
 pub async fn get_cloud_config_handler(
   manager: AFPluginState<Weak<UserManager>>,
   store_preferences: AFPluginState<Weak<StorePreferences>>,
-) -> DataResult<UserCloudConfigPB, FlowyError> {
+) -> DataResult<CloudSettingPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
-
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   // Generate the default config if the config is not exist
   let config = get_or_create_cloud_config(session.user_id, &store_preferences);
-  data_result_ok(config.into())
+  data_result_ok(CloudSettingPB {
+    enable_sync: config.enable_sync,
+    enable_encrypt: config.enable_encrypt,
+    encrypt_secret: config.encrypt_secret,
+    server_url: manager.cloud_services.service_url(),
+  })
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
@@ -471,7 +485,7 @@ pub async fn open_historical_users_handler(
   let manager = upgrade_manager(manager)?;
   let auth_type = Authenticator::from(user.auth_type);
   manager
-    .open_historical_user(user.user_id, user.device_id, auth_type)
+    .open_historical_user(user.user_id, auth_type)
     .await?;
   Ok(())
 }
@@ -530,8 +544,8 @@ pub async fn reset_workspace_handler(
       "The workspace id is empty",
     ));
   }
-  let session = manager.get_session()?;
-  manager.reset_workspace(reset_pb, session.device_id).await?;
+  let _session = manager.get_session()?;
+  manager.reset_workspace(reset_pb).await?;
   Ok(())
 }
 

@@ -550,7 +550,7 @@
     "menuName": "Junta",
     "referencedBoardPrefix": "Vista de",
     "column": {
-      "create_new_card": "Nuevo"
+      "createNewCard": "Nuevo"
     }
   },
   "calendar": {

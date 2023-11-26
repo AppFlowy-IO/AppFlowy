@@ -114,7 +114,7 @@ function BlockDragDropContext({ children }: { children: React.ReactNode }) {
           left: draggingPosition?.x,
           pointerEvents: 'none',
           opacity: dragShadowVisible ? 1 : 0,
-          zIndex: 1000,
+          zIndex: 2000,
         }}
       />
     </>

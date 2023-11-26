@@ -65,7 +65,7 @@ class ApplicationDataStorage {
 
     final response = await getIt<KeyValueStorage>().get(KVKeys.pathLocation);
     String path = await response.fold(
-      (error) async {
+      () async {
         // return the default path if the path is not set
         final directory = await appFlowyApplicationDataDirectory();
         return directory.path;

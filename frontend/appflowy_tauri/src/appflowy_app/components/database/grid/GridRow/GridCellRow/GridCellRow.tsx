@@ -33,7 +33,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
   const rowId = rowMeta.id;
   const viewId = useViewId();
   const ref = useRef<HTMLDivElement | null>(null);
-  const { onMouseLeave, onMouseEnter, actionsStyle, hover } = useGridRowActionsDisplay(rowId, ref);
+  const { onMouseLeave, onMouseEnter, hover } = useGridRowActionsDisplay(rowId);
   const {
     isContextMenuOpen,
     closeContextMenu,
@@ -107,7 +107,13 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
   }, [openContextMenu]);
 
   return (
-    <div ref={ref} className='flex grow' onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} {...dropListeners}>
+    <div
+      ref={ref}
+      className='relative -ml-16 flex grow pl-16'
+      onMouseLeave={onMouseLeave}
+      onMouseEnter={onMouseEnter}
+      {...dropListeners}
+    >
       <div
         ref={setPreviewRef}
         className={`relative flex grow border-b border-line-divider ${isDragging ? 'bg-blue-50' : ''}`}
@@ -116,7 +122,13 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
           className='flex'
           itemClassName='flex border-r border-line-divider'
           virtualizer={virtualizer}
-          renderItem={(index) => <GridCell rowId={rowMeta.id} field={fields[index]} />}
+          renderItem={(index) => {
+            const field = fields[index];
+            const icon = field.isPrimary ? rowMeta.icon : undefined;
+            const documentId = field.isPrimary ? rowMeta.documentId : undefined;
+
+            return <GridCell rowId={rowMeta.id} documentId={documentId} icon={icon} field={field} />;
+          }}
         />
         <div className={`w-[${DEFAULT_FIELD_WIDTH}px]`} />
         {isOver && (
@@ -127,17 +139,17 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
           />
         )}
       </div>
+      <GridCellRowActions
+        isHidden={!hover}
+        className={'absolute left-2 top-[6px] z-10'}
+        dragProps={{
+          ...dragListeners,
+          ...dragAttributes,
+        }}
+        rowId={rowMeta.id}
+        getPrevRowId={getPrevRowId}
+      />
       <Portal>
-        <GridCellRowActions
-          isHidden={!hover}
-          style={actionsStyle}
-          dragProps={{
-            ...dragListeners,
-            ...dragAttributes,
-          }}
-          rowId={rowMeta.id}
-          getPrevRowId={getPrevRowId}
-        />
         {isContextMenuOpen && (
           <GridCellRowContextMenu
             open={isContextMenuOpen}

@@ -42,31 +42,28 @@ class _DateCellState extends State<DateCardCell> {
         buildWhen: (previous, current) => previous.dateStr != current.dateStr,
         builder: (context, state) {
           if (state.dateStr.isEmpty) {
-            return const SizedBox();
-          } else {
-            final Widget? custom = widget.renderHook?.call(
-              state.data,
-              widget.cardData,
-              context,
-            );
-            if (custom != null) {
-              return custom;
-            }
-
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: CardSizes.cardCellVPadding,
-                ),
-                child: FlowyText.regular(
-                  state.dateStr,
-                  fontSize: 13,
-                  color: Theme.of(context).hintColor,
-                ),
-              ),
-            );
+            return const SizedBox.shrink();
           }
+          final Widget? custom = widget.renderHook?.call(
+            state.data,
+            widget.cardData,
+            context,
+          );
+          if (custom != null) {
+            return custom;
+          }
+
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: CardSizes.cardCellPadding,
+              child: FlowyText.regular(
+                state.dateStr,
+                fontSize: 11,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+          );
         },
       ),
     );

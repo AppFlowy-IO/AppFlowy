@@ -550,7 +550,7 @@
     "menuName": "Tavla",
     "referencedBoardPrefix": "Utsikt över",
     "column": {
-      "create_new_card": "Nytt"
+      "createNewCard": "Nytt"
     }
   },
   "calendar": {

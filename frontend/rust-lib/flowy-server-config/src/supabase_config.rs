@@ -2,14 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use flowy_error::{ErrorCode, FlowyError};
 
-pub const ENABLE_SUPABASE_SYNC: &str = "ENABLE_SUPABASE_SYNC";
-pub const SUPABASE_URL: &str = "SUPABASE_URL";
-pub const SUPABASE_ANON_KEY: &str = "SUPABASE_ANON_KEY";
-
-pub const SUPABASE_DB: &str = "SUPABASE_DB";
-pub const SUPABASE_DB_USER: &str = "SUPABASE_DB_USER";
-pub const SUPABASE_DB_PASSWORD: &str = "SUPABASE_DB_PASSWORD";
-pub const SUPABASE_DB_PORT: &str = "SUPABASE_DB_PORT";
+pub const SUPABASE_URL: &str = "APPFLOWY_CLOUD_ENV_SUPABASE_URL";
+pub const SUPABASE_ANON_KEY: &str = "APPFLOWY_CLOUD_ENV_SUPABASE_ANON_KEY";
 
 /// The configuration for the postgres database. It supports deserializing from the json string that
 /// passed from the frontend application. [AppFlowyEnv::parser]

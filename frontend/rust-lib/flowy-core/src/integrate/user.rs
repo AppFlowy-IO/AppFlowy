@@ -47,7 +47,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       self
         .server_provider
         .set_enable_sync(user_id, cloud_config.enable_sync);
-      if cloud_config.enable_encrypt() {
+      if cloud_config.enable_encrypt {
         self
           .server_provider
           .set_encrypt_secret(cloud_config.encrypt_secret.clone());

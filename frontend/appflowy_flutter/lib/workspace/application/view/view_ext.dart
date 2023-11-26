@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/mobile_grid_page.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -40,7 +41,7 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    const Widget widget = FlowySvg(FlowySvgs.page_s);
+    const Widget widget = FlowySvg(FlowySvgs.document_s);
     return widget;
   }
 
@@ -50,8 +51,8 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Board => FlowySvgs.board_s,
         ViewLayoutPB.Calendar => FlowySvgs.date_s,
         ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Document => FlowySvgs.documents_s,
-        _ => FlowySvgs.documents_s,
+        ViewLayoutPB.Document => FlowySvgs.document_s,
+        _ => FlowySvgs.document_s,
       },
     );
   }
@@ -90,18 +91,30 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  DatabaseTabBarItemBuilder tarBarItem() {
+  DatabaseTabBarItemBuilder tabBarItem() {
     switch (layout) {
       case ViewLayoutPB.Board:
         return BoardPageTabBarBuilderImpl();
       case ViewLayoutPB.Calendar:
         return CalendarPageTabBarBuilderImpl();
       case ViewLayoutPB.Grid:
-        return GridPageTabBarBuilderImpl();
-      case ViewLayoutPB.Document:
+        return DesktopGridTabBarBuilderImpl();
+      default:
         throw UnimplementedError;
     }
-    throw UnimplementedError;
+  }
+
+  DatabaseTabBarItemBuilder mobileTabBarItem() {
+    switch (layout) {
+      case ViewLayoutPB.Board:
+        return BoardPageTabBarBuilderImpl();
+      case ViewLayoutPB.Calendar:
+        return CalendarPageTabBarBuilderImpl();
+      case ViewLayoutPB.Grid:
+        return MobileGridTabBarBuilderImpl();
+      default:
+        throw UnimplementedError;
+    }
   }
 
   FlowySvgData get iconData => layout.icon;
@@ -139,7 +152,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
       case ViewLayoutPB.Calendar:
         return FlowySvgs.date_s;
       case ViewLayoutPB.Document:
-        return FlowySvgs.documents_s;
+        return FlowySvgs.document_s;
       default:
         throw Exception('Unknown layout type');
     }

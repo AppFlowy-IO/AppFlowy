@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 
 use flowy_error::{ErrorCode, FlowyError};
 
-pub const APPFLOWY_CLOUD_BASE_URL: &str = "APPFLOWY_CLOUD_BASE_URL";
-pub const APPFLOWY_CLOUD_WS_BASE_URL: &str = "APPFLOWY_CLOUD_WS_BASE_URL";
-pub const APPFLOWY_CLOUD_GOTRUE_URL: &str = "APPFLOWY_CLOUD_GOTRUE_URL";
+pub const APPFLOWY_CLOUD_BASE_URL: &str = "APPFLOWY_CLOUD_ENV_APPFLOWY_CLOUD_BASE_URL";
+pub const APPFLOWY_CLOUD_WS_BASE_URL: &str = "APPFLOWY_CLOUD_ENV_APPFLOWY_CLOUD_WS_BASE_URL";
+pub const APPFLOWY_CLOUD_GOTRUE_URL: &str = "APPFLOWY_CLOUD_ENV_APPFLOWY_CLOUD_GOTRUE_URL";
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct AFCloudConfiguration {

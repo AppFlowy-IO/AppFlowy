@@ -20,7 +20,7 @@ use crate::entities::{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserCloudConfig {
   pub enable_sync: bool,
-  enable_encrypt: bool,
+  pub enable_encrypt: bool,
   // The secret used to encrypt the user's data
   pub encrypt_secret: String,
 }
@@ -32,10 +32,6 @@ impl UserCloudConfig {
       enable_encrypt: false,
       encrypt_secret,
     }
-  }
-
-  pub fn enable_encrypt(&self) -> bool {
-    self.enable_encrypt
   }
 
   pub fn with_enable_encrypt(mut self, enable_encrypt: bool) -> Self {

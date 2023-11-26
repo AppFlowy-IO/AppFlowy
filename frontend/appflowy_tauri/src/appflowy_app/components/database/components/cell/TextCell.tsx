@@ -1,20 +1,31 @@
-import { Popover, TextareaAutosize } from '@mui/material';
-import { FC, FormEventHandler, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { FC, FormEventHandler, Suspense, lazy, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { cellService, Field, TextCell as TextCellType } from '../../application';
 import { CellText } from '../../_shared';
-import { useGridUIStateDispatcher } from '$app/components/database/proxy/grid/ui_state/actions';
+import { useGridUIStateDispatcher, useGridUIStateSelector } from '$app/components/database/proxy/grid/ui_state/actions';
+
+const ExpandButton = lazy(() => import('$app/components/database/components/cell/ExpandButton'));
+const EditTextCellInput = lazy(() => import('$app/components/database/components/cell/EditTextCellInput'));
 
 export const TextCell: FC<{
   field: Field;
   cell?: TextCellType;
-}> = ({ field, cell }) => {
+  documentId?: string;
+  icon?: string;
+  placeholder?: string;
+}> = ({ field, cell, documentId, icon, placeholder }) => {
+  const isPrimary = field.isPrimary;
   const viewId = useViewId();
   const cellRef = useRef<HTMLDivElement>(null);
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState('');
   const [width, setWidth] = useState<number | undefined>(undefined);
+  const { hoverRowId } = useGridUIStateSelector();
+  const isHover = hoverRowId === cell?.rowId;
   const { setRowHover } = useGridUIStateDispatcher();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const showExpandIcon = cell && !editing && isHover && isPrimary;
   const handleClose = () => {
     if (!cell) return;
     if (editing) {
@@ -48,35 +59,35 @@ export const TextCell: FC<{
     }
   }, [editing, setRowHover]);
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+      // set the cursor to the end of the text
+      textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+    }
+  }, []);
+
   return (
     <>
-      <CellText ref={cellRef} className='w-full' onClick={handleClick}>
-        {cell?.data}
+      <CellText ref={cellRef} onClick={handleClick}>
+        <div className='flex w-full items-center'>
+          {icon && <div className={'mr-2'}>{icon}</div>}
+          {cell?.data || <div className={'text-text-placeholder'}>{placeholder}</div>}
+        </div>
       </CellText>
-      {editing && (
-        <Popover
-          open={editing}
-          anchorEl={cellRef.current}
-          PaperProps={{
-            className: 'flex p-2 border border-blue-400',
-            style: { width, borderRadius: 0, boxShadow: 'none' },
-          }}
-          transformOrigin={{
-            vertical: 1,
-            horizontal: 'left',
-          }}
-          transitionDuration={0}
-          onClose={handleClose}
-        >
-          <TextareaAutosize
-            className='resize-none text-sm'
-            autoFocus
-            autoCorrect='off'
-            value={text}
+      <Suspense>
+        {cell && <ExpandButton visible={showExpandIcon} icon={icon} documentId={documentId} cell={cell} />}
+        {editing && (
+          <EditTextCellInput
+            editing={editing}
+            anchorEl={cellRef.current}
+            width={width}
+            onClose={handleClose}
+            text={text}
             onInput={handleInput}
           />
-        </Popover>
-      )}
+        )}
+      </Suspense>
     </>
   );
 };

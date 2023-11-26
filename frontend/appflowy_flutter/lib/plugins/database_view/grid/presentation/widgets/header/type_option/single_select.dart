@@ -30,10 +30,10 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
   final PopoverMutex? popoverMutex;
 
   const SingleSelectTypeOptionWidget({
-    Key? key,
+    super.key,
     required this.selectOptionAction,
     this.popoverMutex,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,6 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
       },
       popoverMutex: popoverMutex,
       typeOptionAction: selectOptionAction,
-      // key: ValueKey(state.typeOption.hashCode),
     );
   }
 }

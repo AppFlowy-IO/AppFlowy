@@ -254,12 +254,47 @@ class _FolderCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FlowyText.regular(
-                    title,
-                    fontSize: FontSizes.s14,
-                    fontFamily: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                    ).fontFamily,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: FlowyText.regular(
+                          title,
+                          fontSize: FontSizes.s14,
+                          fontFamily: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w500,
+                          ).fontFamily,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Tooltip(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        preferBelow: false,
+                        richMessage: WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: Container(
+                            color: Theme.of(context).colorScheme.surface,
+                            padding: const EdgeInsets.all(10),
+                            constraints: const BoxConstraints(maxWidth: 450),
+                            child: FlowyText(
+                              LocaleKeys.settings_menu_customPathPrompt.tr(),
+                              maxLines: null,
+                            ),
+                          ),
+                        ),
+                        child: const FlowyIconButton(
+                          icon: Icon(
+                            Icons.warning_amber_rounded,
+                            size: 20,
+                            color: Colors.orangeAccent,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const VSpace(4),
                   FlowyText.regular(
