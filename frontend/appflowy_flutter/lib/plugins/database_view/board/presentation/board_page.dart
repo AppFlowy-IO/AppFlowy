@@ -4,7 +4,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
-import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
@@ -25,7 +24,6 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../widgets/card/cells/card_cell.dart';
 import '../../widgets/card/card_cell_builder.dart';
@@ -132,8 +130,8 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
   final config = const AppFlowyBoardConfig(
     groupBackgroundColor: Color(0xffF7F8FC),
-    headerPadding: EdgeInsets.symmetric(horizontal: 8),
-    cardPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+    groupHeaderPadding: EdgeInsets.symmetric(horizontal: 8),
+    cardMargin: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
   );
 
   @override
@@ -175,9 +173,9 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
               groupConstraints: const BoxConstraints.tightFor(width: 300),
               config: const AppFlowyBoardConfig(
                 groupMargin: EdgeInsets.symmetric(horizontal: 4),
-                groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
+                groupBodyPadding: EdgeInsets.symmetric(horizontal: 4),
               ),
-              leading: HiddenGroupsColumn(margin: config.headerPadding),
+              leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
               trailing: showCreateGroupButton
                   ? BoardTrailing(scrollController: scrollController)
                   : null,
@@ -185,7 +183,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
                 value: context.read<BoardBloc>(),
                 child: BoardColumnHeader(
                   groupData: groupData,
-                  margin: config.headerPadding,
+                  margin: config.groupHeaderPadding,
                 ),
               ),
               footerBuilder: _buildFooter,
@@ -214,7 +212,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
     return AppFlowyGroupFooter(
       height: 50,
-      margin: config.footerPadding,
+      margin: config.groupFooterPadding,
       icon: SizedBox(
         height: 20,
         width: 20,
@@ -259,7 +257,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
-      margin: config.cardPadding,
+      margin: config.cardMargin,
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
         rowMeta: rowMeta,

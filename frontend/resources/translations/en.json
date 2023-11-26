@@ -227,7 +227,8 @@
     "removeFromFavorites": "Remove from favorites",
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
-    "helpCenter": "Help Center"
+    "helpCenter": "Help Center",
+    "add": "Add"
   },
   "label": {
     "welcome": "Welcome!",
@@ -788,7 +789,8 @@
       "addToColumnTopTooltip": "Add a new card at the top",
       "renameColumn": "Rename",
       "hideColumn": "Hide",
-      "groupActions": "Group Actions"
+      "groupActions": "Group Actions",
+      "newGroup": "New Group"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Hidden Groups",

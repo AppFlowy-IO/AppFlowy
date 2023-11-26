@@ -25,6 +25,7 @@ class MobileCardDetailScreen extends StatefulWidget {
     super.key,
     required this.rowController,
     this.scrollController,
+    this.isBottemSheet = false,
   });
 
   static const routeName = '/MobileCardDetailScreen';
@@ -32,6 +33,7 @@ class MobileCardDetailScreen extends StatefulWidget {
   static const argCellBuilder = 'cellBuilder';
   final RowController rowController;
   final ScrollController? scrollController;
+  final bool isBottemSheet;
 
   @override
   State<MobileCardDetailScreen> createState() => _MobileCardDetailScreenState();
@@ -55,10 +57,18 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
       create: (context) => RowDetailBloc(rowController: widget.rowController)
         ..add(const RowDetailEvent.initial()),
       child: Scaffold(
-        // appbar with duplicate and delete card features
         appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              context.pop();
+            },
+            icon: Icon(
+              widget.isBottemSheet ? Icons.close : Icons.arrow_back,
+            ),
+          ),
           title: Text(LocaleKeys.board_cardDetail.tr()),
           actions: [
+            // appbar with duplicate and delete card features
             BlocProvider<RowActionSheetBloc>(
               create: (context) => RowActionSheetBloc(
                 viewId: widget.rowController.viewId,

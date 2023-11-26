@@ -1,24 +1,20 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/database/board/group_card_header.dart';
+import 'package:appflowy/mobile/presentation/database/board/board.dart';
+import 'package:appflowy/mobile/presentation/database/board/widgets/group_card_header.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_hidden_groups.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -64,11 +60,13 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final config = AppFlowyBoardConfig(
-      boardPadding: const EdgeInsets.symmetric(horizontal: 16),
+      groupCornerRadius: 8,
       groupBackgroundColor: Theme.of(context).colorScheme.secondary,
-      groupMargin: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-      cardPadding: const EdgeInsets.all(4),
-      groupItemPadding: const EdgeInsets.all(4),
+      groupMargin: const EdgeInsets.fromLTRB(4, 8, 4, 12),
+      groupHeaderPadding: const EdgeInsets.all(8),
+      groupBodyPadding: const EdgeInsets.all(4),
+      groupFooterPadding: const EdgeInsets.all(8),
+      cardMargin: const EdgeInsets.all(4),
     );
 
     return BlocListener<BoardBloc, BoardState>(
@@ -99,9 +97,10 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             controller: context.read<BoardBloc>().boardController,
             groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
             config: config,
-            // leading: HiddenGroupsColumn(margin: config.headerPadding),
+            leading:
+                MobileHiddenGroupsColumn(margin: config.groupHeaderPadding),
             trailing: showCreateGroupButton
-                ? BoardTrailing(scrollController: scrollController)
+                ? MobileBoardTrailing(scrollController: scrollController)
                 : null,
             headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
               value: context.read<BoardBloc>(),
@@ -114,7 +113,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
               context: context,
               afGroupData: column,
               afGroupItem: columnItem,
-              cardPadding: config.cardPadding,
+              cardMargin: config.cardMargin,
             ),
           );
         },
@@ -153,7 +152,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     required BuildContext context,
     required AppFlowyGroupData afGroupData,
     required AppFlowyGroupItem afGroupItem,
-    required EdgeInsets cardPadding,
+    required EdgeInsets cardMargin,
   }) {
     final boardBloc = context.read<BoardBloc>();
     final groupItem = afGroupItem as GroupItem;
@@ -175,7 +174,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
 
     return Container(
       key: ValueKey(groupItemId),
-      margin: cardPadding,
+      margin: cardMargin,
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
         rowMeta: rowMeta,
@@ -272,6 +271,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
           return MobileCardDetailScreen(
             rowController: dataController,
             scrollController: scrollController,
+            isBottemSheet: true,
           );
         },
       ),
