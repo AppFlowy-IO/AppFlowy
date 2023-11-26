@@ -113,7 +113,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                                 : LocaleKeys.grid_checklist_hideComplete.tr(),
                             width: 32,
                             iconColorOnHover:
-                                Theme.of(context).colorScheme.onPrimary,
+                                Theme.of(context).colorScheme.onSurface,
                             icon: FlowySvg(
                               showIncompleteOnly
                                   ? FlowySvgs.show_m
@@ -144,16 +144,16 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
             constraints: BoxConstraints.loose(const Size(360, 400)),
             direction: PopoverDirection.bottomWithLeftAligned,
             triggerActions: PopoverTriggerFlags.none,
-            popupBuilder: (BuildContext context) {
+            popupBuilder: (BuildContext popoverContext) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                widget.onCellFocus.value = true;
+                widget.cellContainerNotifier.isFocus = true;
               });
               return GridChecklistCellEditor(
                 cellController: widget.cellControllerBuilder.build()
                     as ChecklistCellController,
               );
             },
-            onClose: () => widget.onCellFocus.value = false,
+            onClose: () => widget.cellContainerNotifier.isFocus = false,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Padding(

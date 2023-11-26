@@ -550,7 +550,7 @@
     "menuName": "سبورة",
     "referencedBoardPrefix": "نظرا ل",
     "column": {
-      "create_new_card": "جديد"
+      "createNewCard": "جديد"
     }
   },
   "calendar": {

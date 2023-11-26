@@ -480,7 +480,7 @@
     },
     "rowPage": {
       "newField": "Adicionar um novo campo",
-      "fieldDragEelementTooltip": "Clique para abrir o menu",
+      "fieldDragElementTooltip": "Clique para abrir o menu",
       "showHiddenFields": {
         "one": "Mostrar campo oculto {}",
         "many": "Mostrar campos ocultos {}",
@@ -728,7 +728,7 @@
     "menuName": "Quadro",
     "referencedBoardPrefix": "Vista de",
     "column": {
-      "create_new_card": "Novo"
+      "createNewCard": "Novo"
     }
   },
   "calendar": {

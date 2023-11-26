@@ -73,10 +73,11 @@ class GridTestContext {
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = await createFieldEditor(viewId: gridView.id)
-      ..add(const FieldEditorEvent.initial());
+    final editorBloc =
+        await createFieldEditor(databaseController: gridController)
+          ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
-    editorBloc.add(FieldEditorEvent.switchToField(fieldType));
+    editorBloc.add(FieldEditorEvent.switchFieldType(fieldType));
     await gridResponseFuture();
     return Future(() => editorBloc);
   }
@@ -132,19 +133,21 @@ class GridTestContext {
 }
 
 Future<FieldEditorBloc> createFieldEditor({
-  required String viewId,
+  required DatabaseController databaseController,
 }) async {
   final result = await TypeOptionBackendService.createFieldTypeOption(
-    viewId: viewId,
+    viewId: databaseController.viewId,
   );
+  await gridResponseFuture();
   return result.fold(
     (data) {
       final loader = FieldTypeOptionLoader(
-        viewId: viewId,
+        viewId: databaseController.viewId,
         field: data.field_2,
       );
       return FieldEditorBloc(
-        isGroupField: FieldInfo.initial(data.field_2).isGroupField,
+        viewId: databaseController.viewId,
+        fieldController: databaseController.fieldController,
         loader: loader,
         field: data.field_2,
       );

@@ -1,3 +1,4 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
@@ -85,7 +86,7 @@ class MobileSignInScreen extends StatelessWidget {
                     ],
                   ),
                   const VSpace(spacing),
-                  const ThirdPartySignInButtons(),
+                  if (isAuthEnabled) const ThirdPartySignInButtons(),
                   const VSpace(spacing),
                 ],
               ),

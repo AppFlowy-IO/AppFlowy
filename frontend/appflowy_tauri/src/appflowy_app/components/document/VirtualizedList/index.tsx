@@ -4,19 +4,34 @@ import Overlay from '../Overlay';
 import { Node } from '$app/interfaces/document';
 
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { ContainerType, useContainerType } from '$app/hooks/document.hooks';
+import { useCallback } from 'react';
 
 export default function VirtualizedList({
   childIds,
   node,
   renderNode,
+  getDocumentTitle,
 }: {
   childIds: string[];
   node: Node;
   renderNode: (nodeId: string) => JSX.Element;
+  getDocumentTitle?: () => React.ReactNode;
 }) {
   const { virtualize, parentRef } = useVirtualizedList(childIds.length + 1);
   const virtualItems = virtualize.getVirtualItems();
   const { docId } = useSubscribeDocument();
+  const containerType = useContainerType();
+
+  const isDocumentPage = containerType === ContainerType.DocumentPage;
+
+  const renderDocumentTitle = useCallback(() => {
+    if (getDocumentTitle) {
+      return getDocumentTitle();
+    }
+
+    return <DocumentTitle id={node.id} />;
+  }, [getDocumentTitle, node.id]);
 
   return (
     <>
@@ -26,7 +41,7 @@ export default function VirtualizedList({
         className={`doc-scroller-container flex h-[100%] flex-wrap justify-center overflow-auto px-20`}
       >
         <div
-          className='doc-body max-w-screen w-[900px] min-w-0'
+          className={`doc-body ${isDocumentPage ? 'max-w-screen w-[900px] min-w-0' : 'w-full'}`}
           style={{
             height: virtualize.getTotalSize(),
             position: 'relative',
@@ -48,10 +63,13 @@ export default function VirtualizedList({
                 const id = isDocumentTitle ? node.id : childIds[virtualRow.index - 1];
 
                 return (
-                  <div className={isDocumentTitle ? '' : 'pt-[0.5px]'} key={id} data-index={virtualRow.index} ref={virtualize.measureElement}>
-                    {
-                      isDocumentTitle ? <DocumentTitle id={node.id} /> : renderNode(id)
-                    }
+                  <div
+                    className={isDocumentTitle ? '' : 'pt-[0.5px]'}
+                    key={id}
+                    data-index={virtualRow.index}
+                    ref={virtualize.measureElement}
+                  >
+                    {isDocumentTitle ? renderDocumentTitle() : renderNode(id)}
                   </div>
                 );
               })}

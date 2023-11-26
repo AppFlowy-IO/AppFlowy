@@ -504,7 +504,7 @@
     },
     "rowPage": {
       "newField": "Tambah bidang baru",
-      "fieldDragEelementTooltip": "Klik untuk membuka menu",
+      "fieldDragElementTooltip": "Klik untuk membuka menu",
       "showHiddenFields": {
         "one": "Tampilkan {} bidang tersembunyi",
         "many": "Tampilkan {} bidang tersembunyi",
@@ -753,8 +753,7 @@
   "board": {
     "column": {
       "createNewCard": "Baru",
-      "renameGroupTooltip": "Tekan untuk mengganti nama grup",
-      "create_new_card": "Baru"
+      "renameGroupTooltip": "Tekan untuk mengganti nama grup"
     },
     "menuName": "Papan",
     "showUngrouped": "Tampilkan item yang tidak dikelompokkan",
@@ -780,9 +779,9 @@
       "firstDayOfWeek": "Mulai minggu",
       "layoutDateField": "Tata letak kalender oleh",
       "noDateTitle": "Tidak ada tanggal",
-      "noDateHint": "Acara yang tidak dijadwalkan akan muncul di sini",
       "clickToAdd": "Klik untuk menambahkan ke kalender",
-      "name": "Tata letak kalender"
+      "name": "Tata letak kalender",
+      "noDateHint": "Acara yang tidak dijadwalkan akan muncul di sini"
     },
     "referencedCalendarPrefix": "Pemandangan dari"
   },

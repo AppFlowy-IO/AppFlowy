@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
@@ -11,15 +12,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../layout/sizes.dart';
-import 'field_cell_action_sheet.dart';
+import 'field_editor.dart';
 import 'field_type_extension.dart';
 
 class GridFieldCell extends StatefulWidget {
   final String viewId;
+  final FieldController fieldController;
   final FieldInfo fieldInfo;
   const GridFieldCell({
     super.key,
     required this.viewId,
+    required this.fieldController,
     required this.fieldInfo,
   });
 
@@ -59,9 +62,11 @@ class _GridFieldCellState extends State<GridFieldCell> {
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
             popupBuilder: (BuildContext context) {
-              return GridFieldCellActionSheet(
+              return FieldEditor(
                 viewId: widget.viewId,
-                fieldInfo: widget.fieldInfo,
+                fieldController: widget.fieldController,
+                field: widget.fieldInfo.field,
+                initialPage: FieldEditorPage.general,
               );
             },
             child: FieldCellButton(
@@ -81,7 +86,6 @@ class _GridFieldCellState extends State<GridFieldCell> {
             width: state.width,
             child: Stack(
               alignment: Alignment.centerRight,
-              fit: StackFit.expand,
               children: [button, line],
             ),
           );
@@ -114,7 +118,6 @@ class _GridHeaderCellContainer extends StatelessWidget {
     );
     final decoration = BoxDecoration(
       border: Border(
-        top: borderSide,
         right: borderSide,
         bottom: borderSide,
       ),
@@ -123,10 +126,7 @@ class _GridHeaderCellContainer extends StatelessWidget {
     return Container(
       width: width,
       decoration: decoration,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints.expand(),
-        child: child,
-      ),
+      child: child,
     );
   }
 }

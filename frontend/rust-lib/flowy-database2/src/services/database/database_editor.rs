@@ -117,6 +117,10 @@ impl DatabaseEditor {
   ///
   #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_view_editor(&self, view_id: &str) -> bool {
+    if let Some(database) = self.database.try_lock() {
+      let _ = database.flush();
+    }
+
     self.database_views.close_view(view_id).await
   }
 

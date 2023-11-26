@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -28,12 +27,15 @@ import 'cell_builder.dart';
 /// [RowDetailPage].
 class RowPropertyList extends StatelessWidget {
   final String viewId;
+  final FieldController fieldController;
   final GridCellBuilder cellBuilder;
+
   const RowPropertyList({
+    super.key,
     required this.viewId,
+    required this.fieldController,
     required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class RowPropertyList extends StatelessWidget {
                 key: ValueKey('row_detail_${cell.fieldId}'),
                 cellContext: cell,
                 cellBuilder: cellBuilder,
+                fieldController: fieldController,
                 index: index,
               ),
             )
@@ -99,7 +102,10 @@ class RowPropertyList extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 4.0),
                     child: ToggleHiddenFieldsVisibilityButton(),
                   ),
-                CreateRowFieldButton(viewId: viewId),
+                CreateRowFieldButton(
+                  viewId: viewId,
+                  fieldController: fieldController,
+                ),
               ],
             ),
           ),
@@ -113,14 +119,16 @@ class RowPropertyList extends StatelessWidget {
 class _PropertyCell extends StatefulWidget {
   final DatabaseCellContext cellContext;
   final GridCellBuilder cellBuilder;
-
+  final FieldController fieldController;
   final int index;
+
   const _PropertyCell({
+    super.key,
     required this.cellContext,
     required this.cellBuilder,
-    Key? key,
+    required this.fieldController,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();
@@ -134,7 +142,7 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   @override
   Widget build(BuildContext context) {
-    final style = _customCellStyle(widget.cellContext.fieldType);
+    final style = customCellStyle(widget.cellContext.fieldType);
     final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 
     final dragThumb = MouseRegion(
@@ -156,7 +164,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                   onTap: () => _fieldPopoverController.show(),
                   svg: FlowySvgs.drag_element_s,
                   richMessage: TextSpan(
-                    text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
+                    text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
                   ),
                 )
               : const SizedBox.shrink(),
@@ -219,35 +227,13 @@ class _PropertyCellState extends State<_PropertyCell> {
   Widget buildFieldEditor() {
     return FieldEditor(
       viewId: widget.cellContext.viewId,
-      fieldInfo: widget.cellContext.fieldInfo,
-      isGroupingField: widget.cellContext.fieldInfo.isGroupField,
-      typeOptionLoader: FieldTypeOptionLoader(
-        viewId: widget.cellContext.viewId,
-        field: widget.cellContext.fieldInfo.field,
-      ),
-      onToggleVisibility: (fieldId) {
-        _popoverController.close();
-        context
-            .read<RowDetailBloc>()
-            .add(RowDetailEvent.toggleFieldVisibility(fieldId));
-      },
-      onDeleted: (fieldId) {
-        _popoverController.close();
-
-        NavigatorAlertDialog(
-          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          confirm: () {
-            context
-                .read<RowDetailBloc>()
-                .add(RowDetailEvent.deleteField(fieldId));
-          },
-        ).show(context);
-      },
+      field: widget.cellContext.fieldInfo.field,
+      fieldController: widget.fieldController,
     );
   }
 }
 
-GridCellStyle? _customCellStyle(FieldType fieldType) {
+GridCellStyle? customCellStyle(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return GridCheckboxCellStyle(
@@ -342,8 +328,13 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
 
 class CreateRowFieldButton extends StatefulWidget {
   final String viewId;
+  final FieldController fieldController;
 
-  const CreateRowFieldButton({required this.viewId, super.key});
+  const CreateRowFieldButton({
+    super.key,
+    required this.viewId,
+    required this.fieldController,
+  });
 
   @override
   State<CreateRowFieldButton> createState() => _CreateRowFieldButtonState();
@@ -394,24 +385,11 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
           ),
         ),
       ),
-      popupBuilder: (BuildContext popOverContext) {
+      popupBuilder: (BuildContext popoverContext) {
         return FieldEditor(
           viewId: widget.viewId,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.viewId,
-            field: typeOption.field_2,
-          ),
-          onDeleted: (fieldId) {
-            popoverController.close();
-            NavigatorAlertDialog(
-              title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-              confirm: () {
-                context
-                    .read<RowDetailBloc>()
-                    .add(RowDetailEvent.deleteField(fieldId));
-              },
-            ).show(context);
-          },
+          field: typeOption.field_2,
+          fieldController: widget.fieldController,
         );
       },
     );

@@ -6,13 +6,6 @@ class KVKeys {
   /// The key for the path location of the local data for the whole app.
   static const String pathLocation = '$prefix.path_location';
 
-  /// The key for the last time login type.
-  ///
-  /// The value is one of the following:
-  /// - local
-  /// - supabase
-  static const String loginType = '$prefix.login_type';
-
   /// The key for saving the window size
   ///
   /// The value is a json string with the following format:
@@ -49,4 +42,9 @@ class KVKeys {
   /// The value is a boolean string.
   static const String showRenameDialogWhenCreatingNewFile =
       'showRenameDialogWhenCreatingNewFile';
+
+  static const String kCloudType = 'kCloudType';
+  static const String kAppflowyCloudBaseURL = 'kAppFlowyCloudBaseURL';
+  static const String kSupabaseURL = 'kSupbaseURL';
+  static const String kSupabaseAnonKey = 'kSupabaseAnonKey';
 }

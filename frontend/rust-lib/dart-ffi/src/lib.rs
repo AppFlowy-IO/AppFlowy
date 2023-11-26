@@ -7,12 +7,13 @@ use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use tracing::{error, trace};
 
+use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::*;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 
-use crate::env_serde::AppFlowyEnv;
+use crate::env_serde::AppFlowyDartConfiguration;
 use crate::notification::DartNotificationSender;
 use crate::{
   c::{extend_front_four_bytes_into_bytes, forget_rust},
@@ -48,13 +49,23 @@ unsafe impl Sync for MutexAppFlowyCore {}
 unsafe impl Send for MutexAppFlowyCore {}
 
 #[no_mangle]
-pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
-  let c_str: &CStr = unsafe { CStr::from_ptr(path) };
-  let path: &str = c_str.to_str().unwrap();
+pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
+  let c_str = unsafe { CStr::from_ptr(data) };
+  let serde_str = c_str.to_str().unwrap();
+  let configuration = AppFlowyDartConfiguration::from_str(serde_str);
+
+  configuration.cloud_type.write_env();
+  configuration.appflowy_cloud_config.write_env();
+  configuration.supabase_config.write_env();
 
   let log_crates = vec!["flowy-ffi".to_string()];
-  let config =
-    AppFlowyCoreConfig::new(path, DEFAULT_NAME.to_string()).log_filter("info", log_crates);
+  let config = AppFlowyCoreConfig::new(
+    configuration.custom_app_path,
+    configuration.origin_app_path,
+    configuration.device_id,
+    DEFAULT_NAME.to_string(),
+  )
+  .log_filter("info", log_crates);
   *APPFLOWY_CORE.0.lock() = Some(AppFlowyCore::new(config));
   0
 }
@@ -162,5 +173,5 @@ pub extern "C" fn backend_log(level: i64, data: *const c_char) {
 pub extern "C" fn set_env(data: *const c_char) {
   let c_str = unsafe { CStr::from_ptr(data) };
   let serde_str = c_str.to_str().unwrap();
-  AppFlowyEnv::write_env_from(serde_str);
+  AppFlowyDartConfiguration::write_env_from(serde_str);
 }

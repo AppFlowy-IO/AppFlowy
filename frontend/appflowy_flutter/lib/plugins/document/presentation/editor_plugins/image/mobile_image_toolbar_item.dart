@@ -5,8 +5,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 final imageMobileToolbarItem = MobileToolbarItem.action(
-  itemIconBuilder: (_, __) => const FlowySvg(FlowySvgs.m_toolbar_imae_lg),
-  actionHandler: (editorState, selection) async {
+  itemIconBuilder: (_, __, ___) => const FlowySvg(FlowySvgs.m_toolbar_imae_lg),
+  actionHandler: (_, editorState) async {
     final imagePlaceholderKey = GlobalKey<ImagePlaceholderState>();
     await editorState.insertEmptyImageBlock(imagePlaceholderKey);
 

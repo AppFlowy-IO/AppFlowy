@@ -179,7 +179,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   Future<void> _setViewIsExpanded(ViewPB view, bool isExpanded) async {
     final result = await getIt<KeyValueStorage>().get(KVKeys.expandedViews);
     final map = result.fold(
-      (l) => {},
+      () => {},
       (r) => jsonDecode(r),
     );
     if (isExpanded) {
@@ -192,7 +192,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
 
   Future<bool> _getViewIsExpanded(ViewPB view) {
     return getIt<KeyValueStorage>().get(KVKeys.expandedViews).then((result) {
-      return result.fold((l) => false, (r) {
+      return result.fold(() => false, (r) {
         final map = jsonDecode(r);
         return map[view.id] ?? false;
       });

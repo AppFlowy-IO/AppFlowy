@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDatabase } from '$app/components/database';
+import { useDatabaseVisibilityRows } from '$app/components/database';
 import { Field } from '$app/components/database/application';
 import { DEFAULT_FIELD_WIDTH } from '$app/components/database/grid/GridRow';
 
@@ -9,7 +9,7 @@ interface Props {
 }
 
 function GridCalculate({ field, index }: Props) {
-  const { rowMetas } = useDatabase();
+  const rowMetas = useDatabaseVisibilityRows();
   const count = rowMetas.length;
   const width = field.width ?? DEFAULT_FIELD_WIDTH;
 

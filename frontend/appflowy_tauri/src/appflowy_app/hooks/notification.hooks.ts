@@ -15,6 +15,7 @@ import {
   RowsVisibilityChangePB,
   SortChangesetNotificationPB,
   FieldSettingsPB,
+  FilterChangesetNotificationPB,
 } from '@/services/backend';
 
 const NotificationPBMap = {
@@ -30,6 +31,7 @@ const NotificationPBMap = {
   [DatabaseNotification.DidUpdateCell]: null,
   [DatabaseNotification.DidUpdateSort]: SortChangesetNotificationPB,
   [DatabaseNotification.DidUpdateFieldSettings]: FieldSettingsPB,
+  [DatabaseNotification.DidUpdateFilter]: FilterChangesetNotificationPB,
 };
 
 type NotificationMap = typeof NotificationPBMap;

@@ -549,7 +549,7 @@
     "menuName": "Tábla",
     "referencedBoardPrefix": "Nézet",
     "column": {
-      "create_new_card": "Új"
+      "createNewCard": "Új"
     }
   },
   "calendar": {
