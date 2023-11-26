@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/user/application/supabase_realtime.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:flutter/foundation.dart';

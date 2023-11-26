@@ -24,7 +24,7 @@ class MobileTabBarHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 14),
               child: Row(
                 children: [
                   Expanded(

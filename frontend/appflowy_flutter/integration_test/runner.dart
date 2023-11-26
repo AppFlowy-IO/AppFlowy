@@ -22,6 +22,7 @@ import 'share_markdown_test.dart' as share_markdown_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'switch_folder_test.dart' as switch_folder_test;
 import 'tabs_test.dart' as tabs_test;
+// import 'auth/supabase_auth_test.dart' as supabase_auth_test_runner;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -74,10 +75,7 @@ Future<void> main() async {
   // User settings
   settings_test_runner.main();
 
-  // final cloudType = await getCloudType();
-  // if (cloudType == CloudType.supabase) {
-  //   auth_test_runner.main();
-  // }
+  // supabase_auth_test_runner.main();
 
   // board_test.main();
   // empty_document_test.main();

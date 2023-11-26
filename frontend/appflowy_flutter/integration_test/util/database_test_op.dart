@@ -1249,12 +1249,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 
-  Future<void> hoverOnTodayCalendarCell() async {
+  Future<void> hoverOnTodayCalendarCell({
+    Future<void> Function()? onHover,
+  }) async {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && widget.isToday,
     );
 
-    await hoverOnWidget(todayCell);
+    await hoverOnWidget(todayCell, onHover: onHover);
   }
 
   Future<void> tapAddCalendarEventButton() async {
@@ -1362,7 +1364,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
-  Future<void> dragDropRescheduleCalendarEvent(DateTime startDate) async {
+  Future<void> dragDropRescheduleCalendarEvent() async {
     final findEventCard = find.byType(EventCard);
     await drag(findEventCard.first, const Offset(0, 300));
     await pumpAndSettle();

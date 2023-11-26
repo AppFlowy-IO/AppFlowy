@@ -9,12 +9,13 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import 'field_type_option_editor.dart';
