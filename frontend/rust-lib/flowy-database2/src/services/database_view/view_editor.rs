@@ -392,14 +392,16 @@ impl DatabaseViewEditor {
   }
 
   pub async fn v_delete_group(&self, group_id: &str) -> FlowyResult<RowsChangePB> {
-    let mut controller = self.group_controller.write().await;
-    let controller = match controller.as_mut() {
+    let mut group_controller = self.group_controller.write().await;
+    let controller = match group_controller.as_mut() {
       Some(controller) => controller,
       None => return Ok(RowsChangePB::default()),
     };
 
     let old_field = self.delegate.get_field(controller.field_id());
     let (row_ids, type_option_data) = controller.delete_group(group_id)?;
+
+    drop(group_controller);
 
     let mut changes = RowsChangePB::default();
 
