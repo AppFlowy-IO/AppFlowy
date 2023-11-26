@@ -1,6 +1,3 @@
-[build]
-rustflags = ["--cfg", "tokio_unstable"]
-
 [target.x86_64-apple-darwin]
 rustflags = ["-C", "target-cpu=native", "-C", "link-arg=-mmacosx-version-min=11.0"]
 
