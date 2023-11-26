@@ -49,12 +49,9 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
     }
   }
 
-  fn delete_option(&mut self, delete_option: SelectOption) {
+  fn delete_option(&mut self, option_id: &str) {
     let options = self.mut_options();
-    if let Some(index) = options
-      .iter()
-      .position(|option| option.id == delete_option.id)
-    {
+    if let Some(index) = options.iter().position(|option| option.id == option_id) {
       options.remove(index);
     }
   }

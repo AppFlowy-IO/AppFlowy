@@ -113,19 +113,20 @@ impl GroupCustomize for SingleSelectGroupController {
   }
 
   fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
-    let select_option = self
+    if let Some(option_index) = self
       .type_option
       .options
       .iter()
-      .find(|option| option.id == group_id);
-
-    let type_option = select_option.map(|option| {
+      .position(|option| option.id == group_id)
+    {
+      // Remove the option if the group is found
       let mut new_type_option = self.type_option.clone();
-      new_type_option.delete_option(option.clone());
-      new_type_option.into()
-    });
-
-    Ok(type_option)
+      new_type_option.options.remove(option_index);
+      Ok(Some(new_type_option.into()))
+    } else {
+      // Return None if no matching group is found
+      Ok(None)
+    }
   }
 }
 

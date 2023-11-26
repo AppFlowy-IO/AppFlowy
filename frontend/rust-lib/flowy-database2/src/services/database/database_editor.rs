@@ -823,7 +823,7 @@ impl DatabaseEditor {
     };
 
     for option in options {
-      type_option.delete_option(option.into());
+      type_option.delete_option(&option.id);
     }
     self
       .database
