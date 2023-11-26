@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../row/cells/checklist_cell/checklist_cell_bloc.dart';
+import '../define.dart';
 import 'card_cell.dart';
 
 class ChecklistCardCell extends CardCell {
@@ -37,7 +38,7 @@ class _ChecklistCellState extends State<ChecklistCardCell> {
             return const SizedBox.shrink();
           }
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: CardSizes.cardCellPadding,
             child: ChecklistProgressBar(
               tasks: state.tasks,
               percent: state.percent,

@@ -115,16 +115,16 @@ jobs:
             cargo make --profile ${{ matrix.flutter_profile }} appflowy-core-dev
           fi
         shell: bash
+        run: |
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-core-dev
 
       - name: Run code generation
         working-directory: frontend
-        run: |
-          cargo make code_generation
+        run: cargo make code_generation
 
       - name: Flutter Analyzer
         working-directory: frontend/appflowy_flutter
-        run: |
-          flutter analyze .
+        run: flutter analyze .
 
       - name: Compress appflowy_flutter
         run: tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
@@ -140,11 +140,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest]
+        os: [ubuntu-latest]
         include:
-          - os: macos-latest
-            flutter_profile: development-mac-x86_64
-            target: x86_64-apple-darwin
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86_64
+            target: x86_64-unknown-linux-gnu
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -181,19 +181,45 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            cargo make appflowy-flutter-deps-tools
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
           fi
         shell: bash
+
+      - name: Enable Flutter Desktop
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            flutter config --enable-linux-desktop
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            flutter config --enable-macos-desktop
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            git config --system core.longpaths true
+            flutter config --enable-windows-desktop
+          fi
+        shell: bash
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.run_id }}-${{ matrix.os }}
+
+      - name: Uncompress appflowy_flutter
+        run: tar -xf appflowy_flutter.tar.gz
+
+      - name: Run flutter pub get
+        working-directory: frontend
+        run: cargo make pub_get
 
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            flutter config --enable-macos-desktop
-            cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
             cargo make dart_unit_test
-          else
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            cargo make dart_unit_test_no_build
+          elif [ "$RUNNER_OS" == "Windows" ]; then
             cargo make dart_unit_test_no_build
           fi
         shell: bash
@@ -218,7 +244,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest,windows-latest]
+        os: [ubuntu-latest, windows-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -282,10 +308,17 @@ jobs:
       - name: Uncompress appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
 
-      - name: Run code generation
+#      - name: Create .env.cloud.test file in flowy-server
+#        working-directory: frontend/appflowy_flutter
+#        run: |
+#          touch .env.cloud.test
+#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.cloud.test
+#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.cloud.test
+#          echo APPFLOWY_CLOUD_URL=${{ secrets.APPFLOWY_CLOUD_URL }} >> .env.cloud.test
+
+      - name: Run flutter pub get
         working-directory: frontend
-        run: |
-          cargo make code_generation
+        run: cargo make pub_get
 
       - name: Run Flutter integration tests
         working-directory: frontend/appflowy_flutter
@@ -388,12 +421,6 @@ jobs:
 
       - name: Uncompress appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
-
-      - name: Run code generation
-        if: matrix.os == 'windows-latest'
-        working-directory: frontend
-        run: |
-          cargo make code_generation
 
       - name: Build flutter product
         working-directory: frontend

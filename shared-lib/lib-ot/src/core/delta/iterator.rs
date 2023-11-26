@@ -1,10 +1,11 @@
-use super::cursor::*;
+use std::ops::{Deref, DerefMut};
+
 use crate::core::delta::operation::{DeltaOperation, OperationAttributes};
 use crate::core::delta::{DeltaOperations, NEW_LINE};
 use crate::core::interval::Interval;
 use crate::core::AttributeHashMap;
 
-use std::ops::{Deref, DerefMut};
+use super::cursor::*;
 
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 
@@ -93,7 +94,7 @@ where
   pub fn seek<M: Metric>(&mut self, index: usize) {
     match M::seek(&mut self.cursor, index) {
       Ok(_) => {},
-      Err(e) => log::error!("Seek fail: {:?}", e),
+      Err(e) => tracing::error!("Seek fail: {:?}", e),
     }
   }
 

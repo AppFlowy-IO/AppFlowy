@@ -32,7 +32,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    // Makesure the text cells are filled with the right content when there are
+    // Make sure the text cells are filled with the right content when there are
     // multiple text cell
     testWidgets('edit multiple text cells', (tester) async {
       await tester.initializeAppFlowy();

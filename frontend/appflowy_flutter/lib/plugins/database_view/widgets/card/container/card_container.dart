@@ -5,7 +5,7 @@ import 'accessory.dart';
 
 class RowCardContainer extends StatelessWidget {
   final Widget child;
-  final CardAccessoryBuilder? accessoryBuilder;
+  final List<CardAccessory> accessories;
   final bool Function()? buildAccessoryWhen;
   final void Function(BuildContext) openCard;
   final void Function(AccessoryType) openAccessory;
@@ -13,7 +13,7 @@ class RowCardContainer extends StatelessWidget {
     required this.child,
     required this.openCard,
     required this.openAccessory,
-    this.accessoryBuilder,
+    required this.accessories,
     this.buildAccessoryWhen,
     Key? key,
   }) : super(key: key);
@@ -30,15 +30,12 @@ class RowCardContainer extends StatelessWidget {
             shouldBuildAccessory = buildAccessoryWhen!.call();
           }
 
-          if (accessoryBuilder != null && shouldBuildAccessory) {
-            final accessories = accessoryBuilder!(context);
-            if (accessories.isNotEmpty) {
-              container = _CardEnterRegion(
-                accessories: accessories,
-                onTapAccessory: openAccessory,
-                child: container,
-              );
-            }
+          if (shouldBuildAccessory && accessories.isNotEmpty) {
+            container = _CardEnterRegion(
+              accessories: accessories,
+              onTapAccessory: openAccessory,
+              child: container,
+            );
           }
 
           return GestureDetector(
@@ -75,8 +72,8 @@ class _CardEnterRegion extends StatelessWidget {
         if (onEnter) {
           children.add(
             Positioned(
-              top: 8.0,
-              right: 8.0,
+              top: 10.0,
+              right: 10.0,
               child: CardAccessoryContainer(
                 accessories: accessories,
                 onTapAccessory: onTapAccessory,

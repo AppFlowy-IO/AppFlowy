@@ -10,21 +10,18 @@ import 'package:dartz/dartz.dart';
 import '../../../core/notification/user_notification.dart';
 
 class UserCloudConfigListener {
-  final String userId;
   StreamSubscription<SubscribeObject>? _subscription;
   void Function(Either<CloudSettingPB, FlowyError>)? _onSettingChanged;
 
   UserNotificationParser? _userParser;
-  UserCloudConfigListener({
-    required this.userId,
-  });
+  UserCloudConfigListener();
 
   void start({
     void Function(Either<CloudSettingPB, FlowyError>)? onSettingChanged,
   }) {
     _onSettingChanged = onSettingChanged;
     _userParser = UserNotificationParser(
-      id: userId,
+      id: 'user_cloud_config',
       callback: _userNotificationCallback,
     );
     _subscription = RustStreamReceiver.listen((observable) {

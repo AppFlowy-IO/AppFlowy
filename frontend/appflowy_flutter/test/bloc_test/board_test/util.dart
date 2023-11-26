@@ -88,7 +88,8 @@ class BoardTestContext {
     );
 
     final editorBloc = FieldEditorBloc(
-      isGroupField: fieldInfo.isGroupField,
+      viewId: databaseController.viewId,
+      fieldController: fieldController,
       loader: loader,
       field: fieldInfo.field,
     );
@@ -126,10 +127,11 @@ class BoardTestContext {
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = await createFieldEditor(viewId: gridView.id)
-      ..add(const FieldEditorEvent.initial());
+    final editorBloc =
+        await createFieldEditor(databaseController: _boardDataController)
+          ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
-    editorBloc.add(FieldEditorEvent.switchToField(fieldType));
+    editorBloc.add(FieldEditorEvent.switchFieldType(fieldType));
     await gridResponseFuture();
     return Future(() => editorBloc);
   }

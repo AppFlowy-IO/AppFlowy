@@ -38,7 +38,7 @@ export const DatabaseTitle = () => {
   );
 
   return (
-    <div className='mb-6 h-[70px] pt-8'>
+    <div className='mb-6 h-[70px] px-16 pt-8'>
       <input
         className='text-3xl font-semibold'
         value={title}
