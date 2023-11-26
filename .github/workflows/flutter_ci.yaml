@@ -115,8 +115,6 @@ jobs:
             cargo make --profile ${{ matrix.flutter_profile }} appflowy-core-dev
           fi
         shell: bash
-        run: |
-          cargo make --profile ${{ matrix.flutter_profile }} appflowy-core-dev
 
       - name: Run code generation
         working-directory: frontend
