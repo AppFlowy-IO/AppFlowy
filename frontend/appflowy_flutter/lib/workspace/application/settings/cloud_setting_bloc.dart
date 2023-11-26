@@ -5,13 +5,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'cloud_setting_bloc.freezed.dart';
 
 class CloudSettingBloc extends Bloc<CloudSettingEvent, CloudSettingState> {
-  CloudSettingBloc(CloudType cloudType)
+  CloudSettingBloc(AuthenticatorType cloudType)
       : super(CloudSettingState.initial(cloudType)) {
     on<CloudSettingEvent>((event, emit) async {
       await event.when(
         initial: () async {},
-        updateCloudType: (CloudType newCloudType) async {
-          await setCloudType(newCloudType);
+        updateCloudType: (AuthenticatorType newCloudType) async {
+          await setAuthenticatorType(newCloudType);
           emit(state.copyWith(cloudType: newCloudType));
         },
       );
@@ -22,17 +22,19 @@ class CloudSettingBloc extends Bloc<CloudSettingEvent, CloudSettingState> {
 @freezed
 class CloudSettingEvent with _$CloudSettingEvent {
   const factory CloudSettingEvent.initial() = _Initial;
-  const factory CloudSettingEvent.updateCloudType(CloudType newCloudType) =
-      _UpdateCloudType;
+  const factory CloudSettingEvent.updateCloudType(
+    AuthenticatorType newCloudType,
+  ) = _UpdateCloudType;
 }
 
 @freezed
 class CloudSettingState with _$CloudSettingState {
   const factory CloudSettingState({
-    required CloudType cloudType,
+    required AuthenticatorType cloudType,
   }) = _CloudSettingState;
 
-  factory CloudSettingState.initial(CloudType cloudType) => CloudSettingState(
+  factory CloudSettingState.initial(AuthenticatorType cloudType) =>
+      CloudSettingState(
         cloudType: cloudType,
       );
 }

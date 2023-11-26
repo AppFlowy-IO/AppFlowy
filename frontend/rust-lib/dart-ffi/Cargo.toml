@@ -27,8 +27,8 @@ tracing.workspace = true
 
 # workspace
 lib-dispatch = { workspace = true }
-flowy-core = { workspace = true, features = ["profiling"] }
-#flowy-core = { workspace = true }
+#flowy-core = { workspace = true, features = ["profiling"] }
+flowy-core = { workspace = true }
 flowy-notification = { workspace = true }
 flowy-server = { workspace = true }
 flowy-server-config = { workspace = true}

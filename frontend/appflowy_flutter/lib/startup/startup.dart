@@ -38,18 +38,29 @@ class FlowyRunner {
   static Future<FlowyRunnerContext> run(
     EntryPoint f,
     IntegrationMode mode, {
-    Future? didInitGetIt,
-    LaunchConfiguration config = const LaunchConfiguration(
-      autoRegistrationSupported: false,
-    ),
+    // This callback is triggered after the initialization of 'getIt',
+    // which is used for dependency injection throughout the app.
+    // If your functionality depends on 'getIt', ensure to register
+    // your callback here to execute any necessary actions post-initialization.
+    Future? didInitGetItCallback,
+    // Passing the envs to the backend
+    Map<String, String> Function()? rustEnvsBuilder,
+    // Indicate whether the app is running in anonymous mode.
+    // Note: when the app is running in anonymous mode, the user no need to
+    // sign in, and the app will only save the data in the local storage.
+    bool isAnon = false,
   }) async {
     // Clear all the states in case of rebuilding.
     await getIt.reset();
 
+    final config = LaunchConfiguration(
+      isAnon: isAnon,
+      rustEnvs: rustEnvsBuilder?.call() ?? {},
+    );
+
     // Specify the env
     await initGetIt(getIt, mode, f, config);
-
-    await didInitGetIt;
+    await didInitGetItCallback;
 
     final applicationDataDirectory =
         await getIt<ApplicationDataStorage>().getPath().then(

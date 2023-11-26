@@ -54,7 +54,7 @@ class SupabaseAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signIn({
+  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -68,7 +68,7 @@ class SupabaseAuthService implements AuthService {
       if (uuid == null) {
         return Left(AuthError.supabaseSignInError);
       }
-      return _backendAuthService.signIn(
+      return _backendAuthService.signInWithEmailPassword(
         email: email,
         password: password,
         params: {

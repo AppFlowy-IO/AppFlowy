@@ -16,7 +16,6 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../generated/locale_keys.g.dart';
-import '../../../../startup/launch_configuration.dart';
 import '../../../../startup/startup.dart';
 import '../../../../startup/tasks/prelude.dart';
 
@@ -211,9 +210,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
           await FlowyRunner.run(
             FlowyApp(),
             integrationMode(),
-            config: const LaunchConfiguration(
-              autoRegistrationSupported: true,
-            ),
+            isAnon: true,
           );
           if (mounted) {
             Navigator.of(context).pop();
@@ -289,9 +286,7 @@ class _RecoverDefaultStorageButtonState
         await FlowyRunner.run(
           FlowyApp(),
           integrationMode(),
-          config: const LaunchConfiguration(
-            autoRegistrationSupported: true,
-          ),
+          isAnon: true,
         );
         if (mounted) {
           Navigator.of(context).pop();

@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
+import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
@@ -57,12 +58,12 @@ class DependencyResolver {
 }
 
 Future<void> _resolveCloudDeps(GetIt getIt) async {
-  final cloudType = await getCloudType();
+  final cloudType = await getAuthenticatorType();
   final appflowyCloudConfig = await getAppFlowyCloudConfig();
   final supabaseCloudConfig = await getSupabaseCloudConfig();
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() {
     return AppFlowyCloudSharedEnv(
-      cloudType: cloudType,
+      authenticatorType: cloudType,
       appflowyCloudConfig: appflowyCloudConfig,
       supabaseConfig: supabaseCloudConfig,
     );
@@ -130,22 +131,27 @@ void _resolveCommonService(
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   switch (currentCloudType()) {
-    case CloudType.local:
+    case AuthenticatorType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
           AuthTypePB.Local,
         ),
       );
       break;
-    case CloudType.supabase:
+    case AuthenticatorType.supabase:
       if (mode.isIntegrationTest) {
-        getIt.registerFactory<AuthService>(() => MockAuthService());
+        getIt.registerFactory<AuthService>(() => SupabaseMockAuthService());
       } else {
         getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       }
       break;
-    case CloudType.appflowyCloud:
-      getIt.registerFactory<AuthService>(() => AFCloudAuthService());
+    case AuthenticatorType.appflowyCloud:
+      if (mode.isIntegrationTest) {
+        getIt
+            .registerFactory<AuthService>(() => AppFlowyCloudMockAuthService());
+      } else {
+        getIt.registerFactory<AuthService>(() => AppFlowyCloudAuthService());
+      }
       break;
   }
 

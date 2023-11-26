@@ -25,7 +25,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .name("Flowy-User")
     .state(user_session)
     .state(store_preferences)
-    .event(UserEvent::SignIn, sign_in)
+    .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
@@ -39,7 +39,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
     .event(UserEvent::OauthSignIn, oauth_handler)
-    .event(UserEvent::GetSignInURL, get_sign_in_url_handler)
+    .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
@@ -69,7 +69,7 @@ pub enum UserEvent {
   /// Only use when the [Authenticator] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
-  SignIn = 0,
+  SignInWithEmailPassword = 0,
 
   /// Only use when the [Authenticator] is Local or SelfHosted
   /// Creating a new account
@@ -111,7 +111,7 @@ pub enum UserEvent {
   /// Get the OAuth callback url
   /// Only use when the [Authenticator] is AFCloud
   #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
-  GetSignInURL = 11,
+  GenerateSignInURL = 11,
 
   #[event(input = "OauthProviderPB", output = "OauthProviderDataPB")]
   GetOauthURLWithProvider = 12,

@@ -56,12 +56,9 @@ pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
   let c_str = unsafe { CStr::from_ptr(data) };
   let serde_str = c_str.to_str().unwrap();
   let configuration = AppFlowyDartConfiguration::from_str(serde_str);
+  configuration.write_env();
 
-  configuration.cloud_type.write_env();
-  configuration.appflowy_cloud_config.write_env();
-  configuration.supabase_config.write_env();
-
-  if configuration.cloud_type == AuthenticatorType::AppFlowyCloud {
+  if configuration.authenticator_type == AuthenticatorType::AppFlowyCloud {
     let _ = save_appflowy_cloud_config(&configuration.root, &configuration.appflowy_cloud_config);
   }
 
@@ -177,8 +174,6 @@ pub extern "C" fn backend_log(level: i64, data: *const c_char) {
 }
 
 #[no_mangle]
-pub extern "C" fn set_env(data: *const c_char) {
-  let c_str = unsafe { CStr::from_ptr(data) };
-  let serde_str = c_str.to_str().unwrap();
-  AppFlowyDartConfiguration::write_env_from(serde_str);
+pub extern "C" fn set_env(_data: *const c_char) {
+  // Deprecated
 }

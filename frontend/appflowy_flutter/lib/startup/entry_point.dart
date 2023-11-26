@@ -7,7 +7,7 @@ class FlowyApp implements EntryPoint {
   @override
   Widget create(LaunchConfiguration config) {
     return SplashScreen(
-      autoRegister: config.autoRegistrationSupported,
+      isAnon: config.isAnon,
     );
   }
 }

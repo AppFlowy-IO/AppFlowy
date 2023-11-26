@@ -180,7 +180,7 @@ impl EncryptionType {
     }
   }
 
-  pub fn is_need_encrypt_secret(&self) -> bool {
+  pub fn require_encrypt_secret(&self) -> bool {
     match self {
       EncryptionType::NoEncryption => false,
       EncryptionType::SelfEncryption(sign) => !sign.is_empty(),

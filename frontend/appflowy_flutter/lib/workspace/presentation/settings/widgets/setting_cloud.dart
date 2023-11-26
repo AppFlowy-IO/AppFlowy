@@ -19,8 +19,9 @@ class SettingCloud extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getCloudType(),
-      builder: (BuildContext context, AsyncSnapshot<CloudType> snapshot) {
+      future: getAuthenticatorType(),
+      builder:
+          (BuildContext context, AsyncSnapshot<AuthenticatorType> snapshot) {
         if (snapshot.hasData) {
           final cloudType = snapshot.data!;
           return BlocProvider(
@@ -67,15 +68,15 @@ class SettingCloud extends StatelessWidget {
     );
   }
 
-  Widget _viewFromCloudType(CloudType cloudType) {
+  Widget _viewFromCloudType(AuthenticatorType cloudType) {
     switch (cloudType) {
-      case CloudType.local:
+      case AuthenticatorType.local:
         return SettingLocalCloud(didResetServerUrl: didResetServerUrl);
-      case CloudType.supabase:
+      case AuthenticatorType.supabase:
         return SettingSupabaseCloudView(
           didResetServerUrl: didResetServerUrl,
         );
-      case CloudType.appflowyCloud:
+      case AuthenticatorType.appflowyCloud:
         return SettingAppFlowyCloudView(
           didResetServerUrl: didResetServerUrl,
         );
@@ -84,8 +85,8 @@ class SettingCloud extends StatelessWidget {
 }
 
 class CloudTypeSwitcher extends StatelessWidget {
-  final CloudType cloudType;
-  final Function(CloudType) onSelected;
+  final AuthenticatorType cloudType;
+  final Function(AuthenticatorType) onSelected;
   const CloudTypeSwitcher({
     required this.cloudType,
     required this.onSelected,
@@ -108,12 +109,12 @@ class CloudTypeSwitcher extends StatelessWidget {
           shrinkWrap: true,
           itemBuilder: (context, index) {
             return CloudTypeItem(
-              cloudType: CloudType.values[index],
+              cloudType: AuthenticatorType.values[index],
               currentCloudtype: cloudType,
               onSelected: onSelected,
             );
           },
-          itemCount: CloudType.values.length,
+          itemCount: AuthenticatorType.values.length,
         );
       },
     );
@@ -121,9 +122,9 @@ class CloudTypeSwitcher extends StatelessWidget {
 }
 
 class CloudTypeItem extends StatelessWidget {
-  final CloudType cloudType;
-  final CloudType currentCloudtype;
-  final Function(CloudType) onSelected;
+  final AuthenticatorType cloudType;
+  final AuthenticatorType currentCloudtype;
+  final Function(AuthenticatorType) onSelected;
 
   const CloudTypeItem({
     required this.cloudType,
@@ -154,13 +155,13 @@ class CloudTypeItem extends StatelessWidget {
   }
 }
 
-String titleFromCloudType(CloudType cloudType) {
+String titleFromCloudType(AuthenticatorType cloudType) {
   switch (cloudType) {
-    case CloudType.local:
+    case AuthenticatorType.local:
       return LocaleKeys.settings_menu_cloudLocal.tr();
-    case CloudType.supabase:
+    case AuthenticatorType.supabase:
       return LocaleKeys.settings_menu_cloudSupabase.tr();
-    case CloudType.appflowyCloud:
+    case AuthenticatorType.appflowyCloud:
       return LocaleKeys.settings_menu_cloudAppFlowy.tr();
   }
 }

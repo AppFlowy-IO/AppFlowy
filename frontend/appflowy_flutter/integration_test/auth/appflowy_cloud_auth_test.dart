@@ -1,6 +1,7 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,13 +13,17 @@ void main() {
 
   group('appflowy cloud auth', () {
     testWidgets('sign in', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.appflowyCloud);
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloud,
+      );
       await tester.tapGoogleLoginInButton();
       tester.expectToSeeHomePage();
     });
 
     testWidgets('sign out', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.appflowyCloud);
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloud,
+      );
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out
@@ -35,7 +40,9 @@ void main() {
     });
 
     testWidgets('sign in as annoymous', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.appflowyCloud);
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloud,
+      );
       await tester.tapSignInAsGuest();
 
       // should not see the sync setting page when sign in as annoymous
@@ -45,7 +52,9 @@ void main() {
     });
 
     testWidgets('enable sync', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.appflowyCloud);
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloud,
+      );
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out
@@ -53,15 +62,15 @@ void main() {
       await tester.openSettingsPage(SettingsPage.cloud);
 
       // the switch should be on by default
-      tester.assertEnableSyncSwitchValue(true);
-      await tester.toggleEnableSync();
+      tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
+      await tester.toggleEnableSync(AppFlowyCloudEnableSync);
 
       // the switch should be off
-      tester.assertEnableSyncSwitchValue(false);
+      tester.assertAppFlowyCloudEnableSyncSwitchValue(false);
 
       // the switch should be on after toggling
-      await tester.toggleEnableSync();
-      tester.assertEnableSyncSwitchValue(true);
+      await tester.toggleEnableSync(AppFlowyCloudEnableSync);
+      tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
     });
   });
 }

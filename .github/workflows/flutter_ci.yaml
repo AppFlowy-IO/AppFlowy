@@ -297,7 +297,7 @@ jobs:
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
-      - name: Uncompress appflowy_flutter
+      - name: Uncompressed appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
 
 #      - name: Create .env.cloud.test file in flowy-server
@@ -340,6 +340,75 @@ jobs:
             token: ${{ secrets.CODECOV_TOKEN }}
           attempt_limit: 20
           attempt_delay: 10000
+
+  appflowy_cloud_integration_test:
+    needs: [prepare]
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86_64
+            target: x86_64-unknown-linux-gnu
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+          fi
+        shell: bash
+
+      - name: Enable Flutter Desktop
+        run: |
+          flutter config --enable-linux-desktop
+        shell: bash
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.run_id }}-${{ matrix.os }}
+
+      - name: Uncompressed appflowy_flutter
+        run: tar -xf appflowy_flutter.tar.gz
+
+      - name: Create .env.cloud.test file in flowy-server
+        working-directory: frontend/appflowy_flutter
+        run: |
+          touch .env.cloud.test
+          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.cloud.test
+          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.cloud.test
+          echo APPFLOWY_CLOUD_URL=${{ secrets.APPFLOWY_CLOUD_URL }} >> .env.cloud.test
+
+      - name: Run flutter pub get
+        working-directory: frontend
+        run: cargo make pub_get
+
+      - name: Run Flutter integration tests
+        working-directory: frontend/appflowy_flutter
+        run: |
+          export DISPLAY=:99
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+          sudo apt-get install network-manager
+          flutter test integration_test/cloud_runner.dart -d Linux --coverage
+        shell: bash
 
   build:
     needs: [prepare]
@@ -411,7 +480,7 @@ jobs:
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
-      - name: Uncompress appflowy_flutter
+      - name: Uncompressed appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
 
       - name: Build flutter product

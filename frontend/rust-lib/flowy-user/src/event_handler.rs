@@ -35,7 +35,7 @@ fn upgrade_store_preferences(
 }
 
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, manager), fields(email = %data.email), err)]
-pub async fn sign_in(
+pub async fn sign_in_with_email_password_handler(
   data: AFPluginData<SignInPayloadPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
@@ -43,10 +43,7 @@ pub async fn sign_in(
   let params: SignInParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
 
-  let user_profile: UserProfilePB = manager
-    .sign_in(BoxAny::new(params), auth_type)
-    .await?
-    .into();
+  let user_profile: UserProfilePB = manager.sign_in(params, auth_type).await?.into();
   data_result_ok(user_profile)
 }
 
@@ -264,7 +261,7 @@ pub async fn oauth_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn get_sign_in_url_handler(
+pub async fn gen_sign_in_url_handler(
   data: AFPluginData<SignInUrlPayloadPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<SignInUrlPB, FlowyError> {
@@ -274,8 +271,7 @@ pub async fn get_sign_in_url_handler(
   let sign_in_url = manager
     .generate_sign_in_url_with_email(&auth_type, &params.email)
     .await?;
-  let resp = SignInUrlPB { sign_in_url };
-  data_result_ok(resp)
+  data_result_ok(SignInUrlPB { sign_in_url })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

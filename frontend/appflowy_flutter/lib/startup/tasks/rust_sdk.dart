@@ -29,11 +29,12 @@ class InitRustSDKTask extends LaunchTask {
     final deviceId = await getDeviceId();
 
     // Pass the environment variables to the Rust SDK
-    final env = _getAppFlowyConfiguration(
+    final env = _makeAppFlowyConfiguration(
       root.path,
       dir.path,
       applicationPath.path,
       deviceId,
+      rustEnvs: context.config.rustEnvs,
     );
     await context.getIt<FlowySDK>().init(jsonEncode(env.toJson()));
   }
@@ -42,21 +43,23 @@ class InitRustSDKTask extends LaunchTask {
   Future<void> dispose() async {}
 }
 
-AppFlowyConfiguration _getAppFlowyConfiguration(
+AppFlowyConfiguration _makeAppFlowyConfiguration(
   String root,
   String customAppPath,
   String originAppPath,
-  String deviceId,
-) {
+  String deviceId, {
+  required Map<String, String> rustEnvs,
+}) {
   final env = getIt<AppFlowyCloudSharedEnv>();
   return AppFlowyConfiguration(
     root: root,
     custom_app_path: customAppPath,
     origin_app_path: originAppPath,
     device_id: deviceId,
-    cloud_type: env.cloudType.value,
+    authenticator_type: env.authenticatorType.value,
     supabase_config: env.supabaseConfig,
     appflowy_cloud_config: env.appflowyCloudConfig,
+    envs: rustEnvs,
   );
 }
 

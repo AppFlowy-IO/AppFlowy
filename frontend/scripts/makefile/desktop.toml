@@ -51,7 +51,7 @@ private = true
 script = [
   """
     cd rust-lib/
-    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+     RUSTFLAGS="--cfg tokio_unstable" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
@@ -62,7 +62,7 @@ private = true
 script = [
   """
     cd rust-lib/
-    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    RUSTFLAGS="--cfg tokio_unstable" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
@@ -73,7 +73,7 @@ private = true
 script = [
   """
     cd rust-lib
-    exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+     RUSTFLAGS="--cfg tokio_unstable" exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ..
   """,
 ]

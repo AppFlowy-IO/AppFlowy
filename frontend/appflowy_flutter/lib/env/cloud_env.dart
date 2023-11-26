@@ -9,22 +9,22 @@ import 'package:dartz/dartz.dart';
 ///
 /// This method updates the cloud type setting in the key-value storage
 /// using the [KeyValueStorage] service. The cloud type is identified
-/// by the [CloudType] enum.
+/// by the [AuthenticatorType] enum.
 ///
 /// [ty] - The type of cloud to be set. It must be one of the values from
-/// [CloudType] enum. The corresponding integer value of the enum is stored:
+/// [AuthenticatorType] enum. The corresponding integer value of the enum is stored:
 /// - `CloudType.local` is stored as "0".
 /// - `CloudType.supabase` is stored as "1".
 /// - `CloudType.appflowyCloud` is stored as "2".
-Future<void> setCloudType(CloudType ty) async {
+Future<void> setAuthenticatorType(AuthenticatorType ty) async {
   switch (ty) {
-    case CloudType.local:
+    case AuthenticatorType.local:
       getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
       break;
-    case CloudType.supabase:
+    case AuthenticatorType.supabase:
       getIt<KeyValueStorage>().set(KVKeys.kCloudType, 1.toString());
       break;
-    case CloudType.appflowyCloud:
+    case AuthenticatorType.appflowyCloud:
       getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
       break;
   }
@@ -34,25 +34,25 @@ Future<void> setCloudType(CloudType ty) async {
 ///
 /// This method fetches the cloud type setting from the key-value storage
 /// using the [KeyValueStorage] service and returns the corresponding
-/// [CloudType] enum value.
+/// [AuthenticatorType] enum value.
 ///
 /// Returns:
-/// A Future that resolves to a [CloudType] enum value representing the
+/// A Future that resolves to a [AuthenticatorType] enum value representing the
 /// currently set cloud type. The default return value is `CloudType.local`
 /// if no valid setting is found.
 ///
-Future<CloudType> getCloudType() async {
+Future<AuthenticatorType> getAuthenticatorType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
-  return value.fold(() => CloudType.local, (s) {
+  return value.fold(() => AuthenticatorType.local, (s) {
     switch (s) {
       case "0":
-        return CloudType.local;
+        return AuthenticatorType.local;
       case "1":
-        return CloudType.supabase;
+        return AuthenticatorType.supabase;
       case "2":
-        return CloudType.appflowyCloud;
+        return AuthenticatorType.appflowyCloud;
       default:
-        return CloudType.local;
+        return AuthenticatorType.local;
     }
   });
 }
@@ -72,15 +72,15 @@ bool get isAuthEnabled {
   // Only enable supabase in release and develop mode.
   if (integrationMode().isRelease || integrationMode().isDevelop) {
     final env = getIt<AppFlowyCloudSharedEnv>();
-    if (env.cloudType == CloudType.local) {
+    if (env.authenticatorType == AuthenticatorType.local) {
       return false;
     }
 
-    if (env.cloudType == CloudType.supabase) {
+    if (env.authenticatorType == AuthenticatorType.supabase) {
       return env.supabaseConfig.isValid;
     }
 
-    if (env.cloudType == CloudType.appflowyCloud) {
+    if (env.authenticatorType == AuthenticatorType.appflowyCloud) {
       return env.appflowyCloudConfig.isValid;
     }
 
@@ -102,7 +102,7 @@ bool get isAuthEnabled {
 bool get isSupabaseEnabled {
   // Only enable supabase in release and develop mode.
   if (integrationMode().isRelease || integrationMode().isDevelop) {
-    return currentCloudType() == CloudType.supabase;
+    return currentCloudType() == AuthenticatorType.supabase;
   } else {
     return false;
   }
@@ -120,25 +120,25 @@ bool get isSupabaseEnabled {
 bool get isAppFlowyCloudEnabled {
   // Only enable appflowy cloud in release and develop mode.
   if (integrationMode().isRelease || integrationMode().isDevelop) {
-    return currentCloudType() == CloudType.appflowyCloud;
+    return currentCloudType() == AuthenticatorType.appflowyCloud;
   } else {
     return false;
   }
 }
 
-enum CloudType {
+enum AuthenticatorType {
   local,
   supabase,
   appflowyCloud;
 
-  bool get isEnabled => this != CloudType.local;
+  bool get isEnabled => this != AuthenticatorType.local;
   int get value {
     switch (this) {
-      case CloudType.local:
+      case AuthenticatorType.local:
         return 0;
-      case CloudType.supabase:
+      case AuthenticatorType.supabase:
         return 1;
-      case CloudType.appflowyCloud:
+      case AuthenticatorType.appflowyCloud:
         return 2;
     }
   }
@@ -146,19 +146,19 @@ enum CloudType {
   static fromValue(int value) {
     switch (value) {
       case 0:
-        return CloudType.local;
+        return AuthenticatorType.local;
       case 1:
-        return CloudType.supabase;
+        return AuthenticatorType.supabase;
       case 2:
-        return CloudType.appflowyCloud;
+        return AuthenticatorType.appflowyCloud;
       default:
-        return CloudType.local;
+        return AuthenticatorType.local;
     }
   }
 }
 
-CloudType currentCloudType() {
-  return getIt<AppFlowyCloudSharedEnv>().cloudType;
+AuthenticatorType currentCloudType() {
+  return getIt<AppFlowyCloudSharedEnv>().authenticatorType;
 }
 
 Future<void> setAppFlowyCloudUrl(Option<String> url) async {
@@ -170,12 +170,12 @@ Future<void> setAppFlowyCloudUrl(Option<String> url) async {
 
 /// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
 class AppFlowyCloudSharedEnv {
-  final CloudType cloudType;
+  final AuthenticatorType authenticatorType;
   final AppFlowyCloudConfiguration appflowyCloudConfig;
   final SupabaseConfiguration supabaseConfig;
 
   AppFlowyCloudSharedEnv({
-    required this.cloudType,
+    required this.authenticatorType,
     required this.appflowyCloudConfig,
     required this.supabaseConfig,
   });

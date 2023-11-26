@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
 use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
-use client_api::entity::{AFRole, AFWorkspace, InsertCollabParams, OAuthProvider};
+use client_api::entity::{AFRole, AFWorkspace, AuthProvider, InsertCollabParams};
 use collab_entity::CollabObject;
 use parking_lot::RwLock;
 
@@ -82,8 +82,7 @@ where
         client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url());
       admin_client
         .sign_in_password(&admin_email, &admin_password)
-        .await
-        .unwrap();
+        .await?;
 
       let action_link = admin_client.generate_sign_in_action_link(&email).await?;
       let sign_in_url = client.extract_sign_in_url(&action_link).await?;
@@ -92,7 +91,7 @@ where
   }
 
   fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, Error> {
-    let provider = OAuthProvider::from(provider);
+    let provider = AuthProvider::from(provider);
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let provider = provider.ok_or(anyhow!("invalid provider"))?;
