@@ -10,7 +10,7 @@ use flowy_error::FlowyResult;
 use flowy_folder2::manager::{FolderInitDataSource, FolderManager};
 use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
 use flowy_user_deps::cloud::UserCloudConfig;
-use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
+use flowy_user_deps::entities::{Authenticator, UserProfile, UserWorkspace};
 use lib_infra::future::{to_fut, Fut};
 
 use crate::integrate::server::ServerProvider;
@@ -27,7 +27,7 @@ pub(crate) struct UserStatusCallbackImpl {
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
+  fn authenticator_did_changed(&self, _auth_type: Authenticator) {}
 
   fn did_init(
     &self,
@@ -47,7 +47,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       self
         .server_provider
         .set_enable_sync(user_id, cloud_config.enable_sync);
-      if cloud_config.enable_encrypt() {
+      if cloud_config.enable_encrypt {
         self
           .server_provider
           .set_encrypt_secret(cloud_config.encrypt_secret.clone());

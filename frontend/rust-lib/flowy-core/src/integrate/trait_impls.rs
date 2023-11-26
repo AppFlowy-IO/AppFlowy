@@ -8,6 +8,7 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use tokio_stream::wrappers::WatchStream;
+use tracing::instrument;
 
 use collab_integrate::collab_builder::{CollabPluginContext, CollabSource, CollabStorageProvider};
 use collab_integrate::postgres::SupabaseDBPlugin;
@@ -20,10 +21,12 @@ use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{
   FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::{AuthType, UserTokenState};
+use flowy_user_deps::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::integrate::server::{ServerProvider, ServerType, SERVER_PROVIDER_TYPE_KEY};
@@ -67,13 +70,10 @@ impl UserCloudServiceProvider for ServerProvider {
   }
 
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
-    match self.get_server(&self.get_server_type()) {
-      Ok(server) => {
-        server.set_enable_sync(uid, enable_sync);
-        *self.enable_sync.write() = enable_sync;
-        *self.uid.write() = Some(uid);
-      },
-      Err(e) => tracing::error!("🔴Failed to enable sync: {:?}", e),
+    if let Ok(server) = self.get_server(&self.get_server_type()) {
+      server.set_enable_sync(uid, enable_sync);
+      *self.enable_sync.write() = enable_sync;
+      *self.uid.write() = Some(uid);
     }
   }
 
@@ -82,21 +82,21 @@ impl UserCloudServiceProvider for ServerProvider {
     self.encryption.write().set_secret(secret);
   }
 
-  /// When user login, the provider type is set by the [AuthType] and save to disk for next use.
+  /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
   ///
-  /// Each [AuthType] has a corresponding [ServerType]. The [ServerType] is used
+  /// Each [Authenticator] has a corresponding [ServerType]. The [ServerType] is used
   /// to create a new [AppFlowyServer] if it doesn't exist. Once the [ServerType] is set,
   /// it will be used when user open the app again.
   ///
-  fn set_auth_type(&self, auth_type: AuthType) {
-    let server_type: ServerType = auth_type.into();
+  fn set_authenticator(&self, authenticator: Authenticator) {
+    let server_type: ServerType = authenticator.into();
     self.set_server_type(server_type.clone());
 
     match self.store_preferences.upgrade() {
       None => tracing::error!("🔴Failed to update server provider type: store preferences is drop"),
       Some(store_preferences) => {
         match store_preferences.set_object(SERVER_PROVIDER_TYPE_KEY, server_type.clone()) {
-          Ok(_) => tracing::trace!("Update server provider type to: {:?}", server_type),
+          Ok(_) => tracing::trace!("Set server provider: {:?}", server_type),
           Err(e) => {
             tracing::error!("🔴Failed to update server provider type: {:?}", e);
           },
@@ -105,33 +105,29 @@ impl UserCloudServiceProvider for ServerProvider {
     }
   }
 
-  fn set_device_id(&self, device_id: &str) {
-    if device_id.is_empty() {
-      tracing::error!("🔴Device id is empty");
-      return;
-    }
-
-    *self.device_id.write() = device_id.to_string();
+  fn get_authenticator(&self) -> Authenticator {
+    let server_type = self.get_server_type();
+    Authenticator::from(server_type)
   }
 
   /// Returns the [UserCloudService] base on the current [ServerType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    if let Some(user_service) = self.cache_user_service.read().get(&self.get_server_type()) {
-      return Ok(user_service.clone());
-    }
-
     let server_type = self.get_server_type();
     let user_service = self.get_server(&server_type)?.user_service();
-    self
-      .cache_user_service
-      .write()
-      .insert(server_type, user_service.clone());
     Ok(user_service)
   }
 
-  fn service_name(&self) -> String {
-    self.get_server_type().to_string()
+  fn service_url(&self) -> String {
+    match self.get_server_type() {
+      ServerType::Local => "".to_string(),
+      ServerType::AFCloud => AFCloudConfiguration::from_env()
+        .map(|config| config.base_url)
+        .unwrap_or_default(),
+      ServerType::Supabase => SupabaseConfiguration::from_env()
+        .map(|config| config.url)
+        .unwrap_or_default(),
+    }
   }
 }
 
@@ -309,6 +305,7 @@ impl CollabStorageProvider for ServerProvider {
     self.get_server_type().into()
   }
 
+  #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
   fn get_plugins(&self, context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
     match context {
       CollabPluginContext::Local => to_fut(async move { vec![] }),
@@ -331,7 +328,7 @@ impl CollabStorageProvider for ServerProvider {
                 let sink_config = SinkConfig::new()
                   .send_timeout(8)
                   .with_max_payload_size(1024 * 10)
-                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
+                  .with_strategy(SinkStrategy::FixInterval(Duration::from_millis(600)));
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,

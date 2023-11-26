@@ -7,8 +7,8 @@ use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_entity::CollabType;
 use collab_folder::{
-  Folder, FolderData, FolderNotify, SectionItem, TrashChange, TrashChangeReceiver, TrashInfo,
-  UserId, View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
+  Folder, FolderData, FolderNotify, Section, SectionItem, TrashChange, TrashChangeReceiver,
+  TrashInfo, UserId, View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::{Mutex, RwLock};
 use tokio_stream::wrappers::WatchStream;
@@ -159,7 +159,7 @@ impl FolderManager {
       } => {
         let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
         if is_exist {
-          event!(Level::INFO, "Restore folder from local disk");
+          event!(Level::INFO, "Init folder from local disk");
           let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db, vec![])
             .await?;
@@ -745,6 +745,7 @@ impl FolderManager {
       || Err(FlowyError::record_not_found()),
       |folder| {
         folder.set_current_view(view_id);
+        folder.add_recent_view_ids(vec![view_id.to_string()]);
         Ok(folder.get_workspace_id())
       },
     )?;
@@ -800,17 +801,12 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_favorites(&self) -> Vec<SectionItem> {
-    self.with_folder(Vec::new, |folder| {
-      let trash_ids = folder
-        .get_all_trash()
-        .into_iter()
-        .map(|trash| trash.id)
-        .collect::<Vec<String>>();
+    self.get_sections(Section::Favorite)
+  }
 
-      let mut views = folder.get_all_favorites();
-      views.retain(|view| !trash_ids.contains(&view.id));
-      views
-    })
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub(crate) async fn get_all_recent_sections(&self) -> Vec<SectionItem> {
+    self.get_sections(Section::Recent)
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -1038,6 +1034,26 @@ impl FolderManager {
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn FolderCloudService> {
     &self.cloud_service
+  }
+
+  fn get_sections(&self, section_type: Section) -> Vec<SectionItem> {
+    self.with_folder(Vec::new, |folder| {
+      let trash_ids = folder
+        .get_all_trash()
+        .into_iter()
+        .map(|trash| trash.id)
+        .collect::<Vec<String>>();
+
+      let mut views = match section_type {
+        Section::Favorite => folder.get_all_favorites(),
+        Section::Recent => folder.get_all_recent_sections(),
+        _ => vec![],
+      };
+
+      // filter the views that are in the trash
+      views.retain(|view| !trash_ids.contains(&view.id));
+      views
+    })
   }
 }
 

@@ -3,7 +3,7 @@ import { Portal } from '@mui/material';
 import { DragEventHandler, FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { throttle } from '$app/utils/tool';
 import { useViewId } from '$app/hooks';
-import { useDatabase } from '../../../Database.hooks';
+import { useDatabaseVisibilityFields } from '../../../Database.hooks';
 import { rowService, RowMeta } from '../../../application';
 import {
   DragItem,
@@ -21,6 +21,7 @@ import {
   useGridRowContextMenu,
 } from '$app/components/database/grid/GridRow/GridCellRow/GridCellRow.hooks';
 import GridCellRowContextMenu from '$app/components/database/grid/GridRow/GridCellRow/GridCellRowContextMenu';
+import { DEFAULT_FIELD_WIDTH } from '$app/components/database/grid/GridRow';
 
 export interface GridCellRowProps {
   rowMeta: RowMeta;
@@ -32,14 +33,14 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
   const rowId = rowMeta.id;
   const viewId = useViewId();
   const ref = useRef<HTMLDivElement | null>(null);
-  const { onMouseEnter, actionsStyle, hover } = useGridRowActionsDisplay(rowId, ref);
+  const { onMouseLeave, onMouseEnter, hover } = useGridRowActionsDisplay(rowId);
   const {
     isContextMenuOpen,
     closeContextMenu,
     openContextMenu,
     position: contextMenuPosition,
   } = useGridRowContextMenu();
-  const { fields } = useDatabase();
+  const fields = useDatabaseVisibilityFields();
 
   const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
   const dragData = useMemo(
@@ -106,7 +107,13 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
   }, [openContextMenu]);
 
   return (
-    <div ref={ref} className='flex grow' onMouseEnter={onMouseEnter} {...dropListeners}>
+    <div
+      ref={ref}
+      className='relative -ml-16 flex grow pl-16'
+      onMouseLeave={onMouseLeave}
+      onMouseEnter={onMouseEnter}
+      {...dropListeners}
+    >
       <div
         ref={setPreviewRef}
         className={`relative flex grow border-b border-line-divider ${isDragging ? 'bg-blue-50' : ''}`}
@@ -115,9 +122,15 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
           className='flex'
           itemClassName='flex border-r border-line-divider'
           virtualizer={virtualizer}
-          renderItem={(index) => <GridCell rowId={rowMeta.id} field={fields[index]} />}
+          renderItem={(index) => {
+            const field = fields[index];
+            const icon = field.isPrimary ? rowMeta.icon : undefined;
+            const documentId = field.isPrimary ? rowMeta.documentId : undefined;
+
+            return <GridCell rowId={rowMeta.id} documentId={documentId} icon={icon} field={field} />;
+          }}
         />
-        <div className='min-w-20 grow' />
+        <div className={`w-[${DEFAULT_FIELD_WIDTH}px]`} />
         {isOver && (
           <div
             className={`absolute left-0 right-0 z-10 h-0.5 bg-blue-500 ${
@@ -126,24 +139,26 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
           />
         )}
       </div>
+      <GridCellRowActions
+        isHidden={!hover}
+        className={'absolute left-2 top-[6px] z-10'}
+        dragProps={{
+          ...dragListeners,
+          ...dragAttributes,
+        }}
+        rowId={rowMeta.id}
+        getPrevRowId={getPrevRowId}
+      />
       <Portal>
-        <GridCellRowActions
-          isHidden={!hover}
-          style={actionsStyle}
-          dragProps={{
-            ...dragListeners,
-            ...dragAttributes,
-          }}
-          rowId={rowMeta.id}
-          getPrevRowId={getPrevRowId}
-        />
-        <GridCellRowContextMenu
-          open={isContextMenuOpen}
-          onClose={closeContextMenu}
-          anchorPosition={contextMenuPosition}
-          rowId={rowId}
-          getPrevRowId={getPrevRowId}
-        />
+        {isContextMenuOpen && (
+          <GridCellRowContextMenu
+            open={isContextMenuOpen}
+            onClose={closeContextMenu}
+            anchorPosition={contextMenuPosition}
+            rowId={rowId}
+            getPrevRowId={getPrevRowId}
+          />
+        )}
       </Portal>
     </div>
   );

@@ -96,6 +96,14 @@ impl ViewBuilder {
     self
   }
 
+  pub fn with_icon(mut self, icon: &str) -> Self {
+    self.icon = Some(ViewIcon {
+      ty: collab_folder::IconType::Emoji,
+      value: icon.to_string(),
+    });
+    self
+  }
+
   /// Create a child view for the current view.
   /// The view created by this builder will be the next level view of the current view.
   pub async fn with_child_view_builder<F, O>(mut self, child_view_builder: F) -> Self

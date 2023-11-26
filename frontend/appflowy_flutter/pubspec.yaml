@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.3.8
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.1.5 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -43,11 +43,11 @@ dependencies:
     # path: packages/appflowy_board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 1a329c2
+      ref: 2de4fe0
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: 50117b6
+      ref: "31acaff"
 
   appflowy_popover:
     path: packages/appflowy_popover
@@ -94,7 +94,10 @@ dependencies:
   shared_preferences: ^2.1.1
   google_fonts: ^4.0.5
   percent_indicator: ^4.2.3
-  calendar_view: ^1.0.3
+  calendar_view:
+    git:
+      url: https://github.com/Xazin/flutter_calendar_view
+      ref: "6fe0c98"
   window_manager: ^0.3.4
   http: ^1.0.0
   path: ^1.8.3
@@ -108,13 +111,13 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   super_clipboard: ^0.6.3
-  go_router: ^10.1.2
+  go_router: ^12.1.1
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
-  emoji_mart:
+  flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
-      ref: "067f718"
+      ref: "140b530"
 
   # Notifications
   # TODO: Consider implementing custom package
@@ -124,6 +127,7 @@ dependencies:
   flutter_slidable: ^3.0.0
   image_picker: ^1.0.4
   image_gallery_saver: ^2.0.3
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -148,8 +152,9 @@ dependency_overrides:
   supabase_flutter:
     git:
       url: https://github.com/LucasXu0/supabase-flutter
-      ref: 852119e
+      ref: 4bd9139
       path: packages/supabase_flutter
+
   app_links:
     git:
       url: https://github.com/LucasXu0/app_links

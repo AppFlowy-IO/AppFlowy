@@ -122,7 +122,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                               false,
                             ),
                           )
-                          .toList()
+                          .toList(),
                     ],
                   ],
                 ),
@@ -168,7 +168,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
               width: 20,
               onPressed: () =>
                   bloc.add(DynamicPluginEvent.removePlugin(name: theme)),
-            )
+            ),
         ],
       ),
     );

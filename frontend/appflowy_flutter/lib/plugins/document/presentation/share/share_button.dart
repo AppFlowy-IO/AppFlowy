@@ -112,7 +112,7 @@ class ShareActionListState extends State<ShareActionList> {
         return RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
           onPressed: () => controller.show(),
-          textColor: Theme.of(context).colorScheme.onSurface,
+          textColor: Theme.of(context).colorScheme.onPrimary,
         );
       },
       onSelected: (action, controller) async {

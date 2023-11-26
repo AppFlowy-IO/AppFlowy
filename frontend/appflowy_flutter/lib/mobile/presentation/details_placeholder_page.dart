@@ -91,7 +91,7 @@ class DetailsPlaceholderScreenState extends State<DetailsPlaceholderScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),
-          ]
+          ],
         ],
       ),
     );

@@ -20,7 +20,7 @@ use crate::entities::{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserCloudConfig {
   pub enable_sync: bool,
-  enable_encrypt: bool,
+  pub enable_encrypt: bool,
   // The secret used to encrypt the user's data
   pub encrypt_secret: String,
 }
@@ -32,10 +32,6 @@ impl UserCloudConfig {
       enable_encrypt: false,
       encrypt_secret,
     }
-  }
-
-  pub fn enable_encrypt(&self) -> bool {
-    self.enable_encrypt
   }
 
   pub fn with_enable_encrypt(mut self, enable_encrypt: bool) -> Self {
@@ -73,6 +69,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;
 
   /// Generate a sign in url for the user with the given email
+  /// Currently, only use the admin client for testing
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error>;
 
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
@@ -147,13 +144,13 @@ pub trait UserCloudService: Send + Sync + 'static {
   ) -> FutureResult<(), Error>;
 }
 
-pub type UserUpdateReceiver = tokio::sync::broadcast::Receiver<UserUpdate>;
-pub type UserUpdateSender = tokio::sync::broadcast::Sender<UserUpdate>;
+pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;
+pub type UserUpdateSender = tokio::sync::mpsc::Sender<UserUpdate>;
 #[derive(Debug, Clone)]
 pub struct UserUpdate {
   pub uid: i64,
-  pub name: String,
-  pub email: String,
+  pub name: Option<String>,
+  pub email: Option<String>,
   pub encryption_sign: String,
 }
 

@@ -16,6 +16,7 @@ const languages = [
     'pt-PT',
     'ru-RU',
     'sv-SE',
+    'th-TH',
     'tr-TR',
     'zh-CN',
     'zh-TW',

@@ -106,7 +106,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('create checklist field ', (tester) async {
+    testWidgets('create checklist field', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 

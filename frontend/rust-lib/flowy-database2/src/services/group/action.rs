@@ -168,7 +168,7 @@ pub trait GroupControllerOperation: Send + Sync {
   async fn apply_group_changeset(
     &mut self,
     changesets: &GroupChangesets,
-  ) -> FlowyResult<TypeOptionData>;
+  ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)>;
 }
 
 #[derive(Debug)]

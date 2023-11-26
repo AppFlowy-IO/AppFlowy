@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::cloud::UserCloudConfig;
 
 use crate::entities::EncryptionTypePB;
 
@@ -137,15 +136,18 @@ impl std::default::Default for AppearanceSettingsPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UserCloudConfigPB {
+pub struct CloudSettingPB {
   #[pb(index = 1)]
-  enable_sync: bool,
+  pub(crate) enable_sync: bool,
 
   #[pb(index = 2)]
-  enable_encrypt: bool,
+  pub(crate) enable_encrypt: bool,
 
   #[pb(index = 3)]
   pub encrypt_secret: String,
+
+  #[pb(index = 4)]
+  pub server_url: String,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -176,16 +178,6 @@ pub struct UserSecretPB {
 pub struct UserEncryptionConfigurationPB {
   #[pb(index = 1)]
   pub require_secret: bool,
-}
-
-impl From<UserCloudConfig> for UserCloudConfigPB {
-  fn from(value: UserCloudConfig) -> Self {
-    Self {
-      enable_sync: value.enable_sync,
-      enable_encrypt: value.enable_encrypt(),
-      encrypt_secret: value.encrypt_secret,
-    }
-  }
 }
 
 #[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
@@ -251,4 +243,16 @@ impl std::default::Default for NotificationSettingsPB {
       notifications_enabled: true,
     }
   }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct AppFlowyCloudSettingPB {
+  #[pb(index = 1)]
+  pub base_url: bool,
+
+  #[pb(index = 2)]
+  pub ws_addr: bool,
+
+  #[pb(index = 3)]
+  pub gotrue_url: String,
 }

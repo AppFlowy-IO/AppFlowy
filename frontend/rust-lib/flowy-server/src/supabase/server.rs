@@ -61,8 +61,7 @@ pub type CollabUpdateSenderByOid = RwLock<HashMap<String, RemoteUpdateSender>>;
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
-  /// did represents as the device id is used to identify the device that is currently using the app.
-  device_id: Arc<RwLock<String>>,
+  device_id: String,
   uid: Arc<RwLock<Option<i64>>>,
   collab_update_sender: Arc<CollabUpdateSenderByOid>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
@@ -75,7 +74,7 @@ impl SupabaseServer {
     uid: Arc<RwLock<Option<i64>>>,
     config: SupabaseConfiguration,
     enable_sync: bool,
-    device_id: Arc<RwLock<String>>,
+    device_id: String,
     encryption: Weak<dyn AppFlowyEncryption>,
   ) -> Self {
     let collab_update_sender = Default::default();
@@ -137,7 +136,7 @@ impl AppFlowyServer for SupabaseServer {
 
   fn user_service(&self) -> Arc<dyn UserCloudService> {
     // handle the realtime collab update event.
-    let (user_update_tx, _) = tokio::sync::broadcast::channel(100);
+    let (user_update_tx, user_update_rx) = tokio::sync::mpsc::channel(1);
 
     let collab_update_handler = Box::new(RealtimeCollabUpdateHandler::new(
       Arc::downgrade(&self.collab_update_sender),
@@ -146,13 +145,13 @@ impl AppFlowyServer for SupabaseServer {
     ));
 
     // handle the realtime user event.
-    let user_handler = Box::new(RealtimeUserHandler(user_update_tx.clone()));
+    let user_handler = Box::new(RealtimeUserHandler(user_update_tx));
 
     let handlers: Vec<Box<dyn RealtimeEventHandler>> = vec![collab_update_handler, user_handler];
     Arc::new(SupabaseUserServiceImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
       handlers,
-      Some(user_update_tx),
+      Some(user_update_rx),
     ))
   }
 

@@ -129,7 +129,7 @@ class WorkspaceErrorDescription extends StatelessWidget {
               "Error code: ${state.initialError.code.value.toString()}",
               fontSize: 12,
               maxLines: 1,
-            )
+            ),
           ],
         );
       },

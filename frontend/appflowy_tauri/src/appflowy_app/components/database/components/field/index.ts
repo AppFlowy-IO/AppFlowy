@@ -1,3 +1,4 @@
 export * from './Field';
 export * from './FieldSelect';
-export * from './FieldsMenu';
+export * from './FieldTypeText';
+export * from './FieldTypeSvg';

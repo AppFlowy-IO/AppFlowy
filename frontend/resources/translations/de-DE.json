@@ -594,7 +594,7 @@
     "menuName": "Planke",
     "referencedBoardPrefix": "Sicht von",
     "column": {
-      "create_new_card": "Neu"
+      "createNewCard": "Neu"
     }
   },
   "calendar": {

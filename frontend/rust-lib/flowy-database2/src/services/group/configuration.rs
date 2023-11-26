@@ -173,6 +173,7 @@ where
       self.field.id.clone(),
       group.name.clone(),
       group.id.clone(),
+      group.visible,
     );
     self.group_by_id.insert(group.id.clone(), group_data);
     let (index, group_data) = self.get_group(&group.id).unwrap();
@@ -338,7 +339,13 @@ where
         .get(&group.id)
         .cloned()
         .unwrap_or_else(|| "".to_owned());
-      let group = GroupData::new(group.id, self.field.id.clone(), group.name, filter_content);
+      let group = GroupData::new(
+        group.id,
+        self.field.id.clone(),
+        group.name,
+        filter_content,
+        group.visible,
+      );
       self.group_by_id.insert(group.id.clone(), group);
     });
 
@@ -351,6 +358,7 @@ where
           self.field.id.clone(),
           group_rev.name,
           filter_content.clone(),
+          group_rev.visible,
         );
         Some(GroupPB::from(group))
       })
@@ -462,14 +470,20 @@ fn merge_groups(
 ) -> MergeGroupResult {
   let mut merge_result = MergeGroupResult::new();
   // group_map is a helper map is used to filter out the new groups.
-  let mut new_group_map: IndexMap<String, Group> = IndexMap::new();
-  new_groups.into_iter().for_each(|group_rev| {
-    new_group_map.insert(group_rev.id.clone(), group_rev);
-  });
+  let mut new_group_map: IndexMap<String, Group> = new_groups
+    .into_iter()
+    .map(|group| (group.id.clone(), group))
+    .collect();
 
   // The group is ordered in old groups. Add them before adding the new groups
   for old in old_groups {
-    if let Some(new) = new_group_map.remove(&old.id) {
+    if let Some(index) = new_group_map.get_index_of(&old.id) {
+      let right = new_group_map.split_off(index);
+      merge_result.all_groups.extend(new_group_map.into_values());
+      new_group_map = right;
+    }
+
+    if let Some(new) = new_group_map.shift_remove(&old.id) {
       merge_result.all_groups.push(new.clone());
     } else {
       merge_result.deleted_groups.push(old);

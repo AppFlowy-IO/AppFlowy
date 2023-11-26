@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { DocumentData } from '../interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '../stores/store';
@@ -12,9 +11,7 @@ import {
 } from '$app/stores/reducers/document/slice';
 import { BlockEventPayloadPB } from '@/services/backend/models/flowy-document2';
 
-export const useDocument = () => {
-  const params = useParams();
-  const [documentId, setDocumentId] = useState<string>();
+export const useDocument = (documentId?: string) => {
   const [documentData, setDocumentData] = useState<DocumentData>();
   const [controller, setController] = useState<DocumentController | null>(null);
   const dispatch = useAppDispatch();
@@ -52,11 +49,11 @@ export const useDocument = () => {
     let documentController: DocumentController | null = null;
 
     void (async () => {
-      if (!params?.id) return;
-      documentController = new DocumentController(params.id, onDocumentChange);
+      if (!documentId) return;
+      documentController = new DocumentController(documentId, onDocumentChange);
       const docId = documentController.documentId;
 
-      Log.debug('open document', params.id);
+      Log.debug('open document', documentId);
 
       initializeDocument(documentController.documentId);
 
@@ -72,7 +69,6 @@ export const useDocument = () => {
           })
         );
         setDocumentData(res);
-        setDocumentId(params.id);
       } catch (e) {
         Log.error(e);
       }
@@ -86,9 +82,9 @@ export const useDocument = () => {
         })();
       }
 
-      Log.debug('close document', params.id);
+      Log.debug('close document', documentId);
     };
-  }, [clearDocument, dispatch, initializeDocument, onDocumentChange, params.id]);
+  }, [clearDocument, dispatch, initializeDocument, onDocumentChange, documentId]);
 
   return { documentId, documentData, controller };
 };

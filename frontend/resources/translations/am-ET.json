@@ -476,7 +476,7 @@
     },
     "rowPage": {
       "newField": "ግልጽ ቀን",
-      "fieldDragEelementTooltip": "አንድ አማራጭ ያክሉ",
+      "fieldDragElementTooltip": "አንድ አማራጭ ያክሉ",
       "showHiddenFields": {
         "one": "የተደበቁ {} ፊልዶችን ያሳዩ",
         "many": "የተደበቁ {} ፊልዶችን ያሳዩ",
@@ -721,7 +721,7 @@
   },
   "board": {
     "column": {
-      "create_new_card": "አዲስ"
+      "createNewCard": "አዲስ"
     },
     "menuName": "ቦርድ",
     "referencedBoardPrefix": "እይታ"

@@ -58,7 +58,7 @@ void main() {
         expect: () => <dynamic>[
           const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
-              .having((w) => w.status, 'status', ShortcutsStatus.failure)
+              .having((w) => w.status, 'status', ShortcutsStatus.failure),
         ],
       );
 
@@ -101,7 +101,7 @@ void main() {
         expect: () => <dynamic>[
           const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
-              .having((w) => w.status, 'status', ShortcutsStatus.failure)
+              .having((w) => w.status, 'status', ShortcutsStatus.failure),
         ],
       );
 
@@ -112,7 +112,7 @@ void main() {
         expect: () => <dynamic>[
           const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
-              .having((w) => w.status, 'status', ShortcutsStatus.success)
+              .having((w) => w.status, 'status', ShortcutsStatus.success),
         ],
       );
     });
@@ -140,7 +140,7 @@ void main() {
         expect: () => <dynamic>[
           const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
-              .having((w) => w.status, 'status', ShortcutsStatus.failure)
+              .having((w) => w.status, 'status', ShortcutsStatus.failure),
         ],
       );
 

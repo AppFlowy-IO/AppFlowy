@@ -33,4 +33,4 @@ function GridBlock({ node }: { node: NestedBlock<BlockType.GridBlock> }) {
   );
 }
 
-export default GridBlock;
+export default React.memo(GridBlock);

@@ -64,7 +64,7 @@ class MobilePersonalFolder extends StatelessWidget {
                       MobilePaneActionType.more,
                     ]),
                   ),
-                )
+                ),
             ],
           );
         },

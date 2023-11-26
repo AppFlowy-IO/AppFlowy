@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/workspace/application/settings/prelude.dart';
@@ -37,6 +38,7 @@ class FlowyRunner {
   static Future<FlowyRunnerContext> run(
     EntryPoint f,
     IntegrationMode mode, {
+    Future? didInitGetIt,
     LaunchConfiguration config = const LaunchConfiguration(
       autoRegistrationSupported: false,
     ),
@@ -45,7 +47,9 @@ class FlowyRunner {
     await getIt.reset();
 
     // Specify the env
-    initGetIt(getIt, mode, f, config);
+    await initGetIt(getIt, mode, f, config);
+
+    await didInitGetIt;
 
     final applicationDataDirectory =
         await getIt<ApplicationDataStorage>().getPath().then(
@@ -64,7 +68,7 @@ class FlowyRunner {
         // init the app window
         const InitAppWindowTask(),
         // Init Rust SDK
-        InitRustSDKTask(directory: applicationDataDirectory),
+        InitRustSDKTask(customApplicationPath: applicationDataDirectory),
         // Load Plugins, like document, grid ...
         const PluginLoadTask(),
 
@@ -75,7 +79,7 @@ class FlowyRunner {
           InitSupabaseTask(),
           InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
-          const InitPlatformServiceTask()
+          const InitPlatformServiceTask(),
         ],
       ],
     );

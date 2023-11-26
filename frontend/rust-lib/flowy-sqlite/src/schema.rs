@@ -13,6 +13,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    rocksdb_backup (object_id) {
+        object_id -> Text,
+        timestamp -> BigInt,
+        data -> Binary,
+    }
+}
+
+diesel::table! {
     user_data_migration_records (id) {
         id -> Integer,
         migration_name -> Text,
@@ -48,6 +56,7 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
   collab_snapshot,
+  rocksdb_backup,
   user_data_migration_records,
   user_table,
   user_workspace_table,

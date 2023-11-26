@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_list_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -8,8 +10,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../../widgets/row/cells/select_option_cell/extension.dart';
-import '../../filter_info.dart';
 import 'select_option_loader.dart';
 
 class SelectOptionFilterList extends StatelessWidget {
@@ -86,8 +86,8 @@ class SelectOptionFilterCell extends StatefulWidget {
   const SelectOptionFilterCell({
     required this.option,
     required this.isSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<SelectOptionFilterCell> createState() => _SelectOptionFilterCellState();
@@ -100,15 +100,15 @@ class _SelectOptionFilterCellState extends State<SelectOptionFilterCell> {
       height: GridSize.popoverItemHeight,
       child: SelectOptionTagCell(
         option: widget.option,
-        onSelected: (option) {
+        onSelected: () {
           if (widget.isSelected) {
             context
                 .read<SelectOptionFilterListBloc>()
-                .add(SelectOptionFilterListEvent.unselectOption(option));
+                .add(SelectOptionFilterListEvent.unselectOption(widget.option));
           } else {
             context
                 .read<SelectOptionFilterListBloc>()
-                .add(SelectOptionFilterListEvent.selectOption(option));
+                .add(SelectOptionFilterListEvent.selectOption(widget.option));
           }
         },
         children: [

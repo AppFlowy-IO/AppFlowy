@@ -21,7 +21,6 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
@@ -36,8 +35,8 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/so
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/sort_button.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_header.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/desktop/tab_bar_add_button.dart';
+import 'package:appflowy/plugins/database_view/tab_bar/desktop/tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
@@ -688,7 +687,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapDeletePropertyInFieldEditor() async {
-    final deleteButton = find.byType(DeleteFieldButton);
+    final deleteButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell && widget.action == FieldAction.delete,
+    );
     await tapButton(deleteButton);
 
     final confirmButton = find.descendant(
@@ -765,13 +767,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapHidePropertyButton() async {
     final field = find.byWidgetPredicate(
       (widget) =>
-          widget is FieldActionCell && widget.action == FieldAction.hide,
+          widget is FieldActionCell &&
+          widget.action == FieldAction.toggleVisibility,
     );
     await tapButton(field);
   }
 
   Future<void> tapHidePropertyButtonInFieldEditor() async {
-    final button = find.byType(FieldVisibilityToggleButton);
+    final button = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell &&
+          widget.action == FieldAction.toggleVisibility,
+    );
     await tapButton(button);
   }
 
@@ -1242,12 +1249,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 
-  Future<void> hoverOnTodayCalendarCell() async {
+  Future<void> hoverOnTodayCalendarCell({
+    Future<void> Function()? onHover,
+  }) async {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && widget.isToday,
     );
 
-    await hoverOnWidget(todayCell);
+    await hoverOnWidget(todayCell, onHover: onHover);
   }
 
   Future<void> tapAddCalendarEventButton() async {
@@ -1355,7 +1364,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
-  Future<void> dragDropRescheduleCalendarEvent(DateTime startDate) async {
+  Future<void> dragDropRescheduleCalendarEvent() async {
     final findEventCard = find.byType(EventCard);
     await drag(findEventCard.first, const Offset(0, 300));
     await pumpAndSettle();
@@ -1381,13 +1390,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(unscheduledEvent);
   }
 
-  Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {
+  Future<void> tapCreateLinkedDatabaseViewButton(
+    DatabaseLayoutPB layoutType,
+  ) async {
     final findAddButton = find.byType(AddDatabaseViewButton);
     await tapButton(findAddButton);
 
     final findCreateButton = find.byWidgetPredicate(
       (widget) =>
-          widget is TarBarAddButtonActionCell && widget.action == action,
+          widget is TabBarAddButtonActionCell && widget.action == layoutType,
     );
     await tapButton(findCreateButton);
   }
@@ -1554,7 +1565,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> selectDatabaseLayoutType(DatabaseLayoutPB layout) async {
     final findLayoutCell = find.byType(DatabaseViewLayoutCell);
     final findText = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.text == layout.layoutName(),
+      (widget) => widget is FlowyText && widget.text == layout.layoutName,
     );
 
     final button = find.descendant(

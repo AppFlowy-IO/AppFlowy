@@ -68,6 +68,7 @@ class AFCloudAuthService implements AuthService {
         final completer = Completer<Either<FlowyError, UserProfilePB>>();
         _deeplinkSubscription = _appLinks.uriLinkStream.listen(
           (Uri? uri) async {
+            Log.info('onDeepLink: ${uri.toString()}');
             await _handleUri(uri, completer);
           },
           onError: (Object err, StackTrace stackTrace) {
@@ -100,7 +101,7 @@ class AFCloudAuthService implements AuthService {
           authType: AuthTypePB.AFCloud,
           map: {
             AuthServiceMapKeys.signInURL: uri.toString(),
-            AuthServiceMapKeys.deviceId: deviceId
+            AuthServiceMapKeys.deviceId: deviceId,
           },
         );
         final result = await UserEventOauthSignIn(payload)
@@ -108,6 +109,9 @@ class AFCloudAuthService implements AuthService {
             .then((value) => value.swap());
         _deeplinkSubscription?.cancel();
         completer.complete(result);
+      } else {
+        Log.error('onDeepLinkError: Unexpect deep link: ${uri.toString()}');
+        completer.complete(left(AuthError.signInWithOauthError));
       }
     } else {
       Log.error('onDeepLinkError: Unexpect empty deep link callback');

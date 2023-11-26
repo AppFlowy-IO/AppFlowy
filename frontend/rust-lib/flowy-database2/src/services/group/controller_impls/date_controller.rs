@@ -7,7 +7,7 @@ use chrono::{
 };
 use chrono_tz::Tz;
 use collab_database::database::timestamp;
-use collab_database::fields::{Field, TypeOptionData};
+use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -24,7 +24,7 @@ use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
-  GroupChangeset, GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
+  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
 
 pub trait GroupConfigurationContentSerde: Sized + Send + Sync {
@@ -458,14 +458,6 @@ pub struct DateGroupOperationInterceptorImpl {}
 #[async_trait]
 impl GroupOperationInterceptor for DateGroupOperationInterceptorImpl {
   type GroupTypeOption = DateTypeOption;
-  async fn type_option_from_group_changeset(
-    &self,
-    _changeset: &GroupChangeset,
-    _type_option: &Self::GroupTypeOption,
-    _view_id: &str,
-  ) -> Option<TypeOptionData> {
-    todo!()
-  }
 }
 
 #[cfg(test)]

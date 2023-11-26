@@ -649,7 +649,7 @@
     },
     "board": {
         "column": {
-            "create_new_card": "نواں"
+            "createNewCard": "نواں"
         },
         "menuName": "بورڈ",
         "referencedBoardPrefix": "کے نظارہ"

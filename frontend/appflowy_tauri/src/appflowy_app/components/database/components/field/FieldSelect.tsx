@@ -5,24 +5,33 @@ import { useDatabase } from '../../Database.hooks';
 import { Field } from './Field';
 
 export interface FieldSelectProps extends Omit<SelectProps, 'onChange'> {
-  onChange?: (event: SelectChangeEvent<unknown>, field: FieldType | undefined) => void;
+  onChange?: (field: FieldType | undefined) => void;
 }
 
-export const FieldSelect: FC<FieldSelectProps> = ({
-  onChange,
-  ...props
-}) => {
+export const FieldSelect: FC<FieldSelectProps> = ({ onChange, ...props }) => {
   const { fields } = useDatabase();
 
-  const handleChange = useCallback((event: SelectChangeEvent<unknown>) => {
-    const selectedId = event.target.value;
+  const handleChange = useCallback(
+    (event: SelectChangeEvent<unknown>) => {
+      const selectedId = event.target.value;
 
-    onChange?.(event, fields.find(field => field.id === selectedId));
-  }, [onChange, fields]);
+      onChange?.(fields.find((field) => field.id === selectedId));
+    },
+    [onChange, fields]
+  );
 
   return (
-    <Select onChange={handleChange} {...props}>
-      {fields.map(field => (
+    <Select
+      onChange={handleChange}
+      {...props}
+      sx={{
+        '& .MuiInputBase-input': {
+          display: 'flex',
+          alignItems: 'center',
+        },
+      }}
+    >
+      {fields.map((field) => (
         <MenuItem key={field.id} value={field.id}>
           <Field field={field} />
         </MenuItem>

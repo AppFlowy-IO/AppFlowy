@@ -168,7 +168,7 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
     [container.scrollLeft, container.scrollTop, dispatch, docId, handleDragEnd]
   );
 
-  const handleDraging = useCallback(
+  const handleDragging = useCallback(
     (e: MouseEvent) => {
       if (!isDragging || !anchorRef.current) return;
 
@@ -208,19 +208,19 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
   );
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mousemove', handleDraging);
+    container.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleDragging);
     document.addEventListener('mouseup', handleDragEnd);
 
     container.addEventListener('keydown', onKeyDown, true);
     return () => {
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mousemove', handleDraging);
+      container.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mousemove', handleDragging);
       document.removeEventListener('mouseup', handleDragEnd);
 
       container.removeEventListener('keydown', onKeyDown, true);
     };
-  }, [handleMouseDown, handleDragEnd, handleDraging, container, onKeyDown]);
+  }, [handleMouseDown, handleDragEnd, handleDragging, container, onKeyDown]);
 
   return null;
 }

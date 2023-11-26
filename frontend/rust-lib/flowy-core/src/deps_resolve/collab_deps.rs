@@ -2,9 +2,7 @@ use std::sync::Weak;
 
 use diesel::SqliteConnection;
 
-use collab_integrate::{
-  calculate_snapshot_diff, CollabSnapshot, PersistenceError, SnapshotPersistence,
-};
+use collab_integrate::{CollabSnapshot, PersistenceError, SnapshotPersistence};
 use flowy_error::FlowyError;
 use flowy_sqlite::{
   insert_or_ignore_into,
@@ -47,15 +45,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
       {
         let conn = pool
           .get()
-          .map_err(|e| PersistenceError::Internal(Box::new(e)))?;
-
-        let desc = match CollabSnapshotTableSql::get_latest_snapshot(&object_id, &conn) {
-          None => Ok("".to_string()),
-          Some(old_snapshot) => {
-            calculate_snapshot_diff(uid, &object_id, &old_snapshot.data, &snapshot_data)
-          },
-        }
-        .map_err(|e| PersistenceError::InvalidData(format!("{:?}", e)))?;
+          .map_err(|e| PersistenceError::Internal(e.into()))?;
 
         // Save the snapshot data to disk
         let result = CollabSnapshotTableSql::create(
@@ -63,14 +53,14 @@ impl SnapshotPersistence for SnapshotDBImpl {
             id: uuid::Uuid::new_v4().to_string(),
             object_id: object_id.clone(),
             title,
-            desc,
+            desc: "".to_string(),
             collab_type: "".to_string(),
             timestamp: timestamp(),
             data: snapshot_data,
           },
           &conn,
         )
-        .map_err(|e| PersistenceError::Internal(Box::new(e)));
+        .map_err(|e| PersistenceError::Internal(e.into()));
 
         if let Err(e) = result {
           tracing::warn!("create snapshot error: {:?}", e);
@@ -137,6 +127,7 @@ impl CollabSnapshotTableSql {
     Ok(rows)
   }
 
+  #[allow(dead_code)]
   fn get_latest_snapshot(object_id: &str, conn: &SqliteConnection) -> Option<CollabSnapshotRow> {
     let sql = dsl::collab_snapshot
       .filter(dsl::object_id.eq(object_id))

@@ -21,7 +21,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(
-          initial: (_InitialHeader value) async {
+          initial: (_InitialHeader value) {
             _startListening();
             add(
               GridHeaderEvent.didReceiveFieldUpdate(fieldController.fieldInfos),
@@ -65,7 +65,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
     result.fold((l) {}, (err) => Log.error(err));
   }
 
-  Future<void> _startListening() async {
+  void _startListening() {
     fieldController.addListener(
       onReceiveFields: (fields) =>
           add(GridHeaderEvent.didReceiveFieldUpdate(fields)),

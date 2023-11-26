@@ -47,7 +47,7 @@ class MobileViewItemBottomSheetHeader extends StatelessWidget {
           onPressed: () {
             context.pop();
           },
-        )
+        ),
       ],
     );
   }

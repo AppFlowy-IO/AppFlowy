@@ -55,6 +55,7 @@ void showSnackBarMessage(
 }) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
+      backgroundColor: Theme.of(context).colorScheme.onSecondary,
       action: !showCancel
           ? null
           : SnackBarAction(
@@ -66,7 +67,6 @@ void showSnackBarMessage(
             ),
       content: FlowyText(
         message,
-        color: Theme.of(context).colorScheme.onSurface,
       ),
     ),
   );

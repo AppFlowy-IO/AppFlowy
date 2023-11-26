@@ -25,13 +25,10 @@ pub struct Builder {
 
 impl Builder {
   pub fn new(name: &str, directory: &str) -> Self {
-    // let directory = directory.as_ref().to_str().unwrap().to_owned();
-    let local_file_name = format!("{}.log", name);
-
     Builder {
       name: name.to_owned(),
       env_filter: "Info".to_owned(),
-      file_appender: tracing_appender::rolling::daily(directory, local_file_name),
+      file_appender: tracing_appender::rolling::daily(directory, name),
     }
   }
 

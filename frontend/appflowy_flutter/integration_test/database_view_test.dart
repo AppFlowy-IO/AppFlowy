@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,15 +17,15 @@ void main() {
       await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Create board view
-      await tester.tapCreateLinkedDatabaseViewButton(AddButtonAction.board);
+      await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);
       tester.assertCurrentDatabaseTagIs(DatabaseLayoutPB.Board);
 
       // Create grid view
-      await tester.tapCreateLinkedDatabaseViewButton(AddButtonAction.grid);
+      await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Grid);
       tester.assertCurrentDatabaseTagIs(DatabaseLayoutPB.Grid);
 
       // Create calendar view
-      await tester.tapCreateLinkedDatabaseViewButton(AddButtonAction.calendar);
+      await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Calendar);
       tester.assertCurrentDatabaseTagIs(DatabaseLayoutPB.Calendar);
 
       await tester.pumpAndSettle();
@@ -39,7 +38,7 @@ void main() {
       await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Create board view
-      await tester.tapCreateLinkedDatabaseViewButton(AddButtonAction.board);
+      await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);
       tester.assertCurrentDatabaseTagIs(DatabaseLayoutPB.Board);
 
       // rename board view
@@ -64,7 +63,7 @@ void main() {
       await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Create board view
-      await tester.tapCreateLinkedDatabaseViewButton(AddButtonAction.board);
+      await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);
       tester.assertCurrentDatabaseTagIs(DatabaseLayoutPB.Board);
 
       // delete the board

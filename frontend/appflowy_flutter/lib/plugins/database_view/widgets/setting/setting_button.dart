@@ -95,11 +95,11 @@ class _DatabaseSettingListPopoverState
 
     return ListView.separated(
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       controller: ScrollController(),
       itemCount: cells.length,
-      separatorBuilder: (context, index) {
-        return VSpace(GridSize.typeOptionSeparatorHeight);
-      },
+      separatorBuilder: (context, index) =>
+          VSpace(GridSize.typeOptionSeparatorHeight),
       physics: StyledScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         return cells[index];

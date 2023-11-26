@@ -242,6 +242,7 @@ class PageManager {
                     shrinkWrap: false,
                   );
 
+                  // TODO(Xazin): Board should fill up full width
                   return Padding(
                     padding: builder.contentPadding,
                     child: pluginWidget,

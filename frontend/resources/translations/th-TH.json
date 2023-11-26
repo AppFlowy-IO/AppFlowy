@@ -1,0 +1,1096 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "ฉัน",
+  "welcomeText": "ยินดีต้อนรับเข้าสู่ @:appName",
+  "githubStarText": "กดดาวบน GitHub",
+  "subscribeNewsletterText": "สมัครรับจดหมายข่าว",
+  "letsGoButtonText": "เริ่มต้นอย่างรวดเร็ว",
+  "title": "ชื่อ",
+  "youCanAlso": "นอกจากนี้คุณยังสามารถ",
+  "and": "และ",
+  "blockActions": {
+    "addBelowTooltip": "คลิกเพื่อเพิ่มด้านล่าง",
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "เพื่อเพิ่มด้านบน",
+    "dragTooltip": "ลากเพื่อย้าย",
+    "openMenuTooltip": "คลิกเพื่อเปิดเมนู"
+  },
+  "signUp": {
+    "buttonText": "ลงทะเบียน",
+    "title": "ลงทะเบียนเพื่อใช้ @:appName",
+    "getStartedText": "เริ่มต้น",
+    "emptyPasswordError": "รหัสผ่านต้องไม่เว้นว่าง",
+    "repeatPasswordEmptyError": "รหัสผ่านซ้ำต้องไม่เว้นว่าง",
+    "unmatchedPasswordError": "รหัสผ่านซ้ำไม่เท่ากับรหัสผ่าน",
+    "alreadyHaveAnAccount": "มีบัญชีอยู่แล้วหรือไม่?",
+    "emailHint": "อีเมล",
+    "passwordHint": "รหัสผ่าน",
+    "repeatPasswordHint": "รหัสผ่านซ้ำ",
+    "signUpWith": "ลงทะเบียนกับ:"
+  },
+  "signIn": {
+    "loginTitle": "เข้าสู่ระบบเพื่อใช้งาน @:appName",
+    "loginButtonText": "เข้าสู่ระบบ",
+    "loginStartWithAnonymous": "เริ่มต้นด้วยเซสชั่นแบบไม่ระบุตัวตน",
+    "continueAnonymousUser": "ดำเนินการต่อด้วยเซสชันแบบไม่ระบุตัวตน",
+    "buttonText": "เข้าสู่ระบบ",
+    "forgotPassword": "ลืมรหัสผ่านหรือไม่?",
+    "emailHint": "อีเมล",
+    "passwordHint": "รหัสผ่าน",
+    "dontHaveAnAccount": "ยังไม่มีบัญชีใช่หรือไม่?",
+    "repeatPasswordEmptyError": "รหัสผ่านซ้ำต้องไม่เว้นว่าง",
+    "unmatchedPasswordError": "รหัสผ่านซ้ำไม่เท่ากับรหัสผ่าน",
+    "syncPromptMessage": "การซิงค์ข้อมูลอาจใช้เวลาสักครู่ กรุณาอย่าปิดหน้านี้",
+    "or": "หรือ",
+    "LogInWithGoogle": "เข้าสู่ระบบด้วย Google",
+    "LogInWithGithub": "เข้าสู่ระบบด้วย Github",
+    "LogInWithDiscord": "เข้าสู่ระบบด้วย Discord",
+    "signInWith": "ลงชื่อเข้าใช้ด้วย:"
+  },
+  "workspace": {
+    "chooseWorkspace": "เลือกพื้นที่ทำงานของคุณ",
+    "create": "สร้างพื้นที่ทำงาน",
+    "reset": "รีเซ็ตพื้นที่ทำงาน",
+    "resetWorkspacePrompt": "การรีเซ็ตพื้นที่ทำงานจะลบหน้าและข้อมูลทั้งหมดภายในนั้น คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตพื้นที่ทำงาน หรือคุณสามารถติดต่อทีมสนับสนุนเพื่อกู้คืนพื้นที่ทำงาน",
+    "hint": "พื้นที่ทำงาน",
+    "notFoundError": "ไม่พบพื้นที่ทำงาน",
+    "failedToLoad": "เกิดข้อผิดพลาด! ไม่สามารถโหลดพื้นที่ทำงานได้ โปรดปิดแอปพลิเคชัน AppFlowy ใดๆ ที่เปิดอยู่แล้วลองอีกครั้ง",
+    "errorActions": {
+      "reportIssue": "รายงานปัญหา",
+      "reachOut": "ติดต่อได้ที่ Discord"
+    }
+  },
+  "shareAction": {
+    "buttonText": "แชร์",
+    "workInProgress": "เร็วๆ นี้",
+    "markdown": "Markdown",
+    "csv": "CSV",
+    "copyLink": "คัดลอกลิงค์"
+  },
+  "moreAction": {
+    "small": "เล็ก",
+    "medium": "กลาง",
+    "large": "ใหญ่",
+    "fontSize": "ขนาดตัวอักษร",
+    "import": "นำเข้า",
+    "moreOptions": "ตัวเลือกเพิ่มเติม"
+  },
+  "importPanel": {
+    "textAndMarkdown": "ข้อความ & Markdown",
+    "documentFromV010": "เอกสารจาก v0.1.0",
+    "databaseFromV010": "ฐานข้อมูลจาก v0.1.0",
+    "csv": "CSV",
+    "database": "ฐานข้อมูล"
+  },
+  "disclosureAction": {
+    "rename": "เปลี่ยนชื่อ",
+    "delete": "ลบ",
+    "duplicate": "ทำสำเนา",
+    "unfavorite": "ลบออกจากรายการโปรด",
+    "favorite": "เพิ่มในรายการโปรด",
+    "openNewTab": "เปิดในแท็บใหม่",
+    "moveTo": "ย้ายไปยัง",
+    "addToFavorites": "เพิ่มในรายการโปรด",
+    "copyLink": "คัดลอกลิงค์"
+  },
+  "blankPageTitle": "หน้าเปล่า",
+  "newPageText": "หน้าใหม่",
+  "newDocumentText": "เอกสารใหม่",
+  "newGridText": "ตารางใหม่",
+  "newCalendarText": "ปฏิทินใหม่",
+  "newBoardText": "กระดานใหม่",
+  "trash": {
+    "text": "ขยะ",
+    "restoreAll": "กู้คืนทั้งหมด",
+    "deleteAll": "ลบทั้งหมด",
+    "pageHeader": {
+      "fileName": "ชื่อไฟล์",
+      "lastModified": "แก้ไขครั้งล่าสุด",
+      "created": "สร้างขึ้น"
+    },
+    "confirmDeleteAll": {
+      "title": "คุณแน่ใจหรือว่าจะลบหน้าทั้งหมดในถังขยะ",
+      "caption": "การดำเนินการนี้ไม่สามารถยกเลิกได้"
+    },
+    "confirmRestoreAll": {
+      "title": "คุณแน่ใจหรือว่าจะกู้คืนทุกหน้าในถังขยะ",
+      "caption": "การดำเนินการนี้ไม่สามารถยกเลิกได้"
+    },
+    "mobile": {
+      "actions": "การดำเนินการถังขยะ",
+      "empty": "ถังขยะว่างเปล่า",
+      "emptyDescription": "คุณไม่มีไฟล์ที่ถูกลบ",
+      "isDeleted": "ถูกลบแล้ว",
+      "isRestored": "ถูกกู้คืนแล้ว"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "หน้านี้อยู่ในถังขยะ",
+    "restore": "กู้คืนหน้า",
+    "deletePermanent": "ลบถาวร"
+  },
+  "dialogCreatePageNameHint": "ชื่อหน้า",
+  "questionBubble": {
+    "shortcuts": "ทางลัด",
+    "whatsNew": "มีอะไรใหม่?",
+    "help": "ช่วยเหลือและสนับสนุน",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "ข้อมูล debug",
+      "success": "คัดลอกข้อมูล debug ไปยังคลิปบอร์ดแล้ว!",
+      "fail": "คัดลอกข้อมูล debug ไปยังคลิปบอร์ดไม่ได้"
+    },
+    "feedback": "ข้อเสนอแนะ"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "ลบ เปลี่ยนชื่อ และอื่นๆ...",
+    "addPageTooltip": "เพิ่มหน้าข้างในอย่างรวดเร็ว",
+    "defaultNewPageName": "ไม่มีชื่อ",
+    "renameDialog": "เปลี่ยนชื่อ"
+  },
+  "noPagesInside": "ไม่มีหน้าข้างใน",
+  "toolbar": {
+    "undo": "เลิกทำ",
+    "redo": "ทำซ้ำ",
+    "bold": "ตัวหนา",
+    "italic": "ตัวเอียง",
+    "underline": "ขีดเส้นใต้",
+    "strike": "ขีดฆ่า",
+    "numList": "รายการลำดับตัวเลข",
+    "bulletList": "รายการลำดับหัวข้อย่อย",
+    "checkList": "รายการลำดับ Check",
+    "inlineCode": "อินไลน์โค้ด",
+    "quote": "บล็อกอ้างอิง",
+    "header": "หัวข้อ",
+    "highlight": "ไฮไลท์",
+    "color": "สี",
+    "addLink": "เพิ่มลิงก์",
+    "link": "ลิงก์"
+  },
+  "tooltip": {
+    "lightMode": "สลับไปที่โหมดสว่าง",
+    "darkMode": "สลับไปที่โหมดมืด",
+    "openAsPage": "เปิดเป็นหน้า",
+    "addNewRow": "เพิ่มแถวใหม่",
+    "openMenu": "คลิกเพื่อเปิดเมนู",
+    "dragRow": "กดค้างเพื่อเรียงลำดับแถวใหม่",
+    "viewDataBase": "ดูฐานข้อมูล",
+    "referencePage": "{name} ถูกอ้างอิงถึง",
+    "addBlockBelow": "เพิ่มบล็อกด้านล่าง"
+  },
+  "sideBar": {
+    "closeSidebar": "ปิดแถบด้านข้าง",
+    "openSidebar": "เปิดแถบด้านข้าง",
+    "personal": "ส่วนบุคคล",
+    "favorites": "รายการโปรด",
+    "clickToHidePersonal": "คลิกเพื่อซ่อนส่วนส่วนบุคคล",
+    "clickToHideFavorites": "คลิกเพื่อซ่อนส่วนรายการโปรด",
+    "addAPage": "เพิ่มหน้า",
+    "recent": "ล่าสุด"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "ส่งออกบันทึกย่อไปยัง Markdown",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "รายชื่อผู้ติดต่อ",
+    "whatsHappening": "เกิดอะไรขึ้นในสัปดาห์นี้บ้าง?",
+    "addContact": "เพิ่มผู้ติดต่อ",
+    "editContact": "แก้ไขผู้ติดต่อ"
+  },
+  "button": {
+    "ok": "ตกลง",
+    "done": "เสร็จแล้ว",
+    "cancel": "ยกเลิก",
+    "signIn": "ลงชื่อเข้าใช้",
+    "signOut": "ออกจากระบบ",
+    "complete": "สมบูรณ์",
+    "save": "บันทึก",
+    "generate": "สร้าง",
+    "esc": "ESC",
+    "keep": "เก็บ",
+    "tryAgain": "ลองอีกครั้ง",
+    "discard": "ทิ้ง",
+    "replace": "แทนที่",
+    "insertBelow": "ใส่ด้านล่าง",
+    "insertAbove": "ใส่ด้านบน",
+    "upload": "อัปโหลด",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "duplicate": "ทำสำเนา",
+    "putback": "นำกลับมา",
+    "update": "อัปโหลด",
+    "share": "แชร์",
+    "removeFromFavorites": "ลบออกจากรายการโปรด",
+    "addToFavorites": "เพิ่มในรายการโปรด",
+    "rename": "เปลี่ยนชื่อ",
+    "helpCenter": "ศูนย์ช่วยเหลือ"
+  },
+  "label": {
+    "welcome": "ยินดีต้อนรับ!",
+    "firstName": "ชื่อจริง",
+    "middleName": "ชื่อกลาง",
+    "lastName": "นามสกุล",
+    "stepX": "ขั้นตอนที่ {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "ไม่สามารถเชื่อมต่อกับบัญชีของคุณได้",
+      "failedMsg": "โปรดตรวจสอบให้แน่ใจว่าคุณได้ดำเนินการลงชื่อเข้าใช้ในเบราว์เซอร์ของคุณเรียบร้อยแล้ว"
+    },
+    "google": {
+      "title": "ลงชื่อเข้าใช้ GOOGLE",
+      "instruction1": "ในการนำเข้า Google Contacts คุณจะต้องอนุญาตแอปพลิเคชันนี้โดยใช้เว็บเบราว์เซอร์ของคุณ",
+      "instruction2": "คัดลอกโค้ดนี้ไปยังคลิปบอร์ดของคุณโดยคลิกที่ไอคอนหรือเลือกข้อความ:",
+      "instruction3": "ไปที่ลิงก์ต่อไปนี้ในเว็บเบราว์เซอร์ของคุณ และป้อนโค้ดด้านบน:",
+      "instruction4": "กดปุ่มด้านล่างเมื่อคุณลงทะเบียนสำเร็จแล้ว:"
+    }
+  },
+  "settings": {
+    "title": "การตั้งค่า",
+    "menu": {
+      "appearance": "รูปลักษณ์",
+      "language": "ภาษา",
+      "user": "ผู้ใช้งาน",
+      "files": "ไฟล์",
+      "notifications": "การแจ้งเตือน",
+      "open": "เปิดการตั้งค่า",
+      "logout": "ออกจากระบบ",
+      "logoutPrompt": "คุณแน่ใจหรือว่าจะออกจากระบบ?",
+      "selfEncryptionLogoutPrompt": "คุณแน่ใจหรือไม่ว่าต้องการที่จะออกจากระบบ? โปรดตรวจสอบให้แน่ใจว่าคุณได้คัดลอกการเข้ารหัสลับไว้แล้ว",
+      "syncSetting": "การตั้งค่าการซิงค์",
+      "cloudSetting": "การตั้งค่าคลาวด์",
+      "cloudURL": "URL ของเซิร์ฟเวอร์",
+      "enableSync": "เปิดใช้งานการซิงค์",
+      "enableEncrypt": "เข้ารหัสข้อมูล",
+      "enableEncryptPrompt": "เปิดใช้งานการเข้ารหัสเพื่อรักษาความปลอดภัยข้อมูลของคุณแบบเป็นความลับ จะเก็บไว้อย่างปลอดภัย เมื่อเปิดใช้งานแล้วจะไม่สามารถปิดได้ หากสูญหาย ข้อมูลของคุณจะไม่สามารถเรียกคืนได้ คลิกเพื่อคัดลอก",
+      "inputEncryptPrompt": "กรุณาระบุการเข้ารหัสลับของคุณสำหรับ",
+      "clickToCopySecret": "คลิกเพื่อคัดลอกรหัสลับ",
+      "inputTextFieldHint": "รหัสลับของคุณ",
+      "historicalUserList": "ประวัติการเข้าสู่ระบบของผู้ใช้",
+      "historicalUserListTooltip": "รายการนี้จะแสดงบัญชีที่ไม่ระบุตัวตนของคุณ คุณสามารถคลิกที่บัญชีเพื่อดูรายละเอียดได้ บัญชีที่ไม่เปิดเผยตัวตนถูกสร้างขึ้นโดยการคลิกปุ่ม 'เริ่มต้น'",
+      "openHistoricalUser": "คลิกเพื่อเปิดบัญชีที่ไม่ระบุตัวตน",
+      "customPathPrompt": "การจัดเก็บโฟลเดอร์ข้อมูลของ AppFlowy ไว้ในโฟลเดอร์ที่ซิงค์บนคลาวด์ เช่น Google Drive อาจทำให้เกิดความเสี่ยงได้ หากมีการเข้าถึงหรือแก้ไขฐานข้อมูลภายในโฟลเดอร์นี้จากหลายตำแหน่งพร้อมกัน อาจส่งผลให้เกิดความขัดแย้งในการซิงโครไนซ์และข้อมูลอาจเสียหายได้"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "เปิดใช้งานการแจ้งเตือน",
+        "hint": "ปิดเพื่อหยุดไม่ให้แสดงการแจ้งเตือนในเครื่องของคุณ"
+      }
+    },
+    "appearance": {
+      "resetSetting": "รีเซ็ตการตั้งค่านี้",
+      "fontFamily": {
+        "label": "แบบตัวอักษร",
+        "search": "ค้นหา"
+      },
+      "themeMode": {
+        "label": "โหมดธีม",
+        "light": "โหมดสว่าง",
+        "dark": "โหมดมืด",
+        "system": "ใช้ตามระบบ"
+      },
+      "layoutDirection": {
+        "label": "ทิศทางของเค้าโครง",
+        "hint": "ควบคุมการไหลของเนื้อหาบนหน้าจอของคุณ จากซ้ายไปขวาหรือจากขวาไปซ้าย",
+        "ltr": "ซ้ายไปขวา",
+        "rtl": "ขวาไปซ้าย"
+      },
+      "textDirection": {
+        "label": "ทิศทางข้อความเริ่มต้น",
+        "hint": "ระบุว่าข้อความควรเริ่มจากซ้ายหรือขวาเป็นค่าเริ่มต้น",
+        "ltr": "ซ้ายไปขวา",
+        "rtl": "ขวาไปซ้าย",
+        "auto": "อัตโนมัติ",
+        "fallback": "เหมือนกับทิศทางของเค้าโครง"
+      },
+      "themeUpload": {
+        "button": "อัปโหลด",
+        "uploadTheme": "อัปโหลดธีม",
+        "description": "อัปโหลดธีม AppFlowy ของคุณเองโดยใช้ปุ่มด้านล่าง",
+        "failure": "ธีมที่อัปโหลดมีรูปแบบที่ไม่ถูกต้อง",
+        "loading": "โปรดรอสักครู่ในขณะที่เราตรวจสอบและอัปโหลดธีมของคุณ...",
+        "uploadSuccess": "อัปโหลดธีมของคุณสำเร็จแล้ว",
+        "deletionFailure": "ไม่สามารถลบธีมได้ ลองลบมันด้วยตนเอง",
+        "filePickerDialogTitle": "เลือกไฟล์ .flowy_plugin",
+        "urlUploadFailure": "ไม่สามารถเปิด URL: {} ได้"
+      },
+      "theme": "ธีม",
+      "builtInsLabel": "ธีมในตัวแอป",
+      "pluginsLabel": "ปลั๊กอิน",
+      "dateFormat": {
+        "label": "รูปแบบวันที่",
+        "local": "ใช้ตามเครื่องของคุณ",
+        "us": "US",
+        "iso": "สากล",
+        "friendly": "แบบง่าย",
+        "dmy": "วัน/เดือน/ปี"
+      },
+      "timeFormat": {
+        "label": "รูปแบบเวลา",
+        "twelveHour": "สิบสองชั่วโมง",
+        "twentyFourHour": "ยี่สิบสี่ชั่วโมง"
+      },
+      "showNamingDialogWhenCreatingPage": "แสดงกล่องโต้ตอบการตั้งชื่อเมื่อสร้างหน้า"
+    },
+    "files": {
+      "copy": "คัดลอก",
+      "defaultLocation": "อ่านไฟล์และสถานที่เก็บข้อมูล",
+      "exportData": "ส่งออกข้อมูลของคุณ",
+      "doubleTapToCopy": "แตะสองครั้งเพื่อคัดลอกเส้นทาง",
+      "restoreLocation": "กู้คืนเป็นเส้นทางเริ่มต้นของ AppFlowy",
+      "customizeLocation": "เปิดโฟลเดอร์อื่น",
+      "restartApp": "โปรดรีสตาร์ทแอปเพื่อให้การเปลี่ยนแปลงมีผล",
+      "exportDatabase": "ส่งออกฐานข้อมูล",
+      "selectFiles": "เลือกไฟล์ที่ต้องการส่งออก",
+      "selectAll": "เลือกทั้งหมด",
+      "deselectAll": "เลิกเลือกทั้งหมด",
+      "createNewFolder": "สร้างโฟลเดอร์ใหม่",
+      "createNewFolderDesc": "บอกเราว่าคุณต้องการเก็บข้อมูลไว้ที่ไหน",
+      "defineWhereYourDataIsStored": "ระบุตำแหน่งที่เก็บข้อมูลของคุณ",
+      "open": "เปิด",
+      "openFolder": "เปิดโฟลเดอร์ที่มีอยู่",
+      "openFolderDesc": "อ่านและเขียนลงในโฟลเดอร์ AppFlowy ที่มีอยู่ของคุณ",
+      "folderHintText": "ชื่อโฟลเดอร์",
+      "location": "สร้างโฟลเดอร์ใหม่",
+      "locationDesc": "เลือกชื่อสำหรับโฟลเดอร์ข้อมูล AppFlowy ของคุณ",
+      "browser": "เรียกดู",
+      "create": "สร้าง",
+      "set": "ตั้งค่า",
+      "folderPath": "เส้นทางการเก็บโฟลเดอร์ของคุณ",
+      "locationCannotBeEmpty": "เส้นทางไม่สามารถว่างได้",
+      "pathCopiedSnackbar": "คัดลอกเส้นทางการเก็บไฟล์ไปยังคลิปบอร์ด!",
+      "changeLocationTooltips": "เปลี่ยนไดเร็กทอรีข้อมูล",
+      "change": "เปลี่ยน",
+      "openLocationTooltips": "เปิดไดเร็กทอรีข้อมูลอื่น",
+      "openCurrentDataFolder": "เปิดไดเร็กทอรีข้อมูลปัจจุบัน",
+      "recoverLocationTooltips": "รีเซ็ตเป็นไดเร็กทอรีข้อมูลเริ่มต้นของ AppFlowy",
+      "exportFileSuccess": "ส่งออกไฟล์สำเร็จ!",
+      "exportFileFail": "ส่งออกไฟล์ล้มเหลว!",
+      "export": "ส่งออก"
+    },
+    "user": {
+      "name": "ชื่อ",
+      "email": "อีเมล",
+      "tooltipSelectIcon": "เลือกไอคอน",
+      "selectAnIcon": "เลือกไอคอน",
+      "pleaseInputYourOpenAIKey": "โปรดระบุคีย์ OpenAI ของคุณ",
+      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณ",
+      "clickToLogout": "คลิกเพื่อออกจากระบบผู้ใช้ปัจจุบัน"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "ทางลัด",
+      "command": "คำสั่ง",
+      "keyBinding": "การผูกแป้นพิมพ์",
+      "addNewCommand": "เพิ่มคำสั่งใหม่",
+      "updateShortcutStep": "กดปุ่มแป้นพิมพ์ที่ต้องการแล้วกด ENTER",
+      "shortcutIsAlreadyUsed": "ทางลัดนี้ถูกใช้แล้วสำหรับ: {conflict}",
+      "resetToDefault": "รีเซ็ตการกำหนดแป้นพิมพ์เป็นค่าเริ่มต้น",
+      "couldNotLoadErrorMsg": "ไม่สามารถโหลดทางลัดได้ ลองอีกครั้ง",
+      "couldNotSaveErrorMsg": "ไม่สามารถบันทึกทางลัดได้ ลองอีกครั้ง"
+    },
+    "mobile": {
+      "personalInfo": "ข้อมูลส่วนตัว",
+      "username": "ชื่อผู้ใช้",
+      "usernameEmptyError": "โปรดกรอกชื่อผู้ใช้",
+      "about": "เกี่ยวกับ",
+      "pushNotifications": "การแจ้งเตือนแบบพุช",
+      "support": "การสนับสนุน",
+      "joinDiscord": "เข้าร่วมกับเราบน Discord",
+      "privacyPolicy": "นโยบายความเป็นส่วนตัว",
+      "userAgreement": "ข้อตกลงผู้ใช้",
+      "userprofileError": "ไม่สามารถโหลดโปรไฟล์ผู้ใช้ได้",
+      "userprofileErrorDescription": "โปรดลองออกจากระบบแล้วเข้าสู่ระบบอีกครั้งเพื่อตรวจสอบว่าปัญหายังคงอยู่หรือไม่"
+    }
+  },
+  "grid": {
+    "deleteView": "คุณแน่ใจหรือไม่ว่าต้องการลบมุมมองนี้",
+    "createView": "ใหม่",
+    "title": {
+      "placeholder": "ไม่มีชื่อ"
+    },
+    "settings": {
+      "filter": "ตัวกรอง",
+      "sort": "เรียงลำดับ",
+      "sortBy": "เรียงลำดับตาม",
+      "properties": "คุณสมบัติ",
+      "reorderPropertiesTooltip": "ลากเพื่อเปลี่ยนลำดับคุณสมบัติ",
+      "group": "กลุ่ม",
+      "addFilter": "เพิ่มตัวกรอง",
+      "deleteFilter": "ลบตัวกรอง",
+      "filterBy": "กรองตาม...",
+      "typeAValue": "พิมพ์ค่า...",
+      "layout": "เค้าโครง",
+      "databaseLayout": "เค้าโครงฐานข้อมูล"
+    },
+    "textFilter": {
+      "contains": "ประกอบด้วย",
+      "doesNotContain": "ไม่ประกอบด้วย",
+      "endsWith": "ลงท้ายด้วย",
+      "startWith": "ขึ้นต้นด้วย",
+      "is": "เป็น",
+      "isNot": "ไม่เป็น",
+      "isEmpty": "ว่างเปล่า",
+      "isNotEmpty": "ไม่ว่างเปล่า",
+      "choicechipPrefix": {
+        "isNot": "ไม่",
+        "startWith": "ขึ้นต้นด้วย",
+        "endWith": "ลงท้ายด้วย",
+        "isEmpty": "ว่างเปล่า",
+        "isNotEmpty": "ไม่ว่างเปล่า"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "เลือกแล้ว",
+      "isUnchecked": "ไม่เลือก",
+      "choicechipPrefix": {
+        "is": "เป็น"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "เสร็จสมบูรณ์",
+      "isIncomplted": "ไม่เสร็จสมบูรณ์"
+    },
+    "singleSelectOptionFilter": {
+      "is": "เป็น",
+      "isNot": "ไม่เป็น",
+      "isEmpty": "ว่างเปล่า",
+      "isNotEmpty": "ไม่ว่างเปล่า"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "ประกอบด้วย",
+      "doesNotContain": "ไม่ประกอบด้วย",
+      "isEmpty": "ว่างเปล่า",
+      "isNotEmpty": "ไม่ว่างเปล่า"
+    },
+    "field": {
+      "hide": "ซ่อน",
+      "show": "แสดง",
+      "insertLeft": "แทรกทางซ้าย",
+      "insertRight": "แทรกทางขวา",
+      "duplicate": "ทำสำเนา",
+      "delete": "ลบ",
+      "textFieldName": "ข้อความ",
+      "checkboxFieldName": "กล่องกาเครื่องหมาย",
+      "dateFieldName": "วันที่",
+      "updatedAtFieldName": "เวลาแก้ไขล่าสุด",
+      "createdAtFieldName": "เวลาสร้าง",
+      "numberFieldName": "ตัวเลข",
+      "singleSelectFieldName": "การเลือก",
+      "multiSelectFieldName": "การเลือกหลายรายการ",
+      "urlFieldName": "URL",
+      "checklistFieldName": "รายการตรวจสอบ",
+      "numberFormat": "รูปแบบตัวเลข",
+      "dateFormat": "รูปแบบวันที่",
+      "includeTime": "รวมเวลา",
+      "isRange": "วันที่สิ้นสุด",
+      "dateFormatFriendly": "เดือน วัน, ปี",
+      "dateFormatISO": "ปี-เดือน-วัน",
+      "dateFormatLocal": "เดือน/วัน/ปี",
+      "dateFormatUS": "ปี/เดือน/วัน",
+      "dateFormatDayMonthYear": "วัน/เดือน/ปี",
+      "timeFormat": "รูปแบบเวลา",
+      "invalidTimeFormat": "รูปแบบไม่ถูกต้อง",
+      "timeFormatTwelveHour": "12 ชั่วโมง",
+      "timeFormatTwentyFourHour": "24 ชั่วโมง",
+      "clearDate": "ล้างวันที่",
+      "dateTime": "วันที่และเวลา",
+      "startDateTime": "วันที่และเวลาเริ่มต้น",
+      "endDateTime": "วันที่และเวลาสิ้นสุด",
+      "failedToLoadDate": "ไม่สามารถโหลดค่าวันที่ได้",
+      "selectTime": "เลือกเวลา",
+      "selectDate": "เลือกวันที่",
+      "visibility": "การมองเห็น",
+      "propertyType": "ประเภทคุณสมบัติ",
+      "addSelectOption": "เพิ่มตัวเลือก",
+      "optionTitle": "ตัวเลือก",
+      "addOption": "เพิ่มตัวเลือก",
+      "editProperty": "แก้ไขคุณสมบัติ",
+      "newProperty": "คุณสมบัติใหม่",
+      "deleteFieldPromptMessage": "แน่ใจหรือไม่? คุณสมบัติเหล่านี้จะถูกลบ",
+      "newColumn": "คอลัมน์ใหม่"
+    },
+    "rowPage": {
+      "newField": "เพิ่มฟิลด์ใหม่",
+      "fieldDragElementTooltip": "คลิกเพื่อเปิดเมนู",
+      "showHiddenFields": {
+        "one": "แสดงฟิลด์ที่ซ่อนอยู่ {} ฟิลด์",
+        "many": "แสดงฟิลด์ที่ซ่อนอยู่ {} ฟิลด์",
+        "other": "แสดงฟิลด์ที่ซ่อนอยู่ {} ฟิลด์"  
+      },
+      "hideHiddenFields": {
+        "one": "ซ่อนฟิลด์ที่ซ่อนอยู่ {} ฟิลด์",
+        "many": "ซ่อนฟิลด์ที่ซ่อนอยู่ {} ฟิลด์",
+        "other": "ซ่อนฟิลด์ที่ซ่อนอยู่ {} ฟิลด์"
+      }
+    },
+    "sort": {
+      "ascending": "เรียงลำดับจากน้อยไปมาก",
+      "descending": "เรียงลำดับจากมากไปน้อย",
+      "deleteAllSorts": "ลบการเรียงลำดับทั้งหมด",
+      "addSort": "เพิ่มการเรียงลำดับ"
+    },
+    "row": {
+      "duplicate": "ทำสำเนา",
+      "delete": "ลบ",
+      "titlePlaceholder": "ไม่มีชื่อ",
+      "textPlaceholder": "ว่างเปล่า",
+      "copyProperty": "คัดลอกคุณสมบัติไปยังคลิปบอร์ด",
+      "count": "จำนวน",
+      "newRow": "แถวใหม่",
+      "action": "การดำเนินการ",
+      "add": "คลิกเพิ่มด้านล่าง",
+      "drag": "ลากเพื่อย้าย",
+      "dragAndClick": "ลากเพื่อย้ายคลิกเพื่อเปิดเมนู",
+      "insertRecordAbove": "แทรกเวิ่นระเบียนด้านบน",
+      "insertRecordBelow": "แทรกเวิ่นระเบียนด้านล่าง"
+    },
+    "selectOption": {
+      "create": "สร้าง",
+      "purpleColor": "สีม่วง",
+      "pinkColor": "สีชมพู",
+      "lightPinkColor": "ชมพูอ่อน",
+      "orangeColor": "สีส้ม",
+      "yellowColor": "สีเหลือง",
+      "limeColor": "สีมะนาว",
+      "greenColor": "สีเขียว",
+      "aquaColor": "สีฟ้าอมเขียว",
+      "blueColor": "สีน้ำเงิน",
+      "deleteTag": "ลบแท็ก",
+      "colorPanelTitle": "สี",
+      "panelTitle": "เลือกตัวเลือกหรือสร้างตัวเลือกใหม่",
+      "searchOption": "ค้นหาตัวเลือก",
+      "searchOrCreateOption": "ค้นหาหรือสร้างตัวเลือก...",
+      "createNew": "สร้างใหม่",
+      "orSelectOne": "หรือเลือกตัวเลือก"
+    },
+    "checklist": {
+      "taskHint": "คำอธิบายงาน",
+      "addNew": "เพิ่มงานใหม่",
+      "submitNewTask": "สร้าง",
+      "hideComplete": "ซ่อนงานเสร็จ",
+      "showComplete": "แสดงงานทั้งหมด"
+    },
+    "menuName": "ตาราง",
+    "referencedGridPrefix": "มุมมองของ"
+  },
+  "document": {
+    "menuName": "เอกสาร",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "เลือกกระดานเพื่อเชื่อมโยง",
+        "createANewBoard": "สร้างกระดานใหม่"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "เลือกตารางเพื่อเชื่อมโยง",
+      "createANewGrid": "สร้างตารางใหม่"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "เลือกปฏิทินเพื่อเชื่อมโยง",
+      "createANewCalendar": "สร้างปฏิทินใหม่"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "เลือกเอกสารเพื่อเชื่อมโยง"
+      }
+    },
+    "selectionMenu": {
+      "outline": "โครงร่าง",
+      "codeBlock": "โค้ดบล็อก"
+    },
+    "plugins": {
+      "referencedBoard": "กระดานที่อ้างอิง",
+      "referencedGrid": "ตารางอ้างอิง",
+      "referencedCalendar": "ปฏิทินที่อ้างอิง",
+      "referencedDocument": "เอกสารอ้างอิง",
+      "autoGeneratorMenuItemName": "นักเขียน OpenAI",
+      "autoGeneratorTitleName": "OpenAI: สอบถาม AI เพื่อให้เขียนอะไรก็ได้...",
+      "autoGeneratorLearnMore": "เรียนรู้เพิ่มเติม",
+      "autoGeneratorGenerate": "สร้าง",
+      "autoGeneratorHintText": "ถาม OpenAI ...",
+      "autoGeneratorCantGetOpenAIKey": "ไม่สามารถรับคีย์ OpenAI ได้",
+      "autoGeneratorRewrite": "เขียนใหม่",
+      "smartEdit": "ผู้ช่วย AI",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "แก้ไขการสะกด",
+      "warning": "⚠️ คำตอบของ AI อาจจะไม่ถูกต้องหรืออาจจะเข้าใจผิดได้",
+      "smartEditSummarize": "สรุป",
+      "smartEditImproveWriting": "ปรับปรุงการเขียน",
+      "smartEditMakeLonger": "ทำให้ยาวขึ้น",
+      "smartEditCouldNotFetchResult": "ไม่สามารถดึงผลลัพธ์จาก OpenAI ได้",
+      "smartEditCouldNotFetchKey": "ไม่สามารถดึงคีย์ OpenAI ได้",
+      "smartEditDisabled": "เชื่อมต่อ OpenAI ในการตั้งค่า",
+      "discardResponse": "คุณต้องการทิ้งการตอบกลับของ AI หรือไม่",
+      "createInlineMathEquation": "สร้างสมการ",
+      "fonts": "แบบอักษร",
+      "toggleList": "สลับรายการ",
+      "quoteList": "รายการอ้างอิง",
+      "numberedList": "รายการแบบมีหมายเลข",
+      "bulletedList": "รายการแบบมีจุด",
+      "todoList": "รายการสิ่งที่ต้องทำ",
+      "callout": "คำอธิบายประกอบ",
+      "cover": {
+        "changeCover": "เปลี่ยนปก",
+        "colors": "สี",
+        "images": "รูปภาพ",
+        "clearAll": "ล้างทั้งหมด",
+        "abstract": "นามธรรม",
+        "addCover": "เพิ่มปก",
+        "addLocalImage": "เพิ่มรูปภาพจากเครื่องของคุณ",
+        "invalidImageUrl": "URL รูปภาพไม่ถูกต้อง",
+        "failedToAddImageToGallery": "ไม่สามารถเพิ่มรูปภาพลงในแกลเลอรี่ได้",
+        "enterImageUrl": "ป้อน URL รูปภาพ",
+        "add": "เพิ่ม",
+        "back": "ย้อนกลับ",
+        "saveToGallery": "บันทึกลงในแกลเลอรี่",
+        "removeIcon": "ลบไอคอน",
+        "pasteImageUrl": "วาง URL รูปภาพ",
+        "or": "หรือ",
+        "pickFromFiles": "เลือกจากไฟล์",
+        "couldNotFetchImage": "ไม่สามารถดึงรูปภาพได้",
+        "imageSavingFailed": "บันทึกภาพไม่สำเร็จ",
+        "addIcon": "เพิ่มไอคอน",
+        "changeIcon": "เปลี่ยนไอคอน",
+        "coverRemoveAlert": "มันจะถูกลบจากปกหลังจากที่ถูกลบ",
+        "alertDialogConfirmation": "คุณแน่ใจหรือไม่ว่าคุณต้องการดำเนินการต่อ?"
+      },
+      "mathEquation": {
+        "name": "สมการทางคณิตศาสตร์",
+        "addMathEquation": "เพิ่มสมการ TeX",
+        "editMathEquation": "แก้ไขสมการทางคณิตศาสตร์"
+      },
+      "optionAction": {
+        "click": "คลิก",
+        "toOpenMenu": " เพื่อเปิดเมนู",
+        "delete": "ลบ",
+        "duplicate": "ทำสำเนา",
+        "turnInto": "แปลงเป็น",
+        "moveUp": "เลื่อนขึ้น",
+        "moveDown": "เลื่อนลง",
+        "color": "สี",
+        "align": "จัดตำแหน่ง",
+        "left": "ซ้าย",
+        "center": "กึ่งกลาง",
+        "right": "ขวา",
+        "defaultColor": "สีเริ่มต้น"
+      },
+      "image": {
+        "copiedToPasteBoard": "ลิงก์รูปภาพถูกคัดลอกไปที่คลิปบอร์ดแล้ว",
+        "addAnImage": "เพิ่มรูปภาพ"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "เพิ่มหัวข้อเพื่อสร้างสารบัญ"
+      },
+      "table": {
+        "addAfter": "เพิ่มหลัง",
+        "addBefore": "เพิ่มก่อน",
+        "delete": "ลบ",
+        "clear": "ล้างเนื้อหา",
+        "duplicate": "ทำสำเนา",
+        "bgColor": "สีพื้นหลัง"
+      },
+      "contextMenu": {
+        "copy": "คัดลอก",
+        "cut": "ตัด",
+        "paste": "วาง"
+      },
+      "action": "การดำเนินการ"
+    },
+    "textBlock": {
+      "placeholder": "พิมพ์ '/' เพื่อดูคำสั่ง"
+    },
+    "title": {
+      "placeholder": "ไม่มีชื่อเรื่อง"
+    },
+    "imageBlock": {
+      "placeholder": "คลิกเพื่อเพิ่มรูปภาพ",
+      "upload": {
+        "label": "อัปโหลด",
+        "placeholder": "คลิกเพื่ออัปโหลดรูปภาพ"
+      },
+      "url": {
+        "label": "URL รูปภาพ",
+        "placeholder": "ป้อน URL รูปภาพ"
+      },
+      "ai": {
+        "label": "สร้างรูปภาพจาก OpenAI",
+        "placeholder": "โปรดระบุคำขอให้ OpenAI สร้างรูปภาพ"
+      },
+      "stability_ai": {
+        "label": "สร้างรูปภาพจาก Stability AI",
+      "placeholder": "โปรดระบุคำขอใช้ Stability AI สร้างรูปภาพ"
+      },
+      "support": "ขนาดรูปภาพจำกัดอยู่ที่ 5MB รูปแบบที่รองรับ: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "รูปภาพไม่ถูกต้อง",
+        "invalidImageSize": "ขนาดรูปภาพต้องไม่เกิน 5MB",
+        "invalidImageFormat": "ไม่รองรับรูปแบบรูปภาพนี้ รูปแบบที่รองรับ: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "URL รูปภาพไม่ถูกต้อง"
+      },
+      "embedLink": {
+        "label": "ฝังลิงก์",
+        "placeholder": "วางหรือพิมพ์ลิงก์รูปภาพ"
+      },
+      "searchForAnImage": "ค้นหารูปภาพ",
+      "pleaseInputYourOpenAIKey": "โปรดระบุคีย์ OpenAI ของคุณในหน้าการตั้งค่า",
+      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณในหน้าการตั้งค่า",
+      "saveImageToGallery": "บันทึกภาพ",
+      "failedToAddImageToGallery": "ไม่สามารถเพิ่มรูปภาพลงในแกลเลอรี่ได้",
+      "successToAddImageToGallery": "เพิ่มรูปภาพลงในแกลเลอรี่เรียบร้อยแล้ว",
+      "unableToLoadImage": "ไม่สามารถโหลดรูปภาพได้"
+    },
+    "codeBlock": {
+      "language": {
+        "label": "ภาษา",
+        "placeholder": "เลือกภาษา"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "วางหรือพิมพ์ลิงก์",
+      "openInNewTab": "เปิดในแท็บใหม่",
+      "copyLink": "คัดลอกลิงก์",
+      "removeLink": "ลบลิงก์",
+      "url": {
+        "label": "URL ลิงก์",
+        "placeholder": "ป้อน URL ลิงก์"
+      },
+      "title": {
+        "label": "ชื่อหัวเรื่องลิงก์",
+        "placeholder": "ป้อนชื่อหัวเรื่องลิงก์"
+      }
+    },
+    "mention": {
+      "placeholder": "ระบุบุคคลหรือหน้าหรือวันที่...",
+      "page": {
+        "label": "ลิงก์ไปยังหน้า",
+        "tooltip": "คลิกเพื่อเปิดหน้า"
+      }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "รีเซ็ตเป็นค่าเริ่มต้น"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "เวอร์ชันปัจจุบันไม่รองรับบล็อกนี้",
+      "blockContentHasBeenCopied": "เนื้อหาบล็อกได้รับการคัดลอกแล้ว"
+    }
+  },
+  "board": {
+    "column": {
+      "createNewCard": "สร้างใหม่",
+      "renameGroupTooltip": "กดเพื่อเปลี่ยนชื่อกลุ่ม",
+      "createNewColumn": "เพิ่มกลุ่มใหม่",
+      "addToColumnTopTooltip": "เพิ่มการ์ดใหม่ที่ด้านบนสุด",
+      "renameColumn": "เปลี่ยนชื่อ",
+      "hideColumn": "ซ่อน"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "กลุ่มที่ซ่อนไว้",
+      "collapseTooltip": "ซ่อนกลุ่มที่ซ่อนไว้",
+      "expandTooltip": "ดูกลุ่มที่ซ่อนไว้"
+    },
+    "cardDetail": "รายละเอียดการ์ด",
+    "cardActions": "การดำเนินการการ์ด",
+    "cardDuplicated": "การ์ดถูกคัดลอก",
+    "cardDeleted": "การ์ดถูกลบ",
+    "menuName": "กระดาน",
+    "showUngrouped": "แสดงรายการที่ยังไม่ได้จัดกลุ่ม",
+    "ungroupedButtonText": "ยังไม่ได้จัดกลุ่ม",
+    "ungroupedButtonTooltip": "ประกอบด้วยการ์ดที่ไม่อยู่ในกลุ่มใดๆ",
+    "ungroupedItemsTitle": "คลิกเพื่อเพิ่มไปยังกระดาน",
+    "groupBy": "จัดกลุ่มตาม",
+    "referencedBoardPrefix": "มุมมองของ",
+    "mobile": {
+      "editURL": "แก้ไข URL"
+    }
+  },
+  "calendar": {
+    "menuName": "ปฏิทิน",
+    "defaultNewCalendarTitle": "ยังไม่ได้ตั้งชื่อ",
+    "newEventButtonTooltip": "เพิ่มกิจกรรมใหม่",
+    "navigation": {
+      "today": "วันนี้",
+      "jumpToday": "ข้ามไปยังวันนี้",
+      "previousMonth": "เดือนก่อนหน้า",
+      "nextMonth": "เดือนถัดไป"
+    },
+    "settings": {
+      "showWeekNumbers": "แสดงหมายเลขสัปดาห์",
+      "showWeekends": "แสดงวันหยุดสุดสัปดาห์",
+      "firstDayOfWeek": "เริ่มต้นสัปดาห์ในวัน",
+      "layoutDateField": "จัดรูปแบบปฏิทินตาม",
+      "noDateTitle": "ไม่มีวันที่",
+      "noDateHint": {
+        "zero": "กิจกรรมที่ไม่ได้กำหนดวันจะแสดงที่นี่",
+        "one": "{} กิจกรรมที่ไม่ได้กำหนดวัน",
+        "other": "{} กิจกรรมที่ไม่ได้กำหนดวัน"
+      },
+      "clickToAdd": "คลิกเพื่อเพิ่มไปยังปฏิทิน",
+      "name": "เค้าโครงปฏิทิน"
+    },
+    "referencedCalendarPrefix": "มุมมองของ"
+  },
+  "errorDialog": {
+    "title": "ข้อผิดพลาด AppFlowy",
+    "howToFixFallback": "ขออภัยในความไม่สะดวก! ส่งปัญหาบนหน้า GitHub ของเราอธิบายถึงข้อผิดพลาดของคุณ",
+    "github": "ดูบน GitHub"
+  },
+  "search": {
+    "label": "ค้นหา",
+    "placeholder": {
+      "actions": "ค้นหาการการดำเนินการ..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "คัดลอกแล้ว!",
+      "fail": "ไม่สามารถคัดลอกได้"
+    }
+  },
+  "unSupportBlock": "เวอร์ชันปัจจุบันไม่รองรับบล็อคนี้",
+  "views": {
+    "deleteContentTitle": "คุณแน่ใจหรือไม่ว่าต้องการลบ {pageType}?",
+    "deleteContentCaption": "หากคุณลบ {pageType} นี้ คุณสามารถกู้คืนได้จากถังขยะ"
+  },
+  "colors": {
+    "custom": "แบบกำหนดเอง",
+    "default": "ค่าเริ่มต้น",
+    "red": "แดง",
+    "orange": "ส้ม",
+    "yellow": "เหลือง",
+    "green": "เขียว",
+    "blue": "น้ำเงิน",
+    "purple": "ม่วง",
+    "pink": "ชมพู",
+    "brown": "น้ำตาล",
+    "gray": "เทา"
+  },
+  "emoji": {
+    "emojiTab": "อิโมจิ",
+    "search": "ค้นหาอิโมจิ",
+    "noRecent": "ไม่มีอิโมจิล่าสุด",
+    "noEmojiFound": "ไม่พบอิโมจิ",
+    "filter": "ตัวกรอง",
+    "random": "แบบสุ่ม",
+    "selectSkinTone": "เลือกเฉดสี",
+    "remove": "เอาอิโมจิออก",
+    "categories": {
+      "smileys": "ยิ้มและอารมณ์",
+      "people": "ผู้คนและรูปร่าง",
+      "animals": "สัตว์และธรรมชาติ",
+      "food": "อาหารและเครื่องดื่ม",
+      "activities": "กิจกรรม",
+      "places": "การเดินทางและสถานที่",
+      "objects": "วัตถุ",
+      "symbols": "สัญลักษณ์",
+      "flags": "ธงชาติ",
+      "nature": "ธรรมชาติ",
+      "frequentlyUsed": "ใช้บ่อย"
+    },
+    "skinTone": {
+      "default": "ค่าเริ่มต้น",
+      "light": "สีอ่อน",
+      "mediumLight": "ปานกลางอ่อน",
+      "medium": "ปานกลาง",
+      "mediumDark": "ปานกลางเข้ม",
+      "dark": "เข้ม"
+    }
+  },
+  "inlineActions": {
+    "noResults": "ไม่พบผลลัพธ์",
+    "pageReference": "อ้างอิงหน้า",
+    "date": "วันที่",
+    "reminder": {
+      "groupTitle": "ตัวเตือน",
+      "shortKeyword": "ตัวเตือน"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "เปลี่ยนรูปแบบวันที่และเวลาในการตั้งค่า"
+  },
+  "relativeDates": {
+    "yesterday": "เมื่อวานนี้",
+    "today": "วันนี้",
+    "tomorrow": "พรุ่งนี้",
+    "oneWeek": "1 สัปดาห์"
+  },
+  "notificationHub": {
+    "title": "การแจ้งเตือน",
+    "emptyTitle": "ตามทันแล้ว!",
+    "emptyBody": "ไม่มีการแจ้งเตือนหรือการดำเนินการที่รอดำเนินการ โปรดเพลิดเพลินกับความสงบได้",
+    "tabs": {
+      "inbox": "กล่องจดหมายเข้า",
+      "upcoming": "กำลังจะเกิดขึ้น"
+    },
+    "actions": {
+      "markAllRead": "ทำเครื่องหมายทั้งหมดว่าอ่านแล้ว",
+      "showAll": "ทั้งหมด",
+      "showUnreads": "ยังไม่ได้อ่าน"
+    },
+    "filters": {
+      "ascending": "จากน้อยไปมาก",
+      "descending": "จากมากไปน้อย",
+      "groupByDate": "จัดกลุ่มตามวันที่",
+      "showUnreadsOnly": "แสดงเฉพาะเนื้อหาที่ยังไม่ได้อ่าน",
+      "resetToDefault": "รีเซ็ตเป็นค่าเริ่มต้น"
+    }
+  },
+  "reminderNotification": {
+    "title": "แจ้งเตือน",
+    "message": "โปรดจำไว้ตรวจสอบสิ่งนี้ก่อนที่คุณจะลืม!",
+    "tooltipDelete": "ลบ",
+    "tooltipMarkRead": "ทำเครื่องหมายว่าอ่านแล้ว",
+    "tooltipMarkUnread": "ทำเครื่องหมายว่ายังไม่ได้อ่าน"
+  },
+  "findAndReplace": {
+    "find": "ค้นหา",
+    "previousMatch": "การจับคู่ก่อนหน้า",
+    "nextMatch": "การจับคู่ถัดไป",
+    "close": "ปิด",
+    "replace": "แทนที่",
+    "replaceAll": "แทนที่ทั้งหมด",
+    "noResult": "ไม่มีผลลัพธ์",
+    "caseSensitive": "แบบเจาะจง"
+  },
+  "error": {
+    "weAreSorry": "ขออภัย",
+    "loadingViewError": "เรากำลังพบปัญหาในการโหลดมุมมองนี้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ โหลดแอปซ้ำ และอย่าลังเลที่จะติดต่อทีมงานหากปัญหายังคงไม่หาย"
+  },
+  "editor": {
+    "bold": "ตัวหนา",
+    "bulletedList": "รายการลำดับหัวข้อย่อย",
+    "checkbox": "กล่องกาเครื่องหมาย",
+    "embedCode": "ฝังโค้ด",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "ไฮไลท์",
+    "color": "สี",
+    "image": "รูปภาพ",
+    "italic": "ตัวเอียง",
+    "link": "ลิงก์",
+    "numberedList": "รายการลำดับตัวเลข",
+    "quote": "คำกล่าว",
+    "strikethrough": "ขีดฆ่า",
+    "text": "ข้อความ",
+    "underline": "ขีดเส้นใต้",
+    "fontColorDefault": "สีเริ่มต้น",
+    "fontColorGray": "สีเทา",
+    "fontColorBrown": "สีน้ำตาล",
+    "fontColorOrange": "สีส้ม",
+    "fontColorYellow": "สีเหลือง",
+    "fontColorGreen": "สีเขียว",
+    "fontColorBlue": "สีน้ำเงิน",
+    "fontColorPurple": "สีม่วง",
+    "fontColorPink": "สีชมพู",
+    "fontColorRed": "สีแดง",
+    "backgroundColorDefault": "พื้นหลังเริ่มต้น",
+    "backgroundColorGray": "พื้นหลังสีเทา",
+    "backgroundColorBrown": "พื้นหลังสีน้ำตาล",
+    "backgroundColorOrange": "พื้นหลังสีส้ม",
+    "backgroundColorYellow": "พื้นหลังสีเหลือง",
+    "backgroundColorGreen": "พื้นหลังสีเขียว",
+    "backgroundColorBlue": "พื้นหลังสีน้ำเงิน",
+    "backgroundColorPurple": "พื้นหลังสีม่วง",
+    "backgroundColorPink": "พื้นหลังสีชมพู",
+    "backgroundColorRed": "พื้นหลังสีแดง",
+    "done": "เสร็จสิ้น",
+    "cancel": "ยกเลิก",
+    "tint1": "สีจาง 1",
+    "tint2": "สีจาง 2",
+    "tint3": "สีจาง 3",
+    "tint4": "สีจาง 4",
+    "tint5": "สีจาง 5",
+    "tint6": "สีจาง 6",
+    "tint7": "สีจาง 7",
+    "tint8": "สีจาง 8",
+    "tint9": "สีจาง 9",
+    "lightLightTint1": "สีม่วง",
+    "lightLightTint2": "สีชมพู",
+    "lightLightTint3": "สีชมพูอ่อน",
+    "lightLightTint4": "สีส้ม",
+    "lightLightTint5": "สีเหลือง",
+    "lightLightTint6": "สีมะนาว",
+    "lightLightTint7": "สีเขียว",
+    "lightLightTint8": "สีฟ้าอมเขียว",
+    "lightLightTint9": "สีน้ำเงิน",
+    "urlHint": "URL",
+    "mobileHeading1": "หัวข้อที่ 1",
+    "mobileHeading2": "หัวข้อที่ 2",
+    "mobileHeading3": "หัวข้อที่ 3",
+    "textColor": "สีข้อความ",
+    "backgroundColor": "สีพื้นหลัง",
+    "addYourLink": "เพิ่มลิงก์ของคุณ",
+    "openLink": "เปิดลิงก์",
+    "copyLink": "คัดลอกลิงก์",
+    "removeLink": "ลบลิงก์",
+    "editLink": "แก้ไขลิงก์",
+    "linkText": "ข้อความ",
+    "linkTextHint": "โปรดป้อนข้อความ",
+    "linkAddressHint": "โปรดป้อน URL",
+    "highlightColor": "สีไฮไลท์",
+    "clearHighlightColor": "ล้างสีไฮไลท์",
+    "customColor": "สีแบบกำหนดเอง",
+    "hexValue": "ค่า Hex",
+    "opacity": "ความทึบ",
+    "resetToDefaultColor": "รีเซ็ตเป็นสีเริ่มต้น",
+    "ltr": "ซ้ายไปขวา",
+    "rtl": "ขวาไปซ้าย",
+    "auto": "อัตโนมัติ",
+    "cut": "ตัด",
+    "copy": "คัดลอก",
+    "paste": "วาง",
+    "find": "ค้นหา",
+    "previousMatch": "จับคู่ก่อนหน้า",
+    "nextMatch": "จับคู่ถัดไป",
+    "closeFind": "ปิด",
+    "replace": "แทนที่",
+    "replaceAll": "แทนที่ทั้งหมด",
+    "regex": "Regex",
+    "caseSensitive": "แบบเจาะจง",
+    "uploadImage": "อัปโหลดรูปภาพ",
+    "urlImage": "URL รูปภาพ",
+    "incorrectLink": "ลิงก์ผิด",
+    "upload": "อัปโหลด",
+    "chooseImage": "เลือกภาพ",
+    "loading": "กำลังโหลด",
+    "imageLoadFailed": "ไม่สามารถโหลดรูปภาพได้",
+    "divider": "ตัวแบ่ง",
+    "table": "ตาราง",
+    "colAddBefore": "เพิ่มด้านหน้า",
+    "rowAddBefore": "เพิ่มด้านหน้า",
+    "colAddAfter": "เพิ่มด้านหลัง",
+    "rowAddAfter": "เพิ่มด้านหลัง",
+    "colRemove": "ลบ",
+    "rowRemove": "ลบ",
+    "colDuplicate": "ทำซ้ำ",
+    "rowDuplicate": "ทำซ้ำ",
+    "colClear": "ล้างเนื้อหา",
+    "rowClear": "ล้างเนื้อหา",
+    "slashPlaceHolder": "ป้อน / เพื่อแทรกบล็อก หรือเริ่มพิมพ์"
+  },
+  "favorite": {
+    "noFavorite": "ไม่มีหน้ารายการโปรด",
+    "noFavoriteHintText": "ปัดหน้าไปทางซ้ายเพื่อเพิ่มลงในรายการโปรด"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "ป้อน / เพื่อแทรกบล็อก หรือเริ่มพิมพ์"
+  },
+  "blockPlaceholders": {
+    "todoList": "รายการสิ่งที่ต้องทำ",
+    "bulletList": "รายการ",
+    "numberList": "รายการ",
+    "quote": "คำกล่าว",
+    "heading": "หัวข้อ {}"
+  },
+  "titleBar": {
+    "pageIcon": "ไอคอนหน้า",
+    "language": "ภาษา",
+    "font": "แบบอักษร"
+  }
+}

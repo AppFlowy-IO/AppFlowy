@@ -78,7 +78,7 @@ where
   fn respond_to(self, _request: &AFPluginEventRequest) -> AFPluginEventResponse {
     match self.into_inner().into_bytes() {
       Ok(bytes) => {
-        log::trace!(
+        tracing::trace!(
           "Serialize Data: {:?} to event response",
           std::any::type_name::<T>()
         );

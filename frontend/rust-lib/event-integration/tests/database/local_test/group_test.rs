@@ -12,6 +12,7 @@ async fn update_group_name_test() {
   assert_eq!(groups.len(), 4);
   assert_eq!(groups[1].group_name, "To Do");
   assert_eq!(groups[2].group_name, "Doing");
+  assert_eq!(groups[3].group_name, "Done");
 
   test
     .update_group(

@@ -1,4 +1,4 @@
-import 'package:emoji_mart/emoji_mart.dart';
+import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'base.dart';

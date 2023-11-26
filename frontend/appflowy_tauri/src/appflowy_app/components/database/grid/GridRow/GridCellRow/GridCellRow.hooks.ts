@@ -1,42 +1,27 @@
 import { useGridUIStateDispatcher, useGridUIStateSelector } from '$app/components/database/proxy/grid/ui_state/actions';
-import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-export function useGridRowActionsDisplay(rowId: string, ref: React.RefObject<HTMLDivElement>) {
+export function useGridRowActionsDisplay(rowId: string) {
   const { hoverRowId, isActivated } = useGridUIStateSelector();
   const hover = useMemo(() => {
     return isActivated && hoverRowId === rowId;
   }, [hoverRowId, rowId, isActivated]);
 
   const { setRowHover } = useGridUIStateDispatcher();
-  const [actionsStyle, setActionsStyle] = useState<CSSProperties | undefined>();
 
   const onMouseEnter = useCallback(() => {
     setRowHover(rowId);
   }, [setRowHover, rowId]);
 
-  useEffect(() => {
-    // Next frame to avoid layout thrashing
-    requestAnimationFrame(() => {
-      const element = ref.current;
-
-      if (!hover || !element) {
-        setActionsStyle(undefined);
-        return;
-      }
-
-      const rect = element.getBoundingClientRect();
-
-      setActionsStyle({
-        position: 'absolute',
-        top: rect.top + 6,
-        left: rect.left - 50,
-      });
-    });
-  }, [ref, hover]);
+  const onMouseLeave = useCallback(() => {
+    if (hover) {
+      setRowHover(null);
+    }
+  }, [setRowHover, hover]);
 
   return {
-    actionsStyle,
     onMouseEnter,
+    onMouseLeave,
     hover,
   };
 }
