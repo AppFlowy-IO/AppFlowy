@@ -202,7 +202,7 @@ class _GridGroupCell extends StatelessWidget {
                   DatabaseGroupEvent.setGroupByField(
                     fieldInfo.id,
                     fieldInfo.fieldType,
-                    condition: condition,
+                    condition,
                   ),
                 );
             onSelected();

@@ -47,14 +47,14 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
           },
           setGroupByField: (
             String fieldId,
-            FieldType fieldType, 
-            int? condition,
-            bool? hideEmpty,
-          ) async {
+            FieldType fieldType, [
+            int condition = 0,
+            bool hideEmpty = false,
+          ]) async {
             final result = await _groupBackendSvc.groupByField(
               fieldId: fieldId,
-              condition: condition ?? 0,
-              hideEmpty: hideEmpty ?? false,
+              condition: condition,
+              hideEmpty: hideEmpty,
             );
             result.fold((l) => null, (err) => Log.error(err));
           },
@@ -106,10 +106,10 @@ class DatabaseGroupEvent with _$DatabaseGroupEvent {
   const factory DatabaseGroupEvent.initial() = _Initial;
   const factory DatabaseGroupEvent.setGroupByField(
     String fieldId,
-    FieldType fieldType, {
-    int? condition,
-    bool? hideEmpty,
-  }) = _DatabaseGroupEvent;
+    FieldType fieldType, [
+    @Default(0) int condition,
+    @Default(false) bool hideEmpty,
+  ]) = _DatabaseGroupEvent;
   const factory DatabaseGroupEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
