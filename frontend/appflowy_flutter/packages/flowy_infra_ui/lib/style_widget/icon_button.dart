@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -52,6 +54,21 @@ class FlowyIconButton extends StatelessWidget {
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
 
+    child = Padding(
+      padding: iconPadding,
+      child: Center(child: child),
+    );
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      return Container(
+        constraints: BoxConstraints.tightFor(
+          width: size.width,
+          height: size.height,
+        ),
+        child: child,
+      );
+    }
+
     return Container(
       constraints: BoxConstraints.tightFor(
         width: size.width,
@@ -85,10 +102,7 @@ class FlowyIconButton extends StatelessWidget {
               //Do not set background here. Use [fillColor] instead.
             ),
             resetHoverOnRebuild: false,
-            child: Padding(
-              padding: iconPadding,
-              child: Center(child: child),
-            ),
+            child: child,
           ),
         ),
       ),
