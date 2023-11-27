@@ -266,6 +266,14 @@ class _GridRows extends StatelessWidget {
       },
       itemCount: rowInfos.length,
       itemBuilder: (context, index) => children[index],
+      header: Padding(
+        padding: EdgeInsets.only(left: GridSize.leadingHeaderPadding),
+        child: Container(
+          height: 1,
+          width: contentWidth,
+          color: Theme.of(context).dividerColor,
+        ),
+      ),
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
