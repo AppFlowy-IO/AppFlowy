@@ -24,8 +24,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
   const { t } = useTranslation();
   const [notFound, setNotFound] = useState(false);
   const [childViewIds, setChildViewIds] = useState<string[]>([]);
-  const { ref, collectionRef, tableHeight } = useDatabaseResize();
-  const [openCollections, setOpenCollections] = useState<string[]>([]);
+  const { ref, collectionRef, tableHeight, openCollections, setOpenCollections } = useDatabaseResize();
 
   useEffect(() => {
     const onPageChanged = () => {
@@ -77,7 +76,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
         setOpenCollections((prev) => [...prev, id]);
       }
     },
-    [openCollections]
+    [openCollections, setOpenCollections]
   );
 
   if (notFound) {

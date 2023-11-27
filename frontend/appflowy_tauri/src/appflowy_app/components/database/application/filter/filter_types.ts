@@ -1,12 +1,14 @@
 import {
+  CheckboxFilterConditionPB,
+  CheckboxFilterPB,
   FieldType,
-  TextFilterConditionPB,
-  SelectOptionConditionPB,
-  TextFilterPB,
-  SelectOptionFilterPB,
   FilterPB,
   NumberFilterConditionPB,
   NumberFilterPB,
+  SelectOptionConditionPB,
+  SelectOptionFilterPB,
+  TextFilterConditionPB,
+  TextFilterPB,
 } from '@/services/backend';
 
 export interface Filter {
@@ -34,6 +36,15 @@ export interface SelectFilter extends Filter {
 export interface NumberFilter extends Filter {
   fieldType: FieldType.Number;
   data: NumberFilterData;
+}
+
+export interface CheckboxFilter extends Filter {
+  fieldType: FieldType.Checkbox;
+  data: CheckboxFilterData;
+}
+
+export interface CheckboxFilterData {
+  condition?: CheckboxFilterConditionPB;
 }
 
 export interface SelectFilterData {
@@ -67,6 +78,10 @@ export function filterDataToPB(data: UndeterminedFilter['data'], fieldType: Fiel
         condition: (data as NumberFilterData).condition,
         content: (data as NumberFilterData).content,
       });
+    case FieldType.Checkbox:
+      return CheckboxFilterPB.fromObject({
+        condition: (data as CheckboxFilterData).condition,
+      });
   }
 }
 
@@ -91,6 +106,12 @@ export function pbToNumberFilterData(pb: NumberFilterPB): NumberFilterData {
   };
 }
 
+export function pbToCheckboxFilterData(pb: CheckboxFilterPB): CheckboxFilterData {
+  return {
+    condition: pb.condition,
+  };
+}
+
 export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
@@ -101,6 +122,8 @@ export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
       return pbToSelectFilterData(SelectOptionFilterPB.deserialize(bytes));
     case FieldType.Number:
       return pbToNumberFilterData(NumberFilterPB.deserialize(bytes));
+    case FieldType.Checkbox:
+      return pbToCheckboxFilterData(CheckboxFilterPB.deserialize(bytes));
   }
 }
 

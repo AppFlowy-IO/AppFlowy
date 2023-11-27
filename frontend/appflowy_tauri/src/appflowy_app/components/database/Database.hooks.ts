@@ -45,7 +45,7 @@ export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
 export const useDatabaseVisibilityRows = () => {
   const { rowMetas } = useDatabase();
 
-  return useMemo(() => rowMetas.filter((row) => !row.isHidden), [rowMetas]);
+  return useMemo(() => rowMetas.filter((row) => row && !row.isHidden), [rowMetas]);
 };
 
 export const useDatabaseVisibilityFields = () => {
@@ -118,6 +118,7 @@ export const useConnectDatabase = (viewId: string) => {
 export function useDatabaseResize() {
   const ref = useRef<HTMLDivElement>(null);
   const collectionRef = useRef<HTMLDivElement>(null);
+  const [openCollections, setOpenCollections] = useState<string[]>([]);
 
   const [tableHeight, setTableHeight] = useState(0);
 
@@ -152,11 +153,13 @@ export function useDatabaseResize() {
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [openCollections]);
 
   return {
     ref,
     collectionRef,
     tableHeight,
+    openCollections,
+    setOpenCollections,
   };
 }
