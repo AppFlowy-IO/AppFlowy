@@ -1,7 +1,11 @@
-import 'package:appflowy/env/env.dart';
+import 'dart:io';
+
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/supabase_task.dart';
 import 'package:appflowy/user/application/user_auth_listener.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:url_protocol/url_protocol.dart';
 
 class InitAppFlowyCloudTask extends LaunchTask {
   UserAuthStateListener? _authStateListener;
@@ -25,6 +29,11 @@ class InitAppFlowyCloudTask extends LaunchTask {
         }
       },
     );
+
+    if (Platform.isWindows) {
+      // register deep link for Windows
+      registerProtocolHandler(appflowyDeepLinkSchema);
+    }
   }
 
   @override

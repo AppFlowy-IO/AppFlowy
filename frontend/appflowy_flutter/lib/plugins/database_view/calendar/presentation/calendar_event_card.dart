@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
@@ -8,6 +10,7 @@ import 'package:appflowy/plugins/database_view/widgets/card/cells/number_card_ce
 import 'package:appflowy/plugins/database_view/widgets/card/cells/url_card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -16,27 +19,30 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../application/calendar_bloc.dart';
 import 'calendar_event_editor.dart';
 
 class EventCard extends StatefulWidget {
+  const EventCard({
+    super.key,
+    required this.fieldController,
+    required this.event,
+    required this.viewId,
+    required this.rowCache,
+    required this.constraints,
+    required this.autoEdit,
+    this.isDraggable = true,
+  });
+
   final FieldController fieldController;
   final CalendarDayEvent event;
   final String viewId;
   final RowCache rowCache;
   final BoxConstraints constraints;
   final bool autoEdit;
-
-  const EventCard({
-    super.key,
-    required this.event,
-    required this.viewId,
-    required this.rowCache,
-    required this.constraints,
-    required this.autoEdit,
-    required this.fieldController,
-  });
+  final bool isDraggable;
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -75,7 +81,7 @@ class _EventCardState extends State<EventCard> {
     );
     final renderHook = _calendarEventCardRenderHook(context);
 
-    final card = RowCard<CalendarDayEvent>(
+    Widget card = RowCard<CalendarDayEvent>(
       // Add the key here to make sure the card is rebuilt when the cells
       // in this row are updated.
       key: ValueKey(widget.event.eventId),
@@ -85,7 +91,25 @@ class _EventCardState extends State<EventCard> {
       cardData: widget.event,
       isEditing: false,
       cellBuilder: cellBuilder,
-      openCard: (_) => _popoverController.show(),
+      openCard: (context) {
+        if (PlatformExtension.isMobile) {
+          final dataController = RowController(
+            rowMeta: rowInfo.rowMeta,
+            viewId: widget.viewId,
+            rowCache: widget.rowCache,
+          );
+
+          context.push(
+            MobileCardDetailScreen.routeName,
+            extra: {
+              MobileCardDetailScreen.argRowController: dataController,
+              MobileCardDetailScreen.argFieldController: widget.fieldController,
+            },
+          );
+        } else {
+          _popoverController.show();
+        }
+      },
       styleConfiguration: RowCardStyleConfiguration(
         showAccessory: false,
         cellPadding: EdgeInsets.zero,
@@ -132,50 +156,56 @@ class _EventCardState extends State<EventCard> {
       ],
     );
 
-    return Draggable<CalendarDayEvent>(
-      data: widget.event,
-      feedback: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: widget.constraints.maxWidth - 8.0,
-        ),
-        child: Opacity(
-          opacity: 0.6,
-          child: DecoratedBox(
-            decoration: decoration,
-            child: card,
-          ),
-        ),
-      ),
-      child: AppFlowyPopover(
-        triggerActions: PopoverTriggerFlags.none,
-        direction: PopoverDirection.rightWithCenterAligned,
-        controller: _popoverController,
-        constraints: const BoxConstraints(maxWidth: 360, maxHeight: 348),
-        asBarrier: true,
-        margin: EdgeInsets.zero,
-        offset: const Offset(10.0, 0),
-        popupBuilder: (BuildContext popoverContext) {
-          final settings = context.watch<CalendarBloc>().state.settings.fold(
-                () => null,
-                (layoutSettings) => layoutSettings,
-              );
-          if (settings == null) {
-            return const SizedBox.shrink();
-          }
-          return CalendarEventEditor(
-            rowCache: widget.rowCache,
-            rowMeta: widget.event.event.rowMeta,
-            viewId: widget.viewId,
-            layoutSettings: settings,
-            fieldController: widget.fieldController,
-          );
-        },
-        child: DecoratedBox(
-          decoration: decoration,
-          child: card,
-        ),
+    card = AppFlowyPopover(
+      triggerActions: PopoverTriggerFlags.none,
+      direction: PopoverDirection.rightWithCenterAligned,
+      controller: _popoverController,
+      constraints: const BoxConstraints(maxWidth: 360, maxHeight: 348),
+      asBarrier: true,
+      margin: EdgeInsets.zero,
+      offset: const Offset(10.0, 0),
+      popupBuilder: (BuildContext popoverContext) {
+        final settings = context.watch<CalendarBloc>().state.settings.fold(
+              () => null,
+              (layoutSettings) => layoutSettings,
+            );
+        if (settings == null) {
+          return const SizedBox.shrink();
+        }
+        return CalendarEventEditor(
+          fieldController: widget.fieldController,
+          rowCache: widget.rowCache,
+          rowMeta: widget.event.event.rowMeta,
+          viewId: widget.viewId,
+          layoutSettings: settings,
+        );
+      },
+      child: DecoratedBox(
+        decoration: decoration,
+        child: card,
       ),
     );
+
+    if (widget.isDraggable) {
+      return Draggable<CalendarDayEvent>(
+        data: widget.event,
+        feedback: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: widget.constraints.maxWidth - 8.0,
+          ),
+          child: Opacity(
+            opacity: 0.6,
+            child: DecoratedBox(
+              decoration: decoration,
+              child: card,
+            ),
+          ),
+        ),
+        child: card,
+      );
+    }
+
+    return card;
   }
 
   RowCardRenderHook<CalendarDayEvent> _calendarEventCardRenderHook(

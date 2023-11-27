@@ -31,10 +31,10 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
   final PopoverMutex? popoverMutex;
 
   const MultiSelectTypeOptionWidget({
-    Key? key,
+    super.key,
     required this.selectOptionAction,
     this.popoverMutex,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/env/cloud_env_test.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
@@ -29,6 +31,7 @@ extension AppFlowyTestBase on WidgetTester {
     // use to append after the application data directory
     String? pathExtension,
     Size windowsSize = const Size(1600, 1200),
+    CloudType? cloudType,
   }) async {
     binding.setSurfaceSize(windowsSize);
 
@@ -38,13 +41,28 @@ extension AppFlowyTestBase on WidgetTester {
     );
 
     WidgetsFlutterBinding.ensureInitialized();
+
     await FlowyRunner.run(
       FlowyApp(),
       IntegrationMode.integrationTest,
+      didInitGetIt: Future(
+        () async {
+          if (cloudType != null) {
+            switch (cloudType) {
+              case CloudType.local:
+                break;
+              case CloudType.supabase:
+                await useSupabaseCloud();
+                break;
+              case CloudType.appflowyCloud:
+                await useAppFlowyCloud();
+                break;
+            }
+          }
+        },
+      ),
     );
-
     await waitUntilSignInPageShow();
-
     return FlowyTestContext(
       applicationDataDirectory: directory,
     );
@@ -206,4 +224,17 @@ extension AppFlowyFinderTestBase on CommonFinders {
       (widget) => widget is FlowyText && widget.text == text,
     );
   }
+}
+
+Future<void> useSupabaseCloud() async {
+  await setCloudType(CloudType.supabase);
+  await setSupbaseServer(
+    Some(TestEnv.supabaseUrl),
+    Some(TestEnv.supabaseAnonKey),
+  );
+}
+
+Future<void> useAppFlowyCloud() async {
+  await setCloudType(CloudType.appflowyCloud);
+  await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
 }

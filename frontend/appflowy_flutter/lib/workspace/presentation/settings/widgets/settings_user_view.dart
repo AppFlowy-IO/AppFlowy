@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -426,8 +426,14 @@ class _AIAccessKeyInputState extends State<_AIAccessKeyInput> {
   @override
   void initState() {
     super.initState();
-
     textEditingController.text = widget.accessKey;
+  }
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    debounce.dispose();
+    super.dispose();
   }
 
   @override
@@ -469,12 +475,6 @@ class _AIAccessKeyInputState extends State<_AIAccessKeyInput> {
         });
       },
     );
-  }
-
-  @override
-  void dispose() {
-    debounce.dispose();
-    super.dispose();
   }
 }
 

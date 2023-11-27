@@ -205,11 +205,12 @@ packages:
   calendar_view:
     dependency: "direct main"
     description:
-      name: calendar_view
-      sha256: "58a8b851ac0a2d62770fd06ad30f06683bd40848a5dd1a1eca332f5a6064bd82"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
+      path: "."
+      ref: "6fe0c98"
+      resolved-ref: "6fe0c989289b077569858d5472f3f7ec05b7746f"
+      url: "https://github.com/Xazin/flutter_calendar_view"
+    source: git
+    version: "1.0.5"
   characters:
     dependency: transitive
     description:
@@ -978,6 +979,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.4"
+  leak_tracker:
+    dependency: "direct main"
+    description:
+      name: leak_tracker
+      sha256: b63ca5cc296c7509d71f6d4a8cb6085eec8461970c503f3ef3c5c541bc3f0a9a
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.0.6"
   linked_scroll_controller:
     dependency: "direct main"
     description:
