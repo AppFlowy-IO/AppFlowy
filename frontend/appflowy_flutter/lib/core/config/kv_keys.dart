@@ -45,6 +45,6 @@ class KVKeys {
 
   static const String kCloudType = 'kCloudType';
   static const String kAppflowyCloudBaseURL = 'kAppFlowyCloudBaseURL';
-  static const String kSupabaseURL = 'kSupbaseURL';
+  static const String kSupabaseURL = 'kSupabaseURL';
   static const String kSupabaseAnonKey = 'kSupabaseAnonKey';
 }

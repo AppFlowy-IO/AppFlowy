@@ -13,7 +13,7 @@ import 'auth/auth_service.dart';
 
 /// A service to manage realtime interactions with Supabase.
 ///
-/// `SupbaseRealtimeService` handles subscribing to table changes in Supabase
+/// `SupabaseRealtimeService` handles subscribing to table changes in Supabase
 /// based on the authentication state of a user. The service is initialized with
 /// a reference to a Supabase instance and sets up the necessary subscriptions
 /// accordingly.

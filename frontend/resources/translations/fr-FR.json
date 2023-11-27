@@ -242,7 +242,7 @@
       "logoutPrompt": "Êtes-vous sûr de vouloir vous déconnecter ?",
       "enableSync": "Activer la synchronisation",
       "enableEncrypt": "Chiffrer les données",
-      "supabaseSetting": "Paramètre Supbase"
+      "supabaseSetting": "Paramètre Supabase"
     },
     "appearance": {
       "resetSetting": "Réinitialiser ce paramètre",

@@ -1,6 +1,7 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/env/backend_env.dart';
+import 'package:appflowy/env/cloud_env_test.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:dartz/dartz.dart';
@@ -43,7 +44,8 @@ Future<void> setCloudType(CloudType ty) async {
 ///
 Future<CloudType> getCloudType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
-  return value.fold(() => CloudType.local, (s) {
+  final defaultCloudType = CloudType.fromValue(TestEnv.cloudType);
+  return value.fold(() => defaultCloudType, (s) {
     switch (s) {
       case "0":
         return CloudType.local;
@@ -52,7 +54,7 @@ Future<CloudType> getCloudType() async {
       case "2":
         return CloudType.appflowyCloud;
       default:
-        return CloudType.local;
+        return defaultCloudType;
     }
   });
 }
@@ -193,7 +195,7 @@ Future<String> getAppFlowyCloudUrl() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppflowyCloudBaseURL);
   return result.fold(
-    () => "",
+    () => TestEnv.afCloudUrl,
     (url) => url,
   );
 }
@@ -219,7 +221,7 @@ Future<String> _getAppFlowyCloudGotrueUrl() async {
   return "$serverUrl/gotrue";
 }
 
-Future<void> setSupbaseServer(
+Future<void> setSupabaseServer(
   Option<String> url,
   Option<String> anonKey,
 ) async {
@@ -239,7 +241,7 @@ Future<void> setSupbaseServer(
 }
 
 Future<SupabaseConfiguration> getSupabaseCloudConfig() async {
-  final url = await _getSupbaseUrl();
+  final url = await _getSupabaseUrl();
   final anonKey = await _getSupabaseAnonKey();
   return SupabaseConfiguration(
     url: url,
@@ -247,10 +249,10 @@ Future<SupabaseConfiguration> getSupabaseCloudConfig() async {
   );
 }
 
-Future<String> _getSupbaseUrl() async {
+Future<String> _getSupabaseUrl() async {
   final result = await getIt<KeyValueStorage>().get(KVKeys.kSupabaseURL);
   return result.fold(
-    () => "",
+    () => TestEnv.supabaseUrl,
     (url) => url,
   );
 }
@@ -258,7 +260,7 @@ Future<String> _getSupbaseUrl() async {
 Future<String> _getSupabaseAnonKey() async {
   final result = await getIt<KeyValueStorage>().get(KVKeys.kSupabaseAnonKey);
   return result.fold(
-    () => "",
+    () => TestEnv.supabaseAnonKey,
     (url) => url,
   );
 }

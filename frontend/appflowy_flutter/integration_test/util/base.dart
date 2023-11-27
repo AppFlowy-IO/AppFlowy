@@ -228,7 +228,7 @@ extension AppFlowyFinderTestBase on CommonFinders {
 
 Future<void> useSupabaseCloud() async {
   await setCloudType(CloudType.supabase);
-  await setSupbaseServer(
+  await setSupabaseServer(
     Some(TestEnv.supabaseUrl),
     Some(TestEnv.supabaseAnonKey),
   );
