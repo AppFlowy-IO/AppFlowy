@@ -113,6 +113,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
       getEditorBuilderMap(
+    slashMenuItems: slashMenuItems,
     context: context,
     editorState: widget.editorState,
     styleCustomizer: widget.styleCustomizer,
