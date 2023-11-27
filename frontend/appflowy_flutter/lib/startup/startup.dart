@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:appflowy/startup/tasks/memory_leak_detector.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:appflowy_backend/log.dart';
@@ -77,6 +78,9 @@ class FlowyRunner {
         // this task should be first task, for handling platform errors.
         // don't catch errors in test mode
         if (!mode.isUnitTest) const PlatformErrorCatcherTask(),
+        // this task should be second task, for handling memory leak.
+        // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
+        MemoryLeakDetectorTask(),
         // localization
         const InitLocalizationTask(),
         // init the app window
