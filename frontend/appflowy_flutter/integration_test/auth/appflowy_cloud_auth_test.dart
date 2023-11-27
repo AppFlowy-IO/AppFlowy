@@ -101,16 +101,21 @@ void main() {
       await mockGetDirectoryPath(
         p.join(rootPath, "random_folder"),
       );
+
+      // after selecting the folder, an annoymous user should be signed in
       await tester.tapCustomLocationButton();
       tester.expectToSeeHomePage();
       await tester.pumpAndSettle();
 
-      // Login again
+      // Login as userA in custom folder
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       await tester.tapGoogleLoginInButton();
+
       await tester.pumpAndSettle(const Duration(seconds: 1));
       tester.expectToSeeHomePage();
+      // UserA should be displayed
+      tester.expectToSeeUserName(userA);
     });
   });
 }

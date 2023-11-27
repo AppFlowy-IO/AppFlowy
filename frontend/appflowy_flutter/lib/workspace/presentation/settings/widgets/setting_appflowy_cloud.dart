@@ -60,7 +60,7 @@ class SettingAppFlowyCloudView extends StatelessWidget {
                 const Spacer(),
                 const FlowyText(Env.afCloudUrl),
               ],
-            )
+            ),
         ],
       ),
     );
