@@ -343,7 +343,7 @@ jobs:
 
   appflowy_cloud_integration_test:
     needs: [prepare]
-    if: github.event.pull_request.draft != true
+#    if: github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
@@ -355,6 +355,35 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v3
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+          depth: 1
+
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          # log level
+          cp dev.env .env
+          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.GOTRUE_SMTP_USER }}/' .env
+          sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.GOTRUE_SMTP_PASS }}/' .env
+          sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
+          sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
+          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+          cat .env
+
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        run: |
+          docker compose up -d
+
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
       - name: Install flutter
         id: flutter
         uses: subosito/flutter-action@v2
@@ -369,12 +398,10 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-            sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
-          fi
+          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+          sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+          sudo apt-get update
+          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
         shell: bash
 
       - name: Enable Flutter Desktop
@@ -392,10 +419,8 @@ jobs:
       - name: Create .env.cloud.test file in flowy-server
         working-directory: frontend/appflowy_flutter
         run: |
-          touch .env.cloud.test
-          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.cloud.test
-          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.cloud.test
-          echo APPFLOWY_CLOUD_URL=${{ secrets.APPFLOWY_CLOUD_URL }} >> .env.cloud.test
+          cp .env.dev .env 
+          sed -i '' 's|APPFLOWY_CLOUD_URL=.*|APPFLOWY_CLOUD_URL=http://localhost|' .env
 
       - name: Run flutter pub get
         working-directory: frontend
