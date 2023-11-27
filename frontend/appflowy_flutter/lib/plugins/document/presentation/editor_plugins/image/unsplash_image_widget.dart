@@ -83,7 +83,9 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
                   value.connectionState != ConnectionState.done ||
                   data == null ||
                   data.isEmpty) {
-                return const CircularProgressIndicator.adaptive();
+                return const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                );
               }
               return GridView.count(
                 crossAxisCount: 3,

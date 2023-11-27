@@ -31,13 +31,16 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
         child: ListView.separated(
           itemBuilder: (context, index) {
             final language = codeBlockSupportedLanguages[index];
-            return FlowyTextButton(
-              language.capitalize(),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 4.0,
+            return SizedBox(
+              height: 48,
+              child: FlowyTextButton(
+                language.capitalize(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 4.0,
+                ),
+                onPressed: () => context.pop(language),
               ),
-              onPressed: () => context.pop(language),
             );
           },
           separatorBuilder: (_, __) => const Divider(),

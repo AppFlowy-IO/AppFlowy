@@ -274,8 +274,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         backgroundColor: theme.colorScheme.background,
         foregroundColor: theme.colorScheme.onSurface,
         iconColor: theme.iconTheme.color ?? theme.colorScheme.onSurface,
-        tabBarSelectedBackgroundColor: theme.colorScheme.background,
-        tabBarSelectedForegroundColor: theme.colorScheme.onSurface,
+        tabBarSelectedBackgroundColor: theme.colorScheme.onSurfaceVariant,
+        tabBarSelectedForegroundColor: theme.colorScheme.onPrimary,
         editorState: editorState,
         toolbarItems: getMobileToolbarItems(),
         child: Column(
