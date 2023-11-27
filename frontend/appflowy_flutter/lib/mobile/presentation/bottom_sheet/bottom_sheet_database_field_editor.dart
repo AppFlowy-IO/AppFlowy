@@ -158,9 +158,7 @@ class MobileDBFieldBottomSheetBody extends StatelessWidget {
         BottomSheetActionWidget(
           svg: FlowySvgs.date_s,
           text: LocaleKeys.grid_field_editProperty.tr(),
-          onTap: () {
-            onAction(MobileDBBottomSheetGeneralAction.typeOption);
-          },
+          onTap: () => onAction(MobileDBBottomSheetGeneralAction.typeOption),
         ),
         const VSpace(8),
         Row(
@@ -170,9 +168,8 @@ class MobileDBFieldBottomSheetBody extends StatelessWidget {
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.hide_m,
                 text: LocaleKeys.grid_field_hide.tr(),
-                onTap: () {
-                  onAction(MobileDBBottomSheetGeneralAction.toggleVisibility);
-                },
+                onTap: () =>
+                    onAction(MobileDBBottomSheetGeneralAction.toggleVisibility),
               ),
             ),
             const HSpace(8),

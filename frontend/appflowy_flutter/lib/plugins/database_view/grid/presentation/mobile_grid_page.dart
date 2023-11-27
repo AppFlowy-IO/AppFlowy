@@ -28,7 +28,7 @@ import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/row/row.dart';
 import 'widgets/shortcuts.dart';
-import 'widgets/toolbar/mobile_grid_setting.dart';
+import '../../widgets/setting/mobile_database_settings_button.dart';
 
 class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
@@ -49,7 +49,7 @@ class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 
   @override
   Widget settingBar(BuildContext context, DatabaseController controller) {
-    return MobileGridSettingButton(
+    return MobileDatabaseSettingsButton(
       key: _makeValueKey(controller),
       controller: controller,
       toggleExtension: _toggleExtension,

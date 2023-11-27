@@ -10,11 +10,12 @@ import 'package:go_router/go_router.dart';
 Future<void> showMobileBottomSheet({
   required BuildContext context,
   required WidgetBuilder builder,
+  bool isDragEnabled = true,
 }) async {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    enableDrag: true,
+    enableDrag: isDragEnabled,
     useSafeArea: true,
     builder: builder,
   );
