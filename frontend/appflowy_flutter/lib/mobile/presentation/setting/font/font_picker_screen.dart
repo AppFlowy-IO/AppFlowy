@@ -82,29 +82,32 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
             }
             final fontFamilyName = availableFonts[index - 1];
             final displayName = parseFontFamilyName(fontFamilyName);
-            return InkWell(
-              onTap: () => context.pop(fontFamilyName),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 4.0,
-                  vertical: 12.0,
-                ),
-                child: Row(
-                  children: [
-                    const HSpace(12.0),
-                    FlowyText(
-                      displayName,
-                      fontFamily:
-                          GoogleFonts.getFont(fontFamilyName).fontFamily,
-                    ),
-                    const Spacer(),
-                    if (selectedFontFamilyName == fontFamilyName)
-                      const Icon(
-                        Icons.check,
-                        size: 16,
+            return SizedBox(
+              height: 48.0,
+              child: InkWell(
+                onTap: () => context.pop(fontFamilyName),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4.0,
+                    vertical: 12.0,
+                  ),
+                  child: Row(
+                    children: [
+                      const HSpace(12.0),
+                      FlowyText(
+                        displayName,
+                        fontFamily:
+                            GoogleFonts.getFont(fontFamilyName).fontFamily,
                       ),
-                    const HSpace(12.0),
-                  ],
+                      const Spacer(),
+                      if (selectedFontFamilyName == fontFamilyName)
+                        const Icon(
+                          Icons.check,
+                          size: 16,
+                        ),
+                      const HSpace(12.0),
+                    ],
+                  ),
                 ),
               ),
             );
