@@ -42,6 +42,8 @@ class MobileAppearance extends BaseAppearance {
             // group card background color
             secondary: const Color(0xfff7f8fc), // shade 10
             onSecondary: _onSecondaryColor,
+            // hidden group title & card text color
+            tertiary: const Color(0xff858585), // for light text
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
             background: Colors.white,
@@ -76,7 +78,7 @@ class MobileAppearance extends BaseAppearance {
       primaryColor: colorTheme.primary, //primary 100
       primaryColorLight: const Color(0xFF57B5F8), //primary 80
       dividerColor: colorTheme.outline, //caption
-      hintColor: colorTheme.outline,
+      hintColor: colorTheme.onSecondary,
       disabledColor: colorTheme.outline,
       scaffoldBackgroundColor: colorTheme.background,
       appBarTheme: AppBarTheme(

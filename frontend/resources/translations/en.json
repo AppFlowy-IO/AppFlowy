@@ -228,7 +228,8 @@
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
     "helpCenter": "Help Center",
-    "add": "Add"
+    "add": "Add",
+    "yes": "Yes"
   },
   "label": {
     "welcome": "Welcome!",
@@ -809,7 +810,9 @@
     "groupBy": "Group by",
     "referencedBoardPrefix": "View of",
     "mobile": {
-      "editURL": "Edit URL"
+      "editURL": "Edit URL",
+      "unhideGroup": "Unhide group",
+      "unhideGroupContent": "Are you sure you want to show this group on the board?"
     }
   },
   "calendar": {
