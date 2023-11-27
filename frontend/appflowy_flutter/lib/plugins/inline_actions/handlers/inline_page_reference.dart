@@ -83,7 +83,7 @@ class InlinePageReferenceService {
       final pageSelectionMenuItem = InlineActionsMenuItem(
         keywords: [view.name.toLowerCase()],
         label: view.name,
-        icon: (onSelected) => view.defaultIcon(),
+        icon: (context, _) => view.defaultIcon(context),
         onSelected: (context, editorState, menuService, replace) async {
           final selection = editorState.selection;
           if (selection == null || !selection.isCollapsed) {

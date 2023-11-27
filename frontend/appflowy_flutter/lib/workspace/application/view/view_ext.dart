@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/mobile_grid_pag
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/util/theme_mode_extension.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -41,20 +42,37 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    const Widget widget = FlowySvg(FlowySvgs.document_s);
-    return widget;
+    return const FlowySvg(
+      FlowySvgs.document_s,
+    );
   }
 
-  Widget defaultIcon() {
-    return FlowySvg(
-      switch (layout) {
-        ViewLayoutPB.Board => FlowySvgs.board_s,
-        ViewLayoutPB.Calendar => FlowySvgs.date_s,
-        ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Document => FlowySvgs.document_s,
-        _ => FlowySvgs.document_s,
-      },
-    );
+  Widget defaultIcon(BuildContext context) {
+    final isLight = context.isLightMode;
+
+    if (isLight) {
+      return FlowySvg(
+        switch (layout) {
+          ViewLayoutPB.Board => FlowySvgs.board_s,
+          ViewLayoutPB.Calendar => FlowySvgs.date_s,
+          ViewLayoutPB.Grid => FlowySvgs.grid_s,
+          ViewLayoutPB.Document => FlowySvgs.document_s,
+          _ => FlowySvgs.document_s,
+        },
+        blendMode: null,
+      );
+    } else {
+      return FlowySvg(
+        switch (layout) {
+          ViewLayoutPB.Board => FlowySvgs.board_dark_s,
+          ViewLayoutPB.Calendar => FlowySvgs.date_dark_s,
+          ViewLayoutPB.Grid => FlowySvgs.grid_dark_s,
+          ViewLayoutPB.Document => FlowySvgs.document_dark_s,
+          _ => FlowySvgs.document_s,
+        },
+        blendMode: null,
+      );
+    }
   }
 
   PluginType get pluginType {
