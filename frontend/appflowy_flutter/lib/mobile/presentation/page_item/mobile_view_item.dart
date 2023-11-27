@@ -362,7 +362,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
           )
         : SizedBox.square(
             dimension: 26.0,
-            child: widget.view.defaultIcon(context),
+            child: widget.view.defaultIcon(),
           );
     return icon;
   }

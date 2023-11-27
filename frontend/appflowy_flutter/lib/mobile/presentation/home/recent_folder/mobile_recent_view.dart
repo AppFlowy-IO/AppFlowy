@@ -115,7 +115,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
                       )
                     : SizedBox.square(
                         dimension: 32.0,
-                        child: view.defaultIcon(context),
+                        child: view.defaultIcon(),
                       ),
               ),
             ),
@@ -151,7 +151,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
       builder: ((context, snapshot) {
         final node = snapshot.data;
         final placeholder = Container(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
         );
         if (node == null) {
           return placeholder;

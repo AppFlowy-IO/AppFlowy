@@ -93,7 +93,7 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
         width: 200,
         child: FlowyButton(
           isSelected: widget.isSelected,
-          leftIcon: widget.item.icon?.call(context, widget.isSelected),
+          leftIcon: widget.item.icon?.call(widget.isSelected),
           text: FlowyText.regular(widget.item.label),
           onTap: _onPressed,
         ),

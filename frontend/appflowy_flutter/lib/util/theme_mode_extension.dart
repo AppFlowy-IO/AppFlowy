@@ -16,16 +16,3 @@ extension LabelTextPhrasing on ThemeMode {
     }
   }
 }
-
-extension ThemeModeExtension on BuildContext {
-  ThemeMode get themeMode {
-    final brightness = Theme.of(this).brightness;
-    return switch (brightness) {
-      Brightness.light => ThemeMode.light,
-      Brightness.dark => ThemeMode.dark,
-    };
-  }
-
-  bool get isLightMode => themeMode == ThemeMode.light;
-  bool get isDarkMode => themeMode == ThemeMode.dark;
-}

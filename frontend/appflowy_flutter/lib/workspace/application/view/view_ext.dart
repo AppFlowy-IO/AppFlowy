@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/database_view/grid/presentation/mobile_grid_pag
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
-import 'package:appflowy/util/theme_mode_extension.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -42,18 +41,20 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    return const FlowySvg(
-      FlowySvgs.document_s,
-      blendMode: null,
-    );
+    const Widget widget = FlowySvg(FlowySvgs.document_s);
+    return widget;
   }
 
-  Widget defaultIcon(
-    BuildContext context, {
-    Size? size,
-    Color? color,
-  }) {
-    return layout.icon(context, size: size);
+  Widget defaultIcon() {
+    return FlowySvg(
+      switch (layout) {
+        ViewLayoutPB.Board => FlowySvgs.board_s,
+        ViewLayoutPB.Calendar => FlowySvgs.date_s,
+        ViewLayoutPB.Grid => FlowySvgs.grid_s,
+        ViewLayoutPB.Document => FlowySvgs.document_s,
+        _ => FlowySvgs.document_s,
+      },
+    );
   }
 
   PluginType get pluginType {
@@ -116,6 +117,8 @@ extension ViewExtension on ViewPB {
     }
   }
 
+  FlowySvgData get iconData => layout.icon;
+
   Future<List<ViewPB>> getAncestors({
     bool includeSelf = false,
     bool includeRoot = false,
@@ -140,37 +143,18 @@ extension ViewExtension on ViewPB {
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
-  Widget icon(
-    BuildContext context, {
-    Size? size,
-    Color? color,
-  }) {
-    return FlowySvg(
-      iconData(context),
-      blendMode: null,
-      size: size,
-      color: color,
-    );
-  }
-
-  FlowySvgData iconData(BuildContext context) {
-    final isLight = context.isLightMode;
-    if (isLight) {
-      return switch (this) {
-        ViewLayoutPB.Board => FlowySvgs.board_s,
-        ViewLayoutPB.Calendar => FlowySvgs.date_s,
-        ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Document => FlowySvgs.document_s,
-        _ => FlowySvgs.document_s,
-      };
-    } else {
-      return switch (this) {
-        ViewLayoutPB.Board => FlowySvgs.board_dark_s,
-        ViewLayoutPB.Calendar => FlowySvgs.date_dark_s,
-        ViewLayoutPB.Grid => FlowySvgs.grid_dark_s,
-        ViewLayoutPB.Document => FlowySvgs.document_dark_s,
-        _ => FlowySvgs.document_s,
-      };
+  FlowySvgData get icon {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+        return FlowySvgs.grid_s;
+      case ViewLayoutPB.Board:
+        return FlowySvgs.board_s;
+      case ViewLayoutPB.Calendar:
+        return FlowySvgs.date_s;
+      case ViewLayoutPB.Document:
+        return FlowySvgs.document_s;
+      default:
+        throw Exception('Unknown layout type');
     }
   }
 

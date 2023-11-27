@@ -239,7 +239,7 @@ class _ViewTitleState extends State<_ViewTitle> {
           children: [
             EmojiPickerButton(
               emoji: icon,
-              defaultIcon: widget.view.defaultIcon(context),
+              defaultIcon: widget.view.defaultIcon(),
               direction: PopoverDirection.bottomWithCenterAligned,
               offset: const Offset(0, 18),
               onSubmitted: (emoji, _) async {

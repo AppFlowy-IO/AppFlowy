@@ -363,7 +363,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           )
         : SizedBox.square(
             dimension: 20.0,
-            child: widget.view.defaultIcon(context),
+            child: widget.view.defaultIcon(),
           );
     return AppFlowyPopover(
       offset: const Offset(20, 0),
