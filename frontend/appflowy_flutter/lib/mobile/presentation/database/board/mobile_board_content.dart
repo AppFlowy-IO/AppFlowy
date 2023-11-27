@@ -15,6 +15,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -91,17 +92,19 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
         builder: (context, state) {
           final showCreateGroupButton =
               context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
+          final showHiddenGroups = state.hiddenGroups.isNotEmpty;
           return AppFlowyBoard(
             boardScrollController: scrollManager,
             scrollController: scrollController,
             controller: context.read<BoardBloc>().boardController,
             groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
             config: config,
-            leading:
-                MobileHiddenGroupsColumn(margin: config.groupHeaderPadding),
+            leading: showHiddenGroups
+                ? MobileHiddenGroupsColumn(margin: config.groupHeaderPadding)
+                : const HSpace(16),
             trailing: showCreateGroupButton
-                ? MobileBoardTrailing(scrollController: scrollController)
-                : null,
+                ? const MobileBoardTrailing()
+                : const HSpace(16),
             headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
               value: context.read<BoardBloc>(),
               child: GroupCardHeader(

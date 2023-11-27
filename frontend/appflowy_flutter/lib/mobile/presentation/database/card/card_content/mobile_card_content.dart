@@ -79,10 +79,11 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
               ? LocaleKeys.grid_row_titlePlaceholder.tr()
               : cellData;
 
-          final textStyle = Theme.of(context).textTheme.labelMedium?.copyWith(
+          final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: cellData.isEmpty
                     ? Theme.of(context).colorScheme.onSecondary
                     : Theme.of(context).colorScheme.onBackground,
+                fontSize: 20,
               );
 
           return Row(
@@ -91,9 +92,12 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
                 const FlowySvg(FlowySvgs.notes_s),
                 const HSpace(4),
               ],
-              Text(
-                text,
-                style: textStyle,
+              Expanded(
+                child: Text(
+                  text,
+                  style: textStyle,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           );

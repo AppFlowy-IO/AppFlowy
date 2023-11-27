@@ -6,9 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Add new group
 class MobileBoardTrailing extends StatefulWidget {
-  const MobileBoardTrailing({super.key, required this.scrollController});
-
-  final ScrollController scrollController;
+  const MobileBoardTrailing({
+    super.key,
+  });
 
   @override
   State<MobileBoardTrailing> createState() => _MobileBoardTrailingState();
@@ -20,19 +20,12 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
   bool isEditing = false;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final style = Theme.of(context);
 
     return Container(
-      alignment: AlignmentDirectional.topStart,
-      // keep same padding as group padding
-      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.all(8),
       child: SizedBox(
         width: screenSize.width * 0.7,
         child: isEditing
