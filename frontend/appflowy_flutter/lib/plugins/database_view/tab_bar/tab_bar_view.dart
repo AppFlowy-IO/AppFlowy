@@ -4,11 +4,12 @@ import 'package:appflowy/plugins/database_view/tab_bar/mobile/mobile_tab_bar_hea
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -85,6 +86,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         ],
         child: Column(
           children: [
+            if (PlatformExtension.isMobile) const VSpace(12),
             BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
                 return ValueListenableBuilder<bool>(
@@ -96,11 +98,14 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                     if (value) {
                       return const SizedBox.shrink();
                     }
+
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: PlatformExtension.isDesktop
-                          ? const TabBarHeader()
-                          : const MobileTabBarHeader(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: PlatformExtension.isMobile ? 20 : 40,
+                      ),
+                      child: PlatformExtension.isMobile
+                          ? const MobileTabBarHeader()
+                          : const TabBarHeader(),
                     );
                   },
                 );

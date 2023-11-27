@@ -166,6 +166,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
+  late final EditorScrollController editorScrollController;
+
   Future<bool> showSlashMenu(editorState) async {
     final result = await customSlashCommand(
       slashMenuItems,
@@ -185,6 +187,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
     effectiveScrollController = widget.scrollController ?? ScrollController();
+
+    editorScrollController = EditorScrollController(
+      editorState: widget.editorState,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
+    );
 
     // keep the previous font style when typing new text.
     supportSlashMenuNodeWhiteList.addAll([
@@ -207,7 +215,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       effectiveScrollController.dispose();
     }
     inlineActionsService.dispose();
-
+    editorScrollController.dispose();
     widget.editorState.dispose();
 
     super.dispose();
@@ -224,12 +232,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
     _setRTLToolbarItems(isRTL);
-
-    final editorScrollController = EditorScrollController(
-      editorState: widget.editorState,
-      shrinkWrap: widget.shrinkWrap,
-      scrollController: effectiveScrollController,
-    );
 
     final editor = Directionality(
       textDirection: textDirection,
@@ -272,8 +274,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         backgroundColor: theme.colorScheme.background,
         foregroundColor: theme.colorScheme.onSurface,
         iconColor: theme.iconTheme.color ?? theme.colorScheme.onSurface,
-        tabBarSelectedBackgroundColor: theme.colorScheme.background,
-        tabBarSelectedForegroundColor: theme.colorScheme.onSurface,
+        tabBarSelectedBackgroundColor: theme.colorScheme.onSurfaceVariant,
+        tabBarSelectedForegroundColor: theme.colorScheme.onPrimary,
         editorState: editorState,
         toolbarItems: getMobileToolbarItems(),
         child: Column(

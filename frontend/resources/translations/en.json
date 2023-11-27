@@ -229,7 +229,9 @@
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
-    "yes": "Yes"
+    "yes": "Yes",
+    "Done": "Done",
+    "Cancel": "Cancel"
   },
   "label": {
     "welcome": "Welcome!",
@@ -265,9 +267,27 @@
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "cloudSetting": "Cloud Setting",
-      "cloudURL": "Server URL",
       "enableSync": "Enable sync",
       "enableEncrypt": "Encrypt data",
+      "cloudURL": "Base URL",
+      "invalidCloudURLScheme": "Invalid Scheme",
+      "cloudServerType": "Cloud server",
+      "cloudServerTypeTip": "Please note that it might log out your current account after switching the cloud server",
+      "cloudLocal": "Local",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseAnonKey": "Supabase anon key",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty if the supabase url is not empty",
+      "cloudAppFlowy": "AppFlowy Cloud",
+      "clickToCopy": "Click to copy",
+      "selfHostStart": "If you don't have a server, please refer to the",
+      "selfHostContent": "document",
+      "selfHostEnd": "for guidance on how to self-host your own server",
+      "cloudURLHint": "Input the base URL of your server",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "Input the websocket address of your server",
+      "restartApp": "Restart",
+      "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
       "inputEncryptPrompt": "Please enter your encryption secret for",
       "clickToCopySecret": "Click to copy secret",
@@ -405,7 +425,9 @@
       "privacyPolicy": "Privacy Policy",
       "userAgreement": "User Agreement",
       "userprofileError": "Failed to load user profile",
-      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists."
+      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
+      "selectLayout": "Select layout",
+      "selectStartingDay": "Select starting day"
     }
   },
   "grid": {
@@ -837,9 +859,10 @@
         "other": "{} unscheduled events"
       },
       "clickToAdd": "Click to add to the calendar",
-      "name": "Calendar layout"
+      "name": "Calendar settings"
     },
-    "referencedCalendarPrefix": "View of"
+    "referencedCalendarPrefix": "View of",
+    "quickJumpYear": "Jump to"
   },
   "errorDialog": {
     "title": "AppFlowy Error",
@@ -1078,7 +1101,7 @@
     "rowDuplicate": "Duplicate",
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
-    "slashPlaceHolder": "Enter a / to insert a block, or start typing"
+    "slashPlaceHolder": "Type '/' to insert a block, or start typing"
   },
   "favorite": {
     "noFavorite": "No favorite page",
@@ -1097,6 +1120,7 @@
   "titleBar": {
     "pageIcon": "Page icon",
     "language": "Language",
-    "font": "Font"
+    "font": "Font",
+    "actions": "Actions"
   }
 }

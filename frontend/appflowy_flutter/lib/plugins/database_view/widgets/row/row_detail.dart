@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
@@ -11,11 +12,13 @@ import 'row_banner.dart';
 import 'row_property.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
+  final FieldController fieldController;
   final RowController rowController;
   final GridCellBuilder cellBuilder;
 
   const RowDetailPage({
     super.key,
+    required this.fieldController,
     required this.rowController,
     required this.cellBuilder,
   });
@@ -56,6 +59,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
               child: RowPropertyList(
                 cellBuilder: widget.cellBuilder,
                 viewId: widget.rowController.viewId,
+                fieldController: widget.fieldController,
               ),
             ),
             const VSpace(20),

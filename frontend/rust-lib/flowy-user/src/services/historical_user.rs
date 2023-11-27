@@ -17,7 +17,10 @@ impl UserManager {
     // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
     // auth type is not [AuthType::Local].
     let session = self.get_session().ok()?;
-    let user_profile = self.get_user_profile(session.user_id).await.ok()?;
+    let user_profile = self
+      .get_user_profile_from_disk(session.user_id)
+      .await
+      .ok()?;
     if user_profile.authenticator == Authenticator::Local && !auth_type.is_local() {
       Some(MigrationUser {
         user_profile,
@@ -44,7 +47,7 @@ impl UserManager {
     uid: i64,
     device_id: &str,
     user_name: String,
-    auth_type: &Authenticator,
+    authenticator: &Authenticator,
     storage_path: String,
   ) {
     let mut logger_users = self
@@ -54,7 +57,7 @@ impl UserManager {
     logger_users.add_user(HistoricalUser {
       user_id: uid,
       user_name,
-      auth_type: auth_type.clone(),
+      auth_type: authenticator.clone(),
       sign_in_timestamp: timestamp(),
       storage_path,
       device_id: device_id.to_string(),

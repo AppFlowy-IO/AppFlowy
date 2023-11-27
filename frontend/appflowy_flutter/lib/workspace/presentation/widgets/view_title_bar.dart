@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -95,12 +96,15 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
         continue;
       }
       children.add(
-        _ViewTitle(
-          view: view,
-          behavior: i == views.length - 1
-              ? _ViewTitleBehavior.editable // only the last one is editable
-              : _ViewTitleBehavior.uneditable, // others are not editable
-          onUpdated: () => setState(() => _reloadAncestors()),
+        FlowyTooltip(
+          message: view.name,
+          child: _ViewTitle(
+            view: view,
+            behavior: i == views.length - 1
+                ? _ViewTitleBehavior.editable // only the last one is editable
+                : _ViewTitleBehavior.uneditable, // others are not editable
+            onUpdated: () => setState(() => _reloadAncestors()),
+          ),
         ),
       );
       if (i != views.length - 1) {
@@ -190,26 +194,23 @@ class _ViewTitleState extends State<_ViewTitle> {
       );
     }
 
-    final child = FlowyTooltip(
-      message: name,
-      child: Row(
-        children: [
-          FlowyText.regular(
-            icon,
-            fontSize: 18.0,
+    final child = Row(
+      children: [
+        EmojiText(
+          emoji: icon,
+          fontSize: 18.0,
+        ),
+        const HSpace(2.0),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: widget.maxTitleWidth,
           ),
-          const HSpace(2.0),
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: widget.maxTitleWidth,
-            ),
-            child: FlowyText.regular(
-              name,
-              overflow: TextOverflow.ellipsis,
-            ),
+          child: FlowyText.regular(
+            name,
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+        ),
+      ],
     );
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {
@@ -232,6 +233,7 @@ class _ViewTitleState extends State<_ViewTitle> {
       offset: const Offset(0, 18),
       popupBuilder: (context) {
         // icon + textfield
+        _resetTextEditingController();
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -261,8 +263,8 @@ class _ViewTitleState extends State<_ViewTitle> {
                       viewId: widget.view.id,
                       name: text,
                     );
-                    popoverController.close();
                   }
+                  popoverController.close();
                 },
               ),
             ),

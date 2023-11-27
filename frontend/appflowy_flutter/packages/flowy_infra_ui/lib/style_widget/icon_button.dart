@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -52,6 +54,25 @@ class FlowyIconButton extends StatelessWidget {
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
 
+    child = Padding(
+      padding: iconPadding,
+      child: Center(child: child),
+    );
+
+    if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      child = FlowyHover(
+        isSelected: isSelected != null ? () => isSelected! : null,
+        style: HoverStyle(
+          hoverColor: hoverColor,
+          foregroundColorOnHover:
+              iconColorOnHover ?? Theme.of(context).iconTheme.color,
+          //Do not set background here. Use [fillColor] instead.
+        ),
+        resetHoverOnRebuild: false,
+        child: child,
+      );
+    }
+
     return Container(
       constraints: BoxConstraints.tightFor(
         width: size.width,
@@ -76,20 +97,7 @@ class FlowyIconButton extends StatelessWidget {
           highlightColor: Colors.transparent,
           elevation: 0,
           onPressed: onPressed,
-          child: FlowyHover(
-            isSelected: isSelected != null ? () => isSelected! : null,
-            style: HoverStyle(
-              hoverColor: hoverColor,
-              foregroundColorOnHover:
-                  iconColorOnHover ?? Theme.of(context).iconTheme.color,
-              //Do not set background here. Use [fillColor] instead.
-            ),
-            resetHoverOnRebuild: false,
-            child: Padding(
-              padding: iconPadding,
-              child: Center(child: child),
-            ),
-          ),
+          child: child,
         ),
       ),
     );

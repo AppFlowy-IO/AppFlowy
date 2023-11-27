@@ -202,9 +202,12 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
               );
       case UploadImageType.color:
         final theme = Theme.of(context);
+        final padding = PlatformExtension.isMobile
+            ? const EdgeInsets.all(16.0)
+            : const EdgeInsets.all(8.0);
         return Container(
           constraints: constraints,
-          padding: const EdgeInsets.all(8.0),
+          padding: padding,
           alignment: Alignment.center,
           child: CoverColorPicker(
             pickerBackgroundColor: theme.cardColor,

@@ -74,10 +74,10 @@ void main() {
       await tester.scrollToToday();
 
       // Hover over today's calendar cell
-      await tester.hoverOnTodayCalendarCell();
-
-      // Tap on create new event button
-      await tester.tapAddCalendarEventButton();
+      await tester.hoverOnTodayCalendarCell(
+        // Tap on create new event button
+        onHover: () async => await tester.tapAddCalendarEventButton(),
+      );
 
       // Make sure that the event editor popup is shown
       tester.assertEventEditorOpen();
@@ -90,14 +90,8 @@ void main() {
       // Double click on today's calendar cell to create a new event
       await tester.doubleClickCalendarCell(DateTime.now());
 
-      // Make sure that the event editor popup is shown
-      tester.assertEventEditorOpen();
-
       // Make sure that the event is inserted in the cell
       tester.assertNumberOfEventsInCalendar(2);
-
-      // Dismiss the event editor popup
-      await tester.dismissEventEditor();
 
       // Click on the event
       await tester.openCalendarEvent(index: 0);
@@ -112,7 +106,7 @@ void main() {
       tester.assertNumberOfEventsOnSpecificDay(2, DateTime.now());
 
       // Click on the event
-      await tester.openCalendarEvent(index: 1);
+      await tester.openCalendarEvent(index: 0);
       tester.assertEventEditorOpen();
 
       // Click on the open icon
@@ -137,7 +131,7 @@ void main() {
       tester.assertNumberOfEventsOnSpecificDay(2, DateTime.now());
 
       // Delete event from row detail page
-      await tester.openCalendarEvent(index: 1);
+      await tester.openCalendarEvent(index: 0);
       await tester.openEventToRowDetailPage();
       tester.assertRowDetailPageOpened();
 
@@ -163,7 +157,7 @@ void main() {
       await tester.dismissEventEditor();
 
       // Drag and drop the event onto the next week, same day
-      await tester.dragDropRescheduleCalendarEvent(firstOfThisMonth);
+      await tester.dragDropRescheduleCalendarEvent();
 
       // Make sure that the event has been rescheduled to the new date
       final sameDayNextWeek = firstOfThisMonth.add(const Duration(days: 7));

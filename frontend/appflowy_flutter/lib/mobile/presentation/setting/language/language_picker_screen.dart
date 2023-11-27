@@ -47,27 +47,30 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
         child: ListView.separated(
           itemBuilder: (context, index) {
             final locale = supportedLocales[index];
-            return InkWell(
-              onTap: () => context.pop(locale),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 4.0,
-                  vertical: 12.0,
-                ),
-                child: Row(
-                  children: [
-                    const HSpace(12.0),
-                    FlowyText(
-                      languageFromLocale(locale),
-                    ),
-                    const Spacer(),
-                    if (EasyLocalization.of(context)!.locale == locale)
-                      const Icon(
-                        Icons.check,
-                        size: 16,
+            return SizedBox(
+              height: 48.0,
+              child: InkWell(
+                onTap: () => context.pop(locale),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4.0,
+                    vertical: 12.0,
+                  ),
+                  child: Row(
+                    children: [
+                      const HSpace(12.0),
+                      FlowyText(
+                        languageFromLocale(locale),
                       ),
-                    const HSpace(12.0),
-                  ],
+                      const Spacer(),
+                      if (EasyLocalization.of(context)!.locale == locale)
+                        const Icon(
+                          Icons.check,
+                          size: 16,
+                        ),
+                      const HSpace(12.0),
+                    ],
+                  ),
                 ),
               ),
             );

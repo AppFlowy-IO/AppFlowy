@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:appflowy/startup/tasks/prelude.dart';
-import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -12,6 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'auth_error.dart';
 
 class SupabaseAuthService implements AuthService {

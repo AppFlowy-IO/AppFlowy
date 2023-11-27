@@ -14,7 +14,6 @@ use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::database::{get_user_profile, get_user_workspace, open_user_db};
-use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 
 use crate::AppFlowyCoreConfig;
@@ -56,8 +55,6 @@ pub struct ServerProvider {
   providers: RwLock<HashMap<ServerType, Arc<dyn AppFlowyServer>>>,
   pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   pub(crate) store_preferences: Weak<StorePreferences>,
-  pub(crate) cache_user_service: RwLock<HashMap<ServerType, Arc<dyn UserCloudService>>>,
-
   pub(crate) enable_sync: RwLock<bool>,
   pub(crate) uid: Arc<RwLock<Option<i64>>>,
 }
@@ -76,7 +73,6 @@ impl ServerProvider {
       enable_sync: RwLock::new(true),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
-      cache_user_service: Default::default(),
       uid: Default::default(),
     }
   }
@@ -148,7 +144,7 @@ impl From<Authenticator> for ServerType {
   fn from(auth_provider: Authenticator) -> Self {
     match auth_provider {
       Authenticator::Local => ServerType::Local,
-      Authenticator::AFCloud => ServerType::AFCloud,
+      Authenticator::AppFlowyCloud => ServerType::AFCloud,
       Authenticator::Supabase => ServerType::Supabase,
     }
   }
@@ -158,7 +154,7 @@ impl From<ServerType> for Authenticator {
   fn from(ty: ServerType) -> Self {
     match ty {
       ServerType::Local => Authenticator::Local,
-      ServerType::AFCloud => Authenticator::AFCloud,
+      ServerType::AFCloud => Authenticator::AppFlowyCloud,
       ServerType::Supabase => Authenticator::Supabase,
     }
   }

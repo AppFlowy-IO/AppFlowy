@@ -1,13 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -18,6 +17,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 import 'grid_page.dart';
@@ -26,9 +26,9 @@ import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
-import 'widgets/row/row.dart';
+import 'widgets/row/mobile_row.dart';
 import 'widgets/shortcuts.dart';
-import 'widgets/toolbar/mobile_grid_setting.dart';
+import '../../widgets/setting/mobile_database_settings_button.dart';
 
 class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
@@ -49,7 +49,7 @@ class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 
   @override
   Widget settingBar(BuildContext context, DatabaseController controller) {
-    return MobileGridSettingButton(
+    return MobileDatabaseSettingsButton(
       key: _makeValueKey(controller),
       controller: controller,
       toggleExtension: _toggleExtension,
@@ -184,8 +184,6 @@ class _GridHeader extends StatelessWidget {
       builder: (context, state) {
         return GridHeaderSliverAdaptor(
           viewId: state.viewId,
-          fieldController:
-              context.read<GridBloc>().databaseController.fieldController,
           anchorScrollController: headerScrollController,
         );
       },
@@ -301,32 +299,33 @@ class _GridRows extends StatelessWidget {
     final rowCache = context.read<GridBloc>().getRowCache(rowId);
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
-    /// Return placeholder widget if the rowMeta is null.
-    if (rowMeta == null) return const SizedBox.shrink();
+    if (rowMeta == null) {
+      Log.warn('RowMeta is null for rowId: $rowId');
+      return const SizedBox.shrink();
+    }
 
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
-    final dataController = RowController(
+    final rowController = RowController(
       viewId: viewId,
       rowMeta: rowMeta,
       rowCache: rowCache,
     );
 
-    final child = GridRow(
+    final child = MobileGridRow(
       key: ValueKey(rowMeta.id),
       rowId: rowId,
       viewId: viewId,
-      index: index,
       isDraggable: isDraggable,
-      dataController: dataController,
-      cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+      dataController: rowController,
+      cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
       openDetailPage: (context, cellBuilder) {
-        _openRowDetailPage(
-          context,
-          rowId,
-          fieldController,
-          rowCache,
-          cellBuilder,
+        context.push(
+          MobileCardDetailScreen.routeName,
+          extra: {
+            MobileCardDetailScreen.argRowController: rowController,
+            MobileCardDetailScreen.argFieldController: fieldController,
+          },
         );
       },
     );
@@ -339,36 +338,6 @@ class _GridRows extends StatelessWidget {
     }
 
     return child;
-  }
-
-  void _openRowDetailPage(
-    BuildContext context,
-    RowId rowId,
-    FieldController fieldController,
-    RowCache rowCache,
-    GridCellBuilder cellBuilder,
-  ) {
-    final rowMeta = rowCache.getRow(rowId)?.rowMeta;
-    // Most of the cases, the rowMeta should not be null.
-    if (rowMeta != null) {
-      final dataController = RowController(
-        viewId: viewId,
-        rowMeta: rowMeta,
-        rowCache: rowCache,
-      );
-
-      FlowyOverlay.show(
-        context: context,
-        builder: (BuildContext context) {
-          return RowDetailPage(
-            cellBuilder: cellBuilder,
-            rowController: dataController,
-          );
-        },
-      );
-    } else {
-      Log.warn('RowMeta is null for rowId: $rowId');
-    }
   }
 }
 

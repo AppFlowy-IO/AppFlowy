@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
@@ -26,14 +27,18 @@ class MobileCardDetailScreen extends StatefulWidget {
     required this.rowController,
     this.scrollController,
     this.isBottemSheet = false,
+    required this.fieldController,
   });
 
   static const routeName = '/MobileCardDetailScreen';
   static const argRowController = 'rowController';
   static const argCellBuilder = 'cellBuilder';
+  static const argFieldController = 'fieldController';
+
   final RowController rowController;
   final ScrollController? scrollController;
   final bool isBottemSheet;
+  final FieldController fieldController;
 
   @override
   State<MobileCardDetailScreen> createState() => _MobileCardDetailScreenState();
@@ -173,6 +178,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
               MobileRowPropertyList(
                 cellBuilder: _cellBuilder,
                 viewId: widget.rowController.viewId,
+                fieldController: widget.fieldController,
               ),
               const Divider(),
               const VSpace(16),

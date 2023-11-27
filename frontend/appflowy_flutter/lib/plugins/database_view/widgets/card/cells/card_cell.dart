@@ -1,9 +1,9 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -160,11 +160,8 @@ class EditableRowNotifier {
   }
 
   void dispose() {
-    for (final notifier in _cells.values) {
-      notifier.dispose();
-    }
-
-    _cells.clear();
+    unbind();
+    isEditing.dispose();
   }
 }
 

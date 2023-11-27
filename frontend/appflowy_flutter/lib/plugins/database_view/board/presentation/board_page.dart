@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
+import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
@@ -13,23 +14,24 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/util/platform_extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../widgets/card/cells/card_cell.dart';
+import '../../widgets/card/card.dart';
 import '../../widgets/card/card_cell_builder.dart';
+import '../../widgets/card/cells/card_cell.dart';
 import '../../widgets/row/cell_builder.dart';
 import '../application/board_bloc.dart';
-import '../../widgets/card/card.dart';
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';
 
@@ -170,10 +172,12 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
               boardScrollController: scrollManager,
               scrollController: scrollController,
               controller: context.read<BoardBloc>().boardController,
-              groupConstraints: const BoxConstraints.tightFor(width: 300),
+              groupConstraints: const BoxConstraints.tightFor(width: 256),
               config: const AppFlowyBoardConfig(
                 groupMargin: EdgeInsets.symmetric(horizontal: 4),
                 groupBodyPadding: EdgeInsets.symmetric(horizontal: 4),
+                groupFooterPadding: EdgeInsets.fromLTRB(4, 14, 4, 4),
+                stretchGroupHeight: false,
               ),
               leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
               trailing: showCreateGroupButton
@@ -211,7 +215,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
     return AppFlowyGroupFooter(
-      height: 50,
+      height: 36,
       margin: config.groupFooterPadding,
       icon: SizedBox(
         height: 20,
@@ -224,7 +228,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       title: FlowyText.medium(
         LocaleKeys.board_column_createNewCard.tr(),
         color: Theme.of(context).hintColor,
-        fontSize: 14,
       ),
       onAddButtonClick: () => context
           .read<BoardBloc>()
@@ -277,6 +280,14 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
           rowMeta: rowMeta,
           rowCache: rowCache,
         ),
+        styleConfiguration: RowCardStyleConfiguration(
+          hoverStyle: HoverStyle(
+            hoverColor: Theme.of(context).brightness == Brightness.light
+                ? const Color(0x0F1F2329)
+                : const Color(0x0FEFF4FB),
+            foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
         onStartEditing: () => boardBloc
             .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
         onEndEditing: () =>
@@ -291,8 +302,10 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       borderRadius: const BorderRadius.all(Radius.circular(6)),
       border: Border.fromBorderSide(
         BorderSide(
-          color: Theme.of(context).dividerColor,
-          width: 1.4,
+          color: Theme.of(context).brightness == Brightness.light
+              ? const Color(0xFF1F2329).withOpacity(0.12)
+              : const Color(0xFF59647A),
+          width: 1.0,
         ),
       ),
       boxShadow: [
@@ -335,6 +348,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     FlowyOverlay.show(
       context: context,
       builder: (_) => RowDetailPage(
+        fieldController: fieldController,
         cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
         rowController: dataController,
       ),
@@ -374,11 +388,15 @@ class _BoardTrailingState extends State<BoardTrailing> {
         }
         return KeyEventResult.ignored;
       },
-    )..addListener(() {
-        if (!_focusNode.hasFocus) {
-          _cancelAddNewGroup();
-        }
-      });
+    )..addListener(_onFocusChanged);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChanged);
+    _focusNode.dispose();
+    _textController.dispose();
+    super.dispose();
   }
 
   @override
@@ -442,5 +460,11 @@ class _BoardTrailingState extends State<BoardTrailing> {
         ),
       ),
     );
+  }
+
+  void _onFocusChanged() {
+    if (!_focusNode.hasFocus) {
+      _cancelAddNewGroup();
+    }
   }
 }

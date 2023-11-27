@@ -3,16 +3,19 @@ import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
+import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_block_settings_screen.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -68,10 +71,18 @@ GoRouter generateRouter(Widget child) {
         _mobileEmojiPickerPageRoute(),
         _mobileImagePickerPageRoute(),
 
+        // color picker
+        _mobileColorPickerPageRoute(),
+
         // code language picker
         _mobileCodeLanguagePickerPageRoute(),
         _mobileLanguagePickerPageRoute(),
         _mobileFontPickerPageRoute(),
+
+        // calendar related
+        _mobileCalendarEventsPageRoute(),
+
+        _mobileBlockSettingsPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -225,6 +236,26 @@ GoRoute _mobileHomeTrashPageRoute() {
   );
 }
 
+GoRoute _mobileBlockSettingsPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileBlockSettingsScreen.routeName,
+    pageBuilder: (context, state) {
+      final actionsString =
+          state.uri.queryParameters[MobileBlockSettingsScreen.supportedActions];
+      final actions = actionsString
+          ?.split(',')
+          .map(MobileBlockActionType.fromActionString)
+          .toList();
+      return MaterialPage(
+        child: MobileBlockSettingsScreen(
+          actions: actions ?? MobileBlockActionType.standard,
+        ),
+      );
+    },
+  );
+}
+
 GoRoute _mobileEmojiPickerPageRoute() {
   return GoRoute(
     parentNavigatorKey: AppGlobals.rootNavKey,
@@ -234,6 +265,22 @@ GoRoute _mobileEmojiPickerPageRoute() {
           state.uri.queryParameters[MobileEmojiPickerScreen.pageTitle];
       return MaterialPage(
         child: MobileEmojiPickerScreen(
+          title: title,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileColorPickerPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileColorPickerScreen.routeName,
+    pageBuilder: (context, state) {
+      final title =
+          state.uri.queryParameters[MobileColorPickerScreen.pageTitle] ?? '';
+      return MaterialPage(
+        child: MobileColorPickerScreen(
           title: title,
         ),
       );
@@ -284,6 +331,25 @@ GoRoute _mobileFontPickerPageRoute() {
     pageBuilder: (context, state) {
       return const MaterialPage(
         child: FontPickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCalendarEventsPageRoute() {
+  return GoRoute(
+    path: MobileCalendarEventsScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+
+      return MaterialPage(
+        child: MobileCalendarEventsScreen(
+          calendarBloc: args[MobileCalendarEventsScreen.calendarBlocKey],
+          date: args[MobileCalendarEventsScreen.calendarDateKey],
+          events: args[MobileCalendarEventsScreen.calendarEventsKey],
+          rowCache: args[MobileCalendarEventsScreen.calendarRowCacheKey],
+          viewId: args[MobileCalendarEventsScreen.calendarViewIdKey],
+        ),
       );
     },
   );
@@ -432,10 +498,12 @@ GoRoute _mobileCardDetailScreenRoute() {
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
       final rowController = args[MobileCardDetailScreen.argRowController];
+      final fieldController = args[MobileCardDetailScreen.argFieldController];
 
       return MaterialPage(
         child: MobileCardDetailScreen(
           rowController: rowController,
+          fieldController: fieldController,
         ),
       );
     },
@@ -449,6 +517,7 @@ GoRoute _mobileCardPropertyEditScreenRoute() {
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
       final cellContext = args[CardPropertyEditScreen.argCellContext];
+      final fieldController = args[CardPropertyEditScreen.argFieldController];
       final rowDetailBloc = args[CardPropertyEditScreen.argRowDetailBloc];
 
       return MaterialPage(
@@ -456,6 +525,7 @@ GoRoute _mobileCardPropertyEditScreenRoute() {
           value: rowDetailBloc as RowDetailBloc,
           child: CardPropertyEditScreen(
             cellContext: cellContext,
+            fieldController: fieldController,
           ),
         ),
       );
@@ -486,11 +556,16 @@ GoRoute _mobileCreateRowFieldScreenRoute() {
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
       final viewId = args[MobileCreateRowFieldScreen.argViewId];
+      final fieldController =
+          args[MobileCreateRowFieldScreen.argFieldController];
       final typeOption = args[MobileCreateRowFieldScreen.argTypeOption];
 
       return MaterialPage(
-        child:
-            MobileCreateRowFieldScreen(viewId: viewId, typeOption: typeOption),
+        child: MobileCreateRowFieldScreen(
+          viewId: viewId,
+          typeOption: typeOption,
+          fieldController: fieldController,
+        ),
         fullscreenDialog: true,
       );
     },
