@@ -26,11 +26,19 @@ class TypeOptionBackendService {
   static Future<Either<TypeOptionPB, FlowyError>> createFieldTypeOption({
     required String viewId,
     FieldType fieldType = FieldType.RichText,
+    CreateFieldPosition position = CreateFieldPosition.End,
+    String? targetFieldId,
   }) {
     final payload = CreateFieldPayloadPB.create()
       ..viewId = viewId
-      ..fieldType = FieldType.RichText
-      ..fieldPosition = CreateFieldPosition.End;
+      ..fieldType = FieldType.RichText;
+
+    if (position == CreateFieldPosition.Before ||
+        position == CreateFieldPosition.After && targetFieldId != null) {
+      payload.targetFieldId = targetFieldId!;
+    }
+
+    payload.fieldPosition = position;
 
     return DatabaseEventCreateField(payload).send();
   }
