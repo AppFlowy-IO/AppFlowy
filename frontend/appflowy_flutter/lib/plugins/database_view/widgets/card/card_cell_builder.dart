@@ -1,4 +1,6 @@
+import 'package:appflowy/mobile/presentation/database/card/card_content/card_cells/card_cells.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database_view/widgets/card/cells/timestamp_card_cell.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +13,6 @@ import 'cells/date_card_cell.dart';
 import 'cells/number_card_cell.dart';
 import 'cells/select_option_card_cell.dart';
 import 'cells/text_card_cell.dart';
-import 'cells/timestamp_card_cell.dart';
 import 'cells/url_card_cell.dart';
 
 // T represents as the Generic card data
@@ -153,43 +154,41 @@ class CardCellBuilder<CustomCardData> {
     required bool hasNotes,
   }) {
     switch (cellContext.fieldType) {
-      // TODO（yijing): refactor all the card cell to mobile
       case FieldType.Checkbox:
-        return CheckboxCardCell(
+        return MobileCheckboxCardCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.DateTime:
-        return DateCardCell<CustomCardData>(
+        return MobileDateCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.DateTime],
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.LastEditedTime:
-        return TimestampCardCell<CustomCardData>(
+        return MobileTimestampCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.LastEditedTime],
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.CreatedTime:
-        return TimestampCardCell<CustomCardData>(
+        return MobileTimestampCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.CreatedTime],
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.SingleSelect:
-        return SelectOptionCardCell<CustomCardData>(
+        return MobileSelectOptionCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.SingleSelect],
           cellControllerBuilder: cellControllerBuilder,
           cardData: cardData,
           key: key,
         );
       case FieldType.MultiSelect:
-        return SelectOptionCardCell<CustomCardData>(
+        return MobileSelectOptionCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.MultiSelect],
           cellControllerBuilder: cellControllerBuilder,
           cardData: cardData,
-          editableNotifier: cellNotifier,
           key: key,
         );
       case FieldType.Checklist:
@@ -198,25 +197,20 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.Number:
-        return NumberCardCell<CustomCardData>(
+        return MobileNumberCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.Number],
-          style: isStyleOrNull<NumberCardCellStyle>(style),
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.RichText:
-        return TextCardCell<CustomCardData>(
+        return MobileTextCardCell<CustomCardData>(
           key: key,
-          style: isStyleOrNull<TextCardCellStyle>(style),
           cardData: cardData,
           renderHook: renderHook?.renderHook[FieldType.RichText],
           cellControllerBuilder: cellControllerBuilder,
-          editableNotifier: cellNotifier,
-          showNotes: cellContext.fieldInfo.isPrimary && hasNotes,
         );
       case FieldType.URL:
-        return URLCardCell<CustomCardData>(
-          style: isStyleOrNull<URLCardCellStyle>(style),
+        return MobileURLCardCell<CustomCardData>(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
