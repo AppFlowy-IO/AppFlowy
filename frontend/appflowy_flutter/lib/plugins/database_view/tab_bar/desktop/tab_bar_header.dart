@@ -206,8 +206,8 @@ class TabBarItemButton extends StatelessWidget {
             onSecondaryTap: () {
               controller.show();
             },
-            leftIcon: FlowySvg(
-              view.iconData,
+            leftIcon: view.defaultIcon(
+              context,
               size: const Size(14, 14),
               color: color,
             ),

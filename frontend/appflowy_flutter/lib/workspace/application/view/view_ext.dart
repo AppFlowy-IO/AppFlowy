@@ -44,35 +44,16 @@ extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
     return const FlowySvg(
       FlowySvgs.document_s,
+      blendMode: null,
     );
   }
 
-  Widget defaultIcon(BuildContext context) {
-    final isLight = context.isLightMode;
-
-    if (isLight) {
-      return FlowySvg(
-        switch (layout) {
-          ViewLayoutPB.Board => FlowySvgs.board_s,
-          ViewLayoutPB.Calendar => FlowySvgs.date_s,
-          ViewLayoutPB.Grid => FlowySvgs.grid_s,
-          ViewLayoutPB.Document => FlowySvgs.document_s,
-          _ => FlowySvgs.document_s,
-        },
-        blendMode: null,
-      );
-    } else {
-      return FlowySvg(
-        switch (layout) {
-          ViewLayoutPB.Board => FlowySvgs.board_dark_s,
-          ViewLayoutPB.Calendar => FlowySvgs.date_dark_s,
-          ViewLayoutPB.Grid => FlowySvgs.grid_dark_s,
-          ViewLayoutPB.Document => FlowySvgs.document_dark_s,
-          _ => FlowySvgs.document_s,
-        },
-        blendMode: null,
-      );
-    }
+  Widget defaultIcon(
+    BuildContext context, {
+    Size? size,
+    Color? color,
+  }) {
+    return layout.icon(context, size: size);
   }
 
   PluginType get pluginType {
@@ -135,8 +116,6 @@ extension ViewExtension on ViewPB {
     }
   }
 
-  FlowySvgData get iconData => layout.icon;
-
   Future<List<ViewPB>> getAncestors({
     bool includeSelf = false,
     bool includeRoot = false,
@@ -161,18 +140,37 @@ extension ViewExtension on ViewPB {
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
-  FlowySvgData get icon {
-    switch (this) {
-      case ViewLayoutPB.Grid:
-        return FlowySvgs.grid_s;
-      case ViewLayoutPB.Board:
-        return FlowySvgs.board_s;
-      case ViewLayoutPB.Calendar:
-        return FlowySvgs.date_s;
-      case ViewLayoutPB.Document:
-        return FlowySvgs.document_s;
-      default:
-        throw Exception('Unknown layout type');
+  Widget icon(
+    BuildContext context, {
+    Size? size,
+    Color? color,
+  }) {
+    return FlowySvg(
+      iconData(context),
+      blendMode: null,
+      size: size,
+      color: color,
+    );
+  }
+
+  FlowySvgData iconData(BuildContext context) {
+    final isLight = context.isLightMode;
+    if (isLight) {
+      return switch (this) {
+        ViewLayoutPB.Board => FlowySvgs.board_s,
+        ViewLayoutPB.Calendar => FlowySvgs.date_s,
+        ViewLayoutPB.Grid => FlowySvgs.grid_s,
+        ViewLayoutPB.Document => FlowySvgs.document_s,
+        _ => FlowySvgs.document_s,
+      };
+    } else {
+      return switch (this) {
+        ViewLayoutPB.Board => FlowySvgs.board_dark_s,
+        ViewLayoutPB.Calendar => FlowySvgs.date_dark_s,
+        ViewLayoutPB.Grid => FlowySvgs.grid_dark_s,
+        ViewLayoutPB.Document => FlowySvgs.document_dark_s,
+        _ => FlowySvgs.document_s,
+      };
     }
   }
 
