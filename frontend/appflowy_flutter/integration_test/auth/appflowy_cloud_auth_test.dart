@@ -5,7 +5,9 @@ import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflow
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:integration_test/integration_test.dart';
+import '../util/mock/mock_file_picker.dart';
 import '../util/util.dart';
 
 void main() {
@@ -71,6 +73,44 @@ void main() {
       // the switch should be on after toggling
       await tester.toggleEnableSync(AppFlowyCloudEnableSync);
       tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
+    });
+
+    testWidgets('custom folder sign in', (tester) async {
+      const userA = 'UserA';
+      final initialPath = p.join(userA, appFlowyDataFolder);
+      final context = await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloud,
+        pathExtension: initialPath,
+      );
+      // remove the last extension
+      final rootPath = context.applicationDataDirectory.replaceFirst(
+        initialPath,
+        '',
+      );
+      await tester.tapGoogleLoginInButton();
+
+      // Open the setting page and sign out
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      await tester.enterUserName(userA);
+
+      await tester.openSettingsPage(SettingsPage.files);
+      await tester.pumpAndSettle();
+
+      // mock the file_picker result
+      await mockGetDirectoryPath(
+        p.join(rootPath, "random_folder"),
+      );
+      await tester.tapCustomLocationButton();
+      tester.expectToSeeHomePage();
+      await tester.pumpAndSettle();
+
+      // Login again
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      await tester.tapGoogleLoginInButton();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      tester.expectToSeeHomePage();
     });
   });
 }

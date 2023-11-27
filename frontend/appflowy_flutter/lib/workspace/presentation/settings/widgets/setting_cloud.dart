@@ -1,4 +1,5 @@
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/cloud_setting_bloc.dart';
@@ -30,29 +31,30 @@ class SettingCloud extends StatelessWidget {
               builder: (context, state) {
                 return Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FlowyText.medium(
-                            LocaleKeys.settings_menu_cloudServerType.tr(),
+                    if (Env.enableCustomCloud)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FlowyText.medium(
+                              LocaleKeys.settings_menu_cloudServerType.tr(),
+                            ),
                           ),
-                        ),
-                        Tooltip(
-                          message:
-                              LocaleKeys.settings_menu_cloudServerTypeTip.tr(),
-                          child: CloudTypeSwitcher(
-                            cloudType: state.cloudType,
-                            onSelected: (newCloudType) {
-                              context.read<CloudSettingBloc>().add(
-                                    CloudSettingEvent.updateCloudType(
-                                      newCloudType,
-                                    ),
-                                  );
-                            },
+                          Tooltip(
+                            message: LocaleKeys.settings_menu_cloudServerTypeTip
+                                .tr(),
+                            child: CloudTypeSwitcher(
+                              cloudType: state.cloudType,
+                              onSelected: (newCloudType) {
+                                context.read<CloudSettingBloc>().add(
+                                      CloudSettingEvent.updateCloudType(
+                                        newCloudType,
+                                      ),
+                                    );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                     _viewFromCloudType(state.cloudType),
                   ],
                 );

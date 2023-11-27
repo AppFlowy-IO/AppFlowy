@@ -1,6 +1,7 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/env/backend_env.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:dartz/dartz.dart';
@@ -70,7 +71,9 @@ Future<AuthenticatorType> getAuthenticatorType() async {
 /// Returns `false` otherwise.
 bool get isAuthEnabled {
   // Only enable supabase in release and develop mode.
-  if (integrationMode().isRelease || integrationMode().isDevelop) {
+  if (integrationMode().isRelease ||
+      integrationMode().isDevelop ||
+      integrationMode().isIntegrationTest) {
     final env = getIt<AppFlowyCloudSharedEnv>();
     if (env.authenticatorType == AuthenticatorType.local) {
       return false;
@@ -101,7 +104,9 @@ bool get isAuthEnabled {
 /// is `CloudType.supabase`. Otherwise, it returns `false`.
 bool get isSupabaseEnabled {
   // Only enable supabase in release and develop mode.
-  if (integrationMode().isRelease || integrationMode().isDevelop) {
+  if (integrationMode().isRelease ||
+      integrationMode().isDevelop ||
+      integrationMode().isIntegrationTest) {
     return currentCloudType() == AuthenticatorType.supabase;
   } else {
     return false;
@@ -119,7 +124,9 @@ bool get isSupabaseEnabled {
 /// cloud type is `CloudType.appflowyCloud`. Otherwise, it returns `false`.
 bool get isAppFlowyCloudEnabled {
   // Only enable appflowy cloud in release and develop mode.
-  if (integrationMode().isRelease || integrationMode().isDevelop) {
+  if (integrationMode().isRelease ||
+      integrationMode().isDevelop ||
+      integrationMode().isIntegrationTest) {
     return currentCloudType() == AuthenticatorType.appflowyCloud;
   } else {
     return false;
@@ -170,22 +177,52 @@ Future<void> setAppFlowyCloudUrl(Option<String> url) async {
 
 /// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
 class AppFlowyCloudSharedEnv {
-  final AuthenticatorType authenticatorType;
+  final AuthenticatorType _authenticatorType;
   final AppFlowyCloudConfiguration appflowyCloudConfig;
   final SupabaseConfiguration supabaseConfig;
 
   AppFlowyCloudSharedEnv({
-    required this.authenticatorType,
+    required AuthenticatorType authenticatorType,
     required this.appflowyCloudConfig,
     required this.supabaseConfig,
-  });
+  }) : _authenticatorType = authenticatorType;
+
+  AuthenticatorType get authenticatorType => _authenticatorType;
+
+  static Future<AppFlowyCloudSharedEnv> fromEnv() async {
+    if (Env.enableCustomCloud) {
+      // Use the custom cloud configuration.
+      final cloudType = await getAuthenticatorType();
+      final appflowyCloudConfig = await getAppFlowyCloudConfig();
+      final supabaseCloudConfig = await getSupabaseCloudConfig();
+
+      return AppFlowyCloudSharedEnv(
+        authenticatorType: cloudType,
+        appflowyCloudConfig: appflowyCloudConfig,
+        supabaseConfig: supabaseCloudConfig,
+      );
+    } else {
+      final appflowyCloudConfig = AppFlowyCloudConfiguration(
+        base_url: Env.afCloudUrl,
+        ws_base_url: await _getAppFlowyCloudWSUrl(Env.afCloudUrl),
+        gotrue_url: await _getAppFlowyCloudGotrueUrl(Env.afCloudUrl),
+      );
+
+      return AppFlowyCloudSharedEnv(
+        authenticatorType: AuthenticatorType.fromValue(Env.authenticatorType),
+        appflowyCloudConfig: appflowyCloudConfig,
+        supabaseConfig: SupabaseConfiguration.defaultConfig(),
+      );
+    }
+  }
 }
 
 Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig() async {
+  final baseURL = await getAppFlowyCloudUrl();
   return AppFlowyCloudConfiguration(
-    base_url: await getAppFlowyCloudUrl(),
-    ws_base_url: await _getAppFlowyCloudWSUrl(),
-    gotrue_url: await _getAppFlowyCloudGotrueUrl(),
+    base_url: baseURL,
+    ws_base_url: await _getAppFlowyCloudWSUrl(baseURL),
+    gotrue_url: await _getAppFlowyCloudGotrueUrl(baseURL),
   );
 }
 
@@ -198,10 +235,9 @@ Future<String> getAppFlowyCloudUrl() async {
   );
 }
 
-Future<String> _getAppFlowyCloudWSUrl() async {
+Future<String> _getAppFlowyCloudWSUrl(String baseURL) async {
   try {
-    final serverUrl = await getAppFlowyCloudUrl();
-    final uri = Uri.parse(serverUrl);
+    final uri = Uri.parse(baseURL);
 
     // Construct the WebSocket URL directly from the parsed URI.
     final wsScheme = uri.isScheme('HTTPS') ? 'wss' : 'ws';
@@ -214,9 +250,8 @@ Future<String> _getAppFlowyCloudWSUrl() async {
   }
 }
 
-Future<String> _getAppFlowyCloudGotrueUrl() async {
-  final serverUrl = await getAppFlowyCloudUrl();
-  return "$serverUrl/gotrue";
+Future<String> _getAppFlowyCloudGotrueUrl(String baseURL) async {
+  return "$baseURL/gotrue";
 }
 
 Future<void> setSupbaseServer(

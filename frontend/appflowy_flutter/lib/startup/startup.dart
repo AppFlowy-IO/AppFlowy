@@ -35,6 +35,8 @@ Future<void> runAppFlowy() async {
 }
 
 class FlowyRunner {
+  static var currentMode = integrationMode();
+
   static Future<FlowyRunnerContext> run(
     EntryPoint f,
     IntegrationMode mode, {
@@ -50,6 +52,7 @@ class FlowyRunner {
     // sign in, and the app will only save the data in the local storage.
     bool isAnon = false,
   }) async {
+    currentMode = mode;
     // Clear all the states in case of rebuilding.
     await getIt.reset();
 

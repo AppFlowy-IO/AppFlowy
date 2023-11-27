@@ -1,3 +1,4 @@
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
@@ -50,7 +51,16 @@ class SettingAppFlowyCloudView extends StatelessWidget {
         children: [
           const AppFlowyCloudEnableSync(),
           const VSpace(40),
-          AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
+          if (Env.enableCustomCloud)
+            AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
+          if (!Env.enableCustomCloud)
+            Row(
+              children: [
+                FlowyText(LocaleKeys.settings_menu_cloudServerType.tr()),
+                const Spacer(),
+                const FlowyText(Env.afCloudUrl),
+              ],
+            )
         ],
       ),
     );
