@@ -9,14 +9,12 @@ class BottomSheetActionWidget extends StatelessWidget {
     required this.text,
     required this.onTap,
     this.iconColor,
-    this.blendMode = BlendMode.srcIn,
   });
 
   final FlowySvgData? svg;
   final String text;
   final VoidCallback onTap;
   final Color? iconColor;
-  final BlendMode? blendMode;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +40,6 @@ class BottomSheetActionWidget extends StatelessWidget {
         svg!,
         size: const Size.square(22.0),
         color: iconColor,
-        blendMode: blendMode,
       ),
       label: FlowyText(
         text,

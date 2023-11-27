@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -81,7 +82,10 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const HSpace(4),
-                  view.defaultIcon(context, size: const Size.square(18.0)),
+                  FlowySvg(
+                    view.layout.icon,
+                    size: const Size.square(18.0),
+                  ),
                   const HSpace(2),
                   FlowyText(
                     view.name,
