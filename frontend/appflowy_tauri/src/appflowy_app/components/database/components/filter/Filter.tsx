@@ -11,6 +11,7 @@ import { useViewId } from '$app/hooks';
 import SelectFilter from './select_filter/SelectFilter';
 import NumberFilter from '$app/components/database/components/filter/number_filter/NumberFilter';
 import CheckboxFilter from '$app/components/database/components/filter/checkbox_filter/CheckboxFilter';
+import ChecklistFilter from '$app/components/database/components/filter/checklist_filter/ChecklistFilter';
 
 interface Props {
   filter: FilterType;
@@ -36,6 +37,8 @@ const getFilterComponent = (field: FieldData) => {
       return NumberFilter as FilterComponent;
     case FieldType.Checkbox:
       return CheckboxFilter as FilterComponent;
+    case FieldType.Checklist:
+      return ChecklistFilter as FilterComponent;
     default:
       return null;
   }

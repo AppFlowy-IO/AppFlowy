@@ -6,6 +6,10 @@ import {
   SelectOptionCellDataPB,
   URLCellDataPB,
 } from '@/services/backend';
+import {
+  SelectOption,
+  pbToSelectOption,
+} from '$app/components/database/application/field/select_option/select_option_types';
 
 export interface Cell {
   rowId: string;
@@ -71,9 +75,17 @@ export interface ChecklistCellData {
    */
   selectedOptions?: string[];
   percentage?: number;
+  options?: SelectOption[];
 }
 
-export type UndeterminedCell = TextCell | NumberCell | DateTimeCell | SelectCell | CheckboxCell | UrlCell | ChecklistCell;
+export type UndeterminedCell =
+  | TextCell
+  | NumberCell
+  | DateTimeCell
+  | SelectCell
+  | CheckboxCell
+  | UrlCell
+  | ChecklistCell;
 
 const pbToDateCellData = (pb: DateCellDataPB): DateTimeCellData => ({
   date: pb.date,
@@ -84,7 +96,7 @@ const pbToDateCellData = (pb: DateCellDataPB): DateTimeCellData => ({
 
 export const pbToSelectCellData = (pb: SelectOptionCellDataPB): SelectCellData => {
   return {
-    selectedOptionIds: pb.select_options.map(option => option.id),
+    selectedOptionIds: pb.select_options.map((option) => option.id),
   };
 };
 
@@ -96,6 +108,7 @@ const pbToURLCellData = (pb: URLCellDataPB): UrlCellData => ({
 export const pbToChecklistCellData = (pb: ChecklistCellDataPB): ChecklistCellData => ({
   selectedOptions: pb.selected_options.map(({ id }) => id),
   percentage: pb.percentage,
+  options: pb.options.map(pbToSelectOption),
 });
 
 function bytesToCellData(bytes: Uint8Array, fieldType: FieldType) {

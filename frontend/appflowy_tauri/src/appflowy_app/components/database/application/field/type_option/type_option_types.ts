@@ -8,6 +8,7 @@ import {
   RichTextTypeOptionPB,
   SingleSelectTypeOptionPB,
   TimeFormatPB,
+  ChecklistTypeOptionPB,
 } from '@/services/backend';
 import { pbToSelectOption, SelectOption } from '../select_option';
 
@@ -38,7 +39,16 @@ export interface CheckboxTypeOption {
   isSelected?: boolean;
 }
 
-export type UndeterminedTypeOptionData = TextTypeOption | NumberTypeOption | SelectTypeOption | CheckboxTypeOption;
+export interface ChecklistTypeOption {
+  config?: string;
+}
+
+export type UndeterminedTypeOptionData =
+  | TextTypeOption
+  | NumberTypeOption
+  | SelectTypeOption
+  | CheckboxTypeOption
+  | ChecklistTypeOption;
 
 export function typeOptionDataToPB(data: UndeterminedTypeOptionData, fieldType: FieldType) {
   switch (fieldType) {
@@ -62,6 +72,12 @@ function pbToCheckboxTypeOption(pb: CheckboxTypeOptionPB): CheckboxTypeOption {
   };
 }
 
+function pbToChecklistTypeOption(pb: ChecklistTypeOptionPB): ChecklistTypeOption {
+  return {
+    config: pb.config,
+  };
+}
+
 export function bytesToTypeOption(data: Uint8Array, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
@@ -74,5 +90,7 @@ export function bytesToTypeOption(data: Uint8Array, fieldType: FieldType) {
       return pbToSelectTypeOption(MultiSelectTypeOptionPB.deserialize(data));
     case FieldType.Checkbox:
       return pbToCheckboxTypeOption(CheckboxTypeOptionPB.deserialize(data));
+    case FieldType.Checklist:
+      return pbToChecklistTypeOption(ChecklistTypeOptionPB.deserialize(data));
   }
 }

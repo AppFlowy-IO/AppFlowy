@@ -9,6 +9,8 @@ import {
   SelectOptionFilterPB,
   TextFilterConditionPB,
   TextFilterPB,
+  ChecklistFilterConditionPB,
+  ChecklistFilterPB,
 } from '@/services/backend';
 
 export interface Filter {
@@ -47,6 +49,15 @@ export interface CheckboxFilterData {
   condition?: CheckboxFilterConditionPB;
 }
 
+export interface ChecklistFilter extends Filter {
+  fieldType: FieldType.Checklist;
+  data: ChecklistFilterData;
+}
+
+export interface ChecklistFilterData {
+  condition?: ChecklistFilterConditionPB;
+}
+
 export interface SelectFilterData {
   condition?: SelectOptionConditionPB;
   optionIds?: string[];
@@ -57,7 +68,7 @@ export interface NumberFilterData {
   content?: string;
 }
 
-export type UndeterminedFilter = TextFilter | SelectFilter | NumberFilter;
+export type UndeterminedFilter = TextFilter | SelectFilter | NumberFilter | CheckboxFilter | ChecklistFilter;
 
 export function filterDataToPB(data: UndeterminedFilter['data'], fieldType: FieldType) {
   switch (fieldType) {
@@ -81,6 +92,10 @@ export function filterDataToPB(data: UndeterminedFilter['data'], fieldType: Fiel
     case FieldType.Checkbox:
       return CheckboxFilterPB.fromObject({
         condition: (data as CheckboxFilterData).condition,
+      });
+    case FieldType.Checklist:
+      return ChecklistFilterPB.fromObject({
+        condition: (data as ChecklistFilterData).condition,
       });
   }
 }
@@ -112,6 +127,12 @@ export function pbToCheckboxFilterData(pb: CheckboxFilterPB): CheckboxFilterData
   };
 }
 
+export function pbToChecklistFilterData(pb: ChecklistFilterPB): ChecklistFilterData {
+  return {
+    condition: pb.condition,
+  };
+}
+
 export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
@@ -124,6 +145,8 @@ export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
       return pbToNumberFilterData(NumberFilterPB.deserialize(bytes));
     case FieldType.Checkbox:
       return pbToCheckboxFilterData(CheckboxFilterPB.deserialize(bytes));
+    case FieldType.Checklist:
+      return pbToChecklistFilterData(ChecklistFilterPB.deserialize(bytes));
   }
 }
 

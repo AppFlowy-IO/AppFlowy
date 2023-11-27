@@ -1,5 +1,10 @@
 import { FieldPB, FieldType, FieldVisibility } from '@/services/backend';
-import { DateTimeTypeOption, NumberTypeOption, SelectTypeOption } from './type_option/type_option_types';
+import {
+  DateTimeTypeOption,
+  NumberTypeOption,
+  SelectTypeOption,
+  ChecklistTypeOption,
+} from './type_option/type_option_types';
 
 export interface Field {
   id: string;
@@ -24,6 +29,11 @@ export interface DateTimeField extends Field {
 export interface SelectField extends Field {
   type: FieldType.SingleSelect | FieldType.MultiSelect;
   typeOption: SelectTypeOption;
+}
+
+export interface ChecklistField extends Field {
+  type: FieldType.Checklist;
+  typeOption: ChecklistTypeOption;
 }
 
 export type UndeterminedField = NumberField | DateTimeField | SelectField | Field;
