@@ -158,7 +158,7 @@ class _GridPageContentState extends State<GridPageContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: EdgeInsets.only(right: GridSize.leadingHeaderPadding),
               child:
                   _GridHeader(headerScrollController: headerScrollController),
             ),
@@ -266,6 +266,14 @@ class _GridRows extends StatelessWidget {
       },
       itemCount: rowInfos.length,
       itemBuilder: (context, index) => children[index],
+      header: Padding(
+        padding: EdgeInsets.only(left: GridSize.leadingHeaderPadding),
+        child: Container(
+          height: 1,
+          width: contentWidth,
+          color: Theme.of(context).dividerColor,
+        ),
+      ),
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
