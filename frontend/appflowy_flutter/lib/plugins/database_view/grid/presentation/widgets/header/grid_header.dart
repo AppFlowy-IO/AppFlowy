@@ -104,11 +104,12 @@ class _GridHeaderState extends State<_GridHeader> {
                           .add(GridHeaderEvent.startEditingField(fieldInfo.id)),
                       onFieldInsertedOnEitherSide: (fieldId) => context
                           .read<GridHeaderBloc>()
-                          .add(GridHeaderEvent.startEditingField(fieldId)),
-                      onEditorClosed: () => context
+                          .add(GridHeaderEvent.startEditingNewField(fieldId)),
+                      onEditorOpened: () => context
                           .read<GridHeaderBloc>()
                           .add(const GridHeaderEvent.endEditingField()),
                       isEditing: state.editingFieldId == fieldInfo.id,
+                      isNew: state.newFieldId == fieldInfo.id,
                     )
                   : MobileFieldButton(
                       key: _getKeyById(fieldInfo.id),
@@ -194,7 +195,7 @@ class _CellTrailing extends StatelessWidget {
         viewId: viewId,
         onFieldCreated: (fieldId) => context
             .read<GridHeaderBloc>()
-            .add(GridHeaderEvent.startEditingField(fieldId)),
+            .add(GridHeaderEvent.startEditingNewField(fieldId)),
       ),
     );
   }

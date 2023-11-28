@@ -22,18 +22,20 @@ class GridFieldCell extends StatefulWidget {
     required this.fieldController,
     required this.fieldInfo,
     required this.onTap,
-    required this.onEditorClosed,
+    required this.onEditorOpened,
     required this.onFieldInsertedOnEitherSide,
     required this.isEditing,
+    required this.isNew,
   });
 
   final String viewId;
   final FieldController fieldController;
   final FieldInfo fieldInfo;
   final VoidCallback onTap;
-  final VoidCallback onEditorClosed;
+  final VoidCallback onEditorOpened;
   final void Function(String fieldId) onFieldInsertedOnEitherSide;
   final bool isEditing;
+  final bool isNew;
 
   @override
   State<GridFieldCell> createState() => _GridFieldCellState();
@@ -80,13 +82,15 @@ class _GridFieldCellState extends State<GridFieldCell> {
             margin: EdgeInsets.zero,
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
-            onClose: widget.onEditorClosed,
             popupBuilder: (BuildContext context) {
+              widget.onEditorOpened();
               return FieldEditor(
                 viewId: widget.viewId,
                 fieldController: widget.fieldController,
                 field: widget.fieldInfo.field,
-                initialPage: FieldEditorPage.general,
+                initialPage: widget.isNew
+                    ? FieldEditorPage.details
+                    : FieldEditorPage.general,
                 onFieldInserted: widget.onFieldInsertedOnEitherSide,
               );
             },

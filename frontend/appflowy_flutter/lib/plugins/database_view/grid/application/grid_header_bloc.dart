@@ -43,8 +43,11 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
           startEditingField: (fieldId) {
             emit(state.copyWith(editingFieldId: fieldId));
           },
+          startEditingNewField: (fieldId) {
+            emit(state.copyWith(editingFieldId: fieldId, newFieldId: fieldId));
+          },
           endEditingField: () {
-            emit(state.copyWith(editingFieldId: null));
+            emit(state.copyWith(editingFieldId: null, newFieldId: null));
           },
           moveField: (field, fromIndex, toIndex) async {
             await _moveField(field, fromIndex, toIndex, emit);
@@ -85,7 +88,9 @@ class GridHeaderEvent with _$GridHeaderEvent {
       _DidReceiveFieldUpdate;
   const factory GridHeaderEvent.startEditingField(String fieldId) =
       _StartEditingField;
-  const factory GridHeaderEvent.endEditingField() = _EditingField;
+  const factory GridHeaderEvent.startEditingNewField(String fieldId) =
+      _StartEditingNewField;
+  const factory GridHeaderEvent.endEditingField() = _EndEditingField;
   const factory GridHeaderEvent.moveField(
     FieldPB field,
     int fromIndex,
@@ -98,8 +103,9 @@ class GridHeaderState with _$GridHeaderState {
   const factory GridHeaderState({
     required List<FieldInfo> fields,
     required String? editingFieldId,
+    required String? newFieldId,
   }) = _GridHeaderState;
 
   factory GridHeaderState.initial() =>
-      const GridHeaderState(fields: [], editingFieldId: null);
+      const GridHeaderState(fields: [], editingFieldId: null, newFieldId: null);
 }
