@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
@@ -17,20 +19,15 @@ import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:easy_localization/easy_localization.dart';
 
 class MobileGridRow extends StatefulWidget {
-  final RowId viewId;
+  final DatabaseController databaseController;
   final RowId rowId;
-  final RowController dataController;
-  final GridCellBuilder cellBuilder;
-  final void Function(BuildContext, GridCellBuilder) openDetailPage;
-
+  final void Function(BuildContext context) openDetailPage;
   final bool isDraggable;
 
   const MobileGridRow({
     super.key,
-    required this.viewId,
     required this.rowId,
-    required this.dataController,
-    required this.cellBuilder,
+    required this.databaseController,
     required this.openDetailPage,
     this.isDraggable = false,
   });
@@ -41,15 +38,26 @@ class MobileGridRow extends StatefulWidget {
 
 class _MobileGridRowState extends State<MobileGridRow> {
   late final RowBloc _rowBloc;
+  late final RowController _rowController;
+  late final GridCellBuilder _cellBuilder;
+
+  String get viewId => widget.databaseController.viewId;
+  RowCache get rowCache => widget.databaseController.rowCache;
 
   @override
   void initState() {
     super.initState();
+    _rowController = RowController(
+      rowMeta: rowCache.getRow(widget.rowId)!.rowMeta,
+      viewId: viewId,
+      rowCache: rowCache,
+    );
     _rowBloc = RowBloc(
       rowId: widget.rowId,
-      dataController: widget.dataController,
-      viewId: widget.viewId,
+      dataController: _rowController,
+      viewId: viewId,
     )..add(const RowEvent.initial());
+    _cellBuilder = GridCellBuilder(cellCache: rowCache.cellCache);
   }
 
   @override
@@ -65,11 +73,8 @@ class _MobileGridRowState extends State<MobileGridRow> {
               SizedBox(width: GridSize.leadingHeaderPadding),
               Expanded(
                 child: RowContent(
-                  builder: widget.cellBuilder,
-                  onExpand: () => widget.openDetailPage(
-                    context,
-                    widget.cellBuilder,
-                  ),
+                  builder: _cellBuilder,
+                  onExpand: () => widget.openDetailPage(context),
                 ),
               ),
             ],
@@ -82,6 +87,7 @@ class _MobileGridRowState extends State<MobileGridRow> {
   @override
   Future<void> dispose() async {
     _rowBloc.close();
+    _rowController.dispose();
     super.dispose();
   }
 }

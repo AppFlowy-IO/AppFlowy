@@ -2,11 +2,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -304,35 +302,31 @@ class _GridRows extends StatelessWidget {
     required bool isDraggable,
     Animation<double>? animation,
   }) {
-    final rowCache = context.read<GridBloc>().getRowCache(rowId);
-    final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+    final rowMeta = context
+        .read<GridBloc>()
+        .databaseController
+        .rowCache
+        .getRow(rowId)
+        ?.rowMeta;
 
     if (rowMeta == null) {
       Log.warn('RowMeta is null for rowId: $rowId');
       return const SizedBox.shrink();
     }
 
-    final fieldController =
-        context.read<GridBloc>().databaseController.fieldController;
-    final rowController = RowController(
-      viewId: viewId,
-      rowMeta: rowMeta,
-      rowCache: rowCache,
-    );
+    final databaseController = context.read<GridBloc>().databaseController;
 
     final child = MobileGridRow(
       key: ValueKey(rowMeta.id),
       rowId: rowId,
-      viewId: viewId,
       isDraggable: isDraggable,
-      dataController: rowController,
-      cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
-      openDetailPage: (context, cellBuilder) {
-        context.push(
-          MobileCardDetailScreen.routeName,
+      databaseController: databaseController,
+      openDetailPage: (context) {
+        context.pushNamed(
+          MobileRowDetailPage.routeName,
+          pathParameters: {MobileRowDetailPage.argRowId: rowId},
           extra: {
-            MobileCardDetailScreen.argRowController: rowController,
-            MobileCardDetailScreen.argFieldController: fieldController,
+            MobileRowDetailPage.argDatabaseController: databaseController,
           },
         );
       },

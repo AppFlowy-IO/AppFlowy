@@ -331,11 +331,13 @@ class _BoardContentState extends State<BoardContent> {
 
     // navigate to card detail screen when it is in mobile
     if (PlatformExtension.isMobile) {
-      context.push(
-        MobileCardDetailScreen.routeName,
+      context.pushNamed(
+        MobileRowDetailPage.routeName,
+        pathParameters: {MobileRowDetailPage.argRowId: rowMeta.id},
         extra: {
-          MobileCardDetailScreen.argRowController: dataController,
-          MobileCardDetailScreen.argFieldController: fieldController,
+          MobileRowDetailPage.argDatabaseController:
+              context.read<BoardBloc>().databaseController,
+          MobileRowDetailPage.argRowId: rowMeta.id,
         },
       );
     } else {

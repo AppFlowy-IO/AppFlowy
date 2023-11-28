@@ -134,7 +134,7 @@ GridCellWidget _getMobileCardCellWidget(
       style as GridTextCellStyle?;
       return MobileTextCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style?.placeholder,
+        style: style,
       );
     case FieldType.Number:
       style as GridNumberCellStyle?;
