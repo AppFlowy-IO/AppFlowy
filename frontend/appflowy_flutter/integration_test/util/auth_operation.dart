@@ -1,4 +1,5 @@
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_supabase_cloud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,10 +35,20 @@ extension AppFlowyAuthTest on WidgetTester {
     );
   }
 
-  void assertEnableSyncSwitchValue(bool value) {
+  void assertSupabaseEnableSyncSwitchValue(bool value) {
     assertSwitchValue(
       find.descendant(
         of: find.byType(SupabaseEnableSync),
+        matching: find.byWidgetPredicate((widget) => widget is Switch),
+      ),
+      value,
+    );
+  }
+
+  void assertAppFlowyCloudEnableSyncSwitchValue(bool value) {
+    assertSwitchValue(
+      find.descendant(
+        of: find.byType(AppFlowyCloudEnableSync),
         matching: find.byWidgetPredicate((widget) => widget is Switch),
       ),
       value,
@@ -53,9 +64,9 @@ extension AppFlowyAuthTest on WidgetTester {
     await tapButton(finder);
   }
 
-  Future<void> toggleEnableSync() async {
+  Future<void> toggleEnableSync(Type syncButton) async {
     final finder = find.descendant(
-      of: find.byType(SupabaseEnableSync),
+      of: find.byType(syncButton),
       matching: find.byWidgetPredicate((widget) => widget is Switch),
     );
 

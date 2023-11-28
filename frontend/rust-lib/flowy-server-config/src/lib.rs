@@ -5,7 +5,7 @@ pub mod supabase_config;
 
 pub const CLOUT_TYPE_STR: &str = "APPFLOWY_CLOUD_ENV_CLOUD_TYPE";
 
-#[derive(Deserialize_repr, Debug, Clone)]
+#[derive(Deserialize_repr, Debug, Clone, PartialEq, Eq)]
 #[repr(u8)]
 pub enum AuthenticatorType {
   Local = 0,

@@ -33,7 +33,7 @@ dependencies = ["inner_build_test_backend"]
 description = "Run flutter unit tests"
 script = '''
 cd appflowy_flutter
-flutter test --dart-define=RUST_LOG=${RUST_LOG} -j, --concurrency=1 --coverage
+flutter test  -j, --concurrency=1 --coverage
 '''
 
 [tasks.dart_unit_test_no_build]
@@ -57,7 +57,7 @@ dependencies = ["copy-from-build-to-sandbox-folder"]
 description = "Run flutter unit tests"
 script = '''
 cd appflowy_flutter
-flutter test --dart-define=RUST_LOG=${RUST_LOG} -j, --concurrency=1 --coverage
+flutter test -j, --concurrency=1 --coverage
 '''
 script_runner = "@shell"
 
@@ -259,6 +259,7 @@ run_task = { name = [
 
 
 [tasks.build_test_backend]
+env = { RUST_LOG = "trace" }
 script = '''
 cargo make --profile test-macos-$(uname -m) inner_build_test_backend
 '''
@@ -292,6 +293,7 @@ windows_alias = "compile_test_backend_windows"
 linux_alias = "compile_test_backend_default"
 
 [tasks.compile_test_backend_default]
+env = { RUST_LOG = "trace" }
 private = true
 script = [
   """

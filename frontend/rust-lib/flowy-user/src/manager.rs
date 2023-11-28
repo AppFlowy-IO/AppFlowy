@@ -291,14 +291,14 @@ impl UserManager {
   #[tracing::instrument(level = "debug", skip(self, params))]
   pub async fn sign_in(
     &self,
-    params: BoxAny,
+    params: SignInParams,
     authenticator: Authenticator,
   ) -> Result<UserProfile, FlowyError> {
     self.update_authenticator(&authenticator).await;
     let response: AuthResponse = self
       .cloud_services
       .get_user_service()?
-      .sign_in(params)
+      .sign_in(BoxAny::new(params))
       .await?;
     let session = Session::from(&response);
     self.prepare_user(&session).await;
@@ -362,7 +362,7 @@ impl UserManager {
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
     let user_profile = UserProfile::from((&response, &authenticator));
-    if user_profile.encryption_type.is_need_encrypt_secret() {
+    if user_profile.encryption_type.require_encrypt_secret() {
       self
         .resumable_sign_up
         .lock()

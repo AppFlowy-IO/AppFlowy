@@ -34,6 +34,7 @@ flowy-server = { workspace = true }
 flowy-server-config = { workspace = true}
 collab-integrate = { workspace = true }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+serde_yaml = "0.9.27"
 
 [features]
 default = ["dart", "rev-sqlite"]

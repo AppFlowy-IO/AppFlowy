@@ -26,7 +26,7 @@ pub(crate) struct LocalServerUserAuthServiceImpl {
 }
 
 impl UserCloudService for LocalServerUserAuthServiceImpl {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError> {
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
       let uid = ID_GEN.lock().next_id();
@@ -52,7 +52,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError> {
     let db = self.db.clone();
     FutureResult::new(async move {
       let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
@@ -76,27 +76,29 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, Error> {
+  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
-      Err(anyhow::anyhow!(
-        "Can't generate callback url when using offline mode"
-      ))
+      Err(
+        FlowyError::internal().with_context("Can't generate callback url when using offline mode"),
+      )
     })
   }
 
-  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, Error> {
-    FutureResult::new(async { Err(anyhow::anyhow!("Can't oauth url when using offline mode")) })
+  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::internal().with_context("Can't oauth url when using offline mode"))
+    })
   }
 
   fn update_user(
     &self,
     _credential: UserCredentials,
     _params: UpdateUserProfileParams,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 
@@ -120,7 +122,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
     FutureResult::new(async { Ok(vec![]) })
   }
 
