@@ -10,13 +10,24 @@ interface Props {
   onInput: (event: React.FormEvent<HTMLTextAreaElement>) => void;
 }
 function EditTextCellInput({ editing, anchorEl, width, onClose, text, onInput }: Props) {
+  const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const shift = e.shiftKey;
+
+    // If shift is pressed, allow the user to enter a new line, otherwise close the popover
+    if (!shift && e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      onClose();
+    }
+  };
+
   return (
     <Popover
       open={editing}
       anchorEl={anchorEl}
       PaperProps={{
         className: 'flex p-2 border border-blue-400',
-        style: { width, height: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },
+        style: { width, minHeight: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },
       }}
       transformOrigin={{
         vertical: 1,
@@ -26,7 +37,14 @@ function EditTextCellInput({ editing, anchorEl, width, onClose, text, onInput }:
       onClose={onClose}
       keepMounted={false}
     >
-      <TextareaAutosize className='resize-none text-sm' autoFocus autoCorrect='off' value={text} onInput={onInput} />
+      <TextareaAutosize
+        className='resize-none whitespace-break-spaces break-all text-sm'
+        autoFocus
+        autoCorrect='off'
+        value={text}
+        onInput={onInput}
+        onKeyDown={handleEnter}
+      />
     </Popover>
   );
 }

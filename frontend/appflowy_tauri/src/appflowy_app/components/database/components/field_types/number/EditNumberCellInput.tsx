@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Popover } from '@mui/material';
 import InputBase from '@mui/material/InputBase';
 
@@ -22,6 +22,15 @@ function EditNumberCellInput({
 
     onChange(value);
   };
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        onClose();
+      }
+    },
+    [onClose]
+  );
 
   return (
     <Popover
@@ -49,6 +58,7 @@ function EditNumberCellInput({
         autoFocus={true}
         value={value}
         onInput={handleInput}
+        onKeyDown={handleKeyDown}
       />
     </Popover>
   );
