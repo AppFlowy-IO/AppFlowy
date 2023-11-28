@@ -114,33 +114,39 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
     final icon = view?.icon.value;
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null)
-              EmojiText(
-                emoji: '$icon ',
-                fontSize: 22.0,
+    return WillPopScope(
+      // prevent navigate to previous screen by scrolling left on the screen
+      onWillPop: () async {
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null)
+                EmojiText(
+                  emoji: '$icon ',
+                  fontSize: 22.0,
+                ),
+              Expanded(
+                child: FlowyText.regular(
+                  view?.name ?? widget.title ?? '',
+                  fontSize: 14.0,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            Expanded(
-              child: FlowyText.regular(
-                view?.name ?? widget.title ?? '',
-                fontSize: 14.0,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
+            ],
+          ),
+          leading: AppBarBackButton(
+            onTap: () => context.pop(),
+          ),
+          actions: actions,
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
+        body: SafeArea(
+          child: child,
         ),
-        actions: actions,
-      ),
-      body: SafeArea(
-        child: child,
       ),
     );
   }

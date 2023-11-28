@@ -85,6 +85,8 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
               viewId: state.viewId,
               rowCache: rowCache,
             ),
+            MobileCardDetailScreen.argFieldController:
+                context.read<BoardBloc>().fieldController,
           },
         );
       },

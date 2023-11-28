@@ -300,6 +300,8 @@ class MobileHiddenGroupItemList extends StatelessWidget {
                       MobileCardDetailScreen.routeName,
                       extra: {
                         MobileCardDetailScreen.argRowController: rowController,
+                        MobileCardDetailScreen.argFieldController:
+                            context.read<BoardBloc>().fieldController,
                       },
                     );
                   },
