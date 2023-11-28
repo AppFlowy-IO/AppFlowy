@@ -7,7 +7,7 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabDataSource};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_folder2::manager::FolderManager;
@@ -232,12 +232,12 @@ fn init_user_manager(
   )
 }
 
-impl From<ServerType> for CollabSource {
+impl From<ServerType> for CollabDataSource {
   fn from(server_type: ServerType) -> Self {
     match server_type {
-      ServerType::Local => CollabSource::Local,
-      ServerType::AFCloud => CollabSource::AFCloud,
-      ServerType::Supabase => CollabSource::Supabase,
+      ServerType::Local => CollabDataSource::Local,
+      ServerType::AFCloud => CollabDataSource::AppFlowyCloud,
+      ServerType::Supabase => CollabDataSource::Supabase,
     }
   }
 }

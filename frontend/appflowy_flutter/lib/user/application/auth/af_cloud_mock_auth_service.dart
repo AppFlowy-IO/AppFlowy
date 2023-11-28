@@ -12,14 +12,10 @@ import 'package:flowy_infra/uuid.dart';
 
 /// Only used for testing.
 class AppFlowyCloudMockAuthService implements AuthService {
-  // Use same email for all tests.
-  static String currentUserEmail = "";
+  final String userEmail;
 
-  AppFlowyCloudMockAuthService() {
-    if (currentUserEmail.isEmpty) {
-      currentUserEmail = "${uuid()}@appflowy.io";
-    }
-  }
+  AppFlowyCloudMockAuthService({String? email})
+      : userEmail = email ?? "${uuid()}@appflowy.io";
 
   final BackendAuthService _appFlowyAuthService =
       BackendAuthService(AuthTypePB.Supabase);
@@ -51,7 +47,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
     final payload = SignInUrlPayloadPB.create()
       ..authType = AuthTypePB.AFCloud
       // don't use nanoid here, the gotrue server will transform the email
-      ..email = currentUserEmail;
+      ..email = userEmail;
 
     final deviceId = await getDeviceId();
     final getSignInURLResult = await UserEventGenerateSignInURL(payload).send();
