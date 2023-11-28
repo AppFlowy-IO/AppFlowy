@@ -23,10 +23,7 @@ import 'package:go_router/go_router.dart';
 class MobileBoardContent extends StatefulWidget {
   const MobileBoardContent({
     super.key,
-    this.onEditStateChanged,
   });
-
-  final VoidCallback? onEditStateChanged; //**??? what is this for?
 
   @override
   State<MobileBoardContent> createState() => _MobileBoardContentState();

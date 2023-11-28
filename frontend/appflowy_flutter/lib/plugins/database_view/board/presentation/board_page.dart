@@ -90,9 +90,7 @@ class BoardPage extends StatelessWidget {
           ),
           finish: (result) => result.successOrFail.fold(
             (_) => PlatformExtension.isMobile
-                ? MobileBoardContent(
-                    onEditStateChanged: onEditStateChanged,
-                  )
+                ? const MobileBoardContent()
                 : DesktopBoardContent(onEditStateChanged: onEditStateChanged),
             (err) => PlatformExtension.isMobile
                 ? FlowyMobileStateContainer.error(
