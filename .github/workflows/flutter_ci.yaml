@@ -217,19 +217,20 @@ jobs:
           fi
         shell: bash
 
-      - name: Upload coverage to Codecov
-        uses: Wandalen/wretry.action@v1.0.36
-        with:
-          action: codecov/codecov-action@v3
-          with: |
-            name: appflowy
-            flags: appflowy_flutter_unit_test
-            fail_ci_if_error: true
-            verbose: true
-            os: ${{ matrix.os }}
-            token: ${{ secrets.CODECOV_TOKEN }}
-          attempt_limit: 20
-          attempt_delay: 10000
+      # disable coverage for now as it's not working
+      # - name: Upload coverage to Codecov
+      #   uses: Wandalen/wretry.action@v1.0.36
+      #   with:
+      #     action: codecov/codecov-action@v3
+      #     with: |
+      #       name: appflowy
+      #       flags: appflowy_flutter_unit_test
+      #       fail_ci_if_error: true
+      #       verbose: true
+      #       os: ${{ matrix.os }}
+      #       token: ${{ secrets.CODECOV_TOKEN }}
+      #     attempt_limit: 20
+      #     attempt_delay: 10000
 
   integration_test:
     needs: [prepare]
@@ -393,7 +394,7 @@ jobs:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
       - name: Uncompressed appflowy_flutter
-        run: | 
+        run: |
           tar -xf appflowy_flutter.tar.gz
           ls -al
 
