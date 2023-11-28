@@ -54,7 +54,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           databaseController.moveGroupRow(
             fromRow: fromRow,
             toRow: toRow,
-            groupId: groupId,
+            fromGroupId: groupId,
+            toGroupId: groupId,
           );
         }
       },
@@ -65,7 +66,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           databaseController.moveGroupRow(
             fromRow: fromRow,
             toRow: toRow,
-            groupId: toGroupId,
+            fromGroupId: fromGroupId,
+            toGroupId: toGroupId,
           );
         }
       },

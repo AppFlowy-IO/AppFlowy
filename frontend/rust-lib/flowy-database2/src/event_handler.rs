@@ -733,6 +733,7 @@ pub(crate) async fn move_group_row_handler(
   database_editor
     .move_group_row(
       &params.view_id,
+      &params.from_group_id,
       &params.to_group_id,
       params.from_row_id,
       params.to_row_id,

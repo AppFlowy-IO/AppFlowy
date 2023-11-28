@@ -320,24 +320,6 @@ impl DatabaseViewEditor {
     }
   }
 
-  pub async fn v_get_row_group(&self, row_id: RowId) -> Option<String> {
-    match self
-      .group_controller
-      .read()
-      .await
-      .as_ref()
-      .and_then(|group_controller| {
-        group_controller
-          .get_all_groups()
-          .iter()
-          .find(|group| group.contains_row(&row_id))
-          .cloned()
-      }) {
-      None => None,
-      Some(group) => Some(group.id.clone()),
-    }
-  }
-
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn v_move_group(&self, from_group: &str, to_group: &str) -> FlowyResult<()> {
     self

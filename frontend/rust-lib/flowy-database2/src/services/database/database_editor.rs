@@ -916,6 +916,7 @@ impl DatabaseEditor {
   pub async fn move_group_row(
     &self,
     view_id: &str,
+    from_group: &str,
     to_group: &str,
     from_row: RowId,
     to_row: Option<RowId>,
@@ -930,7 +931,6 @@ impl DatabaseEditor {
       },
       Some(row_detail) => {
         let view = self.database_views.get_view_editor(view_id).await?;
-        let from_group = view.v_get_row_group(row_detail.row.id.clone()).await;
         let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
         view
           .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row.clone())
@@ -948,7 +948,7 @@ impl DatabaseEditor {
           self.move_row(view_id, from_row.clone(), row_id).await;
         }
 
-        if from_group.is_some() && from_group.clone().unwrap() == to_group.to_string() {
+        if from_group == to_group {
           return Ok(());
         }
 

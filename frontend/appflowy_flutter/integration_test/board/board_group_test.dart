@@ -28,7 +28,7 @@ void main() {
 
       await tester.timedDrag(
         card1, 
-        doingGroupCenter.translate(-card1Center.dx, -card1Center.dy+100),
+        doingGroupCenter.translate(-card1Center.dx, -card1Center.dy),
         const Duration(seconds: 1),
       );
       await tester.pumpAndSettle();
