@@ -98,9 +98,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               fromBeginning: true,
             );
 
-            result.fold((rowMeta) {
-              emit(state.copyWith(recentAddedRowMeta: rowMeta));
-            }, (err) => Log.error(err));
+            result.fold(
+              (rowMeta) {
+                emit(state.copyWith(recentAddedRowMeta: rowMeta));
+              },
+              (err) => Log.error(err),
+            );
           },
           createGroup: (name) async {
             final result = await groupBackendSvc.createGroup(name: name);
