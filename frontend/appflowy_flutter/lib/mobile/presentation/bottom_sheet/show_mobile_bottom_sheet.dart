@@ -11,12 +11,14 @@ Future<void> showMobileBottomSheet({
   required BuildContext context,
   required WidgetBuilder builder,
   bool isDragEnabled = true,
+  ShapeBorder? shape,
 }) async {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     enableDrag: isDragEnabled,
     useSafeArea: true,
+    shape: shape,
     builder: builder,
   );
 }

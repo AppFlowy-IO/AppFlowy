@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_c
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -208,6 +209,11 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
         onTap: () {
           showMobileBottomSheet(
             context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                top: Corners.s12Radius,
+              ),
+            ),
             builder: (context) {
               return MobileSelectOptionEditor(
                 cellController: cellController,

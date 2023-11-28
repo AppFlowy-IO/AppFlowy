@@ -43,7 +43,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
+    return Container(
       constraints: const BoxConstraints.tightFor(height: 360),
       child: BlocProvider(
         create: (context) => SelectOptionCellEditorBloc(
@@ -168,6 +168,12 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
             },
           ),
           _OptionList(
+            onCreateOption: (optionName) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.newOption(optionName));
+              controller.clear();
+            },
             onCheck: (option, value) {
               if (value) {
                 context
@@ -178,6 +184,9 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
                     .read<SelectOptionCellEditorBloc>()
                     .add(SelectOptionEditorEvent.unSelectOption(option.id));
               }
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.updateOption(option));
             },
           ),
         ],
@@ -234,9 +243,11 @@ class _SearchField extends StatelessWidget {
 
 class _OptionList extends StatelessWidget {
   const _OptionList({
+    required this.onCreateOption,
     required this.onCheck,
   });
 
+  final void Function(String optionName) onCreateOption;
   final void Function(SelectOptionPB option, bool value) onCheck;
 
   @override
@@ -250,7 +261,12 @@ class _OptionList extends StatelessWidget {
         state.createOption.fold(
           () => null,
           (createOption) {
-            cells.add(_CreateOptionCell(optionName: createOption));
+            cells.add(
+              _CreateOptionCell(
+                optionName: createOption,
+                onTap: () => onCreateOption(createOption),
+              ),
+            );
           },
         );
 
@@ -331,9 +347,11 @@ class _SelectOption extends StatelessWidget {
 class _CreateOptionCell extends StatelessWidget {
   const _CreateOptionCell({
     required this.optionName,
+    required this.onTap,
   });
 
   final String optionName;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -341,9 +359,7 @@ class _CreateOptionCell extends StatelessWidget {
       height: 44,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => context
-            .read<SelectOptionCellEditorBloc>()
-            .add(SelectOptionEditorEvent.newOption(optionName)),
+        onTap: onTap,
         child: Row(
           children: [
             FlowyText.medium(
