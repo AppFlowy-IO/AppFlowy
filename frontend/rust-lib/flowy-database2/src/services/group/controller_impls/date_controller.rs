@@ -7,7 +7,7 @@ use chrono::{
 };
 use chrono_tz::Tz;
 use collab_database::database::timestamp;
-use collab_database::fields::Field;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -247,6 +247,11 @@ impl GroupCustomize for DateGroupController {
         .delete_group(&deleted_group.as_ref().unwrap().group_id);
     }
     deleted_group
+  }
+
+  fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+    self.context.delete_group(group_id)?;
+    Ok(None)
   }
 }
 

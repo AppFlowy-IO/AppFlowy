@@ -48,4 +48,14 @@ class GroupBackendService {
 
     return DatabaseEventCreateGroup(payload).send();
   }
+
+  Future<Either<Unit, FlowyError>> deleteGroup({
+    required String groupId,
+  }) {
+    final payload = DeleteGroupPayloadPB.create()
+      ..viewId = viewId
+      ..groupId = groupId;
+
+    return DatabaseEventDeleteGroup(payload).send();
+  }
 }

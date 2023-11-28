@@ -139,9 +139,13 @@ class _TextCellState extends State<TextCardCell> {
             return Padding(
               padding: CardSizes.cardCellPadding,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (widget.showNotes) ...[
-                    const FlowySvg(FlowySvgs.notes_s),
+                    FlowySvg(
+                      FlowySvgs.notes_s,
+                      color: Theme.of(context).hintColor,
+                    ),
                     const HSpace(4),
                   ],
                   Expanded(child: child),

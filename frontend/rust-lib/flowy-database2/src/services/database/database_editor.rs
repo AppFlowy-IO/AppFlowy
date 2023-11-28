@@ -174,12 +174,16 @@ impl DatabaseEditor {
   }
 
   pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
-    self
-      .database
-      .lock()
-      .delete_group_setting(&params.view_id, &params.group_id);
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_delete_group(params).await?;
+    let changes = view_editor.v_delete_group(&params.group_id).await?;
+
+    if !changes.is_empty() {
+      for view in self.database_views.editors().await {
+        send_notification(&view.view_id, DatabaseNotification::DidUpdateViewRows)
+          .payload(changes.clone())
+          .send();
+      }
+    }
 
     Ok(())
   }
@@ -819,7 +823,7 @@ impl DatabaseEditor {
     };
 
     for option in options {
-      type_option.delete_option(option.into());
+      type_option.delete_option(&option.id);
     }
     self
       .database
@@ -1315,6 +1319,10 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 
       all_rows.into_iter().map(Arc::new).collect()
     })
+  }
+
+  fn remove_row(&self, row_id: &RowId) -> Option<Row> {
+    self.database.lock().remove_row(row_id)
   }
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {
