@@ -14,6 +14,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:protobuf/protobuf.dart';
 
 // include single select and multiple select
 class MobileSelectOptionEditor extends StatefulWidget {
@@ -30,21 +31,26 @@ class MobileSelectOptionEditor extends StatefulWidget {
 }
 
 class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
-  final controller = TextEditingController();
+  final searchController = TextEditingController();
+  final renameController = TextEditingController();
 
   String typingOption = '';
   FieldType get fieldType => widget.cellController.fieldType;
 
+  bool showMoreOptions = false;
+  SelectOptionPB? option;
+
   @override
   void dispose() {
-    controller.dispose();
+    searchController.dispose();
+    renameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints.tightFor(height: 360),
+      constraints: const BoxConstraints.tightFor(height: 420),
       child: BlocProvider(
         create: (context) => SelectOptionCellEditorBloc(
           cellController: widget.cellController,
@@ -60,13 +66,16 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
                   child: _buildHeader(
                     context,
                     showSaveButton: state.createOption
-                        .fold(() => false, (a) => a.isNotEmpty),
+                            .fold(() => false, (a) => a.isNotEmpty) ||
+                        showMoreOptions,
                   ),
                 ),
                 const Divider(),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: showMoreOptions ? 0.0 : 16.0,
+                    ),
                     child: _buildBody(context),
                   ),
                 ),
@@ -93,9 +102,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
             ),
             width: iconWidth,
             iconPadding: EdgeInsets.zero,
-            onPressed: () {
-              context.pop();
-            },
+            onPressed: () => _popOrBack(),
           ),
         ),
         SizedBox(
@@ -128,13 +135,29 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
                     ),
                     useIntrinsicWidth: true,
                     onTap: () {
-                      if (typingOption.isNotEmpty) {
+                      if (showMoreOptions) {
+                        final option = this.option;
+                        if (option == null) {
+                          return;
+                        }
+                        option.freeze();
+                        context.read<SelectOptionCellEditorBloc>().add(
+                          SelectOptionEditorEvent.updateOption(
+                            option.rebuild((p0) {
+                              if (p0.name != renameController.text) {
+                                p0.name = renameController.text;
+                              }
+                            }),
+                          ),
+                        );
+                        _popOrBack();
+                      } else if (typingOption.isNotEmpty) {
                         context.read<SelectOptionCellEditorBloc>().add(
                               SelectOptionEditorEvent.trySelectOption(
                                 typingOption,
                               ),
                             );
-                        controller.clear();
+                        searchController.clear();
                       }
                     },
                   ),
@@ -145,17 +168,50 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
   }
 
   Widget _buildBody(BuildContext context) {
+    if (showMoreOptions && option != null) {
+      return _MoreOptions(
+        option: option!,
+        controller: renameController..text = option!.name,
+        onDelete: () {
+          context
+              .read<SelectOptionCellEditorBloc>()
+              .add(SelectOptionEditorEvent.deleteOption(option!));
+          context.pop();
+        },
+        onUpdate: (name, color) {
+          final option = this.option;
+          if (option == null) {
+            return;
+          }
+          option.freeze();
+          context.read<SelectOptionCellEditorBloc>().add(
+            SelectOptionEditorEvent.updateOption(
+              option.rebuild((p0) {
+                if (name != null) {
+                  p0.name = name;
+                }
+                if (color != null) {
+                  p0.color = color;
+                }
+              }),
+            ),
+          );
+          _popOrBack();
+        },
+      );
+    }
+
     return SingleChildScrollView(
       child: Column(
         children: [
           _SearchField(
-            controller: controller,
+            controller: searchController,
             hintText: LocaleKeys.grid_selectOption_searchOrCreateOption.tr(),
             onSubmitted: (option) {
               context
                   .read<SelectOptionCellEditorBloc>()
                   .add(SelectOptionEditorEvent.trySelectOption(option));
-              controller.clear();
+              searchController.clear();
             },
             onChanged: (value) {
               typingOption = value;
@@ -172,7 +228,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
               context
                   .read<SelectOptionCellEditorBloc>()
                   .add(SelectOptionEditorEvent.newOption(optionName));
-              controller.clear();
+              searchController.clear();
             },
             onCheck: (option, value) {
               if (value) {
@@ -184,9 +240,12 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
                     .read<SelectOptionCellEditorBloc>()
                     .add(SelectOptionEditorEvent.unSelectOption(option.id));
               }
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.updateOption(option));
+            },
+            onMoreOptions: (option) {
+              setState(() {
+                this.option = option;
+                showMoreOptions = true;
+              });
             },
           ),
         ],
@@ -204,17 +263,28 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
         throw UnimplementedError();
     }
   }
+
+  void _popOrBack() {
+    if (showMoreOptions) {
+      setState(() {
+        showMoreOptions = false;
+        option = null;
+      });
+    } else {
+      context.pop();
+    }
+  }
 }
 
 class _SearchField extends StatelessWidget {
   const _SearchField({
-    required this.hintText,
+    this.hintText,
     required this.onChanged,
     required this.onSubmitted,
     required this.controller,
   });
 
-  final String hintText;
+  final String? hintText;
   final void Function(String value) onChanged;
   final void Function(String value) onSubmitted;
   final TextEditingController controller;
@@ -229,6 +299,7 @@ class _SearchField extends StatelessWidget {
       child: SizedBox(
         height: 44, // the height is fixed.
         child: FlowyTextField(
+          autoFocus: false,
           hintText: hintText,
           textStyle: textStyle,
           hintStyle: textStyle?.copyWith(color: Theme.of(context).hintColor),
@@ -245,10 +316,12 @@ class _OptionList extends StatelessWidget {
   const _OptionList({
     required this.onCreateOption,
     required this.onCheck,
+    required this.onMoreOptions,
   });
 
   final void Function(String optionName) onCreateOption;
   final void Function(SelectOptionPB option, bool value) onCheck;
+  final void Function(SelectOptionPB option) onMoreOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -276,6 +349,7 @@ class _OptionList extends StatelessWidget {
               option: option,
               checked: state.selectedOptions.contains(option),
               onCheck: (value) => onCheck(option, value),
+              onMoreOptions: () => onMoreOptions(option),
             ),
           ),
         );
@@ -299,11 +373,13 @@ class _SelectOption extends StatelessWidget {
     required this.option,
     required this.checked,
     required this.onCheck,
+    required this.onMoreOptions,
   });
 
   final SelectOptionPB option;
   final bool checked;
   final void Function(bool value) onCheck;
+  final VoidCallback onMoreOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +411,7 @@ class _SelectOption extends StatelessWidget {
             // more options
             FlowyIconButton(
               icon: const FlowySvg(FlowySvgs.three_dots_s),
-              onPressed: () {},
+              onPressed: onMoreOptions,
             ),
           ],
         ),
@@ -409,6 +485,154 @@ class _SelectOptionTag extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         color: AFThemeExtension.of(context).textColor,
       ),
+    );
+  }
+}
+
+class _MoreOptions extends StatelessWidget {
+  const _MoreOptions({
+    required this.option,
+    required this.onDelete,
+    required this.onUpdate,
+    required this.controller,
+  });
+
+  final SelectOptionPB option;
+  final VoidCallback onDelete;
+  final void Function(String? name, SelectOptionColorPB? color) onUpdate;
+  final TextEditingController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VSpace(8.0),
+          _buildRenameTextField(context),
+          const VSpace(16.0),
+          _buildDeleteButton(context),
+          const VSpace(16.0),
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0),
+            child: FlowyText(
+              LocaleKeys.grid_field_optionTitle.tr(),
+              color: Theme.of(context).hintColor,
+            ),
+          ),
+          const VSpace(4.0),
+          _buildColorOptions(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRenameTextField(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints.tightFor(height: 52.0),
+      child: _DefaultDecorateBox(
+        showTopBorder: true,
+        showBottomBorder: true,
+        child: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            contentPadding: EdgeInsets.only(left: 16.0),
+          ),
+          onChanged: (value) {},
+          onSubmitted: (value) => onUpdate(value, null),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton(BuildContext context) {
+    return _DefaultDecorateBox(
+      showTopBorder: true,
+      showBottomBorder: true,
+      child: FlowyButton(
+        text: FlowyText(
+          LocaleKeys.button_delete.tr(),
+          fontSize: 16.0,
+        ),
+        margin: const EdgeInsets.symmetric(
+          horizontal: 12.0,
+          vertical: 16.0,
+        ),
+        leftIcon: const FlowySvg(FlowySvgs.delete_s),
+        leftIconSize: const Size.square(24.0),
+        iconPadding: 8.0,
+        onTap: onDelete,
+      ),
+    );
+  }
+
+  Widget _buildColorOptions(BuildContext context) {
+    return _DefaultDecorateBox(
+      showTopBorder: true,
+      showBottomBorder: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        child: GridView.count(
+          crossAxisCount: 6,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: SelectOptionColorPB.values.map(
+            (colorPB) {
+              final color = colorPB.toColor(context);
+              return GestureDetector(
+                onTap: () => onUpdate(null, colorPB),
+                child: Container(
+                  margin: const EdgeInsets.all(
+                    10.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: Corners.s12Border,
+                    border: Border.all(
+                      color: option.color.value == colorPB.value
+                          ? const Color(0xff00C6F1)
+                          : Theme.of(context).dividerColor,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class _DefaultDecorateBox extends StatelessWidget {
+  const _DefaultDecorateBox({
+    this.showTopBorder = true,
+    this.showBottomBorder = true,
+    required this.child,
+  });
+
+  final bool showTopBorder;
+  final bool showBottomBorder;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context).dividerColor,
+          ),
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
+          ),
+        ),
+      ),
+      child: child,
     );
   }
 }
