@@ -49,7 +49,8 @@ class MobileFieldEditor extends StatelessWidget {
           // for field type edit option
           final dataController =
               context.read<FieldEditorBloc>().typeOptionController;
-          final fieldInfo = fieldController.getField(field.id)!.visibility;
+          final fieldInfoVisibility =
+              fieldController.getField(field.id)?.visibility;
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -70,7 +71,9 @@ class MobileFieldEditor extends StatelessWidget {
                       ),
                     ),
                     VisibilitySwitch(
-                      isFieldHidden: !fieldInfo!.isVisibleState(),
+                      isFieldHidden: !(fieldInfoVisibility != null
+                          ? fieldInfoVisibility.isVisibleState()
+                          : field.visibility),
                       onChanged: () => context.read<RowDetailBloc>().add(
                             RowDetailEvent.toggleFieldVisibility(
                               state.field.id,
