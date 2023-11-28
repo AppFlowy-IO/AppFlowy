@@ -11,8 +11,8 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -125,16 +125,13 @@ class _MobileRecentViewState extends State<MobileRecentView> {
               right: 0,
               child: Container(
                 height: widget.height / 2.0,
-                width: double.infinity,
-                padding: const EdgeInsets.only(
-                  left: 8.0,
-                  top: 14.0,
-                  right: 8.0,
-                ),
-                child: FlowyText(
+                width: widget.height,
+                padding: const EdgeInsets.fromLTRB(8, 16, 8, 2),
+                child: AutoSizeText(
                   view.name,
+                  presetFontSizes: const [14, 12],
                   maxLines: 2,
-                  fontSize: 14.0,
+                  minFontSize: 12,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
