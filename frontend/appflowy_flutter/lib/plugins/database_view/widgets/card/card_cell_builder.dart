@@ -192,7 +192,7 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.Checklist:
-        return ChecklistCardCell(
+        return MobileChecklistCardCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );

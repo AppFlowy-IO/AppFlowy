@@ -217,13 +217,9 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     return AppFlowyGroupFooter(
       height: 36,
       margin: config.groupFooterPadding,
-      icon: SizedBox(
-        height: 20,
-        width: 20,
-        child: FlowySvg(
-          FlowySvgs.add_s,
-          color: Theme.of(context).hintColor,
-        ),
+      icon: FlowySvg(
+        FlowySvgs.add_s,
+        color: Theme.of(context).hintColor,
       ),
       title: FlowyText.medium(
         LocaleKeys.board_column_createNewCard.tr(),

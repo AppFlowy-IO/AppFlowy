@@ -272,6 +272,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
         snap: true,
         builder: (context, scrollController) {
           return MobileCardDetailScreen(
+            fieldController: fieldController,
             rowController: dataController,
             scrollController: scrollController,
             isBottemSheet: true,
