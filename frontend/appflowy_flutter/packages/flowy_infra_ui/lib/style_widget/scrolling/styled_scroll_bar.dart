@@ -249,8 +249,8 @@ class ScrollbarListStack extends StatelessWidget {
         /// LIST
         /// Wrap with a bit of padding on the right
         child.padding(
-          right: axis == Axis.vertical ? barSize + Insets.sm : 0,
-          bottom: axis == Axis.horizontal ? barSize + Insets.sm : 0,
+          right: axis == Axis.vertical ? barSize + Insets.m : 0,
+          bottom: axis == Axis.horizontal ? barSize + Insets.m : 0,
         ),
 
         /// SCROLLBAR

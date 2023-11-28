@@ -158,7 +158,7 @@ class _GridPageContentState extends State<GridPageContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: EdgeInsets.only(right: GridSize.leadingHeaderPadding),
               child:
                   _GridHeader(headerScrollController: headerScrollController),
             ),
