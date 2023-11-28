@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -25,11 +26,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final FieldBackendService fieldService;
   final FieldSettingsBackendService fieldSettingsService;
   final TypeOptionController typeOptionController;
+  final void Function(String newFieldId)? onFieldInserted;
 
   FieldEditorBloc({
     required this.viewId,
     required this.field,
     required this.fieldController,
+    this.onFieldInserted,
     required FieldTypeOptionLoader loader,
   })  : typeOptionController = TypeOptionController(
           field: field,
@@ -72,6 +75,28 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
           renameField: (newName) async {
             final result = await fieldService.updateField(name: newName);
             _logIfError(result);
+          },
+          insertLeft: () async {
+            final result = await TypeOptionBackendService.createFieldTypeOption(
+              viewId: viewId,
+              position: CreateFieldPosition.Before,
+              targetFieldId: field.id,
+            );
+            result.fold(
+              (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
+              (err) => Log.error("Failed creating field $err"),
+            );
+          },
+          insertRight: () async {
+            final result = await TypeOptionBackendService.createFieldTypeOption(
+              viewId: viewId,
+              position: CreateFieldPosition.After,
+              targetFieldId: field.id,
+            );
+            result.fold(
+              (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
+              (err) => Log.error("Failed creating field $err"),
+            );
           },
           toggleFieldVisibility: () async {
             final currentVisibility =
@@ -122,6 +147,8 @@ class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.switchFieldType(final FieldType fieldType) =
       _SwitchFieldType;
   const factory FieldEditorEvent.renameField(final String name) = _RenameField;
+  const factory FieldEditorEvent.insertLeft() = _InsertLeft;
+  const factory FieldEditorEvent.insertRight() = _InsertRight;
   const factory FieldEditorEvent.toggleFieldVisibility() =
       _ToggleFieldVisiblity;
   const factory FieldEditorEvent.deleteField() = _DeleteField;

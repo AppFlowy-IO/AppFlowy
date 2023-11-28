@@ -765,6 +765,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(field);
   }
 
+  Future<void> tapInsertFieldButton({
+    required bool left,
+    required String name,
+  }) async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell &&
+          (left && widget.action == FieldAction.insertLeft ||
+              !left && widget.action == FieldAction.insertRight),
+    );
+    await tapButton(field);
+    await renameField(name);
+  }
+
   /// Should call [tapGridFieldWithName] first.
   Future<void> tapHidePropertyButton() async {
     final field = find.byWidgetPredicate(
