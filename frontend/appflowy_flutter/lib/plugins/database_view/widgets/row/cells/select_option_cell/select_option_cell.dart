@@ -1,11 +1,9 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/moile_select_option_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/mobile_select_option_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -208,9 +206,8 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       child = FlowyButton(
         text: child,
         onTap: () {
-          showFlowyMobileBottomSheet(
-            context,
-            title: LocaleKeys.grid_field_singleSelectFieldName.tr(),
+          showMobileBottomSheet(
+            context: context,
             builder: (context) {
               return MobileSelectOptionEditor(
                 cellController: cellController,
