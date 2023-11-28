@@ -21,16 +21,22 @@ class MobileTextCardCell<CustomCardData> extends CardCell {
 }
 
 class _NumberCellState extends State<MobileTextCardCell> {
-  late TextCellBloc _cellBloc;
+  late final TextCellBloc _cellBloc;
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as TextCellController;
 
     _cellBloc = TextCellBloc(cellController: cellController)
       ..add(const TextCellEvent.initial());
-    super.initState();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cellBloc.close();
+    super.dispose();
   }
 
   @override
@@ -65,11 +71,5 @@ class _NumberCellState extends State<MobileTextCardCell> {
         },
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
   }
 }

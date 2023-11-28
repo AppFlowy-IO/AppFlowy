@@ -19,9 +19,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileHiddenGroupsColumn extends StatelessWidget {
-  const MobileHiddenGroupsColumn({super.key, required this.margin});
+  const MobileHiddenGroupsColumn({super.key, required this.padding});
 
-  final EdgeInsets margin;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class MobileHiddenGroupsColumn extends StatelessWidget {
         }
         final isCollapsed = layoutSettings.collapseHiddenGroups;
         return Container(
-          margin: margin,
+          padding: padding,
           child: AnimatedSize(
             alignment: AlignmentDirectional.topStart,
             curve: Curves.easeOut,

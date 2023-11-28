@@ -38,11 +38,6 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
   );
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     super.dispose();

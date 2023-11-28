@@ -20,15 +20,21 @@ class MobileChecklistCardCell extends CardCell {
 }
 
 class _ChecklistCellState extends State<MobileChecklistCardCell> {
-  late ChecklistCellBloc _cellBloc;
+  late final ChecklistCellBloc _cellBloc;
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as ChecklistCellController;
-    _cellBloc = ChecklistCellBloc(cellController: cellController);
-    _cellBloc.add(const ChecklistCellEvent.initial());
-    super.initState();
+    _cellBloc = ChecklistCellBloc(cellController: cellController)
+      ..add(const ChecklistCellEvent.initial());
+  }
+
+  @override
+  void dispose() {
+    _cellBloc.close();
+    super.dispose();
   }
 
   @override
@@ -55,15 +61,15 @@ class _ChecklistCellState extends State<MobileChecklistCardCell> {
 }
 
 class MobileChecklistProgressBar extends StatefulWidget {
+  const MobileChecklistProgressBar({
+    super.key,
+    required this.tasks,
+    required this.percent,
+  });
+
   final List<ChecklistSelectOption> tasks;
   final double percent;
   final int segmentLimit = 5;
-
-  const MobileChecklistProgressBar({
-    required this.tasks,
-    required this.percent,
-    Key? key,
-  }) : super(key: key);
 
   @override
   State<MobileChecklistProgressBar> createState() =>

@@ -18,15 +18,22 @@ class MobileURLCardCell<CustomCardData> extends CardCell {
 }
 
 class _URLCellState extends State<MobileURLCardCell> {
-  late URLCellBloc _cellBloc;
+  late final URLCellBloc _cellBloc;
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as URLCellController;
-    _cellBloc = URLCellBloc(cellController: cellController);
-    _cellBloc.add(const URLCellEvent.initial());
-    super.initState();
+
+    _cellBloc = URLCellBloc(cellController: cellController)
+      ..add(const URLCellEvent.initial());
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cellBloc.close();
+    super.dispose();
   }
 
   @override
@@ -52,11 +59,5 @@ class _URLCellState extends State<MobileURLCardCell> {
         },
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
   }
 }

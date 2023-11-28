@@ -26,7 +26,7 @@ class MobileCardDetailScreen extends StatefulWidget {
     super.key,
     required this.rowController,
     this.scrollController,
-    this.isBottemSheet = false,
+    this.isBottomSheet = false,
     required this.fieldController,
   });
 
@@ -37,7 +37,7 @@ class MobileCardDetailScreen extends StatefulWidget {
 
   final RowController rowController;
   final ScrollController? scrollController;
-  final bool isBottemSheet;
+  final bool isBottomSheet;
   final FieldController fieldController;
 
   @override
@@ -68,7 +68,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
               context.pop();
             },
             icon: Icon(
-              widget.isBottemSheet ? Icons.close : Icons.arrow_back,
+              widget.isBottomSheet ? Icons.close : Icons.arrow_back,
             ),
           ),
           title: Text(LocaleKeys.board_cardDetail.tr()),

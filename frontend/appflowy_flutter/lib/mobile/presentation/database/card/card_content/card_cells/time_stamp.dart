@@ -20,16 +20,22 @@ class MobileTimestampCardCell<CustomCardData> extends CardCell {
 }
 
 class _TimestampCellState extends State<MobileTimestampCardCell> {
-  late TimestampCellBloc _cellBloc;
+  late final TimestampCellBloc _cellBloc;
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as TimestampCellController;
 
     _cellBloc = TimestampCellBloc(cellController: cellController)
       ..add(const TimestampCellEvent.initial());
-    super.initState();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cellBloc.close();
+    super.dispose();
   }
 
   @override
@@ -63,11 +69,5 @@ class _TimestampCellState extends State<MobileTimestampCardCell> {
         },
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
   }
 }

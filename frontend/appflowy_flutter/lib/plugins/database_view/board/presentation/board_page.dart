@@ -95,7 +95,7 @@ class BoardPage extends StatelessWidget {
             (err) => PlatformExtension.isMobile
                 ? FlowyMobileStateContainer.error(
                     emoji: '🛸',
-                    title: 'Failed to load board view',
+                    title: LocaleKeys.board_mobile_faildToLoad.tr(),
                     errorMsg: err.toString(),
                   )
                 : FlowyErrorPage.message(

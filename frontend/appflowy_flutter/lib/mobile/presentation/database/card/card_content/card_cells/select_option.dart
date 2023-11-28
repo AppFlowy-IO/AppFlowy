@@ -25,15 +25,21 @@ class MobileSelectOptionCardCell<CustomCardData> extends CardCell {
 }
 
 class _SelectOptionCellState extends State<MobileSelectOptionCardCell> {
-  late SelectOptionCellBloc _cellBloc;
+  late final SelectOptionCellBloc _cellBloc;
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as SelectOptionCellController;
     _cellBloc = SelectOptionCellBloc(cellController: cellController)
       ..add(const SelectOptionCellEvent.initial());
-    super.initState();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cellBloc.close();
+    super.dispose();
   }
 
   @override
@@ -76,26 +82,16 @@ class _SelectOptionCellState extends State<MobileSelectOptionCardCell> {
       ),
     );
   }
-
-  @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
-  }
 }
 
 class MobileSelectOptionTag extends StatelessWidget {
-  final String name;
-  final Color color;
-  final VoidCallback? onSelected;
-  final void Function(String)? onRemove;
   const MobileSelectOptionTag({
+    super.key,
     required this.name,
     required this.color,
     this.onSelected,
     this.onRemove,
-    Key? key,
-  }) : super(key: key);
+  });
 
   factory MobileSelectOptionTag.fromOption({
     required BuildContext context,
@@ -110,6 +106,11 @@ class MobileSelectOptionTag extends StatelessWidget {
       onRemove: onRemove,
     );
   }
+
+  final String name;
+  final Color color;
+  final VoidCallback? onSelected;
+  final void Function(String)? onRemove;
 
   @override
   Widget build(BuildContext context) {

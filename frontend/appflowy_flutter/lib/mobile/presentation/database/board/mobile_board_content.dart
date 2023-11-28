@@ -99,7 +99,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
             config: config,
             leading: showHiddenGroups
-                ? MobileHiddenGroupsColumn(margin: config.groupHeaderPadding)
+                ? MobileHiddenGroupsColumn(padding: config.groupHeaderPadding)
                 : const HSpace(16),
             trailing: showCreateGroupButton
                 ? const MobileBoardTrailing()
@@ -144,8 +144,9 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             color: style.colorScheme.onSurface,
           ),
         ),
-        onPressed: () => context.read<BoardBloc>()
-          ..add(BoardEvent.createBottomRow(columnData.id)),
+        onPressed: () => context
+            .read<BoardBloc>()
+            .add(BoardEvent.createBottomRow(columnData.id)),
       ),
     );
   }
@@ -274,7 +275,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             fieldController: fieldController,
             rowController: dataController,
             scrollController: scrollController,
-            isBottemSheet: true,
+            isBottomSheet: true,
           );
         },
       ),

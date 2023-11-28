@@ -18,15 +18,21 @@ class MobileCheckboxCardCell extends CardCell {
 }
 
 class _CheckboxCellState extends State<MobileCheckboxCardCell> {
-  late CheckboxCellBloc _cellBloc;
+  late final CheckboxCellBloc _cellBloc;
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as CheckboxCellController;
-    _cellBloc = CheckboxCellBloc(cellController: cellController);
-    _cellBloc.add(const CheckboxCellEvent.initial());
-    super.initState();
+    _cellBloc = CheckboxCellBloc(cellController: cellController)
+      ..add(const CheckboxCellEvent.initial());
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cellBloc.close();
+    super.dispose();
   }
 
   @override
@@ -37,19 +43,19 @@ class _CheckboxCellState extends State<MobileCheckboxCardCell> {
         buildWhen: (previous, current) =>
             previous.isSelected != current.isSelected,
         builder: (context, state) {
-          final icon = FlowySvg(
-            state.isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
-            blendMode: BlendMode.dst,
-            size: const Size.square(24),
-          );
-
           return Align(
             alignment: Alignment.centerLeft,
             child: IconButton(
               padding: EdgeInsets.zero,
               alignment: Alignment.centerLeft,
               visualDensity: VisualDensity.compact,
-              icon: icon,
+              icon: FlowySvg(
+                state.isSelected
+                    ? FlowySvgs.check_filled_s
+                    : FlowySvgs.uncheck_s,
+                blendMode: BlendMode.dst,
+                size: const Size.square(24),
+              ),
               onPressed: () => context
                   .read<CheckboxCellBloc>()
                   .add(const CheckboxCellEvent.select()),
@@ -58,11 +64,5 @@ class _CheckboxCellState extends State<MobileCheckboxCardCell> {
         },
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
   }
 }

@@ -37,7 +37,7 @@ class CardCellBuilder<CustomCardData> {
     final key = cellContext.key();
     final style = styles?[cellContext.fieldType];
 
-    final cellWidget = PlatformExtension.isMobile
+    return PlatformExtension.isMobile
         ? _getMobileCardCellWidget(
             key: key,
             cellContext: cellContext,
@@ -58,8 +58,6 @@ class CardCellBuilder<CustomCardData> {
             renderHook: renderHook,
             hasNotes: hasNotes,
           );
-
-    return cellWidget;
   }
 
   Widget _getDesktopCardCellWidget({

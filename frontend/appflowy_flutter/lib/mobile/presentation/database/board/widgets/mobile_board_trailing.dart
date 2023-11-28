@@ -29,7 +29,7 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
       child: SizedBox(
         width: screenSize.width * 0.7,
         child: isEditing
-            ? Container(
+            ? DecoratedBox(
                 decoration: BoxDecoration(
                   color: style.colorScheme.secondary,
                   borderRadius: BorderRadius.circular(8),

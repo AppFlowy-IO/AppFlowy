@@ -20,16 +20,22 @@ class MobileDateCardCell<CustomCardData> extends CardCell {
 }
 
 class _DateCellState extends State<MobileDateCardCell> {
-  late DateCellBloc _cellBloc;
+  late final DateCellBloc _cellBloc;
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as DateCellController;
 
     _cellBloc = DateCellBloc(cellController: cellController)
       ..add(const DateCellEvent.initial());
-    super.initState();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cellBloc.close();
+    super.dispose();
   }
 
   @override
@@ -64,11 +70,5 @@ class _DateCellState extends State<MobileDateCardCell> {
         },
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
   }
 }
