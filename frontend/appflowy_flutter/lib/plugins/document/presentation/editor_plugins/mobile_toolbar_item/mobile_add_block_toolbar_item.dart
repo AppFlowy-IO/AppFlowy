@@ -166,7 +166,6 @@ final _addBlockMenuItems = [
   // callout
   BlockMenuItem(
     blockType: CalloutBlockKeys.type,
-    // FIXME: update icon
     icon: const Icon(Icons.note_rounded),
     label: LocaleKeys.document_plugins_callout.tr(),
     isSelected: _unSelectable,
@@ -261,6 +260,7 @@ extension on EditorState {
         );
     }
     await apply(transaction);
+    service.keyboardService?.enableKeyBoard(selection);
   }
 
   Future<void> insertMathEquation(
@@ -323,5 +323,6 @@ extension on EditorState {
       Position(path: insertedPath.next),
     );
     await apply(transaction);
+    service.keyboardService?.enableKeyBoard(selection);
   }
 }

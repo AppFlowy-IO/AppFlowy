@@ -37,7 +37,7 @@ Node calloutNode({
   final attributes = {
     CalloutBlockKeys.delta: (delta ?? Delta()).toJson(),
     CalloutBlockKeys.icon: emoji,
-    CalloutBlockKeys.backgroundColor: defaultColor?.toHex() ?? '#f2f2f2',
+    CalloutBlockKeys.backgroundColor: defaultColor?.toHex(),
   };
   return Node(
     type: CalloutBlockKeys.type,
