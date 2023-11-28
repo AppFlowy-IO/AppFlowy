@@ -49,7 +49,7 @@ class MobileFieldEditor extends StatelessWidget {
           // for field type edit option
           final dataController =
               context.read<FieldEditorBloc>().typeOptionController;
-
+          final fieldInfo = fieldController.getField(field.id)!.visibility;
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -70,8 +70,7 @@ class MobileFieldEditor extends StatelessWidget {
                       ),
                     ),
                     VisibilitySwitch(
-                      isVisible:
-                          state.field.visibility?.isVisibleState() ?? false,
+                      isFieldHidden: !fieldInfo!.isVisibleState(),
                       onChanged: () => context.read<RowDetailBloc>().add(
                             RowDetailEvent.toggleFieldVisibility(
                               state.field.id,
@@ -96,11 +95,11 @@ class MobileFieldEditor extends StatelessWidget {
 class VisibilitySwitch extends StatefulWidget {
   const VisibilitySwitch({
     super.key,
-    required this.isVisible,
+    required this.isFieldHidden,
     this.onChanged,
   });
 
-  final bool isVisible;
+  final bool isFieldHidden;
   final Function? onChanged;
 
   @override
@@ -108,17 +107,19 @@ class VisibilitySwitch extends StatefulWidget {
 }
 
 class _VisibilitySwitchState extends State<VisibilitySwitch> {
-  late bool _isVisible = widget.isVisible;
+  late bool _isFieldHidden = widget.isFieldHidden;
 
   @override
   Widget build(BuildContext context) {
     return Toggle(
       padding: EdgeInsets.zero,
-      value: _isVisible,
+      value: !_isFieldHidden,
       style: ToggleStyle.mobile,
-      onChanged: (newValue) {
-        widget.onChanged?.call();
-        setState(() => _isVisible = newValue);
+      onChanged: (_) {
+        setState(() {
+          _isFieldHidden = !_isFieldHidden;
+          widget.onChanged?.call();
+        });
       },
     );
   }
