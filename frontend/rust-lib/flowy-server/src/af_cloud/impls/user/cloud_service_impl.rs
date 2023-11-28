@@ -38,7 +38,7 @@ impl<T> UserCloudService for AFCloudUserAuthServiceImpl<T>
 where
   T: AFServer,
 {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let params = oauth_params_from_box_any(params)?;
@@ -48,7 +48,7 @@ where
   }
 
   // Zack: Not sure if this is needed anymore since sign_up handles both cases
-  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
@@ -58,12 +58,12 @@ where
     })
   }
 
-  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move { Ok(try_get_client?.sign_out().await?) })
   }
 
-  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error> {
+  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError> {
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
@@ -90,7 +90,7 @@ where
     })
   }
 
-  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, Error> {
+  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, FlowyError> {
     let provider = AuthProvider::from(provider);
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
@@ -106,7 +106,7 @@ where
     &self,
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
@@ -141,11 +141,11 @@ where
     })
   }
 
-  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;
-      Ok(to_user_workspaces(workspaces.0)?)
+      to_user_workspaces(workspaces.0)
     })
   }
 

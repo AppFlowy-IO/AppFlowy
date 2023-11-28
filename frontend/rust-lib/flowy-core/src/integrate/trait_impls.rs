@@ -77,6 +77,12 @@ impl UserCloudServiceProvider for ServerProvider {
     }
   }
 
+  fn set_network_reachable(&self, reachable: bool) {
+    if let Ok(server) = self.get_server(&self.get_server_type()) {
+      server.set_network_reachable(reachable);
+    }
+  }
+
   fn set_encrypt_secret(&self, secret: String) {
     tracing::info!("🔑Set encrypt secret");
     self.encryption.write().set_secret(secret);

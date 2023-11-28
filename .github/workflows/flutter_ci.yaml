@@ -119,7 +119,8 @@ jobs:
         run: flutter analyze .
 
       - name: Compress appflowy_flutter
-        run: tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
+        run: |
+          tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
 
       - uses: actions/upload-artifact@v3
         with:
@@ -319,20 +320,6 @@ jobs:
           fi
         shell: bash
 
-      - name: Upload coverage to Codecov
-        uses: Wandalen/wretry.action@v1.0.36
-        with:
-          action: codecov/codecov-action@v3
-          with: |
-            name: appflowy
-            flags: appflowy_flutter_integrateion_test
-            fail_ci_if_error: true
-            verbose: true
-            os: ${{ matrix.os }}
-            token: ${{ secrets.CODECOV_TOKEN }}
-          attempt_limit: 20
-          attempt_delay: 10000
-
   cloud_integration_test:
     needs: [prepare]
 #    if: github.event_name != 'pull_request'
@@ -361,9 +348,9 @@ jobs:
           # log level
           cp dev.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.GOTRUE_SMTP_USER }}/' .env
-          sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.GOTRUE_SMTP_PASS }}/' .env
-          sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
+          sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_USER }}/' .env
+          sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_PASS }}/' .env
+          sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
           sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
           cat .env
@@ -406,13 +393,15 @@ jobs:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
       - name: Uncompressed appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
+        run: | 
+          tar -xf appflowy_flutter.tar.gz
+          ls -al
 
-      - name: Create .env.cloud.test file in flowy-server
+      - name: Enable localhost env
         working-directory: frontend/appflowy_flutter
         run: |
-          cp .env.dev .env 
-          sed -i '' 's|APPFLOWY_CLOUD_URL=.*|APPFLOWY_CLOUD_URL=http://localhost|' .env
+          echo 'APPFLOWY_CLOUD_URL=http://localhost' >> .env
+          dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs
 
       - name: Run flutter pub get
         working-directory: frontend

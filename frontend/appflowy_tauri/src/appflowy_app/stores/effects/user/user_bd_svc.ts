@@ -98,6 +98,7 @@ export class UserBackendService {
 export class AuthBackendService {
   signIn = (params: { email: string; password: string }) => {
     const payload = SignInPayloadPB.fromObject({ email: params.email, password: params.password });
+    
     return UserEventSignInWithEmailPassword(payload);
   };
 

@@ -455,6 +455,7 @@ pub async fn update_network_state_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let reachable = data.into_inner().ty.is_reachable();
+  manager.cloud_services.set_network_reachable(reachable);
   manager
     .user_status_callback
     .read()

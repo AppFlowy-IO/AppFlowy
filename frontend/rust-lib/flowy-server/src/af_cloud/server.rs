@@ -37,6 +37,7 @@ pub struct AppFlowyCloudServer {
   pub(crate) config: AFCloudConfiguration,
   pub(crate) client: Arc<AFCloudClient>,
   enable_sync: Arc<AtomicBool>,
+  network_reachable: Arc<AtomicBool>,
   #[allow(dead_code)]
   device_id: String,
   ws_client: Arc<WSClient>,
@@ -47,6 +48,7 @@ impl AppFlowyCloudServer {
     let api_client = AFCloudClient::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
+    let network_reachable = Arc::new(AtomicBool::new(true));
 
     let ws_client = WSClient::new(WSClientConfig::default(), api_client.clone());
     let ws_client = Arc::new(ws_client);
@@ -63,6 +65,7 @@ impl AppFlowyCloudServer {
       config,
       client: api_client,
       enable_sync,
+      network_reachable,
       device_id,
       ws_client,
     }
@@ -117,8 +120,14 @@ impl AppFlowyServer for AppFlowyCloudServer {
     self.enable_sync.store(enable, Ordering::SeqCst);
   }
 
+  fn set_network_reachable(&self, reachable: bool) {
+    self.network_reachable.store(reachable, Ordering::SeqCst);
+  }
+
   fn user_service(&self) -> Arc<dyn UserCloudService> {
-    let server = AFServerImpl(self.get_client());
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
     let mut user_change = self.ws_client.subscribe_user_changed();
     let (tx, rx) = tokio::sync::mpsc::channel(1);
     tokio::spawn(async move {
@@ -139,17 +148,23 @@ impl AppFlowyServer for AppFlowyCloudServer {
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    let server = AFServerImpl(self.get_client());
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
     Arc::new(AFCloudFolderCloudServiceImpl(server))
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    let server = AFServerImpl(self.get_client());
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
     Arc::new(AFCloudDatabaseCloudServiceImpl(server))
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
-    let server = AFServerImpl(self.get_client());
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
     Arc::new(AFCloudDocumentCloudServiceImpl(server))
   }
 
@@ -184,7 +199,9 @@ impl AppFlowyServer for AppFlowyCloudServer {
   }
 
   fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
-    let client = AFServerImpl(self.get_client());
+    let client = AFServerImpl {
+      client: self.get_client(),
+    };
     Some(Arc::new(AFCloudFileStorageServiceImpl::new(client)))
   }
 }
@@ -274,15 +291,17 @@ pub trait AFServer: Send + Sync + 'static {
 }
 
 #[derive(Clone)]
-pub struct AFServerImpl(pub Option<Arc<AFCloudClient>>);
+pub struct AFServerImpl {
+  client: Option<Arc<AFCloudClient>>,
+}
 
 impl AFServer for AFServerImpl {
   fn get_client(&self) -> Option<Arc<AFCloudClient>> {
-    self.0.clone()
+    self.client.clone()
   }
 
   fn try_get_client(&self) -> Result<Arc<AFCloudClient>, Error> {
-    match self.0.clone() {
+    match self.client.clone() {
       None => Err(
         FlowyError::new(
           ErrorCode::DataSyncRequired,

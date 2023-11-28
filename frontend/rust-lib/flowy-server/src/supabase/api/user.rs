@@ -64,7 +64,7 @@ impl<T> UserCloudService for SupabaseUserServiceImpl<T>
 where
   T: SupabaseServerService,
 {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -129,7 +129,7 @@ where
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -159,23 +159,19 @@ where
     })
   }
 
-  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, Error> {
+  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
-      Err(anyhow::anyhow!(
-        "Can't generate callback url when using supabase"
-      ))
+      Err(FlowyError::internal().with_context("Can't generate callback url when using supabase"))
     })
   }
 
-  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, Error> {
+  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
-      Err(anyhow::anyhow!(
-        "Can't generate oauth url when using supabase"
-      ))
+      Err(FlowyError::internal().with_context("Can't generate oauth url when using supabase"))
     })
   }
 
@@ -183,7 +179,7 @@ where
     &self,
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -226,7 +222,7 @@ where
     })
   }
 
-  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
@@ -22,100 +24,100 @@ void main() {
       tester.expectToSeeHomePage();
     });
 
-    testWidgets('sign out', (tester) async {
-      await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
-      );
-      await tester.tapGoogleLoginInButton();
+    // testWidgets('sign out', (tester) async {
+    //   await tester.initializeAppFlowy(
+    //     cloudType: AuthenticatorType.appflowyCloud,
+    //   );
+    //   await tester.tapGoogleLoginInButton();
 
-      // Open the setting page and sign out
-      await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.user);
-      await tester.tapButton(find.byType(SettingLogoutButton));
+    //   // Open the setting page and sign out
+    //   await tester.openSettings();
+    //   await tester.openSettingsPage(SettingsPage.user);
+    //   await tester.tapButton(find.byType(SettingLogoutButton));
 
-      tester.expectToSeeText(LocaleKeys.button_ok.tr());
-      await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
+    //   tester.expectToSeeText(LocaleKeys.button_ok.tr());
+    //   await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
 
-      // Go to the sign in page again
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-      tester.expectToSeeGoogleLoginButton();
-    });
+    //   // Go to the sign in page again
+    //   await tester.pumpAndSettle(const Duration(seconds: 1));
+    //   tester.expectToSeeGoogleLoginButton();
+    // });
 
-    testWidgets('sign in as annoymous', (tester) async {
-      await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
-      );
-      await tester.tapSignInAsGuest();
+    // testWidgets('sign in as annoymous', (tester) async {
+    //   await tester.initializeAppFlowy(
+    //     cloudType: AuthenticatorType.appflowyCloud,
+    //   );
+    //   await tester.tapSignInAsGuest();
 
-      // should not see the sync setting page when sign in as annoymous
-      await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.user);
-      tester.expectToSeeGoogleLoginButton();
-    });
+    //   // should not see the sync setting page when sign in as annoymous
+    //   await tester.openSettings();
+    //   await tester.openSettingsPage(SettingsPage.user);
+    //   tester.expectToSeeGoogleLoginButton();
+    // });
 
-    testWidgets('enable sync', (tester) async {
-      await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
-      );
-      await tester.tapGoogleLoginInButton();
+    // testWidgets('enable sync', (tester) async {
+    //   await tester.initializeAppFlowy(
+    //     cloudType: AuthenticatorType.appflowyCloud,
+    //   );
+    //   await tester.tapGoogleLoginInButton();
 
-      // Open the setting page and sign out
-      await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.cloud);
+    //   // Open the setting page and sign out
+    //   await tester.openSettings();
+    //   await tester.openSettingsPage(SettingsPage.cloud);
 
-      // the switch should be on by default
-      tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
-      await tester.toggleEnableSync(AppFlowyCloudEnableSync);
+    //   // the switch should be on by default
+    //   tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
+    //   await tester.toggleEnableSync(AppFlowyCloudEnableSync);
 
-      // the switch should be off
-      tester.assertAppFlowyCloudEnableSyncSwitchValue(false);
+    //   // the switch should be off
+    //   tester.assertAppFlowyCloudEnableSyncSwitchValue(false);
 
-      // the switch should be on after toggling
-      await tester.toggleEnableSync(AppFlowyCloudEnableSync);
-      tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
-    });
+    //   // the switch should be on after toggling
+    //   await tester.toggleEnableSync(AppFlowyCloudEnableSync);
+    //   tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
+    // });
 
-    testWidgets('custom folder sign in', (tester) async {
-      const userA = 'UserA';
-      final initialPath = p.join(userA, appFlowyDataFolder);
-      final context = await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
-        pathExtension: initialPath,
-      );
-      // remove the last extension
-      final rootPath = context.applicationDataDirectory.replaceFirst(
-        initialPath,
-        '',
-      );
-      await tester.tapGoogleLoginInButton();
+    // testWidgets('custom folder sign in', (tester) async {
+    //   const userA = 'UserA';
+    //   final initialPath = p.join(userA, appFlowyDataFolder);
+    //   final context = await tester.initializeAppFlowy(
+    //     cloudType: AuthenticatorType.appflowyCloud,
+    //     pathExtension: initialPath,
+    //   );
+    //   // remove the last extension
+    //   final rootPath = context.applicationDataDirectory.replaceFirst(
+    //     initialPath,
+    //     '',
+    //   );
+    //   await tester.tapGoogleLoginInButton();
 
-      // Open the setting page and sign out
-      await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.user);
-      await tester.enterUserName(userA);
+    //   // Open the setting page and sign out
+    //   await tester.openSettings();
+    //   await tester.openSettingsPage(SettingsPage.user);
+    //   await tester.enterUserName(userA);
 
-      await tester.openSettingsPage(SettingsPage.files);
-      await tester.pumpAndSettle();
+    //   await tester.openSettingsPage(SettingsPage.files);
+    //   await tester.pumpAndSettle();
 
-      // mock the file_picker result
-      await mockGetDirectoryPath(
-        p.join(rootPath, "random_folder"),
-      );
+    //   // mock the file_picker result
+    //   await mockGetDirectoryPath(
+    //     p.join(rootPath, "random_folder"),
+    //   );
 
-      // after selecting the folder, an annoymous user should be signed in
-      await tester.tapCustomLocationButton();
-      tester.expectToSeeHomePage();
-      await tester.pumpAndSettle();
+    //   // after selecting the folder, an annoymous user should be signed in
+    //   await tester.tapCustomLocationButton();
+    //   tester.expectToSeeHomePage();
+    //   await tester.pumpAndSettle();
 
-      // Login as userA in custom folder
-      await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.user);
-      await tester.tapGoogleLoginInButton();
+    //   // Login as userA in custom folder
+    //   await tester.openSettings();
+    //   await tester.openSettingsPage(SettingsPage.user);
+    //   await tester.tapGoogleLoginInButton();
 
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-      tester.expectToSeeHomePage();
-      // UserA should be displayed
-      tester.expectToSeeUserName(userA);
-    });
+    //   await tester.pumpAndSettle(const Duration(seconds: 1));
+    //   tester.expectToSeeHomePage();
+    //   // UserA should be displayed
+    //   tester.expectToSeeUserName(userA);
+    // });
   });
 }

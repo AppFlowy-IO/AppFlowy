@@ -65,6 +65,13 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
             }
           },
         ),
+        // if (Env.enableCustomCloud) ...[
+        //   const VSpace(10),
+        //   const SizedBox(
+        //     width: 340,
+        //     child: _SetupYourServer(),
+        //   ),
+        // ],
         const VSpace(32),
         SizedBox(
           width: size.width * 0.7,
@@ -276,10 +283,33 @@ class GoButton extends StatelessWidget {
                 ? LocaleKeys.letsGoButtonText.tr()
                 : LocaleKeys.signIn_continueAnonymousUser.tr();
 
-            final textWidget = FlowyText.medium(
-              text,
-              textAlign: TextAlign.center,
-              fontSize: 14,
+            final textWidget = Row(
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: FlowyText.medium(
+                    text,
+                    textAlign: TextAlign.center,
+                    fontSize: 14,
+                  ),
+                ),
+                // Tooltip(
+                //   message: LocaleKeys.settings_menu_configServerGuide.tr(),
+                //   child: Container(
+                //     width: 30.0,
+                //     decoration: const BoxDecoration(
+                //       shape: BoxShape.circle,
+                //     ),
+                //     child: Center(
+                //       child: Icon(
+                //         Icons.help,
+                //         color: Colors.white,
+                //         weight: 2,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+              ],
             );
 
             return SizedBox(

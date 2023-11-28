@@ -15,7 +15,8 @@ void showSnapBar(BuildContext context, String title, {VoidCallback? onClosed}) {
             },
             child: FlowyText.medium(
               title,
-              fontSize: 16,
+              fontSize: 12,
+              maxLines: 3,
             ),
           ),
           backgroundColor: Theme.of(context).colorScheme.background,

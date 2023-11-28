@@ -73,7 +73,7 @@ private = true
 script = [
   """
     cd rust-lib
-     RUSTFLAGS="--cfg tokio_unstable" exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ..
   """,
 ]

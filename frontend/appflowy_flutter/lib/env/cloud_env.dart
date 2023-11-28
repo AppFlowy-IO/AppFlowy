@@ -75,10 +75,6 @@ bool get isAuthEnabled {
       integrationMode().isDevelop ||
       integrationMode().isIntegrationTest) {
     final env = getIt<AppFlowyCloudSharedEnv>();
-    if (env.authenticatorType == AuthenticatorType.local) {
-      return false;
-    }
-
     if (env.authenticatorType == AuthenticatorType.supabase) {
       return env.supabaseConfig.isValid;
     }
