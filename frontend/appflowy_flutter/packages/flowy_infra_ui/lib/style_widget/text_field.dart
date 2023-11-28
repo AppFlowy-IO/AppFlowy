@@ -27,6 +27,7 @@ class FlowyTextField extends StatefulWidget {
   final BoxConstraints? prefixIconConstraints;
   final BoxConstraints? suffixIconConstraints;
   final BoxConstraints? hintTextConstraints;
+  final TextStyle? hintStyle;
 
   const FlowyTextField({
     super.key,
@@ -52,6 +53,7 @@ class FlowyTextField extends StatefulWidget {
     this.prefixIconConstraints,
     this.suffixIconConstraints,
     this.hintTextConstraints,
+    this.hintStyle,
   });
 
   @override
@@ -153,10 +155,11 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             .textTheme
             .bodySmall!
             .copyWith(color: Theme.of(context).colorScheme.error),
-        hintStyle: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(color: Theme.of(context).hintColor),
+        hintStyle: widget.hintStyle ??
+            Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .copyWith(color: Theme.of(context).hintColor),
         suffixText: widget.showCounter ? _suffixText() : "",
         counterText: "",
         focusedBorder: OutlineInputBorder(

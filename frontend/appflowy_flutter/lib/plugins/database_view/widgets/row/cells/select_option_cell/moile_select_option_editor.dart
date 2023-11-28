@@ -33,13 +33,31 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
       create: (context) => SelectOptionCellEditorBloc(
         cellController: widget.cellController,
       )..add(const SelectOptionEditorEvent.initial()),
-      child: Column(
-        children: [
-          _SearchField(
-            hintText: LocaleKeys.grid_selectOption_searchOrCreateOption.tr(),
-          ),
-          const _OptionList(),
-        ],
+      child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              _SearchField(
+                hintText:
+                    LocaleKeys.grid_selectOption_searchOrCreateOption.tr(),
+                onSubmitted: (option) {
+                  context
+                      .read<SelectOptionCellEditorBloc>()
+                      .add(SelectOptionEditorEvent.trySelectOption(option));
+                },
+                onChanged: (value) {
+                  context.read<SelectOptionCellEditorBloc>().add(
+                        SelectOptionEditorEvent.selectMultipleOptions(
+                          [],
+                          value,
+                        ),
+                      );
+                },
+              ),
+              const _OptionList(),
+            ],
+          );
+        },
       ),
     );
   }
@@ -48,9 +66,13 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
 class _SearchField extends StatelessWidget {
   const _SearchField({
     required this.hintText,
+    required this.onChanged,
+    required this.onSubmitted,
   });
 
   final String hintText;
+  final void Function(String value) onChanged;
+  final void Function(String value) onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +84,12 @@ class _SearchField extends StatelessWidget {
         height: 44, // the height is fixed.
         child: FlowyTextField(
           hintText: hintText,
+          hintStyle: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(color: Theme.of(context).hintColor),
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
         ),
       ),
     );
@@ -76,17 +104,7 @@ class _OptionList extends StatelessWidget {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
         // existing options
-        final List<Widget> cells = state.options
-            .map(
-              (option) => _SelectOption(
-                option: option,
-                checked: state.selectedOptions.contains(option),
-                onCheck: (value) => context
-                    .read<SelectOptionCellEditorBloc>()
-                    .add(SelectOptionEditorEvent.updateOption(option)),
-              ),
-            )
-            .toList();
+        final List<Widget> cells = [];
 
         // create an option cell
         state.createOption.fold(
@@ -94,6 +112,18 @@ class _OptionList extends StatelessWidget {
           (createOption) {
             cells.add(_CreateOptionCell(optionName: createOption));
           },
+        );
+
+        cells.addAll(
+          state.options.map(
+            (option) => _SelectOption(
+              option: option,
+              checked: state.selectedOptions.contains(option),
+              onCheck: (value) => context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.updateOption(option)),
+            ),
+          ),
         );
 
         return ListView.separated(
@@ -125,9 +155,11 @@ class _SelectOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 44,
-      child: FlowyButton(
+      child: GestureDetector(
+        // no need to add click effect, so using gesture detector
+        behavior: HitTestBehavior.translucent,
         onTap: () => onCheck(!checked),
-        text: Row(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // check icon
@@ -147,8 +179,9 @@ class _SelectOption extends StatelessWidget {
             ),
             const Spacer(),
             // more options
-            const FlowyIconButton(
-              icon: FlowySvg(FlowySvgs.three_dots_s),
+            FlowyIconButton(
+              icon: const FlowySvg(FlowySvgs.three_dots_s),
+              onPressed: () {},
             ),
           ],
         ),
@@ -167,12 +200,13 @@ class _CreateOptionCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 34,
-      child: FlowyButton(
+      height: 44,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: () => context
             .read<SelectOptionCellEditorBloc>()
             .add(SelectOptionEditorEvent.newOption(optionName)),
-        text: Row(
+        child: Row(
           children: [
             FlowyText.medium(
               LocaleKeys.grid_selectOption_create.tr(),
@@ -184,7 +218,7 @@ class _CreateOptionCell extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: _SelectOptionTag(
                   optionName: optionName,
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
                 ),
               ),
             ),
