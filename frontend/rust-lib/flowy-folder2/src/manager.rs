@@ -169,6 +169,7 @@ impl FolderManager {
           let folder_data =
             DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
               .await;
+
           let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db, vec![])
             .await?;
@@ -1181,7 +1182,7 @@ fn get_workspace_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
     .map(|trash| trash.id)
     .collect::<Vec<String>>();
 
-  let mut views = folder.get_workspace_views(workspace_id);
+  let mut views = folder.get_workspace_views();
   views.retain(|view| !trash_ids.contains(&view.id));
 
   views

@@ -7,7 +7,7 @@ use flowy_error::FlowyResult;
 
 use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB, MetaPB};
 
-use super::block::Block;
+use super::block::SerdeBlock;
 
 pub struct JsonToDocumentParser;
 
@@ -15,7 +15,7 @@ const DELTA: &str = "delta";
 const TEXT_EXTERNAL_TYPE: &str = "text";
 impl JsonToDocumentParser {
   pub fn json_str_to_document(json_str: &str) -> FlowyResult<DocumentDataPB> {
-    let root = serde_json::from_str::<Block>(json_str)?;
+    let root = serde_json::from_str::<SerdeBlock>(json_str)?;
 
     let page_id = nanoid!(10);
 
@@ -39,7 +39,7 @@ impl JsonToDocumentParser {
   }
 
   fn generate_blocks(
-    block: &Block,
+    block: &SerdeBlock,
     id: Option<String>,
     parent_id: String,
   ) -> (IndexMap<String, BlockPB>, IndexMap<String, String>) {
@@ -93,7 +93,7 @@ impl JsonToDocumentParser {
   }
 
   fn block_to_block_pb(
-    block: &Block,
+    block: &SerdeBlock,
     id: Option<String>,
     parent_id: String,
   ) -> (BlockPB, Option<String>) {
