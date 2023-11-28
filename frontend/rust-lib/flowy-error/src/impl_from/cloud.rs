@@ -19,6 +19,7 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::InvalidOAuthProvider => ErrorCode::InvalidAuthConfig,
       AppErrorCode::NotLoggedIn => ErrorCode::UserUnauthorized,
       AppErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,
+      AppErrorCode::NetworkError => ErrorCode::HttpError,
       _ => ErrorCode::Internal,
     };
 

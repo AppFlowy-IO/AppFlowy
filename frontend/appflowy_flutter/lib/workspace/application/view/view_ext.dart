@@ -41,8 +41,9 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    const Widget widget = FlowySvg(FlowySvgs.document_s);
-    return widget;
+    return const FlowySvg(
+      FlowySvgs.document_s,
+    );
   }
 
   Widget defaultIcon() {

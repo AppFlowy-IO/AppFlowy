@@ -61,6 +61,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetGroup, get_group_handler)
         .event(DatabaseEvent::UpdateGroup, update_group_handler)
         .event(DatabaseEvent::CreateGroup, create_group_handler)
+        .event(DatabaseEvent::DeleteGroup, delete_group_handler)
         // Database
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
@@ -287,6 +288,9 @@ pub enum DatabaseEvent {
 
   #[event(input = "CreateGroupPayloadPB")]
   CreateGroup = 114,
+
+  #[event(input = "DeleteGroupPayloadPB")]
+  DeleteGroup = 115,
 
   /// Returns all the databases
   #[event(output = "RepeatedDatabaseDescriptionPB")]

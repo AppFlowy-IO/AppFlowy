@@ -107,30 +107,32 @@ class _GridHeaderState extends State<_GridHeader> {
                   : MobileFieldButton(
                       key: _getKeyById(fieldInfo.id),
                       viewId: widget.viewId,
-                      field: fieldInfo,
+                      fieldController: widget.fieldController,
+                      fieldInfo: fieldInfo,
                     ),
             )
             .toList();
 
-        return ColoredBox(
-          color: Theme.of(context).colorScheme.surface,
-          child: RepaintBoundary(
-            child: ReorderableRow(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              scrollController: ScrollController(),
-              header: const _CellLeading(),
-              needsLongPressDraggable: PlatformExtension.isMobile,
-              footer: _CellTrailing(viewId: widget.viewId),
-              onReorder: (int oldIndex, int newIndex) {
-                _onReorder(
-                  cells,
-                  oldIndex,
-                  context,
-                  newIndex,
-                );
-              },
-              children: cells,
+        return RepaintBoundary(
+          child: ReorderableRow(
+            scrollController: ScrollController(),
+            buildDraggableFeedback: (context, constraints, child) => Material(
+              color: Colors.transparent,
+              child: child,
             ),
+            draggingWidgetOpacity: 0,
+            header: const _CellLeading(),
+            needsLongPressDraggable: PlatformExtension.isMobile,
+            footer: _CellTrailing(viewId: widget.viewId),
+            onReorder: (int oldIndex, int newIndex) {
+              _onReorder(
+                cells,
+                oldIndex,
+                context,
+                newIndex,
+              );
+            },
+            children: cells,
           ),
         );
       },
@@ -144,7 +146,9 @@ class _GridHeaderState extends State<_GridHeader> {
     int newIndex,
   ) {
     if (cells.length > oldIndex) {
-      final field = (cells[oldIndex] as GridFieldCell).fieldInfo.field;
+      final field = PlatformExtension.isDesktop
+          ? (cells[oldIndex] as GridFieldCell).fieldInfo.field
+          : (cells[oldIndex] as MobileFieldButton).fieldInfo.field;
       context
           .read<GridHeaderBloc>()
           .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
@@ -174,9 +178,11 @@ class _CellTrailing extends StatelessWidget {
         BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
     return Container(
       width: GridSize.trailHeaderPadding,
-      decoration: BoxDecoration(
-        border: Border(bottom: borderSide),
-      ),
+      decoration: PlatformExtension.isDesktop
+          ? BoxDecoration(
+              border: Border(bottom: borderSide),
+            )
+          : null,
       padding: GridSize.headerContentInsets,
       child: CreateFieldButton(viewId: viewId),
     );
@@ -217,6 +223,8 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
         text: FlowyText.medium(
           LocaleKeys.grid_field_newProperty.tr(),
           overflow: TextOverflow.ellipsis,
+          color:
+              PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
         ),
         hoverColor: AFThemeExtension.of(context).greyHover,
         onTap: () async {
@@ -231,7 +239,11 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
             (r) => Log.error("Failed to create field type option: $r"),
           );
         },
-        leftIcon: const FlowySvg(FlowySvgs.add_s),
+        leftIcon: FlowySvg(
+          FlowySvgs.add_s,
+          color:
+              PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
+        ),
       ),
       popupBuilder: (BuildContext popoverContext) {
         return FieldEditor(

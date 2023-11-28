@@ -133,6 +133,7 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
               child: FlowyText.medium(
                 widget.title,
                 fontSize: FontSizes.s16,
+                textAlign: TextAlign.center,
                 color: Theme.of(context).colorScheme.tertiary,
                 maxLines: null,
               ),

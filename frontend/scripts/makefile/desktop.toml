@@ -51,9 +51,7 @@ private = true
 script = [
   """
     cd rust-lib/
-    rustup show
-    echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
-    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+     RUSTFLAGS="--cfg tokio_unstable" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
@@ -64,8 +62,6 @@ private = true
 script = [
   """
     cd rust-lib/
-    rustup show
-    echo  RUSTFLAGS="-C target-cpu=native -C link-arg=-mmacosx-version-min=11.0" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     RUSTFLAGS="--cfg tokio_unstable" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
@@ -97,6 +93,16 @@ run_task = { name = [
 
 #
 [tasks.sdk-release-build]
+script = [
+  """
+    cd rust-lib/
+    cargo build --profile ${CARGO_PROFILE} --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.sdk-release-build.mac]
 script = [
   """
     cd rust-lib/

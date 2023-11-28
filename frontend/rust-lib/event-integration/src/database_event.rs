@@ -426,6 +426,18 @@ impl EventIntegrationTest {
       .error()
   }
 
+  pub async fn delete_group(&self, view_id: &str, group_id: &str) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::DeleteGroup)
+      .payload(DeleteGroupPayloadPB {
+        view_id: view_id.to_string(),
+        group_id: group_id.to_string(),
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn update_setting(&self, changeset: DatabaseSettingChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::UpdateDatabaseSetting)

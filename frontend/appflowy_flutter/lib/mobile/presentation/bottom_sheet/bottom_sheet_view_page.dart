@@ -217,16 +217,16 @@ class MobileViewBottomSheetBody extends StatelessWidget {
                 : MobileViewBottomSheetBodyAction.addToFavorites,
           ),
         ),
-        const VSpace(8),
 
-        // help center
-        BottomSheetActionWidget(
-          svg: FlowySvgs.m_help_center_m,
-          text: LocaleKeys.button_helpCenter.tr(),
-          onTap: () => onAction(
-            MobileViewBottomSheetBodyAction.helpCenter,
-          ),
-        ),
+        // Help Center
+        // const VSpace(8),
+        // BottomSheetActionWidget(
+        //   svg: FlowySvgs.m_help_center_m,
+        //   text: LocaleKeys.button_helpCenter.tr(),
+        //   onTap: () => onAction(
+        //     MobileViewBottomSheetBodyAction.helpCenter,
+        //   ),
+        // ),
       ],
     );
   }

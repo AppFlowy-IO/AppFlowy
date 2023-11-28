@@ -34,6 +34,7 @@ class EventCard extends StatefulWidget {
     required this.constraints,
     required this.autoEdit,
     this.isDraggable = true,
+    this.padding = EdgeInsets.zero,
   });
 
   final FieldController fieldController;
@@ -43,6 +44,7 @@ class EventCard extends StatefulWidget {
   final BoxConstraints constraints;
   final bool autoEdit;
   final bool isDraggable;
+  final EdgeInsets padding;
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -180,9 +182,12 @@ class _EventCardState extends State<EventCard> {
           layoutSettings: settings,
         );
       },
-      child: DecoratedBox(
-        decoration: decoration,
-        child: card,
+      child: Padding(
+        padding: widget.padding,
+        child: DecoratedBox(
+          decoration: decoration,
+          child: card,
+        ),
       ),
     );
 

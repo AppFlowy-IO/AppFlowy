@@ -109,6 +109,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final result = await groupBackendSvc.createGroup(name: name);
             result.fold((_) {}, (err) => Log.error(err));
           },
+          deleteGroup: (groupId) async {
+            final result = await groupBackendSvc.deleteGroup(groupId: groupId);
+            result.fold((_) {}, (err) => Log.error(err));
+          },
           didCreateRow: (group, row, int? index) {
             emit(
               state.copyWith(
@@ -506,6 +510,7 @@ class BoardEvent with _$BoardEvent {
   ) = _ToggleGroupVisibility;
   const factory BoardEvent.toggleHiddenSectionVisibility(bool isVisible) =
       _ToggleHiddenSectionVisibility;
+  const factory BoardEvent.deleteGroup(String groupId) = _DeleteGroup;
   const factory BoardEvent.reorderGroup(String fromGroupId, String toGroupId) =
       _ReorderGroup;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;

@@ -1,6 +1,7 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_supabase_cloud.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,15 +11,15 @@ import '../util/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('auth', () {
+  group('supabase auth', () {
     testWidgets('sign in with supabase', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+      await tester.initializeAppFlowy(cloudType: AuthenticatorType.supabase);
       await tester.tapGoogleLoginInButton();
       tester.expectToSeeHomePage();
     });
 
     testWidgets('sign out with supabase', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+      await tester.initializeAppFlowy(cloudType: AuthenticatorType.supabase);
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out
@@ -35,7 +36,7 @@ void main() {
     });
 
     testWidgets('sign in as annoymous', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+      await tester.initializeAppFlowy(cloudType: AuthenticatorType.supabase);
       await tester.tapSignInAsGuest();
 
       // should not see the sync setting page when sign in as annoymous
@@ -65,7 +66,7 @@ void main() {
     // });
 
     testWidgets('enable sync', (tester) async {
-      await tester.initializeAppFlowy(cloudType: CloudType.supabase);
+      await tester.initializeAppFlowy(cloudType: AuthenticatorType.supabase);
       await tester.tapGoogleLoginInButton();
 
       // Open the setting page and sign out
@@ -73,15 +74,15 @@ void main() {
       await tester.openSettingsPage(SettingsPage.cloud);
 
       // the switch should be on by default
-      tester.assertEnableSyncSwitchValue(true);
-      await tester.toggleEnableSync();
+      tester.assertSupabaseEnableSyncSwitchValue(true);
+      await tester.toggleEnableSync(SupabaseEnableSync);
 
       // the switch should be off
-      tester.assertEnableSyncSwitchValue(false);
+      tester.assertSupabaseEnableSyncSwitchValue(false);
 
       // the switch should be on after toggling
-      await tester.toggleEnableSync();
-      tester.assertEnableSyncSwitchValue(true);
+      await tester.toggleEnableSync(SupabaseEnableSync);
+      tester.assertSupabaseEnableSyncSwitchValue(true);
     });
   });
 }

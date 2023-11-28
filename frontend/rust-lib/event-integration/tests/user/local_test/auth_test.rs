@@ -69,7 +69,7 @@ async fn sign_in_with_invalid_email() {
 
     assert_eq!(
       EventBuilder::new(sdk)
-        .event(SignIn)
+        .event(SignInWithEmailPassword)
         .payload(request)
         .async_send()
         .await
@@ -95,7 +95,7 @@ async fn sign_in_with_invalid_password() {
     };
 
     assert!(EventBuilder::new(sdk)
-      .event(SignIn)
+      .event(SignInWithEmailPassword)
       .payload(request)
       .async_send()
       .await

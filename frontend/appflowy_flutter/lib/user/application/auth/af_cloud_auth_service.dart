@@ -14,11 +14,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'auth_error.dart';
 import 'device_id.dart';
 
-class AFCloudAuthService implements AuthService {
+class AppFlowyCloudAuthService implements AuthService {
   final _appLinks = AppLinks();
   StreamSubscription<Uri?>? _deeplinkSubscription;
 
-  AFCloudAuthService();
+  AppFlowyCloudAuthService();
 
   final BackendAuthService _backendAuthService = BackendAuthService(
     AuthTypePB.AFCloud,
@@ -35,7 +35,7 @@ class AFCloudAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signIn({
+  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
