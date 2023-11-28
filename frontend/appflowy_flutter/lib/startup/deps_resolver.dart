@@ -11,7 +11,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
