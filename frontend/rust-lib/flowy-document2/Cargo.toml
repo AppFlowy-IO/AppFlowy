@@ -29,7 +29,7 @@ serde_json.workspace = true
 tracing.workspace = true
 tokio = { workspace = true, features = ["full"] }
 anyhow.workspace = true
-indexmap = {version = "1.9.2", features = ["serde"]}
+indexmap = {version = "2.1.0", features = ["serde"]}
 uuid.workspace = true
 futures.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
