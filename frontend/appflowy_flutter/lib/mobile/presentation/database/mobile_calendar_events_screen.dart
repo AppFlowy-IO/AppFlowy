@@ -1,6 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_card.dart';
+import 'package:calendar_view/calendar_view.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -42,12 +44,17 @@ class _MobileCalendarEventsScreenState
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
+    return BlocProvider<CalendarBloc>.value(
       value: widget.calendarBloc,
       child: BlocBuilder<CalendarBloc, CalendarState>(
-        buildWhen: (p, c) => p.newEvent != c.newEvent,
+        buildWhen: (p, c) =>
+            p.newEvent != c.newEvent &&
+            c.newEvent?.date.withoutTime == widget.date,
         builder: (context, state) {
-          if (state.newEvent?.event != null) {
+          if (state.newEvent?.event != null &&
+              _events
+                  .none((e) => e.eventId == state.newEvent!.event!.eventId) &&
+              state.newEvent!.date.withoutTime == widget.date) {
             _events.add(state.newEvent!.event!);
           }
 
@@ -71,17 +78,18 @@ class _MobileCalendarEventsScreenState
               child: Column(
                 children: [
                   const VSpace(10),
-                  ...widget.events.map((event) {
-                    return ListTile(
-                      dense: true,
-                      title: EventCard(
-                        fieldController: widget.calendarBloc.fieldController,
-                        event: event,
-                        viewId: widget.viewId,
-                        rowCache: widget.rowCache,
-                        constraints: const BoxConstraints.expand(),
-                        autoEdit: false,
-                        isDraggable: false,
+                  ..._events.map((event) {
+                    return EventCard(
+                      fieldController: widget.calendarBloc.fieldController,
+                      event: event,
+                      viewId: widget.viewId,
+                      rowCache: widget.rowCache,
+                      constraints: const BoxConstraints.expand(),
+                      autoEdit: false,
+                      isDraggable: false,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 3,
                       ),
                     );
                   }),

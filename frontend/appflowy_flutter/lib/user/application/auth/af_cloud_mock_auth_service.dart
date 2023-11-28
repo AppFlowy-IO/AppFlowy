@@ -2,23 +2,24 @@ import 'dart:async';
 
 import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-import 'auth_error.dart';
+import 'package:flowy_infra/uuid.dart';
 
 /// Only used for testing.
-class SupabaseMockAuthService implements AuthService {
-  SupabaseMockAuthService();
-  static OauthSignInPB? signInPayload;
+class AppFlowyCloudMockAuthService implements AuthService {
+  // Use same email for all tests.
+  static String currentUserEmail = "";
 
-  SupabaseClient get _client => Supabase.instance.client;
-  GoTrueClient get _auth => _client.auth;
+  AppFlowyCloudMockAuthService() {
+    if (currentUserEmail.isEmpty) {
+      currentUserEmail = "${uuid()}@appflowy.io";
+    }
+  }
 
   final BackendAuthService _appFlowyAuthService =
       BackendAuthService(AuthTypePB.Supabase);
@@ -47,45 +48,33 @@ class SupabaseMockAuthService implements AuthService {
     required String platform,
     Map<String, String> params = const {},
   }) async {
-    const password = "AppFlowyTest123!";
-    const email = "supabase_integration_test@appflowy.io";
-    try {
-      if (_auth.currentSession == null) {
-        try {
-          await _auth.signInWithPassword(
-            password: password,
-            email: email,
-          );
-        } catch (e) {
-          Log.error(e);
-          return Left(AuthError.supabaseSignUpError);
-        }
-      }
-      // Check if the user is already logged in.
-      final session = _auth.currentSession!;
-      final uuid = session.user.id;
+    final payload = SignInUrlPayloadPB.create()
+      ..authType = AuthTypePB.AFCloud
+      // don't use nanoid here, the gotrue server will transform the email
+      ..email = currentUserEmail;
 
-      // Create the OAuth sign-in payload.
-      final payload = OauthSignInPB(
-        authType: AuthTypePB.Supabase,
-        map: {
-          AuthServiceMapKeys.uuid: uuid,
-          AuthServiceMapKeys.email: email,
-          AuthServiceMapKeys.deviceId: 'MockDeviceId',
-        },
-      );
+    final deviceId = await getDeviceId();
+    final getSignInURLResult = await UserEventGenerateSignInURL(payload).send();
 
-      // Send the sign-in event and handle the response.
-      return UserEventOauthSignIn(payload).send().then((value) => value.swap());
-    } on AuthException catch (e) {
-      Log.error(e);
-      return Left(AuthError.supabaseSignInError);
-    }
+    return getSignInURLResult.fold(
+      (urlPB) async {
+        final payload = OauthSignInPB(
+          authType: AuthTypePB.AFCloud,
+          map: {
+            AuthServiceMapKeys.signInURL: urlPB.signInUrl,
+            AuthServiceMapKeys.deviceId: deviceId,
+          },
+        );
+        return await UserEventOauthSignIn(payload)
+            .send()
+            .then((value) => value.swap());
+      },
+      (r) => left(r),
+    );
   }
 
   @override
   Future<void> signOut() async {
-    // await _auth.signOut();
     await _appFlowyAuthService.signOut();
   }
 
@@ -93,8 +82,6 @@ class SupabaseMockAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     Map<String, String> params = const {},
   }) async {
-    // supabase don't support guest login.
-    // so, just forward to our backend.
     return _appFlowyAuthService.signUpAsGuest();
   }
 

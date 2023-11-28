@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowDetail};
+use collab_database::rows::{Cells, Row, RowDetail, RowId};
 
 use flowy_error::FlowyResult;
 
@@ -127,6 +127,10 @@ impl GroupControllerOperation for DefaultGroupController {
 
   fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesPB>> {
     Ok(None)
+  }
+
+  fn delete_group(&mut self, _group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
+    Ok((vec![], None))
   }
 
   async fn apply_group_changeset(

@@ -3,15 +3,17 @@ import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_
 import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_hidden_groups.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import '../util/database_test_op.dart';
 import '../util/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('board hide groups test', () {
+  group('board group options:', () {
     testWidgets('expand/collapse hidden groups', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
@@ -75,6 +77,47 @@ void main() {
       shownGroups = tester.widgetList(find.byType(BoardColumnHeader)).length;
       expect(shownGroups, 4);
     });
+  });
+
+  testWidgets('delete a group', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapGoButton();
+    await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+
+    expect(tester.widgetList(find.byType(BoardColumnHeader)).length, 4);
+
+    // tap group option button for the first group. Delete shouldn't show up
+    await tester.tapButton(
+      find
+          .descendant(
+            of: find.byType(BoardColumnHeader),
+            matching: find.byFlowySvg(FlowySvgs.details_horizontal_s),
+          )
+          .first,
+    );
+    expect(find.byFlowySvg(FlowySvgs.delete_s), findsNothing);
+
+    // dismiss the popup
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+
+    // tap group option button for the first group. Delete should show up
+    await tester.tapButton(
+      find
+          .descendant(
+            of: find.byType(BoardColumnHeader),
+            matching: find.byFlowySvg(FlowySvgs.details_horizontal_s),
+          )
+          .at(1),
+    );
+    expect(find.byFlowySvg(FlowySvgs.delete_s), findsOneWidget);
+
+    // Tap the delete button and confirm
+    await tester.tapButton(find.byFlowySvg(FlowySvgs.delete_s));
+    await tester.tapDialogOkButton();
+
+    // Expect number of groups to decrease by one
+    expect(tester.widgetList(find.byType(BoardColumnHeader)).length, 3);
   });
 }
 

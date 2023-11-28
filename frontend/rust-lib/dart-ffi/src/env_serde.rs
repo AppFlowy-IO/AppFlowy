@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::Deserialize;
 
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
@@ -6,13 +8,17 @@ use flowy_server_config::AuthenticatorType;
 
 #[derive(Deserialize, Debug)]
 pub struct AppFlowyDartConfiguration {
+  /// The root path of the application
+  pub root: String,
   /// This path will be used to store the user data
   pub custom_app_path: String,
   pub origin_app_path: String,
   pub device_id: String,
-  pub cloud_type: AuthenticatorType,
+  pub authenticator_type: AuthenticatorType,
   pub(crate) supabase_config: SupabaseConfiguration,
   pub(crate) appflowy_cloud_config: AFCloudConfiguration,
+  #[serde(default)]
+  pub(crate) envs: HashMap<String, String>,
 }
 
 impl AppFlowyDartConfiguration {
@@ -20,12 +26,13 @@ impl AppFlowyDartConfiguration {
     serde_json::from_str::<AppFlowyDartConfiguration>(s).unwrap()
   }
 
-  /// Parse the environment variable from the frontend application. The frontend will
-  /// pass the environment variable as a json string after launching.
-  pub fn write_env_from(env_str: &str) {
-    let configuration = Self::from_str(env_str);
-    configuration.cloud_type.write_env();
-    configuration.appflowy_cloud_config.write_env();
-    configuration.supabase_config.write_env();
+  pub fn write_env(&self) {
+    self.authenticator_type.write_env();
+    self.appflowy_cloud_config.write_env();
+    self.supabase_config.write_env();
+
+    for (k, v) in self.envs.iter() {
+      std::env::set_var(k, v);
+    }
   }
 }

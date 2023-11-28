@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use collab_database::fields::Field;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
@@ -185,6 +185,11 @@ impl GroupCustomize for URLGroupController {
         .delete_group(&deleted_group.as_ref().unwrap().group_id);
     }
     deleted_group
+  }
+
+  fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+    self.context.delete_group(group_id)?;
+    Ok(None)
   }
 }
 

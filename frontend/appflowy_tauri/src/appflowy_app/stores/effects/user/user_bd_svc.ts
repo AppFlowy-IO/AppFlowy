@@ -5,7 +5,7 @@ import {
   UserEventGetUserProfile,
   UserEventGetUserSetting,
   UserEventSetAppearanceSetting,
-  UserEventSignIn,
+  UserEventSignInWithEmailPassword,
   UserEventSignOut,
   UserEventSignUp,
   UserEventUpdateUserProfile,
@@ -98,8 +98,8 @@ export class UserBackendService {
 export class AuthBackendService {
   signIn = (params: { email: string; password: string }) => {
     const payload = SignInPayloadPB.fromObject({ email: params.email, password: params.password });
-
-    return UserEventSignIn(payload);
+    
+    return UserEventSignInWithEmailPassword(payload);
   };
 
   signUp = (params: { name: string; email: string; password: string }) => {

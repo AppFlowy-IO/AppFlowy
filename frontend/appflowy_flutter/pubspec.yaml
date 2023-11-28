@@ -47,7 +47,7 @@ dependencies:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "31acaff"
+      ref: "a05f31b"
 
   appflowy_popover:
     path: packages/appflowy_popover
@@ -74,8 +74,7 @@ dependencies:
   package_info_plus: ^4.0.1
   url_launcher: ^6.1.11
   clipboard: ^0.1.3
-  connectivity_plus: ^5.0.1
-  connectivity_plus_platform_interface: ^1.2.4
+  connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
   textfield_tags: ^2.0.2
   device_info_plus: ^9.0.1
@@ -91,7 +90,7 @@ dependencies:
   charcode: ^1.3.1
   collection: ^1.17.1
   bloc: ^8.1.2
-  shared_preferences: ^2.1.1
+  shared_preferences: ^2.2.2
   google_fonts: ^4.0.5
   percent_indicator: ^4.2.3
   calendar_view:

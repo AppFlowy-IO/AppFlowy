@@ -2,7 +2,6 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/entry_point.dart';
-import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
@@ -66,6 +65,13 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
             }
           },
         ),
+        // if (Env.enableCustomCloud) ...[
+        //   const VSpace(10),
+        //   const SizedBox(
+        //     width: 340,
+        //     child: _SetupYourServer(),
+        //   ),
+        // ],
         const VSpace(32),
         SizedBox(
           width: size.width * 0.7,
@@ -98,9 +104,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     await FlowyRunner.run(
       FlowyApp(),
       integrationMode(),
-      config: const LaunchConfiguration(
-        autoRegistrationSupported: true,
-      ),
+      isAnon: true,
     );
   }
 }
@@ -279,10 +283,33 @@ class GoButton extends StatelessWidget {
                 ? LocaleKeys.letsGoButtonText.tr()
                 : LocaleKeys.signIn_continueAnonymousUser.tr();
 
-            final textWidget = FlowyText.medium(
-              text,
-              textAlign: TextAlign.center,
-              fontSize: 14,
+            final textWidget = Row(
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: FlowyText.medium(
+                    text,
+                    textAlign: TextAlign.center,
+                    fontSize: 14,
+                  ),
+                ),
+                // Tooltip(
+                //   message: LocaleKeys.settings_menu_configServerGuide.tr(),
+                //   child: Container(
+                //     width: 30.0,
+                //     decoration: const BoxDecoration(
+                //       shape: BoxShape.circle,
+                //     ),
+                //     child: Center(
+                //       child: Icon(
+                //         Icons.help,
+                //         color: Colors.white,
+                //         weight: 2,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+              ],
             );
 
             return SizedBox(

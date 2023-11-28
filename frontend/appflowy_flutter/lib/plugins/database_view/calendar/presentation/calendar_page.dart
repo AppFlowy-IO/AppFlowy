@@ -194,10 +194,9 @@ class _CalendarPageState extends State<CalendarPage> {
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: MonthView(
             key: _calendarState,
-            // TODO(Xazin): Border Color on Mobile
             controller: _eventController,
             width: constraints.maxWidth,
-            cellAspectRatio: PlatformExtension.isMobile ? 1 : 0.6,
+            cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
             startDay: _weekdayFromInt(firstDayOfWeek),
             showBorder: false,
             headerBuilder: _headerNavigatorBuilder,

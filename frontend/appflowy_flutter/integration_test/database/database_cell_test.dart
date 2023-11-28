@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/intl.dart';
 
-import 'util/database_test_op.dart';
-import 'util/util.dart';
+import '../util/database_test_op.dart';
+import '../util/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

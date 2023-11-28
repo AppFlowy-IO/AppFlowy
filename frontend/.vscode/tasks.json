@@ -309,7 +309,7 @@
     {
       "label": "AF: Generate Env File",
       "type": "shell",
-      "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs ",
+      "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }

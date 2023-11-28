@@ -106,25 +106,31 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             indicatorSize: TabBarIndicatorSize.label,
             isScrollable: true,
             overlayColor: MaterialStatePropertyAll(
-              Theme.of(context).colorScheme.secondary,
+              PlatformExtension.isDesktop
+                  ? Theme.of(context).colorScheme.secondary
+                  : Colors.transparent,
             ),
             padding: EdgeInsets.zero,
-            tabs: values
-                .map(
-                  (e) => FlowyHover(
-                    style: const HoverStyle(borderRadius: BorderRadius.zero),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: 12.0,
-                        right: 12.0,
-                        bottom: 8.0,
-                        top: PlatformExtension.isMobile ? 0 : 8.0,
-                      ),
-                      child: FlowyText(e.description),
-                    ),
+            tabs: values.map(
+              (e) {
+                final child = Padding(
+                  padding: EdgeInsets.only(
+                    left: 12.0,
+                    right: 12.0,
+                    bottom: 8.0,
+                    top: PlatformExtension.isMobile ? 0 : 8.0,
                   ),
-                )
-                .toList(),
+                  child: FlowyText(e.description),
+                );
+                if (PlatformExtension.isDesktop) {
+                  return FlowyHover(
+                    style: const HoverStyle(borderRadius: BorderRadius.zero),
+                    child: child,
+                  );
+                }
+                return child;
+              },
+            ).toList(),
           ),
           const Divider(
             height: 2,

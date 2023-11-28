@@ -52,6 +52,12 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// * `_enable` - A boolean to toggle the server synchronization.
   fn set_enable_sync(&self, _uid: i64, _enable: bool) {}
 
+  /// Sets the network reachability status.
+  ///
+  /// # Arguments
+  /// * `reachable`: A boolean indicating whether the network is reachable.
+  fn set_network_reachable(&self, _reachable: bool) {}
+
   /// Provides access to cloud-based user management functionalities. This includes operations
   /// such as user registration, authentication, profile management, and handling of user workspaces.
   /// The interface also offers methods for managing collaborative objects, subscribing to user updates,

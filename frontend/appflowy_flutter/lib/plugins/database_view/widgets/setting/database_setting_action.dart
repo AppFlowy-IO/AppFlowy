@@ -190,7 +190,10 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
                 layout.name,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
-              const Icon(Icons.chevron_right),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ],
           ),
         _ => null,

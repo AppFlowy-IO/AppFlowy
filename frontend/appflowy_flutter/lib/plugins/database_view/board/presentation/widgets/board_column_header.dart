@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -73,7 +74,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
         Widget title = Expanded(
           child: FlowyText.medium(
             widget.groupData.headerData.groupName,
-            fontSize: 14,
             overflow: TextOverflow.ellipsis,
           ),
         );
@@ -92,7 +92,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                       .add(BoardEvent.startEditingHeader(widget.groupData.id)),
                   child: FlowyText.medium(
                     widget.groupData.headerData.groupName,
-                    fontSize: 14,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -119,6 +118,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                 const HSpace(4),
                 FlowyTooltip(
                   message: LocaleKeys.board_column_addToColumnTopTooltip.tr(),
+                  preferBelow: false,
                   child: FlowyIconButton(
                     width: 20,
                     icon: const FlowySvg(FlowySvgs.add_s),
@@ -199,7 +199,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   Widget _groupOptionsButton(BuildContext context) {
     return AppFlowyPopover(
       clickHandler: PopoverClickHandler.gestureDetector,
-      margin: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      margin: const EdgeInsets.all(8),
       constraints: BoxConstraints.loose(const Size(168, 300)),
       direction: PopoverDirection.bottomWithLeftAligned,
       child: FlowyIconButton(
@@ -209,29 +209,31 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
       ),
       popupBuilder: (popoverContext) {
         final customGroupData = widget.groupData.customData as GroupData;
+        final isDefault = customGroupData.group.isDefault;
         final menuItems = GroupOptions.values.toList();
-        if (!customGroupData.fieldType.canEditHeader) {
+        if (!customGroupData.fieldType.canEditHeader || isDefault) {
           menuItems.remove(GroupOptions.rename);
         }
-        return Column(
+        if (!customGroupData.fieldType.canDeleteGroup || isDefault) {
+          menuItems.remove(GroupOptions.delete);
+        }
+        return SeparatedColumn(
           mainAxisSize: MainAxisSize.min,
+          separatorBuilder: () => const VSpace(4),
           children: [
             ...menuItems.map(
               (action) => SizedBox(
                 height: GridSize.popoverItemHeight,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0),
-                  child: FlowyButton(
-                    leftIcon: FlowySvg(action.icon),
-                    text: FlowyText.medium(
-                      action.text,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: () {
-                      action.call(context, customGroupData.group);
-                      PopoverContainer.of(popoverContext).close();
-                    },
+                child: FlowyButton(
+                  leftIcon: FlowySvg(action.icon),
+                  text: FlowyText.medium(
+                    action.text,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  onTap: () {
+                    action.call(context, customGroupData.group);
+                    PopoverContainer.of(popoverContext).close();
+                  },
                 ),
               ),
             ),
@@ -244,7 +246,8 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
 enum GroupOptions {
   rename,
-  hide;
+  hide,
+  delete;
 
   void call(BuildContext context, GroupPB group) {
     switch (this) {
@@ -258,16 +261,28 @@ enum GroupOptions {
             .read<BoardBloc>()
             .add(BoardEvent.toggleGroupVisibility(group, false));
         break;
+      case delete:
+        NavigatorAlertDialog(
+          title: LocaleKeys.board_column_deleteColumnConfirmation.tr(),
+          confirm: () {
+            context
+                .read<BoardBloc>()
+                .add(BoardEvent.deleteGroup(group.groupId));
+          },
+        ).show(context);
+        break;
     }
   }
 
   FlowySvgData get icon => switch (this) {
         rename => FlowySvgs.edit_s,
         hide => FlowySvgs.hide_s,
+        delete => FlowySvgs.delete_s,
       };
 
   String get text => switch (this) {
         rename => LocaleKeys.board_column_renameColumn.tr(),
         hide => LocaleKeys.board_column_hideColumn.tr(),
+        delete => LocaleKeys.board_column_deleteColumn.tr(),
       };
 }

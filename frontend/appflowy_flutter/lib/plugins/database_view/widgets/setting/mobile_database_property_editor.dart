@@ -23,12 +23,14 @@ class MobileDatabasePropertyEditor extends StatefulWidget {
     required this.fieldInfo,
     required this.fieldController,
     required this.bloc,
+    this.padding = const EdgeInsets.all(16),
   });
 
   final String viewId;
   final FieldInfo fieldInfo;
   final FieldController fieldController;
   final DatabasePropertyBloc bloc;
+  final EdgeInsets padding;
 
   @override
   State<MobileDatabasePropertyEditor> createState() =>
@@ -67,7 +69,7 @@ class _MobileDatabasePropertyEditorState
                   context.read<FieldEditorBloc>().typeOptionController;
 
               return Padding(
-                padding: const EdgeInsets.all(16),
+                padding: widget.padding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
