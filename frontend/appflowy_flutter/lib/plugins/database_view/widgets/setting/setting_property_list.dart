@@ -196,6 +196,7 @@ class _MobileDatabasePropertyCellState
               fieldInfo: widget.fieldInfo,
               fieldController: widget.fieldController,
               bloc: widget.bloc,
+              padding: EdgeInsets.zero,
             ),
           ),
         ),
