@@ -50,7 +50,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_folder_updates(
+  fn get_folder_doc_state(
     &self,
     _workspace_id: &str,
     _uid: i64,

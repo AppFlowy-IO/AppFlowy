@@ -69,7 +69,7 @@ async fn supabase_get_folder_test() {
 
   // let updates = collab_service.get_all_updates(&collab_object).await.unwrap();
   let updates = folder_service
-    .get_folder_updates(&user.latest_workspace.id, user.user_id)
+    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
     .await
     .unwrap();
   assert_eq!(updates.len(), 2);
@@ -81,7 +81,7 @@ async fn supabase_get_folder_test() {
       .unwrap();
   }
   let updates: Vec<Vec<u8>> = folder_service
-    .get_folder_updates(&user.latest_workspace.id, user.user_id)
+    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
     .await
     .unwrap();
 
@@ -149,7 +149,7 @@ async fn supabase_duplicate_updates_test() {
     .await
     .unwrap();
   let first_init_sync_update: Vec<u8> = folder_service
-    .get_folder_updates(&user.latest_workspace.id, user.user_id)
+    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
     .await
     .unwrap()
     .first()
@@ -169,7 +169,7 @@ async fn supabase_duplicate_updates_test() {
     .await
     .unwrap();
   let second_init_sync_update: Vec<u8> = folder_service
-    .get_folder_updates(&user.latest_workspace.id, user.user_id)
+    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
     .await
     .unwrap()
     .first()
@@ -258,7 +258,7 @@ async fn supabase_diff_state_vector_test() {
   let old_version_doc = Doc::new();
   let map = { old_version_doc.get_or_insert_map("map") };
   let updates: Vec<Vec<u8>> = folder_service
-    .get_folder_updates(&user.latest_workspace.id, user.user_id)
+    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
     .await
     .unwrap();
   {

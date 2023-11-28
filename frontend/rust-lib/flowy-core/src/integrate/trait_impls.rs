@@ -187,13 +187,17 @@ impl FolderCloudService for ServerProvider {
     })
   }
 
-  fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_folder_doc_state(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_folder_updates(&workspace_id, uid)
+        .get_folder_doc_state(&workspace_id, uid)
         .await
     })
   }
