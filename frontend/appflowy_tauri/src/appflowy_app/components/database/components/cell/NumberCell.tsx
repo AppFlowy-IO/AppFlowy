@@ -28,8 +28,8 @@ function NumberCell({ field, cell }: Props) {
 
   return (
     <>
-      <CellText ref={cellRef} onClick={handleClick}>
-        <div className='flex h-full w-full items-center justify-end'>{content}</div>
+      <CellText className={'min-h-[36px]'} ref={cellRef} onClick={handleClick}>
+        <div className='flex h-full w-full items-center'>{content}</div>
       </CellText>
       <Suspense>
         {editing && (

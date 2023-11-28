@@ -38,7 +38,7 @@ function EditTextCellInput({ editing, anchorEl, width, onClose, text, onInput }:
       keepMounted={false}
     >
       <TextareaAutosize
-        className='resize-none whitespace-break-spaces break-all text-sm'
+        className='w-full resize-none whitespace-break-spaces break-all text-sm'
         autoFocus
         autoCorrect='off'
         value={text}

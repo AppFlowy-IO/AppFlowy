@@ -9,6 +9,7 @@ interface Props {
   field: Field;
   cell?: URLCellType;
 }
+
 function UrlCell({ field, cell }: Props) {
   const cellRef = useRef<HTMLDivElement>(null);
   const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);

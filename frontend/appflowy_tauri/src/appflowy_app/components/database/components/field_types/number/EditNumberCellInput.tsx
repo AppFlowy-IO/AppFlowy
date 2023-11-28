@@ -39,10 +39,10 @@ function EditNumberCellInput({
       anchorEl={anchorEl}
       PaperProps={{
         className: 'flex p-2 border border-blue-400',
-        style: { width, height: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },
+        style: { width, minHeight: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },
       }}
       transformOrigin={{
-        vertical: 1,
+        vertical: 'top',
         horizontal: 'left',
       }}
       transitionDuration={0}
@@ -52,7 +52,6 @@ function EditNumberCellInput({
         inputProps={{
           sx: {
             padding: 0,
-            textAlign: 'right',
           },
         }}
         autoFocus={true}

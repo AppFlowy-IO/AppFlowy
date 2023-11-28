@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Field, fieldService, TextCell } from '$app/components/database/application';
 import { useDatabase } from '$app/components/database';
 import { FieldVisibility } from '@/services/backend';
@@ -42,6 +42,10 @@ function RecordProperties({ documentId, cell }: Props) {
   }, [fieldId, fields, showHiddenFields]);
 
   const [state, setState] = useState<Field[]>(properties);
+
+  useEffect(() => {
+    setState(properties);
+  }, [properties]);
 
   // move the field in the database
   const onMoveProperty = useCallback(
