@@ -857,7 +857,7 @@
         "one": "{} unscheduled event",
         "other": "{} unscheduled events"
       },
-      "unscheduledEvents": "Unscheduled events",
+      "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar settings"
     },

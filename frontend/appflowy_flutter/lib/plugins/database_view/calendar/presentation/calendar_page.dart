@@ -283,8 +283,6 @@ class _CalendarPageState extends State<CalendarPage> {
           const HSpace(6.0),
           UnscheduledEventsButton(
             databaseController: widget.databaseController,
-            rowCache: _calendarBloc.rowCache,
-            viewId: widget.view.id,
           ),
         ],
       ),
@@ -372,16 +370,9 @@ void showEventDetails({
 }
 
 class UnscheduledEventsButton extends StatefulWidget {
-  const UnscheduledEventsButton({
-    super.key,
-    required this.databaseController,
-    required this.rowCache,
-    required this.viewId,
-  });
+  const UnscheduledEventsButton({super.key, required this.databaseController});
 
   final DatabaseController databaseController;
-  final RowCache rowCache;
-  final String viewId;
 
   @override
   State<UnscheduledEventsButton> createState() =>
@@ -443,8 +434,6 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
               return UnscheduleEventsList(
                 databaseController: widget.databaseController,
                 unscheduleEvents: state.unscheduleEvents,
-                rowCache: widget.rowCache,
-                viewId: widget.viewId,
               );
             },
           );
@@ -457,12 +446,10 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
       showPaginatedBottomSheet(
         context,
         page: SheetPage(
-          title: LocaleKeys.calendar_settings_unscheduledEvents.tr(),
+          title: LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
           body: UnscheduleEventsList(
             databaseController: widget.databaseController,
             unscheduleEvents: events,
-            rowCache: widget.rowCache,
-            viewId: widget.viewId,
           ),
         ),
       );
@@ -473,14 +460,10 @@ class UnscheduleEventsList extends StatelessWidget {
     super.key,
     required this.unscheduleEvents,
     required this.databaseController,
-    required this.rowCache,
-    required this.viewId,
   });
 
   final List<CalendarEventPB> unscheduleEvents;
   final DatabaseController databaseController;
-  final RowCache rowCache;
-  final String viewId;
 
   @override
   Widget build(BuildContext context) {
@@ -505,8 +488,8 @@ class UnscheduleEventsList extends StatelessWidget {
                 extra: {
                   MobileCardDetailScreen.argRowController: RowController(
                     rowMeta: event.rowMeta,
-                    viewId: viewId,
-                    rowCache: rowCache,
+                    viewId: databaseController.viewId,
+                    rowCache: databaseController.rowCache,
                   ),
                   MobileCardDetailScreen.argFieldController:
                       databaseController.fieldController,
