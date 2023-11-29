@@ -11,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart' hide State;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -98,20 +99,24 @@ class _DateCellEditBody extends StatelessWidget {
         cellData: dateCellController.getCellData(),
         cellController: dateCellController,
       )..add(const DateCellCalendarEvent.initial()),
-      child: const Column(
+      child: Column(
         children: [
-          FlowyOptionDecorateBox(
+          const FlowyOptionDecorateBox(
             child: MobileDatePicker(),
           ),
-          _EndDateSwitch(),
-          _IncludeTimeSwitch(),
-          _StartDayTime(),
-          _EndDayTime(),
-          Divider(),
-          _DateFormatOption(),
-          _TimeFormatOption(),
-          Divider(),
-          _ClearDateButton(),
+          VSpace(
+            20.0,
+            color: Theme.of(context).colorScheme.secondaryContainer,
+          ),
+          const _EndDateSwitch(),
+          const _IncludeTimeSwitch(),
+          const _StartDayTime(),
+          const _EndDayTime(),
+          const Divider(),
+          const _DateFormatOption(),
+          const _TimeFormatOption(),
+          const Divider(),
+          const _ClearDateButton(),
         ],
       ),
     );
@@ -128,9 +133,9 @@ class _EndDateSwitch extends StatelessWidget {
       builder: (context, isRange) {
         return Row(
           children: [
-            Text(
+            FlowyText(
               LocaleKeys.grid_field_isRange.tr(),
-              style: Theme.of(context).textTheme.titleMedium,
+              // style: Theme.of(context).textTheme.titleMedium,
             ),
             const Spacer(),
             Switch.adaptive(

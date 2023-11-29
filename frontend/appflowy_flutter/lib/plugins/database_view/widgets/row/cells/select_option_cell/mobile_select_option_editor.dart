@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_option_decorate_box.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
@@ -50,7 +50,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ConstrainedBox(
       constraints: const BoxConstraints.tightFor(height: 420),
       child: BlocProvider(
         create: (context) => SelectOptionCellEditorBloc(
@@ -505,23 +505,36 @@ class _MoreOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.secondaryContainer;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const VSpace(8.0),
+          VSpace(8.0, color: color),
           _buildRenameTextField(context),
-          const VSpace(16.0),
+          VSpace(
+            16.0,
+            color: color,
+          ),
           _buildDeleteButton(context),
-          const VSpace(16.0),
+          VSpace(
+            16.0,
+            color: color,
+          ),
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
-            child: FlowyText(
-              LocaleKeys.grid_field_optionTitle.tr(),
-              color: Theme.of(context).hintColor,
+            child: ColoredBox(
+              color: color,
+              child: FlowyText(
+                LocaleKeys.grid_field_optionTitle.tr(),
+                color: Theme.of(context).hintColor,
+              ),
             ),
           ),
-          const VSpace(4.0),
+          VSpace(
+            4.0,
+            color: color,
+          ),
           _buildColorOptions(context),
         ],
       ),
@@ -550,23 +563,10 @@ class _MoreOptions extends StatelessWidget {
   }
 
   Widget _buildDeleteButton(BuildContext context) {
-    return FlowyOptionDecorateBox(
-      showTopBorder: true,
-      showBottomBorder: true,
-      child: FlowyButton(
-        text: FlowyText(
-          LocaleKeys.button_delete.tr(),
-          fontSize: 16.0,
-        ),
-        margin: const EdgeInsets.symmetric(
-          horizontal: 12.0,
-          vertical: 16.0,
-        ),
-        leftIcon: const FlowySvg(FlowySvgs.delete_s),
-        leftIconSize: const Size.square(24.0),
-        iconPadding: 8.0,
-        onTap: onDelete,
-      ),
+    return FlowyOptionTile(
+      text: LocaleKeys.button_delete.tr(),
+      leftIcon: const FlowySvg(FlowySvgs.delete_s),
+      onTap: onDelete,
     );
   }
 
