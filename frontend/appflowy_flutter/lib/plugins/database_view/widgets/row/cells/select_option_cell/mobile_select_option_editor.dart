@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_option_decorate_box.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
@@ -530,7 +531,7 @@ class _MoreOptions extends StatelessWidget {
   Widget _buildRenameTextField(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints.tightFor(height: 52.0),
-      child: _DefaultDecorateBox(
+      child: FlowyOptionDecorateBox(
         showTopBorder: true,
         showBottomBorder: true,
         child: TextField(
@@ -549,7 +550,7 @@ class _MoreOptions extends StatelessWidget {
   }
 
   Widget _buildDeleteButton(BuildContext context) {
-    return _DefaultDecorateBox(
+    return FlowyOptionDecorateBox(
       showTopBorder: true,
       showBottomBorder: true,
       child: FlowyButton(
@@ -570,7 +571,7 @@ class _MoreOptions extends StatelessWidget {
   }
 
   Widget _buildColorOptions(BuildContext context) {
-    return _DefaultDecorateBox(
+    return FlowyOptionDecorateBox(
       showTopBorder: true,
       showBottomBorder: true,
       child: Padding(
@@ -603,36 +604,6 @@ class _MoreOptions extends StatelessWidget {
           ).toList(),
         ),
       ),
-    );
-  }
-}
-
-class _DefaultDecorateBox extends StatelessWidget {
-  const _DefaultDecorateBox({
-    this.showTopBorder = true,
-    this.showBottomBorder = true,
-    required this.child,
-  });
-
-  final bool showTopBorder;
-  final bool showBottomBorder;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context).dividerColor,
-          ),
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-          ),
-        ),
-      ),
-      child: child,
     );
   }
 }

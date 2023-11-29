@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/row/cells/date_cell/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
@@ -10,30 +11,39 @@ import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart' hide State;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'widgets/widgets.dart';
-
-class _MobileDateCellEditScreen extends StatefulWidget {
+class MobileDateCellEditScreen extends StatefulWidget {
   static const routeName = '/edit_date_cell';
 
   // the type is DateCellController
   static const argCellController = 'cell_controller';
 
-  const _MobileDateCellEditScreen({
+  const MobileDateCellEditScreen({
+    super.key,
     required this.cellController,
   });
 
   final DateCellController cellController;
 
   @override
-  State<_MobileDateCellEditScreen> createState() =>
+  State<MobileDateCellEditScreen> createState() =>
       _MobileDateCellEditScreenState();
 }
 
-class _MobileDateCellEditScreenState extends State<_MobileDateCellEditScreen> {
+class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
+  late final Future<Either<dynamic, FlowyError>> typeOptionFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    typeOptionFuture = widget.cellController.getTypeOption(
+      DateTypeOptionDataParser(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,35 +51,37 @@ class _MobileDateCellEditScreenState extends State<_MobileDateCellEditScreen> {
         title: Text(LocaleKeys.titleBar_date.tr()),
       ),
       body: FutureBuilder<Either<dynamic, FlowyError>>(
-        future: widget.cellController.getTypeOption(
-          DateTypeOptionDataParser(),
-        ),
-        builder: (BuildContext context, snapshot) {
-          if (snapshot.hasData) {
-            return snapshot.data!.fold(
-              (dateTypeOptionPB) {
-                return _DateCellEditBody(
-                  dateCellController: widget.cellController,
-                  dateTypeOptionPB: dateTypeOptionPB,
-                );
-              },
-              (err) {
-                Log.error(err);
-                return FlowyMobileStateContainer.error(
-                  title: LocaleKeys.grid_field_failedToLoadDate.tr(),
-                  errorMsg: err.toString(),
-                );
-              },
+        future: typeOptionFuture,
+        builder: (context, snapshot) {
+          final data = snapshot.data;
+          if (data == null) {
+            return const Center(
+              child: CircularProgressIndicator.adaptive(),
             );
           }
-          return const Center(child: CircularProgressIndicator.adaptive());
+
+          return data.fold(
+            (dateTypeOptionPB) {
+              return _DateCellEditBody(
+                dateCellController: widget.cellController,
+                dateTypeOptionPB: dateTypeOptionPB,
+              );
+            },
+            (err) {
+              Log.error(err);
+              return FlowyMobileStateContainer.error(
+                title: LocaleKeys.grid_field_failedToLoadDate.tr(),
+                errorMsg: err.toString(),
+              );
+            },
+          );
         },
       ),
     );
   }
 }
 
-class _DateCellEditBody extends StatefulWidget {
+class _DateCellEditBody extends StatelessWidget {
   const _DateCellEditBody({
     required this.dateCellController,
     required this.dateTypeOptionPB,
@@ -79,42 +91,28 @@ class _DateCellEditBody extends StatefulWidget {
   final DateTypeOptionPB dateTypeOptionPB;
 
   @override
-  State<_DateCellEditBody> createState() => _DateCellEditBodyState();
-}
-
-class _DateCellEditBodyState extends State<_DateCellEditBody> {
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => DateCellCalendarBloc(
-        dateTypeOptionPB: widget.dateTypeOptionPB,
-        cellData: widget.dateCellController.getCellData(),
-        cellController: widget.dateCellController,
+        dateTypeOptionPB: dateTypeOptionPB,
+        cellData: dateCellController.getCellData(),
+        cellController: dateCellController,
       )..add(const DateCellCalendarEvent.initial()),
-      child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-        builder: (context, state) {
-          final widgetsList = [
-            DateAndTimeDisplay(state),
-            const DatePicker(),
-            const _EndDateSwitch(),
-            const _IncludeTimeSwitch(),
-            const _StartDayTime(),
-            const _EndDayTime(),
-            const Divider(),
-            const _DateFormatOption(),
-            const _TimeFormatOption(),
-            const Divider(),
-            const _ClearDateButton(),
-          ];
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: ListView.separated(
-              itemBuilder: (context, index) => widgetsList[index],
-              separatorBuilder: (_, __) => const VSpace(8),
-              itemCount: widgetsList.length,
-            ),
-          );
-        },
+      child: const Column(
+        children: [
+          DatePicker(
+            displayMode: DatePickerDisplayMode.mobile,
+          ),
+          _EndDateSwitch(),
+          _IncludeTimeSwitch(),
+          _StartDayTime(),
+          _EndDayTime(),
+          Divider(),
+          _DateFormatOption(),
+          _TimeFormatOption(),
+          Divider(),
+          _ClearDateButton(),
+        ],
       ),
     );
   }
