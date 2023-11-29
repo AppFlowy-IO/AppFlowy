@@ -431,6 +431,7 @@ class DocumentCoverState extends State<DocumentCover> {
                         context,
                         title:
                             LocaleKeys.document_plugins_cover_changeCover.tr(),
+                        isScrollControlled: true,
                         builder: (context) {
                           return ConstrainedBox(
                             constraints: const BoxConstraints(

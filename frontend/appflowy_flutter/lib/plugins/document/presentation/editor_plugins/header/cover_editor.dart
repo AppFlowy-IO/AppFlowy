@@ -365,6 +365,7 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
           platform: TargetPlatform.windows,
         ),
         child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           child: _buildColorItems(
             widget.backgroundColorOptions,
             widget.selectedBackgroundColorHex,

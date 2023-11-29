@@ -14,11 +14,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'auth_error.dart';
 import 'device_id.dart';
 
-class AFCloudAuthService implements AuthService {
+class AppFlowyCloudAuthService implements AuthService {
   final _appLinks = AppLinks();
   StreamSubscription<Uri?>? _deeplinkSubscription;
 
-  AFCloudAuthService();
+  AppFlowyCloudAuthService();
 
   final BackendAuthService _backendAuthService = BackendAuthService(
     AuthTypePB.AFCloud,
@@ -35,7 +35,7 @@ class AFCloudAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signIn({
+  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -68,6 +68,7 @@ class AFCloudAuthService implements AuthService {
         final completer = Completer<Either<FlowyError, UserProfilePB>>();
         _deeplinkSubscription = _appLinks.uriLinkStream.listen(
           (Uri? uri) async {
+            Log.info('onDeepLink: ${uri.toString()}');
             await _handleUri(uri, completer);
           },
           onError: (Object err, StackTrace stackTrace) {
@@ -108,6 +109,9 @@ class AFCloudAuthService implements AuthService {
             .then((value) => value.swap());
         _deeplinkSubscription?.cancel();
         completer.complete(result);
+      } else {
+        Log.error('onDeepLinkError: Unexpect deep link: ${uri.toString()}');
+        completer.complete(left(AuthError.signInWithOauthError));
       }
     } else {
       Log.error('onDeepLinkError: Unexpect empty deep link callback');

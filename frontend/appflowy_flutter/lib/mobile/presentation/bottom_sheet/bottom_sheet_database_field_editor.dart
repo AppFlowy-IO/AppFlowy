@@ -1,8 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_paginated_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/mobile_database_property_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -11,7 +14,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'bottom_sheet_action_widget.dart';
-import 'bottom_sheet_database_field_header.dart';
 import 'bottom_sheet_rename_widget.dart';
 
 /// The mobile bottom bar field editor is a two-deep menu. The type option
@@ -67,30 +69,7 @@ class _MobileDBBottomSheetFieldEditorState
   Widget build(BuildContext context) {
     return BlocProvider<FieldEditorBloc>.value(
       value: _fieldEditorBloc,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(),
-            const VSpace(16),
-            _buildBody(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return MobileDBFieldBottomSheetHeader(
-      showBackButton: viewMode == MobileDBBottomSheetViewMode.typeOption,
-      onBack: () {
-        if (viewMode == MobileDBBottomSheetViewMode.typeOption) {
-          setState(() {
-            viewMode = MobileDBBottomSheetViewMode.general;
-          });
-        }
-      },
+      child: _buildBody(),
     );
   }
 
@@ -100,6 +79,22 @@ class _MobileDBBottomSheetFieldEditorState
           onAction: (action) {
             switch (action) {
               case MobileDBBottomSheetGeneralAction.typeOption:
+                FlowyBottomSheetController.of(context)!.push(
+                  SheetPage(
+                    title: LocaleKeys.grid_field_editProperty.tr(),
+                    body: MobileDatabasePropertyEditor(
+                      padding: EdgeInsets.zero,
+                      viewId: widget.viewId,
+                      fieldInfo:
+                          widget.fieldController.getField(widget.field.id)!,
+                      fieldController: widget.fieldController,
+                      bloc: DatabasePropertyBloc(
+                        viewId: widget.viewId,
+                        fieldController: widget.fieldController,
+                      ),
+                    ),
+                  ),
+                );
                 break;
               case MobileDBBottomSheetGeneralAction.toggleVisibility:
                 _fieldEditorBloc
@@ -158,9 +153,7 @@ class MobileDBFieldBottomSheetBody extends StatelessWidget {
         BottomSheetActionWidget(
           svg: FlowySvgs.date_s,
           text: LocaleKeys.grid_field_editProperty.tr(),
-          onTap: () {
-            onAction(MobileDBBottomSheetGeneralAction.typeOption);
-          },
+          onTap: () => onAction(MobileDBBottomSheetGeneralAction.typeOption),
         ),
         const VSpace(8),
         Row(
@@ -170,9 +163,8 @@ class MobileDBFieldBottomSheetBody extends StatelessWidget {
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.hide_m,
                 text: LocaleKeys.grid_field_hide.tr(),
-                onTap: () {
-                  onAction(MobileDBBottomSheetGeneralAction.toggleVisibility);
-                },
+                onTap: () =>
+                    onAction(MobileDBBottomSheetGeneralAction.toggleVisibility),
               ),
             ),
             const HSpace(8),

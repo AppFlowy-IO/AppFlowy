@@ -1,6 +1,6 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -11,7 +11,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -43,21 +42,27 @@ class DependencyResolver {
     GetIt getIt,
     IntegrationMode mode,
   ) async {
+    // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
+    getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
+
+    await _resolveCloudDeps(getIt);
     _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
     _resolveDocDeps(getIt);
-    // _resolveGridDeps(getIt);
     _resolveCommonService(getIt, mode);
   }
+}
+
+Future<void> _resolveCloudDeps(GetIt getIt) async {
+  final env = await AppFlowyCloudSharedEnv.fromEnv();
+  getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
 }
 
 void _resolveCommonService(
   GetIt getIt,
   IntegrationMode mode,
 ) async {
-  // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
-  getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
   if (mode.isTest) {
     getIt.registerFactory<ApplicationDataStorage>(
@@ -115,22 +120,18 @@ void _resolveCommonService(
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   switch (currentCloudType()) {
-    case CloudType.unknown:
+    case AuthenticatorType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
           AuthTypePB.Local,
         ),
       );
       break;
-    case CloudType.supabase:
-      if (mode.isIntegrationTest) {
-        getIt.registerFactory<AuthService>(() => MockAuthService());
-      } else {
-        getIt.registerFactory<AuthService>(() => SupabaseAuthService());
-      }
+    case AuthenticatorType.supabase:
+      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       break;
-    case CloudType.appflowyCloud:
-      getIt.registerFactory<AuthService>(() => AFCloudAuthService());
+    case AuthenticatorType.appflowyCloud:
+      getIt.registerFactory<AuthService>(() => AppFlowyCloudAuthService());
       break;
   }
 

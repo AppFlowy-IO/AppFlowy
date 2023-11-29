@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowDetail};
+use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -394,6 +394,27 @@ where
 
   fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesPB>> {
     Ok(None)
+  }
+
+  fn delete_group(&mut self, group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
+    let group = if group_id != self.field_id() {
+      self.get_group(group_id)
+    } else {
+      None
+    };
+
+    match group {
+      Some((_index, group_data)) => {
+        let row_ids = group_data
+          .rows
+          .iter()
+          .map(|row| row.row.id.clone())
+          .collect();
+        let type_option_data = self.delete_group_custom(group_id)?;
+        Ok((row_ids, type_option_data))
+      },
+      None => Ok((vec![], None)),
+    }
   }
 
   async fn apply_group_changeset(

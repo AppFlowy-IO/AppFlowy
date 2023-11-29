@@ -1,4 +1,4 @@
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -18,16 +18,14 @@ class SplashScreen extends StatelessWidget {
   /// Root Page of the app.
   const SplashScreen({
     super.key,
-    required this.autoRegister,
+    required this.isAnon,
   });
 
-  final bool autoRegister;
+  final bool isAnon;
 
   @override
   Widget build(BuildContext context) {
-    if (!autoRegister) {
-      return _buildChild(context);
-    } else {
+    if (isAnon) {
       return FutureBuilder<void>(
         future: _registerIfNeeded(),
         builder: (context, snapshot) {
@@ -37,6 +35,8 @@ class SplashScreen extends StatelessWidget {
           return _buildChild(context);
         },
       );
+    } else {
+      return _buildChild(context);
     }
   }
 
@@ -95,10 +95,10 @@ class SplashScreen extends StatelessWidget {
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     Log.trace(
-      '_handleUnauthenticated -> cloud is enabled: $isCloudEnabled',
+      '_handleUnauthenticated -> cloud is enabled: $isAuthEnabled',
     );
     // replace Splash screen as root page
-    if (isCloudEnabled) {
+    if (isAuthEnabled) {
       context.go(SignInScreen.routeName);
     } else {
       // if the env is not configured, we will skip to the 'skip login screen'.

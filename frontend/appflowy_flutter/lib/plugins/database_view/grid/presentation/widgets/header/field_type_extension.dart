@@ -65,4 +65,13 @@ extension FieldTypeListExtension on FieldType {
         FieldType.SingleSelect => true,
         _ => false,
       };
+
+  bool get canDeleteGroup => switch (this) {
+        FieldType.URL ||
+        FieldType.SingleSelect ||
+        FieldType.MultiSelect ||
+        FieldType.DateTime =>
+          true,
+        _ => false,
+      };
 }

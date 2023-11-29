@@ -38,9 +38,7 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
       }
       await FlowyPluginService.instance.addPlugin(plugin);
     } on PluginCompilationException {
-      // TODO(a-wallen): Remove path from compilation failure
-      emit(const DynamicPluginState.compilationFailure(path: ''));
-      return;
+      return emit(const DynamicPluginState.compilationFailure());
     }
 
     emit(const DynamicPluginState.compilationSuccess());

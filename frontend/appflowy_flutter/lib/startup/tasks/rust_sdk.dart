@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/env/backend_env.dart';
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,15 +23,18 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    final root = await getApplicationSupportDirectory();
     final applicationPath = await appFlowyApplicationDataDirectory();
     final dir = customApplicationPath ?? applicationPath;
     final deviceId = await getDeviceId();
 
     // Pass the environment variables to the Rust SDK
-    final env = _getAppFlowyConfiguration(
+    final env = _makeAppFlowyConfiguration(
+      root.path,
       dir.path,
       applicationPath.path,
       deviceId,
+      rustEnvs: context.config.rustEnvs,
     );
     await context.getIt<FlowySDK>().init(jsonEncode(env.toJson()));
   }
@@ -40,46 +43,24 @@ class InitRustSDKTask extends LaunchTask {
   Future<void> dispose() async {}
 }
 
-AppFlowyConfiguration _getAppFlowyConfiguration(
+AppFlowyConfiguration _makeAppFlowyConfiguration(
+  String root,
   String customAppPath,
   String originAppPath,
-  String deviceId,
-) {
-  if (isCloudEnabled) {
-    final supabaseConfig = SupabaseConfiguration(
-      url: Env.supabaseUrl,
-      anon_key: Env.supabaseAnonKey,
-    );
-
-    final appflowyCloudConfig = AppFlowyCloudConfiguration(
-      base_url: Env.afCloudBaseUrl,
-      ws_base_url: Env.afCloudWSBaseUrl,
-      gotrue_url: Env.afCloudGoTrueUrl,
-    );
-
-    return AppFlowyConfiguration(
-      custom_app_path: customAppPath,
-      origin_app_path: originAppPath,
-      device_id: deviceId,
-      cloud_type: Env.cloudType,
-      supabase_config: supabaseConfig,
-      appflowy_cloud_config: appflowyCloudConfig,
-    );
-  } else {
-    // Use the default configuration if the cloud feature is disabled
-    final supabaseConfig = SupabaseConfiguration.defaultConfig();
-    final appflowyCloudConfig = AppFlowyCloudConfiguration.defaultConfig();
-
-    return AppFlowyConfiguration(
-      custom_app_path: customAppPath,
-      origin_app_path: originAppPath,
-      device_id: deviceId,
-      // 0 means the cloud type is local
-      cloud_type: 0,
-      supabase_config: supabaseConfig,
-      appflowy_cloud_config: appflowyCloudConfig,
-    );
-  }
+  String deviceId, {
+  required Map<String, String> rustEnvs,
+}) {
+  final env = getIt<AppFlowyCloudSharedEnv>();
+  return AppFlowyConfiguration(
+    root: root,
+    custom_app_path: customAppPath,
+    origin_app_path: originAppPath,
+    device_id: deviceId,
+    authenticator_type: env.authenticatorType.value,
+    supabase_config: env.supabaseConfig,
+    appflowy_cloud_config: env.appflowyCloudConfig,
+    envs: rustEnvs,
+  );
 }
 
 /// The default directory to store the user data. The directory can be

@@ -246,27 +246,30 @@ class _CreateOptionCell extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
-        height: GridSize.popoverItemHeight,
-        child: Row(
-          children: [
-            FlowyText.medium(
-              LocaleKeys.grid_selectOption_create.tr(),
-              color: Theme.of(context).hintColor,
-            ),
-            const HSpace(10),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SelectOptionTag(
-                  name: name,
-                  color: AFThemeExtension.of(context).greyHover,
-                  onSelected: () => context
-                      .read<SelectOptionCellEditorBloc>()
-                      .add(SelectOptionEditorEvent.newOption(name)),
+        height: 28,
+        child: FlowyButton(
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          onTap: () => context
+              .read<SelectOptionCellEditorBloc>()
+              .add(SelectOptionEditorEvent.newOption(name)),
+          text: Row(
+            children: [
+              FlowyText.medium(
+                LocaleKeys.grid_selectOption_create.tr(),
+                color: Theme.of(context).hintColor,
+              ),
+              const HSpace(10),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SelectOptionTag(
+                    name: name,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -304,27 +307,20 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       height: 28,
       child: SelectOptionTagCell(
         option: widget.option,
-        onSelected: (option) {
-          if (widget.isSelected) {
-            context
-                .read<SelectOptionCellEditorBloc>()
-                .add(SelectOptionEditorEvent.unSelectOption(option.id));
-          } else {
-            context
-                .read<SelectOptionCellEditorBloc>()
-                .add(SelectOptionEditorEvent.selectOption(option.id));
-          }
-        },
+        onSelected: _onTap,
         children: [
           if (widget.isSelected)
-            Padding(
-              padding: const EdgeInsets.only(left: 6),
-              child: FlowySvg(
+            FlowyIconButton(
+              width: 20,
+              hoverColor: Colors.transparent,
+              onPressed: _onTap,
+              icon: FlowySvg(
                 FlowySvgs.check_s,
                 color: Theme.of(context).iconTheme.color,
               ),
             ),
           FlowyIconButton(
+            width: 30,
             onPressed: () => _popoverController.show(),
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
             hoverColor: Colors.transparent,
@@ -367,5 +363,18 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
         );
       },
     );
+  }
+
+  void _onTap() {
+    widget.popoverMutex.close();
+    if (widget.isSelected) {
+      context
+          .read<SelectOptionCellEditorBloc>()
+          .add(SelectOptionEditorEvent.unSelectOption(widget.option.id));
+    } else {
+      context
+          .read<SelectOptionCellEditorBloc>()
+          .add(SelectOptionEditorEvent.selectOption(widget.option.id));
+    }
   }
 }

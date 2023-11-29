@@ -7,17 +7,14 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
 import '../../../../application/field/type_option/type_option_service.dart';
 import '../../layout/sizes.dart';
-import 'field_editor.dart';
 import 'field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatefulWidget {
@@ -93,7 +90,6 @@ class _GridHeaderState extends State<_GridHeader> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final cells = state.fields
             .map(
@@ -103,34 +99,47 @@ class _GridHeaderState extends State<_GridHeader> {
                       viewId: widget.viewId,
                       fieldInfo: fieldInfo,
                       fieldController: widget.fieldController,
+                      onTap: () => context
+                          .read<GridHeaderBloc>()
+                          .add(GridHeaderEvent.startEditingField(fieldInfo.id)),
+                      onFieldInsertedOnEitherSide: (fieldId) => context
+                          .read<GridHeaderBloc>()
+                          .add(GridHeaderEvent.startEditingNewField(fieldId)),
+                      onEditorOpened: () => context
+                          .read<GridHeaderBloc>()
+                          .add(const GridHeaderEvent.endEditingField()),
+                      isEditing: state.editingFieldId == fieldInfo.id,
+                      isNew: state.newFieldId == fieldInfo.id,
                     )
                   : MobileFieldButton(
                       key: _getKeyById(fieldInfo.id),
                       viewId: widget.viewId,
-                      field: fieldInfo,
+                      fieldController: widget.fieldController,
+                      fieldInfo: fieldInfo,
                     ),
             )
             .toList();
 
-        return ColoredBox(
-          color: Theme.of(context).colorScheme.surface,
-          child: RepaintBoundary(
-            child: ReorderableRow(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              scrollController: ScrollController(),
-              header: const _CellLeading(),
-              needsLongPressDraggable: PlatformExtension.isMobile,
-              footer: _CellTrailing(viewId: widget.viewId),
-              onReorder: (int oldIndex, int newIndex) {
-                _onReorder(
-                  cells,
-                  oldIndex,
-                  context,
-                  newIndex,
-                );
-              },
-              children: cells,
+        return RepaintBoundary(
+          child: ReorderableRow(
+            scrollController: ScrollController(),
+            buildDraggableFeedback: (context, constraints, child) => Material(
+              color: Colors.transparent,
+              child: child,
             ),
+            draggingWidgetOpacity: 0,
+            header: const _CellLeading(),
+            needsLongPressDraggable: PlatformExtension.isMobile,
+            footer: _CellTrailing(viewId: widget.viewId),
+            onReorder: (int oldIndex, int newIndex) {
+              _onReorder(
+                cells,
+                oldIndex,
+                context,
+                newIndex,
+              );
+            },
+            children: cells,
           ),
         );
       },
@@ -144,7 +153,9 @@ class _GridHeaderState extends State<_GridHeader> {
     int newIndex,
   ) {
     if (cells.length > oldIndex) {
-      final field = (cells[oldIndex] as GridFieldCell).fieldInfo.field;
+      final field = PlatformExtension.isDesktop
+          ? (cells[oldIndex] as GridFieldCell).fieldInfo.field
+          : (cells[oldIndex] as MobileFieldButton).fieldInfo.field;
       context
           .read<GridHeaderBloc>()
           .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
@@ -174,72 +185,63 @@ class _CellTrailing extends StatelessWidget {
         BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
     return Container(
       width: GridSize.trailHeaderPadding,
-      decoration: BoxDecoration(
-        border: Border(bottom: borderSide),
-      ),
+      decoration: PlatformExtension.isDesktop
+          ? BoxDecoration(
+              border: Border(bottom: borderSide),
+            )
+          : null,
       padding: GridSize.headerContentInsets,
-      child: CreateFieldButton(viewId: viewId),
+      child: CreateFieldButton(
+        viewId: viewId,
+        onFieldCreated: (fieldId) => context
+            .read<GridHeaderBloc>()
+            .add(GridHeaderEvent.startEditingNewField(fieldId)),
+      ),
     );
   }
 }
 
 class CreateFieldButton extends StatefulWidget {
-  final String viewId;
   const CreateFieldButton({
     super.key,
     required this.viewId,
+    required this.onFieldCreated,
   });
+
+  final String viewId;
+  final void Function(String fieldId) onFieldCreated;
 
   @override
   State<CreateFieldButton> createState() => _CreateFieldButtonState();
 }
 
 class _CreateFieldButtonState extends State<CreateFieldButton> {
-  final popoverController = PopoverController();
-  late TypeOptionPB typeOption;
-
   @override
   Widget build(BuildContext context) {
-    final fieldController =
-        context.read<GridBloc>().databaseController.fieldController;
-    return AppFlowyPopover(
-      controller: popoverController,
-      direction: PopoverDirection.bottomWithRightAligned,
-      asBarrier: true,
-      margin: EdgeInsets.zero,
-      constraints: BoxConstraints.loose(const Size(240, 600)),
-      triggerActions: PopoverTriggerFlags.none,
-      child: FlowyButton(
-        margin: PlatformExtension.isDesktop
-            ? GridSize.cellContentInsets
-            : const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        radius: BorderRadius.zero,
-        text: FlowyText.medium(
-          LocaleKeys.grid_field_newProperty.tr(),
-          overflow: TextOverflow.ellipsis,
-        ),
-        hoverColor: AFThemeExtension.of(context).greyHover,
-        onTap: () async {
-          final result = await TypeOptionBackendService.createFieldTypeOption(
-            viewId: widget.viewId,
-          );
-          result.fold(
-            (l) {
-              typeOption = l;
-              popoverController.show();
-            },
-            (r) => Log.error("Failed to create field type option: $r"),
-          );
-        },
-        leftIcon: const FlowySvg(FlowySvgs.add_s),
+    return FlowyButton(
+      margin: PlatformExtension.isDesktop
+          ? GridSize.cellContentInsets
+          : const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      radius: BorderRadius.zero,
+      text: FlowyText.medium(
+        LocaleKeys.grid_field_newProperty.tr(),
+        overflow: TextOverflow.ellipsis,
+        color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
       ),
-      popupBuilder: (BuildContext popoverContext) {
-        return FieldEditor(
+      hoverColor: AFThemeExtension.of(context).greyHover,
+      onTap: () async {
+        final result = await TypeOptionBackendService.createFieldTypeOption(
           viewId: widget.viewId,
-          fieldController: fieldController,
-          field: typeOption.field_2,
+        );
+        result.fold(
+          (typeOptionPB) => widget.onFieldCreated(typeOptionPB.field_2.id),
+          (err) => Log.error("Failed to create field type option: $err"),
         );
       },
+      leftIcon: FlowySvg(
+        FlowySvgs.add_s,
+        color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
+      ),
     );
   }
 }

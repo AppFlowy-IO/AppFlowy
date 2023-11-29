@@ -7,14 +7,14 @@ use serde_json::Value;
 /// {
 ///   'type': string,
 ///   'data': Map<String, Object>
-///   'children': [Block],
+///   'children': [SerdeBlock],
 /// }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Block {
+pub struct SerdeBlock {
   #[serde(rename = "type")]
   pub ty: String,
   #[serde(default)]
   pub data: HashMap<String, Value>,
   #[serde(default)]
-  pub children: Vec<Block>,
+  pub children: Vec<SerdeBlock>,
 }

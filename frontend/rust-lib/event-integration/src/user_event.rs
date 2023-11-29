@@ -134,7 +134,7 @@ impl EventIntegrationTest {
       auth_type: AuthTypePB::AFCloud,
     };
     let sign_in_url = EventBuilder::new(self.clone())
-      .event(GetSignInURL)
+      .event(GenerateSignInURL)
       .payload(payload)
       .async_send()
       .await

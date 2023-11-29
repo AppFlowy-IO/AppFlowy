@@ -1,4 +1,7 @@
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -66,34 +69,55 @@ class _DateCellState extends GridCellState<GridDateCell> {
     final alignment = widget.cellStyle != null
         ? widget.cellStyle!.alignment
         : Alignment.centerLeft;
+
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
         builder: (context, state) {
-          return AppFlowyPopover(
-            controller: _popover,
-            triggerActions: PopoverTriggerFlags.none,
-            direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: BoxConstraints.loose(const Size(260, 620)),
-            margin: EdgeInsets.zero,
-            child: GridDateCellText(
-              dateStr: state.dateStr,
-              placeholder: widget.cellStyle?.placeholder ?? "",
-              alignment: alignment,
-              cellPadding:
-                  widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
-            ),
-            popupBuilder: (BuildContext popoverContent) {
-              return DateCellEditor(
-                cellController:
-                    widget.cellControllerBuilder.build() as DateCellController,
-                onDismissed: () => widget.cellContainerNotifier.isFocus = false,
-              );
-            },
-            onClose: () {
-              widget.cellContainerNotifier.isFocus = false;
-            },
+          final child = GridDateCellText(
+            dateStr: state.dateStr,
+            placeholder: widget.cellStyle?.placeholder ?? "",
+            alignment: alignment,
+            cellPadding:
+                widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
           );
+          if (PlatformExtension.isDesktopOrWeb) {
+            return AppFlowyPopover(
+              controller: _popover,
+              triggerActions: PopoverTriggerFlags.none,
+              direction: PopoverDirection.bottomWithLeftAligned,
+              constraints: BoxConstraints.loose(const Size(260, 620)),
+              margin: EdgeInsets.zero,
+              child: child,
+              popupBuilder: (BuildContext popoverContent) {
+                return DateCellEditor(
+                  cellController: widget.cellControllerBuilder.build()
+                      as DateCellController,
+                  onDismissed: () =>
+                      widget.cellContainerNotifier.isFocus = false,
+                );
+              },
+              onClose: () {
+                widget.cellContainerNotifier.isFocus = false;
+              },
+            );
+          } else {
+            return FlowyButton(
+              text: child,
+              onTap: () {
+                showMobileBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return MobileDateCellEditScreen(
+                      controller: widget.cellControllerBuilder.build()
+                          as DateCellController,
+                      showAsFullScreen: false,
+                    );
+                  },
+                );
+              },
+            );
+          }
         },
       ),
     );

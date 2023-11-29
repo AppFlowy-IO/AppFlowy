@@ -118,6 +118,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       showFlowyMobileBottomSheet(
         context,
         title: LocaleKeys.editor_image.tr(),
+        isScrollControlled: true,
         builder: (context) {
           return ConstrainedBox(
             constraints: const BoxConstraints(

@@ -11,7 +11,7 @@ Future<T?> showFlowyMobileBottomSheet<T>(
     context: context,
     isScrollControlled: isScrollControlled,
     builder: (context) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

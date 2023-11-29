@@ -28,7 +28,8 @@ pub trait FolderCloudService: Send + Sync + 'static {
     limit: usize,
   ) -> FutureResult<Vec<FolderSnapshot>, Error>;
 
-  fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
+  fn get_folder_doc_state(&self, workspace_id: &str, uid: i64)
+    -> FutureResult<Vec<Vec<u8>>, Error>;
 
   fn service_name(&self) -> String;
 }

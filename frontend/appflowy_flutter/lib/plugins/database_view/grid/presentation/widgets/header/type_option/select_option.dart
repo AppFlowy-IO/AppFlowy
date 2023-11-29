@@ -21,12 +21,12 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
   final PopoverMutex? popoverMutex;
 
   const SelectOptionTypeOptionWidget({
+    super.key,
     required this.options,
     required this.beginEdit,
     required this.typeOptionAction,
     this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -96,8 +96,7 @@ class _OptionList extends StatelessWidget {
       },
       builder: (context, state) {
         final cells = state.options.map((option) {
-          return _makeOptionCell(
-            context: context,
+          return _OptionCell(
             option: option,
             popoverMutex: popoverMutex,
           );
@@ -114,17 +113,6 @@ class _OptionList extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  _OptionCell _makeOptionCell({
-    required BuildContext context,
-    required SelectOptionPB option,
-    PopoverMutex? popoverMutex,
-  }) {
-    return _OptionCell(
-      option: option,
-      popoverMutex: popoverMutex,
     );
   }
 }
@@ -154,13 +142,13 @@ class _OptionCellState extends State<_OptionCell> {
       height: 28,
       child: SelectOptionTagCell(
         option: widget.option,
-        onSelected: (SelectOptionPB pb) {
-          _popoverController.show();
-        },
+        onSelected: () => _popoverController.show(),
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6.0),
-            child: FlowySvg(
+          FlowyIconButton(
+            onPressed: () => _popoverController.show(),
+            iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
+            hoverColor: Colors.transparent,
+            icon: FlowySvg(
               FlowySvgs.details_s,
               color: Theme.of(context).iconTheme.color,
             ),
@@ -228,10 +216,11 @@ class _AddOptionButton extends StatelessWidget {
 
 class CreateOptionTextField extends StatefulWidget {
   final PopoverMutex? popoverMutex;
+
   const CreateOptionTextField({
-    Key? key,
+    super.key,
     this.popoverMutex,
-  }) : super(key: key);
+  });
 
   @override
   State<CreateOptionTextField> createState() => _CreateOptionTextFieldState();

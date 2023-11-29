@@ -2,6 +2,7 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
+use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -34,7 +35,7 @@ fn upgrade_store_preferences(
 }
 
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, manager), fields(email = %data.email), err)]
-pub async fn sign_in(
+pub async fn sign_in_with_email_password_handler(
   data: AFPluginData<SignInPayloadPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
@@ -42,10 +43,7 @@ pub async fn sign_in(
   let params: SignInParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
 
-  let user_profile: UserProfilePB = manager
-    .sign_in(BoxAny::new(params), auth_type)
-    .await?
-    .into();
+  let user_profile: UserProfilePB = manager.sign_in(params, auth_type).await?.into();
   data_result_ok(user_profile)
 }
 
@@ -86,7 +84,7 @@ pub async fn get_user_profile_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let mut user_profile = manager.get_user_profile(uid).await?;
+  let mut user_profile = manager.get_user_profile_from_disk(uid).await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
@@ -263,7 +261,7 @@ pub async fn oauth_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn get_sign_in_url_handler(
+pub async fn gen_sign_in_url_handler(
   data: AFPluginData<SignInUrlPayloadPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<SignInUrlPB, FlowyError> {
@@ -273,8 +271,7 @@ pub async fn get_sign_in_url_handler(
   let sign_in_url = manager
     .generate_sign_in_url_with_email(&auth_type, &params.email)
     .await?;
-  let resp = SignInUrlPB { sign_in_url };
-  data_result_ok(resp)
+  data_result_ok(SignInUrlPB { sign_in_url })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -285,6 +282,7 @@ pub async fn sign_in_with_provider_handler(
   let manager = upgrade_manager(manager)?;
   tracing::debug!("Sign in with provider: {:?}", data.provider.as_str());
   let sign_in_url = manager.generate_oauth_url(data.provider.as_str()).await?;
+  event!(tracing::Level::DEBUG, "Sign in url: {}", sign_in_url);
   data_result_ok(OauthProviderDataPB {
     oauth_url: sign_in_url,
   })
@@ -332,7 +330,7 @@ pub async fn check_encrypt_secret_handler(
 ) -> DataResult<UserEncryptionConfigurationPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let profile = manager.get_user_profile(uid).await?;
+  let profile = manager.get_user_profile_from_disk(uid).await?;
 
   let is_need_secret = match profile.encryption_type {
     EncryptionType::NoEncryption => false,
@@ -402,7 +400,8 @@ pub async fn set_cloud_config_handler(
   };
 
   send_notification(
-    &session.user_id.to_string(),
+    // Don't change this key. it's also used in the frontend
+    "user_cloud_config",
     UserNotification::DidUpdateCloudConfig,
   )
   .payload(payload)
@@ -456,6 +455,7 @@ pub async fn update_network_state_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let reachable = data.into_inner().ty.is_reachable();
+  manager.cloud_services.set_network_reachable(reachable);
   manager
     .user_status_callback
     .read()

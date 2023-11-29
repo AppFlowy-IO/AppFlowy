@@ -37,8 +37,8 @@ class MobileAppearance extends BaseAppearance {
             brightness: brightness,
             primary: _primaryColor,
             onPrimary: Colors.white,
-            // TODO(yijing): add color later
-            secondary: Colors.white,
+            // group card & property edit background color
+            secondary: const Color(0xfff7f8fc), // shade 10
             onSecondary: _onSecondaryColor,
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
@@ -70,12 +70,16 @@ class MobileAppearance extends BaseAppearance {
             onSurface: const Color(0xffC5C6C7), // text/body color
           );
 
+    final hintColor = brightness == Brightness.light
+        ? const Color(0xff89909B)
+        : const Color(0xff96989C);
+
     return ThemeData(
       // color
       primaryColor: colorTheme.primary, //primary 100
       primaryColorLight: const Color(0xFF57B5F8), //primary 80
       dividerColor: colorTheme.outline, //caption
-      hintColor: colorTheme.outline,
+      hintColor: hintColor,
       disabledColor: colorTheme.outline,
       scaffoldBackgroundColor: colorTheme.background,
       appBarTheme: AppBarTheme(
@@ -239,9 +243,6 @@ class MobileAppearance extends BaseAppearance {
       ),
       colorScheme: colorTheme,
       indicatorColor: Colors.blue,
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: colorTheme.onBackground,
-      ),
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,

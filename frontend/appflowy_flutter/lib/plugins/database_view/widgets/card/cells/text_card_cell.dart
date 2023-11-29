@@ -1,10 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../row/cell_builder.dart';
 import '../define.dart';
 import 'card_cell.dart';
@@ -120,24 +123,34 @@ class _TextCellState extends State<TextCardCell> {
               return custom;
             }
 
+            final isTitle =
+                context.read<TextCellBloc>().cellController.fieldInfo.isPrimary;
             if (state.content.isEmpty &&
                 state.enableEdit == false &&
-                focusWhenInit == false) {
-              return const SizedBox();
+                focusWhenInit == false &&
+                !isTitle) {
+              return const SizedBox.shrink();
             }
 
             final child = state.enableEdit || focusWhenInit
                 ? _buildTextField()
-                : _buildText(state);
+                : _buildText(state, isTitle);
 
-            return Row(
-              children: [
-                if (widget.showNotes) ...[
-                  const FlowySvg(FlowySvgs.notes_s),
-                  const HSpace(4),
+            return Padding(
+              padding: CardSizes.cardCellPadding,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.showNotes) ...[
+                    FlowySvg(
+                      FlowySvgs.notes_s,
+                      color: Theme.of(context).hintColor,
+                    ),
+                    const HSpace(4),
+                  ],
+                  Expanded(child: child),
                 ],
-                Expanded(child: child),
-              ],
+              ),
             );
           },
         ),
@@ -157,47 +170,46 @@ class _TextCellState extends State<TextCardCell> {
     super.dispose();
   }
 
-  double _fontSize() {
-    if (widget.style != null) {
-      return widget.style!.fontSize;
-    }
-
-    return 14;
-  }
-
-  Widget _buildText(TextCellState state) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: CardSizes.cardCellVPadding,
-      ),
-      child: FlowyText.medium(
-        state.content,
-        fontSize: _fontSize(),
-        maxLines: null, // Enable multiple lines
-      ),
+  Widget _buildText(TextCellState state, bool isTitle) {
+    final text = state.content.isEmpty
+        ? LocaleKeys.grid_row_titlePlaceholder.tr()
+        : state.content;
+    final color = state.content.isEmpty ? Theme.of(context).hintColor : null;
+    return FlowyText(
+      text,
+      fontSize: _fontSize(isTitle),
+      fontWeight: _fontWeight(isTitle),
+      color: color,
+      maxLines: null, // Enable multiple lines
     );
   }
 
+  double _fontSize(bool isTitle) {
+    return widget.style?.fontSize ?? (isTitle ? 12 : 11);
+  }
+
+  FontWeight _fontWeight(bool isTitle) {
+    return isTitle ? FontWeight.w500 : FontWeight.w400;
+  }
+
   Widget _buildTextField() {
-    return IntrinsicHeight(
-      child: TextField(
-        controller: _controller,
-        focusNode: focusNode,
-        onChanged: (value) => focusChanged(),
-        onEditingComplete: () => focusNode.unfocus(),
-        maxLines: null,
-        style: Theme.of(context)
-            .textTheme
-            .bodyMedium!
-            .copyWith(fontSize: _fontSize()),
-        decoration: InputDecoration(
-          // Magic number 4 makes the textField take up the same space as FlowyText
-          contentPadding: EdgeInsets.symmetric(
-            vertical: CardSizes.cardCellVPadding + 4,
-          ),
-          border: InputBorder.none,
-          isDense: true,
-        ),
+    return TextField(
+      controller: _controller,
+      focusNode: focusNode,
+      onChanged: (value) => focusChanged(),
+      onEditingComplete: () => focusNode.unfocus(),
+      maxLines: null,
+      style: Theme.of(context)
+          .textTheme
+          .bodyMedium!
+          .copyWith(fontSize: _fontSize(true)),
+      decoration: InputDecoration(
+        contentPadding:
+            EdgeInsets.symmetric(vertical: CardSizes.cardCellPadding.top),
+        border: InputBorder.none,
+        isDense: true,
+        isCollapsed: true,
+        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
       ),
     );
   }

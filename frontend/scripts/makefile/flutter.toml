@@ -263,25 +263,33 @@ script = [
 ]
 script_runner = "@duckscript"
 
-[tasks.code_generation]
+[tasks.pub_get]
 script_runner = "@shell"
 script = ["""
   cd appflowy_flutter
   flutter clean
   flutter pub get
-  flutter packages pub get
   cd ../
+  """]
+
+[tasks.pub_get.windows]
+script_runner = "@duckscript"
+script = ["""
+  cd ./appflowy_flutter/
+  exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter pub get
+  cd ../
+  """]
+
+[tasks.code_generation]
+script_runner = "@shell"
+script = ["""
   sh scripts/code_generation/generate.sh
   """]
 
 [tasks.code_generation.windows]
 script_runner = "@duckscript"
 script = ["""
-  cd ./appflowy_flutter/
-  exec cmd.exe /c flutter clean
-  exec cmd.exe /c flutter pub get
-  exec cmd.exe /c flutter packages pub get
-  cd ../
   exec scripts/code_generation/generate.cmd
   """]
 

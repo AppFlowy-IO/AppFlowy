@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:appflowy/startup/tasks/memory_leak_detector.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:appflowy_backend/log.dart';
@@ -34,18 +36,35 @@ Future<void> runAppFlowy() async {
 }
 
 class FlowyRunner {
+  static var currentMode = integrationMode();
+
   static Future<FlowyRunnerContext> run(
     EntryPoint f,
     IntegrationMode mode, {
-    LaunchConfiguration config = const LaunchConfiguration(
-      autoRegistrationSupported: false,
-    ),
+    // This callback is triggered after the initialization of 'getIt',
+    // which is used for dependency injection throughout the app.
+    // If your functionality depends on 'getIt', ensure to register
+    // your callback here to execute any necessary actions post-initialization.
+    Future Function()? didInitGetItCallback,
+    // Passing the envs to the backend
+    Map<String, String> Function()? rustEnvsBuilder,
+    // Indicate whether the app is running in anonymous mode.
+    // Note: when the app is running in anonymous mode, the user no need to
+    // sign in, and the app will only save the data in the local storage.
+    bool isAnon = false,
   }) async {
+    currentMode = mode;
     // Clear all the states in case of rebuilding.
     await getIt.reset();
 
+    final config = LaunchConfiguration(
+      isAnon: isAnon,
+      rustEnvs: rustEnvsBuilder?.call() ?? {},
+    );
+
     // Specify the env
-    initGetIt(getIt, mode, f, config);
+    await initGetIt(getIt, mode, f, config);
+    await didInitGetItCallback?.call();
 
     final applicationDataDirectory =
         await getIt<ApplicationDataStorage>().getPath().then(
@@ -59,6 +78,9 @@ class FlowyRunner {
         // this task should be first task, for handling platform errors.
         // don't catch errors in test mode
         if (!mode.isUnitTest) const PlatformErrorCatcherTask(),
+        // this task should be second task, for handling memory leak.
+        // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
+        MemoryLeakDetectorTask(),
         // localization
         const InitLocalizationTask(),
         // init the app window

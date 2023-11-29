@@ -59,7 +59,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     SignInState state,
     Emitter<SignInState> emit,
   ) async {
-    final result = await authService.signIn(
+    final result = await authService.signInWithEmailPassword(
       email: state.email ?? '',
       password: state.password ?? '',
     );

@@ -21,7 +21,7 @@ Future<void> createViewAndShowRenameDialogIfNeeded(
     KVKeys.showRenameDialogWhenCreatingNewFile,
     (value) => bool.parse(value),
   );
-  final showRenameDialog = value.fold((l) => false, (r) => r);
+  final showRenameDialog = value.fold(() => false, (r) => r);
   if (context.mounted && showRenameDialog) {
     NavigatorTextFieldDialog(
       title: dialogTitle,

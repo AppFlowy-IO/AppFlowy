@@ -12,7 +12,7 @@ class Toggle extends StatelessWidget {
   final EdgeInsets padding;
 
   const Toggle({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
     required this.style,
@@ -20,7 +20,7 @@ class Toggle extends StatelessWidget {
     this.activeBackgroundColor,
     this.inactiveBackgroundColor,
     this.padding = const EdgeInsets.all(8.0),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class Toggle extends StatelessWidget {
         ? activeBackgroundColor ?? Theme.of(context).colorScheme.primary
         : activeBackgroundColor ?? AFThemeExtension.of(context).toggleOffFill;
     return GestureDetector(
-      onTap: (() => onChanged(value)),
+      onTap: () => onChanged(value),
       child: Padding(
         padding: padding,
         child: Stack(
