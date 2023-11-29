@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
@@ -59,6 +60,7 @@ GoRouter generateRouter(Widget child) {
         _mobileCardPropertyEditScreenRoute(),
         _mobileDateCellEditScreenRoute(),
         _mobileCreateRowFieldScreenRoute(),
+        _mobileNewPropertyPageRoute(),
 
         // home
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
@@ -331,6 +333,22 @@ GoRoute _mobileFontPickerPageRoute() {
     pageBuilder: (context, state) {
       return const MaterialPage(
         child: FontPickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileNewPropertyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileNewPropertyScreen.routeName,
+    pageBuilder: (context, state) {
+      final viewId = state
+          .uri.queryParameters[MobileNewPropertyScreen.argViewId] as String;
+      return MaterialPage(
+        child: MobileNewPropertyScreen(
+          viewId: viewId,
+        ),
       );
     },
   );

@@ -544,26 +544,14 @@ class _MoreOptions extends StatelessWidget {
   Widget _buildRenameTextField(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints.tightFor(height: 52.0),
-      child: FlowyOptionDecorateBox(
-        showTopBorder: true,
-        showBottomBorder: true,
-        child: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            contentPadding: EdgeInsets.only(left: 16.0),
-          ),
-          onChanged: (value) {},
-          onSubmitted: (value) => onUpdate(value, null),
-        ),
+      child: FlowyOptionTile.textField(
+        controller: controller,
       ),
     );
   }
 
   Widget _buildDeleteButton(BuildContext context) {
-    return FlowyOptionTile(
+    return FlowyOptionTile.text(
       text: LocaleKeys.button_delete.tr(),
       leftIcon: const FlowySvg(FlowySvgs.delete_s),
       onTap: onDelete,
