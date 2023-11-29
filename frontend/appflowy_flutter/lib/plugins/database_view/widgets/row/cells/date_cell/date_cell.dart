@@ -1,3 +1,5 @@
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -103,7 +105,16 @@ class _DateCellState extends GridCellState<GridDateCell> {
             return FlowyButton(
               text: child,
               onTap: () {
-                print('hello world');
+                showMobileBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return MobileDateCellEditScreen(
+                      controller: widget.cellControllerBuilder.build()
+                          as DateCellController,
+                      showAsFullScreen: false,
+                    );
+                  },
+                );
               },
             );
           }
