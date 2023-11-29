@@ -69,24 +69,30 @@ class MobileSignInScreen extends StatelessWidget {
                   ),
                   const SignInAnonymousButton(),
                   const VSpace(spacing),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          LocaleKeys.signIn_or.tr(),
-                          style: style.textTheme.bodyMedium?.copyWith(
-                            color: style.colorScheme.onSecondary,
+                  if (isAuthEnabled) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            LocaleKeys.signIn_or.tr(),
+                            style: style.textTheme.bodyMedium?.copyWith(
+                              color: style.colorScheme.onSecondary,
+                            ),
                           ),
                         ),
-                      ),
-                      const Expanded(child: Divider()),
-                    ],
-                  ),
-                  const VSpace(spacing),
-                  if (isAuthEnabled) const ThirdPartySignInButtons(),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const VSpace(spacing),
+                    const ThirdPartySignInButtons(),
+                  ],
+                  if (!isAuthEnabled)
+                    const Spacer(
+                      flex: 2,
+                    ),
                   const VSpace(spacing),
                 ],
               ),
