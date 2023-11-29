@@ -539,13 +539,18 @@ GoRoute _mobileDateCellEditScreenRoute() {
     path: MobileDateCellEditScreen.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
-      final cellController = args[MobileDateCellEditScreen.argCellController];
-
-      return MaterialPage(
-        child: MobileDateCellEditScreen(
-          cellController: cellController,
-        ),
+      final controller = args[MobileDateCellEditScreen.dateCellController];
+      final fullScreen = args[MobileDateCellEditScreen.fullScreen];
+      return CustomTransitionPage(
+        transitionsBuilder: (_, __, ___, child) => child,
         fullscreenDialog: true,
+        opaque: false,
+        barrierDismissible: true,
+        barrierColor: Theme.of(context).bottomSheetTheme.modalBarrierColor,
+        child: MobileDateCellEditScreen(
+          controller: controller,
+          showAsFullScreen: fullScreen ?? true,
+        ),
       );
     },
   );

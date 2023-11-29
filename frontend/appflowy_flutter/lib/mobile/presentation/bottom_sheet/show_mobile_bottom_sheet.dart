@@ -2,6 +2,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,13 @@ Future<void> showMobileBottomSheet({
     isScrollControlled: true,
     enableDrag: isDragEnabled,
     useSafeArea: true,
-    shape: shape,
+    clipBehavior: Clip.antiAlias,
+    shape: shape ??
+        const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Corners.s12Radius,
+          ),
+        ),
     builder: builder,
   );
 }

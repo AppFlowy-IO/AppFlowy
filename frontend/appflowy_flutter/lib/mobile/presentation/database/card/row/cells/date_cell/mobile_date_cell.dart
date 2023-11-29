@@ -1,10 +1,11 @@
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_cell_bloc.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class MobileDateCell extends GridCellWidget {
   MobileDateCell({
@@ -41,13 +42,23 @@ class _DateCellState extends GridCellState<MobileDateCell> {
           // full screen show the date edit screen
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () => context.push(
-              MobileDateCellEditScreen.routeName,
-              extra: {
-                MobileDateCellEditScreen.argCellController:
-                    widget.cellControllerBuilder.build() as DateCellController,
-              },
-            ),
+            onTap: () {
+              showMobileBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    top: Corners.s12Radius,
+                  ),
+                ),
+                builder: (context) {
+                  return MobileDateCellEditScreen(
+                    controller: widget.cellControllerBuilder.build()
+                        as DateCellController,
+                    showAsFullScreen: false,
+                  );
+                },
+              );
+            },
             child: SizedBox(
               width: double.infinity,
               child: MobileDateCellText(

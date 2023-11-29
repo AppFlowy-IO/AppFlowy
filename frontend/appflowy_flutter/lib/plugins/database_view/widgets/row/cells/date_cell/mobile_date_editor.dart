@@ -30,7 +30,7 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const VSpace(16.0),
+        const VSpace(8.0),
         _buildHeader(context),
         const VSpace(8.0),
         _buildCalendar(context),
@@ -44,8 +44,7 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
     final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
           fontSize: 16.0,
         );
-    final boxDecoration = BoxDecoration(
-      color: Theme.of(context).cardColor,
+    const boxDecoration = BoxDecoration(
       shape: BoxShape.circle,
     );
 
@@ -57,9 +56,9 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
             firstDay: kFirstDay,
             lastDay: kLastDay,
             focusedDay: _focusedDay,
-            rowHeight: 52.0,
+            rowHeight: 48.0,
             calendarFormat: _calendarFormat,
-            daysOfWeekHeight: 52.0,
+            daysOfWeekHeight: 48.0,
             rangeSelectionMode: state.isRange
                 ? RangeSelectionMode.enforced
                 : RangeSelectionMode.disabled,
@@ -68,6 +67,7 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
             onCalendarCreated: (pageController) =>
                 _pageController = pageController,
             headerVisible: false,
+            availableGestures: AvailableGestures.horizontalSwipe,
             calendarStyle: CalendarStyle(
               cellMargin: const EdgeInsets.all(3.5),
               defaultDecoration: boxDecoration,

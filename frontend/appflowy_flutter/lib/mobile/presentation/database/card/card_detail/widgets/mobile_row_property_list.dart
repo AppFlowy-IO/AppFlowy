@@ -10,7 +10,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_access
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
-
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_cal_bloc.dart';
@@ -13,19 +14,24 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class MobileDateCellEditScreen extends StatefulWidget {
   static const routeName = '/edit_date_cell';
 
   // the type is DateCellController
-  static const argCellController = 'cell_controller';
+  static const dateCellController = 'date_cell_controller';
+  // bool value, default is true
+  static const fullScreen = 'full_screen';
 
   const MobileDateCellEditScreen({
     super.key,
-    required this.cellController,
+    required this.controller,
+    this.showAsFullScreen = true,
   });
 
-  final DateCellController cellController;
+  final DateCellController controller;
+  final bool showAsFullScreen;
 
   @override
   State<MobileDateCellEditScreen> createState() =>
@@ -39,43 +45,104 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
   void initState() {
     super.initState();
 
-    typeOptionFuture = widget.cellController.getTypeOption(
+    typeOptionFuture = widget.controller.getTypeOption(
       DateTypeOptionDataParser(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    return widget.showAsFullScreen ? _buildFullScreen() : _buildNotFullScreen();
+  }
+
+  Widget _buildFullScreen() {
     return Scaffold(
       appBar: AppBar(
         title: Text(LocaleKeys.titleBar_date.tr()),
       ),
-      body: FutureBuilder<Either<dynamic, FlowyError>>(
-        future: typeOptionFuture,
-        builder: (context, snapshot) {
-          final data = snapshot.data;
-          if (data == null) {
-            return const Center(
-              child: CircularProgressIndicator.adaptive(),
-            );
-          }
+      body: _buildBody(),
+    );
+  }
 
-          return data.fold(
-            (dateTypeOptionPB) {
-              return _DateCellEditBody(
-                dateCellController: widget.cellController,
-                dateTypeOptionPB: dateTypeOptionPB,
-              );
-            },
-            (err) {
-              Log.error(err);
-              return FlowyMobileStateContainer.error(
-                title: LocaleKeys.grid_field_failedToLoadDate.tr(),
-                errorMsg: err.toString(),
-              );
-            },
+  Widget _buildNotFullScreen() {
+    return DraggableScrollableSheet(
+      expand: false,
+      snap: true,
+      initialChildSize: 0.6,
+      minChildSize: 0.6,
+      builder: (_, controller) => Material(
+        child: SingleChildScrollView(
+          controller: controller,
+          child: Column(
+            children: [
+              const DragHandler(),
+              _buildHeader(),
+              const Divider(),
+              _buildBody(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return FutureBuilder<Either<dynamic, FlowyError>>(
+      future: typeOptionFuture,
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        if (data == null) {
+          return const Center(
+            child: CircularProgressIndicator.adaptive(),
           );
-        },
+        }
+
+        return data.fold(
+          (dateTypeOptionPB) {
+            return _DateCellEditBody(
+              dateCellController: widget.controller,
+              dateTypeOptionPB: dateTypeOptionPB,
+            );
+          },
+          (err) {
+            Log.error(err);
+            return FlowyMobileStateContainer.error(
+              title: LocaleKeys.grid_field_failedToLoadDate.tr(),
+              errorMsg: err.toString(),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildHeader() {
+    const iconWidth = 36.0;
+    const height = 44.0;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FlowyIconButton(
+              icon: const FlowySvg(
+                FlowySvgs.close_s,
+                size: Size.square(iconWidth),
+              ),
+              width: iconWidth,
+              iconPadding: EdgeInsets.zero,
+              onPressed: () => context.pop(),
+            ),
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: FlowyText.medium(
+              LocaleKeys.grid_field_dateFieldName.tr(),
+              fontSize: 18,
+            ),
+          ),
+        ].map((e) => SizedBox(height: height, child: e)).toList(),
       ),
     );
   }
@@ -98,26 +165,22 @@ class _DateCellEditBody extends StatelessWidget {
         cellData: dateCellController.getCellData(),
         cellController: dateCellController,
       )..add(const DateCellCalendarEvent.initial()),
-      child: Column(
+      child: const Column(
         children: [
-          const FlowyOptionDecorateBox(
+          FlowyOptionDecorateBox(
+            showTopBorder: false,
             child: MobileDatePicker(),
           ),
-          const _ColoredDivider(),
-          const _EndDateSwitch(),
-          const _IncludeTimeSwitch(),
-          const _StartDayTime(),
-          const _EndDayTime(),
-          const _ColoredDivider(),
-          const _DateFormatOption(),
-          const _TimeFormatOption(),
-          const _ClearDateButton(),
-          // used for filling the bottom space with color
-          Expanded(
-            child: Container(
-              color: Theme.of(context).colorScheme.secondaryContainer,
-            ),
-          ),
+          _ColoredDivider(),
+          _EndDateSwitch(),
+          _IncludeTimeSwitch(),
+          _StartDayTime(),
+          _EndDayTime(),
+          _ColoredDivider(),
+          _DateFormatOption(),
+          _TimeFormatOption(),
+          _ClearDateButton(),
+          _ColoredDivider(),
         ],
       ),
     );
