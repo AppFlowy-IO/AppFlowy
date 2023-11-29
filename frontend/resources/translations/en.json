@@ -1130,6 +1130,7 @@
     "pageIcon": "Page icon",
     "language": "Language",
     "font": "Font",
-    "actions": "Actions"
+    "actions": "Actions",
+    "date": "Date"
   }
 }
