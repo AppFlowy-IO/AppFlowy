@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/property_title.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -16,9 +17,8 @@ class IncludeTimeSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
+        PropertyTitle(
           LocaleKeys.grid_field_includeTime.tr(),
-          style: Theme.of(context).textTheme.titleMedium,
         ),
         const Spacer(),
         Switch.adaptive(

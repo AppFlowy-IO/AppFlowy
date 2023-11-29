@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/date_cell/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/date_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
@@ -38,39 +39,43 @@ class DateTypeOptionMobileWidget extends TypeOptionWidget {
             typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
           final List<Widget> children = [
-            DateFormatListTile(
-              currentFormatStr: state.typeOption.dateFormat.title(),
-              groupValue: context
-                  .watch<DateTypeOptionBloc>()
-                  .state
-                  .typeOption
-                  .dateFormat,
-              onChanged: (newFormat) {
-                if (newFormat != null) {
-                  context.read<DateTypeOptionBloc>().add(
-                        DateTypeOptionEvent.didSelectDateFormat(
-                          newFormat,
-                        ),
-                      );
-                }
-              },
+            PropertyEditContainer(
+              child: DateFormatListTile(
+                currentFormatStr: state.typeOption.dateFormat.title(),
+                groupValue: context
+                    .watch<DateTypeOptionBloc>()
+                    .state
+                    .typeOption
+                    .dateFormat,
+                onChanged: (newFormat) {
+                  if (newFormat != null) {
+                    context.read<DateTypeOptionBloc>().add(
+                          DateTypeOptionEvent.didSelectDateFormat(
+                            newFormat,
+                          ),
+                        );
+                  }
+                },
+              ),
             ),
-            TimeFormatListTile(
-              currentFormatStr: state.typeOption.timeFormat.title(),
-              groupValue: context
-                  .watch<DateTypeOptionBloc>()
-                  .state
-                  .typeOption
-                  .timeFormat,
-              onChanged: (newFormat) {
-                if (newFormat != null) {
-                  context.read<DateTypeOptionBloc>().add(
-                        DateTypeOptionEvent.didSelectTimeFormat(
-                          newFormat,
-                        ),
-                      );
-                }
-              },
+            PropertyEditContainer(
+              child: TimeFormatListTile(
+                currentFormatStr: state.typeOption.timeFormat.title(),
+                groupValue: context
+                    .watch<DateTypeOptionBloc>()
+                    .state
+                    .typeOption
+                    .timeFormat,
+                onChanged: (newFormat) {
+                  if (newFormat != null) {
+                    context.read<DateTypeOptionBloc>().add(
+                          DateTypeOptionEvent.didSelectTimeFormat(
+                            newFormat,
+                          ),
+                        );
+                  }
+                },
+              ),
             ),
           ];
 

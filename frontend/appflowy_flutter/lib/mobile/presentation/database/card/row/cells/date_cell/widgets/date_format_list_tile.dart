@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -27,9 +28,8 @@ class DateFormatListTile extends StatelessWidget {
     final style = Theme.of(context);
     return Row(
       children: [
-        Text(
+        PropertyTitle(
           LocaleKeys.grid_field_dateFormat.tr(),
-          style: style.textTheme.titleMedium,
         ),
         const Spacer(),
         GestureDetector(

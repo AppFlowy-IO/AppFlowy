@@ -37,8 +37,8 @@ class MobileAppearance extends BaseAppearance {
             brightness: brightness,
             primary: _primaryColor,
             onPrimary: Colors.white,
-            // TODO(yijing): add color later
-            secondary: Colors.white,
+            // group card & property edit background color
+            secondary: const Color(0xfff7f8fc), // shade 10
             onSecondary: _onSecondaryColor,
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
