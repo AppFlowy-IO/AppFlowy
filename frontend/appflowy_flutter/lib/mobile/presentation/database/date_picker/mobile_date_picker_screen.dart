@@ -1,10 +1,11 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_cal_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/mobile_date_editor.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -13,19 +14,24 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'widgets/widgets.dart';
+import 'package:go_router/go_router.dart';
 
 class MobileDateCellEditScreen extends StatefulWidget {
-  static const routeName = '/MobileDateCellEditScreen';
-  static const argCellController = 'cellController';
+  static const routeName = '/edit_date_cell';
 
-  const MobileDateCellEditScreen(
-    this.cellController, {
+  // the type is DateCellController
+  static const dateCellController = 'date_cell_controller';
+  // bool value, default is true
+  static const fullScreen = 'full_screen';
+
+  const MobileDateCellEditScreen({
     super.key,
+    required this.controller,
+    this.showAsFullScreen = true,
   });
 
-  final DateCellController cellController;
+  final DateCellController controller;
+  final bool showAsFullScreen;
 
   @override
   State<MobileDateCellEditScreen> createState() =>
@@ -33,42 +39,116 @@ class MobileDateCellEditScreen extends StatefulWidget {
 }
 
 class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
+  late final Future<Either<dynamic, FlowyError>> typeOptionFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    typeOptionFuture = widget.controller.getTypeOption(
+      DateTypeOptionDataParser(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    return widget.showAsFullScreen ? _buildFullScreen() : _buildNotFullScreen();
+  }
+
+  Widget _buildFullScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(LocaleKeys.button_edit.tr()),
+        title: Text(LocaleKeys.titleBar_date.tr()),
       ),
-      body: FutureBuilder<Either<dynamic, FlowyError>>(
-        future: widget.cellController.getTypeOption(
-          DateTypeOptionDataParser(),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildNotFullScreen() {
+    return DraggableScrollableSheet(
+      expand: false,
+      snap: true,
+      initialChildSize: 0.6,
+      minChildSize: 0.6,
+      builder: (_, controller) => Material(
+        child: SingleChildScrollView(
+          controller: controller,
+          child: Column(
+            children: [
+              const DragHandler(),
+              _buildHeader(),
+              const Divider(),
+              _buildBody(),
+            ],
+          ),
         ),
-        builder: (BuildContext context, snapshot) {
-          if (snapshot.hasData) {
-            return snapshot.data!.fold(
-              (dateTypeOptionPB) {
-                return _DateCellEditBody(
-                  dateCellController: widget.cellController,
-                  dateTypeOptionPB: dateTypeOptionPB,
-                );
-              },
-              (err) {
-                Log.error(err);
-                return FlowyMobileStateContainer.error(
-                  title: LocaleKeys.grid_field_failedToLoadDate.tr(),
-                  errorMsg: err.toString(),
-                );
-              },
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return FutureBuilder<Either<dynamic, FlowyError>>(
+      future: typeOptionFuture,
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        if (data == null) {
+          return const Center(
+            child: CircularProgressIndicator.adaptive(),
+          );
+        }
+
+        return data.fold(
+          (dateTypeOptionPB) {
+            return _DateCellEditBody(
+              dateCellController: widget.controller,
+              dateTypeOptionPB: dateTypeOptionPB,
             );
-          }
-          return const Center(child: CircularProgressIndicator.adaptive());
-        },
+          },
+          (err) {
+            Log.error(err);
+            return FlowyMobileStateContainer.error(
+              title: LocaleKeys.grid_field_failedToLoadDate.tr(),
+              errorMsg: err.toString(),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildHeader() {
+    const iconWidth = 36.0;
+    const height = 44.0;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FlowyIconButton(
+              icon: const FlowySvg(
+                FlowySvgs.close_s,
+                size: Size.square(iconWidth),
+              ),
+              width: iconWidth,
+              iconPadding: EdgeInsets.zero,
+              onPressed: () => context.pop(),
+            ),
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: FlowyText.medium(
+              LocaleKeys.grid_field_dateFieldName.tr(),
+              fontSize: 18,
+            ),
+          ),
+        ].map((e) => SizedBox(height: height, child: e)).toList(),
       ),
     );
   }
 }
 
-class _DateCellEditBody extends StatefulWidget {
+class _DateCellEditBody extends StatelessWidget {
   const _DateCellEditBody({
     required this.dateCellController,
     required this.dateTypeOptionPB,
@@ -78,43 +158,43 @@ class _DateCellEditBody extends StatefulWidget {
   final DateTypeOptionPB dateTypeOptionPB;
 
   @override
-  State<_DateCellEditBody> createState() => _DateCellEditBodyState();
-}
-
-class _DateCellEditBodyState extends State<_DateCellEditBody> {
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => DateCellCalendarBloc(
-        dateTypeOptionPB: widget.dateTypeOptionPB,
-        cellData: widget.dateCellController.getCellData(),
-        cellController: widget.dateCellController,
+        dateTypeOptionPB: dateTypeOptionPB,
+        cellData: dateCellController.getCellData(),
+        cellController: dateCellController,
       )..add(const DateCellCalendarEvent.initial()),
-      child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-        builder: (context, state) {
-          final widgetsList = [
-            DateAndTimeDisplay(state),
-            const DatePicker(),
-            const _EndDateSwitch(),
-            const _IncludeTimeSwitch(),
-            const _StartDayTime(),
-            const _EndDayTime(),
-            const Divider(),
-            const _DateFormatOption(),
-            const _TimeFormatOption(),
-            const Divider(),
-            const _ClearDateButton(),
-          ];
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: ListView.separated(
-              itemBuilder: (context, index) => widgetsList[index],
-              separatorBuilder: (_, __) => const VSpace(8),
-              itemCount: widgetsList.length,
-            ),
-          );
-        },
+      child: const Column(
+        children: [
+          FlowyOptionDecorateBox(
+            showTopBorder: false,
+            child: MobileDatePicker(),
+          ),
+          _ColoredDivider(),
+          _EndDateSwitch(),
+          _IncludeTimeSwitch(),
+          _StartDayTime(),
+          _EndDayTime(),
+          _ColoredDivider(),
+          _DateFormatOption(),
+          _TimeFormatOption(),
+          _ClearDateButton(),
+          _ColoredDivider(),
+        ],
       ),
+    );
+  }
+}
+
+class _ColoredDivider extends StatelessWidget {
+  const _ColoredDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return VSpace(
+      20.0,
+      color: Theme.of(context).colorScheme.secondaryContainer,
     );
   }
 }
@@ -127,23 +207,17 @@ class _EndDateSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.isRange,
       builder: (context, isRange) {
-        return Row(
-          children: [
-            Text(
-              LocaleKeys.grid_field_isRange.tr(),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const Spacer(),
-            Switch.adaptive(
-              value: isRange,
-              activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (value) {
-                context
-                    .read<DateCellCalendarBloc>()
-                    .add(DateCellCalendarEvent.setIsRange(value));
-              },
-            ),
-          ],
+        return FlowyOptionTile(
+          text: LocaleKeys.grid_field_isRange.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.date_s),
+          leading: _Switcher(
+            value: isRange,
+            onChanged: (value) {
+              context
+                  .read<DateCellCalendarBloc>()
+                  .add(DateCellCalendarEvent.setIsRange(value));
+            },
+          ),
         );
       },
     );
@@ -158,13 +232,18 @@ class _IncludeTimeSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.includeTime,
       builder: (context, includeTime) {
-        return IncludeTimeSwitch(
-          switchValue: includeTime,
-          onChanged: (value) {
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.setIncludeTime(value));
-          },
+        return FlowyOptionTile(
+          showTopBorder: false,
+          text: LocaleKeys.grid_field_includeTime.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
+          leading: _Switcher(
+            value: includeTime,
+            onChanged: (value) {
+              context
+                  .read<DateCellCalendarBloc>()
+                  .add(DateCellCalendarEvent.setIncludeTime(value));
+            },
+          ),
         );
       },
     );
@@ -300,14 +379,9 @@ class _ClearDateButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          LocaleKeys.grid_field_clearDate.tr(),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-      ),
+    return FlowyOptionTile(
+      showTopBorder: false,
+      text: LocaleKeys.grid_field_clearDate.tr(),
       onTap: () => context
           .read<DateCellCalendarBloc>()
           .add(const DateCellCalendarEvent.clearDate()),
@@ -324,20 +398,25 @@ class _TimeFormatOption extends StatelessWidget {
         TimeFormatPB>(
       selector: (state) => state.dateTypeOptionPB.timeFormat,
       builder: (context, state) {
-        return TimeFormatListTile(
-          currentFormatStr: state.title(),
-          groupValue: context
-              .watch<DateCellCalendarBloc>()
-              .state
-              .dateTypeOptionPB
-              .timeFormat,
-          onChanged: (newFormat) {
-            if (newFormat == null) return;
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.setTimeFormat(newFormat));
-          },
+        return FlowyOptionTile(
+          showTopBorder: false,
+          text: LocaleKeys.settings_appearance_timeFormat_label.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.time_s),
         );
+        // TimeFormatListTile(
+        //   currentFormatStr: state.title(),
+        //   groupValue: context
+        //       .watch<DateCellCalendarBloc>()
+        //       .state
+        //       .dateTypeOptionPB
+        //       .timeFormat,
+        //   onChanged: (newFormat) {
+        //     if (newFormat == null) return;
+        //     context
+        //         .read<DateCellCalendarBloc>()
+        //         .add(DateCellCalendarEvent.setTimeFormat(newFormat));
+        //   },
+        // );
       },
     );
   }
@@ -352,21 +431,50 @@ class _DateFormatOption extends StatelessWidget {
         DateFormatPB>(
       selector: (state) => state.dateTypeOptionPB.dateFormat,
       builder: (context, state) {
-        return DateFormatListTile(
-          currentFormatStr: state.title(),
-          groupValue: context
-              .watch<DateCellCalendarBloc>()
-              .state
-              .dateTypeOptionPB
-              .dateFormat,
-          onChanged: (newFormat) {
-            if (newFormat == null) return;
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.setDateFormat(newFormat));
-          },
+        return FlowyOptionTile(
+          text: LocaleKeys.settings_appearance_dateFormat_label.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
         );
+        // DateFormatListTile(
+        //   currentFormatStr: state.title(),
+        //   groupValue: context
+        //       .watch<DateCellCalendarBloc>()
+        //       .state
+        //       .dateTypeOptionPB
+        //       .dateFormat,
+        //   onChanged: (newFormat) {
+        //     if (newFormat == null) return;
+        //     context
+        //         .read<DateCellCalendarBloc>()
+        //         .add(DateCellCalendarEvent.setDateFormat(newFormat));
+        //   },
+        // );
       },
+    );
+  }
+}
+
+class _Switcher extends StatelessWidget {
+  const _Switcher({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final void Function(bool value) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 48,
+      child: FittedBox(
+        fit: BoxFit.fill,
+        child: Switch.adaptive(
+          value: value,
+          activeColor: const Color(0xFF00BCF0),
+          onChanged: onChanged,
+        ),
+      ),
     );
   }
 }
