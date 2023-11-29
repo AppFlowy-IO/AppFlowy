@@ -5,7 +5,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_cal_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/mobile_date_editor.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -100,8 +100,8 @@ class _DateCellEditBody extends StatelessWidget {
       )..add(const DateCellCalendarEvent.initial()),
       child: const Column(
         children: [
-          DatePicker(
-            displayMode: DatePickerDisplayMode.mobile,
+          FlowyOptionDecorateBox(
+            child: MobileDatePicker(),
           ),
           _EndDateSwitch(),
           _IncludeTimeSwitch(),

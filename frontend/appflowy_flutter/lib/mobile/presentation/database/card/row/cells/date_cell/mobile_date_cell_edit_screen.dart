@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_cal_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/mobile_date_editor.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -95,7 +95,7 @@ class _DateCellEditBodyState extends State<_DateCellEditBody> {
         builder: (context, state) {
           final widgetsList = [
             DateAndTimeDisplay(state),
-            const DatePicker(),
+            const MobileDatePicker(),
             const _EndDateSwitch(),
             const _IncludeTimeSwitch(),
             const _StartDayTime(),

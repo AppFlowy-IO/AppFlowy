@@ -172,18 +172,8 @@ class EndTextField extends StatelessWidget {
   }
 }
 
-enum DatePickerDisplayMode {
-  desktop,
-  mobile,
-}
-
 class DatePicker extends StatefulWidget {
-  const DatePicker({
-    super.key,
-    this.displayMode = DatePickerDisplayMode.desktop,
-  });
-
-  final DatePickerDisplayMode displayMode;
+  const DatePicker({super.key});
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -193,131 +183,45 @@ class _DatePickerState extends State<DatePicker> {
   DateTime _focusedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
-  final ValueNotifier<(DateTime, dynamic)> _currentDateNotifier = ValueNotifier(
-    (DateTime.now(), null),
-  );
-  PageController? _pageController;
-
   @override
   Widget build(BuildContext context) {
-    final TextStyle textStyle;
-    final Color decoratedColor;
-    final EdgeInsets padding;
-    final double rowHeight;
-    final double daysOfWeekHeight;
-    final Widget leftChevronIcon;
-    final Widget rightChevronIcon;
-
-    // customize the style for mobile and desktop
-    switch (widget.displayMode) {
-      case DatePickerDisplayMode.desktop:
-        textStyle = Theme.of(context).textTheme.bodyMedium!;
-        decoratedColor = Theme.of(context).cardColor;
-        padding = const EdgeInsets.symmetric(horizontal: 16.0);
-        rowHeight = 34.0;
-        daysOfWeekHeight = 26.0;
-        leftChevronIcon = FlowySvg(
-          FlowySvgs.arrow_left_s,
-          color: Theme.of(context).iconTheme.color,
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      builder: (context, state) {
+        final textStyle = Theme.of(context).textTheme.bodyMedium!;
+        final boxDecoration = BoxDecoration(
+          color: Theme.of(context).cardColor,
+          shape: BoxShape.circle,
         );
-        rightChevronIcon = FlowySvg(
-          FlowySvgs.arrow_right_s,
-          color: Theme.of(context).iconTheme.color,
-        );
-        break;
-      case DatePickerDisplayMode.mobile:
-        textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: 16.0,
-            );
-        // decoratedColor = const Color(0xFF00BCF0);
-        decoratedColor = Theme.of(context).cardColor;
-        padding = const EdgeInsets.symmetric(horizontal: 8.0);
-        rowHeight = 52.0;
-        daysOfWeekHeight = 52.0;
-        leftChevronIcon = ValueListenableBuilder(
-          valueListenable: _currentDateNotifier,
-          builder: (_, value, ___) {
-            return GestureDetector(
-              onTap: () {}, // ignore its parent onTap
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 16.0,
-                  top: 8.0,
-                ),
-                child: FlowyText(
-                  DateFormat.yMMMM(value.$2).format(value.$1),
-                  fontSize: 16.0,
-                ),
-              ),
-            );
-          },
-        );
-        rightChevronIcon = Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Row(
-            children: [
-              FlowyButton(
-                useIntrinsicWidth: true,
-                text: FlowySvg(
-                  FlowySvgs.arrow_left_s,
-                  color: Theme.of(context).iconTheme.color,
-                  size: const Size.square(24.0),
-                ),
-              ),
-              const HSpace(24.0),
-              FlowySvg(
-                FlowySvgs.arrow_right_s,
-                color: Theme.of(context).iconTheme.color,
-                size: const Size.square(24.0),
-              ),
-              const HSpace(8.0),
-            ],
-          ),
-        );
-        break;
-    }
-
-    final boxDecoration = BoxDecoration(
-      color: decoratedColor,
-      shape: BoxShape.circle,
-    );
-
-    return Padding(
-      padding: padding,
-      child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-        builder: (context, state) {
-          return TableCalendar(
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: TableCalendar(
             firstDay: kFirstDay,
             lastDay: kLastDay,
             focusedDay: _focusedDay,
-            rowHeight: rowHeight,
+            rowHeight: 26.0 + 7.0,
             calendarFormat: _calendarFormat,
-            daysOfWeekHeight: daysOfWeekHeight,
+            daysOfWeekHeight: 17.0 + 8.0,
             rangeSelectionMode: state.isRange
                 ? RangeSelectionMode.enforced
                 : RangeSelectionMode.disabled,
             rangeStartDay: state.isRange ? state.startDay : null,
             rangeEndDay: state.isRange ? state.endDay : null,
-            onCalendarCreated: (pageController) =>
-                _pageController = pageController,
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
               titleCentered: true,
               titleTextStyle: textStyle,
-              titleTextFormatter: (date, locale) {
-                if (widget.displayMode == DatePickerDisplayMode.mobile) {
-                  _currentDateNotifier.value = (date, locale);
-                  // return empty string to hide the title
-                  return '';
-                }
-                return DateFormat.yMMMM(locale).format(date);
-              },
               leftChevronMargin: EdgeInsets.zero,
               leftChevronPadding: EdgeInsets.zero,
-              leftChevronIcon: leftChevronIcon,
+              leftChevronIcon: FlowySvg(
+                FlowySvgs.arrow_left_s,
+                color: Theme.of(context).iconTheme.color,
+              ),
               rightChevronPadding: EdgeInsets.zero,
               rightChevronMargin: EdgeInsets.zero,
-              rightChevronIcon: rightChevronIcon,
+              rightChevronIcon: FlowySvg(
+                FlowySvgs.arrow_right_s,
+                color: Theme.of(context).iconTheme.color,
+              ),
               headerMargin: EdgeInsets.zero,
               headerPadding: const EdgeInsets.only(bottom: 8.0),
             ),
@@ -391,9 +295,9 @@ class _DatePickerState extends State<DatePicker> {
             onPageChanged: (focusedDay) => setState(() {
               _focusedDay = focusedDay;
             }),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
