@@ -60,7 +60,12 @@ Future<void> _resolveCloudDeps(GetIt getIt) async {
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
 
   if (isAppFlowyCloudEnabled) {
-    getIt.registerSingleton(AppFlowyCloudDeepLink());
+    getIt.registerSingleton(
+      AppFlowyCloudDeepLink(),
+      dispose: (obj) async {
+        await obj.dispose();
+      },
+    );
   }
 }
 
