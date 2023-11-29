@@ -356,8 +356,10 @@ impl UserManager {
     authenticator: Authenticator,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
-    self.update_authenticator(&authenticator).await;
+    // sign out the current user if there is one
+    let _ = self.sign_out().await;
 
+    self.update_authenticator(&authenticator).await;
     let migration_user = self.get_migration_user(&authenticator).await;
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
@@ -468,16 +470,15 @@ impl UserManager {
 
   #[tracing::instrument(level = "info", skip(self))]
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
-    let session = self.get_session()?;
-    self.database.close(session.user_id)?;
-    self.set_session(None)?;
+    if let Ok(session) = self.get_session() {
+      self.database.close(session.user_id)?;
+      self.set_session(None)?;
 
-    let server = self.cloud_services.get_user_service()?;
-    af_spawn(async move {
+      let server = self.cloud_services.get_user_service()?;
       if let Err(err) = server.sign_out(None).await {
         event!(tracing::Level::ERROR, "{:?}", err);
       }
-    });
+    }
     Ok(())
   }
 
