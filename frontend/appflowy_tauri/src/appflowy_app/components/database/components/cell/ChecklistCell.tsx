@@ -1,15 +1,13 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { ChecklistCell as ChecklistCellType, ChecklistField } from '$app/components/database/application';
 import Typography from '@mui/material/Typography';
-
-const ChecklistCellActions = lazy(
-  () => import('$app/components/database/components/field_types/checklist/ChecklistCellActions')
-);
+import ChecklistCellActions from '$app/components/database/components/field_types/checklist/ChecklistCellActions';
 
 interface Props {
   field: ChecklistField;
   cell?: ChecklistCellType;
 }
+
 function ChecklistCell({ cell }: Props) {
   const value = cell?.data.percentage ?? 0;
 

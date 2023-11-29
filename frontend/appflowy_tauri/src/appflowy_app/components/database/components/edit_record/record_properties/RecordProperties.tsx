@@ -122,4 +122,4 @@ function RecordProperties({ documentId, cell }: Props) {
   );
 }
 
-export default React.memo(RecordProperties);
+export default RecordProperties;

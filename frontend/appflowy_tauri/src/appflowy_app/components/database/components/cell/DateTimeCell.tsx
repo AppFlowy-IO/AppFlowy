@@ -1,9 +1,6 @@
-import React, { Suspense, useRef, useState, lazy, useMemo } from 'react';
+import React, { Suspense, useRef, useState, useMemo } from 'react';
 import { DateTimeCell as DateTimeCellType, DateTimeField } from '$app/components/database/application';
-
-const DateTimeCellActions = lazy(
-  () => import('$app/components/database/components/field_types/date/DateTimeCellActions')
-);
+import DateTimeCellActions from '$app/components/database/components/field_types/date/DateTimeCellActions';
 
 interface Props {
   field: DateTimeField;
@@ -12,6 +9,7 @@ interface Props {
 }
 function DateTimeCell({ field, cell, placeholder }: Props) {
   const isRange = cell?.data.isRange;
+  const includeTime = cell?.data.includeTime;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -28,13 +26,15 @@ function DateTimeCell({ field, cell, placeholder }: Props) {
       return (
         <>
           {cell?.data.date}
+          {includeTime && cell?.data.time ? ' ' + cell?.data.time : ''}
           {isRange && cell?.data.endDate ? ' - ' + cell?.data.endDate : ''}
+          {isRange && includeTime && cell?.data.endTime ? ' ' + cell?.data.endTime : ''}
         </>
       );
     }
 
     return <div className={'text-sm text-text-placeholder'}>{placeholder}</div>;
-  }, [cell, isRange, placeholder]);
+  }, [cell, includeTime, isRange, placeholder]);
 
   return (
     <>

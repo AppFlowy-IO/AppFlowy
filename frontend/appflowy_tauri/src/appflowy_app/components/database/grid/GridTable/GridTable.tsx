@@ -19,6 +19,7 @@ export const GridTable: FC<{ tableHeight: number }> = React.memo(({ tableHeight 
   const rowMetas = useDatabaseVisibilityRows();
   const renderRows = useMemo<RenderRow[]>(() => rowMetasToRenderRow(rowMetas as RowMeta[]), [rowMetas]);
   const fields = useDatabaseVisibilityFields();
+
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
     count: renderRows.length,
     overscan: 5,

@@ -1,7 +1,8 @@
 import { FC, useCallback, useMemo, useState, Suspense, lazy } from 'react';
 import { MenuProps, Menu } from '@mui/material';
-import { SelectField, SelectCell as SelectCellType } from '../../application';
+import { SelectField, SelectCell as SelectCellType, SelectTypeOption } from '../../application';
 import { Tag } from '../field_types/select/Tag';
+import { useTypeOption } from '$app/components/database';
 
 const SelectCellActions = lazy(
   () => import('$app/components/database/components/field_types/select/select_cell_actions/SelectCellActions')
@@ -32,12 +33,14 @@ export const SelectCell: FC<{
     setAnchorEl(null);
   }, []);
 
+  const typeOption = useTypeOption<SelectTypeOption>(field.id);
+
   const renderSelectedOptions = useCallback(
     (selected: string[]) =>
       selected
-        .map((id) => field.typeOption.options?.find((option) => option.id === id))
+        .map((id) => typeOption.options?.find((option) => option.id === id))
         .map((option) => option && <Tag key={option.id} size='small' color={option.color} label={option.name} />),
-    [field]
+    [typeOption]
   );
 
   return (

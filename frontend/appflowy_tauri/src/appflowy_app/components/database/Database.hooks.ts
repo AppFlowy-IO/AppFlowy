@@ -36,11 +36,26 @@ const DatabaseContext = createContext<Database>({
   sorts: [],
   groupSettings: [],
   groups: [],
+  typeOptions: {},
 });
 
 export const DatabaseProvider = DatabaseContext.Provider;
 
 export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
+
+export const useTypeOptions = () => {
+  const context = useContext(DatabaseContext);
+
+  return useSnapshot(context.typeOptions);
+};
+
+export function useTypeOption<T>(fieldId: string) {
+  const typeOptions = useTypeOptions();
+
+  return useMemo(() => {
+    return typeOptions[fieldId] as T;
+  }, [fieldId, typeOptions]);
+}
 
 export const useDatabaseVisibilityRows = () => {
   const { rowMetas } = useDatabase();
@@ -69,6 +84,7 @@ export const useConnectDatabase = (viewId: string) => {
       sorts: [],
       groupSettings: [],
       groups: [],
+      typeOptions: {},
     });
 
     void databaseService.openDatabase(viewId).then((value) => Object.assign(proxyDatabase, value));
@@ -79,10 +95,22 @@ export const useConnectDatabase = (viewId: string) => {
   useEffect(() => {
     const unsubscribePromise = subscribeNotifications(
       {
-        [DatabaseNotification.DidUpdateFields]: async () => {
-          database.fields = await fieldService.getFields(viewId);
+        [DatabaseNotification.DidUpdateFields]: async (changeset) => {
+          const { fields, typeOptions } = await fieldService.getFields(viewId);
+
+          database.fields = fields;
+          const deletedFieldIds = Object.keys(changeset.deleted_fields);
+
+          Object.assign(database.typeOptions, typeOptions);
+          deletedFieldIds.forEach(
+            (fieldId) => {
+              delete database.typeOptions[fieldId];
+            },
+            [database.typeOptions]
+          );
         },
-        [DatabaseNotification.DidUpdateFieldSettings]: async (changeset) => {
+
+        [DatabaseNotification.DidUpdateFieldSettings]: (changeset) => {
           fieldListeners.didUpdateFieldSettings(database, changeset);
         },
         [DatabaseNotification.DidUpdateViewRows]: (changeset) => {

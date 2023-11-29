@@ -7,18 +7,19 @@ import { useViewId } from '$app/hooks';
 import Typography from '@mui/material/Typography';
 import { useTranslation } from 'react-i18next';
 import IncludeTimeSwitch from '$app/components/database/components/field_types/date/IncludeTimeSwitch';
+import { useTypeOption } from '$app/components/database';
 
 interface Props {
   field: UndeterminedDateField;
+  showLabel?: boolean;
 }
 
-function DateTimeFormat({ field }: Props) {
+function DateTimeFormat({ field, showLabel = true }: Props) {
   const viewId = useViewId();
   const { t } = useTranslation();
   const showIncludeTime = field.type === FieldType.CreatedTime || field.type === FieldType.LastEditedTime;
-
-  const includeTime = (field.typeOption as TimeStampTypeOption).includeTime;
-  const { timeFormat = TimeFormatPB.TwentyFourHour, dateFormat = DateFormatPB.Friendly } = field.typeOption;
+  const typeOption = useTypeOption<TimeStampTypeOption>(field.id);
+  const { timeFormat = TimeFormatPB.TwentyFourHour, dateFormat = DateFormatPB.Friendly, includeTime } = typeOption;
   const handleChange = useCallback(
     async (params: { timeFormat?: TimeFormatPB; dateFormat?: DateFormatPB; includeTime?: boolean }) => {
       try {
@@ -37,9 +38,12 @@ function DateTimeFormat({ field }: Props) {
 
   return (
     <div className={'pl-1 pr-3.5'}>
-      <Typography className={'py-1 pl-[18px]'} color={'text.secondary'}>
-        {t('grid.field.format')}
-      </Typography>
+      {showLabel && (
+        <Typography className={'py-1 pl-[18px]'} color={'text.secondary'}>
+          {t('grid.field.format')}
+        </Typography>
+      )}
+
       <DateFormat
         value={dateFormat}
         onChange={(val) => {

@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddAnOption from '$app/components/database/components/field_types/select/select_field_actions/AddAnOption';
 import Options from '$app/components/database/components/field_types/select/select_field_actions/Options';
-import { SelectField } from '$app/components/database/application';
+import { SelectField, SelectTypeOption } from '$app/components/database/application';
 import { Divider } from '@mui/material';
+import { useTypeOption } from '$app/components/database';
 
 function SelectFieldActions({ field }: { field: SelectField }) {
-  const options = field.typeOption.options ?? [];
+  const typeOption = useTypeOption<SelectTypeOption>(field.id);
+  const options = useMemo(() => typeOption.options ?? [], [typeOption.options]);
   const { t } = useTranslation();
 
   return (

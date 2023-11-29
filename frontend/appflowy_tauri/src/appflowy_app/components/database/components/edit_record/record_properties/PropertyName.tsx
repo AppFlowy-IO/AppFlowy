@@ -31,4 +31,4 @@ function PropertyName({ field, openMenu, onOpenMenu, onCloseMenu }: Props) {
   );
 }
 
-export default React.memo(PropertyName);
+export default PropertyName;

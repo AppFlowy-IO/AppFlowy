@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
-import { SelectField, SelectFilter as SelectFilterType, SelectFilterData } from '$app/components/database/application';
-import { MenuItem } from '@mui/material';
-import SelectFilterConditionsSelect from '$app/components/database/components/filter/select_filter/SelectFilterConditionSelect';
+import React, { useMemo } from 'react';
+import {
+  SelectField,
+  SelectFilter as SelectFilterType,
+  SelectFilterData,
+  SelectTypeOption,
+} from '$app/components/database/application';
+import { MenuItem, MenuList } from '@mui/material';
 import { Tag } from '$app/components/database/components/field_types/select/Tag';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
 import { SelectOptionConditionPB } from '@/services/backend';
+import { useTypeOption } from '$app/components/database';
 
 interface Props {
   filter: SelectFilterType;
@@ -13,13 +18,14 @@ interface Props {
 }
 
 function SelectFilter({ filter, field, onChange }: Props) {
-  const [selectedCondition, setSelectedCondition] = useState(filter.data.condition);
-  const options = field.typeOption.options ?? [];
+  const condition = filter.data.condition;
+  const typeOption = useTypeOption<SelectTypeOption>(field.id);
+  const options = useMemo(() => typeOption.options ?? [], [typeOption]);
 
   const showOptions =
     options.length > 0 &&
-    selectedCondition !== SelectOptionConditionPB.OptionIsEmpty &&
-    selectedCondition !== SelectOptionConditionPB.OptionIsNotEmpty;
+    condition !== SelectOptionConditionPB.OptionIsEmpty &&
+    condition !== SelectOptionConditionPB.OptionIsNotEmpty;
 
   const handleChange = ({
     condition,
@@ -51,47 +57,30 @@ function SelectFilter({ filter, field, onChange }: Props) {
     }
 
     handleChange({
-      condition: selectedCondition,
+      condition,
       optionIds: newOptionIds,
     });
   };
 
+  if (!showOptions) return null;
+
   return (
-    <div className={'flex min-w-[200px] flex-col text-sm'}>
-      <div className={'flex justify-between gap-[20px] p-2 pb-1 pr-10'}>
-        <div className={'flex-1 text-text-caption'}>{field.name}</div>
-        <SelectFilterConditionsSelect
-          fieldType={field.type}
-          onChange={(e) => {
-            const value = Number(e.target.value);
+    <MenuList>
+      {options?.map((option) => {
+        const isSelected = filter.data.optionIds?.includes(option.id);
 
-            setSelectedCondition(value);
-            handleChange({
-              condition: value,
-            });
-          }}
-          value={selectedCondition}
-        />
-      </div>
-      {showOptions && (
-        <>
-          {options.map((option) => {
-            const isSelected = filter.data.optionIds?.includes(option.id);
-
-            return (
-              <MenuItem
-                className={'flex items-center justify-between px-2'}
-                onClick={() => handleSelectOption(option.id)}
-                key={option.id}
-              >
-                <Tag size='small' color={option.color} label={option.name} />
-                {isSelected && <SelectCheckSvg />}
-              </MenuItem>
-            );
-          })}
-        </>
-      )}
-    </div>
+        return (
+          <MenuItem
+            className={'flex items-center justify-between px-2'}
+            onClick={() => handleSelectOption(option.id)}
+            key={option.id}
+          >
+            <Tag size='small' color={option.color} label={option.name} />
+            {isSelected && <SelectCheckSvg />}
+          </MenuItem>
+        );
+      })}
+    </MenuList>
   );
 }
 

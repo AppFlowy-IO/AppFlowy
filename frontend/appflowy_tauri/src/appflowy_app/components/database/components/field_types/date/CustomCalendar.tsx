@@ -6,7 +6,7 @@ import { ReactComponent as LeftSvg } from '$app/assets/arrow-left.svg';
 import { ReactComponent as RightSvg } from '$app/assets/arrow-right.svg';
 import { IconButton } from '@mui/material';
 
-function DateSet({
+function CustomCalendar({
   handleChange,
   isRange,
   timestamp,
@@ -24,13 +24,18 @@ function DateSet({
     if (!isRange) return;
     setEndDate(new Date(endTimestamp * 1000));
   }, [isRange, endTimestamp]);
+
+  useEffect(() => {
+    setStartDate(new Date(timestamp * 1000));
+  }, [timestamp]);
+
   return (
     <div className={'flex w-full items-center justify-center'}>
       <DatePicker
         calendarClassName={'appflowy-date-picker-calendar border-none rounded-none w-full'}
         renderCustomHeader={(props: ReactDatePickerCustomHeaderProps) => {
           return (
-            <div className={'flex w-full justify-between py-3'}>
+            <div className={'flex w-full justify-between pb-3 pt-2'}>
               <div className={'flex-1  px-4 text-left text-sm font-medium'}>{dayjs(props.date).format('MMMM YYYY')}</div>
 
               <div className={'flex items-center gap-[10px] pr-2'}>
@@ -75,4 +80,4 @@ function DateSet({
   );
 }
 
-export default DateSet;
+export default CustomCalendar;

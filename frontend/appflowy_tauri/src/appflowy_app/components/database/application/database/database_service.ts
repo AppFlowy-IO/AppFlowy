@@ -62,7 +62,7 @@ export async function openDatabase(viewId: string): Promise<Database> {
 
   const { filters, sorts, groupSettings } = await getDatabaseSetting(viewId);
 
-  const fields = await fieldService.getFields(viewId, fieldIds);
+  const { fields, typeOptions } = await fieldService.getFields(viewId, fieldIds);
 
   const groups = await groupService.getGroups(viewId);
 
@@ -76,5 +76,6 @@ export async function openDatabase(viewId: string): Promise<Database> {
     sorts,
     groups,
     groupSettings,
+    typeOptions,
   };
 }
