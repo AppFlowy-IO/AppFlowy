@@ -9,6 +9,8 @@ import {
   SingleSelectTypeOptionPB,
   TimeFormatPB,
   ChecklistTypeOptionPB,
+  DateTypeOptionPB,
+  TimestampTypeOptionPB,
 } from '@/services/backend';
 import { pbToSelectOption, SelectOption } from '../select_option';
 
@@ -27,6 +29,9 @@ export interface DateTimeTypeOption {
   dateFormat?: DateFormatPB;
   timeFormat?: TimeFormatPB;
   timezoneId?: string;
+}
+export interface TimeStampTypeOption extends DateTimeTypeOption {
+  includeTime?: boolean;
   fieldType?: FieldType;
 }
 
@@ -48,15 +53,40 @@ export type UndeterminedTypeOptionData =
   | NumberTypeOption
   | SelectTypeOption
   | CheckboxTypeOption
-  | ChecklistTypeOption;
+  | ChecklistTypeOption
+  | DateTimeTypeOption
+  | TimeStampTypeOption;
 
 export function typeOptionDataToPB(data: UndeterminedTypeOptionData, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.Number:
       return NumberTypeOptionPB.fromObject(data as NumberTypeOption);
+    case FieldType.DateTime:
+      return dateTimeTypeOptionToPB(data as DateTimeTypeOption);
+    case FieldType.CreatedTime:
+    case FieldType.LastEditedTime:
+      return timestampTypeOptionToPB(data as TimeStampTypeOption);
+
     default:
       return null;
   }
+}
+
+function dateTimeTypeOptionToPB(data: DateTimeTypeOption): DateTypeOptionPB {
+  return DateTypeOptionPB.fromObject({
+    time_format: data.timeFormat,
+    date_format: data.dateFormat,
+    timezone_id: data.timezoneId,
+  });
+}
+
+function timestampTypeOptionToPB(data: TimeStampTypeOption): TimestampTypeOptionPB {
+  return TimestampTypeOptionPB.fromObject({
+    include_time: data.includeTime,
+    date_format: data.dateFormat,
+    time_format: data.timeFormat,
+    field_type: data.fieldType,
+  });
 }
 
 function pbToSelectTypeOption(pb: SingleSelectTypeOptionPB | MultiSelectTypeOptionPB): SelectTypeOption {
@@ -78,6 +108,23 @@ function pbToChecklistTypeOption(pb: ChecklistTypeOptionPB): ChecklistTypeOption
   };
 }
 
+function pbToDateTypeOption(pb: DateTypeOptionPB): DateTimeTypeOption {
+  return {
+    dateFormat: pb.date_format,
+    timezoneId: pb.timezone_id,
+    timeFormat: pb.time_format,
+  };
+}
+
+function pbToTimeStampTypeOption(pb: TimestampTypeOptionPB): TimeStampTypeOption {
+  return {
+    includeTime: pb.include_time,
+    dateFormat: pb.date_format,
+    timeFormat: pb.time_format,
+    fieldType: pb.field_type,
+  };
+}
+
 export function bytesToTypeOption(data: Uint8Array, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
@@ -92,5 +139,10 @@ export function bytesToTypeOption(data: Uint8Array, fieldType: FieldType) {
       return pbToCheckboxTypeOption(CheckboxTypeOptionPB.deserialize(data));
     case FieldType.Checklist:
       return pbToChecklistTypeOption(ChecklistTypeOptionPB.deserialize(data));
+    case FieldType.DateTime:
+      return pbToDateTypeOption(DateTypeOptionPB.deserialize(data));
+    case FieldType.CreatedTime:
+    case FieldType.LastEditedTime:
+      return pbToTimeStampTypeOption(TimestampTypeOptionPB.deserialize(data));
   }
 }

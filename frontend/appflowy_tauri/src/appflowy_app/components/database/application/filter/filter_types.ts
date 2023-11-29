@@ -11,6 +11,8 @@ import {
   TextFilterPB,
   ChecklistFilterConditionPB,
   ChecklistFilterPB,
+  DateFilterConditionPB,
+  DateFilterPB,
 } from '@/services/backend';
 
 export interface Filter {
@@ -54,6 +56,11 @@ export interface ChecklistFilter extends Filter {
   data: ChecklistFilterData;
 }
 
+export interface DateFilter extends Filter {
+  fieldType: FieldType.DateTime | FieldType.CreatedTime | FieldType.LastEditedTime;
+  data: DateFilterData;
+}
+
 export interface ChecklistFilterData {
   condition?: ChecklistFilterConditionPB;
 }
@@ -68,7 +75,20 @@ export interface NumberFilterData {
   content?: string;
 }
 
-export type UndeterminedFilter = TextFilter | SelectFilter | NumberFilter | CheckboxFilter | ChecklistFilter;
+export interface DateFilterData {
+  condition: DateFilterConditionPB;
+  start?: number;
+  end?: number;
+  timestamp?: number;
+}
+
+export type UndeterminedFilter =
+  | TextFilter
+  | SelectFilter
+  | NumberFilter
+  | CheckboxFilter
+  | ChecklistFilter
+  | DateFilter;
 
 export function filterDataToPB(data: UndeterminedFilter['data'], fieldType: FieldType) {
   switch (fieldType) {
@@ -96,6 +116,15 @@ export function filterDataToPB(data: UndeterminedFilter['data'], fieldType: Fiel
     case FieldType.Checklist:
       return ChecklistFilterPB.fromObject({
         condition: (data as ChecklistFilterData).condition,
+      });
+    case FieldType.DateTime:
+    case FieldType.CreatedTime:
+    case FieldType.LastEditedTime:
+      return DateFilterPB.fromObject({
+        condition: (data as DateFilterData).condition,
+        start: (data as DateFilterData).start,
+        end: (data as DateFilterData).end,
+        timestamp: (data as DateFilterData).timestamp,
       });
   }
 }
@@ -133,6 +162,15 @@ export function pbToChecklistFilterData(pb: ChecklistFilterPB): ChecklistFilterD
   };
 }
 
+export function pbToDateFilterData(pb: DateFilterPB): DateFilterData {
+  return {
+    condition: pb.condition,
+    start: pb.start,
+    end: pb.end,
+    timestamp: pb.timestamp,
+  };
+}
+
 export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
@@ -147,6 +185,10 @@ export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
       return pbToCheckboxFilterData(CheckboxFilterPB.deserialize(bytes));
     case FieldType.Checklist:
       return pbToChecklistFilterData(ChecklistFilterPB.deserialize(bytes));
+    case FieldType.DateTime:
+    case FieldType.CreatedTime:
+    case FieldType.LastEditedTime:
+      return pbToDateFilterData(DateFilterPB.deserialize(bytes));
   }
 }
 

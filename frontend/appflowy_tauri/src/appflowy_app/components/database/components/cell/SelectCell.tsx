@@ -23,7 +23,8 @@ const menuProps: Partial<MenuProps> = {
 export const SelectCell: FC<{
   field: SelectField;
   cell?: SelectCellType;
-}> = ({ field, cell }) => {
+  placeholder?: string;
+}> = ({ field, cell, placeholder }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const selectedIds = useMemo(() => cell?.data?.selectedOptionIds ?? [], [cell]);
   const open = Boolean(anchorEl);
@@ -47,7 +48,11 @@ export const SelectCell: FC<{
         }}
         className={'flex h-full w-full cursor-pointer items-center gap-2 overflow-x-hidden px-2 py-1'}
       >
-        {renderSelectedOptions(selectedIds)}
+        {selectedIds.length === 0 && placeholder ? (
+          <div className={'text-sm text-text-placeholder'}>{placeholder}</div>
+        ) : (
+          renderSelectedOptions(selectedIds)
+        )}
       </div>
       <Suspense>
         {open && cell ? (

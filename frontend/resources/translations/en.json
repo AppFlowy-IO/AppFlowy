@@ -492,6 +492,16 @@
       "isEmpty": "Is empty",
       "isNotEmpty": "Is not empty"
     },
+    "dateFilter": {
+      "is": "Is",
+      "before": "Is before",
+      "after": "Is after",
+      "onOrBefore": "Is on or before",
+      "onOrAfter": "Is on or after",
+      "between": "Is between",
+      "empty": "Is empty",
+      "notEmpty": "Is not empty"
+    },
     "field": {
       "hide": "Hide",
       "show": "Show",
@@ -539,7 +549,7 @@
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "newColumn": "New Column",
-      "format": "format"
+      "format": "Format"
     },
     "rowPage": {
       "newField": "Add a new field",

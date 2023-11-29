@@ -23,7 +23,7 @@ const updateRowsFromChangeset = (database: Database, changeset: RowsChangePB) =>
     const found = database.rowMetas.find((rowMeta) => rowMeta.id === rowId);
 
     if (found) {
-      Object.assign(found, pbToRowMeta(rowMetaPB));
+      Object.assign(found, rowMetaPB ? pbToRowMeta(rowMetaPB) : {});
     }
   });
 };

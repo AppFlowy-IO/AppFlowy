@@ -12,6 +12,7 @@ import SelectFilter from './select_filter/SelectFilter';
 import NumberFilter from '$app/components/database/components/filter/number_filter/NumberFilter';
 import CheckboxFilter from '$app/components/database/components/filter/checkbox_filter/CheckboxFilter';
 import ChecklistFilter from '$app/components/database/components/filter/checklist_filter/ChecklistFilter';
+import DateFilter from '$app/components/database/components/filter/date_filter/DateFilter';
 
 interface Props {
   filter: FilterType;
@@ -39,6 +40,10 @@ const getFilterComponent = (field: FieldData) => {
       return CheckboxFilter as FilterComponent;
     case FieldType.Checklist:
       return ChecklistFilter as FilterComponent;
+    case FieldType.DateTime:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
+      return DateFilter as FilterComponent;
     default:
       return null;
   }

@@ -4,6 +4,7 @@ import {
   NumberTypeOption,
   SelectTypeOption,
   ChecklistTypeOption,
+  TimeStampTypeOption,
 } from './type_option/type_option_types';
 
 export interface Field {
@@ -26,6 +27,18 @@ export interface DateTimeField extends Field {
   typeOption: DateTimeTypeOption;
 }
 
+export interface LastEditedTimeField extends Field {
+  type: FieldType.LastEditedTime;
+  typeOption: TimeStampTypeOption;
+}
+
+export interface CreatedTimeField extends Field {
+  type: FieldType.CreatedTime;
+  typeOption: TimeStampTypeOption;
+}
+
+export type UndeterminedDateField = DateTimeField | CreatedTimeField | LastEditedTimeField;
+
 export interface SelectField extends Field {
   type: FieldType.SingleSelect | FieldType.MultiSelect;
   typeOption: SelectTypeOption;
@@ -36,11 +49,17 @@ export interface ChecklistField extends Field {
   typeOption: ChecklistTypeOption;
 }
 
+export interface DateTimeField extends Field {
+  type: FieldType.DateTime;
+}
+
 export type UndeterminedField = NumberField | DateTimeField | SelectField | Field;
 
-export const pbToField = (pb: FieldPB): Field => ({
-  id: pb.id,
-  name: pb.name,
-  type: pb.field_type,
-  isPrimary: pb.is_primary,
-});
+export const pbToField = (pb: FieldPB): Field => {
+  return {
+    id: pb.id,
+    name: pb.name,
+    type: pb.field_type,
+    isPrimary: pb.is_primary,
+  };
+};

@@ -9,6 +9,8 @@ import { CheckboxCell } from './CheckboxCell';
 import NumberCell from '$app/components/database/components/cell/NumberCell';
 import URLCell from '$app/components/database/components/cell/URLCell';
 import ChecklistCell from '$app/components/database/components/cell/ChecklistCell';
+import DateTimeCell from '$app/components/database/components/cell/DateTimeCell';
+import TimestampCell from '$app/components/database/components/cell/TimestampCell';
 
 export interface CellProps {
   rowId: string;
@@ -37,6 +39,11 @@ const getCellComponent = (fieldType: FieldType) => {
       return NumberCell as FC<CellComponentProps>;
     case FieldType.URL:
       return URLCell as FC<CellComponentProps>;
+    case FieldType.DateTime:
+      return DateTimeCell as FC<CellComponentProps>;
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
+      return TimestampCell as FC<CellComponentProps>;
     default:
       return null;
   }

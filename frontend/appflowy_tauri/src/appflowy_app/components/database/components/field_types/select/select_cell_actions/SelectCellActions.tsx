@@ -9,6 +9,7 @@ import {
   createSelectOption,
   insertOrUpdateSelectOption,
 } from '$app/components/database/application/field/select_option/select_option_service';
+import { FieldType } from '@/services/backend';
 
 function SelectCellActions({
   field,
@@ -66,6 +67,11 @@ function SelectCellActions({
 
   const handleClickOption = useCallback(
     (optionId: string) => {
+      if (field.type === FieldType.SingleSelect) {
+        void updateCell([optionId]);
+        return;
+      }
+
       const prev = selectedOptionIds;
       let newOptionIds = [];
 
@@ -83,7 +89,7 @@ function SelectCellActions({
 
       void updateCell(newOptionIds);
     },
-    [selectedOptionIds, updateCell]
+    [field.type, selectedOptionIds, updateCell]
   );
 
   const handleNewTagClick = useCallback(async () => {
@@ -100,6 +106,11 @@ function SelectCellActions({
         size='small'
         value={newOptionName}
         onInput={handleInput}
+        onKeyDown={(e) => {
+          if (shouldCreateOption && e.key === 'Enter') {
+            void handleNewTagClick();
+          }
+        }}
         placeholder={t('grid.selectOption.searchOrCreateOption')}
       />
     </ListSubheader>

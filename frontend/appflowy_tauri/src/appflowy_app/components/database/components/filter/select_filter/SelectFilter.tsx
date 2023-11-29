@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { SelectField, SelectFilterData, SelectFilter as SelectFilterType } from '$app/components/database/application';
+import { SelectField, SelectFilter as SelectFilterType, SelectFilterData } from '$app/components/database/application';
 import { MenuItem } from '@mui/material';
 import SelectFilterConditionsSelect from '$app/components/database/components/filter/select_filter/SelectFilterConditionSelect';
 import { Tag } from '$app/components/database/components/field_types/select/Tag';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
+import { SelectOptionConditionPB } from '@/services/backend';
 
 interface Props {
   filter: SelectFilterType;
@@ -14,6 +15,11 @@ interface Props {
 function SelectFilter({ filter, field, onChange }: Props) {
   const [selectedCondition, setSelectedCondition] = useState(filter.data.condition);
   const options = field.typeOption.options ?? [];
+
+  const showOptions =
+    options.length > 0 &&
+    selectedCondition !== SelectOptionConditionPB.OptionIsEmpty &&
+    selectedCondition !== SelectOptionConditionPB.OptionIsNotEmpty;
 
   const handleChange = ({
     condition,
@@ -67,7 +73,7 @@ function SelectFilter({ filter, field, onChange }: Props) {
           value={selectedCondition}
         />
       </div>
-      {options.length > 0 && (
+      {showOptions && (
         <>
           {options.map((option) => {
             const isSelected = filter.data.optionIds?.includes(option.id);

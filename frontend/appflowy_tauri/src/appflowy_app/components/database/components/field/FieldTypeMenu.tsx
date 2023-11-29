@@ -21,7 +21,7 @@ const FieldTypeGroup = [
   },
   {
     name: 'Advanced',
-    types: [FieldType.LastEditedTime],
+    types: [FieldType.LastEditedTime, FieldType.CreatedTime],
   },
 ];
 

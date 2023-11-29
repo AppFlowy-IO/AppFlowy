@@ -4,6 +4,7 @@ import {
   DateCellDataPB,
   FieldType,
   SelectOptionCellDataPB,
+  TimestampCellDataPB,
   URLCellDataPB,
 } from '@/services/backend';
 import {
@@ -57,11 +58,25 @@ export interface DateTimeCell extends Cell {
   data: DateTimeCellData;
 }
 
+export interface TimeStampCell extends Cell {
+  fieldType: FieldType.LastEditedTime | FieldType.CreatedTime;
+  data: TimestampCellData;
+}
+
 export interface DateTimeCellData {
   date?: string;
   time?: string;
   timestamp?: number;
   includeTime?: boolean;
+  endDate?: string;
+  endTime?: string;
+  endTimestamp?: number;
+  isRange?: boolean;
+}
+
+export interface TimestampCellData {
+  dataTime?: string;
+  timestamp?: number;
 }
 
 export interface ChecklistCell extends Cell {
@@ -87,11 +102,20 @@ export type UndeterminedCell =
   | UrlCell
   | ChecklistCell;
 
-const pbToDateCellData = (pb: DateCellDataPB): DateTimeCellData => ({
+const pbToDateTimeCellData = (pb: DateCellDataPB): DateTimeCellData => ({
   date: pb.date,
   time: pb.time,
   timestamp: pb.timestamp,
   includeTime: pb.include_time,
+  endDate: pb.end_date,
+  endTime: pb.end_time,
+  endTimestamp: pb.end_timestamp,
+  isRange: pb.is_range,
+});
+
+const pbToTimestampCellData = (pb: TimestampCellDataPB): TimestampCellData => ({
+  dataTime: pb.date_time,
+  timestamp: pb.timestamp,
 });
 
 export const pbToSelectCellData = (pb: SelectOptionCellDataPB): SelectCellData => {
@@ -118,9 +142,10 @@ function bytesToCellData(bytes: Uint8Array, fieldType: FieldType) {
     case FieldType.Checkbox:
       return new TextDecoder().decode(bytes);
     case FieldType.DateTime:
+      return pbToDateTimeCellData(DateCellDataPB.deserialize(bytes));
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
-      return pbToDateCellData(DateCellDataPB.deserialize(bytes));
+      return pbToTimestampCellData(TimestampCellDataPB.deserialize(bytes));
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:
       return pbToSelectCellData(SelectOptionCellDataPB.deserialize(bytes));

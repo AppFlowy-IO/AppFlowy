@@ -7,18 +7,19 @@ import { useInputCell } from '$app/components/database/components/cell/Cell.hook
 interface Props {
   field: Field;
   cell?: NumberCellType;
+  placeholder?: string;
 }
 
-function NumberCell({ field, cell }: Props) {
+function NumberCell({ field, cell, placeholder }: Props) {
   const cellRef = useRef<HTMLDivElement>(null);
   const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);
   const content = useMemo(() => {
-    if (cell && typeof cell.data === 'string') {
+    if (cell && typeof cell.data === 'string' && cell.data) {
       return cell.data;
     }
 
-    return null;
-  }, [cell]);
+    return <div className={'text-sm text-text-placeholder'}>{placeholder}</div>;
+  }, [cell, placeholder]);
 
   const handleClick = useCallback(() => {
     if (!cell) return;

@@ -48,7 +48,7 @@ export const TextCell: FC<{
   }, [editing, setRowHover]);
 
   const content = useMemo(() => {
-    if (cell && typeof cell.data === 'string') {
+    if (cell && typeof cell.data === 'string' && cell.data) {
       return cell.data;
     }
 

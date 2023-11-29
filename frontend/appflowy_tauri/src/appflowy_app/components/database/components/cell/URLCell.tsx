@@ -8,9 +8,10 @@ const EditTextCellInput = lazy(() => import('$app/components/database/components
 interface Props {
   field: Field;
   cell?: URLCellType;
+  placeholder?: string;
 }
 
-function UrlCell({ field, cell }: Props) {
+function UrlCell({ field, cell, placeholder }: Props) {
   const cellRef = useRef<HTMLDivElement>(null);
   const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);
   const handleClick = useCallback(() => {
@@ -41,8 +42,12 @@ function UrlCell({ field, cell }: Props) {
         ref={cellRef}
         onClick={handleClick}
       >
-        <div className={`flex w-full items-center whitespace-break-spaces break-all text-content-blue-400 underline`}>
-          {cell?.data.content}
+        <div className={`flex w-full items-center whitespace-break-spaces break-all text-content-blue-400 `}>
+          {cell?.data.content ? (
+            <div className={'underline'}>{cell?.data.content}</div>
+          ) : (
+            <div className={'text-sm text-text-placeholder'}>{placeholder}</div>
+          )}
         </div>
       </CellText>
       <Suspense>
