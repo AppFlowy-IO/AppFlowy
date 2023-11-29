@@ -1,6 +1,5 @@
-import { CreateFieldPayloadPB, FieldType, TypeOptionPathPB, TypeOptionChangesetPB } from '@/services/backend';
+import { FieldType, TypeOptionPathPB, TypeOptionChangesetPB } from '@/services/backend';
 import {
-  DatabaseEventCreateTypeOption,
   DatabaseEventGetTypeOption,
   DatabaseEventUpdateFieldTypeOption,
 } from '@/services/backend/events/flowy-database2';
@@ -43,22 +42,4 @@ export async function updateTypeOption(
   }
 
   return;
-}
-
-export async function createTypeOption(viewId: string, fieldType: FieldType, data?: Uint8Array) {
-  const payload = CreateFieldPayloadPB.fromObject({
-    view_id: viewId,
-    field_type: fieldType,
-    type_option_data: data,
-  });
-
-  const result = await DatabaseEventCreateTypeOption(payload);
-
-  if (!result.ok) {
-    return Promise.reject(result.val);
-  }
-
-  const value = result.val;
-
-  return bytesToTypeOption(value.type_option_data, fieldType);
 }

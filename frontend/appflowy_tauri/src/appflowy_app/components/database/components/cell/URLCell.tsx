@@ -1,9 +1,11 @@
-import React, { FormEventHandler, lazy, Suspense, useCallback, useRef } from 'react';
+import React, { FormEventHandler, lazy, Suspense, useCallback, useMemo, useRef } from 'react';
 import { useInputCell } from '$app/components/database/components/cell/Cell.hooks';
 import { Field, UrlCell as URLCellType } from '$app/components/database/application';
 import { CellText } from '$app/components/database/_shared';
 
 const EditTextCellInput = lazy(() => import('$app/components/database/components/field_types/text/EditTextCellInput'));
+
+const pattern = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)?/gi;
 
 interface Props {
   field: Field;
@@ -32,6 +34,25 @@ function UrlCell({ field, cell, placeholder }: Props) {
     [setValue]
   );
 
+  const content = useMemo(() => {
+    if (cell && cell?.data.content) {
+      const str = cell?.data.content;
+      const isUrl = pattern.test(str);
+
+      if (isUrl) {
+        return (
+          <a href={str} target={'_blank'} className={'cursor-pointer text-content-blue-400 underline'}>
+            {str}
+          </a>
+        );
+      }
+
+      return str;
+    }
+
+    return <div className={'text-sm text-text-placeholder'}>{placeholder}</div>;
+  }, [cell, placeholder]);
+
   return (
     <>
       <CellText
@@ -42,13 +63,7 @@ function UrlCell({ field, cell, placeholder }: Props) {
         ref={cellRef}
         onClick={handleClick}
       >
-        <div className={`flex w-full items-center whitespace-break-spaces break-all text-content-blue-400 `}>
-          {cell?.data.content ? (
-            <div className={'underline'}>{cell?.data.content}</div>
-          ) : (
-            <div className={'text-sm text-text-placeholder'}>{placeholder}</div>
-          )}
-        </div>
+        <div className={`flex w-full items-center whitespace-break-spaces break-all `}>{content}</div>
       </CellText>
       <Suspense>
         {editing && (
