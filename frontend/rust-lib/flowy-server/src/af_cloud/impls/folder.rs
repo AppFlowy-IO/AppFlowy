@@ -89,7 +89,11 @@ where
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_folder_updates(&self, workspace_id: &str, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_folder_doc_state(
+    &self,
+    workspace_id: &str,
+    _uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {

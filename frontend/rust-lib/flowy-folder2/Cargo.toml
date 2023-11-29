@@ -29,6 +29,7 @@ strum_macros = "0.21"
 protobuf.workspace = true
 uuid.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
+serde_json.workspace = true
 
 [build-dependencies]
 flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

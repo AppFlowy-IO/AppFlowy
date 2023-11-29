@@ -1,5 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_paginated_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
@@ -367,9 +370,9 @@ void showEventDetails({
 }
 
 class UnscheduledEventsButton extends StatefulWidget {
-  final DatabaseController databaseController;
-
   const UnscheduledEventsButton({super.key, required this.databaseController});
+
+  final DatabaseController databaseController;
 
   @override
   State<UnscheduledEventsButton> createState() =>
@@ -402,20 +405,20 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 1,
-                  ),
+                  side: BorderSide(color: Theme.of(context).dividerColor),
                   borderRadius: Corners.s6Border,
                 ),
-                side:
-                    BorderSide(color: Theme.of(context).dividerColor, width: 1),
+                side: BorderSide(color: Theme.of(context).dividerColor),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 visualDensity: VisualDensity.compact,
               ),
               onPressed: () {
                 if (state.unscheduleEvents.isNotEmpty) {
-                  _popoverController.show();
+                  if (PlatformExtension.isMobile) {
+                    _showUnscheduledEventsMobile(state.unscheduleEvents);
+                  } else {
+                    _popoverController.show();
+                  }
                 }
               },
               child: FlowyTooltip(
@@ -438,64 +441,119 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
       ),
     );
   }
+
+  void _showUnscheduledEventsMobile(List<CalendarEventPB> events) =>
+      showPaginatedBottomSheet(
+        context,
+        page: SheetPage(
+          title: LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
+          body: UnscheduleEventsList(
+            databaseController: widget.databaseController,
+            unscheduleEvents: events,
+          ),
+        ),
+      );
 }
 
 class UnscheduleEventsList extends StatelessWidget {
-  final DatabaseController databaseController;
-  final List<CalendarEventPB> unscheduleEvents;
   const UnscheduleEventsList({
     super.key,
     required this.unscheduleEvents,
     required this.databaseController,
   });
 
+  final List<CalendarEventPB> unscheduleEvents;
+  final DatabaseController databaseController;
+
   @override
   Widget build(BuildContext context) {
-    final cells = <Widget>[
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: FlowyText.medium(
-          LocaleKeys.calendar_settings_clickToAdd.tr(),
-          fontSize: 10,
-          color: Theme.of(context).hintColor,
-          overflow: TextOverflow.ellipsis,
+    final cells = [
+      if (!PlatformExtension.isMobile)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: FlowyText.medium(
+            LocaleKeys.calendar_settings_clickToAdd.tr(),
+            fontSize: 10,
+            color: Theme.of(context).hintColor,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-      ),
       ...unscheduleEvents.map(
-        (e) => UnscheduledEventCell(
-          event: e,
+        (event) => UnscheduledEventCell(
+          event: event,
           onPressed: () {
-            showEventDetails(
-              context: context,
-              event: e,
-              viewId: databaseController.viewId,
-              rowCache: databaseController.rowCache,
-              fieldController: databaseController.fieldController,
-            );
-            PopoverContainer.of(context).close();
+            if (PlatformExtension.isMobile) {
+              context.push(
+                MobileCardDetailScreen.routeName,
+                extra: {
+                  MobileCardDetailScreen.argRowController: RowController(
+                    rowMeta: event.rowMeta,
+                    viewId: databaseController.viewId,
+                    rowCache: databaseController.rowCache,
+                  ),
+                  MobileCardDetailScreen.argFieldController:
+                      databaseController.fieldController,
+                },
+              );
+              context.pop();
+            } else {
+              showEventDetails(
+                context: context,
+                event: event,
+                viewId: databaseController.viewId,
+                rowCache: databaseController.rowCache,
+                fieldController: databaseController.fieldController,
+              );
+              PopoverContainer.of(context).close();
+            }
           },
         ),
       ),
     ];
 
-    return ListView.separated(
+    final child = ListView.separated(
       itemBuilder: (context, index) => cells[index],
       itemCount: cells.length,
       separatorBuilder: (context, index) =>
           VSpace(GridSize.typeOptionSeparatorHeight),
       shrinkWrap: true,
     );
+
+    if (PlatformExtension.isMobile) {
+      return Flexible(child: child);
+    }
+
+    return child;
   }
 }
 
 class UnscheduledEventCell extends StatelessWidget {
-  final CalendarEventPB event;
-  final VoidCallback onPressed;
   const UnscheduledEventCell({
+    super.key,
     required this.event,
     required this.onPressed,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final CalendarEventPB event;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformExtension.isMobile
+        ? MobileUnscheduledEventTile(event: event, onPressed: onPressed)
+        : DesktopUnscheduledEventTile(event: event, onPressed: onPressed);
+  }
+}
+
+class DesktopUnscheduledEventTile extends StatelessWidget {
+  const DesktopUnscheduledEventTile({
+    super.key,
+    required this.event,
+    required this.onPressed,
+  });
+
+  final CalendarEventPB event;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -511,6 +569,27 @@ class UnscheduledEventCell extends StatelessWidget {
         ),
         onTap: onPressed,
       ),
+    );
+  }
+}
+
+class MobileUnscheduledEventTile extends StatelessWidget {
+  const MobileUnscheduledEventTile({
+    super.key,
+    required this.event,
+    required this.onPressed,
+  });
+
+  final CalendarEventPB event;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return MobileSettingItem(
+      name: event.title.isEmpty
+          ? LocaleKeys.calendar_defaultNewCalendarTitle.tr()
+          : event.title,
+      onTap: onPressed,
     );
   }
 }

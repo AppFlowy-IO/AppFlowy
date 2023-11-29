@@ -31,7 +31,7 @@ collab = { version = "0.1.0" }
 diesel.workspace = true
 uuid.workspace = true
 flowy-storage = { workspace = true }
-client-api = { version = "0.1.0", features = ["collab-sync"] }
+client-api = { version = "0.1.0", features = ["collab-sync", "template"] }
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }

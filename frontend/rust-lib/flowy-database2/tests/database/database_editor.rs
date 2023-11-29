@@ -4,6 +4,7 @@ use std::sync::Arc;
 use collab_database::database::{gen_database_view_id, timestamp};
 use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowDetail, RowId};
+use collab_database::views::OrderObjectPosition;
 use strum::EnumCount;
 
 use event_integration::folder_event::ViewTest;
@@ -410,7 +411,7 @@ impl<'a> TestRowBuilder<'a> {
       cells: self.cell_build.build(),
       height: 60,
       visibility: true,
-      prev_row_id: None,
+      row_position: OrderObjectPosition::End,
       timestamp: timestamp(),
     }
   }

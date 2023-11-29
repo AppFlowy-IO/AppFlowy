@@ -828,6 +828,9 @@
     "cardActions": "Card Actions",
     "cardDuplicated": "Card has been duplicated",
     "cardDeleted": "Card has been deleted",
+    "showOnCard": "Show on card detail",
+    "setting": "Setting",
+    "propertyName": "Property name",
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
     "ungroupedButtonText": "Ungrouped",
@@ -863,6 +866,7 @@
         "one": "{} unscheduled event",
         "other": "{} unscheduled events"
       },
+      "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar settings"
     },

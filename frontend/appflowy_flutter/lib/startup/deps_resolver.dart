@@ -9,10 +9,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
-import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -52,7 +50,6 @@ class DependencyResolver {
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
     _resolveDocDeps(getIt);
-    // _resolveGridDeps(getIt);
     _resolveCommonService(getIt, mode);
   }
 }
@@ -131,19 +128,10 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
       );
       break;
     case AuthenticatorType.supabase:
-      if (mode.isIntegrationTest) {
-        getIt.registerFactory<AuthService>(() => SupabaseMockAuthService());
-      } else {
-        getIt.registerFactory<AuthService>(() => SupabaseAuthService());
-      }
+      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       break;
     case AuthenticatorType.appflowyCloud:
-      if (mode.isIntegrationTest) {
-        getIt
-            .registerFactory<AuthService>(() => AppFlowyCloudMockAuthService());
-      } else {
-        getIt.registerFactory<AuthService>(() => AppFlowyCloudAuthService());
-      }
+      getIt.registerFactory<AuthService>(() => AppFlowyCloudAuthService());
       break;
   }
 

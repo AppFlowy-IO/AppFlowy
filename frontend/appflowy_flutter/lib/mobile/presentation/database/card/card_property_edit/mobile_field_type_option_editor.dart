@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/type_option_widget_builder/type_option_widget_builder.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_type_option_edit_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_controller.dart';
@@ -59,24 +60,25 @@ class _MobileSwitchFieldButton extends StatelessWidget {
       (FieldTypeOptionEditBloc bloc) => bloc.state.field.fieldType,
     );
     return GestureDetector(
-      child: Row(
-        children: [
-          Text(
-            LocaleKeys.grid_field_propertyType.tr(),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const Spacer(),
-          FlowySvg(fieldType.icon()),
-          const HSpace(4),
-          Text(
-            fieldType.title(),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          Icon(
-            Icons.arrow_forward_ios_sharp,
-            color: Theme.of(context).hintColor,
-          ),
-        ],
+      child: PropertyEditContainer(
+        child: Row(
+          children: [
+            PropertyTitle(
+              LocaleKeys.grid_field_propertyType.tr(),
+            ),
+            const Spacer(),
+            FlowySvg(fieldType.icon()),
+            const HSpace(4),
+            Text(
+              fieldType.title(),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Icon(
+              Icons.arrow_forward_ios_sharp,
+              color: Theme.of(context).hintColor,
+            ),
+          ],
+        ),
       ),
       onTap: () => showFlowyMobileBottomSheet(
         context,

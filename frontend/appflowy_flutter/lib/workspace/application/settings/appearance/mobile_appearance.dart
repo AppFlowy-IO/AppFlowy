@@ -39,7 +39,7 @@ class MobileAppearance extends BaseAppearance {
             onPrimary: Colors.white,
             // group card header background color
             primaryContainer: const Color(0xffF1F1F4), // primary 20
-            // group card background color
+            // group card & property edit background color
             secondary: const Color(0xfff7f8fc), // shade 10
             onSecondary: _onSecondaryColor,
             // hidden group title & card text color
@@ -73,12 +73,16 @@ class MobileAppearance extends BaseAppearance {
             onSurface: const Color(0xffC5C6C7), // text/body color
           );
 
+    final hintColor = brightness == Brightness.light
+        ? const Color(0xff89909B)
+        : const Color(0xff96989C);
+
     return ThemeData(
       // color
       primaryColor: colorTheme.primary, //primary 100
       primaryColorLight: const Color(0xFF57B5F8), //primary 80
       dividerColor: colorTheme.outline, //caption
-      hintColor: colorTheme.onSecondary,
+      hintColor: hintColor,
       disabledColor: colorTheme.outline,
       scaffoldBackgroundColor: colorTheme.background,
       appBarTheme: AppBarTheme(

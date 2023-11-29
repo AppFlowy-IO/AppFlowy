@@ -12,7 +12,7 @@ import '../util/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('grid page', () {
+  group('grid field editor:', () {
     testWidgets('rename existing field', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
@@ -98,11 +98,34 @@ void main() {
       await tester.renameField('New field 1');
       await tester.dismissFieldEditor();
 
-      // Delete the field
+      // duplicate the field
       await tester.tapGridFieldWithName('New field 1');
       await tester.tapDuplicatePropertyButton();
 
       await tester.findFieldWithName('New field 1 (copy)');
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('insert field on either side of a field', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
+      await tester.scrollToRight(find.byType(GridPage));
+
+      // insert new field to the right
+      await tester.tapGridFieldWithName('Type');
+      await tester.tapInsertFieldButton(left: false, name: 'Right');
+      await tester.dismissFieldEditor();
+      await tester.findFieldWithName('Right');
+
+      // insert new field to the right
+      await tester.tapGridFieldWithName('Type');
+      await tester.tapInsertFieldButton(left: true, name: "Left");
+      await tester.dismissFieldEditor();
+      await tester.findFieldWithName('Left');
+
       await tester.pumpAndSettle();
     });
 
