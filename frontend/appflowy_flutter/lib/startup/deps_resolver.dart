@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/ser
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
@@ -57,6 +58,15 @@ class DependencyResolver {
 Future<void> _resolveCloudDeps(GetIt getIt) async {
   final env = await AppFlowyCloudSharedEnv.fromEnv();
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
+
+  if (isAppFlowyCloudEnabled) {
+    getIt.registerSingleton(
+      AppFlowyCloudDeepLink(),
+      dispose: (obj) async {
+        await obj.dispose();
+      },
+    );
+  }
 }
 
 void _resolveCommonService(

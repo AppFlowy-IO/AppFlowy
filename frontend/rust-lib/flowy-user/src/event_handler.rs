@@ -249,7 +249,7 @@ pub async fn get_user_setting(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn oauth_handler(
+pub async fn oauth_sign_in_handler(
   data: AFPluginData<OauthSignInPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
