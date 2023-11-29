@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class PropertyTitle extends StatelessWidget {
-  const PropertyTitle(this.name, {super.key});
+class PropertyEditGroupTitle extends StatelessWidget {
+  const PropertyEditGroupTitle(this.name, {super.key});
 
   final String name;
 
@@ -12,8 +12,7 @@ class PropertyTitle extends StatelessWidget {
       child: Text(
         name,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onBackground,
-              fontSize: 16,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
       ),
     );
