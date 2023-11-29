@@ -81,10 +81,10 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
               weekendDecoration: boxDecoration,
               outsideDecoration: boxDecoration,
               rangeStartDecoration: boxDecoration.copyWith(
-                color: Theme.of(context).colorScheme.primary,
+                color: selectedColor,
               ),
               rangeEndDecoration: boxDecoration.copyWith(
-                color: Theme.of(context).colorScheme.primary,
+                color: selectedColor,
               ),
               defaultTextStyle: textStyle,
               weekendTextStyle: textStyle,
@@ -186,7 +186,7 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
             curve: Curves.easeOut,
           ),
         ),
-        const HSpace(16.0),
+        const HSpace(8.0),
       ],
     );
   }

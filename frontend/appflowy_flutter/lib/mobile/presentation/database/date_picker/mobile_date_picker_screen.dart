@@ -1,9 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/database/card/row/cells/date_cell/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_cal_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/mobile_date_editor.dart';
 import 'package:appflowy_backend/log.dart';
@@ -104,21 +103,35 @@ class _DateCellEditBody extends StatelessWidget {
           const FlowyOptionDecorateBox(
             child: MobileDatePicker(),
           ),
-          VSpace(
-            20.0,
-            color: Theme.of(context).colorScheme.secondaryContainer,
-          ),
+          const _ColoredDivider(),
           const _EndDateSwitch(),
           const _IncludeTimeSwitch(),
           const _StartDayTime(),
           const _EndDayTime(),
-          const Divider(),
+          const _ColoredDivider(),
           const _DateFormatOption(),
           const _TimeFormatOption(),
-          const Divider(),
           const _ClearDateButton(),
+          // used for filling the bottom space with color
+          Expanded(
+            child: Container(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+            ),
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _ColoredDivider extends StatelessWidget {
+  const _ColoredDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return VSpace(
+      20.0,
+      color: Theme.of(context).colorScheme.secondaryContainer,
     );
   }
 }
@@ -131,23 +144,17 @@ class _EndDateSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.isRange,
       builder: (context, isRange) {
-        return Row(
-          children: [
-            FlowyText(
-              LocaleKeys.grid_field_isRange.tr(),
-              // style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const Spacer(),
-            Switch.adaptive(
-              value: isRange,
-              activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (value) {
-                context
-                    .read<DateCellCalendarBloc>()
-                    .add(DateCellCalendarEvent.setIsRange(value));
-              },
-            ),
-          ],
+        return FlowyOptionTile(
+          text: LocaleKeys.grid_field_isRange.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.date_s),
+          leading: _Switcher(
+            value: isRange,
+            onChanged: (value) {
+              context
+                  .read<DateCellCalendarBloc>()
+                  .add(DateCellCalendarEvent.setIsRange(value));
+            },
+          ),
         );
       },
     );
@@ -162,13 +169,18 @@ class _IncludeTimeSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.includeTime,
       builder: (context, includeTime) {
-        return IncludeTimeSwitch(
-          switchValue: includeTime,
-          onChanged: (value) {
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.setIncludeTime(value));
-          },
+        return FlowyOptionTile(
+          showTopBorder: false,
+          text: LocaleKeys.grid_field_includeTime.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
+          leading: _Switcher(
+            value: includeTime,
+            onChanged: (value) {
+              context
+                  .read<DateCellCalendarBloc>()
+                  .add(DateCellCalendarEvent.setIncludeTime(value));
+            },
+          ),
         );
       },
     );
@@ -304,14 +316,9 @@ class _ClearDateButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          LocaleKeys.grid_field_clearDate.tr(),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-      ),
+    return FlowyOptionTile(
+      showTopBorder: false,
+      text: LocaleKeys.grid_field_clearDate.tr(),
       onTap: () => context
           .read<DateCellCalendarBloc>()
           .add(const DateCellCalendarEvent.clearDate()),
@@ -328,20 +335,25 @@ class _TimeFormatOption extends StatelessWidget {
         TimeFormatPB>(
       selector: (state) => state.dateTypeOptionPB.timeFormat,
       builder: (context, state) {
-        return TimeFormatListTile(
-          currentFormatStr: state.title(),
-          groupValue: context
-              .watch<DateCellCalendarBloc>()
-              .state
-              .dateTypeOptionPB
-              .timeFormat,
-          onChanged: (newFormat) {
-            if (newFormat == null) return;
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.setTimeFormat(newFormat));
-          },
+        return FlowyOptionTile(
+          showTopBorder: false,
+          text: LocaleKeys.settings_appearance_timeFormat_label.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.time_s),
         );
+        // TimeFormatListTile(
+        //   currentFormatStr: state.title(),
+        //   groupValue: context
+        //       .watch<DateCellCalendarBloc>()
+        //       .state
+        //       .dateTypeOptionPB
+        //       .timeFormat,
+        //   onChanged: (newFormat) {
+        //     if (newFormat == null) return;
+        //     context
+        //         .read<DateCellCalendarBloc>()
+        //         .add(DateCellCalendarEvent.setTimeFormat(newFormat));
+        //   },
+        // );
       },
     );
   }
@@ -356,21 +368,50 @@ class _DateFormatOption extends StatelessWidget {
         DateFormatPB>(
       selector: (state) => state.dateTypeOptionPB.dateFormat,
       builder: (context, state) {
-        return DateFormatListTile(
-          currentFormatStr: state.title(),
-          groupValue: context
-              .watch<DateCellCalendarBloc>()
-              .state
-              .dateTypeOptionPB
-              .dateFormat,
-          onChanged: (newFormat) {
-            if (newFormat == null) return;
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.setDateFormat(newFormat));
-          },
+        return FlowyOptionTile(
+          text: LocaleKeys.settings_appearance_dateFormat_label.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
         );
+        // DateFormatListTile(
+        //   currentFormatStr: state.title(),
+        //   groupValue: context
+        //       .watch<DateCellCalendarBloc>()
+        //       .state
+        //       .dateTypeOptionPB
+        //       .dateFormat,
+        //   onChanged: (newFormat) {
+        //     if (newFormat == null) return;
+        //     context
+        //         .read<DateCellCalendarBloc>()
+        //         .add(DateCellCalendarEvent.setDateFormat(newFormat));
+        //   },
+        // );
       },
+    );
+  }
+}
+
+class _Switcher extends StatelessWidget {
+  const _Switcher({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final void Function(bool value) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 48,
+      child: FittedBox(
+        fit: BoxFit.fill,
+        child: Switch.adaptive(
+          value: value,
+          activeColor: const Color(0xFF00BCF0),
+          onChanged: onChanged,
+        ),
+      ),
     );
   }
 }
