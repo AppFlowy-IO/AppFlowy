@@ -107,6 +107,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
               onTap: () {
                 showMobileBottomSheet(
                   context: context,
+                  padding: EdgeInsets.zero,
                   builder: (context) {
                     return MobileDateCellEditScreen(
                       controller: widget.cellControllerBuilder.build()

@@ -43,18 +43,15 @@ class _ViewPageBottomSheetState extends State<ViewPageBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // header
-          _buildHeader(),
-          const VSpace(16),
-          // body
-          _buildBody(),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // header
+        _buildHeader(),
+        const VSpace(16),
+        // body
+        _buildBody(),
+      ],
     );
   }
 
