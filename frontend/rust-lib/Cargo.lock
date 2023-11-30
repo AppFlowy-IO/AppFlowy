@@ -125,7 +125,7 @@ checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -667,7 +667,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "app-error",
@@ -1152,7 +1152,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1280,7 +1280,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "app-error",
@@ -2474,7 +2474,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2490,7 +2490,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "app-error",
@@ -2851,7 +2851,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -3667,7 +3667,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros",
+ "phf_macros 0.8.0",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -3687,6 +3687,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -3752,6 +3753,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.31",
 ]
 
 [[package]]
@@ -3957,7 +3971,7 @@ checksum = "8bdf592881d821b83d471f8af290226c8d51402259e9bb5be7f9f8bdebbb11ac"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
  "multimap",
  "once_cell",
@@ -3978,7 +3992,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "265baba7fabd416cf5078179f7d2cbeca4ce7a9041111900675ea7c4cb8a4c32"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.31",
@@ -4317,7 +4331,7 @@ dependencies = [
 [[package]]
 name = "realtime-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "bincode",
@@ -4983,13 +4997,14 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "app-error",
  "collab-entity",
  "database-entity",
  "gotrue-entity",
+ "log",
  "opener",
  "reqwest",
  "rust-s3",
@@ -6320,7 +6335,7 @@ dependencies = [
 [[package]]
 name = "workspace-template"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d76a0642e1787dc2d15c1848fa4a245f8922d7ab#d76a0642e1787dc2d15c1848fa4a245f8922d7ab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=62abd8abbf4dddb5822842f28d1fba67ccfae6de#62abd8abbf4dddb5822842f28d1fba67ccfae6de"
 dependencies = [
  "anyhow",
  "async-trait",
