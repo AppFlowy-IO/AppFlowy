@@ -309,40 +309,143 @@
       },
       "themeUpload": {
         "button": "Nahrát",
-        "failure": "Nahrané téma vzhledu má neplatný formát."
+        "uploadTheme": "Nahrát motiv vzhledu",
+        "description": "Nahrajte vlastní motiv vzhledu pro AppFlowy stisknutím tlačítka níže.",
+        "failure": "Nahrané téma vzhledu má neplatný formát.",
+        "loading": "Prosím počkejte dokud nedokončíme kontrolu a nahrávání vašeho motivu vzhledu...",
+        "uploadSuccess": "Váš motiv vzhledu byl úspěšně nahrán",
+        "deletionFailure": "Nepodařilo se smazat motiv vzhledu. Zkuste ho smazat ručně.",
+        "filePickerDialogTitle": "Vyberte soubor typu .flowy_plugin",
+        "urlUploadFailure": "Nepodařilo se otevřít URL adresu: {}"
       },
+      "theme": "Motiv vzhledu",
+      "builtInsLabel": "Vestavěné motivy vzhledu",
       "pluginsLabel": "Dopl",
+      "dateFormat": {
+        "label": "Formát data",
+        "local": "Místní",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Přátelský",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "Formát času",
+        "twelveHour": "12hodinový",
+        "twentyFourHour": "24hodinový"
+      },
       "showNamingDialogWhenCreatingPage": "Zobrazit d"
     },
     "files": {
       "copy": "Kopíá",
+      "defaultLocation": "Umístění pro čtení a ukládání dat",
+      "exportData": "Exportovat data",
+      "doubleTapToCopy": "Dvojitým klepnutím zkopírujete cestu",
+      "restoreLocation": "Obnovit výchozí AppFlowy cestu",
       "customizeLocation": "OtevřítProsím tre další složku",
+      "restartApp": "Aby se projevily změny, restartujte prosím aplikaci.",
+      "exportDatabase": "Exportovat databázi",
+      "selectFiles": "Vyberte soubory k exportování",
+      "selectAll": "Označit vše",
+      "deselectAll": "Odznačit vše",
       "createNewFolder": "V",
+      "createNewFolderDesc": "Řekněte nám, kam uložit Vaše data",
+      "defineWhereYourDataIsStored": "Vyberte kde jsou ukládána Vaše data",
+      "open": "Otevřít",
+      "openFolder": "Otevřít existující složku",
       "openFolderDesc": "Číst a zapisovat do existující AppFlowy složky",
+      "folderHintText": "název složky",
+      "location": "Vytváření nové složky",
+      "locationDesc": "Vyberte název pro složku, kam bude AppFlowy ukládat Vaše data",
+      "browser": "Procházet",
+      "create": "Vytvořit",
+      "set": "Nastavit",
       "folderPath": "Umístění složkyU",
-      "recoverLocationTooltips": "Obnovit výchozí složku s daty "
+      "locationCannotBeEmpty": "Umístění nesmí být prázdné",
+      "pathCopiedSnackbar": "Umístění souboru zkopírováno do schránky",
+      "changeLocationTooltips": "Změnit složku pro ukládání dat",
+      "change": "Změnit",
+      "openLocationTooltips": "Otevřít jinou složku pro ukládání dat",
+      "openCurrentDataFolder": "Otevřít současnou složku pro ukládání dat",
+      "recoverLocationTooltips": "Obnovit výchozí složku s daty ",
+      "exportFileSuccess": "Soubor byl úspěšně exportován!",
+      "exportFileFail": "Soubor se nepodařilo exportovat!",
+      "export": "Exportovat"
     },
     "user": {
+      "name": "Jméno",
+      "email": "E-mail",
+      "tooltipSelectIcon": "Vyberte ikonu",
+      "selectAnIcon": "Vyberte ikonu",
+      "pleaseInputYourOpenAIKey": "Prosím vložte svůj OpenAI klíč",
+      "pleaseInputYourStabilityAIKey": "Prosím vložte svůj Stability AI klíč",
       "clickToLogout": "Klin"
     },
     "shortcuts": {
+      "shortcutsLabel": "Klávesové zkratky",
+      "command": "Příkaz",
+      "keyBinding": "Přiřazená klávesa",
+      "addNewCommand": "Přidat nový příkaz",
+      "updateShortcutStep": "Stiskněte požadovanou kombinaci kláves a stiskněte ENTER",
       "shortcutIsAlreadyUsed": "Tato zkratka je již použita pro: @@",
+      "resetToDefault": "Obnovit výchozí klávesové zkratky",
+      "couldNotLoadErrorMsg": "Nepodařilo se načíst klávesové zkratky, zkuste to znovu",
       "couldNotSaveErrorMsg": "Nepodařilo seuložit klávesové zkta"
     },
     "mobile": {
-      "userAgreement": "Uživatels"
+      "personalInfo": "Osobní informace",
+      "username": "Uživatelské jméno",
+      "usernameEmptyError": "Uživatelské jméno nesmí být prázdné",
+      "about": "O aplikaci",
+      "pushNotifications": "Push upozornění",
+      "support": "Podpora",
+      "joinDiscord": "Přidejte se k nám na Discordu",
+      "privacyPolicy": "Podmínky použití osobních údajů",
+      "userAgreement": "Uživatels",
+      "userprofileError": "Nepodařilo se načíst uživatelský profil",
+      "userprofileErrorDescription": "Prosím zkuste se odhlásit a znovu přihlásit a zkontrolujte, zda problém přetrvává"
     }
   },
   "grid": {
+    "deleteView": "Opravdu chcete tento pohled odstranit?",
+    "createView": "Nový",
     "title": {
       "placeholder": "Bez nýzvu"
+    },
+    "settings": {
+      "filter": "Filtr",
+      "sort": "Řadit",
+      "sortBy": "Řadit podle",
+      "properties": "Vlastnosti",
+      "reorderPropertiesTooltip": "Přetažením uspořádáte vlastnosti",
+      "group": "Skupiny",
+      "addFilter": "Přidat filtr",
+      "deleteFilter": "Smazat filtr",
+      "filterBy": "Filtrovat podle...",
+      "typeAValue": "Napište hodnotu...",
+      "layout": "Rozložení",
+      "databaseLayout": "Rozložení"
     },
     "textFilter": {
       "contains": "Obsahuje",
       "doesNotContain": "Neobsahuje",
-      "isEmpty": "Je pr"
+      "endsWith": "Končí",
+      "startWith": "Začíná",
+      "is": "Je",
+      "isNot": "Není",
+      "isEmpty": "Je pr",
+      "isNotEmpty": "Není prázdné",
+      "choicechipPrefix": {
+        "isNot": "Kromě",
+        "startWith": "Začíná",
+        "endWith": "Končí",
+        "isEmpty": "je prázdné",
+        "isNotEmpty": "není prázdné"
+      }
     },
     "checkboxFilter": {
+      "isChecked": "Zaškrtnuto",
+      "isUnchecked": "Nezaškrtnuto",
       "choicechipPrefix": {
         "is": "je"
       }
@@ -351,21 +454,87 @@
       "isComplete": "je hotový",
       "isIncomplted": "není hotový"
     },
+    "singleSelectOptionFilter": {
+      "is": "Je",
+      "isNot": "Není",
+      "isEmpty": "Je prázdné",
+      "isNotEmpty": "Není prázdné"
+    },
     "multiSelectOptionFilter": {
+      "contains": "Obsahuje",
+      "doesNotContain": "Neobsahuje",
+      "isEmpty": "Je prázdné",
       "isNotEmpty": "Není prázdný"
     },
     "field": {
+      "hide": "Schovat",
+      "show": "Ukázat",
+      "insertLeft": "Vložit vlevo",
+      "insertRight": "Vložit vpravo",
+      "duplicate": "Duplikovat",
+      "delete": "Smazat",
+      "textFieldName": "Text",
+      "checkboxFieldName": "Zaškrtávací políčko",
+      "dateFieldName": "Datum",
+      "updatedAtFieldName": "Datum poslední úpravy",
+      "createdAtFieldName": "Datum vytvoření",
       "numberFieldName": "Čísla",
+      "singleSelectFieldName": "Výběr",
+      "multiSelectFieldName": "Multivýběr",
+      "urlFieldName": "URL adresa",
+      "checklistFieldName": "Zaškrtávací seznam",
       "numberFormat": "Formát čásel",
+      "dateFormat": "Formát data",
       "includeTime": "Včetně času",
       "isRange": "Datum kon",
+      "dateFormatFriendly": "Měsíc Den, Rok",
+      "dateFormatISO": "Rok-Měsíc-Den",
+      "dateFormatLocal": "Měsíc/Den/Rok",
+      "dateFormatUS": "Rok/Měsíc/Day",
+      "dateFormatDayMonthYear": "Den/Měsíc/Rok",
+      "timeFormat": "Formát času",
+      "invalidTimeFormat": "Neplatný formát",
+      "timeFormatTwelveHour": "12hodinový",
+      "timeFormatTwentyFourHour": "24hodinový",
+      "clearDate": "Vyčistit datum",
+      "dateTime": "Vyčistit čas",
+      "startDateTime": "Datum a čas začátku",
+      "endDateTime": "Datum a čas konce",
       "failedToLoadDate": "Nepodařilo načíst datum",
-      "deleteFieldPromptMessage": "Jste si jistí? Tato vlastnost bude smazána"
+      "selectTime": "Vyberte čas",
+      "selectDate": "Vyberte datum",
+      "visibility": "Viditelnost",
+      "propertyType": "Typ vlastnosti",
+      "addSelectOption": "Přidat možnost",
+      "optionTitle": "Možnosti",
+      "addOption": "Přidat možnost",
+      "editProperty": "Upravit vlastnost",
+      "newProperty": "Nová vlastnost",
+      "deleteFieldPromptMessage": "Jste si jistí? Tato vlastnost bude smazána",
+      "newColumn": "Nový sloupeček"
     },
     "rowPage": {
-      "fieldDragElementTooltip": "Kli"
+      "newField": "Přidat nové pole",
+      "fieldDragElementTooltip": "Kli",
+      "showHiddenFields": {
+        "one": "Zobrazit {} skryté pole",
+        "many": "Zobrazit {} skrytá pole",
+        "other": "Zobrazit {} skrytá pole"
+      },
+      "hideHiddenFields": {
+        "one": "Skrýt {} skryté pole",
+        "many": "Skrýt {} skrytá pole",
+        "other": "Skrýt {} skrytá pole"
+      }
+    },
+    "sort": {
+      "ascending": "Vzestupně",
+      "descending": "Sestupně",
+      "deleteAllSorts": "Smazat všechna řazení",
+      "addSort": "Přidat řazení"
     },
     "row": {
+      "duplicate": "Duplikovat",
       "titlePlaceholder": "Bez názvu",
       "textPlaceholder": "Prázdné"
     },
