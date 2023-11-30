@@ -25,6 +25,8 @@ class MobileCardDetailScreen extends StatefulWidget {
   const MobileCardDetailScreen({
     super.key,
     required this.rowController,
+    this.scrollController,
+    this.isBottomSheet = false,
     required this.fieldController,
   });
 
@@ -34,6 +36,8 @@ class MobileCardDetailScreen extends StatefulWidget {
   static const argFieldController = 'fieldController';
 
   final RowController rowController;
+  final ScrollController? scrollController;
+  final bool isBottomSheet;
   final FieldController fieldController;
 
   @override
@@ -41,22 +45,14 @@ class MobileCardDetailScreen extends StatefulWidget {
 }
 
 class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
-  late final ScrollController _scrollController;
   late final GridCellBuilder _cellBuilder;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
     _cellBuilder = GridCellBuilder(
       cellCache: widget.rowController.cellCache,
     );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -66,10 +62,18 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
       create: (context) => RowDetailBloc(rowController: widget.rowController)
         ..add(const RowDetailEvent.initial()),
       child: Scaffold(
-        // appbar with duplicate and delete card features
         appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              context.pop();
+            },
+            icon: Icon(
+              widget.isBottomSheet ? Icons.close : Icons.arrow_back,
+            ),
+          ),
           title: Text(LocaleKeys.board_cardDetail.tr()),
           actions: [
+            // appbar with duplicate and delete card features
             BlocProvider<RowActionSheetBloc>(
               create: (context) => RowActionSheetBloc(
                 viewId: widget.rowController.viewId,
@@ -135,9 +139,9 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           child: ListView(
-            controller: _scrollController,
+            controller: widget.scrollController,
             children: [
               BlocProvider<RowBannerBloc>(
                 create: (context) => RowBannerBloc(
@@ -181,7 +185,7 @@ class _MobileCardDetailScreenState extends State<MobileCardDetailScreen> {
               RowDocument(
                 viewId: widget.rowController.viewId,
                 rowId: widget.rowController.rowId,
-                scrollController: _scrollController,
+                scrollController: widget.scrollController ?? ScrollController(),
               ),
             ],
           ),

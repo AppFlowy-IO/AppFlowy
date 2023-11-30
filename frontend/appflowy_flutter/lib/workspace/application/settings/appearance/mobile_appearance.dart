@@ -37,15 +37,18 @@ class MobileAppearance extends BaseAppearance {
             brightness: brightness,
             primary: _primaryColor,
             onPrimary: Colors.white,
+            // group card header background color
+            primaryContainer: const Color(0xffF1F1F4), // primary 20
             // group card & property edit background color
             secondary: const Color(0xfff7f8fc), // shade 10
             onSecondary: _onSecondaryColor,
+            // hidden group title & card text color
+            tertiary: const Color(0xff858585), // for light text
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
             background: Colors.white,
             onBackground: _onBackgroundColor,
-            outline: const Color(0xffE3E3E3), //caption
-            // outline: const Color(0xffBDC0C5), //caption
+            outline: const Color(0xffe3e3e3),
             outlineVariant: const Color(0xffCBD5E0).withOpacity(0.24),
             //Snack bar
             surface: Colors.white,
