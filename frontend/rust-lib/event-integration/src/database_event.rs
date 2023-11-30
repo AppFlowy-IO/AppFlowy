@@ -112,11 +112,11 @@ impl EventIntegrationTest {
 
   pub async fn create_field(&self, view_id: &str, field_type: FieldType) -> FieldPB {
     EventBuilder::new(self.clone())
-      .event(DatabaseEvent::CreateTypeOption)
+      .event(DatabaseEvent::CreateField)
       .payload(CreateFieldPayloadPB {
         view_id: view_id.to_string(),
         field_type,
-        type_option_data: None,
+        ..Default::default()
       })
       .async_send()
       .await

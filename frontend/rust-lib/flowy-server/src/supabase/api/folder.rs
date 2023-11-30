@@ -128,7 +128,11 @@ where
     })
   }
 
-  fn get_folder_updates(&self, workspace_id: &str, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_folder_doc_state(
+    &self,
+    workspace_id: &str,
+    _uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let workspace_id = workspace_id.to_string();
     let (tx, rx) = channel();

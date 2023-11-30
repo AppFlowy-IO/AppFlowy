@@ -33,7 +33,7 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
 
       // Migration the first level documents of the workspace. The first level documents do not have
       // any updates. So when calling load_collab, it will return error.
-      let migration_views = folder.get_workspace_views(&session.user_workspace.id);
+      let migration_views = folder.get_workspace_views();
       for view in migration_views {
         if load_collab(session.user_id, &write_txn, &view.id).is_err() {
           // Create a document with default data

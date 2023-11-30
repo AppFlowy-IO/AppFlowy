@@ -30,7 +30,7 @@ chrono = { workspace = true,  default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"
 rusty-money = {version = "0.4.1", features = ["iso"]}
 lazy_static = "1.4.0"
-indexmap = {version = "1.9.2", features = ["serde"]}
+indexmap = {version = "2.1.0", features = ["serde"]}
 url = { version = "2"}
 fancy-regex = "0.11.0"
 futures.workspace = true

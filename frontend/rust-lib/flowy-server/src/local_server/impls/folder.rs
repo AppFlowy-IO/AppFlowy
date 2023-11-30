@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 
 use flowy_folder_deps::cloud::{
   gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
@@ -50,12 +50,16 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_folder_updates(
+  fn get_folder_doc_state(
     &self,
     _workspace_id: &str,
     _uid: i64,
   ) -> FutureResult<Vec<Vec<u8>>, Error> {
-    FutureResult::new(async move { Ok(vec![]) })
+    FutureResult::new(async {
+      Err(anyhow!(
+        "Local server doesn't support get folder doc state from remote"
+      ))
+    })
   }
 
   fn service_name(&self) -> String {

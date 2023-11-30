@@ -1,5 +1,8 @@
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/mobile_select_option_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -171,31 +174,52 @@ class SelectOptionWrap extends StatefulWidget {
 class _SelectOptionWrapState extends State<SelectOptionWrap> {
   @override
   Widget build(BuildContext context) {
-    final Widget child = _buildOptions(context);
-
     final constraints = BoxConstraints.loose(
       Size(SelectOptionCellEditor.editorPanelWidth, 300),
     );
-    return AppFlowyPopover(
-      controller: widget.popoverController,
-      constraints: constraints,
-      margin: EdgeInsets.zero,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      popupBuilder: (BuildContext popoverContext) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onCellEditing(true);
-        });
-        return SelectOptionCellEditor(
-          cellController: widget.cellControllerBuilder.build()
-              as SelectOptionCellController,
-        );
-      },
-      onClose: () => widget.onCellEditing(false),
-      child: Padding(
-        padding: widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
-        child: child,
-      ),
+    final cellController =
+        widget.cellControllerBuilder.build() as SelectOptionCellController;
+
+    Widget child = Padding(
+      padding: widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
+      child: _buildOptions(context),
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = AppFlowyPopover(
+        controller: widget.popoverController,
+        constraints: constraints,
+        margin: EdgeInsets.zero,
+        direction: PopoverDirection.bottomWithLeftAligned,
+        popupBuilder: (BuildContext popoverContext) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onCellEditing(true);
+          });
+          return SelectOptionCellEditor(
+            cellController: cellController,
+          );
+        },
+        onClose: () => widget.onCellEditing(false),
+        child: child,
+      );
+    } else {
+      child = FlowyButton(
+        text: child,
+        onTap: () {
+          showMobileBottomSheet(
+            context: context,
+            padding: EdgeInsets.zero,
+            builder: (context) {
+              return MobileSelectOptionEditor(
+                cellController: cellController,
+              );
+            },
+          );
+        },
+      );
+    }
+
+    return child;
   }
 
   Widget _buildOptions(BuildContext context) {

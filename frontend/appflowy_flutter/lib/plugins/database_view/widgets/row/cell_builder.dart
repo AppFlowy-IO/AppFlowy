@@ -155,10 +155,9 @@ GridCellWidget _getMobileCardCellWidget(
       );
     case FieldType.DateTime:
       style as DateCellStyle?;
-      return MobileDateCell(
+      return GridDateCell(
         cellControllerBuilder: cellControllerBuilder,
-        hintText: style?.placeholder,
-        key: key,
+        style: style,
       );
     case FieldType.URL:
       style as GridURLCellStyle?;
@@ -167,7 +166,6 @@ GridCellWidget _getMobileCardCellWidget(
         hintText: style?.placeholder,
         key: key,
       );
-    // TODO(yijing):  implement the following mobile select option cell
     case FieldType.SingleSelect:
       return GridSingleSelectCell(
         cellControllerBuilder: cellControllerBuilder,

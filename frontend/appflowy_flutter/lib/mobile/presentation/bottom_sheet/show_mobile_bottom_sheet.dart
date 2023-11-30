@@ -2,6 +2,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,13 +12,36 @@ Future<void> showMobileBottomSheet({
   required BuildContext context,
   required WidgetBuilder builder,
   bool isDragEnabled = true,
+  ShapeBorder? shape,
+  bool resizeToAvoidBottomInset = true,
+  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 32),
 }) async {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     enableDrag: isDragEnabled,
     useSafeArea: true,
-    builder: builder,
+    clipBehavior: Clip.antiAlias,
+    shape: shape ??
+        const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Corners.s12Radius,
+          ),
+        ),
+    builder: (context) {
+      final child = builder(context);
+      if (resizeToAvoidBottomInset) {
+        return AnimatedPadding(
+          padding: padding +
+              EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+          duration: Duration.zero,
+          child: child,
+        );
+      }
+      return child;
+    },
   );
 }
 
@@ -53,18 +77,15 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // header
-          _buildHeader(),
-          const VSpace(16),
-          // body
-          _buildBody(),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // header
+        _buildHeader(),
+        const VSpace(16),
+        // body
+        _buildBody(),
+      ],
     );
   }
 

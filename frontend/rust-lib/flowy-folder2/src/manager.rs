@@ -48,7 +48,7 @@ pub struct FolderManager {
   collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
   operation_handlers: FolderOperationHandlers,
-  cloud_service: Arc<dyn FolderCloudService>,
+  pub cloud_service: Arc<dyn FolderCloudService>,
 }
 
 unsafe impl Send for FolderManager {}
@@ -136,7 +136,7 @@ impl FolderManager {
     // Update the workspace id
     event!(
       Level::INFO,
-      "Init current workspace: {} from: {}",
+      "Init workspace: {} from: {}",
       workspace_id,
       initial_data
     );
@@ -165,10 +165,13 @@ impl FolderManager {
             .await?;
           Folder::open(UserId::from(uid), collab, Some(folder_notifier))?
         } else if create_if_not_exist {
+          // Currently, this branch is only used when the server type is supabase. For appflowy cloud,
+          // the default workspace is already created when the user sign up.
           event!(Level::INFO, "Create folder with default folder builder");
           let folder_data =
             DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
               .await;
+
           let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db, vec![])
             .await?;
@@ -249,23 +252,23 @@ impl FolderManager {
     user_id: i64,
     workspace_id: &str,
   ) -> FlowyResult<()> {
-    let folder_updates = self
+    let folder_doc_state = self
       .cloud_service
-      .get_folder_updates(workspace_id, user_id)
+      .get_folder_doc_state(workspace_id, user_id)
       .await?;
 
     event!(
       Level::INFO,
       "Get folder updates via {}, number of updates: {}",
       self.cloud_service.service_name(),
-      folder_updates.len()
+      folder_doc_state.len()
     );
 
     self
       .initialize(
         user_id,
         workspace_id,
-        FolderInitDataSource::Cloud(folder_updates),
+        FolderInitDataSource::Cloud(folder_doc_state),
       )
       .await?;
     Ok(())
@@ -291,7 +294,7 @@ impl FolderManager {
       // when the user signs up for the first time.
       let result = self
         .cloud_service
-        .get_folder_updates(workspace_id, user_id)
+        .get_folder_doc_state(workspace_id, user_id)
         .await
         .map_err(FlowyError::from);
 
@@ -1174,14 +1177,14 @@ fn subscribe_folder_trash_changed(
 }
 
 /// Return the views that belong to the workspace. The views are filtered by the trash.
-fn get_workspace_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
+fn get_workspace_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   let trash_ids = folder
     .get_all_trash()
     .into_iter()
     .map(|trash| trash.id)
     .collect::<Vec<String>>();
 
-  let mut views = folder.get_workspace_views(workspace_id);
+  let mut views = folder.get_workspace_views();
   views.retain(|view| !trash_ids.contains(&view.id));
 
   views

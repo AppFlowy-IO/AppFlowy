@@ -62,6 +62,7 @@ class FlowyButton extends StatelessWidget {
       return InkWell(
         onTap: disable ? null : onTap,
         onSecondaryTap: disable ? null : onSecondaryTap,
+        borderRadius: radius ?? Corners.s6Border,
         child: _render(context),
       );
     }

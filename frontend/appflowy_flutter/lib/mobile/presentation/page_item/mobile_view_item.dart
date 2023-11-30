@@ -304,7 +304,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       _buildLeftIcon(),
       const HSpace(4),
       // icon
-      _buildViewIconButton(),
+      _buildViewIcon(),
       const HSpace(8),
       // title
       Expanded(
@@ -354,7 +354,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     return child;
   }
 
-  Widget _buildViewIconButton() {
+  Widget _buildViewIcon() {
     final icon = widget.view.icon.value.isNotEmpty
         ? EmojiText(
             emoji: widget.view.icon.value,

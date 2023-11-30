@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/tasks/memory_leak_detector.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
@@ -45,7 +46,7 @@ class FlowyRunner {
     // which is used for dependency injection throughout the app.
     // If your functionality depends on 'getIt', ensure to register
     // your callback here to execute any necessary actions post-initialization.
-    Future? didInitGetItCallback,
+    Future Function()? didInitGetItCallback,
     // Passing the envs to the backend
     Map<String, String> Function()? rustEnvsBuilder,
     // Indicate whether the app is running in anonymous mode.
@@ -64,7 +65,7 @@ class FlowyRunner {
 
     // Specify the env
     await initGetIt(getIt, mode, f, config);
-    await didInitGetItCallback;
+    await didInitGetItCallback?.call();
 
     final applicationDataDirectory =
         await getIt<ApplicationDataStorage>().getPath().then(
@@ -94,8 +95,8 @@ class FlowyRunner {
         // ignore in test mode
         if (!mode.isUnitTest) ...[
           const HotKeyTask(),
-          InitSupabaseTask(),
-          InitAppFlowyCloudTask(),
+          if (isSupabaseEnabled) InitSupabaseTask(),
+          if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask(),
         ],

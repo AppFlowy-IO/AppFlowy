@@ -15,7 +15,7 @@ typedef CellRenderHook<C, CustomCardData> = Widget? Function(
 typedef RenderHookByFieldType<C> = Map<FieldType, CellRenderHook<dynamic, C>>;
 
 /// The [RowCardRenderHook] is used to customize the rendering of the
-///  card cell. Each cell has itw own field type. So the [renderHook]
+///  card cell. Each cell has its own field type. So the [renderHook]
 ///  is a map of [FieldType] to [CellRenderHook].
 class RowCardRenderHook<CustomCardData> {
   final RenderHookByFieldType<CustomCardData> renderHook = {};

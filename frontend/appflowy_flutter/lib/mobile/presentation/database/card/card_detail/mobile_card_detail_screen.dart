@@ -33,7 +33,7 @@ class MobileRowDetailPage extends StatefulWidget {
     required this.rowId,
   });
 
-  static const routeName = 'MobileRowDetailPage';
+  static const routeName = '/MobileRowDetailPage';
   static const argDatabaseController = 'databaseController';
   static const argRowId = 'rowId';
 

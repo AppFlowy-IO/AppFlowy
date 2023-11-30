@@ -11,7 +11,10 @@ class PropertyTitle extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
         name,
-        style: Theme.of(context).textTheme.titleMedium,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onBackground,
+              fontSize: 16,
+            ),
       ),
     );
   }

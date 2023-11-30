@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/date_cell/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/timestamp_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
@@ -39,48 +40,52 @@ class TimestampTypeOptionMobileWidget extends TypeOptionWidget {
             typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
           final List<Widget> children = [
-            // used to add a separator padding at the top
-            const SizedBox.shrink(),
-            DateFormatListTile(
-              currentFormatStr: state.typeOption.dateFormat.title(),
-              groupValue: context
-                  .watch<TimestampTypeOptionBloc>()
-                  .state
-                  .typeOption
-                  .dateFormat,
-              onChanged: (newFormat) {
-                if (newFormat != null) {
-                  context.read<TimestampTypeOptionBloc>().add(
-                        TimestampTypeOptionEvent.didSelectDateFormat(
-                          newFormat,
-                        ),
-                      );
-                }
-              },
-            ),
-            IncludeTimeSwitch(
-              switchValue: state.typeOption.includeTime,
-              onChanged: (value) => context
-                  .read<TimestampTypeOptionBloc>()
-                  .add(TimestampTypeOptionEvent.includeTime(value)),
-            ),
-            if (state.typeOption.includeTime)
-              TimeFormatListTile(
-                currentFormatStr: state.typeOption.timeFormat.title(),
+            PropertyEditContainer(
+              child: DateFormatListTile(
+                currentFormatStr: state.typeOption.dateFormat.title(),
                 groupValue: context
                     .watch<TimestampTypeOptionBloc>()
                     .state
                     .typeOption
-                    .timeFormat,
+                    .dateFormat,
                 onChanged: (newFormat) {
                   if (newFormat != null) {
                     context.read<TimestampTypeOptionBloc>().add(
-                          TimestampTypeOptionEvent.didSelectTimeFormat(
+                          TimestampTypeOptionEvent.didSelectDateFormat(
                             newFormat,
                           ),
                         );
                   }
                 },
+              ),
+            ),
+            PropertyEditContainer(
+              child: IncludeTimeSwitch(
+                switchValue: state.typeOption.includeTime,
+                onChanged: (value) => context
+                    .read<TimestampTypeOptionBloc>()
+                    .add(TimestampTypeOptionEvent.includeTime(value)),
+              ),
+            ),
+            if (state.typeOption.includeTime)
+              PropertyEditContainer(
+                child: TimeFormatListTile(
+                  currentFormatStr: state.typeOption.timeFormat.title(),
+                  groupValue: context
+                      .watch<TimestampTypeOptionBloc>()
+                      .state
+                      .typeOption
+                      .timeFormat,
+                  onChanged: (newFormat) {
+                    if (newFormat != null) {
+                      context.read<TimestampTypeOptionBloc>().add(
+                            TimestampTypeOptionEvent.didSelectTimeFormat(
+                              newFormat,
+                            ),
+                          );
+                    }
+                  },
+                ),
               ),
           ];
 

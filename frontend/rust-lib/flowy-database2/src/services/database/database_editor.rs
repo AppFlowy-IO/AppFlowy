@@ -5,7 +5,7 @@ use bytes::Bytes;
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, OrderObjectPosition};
 use futures::StreamExt;
 use tokio::sync::{broadcast, RwLock};
 use tracing::{event, warn};
@@ -470,25 +470,26 @@ impl DatabaseEditor {
     })
   }
 
-  pub async fn create_field_with_type_option(
-    &self,
-    view_id: &str,
-    field_type: &FieldType,
-    type_option_data: Option<Vec<u8>>,
-  ) -> (Field, Bytes) {
-    let name = field_type.default_name();
-    let type_option_data = match type_option_data {
-      None => default_type_option_data_from_type(field_type),
-      Some(type_option_data) => type_option_data_from_pb_or_default(type_option_data, field_type),
+  pub async fn create_field_with_type_option(&self, params: &CreateFieldParams) -> (Field, Bytes) {
+    let name = params
+      .field_name
+      .clone()
+      .unwrap_or_else(|| params.field_type.default_name());
+    let type_option_data = match &params.type_option_data {
+      None => default_type_option_data_from_type(&params.field_type),
+      Some(type_option_data) => {
+        type_option_data_from_pb_or_default(type_option_data.clone(), &params.field_type)
+      },
     };
     let (index, field) = self.database.lock().create_field_with_mut(
-      view_id,
+      &params.view_id,
       name,
-      field_type.into(),
+      params.field_type.into(),
+      &params.position,
       |field| {
         field
           .type_options
-          .insert(field_type.to_string(), type_option_data.clone());
+          .insert(params.field_type.to_string(), type_option_data.clone());
       },
       default_field_settings_by_layout_map(),
     );
@@ -497,7 +498,10 @@ impl DatabaseEditor {
       .notify_did_insert_database_field(field.clone(), index)
       .await;
 
-    (field, type_option_to_pb(type_option_data, field_type))
+    (
+      field,
+      type_option_to_pb(type_option_data, &params.field_type),
+    )
   }
 
   pub async fn move_field(
@@ -1223,6 +1227,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       view_id,
       name.to_string(),
       field_type.clone().into(),
+      &OrderObjectPosition::default(),
       |field| {
         field
           .type_options

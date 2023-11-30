@@ -30,6 +30,7 @@ class FieldEditor extends StatefulWidget {
   final FieldController fieldController;
   final FieldPB field;
   final FieldEditorPage initialPage;
+  final void Function(String fieldId)? onFieldInserted;
 
   const FieldEditor({
     super.key,
@@ -37,6 +38,7 @@ class FieldEditor extends StatefulWidget {
     required this.field,
     required this.fieldController,
     this.initialPage = FieldEditorPage.details,
+    this.onFieldInserted,
   });
 
   @override
@@ -61,6 +63,7 @@ class _FieldEditorState extends State<FieldEditor> {
         viewId: widget.viewId,
         field: widget.field,
         fieldController: widget.fieldController,
+        onFieldInserted: widget.onFieldInserted,
         loader: FieldTypeOptionLoader(
           viewId: widget.viewId,
           field: widget.field,
@@ -88,6 +91,10 @@ class _FieldEditorState extends State<FieldEditor> {
               setState(() => _currentPage = FieldEditorPage.details);
             },
           ),
+          VSpace(GridSize.typeOptionSeparatorHeight),
+          _actionCell(FieldAction.insertLeft),
+          VSpace(GridSize.typeOptionSeparatorHeight),
+          _actionCell(FieldAction.insertRight),
           VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.toggleVisibility),
           VSpace(GridSize.typeOptionSeparatorHeight),
@@ -170,40 +177,56 @@ class FieldActionCell extends StatelessWidget {
       ),
       onHover: (_) => popoverMutex?.close(),
       onTap: () => action.run(context, viewId, fieldInfo),
-      leftIcon: FlowySvg(
-        action.icon(fieldInfo),
-        size: const Size.square(16),
-        color: enable ? null : Theme.of(context).disabledColor,
+      leftIcon: action.icon(
+        fieldInfo,
+        enable ? null : Theme.of(context).disabledColor,
       ),
     );
   }
 }
 
 enum FieldAction {
+  insertLeft,
+  insertRight,
   toggleVisibility,
   duplicate,
-  delete,
-}
+  delete;
 
-extension _FieldActionExtension on FieldAction {
-  FlowySvgData icon(FieldInfo fieldInfo) {
+  Widget icon(FieldInfo fieldInfo, Color? color) {
+    late final FlowySvgData svgData;
     switch (this) {
+      case FieldAction.insertLeft:
+        svgData = FlowySvgs.arrow_s;
+      case FieldAction.insertRight:
+        svgData = FlowySvgs.arrow_s;
       case FieldAction.toggleVisibility:
         if (fieldInfo.visibility != null &&
             fieldInfo.visibility == FieldVisibility.AlwaysHidden) {
-          return FlowySvgs.show_m;
+          svgData = FlowySvgs.show_m;
         } else {
-          return FlowySvgs.hide_s;
+          svgData = FlowySvgs.hide_s;
         }
       case FieldAction.duplicate:
-        return FlowySvgs.copy_s;
+        svgData = FlowySvgs.copy_s;
       case FieldAction.delete:
-        return FlowySvgs.delete_s;
+        svgData = FlowySvgs.delete_s;
     }
+    final icon = FlowySvg(
+      svgData,
+      size: const Size.square(16),
+      color: color,
+    );
+    return this == FieldAction.insertRight
+        ? Transform.flip(flipX: true, child: icon)
+        : icon;
   }
 
   String title(FieldInfo fieldInfo) {
     switch (this) {
+      case FieldAction.insertLeft:
+        return LocaleKeys.grid_field_insertLeft.tr();
+      case FieldAction.insertRight:
+        return LocaleKeys.grid_field_insertRight.tr();
       case FieldAction.toggleVisibility:
         if (fieldInfo.visibility != null &&
             fieldInfo.visibility == FieldVisibility.AlwaysHidden) {
@@ -220,6 +243,18 @@ extension _FieldActionExtension on FieldAction {
 
   void run(BuildContext context, String viewId, FieldInfo fieldInfo) {
     switch (this) {
+      case FieldAction.insertLeft:
+        PopoverContainer.of(context).close();
+        context
+            .read<FieldEditorBloc>()
+            .add(const FieldEditorEvent.insertLeft());
+        break;
+      case FieldAction.insertRight:
+        PopoverContainer.of(context).close();
+        context
+            .read<FieldEditorBloc>()
+            .add(const FieldEditorEvent.insertRight());
+        break;
       case FieldAction.toggleVisibility:
         PopoverContainer.of(context).close();
         context

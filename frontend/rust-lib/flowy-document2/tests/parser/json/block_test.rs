@@ -1,12 +1,13 @@
-use flowy_document2::parser::json::block::Block;
 use serde_json::json;
+
+use flowy_document2::parser::json::block::SerdeBlock;
 
 #[test]
 fn test_empty_data_and_children() {
   let json = json!({
       "type": "page",
   });
-  let block = serde_json::from_value::<Block>(json).unwrap();
+  let block = serde_json::from_value::<SerdeBlock>(json).unwrap();
   assert_eq!(block.ty, "page");
   assert!(block.data.is_empty());
   assert!(block.children.is_empty());
@@ -21,7 +22,7 @@ fn test_data() {
       "checked": false
     }
   });
-  let block = serde_json::from_value::<Block>(json).unwrap();
+  let block = serde_json::from_value::<SerdeBlock>(json).unwrap();
   assert_eq!(block.ty, "todo_list");
   assert_eq!(block.data.len(), 2);
   assert_eq!(block.data.get("checked").unwrap(), false);
@@ -52,7 +53,7 @@ fn test_children() {
         }
       }
   ]});
-  let block = serde_json::from_value::<Block>(json).unwrap();
+  let block = serde_json::from_value::<SerdeBlock>(json).unwrap();
   assert!(block.data.is_empty());
   assert_eq!(block.ty, "page");
   assert_eq!(block.children.len(), 2);
@@ -92,7 +93,7 @@ fn test_nested_children() {
       }
     ]
   });
-  let block = serde_json::from_value::<Block>(json).unwrap();
+  let block = serde_json::from_value::<SerdeBlock>(json).unwrap();
   assert!(block.data.is_empty());
   assert_eq!(block.ty, "page");
   assert_eq!(

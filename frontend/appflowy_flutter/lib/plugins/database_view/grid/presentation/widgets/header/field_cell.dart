@@ -16,15 +16,26 @@ import 'field_editor.dart';
 import 'field_type_extension.dart';
 
 class GridFieldCell extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final FieldInfo fieldInfo;
   const GridFieldCell({
     super.key,
     required this.viewId,
     required this.fieldController,
     required this.fieldInfo,
+    required this.onTap,
+    required this.onEditorOpened,
+    required this.onFieldInsertedOnEitherSide,
+    required this.isEditing,
+    required this.isNew,
   });
+
+  final String viewId;
+  final FieldController fieldController;
+  final FieldInfo fieldInfo;
+  final VoidCallback onTap;
+  final VoidCallback onEditorOpened;
+  final void Function(String fieldId) onFieldInsertedOnEitherSide;
+  final bool isEditing;
+  final bool isNew;
 
   @override
   State<GridFieldCell> createState() => _GridFieldCellState();
@@ -39,12 +50,22 @@ class _GridFieldCellState extends State<GridFieldCell> {
     super.initState();
     popoverController = PopoverController();
     _bloc = FieldCellBloc(viewId: widget.viewId, fieldInfo: widget.fieldInfo);
+    if (widget.isEditing) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        popoverController.show();
+      });
+    }
   }
 
   @override
   didUpdateWidget(covariant oldWidget) {
     if (widget.fieldInfo != oldWidget.fieldInfo && !_bloc.isClosed) {
       _bloc.add(FieldCellEvent.onFieldChanged(widget.fieldInfo));
+    }
+    if (widget.isEditing) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        popoverController.show();
+      });
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -62,16 +83,20 @@ class _GridFieldCellState extends State<GridFieldCell> {
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
             popupBuilder: (BuildContext context) {
+              widget.onEditorOpened();
               return FieldEditor(
                 viewId: widget.viewId,
                 fieldController: widget.fieldController,
                 field: widget.fieldInfo.field,
-                initialPage: FieldEditorPage.general,
+                initialPage: widget.isNew
+                    ? FieldEditorPage.details
+                    : FieldEditorPage.general,
+                onFieldInserted: widget.onFieldInsertedOnEitherSide,
               );
             },
             child: FieldCellButton(
               field: widget.fieldInfo.field,
-              onTap: () => popoverController.show(),
+              onTap: widget.onTap,
             ),
           );
 

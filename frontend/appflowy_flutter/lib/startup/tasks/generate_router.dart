@@ -1,8 +1,8 @@
+import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
-import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
+import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
@@ -431,6 +431,7 @@ GoRoute _signInScreenRoute() {
 GoRoute _mobileEditorScreenRoute() {
   return GoRoute(
     path: MobileEditorScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
@@ -447,6 +448,7 @@ GoRoute _mobileEditorScreenRoute() {
 GoRoute _mobileGridScreenRoute() {
   return GoRoute(
     path: MobileGridScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileGridScreen.viewId]!;
       final title = state.uri.queryParameters[MobileGridScreen.viewTitle];
@@ -463,6 +465,7 @@ GoRoute _mobileGridScreenRoute() {
 GoRoute _mobileBoardScreenRoute() {
   return GoRoute(
     path: MobileBoardScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileBoardScreen.viewId]!;
       final title = state.uri.queryParameters[MobileBoardScreen.viewTitle];
@@ -479,6 +482,7 @@ GoRoute _mobileBoardScreenRoute() {
 GoRoute _mobileCalendarScreenRoute() {
   return GoRoute(
     path: MobileCalendarScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileCalendarScreen.viewId]!;
       final title = state.uri.queryParameters[MobileCalendarScreen.viewTitle]!;
@@ -542,11 +546,18 @@ GoRoute _mobileDateCellEditScreenRoute() {
     path: MobileDateCellEditScreen.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
-      final cellController = args[MobileDateCellEditScreen.argCellController];
-
-      return MaterialPage(
-        child: MobileDateCellEditScreen(cellController),
+      final controller = args[MobileDateCellEditScreen.dateCellController];
+      final fullScreen = args[MobileDateCellEditScreen.fullScreen];
+      return CustomTransitionPage(
+        transitionsBuilder: (_, __, ___, child) => child,
         fullscreenDialog: true,
+        opaque: false,
+        barrierDismissible: true,
+        barrierColor: Theme.of(context).bottomSheetTheme.modalBarrierColor,
+        child: MobileDateCellEditScreen(
+          controller: controller,
+          showAsFullScreen: fullScreen ?? true,
+        ),
       );
     },
   );
