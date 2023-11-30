@@ -498,6 +498,7 @@ GoRoute _mobileCalendarScreenRoute() {
 
 GoRoute _mobileCardDetailScreenRoute() {
   return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileCardDetailScreen.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
