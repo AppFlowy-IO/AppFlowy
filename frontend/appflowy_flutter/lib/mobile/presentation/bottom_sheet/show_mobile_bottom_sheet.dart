@@ -3,7 +3,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 
-Future<void> showMobileBottomSheet(
+Future<T?> showMobileBottomSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
   ShapeBorder? shape,
@@ -20,7 +20,7 @@ Future<void> showMobileBottomSheet(
     return true;
   }());
 
-  showModalBottomSheet(
+  return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
     enableDrag: isDragEnabled,

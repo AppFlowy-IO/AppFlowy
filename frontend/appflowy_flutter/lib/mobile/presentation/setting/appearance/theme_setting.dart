@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/util/theme_mode_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -31,9 +31,13 @@ class ThemeSetting extends StatelessWidget {
         ],
       ),
       onTap: () {
-        showFlowyMobileBottomSheet(
+        showMobileBottomSheet(
           context,
+          showHeader: true,
+          showCloseButton: true,
+          showDragHandle: true,
           title: LocaleKeys.settings_appearance_themeMode_label.tr(),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
           builder: (_) {
             return Column(
               children: [
