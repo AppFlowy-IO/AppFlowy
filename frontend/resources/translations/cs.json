@@ -5,13 +5,28 @@
   "githubStarText": "Ohvě",
   "subscribeNewsletterText": "Přihlásit k odběru newsletteru",
   "letsGoButtonText": "Rychlá",
+  "title": "Název",
+  "youCanAlso": "Můžete také",
+  "and": "a",
   "blockActions": {
-    "addAboveTooltip": "Přidat "
+    "addBelowTooltip": "Kliknutím přidat pod",
+    "addAboveCmd": "Alt+kliknutí",
+    "addAboveMacCmd": "Option+kliknutí",
+    "addAboveTooltip": "Přidat ",
+    "dragTooltip": "Posouvejte přetažením",
+    "openMenuTooltip": "Kliknutím otevřete menu"
   },
   "signUp": {
     "buttonText": "Regi",
+    "title": "Zaregistrujte se do @:appName",
+    "getStartedText": "Začínáme",
+    "emptyPasswordError": "Heslo nesmí být prázdné",
     "repeatPasswordEmptyError": "Heslo pro potvrzení nesmí být prázdné",
-    "unmatchedPasswordError": "Hesla se neshodují"
+    "unmatchedPasswordError": "Hesla se neshodují",
+    "alreadyHaveAnAccount": "Už máte účet?",
+    "emailHint": "E-mail",
+    "passwordHint": "Heslo",
+    "repeatPasswordHint": "Heslo znovu"
   },
   "signIn": {
     "continueAnonymousUser": "Pokra"
