@@ -508,7 +508,6 @@ GoRoute _mobileCardDetailScreenRoute() {
 
       return MaterialPage(
         child: MobileRowDetailPage(
-          // key: UniqueKey(),
           databaseController: databaseController,
           rowId: rowId,
         ),
