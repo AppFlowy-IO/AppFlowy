@@ -156,6 +156,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
 }
 
 class AppGlobals {
+  // static GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey();
   static GlobalKey<NavigatorState> rootNavKey = GlobalKey();
   static NavigatorState get nav => rootNavKey.currentState!;
 }

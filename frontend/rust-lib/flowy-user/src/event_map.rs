@@ -38,7 +38,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
     .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
-    .event(UserEvent::OauthSignIn, oauth_handler)
+    .event(UserEvent::OauthSignIn, oauth_sign_in_handler)
     .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)

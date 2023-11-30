@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/tasks/memory_leak_detector.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
@@ -94,8 +95,8 @@ class FlowyRunner {
         // ignore in test mode
         if (!mode.isUnitTest) ...[
           const HotKeyTask(),
-          InitSupabaseTask(),
-          InitAppFlowyCloudTask(),
+          if (isSupabaseEnabled) InitSupabaseTask(),
+          if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask(),
         ],

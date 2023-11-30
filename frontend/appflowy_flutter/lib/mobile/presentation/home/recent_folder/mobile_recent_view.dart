@@ -83,7 +83,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
           color: theme.colorScheme.background,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.5),
+            color: theme.colorScheme.outline,
           ),
         ),
         child: Stack(
