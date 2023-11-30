@@ -28,12 +28,15 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: FlowyText(
           LocaleKeys.grid_field_newProperty.tr(),
+          fontSize: 16.0,
         ),
-        leading: AppBarBackButton(
+        leading: AppBarCancelButton(
           onTap: () => context.pop(),
         ),
+        leadingWidth: 120,
         actions: [
           _SaveButton(onSave: () {}),
         ],
@@ -68,6 +71,7 @@ class _SaveButton extends StatelessWidget {
           child: FlowyText(
             LocaleKeys.button_save.tr(),
             color: const Color(0xFF00ADDC),
+            fontSize: 16.0,
           ),
         ),
       ),

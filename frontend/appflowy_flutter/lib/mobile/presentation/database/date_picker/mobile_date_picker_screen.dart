@@ -207,17 +207,15 @@ class _EndDateSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.isRange,
       builder: (context, isRange) {
-        return FlowyOptionTile.text(
+        return FlowyOptionTile.switcher(
           text: LocaleKeys.grid_field_isRange.tr(),
           leftIcon: const FlowySvg(FlowySvgs.date_s),
-          leading: _Switcher(
-            value: isRange,
-            onChanged: (value) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setIsRange(value));
-            },
-          ),
+          isSelected: isRange,
+          onValueChanged: (value) {
+            context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setIsRange(value));
+          },
         );
       },
     );
@@ -232,18 +230,16 @@ class _IncludeTimeSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.includeTime,
       builder: (context, includeTime) {
-        return FlowyOptionTile.text(
+        return FlowyOptionTile.switcher(
           showTopBorder: false,
           text: LocaleKeys.grid_field_includeTime.tr(),
           leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
-          leading: _Switcher(
-            value: includeTime,
-            onChanged: (value) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setIncludeTime(value));
-            },
-          ),
+          isSelected: includeTime,
+          onValueChanged: (value) {
+            context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setIncludeTime(value));
+          },
         );
       },
     );
