@@ -45,7 +45,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   showMobileBottomSheet(
-                    context: context,
+                    context,
                     builder: (_) {
                       return EditUsernameBottomSheet(
                         context,

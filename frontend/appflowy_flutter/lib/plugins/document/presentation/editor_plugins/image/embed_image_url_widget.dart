@@ -28,7 +28,7 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
           onChanged: (value) => inputText = value,
           onEditingComplete: () => widget.onSubmit(inputText),
         ),
-        const VSpace(5),
+        const VSpace(8),
         SizedBox(
           width: 160,
           child: FlowyButton(
