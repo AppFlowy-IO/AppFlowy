@@ -11,6 +11,7 @@ import PropertyList from '$app/components/database/components/edit_record/record
 import NewProperty from '$app/components/database/components/edit_record/record_properties/NewProperty';
 import { useViewId } from '$app/hooks';
 import { DragDropContext, Droppable, DropResult, OnDragEndResponder } from 'react-beautiful-dnd';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   documentId?: string;
@@ -28,6 +29,7 @@ const reorder = (list: Field[], startIndex: number, endIndex: number) => {
 };
 
 function RecordProperties({ documentId, cell }: Props) {
+  const { t } = useTranslation();
   const viewId = useViewId();
   const { fieldId, rowId } = cell;
   const { fields } = useDatabase();
@@ -40,6 +42,12 @@ function RecordProperties({ documentId, cell }: Props) {
       return field.id !== fieldId && (showHiddenFields || field.visibility !== FieldVisibility.AlwaysHidden);
     });
   }, [fieldId, fields, showHiddenFields]);
+
+  const hiddenFieldsCount = useMemo(() => {
+    return fields.filter((field) => {
+      return field.visibility === FieldVisibility.AlwaysHidden;
+    }).length;
+  }, [fields]);
 
   const [state, setState] = useState<Field[]>(properties);
 
@@ -107,16 +115,28 @@ function RecordProperties({ documentId, cell }: Props) {
           )}
         </Droppable>
       </DragDropContext>
-      <Button
-        onClick={() => {
-          setShowHiddenFields((prev) => !prev);
-        }}
-        className={'w-full justify-start'}
-        startIcon={showHiddenFields ? <EyeClosedSvg /> : <EyeOpenSvg />}
-        color={'inherit'}
-      >
-        {showHiddenFields ? 'Hide hidden fields' : 'Show hidden fields'}
-      </Button>
+      {
+        // show the button only if there are hidden fields
+        hiddenFieldsCount > 0 && (
+          <Button
+            onClick={() => {
+              setShowHiddenFields((prev) => !prev);
+            }}
+            className={'w-full justify-start'}
+            startIcon={showHiddenFields ? <EyeClosedSvg /> : <EyeOpenSvg />}
+            color={'inherit'}
+          >
+            {showHiddenFields
+              ? t('grid.rowPage.hideHiddenFields', {
+                  hiddenFieldsCount,
+                })
+              : t('grid.rowPage.showHiddenFields', {
+                  hiddenFieldsCount,
+                })}
+          </Button>
+        )
+      }
+
       <NewProperty />
     </div>
   );
