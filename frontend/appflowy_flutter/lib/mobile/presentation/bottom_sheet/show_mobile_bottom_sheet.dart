@@ -13,6 +13,8 @@ Future<void> showMobileBottomSheet({
   required WidgetBuilder builder,
   bool isDragEnabled = true,
   ShapeBorder? shape,
+  bool resizeToAvoidBottomInset = true,
+  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 32),
 }) async {
   showModalBottomSheet(
     context: context,
@@ -26,7 +28,20 @@ Future<void> showMobileBottomSheet({
             top: Corners.s12Radius,
           ),
         ),
-    builder: builder,
+    builder: (context) {
+      final child = builder(context);
+      if (resizeToAvoidBottomInset) {
+        return AnimatedPadding(
+          padding: padding +
+              EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+          duration: Duration.zero,
+          child: child,
+        );
+      }
+      return child;
+    },
   );
 }
 
@@ -62,18 +77,15 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // header
-          _buildHeader(),
-          const VSpace(16),
-          // body
-          _buildBody(),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // header
+        _buildHeader(),
+        const VSpace(16),
+        // body
+        _buildBody(),
+      ],
     );
   }
 
