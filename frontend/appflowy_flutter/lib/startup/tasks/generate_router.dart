@@ -431,6 +431,7 @@ GoRoute _signInScreenRoute() {
 GoRoute _mobileEditorScreenRoute() {
   return GoRoute(
     path: MobileEditorScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
@@ -447,6 +448,7 @@ GoRoute _mobileEditorScreenRoute() {
 GoRoute _mobileGridScreenRoute() {
   return GoRoute(
     path: MobileGridScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileGridScreen.viewId]!;
       final title = state.uri.queryParameters[MobileGridScreen.viewTitle];
@@ -463,6 +465,7 @@ GoRoute _mobileGridScreenRoute() {
 GoRoute _mobileBoardScreenRoute() {
   return GoRoute(
     path: MobileBoardScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileBoardScreen.viewId]!;
       final title = state.uri.queryParameters[MobileBoardScreen.viewTitle];
@@ -479,6 +482,7 @@ GoRoute _mobileBoardScreenRoute() {
 GoRoute _mobileCalendarScreenRoute() {
   return GoRoute(
     path: MobileCalendarScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileCalendarScreen.viewId]!;
       final title = state.uri.queryParameters[MobileCalendarScreen.viewTitle]!;
