@@ -14,7 +14,7 @@ Future<void> showMobileBottomSheet({
   bool isDragEnabled = true,
   ShapeBorder? shape,
   bool resizeToAvoidBottomInset = true,
-  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 32),
+  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 48),
 }) async {
   showModalBottomSheet(
     context: context,
