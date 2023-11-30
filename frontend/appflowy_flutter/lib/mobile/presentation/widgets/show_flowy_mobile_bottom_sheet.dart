@@ -6,6 +6,7 @@ Future<T?> showFlowyMobileBottomSheet<T>(
   BuildContext context, {
   required String title,
   required Widget Function(BuildContext) builder,
+  bool resizeToAvoidBottomInset = true,
   bool isScrollControlled = false,
 }) async {
   return showModalBottomSheet(
@@ -16,19 +17,34 @@ Future<T?> showFlowyMobileBottomSheet<T>(
         top: Corners.s12Radius,
       ),
     ),
-    builder: (context) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _BottomSheetTitle(title),
-          const SizedBox(
-            height: 16,
-          ),
-          builder(context),
-        ],
-      ),
-    ),
+    builder: (context) {
+      const padding = EdgeInsets.fromLTRB(16, 16, 16, 48);
+
+      final child = Padding(
+        padding: padding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _BottomSheetTitle(title),
+            const SizedBox(
+              height: 16,
+            ),
+            builder(context),
+          ],
+        ),
+      );
+      if (resizeToAvoidBottomInset) {
+        return AnimatedPadding(
+          padding: padding +
+              EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+          duration: Duration.zero,
+          child: child,
+        );
+      }
+      return child;
+    },
   );
 }
 
