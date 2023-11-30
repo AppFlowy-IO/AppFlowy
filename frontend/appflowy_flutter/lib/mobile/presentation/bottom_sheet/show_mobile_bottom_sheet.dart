@@ -15,6 +15,11 @@ Future<void> showMobileBottomSheet(
   bool showCloseButton = false,
   String title = '', // only works if showHeader is true
 }) async {
+  assert(() {
+    if (showCloseButton || title.isNotEmpty) assert(showHeader);
+    return true;
+  }());
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -43,25 +48,30 @@ Future<void> showMobileBottomSheet(
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (showCloseButton)
-                Padding(
-                  padding: EdgeInsets.only(left: padding.left),
-                  child: FlowyButton(
-                    useIntrinsicWidth: true,
-                    text: const Icon(
-                      Icons.close,
-                      size: 24,
-                    ),
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                ),
+              showCloseButton
+                  ? Padding(
+                      padding: EdgeInsets.only(left: padding.left),
+                      child: FlowyButton(
+                        useIntrinsicWidth: true,
+                        text: const Icon(
+                          Icons.close,
+                          size: 24,
+                        ),
+                        margin: EdgeInsets.zero,
+                        onTap: () => Navigator.of(context).pop(),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
               FlowyText(
                 title,
                 fontSize: 16.0,
               ),
-              if (showCloseButton) HSpace(padding.right + 48),
+              showCloseButton
+                  ? HSpace(padding.right + 24)
+                  : const SizedBox.shrink(),
             ],
           ),
+          const VSpace(4),
           const Divider(),
         ]);
       }
