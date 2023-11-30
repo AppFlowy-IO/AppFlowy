@@ -498,19 +498,19 @@ GoRoute _mobileCalendarScreenRoute() {
 
 GoRoute _mobileCardDetailScreenRoute() {
   return GoRoute(
-    name: MobileRowDetailPage.routeName,
-    path: "/${MobileRowDetailPage.routeName}/:${MobileRowDetailPage.argRowId}",
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileRowDetailPage.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
       final databaseController =
           args[MobileRowDetailPage.argDatabaseController];
-      final rowId = state.pathParameters[MobileRowDetailPage.argRowId];
+      final rowId = args[MobileRowDetailPage.argRowId]!;
 
       return MaterialPage(
         child: MobileRowDetailPage(
-          key: UniqueKey(),
+          // key: UniqueKey(),
           databaseController: databaseController,
-          rowId: rowId!,
+          rowId: rowId,
         ),
       );
     },

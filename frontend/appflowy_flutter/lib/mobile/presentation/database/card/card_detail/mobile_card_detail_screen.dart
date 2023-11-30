@@ -222,73 +222,75 @@ class RowDetailFab extends StatelessWidget {
         return Positioned(
           bottom: 0,
           right: 0,
-          child: Container(
-            width: 137,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(26),
-              boxShadow: const [
-                BoxShadow(
-                  offset: Offset(0, 8),
-                  blurRadius: 20,
-                  spreadRadius: 0,
-                  color: Color(0x191F2329),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox.square(
-                  dimension: 48,
-                  child: Material(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(26),
-                    borderOnForeground: false,
-                    child: InkWell(
+          child: IntrinsicWidth(
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(26),
+                boxShadow: const [
+                  BoxShadow(
+                    offset: Offset(0, 8),
+                    blurRadius: 20,
+                    spreadRadius: 0,
+                    color: Color(0x191F2329),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox.square(
+                    dimension: 48,
+                    child: Material(
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(26),
-                      onTap: () {
-                        if (!previousDisabled) {
-                          onTapPrevious();
-                        }
-                      },
-                      child: Icon(
-                        Icons.chevron_left_outlined,
-                        color: previousDisabled
-                            ? Theme.of(context).disabledColor
-                            : null,
+                      borderOnForeground: false,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(26),
+                        onTap: () {
+                          if (!previousDisabled) {
+                            onTapPrevious();
+                          }
+                        },
+                        child: Icon(
+                          Icons.chevron_left_outlined,
+                          color: previousDisabled
+                              ? Theme.of(context).disabledColor
+                              : null,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                FlowyText.medium(
-                  "${rowIndex + 1} / $rowCount",
-                  fontSize: 14,
-                ),
-                SizedBox.square(
-                  dimension: 48,
-                  child: Material(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(26),
-                    borderOnForeground: false,
-                    child: InkWell(
+                  FlowyText.medium(
+                    "${rowIndex + 1} / $rowCount",
+                    fontSize: 14,
+                  ),
+                  SizedBox.square(
+                    dimension: 48,
+                    child: Material(
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(26),
-                      onTap: () {
-                        if (!nextDisabled) {
-                          onTapNext();
-                        }
-                      },
-                      child: Icon(
-                        Icons.chevron_right_outlined,
-                        color: nextDisabled
-                            ? Theme.of(context).disabledColor
-                            : null,
+                      borderOnForeground: false,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(26),
+                        onTap: () {
+                          if (!nextDisabled) {
+                            onTapNext();
+                          }
+                        },
+                        child: Icon(
+                          Icons.chevron_right_outlined,
+                          color: nextDisabled
+                              ? Theme.of(context).disabledColor
+                              : null,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -315,7 +317,7 @@ class MobileRowDetailPageContent extends StatefulWidget {
 class MobileRowDetailPageContentState
     extends State<MobileRowDetailPageContent> {
   late final RowController rowController;
-  late final GridCellBuilder cellBuilder;
+  late final MobileRowDetailPageCellBuilder cellBuilder;
 
   String get viewId => widget.databaseController.viewId;
   RowCache get rowCache => widget.databaseController.rowCache;
@@ -331,7 +333,7 @@ class MobileRowDetailPageContentState
       viewId: viewId,
       rowCache: rowCache,
     );
-    cellBuilder = GridCellBuilder(
+    cellBuilder = MobileRowDetailPageCellBuilder(
       cellCache: rowCache.cellCache,
     );
   }
@@ -339,7 +341,8 @@ class MobileRowDetailPageContentState
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RowDetailBloc>(
-      create: (_) => RowDetailBloc(rowController: rowController)..add,
+      create: (_) => RowDetailBloc(rowController: rowController)
+        ..add(const RowDetailEvent.initial()),
       child: BlocBuilder<RowDetailBloc, RowDetailState>(
         builder: (context, rowDetailState) {
           return Column(
@@ -359,6 +362,7 @@ class MobileRowDetailPageContentState
                             .bodyMedium
                             ?.copyWith(fontSize: 22),
                         cellPadding: const EdgeInsets.symmetric(vertical: 8),
+                        useRoundedBorder: false,
                       );
 
                       final cellContext = DatabaseCellContext(
@@ -378,7 +382,6 @@ class MobileRowDetailPageContentState
               ),
               Expanded(
                 child: ListView(
-                  controller: ScrollController(),
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
                     MobileRowPropertyList(
@@ -387,13 +390,13 @@ class MobileRowDetailPageContentState
                       fieldController: fieldController,
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (rowDetailState.numHiddenFields != 0)
                             const ToggleHiddenFieldsVisibilityButton(),
-                          const VSpace(8),
+                          const VSpace(12),
                           MobileCreateRowFieldButton(
                             viewId: viewId,
                             fieldController: fieldController,

@@ -17,11 +17,13 @@ class DateCellStyle extends GridCellStyle {
   String? placeholder;
   Alignment alignment;
   EdgeInsets? cellPadding;
+  final bool useRoundedBorder;
 
   DateCellStyle({
     this.placeholder,
     this.alignment = Alignment.center,
     this.cellPadding,
+    this.useRoundedBorder = false,
   });
 }
 
@@ -100,6 +102,35 @@ class _DateCellState extends GridCellState<GridDateCell> {
               onClose: () {
                 widget.cellContainerNotifier.isFocus = false;
               },
+            );
+          } else if (widget.cellStyle != null &&
+              widget.cellStyle!.useRoundedBorder) {
+            return InkWell(
+              borderRadius: const BorderRadius.all(Radius.circular(14)),
+              onTap: () => showMobileBottomSheet(
+                context: context,
+                padding: EdgeInsets.zero,
+                builder: (context) {
+                  return MobileDateCellEditScreen(
+                    controller: widget.cellControllerBuilder.build()
+                        as DateCellController,
+                    showAsFullScreen: false,
+                  );
+                },
+              ),
+              child: Container(
+                constraints: const BoxConstraints(
+                  minHeight: 48,
+                  minWidth: double.infinity,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.fromBorderSide(
+                    BorderSide(color: Theme.of(context).colorScheme.outline),
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                ),
+                child: child,
+              ),
             );
           } else {
             return FlowyButton(

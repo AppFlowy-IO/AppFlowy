@@ -96,13 +96,12 @@ class _EventCardState extends State<EventCard> {
       cellBuilder: cellBuilder,
       openCard: (context) {
         if (PlatformExtension.isMobile) {
-          context.pushNamed(
+          context.push(
             MobileRowDetailPage.routeName,
-            pathParameters: {MobileRowDetailPage.argRowId: rowInfo.rowId},
             extra: {
+              MobileRowDetailPage.argRowId: rowInfo.rowId,
               MobileRowDetailPage.argDatabaseController:
                   widget.databaseController,
-              MobileRowDetailPage.argRowId: rowInfo.rowId,
             },
           );
         } else {

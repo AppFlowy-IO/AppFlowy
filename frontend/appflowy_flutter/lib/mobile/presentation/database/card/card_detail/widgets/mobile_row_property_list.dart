@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_service.dar
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -23,7 +22,7 @@ class MobileRowPropertyList extends StatelessWidget {
 
   final String viewId;
   final FieldController fieldController;
-  final GridCellBuilder cellBuilder;
+  final MobileRowDetailPageCellBuilder cellBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +59,7 @@ class _PropertyCell extends StatefulWidget {
 
   final DatabaseCellContext cellContext;
   final FieldController fieldController;
-  final GridCellBuilder cellBuilder;
+  final MobileRowDetailPageCellBuilder cellBuilder;
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();
@@ -93,16 +92,9 @@ class _PropertyCellState extends State<_PropertyCell> {
           ],
         ),
         const VSpace(6),
-        SizedBox(
-          height: 48,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => cell.requestFocus.notify(),
-            child: AccessoryHover(
-              fieldType: widget.cellContext.fieldType,
-              child: cell,
-            ),
-          ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: cell,
         ),
       ],
     );
@@ -119,19 +111,22 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       return DateCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
         alignment: Alignment.centerLeft,
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        useRoundedBorder: true,
       );
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
       return TimestampCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
         alignment: Alignment.centerLeft,
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        useRoundedBorder: true,
       );
     case FieldType.MultiSelect:
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        useRoundedBorder: true,
       );
     case FieldType.Checklist:
       return ChecklistCellStyle(
@@ -151,9 +146,9 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.SingleSelect:
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        useRoundedBorder: true,
       );
-
     case FieldType.URL:
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),

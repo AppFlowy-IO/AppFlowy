@@ -17,10 +17,12 @@ import 'select_option_editor.dart';
 class SelectOptionCellStyle extends GridCellStyle {
   String placeholder;
   EdgeInsets? cellPadding;
+  bool useRoundedBorder;
 
   SelectOptionCellStyle({
     required this.placeholder,
     this.cellPadding,
+    this.useRoundedBorder = false,
   });
 }
 
@@ -201,6 +203,32 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
         },
         onClose: () => widget.onCellEditing(false),
         child: child,
+      );
+    } else if (widget.cellStyle != null && widget.cellStyle!.useRoundedBorder) {
+      child = InkWell(
+        borderRadius: const BorderRadius.all(Radius.circular(14)),
+        onTap: () => showMobileBottomSheet(
+          context: context,
+          padding: EdgeInsets.zero,
+          builder: (context) {
+            return MobileSelectOptionEditor(
+              cellController: cellController,
+            );
+          },
+        ),
+        child: Container(
+          constraints: const BoxConstraints(
+            minHeight: 48,
+            minWidth: double.infinity,
+          ),
+          decoration: BoxDecoration(
+            border: Border.fromBorderSide(
+              BorderSide(color: Theme.of(context).colorScheme.outline),
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(14)),
+          ),
+          child: child,
+        ),
       );
     } else {
       child = FlowyButton(

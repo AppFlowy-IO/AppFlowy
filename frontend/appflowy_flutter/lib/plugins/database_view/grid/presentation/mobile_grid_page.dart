@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/mobile_database_settings_button.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -26,7 +27,6 @@ import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/row/mobile_row.dart';
 import 'widgets/shortcuts.dart';
-import '../../widgets/setting/mobile_database_settings_button.dart';
 
 class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
@@ -322,10 +322,10 @@ class _GridRows extends StatelessWidget {
       isDraggable: isDraggable,
       databaseController: databaseController,
       openDetailPage: (context) {
-        context.pushNamed(
+        context.push(
           MobileRowDetailPage.routeName,
-          pathParameters: {MobileRowDetailPage.argRowId: rowId},
           extra: {
+            MobileRowDetailPage.argRowId: rowId,
             MobileRowDetailPage.argDatabaseController: databaseController,
           },
         );
