@@ -304,9 +304,11 @@
         "hint": "Vyberte, jestli má text ve výchozím nastavení začínat zprava nebo zleva.",
         "ltr": "Zleva doprava",
         "rtl": "Zprava doleva",
+        "auto": "Automaticky",
         "fallback": "Stejné jako směr rozvržení"
       },
       "themeUpload": {
+        "button": "Nahrát",
         "failure": "Nahrané téma vzhledu má neplatný formát."
       },
       "pluginsLabel": "Dopl",
