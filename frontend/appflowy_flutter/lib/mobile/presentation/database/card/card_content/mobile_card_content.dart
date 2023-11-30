@@ -72,16 +72,17 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
     DatabaseCellContext cellContext,
   ) {
     final renderHook = RowCardRenderHook<String>();
-    renderHook.addTextCellHook((cellData, _, __) {
+    renderHook.addTextCellHook((cellData, cardData, __) {
       return BlocBuilder<TextCellBloc, TextCellState>(
         builder: (context, state) {
-          final text = cellData.isEmpty
+          final cardDataIsEmpty = cardData == null;
+          final text = cardDataIsEmpty
               ? LocaleKeys.grid_row_titlePlaceholder.tr()
               : cellData;
 
           final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: cellData.isEmpty
-                    ? Theme.of(context).colorScheme.onSecondary
+                color: cardDataIsEmpty
+                    ? Theme.of(context).hintColor
                     : Theme.of(context).colorScheme.onBackground,
                 fontSize: 20,
               );
