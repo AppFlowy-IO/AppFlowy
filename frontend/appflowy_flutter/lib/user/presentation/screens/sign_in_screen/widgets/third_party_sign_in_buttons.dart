@@ -82,45 +82,48 @@ class _ThirdPartySignInButton extends StatelessWidget {
     final style = Theme.of(context);
     final isMobile = PlatformExtension.isMobile;
     if (isMobile) {
-      return Container(
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(4),
+      return GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(
+              Radius.circular(4),
+            ),
+            border: Border.all(
+              color: style.colorScheme.outline,
+              width: 0.5,
+            ),
           ),
-          border: Border.all(
-            color: style.colorScheme.outline,
-            width: 0.5,
-          ),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
-                width: 30,
-                height: 30,
-                child: Center(
-                  child: SizedBox(
-                    width: 24,
-                    child: FlowySvg(
-                      icon,
-                      blendMode: null,
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
+                  width: 30,
+                  height: 30,
+                  child: Center(
+                    child: SizedBox(
+                      width: 24,
+                      child: FlowySvg(
+                        icon,
+                        blendMode: null,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const HSpace(8),
-              SizedBox(
-                // To fit the longest label 'Log in with Discord'
-                width: 135,
-                child: Text(
-                  labelText,
-                  style: Theme.of(context).textTheme.titleSmall,
+                const HSpace(8),
+                SizedBox(
+                  // To fit the longest label 'Log in with Discord'
+                  width: 135,
+                  child: Text(
+                    labelText,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
