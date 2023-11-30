@@ -271,6 +271,8 @@
       "clickToCopySecret": "Kliknutím zkopírujete šifrovací klíč",
       "inputTextFieldHint": "Váš klíč",
       "historicalUserList": "Historie přihlášení uživatele",
+      "historicalUserListTooltip": "V tomto seznamu vidíte anonymní účty. Kliknutím na účet zobrazíte jeho detaily. Anonymní účty vznikají kliknutím na tlačítko \"Začínáme\"",
+      "openHistoricalUser": "Kliknutím založíte anonymní účet",
       "customPathPrompt": "Uložením složky s daty AppFlowy ve složce synchronizovanéí jako např. Google Drive může nést rizika. Pokud se databáze v  složce navštíví nebo změní "
     },
     "notifications": {
@@ -280,10 +282,28 @@
       }
     },
     "appearance": {
+      "resetSetting": "Obnovit tato nastavení",
+      "fontFamily": {
+        "label": "Písmo",
+        "search": "Vyhledávání"
+      },
+      "themeMode": {
+        "label": "Téma vzhledu",
+        "light": "Světlý vzhled",
+        "dark": "Tmavý vzhled",
+        "system": "Přizpůsobit systému"
+      },
       "layoutDirection": {
-        "hint": "Ovládejte tok obsahu na "
+        "label": "Směr zobrazení",
+        "hint": "Ovládejte tok obsahu na ",
+        "ltr": "Zleva doprava",
+        "rtl": "Zprava doleva"
       },
       "textDirection": {
+        "label": "Výchozí směr textu",
+        "hint": "Vyberte, jestli má text ve výchozím nastavení začínat zprava nebo zleva.",
+        "ltr": "Zleva doprava",
+        "rtl": "Zprava doleva",
         "fallback": "Stejné jako směr rozvržení"
       },
       "themeUpload": {
