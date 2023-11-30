@@ -44,24 +44,33 @@ class SettingAppFlowyCloudView extends StatelessWidget {
   BlocProvider<AppFlowyCloudSettingBloc> _renderContent(
     CloudSettingPB setting,
   ) {
+    final List<Widget> children = [];
+    children.addAll([
+      const AppFlowyCloudEnableSync(),
+      const VSpace(40),
+    ]);
+
+    // If the enableCustomCloud flag is true, then the user can dynamically configure cloud settings. Otherwise, the user cannot dynamically configure cloud settings.
+    if (Env.enableCustomCloud) {
+      children.add(
+        AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
+      );
+    } else {
+      children.add(
+        Row(
+          children: [
+            FlowyText(LocaleKeys.settings_menu_cloudServerType.tr()),
+            const Spacer(),
+            const FlowyText(Env.afCloudUrl),
+          ],
+        ),
+      );
+    }
     return BlocProvider(
       create: (context) => AppFlowyCloudSettingBloc(setting)
         ..add(const AppFlowyCloudSettingEvent.initial()),
       child: Column(
-        children: [
-          const AppFlowyCloudEnableSync(),
-          const VSpace(40),
-          if (Env.enableCustomCloud)
-            AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
-          if (!Env.enableCustomCloud)
-            Row(
-              children: [
-                FlowyText(LocaleKeys.settings_menu_cloudServerType.tr()),
-                const Spacer(),
-                const FlowyText(Env.afCloudUrl),
-              ],
-            ),
-        ],
+        children: children,
       ),
     );
   }
