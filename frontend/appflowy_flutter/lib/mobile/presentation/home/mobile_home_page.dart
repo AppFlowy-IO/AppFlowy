@@ -103,9 +103,9 @@ class MobileHomePage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: MobileFolders(
-                        showFavorite: false,
                         user: userProfile,
                         workspaceSetting: workspaceSetting,
+                        showFavorite: false,
                       ),
                     ),
                     const SizedBox(height: 8),
