@@ -163,7 +163,7 @@ pub struct MoveGroupRowPayloadPB {
   #[pb(index = 4, one_of)]
   pub to_row_id: Option<String>,
 
-  #[pb(index = 6)]
+  #[pb(index = 5)]
   pub from_group_id: String,
 }
 
