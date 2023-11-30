@@ -109,12 +109,9 @@ class MobileHomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Expanded(
-                        child: _TrashButton(),
-                      ),
-                    ),
+                    // const Expanded(
+                    //   child: _TrashButton(),
+                    // ),
                   ],
                 ),
               ),
@@ -132,6 +129,7 @@ class _TrashButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
+      useIntrinsicWidth: true,
       margin: const EdgeInsets.symmetric(vertical: 8),
       leftIcon: FlowySvg(
         FlowySvgs.m_delete_m,

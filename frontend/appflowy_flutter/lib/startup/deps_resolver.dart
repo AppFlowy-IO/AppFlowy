@@ -1,7 +1,6 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/cloud_env.dart';
-import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
@@ -164,7 +163,6 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton(FToast());
 
   getIt.registerSingleton(MenuSharedState());
-  getIt.registerSingleton(MobileRouterRecord());
 
   getIt.registerFactoryParam<UserListener, UserProfilePB, void>(
     (user, _) => UserListener(userProfile: user),
