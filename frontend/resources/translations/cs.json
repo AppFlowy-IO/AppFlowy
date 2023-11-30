@@ -26,31 +26,100 @@
     "alreadyHaveAnAccount": "Už máte účet?",
     "emailHint": "E-mail",
     "passwordHint": "Heslo",
-    "repeatPasswordHint": "Heslo znovu"
+    "repeatPasswordHint": "Heslo znovu",
+    "signUpWith": "Zaregistrovat přes:"
   },
   "signIn": {
-    "continueAnonymousUser": "Pokra"
+    "loginTitle": "Přihlásit do @:appName",
+    "loginButtonText": "Přihlásit",
+    "loginStartWithAnonymous": "Začít anonymní sezení",
+    "continueAnonymousUser": "Pokra",
+    "buttonText": "Přihlásit se",
+    "forgotPassword": "Zapomenuté heslo?",
+    "emailHint": "E-mail",
+    "passwordHint": "Heslo",
+    "dontHaveAnAccount": "Nemáte účet?",
+    "repeatPasswordEmptyError": "Heslo nesmí být prázné",
+    "unmatchedPasswordError": "Hesla se neshodují",
+    "syncPromptMessage": "Synchronizace dat může chvilku trvat. Nezavírejte prosím tuto stránku.",
+    "or": "NEBO",
+    "LogInWithGoogle": "Přihlásit přes Google",
+    "LogInWithGithub": "Přihlásit přes GitHub",
+    "LogInWithDiscord": "Přihlásit přes Discord",
+    "signInWith": "Přihlásit přes:"
   },
   "workspace": {
     "chooseWorkspace": "Vyberte pracovní ůplochu",
+    "create": "Vytvořit pracovní prostor",
     "reset": "Resetovat plochu",
-    "hint": "pracovní plocha"
+    "resetWorkspacePrompt": "Obnovením pracovního prostoru smažete všechny stránky a data v nich. Opravdu chcete obnovit pracovní prostor? Pro obnovení pracovního prostoru můžete kontaktovat podporu.",
+    "hint": "pracovní plocha",
+    "notFoundError": "Pracovní prostor nenalezen",
+    "failedToLoad": "Něco se pokazilo! Nepodařilo se načíst pracovní prostor. Zkuste zavřít a znovu otevřít AppFlowy a zkuste to znovu.",
+    "errorActions": {
+      "reportIssue": "Nahlásit problém",
+      "reachOut": "Ozvat se na Discordu"
+    }
   },
   "shareAction": {
-    "workInProgress": "Ji brzy"
+    "buttonText": "Sdílet",
+    "workInProgress": "Ji brzy",
+    "markdown": "Markdown",
+    "csv": "CSV",
+    "copyLink": "Kopírovat odkaz"
   },
   "moreAction": {
+    "small": "malé",
+    "medium": "střední",
+    "large": "velké",
+    "fontSize": "Velikost písma",
+    "import": "Importovat",
     "moreOptions": "Ví"
   },
-  "disclosureAction": {
-    "duplicate": "Duplikovat"
+  "importPanel": {
+    "textAndMarkdown": "Text a Markdown",
+    "documentFromV010": "Dokument z v0.1.0",
+    "databaseFromV010": "Databázi z v0.1.0",
+    "csv": "CSV",
+    "database": "Databáze"
   },
+  "disclosureAction": {
+    "rename": "Přejmenovat",
+    "delete": "Smazat",
+    "duplicate": "Duplikovat",
+    "unfavorite": "Odebrat z oblíbených",
+    "favorite": "Přidat do oblíbených",
+    "openNewTab": "Otevřít v novém panelu",
+    "moveTo": "Přesunout do",
+    "addToFavorites": "Přidat do oblíbených",
+    "copyLink": "Kopírovat odkaz"
+  },
+  "blankPageTitle": "Prázdná stránka",
+  "newPageText": "Nová stránka",
+  "newDocumentText": "Nový dokument",
+  "newGridText": "Nová mřížka",
+  "newCalendarText": "Nový kalendář",
+  "newBoardText": "Nová nástěnka",
   "trash": {
     "text": "Koš",
+    "restoreAll": "Obnovit vše",
+    "deleteAll": "Smazat vše",
+    "pageHeader": {
+      "fileName": "Název souboru",
+      "lastModified": "Změněno",
+      "created": "Vytvořeno"
+    },
+    "confirmDeleteAll": {
+      "title": "Opravdu chcete smazat všechny stránky v Koši?",
+      "caption": "Tento krok nelze vrátit."
+    },
     "confirmRestoreAll": {
+      "title": "Opravdu chcete obnovit všechny stránky z Koše?",
       "caption": "Tuto kci ne"
     },
     "mobile": {
+      "actions": "Koš - akce",
+      "empty": "Koš je prázdný",
       "isRestored": "je "
     }
   },
