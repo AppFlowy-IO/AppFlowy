@@ -1,4 +1,6 @@
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/setting/cloud/cloud_setting_group.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/logout_setting_group.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
@@ -60,6 +62,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                         const NotificationsSettingGroup(),
                         const AppearanceSettingGroup(),
                         const LanguageSettingGroup(),
+                        if (Env.enableCustomCloud) const CloudSettingGroup(),
                         const SupportSettingGroup(),
                         const AboutSettingGroup(),
                         const LogoutSettingGroup(),

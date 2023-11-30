@@ -8,6 +8,7 @@ import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dar
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
@@ -48,6 +49,7 @@ GoRouter generateRouter(Widget child) {
         _mobileHomeSettingPageRoute(),
         _mobileSettingPrivacyPolicyPageRoute(),
         _mobileSettingUserAgreementPageRoute(),
+        _mobileCloudSettingAppFlowyCloudPageRoute(),
 
         // view page
         _mobileEditorScreenRoute(),
@@ -212,6 +214,16 @@ GoRoute _mobileSettingPrivacyPolicyPageRoute() {
     path: PrivacyPolicyPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialPage(child: PrivacyPolicyPage());
+    },
+  );
+}
+
+GoRoute _mobileCloudSettingAppFlowyCloudPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: AppFlowyCloudPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: AppFlowyCloudPage());
     },
   );
 }
