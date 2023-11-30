@@ -120,8 +120,14 @@
     "mobile": {
       "actions": "Koš - akce",
       "empty": "Koš je prázdný",
+      "emptyDescription": "Nemáte žádný smazaný soubor",
+      "isDeleted": "je smazaný",
       "isRestored": "je "
     }
+  },
+  "deletePagePrompt": {
+    "text": "Tato stránka je v Koši",
+    "restore": "Obnovit stránku"
   },
   "questionBubble": {
     "debug": {
