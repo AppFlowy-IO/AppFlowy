@@ -93,6 +93,10 @@ Future<T?> showMobileBottomSheet<T>(
         children.add(child);
       }
 
+      if (children.length == 1) {
+        return children.first;
+      }
+
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: children,
