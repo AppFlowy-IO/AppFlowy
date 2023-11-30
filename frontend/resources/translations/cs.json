@@ -144,38 +144,133 @@
     "feedback": "Zpětná vazba"
   },
   "menuAppHeader": {
-    "moreButtonToolTip": "Smazat, přejmenovat, a další..."
+    "moreButtonToolTip": "Smazat, přejmenovat, a další...",
+    "addPageTooltip": "Rychle přidat podstránku",
+    "defaultNewPageName": "Nepojmenovaný",
+    "renameDialog": "Přejmenovat"
   },
+  "noPagesInside": "Neobsahuje žádné stránky",
   "toolbar": {
+    "undo": "Zpět",
     "redo": "Znovu",
-    "highlight": "Zv"
+    "bold": "Tučné",
+    "italic": "Kurzíva",
+    "underline": "Podtřžení",
+    "strike": "Přeškrtnutí",
+    "numList": "Číslovaný seznam",
+    "bulletList": "Seznam s odrážkami",
+    "checkList": "Zaškrtávací seznam",
+    "inlineCode": "Vložený kód",
+    "quote": "Blok s citací",
+    "header": "Nadpis",
+    "highlight": "Zv",
+    "color": "Barva",
+    "addLink": "Přidat odkaz",
+    "link": "Odkaz"
   },
   "tooltip": {
+    "lightMode": "Přepnout na světlý režim",
+    "darkMode": "Přepnout na tmavý režim",
+    "openAsPage": "Otevřít jako stránku",
+    "addNewRow": "Přidat nový řádek",
+    "openMenu": "Kliknutím otevřete menu",
     "dragRow": "Dlou",
-    "referencePage": "Zdroj"
+    "viewDataBase": "Zobrazit databázi",
+    "referencePage": "Zdroj",
+    "addBlockBelow": "Přidat blok pod"
   },
   "sideBar": {
-    "personal": "Osobní"
+    "closeSidebar": "Zavřít postranní panel",
+    "openSidebar": "Otevřít postranní panel",
+    "personal": "Osobní",
+    "favorites": "Oblíbené",
+    "clickToHidePersonal": "Kliknutím schováte sekci Osobní",
+    "clickToHideFavorites": "Kliknutím schováte sekci Oblíbené",
+    "addAPage": "Přidat stránku",
+    "recent": "Nedávné"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Poznámka exportována do Markdownu",
+      "path": "Dokumenty/flowy"
+    }
   },
   "contactsPage": {
-    "title": "KontaktyCo se "
+    "title": "KontaktyCo se ",
+    "whatsHappening": "Co se děje v tomto týdnu?",
+    "addContact": "Přidat kontakt",
+    "editContact": "Upravit kontakt"
   },
   "button": {
+    "ok": "OK",
+    "done": "Hotovo",
+    "cancel": "Zrušit",
+    "signIn": "Přihlásit se",
+    "signOut": "Odhlásit se",
+    "complete": "Dokončit",
+    "save": "Uložit",
+    "generate": "Vygenerovat",
+    "esc": "ESC",
     "keep": "Z",
-    "removeFromFavorites": "Odstranit z oblíbených"
+    "tryAgain": "Zkusit znovu",
+    "discard": "Zahodit",
+    "replace": "Nahradit",
+    "insertBelow": "Vložit pod",
+    "insertAbove": "Vložit nad",
+    "upload": "Nahrát",
+    "edit": "Upravit",
+    "delete": "Smazat",
+    "duplicate": "Duplikovat",
+    "putback": "Odložit",
+    "update": "Aktualizovat",
+    "share": "Sdílet",
+    "removeFromFavorites": "Odstranit z oblíbených",
+    "addToFavorites": "Přidat do oblíbených",
+    "rename": "Přejmenovat",
+    "helpCenter": "Centrum pomoci"
+  },
+  "label": {
+    "welcome": "Vítejte!",
+    "firstName": "Křestní jméno",
+    "middleName": "Prostřední jméno",
+    "lastName": "Příjmení",
+    "stepX": "Krok {X}"
   },
   "oAuth": {
+    "err": {
+      "failedTitle": "Nepodařilo se připojit k Vašemu účtu.",
+      "failedMsg": "Ujistěte se prosím, že jste se v prohlížeči přihlásili."
+    },
     "google": {
       "title": "Goohle přihlašování",
-      "instruction2": "Zkopírujte tento k=od do schránky kliknutím na ikonku nebo označením textu"
+      "instruction1": "Tuto aplikaci musíte autorizovat, aby mohla importovat Vaše kontakty z Google Contacts.",
+      "instruction2": "Zkopírujte tento k=od do schránky kliknutím na ikonku nebo označením textu",
+      "instruction3": "Přejděte na tento odkaz kam vložte kód:",
+      "instruction4": "Po dokončení registrace stiskněte tlačítko níže:"
     }
   },
   "settings": {
+    "title": "Nastavení",
     "menu": {
+      "appearance": "Vzhled",
+      "language": "Jazyk",
+      "user": "Uživatel",
+      "files": "Soubory",
       "notifications": "Upozornění",
+      "open": "Otevřít nastavení",
+      "logout": "Odhlásit se",
+      "logoutPrompt": "Opravdu se chcete odhlásit?",
+      "selfEncryptionLogoutPrompt": "Opravdu se chcete odhlásit? Ujistěte se prosím, že jste si zkopírovali šifrovací klíč",
+      "syncSetting": "Synchronizovat nastavení",
+      "cloudSetting": "Nastavení cloudu",
       "cloudURL": "URL adresa serveru",
+      "enableSync": "Zapnout synchronizaci",
+      "enableEncrypt": "Šifrovat data",
       "enableEncryptPrompt": "Zapněte šifrování a zabezpečte svá ",
+      "inputEncryptPrompt": "Vložte prosím Váš šifrovací klíč k",
+      "clickToCopySecret": "Kliknutím zkopírujete šifrovací klíč",
       "inputTextFieldHint": "Váš klíč",
+      "historicalUserList": "Historie přihlášení uživatele",
       "customPathPrompt": "Uložením složky s daty AppFlowy ve složce synchronizovanéí jako např. Google Drive může nést rizika. Pokud se databáze v  složce navštíví nebo změní "
     },
     "notifications": {
