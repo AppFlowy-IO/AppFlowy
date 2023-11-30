@@ -297,10 +297,14 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
         final text = switch (state.showHiddenFields) {
-          false => LocaleKeys.grid_rowPage_showHiddenFields
-              .plural(state.numHiddenFields),
-          true => LocaleKeys.grid_rowPage_hideHiddenFields
-              .plural(state.numHiddenFields),
+          false => LocaleKeys.grid_rowPage_showHiddenFields.plural(
+              state.numHiddenFields,
+              namedArgs: {'count': '${state.numHiddenFields}'},
+            ),
+          true => LocaleKeys.grid_rowPage_hideHiddenFields.plural(
+              state.numHiddenFields,
+              namedArgs: {'count': '${state.numHiddenFields}'},
+            ),
         };
 
         return SizedBox(

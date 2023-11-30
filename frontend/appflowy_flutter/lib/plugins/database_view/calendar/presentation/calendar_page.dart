@@ -422,8 +422,10 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 }
               },
               child: FlowyTooltip(
-                message: LocaleKeys.calendar_settings_noDateHint
-                    .plural(state.unscheduleEvents.length),
+                message: LocaleKeys.calendar_settings_noDateHint.plural(
+                  state.unscheduleEvents.length,
+                  namedArgs: {'count': '${state.unscheduleEvents.length}'},
+                ),
                 child: FlowyText.regular(
                   "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
                   fontSize: 10,

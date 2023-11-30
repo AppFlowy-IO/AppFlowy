@@ -555,14 +555,14 @@
       "newField": "Add a new field",
       "fieldDragElementTooltip": "Click to open menu",
       "showHiddenFields": {
-        "one": "Show {} hidden field",
-        "many": "Show {} hidden fields",
-        "other": "Show {} hidden fields"
+        "one": "Show {count} hidden field",
+        "many": "Show {count} hidden fields",
+        "other": "Show {count} hidden fields"
       },
       "hideHiddenFields": {
-        "one": "Hide {} hidden field",
-        "many": "Hide {} hidden fields",
-        "other": "Hide {} hidden fields"
+        "one": "Hide {count} hidden field",
+        "many": "Hide {count} hidden fields",
+        "other": "Hide {count} hidden fields"
       }
     },
     "sort": {
@@ -877,8 +877,8 @@
       "noDateTitle": "No Date",
       "noDateHint": {
         "zero": "Unscheduled events will show up here",
-        "one": "{} unscheduled event",
-        "other": "{} unscheduled events"
+        "one": "{count} unscheduled event",
+        "other": "{count} unscheduled events"
       },
       "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",
