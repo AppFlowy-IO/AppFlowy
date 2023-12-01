@@ -278,20 +278,10 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
                 ).toString(),
               );
               if (optionValues != null) {
-                final result =
-                    await TypeOptionBackendService.createFieldTypeOption(
-                  viewId: widget.viewId,
-                  fieldType: optionValues.type,
-                );
-                result.fold(
-                  (typeOptionPB) {
-                    // update field
-                    widget.onFieldCreated(typeOptionPB.field_2.id);
-                  },
-                  (err) => Log.error(
-                    "Failed to create field type option: $err",
-                  ),
-                );
+                await optionValues.create(viewId: widget.viewId);
+                if (context.mounted) {
+                  context.pop();
+                }
               }
             },
           ),

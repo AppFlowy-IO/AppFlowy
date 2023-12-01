@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -7,6 +8,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/util/field_type_extension.dart';
@@ -51,7 +53,49 @@ class FieldOptionValues {
   // FieldType.MultiSelect
   List<SelectOptionPB> selectOption;
 
-  // FieldType.Checklist
+  Future<void> create({
+    required String viewId,
+  }) async {
+    Uint8List? typeOptionData;
+
+    switch (type) {
+      case FieldType.RichText:
+        break;
+      case FieldType.URL:
+        break;
+      case FieldType.Checkbox:
+        break;
+      case FieldType.Number:
+        typeOptionData = NumberTypeOptionPB(
+          format: numberFormat,
+        ).writeToBuffer();
+        break;
+      case FieldType.DateTime:
+        typeOptionData = DateTypeOptionPB(
+          dateFormat: dateFormate,
+          timeFormat: timeFormat,
+        ).writeToBuffer();
+        break;
+      case FieldType.SingleSelect:
+        typeOptionData = SingleSelectTypeOptionPB(
+          options: selectOption,
+        ).writeToBuffer();
+      case FieldType.MultiSelect:
+        typeOptionData = MultiSelectTypeOptionPB(
+          options: selectOption,
+        ).writeToBuffer();
+        break;
+      default:
+        throw UnimplementedError();
+    }
+
+    await TypeOptionBackendService.createFieldTypeOption(
+      viewId: viewId,
+      fieldType: type,
+      fieldName: name,
+      typeOptionData: typeOptionData,
+    );
+  }
 }
 
 class FieldOption extends StatefulWidget {
@@ -102,6 +146,9 @@ class _FieldOptionState extends State<FieldOption> {
             _OptionTextField(
               controller: controller,
               type: values.type,
+              onTextChanged: (value) {
+                _updateOptionValues(name: value);
+              },
             ),
             const _Divider(),
             _PropertyType(
@@ -253,16 +300,19 @@ class _OptionTextField extends StatelessWidget {
   const _OptionTextField({
     required this.controller,
     required this.type,
+    required this.onTextChanged,
   });
 
   final TextEditingController controller;
   final FieldType type;
+  final void Function(String value) onTextChanged;
 
   @override
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
       controller: controller,
       textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+      onTextChanged: onTextChanged,
       leftIcon: Padding(
         padding: const EdgeInsets.only(left: 16.0),
         child: FlowySvg(
