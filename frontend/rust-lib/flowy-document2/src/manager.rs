@@ -138,13 +138,15 @@ impl DocumentManager {
 
     let uid = self.user.user_id()?;
     event!(tracing::Level::DEBUG, "Initialize document: {}", doc_id);
-    let mut documents_guard = self.documents.lock();
     let collab = self.collab_for_document(uid, doc_id, updates).await?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
     // and we don't want to subscribe to the document changes if we open the same document again.
-    documents_guard.put(doc_id.to_string(), document.clone());
+    self
+      .documents
+      .lock()
+      .put(doc_id.to_string(), document.clone());
     Ok(document)
   }
 
