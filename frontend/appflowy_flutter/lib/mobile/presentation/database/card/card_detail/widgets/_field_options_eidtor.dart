@@ -143,6 +143,7 @@ class FieldOptionEditor extends StatefulWidget {
     required this.defaultValues,
     required this.onOptionValuesChanged,
     this.onAction,
+    this.isPrimary = false,
   });
 
   final FieldOptionMode mode;
@@ -151,6 +152,9 @@ class FieldOptionEditor extends StatefulWidget {
 
   // only used in edit mode
   final void Function(FieldOptionAction action)? onAction;
+
+  // the primary field can't be deleted, duplicated, and changed type
+  final bool isPrimary;
 
   @override
   State<FieldOptionEditor> createState() => _FieldOptionEditorState();
@@ -166,7 +170,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
     super.initState();
 
     values = widget.defaultValues;
-    controller.text = values.type.i18n;
+    controller.text = values.name;
   }
 
   @override
@@ -194,23 +198,26 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
               },
             ),
             const _Divider(),
-            _PropertyType(
-              type: values.type,
-              onSelected: (type) => setState(
-                () {
-                  if (widget.mode == FieldOptionMode.add) {
-                    controller.text = type.i18n;
-                  }
-                  _updateOptionValues(type: type, name: type.i18n);
-                },
+            if (!widget.isPrimary) ...[
+              _PropertyType(
+                type: values.type,
+                onSelected: (type) => setState(
+                  () {
+                    if (widget.mode == FieldOptionMode.add) {
+                      controller.text = type.i18n;
+                    }
+                    _updateOptionValues(type: type, name: type.i18n);
+                  },
+                ),
               ),
-            ),
-            const _Divider(),
-            if (option.isNotEmpty) ...[
-              ...option,
               const _Divider(),
+              if (option.isNotEmpty) ...[
+                ...option,
+                const _Divider(),
+              ],
             ],
             ..._buildOptionActions(),
+            const _Divider(),
           ],
         ),
       ),
@@ -284,18 +291,20 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
             leftIcon: const FlowySvg(FlowySvgs.hide_s),
             onTap: () => widget.onAction?.call(FieldOptionAction.hide),
           ),
-          FlowyOptionTile.text(
-            showTopBorder: false,
-            text: LocaleKeys.button_duplicate.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.copy_s),
-            onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
-          ),
-          FlowyOptionTile.text(
-            showTopBorder: false,
-            text: LocaleKeys.button_delete.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.delete_s),
-            onTap: () => widget.onAction?.call(FieldOptionAction.delete),
-          ),
+          if (!widget.isPrimary)
+            FlowyOptionTile.text(
+              showTopBorder: false,
+              text: LocaleKeys.button_duplicate.tr(),
+              leftIcon: const FlowySvg(FlowySvgs.copy_s),
+              onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
+            ),
+          if (!widget.isPrimary)
+            FlowyOptionTile.text(
+              showTopBorder: false,
+              text: LocaleKeys.button_delete.tr(),
+              leftIcon: const FlowySvg(FlowySvgs.delete_s),
+              onTap: () => widget.onAction?.call(FieldOptionAction.delete),
+            ),
         ]
     };
   }
@@ -430,33 +439,6 @@ class _Divider extends StatelessWidget {
     return const VSpace(
       24.0,
     );
-  }
-}
-
-class _TextOption extends StatelessWidget {
-  const _TextOption();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
-  }
-}
-
-class _URLOption extends StatelessWidget {
-  const _URLOption();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
-  }
-}
-
-class _CheckboxOption extends StatelessWidget {
-  const _CheckboxOption();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
   }
 }
 

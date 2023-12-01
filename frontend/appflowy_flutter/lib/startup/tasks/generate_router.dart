@@ -386,6 +386,7 @@ GoRoute _mobileEditPropertyPageRoute() {
         child: MobileEditPropertyScreen(
           viewId: args[MobileEditPropertyScreen.argViewId],
           field: args[MobileEditPropertyScreen.argField],
+          isPrimary: args[MobileEditPropertyScreen.argIsPrimary],
         ),
       );
     },

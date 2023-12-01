@@ -13,15 +13,18 @@ class MobileEditPropertyScreen extends StatefulWidget {
   static const routeName = '/edit_property';
   static const argViewId = 'view_id';
   static const argField = 'field';
+  static const argIsPrimary = 'is_primary';
 
   const MobileEditPropertyScreen({
     super.key,
     required this.viewId,
     required this.field,
+    this.isPrimary = false,
   });
 
   final String viewId;
   final FieldPB field;
+  final bool isPrimary;
 
   @override
   State<MobileEditPropertyScreen> createState() =>
@@ -77,6 +80,7 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
           }
           return FieldOptionEditor(
             mode: FieldOptionMode.edit,
+            isPrimary: widget.isPrimary,
             defaultValues: optionValues,
             onOptionValuesChanged: (optionValues) {
               this.optionValues = optionValues;

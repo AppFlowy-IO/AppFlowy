@@ -47,6 +47,7 @@ class MobileFieldButton extends StatelessWidget {
             extra: {
               MobileEditPropertyScreen.argViewId: viewId,
               MobileEditPropertyScreen.argField: fieldInfo.field,
+              MobileEditPropertyScreen.argIsPrimary: fieldInfo.isPrimary,
             },
           );
           if (optionValues != null) {
