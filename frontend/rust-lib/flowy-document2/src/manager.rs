@@ -107,6 +107,7 @@ impl DocumentManager {
     if let Some(doc) = self.documents.lock().get(doc_id).cloned() {
       return Ok(doc);
     }
+
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
@@ -137,15 +138,13 @@ impl DocumentManager {
 
     let uid = self.user.user_id()?;
     event!(tracing::Level::DEBUG, "Initialize document: {}", doc_id);
+    let mut documents_guard = self.documents.lock();
     let collab = self.collab_for_document(uid, doc_id, updates).await?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
     // and we don't want to subscribe to the document changes if we open the same document again.
-    self
-      .documents
-      .lock()
-      .put(doc_id.to_string(), document.clone());
+    documents_guard.put(doc_id.to_string(), document.clone());
     Ok(document)
   }
 

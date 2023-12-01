@@ -43,7 +43,7 @@ impl Builder {
     let (non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
     let subscriber = tracing_subscriber::fmt()
       .with_timer(CustomTime)
-      .with_ansi(true)
+      // .with_ansi(true)
       .with_target(false)
       .with_max_level(tracing::Level::TRACE)
       .with_thread_ids(false)
