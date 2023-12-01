@@ -11,7 +11,7 @@ rust-version = "1.57"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.2", features = [] }
+tauri-build = { version = "1.5", features = [] }
 
 [workspace.dependencies]
 anyhow = "1.0.75"
@@ -28,14 +28,14 @@ futures = "0.3.29"
 tokio = "1.34.0"
 tokio-stream = "0.1.14"
 async-trait = "0.1.74"
-chrono = { version = "0.4.31",  default-features = false, features = ["clock"] }
+chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 lru = "0.12.0"
 
 [dependencies]
 serde_json.workspace = true
 serde.workspace = true
-tauri = { version = "1.2", features = ["fs-all", "shell-open"] }
-tauri-utils = "1.2"
+tauri = { version = "1.5", features = ["fs-all", "shell-open"] }
+tauri-utils = "1.5"
 bytes.workspace = true
 tracing.workspace = true
 lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }

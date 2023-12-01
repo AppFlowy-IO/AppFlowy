@@ -186,6 +186,7 @@ class AppFlowyCloudSharedEnv {
   AuthenticatorType get authenticatorType => _authenticatorType;
 
   static Future<AppFlowyCloudSharedEnv> fromEnv() async {
+    // If [Env.enableCustomCloud] is true, then use the custom cloud configuration.
     if (Env.enableCustomCloud) {
       // Use the custom cloud configuration.
       final cloudType = await getAuthenticatorType();
@@ -198,6 +199,7 @@ class AppFlowyCloudSharedEnv {
         supabaseConfig: supabaseCloudConfig,
       );
     } else {
+      // Using the cloud settings from the .env file.
       final appflowyCloudConfig = AppFlowyCloudConfiguration(
         base_url: Env.afCloudUrl,
         ws_base_url: await _getAppFlowyCloudWSUrl(Env.afCloudUrl),
@@ -213,13 +215,36 @@ class AppFlowyCloudSharedEnv {
   }
 }
 
+Future<AppFlowyCloudConfiguration> configurationFromUri(
+  Uri baseUri,
+  String baseUrl,
+) async {
+// When the host is set to 'localhost', the application will utilize the local configuration. This setup assumes that 'localhost' does not employ a reverse proxy, therefore default port settings are used.
+  if (baseUri.host == "localhost") {
+    return AppFlowyCloudConfiguration(
+      base_url: "$baseUrl:8000",
+      ws_base_url: "ws://${baseUri.host}:8000/ws",
+      gotrue_url: "$baseUrl:9998",
+    );
+  } else {
+    return AppFlowyCloudConfiguration(
+      base_url: baseUrl,
+      ws_base_url: await _getAppFlowyCloudWSUrl(Env.afCloudUrl),
+      gotrue_url: await _getAppFlowyCloudGotrueUrl(Env.afCloudUrl),
+    );
+  }
+}
+
 Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig() async {
   final baseURL = await getAppFlowyCloudUrl();
-  return AppFlowyCloudConfiguration(
-    base_url: baseURL,
-    ws_base_url: await _getAppFlowyCloudWSUrl(baseURL),
-    gotrue_url: await _getAppFlowyCloudGotrueUrl(baseURL),
-  );
+
+  try {
+    final uri = Uri.parse(baseURL);
+    return await configurationFromUri(uri, baseURL);
+  } catch (e) {
+    Log.error("Failed to parse AppFlowy Cloud URL: $e");
+    return AppFlowyCloudConfiguration.defaultConfig();
+  }
 }
 
 Future<String> getAppFlowyCloudUrl() async {

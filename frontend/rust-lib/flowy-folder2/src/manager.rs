@@ -25,8 +25,8 @@ use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
   CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
-  RepeatedTrashPB, RepeatedViewPB, UpdateViewParams, UserFolderPB, ViewPB, WorkspacePB,
-  WorkspaceSettingPB,
+  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, UserFolderPB, ViewPB,
+  WorkspacePB, WorkspaceSettingPB,
 };
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
@@ -782,6 +782,32 @@ impl FolderManager {
     Ok(())
   }
 
+  /// Add the view to the recent view list / history.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn add_recent_views(&self, view_ids: Vec<String>) -> FlowyResult<()> {
+    self.with_folder(
+      || (),
+      |folder| {
+        folder.add_recent_view_ids(view_ids);
+      },
+    );
+    self.send_update_recent_views_notification().await;
+    Ok(())
+  }
+
+  /// Add the view to the recent view list / history.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn remove_recent_views(&self, view_ids: Vec<String>) -> FlowyResult<()> {
+    self.with_folder(
+      || (),
+      |folder| {
+        folder.delete_recent_view_ids(view_ids);
+      },
+    );
+    self.send_update_recent_views_notification().await;
+    Ok(())
+  }
+
   // Used by toggle_favorites to send notification to frontend, after the favorite status of view has been changed.It sends two distinct notifications: one to correctly update the concerned view's is_favorite status, and another to update the list of favorites that is to be displayed.
   async fn send_toggle_favorite_notification(&self, view_id: &str) {
     if let Ok(view) = self.get_view_pb(view_id).await {
@@ -800,6 +826,15 @@ impl FolderManager {
         .payload(view)
         .send()
     }
+  }
+
+  async fn send_update_recent_views_notification(&self) {
+    let recent_views = self.get_all_recent_sections().await;
+    send_notification("recent_views", FolderNotification::DidUpdateRecentViews)
+      .payload(RepeatedViewIdPB {
+        items: recent_views.into_iter().map(|item| item.id).collect(),
+      })
+      .send();
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
