@@ -1,3 +1,6 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class AppBarBackButton extends StatelessWidget {
@@ -13,6 +16,26 @@ class AppBarBackButton extends StatelessWidget {
     return AppBarButton(
       onTap: onTap,
       child: const Icon(Icons.arrow_back_ios_new),
+    );
+  }
+}
+
+class AppBarCancelButton extends StatelessWidget {
+  const AppBarCancelButton({
+    super.key,
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBarButton(
+      onTap: onTap,
+      child: FlowyText(
+        LocaleKeys.button_cancel.tr(),
+        fontSize: 16.0,
+      ),
     );
   }
 }
@@ -56,6 +79,9 @@ class AppBarButton extends StatelessWidget {
     return InkWell(
       enableFeedback: true,
       borderRadius: BorderRadius.circular(28),
+      splashColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.all(extent),
