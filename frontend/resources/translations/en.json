@@ -1131,6 +1131,7 @@
     "language": "Language",
     "font": "Font",
     "actions": "Actions",
-    "date": "Date"
+    "date": "Date",
+    "addField": "Add field"
   }
 }

@@ -103,6 +103,7 @@ class _PropertyType extends StatelessWidget {
       onTap: () {
         showMobileBottomSheet(
           context: context,
+          padding: EdgeInsets.zero,
           builder: (context) {
             return const FieldOptions();
           },
