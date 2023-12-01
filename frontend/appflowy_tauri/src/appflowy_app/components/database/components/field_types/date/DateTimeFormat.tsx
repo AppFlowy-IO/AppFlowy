@@ -37,9 +37,9 @@ function DateTimeFormat({ field, showLabel = true }: Props) {
   );
 
   return (
-    <div className={'pl-1 pr-3.5'}>
+    <div>
       {showLabel && (
-        <Typography className={'py-1 pl-[18px]'} color={'text.secondary'}>
+        <Typography className={'py-1 pl-3'} color={'text.secondary'}>
           {t('grid.field.format')}
         </Typography>
       )}
@@ -58,7 +58,7 @@ function DateTimeFormat({ field, showLabel = true }: Props) {
       />
 
       {showIncludeTime && (
-        <div className={'py-1 pl-4'}>
+        <div className={'px-3 py-1'}>
           <IncludeTimeSwitch
             size={'small'}
             checked={includeTime}

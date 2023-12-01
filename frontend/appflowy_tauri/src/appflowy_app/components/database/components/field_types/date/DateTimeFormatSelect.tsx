@@ -34,6 +34,9 @@ function DateTimeFormatSelect({ field }: Props) {
         open={open}
         anchorEl={ref.current}
         onClose={() => setOpen(false)}
+        MenuListProps={{
+          className: 'px-2',
+        }}
       >
         <DateTimeFormat showLabel={false} field={field} />
       </Menu>

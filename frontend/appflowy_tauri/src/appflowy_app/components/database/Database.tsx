@@ -24,7 +24,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
   const { t } = useTranslation();
   const [notFound, setNotFound] = useState(false);
   const [childViewIds, setChildViewIds] = useState<string[]>([]);
-  const { ref, collectionRef, tableHeight, openCollections, setOpenCollections } = useDatabaseResize();
+  const { ref, collectionRef, tableHeight, openCollections, setOpenCollections } = useDatabaseResize(selectedViewId);
 
   useEffect(() => {
     const onPageChanged = () => {
@@ -53,7 +53,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
     };
   }, [viewId]);
 
-  const index = useMemo(() => {
+  const value = useMemo(() => {
     return Math.max(0, childViewIds.indexOf(selectedViewId ?? viewId));
   }, [childViewIds, selectedViewId, viewId]);
 
@@ -101,10 +101,10 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
         }}
         className={'flex-1 overflow-hidden'}
         axis={'x'}
-        index={index}
+        index={value}
       >
-        {childViewIds.map((id) => (
-          <TabPanel key={id} index={index} value={index}>
+        {childViewIds.map((id, index) => (
+          <TabPanel key={id} index={index} value={value}>
             <DatabaseLoader viewId={id}>
               {selectedViewId === id && (
                 <>

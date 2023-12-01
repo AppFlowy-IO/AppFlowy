@@ -33,7 +33,11 @@ function DateFormat({ value, onChange }: Props) {
 
   return (
     <>
-      <MenuItem className={'flex w-full justify-between text-xs font-medium'} ref={ref} onClick={() => setOpen(true)}>
+      <MenuItem
+        className={'mx-0 flex w-full justify-between text-xs font-medium'}
+        ref={ref}
+        onClick={() => setOpen(true)}
+      >
         {t('grid.field.dateFormat')}
         <MoreSvg className={`transform text-base ${open ? '' : 'rotate-90'}`} />
       </MenuItem>

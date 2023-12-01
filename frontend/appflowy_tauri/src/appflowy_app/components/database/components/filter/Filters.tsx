@@ -39,6 +39,10 @@ function Filters() {
         open={openAddFilterMenu}
         anchorEl={filterAnchorEl}
         onClose={() => setFilterAnchorEl(null)}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
       />
     </div>
   );

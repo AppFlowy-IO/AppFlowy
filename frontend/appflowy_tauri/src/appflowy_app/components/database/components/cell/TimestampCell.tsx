@@ -3,13 +3,11 @@ import { CreatedTimeField, LastEditedTimeField, TimeStampCell } from '$app/compo
 
 interface Props {
   field: LastEditedTimeField | CreatedTimeField;
-  cell?: TimeStampCell;
+  cell: TimeStampCell;
 }
 
 function TimestampCell({ cell }: Props) {
-  const dateStr = cell?.data.dataTime;
-
-  return <div className={'flex h-full w-full items-center p-2'}>{dateStr}</div>;
+  return <div className={'flex h-full w-full items-center p-2 text-xs font-medium'}>{cell.data.dataTime}</div>;
 }
 
 export default TimestampCell;

@@ -4,12 +4,12 @@ import DateTimeCellActions from '$app/components/database/components/field_types
 
 interface Props {
   field: DateTimeField;
-  cell?: DateTimeCellType;
+  cell: DateTimeCellType;
   placeholder?: string;
 }
 function DateTimeCell({ field, cell, placeholder }: Props) {
-  const isRange = cell?.data.isRange;
-  const includeTime = cell?.data.includeTime;
+  const isRange = cell.data.isRange;
+  const includeTime = cell.data.includeTime;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -22,13 +22,15 @@ function DateTimeCell({ field, cell, placeholder }: Props) {
   };
 
   const content = useMemo(() => {
-    if (cell && cell?.data.date) {
+    const { date, time, endDate, endTime } = cell.data;
+
+    if (date) {
       return (
         <>
-          {cell?.data.date}
-          {includeTime && cell?.data.time ? ' ' + cell?.data.time : ''}
-          {isRange && cell?.data.endDate ? ' - ' + cell?.data.endDate : ''}
-          {isRange && includeTime && cell?.data.endTime ? ' ' + cell?.data.endTime : ''}
+          {date}
+          {includeTime && time ? ' ' + time : ''}
+          {isRange && endDate ? ' - ' + endDate : ''}
+          {isRange && includeTime && endTime ? ' ' + endTime : ''}
         </>
       );
     }
@@ -38,11 +40,11 @@ function DateTimeCell({ field, cell, placeholder }: Props) {
 
   return (
     <>
-      <div ref={ref} className={'flex h-full w-full items-center px-2'} onClick={handleClick}>
+      <div ref={ref} className={'flex h-full w-full items-center px-2 text-xs font-medium'} onClick={handleClick}>
         {content}
       </div>
       <Suspense>
-        {cell && open && (
+        {open && (
           <DateTimeCellActions field={field} onClose={handleClose} anchorEl={ref.current} cell={cell} open={open} />
         )}
       </Suspense>

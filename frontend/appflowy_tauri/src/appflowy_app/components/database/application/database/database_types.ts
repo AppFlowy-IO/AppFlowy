@@ -4,6 +4,7 @@ import { Filter } from '../filter';
 import { GroupSetting, Group } from '../group';
 import { RowMeta } from '../row';
 import { Sort } from '../sort';
+import { Cell } from '../cell';
 
 export interface Database {
   id: string;
@@ -16,4 +17,5 @@ export interface Database {
   groupSettings: GroupSetting[];
   groups: Group[];
   typeOptions: Record<string, UndeterminedTypeOptionData>;
+  cells: Record<string, Cell>;
 }

@@ -22,7 +22,7 @@ export interface CellProps {
 
 interface CellComponentProps {
   field: Field;
-  cell?: CellType;
+  cell: CellType;
 }
 const getCellComponent = (fieldType: FieldType) => {
   switch (fieldType) {
@@ -53,6 +53,10 @@ export const Cell: FC<CellProps> = ({ rowId, field, ...props }) => {
   const cell = useCell(rowId, field);
 
   const Component = getCellComponent(field.type);
+
+  if (!cell) {
+    return <div className={`h-[36px] w-[${field.width}px]`} />;
+  }
 
   if (!Component) {
     return null;

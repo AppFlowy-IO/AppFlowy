@@ -1,11 +1,12 @@
 import React, { MouseEvent, useCallback } from 'react';
-import { Menu, MenuProps } from '@mui/material';
+import { MenuProps } from '@mui/material';
 import FieldList from '$app/components/database/components/field/FieldList';
 import { Field } from '$app/components/database/application';
 import { useViewId } from '$app/hooks';
 import { useTranslation } from 'react-i18next';
 import { insertFilter } from '$app/components/database/application/filter/filter_service';
 import { getDefaultFilter } from '$app/components/database/application/filter/filter_data';
+import Popover from '@mui/material/Popover';
 
 function FilterFieldsMenu({
   onInserted,
@@ -33,9 +34,9 @@ function FilterFieldsMenu({
   );
 
   return (
-    <Menu {...props}>
+    <Popover {...props}>
       <FieldList showSearch searchPlaceholder={t('grid.settings.filterBy')} onItemClick={addFilter} />
-    </Menu>
+    </Popover>
   );
 }
 

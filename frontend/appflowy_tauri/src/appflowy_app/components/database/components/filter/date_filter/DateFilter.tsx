@@ -9,6 +9,7 @@ import { DateFilterConditionPB, DateFormatPB, TimeFormatPB } from '@/services/ba
 import CustomCalendar from '$app/components/database/components/field_types/date/CustomCalendar';
 import DateTimeSet from '$app/components/database/components/field_types/date/DateTimeSet';
 import { useTypeOption } from '$app/components/database';
+import { getDateFormat, getTimeFormat } from '$app/components/database/components/field_types/date/utils';
 
 interface Props {
   filter: DateFilterType;
@@ -46,31 +47,11 @@ function DateFilter({ filter, field, onChange }: Props) {
   }, [filter.data.end, isRange]);
 
   const timeFormat = useMemo(() => {
-    switch (typeOption.timeFormat) {
-      case TimeFormatPB.TwelveHour:
-        return 'h:mm A';
-      case TimeFormatPB.TwentyFourHour:
-        return 'HH:mm';
-      default:
-        return 'HH:mm';
-    }
+    return getTimeFormat(typeOption.timeFormat);
   }, [typeOption.timeFormat]);
 
   const dateFormat = useMemo(() => {
-    switch (typeOption.dateFormat) {
-      case DateFormatPB.Friendly:
-        return 'MMM DD, YYYY';
-      case DateFormatPB.ISO:
-        return 'YYYY-MMM-DD';
-      case DateFormatPB.US:
-        return 'YYYY/MMM/DD';
-      case DateFormatPB.Local:
-        return 'MMM/DD/YYYY';
-      case DateFormatPB.DayMonthYear:
-        return 'DD/MMM/YYYY';
-      default:
-        return 'YYYY-MMM-DD';
-    }
+    return getDateFormat(typeOption.dateFormat);
   }, [typeOption.dateFormat]);
 
   return (

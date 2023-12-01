@@ -1,5 +1,5 @@
-import React, { FormEvent, useCallback, useMemo, useState } from 'react';
-import { ListSubheader, MenuItem, OutlinedInput } from '@mui/material';
+import React, { useCallback, useMemo, useState } from 'react';
+import { MenuItem } from '@mui/material';
 import { t } from 'i18next';
 import { CreateOption } from '$app/components/database/components/field_types/select/select_cell_actions/CreateOption';
 import { SelectOptionItem } from '$app/components/database/components/field_types/select/select_cell_actions/SelectOptionItem';
@@ -16,6 +16,7 @@ import {
 } from '$app/components/database/application/field/select_option/select_option_service';
 import { FieldType } from '@/services/backend';
 import { useTypeOption } from '$app/components/database';
+import SearchInput from './SearchInput';
 
 function SelectCellActions({
   field,
@@ -41,12 +42,6 @@ function SelectCellActions({
   );
 
   const shouldCreateOption = !!newOptionName && filteredOptions.length === 0;
-
-  const handleInput = useCallback((event: FormEvent) => {
-    const value = (event.target as HTMLInputElement).value;
-
-    setNewOptionName(value);
-  }, []);
 
   const updateCell = useCallback(
     async (optionIds: string[]) => {
@@ -107,25 +102,27 @@ function SelectCellActions({
     handleClickOption(option.id);
   }, [cell, createOption, handleClickOption, rowId]);
 
-  const searchInput = (
-    <ListSubheader className='flex'>
-      <OutlinedInput
-        size='small'
-        value={newOptionName}
-        onInput={handleInput}
-        onKeyDown={(e) => {
-          if (shouldCreateOption && e.key === 'Enter') {
-            void handleNewTagClick();
-          }
-        }}
-        placeholder={t('grid.selectOption.searchOrCreateOption')}
-      />
-    </ListSubheader>
-  );
+  const handleEnter = useCallback(() => {
+    if (shouldCreateOption) {
+      void handleNewTagClick();
+    } else {
+      if (field.type === FieldType.SingleSelect) {
+        const firstOption = filteredOptions[0];
+
+        if (!firstOption) return;
+
+        void updateCell([firstOption.id]);
+      } else {
+        void updateCell(filteredOptions.map((option) => option.id));
+      }
+    }
+
+    setNewOptionName('');
+  }, [field.type, filteredOptions, handleNewTagClick, shouldCreateOption, updateCell]);
 
   return (
     <div className={'text-base'}>
-      {searchInput}
+      <SearchInput setNewOptionName={setNewOptionName} newOptionName={newOptionName} onEnter={handleEnter} />
       <div className='mx-4 mb-2 mt-4 text-xs'>
         {shouldCreateOption ? t('grid.selectOption.createNew') : t('grid.selectOption.orSelectOne')}
       </div>

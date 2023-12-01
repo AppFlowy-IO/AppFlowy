@@ -32,11 +32,15 @@ function CustomCalendar({
   return (
     <div className={'flex w-full items-center justify-center'}>
       <DatePicker
-        calendarClassName={'appflowy-date-picker-calendar border-none rounded-none w-full'}
+        calendarClassName={
+          'appflowy-date-picker-calendar bg-bg-body h-full border-none rounded-none flex w-full items-center justify-center'
+        }
         renderCustomHeader={(props: ReactDatePickerCustomHeaderProps) => {
           return (
-            <div className={'flex w-full justify-between pb-3 pt-2'}>
-              <div className={'flex-1  px-4 text-left text-sm font-medium'}>{dayjs(props.date).format('MMMM YYYY')}</div>
+            <div className={'flex w-full justify-between pb-1.5 pt-0'}>
+              <div className={'flex-1 px-4 text-left text-sm font-medium text-text-title'}>
+                {dayjs(props.date).format('MMMM YYYY')}
+              </div>
 
               <div className={'flex items-center gap-[10px] pr-2'}>
                 <IconButton size={'small'} onClick={props.decreaseMonth}>

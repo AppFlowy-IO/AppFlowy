@@ -1,6 +1,7 @@
 import { ReorderAllRowsPB, ReorderSingleRowPB, RowsChangePB, RowsVisibilityChangePB } from '@/services/backend';
 import { Database } from '../database';
 import { pbToRowMeta, RowMeta } from './row_types';
+import { didDeleteCells } from '$app/components/database/application/cell/cell_listeners';
 
 const deleteRowsFromChangeset = (database: Database, changeset: RowsChangePB) => {
   changeset.deleted_rows.forEach((rowId) => {
@@ -8,6 +9,8 @@ const deleteRowsFromChangeset = (database: Database, changeset: RowsChangePB) =>
 
     if (index !== -1) {
       database.rowMetas.splice(index, 1);
+      // delete cells
+      didDeleteCells({ database, rowId });
     }
   });
 };

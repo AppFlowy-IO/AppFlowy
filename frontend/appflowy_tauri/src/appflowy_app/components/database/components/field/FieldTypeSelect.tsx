@@ -16,12 +16,13 @@ function FieldTypeSelect({ field, onUpdateFieldType }: Props) {
   const ref = useRef<HTMLLIElement>(null);
 
   return (
-    <>
+    <div className={'px-1'}>
       <MenuItem
         ref={ref}
         onClick={() => {
           setExpanded(!expanded);
         }}
+        className={'px-23 mx-0'}
       >
         <FieldTypeSvg type={field.type} className='mr-2 text-base' />
         <span className='flex-1 text-xs font-medium'>
@@ -49,7 +50,7 @@ function FieldTypeSelect({ field, onUpdateFieldType }: Props) {
           }}
         />
       )}
-    </>
+    </div>
   );
 }
 

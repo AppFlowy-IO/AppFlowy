@@ -6,7 +6,7 @@ import { Divider } from '@mui/material';
 function DateTimeFieldActions({ field }: { field: UndeterminedDateField }) {
   return (
     <>
-      <div className={''}>
+      <div className={'px-1'}>
         <DateTimeFormat field={field} />
       </div>
       <Divider className={'my-2'} />

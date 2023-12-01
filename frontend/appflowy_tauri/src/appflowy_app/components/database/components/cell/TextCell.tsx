@@ -9,11 +9,11 @@ const EditTextCellInput = lazy(() => import('$app/components/database/components
 
 export const TextCell: FC<{
   field: Field;
-  cell?: TextCellType;
+  cell: TextCellType;
   documentId?: string;
   icon?: string;
   placeholder?: string;
-}> = ({ field, cell, documentId, icon, placeholder }) => {
+}> = ({ field, documentId, icon, placeholder, cell }) => {
   const isPrimary = field.isPrimary;
   const cellRef = useRef<HTMLDivElement>(null);
   const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);

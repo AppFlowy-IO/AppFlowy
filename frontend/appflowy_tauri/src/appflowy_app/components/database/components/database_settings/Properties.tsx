@@ -19,10 +19,13 @@ function Properties({ onItemClick }: PropertiesProps) {
         <MenuItem
           disabled={field.isPrimary}
           onClick={() => onItemClick(field)}
-          className={'flex w-full items-center justify-between'}
+          className={'flex w-full items-center justify-between overflow-hidden px-1.5'}
           key={field.id}
         >
-          <Field field={field} />
+          <div className={'w-[100px] overflow-hidden text-ellipsis'}>
+            <Field field={field} />
+          </div>
+
           <div className={'ml-2'}>{field.visibility !== FieldVisibility.AlwaysHidden ? <EyeOpen /> : <EyeClosed />}</div>
         </MenuItem>
       ))}

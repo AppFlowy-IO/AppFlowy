@@ -128,10 +128,10 @@ function RecordProperties({ documentId, cell }: Props) {
           >
             {showHiddenFields
               ? t('grid.rowPage.hideHiddenFields', {
-                  hiddenFieldsCount,
+                  count: hiddenFieldsCount,
                 })
               : t('grid.rowPage.showHiddenFields', {
-                  hiddenFieldsCount,
+                  count: hiddenFieldsCount,
                 })}
           </Button>
         )

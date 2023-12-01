@@ -33,7 +33,7 @@ function DateTimeInput({ includeTime, dateFormat, timeFormat, ...props }: Props)
   return (
     <div
       className={
-        'mx-4 mt-3 flex w-[220px] transform items-center justify-between rounded-lg border border-line-divider px-1 py-2 transition-all'
+        'flex transform items-center justify-between rounded-lg border border-line-divider px-1 py-2 transition-all'
       }
     >
       <DateField
@@ -44,6 +44,9 @@ function DateTimeInput({ includeTime, dateFormat, timeFormat, ...props }: Props)
             date: date.unix(),
           });
         }}
+        inputProps={{
+          className: 'text-[12px]',
+        }}
         format={dateFormat}
         size={'small'}
         sx={sx}
@@ -52,9 +55,12 @@ function DateTimeInput({ includeTime, dateFormat, timeFormat, ...props }: Props)
 
       {includeTime && (
         <>
-          <Divider orientation={'vertical'} className={'mx-2'} flexItem />
+          <Divider orientation={'vertical'} className={'mx-3'} flexItem />
           <TimeField
             value={time}
+            inputProps={{
+              className: 'text-[12px]',
+            }}
             onChange={(time) => {
               if (!time) return;
               props.onChange({
@@ -64,7 +70,7 @@ function DateTimeInput({ includeTime, dateFormat, timeFormat, ...props }: Props)
             format={timeFormat}
             size={'small'}
             sx={sx}
-            className={'w-[80px] pr-2'}
+            className={'w-[70px] pl-1'}
           />
         </>
       )}

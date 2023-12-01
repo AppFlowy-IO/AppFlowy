@@ -1,11 +1,19 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { proxy, useSnapshot } from 'valtio';
+
 import { DatabaseLayoutPB, DatabaseNotification, FieldVisibility } from '@/services/backend';
 import { subscribeNotifications } from '$app/hooks';
-import { Database, databaseService, fieldListeners, fieldService, rowListeners, sortListeners } from './application';
-import { didUpdateFilter } from '$app/components/database/application/filter/filter_listeners';
-import { didUpdateViewRowsVisibility } from '$app/components/database/application/row/row_listeners';
+import {
+  Cell,
+  Database,
+  databaseService,
+  cellListeners,
+  fieldListeners,
+  rowListeners,
+  sortListeners,
+  filterListeners,
+} from './application';
 
 export function useSelectDatabaseView({ viewId }: { viewId?: string }) {
   const key = 'v';
@@ -37,16 +45,59 @@ const DatabaseContext = createContext<Database>({
   groupSettings: [],
   groups: [],
   typeOptions: {},
+  cells: {},
 });
 
 export const DatabaseProvider = DatabaseContext.Provider;
 
 export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
 
+export const useSelectorCell = (rowId: string, fieldId: string) => {
+  const database = useContext(DatabaseContext);
+  const cells = useSnapshot(database.cells);
+
+  return cells[`${rowId}:${fieldId}`];
+};
+
+export const useDispatchCell = () => {
+  const database = useContext(DatabaseContext);
+
+  const setCell = useCallback(
+    (cell: Cell) => {
+      const id = `${cell.rowId}:${cell.fieldId}`;
+
+      database.cells[id] = cell;
+    },
+    [database]
+  );
+
+  const deleteCells = useCallback(
+    ({ rowId, fieldId }: { rowId: string; fieldId?: string }) => {
+      cellListeners.didDeleteCells({ database, rowId, fieldId });
+    },
+    [database]
+  );
+
+  return {
+    deleteCells,
+    setCell,
+  };
+};
+
 export const useTypeOptions = () => {
   const context = useContext(DatabaseContext);
 
   return useSnapshot(context.typeOptions);
+};
+
+export const useFiltersCount = () => {
+  const { filters, fields } = useDatabase();
+
+  // filter fields: if the field is deleted, it will not be displayed
+  return useMemo(
+    () => filters?.map((filter) => fields.find((field) => field.id === filter.fieldId)).filter(Boolean).length,
+    [filters, fields]
+  );
 };
 
 export function useTypeOption<T>(fieldId: string) {
@@ -85,6 +136,7 @@ export const useConnectDatabase = (viewId: string) => {
       groupSettings: [],
       groups: [],
       typeOptions: {},
+      cells: {},
     });
 
     void databaseService.openDatabase(viewId).then((value) => Object.assign(proxyDatabase, value));
@@ -96,18 +148,7 @@ export const useConnectDatabase = (viewId: string) => {
     const unsubscribePromise = subscribeNotifications(
       {
         [DatabaseNotification.DidUpdateFields]: async (changeset) => {
-          const { fields, typeOptions } = await fieldService.getFields(viewId);
-
-          database.fields = fields;
-          const deletedFieldIds = Object.keys(changeset.deleted_fields);
-
-          Object.assign(database.typeOptions, typeOptions);
-          deletedFieldIds.forEach(
-            (fieldId) => {
-              delete database.typeOptions[fieldId];
-            },
-            [database.typeOptions]
-          );
+          await fieldListeners.didUpdateFields(viewId, database, changeset);
         },
 
         [DatabaseNotification.DidUpdateFieldSettings]: (changeset) => {
@@ -128,10 +169,10 @@ export const useConnectDatabase = (viewId: string) => {
         },
 
         [DatabaseNotification.DidUpdateFilter]: (changeset) => {
-          didUpdateFilter(database, changeset);
+          filterListeners.didUpdateFilter(database, changeset);
         },
         [DatabaseNotification.DidUpdateViewRowsVisibility]: (changeset) => {
-          didUpdateViewRowsVisibility(database, changeset);
+          rowListeners.didUpdateViewRowsVisibility(database, changeset);
         },
       },
       { id: viewId }
@@ -143,7 +184,7 @@ export const useConnectDatabase = (viewId: string) => {
   return database;
 };
 
-export function useDatabaseResize() {
+export function useDatabaseResize(selectedViewId?: string) {
   const ref = useRef<HTMLDivElement>(null);
   const collectionRef = useRef<HTMLDivElement>(null);
   const [openCollections, setOpenCollections] = useState<string[]>([]);
@@ -169,19 +210,17 @@ export function useDatabaseResize() {
     };
 
     handleResize();
-    const resizeObserver = new ResizeObserver(() => {
-      handleResize();
-    });
+    const resizeObserver = new ResizeObserver(handleResize);
 
     resizeObserver.observe(element);
     if (collectionElement) {
-      resizeObserver.observe(collectionRef.current);
+      resizeObserver.observe(collectionElement);
     }
 
     return () => {
       resizeObserver.disconnect();
     };
-  }, [openCollections]);
+  }, [selectedViewId]);
 
   return {
     ref,

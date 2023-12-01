@@ -29,16 +29,18 @@ interface TabPanelProps {
 export function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
+  const isActivated = value === index;
+
   return (
     <div
       role='tabpanel'
-      hidden={value !== index}
+      hidden={!isActivated}
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
       dir={'ltr'}
       {...other}
     >
-      {value === index && children}
+      {isActivated ? children : null}
     </div>
   );
 }

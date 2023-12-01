@@ -22,7 +22,7 @@ function RangeSwitch({
         <DateSvg />
         <Typography className={'flex-1 text-xs font-medium'}>{t('grid.field.isRange')}</Typography>
       </div>
-      <Switch {...props} checked={checked} onChange={handleChange} />
+      <Switch {...props} size={'small'} checked={checked} onChange={handleChange} />
     </div>
   );
 }

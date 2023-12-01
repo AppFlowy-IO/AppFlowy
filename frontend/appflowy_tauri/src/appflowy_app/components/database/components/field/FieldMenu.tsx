@@ -68,7 +68,7 @@ export const FieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClo
       onClose={onClose}
     >
       <TextField
-        className='mx-5 mb-2 mt-3 rounded-[10px]'
+        className='mx-3 mt-3 rounded-[10px]'
         size='small'
         autoFocus={true}
         value={inputtingName}
@@ -80,7 +80,7 @@ export const FieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClo
           {!isPrimary && (
             <>
               <FieldTypeSelect field={field} onUpdateFieldType={onUpdateFieldType} />
-              <Divider />
+              <Divider className={'my-2'} />
             </>
           )}
           <FieldTypeMenuExtension field={field} />

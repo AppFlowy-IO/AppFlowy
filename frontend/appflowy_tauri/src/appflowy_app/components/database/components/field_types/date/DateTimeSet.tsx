@@ -16,36 +16,38 @@ interface Props {
 }
 function DateTimeSet({ onChange, date, endDate, time, endTime, isRange, timeFormat, dateFormat, includeTime }: Props) {
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DateTimeInput
-        onChange={({ date, time }) => {
-          onChange({
-            date,
-            time,
-          });
-        }}
-        date={date}
-        time={time}
-        timeFormat={timeFormat}
-        dateFormat={dateFormat}
-        includeTime={includeTime}
-      />
-      {isRange && (
+    <div className={'mx-4 flex w-[216px] transform flex-col gap-2 transition-all'}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateTimeInput
-          date={endDate}
-          time={endTime}
           onChange={({ date, time }) => {
             onChange({
-              endDate: date,
-              endTime: time,
+              date,
+              time,
             });
           }}
+          date={date}
+          time={time}
           timeFormat={timeFormat}
           dateFormat={dateFormat}
           includeTime={includeTime}
         />
-      )}
-    </LocalizationProvider>
+        {isRange && (
+          <DateTimeInput
+            date={endDate}
+            time={endTime}
+            onChange={({ date, time }) => {
+              onChange({
+                endDate: date,
+                endTime: time,
+              });
+            }}
+            timeFormat={timeFormat}
+            dateFormat={dateFormat}
+            includeTime={includeTime}
+          />
+        )}
+      </LocalizationProvider>
+    </div>
   );
 }
 

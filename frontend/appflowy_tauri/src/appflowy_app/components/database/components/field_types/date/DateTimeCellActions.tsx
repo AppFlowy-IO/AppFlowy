@@ -14,6 +14,7 @@ import IncludeTimeSwitch from '$app/components/database/components/field_types/d
 import DateTimeFormatSelect from '$app/components/database/components/field_types/date/DateTimeFormatSelect';
 import DateTimeSet from '$app/components/database/components/field_types/date/DateTimeSet';
 import { useTypeOption } from '$app/components/database';
+import { getDateFormat, getTimeFormat } from '$app/components/database/components/field_types/date/utils';
 
 function DateTimeCellActions({
   cell,
@@ -26,31 +27,11 @@ function DateTimeCellActions({
   const typeOption = useTypeOption<DateTimeTypeOption>(field.id);
 
   const timeFormat = useMemo(() => {
-    switch (typeOption.timeFormat) {
-      case TimeFormatPB.TwelveHour:
-        return 'h:mm A';
-      case TimeFormatPB.TwentyFourHour:
-        return 'HH:mm';
-      default:
-        return 'HH:mm';
-    }
+    return getTimeFormat(typeOption.timeFormat);
   }, [typeOption.timeFormat]);
 
   const dateFormat = useMemo(() => {
-    switch (typeOption.dateFormat) {
-      case DateFormatPB.Friendly:
-        return 'MMM DD, YYYY';
-      case DateFormatPB.ISO:
-        return 'YYYY-MMM-DD';
-      case DateFormatPB.US:
-        return 'YYYY/MMM/DD';
-      case DateFormatPB.Local:
-        return 'MMM/DD/YYYY';
-      case DateFormatPB.DayMonthYear:
-        return 'DD/MMM/YYYY';
-      default:
-        return 'YYYY-MMM-DD';
-    }
+    return getDateFormat(typeOption.dateFormat);
   }, [typeOption.dateFormat]);
 
   const { includeTime } = cell.data;
@@ -106,6 +87,9 @@ function DateTimeCellActions({
         horizontal: 'left',
       }}
       {...props}
+      PaperProps={{
+        className: 'pt-4 transform transition-all',
+      }}
     >
       <DateTimeSet
         date={timestamp}
@@ -122,7 +106,7 @@ function DateTimeCellActions({
       <CustomCalendar isRange={isRange} timestamp={timestamp} endTimestamp={endTimestamp} handleChange={handleChange} />
 
       <Divider className={'my-0'} />
-      <div className={'px-4'}>
+      <div className={'flex flex-col gap-1 px-4 py-2'}>
         <RangeSwitch
           onIsRangeChange={(val) => {
             void handleChange({
