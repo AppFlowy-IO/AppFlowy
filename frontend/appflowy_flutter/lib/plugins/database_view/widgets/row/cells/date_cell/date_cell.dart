@@ -125,22 +125,24 @@ class _DateCellState extends GridCellState<GridDateCell> {
                   borderRadius: const BorderRadius.all(Radius.circular(14)),
                 ),
                 padding: padding,
-                child: Row(children: [
-                  Expanded(
-                    child: FlowyText.regular(
-                      text,
-                      fontSize: 16,
-                      color: color,
-                      maxLines: null,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FlowyText.regular(
+                        text,
+                        fontSize: 16,
+                        color: color,
+                        maxLines: null,
+                      ),
                     ),
-                  ),
-                  const HSpace(6),
-                  const RotatedBox(
-                    quarterTurns: 3,
-                    child: Icon(Icons.chevron_left),
-                  ),
-                  const HSpace(2),
-                ]),
+                    const HSpace(6),
+                    const RotatedBox(
+                      quarterTurns: 3,
+                      child: Icon(Icons.chevron_left),
+                    ),
+                    const HSpace(2),
+                  ],
+                ),
               ),
             );
           } else {
