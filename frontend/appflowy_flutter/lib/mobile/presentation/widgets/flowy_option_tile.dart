@@ -25,6 +25,9 @@ class FlowyOptionTile extends StatelessWidget {
       horizontal: 16.0,
     ),
     this.isSelected = false,
+    this.textFieldHintText,
+    this.onTextChanged,
+    this.onTextSubmitted,
   });
 
   factory FlowyOptionTile.text({
@@ -49,6 +52,8 @@ class FlowyOptionTile extends StatelessWidget {
 
   factory FlowyOptionTile.textField({
     required TextEditingController controller,
+    void Function(String value)? onTextChanged,
+    void Function(String value)? onTextSubmitted,
     EdgeInsets textFieldPadding = const EdgeInsets.symmetric(
       horizontal: 16.0,
     ),
@@ -56,6 +61,7 @@ class FlowyOptionTile extends StatelessWidget {
     bool showBottomBorder = true,
     Widget? leftIcon,
     Widget? trailing,
+    String? textFieldHintText,
   }) {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.text,
@@ -67,6 +73,9 @@ class FlowyOptionTile extends StatelessWidget {
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
       trailing: trailing,
+      textFieldHintText: textFieldHintText,
+      onTextChanged: onTextChanged,
+      onTextSubmitted: onTextSubmitted,
     );
   }
 
@@ -125,6 +134,11 @@ class FlowyOptionTile extends StatelessWidget {
 
   // only used in checkbox or switcher
   final bool isSelected;
+
+  // only used in textfield
+  final String? textFieldHintText;
+  final void Function(String value)? onTextChanged;
+  final void Function(String value)? onTextSubmitted;
 
   final FlowyOptionTileType type;
 
@@ -220,9 +234,10 @@ class FlowyOptionTile extends StatelessWidget {
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               contentPadding: textFieldPadding,
+              hintText: textFieldHintText,
             ),
-            onChanged: (value) {},
-            onSubmitted: (value) {},
+            onChanged: onTextChanged,
+            onSubmitted: onTextSubmitted,
           ),
         ),
       ),

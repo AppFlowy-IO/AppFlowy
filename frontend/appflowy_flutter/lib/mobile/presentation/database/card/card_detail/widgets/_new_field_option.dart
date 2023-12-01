@@ -14,9 +14,11 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:protobuf/protobuf.dart';
 
 enum FieldOptionMode {
   add,
@@ -162,10 +164,18 @@ class _FieldOptionState extends State<FieldOption> {
             child: _SelectOption(
               mode: widget.mode,
               selectOption: values.selectOption,
-              onAddOptions: (options) => setState(
-                () => values.selectOption = options,
-              ),
-              onUpdateOptions: (_) {},
+              onAddOptions: (options) {
+                if (values.selectOption.lastOrNull?.name.isEmpty == true) {
+                  // ignore the add action if the last one doesn't have a name
+                  return;
+                }
+                setState(() {
+                  values.selectOption = values.selectOption + options;
+                });
+              },
+              onUpdateOptions: (options) {
+                values.selectOption = options;
+              },
             ),
           ),
         ];
@@ -565,7 +575,7 @@ class _SelectOption extends StatelessWidget {
           ),
         ),
         _SelectOptionList(
-          selectOption: selectOption,
+          selectOptions: selectOption,
           onUpdateOptions: onUpdateOptions,
         ),
         FlowyOptionTile.text(
@@ -574,6 +584,7 @@ class _SelectOption extends StatelessWidget {
           onTap: () {
             onAddOptions([
               SelectOptionPB(
+                id: uuid(),
                 name: '',
                 color: SelectOptionColorPB.valueOf(
                   random.nextInt(SelectOptionColorPB.values.length),
@@ -589,11 +600,11 @@ class _SelectOption extends StatelessWidget {
 
 class _SelectOptionList extends StatefulWidget {
   const _SelectOptionList({
-    required this.selectOption,
+    required this.selectOptions,
     required this.onUpdateOptions,
   });
 
-  final List<SelectOptionPB> selectOption;
+  final List<SelectOptionPB> selectOptions;
   final void Function(List<SelectOptionPB> options) onUpdateOptions;
 
   @override
@@ -608,7 +619,7 @@ class _SelectOptionListState extends State<_SelectOptionList> {
     super.initState();
 
     controllers.addAll(
-      widget.selectOption.map((e) => TextEditingController(text: e.name)),
+      widget.selectOptions.map((e) => TextEditingController(text: e.name)),
     );
   }
 
@@ -622,7 +633,7 @@ class _SelectOptionListState extends State<_SelectOptionList> {
     controllers.clear();
 
     controllers.addAll(
-      widget.selectOption.map((e) => TextEditingController(text: e.name)),
+      widget.selectOptions.map((e) => TextEditingController(text: e.name)),
     );
   }
 
@@ -637,24 +648,82 @@ class _SelectOptionListState extends State<_SelectOptionList> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.selectOption.isEmpty) {
+    if (widget.selectOptions.isEmpty) {
       return const SizedBox.shrink();
     }
     return ListView(
       shrinkWrap: true,
       padding: EdgeInsets.zero,
-      children: widget.selectOption
+      children: widget.selectOptions
           .mapIndexed(
             (index, option) => FlowyOptionTile.textField(
               controller: controllers[index],
+              textFieldHintText: LocaleKeys.grid_field_typeANewOption.tr(),
               showTopBorder: index == 0,
-              showBottomBorder: index != widget.selectOption.length - 1,
+              showBottomBorder: index != widget.selectOptions.length - 1,
               textFieldPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-              trailing:
-                  _SelectOptionColor(color: option.color, onChanged: (_) {}),
+              trailing: _SelectOptionColor(
+                color: option.color,
+                onChanged: (color) {
+                  _updateOption(index, null, color);
+                  context.pop();
+                },
+              ),
+              onTextChanged: (name) {
+                _updateOption(index, name, null);
+              },
             ),
           )
           .toList(),
+    );
+  }
+
+  void _updateOption(int index, String? name, SelectOptionColorPB? color) {
+    final options = [...widget.selectOptions];
+    final option = options[index];
+    option.freeze();
+    options[index] = option.rebuild((p0) {
+      if (name != null) p0.name = name;
+      if (color != null) p0.color = color;
+    });
+    widget.onUpdateOptions(options);
+  }
+}
+
+class _SelectOptionTile extends StatefulWidget {
+  const _SelectOptionTile();
+
+  @override
+  State<_SelectOptionTile> createState() => __SelectOptionTileState();
+}
+
+class __SelectOptionTileState extends State<_SelectOptionTile> {
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyOptionTile.textField(
+      controller: controllers,
+      textFieldHintText: LocaleKeys.grid_field_typeANewOption.tr(),
+      showTopBorder: index == 0,
+      showBottomBorder: index != widget.selectOptions.length - 1,
+      textFieldPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+      trailing: _SelectOptionColor(
+        color: option.color,
+        onChanged: (color) {
+          _updateOption(index, null, color);
+          context.pop();
+        },
+      ),
+      onTextChanged: (name) {
+        _updateOption(index, name, null);
+      },
     );
   }
 }
@@ -681,7 +750,7 @@ class _SelectOptionColor extends StatelessWidget {
           builder: (context) {
             return OptionColorList(
               selectedColor: color,
-              onSelectedColor: (color) {},
+              onSelectedColor: onChanged,
             );
           },
         );

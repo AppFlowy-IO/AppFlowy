@@ -532,6 +532,7 @@
       "visibility": "Visibility",
       "propertyType": "Property type",
       "addSelectOption": "Add an option",
+      "typeANewOption": "Type a new option",
       "optionTitle": "Options",
       "addOption": "Add option",
       "editProperty": "Edit property",
