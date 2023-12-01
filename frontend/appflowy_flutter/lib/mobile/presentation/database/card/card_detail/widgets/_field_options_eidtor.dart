@@ -33,7 +33,6 @@ class FieldOptionValues {
     required this.type,
     required this.name,
     this.dateFormate,
-    this.includeTime = false,
     this.timeFormat,
     this.numberFormat,
     this.selectOption = const [],
@@ -44,7 +43,6 @@ class FieldOptionValues {
 
   // FieldType.Date
   DateFormatPB? dateFormate;
-  bool includeTime;
   TimeFormatPB? timeFormat;
 
   // FieldType.Num
@@ -247,10 +245,8 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
           ),
           const _Divider(),
           _TimeOption(
-            includeTime: values.includeTime,
             selectedFormat: values.timeFormat ?? TimeFormatPB.TwelveHour,
-            onSelected: (includeTime, format) => _updateOptionValues(
-              includeTime: includeTime,
+            onSelected: (format) => _updateOptionValues(
               timeFormat: format,
             ),
           ),
@@ -313,7 +309,6 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
     FieldType? type,
     String? name,
     DateFormatPB? dateFormate,
-    bool? includeTime,
     TimeFormatPB? timeFormat,
     NumberFormatPB? numberFormat,
     List<SelectOptionPB>? selectOption,
@@ -326,9 +321,6 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
     }
     if (dateFormate != null) {
       values.dateFormate = dateFormate;
-    }
-    if (includeTime != null) {
-      values.includeTime = includeTime;
     }
     if (timeFormat != null) {
       values.timeFormat = timeFormat;
@@ -501,14 +493,12 @@ class _DateOptionState extends State<_DateOption> {
 
 class _TimeOption extends StatefulWidget {
   const _TimeOption({
-    required this.includeTime,
     required this.selectedFormat,
     required this.onSelected,
   });
 
-  final bool includeTime;
   final TimeFormatPB selectedFormat;
-  final Function(bool includeTime, TimeFormatPB format) onSelected;
+  final Function(TimeFormatPB format) onSelected;
 
   @override
   State<_TimeOption> createState() => _TimeOptionState();
@@ -516,14 +506,12 @@ class _TimeOption extends StatefulWidget {
 
 class _TimeOptionState extends State<_TimeOption> {
   TimeFormatPB selectedFormat = TimeFormatPB.TwelveHour;
-  bool includeTime = false;
 
   @override
   void initState() {
     super.initState();
 
     selectedFormat = widget.selectedFormat;
-    includeTime = widget.includeTime;
   }
 
   @override
@@ -542,30 +530,19 @@ class _TimeOptionState extends State<_TimeOption> {
             color: Theme.of(context).hintColor,
           ),
         ),
-        FlowyOptionTile.switcher(
-          text: LocaleKeys.grid_field_includeTime.tr(),
-          isSelected: includeTime,
-          onValueChanged: (includeTime) {
-            widget.onSelected(includeTime, selectedFormat);
-            setState(() {
-              this.includeTime = includeTime;
-            });
-          },
-        ),
-        if (includeTime)
-          ...TimeFormatPB.values.mapIndexed((index, format) {
-            return FlowyOptionTile.checkbox(
-              text: format.title(),
-              isSelected: selectedFormat == format,
-              showTopBorder: false,
-              onTap: () {
-                widget.onSelected(includeTime, format);
-                setState(() {
-                  selectedFormat = format;
-                });
-              },
-            );
-          }),
+        ...TimeFormatPB.values.mapIndexed((index, format) {
+          return FlowyOptionTile.checkbox(
+            text: format.title(),
+            isSelected: selectedFormat == format,
+            showTopBorder: false,
+            onTap: () {
+              widget.onSelected(format);
+              setState(() {
+                selectedFormat = format;
+              });
+            },
+          );
+        }),
       ],
     );
   }
