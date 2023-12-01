@@ -78,22 +78,17 @@ class _RowDetailURLCellState extends GridCellState<RowDetailURLCell> {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                child: content.isEmpty
-                    ? Text(
-                        widget.hintText ?? "",
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 16,
-                              color: Theme.of(context).hintColor,
-                            ),
-                      )
-                    : Text(
-                        content,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 16,
-                              decoration: TextDecoration.underline,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                child: Text(
+                  content.isEmpty ? widget.hintText ?? "" : content,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 16,
+                        decoration:
+                            content.isEmpty ? null : TextDecoration.underline,
+                        color: content.isEmpty
+                            ? Theme.of(context).hintColor
+                            : Theme.of(context).colorScheme.primary,
                       ),
+                ),
               ),
             ),
           );

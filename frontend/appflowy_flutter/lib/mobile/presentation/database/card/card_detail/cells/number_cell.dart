@@ -90,7 +90,7 @@ class _RowDetailNumberCellState
   @override
   Future<void> focusChanged() async {
     if (mounted &&
-        _cellBloc.isClosed == false &&
+        !_cellBloc.isClosed &&
         _controller.text != _cellBloc.state.cellContent) {
       _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
     }

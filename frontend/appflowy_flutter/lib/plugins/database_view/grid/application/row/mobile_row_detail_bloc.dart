@@ -13,7 +13,7 @@ class MobileRowDetailBloc
     required this.databaseController,
   }) : super(MobileRowDetailState.initial()) {
     on<MobileRowDetailEvent>(
-      (event, emit) async {
+      (event, emit) {
         event.when(
           initial: (rowId) {
             _startListening();
