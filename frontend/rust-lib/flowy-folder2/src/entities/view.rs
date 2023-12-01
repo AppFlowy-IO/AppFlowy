@@ -431,6 +431,17 @@ impl TryInto<MoveNestedViewParams> for MoveNestedViewPayloadPB {
   }
 }
 
+#[derive(Default, ProtoBuf)]
+pub struct UpdateRecentViewPayloadPB {
+  #[pb(index = 1)]
+  pub view_ids: Vec<String>,
+
+  // If true, the view will be added to the recent view list.
+  // If false, the view will be removed from the recent view list.
+  #[pb(index = 2)]
+  pub add_in_recent: bool,
+}
+
 // impl<'de> Deserialize<'de> for ViewDataType {
 //     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
 //     where

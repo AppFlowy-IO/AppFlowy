@@ -207,7 +207,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
         text: child,
         onTap: () {
           showMobileBottomSheet(
-            context: context,
+            context,
             padding: EdgeInsets.zero,
             builder: (context) {
               return MobileSelectOptionEditor(
