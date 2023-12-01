@@ -59,10 +59,12 @@ class FieldOption extends StatefulWidget {
     super.key,
     required this.mode,
     required this.defaultValues,
+    required this.onOptionValuesChanged,
   });
 
   final FieldOptionMode mode;
   final FieldOptionValues defaultValues;
+  final void Function(FieldOptionValues values) onOptionValuesChanged;
 
   @override
   State<FieldOption> createState() => _FieldOptionState();
@@ -90,31 +92,32 @@ class _FieldOptionState extends State<FieldOption> {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
+    return Container(
       color: Theme.of(context).colorScheme.secondaryContainer,
-      child: Column(
-        children: [
-          const _Divider(),
-          _OptionTextField(
-            controller: controller,
-            type: values.type,
-          ),
-          const _Divider(),
-          _PropertyType(
-            type: values.type,
-            onSelected: (type) => setState(
-              () {
-                controller.text = type.i18n;
-                values
-                  ..type = type
-                  ..name = type.i18n;
-              },
+      height: MediaQuery.of(context).size.height,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const _Divider(),
+            _OptionTextField(
+              controller: controller,
+              type: values.type,
             ),
-          ),
-          const _Divider(),
-          ..._buildOption(),
-          ..._buildOptionActions(),
-        ],
+            const _Divider(),
+            _PropertyType(
+              type: values.type,
+              onSelected: (type) => setState(
+                () {
+                  controller.text = type.i18n;
+                  _updateOptionValues(type: type, name: type.i18n);
+                },
+              ),
+            ),
+            const _Divider(),
+            ..._buildOption(),
+            ..._buildOptionActions(),
+          ],
+        ),
       ),
     );
   }
@@ -138,7 +141,9 @@ class _FieldOptionState extends State<FieldOption> {
           _NumberOption(
             selectedFormat: values.numberFormat ?? NumberFormatPB.Num,
             onSelected: (format) => setState(
-              () => values.numberFormat = format,
+              () => _updateOptionValues(
+                numberFormat: format,
+              ),
             ),
           ),
         ];
@@ -146,37 +151,40 @@ class _FieldOptionState extends State<FieldOption> {
         return [
           _DateOption(
             selectedFormat: values.dateFormate ?? DateFormatPB.Local,
-            onSelected: (format) => values.dateFormate = format,
+            onSelected: (format) => _updateOptionValues(
+              dateFormate: format,
+            ),
           ),
           const _Divider(),
           _TimeOption(
             includeTime: values.includeTime,
             selectedFormat: values.timeFormat ?? TimeFormatPB.TwelveHour,
-            onSelected: (includeTime, format) => values
-              ..includeTime = includeTime
-              ..timeFormat = format,
+            onSelected: (includeTime, format) => _updateOptionValues(
+              includeTime: includeTime,
+              timeFormat: format,
+            ),
           ),
         ];
       case FieldType.SingleSelect:
       case FieldType.MultiSelect:
         return [
-          Expanded(
-            child: _SelectOption(
-              mode: widget.mode,
-              selectOption: values.selectOption,
-              onAddOptions: (options) {
-                if (values.selectOption.lastOrNull?.name.isEmpty == true) {
-                  // ignore the add action if the last one doesn't have a name
-                  return;
-                }
-                setState(() {
-                  values.selectOption = values.selectOption + options;
-                });
-              },
-              onUpdateOptions: (options) {
-                values.selectOption = options;
-              },
-            ),
+          _SelectOption(
+            mode: widget.mode,
+            selectOption: values.selectOption,
+            onAddOptions: (options) {
+              if (values.selectOption.lastOrNull?.name.isEmpty == true) {
+                // ignore the add action if the last one doesn't have a name
+                return;
+              }
+              setState(() {
+                _updateOptionValues(
+                  selectOption: values.selectOption + options,
+                );
+              });
+            },
+            onUpdateOptions: (options) {
+              _updateOptionValues(selectOption: options);
+            },
           ),
         ];
       default:
@@ -204,6 +212,40 @@ class _FieldOptionState extends State<FieldOption> {
           ),
         ]
     };
+  }
+
+  void _updateOptionValues({
+    FieldType? type,
+    String? name,
+    DateFormatPB? dateFormate,
+    bool? includeTime,
+    TimeFormatPB? timeFormat,
+    NumberFormatPB? numberFormat,
+    List<SelectOptionPB>? selectOption,
+  }) {
+    if (type != null) {
+      values.type = type;
+    }
+    if (name != null) {
+      values.name = name;
+    }
+    if (dateFormate != null) {
+      values.dateFormate = dateFormate;
+    }
+    if (includeTime != null) {
+      values.includeTime = includeTime;
+    }
+    if (timeFormat != null) {
+      values.timeFormat = timeFormat;
+    }
+    if (numberFormat != null) {
+      values.numberFormat = numberFormat;
+    }
+    if (selectOption != null) {
+      values.selectOption = selectOption;
+    }
+
+    widget.onOptionValuesChanged(values);
   }
 }
 
@@ -561,6 +603,7 @@ class _SelectOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -656,21 +699,12 @@ class _SelectOptionListState extends State<_SelectOptionList> {
       padding: EdgeInsets.zero,
       children: widget.selectOptions
           .mapIndexed(
-            (index, option) => FlowyOptionTile.textField(
-              controller: controllers[index],
-              textFieldHintText: LocaleKeys.grid_field_typeANewOption.tr(),
+            (index, option) => _SelectOptionTile(
+              option: option,
               showTopBorder: index == 0,
               showBottomBorder: index != widget.selectOptions.length - 1,
-              textFieldPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-              trailing: _SelectOptionColor(
-                color: option.color,
-                onChanged: (color) {
-                  _updateOption(index, null, color);
-                  context.pop();
-                },
-              ),
-              onTextChanged: (name) {
-                _updateOption(index, name, null);
+              onUpdateOption: (option) {
+                _updateOption(index, option);
               },
             ),
           )
@@ -678,20 +712,25 @@ class _SelectOptionListState extends State<_SelectOptionList> {
     );
   }
 
-  void _updateOption(int index, String? name, SelectOptionColorPB? color) {
+  void _updateOption(int index, SelectOptionPB option) {
     final options = [...widget.selectOptions];
-    final option = options[index];
-    option.freeze();
-    options[index] = option.rebuild((p0) {
-      if (name != null) p0.name = name;
-      if (color != null) p0.color = color;
-    });
+    options[index] = option;
     widget.onUpdateOptions(options);
   }
 }
 
 class _SelectOptionTile extends StatefulWidget {
-  const _SelectOptionTile();
+  const _SelectOptionTile({
+    required this.option,
+    required this.showTopBorder,
+    required this.showBottomBorder,
+    required this.onUpdateOption,
+  });
+
+  final SelectOptionPB option;
+  final bool showTopBorder;
+  final bool showBottomBorder;
+  final void Function(SelectOptionPB option) onUpdateOption;
 
   @override
   State<_SelectOptionTile> createState() => __SelectOptionTileState();
@@ -699,6 +738,15 @@ class _SelectOptionTile extends StatefulWidget {
 
 class __SelectOptionTileState extends State<_SelectOptionTile> {
   final TextEditingController controller = TextEditingController();
+  late SelectOptionPB option;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller.text = widget.option.name;
+    option = widget.option;
+  }
 
   @override
   void dispose() {
@@ -709,20 +757,28 @@ class __SelectOptionTileState extends State<_SelectOptionTile> {
   @override
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
-      controller: controllers,
+      controller: controller,
       textFieldHintText: LocaleKeys.grid_field_typeANewOption.tr(),
-      showTopBorder: index == 0,
-      showBottomBorder: index != widget.selectOptions.length - 1,
+      showTopBorder: widget.showTopBorder,
+      showBottomBorder: widget.showBottomBorder,
       textFieldPadding: const EdgeInsets.symmetric(horizontal: 16.0),
       trailing: _SelectOptionColor(
         color: option.color,
         onChanged: (color) {
-          _updateOption(index, null, color);
+          setState(() {
+            option.freeze();
+            option = option.rebuild((p0) => p0.color = color);
+            widget.onUpdateOption(option);
+          });
           context.pop();
         },
       ),
       onTextChanged: (name) {
-        _updateOption(index, name, null);
+        setState(() {
+          option.freeze();
+          option = option.rebuild((p0) => p0.name = name);
+          widget.onUpdateOption(option);
+        });
       },
     );
   }

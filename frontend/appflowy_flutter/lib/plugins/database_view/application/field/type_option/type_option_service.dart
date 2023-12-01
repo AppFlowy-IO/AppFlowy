@@ -1,7 +1,7 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:dartz/dartz.dart';
 
 class TypeOptionBackendService {
   final String viewId;
@@ -31,7 +31,7 @@ class TypeOptionBackendService {
   }) {
     final payload = CreateFieldPayloadPB.create()
       ..viewId = viewId
-      ..fieldType = FieldType.RichText;
+      ..fieldType = fieldType;
 
     if (position == CreateFieldPosition.Before ||
         position == CreateFieldPosition.After && targetFieldId != null) {

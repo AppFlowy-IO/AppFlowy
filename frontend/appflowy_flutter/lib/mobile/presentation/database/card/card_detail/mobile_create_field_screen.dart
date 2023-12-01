@@ -28,9 +28,21 @@ class MobileNewPropertyScreen extends StatefulWidget {
 }
 
 class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
+  late FieldOptionValues optionValues;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final type = widget.fieldType ?? FieldType.RichText;
+    optionValues = FieldOptionValues(
+      type: type,
+      name: type.i18n,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final type = widget.fieldType ?? FieldType.RichText;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -43,15 +55,19 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
         ),
         leadingWidth: 120,
         actions: [
-          _SaveButton(onSave: () {}),
+          _SaveButton(
+            onSave: () {
+              context.pop(optionValues);
+            },
+          ),
         ],
       ),
       body: FieldOption(
         mode: FieldOptionMode.add,
-        defaultValues: FieldOptionValues(
-          type: type,
-          name: type.i18n,
-        ),
+        defaultValues: optionValues,
+        onOptionValuesChanged: (optionValues) {
+          this.optionValues = optionValues;
+        },
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_new_field_option.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
@@ -265,8 +266,8 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
           minChildSize: 0.7,
           builder: (context, controller) => FieldOptions(
             scrollController: controller,
-            onAddField: (type) {
-              context.push(
+            onAddField: (type) async {
+              final optionValues = await context.push<FieldOptionValues>(
                 Uri(
                   path: MobileNewPropertyScreen.routeName,
                   queryParameters: {
@@ -276,6 +277,22 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
                   },
                 ).toString(),
               );
+              if (optionValues != null) {
+                final result =
+                    await TypeOptionBackendService.createFieldTypeOption(
+                  viewId: widget.viewId,
+                  fieldType: optionValues.type,
+                );
+                result.fold(
+                  (typeOptionPB) {
+                    // update field
+                    widget.onFieldCreated(typeOptionPB.field_2.id);
+                  },
+                  (err) => Log.error(
+                    "Failed to create field type option: $err",
+                  ),
+                );
+              }
             },
           ),
         );
