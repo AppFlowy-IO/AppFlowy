@@ -705,37 +705,24 @@ class _SelectOptionList extends StatefulWidget {
 }
 
 class _SelectOptionListState extends State<_SelectOptionList> {
-  final List<TextEditingController> controllers = [];
+  late List<SelectOptionPB> options;
 
   @override
   void initState() {
     super.initState();
 
-    controllers.addAll(
-      widget.selectOptions.map((e) => TextEditingController(text: e.name)),
-    );
+    options = widget.selectOptions;
   }
 
   @override
   void didUpdateWidget(covariant _SelectOptionList oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    for (final element in controllers) {
-      element.dispose();
-    }
-    controllers.clear();
-
-    controllers.addAll(
-      widget.selectOptions.map((e) => TextEditingController(text: e.name)),
-    );
+    options = widget.selectOptions;
   }
 
   @override
   void dispose() {
-    for (final element in controllers) {
-      element.dispose();
-    }
-
     super.dispose();
   }
 
@@ -763,8 +750,9 @@ class _SelectOptionListState extends State<_SelectOptionList> {
   }
 
   void _updateOption(int index, SelectOptionPB option) {
-    final options = [...widget.selectOptions];
+    final options = [...this.options];
     options[index] = option;
+    this.options = options;
     widget.onUpdateOptions(options);
   }
 }
