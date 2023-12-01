@@ -23,6 +23,7 @@ class FieldOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.count(
+      physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 3,
       mainAxisSpacing: 24.0,
       children: _supportedFieldTypes

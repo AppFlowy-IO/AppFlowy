@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/util/field_type_extension.dart';
@@ -51,24 +53,8 @@ class _NewFieldOptionState extends State<NewFieldOption> {
             ),
           ),
           const _Divider(),
-          FlowyOptionTile.text(
-            text: LocaleKeys.grid_field_propertyType.tr(),
-            leading: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                FlowyText(
-                  widget.type.i18n,
-                  color: Theme.of(context).hintColor,
-                  fontSize: 16.0,
-                ),
-                const HSpace(4.0),
-                FlowySvg(
-                  FlowySvgs.arrow_right_s,
-                  color: Theme.of(context).hintColor,
-                  size: const Size.square(18.0),
-                ),
-              ],
-            ),
+          _PropertyType(
+            type: widget.type,
           ),
           const _Divider(),
           _DateOption(
@@ -83,6 +69,45 @@ class _NewFieldOptionState extends State<NewFieldOption> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _PropertyType extends StatelessWidget {
+  const _PropertyType({
+    required this.type,
+  });
+
+  final FieldType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyOptionTile.text(
+      text: LocaleKeys.grid_field_propertyType.tr(),
+      leading: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          FlowyText(
+            type.i18n,
+            color: Theme.of(context).hintColor,
+            fontSize: 16.0,
+          ),
+          const HSpace(4.0),
+          FlowySvg(
+            FlowySvgs.arrow_right_s,
+            color: Theme.of(context).hintColor,
+            size: const Size.square(18.0),
+          ),
+        ],
+      ),
+      onTap: () {
+        showMobileBottomSheet(
+          context: context,
+          builder: (context) {
+            return const FieldOptions();
+          },
+        );
+      },
     );
   }
 }

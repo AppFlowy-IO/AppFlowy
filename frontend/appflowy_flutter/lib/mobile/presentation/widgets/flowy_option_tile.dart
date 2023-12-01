@@ -25,7 +25,6 @@ class FlowyOptionTile extends StatelessWidget {
       horizontal: 16.0,
     ),
     this.isSelected = false,
-    this.onValueChanged,
   });
 
   factory FlowyOptionTile.text({
@@ -126,9 +125,6 @@ class FlowyOptionTile extends StatelessWidget {
   // only used in checkbox or switcher
   final bool isSelected;
 
-  // only used in switcher
-  final void Function(bool value)? onValueChanged;
-
   final FlowyOptionTileType type;
 
   @override
@@ -150,7 +146,8 @@ class FlowyOptionTile extends StatelessWidget {
       ),
     );
 
-    if (type == FlowyOptionTileType.checkbox) {
+    if (type == FlowyOptionTileType.checkbox ||
+        type == FlowyOptionTileType.text) {
       return FlowyButton(
         expandText: true,
         margin: EdgeInsets.zero,
