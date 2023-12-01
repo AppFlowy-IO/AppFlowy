@@ -208,7 +208,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       child = InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(14)),
         onTap: () => showMobileBottomSheet(
-          context: context,
+          context,
           padding: EdgeInsets.zero,
           builder: (context) {
             return MobileSelectOptionEditor(
