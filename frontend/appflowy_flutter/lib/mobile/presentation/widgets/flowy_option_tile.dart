@@ -229,6 +229,7 @@ class FlowyOptionTile extends StatelessWidget {
           ),
           child: TextField(
             controller: controller,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               border: InputBorder.none,
               enabledBorder: InputBorder.none,

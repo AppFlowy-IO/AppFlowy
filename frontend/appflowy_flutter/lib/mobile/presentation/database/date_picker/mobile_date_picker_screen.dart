@@ -449,28 +449,3 @@ class _DateFormatOption extends StatelessWidget {
     );
   }
 }
-
-class _Switcher extends StatelessWidget {
-  const _Switcher({
-    required this.value,
-    required this.onChanged,
-  });
-
-  final bool value;
-  final void Function(bool value) onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 48,
-      child: FittedBox(
-        fit: BoxFit.fill,
-        child: Switch.adaptive(
-          value: value,
-          activeColor: const Color(0xFF00BCF0),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
-}
