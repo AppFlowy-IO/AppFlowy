@@ -149,7 +149,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
     return AppBarMoreButton(
       onTap: (context) {
         showMobileBottomSheet(
-          context: context,
+          context,
+          showDragHandle: true,
           builder: (_) => _buildViewPageBottomSheet(context),
         );
       },

@@ -52,50 +52,44 @@ class _MobileBottomSheetEditLinkWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 4.0,
-        vertical: 16.0,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildTextField(textController, null),
-          const VSpace(12.0),
-          _buildTextField(hrefController, LocaleKeys.editor_linkTextHint.tr()),
-          const VSpace(12.0),
-          Row(
-            children: [
-              Expanded(
-                child: BottomSheetActionWidget(
-                  text: LocaleKeys.button_cancel.tr(),
-                  onTap: () => context.pop(),
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildTextField(textController, null),
+        const VSpace(12.0),
+        _buildTextField(hrefController, LocaleKeys.editor_linkTextHint.tr()),
+        const VSpace(12.0),
+        Row(
+          children: [
+            Expanded(
+              child: BottomSheetActionWidget(
+                text: LocaleKeys.button_cancel.tr(),
+                onTap: () => context.pop(),
               ),
+            ),
+            const HSpace(8),
+            Expanded(
+              child: BottomSheetActionWidget(
+                text: LocaleKeys.button_done.tr(),
+                onTap: () {
+                  widget.onEdit(textController.text, hrefController.text);
+                },
+              ),
+            ),
+            if (widget.href != null && isURL(widget.href)) ...[
               const HSpace(8),
               Expanded(
                 child: BottomSheetActionWidget(
-                  text: LocaleKeys.button_done.tr(),
+                  text: LocaleKeys.editor_openLink.tr(),
                   onTap: () {
-                    widget.onEdit(textController.text, hrefController.text);
+                    safeLaunchUrl(widget.href!);
                   },
                 ),
               ),
-              if (widget.href != null && isURL(widget.href)) ...[
-                const HSpace(8),
-                Expanded(
-                  child: BottomSheetActionWidget(
-                    text: LocaleKeys.editor_openLink.tr(),
-                    onTap: () {
-                      safeLaunchUrl(widget.href!);
-                    },
-                  ),
-                ),
-              ],
             ],
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 
