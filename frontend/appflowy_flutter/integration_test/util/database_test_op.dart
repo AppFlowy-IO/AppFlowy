@@ -290,7 +290,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     final dateCellText = find.descendant(
       of: findCell,
-      matching: find.byType(GridDateCellText),
+      matching: find.byType(GridDateCell),
     );
 
     final text = find.descendant(

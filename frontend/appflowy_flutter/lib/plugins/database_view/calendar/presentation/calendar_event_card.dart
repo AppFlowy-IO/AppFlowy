@@ -301,9 +301,10 @@ class _EventCardState extends State<EventCard> {
       }
       final children = selectedOptions.map(
         (option) {
-          return SelectOptionTag.fromOption(
-            context: context,
+          return SelectOptionTag(
             option: option,
+            fontSize: 9,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
           );
         },
       ).toList();

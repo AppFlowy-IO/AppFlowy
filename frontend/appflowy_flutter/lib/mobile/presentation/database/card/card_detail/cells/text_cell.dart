@@ -66,10 +66,10 @@ class _RowDetailTextCellState extends GridEditableTextCell<RowDetailTextCell> {
                 _getInputBorder(color: Theme.of(context).colorScheme.primary),
             hintText: widget.cellStyle.placeholder,
             contentPadding: widget.cellStyle.cellPadding ??
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
             isCollapsed: true,
             isDense: true,
-            constraints: const BoxConstraints(),
+            constraints: const BoxConstraints(minHeight: 48),
             hintStyle: widget.cellStyle.textStyle
                 ?.copyWith(color: Theme.of(context).hintColor),
           ),

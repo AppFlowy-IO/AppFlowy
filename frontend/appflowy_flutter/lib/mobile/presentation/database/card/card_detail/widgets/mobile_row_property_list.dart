@@ -85,17 +85,14 @@ class _PropertyCellState extends State<_PropertyCell> {
               child: FlowyText.regular(
                 widget.cellContext.fieldInfo.field.name,
                 overflow: TextOverflow.ellipsis,
-                fontSize: 13,
+                fontSize: 14,
                 color: Theme.of(context).hintColor,
               ),
             ),
           ],
         ),
         const VSpace(6),
-        ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 48),
-          child: cell,
-        ),
+        cell,
       ],
     );
   }
@@ -111,7 +108,7 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       return DateCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
         alignment: Alignment.centerLeft,
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
         useRoundedBorder: true,
       );
     case FieldType.LastEditedTime:
@@ -119,13 +116,13 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       return TimestampCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
         alignment: Alignment.centerLeft,
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
         useRoundedBorder: true,
       );
     case FieldType.MultiSelect:
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
         useRoundedBorder: true,
       );
     case FieldType.Checklist:
@@ -146,16 +143,13 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.SingleSelect:
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
         useRoundedBorder: true,
       );
     case FieldType.URL:
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        accessoryTypes: [
-          GridURLCellAccessoryType.copyURL,
-          GridURLCellAccessoryType.visitURL,
-        ],
+        accessoryTypes: [],
       );
   }
   throw UnimplementedError;
