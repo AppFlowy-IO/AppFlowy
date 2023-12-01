@@ -365,10 +365,9 @@ class _EventList extends StatelessWidget {
             final autoEdit =
                 editingEvent?.event?.eventId == events[index].eventId;
             return EventCard(
-              fieldController: context.read<CalendarBloc>().fieldController,
+              databaseController:
+                  context.read<CalendarBloc>().databaseController,
               event: events[index],
-              viewId: viewId,
-              rowCache: rowCache,
               constraints: constraints,
               autoEdit: autoEdit,
             );

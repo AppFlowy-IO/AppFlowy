@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
-import 'package:appflowy/plugins/database_view/grid/application/row/row_action_sheet_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
@@ -10,7 +9,6 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../layout/sizes.dart';
 
@@ -27,43 +25,26 @@ class RowActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => RowActionSheetBloc(
-        viewId: viewId,
-        rowId: rowId,
-        groupId: groupId,
-      ),
-      child: BlocBuilder<RowActionSheetBloc, RowActionSheetState>(
-        builder: (context, state) {
-          final cells = _RowAction.values
-              .where((value) => value.enable())
-              .map((action) => _ActionCell(action: action))
-              .toList();
+    final cells = _RowAction.values
+        .where((value) => value.enable())
+        .map((action) => _actionCell(context, action))
+        .toList();
 
-          return ListView.separated(
-            shrinkWrap: true,
-            controller: ScrollController(),
-            itemCount: cells.length,
-            separatorBuilder: (context, index) {
-              return VSpace(GridSize.typeOptionSeparatorHeight);
-            },
-            physics: StyledScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              return cells[index];
-            },
-          );
-        },
-      ),
+    return ListView.separated(
+      shrinkWrap: true,
+      controller: ScrollController(),
+      itemCount: cells.length,
+      separatorBuilder: (context, index) {
+        return VSpace(GridSize.typeOptionSeparatorHeight);
+      },
+      physics: StyledScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        return cells[index];
+      },
     );
   }
-}
 
-class _ActionCell extends StatelessWidget {
-  final _RowAction action;
-  const _ActionCell({required this.action, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _actionCell(BuildContext context, _RowAction action) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
@@ -77,7 +58,7 @@ class _ActionCell extends StatelessWidget {
         ),
         onTap: () {
           if (action.enable()) {
-            action.performAction(context);
+            action.performAction(context, viewId, rowId);
           }
         },
         leftIcon: FlowySvg(
@@ -121,18 +102,13 @@ extension _RowActionExtension on _RowAction {
     }
   }
 
-  void performAction(BuildContext context) {
+  void performAction(BuildContext context, String viewId, String rowId) {
     switch (this) {
       case _RowAction.duplicate:
-        context
-            .read<RowActionSheetBloc>()
-            .add(const RowActionSheetEvent.duplicateRow());
+        RowBackendService.duplicateRow(viewId, rowId);
         break;
       case _RowAction.delete:
-        context
-            .read<RowActionSheetBloc>()
-            .add(const RowActionSheetEvent.deleteRow());
-
+        RowBackendService.deleteRow(viewId, rowId);
         break;
     }
   }

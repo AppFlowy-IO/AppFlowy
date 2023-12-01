@@ -165,10 +165,10 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
 
     final children = widget.selectedOptionMap.values
         .map(
-          (option) => SelectOptionTag.fromOption(
-            context: context,
+          (option) => SelectOptionTag(
             option: option,
             onRemove: (option) => widget.onRemove(option),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
           ),
         )
         .toList();

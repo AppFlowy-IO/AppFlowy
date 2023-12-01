@@ -535,16 +535,18 @@ GoRoute _mobileCalendarScreenRoute() {
 
 GoRoute _mobileCardDetailScreenRoute() {
   return GoRoute(
-    path: MobileCardDetailScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileRowDetailPage.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
-      final rowController = args[MobileCardDetailScreen.argRowController];
-      final fieldController = args[MobileCardDetailScreen.argFieldController];
+      final databaseController =
+          args[MobileRowDetailPage.argDatabaseController];
+      final rowId = args[MobileRowDetailPage.argRowId]!;
 
       return MaterialPage(
-        child: MobileCardDetailScreen(
-          rowController: rowController,
-          fieldController: fieldController,
+        child: MobileRowDetailPage(
+          databaseController: databaseController,
+          rowId: rowId,
         ),
       );
     },
