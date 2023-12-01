@@ -1,14 +1,19 @@
+import 'dart:math';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -18,8 +23,8 @@ enum FieldOptionMode {
   edit,
 }
 
-class FieldOptionResult {
-  FieldOptionResult({
+class FieldOptionValues {
+  FieldOptionValues({
     required this.type,
     required this.name,
     this.dateFormate,
@@ -42,7 +47,7 @@ class FieldOptionResult {
 
   // FieldType.Select
   // FieldType.MultiSelect
-  List<String> selectOption;
+  List<SelectOptionPB> selectOption;
 
   // FieldType.Checklist
 }
@@ -50,12 +55,12 @@ class FieldOptionResult {
 class FieldOption extends StatefulWidget {
   const FieldOption({
     super.key,
-    required this.type,
     required this.mode,
+    required this.defaultValues,
   });
 
-  final FieldType type;
   final FieldOptionMode mode;
+  final FieldOptionValues defaultValues;
 
   @override
   State<FieldOption> createState() => _FieldOptionState();
@@ -64,18 +69,14 @@ class FieldOption extends StatefulWidget {
 class _FieldOptionState extends State<FieldOption> {
   final controller = TextEditingController();
 
-  late FieldOptionResult result;
+  late FieldOptionValues values;
 
   @override
   void initState() {
     super.initState();
 
-    controller.text = widget.type.i18n;
-
-    result = FieldOptionResult(
-      type: widget.type,
-      name: widget.type.i18n,
-    );
+    values = widget.defaultValues;
+    controller.text = values.type.i18n;
   }
 
   @override
@@ -94,15 +95,15 @@ class _FieldOptionState extends State<FieldOption> {
           const _Divider(),
           _OptionTextField(
             controller: controller,
-            type: result.type,
+            type: values.type,
           ),
           const _Divider(),
           _PropertyType(
-            type: result.type,
+            type: values.type,
             onSelected: (type) => setState(
               () {
                 controller.text = type.i18n;
-                result
+                values
                   ..type = type
                   ..name = type.i18n;
               },
@@ -117,7 +118,7 @@ class _FieldOptionState extends State<FieldOption> {
   }
 
   List<Widget> _buildOption() {
-    switch (result.type) {
+    switch (values.type) {
       case FieldType.RichText:
         return [
           const _TextOption(),
@@ -133,28 +134,38 @@ class _FieldOptionState extends State<FieldOption> {
       case FieldType.Number:
         return [
           _NumberOption(
-            selectedFormat: result.numberFormat ?? NumberFormatPB.Num,
+            selectedFormat: values.numberFormat ?? NumberFormatPB.Num,
             onSelected: (format) => setState(
-              () => result.numberFormat = format,
+              () => values.numberFormat = format,
             ),
           ),
         ];
       case FieldType.DateTime:
         return [
           _DateOption(
-            selectedFormat: result.dateFormate ?? DateFormatPB.Local,
-            onSelected: (format) => setState(
-              () => result.dateFormate = format,
-            ),
+            selectedFormat: values.dateFormate ?? DateFormatPB.Local,
+            onSelected: (format) => values.dateFormate = format,
           ),
           const _Divider(),
           _TimeOption(
-            includeTime: result.includeTime,
-            selectedFormat: result.timeFormat ?? TimeFormatPB.TwelveHour,
-            onSelected: (includeTime, format) => setState(
-              () => result
-                ..includeTime = includeTime
-                ..timeFormat = format,
+            includeTime: values.includeTime,
+            selectedFormat: values.timeFormat ?? TimeFormatPB.TwelveHour,
+            onSelected: (includeTime, format) => values
+              ..includeTime = includeTime
+              ..timeFormat = format,
+          ),
+        ];
+      case FieldType.SingleSelect:
+      case FieldType.MultiSelect:
+        return [
+          Expanded(
+            child: _SelectOption(
+              mode: widget.mode,
+              selectOption: values.selectOption,
+              onAddOptions: (options) => setState(
+                () => values.selectOption = options,
+              ),
+              onUpdateOptions: (_) {},
             ),
           ),
         ];
@@ -230,7 +241,6 @@ class _PropertyType extends StatelessWidget {
         children: [
           FlowySvg(
             type.smallSvgData,
-            size: const Size.square(18.0),
           ),
           const HSpace(6.0),
           FlowyText(
@@ -345,6 +355,7 @@ class _DateOptionState extends State<_DateOption> {
           child: FlowyText(
             LocaleKeys.grid_field_dateFormat.tr(),
             fontSize: 16.0,
+            color: Theme.of(context).hintColor,
           ),
         ),
         ...DateFormatPB.values.mapIndexed((index, format) {
@@ -405,6 +416,7 @@ class _TimeOptionState extends State<_TimeOption> {
           child: FlowyText(
             LocaleKeys.grid_field_timeFormat.tr(),
             fontSize: 16.0,
+            color: Theme.of(context).hintColor,
           ),
         ),
         FlowyOptionTile.switcher(
@@ -516,6 +528,177 @@ class _NumberFormatList extends StatelessWidget {
             ),
           )
           .toList(),
+    );
+  }
+}
+
+// single select or multi select
+class _SelectOption extends StatelessWidget {
+  _SelectOption({
+    required this.mode,
+    required this.selectOption,
+    required this.onAddOptions,
+    required this.onUpdateOptions,
+  });
+
+  final List<SelectOptionPB> selectOption;
+  final void Function(List<SelectOptionPB> options) onAddOptions;
+  final void Function(List<SelectOptionPB> options) onUpdateOptions;
+  final FieldOptionMode mode;
+
+  final random = Random();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 6.0,
+            horizontal: 16.0,
+          ),
+          child: FlowyText(
+            LocaleKeys.grid_field_optionTitle.tr(),
+            fontSize: 16.0,
+            color: Theme.of(context).hintColor,
+          ),
+        ),
+        _SelectOptionList(
+          selectOption: selectOption,
+          onUpdateOptions: onUpdateOptions,
+        ),
+        FlowyOptionTile.text(
+          text: LocaleKeys.grid_field_addOption.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.add_s),
+          onTap: () {
+            onAddOptions([
+              SelectOptionPB(
+                name: '',
+                color: SelectOptionColorPB.valueOf(
+                  random.nextInt(SelectOptionColorPB.values.length),
+                ),
+              ),
+            ]);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _SelectOptionList extends StatefulWidget {
+  const _SelectOptionList({
+    required this.selectOption,
+    required this.onUpdateOptions,
+  });
+
+  final List<SelectOptionPB> selectOption;
+  final void Function(List<SelectOptionPB> options) onUpdateOptions;
+
+  @override
+  State<_SelectOptionList> createState() => _SelectOptionListState();
+}
+
+class _SelectOptionListState extends State<_SelectOptionList> {
+  final List<TextEditingController> controllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    controllers.addAll(
+      widget.selectOption.map((e) => TextEditingController(text: e.name)),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _SelectOptionList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    for (final element in controllers) {
+      element.dispose();
+    }
+    controllers.clear();
+
+    controllers.addAll(
+      widget.selectOption.map((e) => TextEditingController(text: e.name)),
+    );
+  }
+
+  @override
+  void dispose() {
+    for (final element in controllers) {
+      element.dispose();
+    }
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.selectOption.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return ListView(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      children: widget.selectOption
+          .mapIndexed(
+            (index, option) => FlowyOptionTile.textField(
+              controller: controllers[index],
+              showTopBorder: index == 0,
+              showBottomBorder: index != widget.selectOption.length - 1,
+              textFieldPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+              trailing:
+                  _SelectOptionColor(color: option.color, onChanged: (_) {}),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _SelectOptionColor extends StatelessWidget {
+  const _SelectOptionColor({
+    required this.color,
+    required this.onChanged,
+  });
+
+  final SelectOptionColorPB color;
+  final void Function(SelectOptionColorPB) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        showMobileBottomSheet(
+          context,
+          showHeader: true,
+          showCloseButton: true,
+          title: LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          builder: (context) {
+            return OptionColorList(
+              selectedColor: color,
+              onSelectedColor: (color) {},
+            );
+          },
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.toColor(context),
+          borderRadius: Corners.s10Border,
+        ),
+        width: 32,
+        height: 32,
+        alignment: Alignment.center,
+        child: const FlowySvg(
+          FlowySvgs.arrow_down_s,
+          size: Size.square(20),
+        ),
+      ),
     );
   }
 }

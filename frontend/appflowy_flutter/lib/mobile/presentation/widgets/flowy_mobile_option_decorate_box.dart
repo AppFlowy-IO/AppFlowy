@@ -16,6 +16,7 @@ class FlowyOptionDecorateBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
           top: showTopBorder
               ? BorderSide(

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_new_field_option.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -29,6 +30,7 @@ class MobileNewPropertyScreen extends StatefulWidget {
 class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
   @override
   Widget build(BuildContext context) {
+    final type = widget.fieldType ?? FieldType.RichText;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -46,7 +48,10 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
       ),
       body: FieldOption(
         mode: FieldOptionMode.add,
-        type: widget.fieldType ?? FieldType.RichText,
+        defaultValues: FieldOptionValues(
+          type: type,
+          name: type.i18n,
+        ),
       ),
     );
   }

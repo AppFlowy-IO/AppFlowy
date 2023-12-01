@@ -44,7 +44,7 @@ Future<T?> showMobileBottomSheet<T>(
 
       if (showHeader) {
         children.addAll([
-          const VSpace(4),
+          VSpace(padding.top),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -81,10 +81,12 @@ Future<T?> showMobileBottomSheet<T>(
       if (resizeToAvoidBottomInset) {
         children.add(
           AnimatedPadding(
-            padding: padding +
-                EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
+            padding: EdgeInsets.only(
+              top: showHeader ? 0 : padding.top,
+              left: padding.left,
+              right: padding.right,
+              bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
+            ),
             duration: Duration.zero,
             child: child,
           ),
