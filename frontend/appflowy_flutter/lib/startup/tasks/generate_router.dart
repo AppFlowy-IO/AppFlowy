@@ -1,5 +1,6 @@
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
@@ -23,6 +24,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,6 +63,7 @@ GoRouter generateRouter(Widget child) {
         _mobileCardPropertyEditScreenRoute(),
         _mobileDateCellEditScreenRoute(),
         _mobileCreateRowFieldScreenRoute(),
+        _mobileNewPropertyPageRoute(),
 
         // home
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
@@ -343,6 +346,28 @@ GoRoute _mobileFontPickerPageRoute() {
     pageBuilder: (context, state) {
       return const MaterialPage(
         child: FontPickerScreen(),
+      );
+    },
+  );
+}
+
+GoRoute _mobileNewPropertyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileNewPropertyScreen.routeName,
+    pageBuilder: (context, state) {
+      final viewId = state
+          .uri.queryParameters[MobileNewPropertyScreen.argViewId] as String;
+      final fieldTypeId =
+          state.uri.queryParameters[MobileNewPropertyScreen.argFieldTypeId] ??
+              FieldType.RichText.value.toString();
+      final value = int.parse(fieldTypeId);
+      return MaterialPage(
+        fullscreenDialog: true,
+        child: MobileNewPropertyScreen(
+          viewId: viewId,
+          fieldType: FieldType.valueOf(value),
+        ),
       );
     },
   );

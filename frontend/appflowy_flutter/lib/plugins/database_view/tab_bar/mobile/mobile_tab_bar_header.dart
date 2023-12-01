@@ -60,6 +60,7 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
                       maxLines: null,
                       controller: controller,
                       textAlignVertical: TextAlignVertical.top,
+                      textInputAction: TextInputAction.done,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,

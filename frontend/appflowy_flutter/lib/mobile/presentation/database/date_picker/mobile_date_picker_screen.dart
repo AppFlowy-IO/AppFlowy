@@ -207,17 +207,15 @@ class _EndDateSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.isRange,
       builder: (context, isRange) {
-        return FlowyOptionTile(
+        return FlowyOptionTile.switcher(
           text: LocaleKeys.grid_field_isRange.tr(),
           leftIcon: const FlowySvg(FlowySvgs.date_s),
-          leading: _Switcher(
-            value: isRange,
-            onChanged: (value) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setIsRange(value));
-            },
-          ),
+          isSelected: isRange,
+          onValueChanged: (value) {
+            context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setIsRange(value));
+          },
         );
       },
     );
@@ -232,18 +230,16 @@ class _IncludeTimeSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.includeTime,
       builder: (context, includeTime) {
-        return FlowyOptionTile(
+        return FlowyOptionTile.switcher(
           showTopBorder: false,
           text: LocaleKeys.grid_field_includeTime.tr(),
           leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
-          leading: _Switcher(
-            value: includeTime,
-            onChanged: (value) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setIncludeTime(value));
-            },
-          ),
+          isSelected: includeTime,
+          onValueChanged: (value) {
+            context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setIncludeTime(value));
+          },
         );
       },
     );
@@ -379,7 +375,7 @@ class _ClearDateButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyOptionTile(
+    return FlowyOptionTile.text(
       showTopBorder: false,
       text: LocaleKeys.grid_field_clearDate.tr(),
       onTap: () => context
@@ -398,7 +394,7 @@ class _TimeFormatOption extends StatelessWidget {
         TimeFormatPB>(
       selector: (state) => state.dateTypeOptionPB.timeFormat,
       builder: (context, state) {
-        return FlowyOptionTile(
+        return FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.settings_appearance_timeFormat_label.tr(),
           leftIcon: const FlowySvg(FlowySvgs.time_s),
@@ -431,7 +427,7 @@ class _DateFormatOption extends StatelessWidget {
         DateFormatPB>(
       selector: (state) => state.dateTypeOptionPB.dateFormat,
       builder: (context, state) {
-        return FlowyOptionTile(
+        return FlowyOptionTile.text(
           text: LocaleKeys.settings_appearance_dateFormat_label.tr(),
           leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
         );
@@ -450,31 +446,6 @@ class _DateFormatOption extends StatelessWidget {
         //   },
         // );
       },
-    );
-  }
-}
-
-class _Switcher extends StatelessWidget {
-  const _Switcher({
-    required this.value,
-    required this.onChanged,
-  });
-
-  final bool value;
-  final void Function(bool value) onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 48,
-      child: FittedBox(
-        fit: BoxFit.fill,
-        child: Switch.adaptive(
-          value: value,
-          activeColor: const Color(0xFF00BCF0),
-          onChanged: onChanged,
-        ),
-      ),
     );
   }
 }

@@ -30,6 +30,7 @@ class FlowyTextField extends StatefulWidget {
   final TextStyle? hintStyle;
   final InputDecoration? decoration;
   final TextAlignVertical? textAlignVertical;
+  final TextInputAction? textInputAction;
 
   const FlowyTextField({
     super.key,
@@ -58,6 +59,7 @@ class FlowyTextField extends StatefulWidget {
     this.hintStyle,
     this.decoration,
     this.textAlignVertical,
+    this.textInputAction,
   });
 
   @override
@@ -127,6 +129,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
+      textInputAction: widget.textInputAction,
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
       minLines: 1,
