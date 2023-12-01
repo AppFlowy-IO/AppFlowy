@@ -101,11 +101,10 @@ export const useFiltersCount = () => {
 };
 
 export function useTypeOption<T>(fieldId: string) {
-  const typeOptions = useTypeOptions();
+  const context = useContext(DatabaseContext);
+  const typeOptions = useSnapshot(context.typeOptions);
 
-  return useMemo(() => {
-    return typeOptions[fieldId] as T;
-  }, [fieldId, typeOptions]);
+  return typeOptions[fieldId] as T;
 }
 
 export const useDatabaseVisibilityRows = () => {
@@ -149,10 +148,6 @@ export const useConnectDatabase = (viewId: string) => {
       {
         [DatabaseNotification.DidUpdateFields]: async (changeset) => {
           await fieldListeners.didUpdateFields(viewId, database, changeset);
-        },
-
-        [DatabaseNotification.DidUpdateFieldSettings]: (changeset) => {
-          fieldListeners.didUpdateFieldSettings(database, changeset);
         },
         [DatabaseNotification.DidUpdateViewRows]: (changeset) => {
           rowListeners.didUpdateViewRows(database, changeset);

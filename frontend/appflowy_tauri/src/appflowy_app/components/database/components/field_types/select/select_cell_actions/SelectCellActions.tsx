@@ -31,6 +31,7 @@ function SelectCellActions({
   const viewId = useViewId();
   const typeOption = useTypeOption<SelectTypeOption>(field.id);
   const options = useMemo(() => typeOption.options ?? [], [typeOption.options]);
+
   const selectedOptionIds = useMemo(() => cell?.data?.selectedOptionIds ?? [], [cell]);
   const [newOptionName, setNewOptionName] = useState('');
   const filteredOptions = useMemo(
@@ -129,22 +130,20 @@ function SelectCellActions({
       {shouldCreateOption ? (
         <CreateOption label={newOptionName} onClick={handleNewTagClick} />
       ) : (
-        filteredOptions.map((option) => (
-          <MenuItem
-            className={'px-2'}
-            onClick={() => {
-              handleClickOption(option.id);
-            }}
-            key={option.id}
-            value={option.id}
-          >
-            <SelectOptionItem
-              isSelected={selectedOptionIds?.includes(option.id)}
-              fieldId={cell?.fieldId || ''}
-              option={option}
-            />
-          </MenuItem>
-        ))
+        <div className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
+          {filteredOptions.map((option) => (
+            <MenuItem className={'px-2'} key={option.id} value={option.id}>
+              <SelectOptionItem
+                onClick={() => {
+                  handleClickOption(option.id);
+                }}
+                isSelected={selectedOptionIds?.includes(option.id)}
+                fieldId={cell?.fieldId || ''}
+                option={option}
+              />
+            </MenuItem>
+          ))}
+        </div>
       )}
     </div>
   );

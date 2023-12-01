@@ -42,7 +42,7 @@ function FieldList({ showSearch, onItemClick, searchPlaceholder }: FieldListProp
     <div className={'pt-2'}>
       {searchInput}
       {emptyList}
-      <MenuList>
+      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
         {fieldsResult.map((field) => (
           <MenuItem
             className={'overflow-hidden text-ellipsis px-1'}

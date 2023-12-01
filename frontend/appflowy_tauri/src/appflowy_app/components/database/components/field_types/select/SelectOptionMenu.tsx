@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { t } from 'i18next';
-import { Divider, ListSubheader, Menu, MenuItem, MenuProps, OutlinedInput } from '@mui/material';
+import { Divider, ListSubheader, MenuItem, MenuList, MenuProps, OutlinedInput } from '@mui/material';
 import { SelectOptionColorPB } from '@/services/backend';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
@@ -12,6 +12,7 @@ import {
   insertOrUpdateSelectOption,
 } from '$app/components/database/application/field/select_option/select_option_service';
 import { useViewId } from '$app/hooks';
+import Popover from '@mui/material/Popover';
 
 interface SelectOptionMenuProps {
   fieldId: string;
@@ -34,28 +35,36 @@ const Colors = [
 export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, MenuProps: menuProps }) => {
   const [tagName, setTagName] = useState(option.name);
   const viewId = useViewId();
-  const updateOption = async ({ name, color }: { name?: string; color?: SelectOptionColorPB }) => {
+  const updateColor = async (color: SelectOptionColorPB) => {
     await insertOrUpdateSelectOption(viewId, fieldId, [
       {
         ...option,
-        name: name ?? option.name,
-        color: color ?? option.color,
+        color,
       },
     ]);
   };
 
-  const deleteOption = async () => {
-    await deleteSelectOption(viewId, fieldId, [option]);
+  const updateName = async () => {
+    if (tagName === option.name) return;
+    await insertOrUpdateSelectOption(viewId, fieldId, [
+      {
+        ...option,
+        name: tagName,
+      },
+    ]);
+  };
+
+  const onClose = () => {
     menuProps.onClose?.({}, 'backdropClick');
   };
 
-  const onClose = async () => {
-    await updateOption({ name: tagName });
-    menuProps.onClose?.({}, 'backdropClick');
+  const deleteOption = async () => {
+    await deleteSelectOption(viewId, fieldId, [option]);
+    onClose();
   };
 
   return (
-    <Menu
+    <Popover
       keepMounted={false}
       classes={{
         paper: 'w-52',
@@ -77,6 +86,12 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
           onChange={(e) => {
             setTagName(e.target.value);
           }}
+          onBlur={updateName}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              void updateName();
+            }
+          }}
           autoFocus={true}
           placeholder={t('grid.selectOption.tagName')}
           size='small'
@@ -95,19 +110,21 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
 
       <Divider />
       <MenuItem disabled>{t('grid.selectOption.colorPanelTitle')}</MenuItem>
-      {Colors.map((color) => (
-        <MenuItem
-          onClick={() => {
-            void updateOption({ color });
-          }}
-          key={color}
-          value={color}
-        >
-          <span className={`mr-2 inline-flex h-4 w-4 rounded-full ${SelectOptionColorMap[color]}`} />
-          <span className='flex-1'>{t(`grid.selectOption.${SelectOptionColorTextMap[color]}`)}</span>
-          {option.color === color && <SelectCheckSvg />}
-        </MenuItem>
-      ))}
-    </Menu>
+      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
+        {Colors.map((color) => (
+          <MenuItem
+            onClick={() => {
+              void updateColor(color);
+            }}
+            key={color}
+            value={color}
+          >
+            <span className={`mr-2 inline-flex h-4 w-4 rounded-full ${SelectOptionColorMap[color]}`} />
+            <span className='flex-1'>{t(`grid.selectOption.${SelectOptionColorTextMap[color]}`)}</span>
+            {option.color === color && <SelectCheckSvg />}
+          </MenuItem>
+        ))}
+      </MenuList>
+    </Popover>
   );
 };
