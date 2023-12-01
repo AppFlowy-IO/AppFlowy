@@ -208,7 +208,10 @@ class FlowyOptionTile extends StatelessWidget {
       if (leading != null) leading!,
       Expanded(
         child: ConstrainedBox(
-          constraints: const BoxConstraints.tightFor(height: 52.0),
+          constraints: const BoxConstraints.tightFor(
+            height: 52.0,
+            width: double.infinity,
+          ),
           child: TextField(
             controller: controller,
             decoration: InputDecoration(

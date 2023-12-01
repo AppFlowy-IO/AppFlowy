@@ -41,13 +41,9 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
           _SaveButton(onSave: () {}),
         ],
       ),
-      body: const Padding(
-        padding: EdgeInsets.only(
-          top: 16.0,
-        ),
-        child: NewFieldOption(
-          type: FieldType.RichText,
-        ),
+      body: const FieldOption(
+        mode: FieldOptionMode.add,
+        type: FieldType.RichText,
       ),
     );
   }

@@ -22,7 +22,12 @@ const _supportedFieldTypes = [
 class FieldOptions extends StatelessWidget {
   const FieldOptions({
     super.key,
+    required this.onAddField,
+    this.scrollController,
   });
+
+  final void Function(FieldType) onAddField;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +37,7 @@ class FieldOptions extends StatelessWidget {
         const VSpace(12.0),
         Expanded(
           child: GridView.count(
-            physics: const NeverScrollableScrollPhysics(),
+            controller: scrollController,
             crossAxisCount: 3,
             childAspectRatio: 0.9,
             mainAxisSpacing: 12.0,
@@ -40,7 +45,7 @@ class FieldOptions extends StatelessWidget {
                 .map(
                   (e) => _Field(
                     type: e,
-                    onTap: () {},
+                    onTap: () => onAddField(e),
                   ),
                 )
                 .toList(),
