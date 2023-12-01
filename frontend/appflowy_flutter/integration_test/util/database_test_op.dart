@@ -223,7 +223,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
       final finder = find.descendant(
         of: findCell,
         matching: find.byWidgetPredicate(
-          (widget) => widget is SelectOptionTag && widget.name == content,
+          (widget) =>
+              widget is SelectOptionTag &&
+              (widget.name == content || widget.option?.name == content),
         ),
       );
       expect(finder, findsOneWidget);
@@ -240,7 +242,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
         final finder = find.descendant(
           of: findCell,
           matching: find.byWidgetPredicate(
-            (widget) => widget is SelectOptionTag && widget.name == content,
+            (widget) =>
+                widget is SelectOptionTag &&
+                (widget.name == content || widget.option?.name == content),
           ),
         );
         expect(finder, findsOneWidget);
