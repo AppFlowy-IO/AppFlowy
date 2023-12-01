@@ -4,9 +4,7 @@ import { DateTimeCell, DateTimeField, DateTimeTypeOption } from '$app/components
 import { useViewId } from '$app/hooks';
 import { useTranslation } from 'react-i18next';
 import { updateDateCell } from '$app/components/database/application/cell/cell_service';
-
 import { Divider, MenuItem, MenuList } from '@mui/material';
-import { DateFormatPB, TimeFormatPB } from '@/services/backend';
 import dayjs from 'dayjs';
 import RangeSwitch from '$app/components/database/components/field_types/date/RangeSwitch';
 import CustomCalendar from '$app/components/database/components/field_types/date/CustomCalendar';

@@ -77,5 +77,6 @@ export async function openDatabase(viewId: string): Promise<Database> {
     groups,
     groupSettings,
     typeOptions,
+    cells: {},
   };
 }

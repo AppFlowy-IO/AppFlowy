@@ -1,4 +1,4 @@
-import { Menu, MenuItem, MenuProps } from '@mui/material';
+import { Menu, MenuProps } from '@mui/material';
 import { FC, MouseEventHandler, useCallback, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { sortService } from '../../application';
