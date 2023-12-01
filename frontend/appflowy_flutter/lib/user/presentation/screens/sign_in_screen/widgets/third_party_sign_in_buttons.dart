@@ -85,13 +85,13 @@ class _ThirdPartySignInButton extends StatelessWidget {
         labelText: labelText,
         onPressed: onPressed,
       );
+    } else {
+      return _DesktopSignInButton(
+        icon: icon,
+        labelText: labelText,
+        onPressed: onPressed,
+      );
     }
-
-    return _DesktopSignInButton(
-      icon: icon,
-      labelText: labelText,
-      onPressed: onPressed,
-    );
   }
 }
 
