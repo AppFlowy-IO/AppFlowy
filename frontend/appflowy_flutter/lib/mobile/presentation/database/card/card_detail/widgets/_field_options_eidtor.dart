@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
@@ -56,65 +57,106 @@ class FieldOptionValues {
   Future<void> create({
     required String viewId,
   }) async {
-    Uint8List? typeOptionData;
-
-    switch (type) {
-      case FieldType.RichText:
-        break;
-      case FieldType.URL:
-        break;
-      case FieldType.Checkbox:
-        break;
-      case FieldType.Number:
-        typeOptionData = NumberTypeOptionPB(
-          format: numberFormat,
-        ).writeToBuffer();
-        break;
-      case FieldType.DateTime:
-        typeOptionData = DateTypeOptionPB(
-          dateFormat: dateFormate,
-          timeFormat: timeFormat,
-        ).writeToBuffer();
-        break;
-      case FieldType.SingleSelect:
-        typeOptionData = SingleSelectTypeOptionPB(
-          options: selectOption,
-        ).writeToBuffer();
-      case FieldType.MultiSelect:
-        typeOptionData = MultiSelectTypeOptionPB(
-          options: selectOption,
-        ).writeToBuffer();
-        break;
-      default:
-        throw UnimplementedError();
-    }
-
     await TypeOptionBackendService.createFieldTypeOption(
       viewId: viewId,
       fieldType: type,
       fieldName: name,
-      typeOptionData: typeOptionData,
+      typeOptionData: toTypeOptionBuffer(),
+    );
+  }
+
+  Uint8List? toTypeOptionBuffer() {
+    switch (type) {
+      case FieldType.RichText:
+      case FieldType.URL:
+      case FieldType.Checkbox:
+        return null;
+      case FieldType.Number:
+        return NumberTypeOptionPB(
+          format: numberFormat,
+        ).writeToBuffer();
+      case FieldType.DateTime:
+        return DateTypeOptionPB(
+          dateFormat: dateFormate,
+          timeFormat: timeFormat,
+        ).writeToBuffer();
+      case FieldType.SingleSelect:
+        return SingleSelectTypeOptionPB(
+          options: selectOption,
+        ).writeToBuffer();
+      case FieldType.MultiSelect:
+        return MultiSelectTypeOptionPB(
+          options: selectOption,
+        ).writeToBuffer();
+      default:
+        throw UnimplementedError();
+    }
+  }
+
+  static Future<FieldOptionValues?> get({
+    required String viewId,
+    required String fieldId,
+    required FieldType fieldType,
+  }) async {
+    final service = FieldBackendService(viewId: viewId, fieldId: fieldId);
+    final result = await service.getFieldTypeOptionData(fieldType: fieldType);
+    return result.fold(
+      (option) {
+        final type = option.field_2.fieldType;
+        final buffer = option.typeOptionData;
+        return FieldOptionValues(
+          type: type,
+          name: option.field_2.name,
+          numberFormat: type == FieldType.Number
+              ? NumberTypeOptionPB.fromBuffer(buffer).format
+              : null,
+          dateFormate: type == FieldType.DateTime
+              ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
+              : null,
+          timeFormat: type == FieldType.DateTime
+              ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
+              : null,
+          selectOption: switch (type) {
+            FieldType.SingleSelect =>
+              SingleSelectTypeOptionPB.fromBuffer(buffer).options,
+            FieldType.MultiSelect =>
+              MultiSelectTypeOptionPB.fromBuffer(buffer).options,
+            _ => [],
+          },
+        );
+      },
+      (error) => null,
     );
   }
 }
 
-class FieldOption extends StatefulWidget {
-  const FieldOption({
+enum FieldOptionAction {
+  hide,
+  duplicate,
+  delete,
+}
+
+class FieldOptionEditor extends StatefulWidget {
+  const FieldOptionEditor({
     super.key,
     required this.mode,
     required this.defaultValues,
     required this.onOptionValuesChanged,
+    this.onAction,
   });
 
   final FieldOptionMode mode;
   final FieldOptionValues defaultValues;
   final void Function(FieldOptionValues values) onOptionValuesChanged;
 
+  // only used in edit mode
+  final void Function(FieldOptionAction action)? onAction;
+
   @override
-  State<FieldOption> createState() => _FieldOptionState();
+  State<FieldOptionEditor> createState() => _FieldOptionEditorState();
 }
 
-class _FieldOptionState extends State<FieldOption> {
+class _FieldOptionEditorState extends State<FieldOptionEditor> {
   final controller = TextEditingController();
 
   late FieldOptionValues values;
@@ -136,6 +178,7 @@ class _FieldOptionState extends State<FieldOption> {
 
   @override
   Widget build(BuildContext context) {
+    final option = _buildOption();
     return Container(
       color: Theme.of(context).colorScheme.secondaryContainer,
       height: MediaQuery.of(context).size.height,
@@ -155,13 +198,18 @@ class _FieldOptionState extends State<FieldOption> {
               type: values.type,
               onSelected: (type) => setState(
                 () {
-                  controller.text = type.i18n;
+                  if (widget.mode == FieldOptionMode.add) {
+                    controller.text = type.i18n;
+                  }
                   _updateOptionValues(type: type, name: type.i18n);
                 },
               ),
             ),
             const _Divider(),
-            ..._buildOption(),
+            if (option.isNotEmpty) ...[
+              ...option,
+              const _Divider(),
+            ],
             ..._buildOptionActions(),
           ],
         ),
@@ -171,18 +219,6 @@ class _FieldOptionState extends State<FieldOption> {
 
   List<Widget> _buildOption() {
     switch (values.type) {
-      case FieldType.RichText:
-        return [
-          const _TextOption(),
-        ];
-      case FieldType.URL:
-        return [
-          const _URLOption(),
-        ];
-      case FieldType.Checkbox:
-        return [
-          const _CheckboxOption(),
-        ];
       case FieldType.Number:
         return [
           _NumberOption(
@@ -244,18 +280,21 @@ class _FieldOptionState extends State<FieldOption> {
       FieldOptionMode.add => [],
       FieldOptionMode.edit => [
           FlowyOptionTile.text(
-            text: LocaleKeys.button_delete.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.delete_s),
+            text: LocaleKeys.grid_field_hide.tr(),
+            leftIcon: const FlowySvg(FlowySvgs.hide_s),
+            onTap: () => widget.onAction?.call(FieldOptionAction.hide),
           ),
           FlowyOptionTile.text(
             showTopBorder: false,
             text: LocaleKeys.button_duplicate.tr(),
             leftIcon: const FlowySvg(FlowySvgs.copy_s),
+            onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
           ),
           FlowyOptionTile.text(
             showTopBorder: false,
-            text: LocaleKeys.grid_field_hide.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.hide_s),
+            text: LocaleKeys.button_delete.tr(),
+            leftIcon: const FlowySvg(FlowySvgs.delete_s),
+            onTap: () => widget.onAction?.call(FieldOptionAction.delete),
           ),
         ]
     };
