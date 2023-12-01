@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
@@ -233,14 +235,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       hoverColor: AFThemeExtension.of(context).greyHover,
       onTap: () async {
         if (PlatformExtension.isMobile) {
-          context.push(
-            Uri(
-              path: MobileNewPropertyScreen.routeName,
-              queryParameters: {
-                MobileNewPropertyScreen.argViewId: widget.viewId,
-              },
-            ).toString(),
-          );
+          _showCreateFieldBottomSheet(context);
         } else {
           final result = await TypeOptionBackendService.createFieldTypeOption(
             viewId: widget.viewId,
@@ -255,6 +250,36 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
         FlowySvgs.add_s,
         color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
       ),
+    );
+  }
+
+  void _showCreateFieldBottomSheet(BuildContext context) {
+    showMobileBottomSheet(
+      context,
+      padding: EdgeInsets.zero,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          snap: true,
+          initialChildSize: 0.7,
+          minChildSize: 0.7,
+          builder: (context, controller) => FieldOptions(
+            scrollController: controller,
+            onAddField: (type) {
+              context.push(
+                Uri(
+                  path: MobileNewPropertyScreen.routeName,
+                  queryParameters: {
+                    MobileNewPropertyScreen.argViewId: widget.viewId,
+                    MobileNewPropertyScreen.argFieldTypeId:
+                        type.value.toString(),
+                  },
+                ).toString(),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

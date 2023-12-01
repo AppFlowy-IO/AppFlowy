@@ -23,6 +23,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -345,9 +346,15 @@ GoRoute _mobileNewPropertyPageRoute() {
     pageBuilder: (context, state) {
       final viewId = state
           .uri.queryParameters[MobileNewPropertyScreen.argViewId] as String;
+      final fieldTypeId =
+          state.uri.queryParameters[MobileNewPropertyScreen.argFieldTypeId] ??
+              FieldType.RichText.value.toString();
+      final value = int.parse(fieldTypeId);
       return MaterialPage(
+        fullscreenDialog: true,
         child: MobileNewPropertyScreen(
           viewId: viewId,
+          fieldType: FieldType.valueOf(value),
         ),
       );
     },

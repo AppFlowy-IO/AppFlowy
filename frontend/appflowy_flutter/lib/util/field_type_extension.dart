@@ -32,4 +32,15 @@ extension FieldTypeExtension on FieldType {
         FieldType.URL => FlowySvgs.field_option_url_xl,
         _ => throw UnimplementedError(),
       };
+
+  FlowySvgData get smallSvgData => switch (this) {
+        FieldType.RichText => FlowySvgs.field_option_text_s,
+        FieldType.Number => FlowySvgs.field_option_number_s,
+        FieldType.DateTime => FlowySvgs.field_option_date_s,
+        FieldType.SingleSelect => FlowySvgs.field_option_select_s,
+        FieldType.MultiSelect => FlowySvgs.field_option_select_s,
+        FieldType.Checkbox => FlowySvgs.field_option_checkbox_s,
+        FieldType.URL => FlowySvgs.field_option_url_s,
+        _ => throw UnimplementedError(),
+      };
 }

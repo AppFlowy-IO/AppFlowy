@@ -32,7 +32,7 @@ class FlowyOptionTile extends StatelessWidget {
     bool showTopBorder = true,
     bool showBottomBorder = true,
     Widget? leftIcon,
-    Widget? leading,
+    Widget? trailing,
     VoidCallback? onTap,
   }) {
     return FlowyOptionTile._(
@@ -43,7 +43,7 @@ class FlowyOptionTile extends StatelessWidget {
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
-      trailing: leading,
+      trailing: trailing,
     );
   }
 
@@ -55,7 +55,7 @@ class FlowyOptionTile extends StatelessWidget {
     bool showTopBorder = true,
     bool showBottomBorder = true,
     Widget? leftIcon,
-    Widget? leading,
+    Widget? trailing,
   }) {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.text,
@@ -66,7 +66,7 @@ class FlowyOptionTile extends StatelessWidget {
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
-      trailing: leading,
+      trailing: trailing,
     );
   }
 
@@ -86,8 +86,9 @@ class FlowyOptionTile extends StatelessWidget {
       showBottomBorder: showBottomBorder,
       trailing: isSelected
           ? const FlowySvg(
-              FlowySvgs.check_s,
+              FlowySvgs.blue_check_s,
               size: Size.square(24.0),
+              blendMode: null,
             )
           : null,
     );

@@ -10,13 +10,16 @@ import 'package:go_router/go_router.dart';
 class MobileNewPropertyScreen extends StatefulWidget {
   static const routeName = '/new_property';
   static const argViewId = 'view_id';
+  static const argFieldTypeId = 'field_type_id';
 
   const MobileNewPropertyScreen({
     super.key,
     required this.viewId,
+    this.fieldType,
   });
 
   final String viewId;
+  final FieldType? fieldType;
 
   @override
   State<MobileNewPropertyScreen> createState() =>
@@ -41,9 +44,9 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
           _SaveButton(onSave: () {}),
         ],
       ),
-      body: const FieldOption(
+      body: FieldOption(
         mode: FieldOptionMode.add,
-        type: FieldType.RichText,
+        type: widget.fieldType ?? FieldType.RichText,
       ),
     );
   }

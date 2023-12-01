@@ -134,22 +134,28 @@ class _FieldOptionState extends State<FieldOption> {
         return [
           _NumberOption(
             selectedFormat: result.numberFormat ?? NumberFormatPB.Num,
-            onSelected: (format) => result.numberFormat = format,
+            onSelected: (format) => setState(
+              () => result.numberFormat = format,
+            ),
           ),
         ];
       case FieldType.DateTime:
         return [
           _DateOption(
             selectedFormat: result.dateFormate ?? DateFormatPB.Local,
-            onSelected: (format) => result.dateFormate = format,
+            onSelected: (format) => setState(
+              () => result.dateFormate = format,
+            ),
           ),
           const _Divider(),
           _TimeOption(
             includeTime: result.includeTime,
             selectedFormat: result.timeFormat ?? TimeFormatPB.TwelveHour,
-            onSelected: (includeTime, format) => result
-              ..includeTime = includeTime
-              ..timeFormat = format,
+            onSelected: (includeTime, format) => setState(
+              () => result
+                ..includeTime = includeTime
+                ..timeFormat = format,
+            ),
           ),
         ];
       default:
@@ -219,9 +225,14 @@ class _PropertyType extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyOptionTile.text(
       text: LocaleKeys.grid_field_propertyType.tr(),
-      leading: Row(
+      trailing: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          FlowySvg(
+            type.smallSvgData,
+            size: const Size.square(18.0),
+          ),
+          const HSpace(6.0),
           FlowyText(
             type.i18n,
             color: Theme.of(context).hintColor,
@@ -438,7 +449,7 @@ class _NumberOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyOptionTile.text(
       text: LocaleKeys.grid_field_numberFormat.tr(),
-      leading: Row(
+      trailing: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FlowyText(
@@ -467,7 +478,10 @@ class _NumberOption extends StatelessWidget {
               builder: (context, scrollController) => _NumberFormatList(
                 scrollController: scrollController,
                 selectedFormat: selectedFormat,
-                onSelected: onSelected,
+                onSelected: (type) {
+                  onSelected(type);
+                  context.pop();
+                },
               ),
             );
           },
