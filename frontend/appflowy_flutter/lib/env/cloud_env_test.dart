@@ -7,13 +7,6 @@ part 'cloud_env_test.g.dart';
 ///
 @Envied(path: '.env.cloud.test')
 abstract class TestEnv {
-  @EnviedField(
-    obfuscate: true,
-    varName: 'CLOUD_TYPE',
-    defaultValue: '0',
-  )
-  static final int cloudType = _TestEnv.cloudType;
-
   /// AppFlowy Cloud Configuration
   @EnviedField(
     obfuscate: true,
