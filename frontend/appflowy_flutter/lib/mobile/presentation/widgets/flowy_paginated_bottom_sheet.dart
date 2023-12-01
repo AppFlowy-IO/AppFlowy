@@ -15,7 +15,7 @@ class SheetPage {
 
 void showPaginatedBottomSheet(BuildContext context, {required SheetPage page}) {
   showMobileBottomSheet(
-    context: context,
+    context,
     // Workaround for not causing drag to rebuild
     isDragEnabled: false,
     builder: (context) => FlowyBottomSheet(root: page),

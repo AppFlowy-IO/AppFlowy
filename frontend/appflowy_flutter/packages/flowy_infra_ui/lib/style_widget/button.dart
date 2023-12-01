@@ -28,6 +28,7 @@ class FlowyButton extends StatelessWidget {
   final MainAxisAlignment mainAxisAlignment;
   final bool showDefaultBoxDecorationOnMobile;
   final double iconPadding;
+  final bool expand;
 
   const FlowyButton({
     Key? key,
@@ -50,6 +51,7 @@ class FlowyButton extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.center,
     this.showDefaultBoxDecorationOnMobile = false,
     this.iconPadding = 6,
+    this.expand = false,
   }) : super(key: key);
 
   @override
@@ -113,6 +115,7 @@ class FlowyButton extends StatelessWidget {
     Widget child = Row(
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
       children: children,
     );
 

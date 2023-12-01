@@ -162,11 +162,15 @@ pub struct MoveGroupRowPayloadPB {
 
   #[pb(index = 4, one_of)]
   pub to_row_id: Option<String>,
+
+  #[pb(index = 5)]
+  pub from_group_id: String,
 }
 
 pub struct MoveGroupRowParams {
   pub view_id: String,
   pub from_row_id: RowId,
+  pub from_group_id: String,
   pub to_group_id: String,
   pub to_row_id: Option<RowId>,
 }
@@ -176,12 +180,15 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
 
   fn try_into(self) -> Result<MoveGroupRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let from_group_id =
+      NotEmptyStr::parse(self.from_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
     let to_group_id =
       NotEmptyStr::parse(self.to_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
 
     Ok(MoveGroupRowParams {
       view_id: view_id.0,
       to_group_id: to_group_id.0,
+      from_group_id: from_group_id.0,
       from_row_id: RowId::from(self.from_row_id),
       to_row_id: self.to_row_id.map(RowId::from),
     })

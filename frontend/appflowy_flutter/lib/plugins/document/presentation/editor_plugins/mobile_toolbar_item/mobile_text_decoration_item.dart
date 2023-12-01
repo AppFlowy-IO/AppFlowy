@@ -80,6 +80,13 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
   ];
 
   @override
+  void dispose() {
+    widget.editorState.selectionExtraInfo = null;
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final children = textDecorations
         .map((currentDecoration) {

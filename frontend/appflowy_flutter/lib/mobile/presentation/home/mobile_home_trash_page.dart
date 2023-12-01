@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -32,8 +32,12 @@ class MobileHomeTrashPage extends StatelessWidget {
                         icon: const Icon(Icons.more_horiz),
                         onPressed: () {
                           final trashBloc = context.read<TrashBloc>();
-                          showFlowyMobileBottomSheet(
+                          showMobileBottomSheet(
                             context,
+                            showHeader: true,
+                            showCloseButton: true,
+                            showDragHandle: true,
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                             title: LocaleKeys.trash_mobile_actions.tr(),
                             builder: (_) => Row(
                               children: [
