@@ -149,6 +149,9 @@ export const useConnectDatabase = (viewId: string) => {
         [DatabaseNotification.DidUpdateFields]: async (changeset) => {
           await fieldListeners.didUpdateFields(viewId, database, changeset);
         },
+        [DatabaseNotification.DidUpdateFieldSettings]: (changeset) => {
+          fieldListeners.didUpdateFieldSettings(database, changeset);
+        },
         [DatabaseNotification.DidUpdateViewRows]: (changeset) => {
           rowListeners.didUpdateViewRows(database, changeset);
         },
