@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -80,52 +79,6 @@ class _ThirdPartySignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context);
-    final isMobile = PlatformExtension.isMobile;
-    if (isMobile) {
-      return Container(
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(4),
-          ),
-          border: Border.all(
-            color: style.colorScheme.outline,
-            width: 0.5,
-          ),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
-                width: 30,
-                height: 30,
-                child: Center(
-                  child: SizedBox(
-                    width: 24,
-                    child: FlowySvg(
-                      icon,
-                      blendMode: null,
-                    ),
-                  ),
-                ),
-              ),
-              const HSpace(8),
-              SizedBox(
-                // To fit the longest label 'Log in with Discord'
-                width: 135,
-                child: Text(
-                  labelText,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    // In desktop, the width of button is limited by [AuthFormContainer]
     return SizedBox(
       height: 48,
       width: AuthFormContainer.width,

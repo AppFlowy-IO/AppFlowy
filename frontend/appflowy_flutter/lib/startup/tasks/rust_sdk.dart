@@ -51,6 +51,7 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
   required Map<String, String> rustEnvs,
 }) {
   final env = getIt<AppFlowyCloudSharedEnv>();
+  rustEnvs["RUST_LOG"] = 'trace';
   return AppFlowyConfiguration(
     root: root,
     custom_app_path: customAppPath,
