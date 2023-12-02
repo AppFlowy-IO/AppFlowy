@@ -183,9 +183,8 @@ class _MobileDatabasePropertyCellState
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
-        onTap: () async {
-          showEditFieldScreen(context, widget.viewId, widget.fieldInfo);
-        },
+        onTap: () =>
+            showEditFieldScreen(context, widget.viewId, widget.fieldInfo),
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Row(

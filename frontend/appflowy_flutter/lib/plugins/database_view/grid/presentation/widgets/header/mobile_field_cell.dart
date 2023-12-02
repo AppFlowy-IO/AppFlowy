@@ -1,12 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_edit_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options_eidtor.dart';
+import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import 'field_type_extension.dart';
 
@@ -41,39 +38,8 @@ class MobileFieldButton extends StatelessWidget {
         ),
       ),
       child: FlowyButton(
-        onTap: () async {
-          final optionValues = await context.push<FieldOptionValues>(
-            MobileEditPropertyScreen.routeName,
-            extra: {
-              MobileEditPropertyScreen.argViewId: viewId,
-              MobileEditPropertyScreen.argField: fieldInfo.field,
-              MobileEditPropertyScreen.argIsPrimary: fieldInfo.isPrimary,
-            },
-          );
-          if (optionValues != null) {
-            final fieldId = fieldInfo.field.id;
-            final service = FieldBackendService(
-              viewId: viewId,
-              fieldId: fieldId,
-            );
-
-            if (optionValues.name != fieldInfo.name) {
-              await service.updateField(name: optionValues.name);
-            }
-
-            if (optionValues.type != fieldInfo.fieldType) {
-              await service.updateFieldType(fieldType: optionValues.type);
-            }
-
-            final data = optionValues.toTypeOptionBuffer();
-            if (data != null) {
-              await FieldBackendService.updateFieldTypeOption(
-                viewId: viewId,
-                fieldId: fieldId,
-                typeOptionData: data,
-              );
-            }
-          }
+        onTap: () {
+          showEditFieldScreen(context, viewId, fieldInfo);
         },
         radius: BorderRadius.zero,
         margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
