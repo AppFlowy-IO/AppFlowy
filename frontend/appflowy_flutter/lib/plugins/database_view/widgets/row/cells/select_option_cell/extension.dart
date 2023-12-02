@@ -95,7 +95,7 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.regular(
+            child: FlowyText.medium(
               optionName,
               fontSize: fontSize,
               overflow: TextOverflow.ellipsis,

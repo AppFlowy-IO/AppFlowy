@@ -23,7 +23,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 
-import 'widgets/mobile_create_row_field_button.dart';
+import 'widgets/mobile_create_field_button.dart';
 import 'widgets/mobile_row_property_list.dart';
 
 class MobileRowDetailPage extends StatefulWidget {
@@ -95,12 +95,9 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
                 if (state.rowInfos.isEmpty || state.currentRowId == null) {
                   return const SizedBox.shrink();
                 }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: MobileRowDetailPageContent(
-                    databaseController: widget.databaseController,
-                    rowMeta: state.rowInfos[index].rowMeta,
-                  ),
+                return MobileRowDetailPageContent(
+                  databaseController: widget.databaseController,
+                  rowMeta: state.rowInfos[index].rowMeta,
                 );
               },
             );
@@ -371,9 +368,12 @@ class MobileRowDetailPageContentState
                         fieldInfo: FieldInfo.initial(state.primaryField!),
                       );
 
-                      return cellBuilder.build(
-                        cellContext,
-                        style: cellStyle,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        child: cellBuilder.build(
+                          cellContext,
+                          style: cellStyle,
+                        ),
                       );
                     }
                     return const SizedBox.shrink();
@@ -384,20 +384,23 @@ class MobileRowDetailPageContentState
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
-                    MobileRowPropertyList(
-                      cellBuilder: cellBuilder,
-                      viewId: viewId,
-                      fieldController: fieldController,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: MobileRowPropertyList(
+                        cellBuilder: cellBuilder,
+                        viewId: viewId,
+                        fieldController: fieldController,
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.all(12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (rowDetailState.numHiddenFields != 0)
                             const ToggleHiddenFieldsVisibilityButton(),
                           const VSpace(12),
-                          MobileCreateRowFieldButton(
+                          MobileRowDetailCreateFieldButton(
                             viewId: viewId,
                             fieldController: fieldController,
                           ),
