@@ -127,7 +127,6 @@ dependencies:
   image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
   leak_tracker: ^9.0.6
-  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
