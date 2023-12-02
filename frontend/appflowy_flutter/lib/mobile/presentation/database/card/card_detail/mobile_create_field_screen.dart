@@ -46,7 +46,7 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: FlowyText(
+        title: FlowyText.medium(
           LocaleKeys.grid_field_newProperty.tr(),
           fontSize: 16.0,
         ),

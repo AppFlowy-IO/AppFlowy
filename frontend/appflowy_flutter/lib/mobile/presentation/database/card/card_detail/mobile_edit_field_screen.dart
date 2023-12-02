@@ -55,7 +55,7 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: FlowyText(
+        title: FlowyText.medium(
           LocaleKeys.grid_field_editProperty.tr(),
           fontSize: 16.0,
         ),
