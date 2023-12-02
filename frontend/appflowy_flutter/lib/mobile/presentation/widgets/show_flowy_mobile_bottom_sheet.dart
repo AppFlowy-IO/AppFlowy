@@ -1,3 +1,4 @@
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -5,24 +6,45 @@ Future<T?> showFlowyMobileBottomSheet<T>(
   BuildContext context, {
   required String title,
   required Widget Function(BuildContext) builder,
+  bool resizeToAvoidBottomInset = true,
   bool isScrollControlled = false,
 }) async {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: isScrollControlled,
-    builder: (context) => Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _BottomSheetTitle(title),
-          const SizedBox(
-            height: 16,
-          ),
-          builder(context),
-        ],
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Corners.s12Radius,
       ),
     ),
+    builder: (context) {
+      const padding = EdgeInsets.fromLTRB(16, 16, 16, 48);
+
+      final child = Padding(
+        padding: padding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _BottomSheetTitle(title),
+            const SizedBox(
+              height: 16,
+            ),
+            builder(context),
+          ],
+        ),
+      );
+      if (resizeToAvoidBottomInset) {
+        return AnimatedPadding(
+          padding: padding +
+              EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+          duration: Duration.zero,
+          child: child,
+        );
+      }
+      return child;
+    },
   );
 }
 

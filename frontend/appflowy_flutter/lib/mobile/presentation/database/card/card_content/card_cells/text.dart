@@ -17,10 +17,10 @@ class MobileTextCardCell<CustomCardData> extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
 
   @override
-  State<MobileTextCardCell> createState() => _NumberCellState();
+  State<MobileTextCardCell> createState() => _MobileTextCardCellState();
 }
 
-class _NumberCellState extends State<MobileTextCardCell> {
+class _MobileTextCardCellState extends State<MobileTextCardCell> {
   late final TextCellBloc _cellBloc;
 
   @override
@@ -47,27 +47,31 @@ class _NumberCellState extends State<MobileTextCardCell> {
       child: BlocBuilder<TextCellBloc, TextCellState>(
         buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
+          // return custom widget if render hook is provided(for example, the title of the card on board view)
+          // if widget.cardData.isEmpty means there is no data for this cell
+          final Widget? custom = widget.renderHook?.call(
+            state.content,
+            widget.cardData,
+            context,
+          );
+          if (custom != null) {
+            return custom;
+          }
+
+          // if there is no render hook
+          // the empty text cell will be hidden
           if (state.content.isEmpty) {
             return const SizedBox();
-          } else {
-            final Widget? custom = widget.renderHook?.call(
-              state.content,
-              widget.cardData,
-              context,
-            );
-            if (custom != null) {
-              return custom;
-            }
-
-            return Container(
-              alignment: Alignment.centerLeft,
-              padding: cellStyle.padding,
-              child: Text(
-                state.content,
-                style: cellStyle.primaryTextStyle(),
-              ),
-            );
           }
+
+          return Container(
+            alignment: Alignment.centerLeft,
+            padding: cellStyle.padding,
+            child: Text(
+              state.content,
+              style: cellStyle.primaryTextStyle(),
+            ),
+          );
         },
       ),
     );

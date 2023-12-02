@@ -10,6 +10,7 @@ class MobileAppearance extends BaseAppearance {
   static const _onBackgroundColor = Color(0xff2F3030); // text/title color
   static const _onSurfaceColor = Color(0xff676666); // text/body color
   static const _onSecondaryColor = Color(0xFFC5C7CB); // text/body2 color
+  static const _hintColorInDarkMode = Color(0xff626262); // hint color
 
   @override
   ThemeData getThemeData(
@@ -60,13 +61,14 @@ class MobileAppearance extends BaseAppearance {
             primary: _primaryColor,
             onPrimary: Colors.white,
             // TODO(yijing): add color later
-            secondary: Colors.black,
+            secondary: const Color(0xff2d2d2d), //temp
             onSecondary: Colors.white,
+            tertiary: const Color(0xff858585), // temp
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
-            background: const Color(0xff1C1C1E), // BG/Secondary color
+            background: const Color(0xff121212), // temp
             onBackground: Colors.white,
-            outline: const Color(0xff96989C), //caption
+            outline: _hintColorInDarkMode,
             outlineVariant: Colors.black,
             //Snack bar
             surface: const Color(0xff2F3030),
@@ -75,7 +77,7 @@ class MobileAppearance extends BaseAppearance {
 
     final hintColor = brightness == Brightness.light
         ? const Color(0xff89909B)
-        : const Color(0xff96989C);
+        : _hintColorInDarkMode;
 
     return ThemeData(
       // color
