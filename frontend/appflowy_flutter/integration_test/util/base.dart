@@ -266,5 +266,5 @@ Future<void> useSupabaseCloud() async {
 
 Future<void> useAppFlowyCloud() async {
   await setAuthenticatorType(AuthenticatorType.appflowyCloud);
-  await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
+  // await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
 }

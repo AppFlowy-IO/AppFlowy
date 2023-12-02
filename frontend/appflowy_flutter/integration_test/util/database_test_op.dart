@@ -223,7 +223,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
       final finder = find.descendant(
         of: findCell,
         matching: find.byWidgetPredicate(
-          (widget) => widget is SelectOptionTag && widget.name == content,
+          (widget) =>
+              widget is SelectOptionTag &&
+              (widget.name == content || widget.option?.name == content),
         ),
       );
       expect(finder, findsOneWidget);
@@ -240,7 +242,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
         final finder = find.descendant(
           of: findCell,
           matching: find.byWidgetPredicate(
-            (widget) => widget is SelectOptionTag && widget.name == content,
+            (widget) =>
+                widget is SelectOptionTag &&
+                (widget.name == content || widget.option?.name == content),
           ),
         );
         expect(finder, findsOneWidget);
@@ -288,13 +292,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
       skipOffstage: false,
     );
 
-    final dateCellText = find.descendant(
-      of: findCell,
-      matching: find.byType(GridDateCellText),
-    );
-
     final text = find.descendant(
-      of: dateCellText,
+      of: findCell,
       matching: find.byWidgetPredicate(
         (widget) {
           if (widget is FlowyText) {
@@ -446,7 +445,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }) async {
     final findRow = find.byType(GridRow);
     final option = find.byWidgetPredicate(
-      (widget) => widget is SelectOptionTag && widget.name == name,
+      (widget) =>
+          widget is SelectOptionTag &&
+          (widget.name == name || widget.option?.name == name),
     );
 
     final cell = find.descendant(

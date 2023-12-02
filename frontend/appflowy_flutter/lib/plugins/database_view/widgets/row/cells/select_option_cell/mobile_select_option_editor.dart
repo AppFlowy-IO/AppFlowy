@@ -11,7 +11,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -404,9 +403,9 @@ class _SelectOption extends StatelessWidget {
             // padding
             const HSpace(12),
             // option tag
-            _SelectOptionTag(
-              optionName: option.name,
-              color: option.color.toColor(context),
+            SelectOptionTag(
+              option: option,
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
             ),
             const Spacer(),
             // more options
@@ -447,44 +446,16 @@ class _CreateOptionCell extends StatelessWidget {
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: _SelectOptionTag(
-                  optionName: optionName,
+                child: SelectOptionTag(
+                  name: optionName,
                   color: Theme.of(context).colorScheme.surfaceVariant,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
                 ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SelectOptionTag extends StatelessWidget {
-  const _SelectOptionTag({
-    required this.optionName,
-    required this.color,
-  });
-
-  final String optionName;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: 6.0,
-        horizontal: 12.0,
-      ),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: Corners.s12Border,
-      ),
-      child: FlowyText.regular(
-        optionName,
-        fontSize: 16,
-        overflow: TextOverflow.ellipsis,
-        color: AFThemeExtension.of(context).textColor,
       ),
     );
   }

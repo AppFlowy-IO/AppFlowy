@@ -60,7 +60,10 @@ class RowBackendService {
     return DatabaseEventUpdateRowMeta(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteRow(RowId rowId) {
+  static Future<Either<Unit, FlowyError>> deleteRow(
+    String viewId,
+    RowId rowId,
+  ) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
@@ -68,10 +71,11 @@ class RowBackendService {
     return DatabaseEventDeleteRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateRow({
-    required RowId rowId,
+  static Future<Either<Unit, FlowyError>> duplicateRow(
+    String viewId,
+    RowId rowId, [
     String? groupId,
-  }) {
+  ]) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;

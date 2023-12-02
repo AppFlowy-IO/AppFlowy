@@ -30,10 +30,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             databaseController.createRow();
           },
           deleteRow: (rowInfo) async {
-            final rowService = RowBackendService(
-              viewId: rowInfo.viewId,
-            );
-            await rowService.deleteRow(rowInfo.rowId);
+            await RowBackendService.deleteRow(rowInfo.viewId, rowInfo.rowId);
           },
           moveRow: (int from, int to) {
             final List<RowInfo> rows = [...state.rowInfos];

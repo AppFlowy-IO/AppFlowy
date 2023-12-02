@@ -20,34 +20,39 @@ class MobileCreateRowFieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      label: Text(
-        LocaleKeys.grid_field_newProperty.tr(),
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).hintColor,
+    return ConstrainedBox(
+      constraints:
+          const BoxConstraints(maxHeight: 44, minWidth: double.infinity),
+      child: TextButton.icon(
+        style: Theme.of(context).textButtonTheme.style?.copyWith(
+              alignment: AlignmentDirectional.centerStart,
+              splashFactory: NoSplash.splashFactory,
+              padding: const MaterialStatePropertyAll(EdgeInsets.zero),
             ),
-      ),
-      onPressed: () async {
-        final result = await TypeOptionBackendService.createFieldTypeOption(
-          viewId: viewId,
-        );
-        result.fold(
-          (typeOption) {
-            context.push(
-              MobileCreateRowFieldScreen.routeName,
-              extra: {
-                MobileCreateRowFieldScreen.argViewId: viewId,
-                MobileCreateRowFieldScreen.argTypeOption: typeOption,
-                MobileCreateRowFieldScreen.argFieldController: fieldController,
-              },
-            );
-          },
-          (r) => Log.error("Failed to create field type option: $r"),
-        );
-      },
-      icon: FlowySvg(
-        FlowySvgs.add_m,
-        color: Theme.of(context).hintColor,
+        label: Text(
+          LocaleKeys.grid_field_newProperty.tr(),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15),
+        ),
+        onPressed: () async {
+          final result = await TypeOptionBackendService.createFieldTypeOption(
+            viewId: viewId,
+          );
+          result.fold(
+            (typeOption) {
+              context.push(
+                MobileCreateRowFieldScreen.routeName,
+                extra: {
+                  MobileCreateRowFieldScreen.argViewId: viewId,
+                  MobileCreateRowFieldScreen.argTypeOption: typeOption,
+                  MobileCreateRowFieldScreen.argFieldController:
+                      fieldController,
+                },
+              );
+            },
+            (r) => Log.error("Failed to create field type option: $r"),
+          );
+        },
+        icon: const FlowySvg(FlowySvgs.add_m),
       ),
     );
   }

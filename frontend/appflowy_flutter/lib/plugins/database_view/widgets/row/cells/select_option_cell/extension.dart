@@ -62,41 +62,33 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
 }
 
 class SelectOptionTag extends StatelessWidget {
-  final String name;
-  final Color color;
+  final SelectOptionPB? option;
+  final String? name;
+  final double? fontSize;
+  final Color? color;
+  final TextStyle? textStyle;
+  final EdgeInsets padding;
   final void Function(String)? onRemove;
 
   const SelectOptionTag({
-    required this.name,
-    required this.color,
-    this.onRemove,
     super.key,
-  });
-
-  factory SelectOptionTag.fromOption({
-    required BuildContext context,
-    required SelectOptionPB option,
-    Function(String)? onRemove,
-  }) {
-    return SelectOptionTag(
-      name: option.name,
-      color: option.color.toColor(context),
-      onRemove: onRemove,
-    );
-  }
+    this.option,
+    this.name,
+    this.fontSize,
+    this.color,
+    this.textStyle,
+    this.onRemove,
+    required this.padding,
+  }) : assert(option != null || name != null && color != null);
 
   @override
   Widget build(BuildContext context) {
-    EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 1, horizontal: 8.0);
-    if (onRemove != null) {
-      padding = padding.copyWith(right: 2.0);
-    }
-
+    final optionName = option?.name ?? name!;
+    final optionColor = option?.color.toColor(context) ?? color!;
     return Container(
-      padding: padding,
+      padding: onRemove == null ? padding : padding.copyWith(right: 2.0),
       decoration: BoxDecoration(
-        color: color,
+        color: optionColor,
         borderRadius: Corners.s6Border,
       ),
       child: Row(
@@ -104,17 +96,17 @@ class SelectOptionTag extends StatelessWidget {
         children: [
           Flexible(
             child: FlowyText.regular(
-              name,
-              fontSize: FontSizes.s11,
+              optionName,
+              fontSize: fontSize,
               overflow: TextOverflow.ellipsis,
               color: AFThemeExtension.of(context).textColor,
             ),
           ),
           if (onRemove != null) ...[
-            const HSpace(2),
+            const HSpace(4),
             FlowyIconButton(
-              width: 18.0,
-              onPressed: () => onRemove?.call(name),
+              width: 16.0,
+              onPressed: () => onRemove?.call(optionName),
               hoverColor: Colors.transparent,
               icon: const FlowySvg(FlowySvgs.close_s),
             ),
@@ -154,9 +146,11 @@ class SelectOptionTagCell extends StatelessWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: Padding(
                   padding: const EdgeInsets.all(5.0),
-                  child: SelectOptionTag.fromOption(
-                    context: context,
+                  child: SelectOptionTag(
                     option: option,
+                    fontSize: 11,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                   ),
                 ),
               ),

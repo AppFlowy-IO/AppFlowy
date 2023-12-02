@@ -6,8 +6,8 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileTextCell extends GridCellWidget {
-  MobileTextCell({
+class RowDetailTextCell extends GridCellWidget {
+  RowDetailTextCell({
     super.key,
     required this.cellControllerBuilder,
     GridCellStyle? style,
@@ -23,10 +23,11 @@ class MobileTextCell extends GridCellWidget {
   late final GridTextCellStyle cellStyle;
 
   @override
-  GridEditableTextCell<MobileTextCell> createState() => _MobileTextCellState();
+  GridEditableTextCell<RowDetailTextCell> createState() =>
+      _RowDetailTextCellState();
 }
 
-class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
+class _RowDetailTextCellState extends GridEditableTextCell<RowDetailTextCell> {
   late final TextCellBloc _cellBloc;
   late final TextEditingController _controller;
 
@@ -57,17 +58,36 @@ class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
           controller: _controller,
           focusNode: focusNode,
           style: widget.cellStyle.textStyle,
+          maxLines: null,
           decoration: InputDecoration(
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
+            enabledBorder:
+                _getInputBorder(color: Theme.of(context).colorScheme.outline),
+            focusedBorder:
+                _getInputBorder(color: Theme.of(context).colorScheme.primary),
             hintText: widget.cellStyle.placeholder,
-            contentPadding: EdgeInsets.zero,
+            contentPadding: widget.cellStyle.cellPadding ??
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
             isCollapsed: true,
+            isDense: true,
+            constraints: const BoxConstraints(minHeight: 48),
+            hintStyle: widget.cellStyle.textStyle
+                ?.copyWith(color: Theme.of(context).hintColor),
           ),
           onTapOutside: (event) =>
               FocusManager.instance.primaryFocus?.unfocus(),
         ),
       ),
+    );
+  }
+
+  InputBorder _getInputBorder({Color? color}) {
+    if (!widget.cellStyle.useRoundedBorder) {
+      return InputBorder.none;
+    }
+    return OutlineInputBorder(
+      borderSide: BorderSide(color: color!),
+      borderRadius: const BorderRadius.all(Radius.circular(14)),
+      gapPadding: 0,
     );
   }
 

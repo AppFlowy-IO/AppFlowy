@@ -264,6 +264,11 @@ class _CreateOptionCell extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: SelectOptionTag(
                     name: name,
+                    fontSize: 11,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 1,
+                    ),
                     color: Theme.of(context).colorScheme.surfaceVariant,
                   ),
                 ),
