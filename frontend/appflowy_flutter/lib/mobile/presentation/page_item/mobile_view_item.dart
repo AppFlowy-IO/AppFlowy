@@ -307,7 +307,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       const HSpace(8),
       // title
       Expanded(
-        child: FlowyText.regular(
+        child: FlowyText.medium(
           widget.view.name,
           fontSize: 18.0,
           overflow: TextOverflow.ellipsis,

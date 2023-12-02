@@ -200,7 +200,6 @@ class MobileAppearance extends BaseAppearance {
         bodyMedium: fontStyle.copyWith(
           color: colorTheme.onBackground,
           fontWeight: FontWeight.w400,
-          // height: 1.2,
           letterSpacing: 0.07,
         ),
         // Trash empty title

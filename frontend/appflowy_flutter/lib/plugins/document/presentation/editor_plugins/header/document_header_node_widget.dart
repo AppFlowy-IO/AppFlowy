@@ -426,6 +426,7 @@ class DocumentCoverState extends State<DocumentCover> {
               children: [
                 IntrinsicWidth(
                   child: RoundedTextButton(
+                    fontSize: 14,
                     onPressed: () {
                       showMobileBottomSheet(
                         context,

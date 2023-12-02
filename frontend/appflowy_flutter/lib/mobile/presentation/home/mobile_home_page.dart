@@ -137,7 +137,7 @@ class _TrashButton extends StatelessWidget {
         color: Theme.of(context).colorScheme.onSurface,
       ),
       leftIconSize: const Size.square(24),
-      text: FlowyText(
+      text: FlowyText.medium(
         LocaleKeys.trash_text.tr(),
         fontSize: 18.0,
       ),
