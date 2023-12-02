@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -160,7 +161,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
-      fontFamily: 'poppins',
+      fontFamily: builtInFontFamily,
       fontSize: fontSize,
       height: 1.5,
       color: theme.colorScheme.onBackground.withOpacity(0.6),
@@ -207,7 +208,7 @@ class EditorStyleCustomizer {
         fontWeight: fontWeight,
       );
     } on Exception {
-      return GoogleFonts.getFont('Poppins');
+      return GoogleFonts.getFont(builtInFontFamily);
     }
   }
 

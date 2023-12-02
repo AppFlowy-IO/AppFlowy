@@ -1,12 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_database_field_editor.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_paginated_bottom_sheet.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_edit_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options_eidtor.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'field_type_extension.dart';
 
@@ -41,19 +41,41 @@ class MobileFieldButton extends StatelessWidget {
         ),
       ),
       child: FlowyButton(
-        onTap: () {
-          showPaginatedBottomSheet(
-            context,
-            page: SheetPage(
-              title: LocaleKeys.grid_field_editProperty.tr(),
-              body: MobileDBBottomSheetFieldEditor(
-                viewId: viewId,
-                field: fieldInfo.field,
-                fieldController: fieldController,
-              ),
-            ),
+        onTap: () async {
+          final optionValues = await context.push<FieldOptionValues>(
+            MobileEditPropertyScreen.routeName,
+            extra: {
+              MobileEditPropertyScreen.argViewId: viewId,
+              MobileEditPropertyScreen.argField: fieldInfo.field,
+              MobileEditPropertyScreen.argIsPrimary: fieldInfo.isPrimary,
+            },
           );
+          if (optionValues != null) {
+            final fieldId = fieldInfo.field.id;
+            final service = FieldBackendService(
+              viewId: viewId,
+              fieldId: fieldId,
+            );
+
+            if (optionValues.name != fieldInfo.name) {
+              await service.updateField(name: optionValues.name);
+            }
+
+            if (optionValues.type != fieldInfo.fieldType) {
+              await service.updateFieldType(fieldType: optionValues.type);
+            }
+
+            final data = optionValues.toTypeOptionBuffer();
+            if (data != null) {
+              await FieldBackendService.updateFieldTypeOption(
+                viewId: viewId,
+                fieldId: fieldId,
+                typeOptionData: data,
+              );
+            }
+          }
         },
+        radius: BorderRadius.zero,
         margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         leftIcon: FlowySvg(
           fieldInfo.fieldType.icon(),

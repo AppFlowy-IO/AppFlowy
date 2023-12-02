@@ -2,6 +2,7 @@ import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_edit_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
@@ -64,6 +65,7 @@ GoRouter generateRouter(Widget child) {
         _mobileDateCellEditScreenRoute(),
         _mobileCreateRowFieldScreenRoute(),
         _mobileNewPropertyPageRoute(),
+        _mobileEditPropertyPageRoute(),
 
         // home
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
@@ -373,9 +375,28 @@ GoRoute _mobileNewPropertyPageRoute() {
   );
 }
 
+GoRoute _mobileEditPropertyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileEditPropertyScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      return MaterialPage(
+        fullscreenDialog: true,
+        child: MobileEditPropertyScreen(
+          viewId: args[MobileEditPropertyScreen.argViewId],
+          field: args[MobileEditPropertyScreen.argField],
+          isPrimary: args[MobileEditPropertyScreen.argIsPrimary],
+        ),
+      );
+    },
+  );
+}
+
 GoRoute _mobileCalendarEventsPageRoute() {
   return GoRoute(
     path: MobileCalendarEventsScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
 

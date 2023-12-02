@@ -58,7 +58,9 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
   Widget _buildFullScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(LocaleKeys.titleBar_date.tr()),
+        title: FlowyText.medium(
+          LocaleKeys.titleBar_date.tr(),
+        ),
       ),
       body: _buildBody(),
     );
@@ -117,7 +119,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
   }
 
   Widget _buildHeader() {
-    const iconWidth = 36.0;
+    const iconWidth = 30.0;
     const height = 44.0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -139,7 +141,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
             alignment: Alignment.center,
             child: FlowyText.medium(
               LocaleKeys.grid_field_dateFieldName.tr(),
-              fontSize: 18,
+              fontSize: 16,
             ),
           ),
         ].map((e) => SizedBox(height: height, child: e)).toList(),

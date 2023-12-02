@@ -24,7 +24,10 @@ class MobileAppearance extends BaseAppearance {
 
     final fontStyle = getFontStyle(
       fontFamily: fontFamily,
+      fontSize: 16.0,
+      fontWeight: FontWeight.w400,
     );
+
     final codeFontStyle = getFontStyle(
       fontFamily: codeFontFamily,
     );
@@ -196,9 +199,7 @@ class MobileAppearance extends BaseAppearance {
         // body2 14 Regular
         bodyMedium: fontStyle.copyWith(
           color: colorTheme.onBackground,
-          fontSize: 14,
           fontWeight: FontWeight.w400,
-          // height: 1.2,
           letterSpacing: 0.07,
         ),
         // Trash empty title

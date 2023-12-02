@@ -96,8 +96,8 @@ class _MobileRecentViewState extends State<MobileRecentView> {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 16, 8, 2),
-                    child: FlowyText(
+                    padding: const EdgeInsets.fromLTRB(8, 18, 8, 2),
+                    child: FlowyText.medium(
                       view.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -110,7 +110,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 4),
+              padding: const EdgeInsets.only(left: 8.0),
               child: icon.isNotEmpty
                   ? EmojiText(
                       emoji: icon,

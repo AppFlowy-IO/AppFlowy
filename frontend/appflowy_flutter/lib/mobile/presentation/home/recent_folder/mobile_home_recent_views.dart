@@ -80,8 +80,8 @@ class _RecentViews extends StatelessWidget {
               separatorBuilder: () => const HSpace(8),
               children: recentViews
                   .map(
-                    (view) => SizedBox(
-                      width: 150,
+                    (view) => SizedBox.square(
+                      dimension: 148,
                       child: MobileRecentView(view: view),
                     ),
                   )

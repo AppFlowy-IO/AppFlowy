@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_new_field_option.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options_eidtor.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -46,9 +46,8 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: FlowyText(
+        title: FlowyText.medium(
           LocaleKeys.grid_field_newProperty.tr(),
-          fontSize: 16.0,
         ),
         leading: AppBarCancelButton(
           onTap: () => context.pop(),
@@ -62,7 +61,7 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
           ),
         ],
       ),
-      body: FieldOption(
+      body: FieldOptionEditor(
         mode: FieldOptionMode.add,
         defaultValues: optionValues,
         onOptionValuesChanged: (optionValues) {
@@ -88,10 +87,9 @@ class _SaveButton extends StatelessWidget {
         alignment: Alignment.center,
         child: GestureDetector(
           onTap: onSave,
-          child: FlowyText(
+          child: FlowyText.medium(
             LocaleKeys.button_save.tr(),
             color: const Color(0xFF00ADDC),
-            fontSize: 16.0,
           ),
         ),
       ),

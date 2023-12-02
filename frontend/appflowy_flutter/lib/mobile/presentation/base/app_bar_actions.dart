@@ -34,7 +34,6 @@ class AppBarCancelButton extends StatelessWidget {
       onTap: onTap,
       child: FlowyText(
         LocaleKeys.button_cancel.tr(),
-        fontSize: 16.0,
       ),
     );
   }

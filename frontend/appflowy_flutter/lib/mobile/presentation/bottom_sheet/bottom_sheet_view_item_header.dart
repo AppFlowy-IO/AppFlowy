@@ -17,7 +17,6 @@ class MobileViewItemBottomSheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -44,9 +43,14 @@ class MobileViewItemBottomSheetHeader extends StatelessWidget {
                 },
               ),
         // title
-        Text(
-          view.name,
-          style: theme.textTheme.labelSmall,
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.6,
+          ),
+          child: FlowyText.medium(
+            view.name,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         const HSpace(24.0),
       ],
