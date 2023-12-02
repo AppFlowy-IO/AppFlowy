@@ -396,6 +396,7 @@ GoRoute _mobileEditPropertyPageRoute() {
 GoRoute _mobileCalendarEventsPageRoute() {
   return GoRoute(
     path: MobileCalendarEventsScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
 

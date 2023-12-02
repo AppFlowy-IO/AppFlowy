@@ -9,14 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileCalendarEventsScreen extends StatefulWidget {
-  static const routeName = "/calendar-events";
+  static const routeName = '/calendar_events';
 
   // GoRouter Arguments
-  static const calendarBlocKey = "calendar_bloc";
-  static const calendarDateKey = "date";
-  static const calendarEventsKey = "events";
-  static const calendarRowCacheKey = "row_cache";
-  static const calendarViewIdKey = "view_id";
+  static const calendarBlocKey = 'calendar_bloc';
+  static const calendarDateKey = 'date';
+  static const calendarEventsKey = 'events';
+  static const calendarRowCacheKey = 'row_cache';
+  static const calendarViewIdKey = 'view_id';
 
   const MobileCalendarEventsScreen({
     super.key,
