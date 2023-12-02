@@ -1,10 +1,16 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_paginated_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -17,6 +23,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
@@ -64,15 +71,16 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 }
 
 class CalendarPage extends StatefulWidget {
-  final ViewPB view;
-  final DatabaseController databaseController;
-  final bool shrinkWrap;
   const CalendarPage({
+    super.key,
     required this.view,
     required this.databaseController,
     this.shrinkWrap = false,
-    super.key,
   });
+
+  final ViewPB view;
+  final DatabaseController databaseController;
+  final bool shrinkWrap;
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -80,8 +88,8 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   final _eventController = EventController<CalendarDayEvent>();
+  late final CalendarBloc _calendarBloc;
   GlobalKey<MonthViewState>? _calendarState;
-  late CalendarBloc _calendarBloc;
 
   @override
   void initState() {
@@ -180,7 +188,9 @@ class _CalendarPageState extends State<CalendarPage> {
     int firstDayOfWeek,
   ) {
     return Padding(
-      padding: CalendarSize.contentInsets,
+      padding: PlatformExtension.isMobile
+          ? CalendarSize.contentInsetsMobile
+          : CalendarSize.contentInsets,
       child: LayoutBuilder(
         // must specify MonthView width for useAvailableVerticalSpace to work properly
         builder: (context, constraints) => ScrollConfiguration(
@@ -189,9 +199,9 @@ class _CalendarPageState extends State<CalendarPage> {
             key: _calendarState,
             controller: _eventController,
             width: constraints.maxWidth,
-            cellAspectRatio: 0.6,
+            cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
             startDay: _weekdayFromInt(firstDayOfWeek),
-            borderColor: Theme.of(context).dividerColor,
+            showBorder: false,
             headerBuilder: _headerNavigatorBuilder,
             weekDayBuilder: _headerWeekDayBuilder,
             cellBuilder: _calendarDayBuilder,
@@ -208,9 +218,39 @@ class _CalendarPageState extends State<CalendarPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          FlowyText.medium(
-            DateFormat('MMMM y', context.locale.toLanguageTag())
-                .format(currentMonth),
+          GestureDetector(
+            onTap: PlatformExtension.isMobile
+                ? () => showFlowyMobileBottomSheet(
+                      context,
+                      title: LocaleKeys.calendar_quickJumpYear.tr(),
+                      builder: (_) => SizedBox(
+                        height: 200,
+                        child: YearPicker(
+                          firstDate: CalendarConstants.epochDate.withoutTime,
+                          lastDate: CalendarConstants.maxDate.withoutTime,
+                          selectedDate: currentMonth,
+                          initialDate: currentMonth,
+                          currentDate: DateTime.now(),
+                          onChanged: (newDate) {
+                            _calendarState?.currentState?.jumpToMonth(newDate);
+                            context.pop();
+                          },
+                        ),
+                      ),
+                    )
+                : null,
+            child: Row(
+              children: [
+                FlowyText.medium(
+                  DateFormat('MMMM y', context.locale.toLanguageTag())
+                      .format(currentMonth),
+                ),
+                if (PlatformExtension.isMobile) ...[
+                  const HSpace(6),
+                  const FlowySvg(FlowySvgs.arrow_down_s),
+                ],
+              ],
+            ),
           ),
           const Spacer(),
           FlowyIconButton(
@@ -252,7 +292,12 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget _headerWeekDayBuilder(day) {
     // incoming day starts from Monday, the symbols start from Sunday
     final symbols = DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
-    final weekDayString = symbols.WEEKDAYS[(day + 1) % 7];
+    String weekDayString = symbols.WEEKDAYS[(day + 1) % 7];
+
+    if (PlatformExtension.isMobile) {
+      weekDayString = weekDayString.substring(0, 3);
+    }
+
     return Center(
       child: Padding(
         padding: CalendarSize.daysOfWeekInsets,
@@ -270,14 +315,14 @@ class _CalendarPageState extends State<CalendarPage> {
     List<CalendarEventData<CalendarDayEvent>> calenderEvents,
     isToday,
     isInMonth,
+    position,
   ) {
-    final events = calenderEvents.map((value) => value.event!).toList();
     // Sort the events by timestamp. Because the database view is not
     // reserving the order of the events. Reserving the order of the rows/events
     // is implemnted in the develop branch(WIP). Will be replaced with that.
-    events.sort(
-      (a, b) => a.event.timestamp.compareTo(b.event.timestamp),
-    );
+    final events = calenderEvents.map((value) => value.event!).toList()
+      ..sort((a, b) => a.event.timestamp.compareTo(b.event.timestamp));
+
     return CalendarDayCard(
       viewId: widget.view.id,
       isToday: isToday,
@@ -285,11 +330,9 @@ class _CalendarPageState extends State<CalendarPage> {
       events: events,
       date: date,
       rowCache: _calendarBloc.rowCache,
-      onCreateEvent: (date) {
-        _calendarBloc.add(
-          CalendarEvent.createEvent(date),
-        );
-      },
+      onCreateEvent: (date) =>
+          _calendarBloc.add(CalendarEvent.createEvent(date)),
+      position: position,
     );
   }
 
@@ -304,6 +347,7 @@ void showEventDetails({
   required CalendarEventPB event,
   required String viewId,
   required RowCache rowCache,
+  required FieldController fieldController,
 }) {
   final dataController = RowController(
     rowMeta: event.rowMeta,
@@ -313,21 +357,22 @@ void showEventDetails({
 
   FlowyOverlay.show(
     context: context,
-    builder: (BuildContext context) {
+    builder: (BuildContext overlayContext) {
       return RowDetailPage(
         cellBuilder: GridCellBuilder(
           cellCache: rowCache.cellCache,
         ),
         rowController: dataController,
+        fieldController: fieldController,
       );
     },
   );
 }
 
 class UnscheduledEventsButton extends StatefulWidget {
-  final DatabaseController databaseController;
-
   const UnscheduledEventsButton({super.key, required this.databaseController});
+
+  final DatabaseController databaseController;
 
   @override
   State<UnscheduledEventsButton> createState() =>
@@ -360,20 +405,20 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 1,
-                  ),
+                  side: BorderSide(color: Theme.of(context).dividerColor),
                   borderRadius: Corners.s6Border,
                 ),
-                side:
-                    BorderSide(color: Theme.of(context).dividerColor, width: 1),
+                side: BorderSide(color: Theme.of(context).dividerColor),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 visualDensity: VisualDensity.compact,
               ),
               onPressed: () {
                 if (state.unscheduleEvents.isNotEmpty) {
-                  _popoverController.show();
+                  if (PlatformExtension.isMobile) {
+                    _showUnscheduledEventsMobile(state.unscheduleEvents);
+                  } else {
+                    _popoverController.show();
+                  }
                 }
               },
               child: FlowyTooltip(
@@ -387,8 +432,7 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
             ),
             popupBuilder: (context) {
               return UnscheduleEventsList(
-                viewId: widget.databaseController.viewId,
-                rowCache: widget.databaseController.rowCache,
+                databaseController: widget.databaseController,
                 unscheduleEvents: state.unscheduleEvents,
               );
             },
@@ -397,65 +441,114 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
       ),
     );
   }
+
+  void _showUnscheduledEventsMobile(List<CalendarEventPB> events) =>
+      showPaginatedBottomSheet(
+        context,
+        page: SheetPage(
+          title: LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
+          body: UnscheduleEventsList(
+            databaseController: widget.databaseController,
+            unscheduleEvents: events,
+          ),
+        ),
+      );
 }
 
 class UnscheduleEventsList extends StatelessWidget {
-  final String viewId;
-  final RowCache rowCache;
-  final List<CalendarEventPB> unscheduleEvents;
   const UnscheduleEventsList({
-    required this.viewId,
-    required this.unscheduleEvents,
-    required this.rowCache,
     super.key,
+    required this.unscheduleEvents,
+    required this.databaseController,
   });
+
+  final List<CalendarEventPB> unscheduleEvents;
+  final DatabaseController databaseController;
 
   @override
   Widget build(BuildContext context) {
-    final cells = <Widget>[
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: FlowyText.medium(
-          LocaleKeys.calendar_settings_clickToAdd.tr(),
-          fontSize: 10,
-          color: Theme.of(context).hintColor,
-          overflow: TextOverflow.ellipsis,
+    final cells = [
+      if (!PlatformExtension.isMobile)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: FlowyText.medium(
+            LocaleKeys.calendar_settings_clickToAdd.tr(),
+            fontSize: 10,
+            color: Theme.of(context).hintColor,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-      ),
       ...unscheduleEvents.map(
-        (e) => UnscheduledEventCell(
-          event: e,
+        (event) => UnscheduledEventCell(
+          event: event,
           onPressed: () {
-            showEventDetails(
-              context: context,
-              event: e,
-              viewId: viewId,
-              rowCache: rowCache,
-            );
-            PopoverContainer.of(context).close();
+            if (PlatformExtension.isMobile) {
+              context.push(
+                MobileRowDetailPage.routeName,
+                extra: {
+                  MobileRowDetailPage.argRowId: event.rowMeta.id,
+                  MobileRowDetailPage.argDatabaseController: databaseController,
+                },
+              );
+              context.pop();
+            } else {
+              showEventDetails(
+                context: context,
+                event: event,
+                viewId: databaseController.viewId,
+                rowCache: databaseController.rowCache,
+                fieldController: databaseController.fieldController,
+              );
+              PopoverContainer.of(context).close();
+            }
           },
         ),
       ),
     ];
 
-    return ListView.separated(
+    final child = ListView.separated(
       itemBuilder: (context, index) => cells[index],
       itemCount: cells.length,
       separatorBuilder: (context, index) =>
           VSpace(GridSize.typeOptionSeparatorHeight),
       shrinkWrap: true,
     );
+
+    if (PlatformExtension.isMobile) {
+      return Flexible(child: child);
+    }
+
+    return child;
   }
 }
 
 class UnscheduledEventCell extends StatelessWidget {
-  final CalendarEventPB event;
-  final VoidCallback onPressed;
   const UnscheduledEventCell({
+    super.key,
     required this.event,
     required this.onPressed,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final CalendarEventPB event;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformExtension.isMobile
+        ? MobileUnscheduledEventTile(event: event, onPressed: onPressed)
+        : DesktopUnscheduledEventTile(event: event, onPressed: onPressed);
+  }
+}
+
+class DesktopUnscheduledEventTile extends StatelessWidget {
+  const DesktopUnscheduledEventTile({
+    super.key,
+    required this.event,
+    required this.onPressed,
+  });
+
+  final CalendarEventPB event;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -471,6 +564,27 @@ class UnscheduledEventCell extends StatelessWidget {
         ),
         onTap: onPressed,
       ),
+    );
+  }
+}
+
+class MobileUnscheduledEventTile extends StatelessWidget {
+  const MobileUnscheduledEventTile({
+    super.key,
+    required this.event,
+    required this.onPressed,
+  });
+
+  final CalendarEventPB event;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return MobileSettingItem(
+      name: event.title.isEmpty
+          ? LocaleKeys.calendar_defaultNewCalendarTitle.tr()
+          : event.title,
+      onTap: onPressed,
     );
   }
 }

@@ -1,8 +1,8 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:dartz/dartz.dart';
 
 /// FieldService consists of lots of event functions. We define the events in the backend(Rust),
 /// you can find the corresponding event implementation in event_map.rs of the corresponding crate.
@@ -27,7 +27,6 @@ class FieldBackendService {
   Future<Either<Unit, FlowyError>> updateField({
     String? name,
     bool? frozen,
-    double? width,
   }) {
     final payload = FieldChangesetPB.create()
       ..viewId = viewId
@@ -39,10 +38,6 @@ class FieldBackendService {
 
     if (frozen != null) {
       payload.frozen = frozen;
-    }
-
-    if (width != null) {
-      payload.width = width.toInt();
     }
 
     return DatabaseEventUpdateField(payload).send();
@@ -59,6 +54,17 @@ class FieldBackendService {
       ..typeOptionData = typeOptionData;
 
     return DatabaseEventUpdateFieldTypeOption(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> updateFieldType({
+    required FieldType fieldType,
+  }) {
+    final payload = UpdateFieldTypePayloadPB.create()
+      ..viewId = viewId
+      ..fieldId = fieldId
+      ..fieldType = fieldType;
+
+    return DatabaseEventUpdateFieldType(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteField() {

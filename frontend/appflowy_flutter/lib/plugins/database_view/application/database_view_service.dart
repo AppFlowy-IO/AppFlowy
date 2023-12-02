@@ -56,12 +56,14 @@ class DatabaseViewBackendService {
 
   Future<Either<Unit, FlowyError>> moveGroupRow({
     required RowId fromRowId,
+    required String fromGroupId,
     required String toGroupId,
     RowId? toRowId,
   }) {
     final payload = MoveGroupRowPayloadPB.create()
       ..viewId = viewId
       ..fromRowId = fromRowId
+      ..fromGroupId = fromGroupId
       ..toGroupId = toGroupId;
 
     if (toRowId != null) {

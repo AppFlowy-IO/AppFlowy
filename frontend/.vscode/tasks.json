@@ -14,7 +14,6 @@
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
-        "AF: Dart Clean",
         "AF: Flutter Clean",
         "AF: Build Appflowy Core",
         "AF: Flutter Pub Get",
@@ -33,7 +32,6 @@
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
-        "AF: Dart Clean",
         "AF: Flutter Clean",
         "AF: Build Appflowy Core For iOS",
         "AF: Flutter Pub Get",
@@ -52,7 +50,6 @@
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
-        "AF: Dart Clean",
         "AF: Flutter Clean",
         "AF: Build Appflowy Core For iOS Simulator",
         "AF: Flutter Pub Get",
@@ -89,7 +86,6 @@
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
-        "AF: Dart Clean",
         "AF: Flutter Clean",
         "AF: Build Appflowy Core For Android",
         "AF: Flutter Pub Get",
@@ -309,7 +305,7 @@
     {
       "label": "AF: Generate Env File",
       "type": "shell",
-      "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs ",
+      "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }

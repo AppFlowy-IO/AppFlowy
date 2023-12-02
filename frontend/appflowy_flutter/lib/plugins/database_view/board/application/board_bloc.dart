@@ -54,7 +54,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           databaseController.moveGroupRow(
             fromRow: fromRow,
             toRow: toRow,
-            groupId: groupId,
+            fromGroupId: groupId,
+            toGroupId: groupId,
           );
         }
       },
@@ -65,7 +66,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           databaseController.moveGroupRow(
             fromRow: fromRow,
             toRow: toRow,
-            groupId: toGroupId,
+            fromGroupId: fromGroupId,
+            toGroupId: toGroupId,
           );
         }
       },
@@ -85,7 +87,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               startRowId: startRowId,
             );
 
-            result.fold((_) {}, (err) => Log.error(err));
+            result.fold(
+              (rowMeta) {
+                emit(state.copyWith(recentAddedRowMeta: rowMeta));
+              },
+              (err) => Log.error(err),
+            );
           },
           createHeaderRow: (String groupId) async {
             final result = await databaseController.createRow(
@@ -93,10 +100,19 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               fromBeginning: true,
             );
 
-            result.fold((_) {}, (err) => Log.error(err));
+            result.fold(
+              (rowMeta) {
+                emit(state.copyWith(recentAddedRowMeta: rowMeta));
+              },
+              (err) => Log.error(err),
+            );
           },
           createGroup: (name) async {
             final result = await groupBackendSvc.createGroup(name: name);
+            result.fold((_) {}, (err) => Log.error(err));
+          },
+          deleteGroup: (groupId) async {
+            final result = await groupBackendSvc.deleteGroup(groupId: groupId);
             result.fold((_) {}, (err) => Log.error(err));
           },
           didCreateRow: (group, row, int? index) {
@@ -496,6 +512,7 @@ class BoardEvent with _$BoardEvent {
   ) = _ToggleGroupVisibility;
   const factory BoardEvent.toggleHiddenSectionVisibility(bool isVisible) =
       _ToggleHiddenSectionVisibility;
+  const factory BoardEvent.deleteGroup(String groupId) = _DeleteGroup;
   const factory BoardEvent.reorderGroup(String fromGroupId, String toGroupId) =
       _ReorderGroup;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
@@ -522,6 +539,7 @@ class BoardState with _$BoardState {
     required BoardLayoutSettingPB? layoutSettings,
     String? editingHeaderId,
     BoardEditingRow? editingRow,
+    RowMetaPB? recentAddedRowMeta,
     required List<GroupPB> hiddenGroups,
   }) = _BoardState;
 

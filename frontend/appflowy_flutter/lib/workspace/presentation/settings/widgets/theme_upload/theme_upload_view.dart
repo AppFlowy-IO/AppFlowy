@@ -27,8 +27,7 @@ class ThemeUploadWidget extends StatefulWidget {
 class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
   void listen(BuildContext context, DynamicPluginState state) {
     setState(() {
-      state.when(
-        uninitialized: () => null,
+      state.whenOrNull(
         ready: (plugins) {
           child =
               const UploadNewThemeWidget(key: Key('upload_new_theme_widget'));
@@ -42,7 +41,7 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
             key: Key('upload_theme_loading_widget'),
           );
         },
-        compilationFailure: (path) {
+        compilationFailure: () {
           child = const ThemeUploadFailureWidget(
             key: Key('upload_theme_failure_widget'),
           );
@@ -53,7 +52,6 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
                 .pop(const DynamicPluginState.compilationSuccess());
           }
         },
-        deletionFailure: (path) {},
       );
     });
   }

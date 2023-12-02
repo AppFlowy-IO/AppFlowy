@@ -1,4 +1,4 @@
-import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/property_title.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
@@ -46,20 +46,22 @@ class NumberTypeOptionMobileWidget extends TypeOptionWidget {
             typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
           return GestureDetector(
-            child: Row(
-              children: [
-                PropertyTitle(LocaleKeys.grid_field_numberFormat.tr()),
-                const Spacer(),
-                const HSpace(4),
-                Text(
-                  state.typeOption.format.title(),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: Theme.of(context).hintColor,
-                ),
-              ],
+            child: PropertyEditContainer(
+              child: Row(
+                children: [
+                  PropertyTitle(LocaleKeys.grid_field_numberFormat.tr()),
+                  const Spacer(),
+                  const HSpace(4),
+                  Text(
+                    state.typeOption.format.title(),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ],
+              ),
             ),
             onTap: () => showFlowyMobileBottomSheet(
               context,

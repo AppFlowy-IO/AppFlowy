@@ -71,7 +71,6 @@ class HiddenGroupsColumn extends StatelessWidget {
                                   LocaleKeys
                                       .board_hiddenGroupSection_sectionTitle
                                       .tr(),
-                                  fontSize: 14,
                                   overflow: TextOverflow.ellipsis,
                                   color: Theme.of(context).hintColor,
                                 ),
@@ -421,6 +420,8 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return RowDetailPage(
+                          fieldController:
+                              context.read<BoardBloc>().fieldController,
                           cellBuilder: GridCellBuilder(
                             cellCache: rowController.cellCache,
                           ),

@@ -62,44 +62,33 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
 }
 
 class SelectOptionTag extends StatelessWidget {
-  final String name;
-  final Color color;
-  final VoidCallback? onSelected;
+  final SelectOptionPB? option;
+  final String? name;
+  final double? fontSize;
+  final Color? color;
+  final TextStyle? textStyle;
+  final EdgeInsets padding;
   final void Function(String)? onRemove;
-  const SelectOptionTag({
-    required this.name,
-    required this.color,
-    this.onSelected,
-    this.onRemove,
-    Key? key,
-  }) : super(key: key);
 
-  factory SelectOptionTag.fromOption({
-    required BuildContext context,
-    required SelectOptionPB option,
-    VoidCallback? onSelected,
-    Function(String)? onRemove,
-  }) {
-    return SelectOptionTag(
-      name: option.name,
-      color: option.color.toColor(context),
-      onSelected: onSelected,
-      onRemove: onRemove,
-    );
-  }
+  const SelectOptionTag({
+    super.key,
+    this.option,
+    this.name,
+    this.fontSize,
+    this.color,
+    this.textStyle,
+    this.onRemove,
+    required this.padding,
+  }) : assert(option != null || name != null && color != null);
 
   @override
   Widget build(BuildContext context) {
-    EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 2, horizontal: 8.0);
-    if (onRemove != null) {
-      padding = padding.copyWith(right: 2.0);
-    }
-
+    final optionName = option?.name ?? name!;
+    final optionColor = option?.color.toColor(context) ?? color!;
     return Container(
-      padding: padding,
+      padding: onRemove == null ? padding : padding.copyWith(right: 2.0),
       decoration: BoxDecoration(
-        color: color,
+        color: optionColor,
         borderRadius: Corners.s6Border,
       ),
       child: Row(
@@ -107,21 +96,19 @@ class SelectOptionTag extends StatelessWidget {
         children: [
           Flexible(
             child: FlowyText.medium(
-              name,
-              fontSize: FontSizes.s11,
+              optionName,
+              fontSize: fontSize,
               overflow: TextOverflow.ellipsis,
               color: AFThemeExtension.of(context).textColor,
             ),
           ),
           if (onRemove != null) ...[
-            const HSpace(2),
+            const HSpace(4),
             FlowyIconButton(
-              width: 18.0,
-              onPressed: () => onRemove?.call(name),
+              width: 16.0,
+              onPressed: () => onRemove?.call(optionName),
               hoverColor: Colors.transparent,
-              icon: const FlowySvg(
-                FlowySvgs.close_s,
-              ),
+              icon: const FlowySvg(FlowySvgs.close_s),
             ),
           ],
         ],
@@ -131,15 +118,16 @@ class SelectOptionTag extends StatelessWidget {
 }
 
 class SelectOptionTagCell extends StatelessWidget {
-  final List<Widget> children;
-  final void Function(SelectOptionPB) onSelected;
-  final SelectOptionPB option;
   const SelectOptionTagCell({
+    super.key,
     required this.option,
     required this.onSelected,
     this.children = const [],
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final SelectOptionPB option;
+  final VoidCallback onSelected;
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
@@ -147,28 +135,29 @@ class SelectOptionTagCell extends StatelessWidget {
       style: HoverStyle(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
       ),
-      child: InkWell(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onSelected,
               child: Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: Padding(
                   padding: const EdgeInsets.all(5.0),
-                  child: SelectOptionTag.fromOption(
-                    context: context,
+                  child: SelectOptionTag(
                     option: option,
-                    onSelected: () => onSelected(option),
+                    fontSize: 11,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                   ),
                 ),
               ),
             ),
-            ...children,
-          ],
-        ),
-        // TODO(richard): find alternative solution to onTapDown
-        onTapDown: (_) => onSelected(option),
+          ),
+          ...children,
+        ],
       ),
     );
   }

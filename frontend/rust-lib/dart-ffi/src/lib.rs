@@ -10,9 +10,11 @@ use tracing::{error, trace};
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::*;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
+use flowy_server_config::AuthenticatorType;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 
+use crate::appflowy_yaml::save_appflowy_cloud_config;
 use crate::env_serde::AppFlowyDartConfiguration;
 use crate::notification::DartNotificationSender;
 use crate::{
@@ -20,6 +22,7 @@ use crate::{
   model::{FFIRequest, FFIResponse},
 };
 
+mod appflowy_yaml;
 mod c;
 mod env_serde;
 mod model;
@@ -53,15 +56,10 @@ pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
   let c_str = unsafe { CStr::from_ptr(data) };
   let serde_str = c_str.to_str().unwrap();
   let configuration = AppFlowyDartConfiguration::from_str(serde_str);
+  configuration.write_env();
 
-  configuration.cloud_type.write_env();
-  let is_valid = configuration.appflowy_cloud_config.write_env().is_ok();
-  // Note on Configuration Priority:
-  // If both Supabase config and AppFlowy cloud config are provided in the '.env' file,
-  // the AppFlowy cloud config will be prioritized and the Supabase config ignored.
-  // Ensure only one of these configurations is active at any given time.
-  if !is_valid {
-    let _ = configuration.supabase_config.write_env();
+  if configuration.authenticator_type == AuthenticatorType::AppFlowyCloud {
+    let _ = save_appflowy_cloud_config(&configuration.root, &configuration.appflowy_cloud_config);
   }
 
   let log_crates = vec!["flowy-ffi".to_string()];
@@ -176,8 +174,6 @@ pub extern "C" fn backend_log(level: i64, data: *const c_char) {
 }
 
 #[no_mangle]
-pub extern "C" fn set_env(data: *const c_char) {
-  let c_str = unsafe { CStr::from_ptr(data) };
-  let serde_str = c_str.to_str().unwrap();
-  AppFlowyDartConfiguration::write_env_from(serde_str);
+pub extern "C" fn set_env(_data: *const c_char) {
+  // Deprecated
 }

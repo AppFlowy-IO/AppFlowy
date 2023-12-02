@@ -12,13 +12,11 @@ class CalendarEventEditorBloc
     extends Bloc<CalendarEventEditorEvent, CalendarEventEditorState> {
   final RowController rowController;
   final CalendarLayoutSettingPB layoutSettings;
-  final RowBackendService _rowService;
 
   CalendarEventEditorBloc({
     required this.rowController,
     required this.layoutSettings,
-  })  : _rowService = RowBackendService(viewId: rowController.viewId),
-        super(CalendarEventEditorState.initial()) {
+  }) : super(CalendarEventEditorState.initial()) {
     on<CalendarEventEditorEvent>((event, emit) async {
       await event.when(
         initial: () {
@@ -43,7 +41,10 @@ class CalendarEventEditorBloc
           emit(state.copyWith(cells: cells));
         },
         delete: () async {
-          final result = await _rowService.deleteRow(rowController.rowId);
+          final result = await RowBackendService.deleteRow(
+            rowController.viewId,
+            rowController.rowId,
+          );
           result.fold((l) => null, (err) => Log.error(err));
         },
       );

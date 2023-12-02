@@ -1,4 +1,5 @@
 use collab_database::fields::Field;
+use collab_database::views::OrderObjectPosition;
 use flowy_database2::entities::{CreateFieldParams, FieldType};
 use flowy_database2::services::field::{
   type_option_to_pb, DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder,
@@ -19,6 +20,8 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, Field) {
     view_id: grid_id.to_owned(),
     field_type,
     type_option_data: Some(type_option_data),
+    field_name: None,
+    position: OrderObjectPosition::default(),
   };
   (params, text_field)
 }
@@ -38,6 +41,8 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, Field) {
     view_id: grid_id.to_owned(),
     field_type,
     type_option_data: Some(type_option_data),
+    field_name: None,
+    position: OrderObjectPosition::default(),
   };
   (params, single_select_field)
 }
@@ -60,6 +65,8 @@ pub fn create_date_field(grid_id: &str) -> (CreateFieldParams, Field) {
     view_id: grid_id.to_owned(),
     field_type: FieldType::DateTime,
     type_option_data: Some(type_option_data),
+    field_name: None,
+    position: OrderObjectPosition::default(),
   };
   (params, field)
 }
@@ -92,6 +99,8 @@ pub fn create_timestamp_field(grid_id: &str, field_type: FieldType) -> (CreateFi
     view_id: grid_id.to_owned(),
     field_type,
     type_option_data: Some(type_option_data),
+    field_name: None,
+    position: OrderObjectPosition::default(),
   };
   (params, field)
 }

@@ -213,7 +213,7 @@ impl AFCloudTest {
     test.set_auth_type(AuthTypePB::AFCloud);
     test
       .server_provider
-      .set_authenticator(Authenticator::AFCloud);
+      .set_authenticator(Authenticator::AppFlowyCloud);
 
     Some(Self { inner: test })
   }

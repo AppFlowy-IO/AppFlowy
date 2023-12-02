@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_event_editor_bloc.dart';
@@ -19,6 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalendarEventEditor extends StatelessWidget {
   final RowController rowController;
+  final FieldController fieldController;
   final CalendarLayoutSettingPB layoutSettings;
   final GridCellBuilder cellBuilder;
 
@@ -28,6 +30,7 @@ class CalendarEventEditor extends StatelessWidget {
     required RowMetaPB rowMeta,
     required String viewId,
     required this.layoutSettings,
+    required this.fieldController,
   })  : rowController = RowController(
           rowMeta: rowMeta,
           viewId: viewId,
@@ -45,7 +48,10 @@ class CalendarEventEditor extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          EventEditorControls(rowController: rowController),
+          EventEditorControls(
+            rowController: rowController,
+            fieldController: fieldController,
+          ),
           Flexible(
             child: EventPropertyList(
               dateFieldId: layoutSettings.fieldId,
@@ -59,11 +65,14 @@ class CalendarEventEditor extends StatelessWidget {
 }
 
 class EventEditorControls extends StatelessWidget {
-  final RowController rowController;
   const EventEditorControls({
     super.key,
     required this.rowController,
+    required this.fieldController,
   });
+
+  final RowController rowController;
+  final FieldController fieldController;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +100,7 @@ class EventEditorControls extends StatelessWidget {
                 context: context,
                 builder: (BuildContext context) {
                   return RowDetailPage(
+                    fieldController: fieldController,
                     cellBuilder: GridCellBuilder(
                       cellCache: rowController.cellCache,
                     ),

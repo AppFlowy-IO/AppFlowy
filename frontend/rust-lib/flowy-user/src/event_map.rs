@@ -25,7 +25,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .name("Flowy-User")
     .state(user_session)
     .state(store_preferences)
-    .event(UserEvent::SignIn, sign_in)
+    .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
@@ -38,8 +38,8 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
     .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
-    .event(UserEvent::OauthSignIn, oauth_handler)
-    .event(UserEvent::GetSignInURL, get_sign_in_url_handler)
+    .event(UserEvent::OauthSignIn, oauth_sign_in_handler)
+    .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
@@ -69,7 +69,7 @@ pub enum UserEvent {
   /// Only use when the [Authenticator] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
-  SignIn = 0,
+  SignInWithEmailPassword = 0,
 
   /// Only use when the [Authenticator] is Local or SelfHosted
   /// Creating a new account
@@ -111,7 +111,7 @@ pub enum UserEvent {
   /// Get the OAuth callback url
   /// Only use when the [Authenticator] is AFCloud
   #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
-  GetSignInURL = 11,
+  GenerateSignInURL = 11,
 
   #[event(input = "OauthProviderPB", output = "OauthProviderDataPB")]
   GetOauthURLWithProvider = 12,
@@ -234,53 +234,71 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_update_network(&self, _reachable: bool) {}
 }
 
-/// The user cloud service provider.
-/// The provider can be supabase, firebase, aws, or any other cloud service.
+/// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
+/// including token management, synchronization settings, network reachability, and authentication.
+///
+/// This trait is intended for implementation by providers that offer cloud-based services for users.
+/// It includes methods for handling authentication tokens, enabling/disabling synchronization,
+/// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
+  /// Sets the authentication token for the cloud service.
+  ///
+  /// # Arguments
+  /// * `token`: A string slice representing the authentication token.
+  ///
+  /// # Returns
+  /// A `Result` which is `Ok` if the token is successfully set, or a `FlowyError` otherwise.
   fn set_token(&self, token: &str) -> Result<(), FlowyError>;
-  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
-    None
-  }
 
+  /// Subscribes to the state of the authentication token.
+  ///
+  /// # Returns
+  /// An `Option` containing a `WatchStream<UserTokenState>` if available, or `None` otherwise.
+  /// The stream allows the caller to watch for changes in the token state.
+  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>>;
+
+  /// Sets the synchronization state for a user.
+  ///
+  /// # Arguments
+  /// * `uid`: An i64 representing the user ID.
+  /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
+
+  /// Sets the network reachability status.
+  ///
+  /// # Arguments
+  /// * `reachable`: A boolean indicating whether the network is reachable.
+  fn set_network_reachable(&self, reachable: bool);
+
+  /// Sets the encryption secret for secure communication.
+  ///
+  /// # Arguments
+  /// * `secret`: A `String` representing the encryption secret.
   fn set_encrypt_secret(&self, secret: String);
+
+  /// Sets the authenticator used for authentication processes.
+  ///
+  /// # Arguments
+  /// * `authenticator`: An `Authenticator` object.
   fn set_authenticator(&self, authenticator: Authenticator);
+
+  /// Retrieves the current authenticator.
+  ///
+  /// # Returns
+  /// The current `Authenticator` object.
   fn get_authenticator(&self) -> Authenticator;
+
+  /// Retrieves the user-specific cloud service.
+  ///
+  /// # Returns
+  /// A `Result` containing an `Arc<dyn UserCloudService>` if successful, or a `FlowyError` otherwise.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
+
+  /// Retrieves the service URL.
+  ///
+  /// # Returns
+  /// A `String` representing the service URL.
   fn service_url(&self) -> String;
-}
-
-impl<T> UserCloudServiceProvider for Arc<T>
-where
-  T: UserCloudServiceProvider,
-{
-  fn set_token(&self, token: &str) -> Result<(), FlowyError> {
-    (**self).set_token(token)
-  }
-
-  fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
-    (**self).set_enable_sync(uid, enable_sync)
-  }
-
-  fn set_encrypt_secret(&self, secret: String) {
-    (**self).set_encrypt_secret(secret)
-  }
-
-  fn set_authenticator(&self, authenticator: Authenticator) {
-    (**self).set_authenticator(authenticator)
-  }
-
-  fn get_authenticator(&self) -> Authenticator {
-    (**self).get_authenticator()
-  }
-
-  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    (**self).get_user_service()
-  }
-
-  fn service_url(&self) -> String {
-    (**self).service_url()
-  }
 }
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function

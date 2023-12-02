@@ -1,4 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,8 +17,8 @@ class MobileViewItemBottomSheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // back button,
         showBackButton
@@ -31,23 +32,27 @@ class MobileViewItemBottomSheetHeader extends StatelessWidget {
                   ),
                 ),
               )
-            : const SizedBox.shrink(),
+            : FlowyButton(
+                useIntrinsicWidth: true,
+                text: const Icon(
+                  Icons.close,
+                ),
+                margin: EdgeInsets.zero,
+                onTap: () {
+                  context.pop();
+                },
+              ),
         // title
-        Expanded(
-          child: Text(
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.6,
+          ),
+          child: FlowyText.medium(
             view.name,
-            style: theme.textTheme.labelSmall,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        IconButton(
-          icon: Icon(
-            Icons.close,
-            color: theme.hintColor,
-          ),
-          onPressed: () {
-            context.pop();
-          },
-        ),
+        const HSpace(24.0),
       ],
     );
   }

@@ -53,11 +53,13 @@ class FlowyMobileStateContainer extends StatelessWidget {
                       ? '🛸'
                       : ''),
               style: const TextStyle(fontSize: 40),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               title,
               style: theme.textTheme.labelLarge,
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Text(
@@ -65,6 +67,7 @@ class FlowyMobileStateContainer extends StatelessWidget {
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.hintColor,
               ),
+              textAlign: TextAlign.center,
             ),
             if (_stateType == _FlowyMobileStateContainerType.error) ...[
               const SizedBox(height: 8),

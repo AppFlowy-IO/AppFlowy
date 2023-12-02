@@ -15,4 +15,7 @@ class ToggleStyle {
 
   static ToggleStyle get small =>
       ToggleStyle(height: 10, width: 16, thumbRadius: 8);
+
+  static ToggleStyle get mobile =>
+      ToggleStyle(height: 24, width: 42, thumbRadius: 18);
 }

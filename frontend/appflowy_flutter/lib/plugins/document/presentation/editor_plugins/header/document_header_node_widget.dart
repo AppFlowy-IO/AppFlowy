@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -426,9 +426,13 @@ class DocumentCoverState extends State<DocumentCover> {
               children: [
                 IntrinsicWidth(
                   child: RoundedTextButton(
+                    fontSize: 14,
                     onPressed: () {
-                      showFlowyMobileBottomSheet(
+                      showMobileBottomSheet(
                         context,
+                        showHeader: true,
+                        showDragHandle: true,
+                        showCloseButton: true,
                         title:
                             LocaleKeys.document_plugins_cover_changeCover.tr(),
                         builder: (context) {

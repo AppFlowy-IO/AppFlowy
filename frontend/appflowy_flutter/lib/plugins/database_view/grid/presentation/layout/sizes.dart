@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/widgets.dart';
 
 class GridSize {
@@ -6,12 +7,13 @@ class GridSize {
   static double get scrollBarSize => 8 * scale;
   static double get headerHeight => 40 * scale;
   static double get footerHeight => 40 * scale;
-  static double get leadingHeaderPadding => 40 * scale;
+  static double get leadingHeaderPadding =>
+      PlatformExtension.isDesktop ? 40 * scale : 20 * scale;
   static double get trailHeaderPadding => 140 * scale;
   static double get headerContainerPadding => 0 * scale;
   static double get cellHPadding => 10 * scale;
   static double get cellVPadding => 10 * scale;
-  static double get popoverItemHeight => 32 * scale;
+  static double get popoverItemHeight => 26 * scale;
   static double get typeOptionSeparatorHeight => 4 * scale;
 
   static EdgeInsets get headerContentInsets => EdgeInsets.symmetric(

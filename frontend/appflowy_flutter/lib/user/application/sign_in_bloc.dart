@@ -1,3 +1,6 @@
+import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
@@ -11,7 +14,29 @@ part 'sign_in_bloc.freezed.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final AuthService authService;
+  void Function()? deepLinkStateListener;
+
+  @override
+  Future<void> close() {
+    deepLinkStateListener?.call();
+    if (isAppFlowyCloudEnabled && deepLinkStateListener != null) {
+      getIt<AppFlowyCloudDeepLink>().unsubscribeDeepLinkLoadingState(
+        deepLinkStateListener!,
+      );
+    }
+    return super.close();
+  }
+
   SignInBloc(this.authService) : super(SignInState.initial()) {
+    if (isAppFlowyCloudEnabled) {
+      deepLinkStateListener =
+          getIt<AppFlowyCloudDeepLink>().subscribeDeepLinkLoadingState((value) {
+        if (isClosed) return;
+
+        add(SignInEvent.deepLinkStateChange(value));
+      });
+    }
+
     on<SignInEvent>((event, emit) async {
       await event.map(
         signedInWithUserEmailAndPassword: (e) async {
@@ -51,6 +76,35 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         signedWithMagicLink: (SignedWithMagicLink value) async {
           await _performActionOnSignInWithMagicLink(state, emit, value.email);
         },
+        deepLinkStateChange: (_DeepLinkStateChange value) {
+          final deepLinkState = value.result.state;
+
+          switch (deepLinkState) {
+            case DeepLinkState.none:
+              break;
+            case DeepLinkState.loading:
+              emit(
+                state.copyWith(
+                  isSubmitting: true,
+                  emailError: none(),
+                  passwordError: none(),
+                  successOrFail: none(),
+                ),
+              );
+            case DeepLinkState.finish:
+              if (value.result.result != null) {
+                emit(
+                  value.result.result!.fold(
+                    (error) => stateFromCode(error),
+                    (userProfile) => state.copyWith(
+                      isSubmitting: false,
+                      successOrFail: some(left(userProfile)),
+                    ),
+                  ),
+                );
+              }
+          }
+        },
       );
     });
   }
@@ -59,7 +113,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     SignInState state,
     Emitter<SignInState> emit,
   ) async {
-    final result = await authService.signIn(
+    final result = await authService.signInWithEmailPassword(
       email: state.email ?? '',
       password: state.password ?? '',
     );
@@ -189,6 +243,8 @@ class SignInEvent with _$SignInEvent {
       SignedWithMagicLink;
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
+  const factory SignInEvent.deepLinkStateChange(DeepLinkResult result) =
+      _DeepLinkStateChange;
 }
 
 @freezed

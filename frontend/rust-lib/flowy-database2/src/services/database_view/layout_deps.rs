@@ -1,6 +1,6 @@
 use collab_database::database::{gen_field_id, MutexDatabase};
 use collab_database::fields::Field;
-use collab_database::views::{DatabaseLayout, LayoutSetting};
+use collab_database::views::{DatabaseLayout, LayoutSetting, OrderObjectPosition};
 use std::sync::Arc;
 
 use crate::entities::FieldType;
@@ -87,10 +87,12 @@ impl DatabaseLayoutDepsResolver {
             tracing::trace!("Create a new date field after layout type change");
             let field = self.create_date_field();
             let field_id = field.id.clone();
-            self
-              .database
-              .lock()
-              .create_field(field, default_field_settings_by_layout_map());
+            self.database.lock().create_field(
+              None,
+              field,
+              &OrderObjectPosition::End,
+              default_field_settings_by_layout_map(),
+            );
             field_id
           },
           Some(date_field) => date_field.id,

@@ -113,7 +113,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                                 : LocaleKeys.grid_checklist_hideComplete.tr(),
                             width: 32,
                             iconColorOnHover:
-                                Theme.of(context).colorScheme.onPrimary,
+                                Theme.of(context).colorScheme.onSurface,
                             icon: FlowySvg(
                               showIncompleteOnly
                                   ? FlowySvgs.show_m

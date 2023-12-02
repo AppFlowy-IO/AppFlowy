@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
@@ -11,17 +12,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../layout/sizes.dart';
-import 'field_cell_action_sheet.dart';
+import 'field_editor.dart';
 import 'field_type_extension.dart';
 
 class GridFieldCell extends StatefulWidget {
-  final String viewId;
-  final FieldInfo fieldInfo;
   const GridFieldCell({
     super.key,
     required this.viewId,
+    required this.fieldController,
     required this.fieldInfo,
+    required this.onTap,
+    required this.onEditorOpened,
+    required this.onFieldInsertedOnEitherSide,
+    required this.isEditing,
+    required this.isNew,
   });
+
+  final String viewId;
+  final FieldController fieldController;
+  final FieldInfo fieldInfo;
+  final VoidCallback onTap;
+  final VoidCallback onEditorOpened;
+  final void Function(String fieldId) onFieldInsertedOnEitherSide;
+  final bool isEditing;
+  final bool isNew;
 
   @override
   State<GridFieldCell> createState() => _GridFieldCellState();
@@ -36,12 +50,22 @@ class _GridFieldCellState extends State<GridFieldCell> {
     super.initState();
     popoverController = PopoverController();
     _bloc = FieldCellBloc(viewId: widget.viewId, fieldInfo: widget.fieldInfo);
+    if (widget.isEditing) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        popoverController.show();
+      });
+    }
   }
 
   @override
   didUpdateWidget(covariant oldWidget) {
     if (widget.fieldInfo != oldWidget.fieldInfo && !_bloc.isClosed) {
       _bloc.add(FieldCellEvent.onFieldChanged(widget.fieldInfo));
+    }
+    if (widget.isEditing) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        popoverController.show();
+      });
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -59,14 +83,20 @@ class _GridFieldCellState extends State<GridFieldCell> {
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
             popupBuilder: (BuildContext context) {
-              return GridFieldCellActionSheet(
+              widget.onEditorOpened();
+              return FieldEditor(
                 viewId: widget.viewId,
-                fieldInfo: widget.fieldInfo,
+                fieldController: widget.fieldController,
+                field: widget.fieldInfo.field,
+                initialPage: widget.isNew
+                    ? FieldEditorPage.details
+                    : FieldEditorPage.general,
+                onFieldInserted: widget.onFieldInsertedOnEitherSide,
               );
             },
             child: FieldCellButton(
               field: widget.fieldInfo.field,
-              onTap: () => popoverController.show(),
+              onTap: widget.onTap,
             ),
           );
 

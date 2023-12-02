@@ -19,7 +19,7 @@ import {
   DatabaseEventMoveField,
   DatabaseEventGetFields,
   DatabaseEventDeleteField,
-  DatabaseEventCreateTypeOption,
+  DatabaseEventCreateField,
   DatabaseEventUpdateFieldSettings,
   DatabaseEventGetAllFieldSettings,
 } from '@/services/backend/events/flowy-database2';
@@ -73,7 +73,7 @@ export async function createField(viewId: string, fieldType?: FieldType, data?: 
     type_option_data: data,
   });
 
-  const result = await DatabaseEventCreateTypeOption(payload);
+  const result = await DatabaseEventCreateField(payload);
 
   if (result.ok === false) {
     return Promise.reject('Failed to create field');

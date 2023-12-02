@@ -5,6 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../define.dart';
 import 'card_cell.dart';
 
 class SelectOptionCardCellStyle extends CardCellStyle {}
@@ -62,19 +63,20 @@ class _SelectOptionCellState extends State<SelectOptionCardCell> {
 
           final children = state.selectedOptions
               .map(
-                (option) => SelectOptionTag.fromOption(
-                  context: context,
+                (option) => SelectOptionTag(
                   option: option,
+                  fontSize: 11,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 ),
               )
               .toList();
 
-          return IntrinsicHeight(
+          return Align(
+            alignment: AlignmentDirectional.topStart,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: SizedBox.expand(
-                child: Wrap(spacing: 4, runSpacing: 2, children: children),
-              ),
+              padding: CardSizes.cardCellPadding,
+              child: Wrap(spacing: 4, runSpacing: 2, children: children),
             ),
           );
         },

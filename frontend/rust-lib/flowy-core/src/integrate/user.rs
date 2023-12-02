@@ -140,14 +140,27 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         device_id
       );
 
+      // In the current implementation, when a user signs up for AppFlowy Cloud, a default workspace
+      // is automatically created for them. However, for users who sign up through Supabase, the creation
+      // of the default workspace relies on the client-side operation. This means that the process
+      // for initializing a default workspace differs depending on the sign-up method used.
+      let data_source = match folder_manager
+        .cloud_service
+        .get_folder_doc_state(&user_workspace.id, user_profile.uid)
+        .await
+      {
+        Ok(doc_state) => FolderInitDataSource::Cloud(doc_state),
+        Err(_) => FolderInitDataSource::LocalDisk {
+          create_if_not_exist: true,
+        },
+      };
+
       folder_manager
         .initialize_with_new_user(
           user_profile.uid,
           &user_profile.token,
           is_new_user,
-          FolderInitDataSource::LocalDisk {
-            create_if_not_exist: true,
-          },
+          data_source,
           &user_workspace.id,
         )
         .await

@@ -1,7 +1,9 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'dart:typed_data';
+
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:dartz/dartz.dart';
 
 class TypeOptionBackendService {
   final String viewId;
@@ -26,11 +28,30 @@ class TypeOptionBackendService {
   static Future<Either<TypeOptionPB, FlowyError>> createFieldTypeOption({
     required String viewId,
     FieldType fieldType = FieldType.RichText,
+    String? fieldName,
+    Uint8List? typeOptionData,
+    CreateFieldPosition position = CreateFieldPosition.End,
+    String? targetFieldId,
   }) {
     final payload = CreateFieldPayloadPB.create()
       ..viewId = viewId
-      ..fieldType = FieldType.RichText;
+      ..fieldType = fieldType;
 
-    return DatabaseEventCreateTypeOption(payload).send();
+    if (fieldName != null) {
+      payload.fieldName = fieldName;
+    }
+
+    if (typeOptionData != null) {
+      payload.typeOptionData = typeOptionData;
+    }
+
+    if (position == CreateFieldPosition.Before ||
+        position == CreateFieldPosition.After && targetFieldId != null) {
+      payload.targetFieldId = targetFieldId!;
+    }
+
+    payload.fieldPosition = position;
+
+    return DatabaseEventCreateField(payload).send();
   }
 }

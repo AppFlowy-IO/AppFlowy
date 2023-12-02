@@ -16,6 +16,7 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_server_config::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
@@ -157,7 +158,27 @@ impl UserManager {
     *self.collab_interact.write().await = Arc::new(collab_interact);
 
     if let Ok(session) = self.get_session() {
-      let user = self.get_user_profile(session.user_id).await?;
+      let user = self.get_user_profile_from_disk(session.user_id).await?;
+
+      // Get the current authenticator from the environment variable
+      let current_authenticator = match AuthenticatorType::from_env() {
+        AuthenticatorType::Local => Authenticator::Local,
+        AuthenticatorType::Supabase => Authenticator::Supabase,
+        AuthenticatorType::AppFlowyCloud => Authenticator::AppFlowyCloud,
+      };
+
+      // If the current authenticator is different from the authenticator in the session and it's
+      // not a local authenticator, we need to sign out the user.
+      if user.authenticator != Authenticator::Local && user.authenticator != current_authenticator {
+        event!(
+          tracing::Level::INFO,
+          "Authenticator changed from {:?} to {:?}",
+          user.authenticator,
+          current_authenticator
+        );
+        self.sign_out().await?;
+        return Ok(());
+      }
 
       event!(
         tracing::Level::INFO,
@@ -201,9 +222,7 @@ impl UserManager {
       // Do the user data migration if needed
       event!(tracing::Level::INFO, "Prepare user data migration");
       match (
-        self
-          .database
-          .get_collab_db(session.user_id, &self.user_config.device_id),
+        self.database.get_collab_db(session.user_id),
         self.database.get_pool(session.user_id),
       ) {
         (Ok(collab_db), Ok(sqlite_pool)) => {
@@ -257,7 +276,7 @@ impl UserManager {
   pub fn get_collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
     self
       .database
-      .get_collab_db(uid, "")
+      .get_collab_db(uid)
       .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
@@ -272,14 +291,14 @@ impl UserManager {
   #[tracing::instrument(level = "debug", skip(self, params))]
   pub async fn sign_in(
     &self,
-    params: BoxAny,
+    params: SignInParams,
     authenticator: Authenticator,
   ) -> Result<UserProfile, FlowyError> {
     self.update_authenticator(&authenticator).await;
     let response: AuthResponse = self
       .cloud_services
       .get_user_service()?
-      .sign_in(params)
+      .sign_in(BoxAny::new(params))
       .await?;
     let session = Session::from(&response);
     self.prepare_user(&session).await;
@@ -337,13 +356,15 @@ impl UserManager {
     authenticator: Authenticator,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
-    self.update_authenticator(&authenticator).await;
+    // sign out the current user if there is one
+    let _ = self.sign_out().await;
 
+    self.update_authenticator(&authenticator).await;
     let migration_user = self.get_migration_user(&authenticator).await;
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
     let user_profile = UserProfile::from((&response, &authenticator));
-    if user_profile.encryption_type.is_need_encrypt_secret() {
+    if user_profile.encryption_type.require_encrypt_secret() {
       self
         .resumable_sign_up
         .lock()
@@ -449,16 +470,15 @@ impl UserManager {
 
   #[tracing::instrument(level = "info", skip(self))]
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
-    let session = self.get_session()?;
-    self.database.close(session.user_id)?;
-    self.set_session(None)?;
+    if let Ok(session) = self.get_session() {
+      self.database.close(session.user_id)?;
+      self.set_session(None)?;
 
-    let server = self.cloud_services.get_user_service()?;
-    af_spawn(async move {
+      let server = self.cloud_services.get_user_service()?;
       if let Err(err) = server.sign_out(None).await {
         event!(tracing::Level::ERROR, "{:?}", err);
       }
-    });
+    }
     Ok(())
   }
 
@@ -477,7 +497,7 @@ impl UserManager {
     let session = self.get_session()?;
     upsert_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
 
-    let profile = self.get_user_profile(session.user_id).await?;
+    let profile = self.get_user_profile_from_disk(session.user_id).await?;
     self
       .update_user(session.user_id, profile.token, params)
       .await?;
@@ -507,7 +527,7 @@ impl UserManager {
   }
 
   /// Fetches the user profile for the given user ID.
-  pub async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+  pub async fn get_user_profile_from_disk(&self, uid: i64) -> Result<UserProfile, FlowyError> {
     let user: UserProfile = user_table::dsl::user_table
       .filter(user_table::id.eq(&uid.to_string()))
       .first::<UserTable>(&*(self.db_connection(uid)?))
@@ -524,14 +544,18 @@ impl UserManager {
 
   #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn refresh_user_profile(&self, old_user_profile: &UserProfile) -> FlowyResult<()> {
-    let now = chrono::Utc::now().timestamp();
+    // If the user is a local user, no need to refresh the user profile
+    if old_user_profile.authenticator.is_local() {
+      return Ok(());
+    }
 
+    let now = chrono::Utc::now().timestamp();
     // Add debounce to avoid too many requests
     if now - self.refresh_user_profile_since.load(Ordering::SeqCst) < 5 {
       return Ok(());
     }
-
     self.refresh_user_profile_since.store(now, Ordering::SeqCst);
+
     let uid = old_user_profile.uid;
     let result: Result<UserProfile, FlowyError> = self
       .cloud_services
@@ -541,27 +565,6 @@ impl UserManager {
 
     match result {
       Ok(new_user_profile) => {
-        // If the authentication type has changed, it indicates that the user has signed in
-        // using a different release package but is sharing the same data folder.
-        // In such cases, notify the frontend to log out.
-        if old_user_profile.authenticator != Authenticator::Local
-          && new_user_profile.authenticator != old_user_profile.authenticator
-        {
-          event!(
-            tracing::Level::INFO,
-            "User login with different authenticator: {:?} -> {:?}",
-            old_user_profile.authenticator,
-            new_user_profile.authenticator
-          );
-
-          send_auth_state_notification(AuthStateChangedPB {
-            state: AuthStatePB::InvalidAuth,
-            message: "User login with different cloud".to_string(),
-          })
-          .send();
-          return Ok(());
-        }
-
         // If the user profile is updated, save the new user profile
         if new_user_profile.updated_at > old_user_profile.updated_at {
           validate_encryption_sign(old_user_profile, &new_user_profile.encryption_type.sign());
@@ -578,6 +581,15 @@ impl UserManager {
             tracing::Level::ERROR,
             "User is unauthorized, sign out the user"
           );
+
+          self.add_historical_user(
+            uid,
+            &self.user_config.device_id,
+            old_user_profile.name.clone(),
+            &old_user_profile.authenticator,
+            self.user_dir(uid),
+          );
+
           self.sign_out().await?;
           send_auth_state_notification(AuthStateChangedPB {
             state: AuthStatePB::InvalidAuth,
@@ -592,7 +604,7 @@ impl UserManager {
 
   #[instrument(level = "info", skip_all)]
   pub fn user_dir(&self, uid: i64) -> String {
-    self.user_paths.user_dir(uid)
+    self.user_paths.user_data_dir(uid)
   }
 
   pub fn user_setting(&self) -> Result<UserSettingPB, FlowyError> {
@@ -713,7 +725,9 @@ impl UserManager {
     &self,
     oauth_provider: &str,
   ) -> Result<String, FlowyError> {
-    self.update_authenticator(&Authenticator::AFCloud).await;
+    self
+      .update_authenticator(&Authenticator::AppFlowyCloud)
+      .await;
     let auth_service = self.cloud_services.get_user_service()?;
     let url = auth_service
       .generate_oauth_url_with_provider(oauth_provider)
@@ -757,7 +771,7 @@ impl UserManager {
     let session = self.get_session()?;
     if session.user_id == user_update.uid {
       debug!("Receive user update: {:?}", user_update);
-      let user_profile = self.get_user_profile(user_update.uid).await?;
+      let user_profile = self.get_user_profile_from_disk(user_update.uid).await?;
       if !validate_encryption_sign(&user_profile, &user_update.encryption_sign) {
         return Ok(());
       }
@@ -778,12 +792,8 @@ impl UserManager {
     old_user: &MigrationUser,
     new_user: &MigrationUser,
   ) -> Result<(), FlowyError> {
-    let old_collab_db = self
-      .database
-      .get_collab_db(old_user.session.user_id, &self.user_config.device_id)?;
-    let new_collab_db = self
-      .database
-      .get_collab_db(new_user.session.user_id, &self.user_config.device_id)?;
+    let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
+    let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
     migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
 
     if let Err(err) = sync_user_data_to_cloud(
@@ -859,24 +869,26 @@ impl UserPaths {
   fn new(root: String) -> Self {
     Self { root }
   }
-  fn user_dir(&self, uid: i64) -> String {
+
+  /// Returns the path to the user's data directory.
+  fn user_data_dir(&self, uid: i64) -> String {
     format!("{}/{}", self.root, uid)
   }
 }
 
 impl UserDBPath for UserPaths {
   fn user_db_path(&self, uid: i64) -> PathBuf {
-    PathBuf::from(self.user_dir(uid))
+    PathBuf::from(self.user_data_dir(uid))
   }
 
   fn collab_db_path(&self, uid: i64) -> PathBuf {
-    let mut path = PathBuf::from(self.user_dir(uid));
+    let mut path = PathBuf::from(self.user_data_dir(uid));
     path.push("collab_db");
     path
   }
 
   fn collab_db_history(&self, uid: i64, create_if_not_exist: bool) -> std::io::Result<PathBuf> {
-    let path = PathBuf::from(self.user_dir(uid)).join("collab_db_history");
+    let path = PathBuf::from(self.user_data_dir(uid)).join("collab_db_history");
     if !path.exists() && create_if_not_exist {
       fs::create_dir_all(&path)?;
     }

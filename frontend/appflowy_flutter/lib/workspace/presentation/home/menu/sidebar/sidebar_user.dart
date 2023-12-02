@@ -89,7 +89,7 @@ class SidebarUser extends StatelessWidget {
                       Log.warn("Can't pop dialog context");
                     }
                   },
-                  didOpenUser: () async {
+                  restartApp: () async {
                     // Pop the dialog using the dialog context
                     Navigator.of(dialogContext).pop();
                     await runAppFlowy();

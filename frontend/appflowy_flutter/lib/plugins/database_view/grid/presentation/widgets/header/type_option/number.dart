@@ -42,11 +42,12 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 class NumberTypeOptionWidget extends TypeOptionWidget {
   final NumberTypeOptionContext typeOptionContext;
   final PopoverMutex popoverMutex;
+
   const NumberTypeOptionWidget({
+    super.key,
     required this.typeOptionContext,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,6 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           final selectNumUnitButton = SizedBox(
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
-              margin: GridSize.typeOptionContentInsets,
               rightIcon: const FlowySvg(FlowySvgs.more_s),
               text: FlowyText.regular(
                 state.typeOption.format.title(),
@@ -72,13 +72,15 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
             padding: const EdgeInsets.only(left: 6),
             height: GridSize.popoverItemHeight,
             alignment: Alignment.centerLeft,
-            child: FlowyText.medium(
-              color: Theme.of(context).colorScheme.outline,
+            child: FlowyText.regular(
               LocaleKeys.grid_field_numberFormat.tr(),
+              color: Theme.of(context).hintColor,
+              fontSize: 11,
             ),
           );
+
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -87,7 +89,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                   mutex: popoverMutex,
                   triggerActions:
                       PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-                  offset: const Offset(8, 0),
+                  offset: const Offset(16, 0),
                   constraints: BoxConstraints.loose(const Size(460, 440)),
                   margin: EdgeInsets.zero,
                   child: selectNumUnitButton,

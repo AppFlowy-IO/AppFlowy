@@ -43,18 +43,15 @@ class _ViewPageBottomSheetState extends State<ViewPageBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // header
-          _buildHeader(),
-          const VSpace(16),
-          // body
-          _buildBody(),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // header
+        _buildHeader(),
+        const VSpace(16),
+        // body
+        _buildBody(),
+      ],
     );
   }
 
@@ -120,33 +117,6 @@ class MobileViewBottomSheetBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // undo, redo
-        // Row(
-        //   mainAxisSize: MainAxisSize.max,
-        //   children: [
-        //     Expanded(
-        //       child: BottomSheetActionWidget(
-        //         svg: FlowySvgs.m_undo_m,
-        //         text: LocaleKeys.toolbar_undo.tr(),
-        //         onTap: () => onAction(
-        //           MobileViewBottomSheetBodyAction.undo,
-        //         ),
-        //       ),
-        //     ),
-        //     const HSpace(8),
-        //     Expanded(
-        //       child: BottomSheetActionWidget(
-        //         svg: FlowySvgs.m_redo_m,
-        //         text: LocaleKeys.toolbar_redo.tr(),
-        //         onTap: () => onAction(
-        //           MobileViewBottomSheetBodyAction.redo,
-        //         ),
-        //       ),
-        //     ),
-        //   ],
-        // ),
-        // const VSpace(8),
-
         // rename, duplicate
         Row(
           mainAxisSize: MainAxisSize.max,
@@ -217,16 +187,16 @@ class MobileViewBottomSheetBody extends StatelessWidget {
                 : MobileViewBottomSheetBodyAction.addToFavorites,
           ),
         ),
-        const VSpace(8),
 
-        // help center
-        BottomSheetActionWidget(
-          svg: FlowySvgs.m_help_center_m,
-          text: LocaleKeys.button_helpCenter.tr(),
-          onTap: () => onAction(
-            MobileViewBottomSheetBodyAction.helpCenter,
-          ),
-        ),
+        // Help Center
+        // const VSpace(8),
+        // BottomSheetActionWidget(
+        //   svg: FlowySvgs.m_help_center_m,
+        //   text: LocaleKeys.button_helpCenter.tr(),
+        //   onTap: () => onAction(
+        //     MobileViewBottomSheetBodyAction.helpCenter,
+        //   ),
+        // ),
       ],
     );
   }

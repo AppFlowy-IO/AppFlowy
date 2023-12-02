@@ -23,6 +23,7 @@ const supportedLanguages: { key: string; title: string }[] = [
   { key: 'pt-PT', title: 'pt-PT' },
   { key: 'ru-RU', title: 'ru-RU' },
   { key: 'sv', title: 'sv' },
+  { key: 'th-TH', title: 'th-TH' },
   { key: 'tr-TR', title: 'tr-TR' },
   { key: 'zh-CN', title: 'zh-CN' },
   { key: 'zh-TW', title: 'zh-TW' },

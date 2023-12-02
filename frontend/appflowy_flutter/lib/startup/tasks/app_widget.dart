@@ -65,7 +65,8 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('pl', 'PL'),
           Locale('pt', 'BR'),
           Locale('ru', 'RU'),
-          Locale('sv'),
+          Locale('sv', 'SE'),
+          Locale('th', 'TH'),
           Locale('tr', 'TR'),
           Locale('uk', 'UA'),
           Locale('ur'),
@@ -155,6 +156,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
 }
 
 class AppGlobals {
+  // static GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey();
   static GlobalKey<NavigatorState> rootNavKey = GlobalKey();
   static NavigatorState get nav => rootNavKey.currentState!;
 }
