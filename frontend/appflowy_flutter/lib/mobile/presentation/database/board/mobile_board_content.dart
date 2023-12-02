@@ -3,17 +3,12 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/board.dart';
 import 'package:appflowy/mobile/presentation/database/board/widgets/group_card_header.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -71,19 +66,12 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
       listenWhen: (previous, current) =>
           previous.recentAddedRowMeta != current.recentAddedRowMeta,
       listener: (context, state) {
-        // when add a new card
-        // it push to the card detail screen of the new card
-        final rowCache = context.read<BoardBloc>().getRowCache()!;
         context.push(
-          MobileCardDetailScreen.routeName,
+          MobileRowDetailPage.routeName,
           extra: {
-            MobileCardDetailScreen.argRowController: RowController(
-              rowMeta: state.recentAddedRowMeta!,
-              viewId: state.viewId,
-              rowCache: rowCache,
-            ),
-            MobileCardDetailScreen.argFieldController:
-                context.read<BoardBloc>().fieldController,
+            MobileRowDetailPage.argRowId: state.recentAddedRowMeta!.id,
+            MobileRowDetailPage.argDatabaseController:
+                context.read<BoardBloc>().databaseController,
           },
         );
       },
@@ -166,7 +154,6 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return SizedBox.shrink(key: ObjectKey(groupItem));
     final cellCache = rowCache.cellCache;
-    final fieldController = boardBloc.fieldController;
     final viewId = boardBloc.viewId;
 
     final cellBuilder = CardCellBuilder<String>(cellCache);
@@ -189,14 +176,16 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         renderHook: renderHook,
-        openCard: (context) => _openCard(
-          context: context,
-          viewId: viewId,
-          groupId: groupData.group.groupId,
-          fieldController: fieldController,
-          rowMeta: rowMeta,
-          rowCache: rowCache,
-        ),
+        openCard: (context) {
+          context.push(
+            MobileRowDetailPage.routeName,
+            extra: {
+              MobileRowDetailPage.argRowId: rowMeta.id,
+              MobileRowDetailPage.argDatabaseController:
+                  context.read<BoardBloc>().databaseController,
+            },
+          );
+        },
         onStartEditing: () => boardBloc
             .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
         onEndEditing: () =>
@@ -228,57 +217,6 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
           offset: const Offset(0, 2),
         ),
       ],
-    );
-  }
-
-  void _openCard({
-    required BuildContext context,
-    required String viewId,
-    required String groupId,
-    required FieldController fieldController,
-    required RowMetaPB rowMeta,
-    required RowCache rowCache,
-  }) {
-    final rowInfo = RowInfo(
-      viewId: viewId,
-      fields: UnmodifiableListView(fieldController.fieldInfos),
-      rowMeta: rowMeta,
-      rowId: rowMeta.id,
-    );
-
-    final dataController = RowController(
-      rowMeta: rowInfo.rowMeta,
-      viewId: rowInfo.viewId,
-      rowCache: rowCache,
-      groupId: groupId,
-    );
-
-    showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      // To avoid the appbar of [MobileCardDetailScreen] being covered by status bar.
-      useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(8),
-        ),
-      ),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.4,
-        minChildSize: 0.4,
-        snapSizes: const [0.4, 1],
-        snap: true,
-        builder: (context, scrollController) {
-          return MobileCardDetailScreen(
-            fieldController: fieldController,
-            rowController: dataController,
-            scrollController: scrollController,
-            isBottomSheet: true,
-          );
-        },
-      ),
     );
   }
 }

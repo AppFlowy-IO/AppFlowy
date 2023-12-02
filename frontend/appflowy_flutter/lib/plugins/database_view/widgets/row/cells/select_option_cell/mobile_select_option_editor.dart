@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
@@ -10,7 +11,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -92,7 +92,6 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
     const iconWidth = 36.0;
     const height = 44.0;
     return Stack(
-      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Align(
           alignment: Alignment.centerLeft,
@@ -404,9 +403,9 @@ class _SelectOption extends StatelessWidget {
             // padding
             const HSpace(12),
             // option tag
-            _SelectOptionTag(
-              optionName: option.name,
-              color: option.color.toColor(context),
+            SelectOptionTag(
+              option: option,
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
             ),
             const Spacer(),
             // more options
@@ -447,44 +446,16 @@ class _CreateOptionCell extends StatelessWidget {
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: _SelectOptionTag(
-                  optionName: optionName,
+                child: SelectOptionTag(
+                  name: optionName,
                   color: Theme.of(context).colorScheme.surfaceVariant,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
                 ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SelectOptionTag extends StatelessWidget {
-  const _SelectOptionTag({
-    required this.optionName,
-    required this.color,
-  });
-
-  final String optionName;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: 6.0,
-        horizontal: 12.0,
-      ),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: Corners.s12Border,
-      ),
-      child: FlowyText.regular(
-        optionName,
-        fontSize: 16,
-        overflow: TextOverflow.ellipsis,
-        color: AFThemeExtension.of(context).textColor,
       ),
     );
   }
@@ -510,17 +481,11 @@ class _MoreOptions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VSpace(8.0, color: color),
+          const VSpace(8.0),
           _buildRenameTextField(context),
-          VSpace(
-            16.0,
-            color: color,
-          ),
+          const VSpace(16.0),
           _buildDeleteButton(context),
-          VSpace(
-            16.0,
-            color: color,
-          ),
+          const VSpace(16.0),
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: ColoredBox(
@@ -531,11 +496,22 @@ class _MoreOptions extends StatelessWidget {
               ),
             ),
           ),
-          VSpace(
-            4.0,
-            color: color,
+          const VSpace(4.0),
+          FlowyOptionDecorateBox(
+            showTopBorder: true,
+            showBottomBorder: true,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 12.0,
+                left: 6.0,
+                right: 6.0,
+              ),
+              child: OptionColorList(
+                selectedColor: option.color,
+                onSelectedColor: (color) => onUpdate(null, color),
+              ),
+            ),
           ),
-          _buildColorOptions(context),
         ],
       ),
     );
@@ -544,66 +520,17 @@ class _MoreOptions extends StatelessWidget {
   Widget _buildRenameTextField(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints.tightFor(height: 52.0),
-      child: FlowyOptionDecorateBox(
-        showTopBorder: true,
-        showBottomBorder: true,
-        child: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            contentPadding: EdgeInsets.only(left: 16.0),
-          ),
-          onChanged: (value) {},
-          onSubmitted: (value) => onUpdate(value, null),
-        ),
+      child: FlowyOptionTile.textField(
+        controller: controller,
       ),
     );
   }
 
   Widget _buildDeleteButton(BuildContext context) {
-    return FlowyOptionTile(
+    return FlowyOptionTile.text(
       text: LocaleKeys.button_delete.tr(),
       leftIcon: const FlowySvg(FlowySvgs.delete_s),
       onTap: onDelete,
-    );
-  }
-
-  Widget _buildColorOptions(BuildContext context) {
-    return FlowyOptionDecorateBox(
-      showTopBorder: true,
-      showBottomBorder: true,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
-        child: GridView.count(
-          crossAxisCount: 6,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: SelectOptionColorPB.values.map(
-            (colorPB) {
-              final color = colorPB.toColor(context);
-              return GestureDetector(
-                onTap: () => onUpdate(null, colorPB),
-                child: Container(
-                  margin: const EdgeInsets.all(
-                    10.0,
-                  ),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: Corners.s12Border,
-                    border: Border.all(
-                      color: option.color.value == colorPB.value
-                          ? const Color(0xff00C6F1)
-                          : Theme.of(context).dividerColor,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).toList(),
-        ),
-      ),
     );
   }
 }

@@ -5,7 +5,6 @@ import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
@@ -247,11 +246,6 @@ class MobileHiddenGroupItemList extends StatelessWidget {
             ...group.rows.map(
               (item) {
                 final cellContext = rowCache.loadCells(item)[primaryField.id]!;
-                final rowController = RowController(
-                  rowMeta: item,
-                  viewId: viewId,
-                  rowCache: rowCache,
-                );
                 final renderHook = RowCardRenderHook<String>();
                 renderHook.addTextCellHook((cellData, _, __) {
                   return BlocBuilder<TextCellBloc, TextCellState>(
@@ -289,19 +283,18 @@ class MobileHiddenGroupItemList extends StatelessWidget {
                     foregroundColor: Theme.of(context).colorScheme.onBackground,
                     visualDensity: VisualDensity.compact,
                   ),
-                  child: CardCellBuilder<String>(rowController.cellCache)
-                      .buildCell(
+                  child: CardCellBuilder<String>(rowCache.cellCache).buildCell(
                     cellContext: cellContext,
                     renderHook: renderHook,
                     hasNotes: !cellContext.rowMeta.isDocumentEmpty,
                   ),
                   onPressed: () {
                     context.push(
-                      MobileCardDetailScreen.routeName,
+                      MobileRowDetailPage.routeName,
                       extra: {
-                        MobileCardDetailScreen.argRowController: rowController,
-                        MobileCardDetailScreen.argFieldController:
-                            context.read<BoardBloc>().fieldController,
+                        MobileRowDetailPage.argRowId: item.id,
+                        MobileRowDetailPage.argDatabaseController:
+                            context.read<BoardBloc>().databaseController,
                       },
                     );
                   },

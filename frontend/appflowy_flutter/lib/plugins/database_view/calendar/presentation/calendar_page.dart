@@ -484,15 +484,10 @@ class UnscheduleEventsList extends StatelessWidget {
           onPressed: () {
             if (PlatformExtension.isMobile) {
               context.push(
-                MobileCardDetailScreen.routeName,
+                MobileRowDetailPage.routeName,
                 extra: {
-                  MobileCardDetailScreen.argRowController: RowController(
-                    rowMeta: event.rowMeta,
-                    viewId: databaseController.viewId,
-                    rowCache: databaseController.rowCache,
-                  ),
-                  MobileCardDetailScreen.argFieldController:
-                      databaseController.fieldController,
+                  MobileRowDetailPage.argRowId: event.rowMeta.id,
+                  MobileRowDetailPage.argDatabaseController: databaseController,
                 },
               );
               context.pop();

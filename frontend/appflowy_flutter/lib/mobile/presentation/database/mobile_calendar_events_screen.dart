@@ -80,10 +80,9 @@ class _MobileCalendarEventsScreenState
                   const VSpace(10),
                   ..._events.map((event) {
                     return EventCard(
-                      fieldController: widget.calendarBloc.fieldController,
+                      databaseController:
+                          widget.calendarBloc.databaseController,
                       event: event,
-                      viewId: widget.viewId,
-                      rowCache: widget.rowCache,
                       constraints: const BoxConstraints.expand(),
                       autoEdit: false,
                       isDraggable: false,
