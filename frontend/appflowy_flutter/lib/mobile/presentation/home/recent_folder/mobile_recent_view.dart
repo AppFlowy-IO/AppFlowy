@@ -97,10 +97,20 @@ class _MobileRecentViewState extends State<MobileRecentView> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(8, 18, 8, 2),
-                    child: FlowyText.medium(
-                      view.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    // hack: minLines currently not supported in Text widget.
+                    // https://github.com/flutter/flutter/issues/31134
+                    child: Stack(
+                      children: [
+                        FlowyText(
+                          view.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const FlowyText(
+                          "\n\n",
+                          maxLines: 2,
+                        ),
+                      ],
                     ),
                   ),
                 ),
