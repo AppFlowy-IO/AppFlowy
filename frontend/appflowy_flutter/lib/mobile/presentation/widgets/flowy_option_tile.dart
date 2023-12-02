@@ -22,7 +22,8 @@ class FlowyOptionTile extends StatelessWidget {
     this.onTap,
     this.trailing,
     this.textFieldPadding = const EdgeInsets.symmetric(
-      horizontal: 16.0,
+      horizontal: 12.0,
+      vertical: 2.0,
     ),
     this.isSelected = false,
     this.textFieldHintText,
@@ -55,7 +56,8 @@ class FlowyOptionTile extends StatelessWidget {
     void Function(String value)? onTextChanged,
     void Function(String value)? onTextSubmitted,
     EdgeInsets textFieldPadding = const EdgeInsets.symmetric(
-      horizontal: 16.0,
+      horizontal: 12.0,
+      vertical: 2.0,
     ),
     bool showTopBorder = true,
     bool showBottomBorder = true,
@@ -150,6 +152,7 @@ class FlowyOptionTile extends StatelessWidget {
         showTopBorder: showTopBorder,
         showBottomBorder: showBottomBorder,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildText(),
             ..._buildTextField(),
@@ -185,7 +188,6 @@ class FlowyOptionTile extends StatelessWidget {
           useIntrinsicWidth: true,
           text: FlowyText(
             text!,
-            fontSize: 16.0,
           ),
           margin: const EdgeInsets.symmetric(
             horizontal: 16.0,
@@ -206,7 +208,6 @@ class FlowyOptionTile extends StatelessWidget {
           ),
           child: FlowyText(
             text!,
-            fontSize: 16.0,
           ),
         );
     }
@@ -222,11 +223,12 @@ class FlowyOptionTile extends StatelessWidget {
     return [
       if (leading != null) leading!,
       Expanded(
-        child: ConstrainedBox(
+        child: Container(
           constraints: const BoxConstraints.tightFor(
-            height: 52.0,
+            height: 54.0,
             width: double.infinity,
           ),
+          alignment: Alignment.center,
           child: TextField(
             controller: controller,
             textInputAction: TextInputAction.done,

@@ -41,9 +41,7 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
 
   Widget _buildCalendar(BuildContext context) {
     const selectedColor = Color(0xFF00BCF0);
-    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
-          fontSize: 16.0,
-        );
+    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith();
     const boxDecoration = BoxDecoration(
       shape: BoxShape.circle,
     );
@@ -156,7 +154,6 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
           builder: (_, value, ___) {
             return FlowyText(
               DateFormat.yMMMM(value.$2).format(value.$1),
-              fontSize: 16.0,
             );
           },
         ),

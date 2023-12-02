@@ -48,7 +48,6 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
         centerTitle: true,
         title: FlowyText.medium(
           LocaleKeys.grid_field_newProperty.tr(),
-          fontSize: 16.0,
         ),
         leading: AppBarCancelButton(
           onTap: () => context.pop(),
@@ -88,10 +87,9 @@ class _SaveButton extends StatelessWidget {
         alignment: Alignment.center,
         child: GestureDetector(
           onTap: onSave,
-          child: FlowyText(
+          child: FlowyText.medium(
             LocaleKeys.button_save.tr(),
             color: const Color(0xFF00ADDC),
-            fontSize: 16.0,
           ),
         ),
       ),

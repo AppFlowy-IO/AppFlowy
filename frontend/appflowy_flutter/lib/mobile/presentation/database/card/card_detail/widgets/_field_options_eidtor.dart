@@ -388,7 +388,6 @@ class _PropertyType extends StatelessWidget {
           FlowyText(
             type.i18n,
             color: Theme.of(context).hintColor,
-            fontSize: 16.0,
           ),
           const HSpace(4.0),
           FlowySvg(
@@ -469,7 +468,6 @@ class _DateOptionState extends State<_DateOption> {
           ),
           child: FlowyText(
             LocaleKeys.grid_field_dateFormat.tr(),
-            fontSize: 16.0,
             color: Theme.of(context).hintColor,
           ),
         ),
@@ -526,7 +524,6 @@ class _TimeOptionState extends State<_TimeOption> {
           ),
           child: FlowyText(
             LocaleKeys.grid_field_timeFormat.tr(),
-            fontSize: 16.0,
             color: Theme.of(context).hintColor,
           ),
         ),
@@ -567,7 +564,6 @@ class _NumberOption extends StatelessWidget {
           FlowyText(
             selectedFormat.title(),
             color: Theme.of(context).hintColor,
-            fontSize: 16.0,
           ),
           const HSpace(4.0),
           FlowySvg(
@@ -661,7 +657,6 @@ class _SelectOption extends StatelessWidget {
           ),
           child: FlowyText(
             LocaleKeys.grid_field_optionTitle.tr(),
-            fontSize: 16.0,
             color: Theme.of(context).hintColor,
           ),
         ),

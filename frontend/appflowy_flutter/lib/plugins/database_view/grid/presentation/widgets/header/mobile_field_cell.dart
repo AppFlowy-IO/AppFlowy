@@ -75,6 +75,7 @@ class MobileFieldButton extends StatelessWidget {
             }
           }
         },
+        radius: BorderRadius.zero,
         margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         leftIcon: FlowySvg(
           fieldInfo.fieldType.icon(),

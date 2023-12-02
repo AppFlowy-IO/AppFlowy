@@ -75,7 +75,7 @@ class _FieldHeader extends StatelessWidget {
           ),
           FlowyText.medium(
             LocaleKeys.titleBar_addField.tr(),
-            fontSize: 16.0,
+            fontSize: 17.0,
           ),
           const HSpace(120),
         ],
@@ -106,7 +106,9 @@ class _Field extends StatelessWidget {
             size: Size.square(width / 4.0),
           ),
           const VSpace(6.0),
-          FlowyText(type.i18n),
+          FlowyText(
+            type.i18n,
+          ),
         ],
       ),
     );
