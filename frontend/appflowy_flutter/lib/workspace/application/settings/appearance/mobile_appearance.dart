@@ -6,7 +6,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class MobileAppearance extends BaseAppearance {
-  static const _primaryColor = Color(0xFF2DA2F6); //primary 100
+  static const _primaryColor = Color(0xFF00BCF0); //primary 100
   static const _onBackgroundColor = Color(0xff2F3030); // text/title color
   static const _onSurfaceColor = Color(0xff676666); // text/body color
   static const _onSecondaryColor = Color(0xFFC5C7CB); // text/body2 color
@@ -79,7 +79,7 @@ class MobileAppearance extends BaseAppearance {
           );
 
     final hintColor = brightness == Brightness.light
-        ? const Color(0xff89909B)
+        ? const Color(0x991F2329)
         : _hintColorInDarkMode;
 
     return ThemeData(
