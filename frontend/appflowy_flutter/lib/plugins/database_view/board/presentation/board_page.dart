@@ -248,7 +248,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     final isEditing = boardBloc.state.isEditingRow &&
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
-    final groupItemId = groupItem.row.id + groupData.group.groupId;
+    final groupItemId = "${groupData.group.groupId}${groupItem.row.id}";
 
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
