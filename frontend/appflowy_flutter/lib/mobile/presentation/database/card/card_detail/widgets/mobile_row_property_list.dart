@@ -36,6 +36,7 @@ class MobileRowPropertyList extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: visibleCells.length,
+          padding: EdgeInsets.zero,
           itemBuilder: (context, index) => _PropertyCell(
             key: ValueKey('row_detail_${visibleCells[index].fieldId}'),
             cellContext: visibleCells[index],
