@@ -140,9 +140,10 @@ class EditorStyleCustomizer {
       fontSize + 2,
       fontSize,
     ];
-    return TextStyle(
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    return baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
+      fontWeight: FontWeight.w600,
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
-      fontWeight: FontWeight.bold,
     );
   }
 
