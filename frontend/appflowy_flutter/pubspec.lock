@@ -580,8 +580,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "140b530"
-      resolved-ref: "140b53091ce7ad971e97c1d5a53fe0875596326d"
+      ref: "4a5cac"
+      resolved-ref: "4a5cac57e31c0ffd49cd6257a9e078f084ae342c"
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"
