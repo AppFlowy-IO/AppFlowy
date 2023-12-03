@@ -36,19 +36,21 @@ class FieldOptions extends StatelessWidget {
         const _FieldHeader(),
         const VSpace(12.0),
         Expanded(
-          child: GridView.count(
+          child: SingleChildScrollView(
             controller: scrollController,
-            crossAxisCount: 3,
-            childAspectRatio: 0.9,
-            mainAxisSpacing: 12.0,
-            children: _supportedFieldTypes
-                .map(
-                  (e) => _Field(
-                    type: e,
-                    onTap: () => onAddField(e),
-                  ),
-                )
-                .toList(),
+            child: _GridView(
+              crossAxisCount: 3,
+              mainAxisSpacing: 28,
+              itemWidth: 82,
+              children: _supportedFieldTypes
+                  .map(
+                    (e) => _Field(
+                      type: e,
+                      onTap: () => onAddField(e),
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ),
       ],
@@ -95,22 +97,56 @@ class _Field extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: onTap,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           FlowySvg(
             type.svgData,
             blendMode: null,
-            size: Size.square(width / 4.0),
+            size: const Size.square(82),
           ),
           const VSpace(6.0),
           FlowyText(
             type.i18n,
+            fontSize: 15.0,
           ),
         ],
       ),
+    );
+  }
+}
+
+class _GridView extends StatelessWidget {
+  const _GridView({
+    required this.children,
+    required this.crossAxisCount,
+    required this.mainAxisSpacing,
+    required this.itemWidth,
+  });
+
+  final List<Widget> children;
+  final int crossAxisCount;
+  final double mainAxisSpacing;
+  final double itemWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < children.length; i += crossAxisCount)
+          Padding(
+            padding: EdgeInsets.only(bottom: mainAxisSpacing),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                for (var j = 0; j < crossAxisCount; j++)
+                  i + j < children.length ? children[i + j] : HSpace(itemWidth),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

@@ -216,78 +216,74 @@ class RowDetailFab extends StatelessWidget {
         final previousDisabled = rowIndex == 0;
         final nextDisabled = rowIndex == rowCount - 1;
 
-        return Positioned(
-          bottom: 0,
-          right: 0,
-          child: IntrinsicWidth(
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(26),
-                boxShadow: const [
-                  BoxShadow(
-                    offset: Offset(0, 8),
-                    blurRadius: 20,
-                    spreadRadius: 0,
-                    color: Color(0x191F2329),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox.square(
-                    dimension: 48,
-                    child: Material(
-                      color: Theme.of(context).colorScheme.surface,
+        return IntrinsicWidth(
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(26),
+              boxShadow: const [
+                BoxShadow(
+                  offset: Offset(0, 8),
+                  blurRadius: 20,
+                  spreadRadius: 0,
+                  color: Color(0x191F2329),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox.square(
+                  dimension: 48,
+                  child: Material(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(26),
+                    borderOnForeground: false,
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(26),
-                      borderOnForeground: false,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(26),
-                        onTap: () {
-                          if (!previousDisabled) {
-                            onTapPrevious();
-                          }
-                        },
-                        child: Icon(
-                          Icons.chevron_left_outlined,
-                          color: previousDisabled
-                              ? Theme.of(context).disabledColor
-                              : null,
-                        ),
+                      onTap: () {
+                        if (!previousDisabled) {
+                          onTapPrevious();
+                        }
+                      },
+                      child: Icon(
+                        Icons.chevron_left_outlined,
+                        color: previousDisabled
+                            ? Theme.of(context).disabledColor
+                            : null,
                       ),
                     ),
                   ),
-                  FlowyText.medium(
-                    "${rowIndex + 1} / $rowCount",
-                    fontSize: 14,
-                  ),
-                  SizedBox.square(
-                    dimension: 48,
-                    child: Material(
-                      color: Theme.of(context).colorScheme.surface,
+                ),
+                FlowyText.medium(
+                  "${rowIndex + 1} / $rowCount",
+                  fontSize: 14,
+                ),
+                SizedBox.square(
+                  dimension: 48,
+                  child: Material(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(26),
+                    borderOnForeground: false,
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(26),
-                      borderOnForeground: false,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(26),
-                        onTap: () {
-                          if (!nextDisabled) {
-                            onTapNext();
-                          }
-                        },
-                        child: Icon(
-                          Icons.chevron_right_outlined,
-                          color: nextDisabled
-                              ? Theme.of(context).disabledColor
-                              : null,
-                        ),
+                      onTap: () {
+                        if (!nextDisabled) {
+                          onTapNext();
+                        }
+                      },
+                      child: Icon(
+                        Icons.chevron_right_outlined,
+                        color: nextDisabled
+                            ? Theme.of(context).disabledColor
+                            : null,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );

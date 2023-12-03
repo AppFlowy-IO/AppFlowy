@@ -101,7 +101,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
                     // https://github.com/flutter/flutter/issues/31134
                     child: Stack(
                       children: [
-                        FlowyText(
+                        FlowyText.medium(
                           view.name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
