@@ -354,10 +354,11 @@ class MobileRowDetailPageContentState
                     if (state.primaryField != null) {
                       final cellStyle = GridTextCellStyle(
                         placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
-                        textStyle: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontSize: 22),
+                        textStyle:
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                ),
                         cellPadding: const EdgeInsets.symmetric(vertical: 8),
                         useRoundedBorder: false,
                       );
@@ -382,7 +383,7 @@ class MobileRowDetailPageContentState
               ),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.only(top: 8, bottom: 100),
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -397,9 +398,10 @@ class MobileRowDetailPageContentState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (rowDetailState.numHiddenFields != 0)
+                          if (rowDetailState.numHiddenFields != 0) ...[
                             const ToggleHiddenFieldsVisibilityButton(),
-                          const VSpace(12),
+                            const VSpace(12),
+                          ],
                           MobileRowDetailCreateFieldButton(
                             viewId: viewId,
                             fieldController: fieldController,

@@ -91,7 +91,7 @@ class MobileHomePage extends StatelessWidget {
           child: Scrollbar(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -101,7 +101,7 @@ class MobileHomePage extends StatelessWidget {
 
                     // Folders
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: MobileFolders(
                         user: userProfile,
                         workspaceSetting: workspaceSetting,
@@ -110,7 +110,7 @@ class MobileHomePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 24),
                       child: _TrashButton(),
                     ),
                   ],

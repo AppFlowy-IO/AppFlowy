@@ -136,9 +136,12 @@ class _DateCellState extends GridCellState<GridDateCell> {
                       ),
                     ),
                     const HSpace(6),
-                    const RotatedBox(
+                    RotatedBox(
                       quarterTurns: 3,
-                      child: Icon(Icons.chevron_left),
+                      child: Icon(
+                        Icons.chevron_left,
+                        color: Theme.of(context).hintColor,
+                      ),
                     ),
                     const HSpace(2),
                   ],

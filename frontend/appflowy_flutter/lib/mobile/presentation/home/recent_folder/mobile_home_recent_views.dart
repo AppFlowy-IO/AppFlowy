@@ -66,7 +66,7 @@ class _RecentViews extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: FlowyText.semibold(
             LocaleKeys.sideBar_recent.tr(),
             fontSize: 20.0,
@@ -74,7 +74,7 @@ class _RecentViews extends StatelessWidget {
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: IntrinsicHeight(
             child: SeparatedRow(
               separatorBuilder: () => const HSpace(8),
