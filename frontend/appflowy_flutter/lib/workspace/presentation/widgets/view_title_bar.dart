@@ -152,6 +152,7 @@ class _ViewTitleState extends State<_ViewTitle> {
 
   String name = '';
   String icon = '';
+  String inputtingName = '';
 
   @override
   void initState() {
@@ -262,6 +263,18 @@ class _ViewTitleState extends State<_ViewTitle> {
                     await ViewBackendService.updateView(
                       viewId: widget.view.id,
                       name: text,
+                    );
+                  }
+                  popoverController.close();
+                },
+                onChanged: (text) async {
+                  inputtingName = text;
+                },
+                onCanceled: () async {
+                  if (inputtingName.isNotEmpty && inputtingName != name) {
+                    await ViewBackendService.updateView(
+                      viewId: widget.view.id,
+                      name: inputtingName,
                     );
                   }
                   popoverController.close();
