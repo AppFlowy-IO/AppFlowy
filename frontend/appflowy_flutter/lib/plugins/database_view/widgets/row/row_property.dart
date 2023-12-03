@@ -207,12 +207,18 @@ class _PropertyCellState extends State<_PropertyCell> {
               child: SizedBox(
                 width: 160,
                 height: 30,
-                child: FieldCellButton(
-                  field: widget.cellContext.fieldInfo.field,
-                  onTap: () => _popoverController.show(),
-                  radius: BorderRadius.circular(6),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                child: Tooltip(
+                  waitDuration: const Duration(seconds: 1),
+                  preferBelow: false,
+                  verticalOffset: 15,
+                  message: widget.cellContext.fieldInfo.field.name,
+                  child: FieldCellButton(
+                    field: widget.cellContext.fieldInfo.field,
+                    onTap: () => _popoverController.show(),
+                    radius: BorderRadius.circular(6),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  ),
                 ),
               ),
             ),
