@@ -246,6 +246,8 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       );
     } else {
       return FlowyButton(
+        hoverColor: Colors.transparent,
+        radius: BorderRadius.zero,
         text: Padding(
           padding: widget.cellStyle.cellPadding ?? GridSize.cellContentInsets,
           child: _buildMobileOptions(isInRowDetail: false),

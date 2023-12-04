@@ -352,7 +352,7 @@ class MobileRowDetailPageContentState
                         placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
                         textStyle:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontSize: 22,
+                                  fontSize: 23,
                                   fontWeight: FontWeight.w500,
                                 ),
                         cellPadding: const EdgeInsets.symmetric(vertical: 8),
@@ -366,7 +366,7 @@ class MobileRowDetailPageContentState
                       );
 
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: cellBuilder.build(
                           cellContext,
                           style: cellStyle,
@@ -382,7 +382,7 @@ class MobileRowDetailPageContentState
                   padding: const EdgeInsets.only(top: 8, bottom: 100),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: MobileRowPropertyList(
                         cellBuilder: cellBuilder,
                         viewId: viewId,
@@ -390,7 +390,7 @@ class MobileRowDetailPageContentState
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.fromLTRB(6, 6, 16, 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

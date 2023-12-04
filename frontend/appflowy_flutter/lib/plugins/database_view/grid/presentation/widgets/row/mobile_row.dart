@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/mobile_cell_container.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -151,27 +150,7 @@ class RowContent extends StatelessWidget {
         return MobileCellContainer(
           width: cellId.fieldInfo.fieldSettings!.width.toDouble(),
           isPrimary: cellId.fieldInfo.field.isPrimary,
-          accessoryBuilder: (buildContext) {
-            final builder = child.accessoryBuilder;
-            final List<GridCellAccessoryBuilder> accessories = [];
-            if (cellId.fieldInfo.field.isPrimary) {
-              accessories.add(
-                GridCellAccessoryBuilder(
-                  builder: (key) => PrimaryCellAccessory(
-                    key: key,
-                    onTapCallback: onExpand,
-                    isCellEditing: buildContext.isCellEditing,
-                  ),
-                ),
-              );
-            }
-
-            if (builder != null) {
-              accessories.addAll(builder(buildContext));
-            }
-
-            return accessories;
-          },
+          accessoryBuilder: (_) => [],
           onPrimaryFieldCellTap: onExpand,
           child: child,
         );
