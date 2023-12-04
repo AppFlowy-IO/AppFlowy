@@ -71,14 +71,9 @@ class _MobileGridRowState extends State<MobileGridRow> {
             children: [
               SizedBox(width: GridSize.leadingHeaderPadding),
               Expanded(
-                child: InkWell(
-                  onTap: () => widget.openDetailPage(context),
-                  child: IgnorePointer(
-                    child: RowContent(
-                      builder: _cellBuilder,
-                      onExpand: () => widget.openDetailPage(context),
-                    ),
-                  ),
+                child: RowContent(
+                  builder: _cellBuilder,
+                  onExpand: () => widget.openDetailPage(context),
                 ),
               ),
             ],
@@ -155,9 +150,8 @@ class RowContent extends StatelessWidget {
         return MobileCellContainer(
           width: cellId.fieldInfo.fieldSettings!.width.toDouble(),
           isPrimary: cellId.fieldInfo.field.isPrimary,
-          accessoryBuilder: (buildContext) {
-            return [];
-          },
+          accessoryBuilder: (_) => [],
+          onPrimaryFieldCellTap: onExpand,
           child: child,
         );
       },

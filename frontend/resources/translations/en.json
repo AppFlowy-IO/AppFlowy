@@ -177,7 +177,9 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below"
+    "addBlockBelow": "Add a block below",
+    "urlLaunchAccessory": "Open in browser",
+    "urlCopyAccessory": "Copy URL"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
