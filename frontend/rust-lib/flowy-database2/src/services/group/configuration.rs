@@ -474,35 +474,32 @@ fn merge_groups(
     .into_iter()
     .map(|group| (group.id.clone(), group))
     .collect();
+  let mut no_status_group_inserted = false;
 
   // The group is ordered in old groups. Add them before adding the new groups
   for old in old_groups {
     if let Some(new) = new_group_map.shift_remove(&old.id) {
       merge_result.all_groups.push(new.clone());
-    } else if no_status_group.clone().is_some_and(|g| g.id == old.id) {
+    } else if matches!(&no_status_group, Some(group) if group.id == old.id) {
       merge_result
         .all_groups
         .push(no_status_group.clone().unwrap());
+      no_status_group_inserted = true;
     } else {
       merge_result.deleted_groups.push(old);
     }
   }
 
   // Find out the new groups
-  merge_result
-    .all_groups
-    .extend(new_group_map.values().cloned());
-  merge_result.new_groups.extend(new_group_map.into_values());
+  let new_groups = new_group_map.into_values();
+  for (_, group) in new_groups.into_iter().enumerate() {
+    merge_result.all_groups.push(group.clone());
+    merge_result.new_groups.push(group);
+  }
 
   // The `No status` group index is initialized to 0
-  if let Some(no_status_group) = no_status_group {
-    if !merge_result
-      .all_groups
-      .iter()
-      .any(|g| g.id == no_status_group.id)
-    {
-      merge_result.all_groups.insert(0, no_status_group);
-    }
+  if !no_status_group_inserted && no_status_group.is_some() {
+    merge_result.all_groups.insert(0, no_status_group.unwrap());
   }
   merge_result
 }
