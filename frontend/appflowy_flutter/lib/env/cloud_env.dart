@@ -229,8 +229,8 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
   } else {
     return AppFlowyCloudConfiguration(
       base_url: baseUrl,
-      ws_base_url: await _getAppFlowyCloudWSUrl(Env.afCloudUrl),
-      gotrue_url: await _getAppFlowyCloudGotrueUrl(Env.afCloudUrl),
+      ws_base_url: await _getAppFlowyCloudWSUrl(baseUrl),
+      gotrue_url: await _getAppFlowyCloudGotrueUrl(baseUrl),
     );
   }
 }
