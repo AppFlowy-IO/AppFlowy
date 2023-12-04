@@ -276,7 +276,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           ),
           useIntrinsicWidth: true,
           leftIcon: const FlowySvg(FlowySvgs.image_s),
-          text: FlowyText.regular(
+          text: FlowyText.small(
             LocaleKeys.document_plugins_cover_addCover.tr(),
           ),
         ),
@@ -293,7 +293,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
             Icons.emoji_emotions_outlined,
             size: 18,
           ),
-          text: FlowyText.regular(
+          text: FlowyText.small(
             LocaleKeys.document_plugins_cover_removeIcon.tr(),
           ),
         ),

@@ -6,7 +6,7 @@ import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.da
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -79,13 +79,9 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
           final text = cardDataIsEmpty
               ? LocaleKeys.grid_row_titlePlaceholder.tr()
               : cellData;
-
-          final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: cardDataIsEmpty
-                    ? Theme.of(context).hintColor
-                    : Theme.of(context).colorScheme.onBackground,
-                fontSize: 20,
-              );
+          final color = cardDataIsEmpty
+              ? Theme.of(context).hintColor
+              : Theme.of(context).colorScheme.onBackground;
 
           return Row(
             children: [
@@ -94,9 +90,9 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
                 const HSpace(4),
               ],
               Expanded(
-                child: Text(
+                child: FlowyText.regular(
                   text,
-                  style: textStyle,
+                  color: color,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

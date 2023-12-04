@@ -28,6 +28,21 @@ class FlowyText extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
+  const FlowyText.small(
+    this.text, {
+    this.overflow,
+    this.color,
+    this.textAlign,
+    this.maxLines = 1,
+    this.decoration,
+    this.selectable = false,
+    this.fontFamily,
+    this.fallbackFontFamily,
+    Key? key,
+  })  : fontWeight = FontWeight.w400,
+        fontSize = 14,
+        super(key: key);
+
   const FlowyText.regular(
     this.text, {
     this.fontSize,
