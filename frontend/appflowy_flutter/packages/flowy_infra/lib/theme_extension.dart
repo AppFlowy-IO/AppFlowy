@@ -16,6 +16,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color tint9;
 
   final Color textColor;
+  final Color textColorAlt;
   final Color greyHover;
   final Color greySelect;
   final Color lightGreyHover;
@@ -48,6 +49,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.lightGreyHover,
     required this.toggleOffFill,
     required this.textColor,
+    required this.textColorAlt,
     required this.calloutBGColor,
     required this.tableCellBGColor,
     required this.calendarWeekendBGColor,
@@ -77,6 +79,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? tint8,
     Color? tint9,
     Color? textColor,
+    Color? textColorDark,
     Color? calloutBGColor,
     Color? tableCellBGColor,
     Color? greyHover,
@@ -104,6 +107,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       tint8: tint8 ?? this.tint8,
       tint9: tint9 ?? this.tint9,
       textColor: textColor ?? this.textColor,
+      textColorAlt: textColorDark ?? this.textColorAlt,
       calloutBGColor: calloutBGColor ?? this.calloutBGColor,
       tableCellBGColor: tableCellBGColor ?? this.tableCellBGColor,
       greyHover: greyHover ?? this.greyHover,
@@ -140,6 +144,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       tint8: Color.lerp(tint8, other.tint8, t)!,
       tint9: Color.lerp(tint9, other.tint9, t)!,
       textColor: Color.lerp(textColor, other.textColor, t)!,
+      textColorAlt: Color.lerp(textColorAlt, other.textColorAlt, t)!,
       calloutBGColor: Color.lerp(calloutBGColor, other.calloutBGColor, t)!,
       tableCellBGColor:
           Color.lerp(tableCellBGColor, other.tableCellBGColor, t)!,

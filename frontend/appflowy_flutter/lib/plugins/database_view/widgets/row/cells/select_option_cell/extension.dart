@@ -8,6 +8,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/color_analyzer/color_analyzer.dart';
 
 extension SelectOptionColorExtension on SelectOptionColorPB {
   Color toColor(BuildContext context) {
@@ -99,7 +100,11 @@ class SelectOptionTag extends StatelessWidget {
               optionName,
               fontSize: fontSize,
               overflow: TextOverflow.ellipsis,
-              color: AFThemeExtension.of(context).textColor,
+              color: ColorAnalyzer.getAppropriateTextColor(
+                color,
+                AFThemeExtension.of(context).textColor,
+                AFThemeExtension.of(context).textColorAlt,
+              ),
             ),
           ),
           if (onRemove != null) ...[

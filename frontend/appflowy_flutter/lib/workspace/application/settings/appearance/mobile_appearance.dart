@@ -263,6 +263,7 @@ class MobileAppearance extends BaseAppearance {
           tint8: theme.tint8,
           tint9: theme.tint9,
           textColor: theme.text,
+          textColorAlt: theme.textAlt,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,

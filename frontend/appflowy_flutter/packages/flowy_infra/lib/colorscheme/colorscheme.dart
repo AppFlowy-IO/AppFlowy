@@ -74,6 +74,7 @@ class FlowyColorScheme {
   final Color topbarBg;
   final Color icon;
   final Color text;
+  final Color textAlt;
   final Color input;
   final Color hint;
   final Color primary;
@@ -128,6 +129,7 @@ class FlowyColorScheme {
     required this.topbarBg,
     required this.icon,
     required this.text,
+    required this.textAlt,
     required this.input,
     required this.hint,
     required this.primary,
