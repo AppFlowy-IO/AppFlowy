@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/mobile_field_cell.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -94,8 +93,11 @@ class _GridHeaderState extends State<_GridHeader> {
   Widget build(BuildContext context) {
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
       builder: (context, state) {
-        final fields =
-            PlatformExtension.isDesktop ? state.fields : state.fields.slice(1);
+        final fields = [...state.fields];
+        FieldInfo? firstField;
+        if (PlatformExtension.isMobile && fields.isNotEmpty) {
+          firstField = fields.removeAt(0);
+        }
 
         final cells = fields
             .map(
@@ -134,7 +136,7 @@ class _GridHeaderState extends State<_GridHeader> {
               child: child,
             ),
             draggingWidgetOpacity: 0,
-            header: _cellLeading(state.fields[0]),
+            header: _cellLeading(firstField),
             needsLongPressDraggable: PlatformExtension.isMobile,
             footer: _CellTrailing(viewId: widget.viewId),
             onReorder: (int oldIndex, int newIndex) {
@@ -173,14 +175,16 @@ class _GridHeaderState extends State<_GridHeader> {
       return SizedBox(width: GridSize.leadingHeaderPadding);
     } else {
       return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(width: GridSize.leadingHeaderPadding),
-          MobileFieldButton(
-            key: _getKeyById(fieldInfo!.id),
-            viewId: widget.viewId,
-            fieldController: widget.fieldController,
-            fieldInfo: fieldInfo,
-          ),
+          if (fieldInfo != null)
+            MobileFieldButton(
+              key: _getKeyById(fieldInfo.id),
+              viewId: widget.viewId,
+              fieldController: widget.fieldController,
+              fieldInfo: fieldInfo,
+            ),
         ],
       );
     }
