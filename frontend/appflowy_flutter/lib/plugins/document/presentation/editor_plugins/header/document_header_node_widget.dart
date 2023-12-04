@@ -468,7 +468,10 @@ class DocumentCoverState extends State<DocumentCover> {
                         },
                       );
                     },
-                    fillColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fillColor: Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withOpacity(0.5),
                     height: 32,
                     title: LocaleKeys.document_plugins_cover_changeCover.tr(),
                   ),
@@ -587,7 +590,7 @@ class DeleteCoverButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final fillColor = PlatformExtension.isDesktopOrWeb
         ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
-        : Theme.of(context).colorScheme.onSurfaceVariant;
+        : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
     final svgColor = PlatformExtension.isDesktopOrWeb
         ? Theme.of(context).colorScheme.tertiary
         : Theme.of(context).colorScheme.onPrimary;
