@@ -833,6 +833,8 @@ impl DatabaseEditor {
     for option in options {
       type_option.delete_option(&option.id);
     }
+
+    notify_did_update_database_field(&self.database, field_id)?;
     self
       .database
       .lock()

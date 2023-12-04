@@ -382,6 +382,13 @@ class FieldController {
         final updatedFieldInfo =
             fieldInfo.copyWith(fieldSettings: fieldSettings);
 
+        final index = _fieldSettings
+            .indexWhere((element) => element.fieldId == fieldInfo.id);
+        if (index != -1) {
+          _fieldSettings.removeAt(index);
+        }
+        _fieldSettings.add(fieldSettings);
+
         return updatedFieldInfo;
       });
     }

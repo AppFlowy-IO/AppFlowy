@@ -4,7 +4,8 @@ import RecordDocument from '$app/components/database/components/edit_record/Reco
 import RecordHeader from '$app/components/database/components/edit_record/RecordHeader';
 import { Page } from '$app_reducers/pages/slice';
 import { PageController } from '$app/stores/effects/workspace/page/page_controller';
-import { ViewLayoutPB } from '@/services/backend';
+import { ErrorCode, ViewLayoutPB } from '@/services/backend';
+import { Log } from '$app/utils/log';
 
 interface Props {
   cell: TextCell;
@@ -26,7 +27,7 @@ function EditRecord({ documentId: id, cell, icon }: Props) {
       // Record not found
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      if (e.code === 3) {
+      if (e.code === ErrorCode.RecordNotFound) {
         try {
           const page = await controller.createOrphanPage({
             name: '',
@@ -35,7 +36,7 @@ function EditRecord({ documentId: id, cell, icon }: Props) {
 
           setPage(page);
         } catch (e) {
-          console.error(e);
+          Log.error(e);
         }
       }
     }

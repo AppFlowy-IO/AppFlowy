@@ -85,7 +85,11 @@ class _DateCellState extends GridCellState<GridDateCell> {
               child: Container(
                 alignment: alignment,
                 padding: padding,
-                child: FlowyText.medium(text, color: color),
+                child: FlowyText.medium(
+                  text,
+                  color: color,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               popupBuilder: (BuildContext popoverContent) {
                 return DateCellEditor(

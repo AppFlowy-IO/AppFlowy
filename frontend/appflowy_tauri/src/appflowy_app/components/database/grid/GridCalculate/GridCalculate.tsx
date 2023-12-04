@@ -19,7 +19,7 @@ function GridCalculate({ field, index }: Props) {
         width,
         visibility: index === 0 ? 'visible' : 'hidden',
       }}
-      className={'flex justify-end'}
+      className={'flex justify-end py-2'}
     >
       <span className={'mr-2 text-text-caption'}>Count</span>
       <span>{count}</span>
