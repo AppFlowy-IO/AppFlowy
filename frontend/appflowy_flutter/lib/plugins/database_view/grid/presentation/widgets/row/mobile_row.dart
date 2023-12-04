@@ -153,7 +153,7 @@ class RowContent extends StatelessWidget {
         final GridCellWidget child = builder.build(cellId);
 
         return MobileCellContainer(
-          width: cellId.fieldInfo.fieldSettings?.width.toDouble() ?? 140,
+          width: cellId.fieldInfo.fieldSettings!.width.toDouble(),
           isPrimary: cellId.fieldInfo.field.isPrimary,
           accessoryBuilder: (buildContext) {
             return [];
