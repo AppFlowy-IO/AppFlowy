@@ -16,7 +16,7 @@ class GridAddRowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      text: FlowyText.medium(
+      text: FlowyText(
         LocaleKeys.grid_row_newRow.tr(),
         color: Theme.of(context).hintColor,
       ),

@@ -14,6 +14,7 @@ Future<T?> showMobileBottomSheet<T>(
   bool showHeader = false,
   bool showCloseButton = false,
   String title = '', // only works if showHeader is true
+  Color? backgroundColor,
 }) async {
   assert(() {
     if (showCloseButton || title.isNotEmpty) assert(showHeader);
@@ -26,6 +27,7 @@ Future<T?> showMobileBottomSheet<T>(
     enableDrag: isDragEnabled,
     useSafeArea: true,
     clipBehavior: Clip.antiAlias,
+    backgroundColor: backgroundColor,
     shape: shape ??
         const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(

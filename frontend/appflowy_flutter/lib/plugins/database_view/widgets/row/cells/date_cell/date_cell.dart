@@ -154,10 +154,12 @@ class _DateCellState extends GridCellState<GridDateCell> {
             );
           } else {
             return FlowyButton(
+              radius: BorderRadius.zero,
+              hoverColor: Colors.transparent,
               text: Container(
                 alignment: alignment,
                 padding: padding,
-                child: FlowyText.medium(text, color: color),
+                child: FlowyText(text, color: color, fontSize: 15),
               ),
               onTap: () {
                 showMobileBottomSheet(

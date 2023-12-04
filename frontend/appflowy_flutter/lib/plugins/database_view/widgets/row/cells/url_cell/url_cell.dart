@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -200,10 +201,14 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   @override
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
-      return _URLAccessoryIconContainer(
-        child: FlowySvg(
-          FlowySvgs.copy_s,
-          color: AFThemeExtension.of(context).textColor,
+      return FlowyTooltip(
+        message: LocaleKeys.tooltip_urlCopyAccessory.tr(),
+        preferBelow: false,
+        child: _URLAccessoryIconContainer(
+          child: FlowySvg(
+            FlowySvgs.copy_s,
+            color: AFThemeExtension.of(context).textColor,
+          ),
         ),
       );
     } else {
@@ -242,10 +247,14 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   @override
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
-      return _URLAccessoryIconContainer(
-        child: FlowySvg(
-          FlowySvgs.attach_s,
-          color: AFThemeExtension.of(context).textColor,
+      return FlowyTooltip(
+        message: LocaleKeys.tooltip_urlLaunchAccessory.tr(),
+        preferBelow: false,
+        child: _URLAccessoryIconContainer(
+          child: FlowySvg(
+            FlowySvgs.attach_s,
+            color: AFThemeExtension.of(context).textColor,
+          ),
         ),
       );
     } else {
