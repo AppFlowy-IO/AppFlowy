@@ -43,7 +43,7 @@ export const SortItem: FC<SortItemProps> = ({ className, sort }) => {
   }, [viewId, sort]);
 
   return (
-    <Stack className={className} direction='row' spacing={2}>
+    <Stack className={className} direction='row' spacing={1}>
       <FieldSelect className={'w-[150px]'} size='small' value={sort.fieldId} onChange={handleFieldChange} />
       <SortConditionSelect
         className={'w-[150px]'}
@@ -52,7 +52,7 @@ export const SortItem: FC<SortItemProps> = ({ className, sort }) => {
         onChange={handleConditionChange}
       />
       <div className={'flex items-center justify-center'}>
-        <IconButton className={'h-6 w-6'} onClick={handleClick}>
+        <IconButton size={'small'} onClick={handleClick}>
           <CloseSvg />
         </IconButton>
       </div>

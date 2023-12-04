@@ -32,7 +32,7 @@ function Property({ field, rowId, ishovered, onHover, ...props }: Props, ref: Re
         onMouseLeave={() => {
           onHover(null);
         }}
-        className={'relative flex gap-6 rounded hover:bg-content-blue-50'}
+        className={'relative flex items-start gap-6 rounded hover:bg-content-blue-50'}
         key={field.id}
         {...props}
       >

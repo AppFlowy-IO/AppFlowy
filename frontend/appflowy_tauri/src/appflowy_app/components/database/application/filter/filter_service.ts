@@ -26,7 +26,7 @@ export async function insertFilter({
   viewId: string;
   fieldId: string;
   fieldType: FieldType;
-  data: UndeterminedFilter['data'];
+  data?: UndeterminedFilter['data'];
   filterId?: string;
 }): Promise<void> {
   const payload = DatabaseSettingChangesetPB.fromObject({
@@ -36,7 +36,7 @@ export async function insertFilter({
       field_id: fieldId,
       field_type: fieldType,
       filter_id: filterId,
-      data: filterDataToPB(data, fieldType)?.serialize(),
+      data: data ? filterDataToPB(data, fieldType)?.serialize() : undefined,
     },
   });
 

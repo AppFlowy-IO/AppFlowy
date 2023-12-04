@@ -207,12 +207,18 @@ class _PropertyCellState extends State<_PropertyCell> {
               child: SizedBox(
                 width: 160,
                 height: 30,
-                child: FieldCellButton(
-                  field: widget.cellContext.fieldInfo.field,
-                  onTap: () => _popoverController.show(),
-                  radius: BorderRadius.circular(6),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                child: Tooltip(
+                  waitDuration: const Duration(seconds: 1),
+                  preferBelow: false,
+                  verticalOffset: 15,
+                  message: widget.cellContext.fieldInfo.field.name,
+                  child: FieldCellButton(
+                    field: widget.cellContext.fieldInfo.field,
+                    onTap: () => _popoverController.show(),
+                    radius: BorderRadius.circular(6),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  ),
                 ),
               ),
             ),
@@ -266,10 +272,13 @@ GridCellStyle? customCellStyle(FieldType fieldType) {
     case FieldType.Number:
       return GridNumberCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       );
     case FieldType.RichText:
       return GridTextCellStyle(
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        showEmoji: false,
       );
     case FieldType.SingleSelect:
       return SelectOptionCellStyle(
@@ -280,6 +289,7 @@ GridCellStyle? customCellStyle(FieldType fieldType) {
     case FieldType.URL:
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         accessoryTypes: [
           GridURLCellAccessoryType.copyURL,
           GridURLCellAccessoryType.visitURL,
@@ -297,10 +307,14 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
         final text = switch (state.showHiddenFields) {
-          false => LocaleKeys.grid_rowPage_showHiddenFields
-              .plural(state.numHiddenFields),
-          true => LocaleKeys.grid_rowPage_hideHiddenFields
-              .plural(state.numHiddenFields),
+          false => LocaleKeys.grid_rowPage_showHiddenFields.plural(
+              state.numHiddenFields,
+              namedArgs: {'count': '${state.numHiddenFields}'},
+            ),
+          true => LocaleKeys.grid_rowPage_hideHiddenFields.plural(
+              state.numHiddenFields,
+              namedArgs: {'count': '${state.numHiddenFields}'},
+            ),
         };
 
         return SizedBox(

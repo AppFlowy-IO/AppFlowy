@@ -21,7 +21,12 @@ function ExpandButton({ cell, documentId, icon, visible }: Props) {
   return (
     <>
       {visible && (
-        <div className={`mr-4 flex items-center justify-center`}>
+        <div
+          style={{
+            transform: 'translateY(-50%) translateZ(0)',
+          }}
+          className={`absolute right-0 top-1/2 mr-4 flex items-center justify-center`}
+        >
           <IconButton onClick={() => setOpen(true)} className={'h-6 w-6 text-sm'}>
             <OpenIcon />
           </IconButton>

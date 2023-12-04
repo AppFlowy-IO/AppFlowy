@@ -4,8 +4,13 @@ import {
   DateCellDataPB,
   FieldType,
   SelectOptionCellDataPB,
+  TimestampCellDataPB,
   URLCellDataPB,
 } from '@/services/backend';
+import {
+  SelectOption,
+  pbToSelectOption,
+} from '$app/components/database/application/field/select_option/select_option_types';
 
 export interface Cell {
   rowId: string;
@@ -53,11 +58,25 @@ export interface DateTimeCell extends Cell {
   data: DateTimeCellData;
 }
 
+export interface TimeStampCell extends Cell {
+  fieldType: FieldType.LastEditedTime | FieldType.CreatedTime;
+  data: TimestampCellData;
+}
+
 export interface DateTimeCellData {
   date?: string;
   time?: string;
   timestamp?: number;
   includeTime?: boolean;
+  endDate?: string;
+  endTime?: string;
+  endTimestamp?: number;
+  isRange?: boolean;
+}
+
+export interface TimestampCellData {
+  dataTime?: string;
+  timestamp?: number;
 }
 
 export interface ChecklistCell extends Cell {
@@ -71,20 +90,37 @@ export interface ChecklistCellData {
    */
   selectedOptions?: string[];
   percentage?: number;
+  options?: SelectOption[];
 }
 
-export type UndeterminedCell = TextCell | NumberCell | DateTimeCell | SelectCell | CheckboxCell | UrlCell | ChecklistCell;
+export type UndeterminedCell =
+  | TextCell
+  | NumberCell
+  | DateTimeCell
+  | SelectCell
+  | CheckboxCell
+  | UrlCell
+  | ChecklistCell;
 
-const pbToDateCellData = (pb: DateCellDataPB): DateTimeCellData => ({
+const pbToDateTimeCellData = (pb: DateCellDataPB): DateTimeCellData => ({
   date: pb.date,
   time: pb.time,
   timestamp: pb.timestamp,
   includeTime: pb.include_time,
+  endDate: pb.end_date,
+  endTime: pb.end_time,
+  endTimestamp: pb.end_timestamp,
+  isRange: pb.is_range,
+});
+
+const pbToTimestampCellData = (pb: TimestampCellDataPB): TimestampCellData => ({
+  dataTime: pb.date_time,
+  timestamp: pb.timestamp,
 });
 
 export const pbToSelectCellData = (pb: SelectOptionCellDataPB): SelectCellData => {
   return {
-    selectedOptionIds: pb.select_options.map(option => option.id),
+    selectedOptionIds: pb.select_options.map((option) => option.id),
   };
 };
 
@@ -96,6 +132,7 @@ const pbToURLCellData = (pb: URLCellDataPB): UrlCellData => ({
 export const pbToChecklistCellData = (pb: ChecklistCellDataPB): ChecklistCellData => ({
   selectedOptions: pb.selected_options.map(({ id }) => id),
   percentage: pb.percentage,
+  options: pb.options.map(pbToSelectOption),
 });
 
 function bytesToCellData(bytes: Uint8Array, fieldType: FieldType) {
@@ -105,9 +142,10 @@ function bytesToCellData(bytes: Uint8Array, fieldType: FieldType) {
     case FieldType.Checkbox:
       return new TextDecoder().decode(bytes);
     case FieldType.DateTime:
+      return pbToDateTimeCellData(DateCellDataPB.deserialize(bytes));
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
-      return pbToDateCellData(DateCellDataPB.deserialize(bytes));
+      return pbToTimestampCellData(TimestampCellDataPB.deserialize(bytes));
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:
       return pbToSelectCellData(SelectOptionCellDataPB.deserialize(bytes));
