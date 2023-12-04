@@ -230,9 +230,11 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       alignment: Alignment.bottomLeft,
       width: double.infinity,
       padding: PlatformExtension.isDesktopOrWeb
-          ? EditorStyleCustomizer.documentPadding
+          ? EdgeInsets.symmetric(
+              horizontal: EditorStyleCustomizer.documentPadding.right,
+            )
           : EdgeInsets.symmetric(
-              horizontal: EditorStyleCustomizer.documentPadding.left - 6.0,
+              horizontal: EditorStyleCustomizer.documentPadding.left,
             ),
       child: SizedBox(
         height: 28,
@@ -306,7 +308,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           Icons.emoji_emotions_outlined,
           size: 18,
         ),
-        text: FlowyText.regular(
+        text: FlowyText.small(
           LocaleKeys.document_plugins_cover_addIcon.tr(),
         ),
         onTap: PlatformExtension.isDesktop
