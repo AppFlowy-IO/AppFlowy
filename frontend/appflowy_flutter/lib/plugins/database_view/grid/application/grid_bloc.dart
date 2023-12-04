@@ -64,16 +64,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           },
           didReceveFilters: (List<FilterInfo> filters) {
             emit(
-              state.copyWith(
-                reorderable: filters.isEmpty && state.sorts.isEmpty,
-                filters: filters,
-              ),
+              state.copyWith(filters: filters),
             );
           },
           didReceveSorts: (List<SortInfo> sorts) {
             emit(
               state.copyWith(
-                reorderable: sorts.isEmpty && state.filters.isEmpty,
+                reorderable: sorts.isEmpty,
                 sorts: sorts,
               ),
             );
