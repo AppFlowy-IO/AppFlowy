@@ -27,31 +27,22 @@ class MobileFieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: fieldInfo.fieldSettings!.width.toDouble(),
-      decoration: BoxDecoration(
-        border: Border(
-          right: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1.0,
-          ),
-        ),
-      ),
       child: FlowyButton(
-        onTap: () {
-          showEditFieldScreen(context, viewId, fieldInfo);
-        },
+        onTap: () => showEditFieldScreen(context, viewId, fieldInfo),
         radius: BorderRadius.zero,
-        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        margin: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        leftIconSize: const Size.square(18),
         leftIcon: FlowySvg(
           fieldInfo.fieldType.icon(),
-          color: Theme.of(context).hintColor,
+          size: const Size.square(18),
         ),
-        text: FlowyText.medium(
+        text: FlowyText(
           fieldInfo.name,
+          fontSize: 15,
           maxLines: maxLines,
           overflow: TextOverflow.ellipsis,
-          color: Theme.of(context).hintColor,
         ),
       ),
     );

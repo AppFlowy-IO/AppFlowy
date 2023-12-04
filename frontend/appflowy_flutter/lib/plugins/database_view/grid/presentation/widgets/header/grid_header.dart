@@ -2,11 +2,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/mobile_field_cell.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -92,7 +94,10 @@ class _GridHeaderState extends State<_GridHeader> {
   Widget build(BuildContext context) {
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
       builder: (context, state) {
-        final cells = state.fields
+        final fields =
+            PlatformExtension.isDesktop ? state.fields : state.fields.slice(1);
+
+        final cells = fields
             .map(
               (fieldInfo) => PlatformExtension.isDesktop
                   ? GridFieldCell(
@@ -129,7 +134,7 @@ class _GridHeaderState extends State<_GridHeader> {
               child: child,
             ),
             draggingWidgetOpacity: 0,
-            header: const _CellLeading(),
+            header: _cellLeading(state.fields[0]),
             needsLongPressDraggable: PlatformExtension.isMobile,
             footer: _CellTrailing(viewId: widget.viewId),
             onReorder: (int oldIndex, int newIndex) {
@@ -162,16 +167,23 @@ class _GridHeaderState extends State<_GridHeader> {
           .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
     }
   }
-}
 
-class _CellLeading extends StatelessWidget {
-  const _CellLeading({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: GridSize.leadingHeaderPadding,
-    );
+  Widget _cellLeading(FieldInfo? fieldInfo) {
+    if (PlatformExtension.isDesktop) {
+      return SizedBox(width: GridSize.leadingHeaderPadding);
+    } else {
+      return Row(
+        children: [
+          SizedBox(width: GridSize.leadingHeaderPadding),
+          MobileFieldButton(
+            key: _getKeyById(fieldInfo!.id),
+            viewId: widget.viewId,
+            fieldController: widget.fieldController,
+            fieldInfo: fieldInfo,
+          ),
+        ],
+      );
+    }
   }
 }
 
@@ -222,10 +234,11 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
     return FlowyButton(
       margin: PlatformExtension.isDesktop
           ? GridSize.cellContentInsets
-          : const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          : const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
       radius: BorderRadius.zero,
-      text: FlowyText.medium(
+      text: FlowyText(
         LocaleKeys.grid_field_newProperty.tr(),
+        fontSize: 15,
         overflow: TextOverflow.ellipsis,
         color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
       ),
@@ -245,6 +258,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       },
       leftIcon: FlowySvg(
         FlowySvgs.add_s,
+        size: const Size.square(18),
         color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
       ),
     );
