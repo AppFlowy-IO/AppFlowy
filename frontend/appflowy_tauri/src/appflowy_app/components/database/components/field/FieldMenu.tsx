@@ -1,10 +1,14 @@
-import { Divider, Menu, MenuItem, MenuProps, OutlinedInput } from '@mui/material';
+import { Divider, MenuList, MenuProps } from '@mui/material';
 import { ChangeEventHandler, FC, useCallback, useState } from 'react';
-import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 import { useViewId } from '$app/hooks';
 import { Field, fieldService } from '../../application';
 import { FieldMenuActions } from './FieldMenuActions';
-import { FieldTypeText, FieldTypeSvg } from '$app/components/database/components/field/index';
+import FieldTypeMenuExtension from '$app/components/database/components/field/FieldTypeMenuExtension';
+import FieldTypeSelect from '$app/components/database/components/field/FieldTypeSelect';
+import { FieldType } from '@/services/backend';
+import { Log } from '$app/utils/log';
+import TextField from '@mui/material/TextField';
+import Popover from '@mui/material/Popover';
 
 export interface GridFieldMenuProps {
   field: Field;
@@ -29,44 +33,60 @@ export const FieldMenu: FC<GridFieldMenuProps> = ({ field, anchorEl, open, onClo
         });
       } catch (e) {
         // TODO
-        console.error(`change field ${field.id} name from '${field.name}' to ${inputtingName} fail`, e);
+        Log.error(`change field ${field.id} name from '${field.name}' to ${inputtingName} fail`, e);
       }
     }
   }, [viewId, field, inputtingName]);
 
-  const fieldNameInput = (
-    <OutlinedInput
-      className='mx-3 mb-5 mt-1 !rounded-[10px]'
-      size='small'
-      value={inputtingName}
-      onChange={handleInput}
-      onBlur={handleBlur}
-    />
-  );
-
-  const fieldTypeSelect = (
-    <MenuItem dense>
-      <FieldTypeSvg type={field.type} className='mr-2 text-base' />
-      <span className='flex-1 text-xs font-medium'>
-        <FieldTypeText type={field.type} />
-      </span>
-      <MoreSvg className='text-base' />
-    </MenuItem>
-  );
-
   const isPrimary = field.isPrimary;
 
-  return (
-    <Menu keepMounted={false} anchorEl={anchorEl} open={open} onClose={onClose}>
-      {fieldNameInput}
-      {!isPrimary && (
-        <div>
-          {fieldTypeSelect}
-          <Divider />
-        </div>
-      )}
+  const onUpdateFieldType = useCallback(
+    async (type: FieldType) => {
+      try {
+        await fieldService.updateFieldType(viewId, field.id, type);
+      } catch (e) {
+        // TODO
+        Log.error(`change field ${field.id} type from '${field.type}' to ${type} fail`, e);
+      }
+    },
+    [viewId, field]
+  );
 
-      <FieldMenuActions isPrimary={isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
-    </Menu>
+  return (
+    <Popover
+      transformOrigin={{
+        vertical: -4,
+        horizontal: 'left',
+      }}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'left',
+      }}
+      keepMounted={false}
+      anchorEl={anchorEl}
+      open={open}
+      onClose={onClose}
+    >
+      <TextField
+        className='mx-3 mt-3 rounded-[10px]'
+        size='small'
+        autoFocus={true}
+        value={inputtingName}
+        onChange={handleInput}
+        onBlur={handleBlur}
+      />
+      <MenuList>
+        <div>
+          {!isPrimary && (
+            <>
+              <FieldTypeSelect field={field} onUpdateFieldType={onUpdateFieldType} />
+              <Divider className={'my-2'} />
+            </>
+          )}
+          <FieldTypeMenuExtension field={field} />
+          <FieldMenuActions isPrimary={isPrimary} onMenuItemClick={() => onClose()} fieldId={field.id} />
+        </div>
+      </MenuList>
+    </Popover>
   );
 };

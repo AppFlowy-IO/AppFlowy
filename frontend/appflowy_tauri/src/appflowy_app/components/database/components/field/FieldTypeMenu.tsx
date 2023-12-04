@@ -2,6 +2,8 @@ import { Divider, Menu, MenuItem, MenuProps } from '@mui/material';
 import { FC, useMemo } from 'react';
 import { FieldType } from '@/services/backend';
 import { FieldTypeText, FieldTypeSvg } from '$app/components/database/components/field/index';
+import { Field } from '$app/components/database/application';
+import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
 
 const FieldTypeGroup = [
   {
@@ -14,15 +16,21 @@ const FieldTypeGroup = [
       FieldType.DateTime,
       FieldType.Checkbox,
       FieldType.Checklist,
+      FieldType.URL,
     ],
   },
   {
     name: 'Advanced',
-    types: [FieldType.LastEditedTime],
+    types: [FieldType.LastEditedTime, FieldType.CreatedTime],
   },
 ];
 
-export const FieldTypeMenu: FC<MenuProps> = (props) => {
+export const FieldTypeMenu: FC<
+  MenuProps & {
+    field: Field;
+    onClickItem?: (type: FieldType) => void;
+  }
+> = ({ field, onClickItem, ...props }) => {
   const PopoverClasses = useMemo(
     () => ({
       ...props.PopoverClasses,
@@ -38,11 +46,12 @@ export const FieldTypeMenu: FC<MenuProps> = (props) => {
           {group.name}
         </MenuItem>,
         group.types.map((type) => (
-          <MenuItem key={type} dense>
+          <MenuItem onClick={() => onClickItem?.(type)} key={type} dense className={'flex justify-between'}>
             <FieldTypeSvg className='mr-2 text-base' type={type} />
-            <span className='font-medium'>
+            <span className='flex-1 font-medium'>
               <FieldTypeText type={type} />
             </span>
+            {type === field.type && <SelectCheckSvg />}
           </MenuItem>
         )),
         index < FieldTypeGroup.length - 1 && <Divider key={`Divider-${group.name}`} />,

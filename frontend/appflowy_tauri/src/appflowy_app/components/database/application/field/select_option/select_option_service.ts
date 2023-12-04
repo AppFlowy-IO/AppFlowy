@@ -1,7 +1,4 @@
-import {
-  CreateSelectOptionPayloadPB,
-  RepeatedSelectOptionPayload,
-} from '@/services/backend';
+import { CreateSelectOptionPayloadPB, RepeatedSelectOptionPayload } from '@/services/backend';
 import {
   DatabaseEventCreateSelectOption,
   DatabaseEventInsertOrUpdateSelectOption,
@@ -28,7 +25,7 @@ export async function insertOrUpdateSelectOption(
   viewId: string,
   fieldId: string,
   items: Partial<SelectOption>[],
-  rowId?: string,
+  rowId?: string
 ): Promise<void> {
   const payload = RepeatedSelectOptionPayload.fromObject({
     view_id: viewId,
@@ -46,13 +43,13 @@ export async function deleteSelectOption(
   viewId: string,
   fieldId: string,
   items: Partial<SelectOption>[],
-  rowId?: string,
+  rowId?: string
 ): Promise<void> {
   const payload = RepeatedSelectOptionPayload.fromObject({
     view_id: viewId,
     field_id: fieldId,
     row_id: rowId,
-    items: items,
+    items,
   });
 
   const result = await DatabaseEventDeleteSelectOption(payload);
