@@ -272,10 +272,13 @@ GridCellStyle? customCellStyle(FieldType fieldType) {
     case FieldType.Number:
       return GridNumberCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       );
     case FieldType.RichText:
       return GridTextCellStyle(
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        showEmoji: false,
       );
     case FieldType.SingleSelect:
       return SelectOptionCellStyle(
@@ -286,6 +289,7 @@ GridCellStyle? customCellStyle(FieldType fieldType) {
     case FieldType.URL:
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         accessoryTypes: [
           GridURLCellAccessoryType.copyURL,
           GridURLCellAccessoryType.visitURL,
