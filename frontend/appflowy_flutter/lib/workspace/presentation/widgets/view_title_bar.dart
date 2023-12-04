@@ -276,8 +276,8 @@ class _ViewTitleState extends State<_ViewTitle> {
                       viewId: widget.view.id,
                       name: inputtingName,
                     );
+                    popoverController.close();
                   }
-                  popoverController.close();
                 },
               ),
             ),
@@ -293,6 +293,7 @@ class _ViewTitleState extends State<_ViewTitle> {
   }
 
   void _resetTextEditingController() {
+    inputtingName = name;
     textEditingController
       ..text = name
       ..selection = TextSelection(
