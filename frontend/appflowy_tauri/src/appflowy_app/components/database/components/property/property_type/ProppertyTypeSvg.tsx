@@ -23,7 +23,7 @@ export const FieldTypeSvgMap: Record<FieldType, FC<React.SVGProps<SVGSVGElement>
   [FieldType.CreatedTime]: LastEditedTimeSvg,
 };
 
-export const FieldTypeSvg: FC<{ type: FieldType, className?: string }> = memo(({ type, ...props }) => {
+export const ProppertyTypeSvg: FC<{ type: FieldType; className?: string }> = memo(({ type, ...props }) => {
   const Svg = FieldTypeSvgMap[type];
 
   return <Svg {...props} />;

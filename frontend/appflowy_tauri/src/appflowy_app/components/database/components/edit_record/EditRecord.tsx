@@ -1,20 +1,25 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { TextCell } from '$app/components/database/application';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import RecordDocument from '$app/components/database/components/edit_record/RecordDocument';
 import RecordHeader from '$app/components/database/components/edit_record/RecordHeader';
 import { Page } from '$app_reducers/pages/slice';
 import { PageController } from '$app/stores/effects/workspace/page/page_controller';
 import { ErrorCode, ViewLayoutPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
+import { useDatabase } from '$app/components/database';
 
 interface Props {
-  cell: TextCell;
-  documentId: string;
-  icon?: string;
+  rowId: string;
 }
-function EditRecord({ documentId: id, cell, icon }: Props) {
-  const [page, setPage] = useState<Page | null>(null);
 
+function EditRecord({ rowId }: Props) {
+  const { rowMetas } = useDatabase();
+  const row = useMemo(() => {
+    return rowMetas.find((row) => row.id === rowId);
+  }, [rowMetas, rowId]);
+  const [page, setPage] = useState<Page | null>(null);
+  const id = row?.documentId;
+
+  console.log('row', row);
   const loadPage = useCallback(async () => {
     if (!id) return;
     const controller = new PageController(id);
@@ -47,8 +52,10 @@ function EditRecord({ documentId: id, cell, icon }: Props) {
   }, [loadPage]);
 
   const getDocumentTitle = useCallback(() => {
-    return <RecordHeader page={page} cell={cell} icon={icon} />;
-  }, [cell, icon, page]);
+    return row ? <RecordHeader page={page} row={row} /> : null;
+  }, [row, page]);
+
+  if (!id) return null;
 
   return (
     <div className={'h-full px-12 py-6'}>

@@ -2,7 +2,7 @@ import { IconButton, SelectChangeEvent, Stack } from '@mui/material';
 import { FC, useCallback } from 'react';
 import { ReactComponent as CloseSvg } from '$app/assets/close.svg';
 import { Field, Sort, sortService } from '../../application';
-import { FieldSelect } from '../field';
+import { PropertySelect } from '../property';
 import { SortConditionSelect } from './SortConditionSelect';
 import { useViewId } from '@/appflowy_app/hooks';
 import { SortConditionPB } from '@/services/backend';
@@ -44,7 +44,7 @@ export const SortItem: FC<SortItemProps> = ({ className, sort }) => {
 
   return (
     <Stack className={className} direction='row' spacing={1}>
-      <FieldSelect className={'w-[150px]'} size='small' value={sort.fieldId} onChange={handleFieldChange} />
+      <PropertySelect className={'w-[150px]'} size='small' value={sort.fieldId} onChange={handleFieldChange} />
       <SortConditionSelect
         className={'w-[150px]'}
         size='small'

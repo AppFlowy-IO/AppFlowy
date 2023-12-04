@@ -1,27 +1,28 @@
-import { useGridUIStateDispatcher, useGridUIStateSelector } from '$app/components/database/proxy/grid/ui_state/actions';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-export function useGridRowActionsDisplay(rowId: string) {
-  const { hoverRowId, isActivated } = useGridUIStateSelector();
-  const hover = useMemo(() => {
-    return isActivated && hoverRowId === rowId;
-  }, [hoverRowId, rowId, isActivated]);
+export function useGridRowActionsDisplay(rowId: string, ref: React.RefObject<HTMLDivElement>) {
+  const [hover, setHover] = useState(false);
 
-  const { setRowHover } = useGridUIStateDispatcher();
+  useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const onMouseLeave = () => {
+      setHover(false);
+    };
 
-  const onMouseEnter = useCallback(() => {
-    setRowHover(rowId);
-  }, [setRowHover, rowId]);
+    const onMouseEnter = () => {
+      setHover(true);
+    };
 
-  const onMouseLeave = useCallback(() => {
-    if (hover) {
-      setRowHover(null);
-    }
-  }, [setRowHover, hover]);
+    el.addEventListener('mouseenter', onMouseEnter);
+    el.addEventListener('mouseleave', onMouseLeave);
+    return () => {
+      el.removeEventListener('mouseenter', onMouseEnter);
+      el.removeEventListener('mouseleave', onMouseLeave);
+    };
+  }, [rowId, ref]);
 
   return {
-    onMouseEnter,
-    onMouseLeave,
     hover,
   };
 }

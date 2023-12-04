@@ -2,7 +2,7 @@ import { FieldType } from '@/services/backend';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 
-export const FieldTypeText = ({ type }: { type: FieldType }) => {
+export const PropertyTypeText = ({ type }: { type: FieldType }) => {
   const { t } = useTranslation();
 
   const text = useMemo(() => {

@@ -13,6 +13,7 @@ import DatabaseSettings from '$app/components/database/components/database_setti
 import { Portal } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ErrorCode } from '@/services/backend';
+import ExpandRecordModal from '$app/components/database/components/edit_record/ExpandRecordModal';
 
 interface Props {
   selectedViewId?: string;
@@ -25,6 +26,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
   const [notFound, setNotFound] = useState(false);
   const [childViewIds, setChildViewIds] = useState<string[]>([]);
   const { ref, collectionRef, tableHeight, openCollections, setOpenCollections } = useDatabaseResize(selectedViewId);
+  const [editRecordRowId, setEditRecordRowId] = useState<string | null>(null);
 
   useEffect(() => {
     const onPageChanged = () => {
@@ -79,6 +81,13 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
     [openCollections, setOpenCollections]
   );
 
+  const onEditRecord = useCallback(
+    (rowId: string) => {
+      setEditRecordRowId(rowId);
+    },
+    [setEditRecordRowId]
+  );
+
   if (notFound) {
     return (
       <div className='mb-2 flex h-full w-full items-center justify-center rounded border border-dashed border-line-divider'>
@@ -118,10 +127,19 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
                   <div ref={collectionRef}>
                     <DatabaseCollection open={openCollections.includes(id)} />
                   </div>
+                  {editRecordRowId && (
+                    <ExpandRecordModal
+                      rowId={editRecordRowId}
+                      open={Boolean(editRecordRowId)}
+                      onClose={() => {
+                        setEditRecordRowId(null);
+                      }}
+                    />
+                  )}
                 </>
               )}
 
-              <DatabaseView isActivated={selectedViewId === id} tableHeight={tableHeight} />
+              <DatabaseView onEditRecord={onEditRecord} tableHeight={tableHeight} />
             </DatabaseLoader>
           </TabPanel>
         ))}

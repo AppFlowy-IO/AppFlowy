@@ -78,7 +78,6 @@ function UrlCell({ field, cell, placeholder }: Props) {
           <EditTextCellInput
             editing={editing}
             anchorEl={cellRef.current}
-            width={field.width}
             onClose={handleClose}
             text={value}
             onInput={handleInput}

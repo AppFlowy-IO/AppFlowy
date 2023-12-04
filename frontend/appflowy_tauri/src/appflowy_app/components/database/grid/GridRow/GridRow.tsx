@@ -1,4 +1,3 @@
-import { Virtualizer } from '@tanstack/react-virtual';
 import React, { FC } from 'react';
 import { RenderRow, RenderRowType } from './constants';
 import { GridCellRow } from './GridCellRow';
@@ -8,16 +7,16 @@ import GridCalculateRow from '$app/components/database/grid/GridRow/GridCalculat
 
 export interface GridRowProps {
   row: RenderRow;
-  virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
   getPrevRowId: (id: string) => string | null;
+  onEditRecord: (rowId: string) => void;
 }
 
-export const GridRow: FC<GridRowProps> = React.memo(({ row, virtualizer, getPrevRowId }) => {
+export const GridRow: FC<GridRowProps> = React.memo(({ row, getPrevRowId, onEditRecord }) => {
   switch (row.type) {
     case RenderRowType.Fields:
       return <GridFieldRow />;
     case RenderRowType.Row:
-      return <GridCellRow rowMeta={row.data.meta} virtualizer={virtualizer} getPrevRowId={getPrevRowId} />;
+      return <GridCellRow onEditRecord={onEditRecord} rowMeta={row.data.meta} getPrevRowId={getPrevRowId} />;
     case RenderRowType.NewRow:
       return <GridNewRow startRowId={row.data.startRowId} groupId={row.data.groupId} />;
     case RenderRowType.CalculateRow:

@@ -1,19 +1,10 @@
-import { Virtualizer } from '@tanstack/react-virtual';
 import { Portal } from '@mui/material';
 import { DragEventHandler, FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { throttle } from '$app/utils/tool';
 import { useViewId } from '$app/hooks';
 import { useDatabaseVisibilityFields } from '../../../Database.hooks';
 import { rowService, RowMeta } from '../../../application';
-import {
-  DragItem,
-  DragType,
-  DropPosition,
-  VirtualizedList,
-  useDraggable,
-  useDroppable,
-  ScrollDirection,
-} from '../../../_shared';
+import { DragItem, DragType, DropPosition, useDraggable, useDroppable, ScrollDirection } from '../../../_shared';
 import { GridCell } from '../../GridCell';
 import { GridCellRowActions } from './GridCellRowActions';
 import {
@@ -23,17 +14,16 @@ import {
 import GridCellRowContextMenu from '$app/components/database/grid/GridRow/GridCellRow/GridCellRowContextMenu';
 import { DEFAULT_FIELD_WIDTH } from '$app/components/database/grid/GridRow';
 
-export interface GridCellRowProps {
+export interface GridCellRowProps extends React.HTMLAttributes<HTMLDivElement> {
   rowMeta: RowMeta;
-  virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
   getPrevRowId: (id: string) => string | null;
+  onEditRecord: (rowId: string) => void;
 }
 
-export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPrevRowId }) => {
+export const GridCellRow: FC<GridCellRowProps> = ({ onEditRecord, rowMeta, getPrevRowId }) => {
   const rowId = rowMeta.id;
   const viewId = useViewId();
   const ref = useRef<HTMLDivElement | null>(null);
-  const { onMouseLeave, onMouseEnter, hover } = useGridRowActionsDisplay(rowId);
   const {
     isContextMenuOpen,
     closeContextMenu,
@@ -41,7 +31,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
     position: contextMenuPosition,
   } = useGridRowContextMenu();
   const fields = useDatabaseVisibilityFields();
-
+  const { hover } = useGridRowActionsDisplay(rowId, ref);
   const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
   const dragData = useMemo(
     () => ({
@@ -107,29 +97,26 @@ export const GridCellRow: FC<GridCellRowProps> = ({ rowMeta, virtualizer, getPre
   }, [openContextMenu]);
 
   return (
-    <div
-      ref={ref}
-      className='relative -ml-16 flex grow pl-16'
-      onMouseLeave={onMouseLeave}
-      onMouseMove={onMouseEnter}
-      {...dropListeners}
-    >
+    <div ref={ref} className='relative -ml-16 flex grow pl-16' {...dropListeners}>
       <div
         ref={setPreviewRef}
         className={`relative flex grow border-b border-line-divider ${isDragging ? 'bg-blue-50' : ''}`}
       >
-        <VirtualizedList
-          className='flex'
-          itemClassName='flex border-r border-line-divider'
-          virtualizer={virtualizer}
-          renderItem={(index) => {
-            const field = fields[index];
-            const icon = field.isPrimary ? rowMeta.icon : undefined;
-            const documentId = field.isPrimary ? rowMeta.documentId : undefined;
+        <div className={'flex'}></div>
+        {fields.map((field) => {
+          return (
+            <div
+              key={field.id}
+              style={{
+                width: field.width,
+              }}
+              className={`flex border-r border-line-divider`}
+            >
+              <GridCell rowId={rowMeta.id} icon={rowMeta.icon} field={field} onEditRecord={onEditRecord} />
+            </div>
+          );
+        })}
 
-            return <GridCell rowId={rowMeta.id} documentId={documentId} icon={icon} field={field} />;
-          }}
-        />
         <div className={`w-[${DEFAULT_FIELD_WIDTH}px]`} />
         {isOver && (
           <div

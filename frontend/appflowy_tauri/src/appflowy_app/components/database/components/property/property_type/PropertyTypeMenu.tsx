@@ -1,7 +1,7 @@
 import { Divider, Menu, MenuItem, MenuProps } from '@mui/material';
 import { FC, useMemo } from 'react';
 import { FieldType } from '@/services/backend';
-import { FieldTypeText, FieldTypeSvg } from '$app/components/database/components/field/index';
+import { PropertyTypeText, ProppertyTypeSvg } from '$app/components/database/components/property';
 import { Field } from '$app/components/database/application';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
 
@@ -25,7 +25,7 @@ const FieldTypeGroup = [
   },
 ];
 
-export const FieldTypeMenu: FC<
+export const PropertyTypeMenu: FC<
   MenuProps & {
     field: Field;
     onClickItem?: (type: FieldType) => void;
@@ -47,9 +47,9 @@ export const FieldTypeMenu: FC<
         </MenuItem>,
         group.types.map((type) => (
           <MenuItem onClick={() => onClickItem?.(type)} key={type} dense className={'flex justify-between'}>
-            <FieldTypeSvg className='mr-2 text-base' type={type} />
+            <ProppertyTypeSvg className='mr-2 text-base' type={type} />
             <span className='flex-1 font-medium'>
-              <FieldTypeText type={type} />
+              <PropertyTypeText type={type} />
             </span>
             {type === field.type && <SelectCheckSvg />}
           </MenuItem>

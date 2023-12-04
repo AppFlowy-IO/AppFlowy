@@ -1,34 +1,29 @@
 import { Button, Tooltip } from '@mui/material';
-import { DragEventHandler, FC, useCallback, useMemo, useState } from 'react';
+import { DragEventHandler, FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { throttle } from '$app/utils/tool';
 import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
 import { fieldService, Field } from '../../application';
 import { useDatabase } from '../../Database.hooks';
-import { FieldTypeSvg } from '$app/components/database/components/field';
-import { FieldMenu } from '../../components/field/FieldMenu';
+import { Property } from '$app/components/database/components/property';
 import GridResizer from '$app/components/database/grid/GridField/GridResizer';
 import { DEFAULT_FIELD_WIDTH } from '$app/components/database/grid/GridRow';
+import GridFieldMenu from '$app/components/database/grid/GridField/GridFieldMenu';
 
 export interface GridFieldProps {
   field: Field;
+  menuOpened?: boolean;
+  onOpenMenu?: (id: string) => void;
+  onCloseMenu?: (id: string) => void;
 }
 
-export const GridField: FC<GridFieldProps> = ({ field }) => {
+export const GridField: FC<GridFieldProps> = ({ menuOpened, onOpenMenu, onCloseMenu, field }) => {
   const viewId = useViewId();
   const { fields } = useDatabase();
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [openTooltip, setOpenTooltip] = useState(false);
+  const [propertyMenuOpened, setPropertyMenuOpened] = useState(false);
   const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
   const [fieldWidth, setFieldWidth] = useState(field.width || DEFAULT_FIELD_WIDTH);
-  const openMenu = Boolean(menuAnchorEl);
-  const handleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    setMenuAnchorEl(e.currentTarget);
-  }, []);
-
-  const handleMenuClose = useCallback(() => {
-    setMenuAnchorEl(null);
-  }, []);
 
   const handleTooltipOpen = useCallback(() => {
     setOpenTooltip(true);
@@ -91,9 +86,53 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
     onDrop,
   });
 
+  const [menuAnchorPosition, setMenuAnchorPosition] = useState<
+    | {
+        top: number;
+        left: number;
+      }
+    | undefined
+  >(undefined);
+
+  const open = Boolean(menuAnchorPosition) && menuOpened;
+
+  const handleClick = useCallback(() => {
+    onOpenMenu?.(field.id);
+  }, [onOpenMenu, field.id]);
+
+  const handleMenuClose = useCallback(() => {
+    onCloseMenu?.(field.id);
+  }, [onCloseMenu, field.id]);
+
+  useEffect(() => {
+    if (!menuOpened) {
+      setMenuAnchorPosition(undefined);
+      return;
+    }
+
+    const rect = previewRef.current?.getBoundingClientRect();
+
+    if (rect) {
+      setMenuAnchorPosition({
+        top: rect.top + rect.height,
+        left: rect.left,
+      });
+    } else {
+      setMenuAnchorPosition(undefined);
+    }
+  }, [menuOpened, previewRef]);
+
+  const handlePropertyMenuOpen = useCallback(() => {
+    setPropertyMenuOpened(true);
+  }, []);
+
+  const handlePropertyMenuClose = useCallback(() => {
+    setPropertyMenuOpened(false);
+  }, []);
+
   return (
     <div
-      className={'flex border-r border-line-divider'}
+      className={'flex border-r border-line-divider bg-bg-body'}
       style={{
         width: fieldWidth,
       }}
@@ -115,15 +154,19 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
           onContextMenu={(event) => {
             event.stopPropagation();
             event.preventDefault();
-            handleClick(event);
+            handleClick();
           }}
           onClick={handleClick}
           {...attributes}
           {...listeners}
           {...dropListeners}
         >
-          <FieldTypeSvg className='mr-1 text-base' type={field.type} />
-          <span className='flex-1 truncate text-left text-xs'>{field.name}</span>
+          <Property
+            menuOpened={propertyMenuOpened}
+            onCloseMenu={handlePropertyMenuClose}
+            onOpenMenu={handlePropertyMenuOpen}
+            field={field}
+          />
           {isOver && (
             <div
               className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${
@@ -134,7 +177,17 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
           <GridResizer field={field} onWidthChange={(width) => setFieldWidth(width)} />
         </Button>
       </Tooltip>
-      {openMenu && <FieldMenu field={field} open={openMenu} anchorEl={menuAnchorEl} onClose={handleMenuClose} />}
+      {open && (
+        <GridFieldMenu
+          anchorPosition={menuAnchorPosition}
+          anchorReference={'anchorPosition'}
+          field={field}
+          open={open}
+          onClose={handleMenuClose}
+          onOpenPropertyMenu={handlePropertyMenuOpen}
+          onOpenMenu={onOpenMenu}
+        />
+      )}
     </div>
   );
 };

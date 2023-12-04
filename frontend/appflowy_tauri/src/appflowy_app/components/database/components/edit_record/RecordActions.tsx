@@ -8,12 +8,11 @@ import { useViewId } from '$app/hooks';
 import MenuItem from '@mui/material/MenuItem';
 
 interface Props extends MenuProps {
-  cell: Cell;
+  rowId: string;
   onClose?: () => void;
 }
-function RecordActions({ anchorEl, open, onClose, cell }: Props) {
+function RecordActions({ anchorEl, open, onClose, rowId }: Props) {
   const viewId = useViewId();
-  const rowId = cell.rowId;
   const { t } = useTranslation();
 
   const handleDelRow = useCallback(() => {

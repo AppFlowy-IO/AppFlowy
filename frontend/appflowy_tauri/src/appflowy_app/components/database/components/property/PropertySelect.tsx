@@ -2,13 +2,13 @@ import { MenuItem, Select, SelectChangeEvent, SelectProps } from '@mui/material'
 import { FC, useCallback } from 'react';
 import { Field as FieldType } from '../../application';
 import { useDatabase } from '../../Database.hooks';
-import { Field } from './Field';
+import { Property } from './Property';
 
 export interface FieldSelectProps extends Omit<SelectProps, 'onChange'> {
   onChange?: (field: FieldType | undefined) => void;
 }
 
-export const FieldSelect: FC<FieldSelectProps> = ({ onChange, ...props }) => {
+export const PropertySelect: FC<FieldSelectProps> = ({ onChange, ...props }) => {
   const { fields } = useDatabase();
 
   const handleChange = useCallback(
@@ -36,7 +36,7 @@ export const FieldSelect: FC<FieldSelectProps> = ({ onChange, ...props }) => {
     >
       {fields.map((field) => (
         <MenuItem className={'overflow-hidden text-ellipsis px-1.5'} key={field.id} value={field.id}>
-          <Field field={field} />
+          <Property field={field} />
         </MenuItem>
       ))}
     </Select>

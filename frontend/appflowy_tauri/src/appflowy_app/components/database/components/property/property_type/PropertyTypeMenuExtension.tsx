@@ -5,7 +5,7 @@ import SelectFieldActions from '$app/components/database/components/field_types/
 import NumberFieldActions from '$app/components/database/components/field_types/number/NumberFieldActions';
 import DateTimeFieldActions from '$app/components/database/components/field_types/date/DateTimeFieldActions';
 
-function FieldTypeMenuExtension({ field }: { field: Field }) {
+function PropertyTypeMenuExtension({ field }: { field: Field }) {
   return useMemo(() => {
     switch (field.type) {
       case FieldType.SingleSelect:
@@ -23,4 +23,4 @@ function FieldTypeMenuExtension({ field }: { field: Field }) {
   }, [field]);
 }
 
-export default FieldTypeMenuExtension;
+export default PropertyTypeMenuExtension;

@@ -11,20 +11,25 @@ import URLCell from '$app/components/database/components/cell/URLCell';
 import ChecklistCell from '$app/components/database/components/cell/ChecklistCell';
 import DateTimeCell from '$app/components/database/components/cell/DateTimeCell';
 import TimestampCell from '$app/components/database/components/cell/TimestampCell';
+import PrimaryCell from '$app/components/database/components/cell/PrimaryCell';
 
 export interface CellProps {
   rowId: string;
   field: Field;
-  documentId?: string;
   icon?: string;
   placeholder?: string;
+  onEditRecord?: (rowId: string) => void;
 }
 
-interface CellComponentProps {
-  field: Field;
+export interface CellComponentProps extends CellProps {
   cell: CellType;
 }
-const getCellComponent = (fieldType: FieldType) => {
+
+const getCellComponent = (fieldType: FieldType, isPrimary?: boolean) => {
+  if (isPrimary) {
+    return PrimaryCell as FC<CellComponentProps>;
+  }
+
   switch (fieldType) {
     case FieldType.RichText:
       return TextCell as FC<CellComponentProps>;
@@ -52,7 +57,7 @@ const getCellComponent = (fieldType: FieldType) => {
 export const Cell: FC<CellProps> = ({ rowId, field, ...props }) => {
   const cell = useCell(rowId, field);
 
-  const Component = getCellComponent(field.type);
+  const Component = getCellComponent(field.type, field.isPrimary);
 
   if (!cell) {
     return <div className={`h-[36px] w-[${field.width}px]`} />;
@@ -62,5 +67,5 @@ export const Cell: FC<CellProps> = ({ rowId, field, ...props }) => {
     return null;
   }
 
-  return <Component {...props} field={field} cell={cell} />;
+  return <Component {...props} rowId={rowId} field={field} cell={cell} />;
 };

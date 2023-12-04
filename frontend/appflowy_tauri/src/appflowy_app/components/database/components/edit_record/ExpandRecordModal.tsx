@@ -1,23 +1,20 @@
 import React, { useState } from 'react';
-import { DialogProps, IconButton } from '@mui/material';
+import { DialogProps, IconButton, Portal } from '@mui/material';
 import DialogContent from '@mui/material/DialogContent';
 import Dialog from '@mui/material/Dialog';
-import { TextCell } from '$app/components/database/application';
 import { ReactComponent as DetailsIcon } from '$app/assets/details.svg';
 import RecordActions from '$app/components/database/components/edit_record/RecordActions';
 import EditRecord from '$app/components/database/components/edit_record/EditRecord';
 
 interface Props extends DialogProps {
-  cell: TextCell;
-  documentId: string;
-  icon?: string;
+  rowId: string;
 }
 
-function ExpandCellModal({ open, onClose, cell, documentId, icon }: Props) {
+function ExpandRecordModal({ open, onClose, rowId }: Props) {
   const [detailAnchorEl, setDetailAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   return (
-    <>
+    <Portal>
       <Dialog
         disableAutoFocus={true}
         keepMounted={false}
@@ -38,17 +35,17 @@ function ExpandCellModal({ open, onClose, cell, documentId, icon }: Props) {
           <DetailsIcon />
         </IconButton>
         <DialogContent>
-          <EditRecord cell={cell} documentId={documentId} icon={icon} />
+          <EditRecord rowId={rowId} />
         </DialogContent>
       </Dialog>
       <RecordActions
         anchorEl={detailAnchorEl}
-        cell={cell}
+        rowId={rowId}
         open={!!detailAnchorEl}
         onClose={() => setDetailAnchorEl(null)}
       />
-    </>
+    </Portal>
   );
 }
 
-export default ExpandCellModal;
+export default ExpandRecordModal;

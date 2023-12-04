@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { OutlinedInput, MenuItem, MenuList } from '@mui/material';
-import { Field } from '$app/components/database/components/field/Field';
+import { Property } from '$app/components/database/components/property/Property';
 import { Field as FieldType } from '../../application';
 import { useDatabase } from '$app/components/database';
 
@@ -10,7 +10,7 @@ interface FieldListProps {
   onItemClick?: (event: React.MouseEvent<HTMLLIElement>, field: FieldType) => void;
 }
 
-function FieldList({ showSearch, onItemClick, searchPlaceholder }: FieldListProps) {
+function PropertiesList({ showSearch, onItemClick, searchPlaceholder }: FieldListProps) {
   const { fields } = useDatabase();
   const [fieldsResult, setFieldsResult] = useState<FieldType[]>(fields as FieldType[]);
 
@@ -52,7 +52,7 @@ function FieldList({ showSearch, onItemClick, searchPlaceholder }: FieldListProp
               onItemClick?.(event, field);
             }}
           >
-            <Field field={field} />
+            <Property field={field} />
           </MenuItem>
         ))}
       </MenuList>
@@ -60,4 +60,4 @@ function FieldList({ showSearch, onItemClick, searchPlaceholder }: FieldListProp
   );
 }
 
-export default FieldList;
+export default PropertiesList;
