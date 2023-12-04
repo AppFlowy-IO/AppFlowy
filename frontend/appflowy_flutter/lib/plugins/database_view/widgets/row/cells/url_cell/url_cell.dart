@@ -4,11 +4,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +13,6 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../accessory/cell_accessory.dart';
 import '../../cell_builder.dart';
-import 'cell_editor.dart';
 import 'url_cell_bloc.dart';
 
 class GridURLCellStyle extends GridCellStyle {
@@ -184,57 +180,12 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
 
   @override
   Future<void> focusChanged() async {
-    _cellBloc.add(URLCellEvent.updateURL(_controller.text));
+    _cellBloc.add(URLCellEvent.updateURL(_controller.text.trim()));
     return super.focusChanged();
   }
 
   @override
   String? onCopy() => _cellBloc.state.content;
-}
-
-class _EditURLAccessory extends StatefulWidget {
-  const _EditURLAccessory({
-    required this.cellControllerBuilder,
-    required this.anchorContext,
-  });
-
-  final CellControllerBuilder cellControllerBuilder;
-  final BuildContext anchorContext;
-
-  @override
-  State<StatefulWidget> createState() => _EditURLAccessoryState();
-}
-
-class _EditURLAccessoryState extends State<_EditURLAccessory>
-    with GridCellAccessoryState {
-  final popoverController = PopoverController();
-
-  @override
-  Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      margin: EdgeInsets.zero,
-      constraints: BoxConstraints.loose(const Size(300, 160)),
-      controller: popoverController,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(0, 8),
-      child: FlowySvg(
-        FlowySvgs.edit_s,
-        color: AFThemeExtension.of(context).textColor,
-      ),
-      popupBuilder: (BuildContext popoverContext) {
-        return URLEditorPopover(
-          cellController:
-              widget.cellControllerBuilder.build() as URLCellController,
-          onExit: () => popoverController.close(),
-        );
-      },
-    );
-  }
-
-  @override
-  void onTap() {
-    popoverController.show();
-  }
 }
 
 typedef CopyURLCellAccessoryBuilder
