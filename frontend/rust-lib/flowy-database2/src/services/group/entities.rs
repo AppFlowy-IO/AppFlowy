@@ -12,6 +12,8 @@ pub struct GroupSetting {
   pub field_type: i64,
   pub groups: Vec<Group>,
   pub content: String,
+  pub condition: u8,
+  pub hide_empty: bool,
 }
 
 pub struct GroupChangesets {
@@ -33,13 +35,15 @@ pub struct GroupChangeset {
 }
 
 impl GroupSetting {
-  pub fn new(field_id: String, field_type: i64, content: String) -> Self {
+  pub fn new(field_id: String, field_type: i64) -> Self {
     Self {
       id: gen_database_group_id(),
       field_id,
       field_type,
+      hide_empty: false,
+      condition: 0,
+      content: "".to_string(),
       groups: vec![],
-      content,
     }
   }
 }
@@ -49,6 +53,8 @@ const FIELD_ID: &str = "field_id";
 const FIELD_TYPE: &str = "ty";
 const GROUPS: &str = "groups";
 const CONTENT: &str = "content";
+const CONDITION: &str = "condition";
+const HIDE_EMPTY: &str = "hide_empty";
 
 impl TryFrom<GroupSettingMap> for GroupSetting {
   type Error = anyhow::Error;
@@ -62,12 +68,16 @@ impl TryFrom<GroupSettingMap> for GroupSetting {
       (Some(id), Some(field_id), Some(field_type)) => {
         let content = value.get_str_value(CONTENT).unwrap_or_default();
         let groups = value.try_get_array(GROUPS);
+        let condition = value.get_i64_value(CONDITION).unwrap_or_default() as u8;
+        let hide_empty = value.get_bool_value(HIDE_EMPTY).unwrap_or_default();
         Ok(Self {
           id,
           field_id,
           field_type,
           groups,
           content,
+          condition,
+          hide_empty,
         })
       },
       _ => {
@@ -85,6 +95,8 @@ impl From<GroupSetting> for GroupSettingMap {
       .insert_i64_value(FIELD_TYPE, setting.field_type)
       .insert_maps(GROUPS, setting.groups)
       .insert_str_value(CONTENT, setting.content)
+      .insert_i64_value(CONDITION, setting.condition.into())
+      .insert_bool_value(HIDE_EMPTY, setting.hide_empty)
       .build()
   }
 }

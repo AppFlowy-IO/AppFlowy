@@ -10,10 +10,14 @@ class GroupBackendService {
 
   Future<Either<Unit, FlowyError>> groupByField({
     required String fieldId,
+    int condition = 0,
+    bool hideEmpty = false,
   }) {
     final payload = GroupByFieldPayloadPB.create()
       ..viewId = viewId
-      ..fieldId = fieldId;
+      ..fieldId = fieldId
+      ..condition = condition
+      ..hideEmpty = hideEmpty;
 
     return DatabaseEventSetGroupByField(payload).send();
   }

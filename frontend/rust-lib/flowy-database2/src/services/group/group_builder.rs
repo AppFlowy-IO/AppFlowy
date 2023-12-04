@@ -79,7 +79,7 @@ impl RowChangeset {
 
 /// Returns a group controller.
 ///
-/// Each view can be grouped by one field, each field has its own group controller.  
+/// Each view can be grouped by one field, each field has its own group controller.
 /// # Arguments
 ///
 /// * `view_id`: the id of the view
@@ -234,7 +234,7 @@ pub fn find_new_grouping_field(
 ///
 pub fn default_group_setting(field: &Field) -> GroupSetting {
   let field_id = field.id.clone();
-  GroupSetting::new(field_id, field.field_type, "".to_owned())
+  GroupSetting::new(field_id, field.field_type)
 }
 
 pub fn make_no_status_group(field: &Field) -> Group {
