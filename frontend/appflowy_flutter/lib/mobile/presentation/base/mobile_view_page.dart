@@ -93,20 +93,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
             child: Builder(
               builder: (context) {
                 final view = context.watch<ViewBloc>().state.view;
-                return _buildApp(
-                  view,
-                  actions,
-                  body,
-                );
+                return _buildApp(view, actions, body);
               },
             ),
           );
         } else {
-          return _buildApp(
-            null,
-            [],
-            body,
-          );
+          return _buildApp(null, [], body);
         }
       },
     );

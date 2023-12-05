@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -26,8 +27,15 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             _startListening();
             await _openGrid(emit);
           },
-          createRow: () {
-            databaseController.createRow();
+          createRow: () async {
+            final result = await databaseController.createRow();
+            result.fold(
+              (createdRow) => emit(state.copyWith(createdRow: createdRow)),
+              (err) => Log.error(err),
+            );
+          },
+          resetCreatedRow: () {
+            emit(state.copyWith(createdRow: null));
           },
           deleteRow: (rowInfo) async {
             await RowBackendService.deleteRow(rowInfo.viewId, rowInfo.rowId);
@@ -142,6 +150,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
+  const factory GridEvent.resetCreatedRow() = _ResetCreatedRow;
   const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
   const factory GridEvent.moveRow(int from, int to) = _MoveRow;
   const factory GridEvent.didLoadRows(
@@ -170,6 +179,7 @@ class GridState with _$GridState {
     required FieldList fields,
     required List<RowInfo> rowInfos,
     required int rowCount,
+    required RowMetaPB? createdRow,
     required LoadingState loadingState,
     required bool reorderable,
     required ChangedReason reason,
@@ -181,6 +191,7 @@ class GridState with _$GridState {
         fields: FieldList([]),
         rowInfos: [],
         rowCount: 0,
+        createdRow: null,
         grid: none(),
         viewId: viewId,
         reorderable: true,
