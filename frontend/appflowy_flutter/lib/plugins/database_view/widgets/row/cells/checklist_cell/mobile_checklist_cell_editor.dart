@@ -47,10 +47,10 @@ class _MobileChecklistCellEditScreenState
                   child: _buildHeader(context),
                 ),
                 const Divider(),
-                Expanded(
+                const Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                    child: _buildBody(context),
+                    padding: EdgeInsets.symmetric(horizontal: 0.0),
+                    child: _TaskList(),
                   ),
                 ),
               ],
@@ -91,20 +91,10 @@ class _MobileChecklistCellEditScreenState
       ].map((e) => SizedBox(height: height, child: e)).toList(),
     );
   }
-
-  Widget _buildBody(BuildContext context) {
-    return _TaskList(
-      onCreateOption: (optionName) {},
-    );
-  }
 }
 
 class _TaskList extends StatelessWidget {
-  const _TaskList({
-    required this.onCreateOption,
-  });
-
-  final void Function(String optionName) onCreateOption;
+  const _TaskList();
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +170,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(left: 5, right: 16),
+      height: 44,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -205,10 +196,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
             child: TextField(
               controller: _textController,
               focusNode: _focusNode,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontSize: 15),
+              style: Theme.of(context).textTheme.bodyMedium,
               maxLines: 1,
               decoration: InputDecoration(
                 border: InputBorder.none,
@@ -227,47 +215,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
           ),
           InkWell(
             borderRadius: BorderRadius.circular(22),
-            onTap: () => showMobileBottomSheet(
-              context,
-              padding: const EdgeInsets.only(top: 8, bottom: 32),
-              builder: (_) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: InkWell(
-                      onTap: () {
-                        context.read<ChecklistCellBloc>().add(
-                              ChecklistCellEvent.deleteTask(widget.task.data),
-                            );
-                        context.pop();
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        height: 44,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Row(
-                          children: [
-                            FlowySvg(
-                              FlowySvgs.m_delete_m,
-                              size: const Size.square(20),
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                            const HSpace(8),
-                            FlowyText(
-                              LocaleKeys.button_delete.tr(),
-                              fontSize: 15,
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Divider(height: 9),
-                ],
-              ),
-            ),
+            onTap: _showDeleteTaskBottomSheet,
             child: SizedBox.square(
               dimension: 44,
               child: Center(
@@ -297,6 +245,50 @@ class _ChecklistItemState extends State<_ChecklistItem> {
             description.trim(),
           ),
         );
+  }
+
+  void _showDeleteTaskBottomSheet() {
+    showMobileBottomSheet(
+      context,
+      padding: const EdgeInsets.only(top: 8, bottom: 32),
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: InkWell(
+              onTap: () {
+                context.read<ChecklistCellBloc>().add(
+                      ChecklistCellEvent.deleteTask(widget.task.data),
+                    );
+                context.pop();
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                height: 44,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  children: [
+                    FlowySvg(
+                      FlowySvgs.m_delete_m,
+                      size: const Size.square(20),
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    const HSpace(8),
+                    FlowyText(
+                      LocaleKeys.button_delete.tr(),
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const Divider(height: 9),
+        ],
+      ),
+    );
   }
 }
 

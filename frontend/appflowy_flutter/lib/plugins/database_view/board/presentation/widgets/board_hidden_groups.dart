@@ -418,7 +418,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                   onPressed: () {
                     FlowyOverlay.show(
                       context: context,
-                      builder: (BuildContext context) {
+                      builder: (_) {
                         return RowDetailPage(
                           fieldController:
                               context.read<BoardBloc>().fieldController,

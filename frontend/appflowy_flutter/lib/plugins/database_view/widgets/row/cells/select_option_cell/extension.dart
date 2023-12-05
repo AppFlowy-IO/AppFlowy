@@ -148,7 +148,6 @@ class SelectOptionTagCell extends StatelessWidget {
                   padding: const EdgeInsets.all(5.0),
                   child: SelectOptionTag(
                     option: option,
-                    fontSize: 11,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                   ),
