@@ -1,10 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_setting_page.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,7 +37,9 @@ class MobileHomePageHeader extends StatelessWidget {
                   useIntrinsicWidth: true,
                   text: FlowyText(
                     // replace with user icon
-                    userIcon.isNotEmpty ? userIcon : '🐻',
+                    // the icon from server is wrapped with double quotes
+                    // temporary fix: remove the double quotes
+                    userIcon.isNotEmpty ? userIcon.replaceAll('"', '') : '🐻',
                     fontSize: 26,
                   ),
                   onTap: () async {
@@ -43,7 +47,8 @@ class MobileHomePageHeader extends StatelessWidget {
                       Uri(
                         path: MobileEmojiPickerScreen.routeName,
                         queryParameters: {
-                          MobileEmojiPickerScreen.pageTitle: 'User icon',
+                          MobileEmojiPickerScreen.pageTitle:
+                              LocaleKeys.titleBar_userIcon.tr(),
                         },
                       ).toString(),
                     );

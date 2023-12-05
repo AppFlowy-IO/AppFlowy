@@ -1148,6 +1148,7 @@
     "font": "Font",
     "actions": "Actions",
     "date": "Date",
-    "addField": "Add field"
+    "addField": "Add field",
+    "userIcon": "User icon"
   }
 }
