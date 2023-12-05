@@ -531,7 +531,7 @@ class _TimeOptionState extends State<_TimeOption> {
           return FlowyOptionTile.checkbox(
             text: format.title(),
             isSelected: selectedFormat == format,
-            showTopBorder: false,
+            showTopBorder: index == 0,
             onTap: () {
               widget.onSelected(format);
               setState(() {

@@ -150,7 +150,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
       onTap: (context) {
         showMobileBottomSheet(
           context,
-          showDragHandle: true,
           builder: (_) => _buildViewPageBottomSheet(context),
         );
       },

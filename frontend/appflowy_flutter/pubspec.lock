@@ -54,8 +54,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "9c7a4e"
-      resolved-ref: "9c7a4ee671768524b0dd6f3ebb12dd845932ee74"
+      ref: "4995d21"
+      resolved-ref: "4995d21ff49907c71286e668f938f830bf94ca0d"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.0.0"
@@ -580,8 +580,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "140b530"
-      resolved-ref: "140b53091ce7ad971e97c1d5a53fe0875596326d"
+      ref: "4a5cac"
+      resolved-ref: "4a5cac57e31c0ffd49cd6257a9e078f084ae342c"
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"

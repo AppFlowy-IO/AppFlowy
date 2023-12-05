@@ -52,7 +52,6 @@ Future<void> _showBlockActionSheet(
     builder: (context) {
       return BlockActionBottomSheet(
         extendActionWidgets: [
-          const VSpace(8),
           Row(
             children: [
               Expanded(

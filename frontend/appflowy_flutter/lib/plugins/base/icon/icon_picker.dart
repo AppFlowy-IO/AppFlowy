@@ -141,7 +141,7 @@ class _RemoveIconButton extends StatelessWidget {
       child: FlowyButton(
         onTap: onTap,
         useIntrinsicWidth: true,
-        text: FlowyText(
+        text: FlowyText.small(
           LocaleKeys.document_plugins_cover_removeIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.delete_s),

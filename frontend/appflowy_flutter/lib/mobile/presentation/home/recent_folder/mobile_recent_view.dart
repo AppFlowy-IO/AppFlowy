@@ -143,7 +143,9 @@ class _MobileRecentViewState extends State<MobileRecentView> {
       builder: ((context, snapshot) {
         final node = snapshot.data;
         final placeholder = Container(
-          color: Theme.of(context).colorScheme.onSecondaryContainer,
+          // random color, update it once we have a better placeholder
+          color:
+              Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
         );
         if (node == null) {
           return placeholder;
