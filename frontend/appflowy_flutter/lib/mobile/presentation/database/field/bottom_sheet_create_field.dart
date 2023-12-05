@@ -90,14 +90,18 @@ void showQuickEditField(
 ) async {
   showMobileBottomSheet(
     context,
-    isScrollControlled: true,
     padding: EdgeInsets.zero,
     backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-    constraints: const BoxConstraints(maxHeight: 500),
+    resizeToAvoidBottomInset: true,
     builder: (context) {
-      return QuickEditField(
-        viewId: viewId,
-        fieldInfo: fieldInfo,
+      return ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 500),
+        child: SingleChildScrollView(
+          child: QuickEditField(
+            viewId: viewId,
+            fieldInfo: fieldInfo,
+          ),
+        ),
       );
     },
   );
