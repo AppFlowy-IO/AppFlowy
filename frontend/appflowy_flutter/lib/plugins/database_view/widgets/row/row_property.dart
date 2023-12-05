@@ -138,7 +138,7 @@ class _PropertyCellState extends State<_PropertyCell> {
   final PopoverController _popoverController = PopoverController();
   final PopoverController _fieldPopoverController = PopoverController();
 
-  bool _isFieldHover = false;
+  final ValueNotifier<bool> _isFieldHover = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
@@ -159,15 +159,19 @@ class _PropertyCellState extends State<_PropertyCell> {
           triggerActions: PopoverTriggerFlags.none,
           direction: PopoverDirection.bottomWithLeftAligned,
           popupBuilder: (popoverContext) => buildFieldEditor(),
-          child: _isFieldHover
-              ? BlockActionButton(
-                  onTap: () => _fieldPopoverController.show(),
-                  svg: FlowySvgs.drag_element_s,
-                  richMessage: TextSpan(
-                    text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
-                  ),
-                )
-              : const SizedBox.shrink(),
+          child: ValueListenableBuilder(
+            valueListenable: _isFieldHover,
+            builder: ((context, value, child) {
+              return value ? child! : const SizedBox.shrink();
+            }),
+            child: BlockActionButton(
+              onTap: () => _fieldPopoverController.show(),
+              svg: FlowySvgs.drag_element_s,
+              richMessage: TextSpan(
+                text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -185,16 +189,21 @@ class _PropertyCellState extends State<_PropertyCell> {
       margin: const EdgeInsets.only(bottom: 8),
       constraints: const BoxConstraints(minHeight: 30),
       child: MouseRegion(
-        onEnter: (event) => setState(() => _isFieldHover = true),
-        onExit: (event) => setState(() => _isFieldHover = false),
+        onEnter: (event) => _isFieldHover.value = true,
+        onExit: (event) => _isFieldHover.value = false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            ReorderableDragStartListener(
-              index: widget.index,
-              enabled: _isFieldHover,
-              child: dragThumb,
+            ValueListenableBuilder(
+              valueListenable: _isFieldHover,
+              builder: (context, value, _) {
+                return ReorderableDragStartListener(
+                  index: widget.index,
+                  enabled: value,
+                  child: dragThumb,
+                );
+              },
             ),
             const HSpace(4),
             AppFlowyPopover(
