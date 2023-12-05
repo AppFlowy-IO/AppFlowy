@@ -242,7 +242,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       radius: BorderRadius.zero,
       text: FlowyText(
         LocaleKeys.grid_field_newProperty.tr(),
-        fontSize: 15,
+        fontSize: PlatformExtension.isDesktop ? null : 15,
         overflow: TextOverflow.ellipsis,
         color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
       ),

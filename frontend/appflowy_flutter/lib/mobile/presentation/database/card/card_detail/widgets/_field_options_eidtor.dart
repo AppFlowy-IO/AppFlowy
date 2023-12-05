@@ -86,6 +86,8 @@ class FieldOptionValues {
         return MultiSelectTypeOptionPB(
           options: selectOption,
         ).writeToBuffer();
+      case FieldType.Checklist:
+        return ChecklistTypeOptionPB().writeToBuffer();
       default:
         throw UnimplementedError();
     }
