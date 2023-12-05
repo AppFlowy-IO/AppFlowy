@@ -26,9 +26,7 @@ class MobileColorPickerScreen extends StatelessWidget {
           title ?? LocaleKeys.titleBar_pageIcon.tr(),
           fontSize: 14.0,
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: SafeArea(
         child: FlowyMobileColorPicker(

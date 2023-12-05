@@ -39,9 +39,7 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
           LocaleKeys.titleBar_language.tr(),
           fontSize: 14.0,
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: SafeArea(
         child: ListView.separated(

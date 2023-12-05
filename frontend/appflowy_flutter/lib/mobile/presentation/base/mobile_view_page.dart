@@ -126,9 +126,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
             ),
           ],
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
+        leading: const AppBarBackButton(),
         actions: actions,
       ),
       body: SafeArea(

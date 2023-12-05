@@ -2,20 +2,47 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AppBarBackButton extends StatelessWidget {
   const AppBarBackButton({
     super.key,
-    required this.onTap,
+    this.onTap,
   });
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      onTap: onTap,
+      onTap: onTap ?? () => context.pop(),
       child: const Icon(Icons.arrow_back_ios_new),
+    );
+  }
+}
+
+class AppBarCloseButton extends StatelessWidget {
+  const AppBarCloseButton({
+    super.key,
+    this.onTap,
+    this.margin = const EdgeInsets.symmetric(
+      horizontal: 16.0,
+      vertical: 12.0,
+    ),
+  });
+
+  final VoidCallback? onTap;
+  final EdgeInsets margin;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      text: const Icon(
+        Icons.close,
+      ),
+      margin: margin,
+      onTap: onTap ?? () => context.pop(),
     );
   }
 }
