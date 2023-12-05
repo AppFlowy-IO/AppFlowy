@@ -77,15 +77,17 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
       builder: (_, controller) => Material(
         child: ColoredBox(
           color: Theme.of(context).colorScheme.surface,
-          child: SingleChildScrollView(
-            controller: controller,
-            child: Column(
-              children: [
-                const DragHandler(),
-                _buildHeader(),
-                _buildBody(),
-              ],
-            ),
+          child: Column(
+            children: [
+              const DragHandler(),
+              _buildHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: controller,
+                  child: _buildBody(),
+                ),
+              ),
+            ],
           ),
         ),
       ),

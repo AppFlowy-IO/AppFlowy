@@ -165,6 +165,8 @@ class _DateCellState extends GridCellState<GridDateCell> {
                 showMobileBottomSheet(
                   context,
                   padding: EdgeInsets.zero,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.secondaryContainer,
                   builder: (context) {
                     return MobileDateCellEditScreen(
                       controller: widget.cellControllerBuilder.build()
