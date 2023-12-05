@@ -25,6 +25,7 @@ import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
+import 'widgets/mobile_fab.dart';
 import 'widgets/row/mobile_row.dart';
 import 'widgets/shortcuts.dart';
 
@@ -147,23 +148,50 @@ class _GridPageContentState extends State<GridPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridBloc, GridState>(
+    return BlocConsumer<GridBloc, GridState>(
+      listenWhen: (previous, current) =>
+          previous.createdRow != current.createdRow,
+      listener: (context, state) {
+        if (state.createdRow == null) {
+          return;
+        }
+        final bloc = context.read<GridBloc>();
+        context.push(
+          MobileRowDetailPage.routeName,
+          extra: {
+            MobileRowDetailPage.argRowId: state.createdRow!.id,
+            MobileRowDetailPage.argDatabaseController: bloc.databaseController,
+          },
+        );
+        bloc.add(const GridEvent.resetCreatedRow());
+      },
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final contentWidth = GridLayout.headerWidth(state.fields.fields);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        return Stack(
           children: [
-            Padding(
-              padding: EdgeInsets.only(right: GridSize.leadingHeaderPadding),
-              child:
-                  _GridHeader(headerScrollController: headerScrollController),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding:
+                      EdgeInsets.only(right: GridSize.leadingHeaderPadding),
+                  child: _GridHeader(
+                    headerScrollController: headerScrollController,
+                  ),
+                ),
+                _GridRows(
+                  viewId: state.viewId,
+                  contentWidth: contentWidth,
+                  scrollController: _scrollController,
+                ),
+              ],
             ),
-            _GridRows(
-              viewId: state.viewId,
-              contentWidth: contentWidth,
-              scrollController: _scrollController,
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: getGridFabs(context),
             ),
           ],
         );
