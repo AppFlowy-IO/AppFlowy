@@ -4,7 +4,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class ImagePickerPage extends StatefulWidget {
   const ImagePickerPage({
@@ -28,9 +27,7 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
           LocaleKeys.titleBar_pageIcon.tr(),
           fontSize: 14.0,
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: SafeArea(
         child: UploadImageMenu(

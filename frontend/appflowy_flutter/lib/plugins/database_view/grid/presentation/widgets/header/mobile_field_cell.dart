@@ -30,7 +30,7 @@ class MobileFieldButton extends StatelessWidget {
     return SizedBox(
       width: fieldInfo.fieldSettings!.width.toDouble(),
       child: FlowyButton(
-        onTap: () => showEditFieldScreen(context, viewId, fieldInfo),
+        onTap: () => showQuickEditField(context, viewId, fieldInfo),
         radius: BorderRadius.zero,
         margin: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         leftIconSize: const Size.square(18),
