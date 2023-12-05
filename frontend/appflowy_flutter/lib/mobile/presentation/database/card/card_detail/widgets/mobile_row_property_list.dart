@@ -129,8 +129,8 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.Checklist:
       return ChecklistCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: EdgeInsets.zero,
-        showTasksInline: true,
+        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        useRoundedBorders: true,
       );
     case FieldType.Number:
       return GridNumberCellStyle(
