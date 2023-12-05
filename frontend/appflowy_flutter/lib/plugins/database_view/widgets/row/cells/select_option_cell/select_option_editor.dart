@@ -27,8 +27,7 @@ class SelectOptionCellEditor extends StatefulWidget {
   final SelectOptionCellController cellController;
   static double editorPanelWidth = 300;
 
-  const SelectOptionCellEditor({required this.cellController, Key? key})
-      : super(key: key);
+  const SelectOptionCellEditor({super.key, required this.cellController});
 
   @override
   State<SelectOptionCellEditor> createState() => _SelectOptionCellEditorState();
@@ -82,8 +81,7 @@ class _OptionList extends StatelessWidget {
   const _OptionList({
     required this.popoverMutex,
     required this.tagController,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -138,8 +136,7 @@ class _TextField extends StatelessWidget {
   const _TextField({
     required this.popoverMutex,
     required this.tagController,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -290,8 +287,7 @@ class _SelectOptionCell extends StatefulWidget {
     required this.option,
     required this.isSelected,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_SelectOptionCell> createState() => _SelectOptionCellState();
