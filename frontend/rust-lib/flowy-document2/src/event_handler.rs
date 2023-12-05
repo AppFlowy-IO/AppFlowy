@@ -9,6 +9,7 @@ use std::sync::{Arc, Weak};
 use collab_document::blocks::{
   BlockAction, BlockActionPayload, BlockActionType, BlockEvent, BlockEventPayload, DeltaType,
 };
+use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{
@@ -48,6 +49,7 @@ pub(crate) async fn create_document_handler(
 }
 
 // Handler for opening an existing document
+#[instrument(level = "debug", skip_all, err)]
 pub(crate) async fn open_document_handler(
   data: AFPluginData<OpenDocumentPayloadPB>,
   manager: AFPluginState<Weak<DocumentManager>>,
