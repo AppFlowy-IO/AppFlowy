@@ -117,7 +117,7 @@ impl std::convert::From<&Filter> for FilterType {
     Self {
       filter_id: filter.id.clone(),
       field_id: filter.field_id.clone(),
-      field_type: filter.field_type.clone(),
+      field_type: filter.field_type,
     }
   }
 }
@@ -127,7 +127,7 @@ impl std::convert::From<&FilterPB> for FilterType {
     Self {
       filter_id: filter.id.clone(),
       field_id: filter.field_id.clone(),
-      field_type: filter.field_type.clone(),
+      field_type: filter.field_type,
     }
   }
 }

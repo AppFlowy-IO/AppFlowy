@@ -78,7 +78,7 @@ struct CellDataCacheKey(u64);
 impl CellDataCacheKey {
   pub fn new(field_rev: &Field, decoded_field_type: FieldType, cell: &Cell) -> Self {
     let mut hasher = DefaultHasher::new();
-    if let Some(type_option_data) = field_rev.get_any_type_option(&decoded_field_type) {
+    if let Some(type_option_data) = field_rev.get_any_type_option(decoded_field_type) {
       type_option_data.hash(&mut hasher);
     }
     hasher.write(field_rev.id.as_bytes());
@@ -141,7 +141,7 @@ where
     decoded_field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    let key = CellDataCacheKey::new(field, decoded_field_type.clone(), cell);
+    let key = CellDataCacheKey::new(field, *decoded_field_type, cell);
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let read_guard = cell_data_cache.read();
       if let Some(cell_data) = read_guard.get(key.as_ref()).cloned() {

@@ -139,7 +139,7 @@ impl DatabaseLayoutDepsResolver {
     Field::new(
       field_id,
       "Date".to_string(),
-      field_type.clone().into(),
+      field_type.into(),
       false,
     )
     .with_type_option_data(field_type, default_date_type_option.into())
@@ -152,7 +152,7 @@ impl DatabaseLayoutDepsResolver {
     Field::new(
       field_id,
       "Status".to_string(),
-      field_type.clone().into(),
+      field_type.into(),
       false,
     )
     .with_type_option_data(field_type, default_select_type_option.into())

@@ -220,7 +220,7 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
       CreateFieldPosition::Before => {
         let field_id = self
           .target_field_id
-          .ok_or_else(|| ErrorCode::InvalidParams)?;
+          .ok_or(ErrorCode::InvalidParams)?;
         let field_id = NotEmptyStr::parse(field_id)
           .map_err(|_| ErrorCode::InvalidParams)?
           .0;
@@ -229,7 +229,7 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
       CreateFieldPosition::After => {
         let field_id = self
           .target_field_id
-          .ok_or_else(|| ErrorCode::InvalidParams)?;
+          .ok_or(ErrorCode::InvalidParams)?;
         let field_id = NotEmptyStr::parse(field_id)
           .map_err(|_| ErrorCode::InvalidParams)?
           .0;
@@ -564,7 +564,7 @@ pub enum FieldType {
 
 impl Display for FieldType {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    let value: i64 = self.clone().into();
+    let value: i64 = (*self).into();
     f.write_fmt(format_args!("{}", value))
   }
 }
@@ -577,13 +577,13 @@ impl AsRef<FieldType> for FieldType {
 
 impl From<&FieldType> for FieldType {
   fn from(field_type: &FieldType) -> Self {
-    field_type.clone()
+    *field_type
   }
 }
 
 impl FieldType {
   pub fn value(&self) -> i64 {
-    self.clone().into()
+    (*self).into()
   }
 
   pub fn default_name(&self) -> String {
@@ -666,7 +666,7 @@ impl From<FieldType> for i64 {
 
 impl From<&FieldType> for i64 {
   fn from(ty: &FieldType) -> Self {
-    i64::from(ty.clone())
+    i64::from(*ty)
   }
 }
 

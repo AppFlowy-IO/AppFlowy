@@ -118,7 +118,7 @@ pub(crate) async fn get_cell_for_row(
   Some(RowSingleCellData {
     row_id: row_cell.row_id.clone(),
     field_id: field.id.clone(),
-    field_type: field_type.clone(),
+    field_type,
     cell_data,
   })
 }
@@ -143,7 +143,7 @@ pub(crate) async fn get_cells_for_field(
           RowSingleCellData {
             row_id: row_cell.row_id.clone(),
             field_id: field.id.clone(),
-            field_type: field_type.clone(),
+            field_type,
             cell_data,
           }
         })
