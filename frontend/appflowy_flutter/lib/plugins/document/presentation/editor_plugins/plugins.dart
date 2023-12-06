@@ -43,3 +43,4 @@ export 'table/table_menu.dart';
 export 'table/table_option_action.dart';
 export 'toggle/toggle_block_component.dart';
 export 'toggle/toggle_block_shortcut_event.dart';
+export 'emoji_shortcut/emoji_shortcut_service.dart';
