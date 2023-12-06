@@ -19,7 +19,6 @@ function EditRecord({ rowId }: Props) {
   const [page, setPage] = useState<Page | null>(null);
   const id = row?.documentId;
 
-  console.log('row', row);
   const loadPage = useCallback(async () => {
     if (!id) return;
     const controller = new PageController(id);
