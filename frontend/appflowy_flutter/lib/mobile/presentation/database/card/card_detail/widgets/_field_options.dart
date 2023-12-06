@@ -16,7 +16,7 @@ const _supportedFieldTypes = [
   FieldType.MultiSelect,
   FieldType.DateTime,
   FieldType.Checkbox,
-  // FieldType.Checklist,
+  FieldType.Checklist,
 ];
 
 class FieldOptions extends StatelessWidget {
