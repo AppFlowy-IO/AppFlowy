@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/debounce.dart';
@@ -19,6 +19,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'setting_third_party_login.dart';
 
@@ -114,21 +115,16 @@ class SettingsUserView extends StatelessWidget {
           fontSize: FontSizes.s16,
         ),
         children: [
-          SizedBox(
-            height: 300,
-            width: 300,
-            child: IconGallery(
-              defaultOption: _defaultIconOption(context),
-              selectedIcon: user.iconUrl,
-              onSelectIcon: (iconUrl, isSelected) {
-                if (isSelected) {
-                  return Navigator.of(context).pop();
-                }
-
+          Container(
+            height: 380,
+            width: 360,
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            child: FlowyEmojiPicker(
+              onEmojiSelected: (_, emoji) {
                 context
                     .read<SettingsUserViewBloc>()
-                    .add(SettingsUserEvent.updateUserIcon(iconUrl: iconUrl));
-                Navigator.of(context).pop();
+                    .add(SettingsUserEvent.updateUserIcon(iconUrl: emoji));
+                context.pop();
               },
             ),
           ),
@@ -480,6 +476,21 @@ class _AIAccessKeyInputState extends State<_AIAccessKeyInput> {
 
 typedef SelectIconCallback = void Function(String iconUrl, bool isSelected);
 
+final builtInSVGIcons = [
+  '1F9CC',
+  '1F9DB',
+  '1F9DD-200D-2642-FE0F',
+  '1F9DE-200D-2642-FE0F',
+  '1F9DF',
+  '1F42F',
+  '1F43A',
+  '1F431',
+  '1F435',
+  '1F600',
+  '1F984',
+];
+
+// REMOVE this widget in next version 0.3.10
 class IconGallery extends StatelessWidget {
   final String selectedIcon;
   final SelectIconCallback onSelectIcon;
@@ -492,52 +503,26 @@ class IconGallery extends StatelessWidget {
     this.defaultOption,
   });
 
-  Future<List<String>> _getIcons(BuildContext context) async {
-    final manifestContent =
-        await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
-
-    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-
-    final iconUrls = manifestMap.keys
-        .where(
-          (String key) =>
-              key.startsWith('assets/images/emoji/') && key.endsWith('.svg'),
-        )
-        .map((String key) => key.split('/').last.split('.').first)
-        .toList();
-
-    return iconUrls;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
-      future: _getIcons(context),
-      builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          return GridView.count(
-            padding: const EdgeInsets.all(20),
-            crossAxisCount: 5,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
-            children: [
-              if (defaultOption != null) defaultOption!,
-              ...snapshot.data!
-                  .mapIndexed(
-                    (int index, String iconUrl) => IconOption(
-                      emoji: FlowySvgData('emoji/$iconUrl'),
-                      iconUrl: iconUrl,
-                      onSelectIcon: onSelectIcon,
-                      isSelected: iconUrl == selectedIcon,
-                    ),
-                  )
-                  .toList(),
-            ],
-          );
-        }
-
-        return const Center(child: CircularProgressIndicator());
-      },
+    return GridView.count(
+      padding: const EdgeInsets.all(20),
+      crossAxisCount: 5,
+      mainAxisSpacing: 4,
+      crossAxisSpacing: 4,
+      children: [
+        if (defaultOption != null) defaultOption!,
+        ...builtInSVGIcons
+            .mapIndexed(
+              (int index, String iconUrl) => IconOption(
+                emoji: FlowySvgData('emoji/$iconUrl'),
+                iconUrl: iconUrl,
+                onSelectIcon: onSelectIcon,
+                isSelected: iconUrl == selectedIcon,
+              ),
+            )
+            .toList(),
+      ],
     );
   }
 }
