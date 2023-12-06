@@ -3,7 +3,7 @@ import { Icon, Menu, MenuProps } from '@mui/material';
 import { ReactComponent as DelSvg } from '$app/assets/delete.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
 import { useTranslation } from 'react-i18next';
-import { Cell, rowService } from '$app/components/database/application';
+import { rowService } from '$app/components/database/application';
 import { useViewId } from '$app/hooks';
 import MenuItem from '@mui/material/MenuItem';
 

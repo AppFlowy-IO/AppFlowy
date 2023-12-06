@@ -1,4 +1,4 @@
-import React, { MouseEvent, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useViewId } from '$app/hooks';
 import { useTranslation } from 'react-i18next';
 import { fieldService } from '$app/components/database/application';
@@ -10,21 +10,18 @@ function GridNewField({ onInserted }: { onInserted?: (id: string) => void }) {
   const viewId = useViewId();
   const { t } = useTranslation();
 
-  const handleClick = useCallback(
-    async (e: MouseEvent<HTMLButtonElement>) => {
-      try {
-        const field = await fieldService.createField({
-          viewId,
-          fieldType: FieldType.RichText,
-        });
+  const handleClick = useCallback(async () => {
+    try {
+      const field = await fieldService.createField({
+        viewId,
+        fieldType: FieldType.RichText,
+      });
 
-        onInserted?.(field.id);
-      } catch (e) {
-        // toast.error(t('grid.field.newPropertyFail'));
-      }
-    },
-    [onInserted, viewId]
-  );
+      onInserted?.(field.id);
+    } catch (e) {
+      // toast.error(t('grid.field.newPropertyFail'));
+    }
+  }, [onInserted, viewId]);
 
   return (
     <>

@@ -27,7 +27,6 @@ import {
 import { Field, pbToField } from './field_types';
 import { getTypeOption } from './type_option';
 import { Database } from '$app/components/database/application';
-import { DropResult } from 'react-beautiful-dnd';
 
 export async function getFields(
   viewId: string,
