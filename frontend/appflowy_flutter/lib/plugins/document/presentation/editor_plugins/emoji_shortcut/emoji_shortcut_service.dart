@@ -14,8 +14,8 @@ const EmojiPickerConfig config = EmojiPickerConfig(
   emojiSizeMax: emojiSizeMax,
   bgColor: Colors.transparent,
   categoryIconColor: Colors.grey,
-  //selectedCategoryIconColor: Color(0xff333333),
-  //progressIndicatorColor: Color(0xff333333),
+  selectedCategoryIconColor: Color(0xff333333),
+  progressIndicatorColor: Color(0xff333333),
   buttonMode: ButtonMode.MATERIAL,
   initCategory: EmojiCategory.RECENT,
 );
@@ -47,16 +47,6 @@ void openEmojiShortcutPicker(
   final selectionRects = editorState.service.selectionService.selectionRects;
   if (selectionRects.isEmpty) return;
 
-  /*
-  // Have no idea why the focus will lose after inserting on web.
-  if (foundation.kIsWeb) {
-    keepEditorFocusNotifier.increase();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => keepEditorFocusNotifier.decrease(),
-    );
-  }
-  */
-
   await editorState.insertTextAtCurrentSelection(':');
 
   final editorHeight = editorState.renderBox!.size.height;
@@ -64,7 +54,7 @@ void openEmojiShortcutPicker(
   final editorOffset =
       editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
 
-  // Cursor postion
+  // Cursor position
   final cursor = selectionRects.first;
 
   // Check if emoji menu is will overflow on right side of editor

@@ -85,7 +85,7 @@ void main() {
       await insertEmoji(
         tester,
         '🦐',
-        impKeys.slice(0, robotKeys.length - 2),
+        impKeys.slice(0, impKeys.length - 2),
         arrowKeys,
       );
     });
@@ -112,7 +112,7 @@ Future<void> insertEmoji(
   tester.expectToSeeHomePage();
 
   await tester.createNewPageWithName(
-    //name: 'Test $emoji ${arrowKeys.isEmpty ? "" : " (keyboard) "}',
+    name: 'Test $expected ${arrowKeys.isEmpty ? "" : " (keyboard) "}',
     layout: ViewLayoutPB.Document,
     openAfterCreated: true,
   );
