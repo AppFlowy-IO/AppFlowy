@@ -234,7 +234,8 @@ impl UserManager {
             Box::new(HistoricalEmptyDocumentMigration),
             Box::new(FavoriteV1AndWorkspaceArrayMigration),
           ];
-          match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool).run(migrations)
+          match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
+            .run(migrations, &current_authenticator)
           {
             Ok(applied_migrations) => {
               if !applied_migrations.is_empty() {

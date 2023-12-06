@@ -5,6 +5,7 @@ use tracing::instrument;
 
 use collab_integrate::{RocksCollabDB, YrsDocAction};
 use flowy_error::{internal_error, FlowyResult};
+use flowy_user_deps::entities::Authenticator;
 
 use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;
@@ -21,7 +22,19 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
   }
 
   #[instrument(name = "FavoriteV1AndWorkspaceArrayMigration", skip_all, err)]
-  fn run(&self, session: &Session, collab_db: &Arc<RocksCollabDB>) -> FlowyResult<()> {
+  fn run(
+    &self,
+    session: &Session,
+    collab_db: &Arc<RocksCollabDB>,
+    authenticator: &Authenticator,
+  ) -> FlowyResult<()> {
+    // Note on `favorite` Struct Refactoring and Migration:
+    // - The `favorite` struct has already undergone refactoring prior to the launch of the AppFlowy cloud version.
+    // - Consequently, if a user is utilizing the AppFlowy cloud version, there is no need to perform any migration for the `favorite` struct.
+    // - This migration step is only necessary for users who are transitioning from a local version of AppFlowy to the cloud version.
+    if !matches!(authenticator, Authenticator::Local) {
+      return Ok(());
+    }
     let write_txn = collab_db.write_txn();
     if let Ok(collab) = load_collab(session.user_id, &write_txn, &session.user_workspace.id) {
       let folder = Folder::open(session.user_id, collab, None)?;

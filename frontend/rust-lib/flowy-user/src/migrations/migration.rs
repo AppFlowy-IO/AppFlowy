@@ -7,6 +7,7 @@ use collab_integrate::RocksCollabDB;
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::user_data_migration_records;
 use flowy_sqlite::ConnectionPool;
+use flowy_user_deps::entities::Authenticator;
 
 use crate::services::entities::Session;
 
@@ -42,7 +43,11 @@ impl UserLocalDataMigration {
   ///
   /// * `migrations` - A vector of boxed dynamic `UserDataMigration` objects representing the migrations to be applied.
   ///
-  pub fn run(self, migrations: Vec<Box<dyn UserDataMigration>>) -> FlowyResult<Vec<String>> {
+  pub fn run(
+    self,
+    migrations: Vec<Box<dyn UserDataMigration>>,
+    authenticator: &Authenticator,
+  ) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
     let conn = self.sqlite_pool.get()?;
     let record = get_all_records(&conn)?;
@@ -54,7 +59,7 @@ impl UserLocalDataMigration {
       {
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
-          migration.run(&self.session, &self.collab_db)?;
+          migration.run(&self.session, &self.collab_db, authenticator)?;
           applied_migrations.push(migration.name().to_string());
           save_record(&conn, &migration_name);
           duplicated_names.push(migration_name);
@@ -70,7 +75,12 @@ impl UserLocalDataMigration {
 pub trait UserDataMigration {
   /// Migration with the same name will be skipped
   fn name(&self) -> &str;
-  fn run(&self, user: &Session, collab_db: &Arc<RocksCollabDB>) -> FlowyResult<()>;
+  fn run(
+    &self,
+    user: &Session,
+    collab_db: &Arc<RocksCollabDB>,
+    authenticator: &Authenticator,
+  ) -> FlowyResult<()>;
 }
 
 fn save_record(conn: &SqliteConnection, migration_name: &str) {
