@@ -20,7 +20,7 @@ use flowy_user_deps::cloud::UserCloudService;
 use crate::migrations::MigrationUser;
 
 #[tracing::instrument(level = "info", skip_all, err)]
-pub async fn sync_user_data_to_cloud(
+pub async fn sync_af_user_data_to_cloud(
   user_service: Arc<dyn UserCloudService>,
   device_id: &str,
   new_user: &MigrationUser,
@@ -52,7 +52,7 @@ pub async fn sync_user_data_to_cloud(
   let views = folder.lock().get_current_workspace_views();
   for view in views {
     let view_id = view.id.clone();
-    if let Err(err) = sync_views(
+    if let Err(err) = sync_view(
       uid,
       folder.clone(),
       database_records.clone(),
@@ -72,7 +72,7 @@ pub async fn sync_user_data_to_cloud(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn sync_views(
+fn sync_view(
   uid: i64,
   folder: Arc<MutexFolder>,
   database_records: Vec<Arc<DatabaseWithViews>>,
@@ -102,26 +102,26 @@ fn sync_views(
 
     match view.layout {
       ViewLayout::Document => {
-        let doc_state = get_collab_doc_state(uid, &collab_object, &collab_db)?;
+        let encode_v1 = get_collab_encode_v1(uid, &collab_object, &collab_db)?;
         tracing::info!(
           "sync object: {} with update: {}",
           collab_object,
-          doc_state.len()
+          encode_v1.len()
         );
         user_service
-          .create_collab_object(&collab_object, doc_state)
+          .create_collab_object(&collab_object, encode_v1)
           .await?;
       },
       ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
-        let (database_doc_state, row_ids) =
-          get_database_doc_state(uid, &collab_object, &collab_db)?;
+        let (database_encode_v1, row_ids) =
+          get_database_encode_v1(uid, &collab_object, &collab_db)?;
         tracing::info!(
           "sync object: {} with update: {}",
           collab_object,
-          database_doc_state.len()
+          database_encode_v1.len()
         );
         user_service
-          .create_collab_object(&collab_object, database_doc_state)
+          .create_collab_object(&collab_object, database_encode_v1)
           .await?;
 
         // sync database's row
@@ -136,16 +136,16 @@ fn sync_views(
             workspace_id.to_string(),
             device_id.clone(),
           );
-          let database_row_doc_state =
-            get_collab_doc_state(uid, &database_row_collab_object, &collab_db)?;
+          let database_row_encode_v1 =
+            get_collab_encode_v1(uid, &database_row_collab_object, &collab_db)?;
           tracing::info!(
             "sync object: {} with update: {}",
             database_row_collab_object,
-            database_row_doc_state.len()
+            database_row_encode_v1.len()
           );
 
           let _ = user_service
-            .create_collab_object(&database_row_collab_object, database_row_doc_state)
+            .create_collab_object(&database_row_collab_object, database_row_encode_v1)
             .await;
 
           let database_row_document = CollabObject::new(
@@ -156,26 +156,28 @@ fn sync_views(
             device_id.to_string(),
           );
           // sync document in the row if exist
-          if let Ok(document_doc_state) =
-            get_collab_doc_state(uid, &database_row_document, &collab_db)
+          if let Ok(document_encode_v1) =
+            get_collab_encode_v1(uid, &database_row_document, &collab_db)
           {
             tracing::info!(
               "sync database row document: {} with update: {}",
               database_row_document,
-              document_doc_state.len()
+              document_encode_v1.len()
             );
             let _ = user_service
-              .create_collab_object(&database_row_document, document_doc_state)
+              .create_collab_object(&database_row_document, document_encode_v1)
               .await;
           }
         }
       },
     }
 
+    tokio::task::yield_now().await;
+
     let child_views = folder.lock().views.get_views_belong_to(&view.id);
     for child_view in child_views {
       let cloned_child_view = child_view.clone();
-      if let Err(err) = Box::pin(sync_views(
+      if let Err(err) = Box::pin(sync_view(
         uid,
         folder.clone(),
         database_records.clone(),
@@ -194,12 +196,13 @@ fn sync_views(
           err
         )
       }
+      tokio::task::yield_now().await;
     }
     Ok(())
   })
 }
 
-fn get_collab_doc_state(
+fn get_collab_encode_v1(
   uid: i64,
   collab_object: &CollabObject,
   collab_db: &Arc<RocksCollabDB>,
@@ -210,15 +213,10 @@ fn get_collab_doc_state(
       .read_txn()
       .load_doc_with_txn(uid, &collab_object.object_id, txn)
   })?;
-  let doc_state = collab.encode_collab_v1().doc_state;
-  if doc_state.is_empty() {
-    return Err(PersistenceError::UnexpectedEmptyUpdates);
-  }
-
-  Ok(doc_state.to_vec())
+  Ok(collab.encode_collab_v1().encode_to_bytes()?)
 }
 
-fn get_database_doc_state(
+fn get_database_encode_v1(
   uid: i64,
   collab_object: &CollabObject,
   collab_db: &Arc<RocksCollabDB>,
@@ -231,12 +229,7 @@ fn get_database_doc_state(
   })?;
 
   let row_ids = get_database_row_ids(&collab).unwrap_or_default();
-  let doc_state = collab.encode_collab_v1().doc_state;
-  if doc_state.is_empty() {
-    return Err(PersistenceError::UnexpectedEmptyUpdates);
-  }
-
-  Ok((doc_state.to_vec(), row_ids))
+  Ok((collab.encode_collab_v1().encode_to_bytes()?, row_ids))
 }
 
 async fn sync_folder(
@@ -246,7 +239,7 @@ async fn sync_folder(
   collab_db: &Arc<RocksCollabDB>,
   user_service: Arc<dyn UserCloudService>,
 ) -> Result<MutexFolder, Error> {
-  let (folder, update) = {
+  let (folder, encode_v1) = {
     let collab = Collab::new(uid, workspace_id, "phantom", vec![]);
     // Use the temporary result to short the lifetime of the TransactionMut
     collab.with_origin_transact_mut(|txn| {
@@ -254,17 +247,17 @@ async fn sync_folder(
         .read_txn()
         .load_doc_with_txn(uid, workspace_id, txn)
     })?;
-    let doc_state = collab.encode_collab_v1().doc_state;
+    let data = collab.encode_collab_v1().encode_to_bytes();
     (
       MutexFolder::new(Folder::open(
         uid,
         Arc::new(MutexCollab::from_collab(collab)),
         None,
       )?),
-      doc_state,
+      data,
     )
   };
-
+  let encode_v1 = encode_v1?;
   let collab_object = CollabObject::new(
     uid,
     workspace_id.to_string(),
@@ -275,10 +268,10 @@ async fn sync_folder(
   tracing::info!(
     "sync object: {} with update: {}",
     collab_object,
-    update.len()
+    encode_v1.len()
   );
   if let Err(err) = user_service
-    .create_collab_object(&collab_object, update.to_vec())
+    .create_collab_object(&collab_object, encode_v1)
     .await
   {
     tracing::error!("🔴sync folder failed: {:?}", err);
@@ -315,15 +308,18 @@ async fn sync_database_views(
       .map(|_| {
         (
           get_database_with_views(&collab),
-          collab.encode_collab_v1().doc_state,
+          collab.encode_collab_v1().encode_to_bytes(),
         )
       })
   };
 
-  if let Ok((records, doc_state)) = result {
-    let _ = user_service
-      .create_collab_object(&collab_object, doc_state.to_vec())
-      .await;
+  if let Ok((records, encode_v1)) = result {
+    if let Ok(encode_v1) = encode_v1 {
+      let _ = user_service
+        .create_collab_object(&collab_object, encode_v1)
+        .await;
+    }
+
     records.into_iter().map(Arc::new).collect()
   } else {
     vec![]
