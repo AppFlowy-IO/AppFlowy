@@ -46,19 +46,13 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
           fieldController: fieldController,
         )..add(const GridHeaderEvent.initial());
       },
-      child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
-        buildWhen: (previous, current) =>
-            previous.fields.length != current.fields.length,
-        builder: (context, state) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            controller: widget.anchorScrollController,
-            child: _GridHeader(
-              viewId: widget.viewId,
-              fieldController: fieldController,
-            ),
-          );
-        },
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: widget.anchorScrollController,
+        child: _GridHeader(
+          viewId: widget.viewId,
+          fieldController: fieldController,
+        ),
       ),
     );
   }

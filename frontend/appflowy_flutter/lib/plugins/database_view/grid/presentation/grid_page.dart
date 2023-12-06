@@ -169,24 +169,16 @@ class _GridPageContentState extends State<GridPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
-      builder: (context, state) {
-        final contentWidth = GridLayout.headerWidth(state.fields.fields);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _GridHeader(headerScrollController: headerScrollController),
-            _GridRows(
-              viewId: state.viewId,
-              contentWidth: contentWidth,
-              scrollController: _scrollController,
-            ),
-            const _GridFooter(),
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _GridHeader(headerScrollController: headerScrollController),
+        _GridRows(
+          viewId: widget.view.id,
+          scrollController: _scrollController,
+        ),
+        const _GridFooter(),
+      ],
     );
   }
 }
@@ -210,41 +202,44 @@ class _GridHeader extends StatelessWidget {
 
 class _GridRows extends StatelessWidget {
   final String viewId;
-  final double contentWidth;
   final GridScrollController scrollController;
 
   const _GridRows({
     required this.viewId,
-    required this.contentWidth,
     required this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: _WrapScrollView(
-        scrollController: scrollController,
-        contentWidth: contentWidth,
-        child: BlocBuilder<GridBloc, GridState>(
-          buildWhen: (previous, current) => current.reason.maybeWhen(
-            reorderRows: () => true,
-            reorderSingleRow: (reorderRow, rowInfo) => true,
-            delete: (item) => true,
-            insert: (item) => true,
-            orElse: () => false,
+    return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => previous.fields != current.fields,
+      builder: (context, state) {
+        return Flexible(
+          child: _WrapScrollView(
+            scrollController: scrollController,
+            contentWidth: GridLayout.headerWidth(state.fields),
+            child: BlocBuilder<GridBloc, GridState>(
+              buildWhen: (previous, current) => current.reason.maybeWhen(
+                reorderRows: () => true,
+                reorderSingleRow: (reorderRow, rowInfo) => true,
+                delete: (item) => true,
+                insert: (item) => true,
+                orElse: () => false,
+              ),
+              builder: (context, state) {
+                final rowInfos = state.rowInfos;
+                final behavior = ScrollConfiguration.of(context).copyWith(
+                  scrollbars: false,
+                );
+                return ScrollConfiguration(
+                  behavior: behavior,
+                  child: _renderList(context, state, rowInfos),
+                );
+              },
+            ),
           ),
-          builder: (context, state) {
-            final rowInfos = state.rowInfos;
-            final behavior = ScrollConfiguration.of(context).copyWith(
-              scrollbars: false,
-            );
-            return ScrollConfiguration(
-              behavior: behavior,
-              child: _renderList(context, state, rowInfos),
-            );
-          },
-        ),
-      ),
+        );
+      },
     );
   }
 
