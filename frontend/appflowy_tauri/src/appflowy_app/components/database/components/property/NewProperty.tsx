@@ -24,14 +24,12 @@ function NewProperty({ onInserted }: NewPropertyProps) {
     } catch (e) {
       // toast.error(t('grid.field.newPropertyFail'));
     }
-  }, [viewId]);
+  }, [onInserted, viewId]);
 
   return (
-    <>
-      <Button onClick={handleClick} className={'h-full w-full justify-start'} startIcon={<AddSvg />} color={'inherit'}>
-        {t('grid.field.newProperty')}
-      </Button>
-    </>
+    <Button onClick={handleClick} className={'h-full w-full justify-start'} startIcon={<AddSvg />} color={'inherit'}>
+      {t('grid.field.newProperty')}
+    </Button>
   );
 }
 

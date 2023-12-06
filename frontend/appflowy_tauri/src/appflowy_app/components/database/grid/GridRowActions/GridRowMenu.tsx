@@ -1,18 +1,14 @@
 import React, { useCallback } from 'react';
-import { MenuList, MenuItem, Icon } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { ReactComponent as UpSvg } from '$app/assets/up.svg';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { ReactComponent as DelSvg } from '$app/assets/delete.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
+import Popover, { PopoverProps } from '@mui/material/Popover';
+import { useGetPrevRowId } from '$app/components/database';
+import { useViewId } from '$app/hooks';
+import { useTranslation } from 'react-i18next';
 import { rowService } from '$app/components/database/application';
-import { useViewId } from '@/appflowy_app/hooks/ViewId.hooks';
-
-interface Props {
-  rowId: string;
-  getPrevRowId: (id: string) => string | null;
-  onClickItem: (label: string) => void;
-}
+import { Icon, MenuItem, MenuList } from '@mui/material';
 
 interface Option {
   label: string;
@@ -21,7 +17,13 @@ interface Option {
   divider?: boolean;
 }
 
-function GridCellRowMenu({ rowId, getPrevRowId, onClickItem }: Props) {
+interface Props extends PopoverProps {
+  rowId: string;
+}
+
+function GridRowMenu({ rowId, ...props }: Props) {
+  const getPrevRowId = useGetPrevRowId();
+
   const viewId = useViewId();
 
   const { t } = useTranslation();
@@ -74,23 +76,25 @@ function GridCellRowMenu({ rowId, getPrevRowId, onClickItem }: Props) {
   ];
 
   return (
-    <MenuList>
-      {options.map((option) => (
-        <div className={'w-full'} key={option.label}>
-          {option.divider && <div className='mx-2 my-1.5 h-[1px] bg-line-divider' />}
-          <MenuItem
-            onClick={() => {
-              option.onClick();
-              onClickItem(option.label);
-            }}
-          >
-            <Icon className='mr-2'>{option.icon}</Icon>
-            {option.label}
-          </MenuItem>
-        </div>
-      ))}
-    </MenuList>
+    <Popover anchorReference={'anchorPosition'} transformOrigin={{ vertical: 'top', horizontal: 'left' }} {...props}>
+      <MenuList>
+        {options.map((option) => (
+          <div className={'w-full'} key={option.label}>
+            {option.divider && <div className='mx-2 my-1.5 h-[1px] bg-line-divider' />}
+            <MenuItem
+              onClick={() => {
+                option.onClick();
+                props.onClose?.({}, 'backdropClick');
+              }}
+            >
+              <Icon className='mr-2'>{option.icon}</Icon>
+              {option.label}
+            </MenuItem>
+          </div>
+        ))}
+      </MenuList>
+    </Popover>
   );
 }
 
-export default GridCellRowMenu;
+export default GridRowMenu;

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { FieldType } from '@/services/backend';
 
 import { Cell as CellType, Field } from '../../application';
@@ -11,25 +11,19 @@ import URLCell from '$app/components/database/components/cell/URLCell';
 import ChecklistCell from '$app/components/database/components/cell/ChecklistCell';
 import DateTimeCell from '$app/components/database/components/cell/DateTimeCell';
 import TimestampCell from '$app/components/database/components/cell/TimestampCell';
-import PrimaryCell from '$app/components/database/components/cell/PrimaryCell';
 
 export interface CellProps {
   rowId: string;
   field: Field;
   icon?: string;
   placeholder?: string;
-  onEditRecord?: (rowId: string) => void;
 }
 
 export interface CellComponentProps extends CellProps {
   cell: CellType;
 }
 
-const getCellComponent = (fieldType: FieldType, isPrimary?: boolean) => {
-  if (isPrimary) {
-    return PrimaryCell as FC<CellComponentProps>;
-  }
-
+const getCellComponent = (fieldType: FieldType) => {
   switch (fieldType) {
     case FieldType.RichText:
       return TextCell as FC<CellComponentProps>;
@@ -57,7 +51,7 @@ const getCellComponent = (fieldType: FieldType, isPrimary?: boolean) => {
 export const Cell: FC<CellProps> = ({ rowId, field, ...props }) => {
   const cell = useCell(rowId, field);
 
-  const Component = getCellComponent(field.type, field.isPrimary);
+  const Component = getCellComponent(field.type);
 
   if (!cell) {
     return <div className={`h-[36px] w-[${field.width}px]`} />;

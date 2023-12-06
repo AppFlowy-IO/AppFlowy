@@ -40,7 +40,7 @@ export const TextCell: FC<{
   return (
     <>
       <CellText className={'min-h-[36px] w-full'} ref={cellRef} onClick={handleClick}>
-        <div className={`flex h-full w-full items-center whitespace-break-spaces break-all`}>{content}</div>
+        {content}
       </CellText>
       <Suspense>
         {editing && (

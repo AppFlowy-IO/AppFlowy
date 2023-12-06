@@ -37,6 +37,7 @@ export const Property: FC<FieldProps> = ({ field, onCloseMenu, menuOpened }) => 
 
     setAnchorPosition(undefined);
   }, [menuOpened]);
+
   return (
     <>
       <div ref={ref} className='flex w-full items-center px-2'>
