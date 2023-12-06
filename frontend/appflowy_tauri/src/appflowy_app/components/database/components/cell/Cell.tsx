@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC, HTMLAttributes } from 'react';
 import { FieldType } from '@/services/backend';
 
 import { Cell as CellType, Field } from '../../application';
@@ -12,18 +12,17 @@ import ChecklistCell from '$app/components/database/components/cell/ChecklistCel
 import DateTimeCell from '$app/components/database/components/cell/DateTimeCell';
 import TimestampCell from '$app/components/database/components/cell/TimestampCell';
 
-export interface CellProps {
+export interface CellProps extends HTMLAttributes<HTMLDivElement> {
   rowId: string;
   field: Field;
-  documentId?: string;
   icon?: string;
   placeholder?: string;
 }
 
-interface CellComponentProps {
-  field: Field;
+export interface CellComponentProps extends CellProps {
   cell: CellType;
 }
+
 const getCellComponent = (fieldType: FieldType) => {
   switch (fieldType) {
     case FieldType.RichText:
@@ -62,5 +61,5 @@ export const Cell: FC<CellProps> = ({ rowId, field, ...props }) => {
     return null;
   }
 
-  return <Component {...props} field={field} cell={cell} />;
+  return <Component {...props} rowId={rowId} field={field} cell={cell} />;
 };

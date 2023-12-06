@@ -149,3 +149,6 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     background: var(--fill-hover);
 }
 
+.react-swipeable-view-container {
+    height: 100%;
+}

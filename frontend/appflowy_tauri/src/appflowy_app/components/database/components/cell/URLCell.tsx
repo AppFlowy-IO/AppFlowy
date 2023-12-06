@@ -71,14 +71,13 @@ function UrlCell({ field, cell, placeholder }: Props) {
         ref={cellRef}
         onClick={handleClick}
       >
-        <div className={`flex w-full items-center whitespace-break-spaces break-all `}>{content}</div>
+        {content}
       </CellText>
       <Suspense>
         {editing && (
           <EditTextCellInput
             editing={editing}
             anchorEl={cellRef.current}
-            width={field.width}
             onClose={handleClose}
             text={value}
             onInput={handleInput}

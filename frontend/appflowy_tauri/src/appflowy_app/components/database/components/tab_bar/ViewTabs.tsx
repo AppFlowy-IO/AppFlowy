@@ -1,4 +1,5 @@
 import { styled, Tab, TabProps, Tabs } from '@mui/material';
+import { HTMLAttributes } from 'react';
 
 export const ViewTabs = styled(Tabs)({
   minHeight: '28px',
@@ -20,7 +21,7 @@ export const ViewTab = styled((props: TabProps) => <Tab disableRipple {...props}
   },
 });
 
-interface TabPanelProps {
+interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
   index: number;
   value: number;

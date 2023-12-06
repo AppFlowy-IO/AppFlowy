@@ -1,6 +1,6 @@
 import React, { MouseEvent, useCallback } from 'react';
 import { MenuProps } from '@mui/material';
-import FieldList from '$app/components/database/components/field/FieldList';
+import PropertiesList from '$app/components/database/components/property/PropertiesList';
 import { Field } from '$app/components/database/application';
 import { useViewId } from '$app/hooks';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +35,7 @@ function FilterFieldsMenu({
 
   return (
     <Popover {...props}>
-      <FieldList showSearch searchPlaceholder={t('grid.settings.filterBy')} onItemClick={addFilter} />
+      <PropertiesList showSearch searchPlaceholder={t('grid.settings.filterBy')} onItemClick={addFilter} />
     </Popover>
   );
 }
