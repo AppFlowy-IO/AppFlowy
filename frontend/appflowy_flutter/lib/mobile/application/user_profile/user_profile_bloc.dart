@@ -36,13 +36,13 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     );
 
     if (workspaceSetting == null || userProfile == null) {
-      emit(const UserProfileState.workspaceFailure());
+      return emit(const UserProfileState.workspaceFailure());
     }
 
     emit(
       UserProfileState.success(
-        workspaceSettings: workspaceSetting!,
-        userProfile: userProfile!,
+        workspaceSettings: workspaceSetting,
+        userProfile: userProfile,
       ),
     );
   }

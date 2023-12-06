@@ -10,7 +10,8 @@ import 'package:appflowy/workspace/presentation/notifications/reminder_extension
 import 'package:appflowy/workspace/presentation/notifications/widgets/inbox_action_bar.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,86 +50,107 @@ class _MobileNotificationsScreenState extends State<MobileNotificationsScreen>
             orElse: () =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             workspaceFailure: () => const WorkspaceFailedScreen(),
-            success: (workspaceSetting, userProfile) => BlocProvider(
-              create: (context) => MenuBloc(
-                workspaceId: workspaceSetting.workspaceId,
-                user: userProfile,
-              )..add(const MenuEvent.initial()),
-              child: BlocBuilder<MenuBloc, MenuState>(
-                builder: (context, menuState) => BlocBuilder<
-                    NotificationFilterBloc, NotificationFilterState>(
-                  builder: (context, filterState) =>
-                      BlocBuilder<ReminderBloc, ReminderState>(
-                    builder: (context, state) {
-                      // Workaround for rebuilding the Blocks by brightness
-                      Theme.of(context).brightness;
-
-                      final List<ReminderPB> pastReminders = state.pastReminders
-                          .where(
-                            (r) =>
-                                filterState.showUnreadsOnly ? !r.isRead : true,
-                          )
-                          .sortByScheduledAt();
-
-                      final List<ReminderPB> upcomingReminders =
-                          state.upcomingReminders.sortByScheduledAt();
-
-                      return Scaffold(
-                        appBar: AppBar(
-                          automaticallyImplyLeading: false,
-                          elevation: 0,
-                          title: Text(
-                            LocaleKeys.notificationHub_mobile_title.tr(),
-                          ),
-                        ),
-                        body: SafeArea(
-                          child: Column(
-                            children: [
-                              MobileNotificationTabBar(controller: _controller),
-                              Expanded(
-                                child: TabBarView(
-                                  controller: _controller,
-                                  children: [
-                                    NotificationsView(
-                                      shownReminders: pastReminders,
-                                      reminderBloc: _reminderBloc,
-                                      views: menuState.views,
-                                      onAction: _onAction,
-                                      onDelete: _onDelete,
-                                      onReadChanged: _onReadChanged,
-                                      actionBar: InboxActionBar(
-                                        hasUnreads: state.hasUnreads,
-                                        showUnreadsOnly:
-                                            filterState.showUnreadsOnly,
-                                      ),
-                                    ),
-                                    NotificationsView(
-                                      shownReminders: upcomingReminders,
-                                      reminderBloc: _reminderBloc,
-                                      views: menuState.views,
-                                      isUpcoming: true,
-                                      onAction: _onAction,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
+            success: (workspaceSetting, userProfile) =>
+                _NotificationScreenContent(
+              workspaceSetting: workspaceSetting,
+              userProfile: userProfile,
+              controller: _controller,
+              reminderBloc: _reminderBloc,
             ),
           );
         },
       ),
     );
   }
+}
+
+class _NotificationScreenContent extends StatelessWidget {
+  const _NotificationScreenContent({
+    required this.workspaceSetting,
+    required this.userProfile,
+    required this.controller,
+    required this.reminderBloc,
+  });
+
+  final WorkspaceSettingPB workspaceSetting;
+  final UserProfilePB userProfile;
+  final TabController controller;
+  final ReminderBloc reminderBloc;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => MenuBloc(
+        workspaceId: workspaceSetting.workspaceId,
+        user: userProfile,
+      )..add(const MenuEvent.initial()),
+      child: BlocBuilder<MenuBloc, MenuState>(
+        builder: (context, menuState) =>
+            BlocBuilder<NotificationFilterBloc, NotificationFilterState>(
+          builder: (context, filterState) =>
+              BlocBuilder<ReminderBloc, ReminderState>(
+            builder: (context, state) {
+              // Workaround for rebuilding the Blocks by brightness
+              Theme.of(context).brightness;
+
+              final List<ReminderPB> pastReminders = state.pastReminders
+                  .where(
+                    (r) => filterState.showUnreadsOnly ? !r.isRead : true,
+                  )
+                  .sortByScheduledAt();
+
+              final List<ReminderPB> upcomingReminders =
+                  state.upcomingReminders.sortByScheduledAt();
+
+              return Scaffold(
+                appBar: AppBar(
+                  automaticallyImplyLeading: false,
+                  elevation: 0,
+                  title: Text(LocaleKeys.notificationHub_mobile_title.tr()),
+                ),
+                body: SafeArea(
+                  child: Column(
+                    children: [
+                      MobileNotificationTabBar(controller: controller),
+                      Expanded(
+                        child: TabBarView(
+                          controller: controller,
+                          children: [
+                            NotificationsView(
+                              shownReminders: pastReminders,
+                              reminderBloc: reminderBloc,
+                              views: menuState.views,
+                              onAction: _onAction,
+                              onDelete: _onDelete,
+                              onReadChanged: _onReadChanged,
+                              actionBar: InboxActionBar(
+                                hasUnreads: state.hasUnreads,
+                                showUnreadsOnly: filterState.showUnreadsOnly,
+                              ),
+                            ),
+                            NotificationsView(
+                              shownReminders: upcomingReminders,
+                              reminderBloc: reminderBloc,
+                              views: menuState.views,
+                              isUpcoming: true,
+                              onAction: _onAction,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
 
   void _onAction(ReminderPB reminder, int? path, ViewPB? view) =>
-      _reminderBloc.add(
+      reminderBloc.add(
         ReminderEvent.pressReminder(
           reminderId: reminder.id,
           path: path,
@@ -137,9 +159,9 @@ class _MobileNotificationsScreenState extends State<MobileNotificationsScreen>
       );
 
   void _onDelete(ReminderPB reminder) =>
-      _reminderBloc.add(ReminderEvent.remove(reminder: reminder));
+      reminderBloc.add(ReminderEvent.remove(reminder: reminder));
 
-  void _onReadChanged(ReminderPB reminder, bool isRead) => _reminderBloc.add(
+  void _onReadChanged(ReminderPB reminder, bool isRead) => reminderBloc.add(
         ReminderEvent.update(ReminderUpdate(id: reminder.id, isRead: isRead)),
       );
 }

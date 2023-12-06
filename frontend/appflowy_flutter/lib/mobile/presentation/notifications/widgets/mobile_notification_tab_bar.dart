@@ -14,8 +14,7 @@ class MobileNotificationTabBar extends StatefulWidget {
       _MobileNotificationTabBarState();
 }
 
-class _MobileNotificationTabBarState extends State<MobileNotificationTabBar>
-    with SingleTickerProviderStateMixin {
+class _MobileNotificationTabBarState extends State<MobileNotificationTabBar> {
   @override
   void initState() {
     super.initState();
