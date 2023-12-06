@@ -490,12 +490,10 @@ fn merge_groups(
     }
   }
 
-  // Find out the new groups
-  let new_groups = new_group_map.into_values();
-  for (_, group) in new_groups.into_iter().enumerate() {
-    merge_result.all_groups.push(group.clone());
-    merge_result.new_groups.push(group);
-  }
+  merge_result
+    .all_groups
+    .extend(new_group_map.values().cloned());
+  merge_result.new_groups.extend(new_group_map.into_values());
 
   // The `No status` group index is initialized to 0
   if !no_status_group_inserted && no_status_group.is_some() {
