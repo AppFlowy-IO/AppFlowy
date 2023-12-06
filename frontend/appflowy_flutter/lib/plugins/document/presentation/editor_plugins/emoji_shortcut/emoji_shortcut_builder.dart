@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/src/emji_picker_config.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/src/emoji_picker.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/src/emoji_picker_builder.dart';
@@ -143,7 +142,9 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
     );
 
     widget.state.onEmojiSelected(
-        EmojiCategory.SEARCH, searchEmojiList.elementAt(_selectedIndex));
+      EmojiCategory.SEARCH,
+      searchEmojiList.elementAt(_selectedIndex),
+    );
   }
 
   void _searchEmoji() {
@@ -152,10 +153,12 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
 
     searchEmojiList.clear();
 
-    searchEmojiList.addAll(query.isEmpty
-        ? widget.state.emojiCategoryGroupList[0].emoji
-        : widget.state.emojiCategoryGroupList[0].emoji
-            .where((item) => item.name.toLowerCase().contains(query)));
+    searchEmojiList.addAll(
+      query.isEmpty
+          ? widget.state.emojiCategoryGroupList[0].emoji
+          : widget.state.emojiCategoryGroupList[0].emoji
+              .where((item) => item.name.toLowerCase().contains(query)),
+    );
 
     int emojiCategoryIndex = 0;
     int remainingSpace = maxEmojiCount - searchEmojiList.length;
@@ -164,11 +167,14 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
         remainingSpace > 0) {
       searchEmojiList.addAll(
         widget.state.emojiCategoryGroupList[emojiCategoryIndex].emoji
-            .where((item) =>
-                item.name.toLowerCase().contains(query) &&
-                searchEmojiList.firstWhereOrNull(
-                        (element) => element.name == item.name) ==
-                    null)
+            .where(
+              (item) =>
+                  item.name.toLowerCase().contains(query) &&
+                  searchEmojiList.firstWhereOrNull(
+                        (element) => element.name == item.name,
+                      ) ==
+                      null,
+            )
             .take(
               remainingSpace ~/
                   (widget.state.emojiCategoryGroupList.length -
@@ -240,21 +246,23 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
     return Focus(
       onKey: _onKey,
       focusNode: _focusNode,
-      child: LayoutBuilder(builder: (context, constraints) {
-        return Container(
-          color: widget.config.bgColor,
-          padding: const EdgeInsets.all(5.0),
-          child: searchEmojiList.isNotEmpty
-              ? _buildPage(widget.config.getEmojiSize(constraints.maxWidth))
-              : Center(
-                  child: Text(
-                    widget.config.noEmojiFoundText,
-                    style: widget.config.noRecentsStyle,
-                    textAlign: TextAlign.center,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Container(
+            color: widget.config.bgColor,
+            padding: const EdgeInsets.all(5.0),
+            child: searchEmojiList.isNotEmpty
+                ? _buildPage(widget.config.getEmojiSize(constraints.maxWidth))
+                : Center(
+                    child: Text(
+                      widget.config.noEmojiFoundText,
+                      style: widget.config.noRecentsStyle,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
