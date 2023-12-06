@@ -346,7 +346,7 @@ impl DatabaseEditor {
         }
 
         let old_field_type = FieldType::from(field.field_type);
-        let old_type_option = field.get_any_type_option(old_field_type.clone());
+        let old_type_option = field.get_any_type_option(old_field_type);
         let new_type_option = field
           .get_any_type_option(new_field_type)
           .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
@@ -464,7 +464,7 @@ impl DatabaseEditor {
     field.map(|field| {
       let field_type = FieldType::from(field.field_type);
       let type_option = field
-        .get_any_type_option(field_type.clone())
+        .get_any_type_option(field_type)
         .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
       (field, type_option_to_pb(type_option, &field_type))
     })
@@ -1265,7 +1265,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let (_, field) = self.database.lock().create_field_with_mut(
       view_id,
       name.to_string(),
-      field_type.clone().into(),
+      field_type.into(),
       &OrderObjectPosition::default(),
       |field| {
         field

@@ -49,7 +49,7 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     // For historical reasons, the first level documents are empty. So migrate them by inserting
     // the default document data.
     for view in migration_views {
-      if let Err(_) = migrate_empty_document(&write_txn, &origin, &view, session.user_id) {
+      if migrate_empty_document(&write_txn, &origin, &view, session.user_id).is_err() {
         event!(
           tracing::Level::ERROR,
           "Failed to migrate document {}",
