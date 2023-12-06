@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:appflowy/core/helpers/helpers.dart';
@@ -35,6 +36,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
         WindowSizeManager.minWindowHeight,
       ),
       title: title,
+      titleBarStyle:
+          Platform.isWindows ? TitleBarStyle.hidden : TitleBarStyle.normal,
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {

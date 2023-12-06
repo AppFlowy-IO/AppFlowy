@@ -1,11 +1,11 @@
 import 'dart:io' show Platform;
 
-import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/widgets/window_drag_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -28,7 +28,7 @@ class SidebarTopMenu extends StatelessWidget {
       builder: (context, state) {
         return SizedBox(
           height: HomeSizes.topBarHeight,
-          child: MoveWindowDetector(
+          child: WindowDragStack(
             child: Row(
               children: [
                 _buildLogoIcon(context),

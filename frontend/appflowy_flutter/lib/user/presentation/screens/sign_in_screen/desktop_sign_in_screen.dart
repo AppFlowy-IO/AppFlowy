@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -6,6 +8,7 @@ import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:window_manager/window_manager.dart';
 
 class DesktopSignInScreen extends StatelessWidget {
   const DesktopSignInScreen({super.key, required this.isLoading});
@@ -16,9 +19,14 @@ class DesktopSignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const indicatorMinHeight = 4.0;
     return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size(double.infinity, 60),
-        child: MoveWindowDetector(),
+      appBar: PreferredSize(
+        preferredSize: const Size(double.infinity, 60),
+        child: !Platform.isWindows || true
+            ? const MoveWindowDetector()
+            : WindowCaption(
+                backgroundColor: Colors.transparent,
+                brightness: Theme.of(context).brightness,
+              ),
       ),
       body: Center(
         child: AuthFormContainer(
