@@ -61,7 +61,7 @@ class SettingsMenu extends StatelessWidget {
         SettingsMenuElement(
           page: SettingsPage.cloud,
           selectedPage: currentPage,
-          label: LocaleKeys.settings_menu_cloudSetting.tr(),
+          label: LocaleKeys.settings_menu_cloudSettings.tr(),
           icon: Icons.sync,
           changeSelectedPage: changeSelectedPage,
         ),
