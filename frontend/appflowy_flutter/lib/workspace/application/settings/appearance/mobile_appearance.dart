@@ -62,7 +62,7 @@ class MobileAppearance extends BaseAppearance {
         : ColorScheme(
             brightness: brightness,
             primary: _primaryColor,
-            onPrimary: Colors.white,
+            onPrimary: Colors.black,
             // TODO(yijing): add color later
             secondary: const Color(0xff2d2d2d), //temp
             onSecondary: Colors.white,
@@ -125,7 +125,7 @@ class MobileAppearance extends BaseAppearance {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.disabled)) {
-                return const Color(0xFF57B5F8);
+                return _primaryColor;
               }
               return colorTheme.primary;
             },
@@ -176,7 +176,7 @@ class MobileAppearance extends BaseAppearance {
       fontFamily: fontStyle.fontFamily,
       textTheme: TextTheme(
         displayLarge: const TextStyle(
-          color: Color(0xFF57B5F8),
+          color: _primaryColor,
           fontSize: 32,
           fontWeight: FontWeight.w700,
           height: 1.20,
