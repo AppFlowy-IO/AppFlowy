@@ -960,6 +960,9 @@
   },
   "notificationHub": {
     "title": "Notifications",
+    "mobile": {
+      "title": "Updates"
+    },
     "emptyTitle": "All caught up!",
     "emptyBody": "No pending notifications or actions. Enjoy the calm.",
     "tabs": {

@@ -87,39 +87,37 @@ class _DocumentPageState extends State<DocumentPage> {
       child: BlocListener<NotificationActionBloc, NotificationActionState>(
         listener: _onNotificationAction,
         child: BlocBuilder<DocumentBloc, DocumentState>(
-          builder: (context, state) {
-            return state.loadingState.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator.adaptive()),
-              finish: (result) => result.fold(
-                (error) {
-                  Log.error(error);
-                  return FlowyErrorPage.message(
-                    error.toString(),
-                    howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+          builder: (context, state) => state.loadingState.when(
+            loading: () =>
+                const Center(child: CircularProgressIndicator.adaptive()),
+            finish: (result) => result.fold(
+              (error) {
+                Log.error(error);
+                return FlowyErrorPage.message(
+                  error.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                );
+              },
+              (data) {
+                if (state.forceClose) {
+                  widget.onDeleted();
+                  return const SizedBox.shrink();
+                } else if (documentBloc.editorState == null) {
+                  return Center(
+                    child: ExportPageWidget(
+                      onTap: () async => await _exportPage(data),
+                    ),
                   );
-                },
-                (data) {
-                  if (state.forceClose) {
-                    widget.onDeleted();
-                    return const SizedBox.shrink();
-                  } else if (documentBloc.editorState == null) {
-                    return Center(
-                      child: ExportPageWidget(
-                        onTap: () async => await _exportPage(data),
-                      ),
-                    );
-                  } else {
-                    editorState = documentBloc.editorState!;
-                    return _buildEditorPage(
-                      context,
-                      state,
-                    );
-                  }
-                },
-              ),
-            );
-          },
+                } else {
+                  editorState = documentBloc.editorState!;
+                  return _buildEditorPage(
+                    context,
+                    state,
+                  );
+                }
+              },
+            ),
+          ),
         ),
       ),
     );

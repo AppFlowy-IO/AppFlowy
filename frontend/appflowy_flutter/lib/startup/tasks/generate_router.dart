@@ -460,12 +460,8 @@ GoRoute _mobileEditorScreenRoute() {
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
-      return MaterialPage(
-        child: MobileEditorScreen(
-          id: id,
-          title: title,
-        ),
-      );
+
+      return MaterialPage(child: MobileEditorScreen(id: id, title: title));
     },
   );
 }
