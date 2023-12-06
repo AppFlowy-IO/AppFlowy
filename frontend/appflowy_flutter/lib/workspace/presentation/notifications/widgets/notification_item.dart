@@ -23,7 +23,6 @@ class NotificationItem extends StatefulWidget {
     required this.scheduled,
     required this.body,
     required this.isRead,
-    this.path,
     this.block,
     this.includeTime = false,
     this.readOnly = false,
@@ -38,7 +37,6 @@ class NotificationItem extends StatefulWidget {
   final Int64 scheduled;
   final String body;
   final bool isRead;
-  final Future<int?>? path;
   final ViewPB? view;
 
   /// If [block] is provided, then [body] will be shown only if
@@ -67,7 +65,7 @@ class _NotificationItemState extends State<NotificationItem> {
   @override
   void initState() {
     super.initState();
-    widget.path?.then((p) => path = p);
+    widget.block?.then((b) => path = b?.path.first);
   }
 
   @override
@@ -136,7 +134,7 @@ class _NotificationItemState extends State<NotificationItem> {
                                       PlatformExtension.isMobile ? 16 : 14,
                                   color: AFThemeExtension.of(context).textColor,
                                 ),
-                                // TODO(Xazin): Relative time + View Name
+                                // TODO(Xazin): Relative time
                                 FlowyText.regular(
                                   '${_scheduledString(
                                     widget.scheduled,
@@ -153,7 +151,10 @@ class _NotificationItemState extends State<NotificationItem> {
                                     color:
                                         Theme.of(context).colorScheme.surface,
                                   ),
-                                  child: _NotificationContent(widget: widget),
+                                  child: _NotificationContent(
+                                    block: widget.block,
+                                    body: widget.body,
+                                  ),
                                 ),
                               ],
                             ),
@@ -195,17 +196,21 @@ class _NotificationItemState extends State<NotificationItem> {
 }
 
 class _NotificationContent extends StatelessWidget {
-  const _NotificationContent({required this.widget});
+  const _NotificationContent({
+    required this.body,
+    required this.block,
+  });
 
-  final NotificationItem widget;
+  final String body;
+  final Future<Node?>? block;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Node?>(
-      future: widget.block,
+      future: block,
       builder: (context, snapshot) {
         if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
-          return FlowyText.regular(widget.body, maxLines: 4);
+          return FlowyText.regular(body, maxLines: 4);
         }
 
         final editorState = EditorState(

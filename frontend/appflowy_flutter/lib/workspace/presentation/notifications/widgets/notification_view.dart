@@ -71,12 +71,9 @@ class NotificationsView extends StatelessWidget {
                     );
 
                     Future<Node?>? nodeBuilder;
-                    Future<int?>? pathFinder;
                     if (blockId != null) {
                       nodeBuilder =
                           _getNodeFromDocument(documentFuture, blockId);
-                      pathFinder =
-                          _getPathFromDocument(documentFuture, blockId);
                     }
 
                     final view = views
@@ -88,7 +85,6 @@ class NotificationsView extends StatelessWidget {
                       title: reminder.title,
                       scheduled: reminder.scheduledAt,
                       body: reminder.message,
-                      path: pathFinder,
                       block: nodeBuilder,
                       isRead: reminder.isRead,
                       includeTime: reminder.includeTime ?? false,
@@ -113,27 +109,6 @@ class NotificationsView extends StatelessWidget {
     Future<Either<FlowyError, DocumentDataPB>> documentFuture,
     String blockId,
   ) async {
-    final document = (await documentFuture).fold((l) => null, (d) => d);
-
-    if (document == null) {
-      return null;
-    }
-
-    final blockOrFailure = await DocumentService().getBlockFromDocument(
-      document: document,
-      blockId: blockId,
-    );
-
-    return blockOrFailure.fold(
-      (_) => null,
-      (block) => block.toNode(meta: MetaPB()),
-    );
-  }
-
-  Future<int?> _getPathFromDocument(
-    Future<Either<FlowyError, DocumentDataPB>> documentFuture,
-    String blockId,
-  ) async {
     final document = (await documentFuture).fold(
       (l) => null,
       (document) => document,
@@ -148,7 +123,7 @@ class NotificationsView extends StatelessWidget {
       return null;
     }
 
-    return _searchById(rootNode, blockId)?.path.first;
+    return _searchById(rootNode, blockId);
   }
 }
 
