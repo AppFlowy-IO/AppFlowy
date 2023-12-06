@@ -48,16 +48,20 @@ class FieldServices {
   Future<void> insertLeft() async {
     await TypeOptionBackendService.createFieldTypeOption(
       viewId: viewId,
-      position: CreateFieldPosition.Before,
-      targetFieldId: fieldId,
+      position: OrderObjectPositionPB(
+        position: OrderObjectPositionTypePB.Before,
+        objectId: fieldId,
+      ),
     );
   }
 
   Future<void> insertRight() async {
     await TypeOptionBackendService.createFieldTypeOption(
       viewId: viewId,
-      position: CreateFieldPosition.After,
-      targetFieldId: fieldId,
+      position: OrderObjectPositionPB(
+        position: OrderObjectPositionTypePB.After,
+        objectId: fieldId,
+      ),
     );
   }
 

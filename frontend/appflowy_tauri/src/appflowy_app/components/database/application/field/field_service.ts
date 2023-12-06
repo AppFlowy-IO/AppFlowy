@@ -11,7 +11,7 @@ import {
   FieldSettingsChangesetPB,
   FieldVisibility,
   DatabaseViewIdPB,
-  CreateFieldPosition,
+  OrderObjectPositionTypePB,
 } from '@/services/backend';
 import {
   DatabaseEventDuplicateField,
@@ -90,7 +90,7 @@ export async function createField({
 }: {
   viewId: string;
   targetFieldId?: string;
-  fieldPosition?: CreateFieldPosition;
+  fieldPosition?: OrderObjectPositionTypePB;
   fieldType?: FieldType;
   data?: Uint8Array;
 }): Promise<Field> {
@@ -98,8 +98,10 @@ export async function createField({
     view_id: viewId,
     field_type: fieldType,
     type_option_data: data,
-    target_field_id: targetFieldId,
-    field_position: fieldPosition,
+    field_position: {
+      position: fieldPosition,
+      object_id: targetFieldId,
+    },
   });
 
   const result = await DatabaseEventCreateField(payload);

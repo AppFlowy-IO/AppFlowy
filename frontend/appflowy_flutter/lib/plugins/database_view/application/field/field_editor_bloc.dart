@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field_settings/field_
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/position_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -79,8 +80,10 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
           insertLeft: () async {
             final result = await TypeOptionBackendService.createFieldTypeOption(
               viewId: viewId,
-              position: CreateFieldPosition.Before,
-              targetFieldId: field.id,
+              position: OrderObjectPositionPB(
+                position: OrderObjectPositionTypePB.Before,
+                objectId: field.id,
+              ),
             );
             result.fold(
               (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
@@ -90,8 +93,10 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
           insertRight: () async {
             final result = await TypeOptionBackendService.createFieldTypeOption(
               viewId: viewId,
-              position: CreateFieldPosition.After,
-              targetFieldId: field.id,
+              position: OrderObjectPositionPB(
+                position: OrderObjectPositionTypePB.After,
+                objectId: field.id,
+              ),
             );
             result.fold(
               (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),

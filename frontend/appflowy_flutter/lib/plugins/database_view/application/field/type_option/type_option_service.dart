@@ -30,8 +30,7 @@ class TypeOptionBackendService {
     FieldType fieldType = FieldType.RichText,
     String? fieldName,
     Uint8List? typeOptionData,
-    CreateFieldPosition position = CreateFieldPosition.End,
-    String? targetFieldId,
+    OrderObjectPositionPB? position,
   }) {
     final payload = CreateFieldPayloadPB.create()
       ..viewId = viewId
@@ -45,12 +44,8 @@ class TypeOptionBackendService {
       payload.typeOptionData = typeOptionData;
     }
 
-    if (position == CreateFieldPosition.Before ||
-        position == CreateFieldPosition.After && targetFieldId != null) {
-      payload.targetFieldId = targetFieldId!;
-    }
-
-    payload.fieldPosition = position;
+    payload.fieldPosition = position ??
+        OrderObjectPositionPB(position: OrderObjectPositionTypePB.End);
 
     return DatabaseEventCreateField(payload).send();
   }
