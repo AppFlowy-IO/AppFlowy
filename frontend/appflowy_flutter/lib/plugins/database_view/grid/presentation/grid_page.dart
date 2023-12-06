@@ -258,7 +258,6 @@ class _GridRows extends StatelessWidget {
     }).toList()
       ..add(const GridRowBottomBar(key: Key('gridFooter')));
     return ReorderableListView.builder(
-      /// TODO(Xazin): Resolve inconsistent scrollbar behavior
       ///  This is a workaround related to
       ///  https://github.com/flutter/flutter/issues/25652
       cacheExtent: 5000,

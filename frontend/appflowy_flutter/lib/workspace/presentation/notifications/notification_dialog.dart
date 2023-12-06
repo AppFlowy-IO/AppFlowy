@@ -74,8 +74,6 @@ class _NotificationDialogState extends State<NotificationDialog>
               children: [
                 const NotificationHubTitle(),
                 NotificationTabBar(tabController: _controller),
-                // TODO(Xazin): Resolve issue with taking up
-                //  max amount of vertical space
                 Expanded(
                   child: TabBarView(
                     controller: _controller,
