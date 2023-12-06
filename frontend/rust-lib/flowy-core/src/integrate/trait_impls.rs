@@ -1,5 +1,4 @@
 use std::sync::Arc;
-use std::time::Duration;
 
 use anyhow::Error;
 use bytes::Bytes;
@@ -10,7 +9,9 @@ use collab_entity::CollabType;
 use tokio_stream::wrappers::WatchStream;
 use tracing::instrument;
 
-use collab_integrate::collab_builder::{CollabPluginContext, CollabSource, CollabStorageProvider};
+use collab_integrate::collab_builder::{
+  CollabDataSource, CollabStorageProvider, CollabStorageProviderContext,
+};
 use collab_integrate::postgres::SupabaseDBPlugin;
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
@@ -74,6 +75,12 @@ impl UserCloudServiceProvider for ServerProvider {
       server.set_enable_sync(uid, enable_sync);
       *self.enable_sync.write() = enable_sync;
       *self.uid.write() = Some(uid);
+    }
+  }
+
+  fn set_network_reachable(&self, reachable: bool) {
+    if let Ok(server) = self.get_server(&self.get_server_type()) {
+      server.set_network_reachable(reachable);
     }
   }
 
@@ -180,13 +187,17 @@ impl FolderCloudService for ServerProvider {
     })
   }
 
-  fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_folder_doc_state(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_folder_updates(&workspace_id, uid)
+        .get_folder_doc_state(&workspace_id, uid)
         .await
     })
   }
@@ -301,15 +312,15 @@ impl DocumentCloudService for ServerProvider {
 }
 
 impl CollabStorageProvider for ServerProvider {
-  fn storage_source(&self) -> CollabSource {
+  fn storage_source(&self) -> CollabDataSource {
     self.get_server_type().into()
   }
 
   #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
-  fn get_plugins(&self, context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+  fn get_plugins(&self, context: CollabStorageProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
     match context {
-      CollabPluginContext::Local => to_fut(async move { vec![] }),
-      CollabPluginContext::AppFlowyCloud {
+      CollabStorageProviderContext::Local => to_fut(async move { vec![] }),
+      CollabStorageProviderContext::AppFlowyCloud {
         uid: _,
         collab_object,
         local_collab,
@@ -328,7 +339,7 @@ impl CollabStorageProvider for ServerProvider {
                 let sink_config = SinkConfig::new()
                   .send_timeout(8)
                   .with_max_payload_size(1024 * 10)
-                  .with_strategy(SinkStrategy::FixInterval(Duration::from_millis(600)));
+                  .with_strategy(sink_strategy_from_object(&sync_object));
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,
@@ -354,7 +365,7 @@ impl CollabStorageProvider for ServerProvider {
           to_fut(async move { vec![] })
         }
       },
-      CollabPluginContext::Supabase {
+      CollabStorageProviderContext::Supabase {
         uid,
         collab_object,
         local_collab,
@@ -383,5 +394,16 @@ impl CollabStorageProvider for ServerProvider {
 
   fn is_sync_enabled(&self) -> bool {
     *self.enable_sync.read()
+  }
+}
+
+fn sink_strategy_from_object(object: &SyncObject) -> SinkStrategy {
+  match object.collab_type {
+    CollabType::Document => SinkStrategy::FixInterval(std::time::Duration::from_millis(300)),
+    CollabType::Folder => SinkStrategy::ASAP,
+    CollabType::Database => SinkStrategy::ASAP,
+    CollabType::WorkspaceDatabase => SinkStrategy::ASAP,
+    CollabType::DatabaseRow => SinkStrategy::ASAP,
+    CollabType::UserAwareness => SinkStrategy::ASAP,
   }
 }

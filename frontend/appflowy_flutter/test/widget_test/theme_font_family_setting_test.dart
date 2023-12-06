@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/font_family_setting.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ void main() {
             ],
             child: const Scaffold(
               body: ThemeFontFamilySetting(
-                currentFontFamily: 'Poppins',
+                currentFontFamily: builtInFontFamily,
               ),
             ),
           ),
@@ -70,7 +71,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify the initial font family
-    expect(find.text('Poppins'), findsAtLeastNWidgets(1));
+    expect(find.text(builtInFontFamily), findsAtLeastNWidgets(1));
     when(() => appearanceSettingsCubit.setFontFamily(any<String>()))
         .thenAnswer((_) async {});
     verifyNever(() => appearanceSettingsCubit.setFontFamily(any<String>()));

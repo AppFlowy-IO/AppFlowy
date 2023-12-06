@@ -46,63 +46,55 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
       }
     }
 
-    return Padding(
-      padding: EdgeInsets.only(
-        top: 16,
-        right: 16,
-        left: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                LocaleKeys.settings_mobile_username.tr(),
-                style: theme.textTheme.labelSmall,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              LocaleKeys.settings_mobile_username.tr(),
+              style: theme.textTheme.labelSmall,
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.close,
+                color: theme.hintColor,
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.close,
-                  color: theme.hintColor,
-                ),
-                onPressed: () {
-                  widget.context.pop();
-                },
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          Form(
-            key: _formKey,
-            child: TextFormField(
-              controller: _textFieldController,
-              keyboardType: TextInputType.text,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return LocaleKeys.settings_mobile_usernameEmptyError.tr();
-                }
-                return null;
+              onPressed: () {
+                widget.context.pop();
               },
-              onEditingComplete: submitUserName,
             ),
+          ],
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _textFieldController,
+            keyboardType: TextInputType.text,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return LocaleKeys.settings_mobile_usernameEmptyError.tr();
+              }
+              return null;
+            },
+            onEditingComplete: submitUserName,
           ),
-          const SizedBox(
-            height: 16,
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: submitUserName,
+            child: Text(LocaleKeys.button_update.tr()),
           ),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: submitUserName,
-              child: Text(LocaleKeys.button_update.tr()),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

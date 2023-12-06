@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
@@ -12,31 +11,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridAddRowButton extends StatelessWidget {
-  const GridAddRowButton({Key? key}) : super(key: key);
+  const GridAddRowButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        PlatformExtension.isMobile ? null : Theme.of(context).hintColor;
     return FlowyButton(
-      text: FlowyText.medium(
+      text: FlowyText(
         LocaleKeys.grid_row_newRow.tr(),
-        color: color,
+        color: Theme.of(context).hintColor,
       ),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
       leftIcon: FlowySvg(
         FlowySvgs.add_s,
-        color: color,
+        color: Theme.of(context).hintColor,
       ),
     );
   }
 }
 
 class GridRowBottomBar extends StatelessWidget {
-  const GridRowBottomBar({
-    super.key,
-  });
+  const GridRowBottomBar({super.key});
 
   @override
   Widget build(BuildContext context) {

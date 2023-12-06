@@ -25,36 +25,22 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
   /// If the option already exists, it will be updated.
   /// If the option does not exist, it will be inserted at the beginning.
   fn insert_option(&mut self, new_option: SelectOption) {
-    self.insert_option_at_index(new_option, None);
-  }
-
-  fn insert_option_at_index(&mut self, new_option: SelectOption, new_index: Option<usize>) {
     let options = self.mut_options();
-    let safe_new_index = new_index.map(|index| {
-      if index > options.len() {
-        options.len()
-      } else {
-        index
-      }
-    });
 
     if let Some(index) = options
       .iter()
       .position(|option| option.id == new_option.id || option.name == new_option.name)
     {
       options.remove(index);
-      options.insert(safe_new_index.unwrap_or(index), new_option);
+      options.insert(index, new_option);
     } else {
-      options.insert(safe_new_index.unwrap_or(0), new_option);
+      options.insert(0, new_option);
     }
   }
 
-  fn delete_option(&mut self, delete_option: SelectOption) {
+  fn delete_option(&mut self, option_id: &str) {
     let options = self.mut_options();
-    if let Some(index) = options
-      .iter()
-      .position(|option| option.id == delete_option.id)
-    {
+    if let Some(index) = options.iter().position(|option| option.id == option_id) {
       options.remove(index);
     }
   }

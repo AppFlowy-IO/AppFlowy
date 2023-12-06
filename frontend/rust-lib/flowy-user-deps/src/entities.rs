@@ -180,7 +180,7 @@ impl EncryptionType {
     }
   }
 
-  pub fn is_need_encrypt_secret(&self) -> bool {
+  pub fn require_encrypt_secret(&self) -> bool {
     match self {
       EncryptionType::NoEncryption => false,
       EncryptionType::SelfEncryption(sign) => !sign.is_empty(),
@@ -216,13 +216,13 @@ where
         .map(|m| {
           (
             m.get(USER_METADATA_ICON_URL)
-              .map(|v| v.to_string())
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
               .unwrap_or_default(),
             m.get(USER_METADATA_OPEN_AI_KEY)
-              .map(|v| v.to_string())
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
               .unwrap_or_default(),
             m.get(USER_METADATA_STABILITY_AI_KEY)
-              .map(|v| v.to_string())
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
               .unwrap_or_default(),
           )
         })

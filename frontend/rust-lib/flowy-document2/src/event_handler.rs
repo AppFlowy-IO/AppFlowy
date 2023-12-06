@@ -7,9 +7,9 @@
 use std::sync::{Arc, Weak};
 
 use collab_document::blocks::{
-  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
-  BlockEventPayload, DeltaType,
+  BlockAction, BlockActionPayload, BlockActionType, BlockEvent, BlockEventPayload, DeltaType,
 };
+use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{
@@ -49,6 +49,7 @@ pub(crate) async fn create_document_handler(
 }
 
 // Handler for opening an existing document
+#[instrument(level = "debug", skip_all, err)]
 pub(crate) async fn open_document_handler(
   data: AFPluginData<OpenDocumentPayloadPB>,
   manager: AFPluginState<Weak<DocumentManager>>,
@@ -250,24 +251,6 @@ impl From<BlockActionPayloadPB> for BlockActionPayload {
       prev_id: pb.prev_id,
       text_id: pb.text_id,
       delta: pb.delta,
-    }
-  }
-}
-
-impl From<BlockPB> for Block {
-  fn from(pb: BlockPB) -> Self {
-    // Use `json_str_to_hashmap()` from the `collab_document` crate to convert the JSON data to a hashmap
-    let data = json_str_to_hashmap(&pb.data).unwrap_or_default();
-
-    // Convert the protobuf `BlockPB` to our internal `Block` struct
-    Self {
-      id: pb.id,
-      ty: pb.ty,
-      children: pb.children_id,
-      parent: pb.parent_id,
-      data,
-      external_id: pb.external_id,
-      external_type: pb.external_type,
     }
   }
 }

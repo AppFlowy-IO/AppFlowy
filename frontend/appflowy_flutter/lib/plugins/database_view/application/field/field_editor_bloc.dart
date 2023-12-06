@@ -1,10 +1,11 @@
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'field_controller.dart';
@@ -25,11 +26,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final FieldBackendService fieldService;
   final FieldSettingsBackendService fieldSettingsService;
   final TypeOptionController typeOptionController;
+  final void Function(String newFieldId)? onFieldInserted;
 
   FieldEditorBloc({
     required this.viewId,
     required this.field,
     required this.fieldController,
+    this.onFieldInserted,
     required FieldTypeOptionLoader loader,
   })  : typeOptionController = TypeOptionController(
           field: field,
@@ -73,6 +76,28 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             final result = await fieldService.updateField(name: newName);
             _logIfError(result);
           },
+          insertLeft: () async {
+            final result = await TypeOptionBackendService.createFieldTypeOption(
+              viewId: viewId,
+              position: CreateFieldPosition.Before,
+              targetFieldId: field.id,
+            );
+            result.fold(
+              (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
+              (err) => Log.error("Failed creating field $err"),
+            );
+          },
+          insertRight: () async {
+            final result = await TypeOptionBackendService.createFieldTypeOption(
+              viewId: viewId,
+              position: CreateFieldPosition.After,
+              targetFieldId: field.id,
+            );
+            result.fold(
+              (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
+              (err) => Log.error("Failed creating field $err"),
+            );
+          },
           toggleFieldVisibility: () async {
             final currentVisibility =
                 state.field.visibility ?? FieldVisibility.AlwaysShown;
@@ -109,6 +134,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   @override
   Future<void> close() {
     _singleFieldListener.stop();
+
     return super.close();
   }
 }
@@ -116,11 +142,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 @freezed
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
-  const factory FieldEditorEvent.didReceiveFieldChanged(String fieldId) =
+  const factory FieldEditorEvent.didReceiveFieldChanged(final String fieldId) =
       _DidReceiveFieldChanged;
-  const factory FieldEditorEvent.switchFieldType(FieldType fieldType) =
+  const factory FieldEditorEvent.switchFieldType(final FieldType fieldType) =
       _SwitchFieldType;
-  const factory FieldEditorEvent.renameField(String name) = _RenameField;
+  const factory FieldEditorEvent.renameField(final String name) = _RenameField;
+  const factory FieldEditorEvent.insertLeft() = _InsertLeft;
+  const factory FieldEditorEvent.insertRight() = _InsertRight;
   const factory FieldEditorEvent.toggleFieldVisibility() =
       _ToggleFieldVisiblity;
   const factory FieldEditorEvent.deleteField() = _DeleteField;
@@ -130,6 +158,6 @@ class FieldEditorEvent with _$FieldEditorEvent {
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required FieldInfo field,
+    required final FieldInfo field,
   }) = _FieldEditorState;
 }

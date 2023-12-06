@@ -119,7 +119,8 @@ jobs:
         run: flutter analyze .
 
       - name: Compress appflowy_flutter
-        run: tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
+        run: |
+          tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
 
       - uses: actions/upload-artifact@v3
         with:
@@ -216,19 +217,20 @@ jobs:
           fi
         shell: bash
 
-      - name: Upload coverage to Codecov
-        uses: Wandalen/wretry.action@v1.0.36
-        with:
-          action: codecov/codecov-action@v3
-          with: |
-            name: appflowy
-            flags: appflowy_flutter_unit_test
-            fail_ci_if_error: true
-            verbose: true
-            os: ${{ matrix.os }}
-            token: ${{ secrets.CODECOV_TOKEN }}
-          attempt_limit: 20
-          attempt_delay: 10000
+      # disable coverage for now as it's not working
+      # - name: Upload coverage to Codecov
+      #   uses: Wandalen/wretry.action@v1.0.36
+      #   with:
+      #     action: codecov/codecov-action@v3
+      #     with: |
+      #       name: appflowy
+      #       flags: appflowy_flutter_unit_test
+      #       fail_ci_if_error: true
+      #       verbose: true
+      #       os: ${{ matrix.os }}
+      #       token: ${{ secrets.CODECOV_TOKEN }}
+      #     attempt_limit: 20
+      #     attempt_delay: 10000
 
   integration_test:
     needs: [prepare]
@@ -297,16 +299,8 @@ jobs:
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
-      - name: Uncompress appflowy_flutter
+      - name: Uncompressed appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
-
-#      - name: Create .env.cloud.test file in flowy-server
-#        working-directory: frontend/appflowy_flutter
-#        run: |
-#          touch .env.cloud.test
-#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.cloud.test
-#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.cloud.test
-#          echo APPFLOWY_CLOUD_URL=${{ secrets.APPFLOWY_CLOUD_URL }} >> .env.cloud.test
 
       - name: Run flutter pub get
         working-directory: frontend
@@ -327,19 +321,101 @@ jobs:
           fi
         shell: bash
 
-      - name: Upload coverage to Codecov
-        uses: Wandalen/wretry.action@v1.0.36
+  cloud_integration_test:
+    needs: [prepare]
+#    if: github.event_name != 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86_64
+            target: x86_64-unknown-linux-gnu
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v3
         with:
-          action: codecov/codecov-action@v3
-          with: |
-            name: appflowy
-            flags: appflowy_flutter_integrateion_test
-            fail_ci_if_error: true
-            verbose: true
-            os: ${{ matrix.os }}
-            token: ${{ secrets.CODECOV_TOKEN }}
-          attempt_limit: 20
-          attempt_delay: 10000
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+          depth: 1
+
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          # log level
+          cp dev.env .env
+          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_USER }}/' .env
+          sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_PASS }}/' .env
+          sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
+          sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
+          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+          cat .env
+
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        run: |
+          docker compose up -d
+
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+          sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+          sudo apt-get update
+          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+        shell: bash
+
+      - name: Enable Flutter Desktop
+        run: |
+          flutter config --enable-linux-desktop
+        shell: bash
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.run_id }}-${{ matrix.os }}
+
+      - name: Uncompressed appflowy_flutter
+        run: |
+          tar -xf appflowy_flutter.tar.gz
+          ls -al
+
+      - name: Enable localhost env
+        working-directory: frontend/appflowy_flutter
+        run: |
+          echo 'APPFLOWY_CLOUD_URL=http://localhost' >> .env
+          dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs
+
+      - name: Run flutter pub get
+        working-directory: frontend
+        run: cargo make pub_get
+
+      - name: Run Flutter integration tests
+        working-directory: frontend/appflowy_flutter
+        run: |
+          export DISPLAY=:99
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+          sudo apt-get install network-manager
+          flutter test integration_test/cloud_runner.dart -d Linux --coverage
+        shell: bash
 
   build:
     needs: [prepare]
@@ -411,7 +487,7 @@ jobs:
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
-      - name: Uncompress appflowy_flutter
+      - name: Uncompressed appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
 
       - name: Build flutter product

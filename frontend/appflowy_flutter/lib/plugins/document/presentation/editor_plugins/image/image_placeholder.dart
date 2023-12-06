@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
@@ -115,9 +115,12 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     if (PlatformExtension.isDesktopOrWeb) {
       controller.show();
     } else {
-      showFlowyMobileBottomSheet(
+      showMobileBottomSheet(
         context,
         title: LocaleKeys.editor_image.tr(),
+        showHeader: true,
+        showCloseButton: true,
+        showDragHandle: true,
         builder: (context) {
           return ConstrainedBox(
             constraints: const BoxConstraints(

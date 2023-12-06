@@ -26,6 +26,7 @@ class MobileURLCell extends GridCellWidget {
 
 class _GridURLCellState extends GridCellState<MobileURLCell> {
   late final URLCellBloc _cellBloc;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
   @override
   Future<void> dispose() async {
     _cellBloc.close();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -51,22 +53,21 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
         builder: (context, content) {
           if (content.isEmpty) {
             return TextField(
+              focusNode: _focusNode,
               keyboardType: TextInputType.url,
               decoration: InputDecoration(
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 hintText: widget.hintText,
-                contentPadding: EdgeInsets.zero,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 isCollapsed: true,
               ),
               // close keyboard when tapping outside of the text field
               onTapOutside: (event) =>
                   FocusManager.instance.primaryFocus?.unfocus(),
-              onSubmitted: (value) {
-                _cellBloc.add(
-                  URLCellEvent.updateURL(value),
-                );
-              },
+              onSubmitted: (value) =>
+                  _cellBloc.add(URLCellEvent.updateURL(value)),
             );
           }
 
@@ -92,9 +93,7 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
                     autofocus: true,
                     keyboardType: TextInputType.url,
                     onEditingComplete: () {
-                      _cellBloc.add(
-                        URLCellEvent.updateURL(controller.text),
-                      );
+                      _cellBloc.add(URLCellEvent.updateURL(controller.text));
                       context.pop();
                     },
                   );
@@ -115,5 +114,7 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
   }
 
   @override
-  void requestBeginFocus() {}
+  void requestBeginFocus() {
+    _focusNode.requestFocus();
+  }
 }

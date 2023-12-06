@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -51,7 +51,7 @@ enum MobilePaneActionType {
             final viewBloc = context.read<ViewBloc>();
             final favoriteBloc = context.read<FavoriteBloc>();
             showMobileBottomSheet(
-              context: context,
+              context,
               builder: (context) {
                 return MultiBlocProvider(
                   providers: [

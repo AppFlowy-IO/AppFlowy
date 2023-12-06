@@ -2,6 +2,7 @@ use std::sync::{Arc, Weak};
 
 use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
+use collab_database::views::OrderObjectPosition;
 use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -319,16 +320,14 @@ pub(crate) async fn get_field_type_option_data_handler(
 
 /// Create TypeOptionPB and save it. Return the FieldTypeOptionData.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn create_field_type_option_data_handler(
+pub(crate) async fn create_field_handler(
   data: AFPluginData<CreateFieldPayloadPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: CreateFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let (field, data) = database_editor
-    .create_field_with_type_option(&params.view_id, &params.field_type, params.type_option_data)
-    .await;
+  let (field, data) = database_editor.create_field_with_type_option(&params).await;
 
   let data = TypeOptionPB {
     view_id: params.view_id,
@@ -449,12 +448,16 @@ pub(crate) async fn create_row_handler(
     CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
   let view_id = params.view_id;
   let group_id = params.group_id;
+  let position = match params.start_row_id {
+    Some(row_id) => OrderObjectPosition::After(row_id.into()),
+    None => OrderObjectPosition::Start,
+  };
   let params = collab_database::rows::CreateRowParams {
     id: gen_row_id(),
     cells,
     height: 60,
     visibility: true,
-    prev_row_id: params.start_row_id,
+    row_position: position,
     timestamp: timestamp(),
   };
   match database_editor
@@ -733,6 +736,7 @@ pub(crate) async fn move_group_row_handler(
   database_editor
     .move_group_row(
       &params.view_id,
+      &params.from_group_id,
       &params.to_group_id,
       params.from_row_id,
       params.to_row_id,
@@ -752,6 +756,18 @@ pub(crate) async fn create_group_handler(
   database_editor
     .create_group(&params.view_id, &params.name)
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn delete_group_handler(
+  data: AFPluginData<DeleteGroupPayloadPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: DeleteGroupParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor.delete_group(params).await?;
   Ok(())
 }
 

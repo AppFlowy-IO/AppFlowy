@@ -13,8 +13,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_error.dart';
 
 /// Only used for testing.
-class MockAuthService implements AuthService {
-  MockAuthService();
+class SupabaseMockAuthService implements AuthService {
+  SupabaseMockAuthService();
   static OauthSignInPB? signInPayload;
 
   SupabaseClient get _client => Supabase.instance.client;
@@ -34,7 +34,7 @@ class MockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signIn({
+  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},

@@ -18,7 +18,7 @@ pub const WIDTH: &str = "width";
 pub const DEFAULT_WIDTH: i32 = 150;
 
 impl FieldSettings {
-  pub fn from_anymap(
+  pub fn from_any_map(
     field_id: &str,
     layout_type: DatabaseLayout,
     field_settings: &FieldSettingsMap,

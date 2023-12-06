@@ -1,5 +1,6 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -43,10 +44,8 @@ class PersonalInfoSettingGroup extends StatelessWidget {
                     : null,
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  showModalBottomSheet<void>(
-                    context: context,
-                    // avoid bottom sheet overflow from resizing when keyboard appears
-                    isScrollControlled: true,
+                  showMobileBottomSheet(
+                    context,
                     builder: (_) {
                       return EditUsernameBottomSheet(
                         context,

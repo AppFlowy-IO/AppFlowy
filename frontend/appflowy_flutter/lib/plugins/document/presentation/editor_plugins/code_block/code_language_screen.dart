@@ -23,21 +23,22 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
           LocaleKeys.titleBar_language.tr(),
           fontSize: 14.0,
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: SafeArea(
         child: ListView.separated(
           itemBuilder: (context, index) {
             final language = codeBlockSupportedLanguages[index];
-            return FlowyTextButton(
-              language.capitalize(),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 4.0,
+            return SizedBox(
+              height: 48,
+              child: FlowyTextButton(
+                language.capitalize(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 4.0,
+                ),
+                onPressed: () => context.pop(language),
               ),
-              onPressed: () => context.pop(language),
             );
           },
           separatorBuilder: (_, __) => const Divider(),

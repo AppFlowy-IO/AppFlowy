@@ -1,12 +1,17 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/field_visibility_extension.dart';
+import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
@@ -32,26 +37,45 @@ class DatabasePropertyList extends StatefulWidget {
 
 class _DatabasePropertyListState extends State<DatabasePropertyList> {
   final PopoverMutex _popoverMutex = PopoverMutex();
+  late final DatabasePropertyBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = DatabasePropertyBloc(
+      viewId: widget.viewId,
+      fieldController: widget.fieldController,
+    )..add(const DatabasePropertyEvent.initial());
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => DatabasePropertyBloc(
-        viewId: widget.viewId,
-        fieldController: widget.fieldController,
-      )..add(const DatabasePropertyEvent.initial()),
+    return BlocProvider<DatabasePropertyBloc>.value(
+      value: _bloc,
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
         builder: (context, state) {
-          final cells = state.fieldContexts.mapIndexed((index, field) {
-            return DatabasePropertyCell(
-              key: ValueKey(field.id),
-              viewId: widget.viewId,
-              fieldController: widget.fieldController,
-              fieldInfo: field,
-              popoverMutex: _popoverMutex,
-              index: index,
+          final cells = state.fieldContexts
+              .mapIndexed(
+                (index, field) => DatabasePropertyCell(
+                  key: ValueKey(field.id),
+                  viewId: widget.viewId,
+                  fieldController: widget.fieldController,
+                  fieldInfo: field,
+                  popoverMutex: _popoverMutex,
+                  index: index,
+                  bloc: _bloc,
+                ),
+              )
+              .toList();
+
+          if (PlatformExtension.isMobile) {
+            return ListView.separated(
+              shrinkWrap: true,
+              itemCount: cells.length,
+              itemBuilder: (_, index) => cells[index],
+              separatorBuilder: (_, __) => const VSpace(8),
             );
-          }).toList();
+          }
 
           return ReorderableListView(
             proxyDecorator: (child, index, _) => Material(
@@ -90,13 +114,7 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
 }
 
 @visibleForTesting
-class DatabasePropertyCell extends StatefulWidget {
-  final FieldController fieldController;
-  final FieldInfo fieldInfo;
-  final String viewId;
-  final PopoverMutex popoverMutex;
-  final int index;
-
+class DatabasePropertyCell extends StatelessWidget {
   const DatabasePropertyCell({
     super.key,
     required this.fieldInfo,
@@ -104,13 +122,134 @@ class DatabasePropertyCell extends StatefulWidget {
     required this.popoverMutex,
     required this.index,
     required this.fieldController,
+    required this.bloc,
   });
 
+  final FieldInfo fieldInfo;
+  final String viewId;
+  final PopoverMutex popoverMutex;
+  final int index;
+  final FieldController fieldController;
+  final DatabasePropertyBloc bloc;
+
   @override
-  State<DatabasePropertyCell> createState() => _DatabasePropertyCellState();
+  Widget build(BuildContext context) {
+    return PlatformExtension.isMobile
+        ? MobileDatabasePropertyCell(
+            fieldInfo: fieldInfo,
+            viewId: viewId,
+            fieldController: fieldController,
+            bloc: bloc,
+          )
+        : DesktopDatabasePropertyCell(
+            fieldInfo: fieldInfo,
+            viewId: viewId,
+            popoverMutex: popoverMutex,
+            index: index,
+            fieldController: fieldController,
+          );
+  }
 }
 
-class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
+class MobileDatabasePropertyCell extends StatefulWidget {
+  const MobileDatabasePropertyCell({
+    super.key,
+    required this.fieldInfo,
+    required this.viewId,
+    required this.fieldController,
+    required this.bloc,
+  });
+
+  final FieldInfo fieldInfo;
+  final String viewId;
+  final FieldController fieldController;
+  final DatabasePropertyBloc bloc;
+
+  @override
+  State<MobileDatabasePropertyCell> createState() =>
+      _MobileDatabasePropertyCellState();
+}
+
+class _MobileDatabasePropertyCellState
+    extends State<MobileDatabasePropertyCell> {
+  late bool isVisible = widget.fieldInfo.visibility?.isVisibleState() ?? false;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).dividerColor),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: () =>
+            showEditFieldScreen(context, widget.viewId, widget.fieldInfo),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              FlowySvg(
+                widget.fieldInfo.fieldType.icon(),
+                color: Theme.of(context).iconTheme.color,
+                size: const Size.square(24),
+              ),
+              const HSpace(8),
+              FlowyText.medium(
+                widget.fieldInfo.name,
+                color: AFThemeExtension.of(context).textColor,
+              ),
+              const Spacer(),
+              // Toggle Visibility
+              Toggle(
+                padding: EdgeInsets.zero,
+                value: isVisible,
+                style: ToggleStyle.mobile,
+                onChanged: (newValue) {
+                  final newVisibility = widget.fieldInfo.visibility!.toggle();
+
+                  context.read<DatabasePropertyBloc>().add(
+                        DatabasePropertyEvent.setFieldVisibility(
+                          widget.fieldInfo.id,
+                          newVisibility,
+                        ),
+                      );
+
+                  setState(() => isVisible = !newValue);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+@visibleForTesting
+class DesktopDatabasePropertyCell extends StatefulWidget {
+  const DesktopDatabasePropertyCell({
+    super.key,
+    required this.fieldController,
+    required this.fieldInfo,
+    required this.viewId,
+    required this.popoverMutex,
+    required this.index,
+  });
+
+  final FieldController fieldController;
+  final FieldInfo fieldInfo;
+  final String viewId;
+  final PopoverMutex popoverMutex;
+  final int index;
+
+  @override
+  State<DesktopDatabasePropertyCell> createState() =>
+      _DesktopDatabasePropertyCellState();
+}
+
+class _DesktopDatabasePropertyCellState
+    extends State<DesktopDatabasePropertyCell> {
   final PopoverController _popoverController = PopoverController();
 
   @override
@@ -173,9 +312,8 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
                 return;
               }
 
-              final newVisiblity = _newFieldVisibility(
-                widget.fieldInfo.fieldSettings!.visibility,
-              );
+              final newVisiblity =
+                  widget.fieldInfo.fieldSettings!.visibility.toggle();
               context.read<DatabasePropertyBloc>().add(
                     DatabasePropertyEvent.setFieldVisibility(
                       widget.fieldInfo.id,
@@ -196,13 +334,5 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
         );
       },
     );
-  }
-
-  FieldVisibility _newFieldVisibility(FieldVisibility current) {
-    return switch (current) {
-      FieldVisibility.AlwaysShown => FieldVisibility.AlwaysHidden,
-      FieldVisibility.AlwaysHidden => FieldVisibility.AlwaysShown,
-      _ => FieldVisibility.AlwaysHidden,
-    };
   }
 }

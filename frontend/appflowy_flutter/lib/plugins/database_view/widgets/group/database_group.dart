@@ -22,15 +22,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
 class DatabaseGroupList extends StatelessWidget {
-  final String viewId;
-  final DatabaseController databaseController;
-  final VoidCallback onDismissed;
   const DatabaseGroupList({
+    super.key,
     required this.viewId,
     required this.databaseController,
     required this.onDismissed,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final String viewId;
+  final DatabaseController databaseController;
+  final VoidCallback onDismissed;
 
   @override
   Widget build(BuildContext context) {

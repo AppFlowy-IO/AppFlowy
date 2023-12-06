@@ -59,32 +59,32 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
   /// Use the `unbox_or_error` of the [BoxAny] to get the params.
-  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error>;
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError>;
 
   /// Sign in an account
   /// The type of the params is defined the this trait's implementation.
-  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error>;
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError>;
 
   /// Sign out an account
-  fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;
+  fn sign_out(&self, token: Option<String>) -> FutureResult<(), FlowyError>;
 
   /// Generate a sign in url for the user with the given email
   /// Currently, only use the admin client for testing
-  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error>;
+  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError>;
 
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
   /// After the user is authenticated, the browser will open a deep link to the AppFlowy app (iOS, macOS, etc.),
   /// which will call [Client::sign_in_with_url] to sign in.
   ///
   /// For example, the OAuth URL on Google looks like `https://appflowy.io/authorize?provider=google`.
-  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, Error>;
+  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, FlowyError>;
 
   /// Using the user's token to update the user information
   fn update_user(
     &self,
     credential: UserCredentials,
     params: UpdateUserProfileParams,
-  ) -> FutureResult<(), Error>;
+  ) -> FutureResult<(), FlowyError>;
 
   /// Get the user information using the user's token or uid
   /// return None if the user is not found
@@ -93,7 +93,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError>;
 
   /// Return the all the workspaces of the user  
-  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
+  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError>;
 
   fn add_workspace_member(
     &self,

@@ -9,7 +9,7 @@ export const CellText = React.forwardRef<HTMLDivElement, PropsWithChildren<HTMLA
     const { children, className, ...other } = props;
 
     return (
-      <div ref={ref} className={['flex w-full p-2', className].join(' ')} {...other}>
+      <div ref={ref} className={['flex h-full  w-full p-2', className].join(' ')} {...other}>
         <span className='flex-1 truncate text-sm'>{children}</span>
       </div>
     );

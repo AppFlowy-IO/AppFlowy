@@ -1,7 +1,8 @@
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:bloc_test/bloc_test.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,7 +36,7 @@ void main() {
         AppTheme.fallback,
       ),
       verify: (bloc) {
-        expect(bloc.state.font, 'Poppins');
+        expect(bloc.state.font, builtInFontFamily);
         expect(bloc.state.monospaceFont, 'SF Mono');
         expect(bloc.state.themeMode, ThemeMode.system);
       },

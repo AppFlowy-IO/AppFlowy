@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/mobile/mobile_tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
@@ -76,11 +77,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
             listener: (context, state) {
-              _pageController?.animateToPage(
-                state.selectedIndex,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
+              _pageController?.jumpToPage(state.selectedIndex);
             },
           ),
         ],
@@ -101,7 +98,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
 
                     return Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: PlatformExtension.isMobile ? 20 : 40,
+                        horizontal: GridSize.leadingHeaderPadding,
                       ),
                       child: PlatformExtension.isMobile
                           ? const MobileTabBarHeader()

@@ -1,6 +1,8 @@
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,35 +13,32 @@ import 'date_cell_bloc.dart';
 import 'date_editor.dart';
 
 class DateCellStyle extends GridCellStyle {
-  String? placeholder;
+  String placeholder;
   Alignment alignment;
   EdgeInsets? cellPadding;
+  final bool useRoundedBorder;
 
   DateCellStyle({
-    this.placeholder,
-    this.alignment = Alignment.center,
+    this.placeholder = "",
+    this.alignment = Alignment.centerLeft,
     this.cellPadding,
+    this.useRoundedBorder = false,
   });
-}
-
-abstract class GridCellDelegate {
-  void onFocus(bool isFocus);
-  GridCellDelegate get delegate;
 }
 
 class GridDateCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
-  late final DateCellStyle? cellStyle;
+  late final DateCellStyle cellStyle;
 
   GridDateCell({
+    super.key,
     GridCellStyle? style,
     required this.cellControllerBuilder,
-    Key? key,
-  }) : super(key: key) {
+  }) {
     if (style != null) {
       cellStyle = (style as DateCellStyle);
     } else {
-      cellStyle = null;
+      cellStyle = DateCellStyle();
     }
   }
 
@@ -63,37 +62,122 @@ class _DateCellState extends GridCellState<GridDateCell> {
 
   @override
   Widget build(BuildContext context) {
-    final alignment = widget.cellStyle != null
-        ? widget.cellStyle!.alignment
-        : Alignment.centerLeft;
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
         builder: (context, state) {
-          return AppFlowyPopover(
-            controller: _popover,
-            triggerActions: PopoverTriggerFlags.none,
-            direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: BoxConstraints.loose(const Size(260, 620)),
-            margin: EdgeInsets.zero,
-            child: GridDateCellText(
-              dateStr: state.dateStr,
-              placeholder: widget.cellStyle?.placeholder ?? "",
-              alignment: alignment,
-              cellPadding:
-                  widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
-            ),
-            popupBuilder: (BuildContext popoverContent) {
-              return DateCellEditor(
-                cellController:
-                    widget.cellControllerBuilder.build() as DateCellController,
-                onDismissed: () => widget.cellContainerNotifier.isFocus = false,
-              );
-            },
-            onClose: () {
-              widget.cellContainerNotifier.isFocus = false;
-            },
-          );
+          final text = state.dateStr.isEmpty
+              ? widget.cellStyle.placeholder
+              : state.dateStr;
+          final color =
+              state.dateStr.isEmpty ? Theme.of(context).hintColor : null;
+          final padding =
+              widget.cellStyle.cellPadding ?? GridSize.cellContentInsets;
+          final alignment = widget.cellStyle.alignment;
+
+          if (PlatformExtension.isDesktopOrWeb) {
+            return AppFlowyPopover(
+              controller: _popover,
+              triggerActions: PopoverTriggerFlags.none,
+              direction: PopoverDirection.bottomWithLeftAligned,
+              constraints: BoxConstraints.loose(const Size(260, 620)),
+              margin: EdgeInsets.zero,
+              child: Container(
+                alignment: alignment,
+                padding: padding,
+                child: FlowyText.medium(
+                  text,
+                  color: color,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              popupBuilder: (BuildContext popoverContent) {
+                return DateCellEditor(
+                  cellController: widget.cellControllerBuilder.build()
+                      as DateCellController,
+                  onDismissed: () =>
+                      widget.cellContainerNotifier.isFocus = false,
+                );
+              },
+              onClose: () {
+                widget.cellContainerNotifier.isFocus = false;
+              },
+            );
+          } else if (widget.cellStyle.useRoundedBorder) {
+            return InkWell(
+              borderRadius: const BorderRadius.all(Radius.circular(14)),
+              onTap: () => showMobileBottomSheet(
+                context,
+                padding: EdgeInsets.zero,
+                builder: (context) {
+                  return MobileDateCellEditScreen(
+                    controller: widget.cellControllerBuilder.build()
+                        as DateCellController,
+                    showAsFullScreen: false,
+                  );
+                },
+              ),
+              child: Container(
+                constraints: const BoxConstraints(
+                  minHeight: 48,
+                  minWidth: double.infinity,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.fromBorderSide(
+                    BorderSide(color: Theme.of(context).colorScheme.outline),
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                ),
+                padding: padding,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FlowyText.regular(
+                        text,
+                        fontSize: 16,
+                        color: color,
+                        maxLines: null,
+                      ),
+                    ),
+                    const HSpace(6),
+                    RotatedBox(
+                      quarterTurns: 3,
+                      child: Icon(
+                        Icons.chevron_left,
+                        color: Theme.of(context).hintColor,
+                      ),
+                    ),
+                    const HSpace(2),
+                  ],
+                ),
+              ),
+            );
+          } else {
+            return FlowyButton(
+              radius: BorderRadius.zero,
+              hoverColor: Colors.transparent,
+              text: Container(
+                alignment: alignment,
+                padding: padding,
+                child: FlowyText(text, color: color, fontSize: 15),
+              ),
+              onTap: () {
+                showMobileBottomSheet(
+                  context,
+                  padding: EdgeInsets.zero,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.secondaryContainer,
+                  builder: (context) {
+                    return MobileDateCellEditScreen(
+                      controller: widget.cellControllerBuilder.build()
+                          as DateCellController,
+                      showAsFullScreen: false,
+                    );
+                  },
+                );
+              },
+            );
+          }
         },
       ),
     );
@@ -113,37 +197,4 @@ class _DateCellState extends GridCellState<GridDateCell> {
 
   @override
   String? onCopy() => _cellBloc.state.dateStr;
-}
-
-class GridDateCellText extends StatelessWidget {
-  final String dateStr;
-  final String placeholder;
-  final Alignment alignment;
-  final EdgeInsets cellPadding;
-  const GridDateCellText({
-    required this.dateStr,
-    required this.placeholder,
-    required this.alignment,
-    required this.cellPadding,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isPlaceholder = dateStr.isEmpty;
-    final text = isPlaceholder ? placeholder : dateStr;
-    return Align(
-      alignment: alignment,
-      child: Padding(
-        padding: cellPadding,
-        child: FlowyText.medium(
-          text,
-          color: isPlaceholder
-              ? Theme.of(context).hintColor
-              : AFThemeExtension.of(context).textColor,
-          maxLines: null,
-        ),
-      ),
-    );
-  }
 }

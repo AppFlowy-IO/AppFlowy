@@ -1,4 +1,4 @@
-import { Menu, MenuItem, MenuProps } from '@mui/material';
+import { Menu, MenuProps } from '@mui/material';
 import { FC, MouseEventHandler, useCallback, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { sortService } from '../../application';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import SortFieldsMenu from '$app/components/database/components/sort/SortFieldsMenu';
+import Button from '@mui/material/Button';
 
 export const SortMenu: FC<MenuProps> = (props) => {
   const { onClose } = props;
@@ -28,22 +29,41 @@ export const SortMenu: FC<MenuProps> = (props) => {
 
   return (
     <>
-      <Menu keepMounted={false} {...props} onClose={onClose}>
-        <div className={'max-h-[300px] overflow-y-auto p-2'}>
-          <div className={'mb-2 px-4'}>
+      <Menu
+        keepMounted={false}
+        MenuListProps={{
+          className: 'py-1',
+        }}
+        {...props}
+        onClose={onClose}
+      >
+        <div className={'max-h-[300px] overflow-y-auto'}>
+          <div className={'mb-1 px-1'}>
             {sorts.map((sort) => (
               <SortItem key={sort.id} className='m-2' sort={sort} />
             ))}
           </div>
 
-          <MenuItem onClick={handleClick}>
-            <AddSvg className={'mr-1 h-5 w-5'} />
-            {t('grid.sort.addSort')}
-          </MenuItem>
-          <MenuItem onClick={deleteAllSorts}>
-            <DeleteSvg className={'mr-1 h-5 w-5'} />
-            {t('grid.sort.deleteAllSorts')}
-          </MenuItem>
+          <div className={'mx-1'}>
+            <Button
+              onClick={handleClick}
+              className={'w-full justify-start'}
+              variant={'text'}
+              color={'inherit'}
+              startIcon={<AddSvg />}
+            >
+              {t('grid.sort.addSort')}
+            </Button>
+            <Button
+              onClick={deleteAllSorts}
+              className={'w-full justify-start'}
+              variant={'text'}
+              color={'inherit'}
+              startIcon={<DeleteSvg />}
+            >
+              {t('grid.sort.deleteAllSorts')}
+            </Button>
+          </div>
         </div>
       </Menu>
 
@@ -52,6 +72,10 @@ export const SortMenu: FC<MenuProps> = (props) => {
         anchorEl={anchorEl}
         onClose={() => {
           setAnchorEl(null);
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       />
     </>

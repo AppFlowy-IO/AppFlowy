@@ -63,9 +63,11 @@ class _SelectOptionCellState extends State<SelectOptionCardCell> {
 
           final children = state.selectedOptions
               .map(
-                (option) => SelectOptionTag.fromOption(
-                  context: context,
+                (option) => SelectOptionTag(
                   option: option,
+                  fontSize: 11,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 ),
               )
               .toList();

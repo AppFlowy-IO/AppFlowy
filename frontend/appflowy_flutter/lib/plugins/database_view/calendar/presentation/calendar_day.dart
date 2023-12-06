@@ -185,8 +185,8 @@ class _EventIndicator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 6,
-          height: 6,
+          width: 7,
+          height: 7,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Theme.of(context).hintColor,
@@ -303,8 +303,10 @@ class _DayBadge extends StatelessWidget {
       dayTextColor = Theme.of(context).colorScheme.onPrimary;
     }
 
+    final double size = PlatformExtension.isMobile ? 20 : 18;
+
     return SizedBox(
-      height: 18,
+      height: size,
       child: Row(
         mainAxisAlignment: PlatformExtension.isMobile
             ? MainAxisAlignment.center
@@ -322,12 +324,12 @@ class _DayBadge extends StatelessWidget {
               color: isToday ? Theme.of(context).colorScheme.primary : null,
               borderRadius: BorderRadius.circular(10),
             ),
-            width: isToday ? 18 : null,
-            height: isToday ? 18 : null,
+            width: isToday ? size : null,
+            height: isToday ? size : null,
             child: Center(
               child: FlowyText.medium(
                 dayString,
-                fontSize: 11,
+                fontSize: PlatformExtension.isMobile ? 12 : 11,
                 color: dayTextColor,
               ),
             ),
@@ -363,10 +365,9 @@ class _EventList extends StatelessWidget {
             final autoEdit =
                 editingEvent?.event?.eventId == events[index].eventId;
             return EventCard(
-              fieldController: context.read<CalendarBloc>().fieldController,
+              databaseController:
+                  context.read<CalendarBloc>().databaseController,
               event: events[index],
-              viewId: viewId,
-              rowCache: rowCache,
               constraints: constraints,
               autoEdit: autoEdit,
             );

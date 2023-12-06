@@ -19,14 +19,21 @@ import {
   DatabaseEventMoveField,
   DatabaseEventGetFields,
   DatabaseEventDeleteField,
-  DatabaseEventCreateTypeOption,
+  DatabaseEventCreateField,
   DatabaseEventUpdateFieldSettings,
   DatabaseEventGetAllFieldSettings,
 } from '@/services/backend/events/flowy-database2';
 import { Field, pbToField } from './field_types';
-import { bytesToTypeOption, getTypeOption } from './type_option';
+import { getTypeOption } from './type_option';
+import { Database } from '$app/components/database/application';
 
-export async function getFields(viewId: string, fieldIds?: string[]): Promise<Field[]> {
+export async function getFields(
+  viewId: string,
+  fieldIds?: string[]
+): Promise<{
+  fields: Field[];
+  typeOptions: Database['typeOptions'];
+}> {
   const payload = GetFieldPayloadPB.fromObject({
     view_id: viewId,
     field_ids: fieldIds
@@ -48,22 +55,29 @@ export async function getFields(viewId: string, fieldIds?: string[]): Promise<Fi
     return Promise.reject('Failed to get fields');
   }
 
+  const typeOptions: Database['typeOptions'] = {};
+
   const fields = await Promise.all(
     result.val.items.map(async (item) => {
       const setting = settings.val.items.find((setting) => setting.field_id === item.id);
+
       const field = pbToField(item);
-      const typeOption = await getTypeOption(viewId, field.id, field.type);
+
+      const typeOption = await getTypeOption(viewId, item.id, item.field_type);
+
+      if (typeOption) {
+        typeOptions[item.id] = typeOption;
+      }
 
       return {
         ...field,
         visibility: setting?.visibility,
         width: setting?.width,
-        typeOption,
       };
     })
   );
 
-  return fields;
+  return { fields, typeOptions };
 }
 
 export async function createField(viewId: string, fieldType?: FieldType, data?: Uint8Array): Promise<Field> {
@@ -73,16 +87,13 @@ export async function createField(viewId: string, fieldType?: FieldType, data?: 
     type_option_data: data,
   });
 
-  const result = await DatabaseEventCreateTypeOption(payload);
+  const result = await DatabaseEventCreateField(payload);
 
   if (result.ok === false) {
     return Promise.reject('Failed to create field');
   }
 
-  const field = pbToField(result.val.field);
-
-  field.typeOption = bytesToTypeOption(result.val.type_option_data, field.type);
-  return field;
+  return pbToField(result.val.field);
 }
 
 export async function duplicateField(viewId: string, fieldId: string): Promise<void> {

@@ -18,16 +18,14 @@ class SplashScreen extends StatelessWidget {
   /// Root Page of the app.
   const SplashScreen({
     super.key,
-    required this.autoRegister,
+    required this.isAnon,
   });
 
-  final bool autoRegister;
+  final bool isAnon;
 
   @override
   Widget build(BuildContext context) {
-    if (!autoRegister) {
-      return _buildChild(context);
-    } else {
+    if (isAnon) {
       return FutureBuilder<void>(
         future: _registerIfNeeded(),
         builder: (context, snapshot) {
@@ -37,6 +35,8 @@ class SplashScreen extends StatelessWidget {
           return _buildChild(context);
         },
       );
+    } else {
+      return _buildChild(context);
     }
   }
 

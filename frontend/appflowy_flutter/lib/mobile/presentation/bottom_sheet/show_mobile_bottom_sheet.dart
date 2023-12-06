@@ -1,134 +1,107 @@
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
-Future<void> showMobileBottomSheet({
-  required BuildContext context,
+Future<T?> showMobileBottomSheet<T>(
+  BuildContext context, {
   required WidgetBuilder builder,
+  ShapeBorder? shape,
+  bool isDragEnabled = true,
+  bool resizeToAvoidBottomInset = true,
+  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 32),
+  bool showDragHandle = false,
+  bool showHeader = false,
+  bool showCloseButton = false,
+  String title = '', // only works if showHeader is true
+  Color? backgroundColor,
+  bool isScrollControlled = true,
+  BoxConstraints? constraints,
 }) async {
-  showModalBottomSheet(
+  assert(() {
+    if (showCloseButton || title.isNotEmpty) assert(showHeader);
+    return true;
+  }());
+
+  return showModalBottomSheet<T>(
     context: context,
-    isScrollControlled: true,
-    enableDrag: true,
+    isScrollControlled: isScrollControlled,
+    enableDrag: isDragEnabled,
     useSafeArea: true,
-    builder: builder,
-  );
-}
+    clipBehavior: Clip.antiAlias,
+    backgroundColor: backgroundColor,
+    constraints: constraints,
+    shape: shape ??
+        const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Corners.s12Radius,
+          ),
+        ),
+    builder: (context) {
+      final List<Widget> children = [];
 
-enum MobileBottomSheetType {
-  view,
-  rename,
-}
+      if (showDragHandle) {
+        children.addAll([
+          const VSpace(4),
+          const DragHandler(),
+        ]);
+      }
 
-class MobileViewItemBottomSheet extends StatefulWidget {
-  const MobileViewItemBottomSheet({
-    super.key,
-    required this.view,
-    this.defaultType = MobileBottomSheetType.view,
-  });
+      if (showHeader) {
+        children.addAll([
+          VSpace(padding.top),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              showCloseButton
+                  ? Padding(
+                      padding: EdgeInsets.only(left: padding.left),
+                      child: const AppBarCloseButton(
+                        margin: EdgeInsets.zero,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+              FlowyText(
+                title,
+              ),
+              showCloseButton
+                  ? HSpace(padding.right + 24)
+                  : const SizedBox.shrink(),
+            ],
+          ),
+          const VSpace(4),
+          const Divider(),
+        ]);
+      }
 
-  final ViewPB view;
-  final MobileBottomSheetType defaultType;
+      final child = builder(context);
 
-  @override
-  State<MobileViewItemBottomSheet> createState() =>
-      _MobileViewItemBottomSheetState();
-}
+      if (resizeToAvoidBottomInset) {
+        children.add(
+          AnimatedPadding(
+            padding: EdgeInsets.only(
+              top: showHeader ? 0 : padding.top,
+              left: padding.left,
+              right: padding.right,
+              bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
+            ),
+            duration: Duration.zero,
+            child: child,
+          ),
+        );
+      } else {
+        children.add(child);
+      }
 
-class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
-  MobileBottomSheetType type = MobileBottomSheetType.view;
+      if (children.length == 1) {
+        return children.first;
+      }
 
-  @override
-  initState() {
-    super.initState();
-
-    type = widget.defaultType;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Column(
+      return Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          // header
-          _buildHeader(),
-          const VSpace(16),
-          // body
-          _buildBody(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    switch (type) {
-      case MobileBottomSheetType.view:
-      case MobileBottomSheetType.rename:
-        // header
-        return MobileViewItemBottomSheetHeader(
-          showBackButton: type != MobileBottomSheetType.view,
-          view: widget.view,
-          onBack: () {
-            setState(() {
-              type = MobileBottomSheetType.view;
-            });
-          },
-        );
-    }
-  }
-
-  Widget _buildBody() {
-    switch (type) {
-      case MobileBottomSheetType.view:
-        return MobileViewItemBottomSheetBody(
-          isFavorite: widget.view.isFavorite,
-          onAction: (action) {
-            switch (action) {
-              case MobileViewItemBottomSheetBodyAction.rename:
-                setState(() {
-                  type = MobileBottomSheetType.rename;
-                });
-                break;
-              case MobileViewItemBottomSheetBodyAction.duplicate:
-                context.pop();
-                context.read<ViewBloc>().add(const ViewEvent.duplicate());
-                break;
-              case MobileViewItemBottomSheetBodyAction.share:
-                // unimplemented
-                context.pop();
-                break;
-              case MobileViewItemBottomSheetBodyAction.delete:
-                context.pop();
-                context.read<ViewBloc>().add(const ViewEvent.delete());
-
-                break;
-              case MobileViewItemBottomSheetBodyAction.addToFavorites:
-              case MobileViewItemBottomSheetBodyAction.removeFromFavorites:
-                context.pop();
-                context
-                    .read<FavoriteBloc>()
-                    .add(FavoriteEvent.toggle(widget.view));
-                break;
-            }
-          },
-        );
-      case MobileBottomSheetType.rename:
-        return MobileBottomSheetRenameWidget(
-          name: widget.view.name,
-          onRename: (name) {
-            if (name != widget.view.name) {
-              context.read<ViewBloc>().add(ViewEvent.rename(name));
-            }
-            context.pop();
-          },
-        );
-    }
-  }
+        children: children,
+      );
+    },
+  );
 }

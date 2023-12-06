@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class FlowyText extends StatelessWidget {
@@ -27,6 +29,21 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     Key? key,
   }) : super(key: key);
+
+  FlowyText.small(
+    this.text, {
+    this.overflow,
+    this.color,
+    this.textAlign,
+    this.maxLines = 1,
+    this.decoration,
+    this.selectable = false,
+    this.fontFamily,
+    this.fallbackFontFamily,
+    Key? key,
+  })  : fontWeight = FontWeight.w400,
+        fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12,
+        super(key: key);
 
   const FlowyText.regular(
     this.text, {

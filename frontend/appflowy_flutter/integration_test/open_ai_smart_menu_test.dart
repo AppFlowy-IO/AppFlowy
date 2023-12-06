@@ -1,13 +1,14 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
 import 'util/mock/mock_openai_repository.dart';
 import 'util/util.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
-import 'package:appflowy/startup/startup.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

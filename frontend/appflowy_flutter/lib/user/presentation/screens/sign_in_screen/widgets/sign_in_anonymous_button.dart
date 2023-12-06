@@ -55,7 +55,11 @@ class SignInAnonymousButton extends StatelessWidget {
                       minimumSize: const Size(double.infinity, 56),
                     ),
                     onPressed: onTap,
-                    child: Text(LocaleKeys.signIn_loginStartWithAnonymous.tr()),
+                    child: FlowyText(
+                      LocaleKeys.signIn_loginStartWithAnonymous.tr(),
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   );
                 }
                 // SignInAnonymousButton in desktop

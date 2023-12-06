@@ -5,20 +5,24 @@ part 'backend_env.g.dart';
 
 @JsonSerializable()
 class AppFlowyConfiguration {
+  final String root;
   final String custom_app_path;
   final String origin_app_path;
   final String device_id;
-  final int cloud_type;
+  final int authenticator_type;
   final SupabaseConfiguration supabase_config;
   final AppFlowyCloudConfiguration appflowy_cloud_config;
+  final Map<String, String> envs;
 
   AppFlowyConfiguration({
+    required this.root,
     required this.custom_app_path,
     required this.origin_app_path,
     required this.device_id,
-    required this.cloud_type,
+    required this.authenticator_type,
     required this.supabase_config,
     required this.appflowy_cloud_config,
+    required this.envs,
   });
 
   factory AppFlowyConfiguration.fromJson(Map<String, dynamic> json) =>

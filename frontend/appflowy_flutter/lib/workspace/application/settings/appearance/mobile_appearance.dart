@@ -6,10 +6,11 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class MobileAppearance extends BaseAppearance {
-  static const _primaryColor = Color(0xFF2DA2F6); //primary 100
+  static const _primaryColor = Color(0xFF00BCF0); //primary 100
   static const _onBackgroundColor = Color(0xff2F3030); // text/title color
   static const _onSurfaceColor = Color(0xff676666); // text/body color
   static const _onSecondaryColor = Color(0xFFC5C7CB); // text/body2 color
+  static const _hintColorInDarkMode = Color(0xff626262); // hint color
 
   @override
   ThemeData getThemeData(
@@ -23,7 +24,10 @@ class MobileAppearance extends BaseAppearance {
 
     final fontStyle = getFontStyle(
       fontFamily: fontFamily,
+      fontSize: 16.0,
+      fontWeight: FontWeight.w400,
     );
+
     final codeFontStyle = getFontStyle(
       fontFamily: codeFontFamily,
     );
@@ -37,15 +41,18 @@ class MobileAppearance extends BaseAppearance {
             brightness: brightness,
             primary: _primaryColor,
             onPrimary: Colors.white,
-            // TODO(yijing): add color later
-            secondary: Colors.white,
+            // group card header background color
+            primaryContainer: const Color(0xffF1F1F4), // primary 20
+            // group card & property edit background color
+            secondary: const Color(0xfff7f8fc), // shade 10
             onSecondary: _onSecondaryColor,
+            // hidden group title & card text color
+            tertiary: const Color(0xff858585), // for light text
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
             background: Colors.white,
             onBackground: _onBackgroundColor,
-            outline: const Color(0xffE3E3E3), //caption
-            // outline: const Color(0xffBDC0C5), //caption
+            outline: const Color(0xffe3e3e3),
             outlineVariant: const Color(0xffCBD5E0).withOpacity(0.24),
             //Snack bar
             surface: Colors.white,
@@ -55,27 +62,32 @@ class MobileAppearance extends BaseAppearance {
         : ColorScheme(
             brightness: brightness,
             primary: _primaryColor,
-            onPrimary: Colors.white,
+            onPrimary: Colors.black,
             // TODO(yijing): add color later
-            secondary: Colors.black,
+            secondary: const Color(0xff2d2d2d), //temp
             onSecondary: Colors.white,
+            tertiary: const Color(0xff858585), // temp
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
-            background: const Color(0xff1C1C1E), // BG/Secondary color
+            background: const Color(0xff121212), // temp
             onBackground: Colors.white,
-            outline: const Color(0xff96989C), //caption
+            outline: _hintColorInDarkMode,
             outlineVariant: Colors.black,
             //Snack bar
             surface: const Color(0xff2F3030),
             onSurface: const Color(0xffC5C6C7), // text/body color
           );
 
+    final hintColor = brightness == Brightness.light
+        ? const Color(0x991F2329)
+        : _hintColorInDarkMode;
+
     return ThemeData(
       // color
       primaryColor: colorTheme.primary, //primary 100
       primaryColorLight: const Color(0xFF57B5F8), //primary 80
       dividerColor: colorTheme.outline, //caption
-      hintColor: colorTheme.outline,
+      hintColor: hintColor,
       disabledColor: colorTheme.outline,
       scaffoldBackgroundColor: colorTheme.background,
       appBarTheme: AppBarTheme(
@@ -113,7 +125,7 @@ class MobileAppearance extends BaseAppearance {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.disabled)) {
-                return const Color(0xFF57B5F8);
+                return _primaryColor;
               }
               return colorTheme.primary;
             },
@@ -164,7 +176,7 @@ class MobileAppearance extends BaseAppearance {
       fontFamily: fontStyle.fontFamily,
       textTheme: TextTheme(
         displayLarge: const TextStyle(
-          color: Color(0xFF57B5F8),
+          color: _primaryColor,
           fontSize: 32,
           fontWeight: FontWeight.w700,
           height: 1.20,
@@ -187,9 +199,7 @@ class MobileAppearance extends BaseAppearance {
         // body2 14 Regular
         bodyMedium: fontStyle.copyWith(
           color: colorTheme.onBackground,
-          fontSize: 14,
           fontWeight: FontWeight.w400,
-          // height: 1.2,
           letterSpacing: 0.07,
         ),
         // Trash empty title
@@ -239,9 +249,6 @@ class MobileAppearance extends BaseAppearance {
       ),
       colorScheme: colorTheme,
       indicatorColor: Colors.blue,
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: colorTheme.onBackground,
-      ),
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,

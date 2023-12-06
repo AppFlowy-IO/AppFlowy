@@ -101,15 +101,29 @@ impl GroupCustomize for SingleSelectGroupController {
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
     let mut new_type_option = self.type_option.clone();
     let new_select_option = self.type_option.create_option(&name);
-    new_type_option.insert_option_at_index(
-      new_select_option.clone(),
-      Some(new_type_option.options.len()),
-    );
+    new_type_option.insert_option(new_select_option.clone());
 
     let new_group = Group::new(new_select_option.id, new_select_option.name);
     let inserted_group_pb = self.context.add_new_group(new_group)?;
 
     Ok((Some(new_type_option.into()), Some(inserted_group_pb)))
+  }
+
+  fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+    if let Some(option_index) = self
+      .type_option
+      .options
+      .iter()
+      .position(|option| option.id == group_id)
+    {
+      // Remove the option if the group is found
+      let mut new_type_option = self.type_option.clone();
+      new_type_option.options.remove(option_index);
+      Ok(Some(new_type_option.into()))
+    } else {
+      // Return None if no matching group is found
+      Ok(None)
+    }
   }
 }
 

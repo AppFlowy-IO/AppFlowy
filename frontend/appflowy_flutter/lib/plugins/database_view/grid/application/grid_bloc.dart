@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -26,14 +27,18 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             _startListening();
             await _openGrid(emit);
           },
-          createRow: () {
-            databaseController.createRow();
+          createRow: () async {
+            final result = await databaseController.createRow();
+            result.fold(
+              (createdRow) => emit(state.copyWith(createdRow: createdRow)),
+              (err) => Log.error(err),
+            );
+          },
+          resetCreatedRow: () {
+            emit(state.copyWith(createdRow: null));
           },
           deleteRow: (rowInfo) async {
-            final rowService = RowBackendService(
-              viewId: rowInfo.viewId,
-            );
-            await rowService.deleteRow(rowInfo.rowId);
+            await RowBackendService.deleteRow(rowInfo.viewId, rowInfo.rowId);
           },
           moveRow: (int from, int to) {
             final List<RowInfo> rows = [...state.rowInfos];
@@ -52,7 +57,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           didReceiveFieldUpdate: (fields) {
             emit(
               state.copyWith(
-                fields: FieldList(fields),
+                fields: fields,
               ),
             );
           },
@@ -67,16 +72,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           },
           didReceveFilters: (List<FilterInfo> filters) {
             emit(
-              state.copyWith(
-                reorderable: filters.isEmpty && state.sorts.isEmpty,
-                filters: filters,
-              ),
+              state.copyWith(filters: filters),
             );
           },
           didReceveSorts: (List<SortInfo> sorts) {
             emit(
               state.copyWith(
-                reorderable: sorts.isEmpty && state.filters.isEmpty,
+                reorderable: sorts.isEmpty,
                 sorts: sorts,
               ),
             );
@@ -148,6 +150,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
+  const factory GridEvent.resetCreatedRow() = _ResetCreatedRow;
   const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
   const factory GridEvent.moveRow(int from, int to) = _MoveRow;
   const factory GridEvent.didLoadRows(
@@ -173,9 +176,10 @@ class GridState with _$GridState {
   const factory GridState({
     required String viewId,
     required Option<DatabasePB> grid,
-    required FieldList fields,
+    required List<FieldInfo> fields,
     required List<RowInfo> rowInfos,
     required int rowCount,
+    required RowMetaPB? createdRow,
     required LoadingState loadingState,
     required bool reorderable,
     required ChangedReason reason,
@@ -184,9 +188,10 @@ class GridState with _$GridState {
   }) = _GridState;
 
   factory GridState.initial(String viewId) => GridState(
-        fields: FieldList([]),
+        fields: [],
         rowInfos: [],
         rowCount: 0,
+        createdRow: null,
         grid: none(),
         viewId: viewId,
         reorderable: true,
@@ -195,9 +200,4 @@ class GridState with _$GridState {
         filters: [],
         sorts: [],
       );
-}
-
-@freezed
-class FieldList with _$FieldList {
-  factory FieldList(List<FieldInfo> fields) = _FieldList;
 }

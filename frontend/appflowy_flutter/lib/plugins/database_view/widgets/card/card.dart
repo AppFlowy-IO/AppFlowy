@@ -1,19 +1,20 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'card_bloc.dart';
-import 'cells/card_cell.dart';
 import 'card_cell_builder.dart';
+import 'cells/card_cell.dart';
 import 'container/accessory.dart';
 import 'container/card_container.dart';
 
@@ -120,14 +121,12 @@ class _RowCardState<T> extends State<RowCard<T>> {
         },
         builder: (context, state) {
           if (PlatformExtension.isMobile) {
-            // TODO(yijing): refactor it in mobile to display card in database view
             return RowCardContainer(
               buildAccessoryWhen: () => state.isEditing == false,
               accessories: const [],
               openAccessory: (p0) {},
               openCard: (context) => widget.openCard(context),
-              child: _CardContent<T>(
-                rowNotifier: rowNotifier,
+              child: MobileCardContent<T>(
                 cellBuilder: widget.cellBuilder,
                 styleConfiguration: widget.styleConfiguration,
                 cells: state.cells,
@@ -193,7 +192,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
   }
 }
 
-class _CardContent<CustomCardData> extends StatelessWidget {
+class _CardContent<CustomCardData> extends StatefulWidget {
   const _CardContent({
     super.key,
     required this.rowNotifier,
@@ -212,25 +211,43 @@ class _CardContent<CustomCardData> extends StatelessWidget {
   final RowCardStyleConfiguration styleConfiguration;
 
   @override
+  State<_CardContent<CustomCardData>> createState() =>
+      _CardContentState<CustomCardData>();
+}
+
+class _CardContentState<CustomCardData>
+    extends State<_CardContent<CustomCardData>> {
+  final List<EditableCardNotifier> _notifiers = [];
+
+  @override
+  void dispose() {
+    for (final element in _notifiers) {
+      element.dispose();
+    }
+    _notifiers.clear();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (styleConfiguration.hoverStyle != null) {
+    if (widget.styleConfiguration.hoverStyle != null) {
       return FlowyHover(
-        style: styleConfiguration.hoverStyle,
-        buildWhenOnHover: () => !rowNotifier.isEditing.value,
+        style: widget.styleConfiguration.hoverStyle,
+        buildWhenOnHover: () => !widget.rowNotifier.isEditing.value,
         child: Padding(
-          padding: styleConfiguration.cardPadding,
+          padding: widget.styleConfiguration.cardPadding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: _makeCells(context, cells),
+            children: _makeCells(context, widget.cells),
           ),
         ),
       );
     }
     return Padding(
-      padding: styleConfiguration.cardPadding,
+      padding: widget.styleConfiguration.cardPadding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: _makeCells(context, cells),
+        children: _makeCells(context, widget.cells),
       ),
     );
   }
@@ -241,26 +258,28 @@ class _CardContent<CustomCardData> extends StatelessWidget {
   ) {
     final List<Widget> children = [];
     // Remove all the cell listeners.
-    rowNotifier.unbind();
+    widget.rowNotifier.unbind();
 
     cells.asMap().forEach((int index, DatabaseCellContext cellContext) {
-      final isEditing = index == 0 ? rowNotifier.isEditing.value : false;
+      final isEditing = index == 0 ? widget.rowNotifier.isEditing.value : false;
       final cellNotifier = EditableCardNotifier(isEditing: isEditing);
 
       if (index == 0) {
         // Only use the first cell to receive user's input when click the edit
         // button
-        rowNotifier.bindCell(cellContext, cellNotifier);
+        widget.rowNotifier.bindCell(cellContext, cellNotifier);
+      } else {
+        _notifiers.add(cellNotifier);
       }
 
       final child = Padding(
         key: cellContext.key(),
-        padding: styleConfiguration.cellPadding,
-        child: cellBuilder.buildCell(
+        padding: widget.styleConfiguration.cellPadding,
+        child: widget.cellBuilder.buildCell(
           cellContext: cellContext,
           cellNotifier: cellNotifier,
-          renderHook: renderHook,
-          cardData: cardData,
+          renderHook: widget.renderHook,
+          cardData: widget.cardData,
           hasNotes: !cellContext.rowMeta.isDocumentEmpty,
         ),
       );

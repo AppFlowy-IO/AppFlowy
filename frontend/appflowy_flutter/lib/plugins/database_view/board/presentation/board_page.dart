@@ -2,7 +2,8 @@ import 'dart:collection';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
@@ -12,8 +13,8 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/util/platform_extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -23,13 +24,12 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../widgets/card/cells/card_cell.dart';
+import '../../widgets/card/card.dart';
 import '../../widgets/card/card_cell_builder.dart';
+import '../../widgets/card/cells/card_cell.dart';
 import '../../widgets/row/cell_builder.dart';
 import '../application/board_bloc.dart';
-import '../../widgets/card/card.dart';
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';
 
@@ -89,11 +89,19 @@ class BoardPage extends StatelessWidget {
             child: CircularProgressIndicator.adaptive(),
           ),
           finish: (result) => result.successOrFail.fold(
-            (_) => BoardContent(onEditStateChanged: onEditStateChanged),
-            (err) => FlowyErrorPage.message(
-              err.toString(),
-              howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-            ),
+            (_) => PlatformExtension.isMobile
+                ? const MobileBoardContent()
+                : DesktopBoardContent(onEditStateChanged: onEditStateChanged),
+            (err) => PlatformExtension.isMobile
+                ? FlowyMobileStateContainer.error(
+                    emoji: '🛸',
+                    title: LocaleKeys.board_mobile_faildToLoad.tr(),
+                    errorMsg: err.toString(),
+                  )
+                : FlowyErrorPage.message(
+                    err.toString(),
+                    howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                  ),
           ),
         ),
       ),
@@ -101,8 +109,8 @@ class BoardPage extends StatelessWidget {
   }
 }
 
-class BoardContent extends StatefulWidget {
-  const BoardContent({
+class DesktopBoardContent extends StatefulWidget {
+  const DesktopBoardContent({
     super.key,
     this.onEditStateChanged,
   });
@@ -110,18 +118,21 @@ class BoardContent extends StatefulWidget {
   final VoidCallback? onEditStateChanged;
 
   @override
-  State<BoardContent> createState() => _BoardContentState();
+  State<DesktopBoardContent> createState() => _DesktopBoardContentState();
 }
 
-class _BoardContentState extends State<BoardContent> {
+class _DesktopBoardContentState extends State<DesktopBoardContent> {
   final renderHook = RowCardRenderHook<String>();
   late final ScrollController scrollController;
   late final AppFlowyBoardScrollController scrollManager;
 
   final config = const AppFlowyBoardConfig(
-    groupBackgroundColor: Color(0xffF7F8FC),
-    headerPadding: EdgeInsets.symmetric(horizontal: 8),
-    cardPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+    groupMargin: EdgeInsets.symmetric(horizontal: 4),
+    groupBodyPadding: EdgeInsets.symmetric(horizontal: 4),
+    groupFooterPadding: EdgeInsets.fromLTRB(4, 14, 4, 4),
+    groupHeaderPadding: EdgeInsets.symmetric(horizontal: 8),
+    cardMargin: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+    stretchGroupHeight: false,
   );
 
   @override
@@ -161,13 +172,8 @@ class _BoardContentState extends State<BoardContent> {
               scrollController: scrollController,
               controller: context.read<BoardBloc>().boardController,
               groupConstraints: const BoxConstraints.tightFor(width: 256),
-              config: const AppFlowyBoardConfig(
-                groupPadding: EdgeInsets.symmetric(horizontal: 4),
-                groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
-                footerPadding: EdgeInsets.fromLTRB(4, 14, 4, 4),
-                stretchGroupHeight: false,
-              ),
-              leading: HiddenGroupsColumn(margin: config.headerPadding),
+              config: config,
+              leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
               trailing: showCreateGroupButton
                   ? BoardTrailing(scrollController: scrollController)
                   : null,
@@ -175,7 +181,7 @@ class _BoardContentState extends State<BoardContent> {
                 value: context.read<BoardBloc>(),
                 child: BoardColumnHeader(
                   groupData: groupData,
-                  margin: config.headerPadding,
+                  margin: config.groupHeaderPadding,
                 ),
               ),
               footerBuilder: _buildFooter,
@@ -204,7 +210,7 @@ class _BoardContentState extends State<BoardContent> {
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
     return AppFlowyGroupFooter(
       height: 36,
-      margin: config.footerPadding,
+      margin: config.groupFooterPadding,
       icon: FlowySvg(
         FlowySvgs.add_s,
         color: Theme.of(context).hintColor,
@@ -240,11 +246,11 @@ class _BoardContentState extends State<BoardContent> {
     final isEditing = boardBloc.state.isEditingRow &&
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
-    final groupItemId = groupItem.row.id + groupData.group.groupId;
+    final groupItemId = "${groupData.group.groupId}${groupItem.row.id}";
 
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
-      margin: config.cardPadding,
+      margin: config.cardMargin,
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
         rowMeta: rowMeta,
@@ -329,25 +335,14 @@ class _BoardContentState extends State<BoardContent> {
       groupId: groupId,
     );
 
-    // navigate to card detail screen when it is in mobile
-    if (PlatformExtension.isMobile) {
-      context.push(
-        MobileCardDetailScreen.routeName,
-        extra: {
-          MobileCardDetailScreen.argRowController: dataController,
-          MobileCardDetailScreen.argFieldController: fieldController,
-        },
-      );
-    } else {
-      FlowyOverlay.show(
-        context: context,
-        builder: (_) => RowDetailPage(
-          fieldController: fieldController,
-          cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-          rowController: dataController,
-        ),
-      );
-    }
+    FlowyOverlay.show(
+      context: context,
+      builder: (_) => RowDetailPage(
+        fieldController: fieldController,
+        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+        rowController: dataController,
+      ),
+    );
   }
 }
 
@@ -383,11 +378,15 @@ class _BoardTrailingState extends State<BoardTrailing> {
         }
         return KeyEventResult.ignored;
       },
-    )..addListener(() {
-        if (!_focusNode.hasFocus) {
-          _cancelAddNewGroup();
-        }
-      });
+    )..addListener(_onFocusChanged);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChanged);
+    _focusNode.dispose();
+    _textController.dispose();
+    super.dispose();
   }
 
   @override
@@ -451,5 +450,11 @@ class _BoardTrailingState extends State<BoardTrailing> {
         ),
       ),
     );
+  }
+
+  void _onFocusChanged() {
+    if (!_focusNode.hasFocus) {
+      _cancelAddNewGroup();
+    }
   }
 }

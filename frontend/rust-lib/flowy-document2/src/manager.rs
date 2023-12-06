@@ -107,6 +107,7 @@ impl DocumentManager {
     if let Some(doc) = self.documents.lock().get(doc_id).cloned() {
       return Ok(doc);
     }
+
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service

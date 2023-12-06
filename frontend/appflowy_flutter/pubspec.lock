@@ -45,8 +45,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "2de4fe0"
-      resolved-ref: "2de4fe0b0245dcdf2c2bf43410661c28acbcc687"
+      ref: "93a1b70"
+      resolved-ref: "93a1b70858801583b5a7edb0b2c06308d7982054"
       url: "https://github.com/AppFlowy-IO/appflowy-board.git"
     source: git
     version: "0.1.1"
@@ -54,8 +54,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "31acaff"
-      resolved-ref: "31acaff4f0bcd36a2946c9351dc1b5b5601b3994"
+      ref: "4995d21"
+      resolved-ref: "4995d21ff49907c71286e668f938f830bf94ca0d"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.0.0"
@@ -271,12 +271,12 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: b502a681ba415272ecc41400bd04fe543ed1a62632137dc84d25a91e7746f55f
+      sha256: "224a77051d52a11fbad53dd57827594d3bd24f945af28bd70bab376d68d437f0"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.1"
+    version: "5.0.2"
   connectivity_plus_platform_interface:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: connectivity_plus_platform_interface
       sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
@@ -580,8 +580,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "140b530"
-      resolved-ref: "140b53091ce7ad971e97c1d5a53fe0875596326d"
+      ref: "4a5cac"
+      resolved-ref: "4a5cac57e31c0ffd49cd6257a9e078f084ae342c"
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"
@@ -979,6 +979,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.4"
+  leak_tracker:
+    dependency: "direct main"
+    description:
+      name: leak_tracker
+      sha256: b63ca5cc296c7509d71f6d4a8cb6085eec8461970c503f3ef3c5c541bc3f0a9a
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.0.6"
   linked_scroll_controller:
     dependency: "direct main"
     description:
@@ -1455,10 +1463,10 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: "16d3fb6b3692ad244a695c0183fca18cf81fd4b821664394a781de42386bf022"
+      sha256: "81429e4481e1ccfb51ede496e916348668fd0921627779233bd24cc3ff6abd02"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.2.2"
   shared_preferences_android:
     dependency: transitive
     description:
@@ -1487,10 +1495,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_platform_interface
-      sha256: fb5cf25c0235df2d0640ac1b1174f6466bd311f621574997ac59018a6664548d
+      sha256: d4ec5fc9ebb2f2e056c617112aa75dcf92fc2e4faaf2ae999caa297473f75d8a
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.3.1"
   shared_preferences_web:
     dependency: transitive
     description:

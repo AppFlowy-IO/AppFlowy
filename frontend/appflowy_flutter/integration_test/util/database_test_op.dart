@@ -33,7 +33,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/or
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_menu.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/database_layout_selector.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/sort_button.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/desktop/tab_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/desktop/tab_bar_header.dart';
@@ -51,6 +51,8 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/database_setting_action.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/database_settings_list.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_property_list.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -221,7 +223,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
       final finder = find.descendant(
         of: findCell,
         matching: find.byWidgetPredicate(
-          (widget) => widget is SelectOptionTag && widget.name == content,
+          (widget) =>
+              widget is SelectOptionTag &&
+              (widget.name == content || widget.option?.name == content),
         ),
       );
       expect(finder, findsOneWidget);
@@ -238,7 +242,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
         final finder = find.descendant(
           of: findCell,
           matching: find.byWidgetPredicate(
-            (widget) => widget is SelectOptionTag && widget.name == content,
+            (widget) =>
+                widget is SelectOptionTag &&
+                (widget.name == content || widget.option?.name == content),
           ),
         );
         expect(finder, findsOneWidget);
@@ -286,13 +292,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
       skipOffstage: false,
     );
 
-    final dateCellText = find.descendant(
-      of: findCell,
-      matching: find.byType(GridDateCellText),
-    );
-
     final text = find.descendant(
-      of: dateCellText,
+      of: findCell,
       matching: find.byWidgetPredicate(
         (widget) {
           if (widget is FlowyText) {
@@ -444,7 +445,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }) async {
     final findRow = find.byType(GridRow);
     final option = find.byWidgetPredicate(
-      (widget) => widget is SelectOptionTag && widget.name == name,
+      (widget) =>
+          widget is SelectOptionTag &&
+          (widget.name == name || widget.option?.name == name),
     );
 
     final cell = find.descendant(
@@ -761,6 +764,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
           widget is FieldActionCell && widget.action == FieldAction.duplicate,
     );
     await tapButton(field);
+  }
+
+  Future<void> tapInsertFieldButton({
+    required bool left,
+    required String name,
+  }) async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell &&
+          (left && widget.action == FieldAction.insertLeft ||
+              !left && widget.action == FieldAction.insertRight),
+    );
+    await tapButton(field);
+    await renameField(name);
   }
 
   /// Should call [tapGridFieldWithName] first.
@@ -1138,7 +1155,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Should call [tapDatabaseSettingButton] first.
   Future<void> tapViewPropertiesButton() async {
-    final findSettingItem = find.byType(DatabaseSettingListPopover);
+    final findSettingItem = find.byType(DatabaseSettingsList);
     final findLayoutButton = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
@@ -1155,7 +1172,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Should call [tapDatabaseSettingButton] first.
   Future<void> tapDatabaseLayoutButton() async {
-    final findSettingItem = find.byType(DatabaseSettingListPopover);
+    final findSettingItem = find.byType(DatabaseSettingsList);
     final findLayoutButton = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
@@ -1171,7 +1188,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapCalendarLayoutSettingButton() async {
-    final findSettingItem = find.byType(DatabaseSettingListPopover);
+    final findSettingItem = find.byType(DatabaseSettingsList);
     final findLayoutButton = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
@@ -1593,7 +1610,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
   ) async {
     final field = find.byWidgetPredicate(
       (widget) =>
-          widget is DatabasePropertyCell && widget.fieldInfo.name == fieldName,
+          widget is DesktopDatabasePropertyCell &&
+          widget.fieldInfo.name == fieldName,
     );
     final toggleVisibilityButton =
         find.descendant(of: field, matching: find.byType(FlowyIconButton));

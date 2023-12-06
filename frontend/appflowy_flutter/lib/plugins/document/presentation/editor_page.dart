@@ -91,11 +91,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final List<ToolbarItem> toolbarItems = [
     smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    ...(headingItems
+    ...headingItems
       ..forEach(
         (e) => e.isActive = onlyShowInSingleSelectionAndTextType,
-      )),
-    ...markdownFormatItems,
+      ),
+    ...markdownFormatItems
+      ..forEach(
+        (e) => e.isActive = showInAnyTextType,
+      ),
     quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     bulletedListItem
       ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
@@ -113,6 +116,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
       getEditorBuilderMap(
+    slashMenuItems: slashMenuItems,
     context: context,
     editorState: widget.editorState,
     styleCustomizer: widget.styleCustomizer,
@@ -166,6 +170,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
+  late final EditorScrollController editorScrollController;
+
   Future<bool> showSlashMenu(editorState) async {
     final result = await customSlashCommand(
       slashMenuItems,
@@ -185,6 +191,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
     effectiveScrollController = widget.scrollController ?? ScrollController();
+
+    editorScrollController = EditorScrollController(
+      editorState: widget.editorState,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
+    );
 
     // keep the previous font style when typing new text.
     supportSlashMenuNodeWhiteList.addAll([
@@ -207,7 +219,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       effectiveScrollController.dispose();
     }
     inlineActionsService.dispose();
-
+    editorScrollController.dispose();
     widget.editorState.dispose();
 
     super.dispose();
@@ -224,12 +236,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
     _setRTLToolbarItems(isRTL);
-
-    final editorScrollController = EditorScrollController(
-      editorState: widget.editorState,
-      shrinkWrap: widget.shrinkWrap,
-      scrollController: effectiveScrollController,
-    );
 
     final editor = Directionality(
       textDirection: textDirection,
@@ -272,8 +278,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         backgroundColor: theme.colorScheme.background,
         foregroundColor: theme.colorScheme.onSurface,
         iconColor: theme.iconTheme.color ?? theme.colorScheme.onSurface,
-        tabBarSelectedBackgroundColor: theme.colorScheme.background,
-        tabBarSelectedForegroundColor: theme.colorScheme.onSurface,
+        tabBarSelectedBackgroundColor: theme.colorScheme.onSurfaceVariant,
+        tabBarSelectedForegroundColor: theme.colorScheme.onPrimary,
         editorState: editorState,
         toolbarItems: getMobileToolbarItems(),
         child: Column(
@@ -493,4 +499,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     }
     await editorState.apply(transaction);
   }
+}
+
+bool showInAnyTextType(EditorState editorState) {
+  final selection = editorState.selection;
+  if (selection == null) {
+    return false;
+  }
+  final nodes = editorState.getNodesInSelection(selection);
+  return nodes.any(
+    (node) => toolbarItemWhiteList.contains(node.type),
+  );
 }

@@ -1,17 +1,16 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/cloud_env.dart';
-import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -51,22 +50,22 @@ class DependencyResolver {
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
     _resolveDocDeps(getIt);
-    // _resolveGridDeps(getIt);
     _resolveCommonService(getIt, mode);
   }
 }
 
 Future<void> _resolveCloudDeps(GetIt getIt) async {
-  final cloudType = await getCloudType();
-  final appflowyCloudConfig = await getAppFlowyCloudConfig();
-  final supabaseCloudConfig = await getSupabaseCloudConfig();
-  getIt.registerFactory<AppFlowyCloudSharedEnv>(() {
-    return AppFlowyCloudSharedEnv(
-      cloudType: cloudType,
-      appflowyCloudConfig: appflowyCloudConfig,
-      supabaseConfig: supabaseCloudConfig,
+  final env = await AppFlowyCloudSharedEnv.fromEnv();
+  getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
+
+  if (isAppFlowyCloudEnabled) {
+    getIt.registerSingleton(
+      AppFlowyCloudDeepLink(),
+      dispose: (obj) async {
+        await obj.dispose();
+      },
     );
-  });
+  }
 }
 
 void _resolveCommonService(
@@ -130,22 +129,18 @@ void _resolveCommonService(
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   switch (currentCloudType()) {
-    case CloudType.local:
+    case AuthenticatorType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
           AuthTypePB.Local,
         ),
       );
       break;
-    case CloudType.supabase:
-      if (mode.isIntegrationTest) {
-        getIt.registerFactory<AuthService>(() => MockAuthService());
-      } else {
-        getIt.registerFactory<AuthService>(() => SupabaseAuthService());
-      }
+    case AuthenticatorType.supabase:
+      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       break;
-    case CloudType.appflowyCloud:
-      getIt.registerFactory<AuthService>(() => AFCloudAuthService());
+    case AuthenticatorType.appflowyCloud:
+      getIt.registerFactory<AuthService>(() => AppFlowyCloudAuthService());
       break;
   }
 
@@ -168,7 +163,6 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton(FToast());
 
   getIt.registerSingleton(MenuSharedState());
-  getIt.registerSingleton(MobileRouterRecord());
 
   getIt.registerFactoryParam<UserListener, UserProfilePB, void>(
     (user, _) => UserListener(userProfile: user),

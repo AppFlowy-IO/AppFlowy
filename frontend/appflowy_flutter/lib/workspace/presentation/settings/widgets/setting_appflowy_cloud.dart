@@ -1,3 +1,4 @@
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
@@ -43,15 +44,33 @@ class SettingAppFlowyCloudView extends StatelessWidget {
   BlocProvider<AppFlowyCloudSettingBloc> _renderContent(
     CloudSettingPB setting,
   ) {
+    final List<Widget> children = [];
+    children.addAll([
+      const AppFlowyCloudEnableSync(),
+      const VSpace(40),
+    ]);
+
+    // If the enableCustomCloud flag is true, then the user can dynamically configure cloud settings. Otherwise, the user cannot dynamically configure cloud settings.
+    if (Env.enableCustomCloud) {
+      children.add(
+        AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
+      );
+    } else {
+      children.add(
+        Row(
+          children: [
+            FlowyText(LocaleKeys.settings_menu_cloudServerType.tr()),
+            const Spacer(),
+            const FlowyText(Env.afCloudUrl),
+          ],
+        ),
+      );
+    }
     return BlocProvider(
       create: (context) => AppFlowyCloudSettingBloc(setting)
         ..add(const AppFlowyCloudSettingEvent.initial()),
       child: Column(
-        children: [
-          const AppFlowyCloudEnableSync(),
-          const VSpace(40),
-          AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
-        ],
+        children: children,
       ),
     );
   }

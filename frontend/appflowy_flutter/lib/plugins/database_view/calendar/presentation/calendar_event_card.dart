@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
@@ -27,22 +27,20 @@ import 'calendar_event_editor.dart';
 class EventCard extends StatefulWidget {
   const EventCard({
     super.key,
-    required this.fieldController,
+    required this.databaseController,
     required this.event,
-    required this.viewId,
-    required this.rowCache,
     required this.constraints,
     required this.autoEdit,
     this.isDraggable = true,
+    this.padding = EdgeInsets.zero,
   });
 
-  final FieldController fieldController;
+  final DatabaseController databaseController;
   final CalendarDayEvent event;
-  final String viewId;
-  final RowCache rowCache;
   final BoxConstraints constraints;
   final bool autoEdit;
   final bool isDraggable;
+  final EdgeInsets padding;
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -50,6 +48,11 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   late final PopoverController _popoverController;
+
+  String get viewId => widget.databaseController.viewId;
+  RowCache get rowCache => widget.databaseController.rowCache;
+  FieldController get fieldController =>
+      widget.databaseController.fieldController;
 
   @override
   void initState() {
@@ -67,7 +70,7 @@ class _EventCardState extends State<EventCard> {
 
   @override
   Widget build(BuildContext context) {
-    final rowInfo = widget.rowCache.getRow(widget.event.eventId);
+    final rowInfo = rowCache.getRow(widget.event.eventId);
     if (rowInfo == null) {
       return const SizedBox.shrink();
     }
@@ -76,7 +79,7 @@ class _EventCardState extends State<EventCard> {
       FieldType.URL: URLCardCellStyle(10),
     };
     final cellBuilder = CardCellBuilder<CalendarDayEvent>(
-      widget.rowCache.cellCache,
+      rowCache.cellCache,
       styles: styles,
     );
     final renderHook = _calendarEventCardRenderHook(context);
@@ -86,24 +89,19 @@ class _EventCardState extends State<EventCard> {
       // in this row are updated.
       key: ValueKey(widget.event.eventId),
       rowMeta: rowInfo.rowMeta,
-      viewId: widget.viewId,
-      rowCache: widget.rowCache,
+      viewId: viewId,
+      rowCache: rowCache,
       cardData: widget.event,
       isEditing: false,
       cellBuilder: cellBuilder,
       openCard: (context) {
         if (PlatformExtension.isMobile) {
-          final dataController = RowController(
-            rowMeta: rowInfo.rowMeta,
-            viewId: widget.viewId,
-            rowCache: widget.rowCache,
-          );
-
           context.push(
-            MobileCardDetailScreen.routeName,
+            MobileRowDetailPage.routeName,
             extra: {
-              MobileCardDetailScreen.argRowController: dataController,
-              MobileCardDetailScreen.argFieldController: widget.fieldController,
+              MobileRowDetailPage.argRowId: rowInfo.rowId,
+              MobileRowDetailPage.argDatabaseController:
+                  widget.databaseController,
             },
           );
         } else {
@@ -173,16 +171,19 @@ class _EventCardState extends State<EventCard> {
           return const SizedBox.shrink();
         }
         return CalendarEventEditor(
-          fieldController: widget.fieldController,
-          rowCache: widget.rowCache,
+          fieldController: fieldController,
+          rowCache: rowCache,
           rowMeta: widget.event.event.rowMeta,
-          viewId: widget.viewId,
+          viewId: viewId,
           layoutSettings: settings,
         );
       },
-      child: DecoratedBox(
-        decoration: decoration,
-        child: card,
+      child: Padding(
+        padding: widget.padding,
+        child: DecoratedBox(
+          decoration: decoration,
+          child: card,
+        ),
       ),
     );
 
@@ -300,9 +301,10 @@ class _EventCardState extends State<EventCard> {
       }
       final children = selectedOptions.map(
         (option) {
-          return SelectOptionTag.fromOption(
-            context: context,
+          return SelectOptionTag(
             option: option,
+            fontSize: 9,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
           );
         },
       ).toList();

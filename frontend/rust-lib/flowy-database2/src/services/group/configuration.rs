@@ -477,12 +477,6 @@ fn merge_groups(
 
   // The group is ordered in old groups. Add them before adding the new groups
   for old in old_groups {
-    if let Some(index) = new_group_map.get_index_of(&old.id) {
-      let right = new_group_map.split_off(index);
-      merge_result.all_groups.extend(new_group_map.into_values());
-      new_group_map = right;
-    }
-
     if let Some(new) = new_group_map.shift_remove(&old.id) {
       merge_result.all_groups.push(new.clone());
     } else {
@@ -491,11 +485,10 @@ fn merge_groups(
   }
 
   // Find out the new groups
-  let new_groups = new_group_map.into_values();
-  for (_, group) in new_groups.into_iter().enumerate() {
-    merge_result.all_groups.push(group.clone());
-    merge_result.new_groups.push(group);
-  }
+  merge_result
+    .all_groups
+    .extend(new_group_map.values().cloned());
+  merge_result.new_groups.extend(new_group_map.into_values());
 
   // The `No status` group index is initialized to 0
   if let Some(no_status_group) = no_status_group {

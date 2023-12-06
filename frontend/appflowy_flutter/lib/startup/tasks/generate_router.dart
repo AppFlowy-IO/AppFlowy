@@ -1,13 +1,16 @@
+import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_edit_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
-import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
+import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
@@ -22,6 +25,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,6 +52,7 @@ GoRouter generateRouter(Widget child) {
         _mobileHomeSettingPageRoute(),
         _mobileSettingPrivacyPolicyPageRoute(),
         _mobileSettingUserAgreementPageRoute(),
+        _mobileCloudSettingAppFlowyCloudPageRoute(),
 
         // view page
         _mobileEditorScreenRoute(),
@@ -59,6 +64,8 @@ GoRouter generateRouter(Widget child) {
         _mobileCardPropertyEditScreenRoute(),
         _mobileDateCellEditScreenRoute(),
         _mobileCreateRowFieldScreenRoute(),
+        _mobileNewPropertyPageRoute(),
+        _mobileEditPropertyPageRoute(),
 
         // home
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
@@ -216,6 +223,16 @@ GoRoute _mobileSettingPrivacyPolicyPageRoute() {
   );
 }
 
+GoRoute _mobileCloudSettingAppFlowyCloudPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: AppFlowyCloudPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: AppFlowyCloudPage());
+    },
+  );
+}
+
 GoRoute _mobileSettingUserAgreementPageRoute() {
   return GoRoute(
     parentNavigatorKey: AppGlobals.rootNavKey,
@@ -336,9 +353,49 @@ GoRoute _mobileFontPickerPageRoute() {
   );
 }
 
+GoRoute _mobileNewPropertyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileNewPropertyScreen.routeName,
+    pageBuilder: (context, state) {
+      final viewId = state
+          .uri.queryParameters[MobileNewPropertyScreen.argViewId] as String;
+      final fieldTypeId =
+          state.uri.queryParameters[MobileNewPropertyScreen.argFieldTypeId] ??
+              FieldType.RichText.value.toString();
+      final value = int.parse(fieldTypeId);
+      return MaterialPage(
+        fullscreenDialog: true,
+        child: MobileNewPropertyScreen(
+          viewId: viewId,
+          fieldType: FieldType.valueOf(value),
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileEditPropertyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileEditPropertyScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      return MaterialPage(
+        fullscreenDialog: true,
+        child: MobileEditPropertyScreen(
+          viewId: args[MobileEditPropertyScreen.argViewId],
+          field: args[MobileEditPropertyScreen.argField],
+        ),
+      );
+    },
+  );
+}
+
 GoRoute _mobileCalendarEventsPageRoute() {
   return GoRoute(
     path: MobileCalendarEventsScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
 
@@ -431,6 +488,7 @@ GoRoute _signInScreenRoute() {
 GoRoute _mobileEditorScreenRoute() {
   return GoRoute(
     path: MobileEditorScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
@@ -447,6 +505,7 @@ GoRoute _mobileEditorScreenRoute() {
 GoRoute _mobileGridScreenRoute() {
   return GoRoute(
     path: MobileGridScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileGridScreen.viewId]!;
       final title = state.uri.queryParameters[MobileGridScreen.viewTitle];
@@ -463,6 +522,7 @@ GoRoute _mobileGridScreenRoute() {
 GoRoute _mobileBoardScreenRoute() {
   return GoRoute(
     path: MobileBoardScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileBoardScreen.viewId]!;
       final title = state.uri.queryParameters[MobileBoardScreen.viewTitle];
@@ -479,6 +539,7 @@ GoRoute _mobileBoardScreenRoute() {
 GoRoute _mobileCalendarScreenRoute() {
   return GoRoute(
     path: MobileCalendarScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileCalendarScreen.viewId]!;
       final title = state.uri.queryParameters[MobileCalendarScreen.viewTitle]!;
@@ -494,16 +555,18 @@ GoRoute _mobileCalendarScreenRoute() {
 
 GoRoute _mobileCardDetailScreenRoute() {
   return GoRoute(
-    path: MobileCardDetailScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileRowDetailPage.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
-      final rowController = args[MobileCardDetailScreen.argRowController];
-      final fieldController = args[MobileCardDetailScreen.argFieldController];
+      final databaseController =
+          args[MobileRowDetailPage.argDatabaseController];
+      final rowId = args[MobileRowDetailPage.argRowId]!;
 
       return MaterialPage(
-        child: MobileCardDetailScreen(
-          rowController: rowController,
-          fieldController: fieldController,
+        child: MobileRowDetailPage(
+          databaseController: databaseController,
+          rowId: rowId,
         ),
       );
     },
@@ -539,11 +602,18 @@ GoRoute _mobileDateCellEditScreenRoute() {
     path: MobileDateCellEditScreen.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
-      final cellController = args[MobileDateCellEditScreen.argCellController];
-
-      return MaterialPage(
-        child: MobileDateCellEditScreen(cellController),
+      final controller = args[MobileDateCellEditScreen.dateCellController];
+      final fullScreen = args[MobileDateCellEditScreen.fullScreen];
+      return CustomTransitionPage(
+        transitionsBuilder: (_, __, ___, child) => child,
         fullscreenDialog: true,
+        opaque: false,
+        barrierDismissible: true,
+        barrierColor: Theme.of(context).bottomSheetTheme.modalBarrierColor,
+        child: MobileDateCellEditScreen(
+          controller: controller,
+          showAsFullScreen: fullScreen ?? true,
+        ),
       );
     },
   );

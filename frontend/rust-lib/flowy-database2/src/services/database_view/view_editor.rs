@@ -14,8 +14,8 @@ use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
-  InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams, RowMetaPB, RowsChangePB,
+  DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB,
+  LayoutSettingChangeset, LayoutSettingParams, RowMetaPB, RowsChangePB,
   SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
@@ -178,12 +178,7 @@ impl DatabaseViewEditor {
   /// Notify the view that the row has been updated. If the view has groups,
   /// send the group notification with [GroupRowsNotificationPB]. Otherwise,
   /// send the view notification with [RowsChangePB]
-  pub async fn v_did_update_row(
-    &self,
-    old_row: &Option<RowDetail>,
-    row_detail: &RowDetail,
-    field_id: &str,
-  ) {
+  pub async fn v_did_update_row(&self, old_row: &Option<RowDetail>, row_detail: &RowDetail) {
     let result = self
       .mut_group_controller(|group_controller, field| {
         Ok(group_controller.did_update_group_row(old_row, row_detail, &field))
@@ -214,13 +209,6 @@ impl DatabaseViewEditor {
           notify_did_update_group_rows(changeset).await;
         }
       }
-    } else {
-      let update_row =
-        UpdatedRow::new(&row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
-      let changeset = RowsChangePB::from_update(update_row.into());
-      send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
-        .payload(changeset)
-        .send();
     }
 
     // Each row update will trigger a filter and sort operation. We don't want
@@ -391,8 +379,43 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn v_delete_group(&self, _params: DeleteGroupParams) -> FlowyResult<()> {
-    Ok(())
+  pub async fn v_delete_group(&self, group_id: &str) -> FlowyResult<RowsChangePB> {
+    let mut group_controller = self.group_controller.write().await;
+    let controller = match group_controller.as_mut() {
+      Some(controller) => controller,
+      None => return Ok(RowsChangePB::default()),
+    };
+
+    let old_field = self.delegate.get_field(controller.field_id());
+    let (row_ids, type_option_data) = controller.delete_group(group_id)?;
+
+    drop(group_controller);
+
+    let mut changes = RowsChangePB::default();
+
+    if let Some(field) = old_field {
+      let deleted_rows = row_ids
+        .iter()
+        .filter_map(|row_id| self.delegate.remove_row(row_id))
+        .map(|row| row.id.into_inner());
+
+      changes.deleted_rows.extend(deleted_rows);
+
+      if let Some(type_option) = type_option_data {
+        self
+          .delegate
+          .update_field(&self.view_id, type_option, field)
+          .await?;
+      }
+      let notification = GroupChangesPB {
+        view_id: self.view_id.clone(),
+        deleted_groups: vec![group_id.to_string()],
+        ..Default::default()
+      };
+      notify_did_update_num_of_groups(&self.view_id, notification).await;
+    }
+
+    Ok(changes)
   }
 
   pub async fn v_update_group(&self, changeset: GroupChangesets) -> FlowyResult<()> {

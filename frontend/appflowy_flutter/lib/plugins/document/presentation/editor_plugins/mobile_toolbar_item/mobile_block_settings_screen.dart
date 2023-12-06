@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 enum MobileBlockActionType {
   delete,
@@ -74,9 +73,7 @@ class MobileBlockSettingsScreen extends StatelessWidget {
           LocaleKeys.titleBar_actions.tr(),
           fontSize: 14.0,
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: SafeArea(
         child: ListView.separated(

@@ -30,9 +30,12 @@ export const FieldSelect: FC<FieldSelectProps> = ({ onChange, ...props }) => {
           alignItems: 'center',
         },
       }}
+      MenuProps={{
+        className: 'max-w-[150px]',
+      }}
     >
       {fields.map((field) => (
-        <MenuItem key={field.id} value={field.id}>
+        <MenuItem className={'overflow-hidden text-ellipsis px-1.5'} key={field.id} value={field.id}>
           <Field field={field} />
         </MenuItem>
       ))}

@@ -1,10 +1,12 @@
 import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../../../application/cell/select_option_cell_service.dart';
 
 part 'select_option_editor_bloc.freezed.dart';
@@ -61,9 +63,27 @@ class SelectOptionCellEditorBloc
           },
           selectOption: (_SelectOption value) async {
             await _selectOptionService.select(optionIds: [value.optionId]);
+            final selectedOption = [
+              ...state.selectedOptions,
+              state.options.firstWhere(
+                (element) => element.id == value.optionId,
+              ),
+            ];
+            emit(
+              state.copyWith(
+                selectedOptions: selectedOption,
+              ),
+            );
           },
           unSelectOption: (_UnSelectOption value) async {
             await _selectOptionService.unSelect(optionIds: [value.optionId]);
+            final selectedOptions = [...state.selectedOptions]
+              ..removeWhere((e) => e.id == value.optionId);
+            emit(
+              state.copyWith(
+                selectedOptions: selectedOptions,
+              ),
+            );
           },
           trySelectOption: (_TrySelectOption value) {
             _trySelectOption(value.optionName, emit);

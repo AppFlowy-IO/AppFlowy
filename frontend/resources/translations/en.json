@@ -177,7 +177,9 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below"
+    "addBlockBelow": "Add a block below",
+    "urlLaunchAccessory": "Open in browser",
+    "urlCopyAccessory": "Copy URL"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -228,7 +230,8 @@
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
     "helpCenter": "Help Center",
-    "OK": "Ok",
+    "add": "Add",
+    "yes": "Yes",
     "Done": "Done",
     "Cancel": "Cancel"
   },
@@ -265,7 +268,7 @@
       "logoutPrompt": "Are you sure to logout?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
-      "cloudSetting": "Cloud Setting",
+      "cloudSettings": "Cloud Settings",
       "enableSync": "Enable sync",
       "enableEncrypt": "Encrypt data",
       "cloudURL": "Base URL",
@@ -290,6 +293,8 @@
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
       "inputEncryptPrompt": "Please enter your encryption secret for",
       "clickToCopySecret": "Click to copy secret",
+      "configServerSetting": "Configurate your server settings",
+      "configServerGuide": "After selecting `Quick Start`, navigate to `Settings` and then \"Cloud Settings\" to configure your self-hosted server.",
       "inputTextFieldHint": "Your secret",
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
@@ -424,7 +429,9 @@
       "privacyPolicy": "Privacy Policy",
       "userAgreement": "User Agreement",
       "userprofileError": "Failed to load user profile",
-      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists."
+      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
+      "selectLayout": "Select layout",
+      "selectStartingDay": "Select starting day"
     }
   },
   "grid": {
@@ -487,6 +494,16 @@
       "isEmpty": "Is empty",
       "isNotEmpty": "Is not empty"
     },
+    "dateFilter": {
+      "is": "Is",
+      "before": "Is before",
+      "after": "Is after",
+      "onOrBefore": "Is on or before",
+      "onOrAfter": "Is on or after",
+      "between": "Is between",
+      "empty": "Is empty",
+      "notEmpty": "Is not empty"
+    },
     "field": {
       "hide": "Hide",
       "show": "Show",
@@ -527,25 +544,27 @@
       "visibility": "Visibility",
       "propertyType": "Property type",
       "addSelectOption": "Add an option",
+      "typeANewOption": "Type a new option",
       "optionTitle": "Options",
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
-      "newColumn": "New Column"
+      "newColumn": "New Column",
+      "format": "Format"
     },
     "rowPage": {
       "newField": "Add a new field",
       "fieldDragElementTooltip": "Click to open menu",
       "showHiddenFields": {
-        "one": "Show {} hidden field",
-        "many": "Show {} hidden fields",
-        "other": "Show {} hidden fields"
+        "one": "Show {count} hidden field",
+        "many": "Show {count} hidden fields",
+        "other": "Show {count} hidden fields"
       },
       "hideHiddenFields": {
-        "one": "Hide {} hidden field",
-        "many": "Hide {} hidden fields",
-        "other": "Hide {} hidden fields"
+        "one": "Hide {count} hidden field",
+        "many": "Hide {count} hidden fields",
+        "other": "Hide {count} hidden fields"
       }
     },
     "sort": {
@@ -586,7 +605,9 @@
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search or create an option...",
       "createNew": "Create an new",
-      "orSelectOne": "Or select an option"
+      "orSelectOne": "Or select an option",
+      "typeANewOption": "Type a new option",
+      "tagName": "Tag name"
     },
     "checklist": {
       "taskHint": "Task description",
@@ -808,7 +829,11 @@
       "createNewColumn": "Add a new group",
       "addToColumnTopTooltip": "Add a new card at the top",
       "renameColumn": "Rename",
-      "hideColumn": "Hide"
+      "hideColumn": "Hide",
+      "groupActions": "Group Actions",
+      "newGroup": "New Group",
+      "deleteColumn": "Delete",
+      "deleteColumnConfirmation": "This will delete this group and all the cards in it.\nAre you sure you want to continue?"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Hidden Groups",
@@ -819,6 +844,9 @@
     "cardActions": "Card Actions",
     "cardDuplicated": "Card has been duplicated",
     "cardDeleted": "Card has been deleted",
+    "showOnCard": "Show on card detail",
+    "setting": "Setting",
+    "propertyName": "Property name",
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
     "ungroupedButtonText": "Ungrouped",
@@ -827,7 +855,10 @@
     "groupBy": "Group by",
     "referencedBoardPrefix": "View of",
     "mobile": {
-      "editURL": "Edit URL"
+      "editURL": "Edit URL",
+      "unhideGroup": "Unhide group",
+      "unhideGroupContent": "Are you sure you want to show this group on the board?",
+      "faildToLoad": "Failed to load board view"
     }
   },
   "calendar": {
@@ -848,11 +879,12 @@
       "noDateTitle": "No Date",
       "noDateHint": {
         "zero": "Unscheduled events will show up here",
-        "one": "{} unscheduled event",
-        "other": "{} unscheduled events"
+        "one": "{count} unscheduled event",
+        "other": "{count} unscheduled events"
       },
+      "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",
-      "name": "Calendar layout"
+      "name": "Calendar settings"
     },
     "referencedCalendarPrefix": "View of",
     "quickJumpYear": "Jump to"
@@ -1114,6 +1146,9 @@
     "pageIcon": "Page icon",
     "language": "Language",
     "font": "Font",
-    "actions": "Actions"
+    "actions": "Actions",
+    "date": "Date",
+    "addField": "Add field",
+    "userIcon": "User icon"
   }
 }

@@ -102,10 +102,17 @@ export async function updateDateCell(
   rowId: string,
   fieldId: string,
   data: {
+    // 10-digit timestamp
     date?: number;
+    // time string in format HH:mm
     time?: string;
+    // 10-digit timestamp
+    endDate?: number;
+    // time string in format HH:mm
+    endTime?: string;
     includeTime?: boolean;
     clearFlag?: boolean;
+    isRange?: boolean;
   }
 ): Promise<void> {
   const payload = DateChangesetPB.fromObject({
@@ -118,6 +125,9 @@ export async function updateDateCell(
     time: data.time,
     include_time: data.includeTime,
     clear_flag: data.clearFlag,
+    end_date: data.endDate,
+    end_time: data.endTime,
+    is_range: data.isRange,
   });
 
   const result = await DatabaseEventUpdateDateCell(payload);

@@ -34,16 +34,24 @@ final alignToolbarItem = ToolbarItem(
       data = FlowySvgs.toolbar_align_right_s;
     }
 
-    final child = MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: FlowyTooltip(
-        message: LocaleKeys.document_plugins_optionAction_align.tr(),
-        child: FlowySvg(
-          data,
-          size: const Size.square(16),
-          color: isHighlight ? highlightColor : Colors.white,
-        ),
-      ),
+    // final child = MouseRegion(
+    //   cursor: SystemMouseCursors.click,
+    //   child: FlowyTooltip(
+    //     message: LocaleKeys.document_plugins_optionAction_align.tr(),
+    //     child: FlowySvg(
+    //       data,
+    //       size: const Size.square(16),
+    //       color: isHighlight ? highlightColor : Colors.white,
+    //     ),
+    //   ),
+    // );
+
+    // the above code will cause an error in Flutter 3.13:
+    //  Cannot hit test a render box that has never been laid out.
+    final child = FlowySvg(
+      data,
+      size: const Size.square(16),
+      color: isHighlight ? highlightColor : Colors.white,
     );
 
     return Padding(
