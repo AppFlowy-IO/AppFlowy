@@ -407,7 +407,7 @@ impl UserManager {
     Ok(())
   }
 
-  #[tracing::instrument(level = "info", skip(self, response), err)]
+  #[tracing::instrument(level = "info", skip_all, err)]
   async fn continue_sign_up(
     &self,
     new_user_profile: &UserProfile,
