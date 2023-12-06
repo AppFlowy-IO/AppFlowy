@@ -4,12 +4,11 @@ import { Popover, TextareaAutosize } from '@mui/material';
 interface Props {
   editing: boolean;
   anchorEl: HTMLDivElement | null;
-  width: number | undefined;
   onClose: () => void;
   text: string;
   onInput: (event: React.FormEvent<HTMLTextAreaElement>) => void;
 }
-function EditTextCellInput({ editing, anchorEl, width, onClose, text, onInput }: Props) {
+function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props) {
   const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const shift = e.shiftKey;
 
@@ -27,7 +26,7 @@ function EditTextCellInput({ editing, anchorEl, width, onClose, text, onInput }:
       anchorEl={anchorEl}
       PaperProps={{
         className: 'flex p-2 border border-blue-400',
-        style: { width, minHeight: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },
+        style: { width: anchorEl?.offsetWidth, minHeight: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },
       }}
       transformOrigin={{
         vertical: 1,

@@ -47,12 +47,7 @@ class _MobileChecklistCellEditScreenState
                   child: _buildHeader(context),
                 ),
                 const Divider(),
-                const Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0.0),
-                    child: _TaskList(),
-                  ),
-                ),
+                const Expanded(child: _TaskList()),
               ],
             );
           },
@@ -169,7 +164,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 5, right: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       height: 44,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

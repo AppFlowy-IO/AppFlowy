@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useViewId } from '$app/hooks/ViewId.hooks';
 import { databaseViewService } from './application';
 import { DatabaseTabBar } from './components';
@@ -8,11 +8,11 @@ import { DatabaseCollection } from './components/database_settings';
 import { PageController } from '$app/stores/effects/workspace/page/page_controller';
 import SwipeableViews from 'react-swipeable-views';
 import { TabPanel } from '$app/components/database/components/tab_bar/ViewTabs';
-import { useDatabaseResize } from '$app/components/database/Database.hooks';
 import DatabaseSettings from '$app/components/database/components/database_settings/DatabaseSettings';
 import { Portal } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ErrorCode } from '@/services/backend';
+import ExpandRecordModal from '$app/components/database/components/edit_record/ExpandRecordModal';
 
 interface Props {
   selectedViewId?: string;
@@ -20,11 +20,13 @@ interface Props {
 }
 
 export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
+  const ref = useRef<HTMLDivElement>(null);
   const viewId = useViewId();
   const { t } = useTranslation();
   const [notFound, setNotFound] = useState(false);
   const [childViewIds, setChildViewIds] = useState<string[]>([]);
-  const { ref, collectionRef, tableHeight, openCollections, setOpenCollections } = useDatabaseResize(selectedViewId);
+  const [editRecordRowId, setEditRecordRowId] = useState<string | null>(null);
+  const [openCollections, setOpenCollections] = useState<string[]>([]);
 
   useEffect(() => {
     const onPageChanged = () => {
@@ -79,6 +81,13 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
     [openCollections, setOpenCollections]
   );
 
+  const onEditRecord = useCallback(
+    (rowId: string) => {
+      setEditRecordRowId(rowId);
+    },
+    [setEditRecordRowId]
+  );
+
   if (notFound) {
     return (
       <div className='mb-2 flex h-full w-full items-center justify-center rounded border border-dashed border-line-divider'>
@@ -104,7 +113,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
         index={value}
       >
         {childViewIds.map((id, index) => (
-          <TabPanel key={id} index={index} value={value}>
+          <TabPanel className={'flex h-full w-full flex-col'} key={id} index={index} value={value}>
             <DatabaseLoader viewId={id}>
               {selectedViewId === id && (
                 <>
@@ -115,13 +124,20 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
                       />
                     </div>
                   </Portal>
-                  <div ref={collectionRef}>
-                    <DatabaseCollection open={openCollections.includes(id)} />
-                  </div>
+                  <DatabaseCollection open={openCollections.includes(id)} />
+                  {editRecordRowId && (
+                    <ExpandRecordModal
+                      rowId={editRecordRowId}
+                      open={Boolean(editRecordRowId)}
+                      onClose={() => {
+                        setEditRecordRowId(null);
+                      }}
+                    />
+                  )}
                 </>
               )}
 
-              <DatabaseView isActivated={selectedViewId === id} tableHeight={tableHeight} />
+              <DatabaseView onEditRecord={onEditRecord} />
             </DatabaseLoader>
           </TabPanel>
         ))}

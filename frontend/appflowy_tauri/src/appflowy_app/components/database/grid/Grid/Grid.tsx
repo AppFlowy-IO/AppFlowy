@@ -1,11 +1,6 @@
 import { FC } from 'react';
-import { GridTable } from '../GridTable';
-import GridUIProvider from '$app/components/database/proxy/grid/ui_state/Provider';
+import { GridTable, GridTableProps } from '../GridTable';
 
-export const Grid: FC<{ isActivated: boolean; tableHeight: number }> = ({ isActivated, tableHeight }) => {
-  return (
-    <GridUIProvider isActivated={isActivated}>
-      <GridTable tableHeight={tableHeight} />
-    </GridUIProvider>
-  );
+export const Grid: FC<GridTableProps> = (props) => {
+  return <GridTable {...props} />;
 };

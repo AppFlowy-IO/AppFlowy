@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -66,10 +68,12 @@ class UserAvatar extends StatelessWidget {
         borderRadius: Corners.s5Border,
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
-          child: FlowySvg(
-            FlowySvgData('emoji/$iconUrl'),
-            blendMode: null,
-          ),
+          child: builtInSVGIcons.contains(iconUrl)
+              ? FlowySvg(
+                  FlowySvgData('emoji/$iconUrl'),
+                  blendMode: null,
+                )
+              : EmojiText(emoji: iconUrl, fontSize: isLarge ? 36 : 18),
         ),
       ),
     );

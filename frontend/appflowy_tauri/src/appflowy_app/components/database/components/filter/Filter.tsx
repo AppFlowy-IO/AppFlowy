@@ -11,7 +11,7 @@ import {
   DateFilterData,
 } from '$app/components/database/application';
 import { Chip, Popover } from '@mui/material';
-import { Field } from '$app/components/database/components/field';
+import { Property } from '$app/components/database/components/property';
 import { ReactComponent as DropDownSvg } from '$app/assets/dropdown.svg';
 import TextFilter from './text_filter/TextFilter';
 import { FieldType } from '@/services/backend';
@@ -111,7 +111,7 @@ function Filter({ filter, field }: Props) {
         variant='outlined'
         label={
           <div className={'flex items-center justify-center'}>
-            <Field field={field} />
+            <Property field={field} />
             <DropDownSvg className={'ml-1.5 h-8 w-8'} />
           </div>
         }

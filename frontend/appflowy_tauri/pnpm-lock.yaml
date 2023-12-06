@@ -130,6 +130,15 @@ dependencies:
   react-transition-group:
     specifier: ^4.4.5
     version: 4.4.5(react-dom@18.2.0)(react@18.2.0)
+  react-virtualized-auto-sizer:
+    specifier: ^1.0.20
+    version: 1.0.20(react-dom@18.2.0)(react@18.2.0)
+  react-vtree:
+    specifier: ^2.0.4
+    version: 2.0.4(@types/react-window@1.8.8)(react-dom@18.2.0)(react-window@1.8.10)(react@18.2.0)
+  react-window:
+    specifier: ^1.8.10
+    version: 1.8.10(react-dom@18.2.0)(react@18.2.0)
   react18-input-otp:
     specifier: ^1.1.2
     version: 1.1.3(react-dom@18.2.0)(react@18.2.0)
@@ -210,6 +219,9 @@ devDependencies:
   '@types/react-transition-group':
     specifier: ^4.4.6
     version: 4.4.6
+  '@types/react-window':
+    specifier: ^1.8.8
+    version: 1.8.8
   '@types/utf8':
     specifier: ^3.0.1
     version: 3.0.1
@@ -2308,6 +2320,11 @@ packages:
       '@types/react': 18.2.6
     dev: false
 
+  /@types/react-window@1.8.8:
+    resolution: {integrity: sha512-8Ls660bHR1AUA2kuRvVG9D/4XpRC6wjAaPT9dil7Ckc76eP9TKWZwwmgfq8Q1LANX3QNDnoU4Zp48A3w+zK69Q==}
+    dependencies:
+      '@types/react': 18.2.6
+
   /@types/react@17.0.59:
     resolution: {integrity: sha512-gSON5zWYIGyoBcycCE75E9+r6dCC2dHdsrVkOEiIYNU5+Q28HcBAuqvDuxHcCbMfHBHdeT5Tva/AFn3rnMKE4g==}
     dependencies:
@@ -2733,7 +2750,7 @@ packages:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
     engines: {node: '>=10', npm: '>=6'}
     dependencies:
-      '@babel/runtime': 7.22.10
+      '@babel/runtime': 7.23.4
       cosmiconfig: 7.1.0
       resolve: 1.22.2
     dev: false
@@ -3235,7 +3252,7 @@ packages:
   /dom-helpers@5.2.1:
     resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
     dependencies:
-      '@babel/runtime': 7.21.5
+      '@babel/runtime': 7.23.4
       csstype: 3.1.2
     dev: false
 
@@ -5632,7 +5649,7 @@ packages:
     peerDependencies:
       react: ^16.3.0
     dependencies:
-      '@babel/runtime': 7.22.10
+      '@babel/runtime': 7.23.4
       prop-types: 15.8.1
       react: 18.2.0
       warning: 4.0.3
@@ -5717,7 +5734,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@babel/runtime': 7.21.5
+      '@babel/runtime': 7.23.4
       '@types/react-redux': 7.1.25
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
@@ -5835,6 +5852,44 @@ packages:
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-virtualized-auto-sizer@1.0.20(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-OdIyHwj4S4wyhbKHOKM1wLSj/UDXm839Z3Cvfg2a9j+He6yDa6i5p0qQvEiCnyQlGO/HyfSnigQwuxvYalaAXA==}
+    peerDependencies:
+      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-vtree@2.0.4(@types/react-window@1.8.8)(react-dom@18.2.0)(react-window@1.8.10)(react@18.2.0):
+    resolution: {integrity: sha512-UOld0VqyAZrryF06K753X4bcEVN6/wW831exvVlMZeZAVHk9KXnlHs4rpqDAeoiBgUwJqoW/rtn0hwsokRRxPA==}
+    peerDependencies:
+      '@types/react-window': ^1.8.2
+      react: ^16.13.1
+      react-dom: ^16.13.1
+      react-window: ^1.8.5
+    dependencies:
+      '@babel/runtime': 7.23.4
+      '@types/react-window': 1.8.8
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-window: 1.8.10(react-dom@18.2.0)(react@18.2.0)
+    dev: false
+
+  /react-window@1.8.10(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-Y0Cx+dnU6NLa5/EvoHukUD0BklJ8qITCtVEPY1C/nL8wwoZ0b5aEw8Ff1dOVHw7fCzMt55XfJDd8S8W8LCaUCg==}
+    engines: {node: '>8.0.0'}
+    peerDependencies:
+      react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.23.4
+      memoize-one: 5.2.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false

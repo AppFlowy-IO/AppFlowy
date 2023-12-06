@@ -189,35 +189,30 @@ class _MobileSignInButton extends StatelessWidget {
             width: 0.5,
           ),
         ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
-                width: 30,
-                height: 30,
-                child: Center(
-                  child: SizedBox(
-                    width: 24,
-                    child: FlowySvg(
-                      icon,
-                      blendMode: null,
-                    ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
+              width: 30,
+              height: 30,
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  child: FlowySvg(
+                    icon,
+                    blendMode: null,
                   ),
                 ),
               ),
-              const HSpace(8),
-              SizedBox(
-                // To fit the longest label 'Log in with Discord'
-                width: 135,
-                child: Text(
-                  labelText,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
-            ],
-          ),
+            ),
+            const HSpace(8),
+            Text(
+              labelText,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ],
         ),
       ),
     );

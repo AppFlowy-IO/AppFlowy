@@ -29,7 +29,7 @@ function NumberCell({ field, cell, placeholder }: Props) {
   return (
     <>
       <CellText className={'min-h-[36px]'} ref={cellRef} onClick={handleClick}>
-        <div className='flex h-full w-full items-center'>{content}</div>
+        <div className='flex w-full items-center'>{content}</div>
       </CellText>
       <Suspense>
         {editing && (

@@ -1,21 +1,21 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
+    show UserProfilePB;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show UserProfilePB;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class SidebarUser extends StatelessWidget {
   const SidebarUser({
@@ -42,7 +42,7 @@ class SidebarUser extends StatelessWidget {
               iconUrl: state.userProfile.iconUrl,
               name: state.userProfile.name,
             ),
-            const HSpace(10),
+            const HSpace(4),
             Expanded(
               child: _buildUserName(context, state),
             ),

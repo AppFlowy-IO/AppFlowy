@@ -16,7 +16,10 @@ export const CheckboxCell: FC<{
   }, [viewId, cell, field.id, checked]);
 
   return (
-    <div className='relative flex w-full cursor-pointer items-center px-2 text-fill-default' onClick={handleClick}>
+    <div
+      className='relative flex w-full cursor-pointer items-center px-2 text-lg text-fill-default'
+      onClick={handleClick}
+    >
       {checked ? <CheckboxCheckSvg /> : <CheckboxUncheckSvg />}
     </div>
   );

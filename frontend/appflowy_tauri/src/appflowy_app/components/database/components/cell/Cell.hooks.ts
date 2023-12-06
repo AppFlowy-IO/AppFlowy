@@ -29,7 +29,7 @@ export const useCell = (rowId: string, field: Field) => {
         clearTimeout(timeout);
       };
     }
-  }, [fetchCell, cell, loading]);
+  }, [fetchCell, cell, loading, rowId, field.id]);
 
   useNotification(DatabaseNotification.DidUpdateCell, fetchCell, { id: `${rowId}:${field.id}` });
 

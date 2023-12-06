@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { proxy, useSnapshot } from 'valtio';
 
@@ -51,6 +51,26 @@ const DatabaseContext = createContext<Database>({
 export const DatabaseProvider = DatabaseContext.Provider;
 
 export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
+
+export const useContextDatabase = () => useContext(DatabaseContext);
+
+export const useGetPrevRowId = () => {
+  const database = useContextDatabase();
+
+  return useCallback(
+    (id: string) => {
+      const rowMetas = database.rowMetas;
+      const index = rowMetas.findIndex((rowMeta) => rowMeta.id === id);
+
+      if (index === 0) {
+        return null;
+      }
+
+      return rowMetas[index - 1].id;
+    },
+    [database]
+  );
+};
 
 export const useSelectorCell = (rowId: string, fieldId: string) => {
   const database = useContext(DatabaseContext);
@@ -181,50 +201,3 @@ export const useConnectDatabase = (viewId: string) => {
 
   return database;
 };
-
-export function useDatabaseResize(selectedViewId?: string) {
-  const ref = useRef<HTMLDivElement>(null);
-  const collectionRef = useRef<HTMLDivElement>(null);
-  const [openCollections, setOpenCollections] = useState<string[]>([]);
-
-  const [tableHeight, setTableHeight] = useState(0);
-
-  useEffect(() => {
-    const element = ref.current;
-
-    if (!element) return;
-
-    const collectionElement = collectionRef.current;
-    const handleResize = () => {
-      const rect = element.getBoundingClientRect();
-      const collectionRect = collectionElement?.getBoundingClientRect();
-      let height = rect.height - 31;
-
-      if (collectionRect) {
-        height -= collectionRect.height;
-      }
-
-      setTableHeight(height);
-    };
-
-    handleResize();
-    const resizeObserver = new ResizeObserver(handleResize);
-
-    resizeObserver.observe(element);
-    if (collectionElement) {
-      resizeObserver.observe(collectionElement);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [selectedViewId]);
-
-  return {
-    ref,
-    collectionRef,
-    tableHeight,
-    openCollections,
-    setOpenCollections,
-  };
-}
