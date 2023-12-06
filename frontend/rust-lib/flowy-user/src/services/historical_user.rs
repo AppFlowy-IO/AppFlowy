@@ -1,5 +1,5 @@
 use diesel::RunQueryDsl;
-use tracing::{event, instrument};
+use tracing::instrument;
 
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::user_workspace_table;
@@ -23,7 +23,6 @@ impl UserManager {
       .get_user_profile_from_disk(session.user_id)
       .await
       .ok()?;
-    event!(tracing::Level::INFO, "old user profile: {:?}", user_profile);
     if user_profile.authenticator == Authenticator::Local && !auth_type.is_local() {
       Some(MigrationUser {
         user_profile,
