@@ -34,15 +34,15 @@ pub struct UserDB {
 
 impl UserDB {
   pub fn new(paths: impl UserDBPath) -> Self {
-    if let Some(mut db) = DB_MAP.try_write_for(Duration::from_millis(300)) {
-      info!("clear sqlite db map");
-      db.clear();
-    }
-
-    if let Some(mut collab_db) = COLLAB_DB_MAP.try_write_for(Duration::from_millis(300)) {
-      info!("clear collab db map");
-      collab_db.clear();
-    }
+    // if let Some(mut db) = DB_MAP.try_write_for(Duration::from_millis(300)) {
+    //   info!("clear sqlite db map");
+    //   db.clear();
+    // }
+    //
+    // if let Some(mut collab_db) = COLLAB_DB_MAP.try_write_for(Duration::from_millis(300)) {
+    //   info!("clear collab db map");
+    //   collab_db.clear();
+    // }
     Self {
       paths: Box::new(paths),
     }
