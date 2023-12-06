@@ -133,50 +133,6 @@ class SettingsUserView extends StatelessWidget {
     );
   }
 
-  // Returns a Widget that is the Default Option for the
-  // Icon Gallery, enabling users to choose the auto-generated
-  // icon again.
-  Widget _defaultIconOption(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        context
-            .read<SettingsUserViewBloc>()
-            .add(const SettingsUserEvent.removeUserIcon());
-        Navigator.of(context).pop();
-      },
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          color: user.iconUrl.isEmpty
-              ? Theme.of(context).colorScheme.primary
-              : Colors.transparent,
-        ),
-        child: FlowyHover(
-          style: HoverStyle(
-            hoverColor: user.iconUrl.isEmpty
-                ? Colors.transparent
-                : Theme.of(context).colorScheme.tertiaryContainer,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: UserAvatar(
-                iconUrl: "",
-                name: user.name,
-                isLarge: true,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Renders either a login or logout button based on the user's authentication status, or nothing if Supabase is not enabled.
   ///
   /// This function checks the current user's authentication type and Supabase
