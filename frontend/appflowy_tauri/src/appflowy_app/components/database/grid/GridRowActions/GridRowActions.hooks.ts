@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { useGetPrevRowId } from '$app/components/database';
 import { rowService } from '$app/components/database/application';
@@ -8,40 +8,9 @@ export function getCellsWithRowId(rowId: string, container: HTMLDivElement) {
   return Array.from(container.querySelectorAll(`[data-key^="row:${rowId}"]`));
 }
 
-export const useGridRowContextMenu = () => {
-  const [position, setPosition] = useState<{ left: number; top: number } | undefined>();
-  const [rowId, setRowId] = useState<string | undefined>();
-  const isContextMenuOpen = useMemo(() => {
-    return !!position;
-  }, [position]);
-
-  const closeContextMenu = useCallback(() => {
-    setPosition(undefined);
-  }, []);
-
-  const openContextMenu = useCallback((event: MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    setPosition({
-      left: event.clientX,
-      top: event.clientY,
-    });
-  }, []);
-
-  return {
-    isContextMenuOpen,
-    closeContextMenu,
-    openContextMenu,
-    position,
-    rowId,
-    setRowId,
-  };
-};
-
 const SELECTED_ROW_CSS_PROPERTY = 'bg-content-blue-50';
 
-function toggleProperty(
+export function toggleProperty(
   container: HTMLDivElement,
   rowId: string,
   status: boolean,

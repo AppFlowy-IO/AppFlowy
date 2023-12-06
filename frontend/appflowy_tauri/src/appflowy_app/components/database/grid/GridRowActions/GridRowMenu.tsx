@@ -76,7 +76,12 @@ function GridRowMenu({ rowId, ...props }: Props) {
   ];
 
   return (
-    <Popover anchorReference={'anchorPosition'} transformOrigin={{ vertical: 'top', horizontal: 'left' }} {...props}>
+    <Popover
+      keepMounted={false}
+      anchorReference={'anchorPosition'}
+      transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+      {...props}
+    >
       <MenuList>
         {options.map((option) => (
           <div className={'w-full'} key={option.label}>

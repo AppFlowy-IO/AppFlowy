@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import GridRowMenu from './GridRowMenu';
-import { useGridRowContextMenu } from './GridRowActions.hooks';
+import { toggleProperty } from './GridRowActions.hooks';
 
 function GridRowContextMenu({
   containerRef,
@@ -9,14 +9,39 @@ function GridRowContextMenu({
   hoverRowId?: string;
   containerRef: React.MutableRefObject<HTMLDivElement | null>;
 }) {
-  const {
-    rowId: contextMenuRowId,
-    setRowId: setContextMenuRowId,
-    isContextMenuOpen,
-    closeContextMenu,
-    openContextMenu,
-    position: contextMenuPosition,
-  } = useGridRowContextMenu();
+  const [position, setPosition] = useState<{ left: number; top: number } | undefined>();
+
+  const [rowId, setRowId] = useState<string | undefined>();
+
+  const isContextMenuOpen = useMemo(() => {
+    return !!position;
+  }, [position]);
+
+  const closeContextMenu = useCallback(() => {
+    setPosition(undefined);
+    const container = containerRef.current;
+
+    if (!container || !rowId) return;
+    toggleProperty(container, rowId, false);
+    setRowId(undefined);
+  }, [rowId, containerRef]);
+
+  const openContextMenu = useCallback(
+    (event: MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const container = containerRef.current;
+
+      if (!container || !hoverRowId) return;
+      toggleProperty(container, hoverRowId, true);
+      setRowId(hoverRowId);
+      setPosition({
+        left: event.clientX,
+        top: event.clientY,
+      });
+    },
+    [containerRef, hoverRowId]
+  );
 
   useEffect(() => {
     const container = containerRef.current;
@@ -31,32 +56,8 @@ function GridRowContextMenu({
     };
   }, [containerRef, openContextMenu]);
 
-  useEffect(() => {
-    if (!hoverRowId) {
-      return;
-    }
-
-    if (!isContextMenuOpen) {
-      setContextMenuRowId(undefined);
-      return;
-    }
-
-    setContextMenuRowId((prev) => {
-      if (!prev) {
-        return hoverRowId;
-      }
-
-      return prev;
-    });
-  }, [hoverRowId, isContextMenuOpen, setContextMenuRowId]);
-
-  return isContextMenuOpen && contextMenuRowId ? (
-    <GridRowMenu
-      open={isContextMenuOpen}
-      onClose={closeContextMenu}
-      anchorPosition={contextMenuPosition}
-      rowId={contextMenuRowId}
-    />
+  return isContextMenuOpen && rowId ? (
+    <GridRowMenu open={isContextMenuOpen} onClose={closeContextMenu} anchorPosition={position} rowId={rowId} />
   ) : null;
 }
 
