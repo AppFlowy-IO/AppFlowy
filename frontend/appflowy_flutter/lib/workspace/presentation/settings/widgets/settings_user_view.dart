@@ -19,7 +19,6 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'setting_third_party_login.dart';
 
@@ -124,7 +123,7 @@ class SettingsUserView extends StatelessWidget {
                 context
                     .read<SettingsUserViewBloc>()
                     .add(SettingsUserEvent.updateUserIcon(iconUrl: emoji));
-                context.pop();
+                Navigator.of(dialogContext).pop();
               },
             ),
           ),
