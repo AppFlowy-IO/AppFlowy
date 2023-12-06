@@ -5,10 +5,11 @@ import { useInputCell } from '$app/components/database/components/cell/Cell.hook
 
 const EditTextCellInput = lazy(() => import('$app/components/database/components/field_types/text/EditTextCellInput'));
 
-export const TextCell: FC<{
+interface TextCellProps {
   cell: TextCellType;
   placeholder?: string;
-}> = ({ placeholder, cell }) => {
+}
+export const TextCell: FC<TextCellProps> = ({ placeholder, cell }) => {
   const cellRef = useRef<HTMLDivElement>(null);
   const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);
   const handleClose = () => {
@@ -39,7 +40,7 @@ export const TextCell: FC<{
 
   return (
     <>
-      <CellText className={'min-h-[36px] w-full'} ref={cellRef} onClick={handleClick}>
+      <CellText className={`min-h-[36px] w-full`} ref={cellRef} onClick={handleClick}>
         {content}
       </CellText>
       <Suspense>

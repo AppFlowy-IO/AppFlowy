@@ -76,13 +76,16 @@ function createVirtualDragElement(rowId: string, container: HTMLDivElement) {
   row.style.left = `${rect.left + 64}px`;
   row.style.background = 'var(--content-blue-50)';
   cells.forEach((cell) => {
-    const node = cell.firstChild?.cloneNode(true) as HTMLDivElement;
+    const node = cell.cloneNode(true) as HTMLDivElement;
 
-    if (!node) return;
+    if (!node.classList.contains('grid-cell')) return;
 
+    node.style.top = '';
+    node.style.position = '';
+    node.style.left = '';
     node.style.width = (cell as HTMLDivElement).style.width;
     node.style.height = (cell as HTMLDivElement).style.height;
-    node.className = 'flex items-center text-xs px-2 border-b border-r border-line-divider';
+    node.className = 'flex items-center';
     row.appendChild(node);
   });
 
@@ -191,10 +194,10 @@ export function useDraggableGridRow(
         void rowService.moveRow(viewId, rowId, dropRowId);
       }
 
+      setIsDragging(false);
       container.removeEventListener('dragover', onDragOver);
       container.removeEventListener('dragend', onDragEnd);
       container.removeEventListener('drop', onDrop);
-      setIsDragging(false);
     };
 
     container.addEventListener('dragover', onDragOver);

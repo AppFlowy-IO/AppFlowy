@@ -35,7 +35,7 @@ export const GridCell = memo(({ row, column, columnIndex, style, onEditRecord, g
       const renderRowCell = <Cell rowId={row.data.meta.id} icon={row.data.meta.icon} field={field} />;
 
       return (
-        <div data-key={key} style={style} className={'flex border-b border-r border-line-divider'}>
+        <div data-key={key} style={style} className={'grid-cell flex border-b border-r border-line-divider'}>
           {field.isPrimary ? (
             <PrimaryCell
               icon={row.data.meta.icon}

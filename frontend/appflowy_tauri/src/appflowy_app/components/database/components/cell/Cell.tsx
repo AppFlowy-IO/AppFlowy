@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, HTMLAttributes } from 'react';
 import { FieldType } from '@/services/backend';
 
 import { Cell as CellType, Field } from '../../application';
@@ -12,7 +12,7 @@ import ChecklistCell from '$app/components/database/components/cell/ChecklistCel
 import DateTimeCell from '$app/components/database/components/cell/DateTimeCell';
 import TimestampCell from '$app/components/database/components/cell/TimestampCell';
 
-export interface CellProps {
+export interface CellProps extends HTMLAttributes<HTMLDivElement> {
   rowId: string;
   field: Field;
   icon?: string;
