@@ -1,7 +1,10 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+const builtInFontFamily = 'Poppins';
 
 abstract class BaseAppearance {
   final white = const Color(0xFFFFFFFF);
@@ -20,25 +23,37 @@ abstract class BaseAppearance {
     double? letterSpacing,
     double? lineHeight,
   }) {
+    fontSize = fontSize ?? FontSizes.s12;
+    fontWeight = fontWeight ??
+        (PlatformExtension.isDesktopOrWeb ? FontWeight.w500 : FontWeight.w400);
+    letterSpacing = fontSize * (letterSpacing ?? 0.005);
+
+    final textStyle = TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      color: fontColor,
+      fontWeight: fontWeight,
+      fontFamilyFallback: const [builtInFontFamily],
+      letterSpacing: letterSpacing,
+      height: lineHeight,
+    );
+
+    // we embed Poppins font in the app, so we can use it without GoogleFonts
+    if (fontFamily == builtInFontFamily) {
+      return textStyle;
+    }
+
     try {
       return GoogleFonts.getFont(
         fontFamily,
-        fontSize: fontSize ?? FontSizes.s12,
+        fontSize: fontSize,
         color: fontColor,
-        fontWeight: fontWeight ?? FontWeight.w500,
-        letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
+        fontWeight: fontWeight,
+        letterSpacing: letterSpacing,
         height: lineHeight,
       );
     } catch (e) {
-      return TextStyle(
-        fontFamily: fontFamily,
-        fontSize: fontSize ?? FontSizes.s12,
-        color: fontColor,
-        fontWeight: fontWeight ?? FontWeight.w500,
-        fontFamilyFallback: const ['Poppins'],
-        letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
-        height: lineHeight,
-      );
+      return textStyle;
     }
   }
 

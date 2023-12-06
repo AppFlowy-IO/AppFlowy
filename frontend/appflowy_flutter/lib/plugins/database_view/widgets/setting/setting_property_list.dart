@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_paginated_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
@@ -10,14 +9,12 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/field_visibility_extension.dart';
-import 'package:appflowy/plugins/database_view/widgets/setting/mobile_database_property_editor.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -137,22 +134,20 @@ class DatabasePropertyCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformExtension.isMobile) {
-      return MobileDatabasePropertyCell(
-        fieldInfo: fieldInfo,
-        viewId: viewId,
-        fieldController: fieldController,
-        bloc: bloc,
-      );
-    }
-
-    return DesktopDatabasePropertyCell(
-      fieldInfo: fieldInfo,
-      viewId: viewId,
-      popoverMutex: popoverMutex,
-      index: index,
-      fieldController: fieldController,
-    );
+    return PlatformExtension.isMobile
+        ? MobileDatabasePropertyCell(
+            fieldInfo: fieldInfo,
+            viewId: viewId,
+            fieldController: fieldController,
+            bloc: bloc,
+          )
+        : DesktopDatabasePropertyCell(
+            fieldInfo: fieldInfo,
+            viewId: viewId,
+            popoverMutex: popoverMutex,
+            index: index,
+            fieldController: fieldController,
+          );
   }
 }
 
@@ -188,18 +183,8 @@ class _MobileDatabasePropertyCellState
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
-        onTap: () => FlowyBottomSheetController.of(context)!.push(
-          SheetPage(
-            title: LocaleKeys.grid_field_editProperty.tr(),
-            body: MobileDatabasePropertyEditor(
-              viewId: widget.viewId,
-              fieldInfo: widget.fieldInfo,
-              fieldController: widget.fieldController,
-              bloc: widget.bloc,
-              padding: EdgeInsets.zero,
-            ),
-          ),
-        ),
+        onTap: () =>
+            showEditFieldScreen(context, widget.viewId, widget.fieldInfo),
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Row(

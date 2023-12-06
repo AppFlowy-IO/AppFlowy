@@ -4,11 +4,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,19 +14,20 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../accessory/cell_accessory.dart';
 import '../../cell_builder.dart';
-import 'cell_editor.dart';
 import 'url_cell_bloc.dart';
 
 class GridURLCellStyle extends GridCellStyle {
   String? placeholder;
   TextStyle? textStyle;
   bool? autofocus;
+  EdgeInsets? cellPadding;
 
   List<GridURLCellAccessoryType> accessoryTypes;
 
   GridURLCellStyle({
     this.placeholder,
     this.accessoryTypes = const [],
+    this.cellPadding,
   });
 }
 
@@ -48,14 +47,14 @@ class GridURLCell extends GridCellWidget {
     if (style != null) {
       cellStyle = (style as GridURLCellStyle);
     } else {
-      cellStyle = null;
+      cellStyle = GridURLCellStyle();
     }
   }
 
   /// Use
   final URLCellDataNotifier _cellDataNotifier;
   final CellControllerBuilder cellControllerBuilder;
-  late final GridURLCellStyle? cellStyle;
+  late final GridURLCellStyle cellStyle;
 
   @override
   GridCellState<GridURLCell> createState() => _GridURLCellState();
@@ -65,13 +64,11 @@ class GridURLCell extends GridCellWidget {
     GridCellAccessoryBuildContext buildContext,
   ) get accessoryBuilder => (buildContext) {
         final List<GridCellAccessoryBuilder> accessories = [];
-        if (cellStyle != null) {
-          accessories.addAll(
-            cellStyle!.accessoryTypes.map((ty) {
-              return _accessoryFromType(ty, buildContext);
-            }),
-          );
-        }
+        accessories.addAll(
+          cellStyle.accessoryTypes.map((ty) {
+            return _accessoryFromType(ty, buildContext);
+          }),
+        );
 
         // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.visitURL
         if (accessories.isEmpty) {
@@ -143,39 +140,31 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
           _controller.text = state.content;
         },
         builder: (context, state) {
-          final style = widget.cellStyle?.textStyle ??
+          final style = widget.cellStyle.textStyle ??
               Theme.of(context).textTheme.bodyMedium!;
           widget._cellDataNotifier.value = state.content;
-          return Padding(
-            padding: EdgeInsets.only(
-              left: GridSize.cellContentInsets.left,
-              right: GridSize.cellContentInsets.right,
+          return TextField(
+            controller: _controller,
+            focusNode: focusNode,
+            maxLines: null,
+            style: style.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              decoration: TextDecoration.underline,
             ),
-            child: TextField(
-              controller: _controller,
-              focusNode: focusNode,
-              maxLines: null,
-              style: style.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                decoration: TextDecoration.underline,
-              ),
-              autofocus: false,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.only(
-                  top: GridSize.cellContentInsets.top,
-                  bottom: GridSize.cellContentInsets.bottom,
-                ),
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                hintText: widget.cellStyle?.placeholder,
-                hintStyle: style.copyWith(color: Theme.of(context).hintColor),
-                isDense: true,
-              ),
-              onTapOutside: (_) => focusNode.unfocus(),
+            autofocus: false,
+            decoration: InputDecoration(
+              contentPadding:
+                  widget.cellStyle.cellPadding ?? GridSize.cellContentInsets,
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              hintText: widget.cellStyle.placeholder,
+              hintStyle: style.copyWith(color: Theme.of(context).hintColor),
+              isDense: true,
             ),
+            onTapOutside: (_) => focusNode.unfocus(),
           );
         },
       ),
@@ -184,57 +173,12 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
 
   @override
   Future<void> focusChanged() async {
-    _cellBloc.add(URLCellEvent.updateURL(_controller.text));
+    _cellBloc.add(URLCellEvent.updateURL(_controller.text.trim()));
     return super.focusChanged();
   }
 
   @override
   String? onCopy() => _cellBloc.state.content;
-}
-
-class _EditURLAccessory extends StatefulWidget {
-  const _EditURLAccessory({
-    required this.cellControllerBuilder,
-    required this.anchorContext,
-  });
-
-  final CellControllerBuilder cellControllerBuilder;
-  final BuildContext anchorContext;
-
-  @override
-  State<StatefulWidget> createState() => _EditURLAccessoryState();
-}
-
-class _EditURLAccessoryState extends State<_EditURLAccessory>
-    with GridCellAccessoryState {
-  final popoverController = PopoverController();
-
-  @override
-  Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      margin: EdgeInsets.zero,
-      constraints: BoxConstraints.loose(const Size(300, 160)),
-      controller: popoverController,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(0, 8),
-      child: FlowySvg(
-        FlowySvgs.edit_s,
-        color: AFThemeExtension.of(context).textColor,
-      ),
-      popupBuilder: (BuildContext popoverContext) {
-        return URLEditorPopover(
-          cellController:
-              widget.cellControllerBuilder.build() as URLCellController,
-          onExit: () => popoverController.close(),
-        );
-      },
-    );
-  }
-
-  @override
-  void onTap() {
-    popoverController.show();
-  }
 }
 
 typedef CopyURLCellAccessoryBuilder
@@ -257,10 +201,14 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   @override
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
-      return _URLAccessoryIconContainer(
-        child: FlowySvg(
-          FlowySvgs.copy_s,
-          color: AFThemeExtension.of(context).textColor,
+      return FlowyTooltip(
+        message: LocaleKeys.tooltip_urlCopyAccessory.tr(),
+        preferBelow: false,
+        child: _URLAccessoryIconContainer(
+          child: FlowySvg(
+            FlowySvgs.copy_s,
+            color: AFThemeExtension.of(context).textColor,
+          ),
         ),
       );
     } else {
@@ -299,10 +247,14 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   @override
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
-      return _URLAccessoryIconContainer(
-        child: FlowySvg(
-          FlowySvgs.attach_s,
-          color: AFThemeExtension.of(context).textColor,
+      return FlowyTooltip(
+        message: LocaleKeys.tooltip_urlLaunchAccessory.tr(),
+        preferBelow: false,
+        child: _URLAccessoryIconContainer(
+          child: FlowySvg(
+            FlowySvgs.attach_s,
+            color: AFThemeExtension.of(context).textColor,
+          ),
         ),
       );
     } else {

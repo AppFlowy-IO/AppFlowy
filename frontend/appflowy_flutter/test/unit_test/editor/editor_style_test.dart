@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,7 +40,7 @@ void main() {
       expect(result, isA<TextStyle>());
       expect(
         result.fontFamily,
-        GoogleFonts.getFont('Poppins').fontFamily,
+        GoogleFonts.getFont(builtInFontFamily).fontFamily,
       );
     });
   });

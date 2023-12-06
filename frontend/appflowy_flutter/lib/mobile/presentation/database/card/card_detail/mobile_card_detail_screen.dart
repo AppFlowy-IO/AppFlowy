@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
@@ -23,7 +22,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 
-import 'widgets/mobile_create_row_field_button.dart';
+import 'widgets/mobile_create_field_button.dart';
 import 'widgets/mobile_row_property_list.dart';
 
 class MobileRowDetailPage extends StatefulWidget {
@@ -95,12 +94,9 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
                 if (state.rowInfos.isEmpty || state.currentRowId == null) {
                   return const SizedBox.shrink();
                 }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: MobileRowDetailPageContent(
-                    databaseController: widget.databaseController,
-                    rowMeta: state.rowInfos[index].rowMeta,
-                  ),
+                return MobileRowDetailPageContent(
+                  databaseController: widget.databaseController,
+                  rowMeta: state.rowInfos[index].rowMeta,
                 );
               },
             );
@@ -142,15 +138,16 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
   }
 
   void _showCardActions(BuildContext context) {
-    showFlowyMobileBottomSheet(
+    showMobileBottomSheet(
       context,
-      title: LocaleKeys.board_cardActions.tr(),
-      builder: (_) => Row(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      padding: const EdgeInsets.only(top: 4, bottom: 32),
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: BottomSheetActionWidget(
-              svg: FlowySvgs.copy_s,
-              text: LocaleKeys.button_duplicate.tr(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: _CardActionButton(
               onTap: () {
                 final rowId = _bloc.state.currentRowId;
                 if (rowId == null) {
@@ -165,13 +162,14 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
                   gravity: ToastGravity.BOTTOM,
                 );
               },
+              icon: FlowySvgs.copy_s,
+              text: LocaleKeys.button_duplicate.tr(),
             ),
           ),
-          const HSpace(8),
-          Expanded(
-            child: BottomSheetActionWidget(
-              svg: FlowySvgs.m_delete_m,
-              text: LocaleKeys.button_delete.tr(),
+          const Divider(height: 9),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: _CardActionButton(
               onTap: () {
                 final rowId = _bloc.state.currentRowId;
                 if (rowId == null) {
@@ -186,9 +184,46 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
                   gravity: ToastGravity.BOTTOM,
                 );
               },
+              icon: FlowySvgs.m_delete_m,
+              text: LocaleKeys.button_delete.tr(),
+              color: Theme.of(context).colorScheme.error,
             ),
           ),
+          const Divider(height: 9),
         ],
+      ),
+    );
+  }
+}
+
+class _CardActionButton extends StatelessWidget {
+  const _CardActionButton({
+    required this.onTap,
+    required this.icon,
+    required this.text,
+    this.color,
+  });
+
+  final VoidCallback onTap;
+  final FlowySvgData icon;
+  final String text;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            FlowySvg(icon, size: const Size.square(20), color: color),
+            const HSpace(8),
+            FlowyText(text, fontSize: 15, color: color),
+          ],
+        ),
       ),
     );
   }
@@ -219,78 +254,74 @@ class RowDetailFab extends StatelessWidget {
         final previousDisabled = rowIndex == 0;
         final nextDisabled = rowIndex == rowCount - 1;
 
-        return Positioned(
-          bottom: 0,
-          right: 0,
-          child: IntrinsicWidth(
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(26),
-                boxShadow: const [
-                  BoxShadow(
-                    offset: Offset(0, 8),
-                    blurRadius: 20,
-                    spreadRadius: 0,
-                    color: Color(0x191F2329),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox.square(
-                    dimension: 48,
-                    child: Material(
-                      color: Theme.of(context).colorScheme.surface,
+        return IntrinsicWidth(
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(26),
+              boxShadow: const [
+                BoxShadow(
+                  offset: Offset(0, 8),
+                  blurRadius: 20,
+                  spreadRadius: 0,
+                  color: Color(0x191F2329),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox.square(
+                  dimension: 48,
+                  child: Material(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(26),
+                    borderOnForeground: false,
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(26),
-                      borderOnForeground: false,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(26),
-                        onTap: () {
-                          if (!previousDisabled) {
-                            onTapPrevious();
-                          }
-                        },
-                        child: Icon(
-                          Icons.chevron_left_outlined,
-                          color: previousDisabled
-                              ? Theme.of(context).disabledColor
-                              : null,
-                        ),
+                      onTap: () {
+                        if (!previousDisabled) {
+                          onTapPrevious();
+                        }
+                      },
+                      child: Icon(
+                        Icons.chevron_left_outlined,
+                        color: previousDisabled
+                            ? Theme.of(context).disabledColor
+                            : null,
                       ),
                     ),
                   ),
-                  FlowyText.medium(
-                    "${rowIndex + 1} / $rowCount",
-                    fontSize: 14,
-                  ),
-                  SizedBox.square(
-                    dimension: 48,
-                    child: Material(
-                      color: Theme.of(context).colorScheme.surface,
+                ),
+                FlowyText.medium(
+                  "${rowIndex + 1} / $rowCount",
+                  fontSize: 14,
+                ),
+                SizedBox.square(
+                  dimension: 48,
+                  child: Material(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(26),
+                    borderOnForeground: false,
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(26),
-                      borderOnForeground: false,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(26),
-                        onTap: () {
-                          if (!nextDisabled) {
-                            onTapNext();
-                          }
-                        },
-                        child: Icon(
-                          Icons.chevron_right_outlined,
-                          color: nextDisabled
-                              ? Theme.of(context).disabledColor
-                              : null,
-                        ),
+                      onTap: () {
+                        if (!nextDisabled) {
+                          onTapNext();
+                        }
+                      },
+                      child: Icon(
+                        Icons.chevron_right_outlined,
+                        color: nextDisabled
+                            ? Theme.of(context).disabledColor
+                            : null,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -357,11 +388,12 @@ class MobileRowDetailPageContentState
                     if (state.primaryField != null) {
                       final cellStyle = GridTextCellStyle(
                         placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
-                        textStyle: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontSize: 22),
-                        cellPadding: const EdgeInsets.symmetric(vertical: 8),
+                        textStyle:
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                        cellPadding: const EdgeInsets.symmetric(vertical: 9),
                         useRoundedBorder: false,
                       );
 
@@ -371,9 +403,12 @@ class MobileRowDetailPageContentState
                         fieldInfo: FieldInfo.initial(state.primaryField!),
                       );
 
-                      return cellBuilder.build(
-                        cellContext,
-                        style: cellStyle,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: cellBuilder.build(
+                          cellContext,
+                          style: cellStyle,
+                        ),
                       );
                     }
                     return const SizedBox.shrink();
@@ -382,22 +417,26 @@ class MobileRowDetailPageContentState
               ),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.only(top: 9, bottom: 100),
                   children: [
-                    MobileRowPropertyList(
-                      cellBuilder: cellBuilder,
-                      viewId: viewId,
-                      fieldController: fieldController,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: MobileRowPropertyList(
+                        cellBuilder: cellBuilder,
+                        viewId: viewId,
+                        fieldController: fieldController,
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.fromLTRB(6, 6, 16, 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (rowDetailState.numHiddenFields != 0)
+                          if (rowDetailState.numHiddenFields != 0) ...[
                             const ToggleHiddenFieldsVisibilityButton(),
-                          const VSpace(12),
-                          MobileCreateRowFieldButton(
+                            const VSpace(12),
+                          ],
+                          MobileRowDetailCreateFieldButton(
                             viewId: viewId,
                             fieldController: fieldController,
                           ),

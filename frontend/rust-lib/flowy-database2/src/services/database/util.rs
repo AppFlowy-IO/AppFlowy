@@ -59,7 +59,7 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     .into_inner()
     .into_iter()
     .map(|(field_id, field_settings)| {
-      FieldSettings::from_anymap(&field_id, view.layout, &field_settings)
+      FieldSettings::from_any_map(&field_id, view.layout, &field_settings)
     })
     .map(FieldSettingsPB::from)
     .collect::<Vec<FieldSettingsPB>>();

@@ -6,10 +6,11 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class MobileAppearance extends BaseAppearance {
-  static const _primaryColor = Color(0xFF2DA2F6); //primary 100
+  static const _primaryColor = Color(0xFF00BCF0); //primary 100
   static const _onBackgroundColor = Color(0xff2F3030); // text/title color
   static const _onSurfaceColor = Color(0xff676666); // text/body color
   static const _onSecondaryColor = Color(0xFFC5C7CB); // text/body2 color
+  static const _hintColorInDarkMode = Color(0xff626262); // hint color
 
   @override
   ThemeData getThemeData(
@@ -23,7 +24,10 @@ class MobileAppearance extends BaseAppearance {
 
     final fontStyle = getFontStyle(
       fontFamily: fontFamily,
+      fontSize: 16.0,
+      fontWeight: FontWeight.w400,
     );
+
     final codeFontStyle = getFontStyle(
       fontFamily: codeFontFamily,
     );
@@ -60,13 +64,14 @@ class MobileAppearance extends BaseAppearance {
             primary: _primaryColor,
             onPrimary: Colors.white,
             // TODO(yijing): add color later
-            secondary: Colors.black,
+            secondary: const Color(0xff2d2d2d), //temp
             onSecondary: Colors.white,
+            tertiary: const Color(0xff858585), // temp
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
-            background: const Color(0xff1C1C1E), // BG/Secondary color
+            background: const Color(0xff121212), // temp
             onBackground: Colors.white,
-            outline: const Color(0xff96989C), //caption
+            outline: _hintColorInDarkMode,
             outlineVariant: Colors.black,
             //Snack bar
             surface: const Color(0xff2F3030),
@@ -74,8 +79,8 @@ class MobileAppearance extends BaseAppearance {
           );
 
     final hintColor = brightness == Brightness.light
-        ? const Color(0xff89909B)
-        : const Color(0xff96989C);
+        ? const Color(0x991F2329)
+        : _hintColorInDarkMode;
 
     return ThemeData(
       // color
@@ -194,9 +199,7 @@ class MobileAppearance extends BaseAppearance {
         // body2 14 Regular
         bodyMedium: fontStyle.copyWith(
           color: colorTheme.onBackground,
-          fontSize: 14,
           fontWeight: FontWeight.w400,
-          // height: 1.2,
           letterSpacing: 0.07,
         ),
         // Trash empty title

@@ -177,7 +177,9 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below"
+    "addBlockBelow": "Add a block below",
+    "urlLaunchAccessory": "Open in browser",
+    "urlCopyAccessory": "Copy URL"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -492,6 +494,16 @@
       "isEmpty": "Is empty",
       "isNotEmpty": "Is not empty"
     },
+    "dateFilter": {
+      "is": "Is",
+      "before": "Is before",
+      "after": "Is after",
+      "onOrBefore": "Is on or before",
+      "onOrAfter": "Is on or after",
+      "between": "Is between",
+      "empty": "Is empty",
+      "notEmpty": "Is not empty"
+    },
     "field": {
       "hide": "Hide",
       "show": "Show",
@@ -538,20 +550,21 @@
       "editProperty": "Edit property",
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
-      "newColumn": "New Column"
+      "newColumn": "New Column",
+      "format": "Format"
     },
     "rowPage": {
       "newField": "Add a new field",
       "fieldDragElementTooltip": "Click to open menu",
       "showHiddenFields": {
-        "one": "Show {} hidden field",
-        "many": "Show {} hidden fields",
-        "other": "Show {} hidden fields"
+        "one": "Show {count} hidden field",
+        "many": "Show {count} hidden fields",
+        "other": "Show {count} hidden fields"
       },
       "hideHiddenFields": {
-        "one": "Hide {} hidden field",
-        "many": "Hide {} hidden fields",
-        "other": "Hide {} hidden fields"
+        "one": "Hide {count} hidden field",
+        "many": "Hide {count} hidden fields",
+        "other": "Hide {count} hidden fields"
       }
     },
     "sort": {
@@ -592,7 +605,9 @@
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search or create an option...",
       "createNew": "Create an new",
-      "orSelectOne": "Or select an option"
+      "orSelectOne": "Or select an option",
+      "typeANewOption": "Type a new option",
+      "tagName": "Tag name"
     },
     "checklist": {
       "taskHint": "Task description",
@@ -864,8 +879,8 @@
       "noDateTitle": "No Date",
       "noDateHint": {
         "zero": "Unscheduled events will show up here",
-        "one": "{} unscheduled event",
-        "other": "{} unscheduled events"
+        "one": "{count} unscheduled event",
+        "other": "{count} unscheduled events"
       },
       "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",

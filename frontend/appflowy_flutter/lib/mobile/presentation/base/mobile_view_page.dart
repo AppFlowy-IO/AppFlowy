@@ -93,20 +93,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
             child: Builder(
               builder: (context) {
                 final view = context.watch<ViewBloc>().state.view;
-                return _buildApp(
-                  view,
-                  actions,
-                  body,
-                );
+                return _buildApp(view, actions, body);
               },
             ),
           );
         } else {
-          return _buildApp(
-            null,
-            [],
-            body,
-          );
+          return _buildApp(null, [], body);
         }
       },
     );
@@ -134,9 +126,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
             ),
           ],
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
+        leading: const AppBarBackButton(),
         actions: actions,
       ),
       body: SafeArea(
@@ -150,7 +140,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
       onTap: (context) {
         showMobileBottomSheet(
           context,
-          showDragHandle: true,
           builder: (_) => _buildViewPageBottomSheet(context),
         );
       },

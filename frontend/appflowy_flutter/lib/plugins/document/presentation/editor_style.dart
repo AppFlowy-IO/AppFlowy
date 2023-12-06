@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -139,9 +140,10 @@ class EditorStyleCustomizer {
       fontSize + 2,
       fontSize,
     ];
-    return TextStyle(
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    return baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
+      fontWeight: FontWeight.w600,
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
-      fontWeight: FontWeight.bold,
     );
   }
 
@@ -160,7 +162,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
-      fontFamily: 'poppins',
+      fontFamily: builtInFontFamily,
       fontSize: fontSize,
       height: 1.5,
       color: theme.colorScheme.onBackground.withOpacity(0.6),
@@ -207,7 +209,7 @@ class EditorStyleCustomizer {
         fontWeight: fontWeight,
       );
     } on Exception {
-      return GoogleFonts.getFont('Poppins');
+      return GoogleFonts.getFont(builtInFontFamily);
     }
   }
 
@@ -216,11 +218,12 @@ class EditorStyleCustomizer {
     Node node,
     int index,
     TextInsert text,
-    TextSpan textSpan,
+    TextSpan before,
+    TextSpan after,
   ) {
     final attributes = text.attributes;
     if (attributes == null) {
-      return textSpan;
+      return before;
     }
 
     // try to refresh font here.
@@ -239,6 +242,7 @@ class EditorStyleCustomizer {
       final type = mention[MentionBlockKeys.type];
       return WidgetSpan(
         alignment: PlaceholderAlignment.middle,
+        style: after.style,
         child: MentionBlock(
           key: ValueKey(
             switch (type) {
@@ -252,6 +256,7 @@ class EditorStyleCustomizer {
           node: node,
           index: index,
           mention: mention,
+          textStyle: after.style,
         ),
       );
     }
@@ -274,7 +279,7 @@ class EditorStyleCustomizer {
     final href = attributes[AppFlowyRichTextKeys.href] as String?;
     if (PlatformExtension.isMobile && href != null) {
       return TextSpan(
-        style: textSpan.style,
+        style: before.style,
         text: text.text,
         recognizer: TapGestureRecognizer()
           ..onTap = () {
@@ -304,7 +309,8 @@ class EditorStyleCustomizer {
       node,
       index,
       text,
-      textSpan,
+      before,
+      after,
     );
   }
 

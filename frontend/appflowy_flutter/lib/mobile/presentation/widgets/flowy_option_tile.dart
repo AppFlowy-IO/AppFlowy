@@ -17,12 +17,14 @@ class FlowyOptionTile extends StatelessWidget {
     this.showTopBorder = true,
     this.showBottomBorder = true,
     this.text,
+    this.textColor,
     this.controller,
     this.leading,
     this.onTap,
     this.trailing,
     this.textFieldPadding = const EdgeInsets.symmetric(
-      horizontal: 16.0,
+      horizontal: 12.0,
+      vertical: 2.0,
     ),
     this.isSelected = false,
     this.textFieldHintText,
@@ -32,6 +34,7 @@ class FlowyOptionTile extends StatelessWidget {
 
   factory FlowyOptionTile.text({
     required String text,
+    Color? textColor,
     bool showTopBorder = true,
     bool showBottomBorder = true,
     Widget? leftIcon,
@@ -41,6 +44,7 @@ class FlowyOptionTile extends StatelessWidget {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.text,
       text: text,
+      textColor: textColor,
       controller: null,
       onTap: onTap,
       showTopBorder: showTopBorder,
@@ -55,7 +59,8 @@ class FlowyOptionTile extends StatelessWidget {
     void Function(String value)? onTextChanged,
     void Function(String value)? onTextSubmitted,
     EdgeInsets textFieldPadding = const EdgeInsets.symmetric(
-      horizontal: 16.0,
+      horizontal: 12.0,
+      vertical: 2.0,
     ),
     bool showTopBorder = true,
     bool showBottomBorder = true,
@@ -126,6 +131,7 @@ class FlowyOptionTile extends StatelessWidget {
   final bool showTopBorder;
   final bool showBottomBorder;
   final String? text;
+  final Color? textColor;
   final TextEditingController? controller;
   final EdgeInsets textFieldPadding;
   final void Function()? onTap;
@@ -150,10 +156,11 @@ class FlowyOptionTile extends StatelessWidget {
         showTopBorder: showTopBorder,
         showBottomBorder: showBottomBorder,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildText(),
             ..._buildTextField(),
-            const Spacer(),
+            if (controller == null) const Spacer(),
             trailing ?? const SizedBox.shrink(),
             const HSpace(12.0),
           ],
@@ -185,7 +192,7 @@ class FlowyOptionTile extends StatelessWidget {
           useIntrinsicWidth: true,
           text: FlowyText(
             text!,
-            fontSize: 16.0,
+            color: textColor,
           ),
           margin: const EdgeInsets.symmetric(
             horizontal: 16.0,
@@ -206,7 +213,6 @@ class FlowyOptionTile extends StatelessWidget {
           ),
           child: FlowyText(
             text!,
-            fontSize: 16.0,
           ),
         );
     }
@@ -222,11 +228,11 @@ class FlowyOptionTile extends StatelessWidget {
     return [
       if (leading != null) leading!,
       Expanded(
-        child: ConstrainedBox(
+        child: Container(
           constraints: const BoxConstraints.tightFor(
-            height: 52.0,
-            width: double.infinity,
+            height: 54.0,
           ),
+          alignment: Alignment.center,
           child: TextField(
             controller: controller,
             textInputAction: TextInputAction.done,

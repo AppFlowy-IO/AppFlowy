@@ -2,19 +2,21 @@ use flowy_database2::entities::FieldType;
 use flowy_database2::entities::FieldVisibility;
 use flowy_database2::services::field_settings::DEFAULT_WIDTH;
 
-use crate::database::field_settings_test::script::FieldSettingsScript::*;
 use crate::database::field_settings_test::script::FieldSettingsTest;
 
 /// Check default field settings for grid, kanban and calendar
 #[tokio::test]
-async fn get_default_field_settings() {
+async fn get_default_grid_field_settings() {
+  // grid
   let mut test = FieldSettingsTest::new_grid().await;
-  let scripts = vec![AssertAllFieldSettings {
-    visibility: FieldVisibility::AlwaysShown,
-    width: DEFAULT_WIDTH,
-  }];
-  test.run_scripts(scripts).await;
+  test
+    .assert_all_field_settings(FieldVisibility::AlwaysShown, DEFAULT_WIDTH)
+    .await;
+}
 
+#[tokio::test]
+async fn get_default_board_field_settings() {
+  // board
   let mut test = FieldSettingsTest::new_board().await;
   let non_primary_field_ids: Vec<String> = test
     .get_fields()
@@ -23,20 +25,25 @@ async fn get_default_field_settings() {
     .map(|field| field.id)
     .collect();
   let primary_field_id = test.get_first_field(FieldType::RichText).id;
-  let scripts = vec![
-    AssertFieldSettings {
-      field_ids: non_primary_field_ids.clone(),
-      visibility: FieldVisibility::HideWhenEmpty,
-      width: DEFAULT_WIDTH,
-    },
-    AssertFieldSettings {
-      field_ids: vec![primary_field_id.clone()],
-      visibility: FieldVisibility::AlwaysShown,
-      width: DEFAULT_WIDTH,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test
+    .assert_field_settings(
+      non_primary_field_ids.clone(),
+      FieldVisibility::HideWhenEmpty,
+      DEFAULT_WIDTH,
+    )
+    .await;
+  test
+    .assert_field_settings(
+      vec![primary_field_id.clone()],
+      FieldVisibility::AlwaysShown,
+      DEFAULT_WIDTH,
+    )
+    .await;
+}
 
+#[tokio::test]
+async fn get_default_calendar_field_settings() {
+  // calendar
   let mut test = FieldSettingsTest::new_calendar().await;
   let non_primary_field_ids: Vec<String> = test
     .get_fields()
@@ -45,19 +52,20 @@ async fn get_default_field_settings() {
     .map(|field| field.id)
     .collect();
   let primary_field_id = test.get_first_field(FieldType::RichText).id;
-  let scripts = vec![
-    AssertFieldSettings {
-      field_ids: non_primary_field_ids.clone(),
-      visibility: FieldVisibility::HideWhenEmpty,
-      width: DEFAULT_WIDTH,
-    },
-    AssertFieldSettings {
-      field_ids: vec![primary_field_id.clone()],
-      visibility: FieldVisibility::AlwaysShown,
-      width: DEFAULT_WIDTH,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test
+    .assert_field_settings(
+      non_primary_field_ids.clone(),
+      FieldVisibility::HideWhenEmpty,
+      DEFAULT_WIDTH,
+    )
+    .await;
+  test
+    .assert_field_settings(
+      vec![primary_field_id.clone()],
+      FieldVisibility::AlwaysShown,
+      DEFAULT_WIDTH,
+    )
+    .await;
 }
 
 /// Update field settings for a field
@@ -72,26 +80,40 @@ async fn update_field_settings_test() {
     .collect();
   let primary_field_id = test.get_first_field(FieldType::RichText).id;
 
-  let scripts = vec![
-    AssertFieldSettings {
-      field_ids: non_primary_field_ids,
-      visibility: FieldVisibility::HideWhenEmpty,
-      width: DEFAULT_WIDTH,
-    },
-    AssertFieldSettings {
-      field_ids: vec![primary_field_id.clone()],
-      visibility: FieldVisibility::AlwaysShown,
-      width: DEFAULT_WIDTH,
-    },
-    UpdateFieldSettings {
-      field_id: primary_field_id,
-      visibility: Some(FieldVisibility::HideWhenEmpty),
-      width: None,
-    },
-    AssertAllFieldSettings {
-      visibility: FieldVisibility::HideWhenEmpty,
-      width: DEFAULT_WIDTH,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test
+    .assert_field_settings(
+      non_primary_field_ids.clone(),
+      FieldVisibility::HideWhenEmpty,
+      DEFAULT_WIDTH,
+    )
+    .await;
+  test
+    .assert_field_settings(
+      vec![primary_field_id.clone()],
+      FieldVisibility::AlwaysShown,
+      DEFAULT_WIDTH,
+    )
+    .await;
+
+  test
+    .update_field_settings(
+      primary_field_id.clone(),
+      Some(FieldVisibility::HideWhenEmpty),
+      None,
+    )
+    .await;
+  test
+    .assert_field_settings(
+      non_primary_field_ids.clone(),
+      FieldVisibility::HideWhenEmpty,
+      DEFAULT_WIDTH,
+    )
+    .await;
+  test
+    .assert_field_settings(
+      vec![primary_field_id.clone()],
+      FieldVisibility::HideWhenEmpty,
+      DEFAULT_WIDTH,
+    )
+    .await;
 }

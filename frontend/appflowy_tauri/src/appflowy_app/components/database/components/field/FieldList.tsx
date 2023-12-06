@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Input, MenuItem } from '@mui/material';
+import { OutlinedInput, MenuItem, MenuList } from '@mui/material';
 import { Field } from '$app/components/database/components/field/Field';
 import { Field as FieldType } from '../../application';
 import { useDatabase } from '$app/components/database';
@@ -26,34 +26,37 @@ function FieldList({ showSearch, onItemClick, searchPlaceholder }: FieldListProp
 
   const searchInput = useMemo(() => {
     return showSearch ? (
-      <div className={'w-full px-8 py-2'}>
-        <Input placeholder={searchPlaceholder} onChange={onInputChange} />
+      <div className={'w-[220px] px-4 pt-2'}>
+        <OutlinedInput size={'small'} autoFocus={true} placeholder={searchPlaceholder} onChange={onInputChange} />
       </div>
     ) : null;
   }, [onInputChange, searchPlaceholder, showSearch]);
 
   const emptyList = useMemo(() => {
     return fieldsResult.length === 0 ? (
-      <div className={'px-8 py-4 text-center text-gray-500'}>No fields found</div>
+      <div className={'px-4 pt-3 text-center text-sm font-medium text-gray-500'}>No fields found</div>
     ) : null;
   }, [fieldsResult]);
 
   return (
-    <>
+    <div className={'pt-2'}>
       {searchInput}
       {emptyList}
-      {fieldsResult.map((field) => (
-        <MenuItem
-          key={field.id}
-          value={field.id}
-          onClick={(event) => {
-            onItemClick?.(event, field);
-          }}
-        >
-          <Field field={field} />
-        </MenuItem>
-      ))}
-    </>
+      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
+        {fieldsResult.map((field) => (
+          <MenuItem
+            className={'overflow-hidden text-ellipsis px-1'}
+            key={field.id}
+            value={field.id}
+            onClick={(event) => {
+              onItemClick?.(event, field);
+            }}
+          >
+            <Field field={field} />
+          </MenuItem>
+        ))}
+      </MenuList>
+    </div>
   );
 }
 

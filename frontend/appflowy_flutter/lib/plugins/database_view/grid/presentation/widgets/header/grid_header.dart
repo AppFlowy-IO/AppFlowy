@@ -1,10 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_new_field_option.dart';
+import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/mobile_field_cell.dart';
@@ -15,7 +13,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../../../../application/field/type_option/type_option_service.dart';
@@ -96,7 +93,13 @@ class _GridHeaderState extends State<_GridHeader> {
   Widget build(BuildContext context) {
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
       builder: (context, state) {
-        final cells = state.fields
+        final fields = [...state.fields];
+        FieldInfo? firstField;
+        if (PlatformExtension.isMobile && fields.isNotEmpty) {
+          firstField = fields.removeAt(0);
+        }
+
+        final cells = fields
             .map(
               (fieldInfo) => PlatformExtension.isDesktop
                   ? GridFieldCell(
@@ -133,7 +136,7 @@ class _GridHeaderState extends State<_GridHeader> {
               child: child,
             ),
             draggingWidgetOpacity: 0,
-            header: const _CellLeading(),
+            header: _cellLeading(firstField),
             needsLongPressDraggable: PlatformExtension.isMobile,
             footer: _CellTrailing(viewId: widget.viewId),
             onReorder: (int oldIndex, int newIndex) {
@@ -166,16 +169,25 @@ class _GridHeaderState extends State<_GridHeader> {
           .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
     }
   }
-}
 
-class _CellLeading extends StatelessWidget {
-  const _CellLeading({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: GridSize.leadingHeaderPadding,
-    );
+  Widget _cellLeading(FieldInfo? fieldInfo) {
+    if (PlatformExtension.isDesktop) {
+      return SizedBox(width: GridSize.leadingHeaderPadding);
+    } else {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(width: GridSize.leadingHeaderPadding),
+          if (fieldInfo != null)
+            MobileFieldButton(
+              key: _getKeyById(fieldInfo.id),
+              viewId: widget.viewId,
+              fieldController: widget.fieldController,
+              fieldInfo: fieldInfo,
+            ),
+        ],
+      );
+    }
   }
 }
 
@@ -226,17 +238,18 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
     return FlowyButton(
       margin: PlatformExtension.isDesktop
           ? GridSize.cellContentInsets
-          : const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          : const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
       radius: BorderRadius.zero,
-      text: FlowyText.medium(
+      text: FlowyText(
         LocaleKeys.grid_field_newProperty.tr(),
+        fontSize: PlatformExtension.isDesktop ? null : 15,
         overflow: TextOverflow.ellipsis,
         color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
       ),
       hoverColor: AFThemeExtension.of(context).greyHover,
       onTap: () async {
         if (PlatformExtension.isMobile) {
-          _showCreateFieldBottomSheet(context);
+          showCreateFieldBottomSheet(context, widget.viewId);
         } else {
           final result = await TypeOptionBackendService.createFieldTypeOption(
             viewId: widget.viewId,
@@ -249,44 +262,9 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       },
       leftIcon: FlowySvg(
         FlowySvgs.add_s,
+        size: const Size.square(18),
         color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
       ),
-    );
-  }
-
-  void _showCreateFieldBottomSheet(BuildContext context) {
-    showMobileBottomSheet(
-      context,
-      padding: EdgeInsets.zero,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          snap: true,
-          initialChildSize: 0.7,
-          minChildSize: 0.7,
-          builder: (context, controller) => FieldOptions(
-            scrollController: controller,
-            onAddField: (type) async {
-              final optionValues = await context.push<FieldOptionValues>(
-                Uri(
-                  path: MobileNewPropertyScreen.routeName,
-                  queryParameters: {
-                    MobileNewPropertyScreen.argViewId: widget.viewId,
-                    MobileNewPropertyScreen.argFieldTypeId:
-                        type.value.toString(),
-                  },
-                ).toString(),
-              );
-              if (optionValues != null) {
-                await optionValues.create(viewId: widget.viewId);
-                if (context.mounted) {
-                  context.pop();
-                }
-              }
-            },
-          ),
-        );
-      },
     );
   }
 }

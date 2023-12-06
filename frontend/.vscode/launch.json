@@ -25,7 +25,7 @@
             "preLaunchTask": "AF: Build Appflowy Core",
             "env": {
                 "RUST_LOG": "trace",
-                "RUST_BACKTRACE": 1
+                "RUST_BACKTRACE": "1"
             },
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },

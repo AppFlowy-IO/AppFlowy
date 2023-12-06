@@ -21,7 +21,7 @@ function PropertyName({ field, openMenu, onOpenMenu, onCloseMenu }: Props) {
           e.preventDefault();
           onOpenMenu();
         }}
-        className={'flex w-[200px] cursor-pointer items-center'}
+        className={'flex min-h-[36px] w-[200px] cursor-pointer items-center'}
         onClick={onOpenMenu}
       >
         <Field field={field} />
@@ -31,4 +31,4 @@ function PropertyName({ field, openMenu, onOpenMenu, onCloseMenu }: Props) {
   );
 }
 
-export default React.memo(PropertyName);
+export default PropertyName;

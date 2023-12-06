@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
@@ -12,6 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart' hide State;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -58,7 +60,9 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
   Widget _buildFullScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(LocaleKeys.titleBar_date.tr()),
+        title: FlowyText.medium(
+          LocaleKeys.titleBar_date.tr(),
+        ),
       ),
       body: _buildBody(),
     );
@@ -71,14 +75,18 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
       initialChildSize: 0.6,
       minChildSize: 0.6,
       builder: (_, controller) => Material(
-        child: SingleChildScrollView(
-          controller: controller,
+        child: ColoredBox(
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             children: [
               const DragHandler(),
               _buildHeader(),
-              const Divider(),
-              _buildBody(),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: controller,
+                  child: _buildBody(),
+                ),
+              ),
             ],
           ),
         ),
@@ -117,7 +125,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
   }
 
   Widget _buildHeader() {
-    const iconWidth = 36.0;
+    const iconWidth = 30.0;
     const height = 44.0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -139,7 +147,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
             alignment: Alignment.center,
             child: FlowyText.medium(
               LocaleKeys.grid_field_dateFieldName.tr(),
-              fontSize: 18,
+              fontSize: 16,
             ),
           ),
         ].map((e) => SizedBox(height: height, child: e)).toList(),
@@ -169,16 +177,16 @@ class _DateCellEditBody extends StatelessWidget {
         children: [
           FlowyOptionDecorateBox(
             showTopBorder: false,
+            child: _IncludeTimePicker(),
+          ),
+          _ColoredDivider(),
+          FlowyOptionDecorateBox(
             child: MobileDatePicker(),
           ),
           _ColoredDivider(),
           _EndDateSwitch(),
           _IncludeTimeSwitch(),
-          _StartDayTime(),
-          _EndDayTime(),
           _ColoredDivider(),
-          _DateFormatOption(),
-          _TimeFormatOption(),
           _ClearDateButton(),
           _ColoredDivider(),
         ],
@@ -199,6 +207,157 @@ class _ColoredDivider extends StatelessWidget {
   }
 }
 
+class _IncludeTimePicker extends StatefulWidget {
+  const _IncludeTimePicker();
+
+  @override
+  State<_IncludeTimePicker> createState() => _IncludeTimePickerState();
+}
+
+class _IncludeTimePickerState extends State<_IncludeTimePicker> {
+  String? _selectedTime;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      builder: (context, state) {
+        final startDay = state.dateStr;
+        final endDay = state.endDateStr;
+        final includeTime = state.includeTime;
+        final use24hFormat =
+            state.dateTypeOptionPB.timeFormat == TimeFormatPB.TwentyFourHour;
+        if (startDay == null || startDay.isEmpty) {
+          return const Divider(
+            height: 1,
+          );
+        }
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTime(
+                context,
+                includeTime,
+                use24hFormat,
+                true,
+                startDay,
+                state.timeStr,
+              ),
+              VSpace(
+                8.0,
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              _buildTime(
+                context,
+                includeTime,
+                use24hFormat,
+                false,
+                endDay,
+                state.endTimeStr,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTime(
+    BuildContext context,
+    bool isIncludeTime,
+    bool use24hFormat,
+    bool isStartDay,
+    String? dateStr,
+    String? timeStr,
+  ) {
+    if (dateStr == null) {
+      return const SizedBox.shrink();
+    }
+
+    final List<Widget> children = [];
+
+    if (!isIncludeTime) {
+      children.addAll([
+        const HSpace(12.0),
+        FlowyText(
+          dateStr,
+        ),
+      ]);
+    } else {
+      children.addAll([
+        Expanded(
+          child: FlowyText(
+            dateStr,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Container(
+          width: 1,
+          height: 16,
+          color: Colors.grey,
+        ),
+        Expanded(
+          child: FlowyText(
+            timeStr ?? '',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ]);
+    }
+
+    return GestureDetector(
+      onTap: () async {
+        final bloc = context.read<DateCellCalendarBloc>();
+        await showMobileBottomSheet(
+          context,
+          builder: (context) {
+            return ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: 300,
+              ),
+              child: CupertinoDatePicker(
+                showDayOfWeek: false,
+                mode: CupertinoDatePickerMode.time,
+                use24hFormat: use24hFormat,
+                onDateTimeChanged: (dateTime) {
+                  _selectedTime = use24hFormat
+                      ? DateFormat('HH:mm').format(dateTime)
+                      : DateFormat('hh:mm a').format(dateTime);
+                },
+              ),
+            );
+          },
+        );
+
+        if (_selectedTime != null) {
+          bloc.add(
+            isStartDay
+                ? DateCellCalendarEvent.setTime(_selectedTime!)
+                : DateCellCalendarEvent.setEndTime(_selectedTime!),
+          );
+        }
+      },
+      child: Container(
+        constraints: const BoxConstraints(
+          minHeight: 36,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: children,
+        ),
+      ),
+    );
+  }
+}
+
 class _EndDateSwitch extends StatelessWidget {
   const _EndDateSwitch();
 
@@ -209,7 +368,6 @@ class _EndDateSwitch extends StatelessWidget {
       builder: (context, isRange) {
         return FlowyOptionTile.switcher(
           text: LocaleKeys.grid_field_isRange.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.date_s),
           isSelected: isRange,
           onValueChanged: (value) {
             context
@@ -233,83 +391,12 @@ class _IncludeTimeSwitch extends StatelessWidget {
         return FlowyOptionTile.switcher(
           showTopBorder: false,
           text: LocaleKeys.grid_field_includeTime.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
           isSelected: includeTime,
           onValueChanged: (value) {
             context
                 .read<DateCellCalendarBloc>()
                 .add(DateCellCalendarEvent.setIncludeTime(value));
           },
-        );
-      },
-    );
-  }
-}
-
-class _StartDayTime extends StatelessWidget {
-  const _StartDayTime();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-      builder: (context, state) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: state.includeTime
-              ? Row(
-                  children: [
-                    Text(
-                      state.isRange
-                          ? LocaleKeys.grid_field_startDateTime.tr()
-                          : LocaleKeys.grid_field_dateTime.tr(),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const Spacer(),
-                    // TODO(yijing): improve width
-                    SizedBox(
-                      width: 180,
-                      child: _TimeTextField(
-                        timeStr: state.timeStr,
-                        isEndTime: false,
-                      ),
-                    ),
-                  ],
-                )
-              : const SizedBox.shrink(),
-        );
-      },
-    );
-  }
-}
-
-class _EndDayTime extends StatelessWidget {
-  const _EndDayTime();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-      builder: (context, state) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: state.includeTime && state.endTimeStr != null
-              ? Row(
-                  children: [
-                    Text(
-                      LocaleKeys.grid_field_endDateTime.tr(),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const Spacer(),
-                    // TODO(yijing): improve width
-                    SizedBox(
-                      width: 180,
-                      child: _TimeTextField(
-                        timeStr: state.timeStr,
-                        isEndTime: true,
-                      ),
-                    ),
-                  ],
-                )
-              : const SizedBox.shrink(),
         );
       },
     );
@@ -376,76 +463,10 @@ class _ClearDateButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyOptionTile.text(
-      showTopBorder: false,
       text: LocaleKeys.grid_field_clearDate.tr(),
       onTap: () => context
           .read<DateCellCalendarBloc>()
           .add(const DateCellCalendarEvent.clearDate()),
-    );
-  }
-}
-
-class _TimeFormatOption extends StatelessWidget {
-  const _TimeFormatOption();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocSelector<DateCellCalendarBloc, DateCellCalendarState,
-        TimeFormatPB>(
-      selector: (state) => state.dateTypeOptionPB.timeFormat,
-      builder: (context, state) {
-        return FlowyOptionTile.text(
-          showTopBorder: false,
-          text: LocaleKeys.settings_appearance_timeFormat_label.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.time_s),
-        );
-        // TimeFormatListTile(
-        //   currentFormatStr: state.title(),
-        //   groupValue: context
-        //       .watch<DateCellCalendarBloc>()
-        //       .state
-        //       .dateTypeOptionPB
-        //       .timeFormat,
-        //   onChanged: (newFormat) {
-        //     if (newFormat == null) return;
-        //     context
-        //         .read<DateCellCalendarBloc>()
-        //         .add(DateCellCalendarEvent.setTimeFormat(newFormat));
-        //   },
-        // );
-      },
-    );
-  }
-}
-
-class _DateFormatOption extends StatelessWidget {
-  const _DateFormatOption();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocSelector<DateCellCalendarBloc, DateCellCalendarState,
-        DateFormatPB>(
-      selector: (state) => state.dateTypeOptionPB.dateFormat,
-      builder: (context, state) {
-        return FlowyOptionTile.text(
-          text: LocaleKeys.settings_appearance_dateFormat_label.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.clock_alarm_s),
-        );
-        // DateFormatListTile(
-        //   currentFormatStr: state.title(),
-        //   groupValue: context
-        //       .watch<DateCellCalendarBloc>()
-        //       .state
-        //       .dateTypeOptionPB
-        //       .dateFormat,
-        //   onChanged: (newFormat) {
-        //     if (newFormat == null) return;
-        //     context
-        //         .read<DateCellCalendarBloc>()
-        //         .add(DateCellCalendarEvent.setDateFormat(newFormat));
-        //   },
-        // );
-      },
     );
   }
 }

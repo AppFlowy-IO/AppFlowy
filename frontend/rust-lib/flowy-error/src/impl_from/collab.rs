@@ -7,6 +7,7 @@ use crate::{ErrorCode, FlowyError};
 impl From<PersistenceError> for FlowyError {
   fn from(err: PersistenceError) -> Self {
     match err {
+      PersistenceError::UnexpectedEmptyUpdates => FlowyError::new(ErrorCode::RecordNotFound, err),
       PersistenceError::RocksdbCorruption(_) => FlowyError::new(ErrorCode::RocksdbCorruption, err),
       PersistenceError::RocksdbIOError(_) => FlowyError::new(ErrorCode::RocksdbIOError, err),
       _ => FlowyError::new(ErrorCode::RocksdbInternal, err),

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Field, fieldService, TextCell } from '$app/components/database/application';
 import { useDatabase } from '$app/components/database';
 import { FieldVisibility } from '@/services/backend';
@@ -11,6 +11,7 @@ import PropertyList from '$app/components/database/components/edit_record/record
 import NewProperty from '$app/components/database/components/edit_record/record_properties/NewProperty';
 import { useViewId } from '$app/hooks';
 import { DragDropContext, Droppable, DropResult, OnDragEndResponder } from 'react-beautiful-dnd';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   documentId?: string;
@@ -28,6 +29,7 @@ const reorder = (list: Field[], startIndex: number, endIndex: number) => {
 };
 
 function RecordProperties({ documentId, cell }: Props) {
+  const { t } = useTranslation();
   const viewId = useViewId();
   const { fieldId, rowId } = cell;
   const { fields } = useDatabase();
@@ -41,7 +43,17 @@ function RecordProperties({ documentId, cell }: Props) {
     });
   }, [fieldId, fields, showHiddenFields]);
 
+  const hiddenFieldsCount = useMemo(() => {
+    return fields.filter((field) => {
+      return field.visibility === FieldVisibility.AlwaysHidden;
+    }).length;
+  }, [fields]);
+
   const [state, setState] = useState<Field[]>(properties);
+
+  useEffect(() => {
+    setState(properties);
+  }, [properties]);
 
   // move the field in the database
   const onMoveProperty = useCallback(
@@ -103,19 +115,31 @@ function RecordProperties({ documentId, cell }: Props) {
           )}
         </Droppable>
       </DragDropContext>
-      <Button
-        onClick={() => {
-          setShowHiddenFields((prev) => !prev);
-        }}
-        className={'w-full justify-start'}
-        startIcon={showHiddenFields ? <EyeClosedSvg /> : <EyeOpenSvg />}
-        color={'inherit'}
-      >
-        {showHiddenFields ? 'Hide hidden fields' : 'Show hidden fields'}
-      </Button>
+      {
+        // show the button only if there are hidden fields
+        hiddenFieldsCount > 0 && (
+          <Button
+            onClick={() => {
+              setShowHiddenFields((prev) => !prev);
+            }}
+            className={'w-full justify-start'}
+            startIcon={showHiddenFields ? <EyeClosedSvg /> : <EyeOpenSvg />}
+            color={'inherit'}
+          >
+            {showHiddenFields
+              ? t('grid.rowPage.hideHiddenFields', {
+                  count: hiddenFieldsCount,
+                })
+              : t('grid.rowPage.showHiddenFields', {
+                  count: hiddenFieldsCount,
+                })}
+          </Button>
+        )
+      }
+
       <NewProperty />
     </div>
   );
 }
 
-export default React.memo(RecordProperties);
+export default RecordProperties;

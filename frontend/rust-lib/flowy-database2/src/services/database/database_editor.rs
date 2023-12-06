@@ -833,6 +833,8 @@ impl DatabaseEditor {
     for option in options {
       type_option.delete_option(&option.id);
     }
+
+    notify_did_update_database_field(&self.database, field_id)?;
     self
       .database
       .lock()
@@ -1499,10 +1501,10 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .map(|field_id| {
         if !field_settings_map.contains_key(field_id) {
           let field_settings =
-            FieldSettings::from_anymap(field_id, layout_type, &default_field_settings);
+            FieldSettings::from_any_map(field_id, layout_type, &default_field_settings);
           (field_id.clone(), field_settings)
         } else {
-          let field_settings = FieldSettings::from_anymap(
+          let field_settings = FieldSettings::from_any_map(
             field_id,
             layout_type,
             field_settings_map.get(field_id).unwrap(),
@@ -1537,7 +1539,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
         .unwrap()
         .to_owned();
       let field_settings =
-        FieldSettings::from_anymap(field_id, layout_type, &default_field_settings);
+        FieldSettings::from_any_map(field_id, layout_type, &default_field_settings);
       FieldSettings {
         field_id: field_settings.field_id.clone(),
         visibility: visibility.unwrap_or(field_settings.visibility),
