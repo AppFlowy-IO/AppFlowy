@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
-import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
@@ -124,12 +123,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   /// Fetch document
   Future<DocumentState> _fetchDocumentState() async {
-    final result = await UserBackendService.getCurrentUserProfile().then(
-      (value) async => value.andThen(
-        // open the document
-        await _documentService.openDocument(viewId: view.id),
-      ),
-    );
+    final result = await _documentService.openDocument(viewId: view.id);
     return state.copyWith(
       loadingState: DocumentLoadingState.finish(result),
     );

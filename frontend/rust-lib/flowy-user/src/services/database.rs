@@ -76,9 +76,6 @@ impl UserDB {
           // If validation fails, attempt to restore from the latest backup.
           error!("Restoring collab db failed: {:?}", err);
         }
-      } else if let Err(err) = zip_backup.restore_latest_backup() {
-        // If collab database does not exist, attempt to restore from the latest backup.
-        error!("Restoring collab db failed: {:?}", err);
       }
     }
   }

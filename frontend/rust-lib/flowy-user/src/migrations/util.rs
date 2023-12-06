@@ -4,7 +4,7 @@ use collab::core::collab::MutexCollab;
 use collab::preclude::Collab;
 
 use collab_integrate::{PersistenceError, YrsDocAction};
-use flowy_error::{internal_error, FlowyResult};
+use flowy_error::FlowyResult;
 
 pub fn load_collab<'a, R>(
   uid: i64,
@@ -16,8 +16,6 @@ where
   PersistenceError: From<R::Error>,
 {
   let collab = Collab::new(uid, object_id, "phantom", vec![]);
-  collab
-    .with_origin_transact_mut(|txn| collab_r_txn.load_doc_with_txn(uid, &object_id, txn))
-    .map_err(internal_error)?;
+  collab.with_origin_transact_mut(|txn| collab_r_txn.load_doc_with_txn(uid, &object_id, txn))?;
   Ok(Arc::new(MutexCollab::from_collab(collab)))
 }

@@ -4,7 +4,6 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
-use collab_document::error::DocumentError;
 use collab_folder::{Folder, View};
 use tracing::{event, instrument};
 
@@ -44,8 +43,6 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
           "Failed to migrate document {}",
           view.id
         );
-      } else {
-        event!(tracing::Level::INFO, "Did migrate document {}", view.id);
       }
     }
 
@@ -65,16 +62,16 @@ where
   W: YrsDocAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let collab = Arc::new(MutexCollab::new(origin.clone(), &view.id, vec![]));
-  let result = Document::open(collab.clone());
-
-  if let Err(DocumentError::NoRequiredData) = result {
-    let document_data = default_document_data();
-    let document = Document::create_with_data(collab, document_data)?;
+  if load_collab(user_id, write_txn, &view.id).is_err() {
+    let collab = Arc::new(MutexCollab::new(origin.clone(), &view.id, vec![]));
+    let document = Document::create_with_data(collab, default_document_data())?;
     let encode = document.get_collab().encode_collab_v1();
     write_txn.flush_doc_with(user_id, &view.id, &encode.doc_state, &encode.state_vector)?;
-  } else {
-    result?;
+    event!(
+      tracing::Level::INFO,
+      "Did migrate empty document {}",
+      view.id
+    );
   }
 
   Ok(())
