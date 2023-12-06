@@ -57,7 +57,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           didReceiveFieldUpdate: (fields) {
             emit(
               state.copyWith(
-                fields: FieldList(fields),
+                fields: fields,
               ),
             );
           },
@@ -176,7 +176,7 @@ class GridState with _$GridState {
   const factory GridState({
     required String viewId,
     required Option<DatabasePB> grid,
-    required FieldList fields,
+    required List<FieldInfo> fields,
     required List<RowInfo> rowInfos,
     required int rowCount,
     required RowMetaPB? createdRow,
@@ -188,7 +188,7 @@ class GridState with _$GridState {
   }) = _GridState;
 
   factory GridState.initial(String viewId) => GridState(
-        fields: FieldList([]),
+        fields: [],
         rowInfos: [],
         rowCount: 0,
         createdRow: null,
@@ -200,9 +200,4 @@ class GridState with _$GridState {
         filters: [],
         sorts: [],
       );
-}
-
-@freezed
-class FieldList with _$FieldList {
-  factory FieldList(List<FieldInfo> fields) = _FieldList;
 }
