@@ -218,18 +218,14 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
         OrderObjectPosition::End
       },
       CreateFieldPosition::Before => {
-        let field_id = self
-          .target_field_id
-          .ok_or(ErrorCode::InvalidParams)?;
+        let field_id = self.target_field_id.ok_or(ErrorCode::InvalidParams)?;
         let field_id = NotEmptyStr::parse(field_id)
           .map_err(|_| ErrorCode::InvalidParams)?
           .0;
         OrderObjectPosition::Before(field_id)
       },
       CreateFieldPosition::After => {
-        let field_id = self
-          .target_field_id
-          .ok_or(ErrorCode::InvalidParams)?;
+        let field_id = self.target_field_id.ok_or(ErrorCode::InvalidParams)?;
         let field_id = NotEmptyStr::parse(field_id)
           .map_err(|_| ErrorCode::InvalidParams)?
           .0;
