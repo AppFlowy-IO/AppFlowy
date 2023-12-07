@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
@@ -5,7 +7,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 import '../field/field_service.dart';
 
@@ -55,14 +56,11 @@ class DatabasePropertyBloc
             );
             emit(state.copyWith(fieldContexts: fieldContexts));
 
-            final fieldBackendService = FieldBackendService(
+            final result = await FieldBackendService.moveField(
               viewId: viewId,
               fieldId: fieldId,
-            );
-
-            final result = await fieldBackendService.moveField(
-              fromIndex,
-              toIndex,
+              fromIndex: fromIndex,
+              toIndex: toIndex,
             );
 
             result.fold((l) => null, (r) => Log.error(r));

@@ -67,8 +67,12 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
     fields.insert(toIndex, fields.removeAt(fromIndex));
     emit(state.copyWith(fields: fields));
 
-    final fieldService = FieldBackendService(viewId: viewId, fieldId: field.id);
-    final result = await fieldService.moveField(fromIndex, toIndex);
+    final result = await FieldBackendService.moveField(
+      viewId: viewId,
+      fieldId: field.id,
+      fromIndex: fromIndex,
+      toIndex: toIndex,
+    );
     result.fold((l) {}, (err) => Log.error(err));
   }
 

@@ -3,8 +3,8 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
@@ -129,7 +129,7 @@ class GridTestContext {
 Future<FieldEditorBloc> createFieldEditor({
   required DatabaseController databaseController,
 }) async {
-  final result = await TypeOptionBackendService.createFieldTypeOption(
+  final result = await FieldBackendService.createField(
     viewId: databaseController.viewId,
   );
   await gridResponseFuture();

@@ -1,9 +1,7 @@
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/position_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,26 +76,14 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
           },
           insertLeft: () async {
-            final result = await TypeOptionBackendService.createFieldTypeOption(
-              viewId: viewId,
-              position: OrderObjectPositionPB(
-                position: OrderObjectPositionTypePB.Before,
-                objectId: field.id,
-              ),
-            );
+            final result = await fieldService.insertBefore();
             result.fold(
               (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           insertRight: () async {
-            final result = await TypeOptionBackendService.createFieldTypeOption(
-              viewId: viewId,
-              position: OrderObjectPositionPB(
-                position: OrderObjectPositionTypePB.After,
-                objectId: field.id,
-              ),
-            );
+            final result = await fieldService.insertAfter();
             result.fold(
               (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
               (err) => Log.error("Failed creating field $err"),
@@ -114,14 +100,6 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               fieldId: state.field.id,
               fieldVisibility: newVisibility,
             );
-            _logIfError(result);
-          },
-          deleteField: () async {
-            final result = await fieldService.deleteField();
-            _logIfError(result);
-          },
-          duplicateField: () async {
-            final result = await fieldService.duplicateField();
             _logIfError(result);
           },
         );
@@ -156,8 +134,6 @@ class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.insertRight() = _InsertRight;
   const factory FieldEditorEvent.toggleFieldVisibility() =
       _ToggleFieldVisiblity;
-  const factory FieldEditorEvent.deleteField() = _DeleteField;
-  const factory FieldEditorEvent.duplicateField() = _DuplicateField;
 }
 
 @freezed

@@ -30,12 +30,12 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
               ),
             );
           },
-          deleteField: (fieldId) {
-            final fieldService = FieldBackendService(
+          deleteField: (fieldId) async {
+            final result = await FieldBackendService.deleteField(
               viewId: rowController.viewId,
               fieldId: fieldId,
             );
-            fieldService.deleteField();
+            result.fold((l) {}, (err) => Log.error(err));
           },
           toggleFieldVisibility: (fieldId) async {
             final fieldInfo = state.allCells
@@ -142,13 +142,11 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     final toIndexInAllFields =
         state.allCells.indexWhere((cell) => cell.fieldId == targetFieldId);
 
-    final fieldService = FieldBackendService(
+    final result = await FieldBackendService.moveField(
       viewId: rowController.viewId,
       fieldId: reorderedFieldId,
-    );
-    final result = await fieldService.moveField(
-      fromIndexInAllFields,
-      toIndexInAllFields,
+      fromIndex: fromIndexInAllFields,
+      toIndex: toIndexInAllFields,
     );
     result.fold((l) {}, (err) => Log.error(err));
   }
