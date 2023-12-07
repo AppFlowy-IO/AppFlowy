@@ -262,10 +262,9 @@
       "logoutPrompt": "Oturumu kapatmak istediğinize emin misiniz?",
       "selfEncryptionLogoutPrompt": "Oturumu kapatmak istediğinize emin misiniz? Şifreleme parolasını kopyaladığınızdan emin olun",
       "syncSetting": "Eşitleme ayarı",
-      "cloudSetting": "Bulut ayarı",
-      "cloudURL": "Sunucu adresi",
       "enableSync": "Eşitlemeyi aç",
       "enableEncrypt": "Verileri şifrele",
+      "cloudURL": "Sunucu adresi",
       "enableEncryptPrompt": "Bu parola ile verilerinizi korumak için şifrelemeyi açın. Güvenli bir yerde saklayın. Bir kez açıldığında kapatılamaz. Parolayı kaybederseniz verileriniz geri getirilemez. Kopyalamak için tıklayın",
       "inputEncryptPrompt": "Lütfen şifreleme parolanızı yazın",
       "clickToCopySecret": "Parolayı kopyalamak için tıklayın",
@@ -273,7 +272,8 @@
       "historicalUserList": "Kullanıcı oturum açma geçmişi",
       "historicalUserListTooltip": "Bu liste anonim hesaplarınızı görüntüler. Ayrıntılarını görüntülemek istediğiniz bir hesaba tıklayabilirsiniz. Anonim hesaplar 'Başla' düğmesine tıklanarak oluşturulur",
       "openHistoricalUser": "Anonim hesap açmak için tıklayın",
-      "customPathPrompt": "AppFlowy veri klasörünü Google Drive gibi bulut hizmetiyle eşitlenen bir klasörde saklamak risk oluşturabilir. Bu klasördeki veri tabanı aynı anda birden fazla konumdan erişilmesi veya değiştirilmesi durumunda eşitleme çakışması ve olası veri bozulması sorunları ile karşılaşabilir."
+      "customPathPrompt": "AppFlowy veri klasörünü Google Drive gibi bulut hizmetiyle eşitlenen bir klasörde saklamak risk oluşturabilir. Bu klasördeki veri tabanı aynı anda birden fazla konumdan erişilmesi veya değiştirilmesi durumunda eşitleme çakışması ve olası veri bozulması sorunları ile karşılaşabilir.",
+      "cloudSetting": "Bulut ayarı"
     },
     "notifications": {
       "enableNotifications": {

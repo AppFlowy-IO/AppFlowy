@@ -176,9 +176,9 @@
     "delete": "刪除",
     "duplicate": "複製",
     "putback": "放回去",
-    "OK": "OK",
     "Done": "完畢",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "OK": "OK"
   },
   "label": {
     "welcome": "歡迎！",
@@ -452,7 +452,7 @@
       "smartEditCouldNotFetchKey": "無法取得 OpenAI 密鑰",
       "smartEditDisabled": "在設定連結 OpenAI ",
       "discardResponse": "確定捨棄 AI 的回覆？",
-      "createInlineMathEquation": "創建方程",
+      "createInlineMathEquation": "創建公式",
       "toggleList": "切換列表",
       "cover": {
         "changeCover": "更換封面",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "看板",
-    "referencedBoardPrefix": "視圖",
     "column": {
       "createNewCard": "建立"
-    }
+    },
+    "menuName": "看板",
+    "referencedBoardPrefix": "視圖"
   },
   "calendar": {
     "menuName": "月曆",

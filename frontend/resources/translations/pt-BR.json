@@ -200,9 +200,9 @@
     "delete": "Excluir",
     "duplicate": "Duplicado",
     "putback": "Por de volta",
-    "OK": "Ok",
     "Done": "Feito",
     "Cancel": "Cancelar",
+    "OK": "Ok",
     "tryAGain": "Tentar novamente"
   },
   "label": {
@@ -630,11 +630,11 @@
     }
   },
   "board": {
-    "menuName": "Quadro",
-    "referencedBoardPrefix": "Vista de",
     "column": {
       "createNewCard": "Novo"
-    }
+    },
+    "menuName": "Quadro",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendário",

@@ -176,9 +176,9 @@
     "delete": "Supprimer",
     "duplicate": "Dupliquer",
     "putback": "Remettre",
-    "OK": "OK",
     "Done": "Fait",
-    "Cancel": "Annuler"
+    "Cancel": "Annuler",
+    "OK": "OK"
   },
   "label": {
     "welcome": "Bienvenue!",
@@ -546,11 +546,11 @@
     }
   },
   "board": {
-    "menuName": "Conseil",
-    "referencedBoardPrefix": "Vue",
     "column": {
       "createNewCard": "Nouveau"
-    }
+    },
+    "menuName": "Conseil",
+    "referencedBoardPrefix": "Vue"
   },
   "calendar": {
     "menuName": "Calendrier",

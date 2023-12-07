@@ -176,9 +176,9 @@
     "delete": "Suprimeix",
     "duplicate": "Duplicat",
     "putback": "Posar enrere",
-    "OK": "OK",
     "Done": "Fet",
-    "Cancel": "Cancel·lar"
+    "Cancel": "Cancel·lar",
+    "OK": "OK"
   },
   "label": {
     "welcome": "Benvingut!",
@@ -546,11 +546,11 @@
     }
   },
   "board": {
-    "menuName": "Pissarra",
-    "referencedBoardPrefix": "Vista de",
     "column": {
       "createNewCard": "Nou"
-    }
+    },
+    "menuName": "Pissarra",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendari",

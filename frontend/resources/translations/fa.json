@@ -192,9 +192,9 @@
     "delete": "حذف کردن",
     "duplicate": "تکرار کردن",
     "putback": "بازگشت",
-    "OK": "باشه",
     "Done": "انجام شد",
-    "Cancel": "لغو"
+    "Cancel": "لغو",
+    "OK": "باشه"
   },
   "label": {
     "welcome": "خوش آمدید!",
@@ -593,11 +593,11 @@
     }
   },
   "board": {
-    "menuName": "بورد",
-    "referencedBoardPrefix": "نمای",
     "column": {
       "createNewCard": "ایجاد"
-    }
+    },
+    "menuName": "بورد",
+    "referencedBoardPrefix": "نمای"
   },
   "calendar": {
     "menuName": "تقویم",

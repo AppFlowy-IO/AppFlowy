@@ -265,10 +265,9 @@
       "logoutPrompt": "Czy na pewno chcesz się wylogować?",
       "selfEncryptionLogoutPrompt": "Czy na pewno chcesz się wylogować? Upewnij się, że skopiowałeś sekret szyfrowania",
       "syncSetting": "Ustawienie synchronizacji",
-      "cloudSetting": "Ustawienia Chmury",
-      "cloudURL": "URL Serwera",
       "enableSync": "Włącz synchronizację",
       "enableEncrypt": "Szyfruj dane",
+      "cloudURL": "URL Serwera",
       "enableEncryptPrompt": "Aktywuj szyfrowanie, aby zabezpieczyć swoje dane tym sekretem. Przechowuj go bezpiecznie; po włączeniu nie można go wyłączyć. Jeśli zostanie utracony, nie będziesz w stanie odzyskać danych. Kliknij, aby skopiować",
       "inputEncryptPrompt": "Wprowadź swój sekret szyfrowania dla",
       "clickToCopySecret": "Kliknij, aby skopiować sekret",
@@ -276,7 +275,8 @@
       "historicalUserList": "Historia logowania użytkownika",
       "historicalUserListTooltip": "Na tej liście wyświetlane są Twoje anonimowe konta. Możesz kliknąć konto, aby wyświetlić jego szczegóły. Konta anonimowe tworzy się poprzez kliknięcie przycisku „Rozpocznij”.",
       "openHistoricalUser": "Kliknij, aby otworzyć anonimowe konto",
-      "supabaseSetting": "Ustawienie Supabase"
+      "supabaseSetting": "Ustawienie Supabase",
+      "cloudSetting": "Ustawienia Chmury"
     },
     "notifications": {
       "enableNotifications": {
@@ -789,11 +789,11 @@
       "expandTooltip": "Pokaż ukryte grupy"
     },
     "menuName": "Tablica",
-    "referencedBoardPrefix": "Widok",
     "ungroupedButtonText": "Niepogrupowane",
     "ungroupedButtonTooltip": "Zawiera karty, które nie należą do żadnej grupy",
     "ungroupedItemsTitle": "Kliknij by dodać tablicę",
-    "groupBy": "Grupuj zgodnie z"
+    "groupBy": "Grupuj zgodnie z",
+    "referencedBoardPrefix": "Widok"
   },
   "calendar": {
     "menuName": "Kalendarz",
