@@ -44,8 +44,9 @@ class TypeOptionBackendService {
       payload.typeOptionData = typeOptionData;
     }
 
-    payload.fieldPosition = position ??
-        OrderObjectPositionPB(position: OrderObjectPositionTypePB.End);
+    if (position != null) {
+      payload.fieldPosition = position;
+    }
 
     return DatabaseEventCreateField(payload).send();
   }

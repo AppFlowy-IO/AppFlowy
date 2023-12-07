@@ -8,13 +8,11 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 
 import '../../util.dart';
 
@@ -32,10 +30,6 @@ class GridTestContext {
 
   FieldController get fieldController {
     return gridController.fieldController;
-  }
-
-  Future<Either<RowMetaPB, FlowyError>> createRow() async {
-    return gridController.createRow();
   }
 
   Future<CellController> makeCellController(
@@ -211,7 +205,7 @@ class AppFlowyGridCellTest {
   }
 
   Future<void> createTestRow() async {
-    await context.createRow();
+    await RowBackendService.createRow(viewId: context.gridView.id);
   }
 
   Future<SelectOptionCellController> makeSelectOptionCellController(

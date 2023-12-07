@@ -80,11 +80,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _startListening();
             await _openGrid(emit);
           },
-          createBottomRow: (groupId) async {
-            final startRowId = groupControllers[groupId]?.lastRow()?.id;
-            final result = await databaseController.createRow(
+          createHeaderRow: (groupId) async {
+            final rowId = groupControllers[groupId]?.firstRow()?.id;
+            final position = rowId == null
+                ? OrderObjectPositionTypePB.Start
+                : OrderObjectPositionTypePB.Before;
+            final result = await RowBackendService.createRow(
+              viewId: databaseController.viewId,
               groupId: groupId,
-              startRowId: startRowId,
+              position: OrderObjectPositionPB(
+                position: position,
+                objectId: rowId,
+              ),
             );
 
             result.fold(
@@ -94,10 +101,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               (err) => Log.error(err),
             );
           },
-          createHeaderRow: (String groupId) async {
-            final result = await databaseController.createRow(
+          createBottomRow: (groupId) async {
+            final rowId = groupControllers[groupId]?.lastRow()?.id;
+            final position = rowId == null
+                ? OrderObjectPositionTypePB.End
+                : OrderObjectPositionTypePB.After;
+            final result = await RowBackendService.createRow(
+              viewId: databaseController.viewId,
               groupId: groupId,
-              fromBeginning: true,
+              position: OrderObjectPositionPB(
+                position: position,
+                objectId: rowId,
+              ),
             );
 
             result.fold(

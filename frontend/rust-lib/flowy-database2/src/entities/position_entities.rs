@@ -13,6 +13,36 @@ pub struct OrderObjectPositionPB {
   pub object_id: Option<String>,
 }
 
+impl OrderObjectPositionPB {
+  pub fn start() -> Self {
+    Self {
+      position: OrderObjectPositionTypePB::Start,
+      object_id: None,
+    }
+  }
+
+  pub fn end() -> Self {
+    Self {
+      position: OrderObjectPositionTypePB::End,
+      object_id: None,
+    }
+  }
+
+  pub fn before(object_id: String) -> Self {
+    Self {
+      position: OrderObjectPositionTypePB::Before,
+      object_id: Some(object_id),
+    }
+  }
+
+  pub fn after(object_id: String) -> Self {
+    Self {
+      position: OrderObjectPositionTypePB::After,
+      object_id: Some(object_id),
+    }
+  }
+}
+
 #[derive(Debug, Default, ProtoBuf_Enum)]
 #[repr(u8)]
 pub enum OrderObjectPositionTypePB {

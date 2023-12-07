@@ -4,7 +4,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
@@ -15,14 +14,13 @@ import 'package:collection/collection.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+
 import 'database_view_service.dart';
 import 'defines.dart';
-import 'field/field_info.dart';
 import 'layout/layout_service.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
 import 'group/group_listener.dart';
-import 'row/row_service.dart';
 
 typedef OnGroupConfigurationChanged = void Function(List<GroupSettingPB>);
 typedef OnGroupByField = void Function(List<GroupPB>);
@@ -172,28 +170,6 @@ class DatabaseController {
         (err) => right(err),
       );
     });
-  }
-
-  Future<Either<RowMetaPB, FlowyError>> createRow({
-    RowId? startRowId,
-    String? groupId,
-    bool fromBeginning = false,
-    void Function(RowDataBuilder builder)? withCells,
-  }) {
-    Map<String, String>? cellDataByFieldId;
-
-    if (withCells != null) {
-      final rowBuilder = RowDataBuilder();
-      withCells(rowBuilder);
-      cellDataByFieldId = rowBuilder.build();
-    }
-
-    return _databaseViewBackendSvc.createRow(
-      startRowId: startRowId,
-      groupId: groupId,
-      cellDataByFieldId: cellDataByFieldId,
-      fromBeginning: fromBeginning,
-    );
   }
 
   Future<Either<Unit, FlowyError>> moveGroupRow({
@@ -383,29 +359,5 @@ class DatabaseController {
         );
       },
     );
-  }
-}
-
-class RowDataBuilder {
-  final _cellDataByFieldId = <String, String>{};
-
-  void insertText(FieldInfo fieldInfo, String text) {
-    assert(fieldInfo.fieldType == FieldType.RichText);
-    _cellDataByFieldId[fieldInfo.field.id] = text;
-  }
-
-  void insertNumber(FieldInfo fieldInfo, int num) {
-    assert(fieldInfo.fieldType == FieldType.Number);
-    _cellDataByFieldId[fieldInfo.field.id] = num.toString();
-  }
-
-  void insertDate(FieldInfo fieldInfo, DateTime date) {
-    assert(FieldType.DateTime == fieldInfo.fieldType);
-    final timestamp = date.millisecondsSinceEpoch ~/ 1000;
-    _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
-  }
-
-  Map<String, String> build() {
-    return _cellDataByFieldId;
   }
 }
