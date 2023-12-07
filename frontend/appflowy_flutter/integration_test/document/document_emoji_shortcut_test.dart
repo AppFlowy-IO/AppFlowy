@@ -15,43 +15,38 @@ const arrowKeys = [
   LogicalKeyboardKey.arrowUp,
 ];
 
-const scaredKeys = [
-  LogicalKeyboardKey.keyS, // Scared
-  LogicalKeyboardKey.keyC,
-  LogicalKeyboardKey.keyA,
-  LogicalKeyboardKey.keyR,
-  LogicalKeyboardKey.keyE,
-  LogicalKeyboardKey.keyD,
-];
-
-const cloudsKeys = [
-  LogicalKeyboardKey.keyC, // Cloud
-  LogicalKeyboardKey.keyL,
-  LogicalKeyboardKey.keyO,
-  LogicalKeyboardKey.keyU,
-  LogicalKeyboardKey.keyD,
-  LogicalKeyboardKey.keyS,
-];
-
+// Keyboard keys to type "halo"
 const haloKeys = [
-  LogicalKeyboardKey.keyH, // Halo
+  LogicalKeyboardKey.keyH,
   LogicalKeyboardKey.keyA,
   LogicalKeyboardKey.keyL,
   LogicalKeyboardKey.keyO,
 ];
 
+// Keyboard keys to type "imp"
 const impKeys = [
-  LogicalKeyboardKey.keyI, // Imp
+  LogicalKeyboardKey.keyI,
   LogicalKeyboardKey.keyM,
   LogicalKeyboardKey.keyP,
 ];
 
+// Keyboard keys to type "robot"
 const robotKeys = [
-  LogicalKeyboardKey.keyR, // Robot
+  LogicalKeyboardKey.keyR,
   LogicalKeyboardKey.keyO,
   LogicalKeyboardKey.keyB,
   LogicalKeyboardKey.keyO,
   LogicalKeyboardKey.keyT,
+];
+
+// Keyboard keys to type "kenya"
+const kenyaKeys = [
+  LogicalKeyboardKey.shift,
+  LogicalKeyboardKey.keyK,
+  LogicalKeyboardKey.keyE,
+  LogicalKeyboardKey.keyN,
+  LogicalKeyboardKey.keyY,
+  LogicalKeyboardKey.keyA,
 ];
 
 void main() {
@@ -69,6 +64,10 @@ void main() {
     testWidgets('robot', (tester) async {
       await insertEmoji(tester, '🤖', robotKeys, []);
     });
+
+    testWidgets('kenya', (tester) async {
+      await insertEmoji(tester, '🇰🇪', kenyaKeys, []);
+    });
   });
 
   group('Insert Emoji using arrow keys', () {
@@ -85,7 +84,7 @@ void main() {
       await insertEmoji(
         tester,
         '🦐',
-        impKeys.slice(0, impKeys.length - 2),
+        impKeys.slice(0, impKeys.length - 1),
         arrowKeys,
       );
     });
@@ -95,6 +94,15 @@ void main() {
         tester,
         '🤖',
         robotKeys.slice(0, robotKeys.length - 2),
+        arrowKeys,
+      );
+    });
+
+    testWidgets('kenya via arrow keys', (tester) async {
+      await insertEmoji(
+        tester,
+        '🇰🇪',
+        kenyaKeys.slice(0, robotKeys.length - 2),
         arrowKeys,
       );
     });
@@ -108,7 +116,9 @@ Future<void> insertEmoji(
   List<LogicalKeyboardKey> arrowKeys,
 ) async {
   await tester.initializeAppFlowy();
+
   await tester.tapGoButton();
+
   tester.expectToSeeHomePage();
 
   await tester.createNewPageWithName(
@@ -128,22 +138,17 @@ Future<void> insertEmoji(
   // Determine whether the shortcut works and the emoji picker is opened
   expect(find.byType(EmojiShortcutPickerView), findsOneWidget);
 
-  // Type emoji text
-  await FlowyTestKeyboard.simulateKeyDownEvent(tester: tester, emojiKeys);
+  // Perform specific keyboard events to find and insert emoji
+  await FlowyTestKeyboard.simulateKeyDownEvent(tester: tester, [
+    // Type emoji text
+    ...emojiKeys,
 
-  // Perform arrow keyboard combination eg: [RIGHT, DOWN, LEFT, UP]
-  if (arrowKeys.isNotEmpty) {
-    await FlowyTestKeyboard.simulateKeyDownEvent(tester: tester, arrowKeys);
-  }
+    // Press arrow keyboard combination eg: [RIGHT, DOWN, LEFT, UP]
+    ...arrowKeys,
 
-  //await tester.pumpAndSettle();
-
-  // Press ENTER to insert the emoji and replace text
-  await FlowyTestKeyboard.simulateKeyDownEvent(
-    tester: tester,
-    [LogicalKeyboardKey.enter],
-  );
-  //await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+    // Press ENTER to insert the emoji and replace text
+    LogicalKeyboardKey.enter,
+  ]);
 
   // Check if typed text is replaced by emoji
   expect(
@@ -151,6 +156,6 @@ Future<void> insertEmoji(
     expected,
   );
 
-  // Determine whether the emoji picker is closed on enter
+  // Determine whether the emoji picker is closed
   expect(find.byType(EmojiShortcutPickerView), findsNothing);
 }

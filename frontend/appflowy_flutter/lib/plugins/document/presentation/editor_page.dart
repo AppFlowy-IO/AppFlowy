@@ -139,9 +139,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
 
         // emoji shortcut command
-        emojiShortcutCommand(
-          context,
-        ),
+        emojiShortcutCommand(context),
 
         ...standardCharacterShortcutEvents
           ..removeWhere(
