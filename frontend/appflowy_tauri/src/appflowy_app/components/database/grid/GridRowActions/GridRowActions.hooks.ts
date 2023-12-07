@@ -35,14 +35,14 @@ function createVirtualDragElement(rowId: string, container: HTMLDivElement) {
 
   if (!cell) return null;
 
-  const rect = cell.getBoundingClientRect();
-
   const row = document.createElement('div');
 
   row.style.display = 'flex';
   row.style.position = 'absolute';
-  row.style.top = `${rect.top}px`;
-  row.style.left = `${rect.left + 64}px`;
+  row.style.top = cell.style.top;
+  const left = Number(cell.style.left.split('px')[0]) + 64;
+
+  row.style.left = `${left}px`;
   row.style.background = 'var(--content-blue-50)';
   cells.forEach((cell) => {
     const node = cell.cloneNode(true) as HTMLDivElement;
@@ -54,11 +54,11 @@ function createVirtualDragElement(rowId: string, container: HTMLDivElement) {
     node.style.left = '';
     node.style.width = (cell as HTMLDivElement).style.width;
     node.style.height = (cell as HTMLDivElement).style.height;
-    node.className = 'flex items-center';
+    node.className = 'flex items-center border-r border-b border-divider-line opacity-50';
     row.appendChild(node);
   });
 
-  document.body.appendChild(row);
+  cell.parentElement?.appendChild(row);
   return row;
 }
 
@@ -93,6 +93,7 @@ export function useDraggableGridRow(
         autoScrollOnEdge({
           element: scrollParent,
           direction: ScrollDirection.Vertical,
+          edgeGap: 20,
         });
       }
 
@@ -121,7 +122,6 @@ export function useDraggableGridRow(
 
     const onDragOver = (e: DragEvent) => {
       e.preventDefault();
-      e.stopPropagation();
       const target = e.target as HTMLElement;
       const cell = target.closest('[data-key]');
       const rowId = cell?.getAttribute('data-key')?.split(':')[1];
@@ -156,7 +156,6 @@ export function useDraggableGridRow(
     const onDrop = async (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-
       const dropRowId = dropRowIdRef.current;
 
       if (dropRowId) {

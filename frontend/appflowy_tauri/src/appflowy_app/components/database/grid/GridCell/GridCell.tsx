@@ -32,17 +32,13 @@ export const GridCell = memo(({ row, column, columnIndex, style, onEditRecord, g
 
   switch (row.type) {
     case RenderRowType.Row: {
-      const renderRowCell = <Cell rowId={row.data.meta.id} icon={row.data.meta.icon} field={field} />;
+      const { id: rowId, icon: rowIcon } = row.data.meta;
+      const renderRowCell = <Cell rowId={rowId} icon={rowIcon} field={field} />;
 
       return (
         <div data-key={key} style={style} className={'grid-cell flex border-b border-r border-line-divider'}>
           {field.isPrimary ? (
-            <PrimaryCell
-              icon={row.data.meta.icon}
-              onEditRecord={onEditRecord}
-              getContainerRef={getContainerRef}
-              rowId={row.data.meta.id}
-            >
+            <PrimaryCell icon={rowIcon} onEditRecord={onEditRecord} getContainerRef={getContainerRef} rowId={rowId}>
               {renderRowCell}
             </PrimaryCell>
           ) : (
