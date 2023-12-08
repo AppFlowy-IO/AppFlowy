@@ -17,11 +17,9 @@ typedef DatabaseNotificationCallback = void Function(
 class DatabaseNotificationParser
     extends NotificationParser<DatabaseNotification, FlowyError> {
   DatabaseNotificationParser({
-    String? id,
-    required DatabaseNotificationCallback callback,
+    super.id,
+    required super.callback,
   }) : super(
-          id: id,
-          callback: callback,
           tyParser: (ty) => DatabaseNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );

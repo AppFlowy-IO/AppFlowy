@@ -18,9 +18,9 @@ class URLCardCell<CustomCardData>
 
   const URLCardCell({
     required this.cellControllerBuilder,
-    URLCardCellStyle? style,
-    Key? key,
-  }) : super(key: key, style: style);
+    super.style,
+    super.key,
+  });
 
   @override
   State<URLCardCell> createState() => _URLCellState();

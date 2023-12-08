@@ -17,11 +17,9 @@ typedef UserNotificationCallback = void Function(
 class UserNotificationParser
     extends NotificationParser<UserNotification, FlowyError> {
   UserNotificationParser({
-    required String id,
-    required UserNotificationCallback callback,
+    required String super.id,
+    required super.callback,
   }) : super(
-          id: id,
-          callback: callback,
           tyParser: (ty) => UserNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );

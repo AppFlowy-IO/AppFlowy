@@ -20,8 +20,8 @@ class RowActions extends StatelessWidget {
     required this.viewId,
     required this.rowId,
     this.groupId,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -181,8 +181,8 @@ class PropertyCell extends StatefulWidget {
   const PropertyCell({
     required this.cellContext,
     required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();

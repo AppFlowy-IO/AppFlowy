@@ -17,8 +17,8 @@ class FilterMenu extends StatelessWidget {
   final FieldController fieldController;
   const FilterMenu({
     required this.fieldController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class FilterMenu extends StatelessWidget {
 
 class AddFilterButton extends StatefulWidget {
   final String viewId;
-  const AddFilterButton({required this.viewId, Key? key}) : super(key: key);
+  const AddFilterButton({required this.viewId, super.key});
 
   @override
   State<AddFilterButton> createState() => _AddFilterButtonState();

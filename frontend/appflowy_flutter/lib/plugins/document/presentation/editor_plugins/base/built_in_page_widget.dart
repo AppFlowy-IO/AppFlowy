@@ -21,11 +21,11 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
 class BuiltInPageWidget extends StatefulWidget {
   const BuiltInPageWidget({
-    Key? key,
+    super.key,
     required this.node,
     required this.editorState,
     required this.builder,
-  }) : super(key: key);
+  });
 
   final Node node;
   final EditorState editorState;

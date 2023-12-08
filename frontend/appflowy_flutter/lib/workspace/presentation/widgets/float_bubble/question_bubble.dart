@@ -17,7 +17,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 class QuestionBubble extends StatelessWidget {
-  const QuestionBubble({Key? key}) : super(key: key);
+  const QuestionBubble({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class QuestionBubble extends StatelessWidget {
 }
 
 class BubbleActionList extends StatefulWidget {
-  const BubbleActionList({Key? key}) : super(key: key);
+  const BubbleActionList({super.key});
 
   @override
   State<BubbleActionList> createState() => _BubbleActionListState();

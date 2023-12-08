@@ -31,8 +31,8 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
       maxWidth: 460,
       maxHeight: 300,
     ),
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -135,11 +135,11 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
   final Function(T) onSelected;
   final double itemHeight;
   const ActionCellWidget({
-    Key? key,
+    super.key,
     required this.action,
     required this.onSelected,
     required this.itemHeight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

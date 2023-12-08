@@ -20,8 +20,8 @@ class SelectOptionFilterList extends StatelessWidget {
     required this.filterInfo,
     required this.selectedOptionIds,
     required this.onSelectedOptions,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

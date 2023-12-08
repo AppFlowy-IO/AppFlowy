@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class TypeOptionSeparator extends StatelessWidget {
   final double spacing;
-  const TypeOptionSeparator({this.spacing = 6.0, Key? key}) : super(key: key);
+  const TypeOptionSeparator({this.spacing = 6.0, super.key});
 
   @override
   Widget build(BuildContext context) {

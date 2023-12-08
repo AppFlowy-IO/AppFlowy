@@ -10,8 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentMoreButton extends StatelessWidget {
   const DocumentMoreButton({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

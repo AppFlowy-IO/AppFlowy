@@ -12,7 +12,7 @@ import 'filter_info.dart';
 
 class FilterMenuItem extends StatelessWidget {
   final FilterInfo filterInfo;
-  const FilterMenuItem({required this.filterInfo, Key? key}) : super(key: key);
+  const FilterMenuItem({required this.filterInfo, super.key});
 
   @override
   Widget build(BuildContext context) {

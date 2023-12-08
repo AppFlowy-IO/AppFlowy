@@ -21,11 +21,11 @@ class SelectOptionCardCell<CustomCardData>
 
   SelectOptionCardCell({
     required this.cellControllerBuilder,
-    required CustomCardData? cardData,
+    required super.cardData,
     this.renderHook,
     this.editableNotifier,
-    Key? key,
-  }) : super(key: key, cardData: cardData);
+    super.key,
+  });
 
   @override
   State<SelectOptionCardCell> createState() => _SelectOptionCellState();

@@ -55,7 +55,7 @@ class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
 }
 
 class BlankPage extends StatefulWidget {
-  const BlankPage({Key? key}) : super(key: key);
+  const BlankPage({super.key});
 
   @override
   State<BlankPage> createState() => _BlankPageState();

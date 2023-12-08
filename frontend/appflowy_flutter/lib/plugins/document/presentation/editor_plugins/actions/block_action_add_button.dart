@@ -11,12 +11,12 @@ import 'package:flutter/services.dart';
 
 class BlockAddButton extends StatelessWidget {
   const BlockAddButton({
-    Key? key,
+    super.key,
     required this.blockComponentContext,
     required this.blockComponentState,
     required this.editorState,
     required this.showSlashMenu,
-  }) : super(key: key);
+  });
 
   final BlockComponentContext blockComponentContext;
   final BlockComponentActionState blockComponentState;
