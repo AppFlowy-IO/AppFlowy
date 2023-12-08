@@ -95,7 +95,7 @@ script = [
     lib = set lib${LIB_NAME}.${LIB_EXT}
 
     echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/jniLibs/ to ${dart_ffi_dir}/"
-    rm -r ${dart_ffi_dir}/jniLibs/
+    rm -r ${dart_ffi_dir}/jniLibs
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/jniLibs/ \
     ${dart_ffi_dir}/
 
