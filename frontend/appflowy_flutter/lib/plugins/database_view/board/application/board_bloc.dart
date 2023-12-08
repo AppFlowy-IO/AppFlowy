@@ -88,10 +88,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final result = await RowBackendService.createRow(
               viewId: databaseController.viewId,
               groupId: groupId,
-              position: OrderObjectPositionPB(
-                position: position,
-                objectId: rowId,
-              ),
+              position: position,
+              targetRowId: rowId,
             );
 
             result.fold(
@@ -109,10 +107,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final result = await RowBackendService.createRow(
               viewId: databaseController.viewId,
               groupId: groupId,
-              position: OrderObjectPositionPB(
-                position: position,
-                objectId: rowId,
-              ),
+              position: position,
+              targetRowId: rowId,
             );
 
             result.fold(

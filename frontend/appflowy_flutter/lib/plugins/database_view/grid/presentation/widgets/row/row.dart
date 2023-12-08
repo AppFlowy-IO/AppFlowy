@@ -131,7 +131,7 @@ class _RowLeadingState extends State<_RowLeading> {
       margin: const EdgeInsets.all(6),
       popupBuilder: (BuildContext popoverContext) {
         final bloc = context.read<RowBloc>();
-        return RowActions(
+        return RowActionMenu(
           viewId: bloc.viewId,
           rowId: bloc.rowId,
         );

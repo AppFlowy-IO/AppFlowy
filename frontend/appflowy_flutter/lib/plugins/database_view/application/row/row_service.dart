@@ -18,12 +18,16 @@ class RowBackendService {
     required String viewId,
     String? groupId,
     void Function(RowDataBuilder builder)? withCells,
-    OrderObjectPositionPB? position,
+    OrderObjectPositionTypePB? position,
+    String? targetRowId,
   }) {
     final payload = CreateRowPayloadPB(
       viewId: viewId,
       groupId: groupId,
-      rowPosition: position,
+      rowPosition: OrderObjectPositionPB(
+        position: position,
+        objectId: targetRowId,
+      ),
     );
 
     Map<String, String>? cellDataByFieldId;
@@ -44,20 +48,16 @@ class RowBackendService {
   Future<Either<RowMetaPB, FlowyError>> createRowBefore(RowId rowId) {
     return createRow(
       viewId: viewId,
-      position: OrderObjectPositionPB(
-        position: OrderObjectPositionTypePB.Before,
-        objectId: rowId,
-      ),
+      position: OrderObjectPositionTypePB.Before,
+      targetRowId: rowId,
     );
   }
 
   Future<Either<RowMetaPB, FlowyError>> createRowAfter(RowId rowId) {
     return createRow(
       viewId: viewId,
-      position: OrderObjectPositionPB(
-        position: OrderObjectPositionTypePB.After,
-        objectId: rowId,
-      ),
+      position: OrderObjectPositionTypePB.After,
+      targetRowId: rowId,
     );
   }
 
