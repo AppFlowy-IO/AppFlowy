@@ -210,9 +210,9 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
     return Padding(
       padding: config.groupFooterPadding,
-      child: FlowyHover(
-        child: FlowyTooltip(
-          message: LocaleKeys.board_column_addToColumnBottomTooltip.tr(),
+      child: FlowyTooltip(
+        message: LocaleKeys.board_column_addToColumnBottomTooltip.tr(),
+        child: FlowyHover(
           child: AppFlowyGroupFooter(
             height: 36,
             icon: FlowySvg(
