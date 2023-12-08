@@ -779,6 +779,9 @@
         "label": "Embed link",
         "placeholder": "Paste or type an image link"
       },
+      "unsplash": {
+        "label": "Unsplash"
+      },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
       "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
