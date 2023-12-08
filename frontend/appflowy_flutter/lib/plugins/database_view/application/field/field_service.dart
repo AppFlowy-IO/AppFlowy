@@ -69,15 +69,13 @@ class FieldBackendService {
 
   static Future<Either<Unit, FlowyError>> moveField({
     required String viewId,
-    required String fieldId,
-    required int fromIndex,
-    required int toIndex,
+    required String fromFieldId,
+    required String toFieldId,
   }) {
     final payload = MoveFieldPayloadPB(
       viewId: viewId,
-      fieldId: fieldId,
-      fromIndex: fromIndex,
-      toIndex: toIndex,
+      fromFieldId: fromFieldId,
+      toFieldId: toFieldId,
     );
 
     return DatabaseEventMoveField(payload).send();

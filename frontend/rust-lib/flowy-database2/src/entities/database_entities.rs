@@ -84,21 +84,17 @@ pub struct MoveFieldPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
+  pub from_field_id: String,
 
   #[pb(index = 3)]
-  pub from_index: i32,
-
-  #[pb(index = 4)]
-  pub to_index: i32,
+  pub to_field_id: String,
 }
 
 #[derive(Clone)]
 pub struct MoveFieldParams {
   pub view_id: String,
-  pub field_id: String,
-  pub from_index: i32,
-  pub to_index: i32,
+  pub from_field_id: String,
+  pub to_field_id: String,
 }
 
 impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
@@ -106,12 +102,13 @@ impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
 
   fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-    let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidParams)?;
+    let from_field_id =
+      NotEmptyStr::parse(self.from_field_id).map_err(|_| ErrorCode::InvalidParams)?;
+    let to_field_id = NotEmptyStr::parse(self.to_field_id).map_err(|_| ErrorCode::InvalidParams)?;
     Ok(MoveFieldParams {
       view_id: view_id.0,
-      field_id: item_id.0,
-      from_index: self.from_index,
-      to_index: self.to_index,
+      from_field_id: from_field_id.0,
+      to_field_id: to_field_id.0,
     })
   }
 }

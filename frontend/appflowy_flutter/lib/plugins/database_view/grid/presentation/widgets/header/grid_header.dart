@@ -134,34 +134,20 @@ class _GridHeaderState extends State<_GridHeader> {
             needsLongPressDraggable: PlatformExtension.isMobile,
             footer: _CellTrailing(viewId: widget.viewId),
             onReorder: (int oldIndex, int newIndex) {
-              _onReorder(
-                cells,
-                oldIndex,
-                context,
-                newIndex,
-              );
+              // to offset removing the first field from `state.fields`
+              if (PlatformExtension.isMobile) {
+                oldIndex++;
+                newIndex++;
+              }
+              context
+                  .read<GridHeaderBloc>()
+                  .add(GridHeaderEvent.moveField(oldIndex, newIndex));
             },
             children: cells,
           ),
         );
       },
     );
-  }
-
-  void _onReorder(
-    List<Widget> cells,
-    int oldIndex,
-    BuildContext context,
-    int newIndex,
-  ) {
-    if (cells.length > oldIndex) {
-      final field = PlatformExtension.isDesktop
-          ? (cells[oldIndex] as GridFieldCell).fieldInfo.field
-          : (cells[oldIndex] as MobileFieldButton).fieldInfo.field;
-      context
-          .read<GridHeaderBloc>()
-          .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
-    }
   }
 
   Widget _cellLeading(FieldInfo? fieldInfo) {

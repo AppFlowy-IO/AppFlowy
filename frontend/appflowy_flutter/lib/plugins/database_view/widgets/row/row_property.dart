@@ -57,22 +57,10 @@ class RowPropertyList extends StatelessWidget {
         return ReorderableListView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          onReorder: (oldIndex, newIndex) {
-            // when reorderiing downwards, need to update index
-            if (oldIndex < newIndex) {
-              newIndex--;
-            }
-            final reorderedFieldId = children[oldIndex].cellContext.fieldId;
-            final targetFieldId = children[newIndex].cellContext.fieldId;
-
-            context.read<RowDetailBloc>().add(
-                  RowDetailEvent.reorderField(
-                    reorderedFieldId,
-                    targetFieldId,
-                    oldIndex,
-                    newIndex,
-                  ),
-                );
+          onReorder: (from, to) {
+            context
+                .read<RowDetailBloc>()
+                .add(RowDetailEvent.reorderField(from, to));
           },
           buildDefaultDragHandles: false,
           proxyDecorator: (child, index, animation) => Material(

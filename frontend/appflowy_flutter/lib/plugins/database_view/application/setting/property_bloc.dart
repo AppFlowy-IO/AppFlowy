@@ -45,22 +45,21 @@ class DatabasePropertyBloc
           didReceiveFieldUpdate: (fields) {
             emit(state.copyWith(fieldContexts: fields));
           },
-          moveField: (fieldId, fromIndex, toIndex) async {
+          moveField: (fromIndex, toIndex) async {
             if (fromIndex < toIndex) {
               toIndex--;
             }
+            final fromId = state.fieldContexts[fromIndex].field.id;
+            final toId = state.fieldContexts[toIndex].field.id;
+
             final fieldContexts = List<FieldInfo>.from(state.fieldContexts);
-            fieldContexts.insert(
-              toIndex,
-              fieldContexts.removeAt(fromIndex),
-            );
+            fieldContexts.insert(toIndex, fieldContexts.removeAt(fromIndex));
             emit(state.copyWith(fieldContexts: fieldContexts));
 
             final result = await FieldBackendService.moveField(
               viewId: viewId,
-              fieldId: fieldId,
-              fromIndex: fromIndex,
-              toIndex: toIndex,
+              fromFieldId: fromId,
+              toFieldId: toId,
             );
 
             result.fold((l) => null, (r) => Log.error(r));
@@ -99,11 +98,8 @@ class DatabasePropertyEvent with _$DatabasePropertyEvent {
   const factory DatabasePropertyEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
-  const factory DatabasePropertyEvent.moveField({
-    required String fieldId,
-    required int fromIndex,
-    required int toIndex,
-  }) = _MoveField;
+  const factory DatabasePropertyEvent.moveField(int fromIndex, int toIndex) =
+      _MoveField;
 }
 
 @freezed

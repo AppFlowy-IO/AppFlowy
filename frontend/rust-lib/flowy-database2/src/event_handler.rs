@@ -344,14 +344,7 @@ pub(crate) async fn move_field_handler(
   let manager = upgrade_manager(manager)?;
   let params: MoveFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  database_editor
-    .move_field(
-      &params.view_id,
-      &params.field_id,
-      params.from_index,
-      params.to_index,
-    )
-    .await?;
+  database_editor.move_field(params).await?;
   Ok(())
 }
 
@@ -430,7 +423,7 @@ pub(crate) async fn move_row_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .move_row(&params.view_id, params.from_row_id, params.to_row_id)
-    .await;
+    .await?;
   Ok(())
 }
 

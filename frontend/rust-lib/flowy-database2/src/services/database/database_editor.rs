@@ -414,25 +414,37 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
+  pub async fn move_row(
+    &self,
+    view_id: &str,
+    from_row_id: RowId,
+    to_row_id: RowId,
+  ) -> FlowyResult<()> {
     let database = self.database.lock();
-    if let (Some(row_detail), Some(from_index), Some(to_index)) = (
-      database.get_row_detail(&from),
-      database.index_of_row(view_id, &from),
-      database.index_of_row(view_id, &to),
-    ) {
-      database.views.update_database_view(view_id, |view| {
-        view.move_row_order(from_index as u32, to_index as u32);
-      });
-      drop(database);
 
-      let delete_row_id = from.into_inner();
-      let insert_row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(to_index as i32);
+    let row_detail = database.get_row_detail(&from_row_id).ok_or_else(|| {
+      let msg = format!("Cannot find row {}", from_row_id);
+      FlowyError::internal().with_context(msg)
+    })?;
+
+    database.views.update_database_view(view_id, |view| {
+      view.move_row_order(&from_row_id, &to_row_id);
+    });
+
+    let new_index = database.index_of_row(view_id, &from_row_id);
+    drop(database);
+
+    if let Some(index) = new_index {
+      let delete_row_id = from_row_id.into_inner();
+      let insert_row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32);
       let changes = RowsChangePB::from_move(vec![delete_row_id], vec![insert_row]);
+
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
         .send();
     }
+
+    Ok(())
   }
 
   pub async fn create_row(
@@ -504,28 +516,34 @@ impl DatabaseEditor {
     )
   }
 
-  pub async fn move_field(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    from: i32,
-    to: i32,
-  ) -> FlowyResult<()> {
-    let (database_id, field) = {
+  pub async fn move_field(&self, params: MoveFieldParams) -> FlowyResult<()> {
+    let (field, new_index) = {
       let database = self.database.lock();
-      database.views.update_database_view(view_id, |view_update| {
-        view_update.move_field_order(from as u32, to as u32);
-      });
-      let field = database.fields.get_field(field_id);
-      let database_id = database.get_database_id();
-      (database_id, field)
+
+      let field = database
+        .fields
+        .get_field(&params.from_field_id)
+        .ok_or_else(|| {
+          let msg = format!("Field with id: {} not found", &params.from_field_id);
+          FlowyError::internal().with_context(msg)
+        })?;
+
+      database
+        .views
+        .update_database_view(&params.view_id, |view_update| {
+          view_update.move_field_order(&params.from_field_id, &params.to_field_id);
+        });
+
+      let new_index = database.index_of_field(&params.view_id, &params.from_field_id);
+
+      (field, new_index)
     };
 
-    if let Some(field) = field {
-      let delete_field = FieldIdPB::from(field_id);
-      let insert_field = IndexFieldPB::from_field(field, to as usize);
+    if let Some(index) = new_index {
+      let delete_field = FieldIdPB::from(params.from_field_id);
+      let insert_field = IndexFieldPB::from_field(field, index);
       let notified_changeset = DatabaseFieldChangesetPB {
-        view_id: database_id,
+        view_id: params.view_id,
         inserted_fields: vec![insert_field],
         deleted_fields: vec![delete_field],
         updated_fields: vec![],
@@ -533,6 +551,7 @@ impl DatabaseEditor {
 
       self.notify_did_update_database(notified_changeset).await?;
     }
+
     Ok(())
   }
 
@@ -955,7 +974,7 @@ impl DatabaseEditor {
             .map(|row_detail| row_detail.row.id.clone())
         };
         if let Some(row_id) = to_row.clone() {
-          self.move_row(view_id, from_row.clone(), row_id).await;
+          self.move_row(view_id, from_row.clone(), row_id).await?;
         }
 
         if from_group == to_group {
