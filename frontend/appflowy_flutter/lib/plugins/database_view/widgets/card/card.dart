@@ -121,11 +121,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
         },
         builder: (context, state) {
           if (PlatformExtension.isMobile) {
-            return RowCardContainer(
-              buildAccessoryWhen: () => state.isEditing == false,
-              accessories: const [],
-              openAccessory: (p0) {},
-              openCard: (context) => widget.openCard(context),
+            return GestureDetector(
               child: MobileCardContent<T>(
                 cellBuilder: widget.cellBuilder,
                 styleConfiguration: widget.styleConfiguration,
@@ -133,6 +129,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
                 renderHook: widget.renderHook,
                 cardData: widget.cardData,
               ),
+              onTap: () => widget.openCard(context),
             );
           }
 
