@@ -99,7 +99,7 @@ class TypeOptionController {
   }
 
   void Function() addFieldListener(void Function(FieldPB) callback) {
-    listener() {
+    void listener() {
       callback(field);
     }
 

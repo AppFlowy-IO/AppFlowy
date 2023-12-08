@@ -11,8 +11,8 @@ class URLCellEditor extends StatefulWidget {
   const URLCellEditor({
     required this.cellController,
     required this.onExit,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<URLCellEditor> createState() => _URLCellEditorState();
@@ -85,8 +85,8 @@ class URLEditorPopover extends StatelessWidget {
   const URLEditorPopover({
     required this.cellController,
     required this.onExit,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

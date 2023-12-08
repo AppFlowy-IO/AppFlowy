@@ -230,8 +230,8 @@ class UserNameInput extends StatefulWidget {
 
   const UserNameInput(
     this.name, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   UserNameInputState createState() => UserNameInputState();
@@ -294,8 +294,8 @@ class UserEmailInput extends StatefulWidget {
 
   const UserEmailInput(
     this.email, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   UserEmailInputState createState() => UserEmailInputState();
@@ -467,16 +467,14 @@ class IconGallery extends StatelessWidget {
       crossAxisSpacing: 4,
       children: [
         if (defaultOption != null) defaultOption!,
-        ...builtInSVGIcons
-            .mapIndexed(
-              (int index, String iconUrl) => IconOption(
-                emoji: FlowySvgData('emoji/$iconUrl'),
-                iconUrl: iconUrl,
-                onSelectIcon: onSelectIcon,
-                isSelected: iconUrl == selectedIcon,
-              ),
-            )
-            .toList(),
+        ...builtInSVGIcons.mapIndexed(
+          (int index, String iconUrl) => IconOption(
+            emoji: FlowySvgData('emoji/$iconUrl'),
+            iconUrl: iconUrl,
+            onSelectIcon: onSelectIcon,
+            isSelected: iconUrl == selectedIcon,
+          ),
+        ),
       ],
     );
   }

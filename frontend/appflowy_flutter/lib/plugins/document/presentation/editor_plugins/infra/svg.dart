@@ -3,14 +3,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class Svg extends StatelessWidget {
   const Svg({
-    Key? key,
+    super.key,
     this.name,
     this.width,
     this.height,
     this.color,
     this.number,
     this.padding,
-  }) : super(key: key);
+  });
 
   final String? name;
   final double? width;

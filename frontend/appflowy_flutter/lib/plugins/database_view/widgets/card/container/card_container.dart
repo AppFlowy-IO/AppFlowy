@@ -15,8 +15,8 @@ class RowCardContainer extends StatelessWidget {
     required this.openAccessory,
     required this.accessories,
     this.buildAccessoryWhen,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +60,7 @@ class _CardEnterRegion extends StatelessWidget {
     required this.child,
     required this.accessories,
     required this.onTapAccessory,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

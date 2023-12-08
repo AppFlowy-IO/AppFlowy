@@ -30,7 +30,7 @@ class HotKeyItem {
 
 class HomeHotKeys extends StatelessWidget {
   final Widget child;
-  const HomeHotKeys({required this.child, Key? key}) : super(key: key);
+  const HomeHotKeys({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {

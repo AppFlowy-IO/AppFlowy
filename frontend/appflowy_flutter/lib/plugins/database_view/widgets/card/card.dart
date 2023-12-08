@@ -312,8 +312,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
   final EditableRowNotifier rowNotifier;
   const _CardEditOption({
     required this.rowNotifier,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

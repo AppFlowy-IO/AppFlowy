@@ -1,4 +1,5 @@
 import 'dart:collection';
+
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -9,6 +10,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../cell/cell_service.dart';
 import 'row_list.dart';
 import 'row_service.dart';
+
 part 'row_cache.freezed.dart';
 
 typedef RowUpdateCallback = void Function();
@@ -188,7 +190,7 @@ class RowCache {
     required RowId rowId,
     void Function(CellContextByFieldId, ChangedReason)? onRowChanged,
   }) {
-    listenerHandler() async {
+    void listenerHandler() async {
       if (onRowChanged != null) {
         final rowInfo = _rowList.get(rowId);
         if (rowInfo != null) {

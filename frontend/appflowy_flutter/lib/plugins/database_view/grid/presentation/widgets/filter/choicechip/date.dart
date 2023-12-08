@@ -5,8 +5,7 @@ import 'choicechip.dart';
 
 class DateFilterChoicechip extends StatelessWidget {
   final FilterInfo filterInfo;
-  const DateFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const DateFilterChoicechip({required this.filterInfo, super.key});
 
   @override
   Widget build(BuildContext context) {

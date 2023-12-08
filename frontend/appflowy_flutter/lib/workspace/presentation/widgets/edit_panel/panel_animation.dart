@@ -9,14 +9,14 @@ class AnimatedPanel extends StatefulWidget {
   final Widget? child;
 
   const AnimatedPanel({
-    Key? key,
+    super.key,
     this.isClosed = false,
     this.closedX = 0.0,
     this.closedY = 0.0,
     this.duration = 0.0,
     this.curve,
     this.child,
-  }) : super(key: key);
+  });
 
   @override
   AnimatedPanelState createState() => AnimatedPanelState();

@@ -77,7 +77,7 @@ class _RowEditorState extends State<RowEditor> {
   }
 
   @override
-  dispose() {
+  void dispose() {
     documentBloc.close();
     super.dispose();
   }

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 class OrderPanel extends StatelessWidget {
   final Function(SortConditionPB) onCondition;
-  const OrderPanel({required this.onCondition, Key? key}) : super(key: key);
+  const OrderPanel({required this.onCondition, super.key});
 
   @override
   Widget build(BuildContext context) {

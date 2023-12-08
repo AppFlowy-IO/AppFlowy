@@ -19,7 +19,7 @@ import 'application/trash_bloc.dart';
 import 'src/trash_cell.dart';
 
 class TrashPage extends StatefulWidget {
-  const TrashPage({Key? key}) : super(key: key);
+  const TrashPage({super.key});
 
   @override
   State<TrashPage> createState() => _TrashPageState();

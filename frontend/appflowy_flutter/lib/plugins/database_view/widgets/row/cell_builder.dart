@@ -273,7 +273,7 @@ class MobileRowDetailPageCellBuilder {
 }
 
 class BlankCell extends StatelessWidget {
-  const BlankCell({Key? key}) : super(key: key);
+  const BlankCell({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +294,7 @@ typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
 );
 
 abstract class CellAccessory extends Widget {
-  const CellAccessory({Key? key}) : super(key: key);
+  const CellAccessory({super.key});
 
   // The hover will show if the isHover's value is true
   ValueNotifier<bool>? get onAccessoryHover;

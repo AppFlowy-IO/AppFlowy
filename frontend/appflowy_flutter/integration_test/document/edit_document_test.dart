@@ -104,7 +104,7 @@ void main() {
   });
 }
 
-const _sample = r'''
+const _sample = '''
 # Heading 1
 ## Heading 2
 ### Heading 3

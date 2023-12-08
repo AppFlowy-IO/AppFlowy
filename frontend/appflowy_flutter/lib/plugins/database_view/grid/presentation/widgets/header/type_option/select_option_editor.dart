@@ -29,8 +29,8 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
     required this.onUpdated,
     this.showOptions = true,
     this.autoFocus = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   static String get identifier => (SelectOptionTypeOptionEditor).toString();
 
@@ -98,7 +98,7 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
 }
 
 class _DeleteTag extends StatelessWidget {
-  const _DeleteTag({Key? key}) : super(key: key);
+  const _DeleteTag();
 
   @override
   Widget build(BuildContext context) {
@@ -125,8 +125,7 @@ class _OptionNameTextField extends StatelessWidget {
   const _OptionNameTextField({
     required this.name,
     required this.autoFocus,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -201,8 +200,7 @@ class _SelectOptionColorCell extends StatelessWidget {
     required this.color,
     required this.isSelected,
     required this.onSelectedColor,
-    Key? key,
-  }) : super(key: key);
+  });
 
   final SelectOptionColorPB color;
   final bool isSelected;

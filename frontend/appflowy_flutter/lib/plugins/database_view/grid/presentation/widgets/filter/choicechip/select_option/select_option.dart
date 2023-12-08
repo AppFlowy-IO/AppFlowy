@@ -15,8 +15,7 @@ import 'select_option_loader.dart';
 
 class SelectOptionFilterChoicechip extends StatefulWidget {
   final FilterInfo filterInfo;
-  const SelectOptionFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const SelectOptionFilterChoicechip({required this.filterInfo, super.key});
 
   @override
   State<SelectOptionFilterChoicechip> createState() =>
@@ -77,8 +76,7 @@ class _SelectOptionFilterChoicechipState
 
 class SelectOptionFilterEditor extends StatefulWidget {
   final SelectOptionFilterEditorBloc bloc;
-  const SelectOptionFilterEditor({required this.bloc, Key? key})
-      : super(key: key);
+  const SelectOptionFilterEditor({required this.bloc, super.key});
 
   @override
   State<SelectOptionFilterEditor> createState() =>

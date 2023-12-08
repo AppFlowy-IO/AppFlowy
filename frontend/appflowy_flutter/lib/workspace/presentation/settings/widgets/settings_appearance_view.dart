@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'settings_appearance/settings_appearance.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
-  const SettingsAppearanceView({Key? key}) : super(key: key);
+  const SettingsAppearanceView({super.key});
 
   @override
   Widget build(BuildContext context) {

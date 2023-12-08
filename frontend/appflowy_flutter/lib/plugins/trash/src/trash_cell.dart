@@ -17,8 +17,8 @@ class TrashCell extends StatelessWidget {
     required this.object,
     required this.onRestore,
     required this.onDelete,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

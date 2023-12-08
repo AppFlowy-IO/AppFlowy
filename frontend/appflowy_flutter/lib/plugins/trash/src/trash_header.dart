@@ -52,7 +52,7 @@ class TrashHeader extends StatelessWidget {
     ),
   ];
 
-  TrashHeader({Key? key}) : super(key: key);
+  TrashHeader({super.key});
 
   @override
   Widget build(BuildContext context) {

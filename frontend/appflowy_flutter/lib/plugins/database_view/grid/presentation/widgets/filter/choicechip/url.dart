@@ -4,8 +4,7 @@ import 'choicechip.dart';
 
 class URLFilterChoicechip extends StatelessWidget {
   final FilterInfo filterInfo;
-  const URLFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const URLFilterChoicechip({required this.filterInfo, super.key});
 
   @override
   Widget build(BuildContext context) {

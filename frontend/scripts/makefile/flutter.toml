@@ -166,7 +166,7 @@ script = [
   fi
   mkdir -p ${output_path}
 
-  product=${PRODUCT_NAME}-arm64-v8a-release.${PRODUCT_EXT}
+  product=${PRODUCT_NAME}.${PRODUCT_EXT}
   cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/Build/Products/${FLUTTER_OUTPUT_DIR}/${product} \
   ${output_path}/${product}
   """,

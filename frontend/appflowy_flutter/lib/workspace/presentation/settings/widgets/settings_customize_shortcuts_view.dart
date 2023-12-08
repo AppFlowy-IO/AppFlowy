@@ -187,7 +187,7 @@ class ShortcutsListTile extends StatelessWidget {
     );
   }
 
-  _validateForConflicts(BuildContext context, String command) {
+  String? _validateForConflicts(BuildContext context, String command) {
     final conflict = BlocProvider.of<ShortcutsCubit>(context).getConflict(
       shortcutEvent,
       command,
@@ -199,12 +199,12 @@ class ShortcutsListTile extends StatelessWidget {
     );
   }
 
-  _updateKey(BuildContext context, String command) {
+  void _updateKey(BuildContext context, String command) {
     shortcutEvent.updateCommand(command: command);
     BlocProvider.of<ShortcutsCubit>(context).updateAllShortcuts();
   }
 
-  _dismiss(BuildContext context) => Navigator.of(context).pop();
+  void _dismiss(BuildContext context) => Navigator.of(context).pop();
 }
 
 extension on RawKeyEvent {

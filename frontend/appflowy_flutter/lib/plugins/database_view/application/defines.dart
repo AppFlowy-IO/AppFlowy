@@ -40,5 +40,5 @@ class LoadingState with _$LoadingState {
   ) = _Finish;
 
   const LoadingState._();
-  isLoading() => this is _Loading;
+  bool isLoading() => this is _Loading;
 }

@@ -86,7 +86,7 @@ class _OptionTitle extends StatelessWidget {
 
 class _OptionList extends StatelessWidget {
   final PopoverMutex? popoverMutex;
-  const _OptionList({Key? key, this.popoverMutex}) : super(key: key);
+  const _OptionList({this.popoverMutex});
 
   @override
   Widget build(BuildContext context) {
@@ -120,8 +120,7 @@ class _OptionList extends StatelessWidget {
 class _OptionCell extends StatefulWidget {
   final SelectOptionPB option;
   final PopoverMutex? popoverMutex;
-  const _OptionCell({required this.option, Key? key, this.popoverMutex})
-      : super(key: key);
+  const _OptionCell({required this.option, this.popoverMutex});
 
   @override
   State<_OptionCell> createState() => _OptionCellState();
@@ -190,7 +189,7 @@ class _OptionCellState extends State<_OptionCell> {
 }
 
 class _AddOptionButton extends StatelessWidget {
-  const _AddOptionButton({Key? key}) : super(key: key);
+  const _AddOptionButton();
 
   @override
   Widget build(BuildContext context) {

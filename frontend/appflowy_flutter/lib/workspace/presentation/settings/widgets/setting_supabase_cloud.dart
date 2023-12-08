@@ -261,8 +261,8 @@ class SupabaseInput extends StatefulWidget {
     required this.hint,
     required this.onChanged,
     required this.error,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   SupabaseInputState createState() => SupabaseInputState();

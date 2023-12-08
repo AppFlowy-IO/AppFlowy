@@ -26,7 +26,7 @@ class ApplicationDataStorage {
 
     if (Platform.isMacOS) {
       // remove the prefix `/Volumes/*`
-      path = path.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
+      path = path.replaceFirst(RegExp('^/Volumes/[^/]+'), '');
     } else if (Platform.isWindows) {
       path = path.replaceAll('/', '\\');
     }

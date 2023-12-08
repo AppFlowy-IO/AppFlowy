@@ -2,12 +2,11 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -58,7 +57,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
   }
 
   @override
-  didUpdateWidget(covariant oldWidget) {
+  void didUpdateWidget(covariant oldWidget) {
     if (widget.fieldInfo != oldWidget.fieldInfo && !_bloc.isClosed) {
       _bloc.add(FieldCellEvent.onFieldChanged(widget.fieldInfo));
     }
@@ -132,8 +131,7 @@ class _GridHeaderCellContainer extends StatelessWidget {
   const _GridHeaderCellContainer({
     required this.child,
     required this.width,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +155,7 @@ class _GridHeaderCellContainer extends StatelessWidget {
 }
 
 class _DragToExpandLine extends StatelessWidget {
-  const _DragToExpandLine({
-    Key? key,
-  }) : super(key: key);
+  const _DragToExpandLine();
 
   @override
   Widget build(BuildContext context) {
@@ -208,8 +204,8 @@ class FieldCellButton extends StatelessWidget {
     this.maxLines = 1,
     this.radius = BorderRadius.zero,
     this.margin,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

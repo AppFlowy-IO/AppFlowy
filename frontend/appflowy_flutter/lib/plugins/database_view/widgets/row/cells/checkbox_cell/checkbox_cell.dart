@@ -23,8 +23,8 @@ class GridCheckboxCell extends GridCellWidget {
   GridCheckboxCell({
     required this.cellControllerBuilder,
     GridCellStyle? style,
-    Key? key,
-  }) : super(key: key) {
+    super.key,
+  }) {
     if (style != null) {
       cellStyle = (style as GridCheckboxCellStyle);
     } else {

@@ -105,11 +105,9 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                 ready: (plugins) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ...AppTheme.builtins
-                        .map(
-                          (theme) => _themeItemButton(context, theme.themeName),
-                        )
-                        .toList(),
+                    ...AppTheme.builtins.map(
+                      (theme) => _themeItemButton(context, theme.themeName),
+                    ),
                     if (plugins.isNotEmpty) ...[
                       const Divider(),
                       ...plugins
@@ -121,8 +119,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                               theme.themeName,
                               false,
                             ),
-                          )
-                          .toList(),
+                          ),
                     ],
                   ],
                 ),
