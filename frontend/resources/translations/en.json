@@ -854,6 +854,7 @@
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
     "referencedBoardPrefix": "View of",
+    "notesTooltip": "Notes inside",
     "mobile": {
       "editURL": "Edit URL",
       "unhideGroup": "Unhide group",
