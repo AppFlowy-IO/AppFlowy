@@ -402,14 +402,12 @@ impl DatabaseEditor {
   }
 
   // consider returning a result. But most of the time, it should be fine to just ignore the error.
-  pub async fn duplicate_row(&self, view_id: &str, group_id: Option<String>, row_id: &RowId) {
+  pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) {
     let params = self.database.lock().duplicate_row(row_id);
     match params {
-      None => {
-        warn!("Failed to duplicate row: {}", row_id);
-      },
+      None => warn!("Failed to duplicate row: {}", row_id),
       Some(params) => {
-        let _ = self.create_row(view_id, group_id, params).await;
+        let _ = self.create_row(view_id, None, params).await;
       },
     }
   }

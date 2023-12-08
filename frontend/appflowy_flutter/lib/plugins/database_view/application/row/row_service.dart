@@ -114,15 +114,12 @@ class RowBackendService {
 
   static Future<Either<Unit, FlowyError>> duplicateRow(
     String viewId,
-    RowId rowId, [
-    String? groupId,
-  ]) {
-    final payload = RowIdPB.create()
-      ..viewId = viewId
-      ..rowId = rowId;
-    if (groupId != null) {
-      payload.groupId = groupId;
-    }
+    RowId rowId,
+  ) {
+    final payload = RowIdPB(
+      viewId: viewId,
+      rowId: rowId,
+    );
 
     return DatabaseEventDuplicateRow(payload).send();
   }

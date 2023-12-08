@@ -25,7 +25,6 @@ class RowActionList extends StatelessWidget {
           RowDetailPageDuplicateButton(
             viewId: rowController.viewId,
             rowId: rowController.rowId,
-            groupId: rowController.groupId,
           ),
           const VSpace(4.0),
           RowDetailPageDeleteButton(
@@ -65,15 +64,14 @@ class RowDetailPageDeleteButton extends StatelessWidget {
 }
 
 class RowDetailPageDuplicateButton extends StatelessWidget {
-  final String viewId;
-  final String rowId;
-  final String? groupId;
   const RowDetailPageDuplicateButton({
     super.key,
     required this.viewId,
     required this.rowId,
-    this.groupId,
   });
+
+  final String viewId;
+  final String rowId;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +81,7 @@ class RowDetailPageDuplicateButton extends StatelessWidget {
         text: FlowyText.regular(LocaleKeys.grid_row_duplicate.tr()),
         leftIcon: const FlowySvg(FlowySvgs.copy_s),
         onTap: () {
-          RowBackendService.duplicateRow(viewId, rowId, groupId);
+          RowBackendService.duplicateRow(viewId, rowId);
           FlowyOverlay.pop(context);
         },
       ),
