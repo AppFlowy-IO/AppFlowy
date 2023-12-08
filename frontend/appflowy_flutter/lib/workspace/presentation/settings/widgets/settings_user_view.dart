@@ -467,16 +467,14 @@ class IconGallery extends StatelessWidget {
       crossAxisSpacing: 4,
       children: [
         if (defaultOption != null) defaultOption!,
-        ...builtInSVGIcons
-            .mapIndexed(
-              (int index, String iconUrl) => IconOption(
-                emoji: FlowySvgData('emoji/$iconUrl'),
-                iconUrl: iconUrl,
-                onSelectIcon: onSelectIcon,
-                isSelected: iconUrl == selectedIcon,
-              ),
-            )
-            ,
+        ...builtInSVGIcons.mapIndexed(
+          (int index, String iconUrl) => IconOption(
+            emoji: FlowySvgData('emoji/$iconUrl'),
+            iconUrl: iconUrl,
+            onSelectIcon: onSelectIcon,
+            isSelected: iconUrl == selectedIcon,
+          ),
+        ),
       ],
     );
   }
