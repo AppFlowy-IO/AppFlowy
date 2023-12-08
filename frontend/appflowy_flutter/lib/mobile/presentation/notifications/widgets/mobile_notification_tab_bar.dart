@@ -1,31 +1,46 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
-class NotificationTabBar extends StatelessWidget {
-  final TabController tabController;
+class MobileNotificationTabBar extends StatefulWidget {
+  const MobileNotificationTabBar({super.key, required this.controller});
 
-  const NotificationTabBar({
-    super.key,
-    required this.tabController,
-  });
+  final TabController controller;
+
+  @override
+  State<MobileNotificationTabBar> createState() =>
+      _MobileNotificationTabBarState();
+}
+
+class _MobileNotificationTabBarState extends State<MobileNotificationTabBar> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_updateState);
+  }
+
+  void _updateState() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
+    final borderSide = BorderSide(
+      color: AFThemeExtension.of(context).calloutBGColor,
+    );
+
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-          ),
+          bottom: borderSide,
+          top: borderSide,
         ),
       ),
       child: Row(
         children: [
           Expanded(
             child: TabBar(
-              controller: tabController,
+              controller: widget.controller,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               labelPadding: EdgeInsets.zero,
               indicatorSize: TabBarIndicatorSize.label,
@@ -38,11 +53,11 @@ class NotificationTabBar extends StatelessWidget {
               tabs: [
                 FlowyTabItem(
                   label: LocaleKeys.notificationHub_tabs_inbox.tr(),
-                  isSelected: tabController.index == 0,
+                  isSelected: widget.controller.index == 0,
                 ),
                 FlowyTabItem(
                   label: LocaleKeys.notificationHub_tabs_upcoming.tr(),
-                  isSelected: tabController.index == 1,
+                  isSelected: widget.controller.index == 1,
                 ),
               ],
             ),

@@ -9,6 +9,7 @@ import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_scr
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
@@ -181,21 +182,8 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(
-            path: '/e',
-            builder: (BuildContext context, GoRouterState state) =>
-                const RootPlaceholderScreen(
-              label: 'Notification',
-              detailsPath: '/e/details',
-            ),
-            routes: <RouteBase>[
-              GoRoute(
-                path: 'details',
-                builder: (BuildContext context, GoRouterState state) =>
-                    const DetailsPlaceholderScreen(
-                  label: 'Notification Page details',
-                ),
-              ),
-            ],
+            path: MobileNotificationsScreen.routeName,
+            builder: (_, __) => const MobileNotificationsScreen(),
           ),
         ],
       ),
@@ -492,12 +480,8 @@ GoRoute _mobileEditorScreenRoute() {
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
-      return MaterialPage(
-        child: MobileEditorScreen(
-          id: id,
-          title: title,
-        ),
-      );
+
+      return MaterialPage(child: MobileEditorScreen(id: id, title: title));
     },
   );
 }

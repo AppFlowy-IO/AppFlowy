@@ -14,16 +14,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileHomePageHeader extends StatelessWidget {
-  const MobileHomePageHeader({
-    super.key,
-    required this.userProfile,
-  });
+  const MobileHomePageHeader({super.key, required this.userProfile});
 
   final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return BlocProvider(
       create: (context) => getIt<SettingsUserViewBloc>(param1: userProfile)
         ..add(const SettingsUserEvent.initial()),
@@ -41,29 +37,23 @@ class MobileHomePageHeader extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const FlowyText.medium(
-                        'AppFlowy',
-                        fontSize: 18,
-                      ),
+                      const FlowyText.medium('AppFlowy', fontSize: 18),
                       const VSpace(4),
                       FlowyText.regular(
                         userProfile.email.isNotEmpty
-                            ? userProfile.email
-                            : userProfile.name,
+                            ? state.userProfile.email
+                            : state.userProfile.name,
                         fontSize: 12,
-                        color: theme.colorScheme.onSurface,
+                        color: Theme.of(context).colorScheme.onSurface,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  onPressed: () {
-                    context.push(MobileHomeSettingPage.routeName);
-                  },
-                  icon: const FlowySvg(
-                    FlowySvgs.m_setting_m,
-                  ),
+                  onPressed: () =>
+                      context.push(MobileHomeSettingPage.routeName),
+                  icon: const FlowySvg(FlowySvgs.m_setting_m),
                 ),
               ],
             ),

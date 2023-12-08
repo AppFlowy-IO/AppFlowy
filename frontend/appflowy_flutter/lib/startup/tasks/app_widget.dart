@@ -1,6 +1,9 @@
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
@@ -137,18 +140,44 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
+        BlocProvider.value(value: getIt<NotificationActionBloc>()),
       ],
-      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp.router(
-          builder: overlayManagerBuilder(),
-          debugShowCheckedModeBanner: false,
-          theme: state.lightTheme,
-          darkTheme: state.darkTheme,
-          themeMode: state.themeMode,
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: state.locale,
-          routerConfig: routerConfig,
+      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+        listener: (context, state) {
+          if (state.action?.type == ActionType.openView) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final view =
+                  state.action!.arguments?[ActionArgumentKeys.view.name];
+              if (view != null) {
+                AppGlobals.rootNavKey.currentContext?.pushView(view);
+
+                final nodePath = state.action!
+                    .arguments?[ActionArgumentKeys.nodePath.name] as int?;
+
+                if (nodePath != null) {
+                  context.read<NotificationActionBloc>().add(
+                        NotificationActionEvent.performAction(
+                          action: state.action!
+                              .copyWith(type: ActionType.jumpToBlock),
+                        ),
+                      );
+                }
+              }
+            });
+          }
+        },
+        child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+          builder: (context, state) => MaterialApp.router(
+            builder: overlayManagerBuilder(),
+            debugShowCheckedModeBanner: false,
+            theme: state.lightTheme,
+            darkTheme: state.darkTheme,
+            themeMode: state.themeMode,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: state.locale,
+            routerConfig: routerConfig,
+          ),
         ),
       ),
     );
@@ -163,7 +192,6 @@ class AppGlobals {
 
 class ApplicationBlocObserver extends BlocObserver {
   @override
-  // ignore: unnecessary_overrides
   void onTransition(Bloc bloc, Transition transition) {
     // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
     // Log.debug("${transition.nextState}");

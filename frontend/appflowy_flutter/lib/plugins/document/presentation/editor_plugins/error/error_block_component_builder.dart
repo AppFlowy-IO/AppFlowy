@@ -46,10 +46,10 @@ class ErrorBlockComponentWidget extends BlockComponentStatefulWidget {
 
   @override
   State<ErrorBlockComponentWidget> createState() =>
-      _DividerBlockComponentWidgetState();
+      _ErrorBlockComponentWidgetState();
 }
 
-class _DividerBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
+class _ErrorBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
     with BlockComponentConfigurable {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
