@@ -58,7 +58,6 @@ export const GridCell = memo(({ row, column, columnIndex, style, onEditRecord, g
           <GridNewRow
             getContainerRef={getContainerRef}
             index={columnIndex}
-            startRowId={row.data.startRowId}
             groupId={row.data.groupId}
           />
         </div>

@@ -349,11 +349,12 @@ async function testMoveField() {
   });
 
   const fieldInfos = [...databaseController.fieldController.fieldInfos];
-  const field_id = fieldInfos[0].field.id;
+  const fromFieldId = fieldInfos[0].field.id;
+  const toFieldId = fieldInfos[1].field.id;
 
-  await databaseController.moveField({ fieldId: field_id, fromIndex: 0, toIndex: 1 });
+  await databaseController.moveField({ fromFieldId: fromFieldId, toFieldId: toFieldId });
   await new Promise((resolve) => setTimeout(resolve, 200));
-  assert(databaseController.fieldController.fieldInfos[1].field.id === field_id);
+  assert(databaseController.fieldController.fieldInfos[1].field.id === fromFieldId);
 }
 
 async function testGetSingleSelectFieldData() {

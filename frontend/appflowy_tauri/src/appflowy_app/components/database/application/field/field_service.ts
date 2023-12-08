@@ -159,12 +159,11 @@ export async function updateFieldType(viewId: string, fieldId: string, fieldType
   return result.unwrap();
 }
 
-export async function moveField(viewId: string, fieldId: string, fromIndex: number, toIndex: number): Promise<void> {
+export async function moveField(viewId: string, fromFieldId: string, toFieldId: string): Promise<void> {
   const payload = MoveFieldPayloadPB.fromObject({
     view_id: viewId,
-    field_id: fieldId,
-    from_index: fromIndex,
-    to_index: toIndex,
+    from_field_id: fromFieldId,
+    to_field_id: toFieldId,
   });
 
   const result = await DatabaseEventMoveField(payload);

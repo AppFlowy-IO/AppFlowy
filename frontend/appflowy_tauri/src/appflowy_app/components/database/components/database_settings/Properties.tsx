@@ -24,8 +24,8 @@ function Properties({ onItemClick }: PropertiesProps) {
 
   const handleOnDragEnd = async (result: DropResult) => {
     const { destination, draggableId, source } = result;
-    const newIndex = destination?.index;
     const oldIndex = source.index;
+    const newIndex = destination?.index;
 
     if (oldIndex === newIndex) {
       return;
@@ -35,11 +35,13 @@ function Properties({ onItemClick }: PropertiesProps) {
       return;
     }
 
+    const newId = fields[newIndex ?? 0].id;
+
     const newProperties = fieldService.reorderFields(fields as FieldType[], oldIndex, newIndex ?? 0);
 
     setState(newProperties);
 
-    await fieldService.moveField(viewId, draggableId, oldIndex, newIndex);
+    await fieldService.moveField(viewId, draggableId, newId ?? "");
   };
 
   return (

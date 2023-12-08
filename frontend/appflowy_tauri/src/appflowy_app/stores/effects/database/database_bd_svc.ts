@@ -29,6 +29,7 @@ import {
   DatabaseViewIdPB,
   CreateRowPayloadPB,
   ViewIdPB,
+  OrderObjectPositionTypePB,
 } from '@/services/backend';
 import { FolderEventCloseView } from '@/services/backend/events/flowy-folder2';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
@@ -63,16 +64,19 @@ export class DatabaseBackendService {
   /// 2.The row will be placed after the passed-in rowId
   /// 3.The row will be moved to the group with groupId. Currently, grouping is
   /// only support in kanban board.
-  createRow = async (params?: { rowId?: string; groupId?: string }) => {
-    const payload = CreateRowPayloadPB.fromObject({ view_id: this.viewId });
-
-    if (params?.rowId !== undefined) {
-      payload.start_row_id = params.rowId;
-    }
-
-    if (params?.groupId !== undefined) {
-      payload.group_id = params.groupId;
-    }
+  createRow = async (params?: {
+    groupId?: string;
+    position?: OrderObjectPositionTypePB;
+    rowId?: string;
+  }) => {
+    const payload = CreateRowPayloadPB.fromObject({
+      view_id: this.viewId,
+      row_position: {
+        position: params?.position,
+        object_id: params?.rowId,
+      },
+      group_id: params?.groupId,
+    });
 
     return DatabaseEventCreateRow(payload);
   };
@@ -139,12 +143,11 @@ export class DatabaseBackendService {
     return DatabaseEventGetGroup(payload);
   };
 
-  moveField = (params: { fieldId: string; fromIndex: number; toIndex: number }) => {
+  moveField = (params: { fromFieldId: string; toFieldId: string }) => {
     const payload = MoveFieldPayloadPB.fromObject({
       view_id: this.viewId,
-      field_id: params.fieldId,
-      from_index: params.fromIndex,
-      to_index: params.toIndex,
+      from_field_id: params.fromFieldId,
+      to_field_id: params.toFieldId,
     });
 
     return DatabaseEventMoveField(payload);
