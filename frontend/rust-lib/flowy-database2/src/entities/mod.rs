@@ -10,13 +10,13 @@ pub mod parser;
 mod position_entities;
 mod row_entities;
 pub mod setting_entities;
+mod share_entities;
 mod sort_entities;
+mod type_option_entities;
 mod view_entities;
 
 #[macro_use]
 mod macros;
-mod share_entities;
-mod type_option_entities;
 
 pub use board_entities::*;
 pub use calendar_entities::*;
