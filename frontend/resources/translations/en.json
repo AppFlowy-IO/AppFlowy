@@ -828,6 +828,7 @@
       "renameGroupTooltip": "Press to rename group",
       "createNewColumn": "Add a new group",
       "addToColumnTopTooltip": "Add a new card at the top",
+      "addToColumnBottomTooltip": "Add a new card at the bottom",
       "renameColumn": "Rename",
       "hideColumn": "Hide",
       "groupActions": "Group Actions",

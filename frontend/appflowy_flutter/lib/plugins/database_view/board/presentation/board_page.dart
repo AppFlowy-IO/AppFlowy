@@ -208,20 +208,27 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   }
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
-    return AppFlowyGroupFooter(
-      height: 36,
-      margin: config.groupFooterPadding,
-      icon: FlowySvg(
-        FlowySvgs.add_s,
-        color: Theme.of(context).hintColor,
+    return Padding(
+      padding: config.groupFooterPadding,
+      child: FlowyHover(
+        child: FlowyTooltip(
+          message: LocaleKeys.board_column_addToColumnBottomTooltip.tr(),
+          child: AppFlowyGroupFooter(
+            height: 36,
+            icon: FlowySvg(
+              FlowySvgs.add_s,
+              color: Theme.of(context).hintColor,
+            ),
+            title: FlowyText.medium(
+              LocaleKeys.board_column_createNewCard.tr(),
+              color: Theme.of(context).hintColor,
+            ),
+            onAddButtonClick: () => context
+                .read<BoardBloc>()
+                .add(BoardEvent.createBottomRow(columnData.id)),
+          ),
+        ),
       ),
-      title: FlowyText.medium(
-        LocaleKeys.board_column_createNewCard.tr(),
-        color: Theme.of(context).hintColor,
-      ),
-      onAddButtonClick: () => context
-          .read<BoardBloc>()
-          .add(BoardEvent.createBottomRow(columnData.id)),
     );
   }
 
