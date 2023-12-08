@@ -76,7 +76,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
       onTap: () => context.pushView(view),
       child: Stack(
         children: [
-          Container(
+          DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: theme.colorScheme.outline),

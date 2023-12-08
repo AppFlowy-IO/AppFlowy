@@ -1,24 +1,23 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:app_links/app_links.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/startup/tasks/supabase_task.dart';
 import 'package:appflowy/user/application/auth/auth_error.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_auth_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:flutter/material.dart';
-import 'package:url_protocol/url_protocol.dart';
-import 'dart:async';
-
-import 'package:app_links/app_links.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
+import 'package:url_protocol/url_protocol.dart';
 
 class AppFlowyCloudDeepLink {
   final _appLinks = AppLinks();
@@ -57,7 +56,7 @@ class AppFlowyCloudDeepLink {
   VoidCallback subscribeDeepLinkLoadingState(
     ValueChanged<DeepLinkResult> listener,
   ) {
-    listenerFn() {
+    void listenerFn() {
       if (stateNotifier.value != null) {
         listener(stateNotifier.value!);
       }

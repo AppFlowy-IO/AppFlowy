@@ -107,7 +107,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                     Theme.of(context).colorScheme.secondary
                 : Colors.transparent,
           ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.0),
             color: position == DraggableHoverPosition.center
@@ -147,7 +147,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                   : Colors.transparent,
             ),
           ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4.0),
             color: position == DraggableHoverPosition.center

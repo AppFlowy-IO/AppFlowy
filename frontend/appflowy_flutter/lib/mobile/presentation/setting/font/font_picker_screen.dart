@@ -37,7 +37,7 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
   late List<String> availableFonts;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
 
     availableFonts = _availableFonts;

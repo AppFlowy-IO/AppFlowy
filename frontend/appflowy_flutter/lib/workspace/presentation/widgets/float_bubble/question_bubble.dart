@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -10,11 +12,9 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:styled_widget/styled_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:styled_widget/styled_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({super.key});
@@ -117,7 +117,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
     );
   }
 
-  _launchURL(String url) async {
+  void _launchURL(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);

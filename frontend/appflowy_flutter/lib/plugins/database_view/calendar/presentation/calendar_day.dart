@@ -148,7 +148,7 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  notifyEnter(BuildContext context, bool isEnter) =>
+  bool notifyEnter(BuildContext context, bool isEnter) =>
       Provider.of<_CardEnterNotifier>(context, listen: false).onEnter = isEnter;
 
   Border _borderFromPosition(BuildContext context, CellPosition position) {

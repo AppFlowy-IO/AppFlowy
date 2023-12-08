@@ -74,7 +74,7 @@ class _GridHeaderState extends State<_GridHeader> {
   /// [ReorderableRow] warps the child's key with a [GlobalKey].
   /// It will trigger the child's widget's to recreate.
   /// The state will lose.
-  _getKeyById(String id) {
+  ValueKey<String>? _getKeyById(String id) {
     if (_gridMap.containsKey(id)) {
       return _gridMap[id];
     }

@@ -146,7 +146,7 @@ enum AuthenticatorType {
     }
   }
 
-  static fromValue(int value) {
+  static AuthenticatorType fromValue(int value) {
     switch (value) {
       case 0:
         return AuthenticatorType.local;

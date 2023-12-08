@@ -32,7 +32,7 @@ import 'widgets/shortcuts.dart';
 class ToggleExtensionNotifier extends ChangeNotifier {
   bool _isToggled = false;
 
-  get isToggled => _isToggled;
+  bool get isToggled => _isToggled;
 
   void toggle() {
     _isToggled = !_isToggled;
