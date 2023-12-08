@@ -59,10 +59,7 @@ dependencies:
   freezed_annotation: ^2.2.0
   get_it: ^7.6.0
   flutter_bloc: ^8.1.3
-  flutter_math_fork:
-    git:
-      url: https://github.com/xazin/flutter_math_fork.git
-      ref: de24059
+  flutter_math_fork: ^0.7.2
   dartz: ^0.10.1
   provider: ^6.0.5
   path_provider: ^2.0.15

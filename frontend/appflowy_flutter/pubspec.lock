@@ -601,12 +601,11 @@ packages:
   flutter_math_fork:
     dependency: "direct main"
     description:
-      path: "."
-      ref: de24059
-      resolved-ref: de24059e28c6abb453be42c568f33aae1a4decba
-      url: "https://github.com/xazin/flutter_math_fork.git"
-    source: git
-    version: "0.6.3+1"
+      name: flutter_math_fork
+      sha256: "94bee4642892a94939af0748c6a7de0ff8318feee588379dcdfea7dc5cba06c8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.2"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
