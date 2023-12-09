@@ -240,11 +240,14 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     final boardBloc = context.read<BoardBloc>();
     final groupItem = afGroupItem as GroupItem;
     final groupData = afGroupData.customData as GroupData;
-    final rowMeta = groupItem.row;
     final rowCache = boardBloc.getRowCache();
+    final rowInfo = rowCache?.getRow(groupItem.row.id);
 
-    /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return SizedBox.shrink(key: ObjectKey(groupItem));
+    /// Return placeholder widget if the rowCache or rowInfo is null.
+    if (rowCache == null) {
+      return SizedBox.shrink(key: ObjectKey(groupItem));
+    }
+
     final cellCache = rowCache.cellCache;
     final fieldController = boardBloc.fieldController;
     final viewId = boardBloc.viewId;
@@ -254,6 +257,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
     final groupItemId = "${groupData.group.groupId}${groupItem.row.id}";
+    final rowMeta = rowInfo?.rowMeta ?? groupItem.row;
 
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
@@ -285,10 +289,9 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
             foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
           ),
         ),
-        onStartEditing: () => boardBloc
-            .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
-        onEndEditing: () =>
-            boardBloc.add(BoardEvent.endEditingRow(groupItem.row.id)),
+        onStartEditing: () =>
+            boardBloc.add(BoardEvent.startEditingRow(groupData.group, rowMeta)),
+        onEndEditing: () => boardBloc.add(BoardEvent.endEditingRow(rowMeta.id)),
       ),
     );
   }
