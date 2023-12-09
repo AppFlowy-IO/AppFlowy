@@ -17,20 +17,7 @@ enum FlowyPlugin {
   kanban,
 }
 
-extension FlowyPluginExtension on FlowyPlugin {
-  bool enable() => switch (this) {
-        FlowyPlugin.editor => true,
-        FlowyPlugin.kanban => false,
-      };
-}
-
 extension ViewExtension on ViewPB {
-  Widget renderThumbnail({Color? iconColor}) {
-    return const FlowySvg(
-      FlowySvgs.document_s,
-    );
-  }
-
   Widget defaultIcon() => FlowySvg(
         switch (layout) {
           ViewLayoutPB.Board => FlowySvgs.board_s,

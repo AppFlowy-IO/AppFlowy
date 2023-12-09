@@ -10,7 +10,6 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -264,7 +263,12 @@ class HomeTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+      ),
       height: HomeSizes.topBarHeight,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -286,7 +290,7 @@ class HomeTopBar extends StatelessWidget {
             ),
           ],
         ),
-      ).bottomBorder(color: Theme.of(context).dividerColor),
+      ),
     );
   }
 }
