@@ -44,7 +44,7 @@ RUN curl -sSfL \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop
 RUN flutter doctor
-RUN dart pub global activate protoc_plugin 20.0.1
+RUN dart pub global activate protoc_plugin 21.1.2
 
 # Install build dependencies for AppFlowy
 RUN yay -S --noconfirm jemalloc4 cargo-make cargo-binstall
