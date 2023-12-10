@@ -141,13 +141,11 @@ class _RowCardState<T> extends State<RowCard<T>> {
             triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(140, 200)),
             direction: PopoverDirection.rightWithCenterAligned,
-            popupBuilder: (popoverContext) {
-              return RowActions(
-                viewId: _cardBloc.viewId,
-                rowId: _cardBloc.rowMeta.id,
-                groupId: widget.groupId,
-              );
-            },
+            popupBuilder: (_) => RowActions(
+              viewId: _cardBloc.viewId,
+              rowId: _cardBloc.rowMeta.id,
+              groupId: widget.groupId,
+            ),
             child: RowCardContainer(
               buildAccessoryWhen: () => state.isEditing == false,
               accessories: [
@@ -203,12 +201,12 @@ class _CardContent<CustomCardData> extends StatefulWidget {
     this.renderHook,
   });
 
-  final CardCellBuilder<CustomCardData> cellBuilder;
   final EditableRowNotifier rowNotifier;
+  final CardCellBuilder<CustomCardData> cellBuilder;
   final List<DatabaseCellContext> cells;
-  final RowCardRenderHook<CustomCardData>? renderHook;
   final CustomCardData? cardData;
   final RowCardStyleConfiguration styleConfiguration;
+  final RowCardRenderHook<CustomCardData>? renderHook;
 
   @override
   State<_CardContent<CustomCardData>> createState() =>

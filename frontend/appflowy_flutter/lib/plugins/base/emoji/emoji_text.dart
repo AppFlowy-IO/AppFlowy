@@ -14,11 +14,13 @@ class EmojiText extends StatelessWidget {
     required this.emoji,
     required this.fontSize,
     this.textAlign,
+    this.lineHeight,
   });
 
   final String emoji;
   final double fontSize;
   final TextAlign? textAlign;
+  final double? lineHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,7 @@ class EmojiText extends StatelessWidget {
       fontSize: fontSize,
       textAlign: textAlign,
       fallbackFontFamily: _cachedFallbackFontFamily,
+      lineHeight: lineHeight,
     );
   }
 
