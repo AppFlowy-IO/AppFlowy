@@ -47,15 +47,15 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     documentService: _documentService,
   );
 
-  EditorState? editorState;
   StreamSubscription? _subscription;
 
   @override
   Future<void> close() async {
+    await _documentListener.stop();
     await _viewListener.stop();
     await _subscription?.cancel();
     await _documentService.closeDocument(view: view);
-    editorState?.cancelSubscription();
+    state.editorState?.dispose();
     return super.close();
   }
 
@@ -65,9 +65,25 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   ) async {
     await event.map(
       initial: (Initial value) async {
-        final state = await _fetchDocumentState();
-        await _subscribe(state);
-        emit(state);
+        final editorState = await _fetchDocumentState();
+        _onViewChanged();
+        _onDocumentChanged();
+        editorState.fold(
+          (l) => emit(
+            state.copyWith(
+              error: l,
+              editorState: null,
+              isLoading: false,
+            ),
+          ),
+          (r) => emit(
+            state.copyWith(
+              error: null,
+              editorState: r,
+              isLoading: false,
+            ),
+          ),
+        );
       },
       moveToTrash: (MoveToTrash value) async {
         emit(state.copyWith(isDeleted: true));
@@ -85,18 +101,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         final isDeleted = result.fold((l) => false, (r) => true);
         emit(state.copyWith(isDeleted: isDeleted));
       },
-    );
-  }
-
-  Future<void> _subscribe(DocumentState state) async {
-    _onViewChanged();
-    _onDocumentChanged();
-
-    // create the editor state
-    await state.loadingState.whenOrNull(
-      finish: (data) async => data.map((r) {
-        _initAppFlowyEditorState(r);
-      }),
     );
   }
 
@@ -122,22 +126,22 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   /// Fetch document
-  Future<DocumentState> _fetchDocumentState() async {
+  Future<Either<FlowyError, EditorState?>> _fetchDocumentState() async {
     final result = await _documentService.openDocument(viewId: view.id);
-    return state.copyWith(
-      loadingState: DocumentLoadingState.finish(result),
+    return result.fold(
+      (l) => left(l),
+      (r) async => right(await _initAppFlowyEditorState(r)),
     );
   }
 
-  Future<void> _initAppFlowyEditorState(DocumentDataPB data) async {
+  Future<EditorState?> _initAppFlowyEditorState(DocumentDataPB data) async {
     final document = data.toDocument();
     if (document == null) {
       assert(false, 'document is null');
-      return;
+      return null;
     }
 
     final editorState = EditorState(document: document);
-    this.editorState = editorState;
 
     // subscribe to the document change from the editor
     _subscription = editorState.transactionStream.listen((event) async {
@@ -164,6 +168,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           // Log.debug(log);
         };
     }
+
+    return editorState;
   }
 
   Future<void> applyRules() async {
@@ -172,7 +178,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> ensureLastNodeIsEditable() async {
-    final editorState = this.editorState;
+    final editorState = state.editorState;
     if (editorState == null) {
       return;
     }
@@ -187,7 +193,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> ensureAtLeastOneParagraphExists() async {
-    final editorState = this.editorState;
+    final editorState = state.editorState;
     if (editorState == null) {
       return;
     }
@@ -233,26 +239,22 @@ class DocumentEvent with _$DocumentEvent {
 @freezed
 class DocumentState with _$DocumentState {
   const factory DocumentState({
-    required DocumentLoadingState loadingState,
     required bool isDeleted,
     required bool forceClose,
+    required bool isLoading,
     bool? isDocumentEmpty,
     UserProfilePB? userProfilePB,
+    EditorState? editorState,
+    FlowyError? error,
   }) = _DocumentState;
 
   factory DocumentState.initial() => const DocumentState(
-        loadingState: _Loading(),
         isDeleted: false,
         forceClose: false,
         isDocumentEmpty: null,
         userProfilePB: null,
+        editorState: null,
+        error: null,
+        isLoading: true,
       );
-}
-
-@freezed
-class DocumentLoadingState with _$DocumentLoadingState {
-  const factory DocumentLoadingState.loading() = _Loading;
-  const factory DocumentLoadingState.finish(
-    Either<FlowyError, DocumentDataPB> successOrFail,
-  ) = _Finish;
 }

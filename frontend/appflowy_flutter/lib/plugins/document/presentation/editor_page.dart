@@ -220,7 +220,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     }
     inlineActionsService.dispose();
     editorScrollController.dispose();
-    widget.editorState.dispose();
 
     super.dispose();
   }
