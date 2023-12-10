@@ -123,8 +123,9 @@ class DesktopBoardContent extends StatefulWidget {
 
 class _DesktopBoardContentState extends State<DesktopBoardContent> {
   final renderHook = RowCardRenderHook<String>();
-  late final ScrollController scrollController;
-  late final AppFlowyBoardScrollController scrollManager;
+  final ScrollController scrollController = ScrollController();
+  final AppFlowyBoardScrollController scrollManager =
+      AppFlowyBoardScrollController();
 
   final config = const AppFlowyBoardConfig(
     groupMargin: EdgeInsets.symmetric(horizontal: 4),
@@ -139,8 +140,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   void initState() {
     super.initState();
 
-    scrollManager = AppFlowyBoardScrollController();
-    scrollController = ScrollController();
     renderHook.addSelectOptionHook((options, groupId, _) {
       // The cell should hide if the option id is equal to the groupId.
       final isInGroup =
@@ -152,6 +151,12 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
       return null;
     });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override

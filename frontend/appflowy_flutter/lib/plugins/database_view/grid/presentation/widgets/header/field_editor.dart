@@ -57,6 +57,12 @@ class _FieldEditorState extends State<FieldEditor> {
   }
 
   @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => FieldEditorBloc(

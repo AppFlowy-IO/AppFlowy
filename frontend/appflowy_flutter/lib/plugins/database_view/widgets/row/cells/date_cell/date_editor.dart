@@ -580,7 +580,6 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       width: 180,
       child: ListView.separated(
         shrinkWrap: true,
-        controller: ScrollController(),
         separatorBuilder: (context, index) =>
             VSpace(GridSize.typeOptionSeparatorHeight),
         itemCount: children.length,

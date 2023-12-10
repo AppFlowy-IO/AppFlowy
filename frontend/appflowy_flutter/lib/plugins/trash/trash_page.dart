@@ -58,7 +58,6 @@ class _TrashPageState extends State<TrashPage> {
         scrollbarPadding: EdgeInsets.only(top: TrashSizes.headerHeight),
         barSize: barSize,
         child: StyledSingleChildScrollView(
-          controller: ScrollController(),
           barSize: barSize,
           axis: Axis.horizontal,
           child: SizedBox(

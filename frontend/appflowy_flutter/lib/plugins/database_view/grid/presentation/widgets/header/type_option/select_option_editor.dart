@@ -1,8 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/edit_select_option_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -11,8 +12,6 @@ import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
 import '../../common/type_option_separator.dart';
@@ -74,7 +73,6 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
               width: 180,
               child: ListView.builder(
                 shrinkWrap: true,
-                controller: ScrollController(),
                 physics: StyledScrollPhysics(),
                 itemCount: cells.length,
                 itemBuilder: (context, index) {
