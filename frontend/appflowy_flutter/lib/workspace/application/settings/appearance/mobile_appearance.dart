@@ -159,10 +159,6 @@ class MobileAppearance extends BaseAppearance {
           padding: MaterialStateProperty.all(
             const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           ),
-          // splash color
-          overlayColor: MaterialStateProperty.all(
-            Colors.grey[100],
-          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
