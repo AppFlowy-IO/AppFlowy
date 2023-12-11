@@ -274,7 +274,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
         rowCache: rowCache,
         cardData: groupData.group.groupId,
         groupingFieldId: groupItem.fieldInfo.id,
-        groupId: groupData.group.groupId,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         renderHook: renderHook,

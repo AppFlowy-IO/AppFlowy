@@ -1,11 +1,12 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
+
 import '../../application/field/field_service.dart';
 
 part 'grid_header_bloc.freezed.dart';
@@ -49,8 +50,8 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
           endEditingField: () {
             emit(state.copyWith(editingFieldId: null, newFieldId: null));
           },
-          moveField: (field, fromIndex, toIndex) async {
-            await _moveField(field, fromIndex, toIndex, emit);
+          moveField: (fromIndex, toIndex) async {
+            await _moveField(fromIndex, toIndex, emit);
           },
         );
       },
@@ -58,17 +59,22 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _moveField(
-    FieldPB field,
     int fromIndex,
     int toIndex,
     Emitter<GridHeaderState> emit,
   ) async {
+    final fromId = state.fields[fromIndex].id;
+    final toId = state.fields[toIndex].id;
+
     final fields = List<FieldInfo>.from(state.fields);
     fields.insert(toIndex, fields.removeAt(fromIndex));
     emit(state.copyWith(fields: fields));
 
-    final fieldService = FieldBackendService(viewId: viewId, fieldId: field.id);
-    final result = await fieldService.moveField(fromIndex, toIndex);
+    final result = await FieldBackendService.moveField(
+      viewId: viewId,
+      fromFieldId: fromId,
+      toFieldId: toId,
+    );
     result.fold((l) {}, (err) => Log.error(err));
   }
 
@@ -92,7 +98,6 @@ class GridHeaderEvent with _$GridHeaderEvent {
       _StartEditingNewField;
   const factory GridHeaderEvent.endEditingField() = _EndEditingField;
   const factory GridHeaderEvent.moveField(
-    FieldPB field,
     int fromIndex,
     int toIndex,
   ) = _MoveField;

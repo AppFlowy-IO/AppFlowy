@@ -4,7 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
@@ -57,22 +57,10 @@ class RowPropertyList extends StatelessWidget {
         return ReorderableListView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          onReorder: (oldIndex, newIndex) {
-            // when reorderiing downwards, need to update index
-            if (oldIndex < newIndex) {
-              newIndex--;
-            }
-            final reorderedFieldId = children[oldIndex].cellContext.fieldId;
-            final targetFieldId = children[newIndex].cellContext.fieldId;
-
-            context.read<RowDetailBloc>().add(
-                  RowDetailEvent.reorderField(
-                    reorderedFieldId,
-                    targetFieldId,
-                    oldIndex,
-                    newIndex,
-                  ),
-                );
+          onReorder: (from, to) {
+            context
+                .read<RowDetailBloc>()
+                .add(RowDetailEvent.reorderField(from, to));
           },
           buildDefaultDragHandles: false,
           proxyDecorator: (child, index, animation) => Material(
@@ -391,7 +379,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
           ),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onTap: () async {
-            final result = await TypeOptionBackendService.createFieldTypeOption(
+            final result = await FieldBackendService.createField(
               viewId: widget.viewId,
             );
             result.fold(

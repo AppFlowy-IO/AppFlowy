@@ -10,7 +10,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 
 class DatabaseViewBackendService {
   final String viewId;
@@ -29,29 +28,6 @@ class DatabaseViewBackendService {
   Future<Either<DatabasePB, FlowyError>> openDatabase() async {
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetDatabase(payload).send();
-  }
-
-  Future<Either<RowMetaPB, FlowyError>> createRow({
-    RowId? startRowId,
-    String? groupId,
-    Map<String, String>? cellDataByFieldId,
-    bool fromBeginning = false,
-  }) {
-    final payload = CreateRowPayloadPB.create()..viewId = viewId;
-
-    if (!fromBeginning || startRowId != null) {
-      payload.startRowId = startRowId ?? "";
-    }
-
-    if (groupId != null) {
-      payload.groupId = groupId;
-    }
-
-    if (cellDataByFieldId != null && cellDataByFieldId.isNotEmpty) {
-      payload.data = RowDataPB(cellDataByFieldId: cellDataByFieldId);
-    }
-
-    return DatabaseEventCreateRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveGroupRow({

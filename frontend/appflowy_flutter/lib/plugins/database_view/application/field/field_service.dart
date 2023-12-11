@@ -1,6 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 
@@ -9,19 +10,99 @@ import 'package:dartz/dartz.dart';
 ///
 /// You could check out the rust-lib/flowy-database/event_map.rs for more information.
 class FieldBackendService {
+  FieldBackendService({required this.viewId, required this.fieldId});
+
   final String viewId;
   final String fieldId;
 
-  FieldBackendService({required this.viewId, required this.fieldId});
+  static Future<Either<TypeOptionPB, FlowyError>> createField({
+    required String viewId,
+    FieldType fieldType = FieldType.RichText,
+    String? fieldName,
+    Uint8List? typeOptionData,
+    OrderObjectPositionPB? position,
+  }) {
+    final payload = CreateFieldPayloadPB(
+      viewId: viewId,
+      fieldType: fieldType,
+      fieldName: fieldName,
+      typeOptionData: typeOptionData,
+      fieldPosition: position,
+    );
 
-  Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
-    final payload = MoveFieldPayloadPB.create()
-      ..viewId = viewId
-      ..fieldId = fieldId
-      ..fromIndex = fromIndex
-      ..toIndex = toIndex;
+    return DatabaseEventCreateField(payload).send();
+  }
+
+  Future<Either<TypeOptionPB, FlowyError>> insertBefore({
+    FieldType fieldType = FieldType.RichText,
+    String? fieldName,
+    Uint8List? typeOptionData,
+  }) {
+    return createField(
+      viewId: viewId,
+      fieldType: fieldType,
+      fieldName: fieldName,
+      typeOptionData: typeOptionData,
+      position: OrderObjectPositionPB(
+        position: OrderObjectPositionTypePB.Before,
+        objectId: fieldId,
+      ),
+    );
+  }
+
+  Future<Either<TypeOptionPB, FlowyError>> insertAfter({
+    FieldType fieldType = FieldType.RichText,
+    String? fieldName,
+    Uint8List? typeOptionData,
+  }) {
+    return createField(
+      viewId: viewId,
+      fieldType: fieldType,
+      fieldName: fieldName,
+      typeOptionData: typeOptionData,
+      position: OrderObjectPositionPB(
+        position: OrderObjectPositionTypePB.Before,
+        objectId: fieldId,
+      ),
+    );
+  }
+
+  static Future<Either<Unit, FlowyError>> moveField({
+    required String viewId,
+    required String fromFieldId,
+    required String toFieldId,
+  }) {
+    final payload = MoveFieldPayloadPB(
+      viewId: viewId,
+      fromFieldId: fromFieldId,
+      toFieldId: toFieldId,
+    );
 
     return DatabaseEventMoveField(payload).send();
+  }
+
+  static Future<Either<Unit, FlowyError>> deleteField({
+    required String viewId,
+    required String fieldId,
+  }) {
+    final payload = DeleteFieldPayloadPB(
+      viewId: viewId,
+      fieldId: fieldId,
+    );
+
+    return DatabaseEventDeleteField(payload).send();
+  }
+
+  static Future<Either<Unit, FlowyError>> duplicateField({
+    required String viewId,
+    required String fieldId,
+  }) {
+    final payload = DuplicateFieldPayloadPB(
+      viewId: viewId,
+      fieldId: fieldId,
+    );
+
+    return DatabaseEventDuplicateField(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> updateField({
@@ -67,20 +148,12 @@ class FieldBackendService {
     return DatabaseEventUpdateFieldType(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteField() {
-    final payload = DeleteFieldPayloadPB.create()
-      ..viewId = viewId
-      ..fieldId = fieldId;
-
-    return DatabaseEventDeleteField(payload).send();
+  Future<Either<Unit, FlowyError>> delete() {
+    return deleteField(viewId: viewId, fieldId: fieldId);
   }
 
-  Future<Either<Unit, FlowyError>> duplicateField() {
-    final payload = DuplicateFieldPayloadPB.create()
-      ..viewId = viewId
-      ..fieldId = fieldId;
-
-    return DatabaseEventDuplicateField(payload).send();
+  Future<Either<Unit, FlowyError>> duplicate() {
+    return duplicateField(viewId: viewId, fieldId: fieldId);
   }
 
   Future<Either<TypeOptionPB, FlowyError>> getFieldTypeOptionData({

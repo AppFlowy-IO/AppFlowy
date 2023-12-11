@@ -8,7 +8,7 @@ import { ReactComponent as LeftSvg } from '$app/assets/left.svg';
 import { ReactComponent as RightSvg } from '$app/assets/right.svg';
 import { useViewId } from '$app/hooks';
 import { fieldService } from '$app/components/database/application';
-import { CreateFieldPosition, FieldVisibility } from '@/services/backend';
+import { OrderObjectPositionTypePB, FieldVisibility } from '@/services/backend';
 import { MenuItem } from '@mui/material';
 import ConfirmDialog from '$app/components/_shared/app-dialog/ConfirmDialog';
 import { useTranslation } from 'react-i18next';
@@ -83,7 +83,7 @@ function PropertyActions({ fieldId, onMenuItemClick, isPrimary, actions = defaul
         break;
       case FieldAction.InsertLeft:
       case FieldAction.InsertRight: {
-        const fieldPosition = action === FieldAction.InsertLeft ? CreateFieldPosition.Before : CreateFieldPosition.After;
+        const fieldPosition = action === FieldAction.InsertLeft ? OrderObjectPositionTypePB.Before : OrderObjectPositionTypePB.After;
 
         const field = await fieldService.createField({
           viewId,
