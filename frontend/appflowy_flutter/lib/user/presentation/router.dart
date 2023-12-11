@@ -42,7 +42,7 @@ class AuthRouter {
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
-    final result = await FolderEventGetCurrentWorkspace().send();
+    final result = await FolderEventGetCurrentWorkspaceSetting().send();
     result.fold(
       (workspaceSetting) {
         // Replace SignInScreen or SkipLogInScreen as root page.
@@ -104,7 +104,7 @@ class SplashRouter {
       },
     );
 
-    FolderEventGetCurrentWorkspace().send().then((result) {
+    FolderEventGetCurrentWorkspaceSetting().send().then((result) {
       result.fold(
         (workspaceSettingPB) => pushHomeScreen(context),
         (r) => null,

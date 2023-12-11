@@ -1,77 +1,47 @@
-import { Divider, Menu, MenuItem, MenuProps, OutlinedInput } from '@mui/material';
-import { ChangeEventHandler, FC, useCallback, useState } from 'react';
-import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
-import { Database } from '$app/interfaces/database';
-import * as service from '$app/components/database/database_bd_svc';
-import { useViewId } from '../../database.hooks';
-import { FieldTypeSvg } from './FieldTypeSvg';
-import { FieldTypeText } from './FieldTypeText';
-import { GridFieldMenuActions } from './GridFieldMenuActions';
+import React from 'react';
+import Popover, { PopoverProps } from '@mui/material/Popover';
+import { Field } from '$app/components/database/application';
+import PropertyNameInput from '$app/components/database/components/property/PropertyNameInput';
+import { MenuList, Portal } from '@mui/material';
+import PropertyActions, { FieldAction } from '$app/components/database/components/property/PropertyActions';
 
-
-export interface GridFieldMenuProps {
-  field: Database.Field;
-  anchorEl: MenuProps['anchorEl'];
-  open: boolean;
-  onClose: MenuProps['onClose'];
+interface Props extends PopoverProps {
+  field: Field;
+  onOpenPropertyMenu?: () => void;
+  onOpenMenu?: (fieldId: string) => void;
 }
 
-export const GridFieldMenu: FC<GridFieldMenuProps> = ({
-  field,
-  anchorEl,
-  open,
-  onClose,
-}) => {
-  const viewId = useViewId();
-  const [inputtingName, setInputtingName] = useState(field.name);
-
-  const handleInput = useCallback<ChangeEventHandler<HTMLInputElement>>((e) => {
-    setInputtingName(e.target.value);
-  }, []);
-
-  const handleBlur = useCallback(async () => {
-    if (inputtingName !== field.name) {
-      try {
-        await service.updateField(viewId, field.id, {
-          name: inputtingName,
-        });
-      } catch (e) {
-        // TODO
-        console.error(`change field ${field.id} name from '${field.name}' to ${inputtingName} fail`, e);
-      }
-    }
-  }, [viewId, field, inputtingName]);
-
-  const fieldNameInput = (
-    <OutlinedInput
-      className="mx-3 mt-1 mb-5 !rounded-[10px]"
-      size="small"
-      value={inputtingName}
-      onChange={handleInput}
-      onBlur={handleBlur}
-    />
-  );
-
-  const fieldTypeSelect = (
-    <MenuItem dense>
-      <FieldTypeSvg type={field.type} className="text-base mr-2" />
-      <span className="flex-1 text-xs font-medium">
-        {FieldTypeText(field.type)}
-      </span>
-      <MoreSvg className="text-base" />
-    </MenuItem>
-  );
-
+function GridFieldMenu({ field, onOpenPropertyMenu, onOpenMenu, ...props }: Props) {
   return (
-    <Menu
-      anchorEl={anchorEl}
-      open={open}
-      onClose={onClose}
-    >
-      {fieldNameInput}
-      {fieldTypeSelect}
-      <Divider />
-      <GridFieldMenuActions />
-    </Menu>
+    <Portal>
+      <Popover
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        onClick={(e) => e.stopPropagation()}
+        {...props}
+        keepMounted={false}
+      >
+        <PropertyNameInput id={field.id} name={field.name} />
+        <MenuList>
+          <PropertyActions
+            isPrimary={field.isPrimary}
+            onMenuItemClick={(action, newFieldId?: string) => {
+              if (action === FieldAction.EditProperty) {
+                onOpenPropertyMenu?.();
+              } else if (newFieldId && (action === FieldAction.InsertLeft || action === FieldAction.InsertRight)) {
+                onOpenMenu?.(newFieldId);
+              }
+
+              props.onClose?.({}, 'backdropClick');
+            }}
+            fieldId={field.id}
+          />
+        </MenuList>
+      </Popover>
+    </Portal>
   );
-};
+}
+
+export default GridFieldMenu;

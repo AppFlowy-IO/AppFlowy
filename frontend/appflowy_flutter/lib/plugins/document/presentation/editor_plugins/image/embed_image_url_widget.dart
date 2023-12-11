@@ -28,10 +28,11 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
           onChanged: (value) => inputText = value,
           onEditingComplete: () => widget.onSubmit(inputText),
         ),
-        const VSpace(5),
+        const VSpace(8),
         SizedBox(
           width: 160,
           child: FlowyButton(
+            showDefaultBoxDecorationOnMobile: true,
             margin: const EdgeInsets.all(8.0),
             text: FlowyText(
               LocaleKeys.document_imageBlock_embedLink_label.tr(),

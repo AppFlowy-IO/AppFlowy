@@ -1,12 +1,6 @@
 import { FC } from 'react';
-import { GridToolbar } from '../GridToolbar';
-import { GridTable } from '../GridTable/GridTable';
+import { GridTable, GridTableProps } from '../GridTable';
 
-export const Grid: FC = () => {
-  return (
-    <>
-     <GridToolbar />
-     <GridTable />
-    </>
-  );
+export const Grid: FC<GridTableProps> = (props) => {
+  return <GridTable {...props} />;
 };

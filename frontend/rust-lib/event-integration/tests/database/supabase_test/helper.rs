@@ -22,13 +22,13 @@ pub struct FlowySupabaseDatabaseTest {
 impl FlowySupabaseDatabaseTest {
   #[allow(dead_code)]
   pub async fn new_with_user(uuid: String) -> Option<Self> {
-    let inner = FlowySupabaseTest::new()?;
+    let inner = FlowySupabaseTest::new().await?;
     inner.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     Some(Self { uuid, inner })
   }
 
   pub async fn new_with_new_user() -> Option<Self> {
-    let inner = FlowySupabaseTest::new()?;
+    let inner = FlowySupabaseTest::new().await?;
     let uuid = uuid::Uuid::new_v4().to_string();
     let _ = inner.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     Some(Self { uuid, inner })
@@ -38,11 +38,7 @@ impl FlowySupabaseDatabaseTest {
     let current_workspace = self.inner.get_current_workspace().await;
     let view = self
       .inner
-      .create_grid(
-        &current_workspace.workspace.id,
-        "my database".to_string(),
-        vec![],
-      )
+      .create_grid(&current_workspace.id, "my database".to_string(), vec![])
       .await;
     let database = self.inner.get_database(&view.id).await;
     (view, database)
@@ -71,9 +67,10 @@ impl FlowySupabaseDatabaseTest {
   }
 
   pub async fn get_database_collab_update(&self, database_id: &str) -> Vec<u8> {
+    let workspace_id = self.user_manager.workspace_id().unwrap();
     let cloud_service = self.database_manager.get_cloud_service().clone();
     let remote_updates = cloud_service
-      .get_collab_update(database_id, CollabType::Database)
+      .get_collab_update(database_id, CollabType::Database, &workspace_id)
       .await
       .unwrap();
 

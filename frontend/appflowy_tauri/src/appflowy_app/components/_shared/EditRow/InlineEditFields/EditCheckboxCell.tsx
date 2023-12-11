@@ -1,6 +1,5 @@
 import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
-import { CheckboxCellController } from '$app/stores/effects/database/cell/controller_builder';
 
 export const EditCheckboxCell = ({ data, onToggle }: { data: 'Yes' | 'No' | undefined; onToggle: () => void }) => {
   // const toggleValue = async () => {

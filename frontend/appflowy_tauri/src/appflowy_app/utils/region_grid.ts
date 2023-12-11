@@ -46,7 +46,7 @@ export class RegionGrid {
         this.grid.set(key, []);
       }
 
-      this.grid.get(key)!.push(block);
+      this.grid.get(key)?.push(block);
     }
   }
 
@@ -58,6 +58,7 @@ export class RegionGrid {
     if (this.hasBlock(block.id)) {
       this.removeBlock(block);
     }
+
     this.addBlock(block);
   }
 

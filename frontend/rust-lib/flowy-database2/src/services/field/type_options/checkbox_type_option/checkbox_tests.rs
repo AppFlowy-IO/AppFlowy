@@ -12,7 +12,7 @@ mod tests {
   fn checkout_box_description_test() {
     let type_option = CheckboxTypeOption::default();
     let field_type = FieldType::Checkbox;
-    let field_rev = FieldBuilder::from_field_type(field_type.clone()).build();
+    let field_rev = FieldBuilder::from_field_type(field_type).build();
 
     // the checkout value will be checked if the value is "1", "true" or "yes"
     assert_checkbox(&type_option, "1", CHECK, &field_type, &field_rev);

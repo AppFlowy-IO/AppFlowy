@@ -13,7 +13,7 @@ function Breadcrumb() {
   const { pagePath } = useLoadExpandedPages();
   const navigate = useNavigate();
   const activePage = useMemo(() => pagePath[pagePath.length - 1], [pagePath]);
-  const parentPages = useMemo(() => pagePath.slice(0, pagePath.length - 1) as Page[], [pagePath]);
+  const parentPages = useMemo(() => pagePath.slice(1, pagePath.length - 1) as Page[], [pagePath]);
   const navigateToPage = useCallback(
     (page: Page) => {
       const pageType = pageTypeMap[page.layout];
@@ -34,7 +34,7 @@ function Breadcrumb() {
             navigateToPage(page);
           }}
         >
-          {page.name}
+          {page.name || t('document.title.placeholder')}
         </Link>
       ))}
       <Typography color='text.primary'>{activePage?.name || t('menuAppHeader.defaultNewPageName')}</Typography>

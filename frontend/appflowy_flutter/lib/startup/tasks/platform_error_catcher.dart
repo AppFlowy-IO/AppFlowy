@@ -18,4 +18,7 @@ class PlatformErrorCatcherTask extends LaunchTask {
       };
     }
   }
+
+  @override
+  Future<void> dispose() async {}
 }

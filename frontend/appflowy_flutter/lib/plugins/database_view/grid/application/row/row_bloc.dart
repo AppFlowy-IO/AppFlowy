@@ -36,7 +36,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             await _startListening();
           },
           createRow: () {
-            _rowBackendSvc.createRowAfterRow(rowId);
+            _rowBackendSvc.createRowAfter(rowId);
           },
           didReceiveCells: (cellByFieldId, reason) async {
             cellByFieldId
@@ -132,7 +132,7 @@ class GridCellEquatable extends Equatable {
         _fieldInfo.id,
         _fieldInfo.fieldType,
         _fieldInfo.field.visibility,
-        _fieldInfo.field.width,
+        _fieldInfo.fieldSettings?.width,
       ];
 }
 

@@ -1,6 +1,6 @@
 import { CreateFieldPayloadPB, FieldType, TypeOptionPathPB, UpdateFieldTypePayloadPB } from '@/services/backend';
 import {
-  DatabaseEventCreateTypeOption,
+  DatabaseEventCreateField,
   DatabaseEventGetTypeOption,
   DatabaseEventUpdateFieldType,
 } from '@/services/backend/events/flowy-database2';
@@ -10,7 +10,8 @@ export class TypeOptionBackendService {
 
   createTypeOption = (fieldType: FieldType) => {
     const payload = CreateFieldPayloadPB.fromObject({ view_id: this.viewId, field_type: fieldType });
-    return DatabaseEventCreateTypeOption(payload);
+
+    return DatabaseEventCreateField(payload);
   };
 
   getTypeOption = (fieldId: string, fieldType: FieldType) => {
@@ -19,6 +20,7 @@ export class TypeOptionBackendService {
       field_id: fieldId,
       field_type: fieldType,
     });
+
     return DatabaseEventGetTypeOption(payload);
   };
 
@@ -28,6 +30,7 @@ export class TypeOptionBackendService {
       field_id: fieldId,
       field_type: fieldType,
     });
+
     return DatabaseEventUpdateFieldType(payload);
   };
 }

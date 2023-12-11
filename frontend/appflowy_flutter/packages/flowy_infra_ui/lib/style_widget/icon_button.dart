@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -52,6 +54,25 @@ class FlowyIconButton extends StatelessWidget {
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
 
+    child = Padding(
+      padding: iconPadding,
+      child: Center(child: child),
+    );
+
+    if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      child = FlowyHover(
+        isSelected: isSelected != null ? () => isSelected! : null,
+        style: HoverStyle(
+          hoverColor: hoverColor,
+          foregroundColorOnHover:
+              iconColorOnHover ?? Theme.of(context).iconTheme.color,
+          //Do not set background here. Use [fillColor] instead.
+        ),
+        resetHoverOnRebuild: false,
+        child: child,
+      );
+    }
+
     return Container(
       constraints: BoxConstraints.tightFor(
         width: size.width,
@@ -70,28 +91,13 @@ class FlowyIconButton extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
           fillColor: fillColor,
-          hoverColor: hoverColor,
+          hoverColor: Colors.transparent,
           focusColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           elevation: 0,
           onPressed: onPressed,
-          child: FlowyHover(
-            isSelected: isSelected != null ? () => isSelected! : null,
-            style: HoverStyle(
-              // hoverColor is set in both [HoverStyle] and [RawMaterialButton] to avoid the conflicts between two layers
-              hoverColor: hoverColor,
-              foregroundColorOnHover:
-                  iconColorOnHover ?? Theme.of(context).iconTheme.color,
-              //Do not set background here. Use [fillColor] instead.
-            ),
-            child: Padding(
-              padding: iconPadding,
-              child: Center(
-                child: child,
-              ),
-            ),
-          ),
+          child: child,
         ),
       ),
     );
@@ -99,11 +105,9 @@ class FlowyIconButton extends StatelessWidget {
 }
 
 class FlowyDropdownButton extends StatelessWidget {
+  const FlowyDropdownButton({super.key, this.onPressed});
+
   final VoidCallback? onPressed;
-  const FlowyDropdownButton({
-    Key? key,
-    this.onPressed,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

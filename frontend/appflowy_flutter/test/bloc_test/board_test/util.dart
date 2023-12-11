@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
@@ -78,6 +77,8 @@ class BoardTestContext {
     return _boardDataController.fieldController;
   }
 
+  DatabaseController get databaseController => _boardDataController;
+
   FieldEditorBloc makeFieldEditor({
     required FieldInfo fieldInfo,
   }) {
@@ -87,7 +88,8 @@ class BoardTestContext {
     );
 
     final editorBloc = FieldEditorBloc(
-      isGroupField: fieldInfo.isGroupField,
+      viewId: databaseController.viewId,
+      fieldController: fieldController,
       loader: loader,
       field: fieldInfo.field,
     );
@@ -125,10 +127,11 @@ class BoardTestContext {
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = await createFieldEditor(viewId: gridView.id)
-      ..add(const FieldEditorEvent.initial());
+    final editorBloc =
+        await createFieldEditor(databaseController: _boardDataController)
+          ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
-    editorBloc.add(FieldEditorEvent.switchToField(fieldType));
+    editorBloc.add(FieldEditorEvent.switchFieldType(fieldType));
     await gridResponseFuture();
     return Future(() => editorBloc);
   }
@@ -137,11 +140,6 @@ class BoardTestContext {
     final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
     return fieldInfo;
-  }
-
-  FieldContext singleSelectFieldCellContext() {
-    final fieldInfo = singleSelectFieldContext();
-    return FieldContext(viewId: gridView.id, fieldInfo: fieldInfo);
   }
 
   FieldInfo textFieldContext() {

@@ -4,19 +4,20 @@ import 'package:provider/provider.dart';
 import 'accessory.dart';
 
 class RowCardContainer extends StatelessWidget {
-  final Widget child;
-  final CardAccessoryBuilder? accessoryBuilder;
-  final bool Function()? buildAccessoryWhen;
-  final void Function(BuildContext) openCard;
-  final void Function(AccessoryType) openAccessory;
   const RowCardContainer({
+    super.key,
     required this.child,
     required this.openCard,
     required this.openAccessory,
-    this.accessoryBuilder,
+    required this.accessories,
     this.buildAccessoryWhen,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final Widget child;
+  final void Function(BuildContext) openCard;
+  final void Function(AccessoryType) openAccessory;
+  final List<CardAccessory> accessories;
+  final bool Function()? buildAccessoryWhen;
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +31,12 @@ class RowCardContainer extends StatelessWidget {
             shouldBuildAccessory = buildAccessoryWhen!.call();
           }
 
-          if (accessoryBuilder != null && shouldBuildAccessory) {
-            final accessories = accessoryBuilder!(context);
-            if (accessories.isNotEmpty) {
-              container = _CardEnterRegion(
-                accessories: accessories,
-                onTapAccessory: openAccessory,
-                child: container,
-              );
-            }
+          if (shouldBuildAccessory && accessories.isNotEmpty) {
+            container = _CardEnterRegion(
+              accessories: accessories,
+              onTapAccessory: openAccessory,
+              child: container,
+            );
           }
 
           return GestureDetector(
@@ -56,15 +54,15 @@ class RowCardContainer extends StatelessWidget {
 }
 
 class _CardEnterRegion extends StatelessWidget {
-  final Widget child;
-  final List<CardAccessory> accessories;
-  final void Function(AccessoryType) onTapAccessory;
   const _CardEnterRegion({
     required this.child,
     required this.accessories,
     required this.onTapAccessory,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final Widget child;
+  final List<CardAccessory> accessories;
+  final void Function(AccessoryType) onTapAccessory;
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +73,8 @@ class _CardEnterRegion extends StatelessWidget {
         if (onEnter) {
           children.add(
             Positioned(
-              top: 8.0,
-              right: 8.0,
+              top: 10.0,
+              right: 10.0,
               child: CardAccessoryContainer(
                 accessories: accessories,
                 onTapAccessory: onTapAccessory,

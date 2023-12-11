@@ -1,9 +1,10 @@
 use diesel::RunQueryDsl;
+use tracing::instrument;
 
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ExpressionMethods};
-use flowy_user_deps::entities::{AuthType, UserWorkspace};
+use flowy_user_deps::entities::{Authenticator, UserWorkspace};
 use lib_infra::util::timestamp;
 
 use crate::manager::UserManager;
@@ -13,12 +14,16 @@ use crate::services::user_workspace_sql::UserWorkspaceTable;
 
 const HISTORICAL_USER: &str = "af_historical_users";
 impl UserManager {
-  pub async fn get_migration_user(&self, auth_type: &AuthType) -> Option<MigrationUser> {
+  #[instrument(skip_all)]
+  pub async fn get_migration_user(&self, auth_type: &Authenticator) -> Option<MigrationUser> {
     // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
     // auth type is not [AuthType::Local].
     let session = self.get_session().ok()?;
-    let user_profile = self.get_user_profile(session.user_id).await.ok()?;
-    if user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
+    let user_profile = self
+      .get_user_profile_from_disk(session.user_id)
+      .await
+      .ok()?;
+    if user_profile.authenticator == Authenticator::Local && !auth_type.is_local() {
       Some(MigrationUser {
         user_profile,
         session,
@@ -44,7 +49,7 @@ impl UserManager {
     uid: i64,
     device_id: &str,
     user_name: String,
-    auth_type: &AuthType,
+    authenticator: &Authenticator,
     storage_path: String,
   ) {
     let mut logger_users = self
@@ -54,7 +59,7 @@ impl UserManager {
     logger_users.add_user(HistoricalUser {
       user_id: uid,
       user_name,
-      auth_type: auth_type.clone(),
+      auth_type: authenticator.clone(),
       sign_in_timestamp: timestamp(),
       storage_path,
       device_id: device_id.to_string(),
@@ -82,14 +87,9 @@ impl UserManager {
   /// This function facilitates the re-opening of a user's session from historical tracking.
   /// It retrieves the user's workspace and establishes a new session for the user.
   ///
-  pub async fn open_historical_user(
-    &self,
-    uid: i64,
-    device_id: String,
-    auth_type: AuthType,
-  ) -> FlowyResult<()> {
+  pub async fn open_historical_user(&self, uid: i64, auth_type: Authenticator) -> FlowyResult<()> {
     debug_assert!(auth_type.is_local());
-    self.update_auth_type(&auth_type).await;
+    self.update_authenticator(&auth_type).await;
     let conn = self.db_connection(uid)?;
     let row = user_workspace_table::dsl::user_workspace_table
       .filter(user_workspace_table::uid.eq(uid))
@@ -97,7 +97,6 @@ impl UserManager {
     let user_workspace = UserWorkspace::from(row);
     let session = Session {
       user_id: uid,
-      device_id,
       user_workspace,
     };
     self.set_session(Some(session))?;

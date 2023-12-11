@@ -29,8 +29,8 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
     required this.onUpdated,
     this.showOptions = true,
     this.autoFocus = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   static String get identifier => (SelectOptionTypeOptionEditor).toString();
 
@@ -62,20 +62,14 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
               ),
               const VSpace(10),
               const _DeleteTag(),
+              const TypeOptionSeparator(),
+              SelectOptionColorList(
+                selectedColor: state.option.color,
+                onSelectedColor: (color) => context
+                    .read<EditSelectOptionBloc>()
+                    .add(EditSelectOptionEvent.updateColor(color)),
+              ),
             ];
-
-            if (showOptions) {
-              cells.add(const TypeOptionSeparator());
-              cells.add(
-                SelectOptionColorList(
-                  selectedColor: state.option.color,
-                  onSelectedColor: (color) => context
-                      .read<EditSelectOptionBloc>()
-                      .add(EditSelectOptionEvent.updateColor(color)),
-                ),
-              );
-            }
-
             return SizedBox(
               width: 180,
               child: ListView.builder(
@@ -104,7 +98,7 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
 }
 
 class _DeleteTag extends StatelessWidget {
-  const _DeleteTag({Key? key}) : super(key: key);
+  const _DeleteTag();
 
   @override
   Widget build(BuildContext context) {
@@ -131,8 +125,7 @@ class _OptionNameTextField extends StatelessWidget {
   const _OptionNameTextField({
     required this.name,
     required this.autoFocus,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +181,6 @@ class SelectOptionColorList extends StatelessWidget {
         ),
         ListView.separated(
           shrinkWrap: true,
-          controller: ScrollController(),
           separatorBuilder: (context, index) {
             return VSpace(GridSize.typeOptionSeparatorHeight);
           },
@@ -208,8 +200,7 @@ class _SelectOptionColorCell extends StatelessWidget {
     required this.color,
     required this.isSelected,
     required this.onSelectedColor,
-    Key? key,
-  }) : super(key: key);
+  });
 
   final SelectOptionColorPB color;
   final bool isSelected;

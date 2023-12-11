@@ -24,5 +24,6 @@ export function parseFormat(e: KeyboardEvent | React.KeyboardEvent<HTMLDivElemen
   } else if (isHotkey(Keyboard.keys.FORMAT.CODE, e)) {
     return TextAction.Code;
   }
+
   return null;
 }

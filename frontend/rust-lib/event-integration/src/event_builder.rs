@@ -10,7 +10,7 @@ use lib_dispatch::prelude::{
   AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
 };
 
-use crate::FlowyCoreTest;
+use crate::EventIntegrationTest;
 
 #[derive(Clone)]
 pub struct EventBuilder {
@@ -18,7 +18,7 @@ pub struct EventBuilder {
 }
 
 impl EventBuilder {
-  pub fn new(sdk: FlowyCoreTest) -> Self {
+  pub fn new(sdk: EventIntegrationTest) -> Self {
     Self {
       context: TestContext::new(sdk),
     }
@@ -45,13 +45,6 @@ impl EventBuilder {
     Event: Eq + Hash + Debug + Clone + Display,
   {
     self.context.request = Some(AFPluginRequest::new(event));
-    self
-  }
-
-  pub fn sync_send(mut self) -> Self {
-    let request = self.get_request();
-    let resp = AFPluginDispatcher::sync_send(self.dispatch(), request);
-    self.context.response = Some(resp);
     self
   }
 
@@ -121,13 +114,13 @@ impl EventBuilder {
 
 #[derive(Clone)]
 pub struct TestContext {
-  pub sdk: FlowyCoreTest,
+  pub sdk: EventIntegrationTest,
   request: Option<AFPluginRequest>,
   response: Option<AFPluginEventResponse>,
 }
 
 impl TestContext {
-  pub fn new(sdk: FlowyCoreTest) -> Self {
+  pub fn new(sdk: EventIntegrationTest) -> Self {
     Self {
       sdk,
       request: None,

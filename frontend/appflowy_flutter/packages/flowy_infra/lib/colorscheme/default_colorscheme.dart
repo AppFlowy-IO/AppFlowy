@@ -111,7 +111,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           icon: _darkShader5,
           text: _darkShader5,
           input: _darkInput,
-          hint: _darkShader5,
+          hint: const Color(0xff59647a),
           primary: _darkMain1,
           onPrimary: _darkShader1,
           hoverBG1: _darkMain1,

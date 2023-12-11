@@ -1,15 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 
 extension SelectOptionColorExtension on SelectOptionColorPB {
   Color toColor(BuildContext context) {
@@ -64,44 +60,33 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
 }
 
 class SelectOptionTag extends StatelessWidget {
-  final String name;
-  final Color color;
-  final VoidCallback? onSelected;
+  final SelectOptionPB? option;
+  final String? name;
+  final double? fontSize;
+  final Color? color;
+  final TextStyle? textStyle;
+  final EdgeInsets padding;
   final void Function(String)? onRemove;
-  const SelectOptionTag({
-    required this.name,
-    required this.color,
-    this.onSelected,
-    this.onRemove,
-    Key? key,
-  }) : super(key: key);
 
-  factory SelectOptionTag.fromOption({
-    required BuildContext context,
-    required SelectOptionPB option,
-    VoidCallback? onSelected,
-    Function(String)? onRemove,
-  }) {
-    return SelectOptionTag(
-      name: option.name,
-      color: option.color.toColor(context),
-      onSelected: onSelected,
-      onRemove: onRemove,
-    );
-  }
+  const SelectOptionTag({
+    super.key,
+    this.option,
+    this.name,
+    this.fontSize,
+    this.color,
+    this.textStyle,
+    this.onRemove,
+    required this.padding,
+  }) : assert(option != null || name != null && color != null);
 
   @override
   Widget build(BuildContext context) {
-    EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8.0);
-    if (onRemove != null) {
-      padding = padding.copyWith(right: 2.0);
-    }
-
+    final optionName = option?.name ?? name!;
+    final optionColor = option?.color.toColor(context) ?? color!;
     return Container(
-      padding: padding,
+      padding: onRemove == null ? padding : padding.copyWith(right: 2.0),
       decoration: BoxDecoration(
-        color: color,
+        color: optionColor,
         borderRadius: Corners.s6Border,
       ),
       child: Row(
@@ -109,23 +94,21 @@ class SelectOptionTag extends StatelessWidget {
         children: [
           Flexible(
             child: FlowyText.medium(
-              name,
-              fontSize: FontSizes.s11,
+              optionName,
+              fontSize: fontSize,
               overflow: TextOverflow.ellipsis,
               color: AFThemeExtension.of(context).textColor,
             ),
           ),
           if (onRemove != null) ...[
-            const HSpace(2),
+            const HSpace(4),
             FlowyIconButton(
-              width: 18.0,
-              onPressed: () => onRemove?.call(name),
+              width: 16.0,
+              onPressed: () => onRemove?.call(optionName),
               hoverColor: Colors.transparent,
-              icon: const FlowySvg(
-                FlowySvgs.close_s,
-              ),
+              icon: const FlowySvg(FlowySvgs.close_s),
             ),
-          ]
+          ],
         ],
       ),
     );
@@ -133,45 +116,41 @@ class SelectOptionTag extends StatelessWidget {
 }
 
 class SelectOptionTagCell extends StatelessWidget {
-  final List<Widget> children;
-  final void Function(SelectOptionPB) onSelected;
-  final SelectOptionPB option;
   const SelectOptionTagCell({
+    super.key,
     required this.option,
     required this.onSelected,
     this.children = const [],
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final SelectOptionPB option;
+  final VoidCallback onSelected;
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyHover(
-      style: HoverStyle(
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      ),
-      child: InkWell(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: SelectOptionTag.fromOption(
-                    context: context,
-                    option: option,
-                    onSelected: () => onSelected(option),
-                  ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onSelected,
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: SelectOptionTag(
+                  option: option,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                 ),
               ),
             ),
-            ...children,
-          ],
+          ),
         ),
-        // TODO(richard): find alternative solution to onTapDown
-        onTapDown: (_) => onSelected(option),
-      ),
+        ...children,
+      ],
     );
   }
 }

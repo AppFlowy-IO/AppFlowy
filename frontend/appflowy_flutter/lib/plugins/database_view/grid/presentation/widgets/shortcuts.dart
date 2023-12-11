@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 class GridShortcuts extends StatelessWidget {
   final Widget child;
-  const GridShortcuts({required this.child, Key? key}) : super(key: key);
+  const GridShortcuts({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class GridShortcuts extends StatelessWidget {
 }
 
 Map<ShortcutActivator, Intent> bindKeys(List<LogicalKeyboardKey> keys) {
-  return {for (var key in keys) LogicalKeySet(key): KeyboardKeyIdent(key)};
+  return {for (final key in keys) LogicalKeySet(key): KeyboardKeyIdent(key)};
 }
 
 Map<Type, Action<Intent>> bindActions() {

@@ -67,6 +67,9 @@ pub enum GroupScript {
     group_id: String,
     group_name: String,
   },
+  CreateGroup {
+    name: String,
+  },
 }
 
 pub struct DatabaseGroupTest {
@@ -104,12 +107,8 @@ impl DatabaseGroupTest {
         to_row_index,
       } => {
         let groups: Vec<GroupPB> = self.editor.load_groups(&self.view_id).await.unwrap().items;
-        let from_row = groups
-          .get(from_group_index)
-          .unwrap()
-          .rows
-          .get(from_row_index)
-          .unwrap();
+        let from_group = groups.get(from_group_index).unwrap();
+        let from_row = from_group.rows.get(from_row_index).unwrap();
         let to_group = groups.get(to_group_index).unwrap();
         let to_row = to_group.rows.get(to_row_index).unwrap();
         let from_row = RowId::from(from_row.id.clone());
@@ -117,7 +116,13 @@ impl DatabaseGroupTest {
 
         self
           .editor
-          .move_group_row(&self.view_id, &to_group.group_id, from_row, Some(to_row))
+          .move_group_row(
+            &self.view_id,
+            &from_group.group_id,
+            &to_group.group_id,
+            from_row,
+            Some(to_row),
+          )
           .await
           .unwrap();
       },
@@ -269,6 +274,11 @@ impl DatabaseGroupTest {
         assert_eq!(group_id, group.group_id, "group index: {}", group_index);
         assert_eq!(group_name, group.group_name, "group index: {}", group_index);
       },
+      GroupScript::CreateGroup { name } => self
+        .editor
+        .create_group(&self.view_id, &name)
+        .await
+        .unwrap(),
     }
   }
 

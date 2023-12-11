@@ -1,6 +1,5 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
-use collab_database::views::{DatabaseLayout, DatabaseView};
-use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -9,6 +8,8 @@ use flowy_database2::services::field::{
   DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, SelectOption, SelectOptionColor,
   SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
 };
+use flowy_database2::services::field_settings::default_field_settings_for_fields;
+use flowy_database2::services::setting::BoardLayoutSetting;
 
 use crate::database::database_editor::TestRowBuilder;
 use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
@@ -21,7 +22,7 @@ pub fn make_test_board() -> DatabaseData {
   for field_type in FieldType::iter() {
     match field_type {
       FieldType::RichText => {
-        let text_field = FieldBuilder::from_field_type(field_type.clone())
+        let text_field = FieldBuilder::from_field_type(field_type)
           .name("Name")
           .visibility(true)
           .primary(true)
@@ -30,7 +31,7 @@ pub fn make_test_board() -> DatabaseData {
       },
       FieldType::Number => {
         // Number
-        let number_field = FieldBuilder::from_field_type(field_type.clone())
+        let number_field = FieldBuilder::from_field_type(field_type)
           .name("Price")
           .visibility(true)
           .build();
@@ -44,7 +45,7 @@ pub fn make_test_board() -> DatabaseData {
           timezone_id: "Etc/UTC".to_owned(),
         };
         let name = "Time";
-        let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
+        let date_field = FieldBuilder::new(field_type, date_type_option)
           .name(name)
           .visibility(true)
           .build();
@@ -56,14 +57,14 @@ pub fn make_test_board() -> DatabaseData {
           date_format: DateFormat::US,
           time_format: TimeFormat::TwentyFourHour,
           include_time: true,
-          field_type: field_type.clone(),
+          field_type,
         };
         let name = match field_type {
           FieldType::LastEditedTime => "Last Modified",
           FieldType::CreatedTime => "Created At",
           _ => "",
         };
-        let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
+        let date_field = FieldBuilder::new(field_type, date_type_option)
           .name(name)
           .visibility(true)
           .build();
@@ -78,7 +79,7 @@ pub fn make_test_board() -> DatabaseData {
         single_select_type_option
           .options
           .extend(vec![option1, option2, option3]);
-        let single_select_field = FieldBuilder::new(field_type.clone(), single_select_type_option)
+        let single_select_field = FieldBuilder::new(field_type, single_select_type_option)
           .name("Status")
           .visibility(true)
           .build();
@@ -91,7 +92,7 @@ pub fn make_test_board() -> DatabaseData {
         let option3 = SelectOption::with_color(TWITTER, SelectOptionColor::Yellow);
         let mut type_option = MultiSelectTypeOption::default();
         type_option.options.extend(vec![option1, option2, option3]);
-        let multi_select_field = FieldBuilder::new(field_type.clone(), type_option)
+        let multi_select_field = FieldBuilder::new(field_type, type_option)
           .name("Platform")
           .visibility(true)
           .build();
@@ -99,7 +100,7 @@ pub fn make_test_board() -> DatabaseData {
       },
       FieldType::Checkbox => {
         // Checkbox
-        let checkbox_field = FieldBuilder::from_field_type(field_type.clone())
+        let checkbox_field = FieldBuilder::from_field_type(field_type)
           .name("is urgent")
           .visibility(true)
           .build();
@@ -107,7 +108,7 @@ pub fn make_test_board() -> DatabaseData {
       },
       FieldType::URL => {
         // URL
-        let url = FieldBuilder::from_field_type(field_type.clone())
+        let url = FieldBuilder::from_field_type(field_type)
           .name("link")
           .visibility(true)
           .build();
@@ -119,7 +120,7 @@ pub fn make_test_board() -> DatabaseData {
         // let option3 = SelectOption::with_color(THIRD_THING, SelectOptionColor::Yellow);
         let type_option = ChecklistTypeOption::default();
         // type_option.options.extend(vec![option1, option2, option3]);
-        let checklist_field = FieldBuilder::new(field_type.clone(), type_option)
+        let checklist_field = FieldBuilder::new(field_type, type_option)
           .name("TODO")
           .visibility(true)
           .build();
@@ -128,8 +129,9 @@ pub fn make_test_board() -> DatabaseData {
     }
   }
 
-  let field_settings =
-    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Board).build();
+  let board_setting: LayoutSetting = BoardLayoutSetting::new().into();
+
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Board);
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {
@@ -238,12 +240,15 @@ pub fn make_test_board() -> DatabaseData {
     rows.push(row);
   }
 
+  let mut layout_settings = LayoutSettings::new();
+  layout_settings.insert(DatabaseLayout::Board, board_setting);
+
   let view = DatabaseView {
     id: gen_database_view_id(),
     database_id: gen_database_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Board,
-    layout_settings: Default::default(),
+    layout_settings,
     filters: vec![],
     group_settings: vec![],
     sorts: vec![],

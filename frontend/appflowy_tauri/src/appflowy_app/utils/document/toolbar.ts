@@ -1,6 +1,7 @@
 export function calcToolbarPosition(toolbarDom: HTMLDivElement, node: Element, container: HTMLDivElement) {
   const domSelection = window.getSelection();
   let domRange;
+
   if (domSelection?.rangeCount === 0) {
     return;
   } else {
@@ -18,6 +19,7 @@ export function calcToolbarPosition(toolbarDom: HTMLDivElement, node: Element, c
   const rightBound = containerRect.right;
 
   const rightThreshold = 20;
+
   if (left < leftBound) {
     left = leftBound;
   } else if (left + nodeRect.left + toolbarDom.offsetWidth > rightBound) {

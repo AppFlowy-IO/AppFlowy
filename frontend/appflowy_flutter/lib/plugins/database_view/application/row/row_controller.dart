@@ -12,9 +12,9 @@ class RowController {
   final List<VoidCallback> _onRowChangedListeners = [];
   final RowCache _rowCache;
 
-  get cellCache => _rowCache.cellCache;
+  CellMemCache get cellCache => _rowCache.cellCache;
 
-  get rowId => rowMeta.id;
+  String get rowId => rowMeta.id;
 
   RowController({
     required this.rowMeta,

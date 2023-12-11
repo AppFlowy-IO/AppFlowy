@@ -1,9 +1,9 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
@@ -14,27 +14,29 @@ import 'package:collection/collection.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+
 import 'database_view_service.dart';
 import 'defines.dart';
-import 'field/field_info.dart';
 import 'layout/layout_service.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
 import 'group/group_listener.dart';
-import 'row/row_service.dart';
 
+typedef OnGroupConfigurationChanged = void Function(List<GroupSettingPB>);
 typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdateGroup = void Function(List<GroupPB>);
 typedef OnDeleteGroup = void Function(List<String>);
 typedef OnInsertGroup = void Function(InsertedGroupPB);
 
 class GroupCallbacks {
+  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
   final OnGroupByField? onGroupByField;
   final OnUpdateGroup? onUpdateGroup;
   final OnDeleteGroup? onDeleteGroup;
   final OnInsertGroup? onInsertGroup;
 
   GroupCallbacks({
+    this.onGroupConfigurationChanged,
     this.onGroupByField,
     this.onUpdateGroup,
     this.onDeleteGroup,
@@ -43,12 +45,10 @@ class GroupCallbacks {
 }
 
 class DatabaseLayoutSettingCallbacks {
-  final void Function(DatabaseLayoutSettingPB) onLayoutChanged;
-  final void Function(DatabaseLayoutSettingPB) onLoadLayout;
+  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
 
   DatabaseLayoutSettingCallbacks({
-    required this.onLayoutChanged,
-    required this.onLoadLayout,
+    required this.onLayoutSettingsChanged,
   });
 }
 
@@ -121,11 +121,11 @@ class DatabaseController {
 
   void addListener({
     DatabaseCallbacks? onDatabaseChanged,
-    DatabaseLayoutSettingCallbacks? onLayoutChanged,
+    DatabaseLayoutSettingCallbacks? onLayoutSettingsChanged,
     GroupCallbacks? onGroupChanged,
   }) {
-    if (onLayoutChanged != null) {
-      _layoutCallbacks.add(onLayoutChanged);
+    if (onLayoutSettingsChanged != null) {
+      _layoutCallbacks.add(onLayoutSettingsChanged);
     }
 
     if (onDatabaseChanged != null) {
@@ -172,34 +172,16 @@ class DatabaseController {
     });
   }
 
-  Future<Either<RowMetaPB, FlowyError>> createRow({
-    RowId? startRowId,
-    String? groupId,
-    void Function(RowDataBuilder builder)? withCells,
-  }) {
-    Map<String, String>? cellDataByFieldId;
-
-    if (withCells != null) {
-      final rowBuilder = RowDataBuilder();
-      withCells(rowBuilder);
-      cellDataByFieldId = rowBuilder.build();
-    }
-
-    return _databaseViewBackendSvc.createRow(
-      startRowId: startRowId,
-      groupId: groupId,
-      cellDataByFieldId: cellDataByFieldId,
-    );
-  }
-
   Future<Either<Unit, FlowyError>> moveGroupRow({
     required RowMetaPB fromRow,
-    required String groupId,
+    required String fromGroupId,
+    required String toGroupId,
     RowMetaPB? toRow,
   }) {
     return _databaseViewBackendSvc.moveGroupRow(
       fromRowId: fromRow.id,
-      toGroupId: groupId,
+      fromGroupId: fromGroupId,
+      toGroupId: toGroupId,
       toRowId: toRow?.id,
     );
   }
@@ -224,12 +206,14 @@ class DatabaseController {
     );
   }
 
-  Future<void> updateLayoutSetting(
-    CalendarLayoutSettingPB calendarlLayoutSetting,
-  ) async {
+  Future<void> updateLayoutSetting({
+    BoardLayoutSettingPB? boardLayoutSetting,
+    CalendarLayoutSettingPB? calendarLayoutSetting,
+  }) async {
     await _databaseViewBackendSvc
         .updateLayoutSetting(
-      calendarLayoutSetting: calendarlLayoutSetting,
+      boardLayoutSetting: boardLayoutSetting,
+      calendarLayoutSetting: calendarLayoutSetting,
       layoutType: databaseLayout,
     )
         .then((result) {
@@ -248,16 +232,14 @@ class DatabaseController {
   }
 
   Future<void> _loadGroups() async {
-    final result = await _databaseViewBackendSvc.loadGroups();
-    return Future(
-      () => result.fold(
-        (groups) {
-          for (final callback in _groupCallbacks) {
-            callback.onGroupByField?.call(groups.items);
-          }
-        },
-        (err) => Log.error(err),
-      ),
+    final groupsResult = await _databaseViewBackendSvc.loadGroups();
+    groupsResult.fold(
+      (groups) {
+        for (final callback in _groupCallbacks) {
+          callback.onGroupByField?.call(groups.items);
+        }
+      },
+      (err) => Log.error(err),
     );
   }
 
@@ -266,10 +248,9 @@ class DatabaseController {
       result.fold(
         (newDatabaseLayoutSetting) {
           databaseLayoutSetting = newDatabaseLayoutSetting;
-          databaseLayoutSetting?.freeze();
 
           for (final callback in _layoutCallbacks) {
-            callback.onLoadLayout(newDatabaseLayoutSetting);
+            callback.onLayoutSettingsChanged(newDatabaseLayoutSetting);
           }
         },
         (r) => Log.error(r),
@@ -371,36 +352,12 @@ class DatabaseController {
             databaseLayoutSetting?.freeze();
 
             for (final callback in _layoutCallbacks) {
-              callback.onLayoutChanged(newLayout);
+              callback.onLayoutSettingsChanged(newLayout);
             }
           },
           (r) => Log.error(r),
         );
       },
     );
-  }
-}
-
-class RowDataBuilder {
-  final _cellDataByFieldId = <String, String>{};
-
-  void insertText(FieldInfo fieldInfo, String text) {
-    assert(fieldInfo.fieldType == FieldType.RichText);
-    _cellDataByFieldId[fieldInfo.field.id] = text;
-  }
-
-  void insertNumber(FieldInfo fieldInfo, int num) {
-    assert(fieldInfo.fieldType == FieldType.Number);
-    _cellDataByFieldId[fieldInfo.field.id] = num.toString();
-  }
-
-  void insertDate(FieldInfo fieldInfo, DateTime date) {
-    assert(FieldType.DateTime == fieldInfo.fieldType);
-    final timestamp = date.millisecondsSinceEpoch ~/ 1000;
-    _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
-  }
-
-  Map<String, String> build() {
-    return _cellDataByFieldId;
   }
 }

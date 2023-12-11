@@ -14,8 +14,7 @@ import '../choicechip.dart';
 
 class ChecklistFilterChoicechip extends StatefulWidget {
   final FilterInfo filterInfo;
-  const ChecklistFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const ChecklistFilterChoicechip({required this.filterInfo, super.key});
 
   @override
   State<ChecklistFilterChoicechip> createState() =>
@@ -73,8 +72,8 @@ class ChecklistFilterEditor extends StatefulWidget {
   const ChecklistFilterEditor({
     required this.bloc,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   ChecklistState createState() => ChecklistState();
@@ -126,8 +125,8 @@ class ChecklistFilterConditionList extends StatelessWidget {
   final FilterInfo filterInfo;
   const ChecklistFilterConditionList({
     required this.filterInfo,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

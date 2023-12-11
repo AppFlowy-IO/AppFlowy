@@ -61,7 +61,7 @@ extension NumberFormatExtension on NumberFormatPB {
       case NumberFormatPB.ColombianPeso:
         return "Colombian peso";
       case NumberFormatPB.DanishKrone:
-        return "Danish krone";
+        return "Danish crown";
       case NumberFormatPB.Dirham:
         return "Dirham";
       case NumberFormatPB.EUR:

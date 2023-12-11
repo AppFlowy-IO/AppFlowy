@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
@@ -9,7 +10,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 
 class DatabaseViewBackendService {
   final String viewId;
@@ -30,33 +30,16 @@ class DatabaseViewBackendService {
     return DatabaseEventGetDatabase(payload).send();
   }
 
-  Future<Either<RowMetaPB, FlowyError>> createRow({
-    RowId? startRowId,
-    String? groupId,
-    Map<String, String>? cellDataByFieldId,
-  }) {
-    final payload = CreateRowPayloadPB.create()..viewId = viewId;
-    payload.startRowId = startRowId ?? "";
-
-    if (groupId != null) {
-      payload.groupId = groupId;
-    }
-
-    if (cellDataByFieldId != null && cellDataByFieldId.isNotEmpty) {
-      payload.data = RowDataPB(cellDataByFieldId: cellDataByFieldId);
-    }
-
-    return DatabaseEventCreateRow(payload).send();
-  }
-
   Future<Either<Unit, FlowyError>> moveGroupRow({
     required RowId fromRowId,
+    required String fromGroupId,
     required String toGroupId,
     RowId? toRowId,
   }) {
     final payload = MoveGroupRowPayloadPB.create()
       ..viewId = viewId
       ..fromRowId = fromRowId
+      ..fromGroupId = fromGroupId
       ..toGroupId = toGroupId;
 
     if (toRowId != null) {
@@ -114,11 +97,17 @@ class DatabaseViewBackendService {
 
   Future<Either<Unit, FlowyError>> updateLayoutSetting({
     required DatabaseLayoutPB layoutType,
+    BoardLayoutSettingPB? boardLayoutSetting,
     CalendarLayoutSettingPB? calendarLayoutSetting,
   }) {
     final payload = LayoutSettingChangesetPB.create()
       ..viewId = viewId
       ..layoutType = layoutType;
+
+    if (boardLayoutSetting != null) {
+      payload.board = boardLayoutSetting;
+    }
+
     if (calendarLayoutSetting != null) {
       payload.calendar = calendarLayoutSetting;
     }

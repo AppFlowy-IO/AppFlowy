@@ -148,7 +148,7 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
             title: LocaleKeys.document_plugins_cover_add.tr(),
             borderRadius: Corners.s8Border,
           ),
-        )
+        ),
       ],
     );
   }
@@ -200,7 +200,7 @@ class CoverImagePreviewWidget extends StatefulWidget {
 }
 
 class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
-  _buildFilePickerWidget(BuildContext ctx) {
+  DecoratedBox _buildFilePickerWidget(BuildContext ctx) {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -243,7 +243,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             },
             useIntrinsicWidth: true,
             leftIcon: const FlowySvg(
-              FlowySvgs.page_s,
+              FlowySvgs.document_s,
               size: Size(20, 20),
             ),
             text: FlowyText(
@@ -255,7 +255,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
     );
   }
 
-  _buildImageDeleteButton(BuildContext ctx) {
+  Positioned _buildImageDeleteButton(BuildContext ctx) {
     return Positioned(
       right: 10,
       top: 10,
@@ -322,7 +322,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
                     (l) => _buildImageDeleteButton(context),
                     (r) => Container(),
                   )
-                : Container()
+                : Container(),
       ],
     );
   }

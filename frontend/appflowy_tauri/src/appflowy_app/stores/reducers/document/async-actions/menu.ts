@@ -1,15 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { BlockData, BlockType } from '$app/interfaces/document';
+import { BlockType } from '$app/interfaces/document';
 import { insertAfterNodeThunk } from '$app_reducers/document/async-actions/blocks';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { rangeActions, slashCommandActions } from '$app_reducers/document/slice';
-import { turnToBlockThunk } from '$app_reducers/document/async-actions/turn_to';
-import { blockConfig } from '$app/constants/document/config';
-import Delta, { Op } from 'quill-delta';
-import { getDeltaText } from '$app/utils/document/delta';
+import Delta from 'quill-delta';
 import { RootState } from '$app/stores/store';
-import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
-import { blockEditActions } from '$app_reducers/document/block_edit_slice';
 import { BlockDeltaOperator } from '$app/utils/document/block_delta';
 
 /**

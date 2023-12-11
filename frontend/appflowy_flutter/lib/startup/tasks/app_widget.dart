@@ -1,23 +1,22 @@
+import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
-
-import 'prelude.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:go_router/go_router.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:appflowy/user/application/user_settings_service.dart';
-import 'package:appflowy/startup/startup.dart';
+import 'prelude.dart';
 
 class InitAppWidgetTask extends LaunchTask {
   const InitAppWidgetTask();
@@ -52,6 +51,7 @@ class InitAppWidgetTask extends LaunchTask {
       EasyLocalization(
         supportedLocales: const [
           // In alphabetical order
+          Locale('am', 'ET'),
           Locale('ar', 'SA'),
           Locale('ca', 'ES'),
           Locale('de', 'DE'),
@@ -68,7 +68,8 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('pl', 'PL'),
           Locale('pt', 'BR'),
           Locale('ru', 'RU'),
-          Locale('sv'),
+          Locale('sv', 'SE'),
+          Locale('th', 'TH'),
           Locale('tr', 'TR'),
           Locale('uk', 'UA'),
           Locale('ur'),
@@ -88,6 +89,9 @@ class InitAppWidgetTask extends LaunchTask {
 
     return;
   }
+
+  @override
+  Future<void> dispose() async {}
 }
 
 class ApplicationWidget extends StatefulWidget {
@@ -131,24 +135,49 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           )..readLocaleWhenAppLaunch(context),
         ),
         BlocProvider<NotificationSettingsCubit>(
-          create: (_) => getIt<NotificationSettingsCubit>(),
+          create: (_) => NotificationSettingsCubit(),
         ),
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
+        BlocProvider.value(value: getIt<NotificationActionBloc>()),
       ],
-      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp.router(
-          builder: overlayManagerBuilder(),
-          debugShowCheckedModeBanner: false,
-          theme: state.lightTheme,
-          darkTheme: state.darkTheme,
-          themeMode: state.themeMode,
-          localizationsDelegates: context.localizationDelegates +
-              [AppFlowyEditorLocalizations.delegate],
-          supportedLocales: context.supportedLocales,
-          locale: state.locale,
-          routerConfig: routerConfig,
+      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+        listener: (context, state) {
+          if (state.action?.type == ActionType.openView) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final view =
+                  state.action!.arguments?[ActionArgumentKeys.view.name];
+              if (view != null) {
+                AppGlobals.rootNavKey.currentContext?.pushView(view);
+
+                final nodePath = state.action!
+                    .arguments?[ActionArgumentKeys.nodePath.name] as int?;
+
+                if (nodePath != null) {
+                  context.read<NotificationActionBloc>().add(
+                        NotificationActionEvent.performAction(
+                          action: state.action!
+                              .copyWith(type: ActionType.jumpToBlock),
+                        ),
+                      );
+                }
+              }
+            });
+          }
+        },
+        child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+          builder: (context, state) => MaterialApp.router(
+            builder: overlayManagerBuilder(),
+            debugShowCheckedModeBanner: false,
+            theme: state.lightTheme,
+            darkTheme: state.darkTheme,
+            themeMode: state.themeMode,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: state.locale,
+            routerConfig: routerConfig,
+          ),
         ),
       ),
     );
@@ -156,13 +185,13 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
 }
 
 class AppGlobals {
+  // static GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey();
   static GlobalKey<NavigatorState> rootNavKey = GlobalKey();
   static NavigatorState get nav => rootNavKey.currentState!;
 }
 
 class ApplicationBlocObserver extends BlocObserver {
   @override
-  // ignore: unnecessary_overrides
   void onTransition(Bloc bloc, Transition transition) {
     // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
     // Log.debug("${transition.nextState}");

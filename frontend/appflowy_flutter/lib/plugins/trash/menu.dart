@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class MenuTrash extends StatelessWidget {
-  const MenuTrash({Key? key}) : super(key: key);
+  const MenuTrash({super.key});
 
   @override
   Widget build(BuildContext context) {

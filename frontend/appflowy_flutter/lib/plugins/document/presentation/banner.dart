@@ -12,8 +12,8 @@ class DocumentBanner extends StatelessWidget {
   const DocumentBanner({
     required this.onRestore,
     required this.onDelete,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

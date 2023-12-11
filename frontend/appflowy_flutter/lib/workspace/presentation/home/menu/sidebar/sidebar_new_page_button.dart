@@ -48,7 +48,10 @@ class SidebarNewPageButton extends StatelessWidget {
       height: 60,
       child: TopBorder(
         color: Theme.of(context).dividerColor,
-        child: child,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: child,
+        ),
       ),
     );
   }

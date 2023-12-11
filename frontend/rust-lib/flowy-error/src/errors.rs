@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 use protobuf::ProtobufError;
 use thiserror::Error;
+use validator::{ValidationError, ValidationErrors};
 
 use flowy_derive::ProtoBuf;
 
@@ -54,6 +55,10 @@ impl FlowyError {
     self.code == ErrorCode::RecordNotFound
   }
 
+  pub fn is_unauthorized(&self) -> bool {
+    self.code == ErrorCode::UserUnauthorized || self.code == ErrorCode::RecordNotFound
+  }
+
   static_flowy_error!(internal, ErrorCode::Internal);
   static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
   static_flowy_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
@@ -86,7 +91,6 @@ impl FlowyError {
   );
   static_flowy_error!(name_empty, ErrorCode::UserNameIsEmpty);
   static_flowy_error!(user_id, ErrorCode::UserIdInvalid);
-  static_flowy_error!(user_not_exist, ErrorCode::UserNotExist);
   static_flowy_error!(text_too_long, ErrorCode::TextTooLong);
   static_flowy_error!(invalid_data, ErrorCode::InvalidParams);
   static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
@@ -100,6 +104,7 @@ impl FlowyError {
   );
   static_flowy_error!(collab_not_sync, ErrorCode::CollabDataNotSync);
   static_flowy_error!(server_error, ErrorCode::InternalServerError);
+  static_flowy_error!(not_support, ErrorCode::NotSupportYet);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -132,6 +137,18 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
   }
 }
 
+impl From<ValidationError> for FlowyError {
+  fn from(value: ValidationError) -> Self {
+    FlowyError::new(ErrorCode::InvalidParams, value)
+  }
+}
+
+impl From<ValidationErrors> for FlowyError {
+  fn from(value: ValidationErrors) -> Self {
+    FlowyError::new(ErrorCode::InvalidParams, value)
+  }
+}
+
 impl From<anyhow::Error> for FlowyError {
   fn from(e: anyhow::Error) -> Self {
     e.downcast::<FlowyError>()
@@ -141,6 +158,12 @@ impl From<anyhow::Error> for FlowyError {
 
 impl From<fancy_regex::Error> for FlowyError {
   fn from(e: fancy_regex::Error) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<tokio::sync::oneshot::error::RecvError> for FlowyError {
+  fn from(e: tokio::sync::oneshot::error::RecvError) -> Self {
     FlowyError::internal().with_context(e)
   }
 }

@@ -11,8 +11,7 @@ typedef SelectFieldCallback = void Function(FieldType);
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
   final SelectFieldCallback onSelectField;
-  const FieldTypeList({required this.onSelectField, Key? key})
-      : super(key: key);
+  const FieldTypeList({required this.onSelectField, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +49,8 @@ class FieldTypeCell extends StatelessWidget {
   const FieldTypeCell({
     required this.fieldType,
     required this.onSelectField,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

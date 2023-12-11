@@ -11,29 +11,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridAddRowButton extends StatelessWidget {
-  const GridAddRowButton({Key? key}) : super(key: key);
+  const GridAddRowButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      text: FlowyText.medium(
+      text: FlowyText(
         LocaleKeys.grid_row_newRow.tr(),
-        color: Theme.of(context).colorScheme.tertiary,
+        color: Theme.of(context).hintColor,
       ),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
       leftIcon: FlowySvg(
         FlowySvgs.add_s,
-        color: Theme.of(context).colorScheme.tertiary,
+        color: Theme.of(context).hintColor,
       ),
     );
   }
 }
 
 class GridRowBottomBar extends StatelessWidget {
-  const GridRowBottomBar({
-    super.key,
-  });
+  const GridRowBottomBar({super.key});
 
   @override
   Widget build(BuildContext context) {

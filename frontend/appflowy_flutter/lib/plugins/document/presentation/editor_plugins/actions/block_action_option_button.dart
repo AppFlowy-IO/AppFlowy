@@ -12,12 +12,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BlockOptionButton extends StatelessWidget {
   const BlockOptionButton({
-    Key? key,
+    super.key,
     required this.blockComponentContext,
     required this.blockComponentState,
     required this.actions,
     required this.editorState,
-  }) : super(key: key);
+  });
 
   final BlockComponentContext blockComponentContext;
   final BlockComponentActionState blockComponentState;
@@ -79,7 +79,7 @@ class BlockOptionButton extends StatelessWidget {
           ),
           TextSpan(
             text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
-          )
+          ),
         ],
       ),
       onTap: () {

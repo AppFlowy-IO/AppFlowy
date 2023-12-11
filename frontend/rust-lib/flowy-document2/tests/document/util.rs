@@ -3,21 +3,26 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use bytes::Bytes;
+use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
 use collab_document::document_data::default_document_data;
 use nanoid::nanoid;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
+use uuid::Uuid;
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
+use collab_integrate::collab_builder::{
+  AppFlowyCollabBuilder, CollabDataSource, CollabStorageProvider, CollabStorageProviderContext,
+};
 use collab_integrate::RocksCollabDB;
 use flowy_document2::document::MutexDocument;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
 use flowy_error::FlowyError;
 use flowy_storage::{FileStorageService, StorageObject};
-use lib_infra::future::FutureResult;
+use lib_infra::async_trait::async_trait;
+use lib_infra::future::{to_fut, Fut, FutureResult};
 
 pub struct DocumentTest {
   inner: DocumentManager,
@@ -61,6 +66,10 @@ impl DocumentUser for FakeUser {
     Ok(1)
   }
 
+  fn workspace_id(&self) -> Result<String, FlowyError> {
+    Ok(Uuid::new_v4().to_string())
+  }
+
   fn token(&self) -> Result<Option<String>, FlowyError> {
     Ok(None)
   }
@@ -87,8 +96,8 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider());
-  builder.set_sync_device(uuid::Uuid::new_v4().to_string());
+  let builder =
+    AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), "fake_device_id".to_string());
   builder.initialize(uuid::Uuid::new_v4().to_string());
   Arc::new(builder)
 }
@@ -120,7 +129,11 @@ pub fn gen_id() -> String {
 
 pub struct LocalTestDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
-  fn get_document_updates(&self, _document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_document_updates(
+    &self,
+    _document_id: &str,
+    _workspace_id: &str,
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
@@ -128,11 +141,16 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     &self,
     _document_id: &str,
     _limit: usize,
+    _workspace_id: &str,
   ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_document_data(&self, _document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
+  fn get_document_data(
+    &self,
+    _document_id: &str,
+    _workspace_id: &str,
+  ) -> FutureResult<Option<DocumentData>, Error> {
     FutureResult::new(async move { Ok(None) })
   }
 }
@@ -149,5 +167,22 @@ impl FileStorageService for DocumentTestFileStorageService {
 
   fn get_object_by_url(&self, _object_url: String) -> FutureResult<Bytes, FlowyError> {
     todo!()
+  }
+}
+
+struct DefaultCollabStorageProvider();
+
+#[async_trait]
+impl CollabStorageProvider for DefaultCollabStorageProvider {
+  fn storage_source(&self) -> CollabDataSource {
+    CollabDataSource::Local
+  }
+
+  fn get_plugins(&self, _context: CollabStorageProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+    to_fut(async move { vec![] })
+  }
+
+  fn is_sync_enabled(&self) -> bool {
+    false
   }
 }

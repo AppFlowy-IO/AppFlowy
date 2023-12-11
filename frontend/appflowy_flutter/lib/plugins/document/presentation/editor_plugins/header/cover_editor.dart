@@ -19,7 +19,7 @@ const String kLocalImagesKey = 'local_images';
 
 List<String> get builtInAssetImages => [
       "assets/images/app_flowy_abstract_cover_1.jpg",
-      "assets/images/app_flowy_abstract_cover_2.jpg"
+      "assets/images/app_flowy_abstract_cover_2.jpg",
     ];
 
 class ChangeCoverPopover extends StatefulWidget {
@@ -284,7 +284,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         .map(
           (t) => ColorOption(
             colorHex: t.color(context).toHex(),
-            name: t.tintName(AppFlowyEditorLocalizations.current),
+            name: t.tintName(AppFlowyEditorL10n.current),
           ),
         )
         .toList();
@@ -365,6 +365,7 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
           platform: TargetPlatform.windows,
         ),
         child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           child: _buildColorItems(
             widget.backgroundColorOptions,
             widget.selectedBackgroundColorHex,
@@ -399,9 +400,9 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
 
 class DeleteImageAlertDialog extends StatelessWidget {
   const DeleteImageAlertDialog({
-    Key? key,
+    super.key,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   final Function() onSubmit;
 
@@ -438,11 +439,11 @@ class DeleteImageAlertDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(LocaleKeys.button_Cancel).tr(),
+          child: const Text(LocaleKeys.button_cancel).tr(),
         ),
         TextButton(
           onPressed: onSubmit,
-          child: const Text(LocaleKeys.button_OK).tr(),
+          child: const Text(LocaleKeys.button_ok).tr(),
         ),
       ],
     );
@@ -451,11 +452,11 @@ class DeleteImageAlertDialog extends StatelessWidget {
 
 class ImageGridItem extends StatefulWidget {
   const ImageGridItem({
-    Key? key,
+    super.key,
     required this.onImageSelect,
     required this.onImageDelete,
     required this.imagePath,
-  }) : super(key: key);
+  });
 
   final Function() onImageSelect;
   final Function() onImageDelete;
@@ -529,14 +530,12 @@ class ColorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      customBorder: const RoundedRectangleBorder(
-        borderRadius: Corners.s6Border,
-      ),
-      hoverColor: hoverColor,
-      onTap: () => onTap(option.colorHex),
-      child: Padding(
-        padding: const EdgeInsets.only(right: 10.0),
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        hoverColor: hoverColor,
+        onTap: () => onTap(option.colorHex),
         child: SizedBox.square(
           dimension: 25,
           child: DecoratedBox(

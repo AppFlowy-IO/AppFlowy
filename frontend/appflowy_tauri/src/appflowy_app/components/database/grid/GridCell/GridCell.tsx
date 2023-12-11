@@ -1,38 +1,74 @@
-import { FC, useMemo } from 'react';
-import { Database } from '$app/interfaces/database';
-import { FieldType } from '@/services/backend';
+import React, { CSSProperties, memo } from 'react';
+import { GridColumn, RenderRow, RenderRowType } from '../constants';
+import GridNewRow from '$app/components/database/grid/GridNewRow/GridNewRow';
+import GridCalculate from '$app/components/database/grid/GridCalculate/GridCalculate';
+import { areEqual } from 'react-window';
+import { Cell } from '$app/components/database/components';
+import PrimaryCell from '$app/components/database/grid/GridCell/PrimaryCell';
 
-import { GridTextCell } from './GridTextCell';
-import { GridNotSupportedCell } from './GridNotSupportedCell';
-import { GridSelectCell } from './GridSelectCell';
-import { useCell } from './GridCell.hooks';
-import { GridCheckboxCell } from './GridCheckboxCell';
+const getRenderRowKey = (row: RenderRow) => {
+  if (row.type === RenderRowType.Row) {
+    return `row:${row.data.meta.id}`;
+  }
+
+  return row.type;
+};
 
 interface GridCellProps {
-  rowId: string;
-  field: Database.Field;
+  row: RenderRow;
+  column: GridColumn;
+  columnIndex: number;
+  style: CSSProperties;
+  onEditRecord?: (rowId: string) => void;
+  getContainerRef?: () => React.RefObject<HTMLDivElement>;
 }
 
-export const GridCell: FC<GridCellProps> = ({
-  rowId,
-  field,
-}) => {
-  const cell = useCell(rowId, field.id, field.type);
+export const GridCell = memo(({ row, column, columnIndex, style, onEditRecord, getContainerRef }: GridCellProps) => {
+  const key = getRenderRowKey(row);
 
-  const RenderCell = useMemo(() => {
-    switch (field.type) {
-      case FieldType.RichText:
-        return GridTextCell;
-      case FieldType.SingleSelect:
-      case FieldType.MultiSelect:
-        return GridSelectCell;
-      case FieldType.Checkbox:
-        return GridCheckboxCell;
-      default:
-        return GridNotSupportedCell;
+  const field = column.field;
+
+  if (!field) return <div data-key={key} style={style} />;
+
+  switch (row.type) {
+    case RenderRowType.Row: {
+      const renderRowCell = <Cell rowId={row.data.meta.id} icon={row.data.meta.icon} field={field} />;
+
+      return (
+        <div data-key={key} style={style} className={'grid-cell flex border-b border-r border-line-divider'}>
+          {field.isPrimary ? (
+            <PrimaryCell
+              icon={row.data.meta.icon}
+              onEditRecord={onEditRecord}
+              getContainerRef={getContainerRef}
+              rowId={row.data.meta.id}
+            >
+              {renderRowCell}
+            </PrimaryCell>
+          ) : (
+            renderRowCell
+          )}
+        </div>
+      );
     }
-  }, [field.type]);
 
-  // TODO: find a better way to check cell type.
-  return <RenderCell rowId={rowId} field={field} cell={cell as any} />;
-};
+    case RenderRowType.NewRow:
+      return (
+        <div style={style} className={'flex border-b border-line-divider'}>
+          <GridNewRow
+            getContainerRef={getContainerRef}
+            index={columnIndex}
+            groupId={row.data.groupId}
+          />
+        </div>
+      );
+    case RenderRowType.CalculateRow:
+      return (
+        <div className={'flex'} style={style}>
+          <GridCalculate getContainerRef={getContainerRef} field={field} index={columnIndex} />
+        </div>
+      );
+    default:
+      return null;
+  }
+}, areEqual);

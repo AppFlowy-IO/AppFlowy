@@ -26,7 +26,7 @@ class ApplicationDataStorage {
 
     if (Platform.isMacOS) {
       // remove the prefix `/Volumes/*`
-      path = path.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
+      path = path.replaceFirst(RegExp('^/Volumes/[^/]+'), '');
     } else if (Platform.isWindows) {
       path = path.replaceAll('/', '\\');
     }
@@ -65,7 +65,7 @@ class ApplicationDataStorage {
 
     final response = await getIt<KeyValueStorage>().get(KVKeys.pathLocation);
     String path = await response.fold(
-      (error) async {
+      () async {
         // return the default path if the path is not set
         final directory = await appFlowyApplicationDataDirectory();
         return directory.path;

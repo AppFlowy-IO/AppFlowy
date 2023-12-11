@@ -2,18 +2,26 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:string_validator/string_validator.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 
 import 'cover_editor.dart';
-import 'emoji_icon_widget.dart';
-import 'emoji_popover.dart';
 
 const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
@@ -46,14 +54,16 @@ enum CoverType {
 
 class DocumentHeaderNodeWidget extends StatefulWidget {
   const DocumentHeaderNodeWidget({
+    super.key,
     required this.node,
     required this.editorState,
+    required this.onIconChanged,
     required this.view,
-    super.key,
   });
 
   final Node node;
   final EditorState editorState;
+  final void Function(String icon) onIconChanged;
   final ViewPB view;
 
   @override
@@ -67,19 +77,33 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
       );
   String? get coverDetails =>
       widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
-  String get icon => widget.node.attributes[DocumentHeaderBlockKeys.icon];
-  bool get hasIcon =>
-      widget.node.attributes[DocumentHeaderBlockKeys.icon]?.isNotEmpty ?? false;
+  String? get icon => widget.node.attributes[DocumentHeaderBlockKeys.icon];
+  bool get hasIcon => viewIcon.isNotEmpty;
   bool get hasCover => coverType != CoverType.none;
+
+  String viewIcon = '';
+  late final ViewListener viewListener;
 
   @override
   void initState() {
     super.initState();
+    final value = widget.view.icon.value;
+    viewIcon = value.isNotEmpty ? value : icon ?? '';
     widget.node.addListener(_reload);
+    viewListener = ViewListener(
+      viewId: widget.view.id,
+    )..start(
+        onViewUpdated: (p0) {
+          setState(() {
+            viewIcon = p0.icon.value;
+          });
+        },
+      );
   }
 
   @override
   void dispose() {
+    viewListener.stop();
     widget.node.removeListener(_reload);
     super.dispose();
   }
@@ -112,7 +136,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
           ),
         if (hasIcon)
           Positioned(
-            left: 80,
+            left: PlatformExtension.isDesktopOrWeb ? 80 : 20,
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
             bottom:
@@ -120,8 +144,10 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             child: DocumentIcon(
               editorState: widget.editorState,
               node: widget.node,
-              icon: icon,
-              onIconChanged: (icon) => _saveCover(icon: icon),
+              icon: viewIcon,
+              onIconChanged: (icon) async {
+                _saveCover(icon: icon);
+              },
             ),
           ),
       ],
@@ -149,7 +175,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
       DocumentHeaderBlockKeys.coverDetails:
           widget.node.attributes[DocumentHeaderBlockKeys.coverDetails],
       DocumentHeaderBlockKeys.icon:
-          widget.node.attributes[DocumentHeaderBlockKeys.icon]
+          widget.node.attributes[DocumentHeaderBlockKeys.icon],
     };
     if (cover != null) {
       attributes[DocumentHeaderBlockKeys.coverType] = cover.$1.toString();
@@ -157,6 +183,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
     }
     if (icon != null) {
       attributes[DocumentHeaderBlockKeys.icon] = icon;
+      widget.onIconChanged(icon);
     }
 
     transaction.updateNode(widget.node, attributes);
@@ -196,28 +223,47 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
   final PopoverController _popoverController = PopoverController();
 
   @override
+  void initState() {
+    super.initState();
+
+    isHidden = PlatformExtension.isDesktopOrWeb;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (event) => setHidden(false),
-      onExit: (event) {
-        if (!isPopoverOpen) {
-          setHidden(true);
-        }
-      },
-      opaque: false,
-      child: Container(
-        alignment: Alignment.bottomLeft,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: SizedBox(
-          height: 28,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: buildRowChildren(),
-          ),
+    Widget child = Container(
+      alignment: Alignment.bottomLeft,
+      width: double.infinity,
+      padding: PlatformExtension.isDesktopOrWeb
+          ? EdgeInsets.symmetric(
+              horizontal: EditorStyleCustomizer.documentPadding.right,
+            )
+          : EdgeInsets.symmetric(
+              horizontal: EditorStyleCustomizer.documentPadding.left,
+            ),
+      child: SizedBox(
+        height: 28,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: buildRowChildren(),
         ),
       ),
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = MouseRegion(
+        onEnter: (event) => setHidden(false),
+        onExit: (event) {
+          if (!isPopoverOpen) {
+            setHidden(true);
+          }
+        },
+        opaque: false,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   List<Widget> buildRowChildren() {
@@ -231,11 +277,13 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
         FlowyButton(
           leftIconSize: const Size.square(18),
           onTap: () => widget.onCoverChanged(
-            cover: (CoverType.asset, builtInAssetImages.first),
+            cover: PlatformExtension.isDesktopOrWeb
+                ? (CoverType.asset, builtInAssetImages.first)
+                : (CoverType.color, '0xffe8e0ff'),
           ),
           useIntrinsicWidth: true,
           leftIcon: const FlowySvg(FlowySvgs.image_s),
-          text: FlowyText.regular(
+          text: FlowyText.small(
             LocaleKeys.document_plugins_cover_addCover.tr(),
           ),
         ),
@@ -252,48 +300,55 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
             Icons.emoji_emotions_outlined,
             size: 18,
           ),
-          text: FlowyText.regular(
+          text: FlowyText.small(
             LocaleKeys.document_plugins_cover_removeIcon.tr(),
           ),
         ),
       );
     } else {
-      children.add(
-        AppFlowyPopover(
+      Widget child = FlowyButton(
+        leftIconSize: const Size.square(18),
+        useIntrinsicWidth: true,
+        leftIcon: const Icon(
+          Icons.emoji_emotions_outlined,
+          size: 18,
+        ),
+        text: FlowyText.small(
+          LocaleKeys.document_plugins_cover_addIcon.tr(),
+        ),
+        onTap: PlatformExtension.isDesktop
+            ? null
+            : () async {
+                final result = await context.push<EmojiPickerResult>(
+                  MobileEmojiPickerScreen.routeName,
+                );
+                if (result != null) {
+                  widget.onCoverChanged(icon: result.emoji);
+                }
+              },
+      );
+
+      if (PlatformExtension.isDesktop) {
+        child = AppFlowyPopover(
           onClose: () => isPopoverOpen = false,
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
-          constraints: BoxConstraints.loose(const Size(300, 250)),
-          child: FlowyButton(
-            leftIconSize: const Size.square(18),
-            useIntrinsicWidth: true,
-            leftIcon: const Icon(
-              Icons.emoji_emotions_outlined,
-              size: 18,
-            ),
-            text: FlowyText.regular(
-              LocaleKeys.document_plugins_cover_addIcon.tr(),
-            ),
-          ),
+          constraints: BoxConstraints.loose(const Size(360, 380)),
+          child: child,
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
-            return EmojiPopover(
-              showRemoveButton: widget.hasIcon,
-              removeIcon: () {
-                widget.onCoverChanged(icon: "");
-                _popoverController.close();
-              },
-              node: widget.node,
-              editorState: widget.editorState,
-              onEmojiChanged: (Emoji emoji) {
-                widget.onCoverChanged(icon: emoji.emoji);
+            return FlowyIconPicker(
+              onSelected: (result) {
+                widget.onCoverChanged(icon: result.emoji);
                 _popoverController.close();
               },
             );
           },
-        ),
-      );
+        );
+      }
+
+      children.add(child);
     }
 
     return children;
@@ -335,6 +390,12 @@ class DocumentCoverState extends State<DocumentCover> {
 
   @override
   Widget build(BuildContext context) {
+    return PlatformExtension.isDesktopOrWeb
+        ? _buildDesktopCover()
+        : _buildMobileCover();
+  }
+
+  Widget _buildDesktopCover() {
     return SizedBox(
       height: kCoverHeight,
       child: MouseRegion(
@@ -348,17 +409,109 @@ class DocumentCoverState extends State<DocumentCover> {
               width: double.infinity,
               child: _buildCoverImage(),
             ),
-            if (!isOverlayButtonsHidden) _buildCoverOverlayButtons(context)
+            if (!isOverlayButtonsHidden) _buildCoverOverlayButtons(context),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildMobileCover() {
+    return SizedBox(
+      height: kCoverHeight,
+      child: Stack(
+        children: [
+          SizedBox(
+            height: double.infinity,
+            width: double.infinity,
+            child: _buildCoverImage(),
+          ),
+          Positioned(
+            bottom: 8,
+            right: 12,
+            child: Row(
+              children: [
+                IntrinsicWidth(
+                  child: RoundedTextButton(
+                    fontSize: 14,
+                    onPressed: () {
+                      showMobileBottomSheet(
+                        context,
+                        showHeader: true,
+                        showDragHandle: true,
+                        showCloseButton: true,
+                        title:
+                            LocaleKeys.document_plugins_cover_changeCover.tr(),
+                        builder: (context) {
+                          return ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 340,
+                              minHeight: 80,
+                            ),
+                            child: UploadImageMenu(
+                              supportTypes: const [
+                                UploadImageType.color,
+                                UploadImageType.local,
+                                UploadImageType.url,
+                                UploadImageType.unsplash,
+                              ],
+                              onSelectedLocalImage: (path) async {
+                                context.pop();
+                                widget.onCoverChanged(CoverType.file, path);
+                              },
+                              onSelectedAIImage: (_) {
+                                throw UnimplementedError();
+                              },
+                              onSelectedNetworkImage: (url) async {
+                                context.pop();
+                                widget.onCoverChanged(CoverType.file, url);
+                              },
+                              onSelectedColor: (color) {
+                                context.pop();
+                                widget.onCoverChanged(CoverType.color, color);
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    fillColor: Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withOpacity(0.5),
+                    height: 32,
+                    title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+                  ),
+                ),
+                const HSpace(8.0),
+                SizedBox.square(
+                  dimension: 32.0,
+                  child: DeleteCoverButton(
+                    onTap: () => widget.onCoverChanged(CoverType.none, null),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCoverImage() {
+    final detail = widget.coverDetails;
+    if (detail == null) {
+      return const SizedBox.shrink();
+    }
     switch (widget.coverType) {
       case CoverType.file:
-        final imageFile = File(widget.coverDetails ?? "");
+        if (isURL(detail)) {
+          return CachedNetworkImage(
+            imageUrl: detail,
+            fit: BoxFit.cover,
+          );
+        }
+        final imageFile = File(detail);
         if (!imageFile.existsSync()) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             widget.onCoverChanged(CoverType.none, null);
@@ -397,14 +550,16 @@ class DocumentCoverState extends State<DocumentCover> {
             constraints: BoxConstraints.loose(const Size(380, 450)),
             margin: EdgeInsets.zero,
             onClose: () => isPopoverOpen = false,
-            child: RoundedTextButton(
-              onPressed: () => popoverController.show(),
-              hoverColor: Theme.of(context).colorScheme.surface,
-              textColor: Theme.of(context).colorScheme.tertiary,
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-              width: 120,
-              height: 28,
-              title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+            child: IntrinsicWidth(
+              child: RoundedTextButton(
+                height: 28.0,
+                onPressed: () => popoverController.show(),
+                hoverColor: Theme.of(context).colorScheme.surface,
+                textColor: Theme.of(context).colorScheme.tertiary,
+                fillColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+              ),
             ),
             popupBuilder: (BuildContext popoverContext) {
               isPopoverOpen = true;
@@ -440,14 +595,20 @@ class DeleteCoverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fillColor = PlatformExtension.isDesktopOrWeb
+        ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
+        : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
+    final svgColor = PlatformExtension.isDesktopOrWeb
+        ? Theme.of(context).colorScheme.tertiary
+        : Theme.of(context).colorScheme.onPrimary;
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.surface,
-      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+      fillColor: fillColor,
       iconPadding: const EdgeInsets.all(5),
       width: 28,
       icon: FlowySvg(
         FlowySvgs.delete_s,
-        color: Theme.of(context).colorScheme.tertiary,
+        color: svgColor,
       ),
       onPressed: onTap,
     );
@@ -478,27 +639,40 @@ class _DocumentIconState extends State<DocumentIcon> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithCenterAligned,
-      controller: _popoverController,
-      offset: const Offset(0, 8),
-      constraints: BoxConstraints.loose(const Size(320, 380)),
-      child: EmojiIconWidget(emoji: widget.icon),
-      popupBuilder: (BuildContext popoverContext) {
-        return EmojiPopover(
-          node: widget.node,
-          showRemoveButton: true,
-          removeIcon: () {
-            widget.onIconChanged("");
-            _popoverController.close();
-          },
-          editorState: widget.editorState,
-          onEmojiChanged: (Emoji emoji) {
-            widget.onIconChanged(emoji.emoji);
-            _popoverController.close();
-          },
-        );
-      },
+    Widget child = EmojiIconWidget(
+      emoji: widget.icon,
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = AppFlowyPopover(
+        direction: PopoverDirection.bottomWithCenterAligned,
+        controller: _popoverController,
+        offset: const Offset(0, 8),
+        constraints: BoxConstraints.loose(const Size(360, 380)),
+        child: child,
+        popupBuilder: (BuildContext popoverContext) {
+          return FlowyIconPicker(
+            onSelected: (result) {
+              widget.onIconChanged(result.emoji);
+              _popoverController.close();
+            },
+          );
+        },
+      );
+    } else {
+      child = GestureDetector(
+        child: child,
+        onTap: () async {
+          final result = await context.push<EmojiPickerResult>(
+            MobileEmojiPickerScreen.routeName,
+          );
+          if (result != null) {
+            widget.onIconChanged(result.emoji);
+          }
+        },
+      );
+    }
+
+    return child;
   }
 }

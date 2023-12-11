@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use collab::core::collab_state::SyncState;
-use collab_document::blocks::{BlockAction, DocumentData};
+use collab_document::blocks::{json_str_to_hashmap, Block, BlockAction, DocumentData};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -174,6 +174,24 @@ pub struct BlockPB {
   pub external_type: Option<String>,
 }
 
+impl From<BlockPB> for Block {
+  fn from(pb: BlockPB) -> Self {
+    // Use `json_str_to_hashmap()` from the `collab_document` crate to convert the JSON data to a hashmap
+    let data = json_str_to_hashmap(&pb.data).unwrap_or_default();
+
+    // Convert the protobuf `BlockPB` to our internal `Block` struct
+    Self {
+      id: pb.id,
+      ty: pb.ty,
+      children: pb.children_id,
+      parent: pb.parent_id,
+      data,
+      external_id: pb.external_id,
+      external_type: pb.external_type,
+    }
+  }
+}
+
 #[derive(Default, ProtoBuf, Debug)]
 pub struct MetaPB {
   #[pb(index = 1)]
@@ -319,6 +337,7 @@ pub struct ExportDataPB {
   #[pb(index = 2)]
   pub export_type: ExportType,
 }
+
 #[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ConvertType {
   #[default]
@@ -337,6 +356,7 @@ impl From<i32> for ConvertType {
   }
 }
 
+/// for convert data to document
 /// for the json type
 /// the data is the json string
 #[derive(Default, ProtoBuf, Debug)]

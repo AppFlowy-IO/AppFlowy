@@ -1,36 +1,33 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
-import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/mobile_field_cell.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
-
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
-import '../../../../application/field/type_option/type_option_service.dart';
+
 import '../../layout/sizes.dart';
-import 'field_editor.dart';
 import 'field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatefulWidget {
   final String viewId;
-  final FieldController fieldController;
   final ScrollController anchorScrollController;
 
   const GridHeaderSliverAdaptor({
     required this.viewId,
-    required this.fieldController,
     required this.anchorScrollController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<GridHeaderSliverAdaptor> createState() =>
@@ -40,26 +37,22 @@ class GridHeaderSliverAdaptor extends StatefulWidget {
 class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   @override
   Widget build(BuildContext context) {
+    final fieldController =
+        context.read<GridBloc>().databaseController.fieldController;
     return BlocProvider(
       create: (context) {
-        return getIt<GridHeaderBloc>(
-          param1: widget.viewId,
-          param2: widget.fieldController,
+        return GridHeaderBloc(
+          viewId: widget.viewId,
+          fieldController: fieldController,
         )..add(const GridHeaderEvent.initial());
       },
-      child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
-        buildWhen: (previous, current) =>
-            previous.fields.length != current.fields.length,
-        builder: (context, state) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            controller: widget.anchorScrollController,
-            child: SizedBox(
-              height: GridSize.headerHeight,
-              child: _GridHeader(viewId: widget.viewId),
-            ),
-          );
-        },
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: widget.anchorScrollController,
+        child: _GridHeader(
+          viewId: widget.viewId,
+          fieldController: fieldController,
+        ),
       ),
     );
   }
@@ -67,7 +60,8 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
 
 class _GridHeader extends StatefulWidget {
   final String viewId;
-  const _GridHeader({Key? key, required this.viewId}) : super(key: key);
+  final FieldController fieldController;
+  const _GridHeader({required this.viewId, required this.fieldController});
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -80,7 +74,7 @@ class _GridHeaderState extends State<_GridHeader> {
   /// [ReorderableRow] warps the child's key with a [GlobalKey].
   /// It will trigger the child's widget's to recreate.
   /// The state will lose.
-  _getKeyById(String id) {
+  ValueKey<String>? _getKeyById(String id) {
     if (_gridMap.containsKey(id)) {
       return _gridMap[id];
     }
@@ -92,72 +86,95 @@ class _GridHeaderState extends State<_GridHeader> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
-        final cells = state.fields
+        final fields = [...state.fields];
+        FieldInfo? firstField;
+        if (PlatformExtension.isMobile && fields.isNotEmpty) {
+          firstField = fields.removeAt(0);
+        }
+
+        final cells = fields
             .map(
-              (field) => FieldContext(
-                viewId: widget.viewId,
-                fieldInfo: field,
-              ),
-            )
-            .map(
-              (ctx) => GridFieldCell(
-                key: _getKeyById(ctx.fieldInfo.id),
-                cellContext: ctx,
-              ),
+              (fieldInfo) => PlatformExtension.isDesktop
+                  ? GridFieldCell(
+                      key: _getKeyById(fieldInfo.id),
+                      viewId: widget.viewId,
+                      fieldInfo: fieldInfo,
+                      fieldController: widget.fieldController,
+                      onTap: () => context
+                          .read<GridHeaderBloc>()
+                          .add(GridHeaderEvent.startEditingField(fieldInfo.id)),
+                      onFieldInsertedOnEitherSide: (fieldId) => context
+                          .read<GridHeaderBloc>()
+                          .add(GridHeaderEvent.startEditingNewField(fieldId)),
+                      onEditorOpened: () => context
+                          .read<GridHeaderBloc>()
+                          .add(const GridHeaderEvent.endEditingField()),
+                      isEditing: state.editingFieldId == fieldInfo.id,
+                      isNew: state.newFieldId == fieldInfo.id,
+                    )
+                  : MobileFieldButton(
+                      key: _getKeyById(fieldInfo.id),
+                      viewId: widget.viewId,
+                      fieldController: widget.fieldController,
+                      fieldInfo: fieldInfo,
+                    ),
             )
             .toList();
 
-        return Container(
-          color: Theme.of(context).colorScheme.surface,
-          child: RepaintBoundary(
-            child: ReorderableRow(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              scrollController: ScrollController(),
-              header: const _CellLeading(),
-              needsLongPressDraggable: false,
-              footer: _CellTrailing(viewId: widget.viewId),
-              onReorder: (int oldIndex, int newIndex) {
-                _onReorder(cells, oldIndex, context, newIndex);
-              },
-              children: cells,
+        return RepaintBoundary(
+          child: ReorderableRow(
+            scrollController: ScrollController(),
+            buildDraggableFeedback: (context, constraints, child) => Material(
+              color: Colors.transparent,
+              child: child,
             ),
+            draggingWidgetOpacity: 0,
+            header: _cellLeading(firstField),
+            needsLongPressDraggable: PlatformExtension.isMobile,
+            footer: _CellTrailing(viewId: widget.viewId),
+            onReorder: (int oldIndex, int newIndex) {
+              // to offset removing the first field from `state.fields`
+              if (PlatformExtension.isMobile) {
+                oldIndex++;
+                newIndex++;
+              }
+              context
+                  .read<GridHeaderBloc>()
+                  .add(GridHeaderEvent.moveField(oldIndex, newIndex));
+            },
+            children: cells,
           ),
         );
       },
     );
   }
 
-  void _onReorder(
-    List<GridFieldCell> cells,
-    int oldIndex,
-    BuildContext context,
-    int newIndex,
-  ) {
-    if (cells.length > oldIndex) {
-      final field = cells[oldIndex].cellContext.fieldInfo.field;
-      context
-          .read<GridHeaderBloc>()
-          .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
+  Widget _cellLeading(FieldInfo? fieldInfo) {
+    if (PlatformExtension.isDesktop) {
+      return SizedBox(width: GridSize.leadingHeaderPadding);
+    } else {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(width: GridSize.leadingHeaderPadding),
+          if (fieldInfo != null)
+            MobileFieldButton(
+              key: _getKeyById(fieldInfo.id),
+              viewId: widget.viewId,
+              fieldController: widget.fieldController,
+              fieldInfo: fieldInfo,
+            ),
+        ],
+      );
     }
   }
 }
 
-class _CellLeading extends StatelessWidget {
-  const _CellLeading({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: GridSize.leadingHeaderPadding,
-    );
-  }
-}
-
 class _CellTrailing extends StatelessWidget {
+  const _CellTrailing({required this.viewId});
+
   final String viewId;
-  const _CellTrailing({required this.viewId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -165,97 +182,69 @@ class _CellTrailing extends StatelessWidget {
         BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
     return Container(
       width: GridSize.trailHeaderPadding,
-      decoration: BoxDecoration(
-        border: Border(top: borderSide, bottom: borderSide),
-      ),
+      decoration: PlatformExtension.isDesktop
+          ? BoxDecoration(
+              border: Border(bottom: borderSide),
+            )
+          : null,
       padding: GridSize.headerContentInsets,
-      child: CreateFieldButton(viewId: viewId),
+      child: CreateFieldButton(
+        viewId: viewId,
+        onFieldCreated: (fieldId) => context
+            .read<GridHeaderBloc>()
+            .add(GridHeaderEvent.startEditingNewField(fieldId)),
+      ),
     );
   }
 }
 
 class CreateFieldButton extends StatefulWidget {
+  const CreateFieldButton({
+    super.key,
+    required this.viewId,
+    required this.onFieldCreated,
+  });
+
   final String viewId;
-  const CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
+  final void Function(String fieldId) onFieldCreated;
 
   @override
   State<CreateFieldButton> createState() => _CreateFieldButtonState();
 }
 
 class _CreateFieldButtonState extends State<CreateFieldButton> {
-  final popoverController = PopoverController();
-  late TypeOptionPB typeOption;
-
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      controller: popoverController,
-      direction: PopoverDirection.bottomWithRightAligned,
-      asBarrier: true,
-      margin: EdgeInsets.zero,
-      constraints: BoxConstraints.loose(const Size(240, 600)),
-      triggerActions: PopoverTriggerFlags.none,
-      child: FlowyButton(
-        radius: BorderRadius.zero,
-        text: FlowyText.medium(LocaleKeys.grid_field_newProperty.tr()),
-        hoverColor: AFThemeExtension.of(context).greyHover,
-        onTap: () async {
-          final result = await TypeOptionBackendService.createFieldTypeOption(
+    return FlowyButton(
+      margin: PlatformExtension.isDesktop
+          ? GridSize.cellContentInsets
+          : const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      radius: BorderRadius.zero,
+      text: FlowyText(
+        LocaleKeys.grid_field_newProperty.tr(),
+        fontSize: PlatformExtension.isDesktop ? null : 15,
+        overflow: TextOverflow.ellipsis,
+        color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
+      ),
+      hoverColor: AFThemeExtension.of(context).greyHover,
+      onTap: () async {
+        if (PlatformExtension.isMobile) {
+          showCreateFieldBottomSheet(context, widget.viewId);
+        } else {
+          final result = await FieldBackendService.createField(
             viewId: widget.viewId,
           );
           result.fold(
-            (l) {
-              typeOption = l;
-              popoverController.show();
-            },
-            (r) => Log.error("Failed to create field type option: $r"),
+            (typeOptionPB) => widget.onFieldCreated(typeOptionPB.field_2.id),
+            (err) => Log.error("Failed to create field type option: $err"),
           );
-        },
-        leftIcon: const FlowySvg(FlowySvgs.add_s),
-      ),
-      popupBuilder: (BuildContext popover) {
-        return FieldEditor(
-          viewId: widget.viewId,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.viewId,
-            field: typeOption.field_2,
-          ),
-        );
+        }
       },
+      leftIcon: FlowySvg(
+        FlowySvgs.add_s,
+        size: const Size.square(18),
+        color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
+      ),
     );
-  }
-}
-
-class SliverHeaderDelegateImplementation
-    extends SliverPersistentHeaderDelegate {
-  final String gridId;
-  final List<FieldPB> fields;
-
-  SliverHeaderDelegateImplementation({
-    required this.gridId,
-    required this.fields,
-  });
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return _GridHeader(viewId: gridId);
-  }
-
-  @override
-  double get maxExtent => GridSize.headerHeight;
-
-  @override
-  double get minExtent => GridSize.headerHeight;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is SliverHeaderDelegateImplementation) {
-      return fields.length != oldDelegate.fields.length;
-    }
-    return true;
   }
 }

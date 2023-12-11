@@ -3,14 +3,14 @@ import 'dart:collection';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:expandable/expandable.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:flutter/foundation.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:expandable/expandable.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'app_bloc.freezed.dart';
 
@@ -206,7 +206,7 @@ class ViewDataContext extends ChangeNotifier {
   }
 
   VoidCallback onViewSelected(void Function(ViewPB?) callback) {
-    listener() {
+    void listener() {
       callback(_selectedViewNotifier.value);
     }
 
@@ -243,7 +243,7 @@ class ViewDataContext extends ChangeNotifier {
   VoidCallback onViewsChanged(
     void Function(UnmodifiableListView<ViewPB>) callback,
   ) {
-    listener() {
+    void listener() {
       callback(views);
     }
 

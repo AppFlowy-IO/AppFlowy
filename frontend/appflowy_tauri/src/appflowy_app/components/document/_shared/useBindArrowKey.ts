@@ -83,6 +83,7 @@ export const useBindArrowKey = ({
     } else {
       document.removeEventListener('keydown', handleArrowKey, true);
     }
+
     return () => {
       document.removeEventListener('keydown', handleArrowKey, true);
     };

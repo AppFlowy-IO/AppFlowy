@@ -14,6 +14,7 @@ use flowy_database2::entities::{CheckboxFilterConditionPB, CheckboxFilterPB, Che
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use flowy_database2::services::field::SelectOption;
 use flowy_database2::services::filter::FilterType;
+use lib_dispatch::prelude::af_spawn;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -30,7 +31,7 @@ pub enum FilterScript {
     },
     UpdateChecklistCell{
         row_id: RowId,
-        f: Box<dyn FnOnce(Vec<SelectOptionPB>) -> Vec<String>> ,
+        selected_option_ids: Vec<String>,
     },
     UpdateSingleSelectCell {
         row_id: RowId,
@@ -138,8 +139,8 @@ impl DatabaseFilterTest {
                 self.assert_future_changed(changed).await;
                 self.update_text_cell(row_id, &text).await.unwrap();
             }
-            FilterScript::UpdateChecklistCell { row_id, f } => {
-                self.set_checklist_cell( row_id, f).await.unwrap();
+            FilterScript::UpdateChecklistCell { row_id, selected_option_ids } => {
+                self.set_checklist_cell( row_id, selected_option_ids).await.unwrap();
             }
             FilterScript::UpdateSingleSelectCell { row_id, option_id, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
@@ -278,7 +279,7 @@ impl DatabaseFilterTest {
         if change.is_none() {return;}
         let change = change.unwrap();
         let mut receiver = self.recv.take().unwrap();
-        tokio::spawn(async move {
+        af_spawn(async move {
             match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
                 Ok(changed) =>  {
                     match changed.unwrap() { DatabaseViewChanged::FilterNotification(notification) => {

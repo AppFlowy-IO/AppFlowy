@@ -2,64 +2,25 @@ use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use serde_repr::*;
 use uuid::Uuid;
+
+pub const USER_METADATA_OPEN_AI_KEY: &str = "openai_key";
+pub const USER_METADATA_STABILITY_AI_KEY: &str = "stability_ai_key";
+pub const USER_METADATA_ICON_URL: &str = "icon_url";
+pub const USER_METADATA_UPDATE_AT: &str = "updated_at";
 
 pub trait UserAuthResponse {
   fn user_id(&self) -> i64;
   fn user_name(&self) -> &str;
   fn latest_workspace(&self) -> &UserWorkspace;
   fn user_workspaces(&self) -> &[UserWorkspace];
-  fn device_id(&self) -> &str;
   fn user_token(&self) -> Option<String>;
   fn user_email(&self) -> Option<String>;
   fn encryption_type(&self) -> EncryptionType;
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SignInResponse {
-  pub user_id: i64,
-  pub name: String,
-  pub latest_workspace: UserWorkspace,
-  pub user_workspaces: Vec<UserWorkspace>,
-  pub email: Option<String>,
-  pub token: Option<String>,
-  pub device_id: String,
-  pub encryption_type: EncryptionType,
-}
-
-impl UserAuthResponse for SignInResponse {
-  fn user_id(&self) -> i64 {
-    self.user_id
-  }
-
-  fn user_name(&self) -> &str {
-    &self.name
-  }
-
-  fn latest_workspace(&self) -> &UserWorkspace {
-    &self.latest_workspace
-  }
-
-  fn user_workspaces(&self) -> &[UserWorkspace] {
-    &self.user_workspaces
-  }
-
-  fn device_id(&self) -> &str {
-    &self.device_id
-  }
-
-  fn user_token(&self) -> Option<String> {
-    self.token.clone()
-  }
-
-  fn user_email(&self) -> Option<String> {
-    self.email.clone()
-  }
-
-  fn encryption_type(&self) -> EncryptionType {
-    self.encryption_type.clone()
-  }
+  fn metadata(&self) -> &Option<serde_json::Value>;
+  fn updated_at(&self) -> i64;
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -67,8 +28,7 @@ pub struct SignInParams {
   pub email: String,
   pub password: String,
   pub name: String,
-  pub auth_type: AuthType,
-  pub device_id: String,
+  pub auth_type: Authenticator,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -76,7 +36,7 @@ pub struct SignUpParams {
   pub email: String,
   pub name: String,
   pub password: String,
-  pub auth_type: AuthType,
+  pub auth_type: Authenticator,
   pub device_id: String,
 }
 
@@ -89,8 +49,9 @@ pub struct AuthResponse {
   pub is_new_user: bool,
   pub email: Option<String>,
   pub token: Option<String>,
-  pub device_id: String,
   pub encryption_type: EncryptionType,
+  pub updated_at: i64,
+  pub metadata: Option<serde_json::Value>,
 }
 
 impl UserAuthResponse for AuthResponse {
@@ -110,10 +71,6 @@ impl UserAuthResponse for AuthResponse {
     &self.user_workspaces
   }
 
-  fn device_id(&self) -> &str {
-    &self.device_id
-  }
-
   fn user_token(&self) -> Option<String> {
     self.token.clone()
   }
@@ -125,11 +82,19 @@ impl UserAuthResponse for AuthResponse {
   fn encryption_type(&self) -> EncryptionType {
     self.encryption_type.clone()
   }
+
+  fn metadata(&self) -> &Option<Value> {
+    &self.metadata
+  }
+
+  fn updated_at(&self) -> i64 {
+    self.updated_at
+  }
 }
 
 #[derive(Clone, Debug)]
 pub struct UserCredentials {
-  /// Currently, the token is only used when the [AuthType] is AFCloud
+  /// Currently, the token is only used when the [Authenticator] is AFCloud
   pub token: Option<String>,
 
   /// The user id
@@ -166,7 +131,7 @@ pub struct UserWorkspace {
   pub id: String,
   pub name: String,
   pub created_at: DateTime<Utc>,
-  /// The database storage id is used indexing all the database in current workspace.
+  /// The database storage id is used indexing all the database views in current workspace.
   #[serde(rename = "database_storage_id")]
   pub database_views_aggregate_id: String,
 }
@@ -193,9 +158,10 @@ pub struct UserProfile {
   pub openai_key: String,
   pub stability_ai_key: String,
   pub workspace_id: String,
-  pub auth_type: AuthType,
+  pub authenticator: Authenticator,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
   pub encryption_type: EncryptionType,
+  pub updated_at: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default, Eq, PartialEq)]
@@ -214,7 +180,7 @@ impl EncryptionType {
     }
   }
 
-  pub fn is_need_encrypt_secret(&self) -> bool {
+  pub fn require_encrypt_secret(&self) -> bool {
     match self {
       EncryptionType::NoEncryption => false,
       EncryptionType::SelfEncryption(sign) => !sign.is_empty(),
@@ -237,23 +203,43 @@ impl FromStr for EncryptionType {
   }
 }
 
-impl<T> From<(&T, &AuthType)> for UserProfile
+impl<T> From<(&T, &Authenticator)> for UserProfile
 where
   T: UserAuthResponse,
 {
-  fn from(params: (&T, &AuthType)) -> Self {
+  fn from(params: (&T, &Authenticator)) -> Self {
     let (value, auth_type) = params;
+    let (icon_url, openai_key, stability_ai_key) = {
+      value
+        .metadata()
+        .as_ref()
+        .map(|m| {
+          (
+            m.get(USER_METADATA_ICON_URL)
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
+              .unwrap_or_default(),
+            m.get(USER_METADATA_OPEN_AI_KEY)
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
+              .unwrap_or_default(),
+            m.get(USER_METADATA_STABILITY_AI_KEY)
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
+              .unwrap_or_default(),
+          )
+        })
+        .unwrap_or_default()
+    };
     Self {
       uid: value.user_id(),
       email: value.user_email().unwrap_or_default(),
       name: value.user_name().to_owned(),
       token: value.user_token().unwrap_or_default(),
-      icon_url: "".to_owned(),
-      openai_key: "".to_owned(),
+      icon_url,
+      openai_key,
       workspace_id: value.latest_workspace().id.to_owned(),
-      auth_type: auth_type.clone(),
+      authenticator: auth_type.clone(),
       encryption_type: value.encryption_type(),
-      stability_ai_key: "".to_owned(),
+      stability_ai_key,
+      updated_at: value.updated_at(),
     }
   }
 }
@@ -336,51 +322,62 @@ impl UpdateUserProfileParams {
 
 #[derive(Debug, Clone, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
 #[repr(u8)]
-pub enum AuthType {
+pub enum Authenticator {
   /// It's a local server, we do fake sign in default.
   Local = 0,
   /// Currently not supported. It will be supported in the future when the
   /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
-  AFCloud = 1,
+  AppFlowyCloud = 1,
   /// It uses Supabase as the backend.
   Supabase = 2,
 }
 
-impl Default for AuthType {
+impl Default for Authenticator {
   fn default() -> Self {
     Self::Local
   }
 }
 
-impl AuthType {
+impl Authenticator {
   pub fn is_local(&self) -> bool {
-    matches!(self, AuthType::Local)
+    matches!(self, Authenticator::Local)
   }
 }
 
-impl From<i32> for AuthType {
+impl From<i32> for Authenticator {
   fn from(value: i32) -> Self {
     match value {
-      0 => AuthType::Local,
-      1 => AuthType::AFCloud,
-      2 => AuthType::Supabase,
-      _ => AuthType::Local,
+      0 => Authenticator::Local,
+      1 => Authenticator::AppFlowyCloud,
+      2 => Authenticator::Supabase,
+      _ => Authenticator::Local,
     }
   }
 }
 pub struct SupabaseOAuthParams {
   pub uuid: Uuid,
   pub email: String,
-  pub device_id: String,
 }
 
 pub struct AFCloudOAuthParams {
   pub sign_in_url: String,
-  pub device_id: String,
 }
 
 #[derive(Clone, Debug)]
 pub enum UserTokenState {
   Refresh { token: String },
   Invalid,
+}
+
+#[derive(Clone, Debug)]
+pub enum Role {
+  Owner,
+  Member,
+  Guest,
+}
+
+pub struct WorkspaceMember {
+  pub email: String,
+  pub role: Role,
+  pub name: String,
 }

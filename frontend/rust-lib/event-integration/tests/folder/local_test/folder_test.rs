@@ -1,52 +1,9 @@
-use collab_folder::core::ViewLayout;
+use collab_folder::ViewLayout;
 
 use flowy_folder2::entities::icon::{ViewIconPB, ViewIconTypePB};
 
 use crate::folder::local_test::script::FolderScript::*;
 use crate::folder::local_test::script::FolderTest;
-
-#[tokio::test]
-async fn read_all_workspace_test() {
-  let mut test = FolderTest::new().await;
-  test.run_scripts(vec![ReadAllWorkspaces]).await;
-  assert!(!test.all_workspace.is_empty());
-}
-
-#[tokio::test]
-async fn create_workspace_test() {
-  let mut test = FolderTest::new().await;
-  let name = "My new workspace".to_owned();
-  let desc = "Daily routines".to_owned();
-  test
-    .run_scripts(vec![CreateWorkspace {
-      name: name.clone(),
-      desc: desc.clone(),
-    }])
-    .await;
-
-  let workspace = test.workspace.clone();
-  assert_eq!(workspace.name, name);
-
-  test
-    .run_scripts(vec![
-      ReadWorkspace(Some(workspace.id.clone())),
-      AssertWorkspace(workspace),
-    ])
-    .await;
-}
-
-#[tokio::test]
-async fn get_workspace_test() {
-  let mut test = FolderTest::new().await;
-  let workspace = test.workspace.clone();
-
-  test
-    .run_scripts(vec![
-      ReadWorkspace(Some(workspace.id.clone())),
-      AssertWorkspace(workspace),
-    ])
-    .await;
-}
 
 #[tokio::test]
 async fn create_parent_view_test() {

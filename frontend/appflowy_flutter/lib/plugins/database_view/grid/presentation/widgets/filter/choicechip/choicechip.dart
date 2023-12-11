@@ -15,11 +15,11 @@ class ChoiceChipButton extends StatelessWidget {
   final String filterDesc;
 
   const ChoiceChipButton({
-    Key? key,
+    super.key,
     required this.filterInfo,
     this.filterDesc = '',
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +59,7 @@ class ChoiceChipButton extends StatelessWidget {
 
 class _ChoicechipFilterDesc extends StatelessWidget {
   final String filterDesc;
-  const _ChoicechipFilterDesc({this.filterDesc = '', Key? key})
-      : super(key: key);
+  const _ChoicechipFilterDesc({this.filterDesc = ''});
 
   @override
   Widget build(BuildContext context) {

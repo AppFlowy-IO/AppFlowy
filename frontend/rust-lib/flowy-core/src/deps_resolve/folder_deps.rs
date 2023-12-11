@@ -101,11 +101,14 @@ impl FolderOperationHandler for DocumentFolderOperation {
     FutureResult::new(async move {
       let mut write_guard = workspace_view_builder.write().await;
 
-      // Create a view named "⭐️ Getting started" with built-in README data.
+      // Create a view named "Getting started" with an icon ⭐️ and the built-in README data.
       // Don't modify this code unless you know what you are doing.
       write_guard
         .with_view_builder(|view_builder| async {
-          let view = view_builder.with_name("⭐️ Getting started").build();
+          let view = view_builder
+            .with_name("Getting started")
+            .with_icon("⭐️")
+            .build();
           // create a empty document
           let json_str = include_str!("../../assets/read_me.json");
           let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
@@ -125,7 +128,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      manager.close_document(&view_id)?;
+      manager.close_document(&view_id).await?;
       Ok(())
     })
   }

@@ -47,7 +47,7 @@ impl std::convert::From<&Filter> for FilterPB {
     Self {
       id: filter.id.clone(),
       field_id: filter.field_id.clone(),
-      field_type: filter.field_type.clone(),
+      field_type: filter.field_type,
       data: bytes.to_vec(),
     }
   }

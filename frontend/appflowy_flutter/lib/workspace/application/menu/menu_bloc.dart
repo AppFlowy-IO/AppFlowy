@@ -1,16 +1,14 @@
 import 'dart:async';
-import 'package:appflowy/startup/plugin/plugin.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+
 import 'package:appflowy/workspace/application/workspace/workspace_listener.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'menu_bloc.freezed.dart';
 
@@ -18,17 +16,17 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   final WorkspaceService _workspaceService;
   final WorkspaceListener _listener;
   final UserProfilePB user;
-  final WorkspacePB workspace;
+  final String workspaceId;
 
   MenuBloc({
     required this.user,
-    required this.workspace,
-  })  : _workspaceService = WorkspaceService(workspaceId: workspace.id),
+    required this.workspaceId,
+  })  : _workspaceService = WorkspaceService(workspaceId: workspaceId),
         _listener = WorkspaceListener(
           user: user,
-          workspaceId: workspace.id,
+          workspaceId: workspaceId,
         ),
-        super(MenuState.initial(workspace)) {
+        super(MenuState.initial()) {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
@@ -42,7 +40,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
             index: event.index,
           );
           result.fold(
-            (app) => emit(state.copyWith(plugin: app.plugin())),
+            (app) => emit(state.copyWith(lastCreatedView: app)),
             (error) {
               Log.error(error);
               emit(state.copyWith(successOrFailure: right(error)));
@@ -120,12 +118,12 @@ class MenuState with _$MenuState {
   const factory MenuState({
     required List<ViewPB> views,
     required Either<Unit, FlowyError> successOrFailure,
-    required Plugin plugin,
+    ViewPB? lastCreatedView,
   }) = _MenuState;
 
-  factory MenuState.initial(WorkspacePB workspace) => MenuState(
-        views: workspace.views,
+  factory MenuState.initial() => MenuState(
+        views: [],
         successOrFailure: left(unit),
-        plugin: makePlugin(pluginType: PluginType.blank),
+        lastCreatedView: null,
       );
 }

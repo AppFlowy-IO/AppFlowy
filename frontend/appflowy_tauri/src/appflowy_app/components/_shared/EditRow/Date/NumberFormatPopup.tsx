@@ -66,6 +66,7 @@ export const NumberFormatPopup = ({
 
   useEffect(() => {
     setNumberType(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as INumberType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [databaseStore]);
 
   const changeNumberFormatClick = async (format: NumberFormatPB) => {

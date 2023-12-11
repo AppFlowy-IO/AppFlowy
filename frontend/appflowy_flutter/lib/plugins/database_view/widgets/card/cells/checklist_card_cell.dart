@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../row/cells/checklist_cell/checklist_cell_bloc.dart';
+import '../define.dart';
 import 'card_cell.dart';
 
 class ChecklistCardCell extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
-  const ChecklistCardCell({required this.cellControllerBuilder, Key? key})
-      : super(key: key);
+  const ChecklistCardCell({required this.cellControllerBuilder, super.key});
 
   @override
   State<ChecklistCardCell> createState() => _ChecklistCellState();
@@ -33,13 +33,15 @@ class _ChecklistCellState extends State<ChecklistCardCell> {
       value: _cellBloc,
       child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
         builder: (context, state) {
-          if (state.allOptions.isEmpty) {
+          if (state.tasks.isEmpty) {
             return const SizedBox.shrink();
           }
-
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: ChecklistProgressBar(percent: state.percent),
+            padding: CardSizes.cardCellPadding,
+            child: ChecklistProgressBar(
+              tasks: state.tasks,
+              percent: state.percent,
+            ),
           );
         },
       ),

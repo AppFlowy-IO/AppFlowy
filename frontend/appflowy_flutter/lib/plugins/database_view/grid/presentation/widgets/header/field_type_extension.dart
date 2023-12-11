@@ -53,4 +53,25 @@ extension FieldTypeListExtension on FieldType {
     }
     throw UnimplementedError;
   }
+
+  bool get canEditHeader => switch (this) {
+        FieldType.MultiSelect => true,
+        FieldType.SingleSelect => true,
+        _ => false,
+      };
+
+  bool get canCreateNewGroup => switch (this) {
+        FieldType.MultiSelect => true,
+        FieldType.SingleSelect => true,
+        _ => false,
+      };
+
+  bool get canDeleteGroup => switch (this) {
+        FieldType.URL ||
+        FieldType.SingleSelect ||
+        FieldType.MultiSelect ||
+        FieldType.DateTime =>
+          true,
+        _ => false,
+      };
 }

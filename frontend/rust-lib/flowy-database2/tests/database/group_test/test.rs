@@ -462,7 +462,7 @@ async fn group_insert_single_select_option_test() {
     AssertGroupCount(5),
   ];
   test.run_scripts(scripts).await;
-  let new_group = test.group_at_index(1).await;
+  let new_group = test.group_at_index(4).await;
   assert_eq!(new_group.group_name, new_option_name);
 }
 
@@ -485,4 +485,20 @@ async fn group_group_by_other_field() {
     AssertGroupCount(4),
   ];
   test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn group_manual_create_new_group() {
+  let mut test = DatabaseGroupTest::new().await;
+  let new_group_name = "Resumed";
+  let scripts = vec![
+    AssertGroupCount(4),
+    CreateGroup {
+      name: new_group_name.to_string(),
+    },
+    AssertGroupCount(5),
+  ];
+  test.run_scripts(scripts).await;
+  let new_group = test.group_at_index(4).await;
+  assert_eq!(new_group.group_name, new_group_name);
 }

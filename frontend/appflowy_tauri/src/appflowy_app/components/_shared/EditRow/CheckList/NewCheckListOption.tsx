@@ -19,6 +19,7 @@ export const NewCheckListOption = ({
 
   const updateNewOption = (value: string) => {
     const newOptionsCopy = [...newOptions];
+
     newOptionsCopy[index] = value;
     setNewOptions(newOptionsCopy);
   };

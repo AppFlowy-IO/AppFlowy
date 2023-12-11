@@ -88,8 +88,10 @@ export const pagesSlice = createSlice({
 
     expandPage(state, action: PayloadAction<string>) {
       const id = action.payload;
+
       state.expandedIdMap[id] = true;
       const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+
       storeExpandedPageIds(ids);
     },
 
@@ -98,6 +100,7 @@ export const pagesSlice = createSlice({
 
       state.expandedIdMap[id] = false;
       const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+
       storeExpandedPageIds(ids);
     },
   },

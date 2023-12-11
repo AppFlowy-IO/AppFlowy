@@ -146,10 +146,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       (settings) async {
         final dateField = _getCalendarFieldInfo(settings.fieldId);
         if (dateField != null) {
-          final newRow = await databaseController.createRow(
-            withCells: (builder) {
-              builder.insertDate(dateField, date);
-            },
+          final newRow = await RowBackendService.createRow(
+            viewId: viewId,
+            withCells: (builder) => builder.insertDate(dateField, date),
           ).then(
             (result) => result.fold(
               (newRow) => newRow,
@@ -198,17 +197,16 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   Future<void> _updateCalendarLayoutSetting(
     CalendarLayoutSettingPB layoutSetting,
   ) async {
-    return databaseController.updateLayoutSetting(layoutSetting);
+    return databaseController.updateLayoutSetting(
+      calendarLayoutSetting: layoutSetting,
+    );
   }
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
     final payload = RowIdPB(viewId: viewId, rowId: rowId);
     return DatabaseEventGetCalendarEvent(payload).send().then((result) {
       return result.fold(
-        (eventPB) {
-          final calendarEvent = _calendarEventDataFromEventPB(eventPB);
-          return calendarEvent;
-        },
+        (eventPB) => _calendarEventDataFromEventPB(eventPB),
         (r) {
           Log.error(r);
           return null;
@@ -281,7 +279,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           return;
         }
         fieldInfoByFieldId = {
-          for (var fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo
+          for (final fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo,
         };
       },
       onRowsCreated: (rowIds) async {
@@ -319,14 +317,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       },
     );
 
-    final onLayoutChanged = DatabaseLayoutSettingCallbacks(
-      onLayoutChanged: _didReceiveLayoutSetting,
-      onLoadLayout: _didReceiveLayoutSetting,
+    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+      onLayoutSettingsChanged: _didReceiveLayoutSetting,
     );
 
     databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
-      onLayoutChanged: onLayoutChanged,
+      onLayoutSettingsChanged: onLayoutSettingsChanged,
     );
   }
 

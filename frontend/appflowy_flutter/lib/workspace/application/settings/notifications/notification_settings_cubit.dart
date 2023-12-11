@@ -18,6 +18,11 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
         .getNotificationSettings()
         .then((notificationSettings) {
       _notificationSettings = notificationSettings;
+      emit(
+        state.copyWith(
+          isNotificationsEnabled: _notificationSettings.notificationsEnabled,
+        ),
+      );
       _initCompleter.complete();
     });
   }
@@ -26,13 +31,14 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
     await _initCompleter.future;
 
     _notificationSettings.notificationsEnabled = !state.isNotificationsEnabled;
-    _saveNotificationSettings();
 
     emit(
       state.copyWith(
         isNotificationsEnabled: _notificationSettings.notificationsEnabled,
       ),
     );
+
+    _saveNotificationSettings();
   }
 
   Future<void> _saveNotificationSettings() async {

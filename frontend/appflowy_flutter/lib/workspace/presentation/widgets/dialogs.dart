@@ -88,7 +88,7 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
               }
               Navigator.of(context).pop();
             },
-          )
+          ),
         ],
       ),
     );
@@ -104,8 +104,8 @@ class NavigatorAlertDialog extends StatefulWidget {
     required this.title,
     this.confirm,
     this.cancel,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<NavigatorAlertDialog> createState() => _CreateFlowyAlertDialog();
@@ -133,6 +133,7 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
               child: FlowyText.medium(
                 widget.title,
                 fontSize: FontSizes.s16,
+                textAlign: TextAlign.center,
                 color: Theme.of(context).colorScheme.tertiary,
                 maxLines: null,
               ),
@@ -149,8 +150,8 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
                 widget.cancel?.call();
                 Navigator.of(context).pop();
               },
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );
@@ -167,7 +168,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final double? maxWidth;
 
   const NavigatorOkCancelDialog({
-    Key? key,
+    super.key,
     this.onOkPressed,
     this.onCancelPressed,
     this.okTitle,
@@ -175,7 +176,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
     this.title,
     required this.message,
     this.maxWidth,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -209,7 +210,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             },
             okTitle: okTitle?.toUpperCase(),
             cancelTitle: cancelTitle?.toUpperCase(),
-          )
+          ),
         ],
       ),
     );
@@ -226,7 +227,7 @@ class OkCancelButton extends StatelessWidget {
   final TextButtonMode mode;
 
   const OkCancelButton({
-    Key? key,
+    super.key,
     this.onOkPressed,
     this.onCancelPressed,
     this.okTitle,
@@ -234,7 +235,7 @@ class OkCancelButton extends StatelessWidget {
     this.minHeight,
     this.alignment = MainAxisAlignment.spaceAround,
     this.mode = TextButtonMode.big,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -245,14 +246,14 @@ class OkCancelButton extends StatelessWidget {
         children: <Widget>[
           if (onCancelPressed != null)
             SecondaryTextButton(
-              cancelTitle ?? LocaleKeys.button_Cancel.tr(),
+              cancelTitle ?? LocaleKeys.button_cancel.tr(),
               onPressed: onCancelPressed,
               mode: mode,
             ),
           HSpace(Insets.m),
           if (onOkPressed != null)
             PrimaryTextButton(
-              okTitle ?? LocaleKeys.button_OK.tr(),
+              okTitle ?? LocaleKeys.button_ok.tr(),
               onPressed: onOkPressed,
               mode: mode,
             ),

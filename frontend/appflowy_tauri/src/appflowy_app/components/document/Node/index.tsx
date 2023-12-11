@@ -19,6 +19,8 @@ import CodeBlock from '$app/components/document/CodeBlock';
 import { NodeIdContext } from '$app/components/document/_shared/SubscribeNode.hooks';
 import EquationBlock from '$app/components/document/EquationBlock';
 import ImageBlock from '$app/components/document/ImageBlock';
+import GridBlock from '$app/components/document/GridBlock';
+
 import { useTranslation } from 'react-i18next';
 import BlockDraggable from '$app/components/_shared/BlockDraggable';
 import { BlockDraggableType } from '$app_reducers/block-draggable/slice';
@@ -28,41 +30,31 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
 
   const renderBlock = useCallback(() => {
     switch (node.type) {
-      case BlockType.TextBlock: {
+      case BlockType.TextBlock:
         return <TextBlock node={node} childIds={childIds} />;
-      }
 
-      case BlockType.HeadingBlock: {
+      case BlockType.HeadingBlock:
         return <HeadingBlock node={node} />;
-      }
 
-      case BlockType.TodoListBlock: {
+      case BlockType.TodoListBlock:
         return <TodoListBlock node={node} childIds={childIds} />;
-      }
 
-      case BlockType.QuoteBlock: {
+      case BlockType.QuoteBlock:
         return <QuoteBlock node={node} childIds={childIds} />;
-      }
-
-      case BlockType.BulletedListBlock: {
+      case BlockType.BulletedListBlock:
         return <BulletedListBlock node={node} childIds={childIds} />;
-      }
 
-      case BlockType.NumberedListBlock: {
+      case BlockType.NumberedListBlock:
         return <NumberedListBlock node={node} childIds={childIds} />;
-      }
 
-      case BlockType.ToggleListBlock: {
+      case BlockType.ToggleListBlock:
         return <ToggleListBlock node={node} childIds={childIds} />;
-      }
 
-      case BlockType.DividerBlock: {
+      case BlockType.DividerBlock:
         return <DividerBlock />;
-      }
 
-      case BlockType.CalloutBlock: {
+      case BlockType.CalloutBlock:
         return <CalloutBlock node={node} childIds={childIds} />;
-      }
 
       case BlockType.CodeBlock:
         return <CodeBlock node={node} />;
@@ -70,6 +62,8 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
         return <EquationBlock node={node} />;
       case BlockType.ImageBlock:
         return <ImageBlock node={node} />;
+      case BlockType.GridBlock:
+        return <GridBlock node={node} />;
       default:
         return <UnSupportedBlock />;
     }
@@ -102,7 +96,7 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
   );
 }
 
-const NodeWithErrorBoundary = withErrorBoundary(NodeComponent, {
+const NodeWithErrorBoundary = withErrorBoundary(React.memo(NodeComponent), {
   FallbackComponent: ErrorBoundaryFallbackComponent,
 });
 
@@ -116,4 +110,4 @@ const UnSupportedBlock = () => {
   );
 };
 
-export default React.memo(NodeWithErrorBoundary);
+export default NodeWithErrorBoundary;

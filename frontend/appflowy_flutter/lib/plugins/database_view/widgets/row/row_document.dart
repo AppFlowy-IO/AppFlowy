@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/grid/application/row/row_document
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -24,12 +25,8 @@ class RowDocument extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RowDocumentBloc>(
-      create: (context) => RowDocumentBloc(
-        viewId: viewId,
-        rowId: rowId,
-      )..add(
-          const RowDocumentEvent.initial(),
-        ),
+      create: (context) => RowDocumentBloc(viewId: viewId, rowId: rowId)
+        ..add(const RowDocumentEvent.initial()),
       child: BlocBuilder<RowDocumentBloc, RowDocumentState>(
         builder: (context, state) {
           return state.loadingState.when(
@@ -43,6 +40,9 @@ class RowDocument extends StatelessWidget {
             finish: () => RowEditor(
               viewPB: state.viewPB!,
               scrollController: scrollController,
+              onIsEmptyChanged: (isEmpty) => context
+                  .read<RowDocumentBloc>()
+                  .add(RowDocumentEvent.updateIsEmpty(isEmpty)),
             ),
           );
         },
@@ -56,10 +56,12 @@ class RowEditor extends StatefulWidget {
     super.key,
     required this.viewPB,
     required this.scrollController,
+    this.onIsEmptyChanged,
   });
 
   final ViewPB viewPB;
   final ScrollController scrollController;
+  final void Function(bool)? onIsEmptyChanged;
 
   @override
   State<RowEditor> createState() => _RowEditorState();
@@ -76,7 +78,7 @@ class _RowEditorState extends State<RowEditor> {
   }
 
   @override
-  dispose() {
+  void dispose() {
     documentBloc.close();
     super.dispose();
   }
@@ -87,43 +89,50 @@ class _RowEditorState extends State<RowEditor> {
       providers: [
         BlocProvider.value(value: documentBloc),
       ],
-      child: BlocBuilder<DocumentBloc, DocumentState>(
-        builder: (context, state) {
-          return state.loadingState.when(
-            loading: () => const Center(
-              child: CircularProgressIndicator.adaptive(),
-            ),
-            finish: (result) {
-              return result.fold(
-                (error) => FlowyErrorPage.message(
-                  error.toString(),
-                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-                ),
-                (_) {
-                  final editorState = documentBloc.editorState;
-                  if (editorState == null) {
-                    return const SizedBox.shrink();
-                  }
-                  return IntrinsicHeight(
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 300),
-                      child: AppFlowyEditorPage(
-                        shrinkWrap: true,
-                        autoFocus: false,
-                        editorState: editorState,
-                        scrollController: widget.scrollController,
-                        styleCustomizer: EditorStyleCustomizer(
-                          context: context,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
+      child: BlocListener<DocumentBloc, DocumentState>(
+        listenWhen: (previous, current) =>
+            previous.isDocumentEmpty != current.isDocumentEmpty,
+        listener: (context, state) {
+          if (state.isDocumentEmpty != null) {
+            widget.onIsEmptyChanged?.call(state.isDocumentEmpty!);
+          }
         },
+        child: BlocBuilder<DocumentBloc, DocumentState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator.adaptive());
+            }
+
+            final editorState = state.editorState;
+            final error = state.error;
+            if (error != null || editorState == null) {
+              Log.error(error);
+              return FlowyErrorPage.message(
+                error.toString(),
+                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+              );
+            }
+            return IntrinsicHeight(
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 300),
+                child: AppFlowyEditorPage(
+                  shrinkWrap: true,
+                  autoFocus: false,
+                  editorState: editorState,
+                  scrollController: widget.scrollController,
+                  styleCustomizer: EditorStyleCustomizer(
+                    context: context,
+                    padding: const EdgeInsets.only(left: 16, right: 54),
+                  ),
+                  showParagraphPlaceholder: (editorState, node) =>
+                      editorState.document.isEmpty,
+                  placeholderText: (node) =>
+                      LocaleKeys.cardDetails_notesPlaceholder.tr(),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

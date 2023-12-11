@@ -1,3 +1,4 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
@@ -58,7 +59,9 @@ class MobileSignInScreen extends StatelessWidget {
                   // TODO(yijing): confirm the subtitle before release app
                   Text(
                     'You are in charge of your data and customizations.',
-                    style: style.textTheme.bodyMedium,
+                    style: style.textTheme.bodyMedium?.copyWith(
+                      color: style.colorScheme.onSecondary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const Spacer(
@@ -66,22 +69,30 @@ class MobileSignInScreen extends StatelessWidget {
                   ),
                   const SignInAnonymousButton(),
                   const VSpace(spacing),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          LocaleKeys.signIn_or.tr(),
-                          style: style.textTheme.bodyMedium,
+                  if (isAuthEnabled) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            LocaleKeys.signIn_or.tr(),
+                            style: style.textTheme.bodyMedium?.copyWith(
+                              color: style.colorScheme.onSecondary,
+                            ),
+                          ),
                         ),
-                      ),
-                      const Expanded(child: Divider()),
-                    ],
-                  ),
-                  const VSpace(spacing),
-                  const ThirdPartySignInButtons(),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const VSpace(spacing),
+                    const ThirdPartySignInButtons(),
+                  ],
+                  if (!isAuthEnabled)
+                    const Spacer(
+                      flex: 2,
+                    ),
                   const VSpace(spacing),
                 ],
               ),

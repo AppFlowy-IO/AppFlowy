@@ -38,7 +38,7 @@ export default function BlockSideToolbar({ id }: { id: string }) {
               pointerEvents: show ? 'auto' : 'none',
             }}
             onClick={(_: React.MouseEvent<HTMLButtonElement>) => {
-              dispatch(
+              void dispatch(
                 addBlockBelowClickThunk({
                   id,
                   controller,
@@ -74,15 +74,14 @@ export default function BlockSideToolbar({ id }: { id: string }) {
               pointerEvents: show ? 'auto' : 'none',
             }}
             data-draggable-anchor={id}
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              dispatch(
+            onClick={async (e: React.MouseEvent<HTMLButtonElement>) => {
+              handleOpen(e);
+              await dispatch(
                 setRectSelectionThunk({
                   docId,
                   selection: [id],
                 })
               );
-
-              handleOpen(e);
             }}
             sx={{
               height: 24,

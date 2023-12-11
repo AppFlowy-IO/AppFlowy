@@ -12,12 +12,8 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
-    .event(
-      FolderEvent::GetCurrentWorkspace,
-      get_current_workspace_setting_handler,
-    )
-    .event(FolderEvent::ReadAllWorkspaces, read_workspaces_handler)
-    .event(FolderEvent::OpenWorkspace, open_workspace_handler)
+    .event(FolderEvent::GetCurrentWorkspaceSetting, read_current_workspace_setting_handler)
+    .event(FolderEvent::ReadCurrentWorkspace, read_current_workspace_handler)
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
      // View
     .event(FolderEvent::CreateView, create_view_handler)
@@ -40,7 +36,9 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
     .event(FolderEvent::ReadFavorites, read_favorites_handler)
+    .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
+    .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -52,19 +50,15 @@ pub enum FolderEvent {
 
   /// Read the current opening workspace. Currently, we only support one workspace
   #[event(output = "WorkspaceSettingPB")]
-  GetCurrentWorkspace = 1,
+  GetCurrentWorkspaceSetting = 1,
 
   /// Return a list of workspaces that the current user can access.
-  #[event(input = "WorkspaceIdPB", output = "RepeatedWorkspacePB")]
-  ReadAllWorkspaces = 2,
+  #[event(output = "WorkspacePB")]
+  ReadCurrentWorkspace = 2,
 
   /// Delete the workspace
   #[event(input = "WorkspaceIdPB")]
   DeleteWorkspace = 3,
-
-  /// Open the workspace and mark it as the current workspace
-  #[event(input = "WorkspaceIdPB", output = "WorkspacePB")]
-  OpenWorkspace = 4,
 
   /// Return a list of views of the current workspace.
   /// Only the first level of child views are included.
@@ -153,4 +147,11 @@ pub enum FolderEvent {
 
   #[event(input = "UpdateViewIconPayloadPB")]
   UpdateViewIcon = 35,
+
+  #[event(output = "RepeatedViewPB")]
+  ReadRecentViews = 36,
+
+  // used for add or remove recent views, like history
+  #[event(input = "UpdateRecentViewPayloadPB")]
+  UpdateRecentViews = 37,
 }

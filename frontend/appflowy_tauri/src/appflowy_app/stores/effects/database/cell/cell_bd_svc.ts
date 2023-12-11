@@ -18,6 +18,7 @@ class CellBackendService {
       row_id: cellId.rowId,
       cell_changeset: data,
     });
+
     return DatabaseEventUpdateCell(payload);
   };
 

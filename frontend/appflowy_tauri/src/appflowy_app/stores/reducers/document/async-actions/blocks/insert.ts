@@ -14,7 +14,7 @@ export const insertAfterNodeThunk = createAsyncThunk(
       id: string;
       controller: DocumentController;
       type: BlockType;
-      data?: BlockData<any>;
+      data?: BlockData;
       defaultDelta?: Delta;
     },
     thunkAPI
@@ -22,8 +22,7 @@ export const insertAfterNodeThunk = createAsyncThunk(
     const { controller, id, type, data, defaultDelta } = payload;
     const { getState } = thunkAPI;
     const state = getState() as RootState;
-    const docId = controller.documentId;
-    const documentState = state[DOCUMENT_NAME][docId];
+    const documentState = state[DOCUMENT_NAME][controller.documentId];
     const node = documentState.nodes[id];
 
     if (!node) return;
@@ -35,25 +34,11 @@ export const insertAfterNodeThunk = createAsyncThunk(
     let newNodeId;
     const deltaOperator = new BlockDeltaOperator(documentState, controller);
 
-    if (defaultDelta) {
-      newNodeId = generateId();
-      actions.push(
-        ...deltaOperator.getNewTextLineActions({
-          blockId: newNodeId,
-          parentId,
-          prevId: node.id,
-          delta: defaultDelta,
-          type,
-        })
-      );
-    } else {
-      const newNode = newBlock<any>(type, parentId, data);
+    if (type === BlockType.DividerBlock) {
+      const newNode = newBlock(type, parentId, data);
 
       actions.push(controller.getInsertAction(newNode, node.id));
       newNodeId = newNode.id;
-    }
-
-    if (type === BlockType.DividerBlock) {
       const nodeId = generateId();
 
       actions.push(
@@ -66,6 +51,24 @@ export const insertAfterNodeThunk = createAsyncThunk(
         })
       );
       newNodeId = nodeId;
+    } else {
+      if (defaultDelta) {
+        newNodeId = generateId();
+        actions.push(
+          ...deltaOperator.getNewTextLineActions({
+            blockId: newNodeId,
+            parentId,
+            prevId: node.id,
+            delta: defaultDelta,
+            type,
+          })
+        );
+      } else {
+        const newNode = newBlock(type, parentId, data);
+
+        actions.push(controller.getInsertAction(newNode, node.id));
+        newNodeId = newNode.id;
+      }
     }
 
     await controller.applyActions(actions);

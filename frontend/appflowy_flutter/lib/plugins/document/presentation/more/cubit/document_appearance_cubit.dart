@@ -1,4 +1,5 @@
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:bloc/bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,14 +29,19 @@ class DocumentAppearance {
 
 class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   DocumentAppearanceCubit()
-      : super(const DocumentAppearance(fontSize: 16.0, fontFamily: 'Poppins'));
+      : super(
+          const DocumentAppearance(
+            fontSize: 16.0,
+            fontFamily: builtInFontFamily,
+          ),
+        );
 
   Future<void> fetch() async {
     final prefs = await SharedPreferences.getInstance();
     final fontSize =
         prefs.getDouble(KVKeys.kDocumentAppearanceFontSize) ?? 16.0;
-    final fontFamily =
-        prefs.getString(KVKeys.kDocumentAppearanceFontFamily) ?? 'Poppins';
+    final fontFamily = prefs.getString(KVKeys.kDocumentAppearanceFontFamily) ??
+        builtInFontFamily;
     final defaultTextDirection =
         prefs.getString(KVKeys.kDocumentAppearanceDefaultTextDirection);
 

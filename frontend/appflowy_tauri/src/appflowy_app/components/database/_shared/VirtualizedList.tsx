@@ -4,9 +4,10 @@ import React, { CSSProperties, FC } from 'react';
 export interface VirtualizedListProps {
   className?: string;
   style?: CSSProperties | undefined;
-  virtualizer: Virtualizer<Element, Element>,
+  virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
   itemClassName?: string;
   renderItem: (index: number) => React.ReactNode;
+  getItemStyle?: (index: number) => CSSProperties | undefined;
 }
 
 export const VirtualizedList: FC<VirtualizedListProps> = ({
@@ -15,6 +16,7 @@ export const VirtualizedList: FC<VirtualizedListProps> = ({
   itemClassName,
   virtualizer,
   renderItem,
+  getItemStyle,
 }) => {
   const virtualItems = virtualizer.getVirtualItems();
   const { horizontal } = virtualizer.options;
@@ -31,8 +33,12 @@ export const VirtualizedList: FC<VirtualizedListProps> = ({
         return (
           <div
             key={key}
+            ref={virtualizer.measureElement}
             className={itemClassName}
-            style={{ [sizeProp]: size }}
+            style={{
+              ...getItemStyle?.(index),
+              ...(horizontal ? { [sizeProp]: size } : undefined),
+            }}
             data-key={key}
             data-index={index}
           >

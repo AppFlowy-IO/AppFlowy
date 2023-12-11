@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -20,17 +19,17 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }) : super(GridHeaderState.initial()) {
     on<GridHeaderEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialHeader value) async {
+        await event.when(
+          initial: () {
             _startListening();
             add(
               GridHeaderEvent.didReceiveFieldUpdate(fieldController.fieldInfos),
             );
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
+          didReceiveFieldUpdate: (List<FieldInfo> fields) {
             emit(
               state.copyWith(
-                fields: value.fields
+                fields: fields
                     .where(
                       (element) =>
                           element.visibility != null &&
@@ -40,8 +39,17 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
               ),
             );
           },
-          moveField: (_MoveField value) async {
-            await _moveField(value, emit);
+          startEditingField: (fieldId) {
+            emit(state.copyWith(editingFieldId: fieldId));
+          },
+          startEditingNewField: (fieldId) {
+            emit(state.copyWith(editingFieldId: fieldId, newFieldId: fieldId));
+          },
+          endEditingField: () {
+            emit(state.copyWith(editingFieldId: null, newFieldId: null));
+          },
+          moveField: (fromIndex, toIndex) async {
+            await _moveField(fromIndex, toIndex, emit);
           },
         );
       },
@@ -49,23 +57,26 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _moveField(
-    _MoveField value,
+    int fromIndex,
+    int toIndex,
     Emitter<GridHeaderState> emit,
   ) async {
+    final fromId = state.fields[fromIndex].id;
+    final toId = state.fields[toIndex].id;
+
     final fields = List<FieldInfo>.from(state.fields);
-    fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
+    fields.insert(toIndex, fields.removeAt(fromIndex));
     emit(state.copyWith(fields: fields));
 
-    final fieldService =
-        FieldBackendService(viewId: viewId, fieldId: value.field.id);
-    final result = await fieldService.moveField(
-      value.fromIndex,
-      value.toIndex,
+    final result = await FieldBackendService.moveField(
+      viewId: viewId,
+      fromFieldId: fromId,
+      toFieldId: toId,
     );
     result.fold((l) {}, (err) => Log.error(err));
   }
 
-  Future<void> _startListening() async {
+  void _startListening() {
     fieldController.addListener(
       onReceiveFields: (fields) =>
           add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
@@ -79,8 +90,12 @@ class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.initial() = _InitialHeader;
   const factory GridHeaderEvent.didReceiveFieldUpdate(List<FieldInfo> fields) =
       _DidReceiveFieldUpdate;
+  const factory GridHeaderEvent.startEditingField(String fieldId) =
+      _StartEditingField;
+  const factory GridHeaderEvent.startEditingNewField(String fieldId) =
+      _StartEditingNewField;
+  const factory GridHeaderEvent.endEditingField() = _EndEditingField;
   const factory GridHeaderEvent.moveField(
-    FieldPB field,
     int fromIndex,
     int toIndex,
   ) = _MoveField;
@@ -88,8 +103,12 @@ class GridHeaderEvent with _$GridHeaderEvent {
 
 @freezed
 class GridHeaderState with _$GridHeaderState {
-  const factory GridHeaderState({required List<FieldInfo> fields}) =
-      _GridHeaderState;
+  const factory GridHeaderState({
+    required List<FieldInfo> fields,
+    required String? editingFieldId,
+    required String? newFieldId,
+  }) = _GridHeaderState;
 
-  factory GridHeaderState.initial() => const GridHeaderState(fields: []);
+  factory GridHeaderState.initial() =>
+      const GridHeaderState(fields: [], editingFieldId: null, newFieldId: null);
 }

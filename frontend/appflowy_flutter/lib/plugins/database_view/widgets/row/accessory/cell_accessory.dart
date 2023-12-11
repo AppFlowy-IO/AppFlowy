@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
@@ -56,8 +57,8 @@ class PrimaryCellAccessory extends StatefulWidget {
   const PrimaryCellAccessory({
     required this.onTapCallback,
     required this.isCellEditing,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _PrimaryCellAccessoryState();
@@ -92,7 +93,12 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
 
 class AccessoryHover extends StatefulWidget {
   final CellAccessory child;
-  const AccessoryHover({required this.child, super.key});
+  final FieldType fieldType;
+  const AccessoryHover({
+    super.key,
+    required this.child,
+    required this.fieldType,
+  });
 
   @override
   State<AccessoryHover> createState() => _AccessoryHoverState();
@@ -106,7 +112,7 @@ class _AccessoryHoverState extends State<AccessoryHover> {
     final List<Widget> children = [
       DecoratedBox(
         decoration: BoxDecoration(
-          color: _isHover
+          color: _isHover && widget.fieldType != FieldType.Checklist
               ? AFThemeExtension.of(context).lightGreyHover
               : Colors.transparent,
           borderRadius: Corners.s6Border,
@@ -147,8 +153,7 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 
 class CellAccessoryContainer extends StatelessWidget {
   final List<GridCellAccessoryBuilder> accessories;
-  const CellAccessoryContainer({required this.accessories, Key? key})
-      : super(key: key);
+  const CellAccessoryContainer({required this.accessories, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_event_editor_bloc.dart';
@@ -19,6 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalendarEventEditor extends StatelessWidget {
   final RowController rowController;
+  final FieldController fieldController;
   final CalendarLayoutSettingPB layoutSettings;
   final GridCellBuilder cellBuilder;
 
@@ -28,6 +30,7 @@ class CalendarEventEditor extends StatelessWidget {
     required RowMetaPB rowMeta,
     required String viewId,
     required this.layoutSettings,
+    required this.fieldController,
   })  : rowController = RowController(
           rowMeta: rowMeta,
           viewId: viewId,
@@ -45,7 +48,10 @@ class CalendarEventEditor extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          EventEditorControls(rowController: rowController),
+          EventEditorControls(
+            rowController: rowController,
+            fieldController: fieldController,
+          ),
           Flexible(
             child: EventPropertyList(
               dateFieldId: layoutSettings.fieldId,
@@ -59,11 +65,14 @@ class CalendarEventEditor extends StatelessWidget {
 }
 
 class EventEditorControls extends StatelessWidget {
-  final RowController rowController;
   const EventEditorControls({
     super.key,
     required this.rowController,
+    required this.fieldController,
   });
+
+  final RowController rowController;
+  final FieldController fieldController;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +100,7 @@ class EventEditorControls extends StatelessWidget {
                 context: context,
                 builder: (BuildContext context) {
                   return RowDetailPage(
+                    fieldController: fieldController,
                     cellBuilder: GridCellBuilder(
                       cellCache: rowController.cellCache,
                     ),
@@ -126,9 +136,11 @@ class EventPropertyList extends StatelessWidget {
             state.cells.firstWhereOrNull((cell) => cell.fieldInfo.isPrimary);
         final dateFieldIndex =
             reorderedList.indexWhere((cell) => cell.fieldId == dateFieldId);
+
         if (primaryCellContext == null || dateFieldIndex == -1) {
           return const SizedBox.shrink();
         }
+
         reorderedList.insert(0, reorderedList.removeAt(dateFieldIndex));
 
         final children = <Widget>[
@@ -142,7 +154,7 @@ class EventPropertyList extends StatelessWidget {
                 textStyle: Theme.of(context)
                     .textTheme
                     .bodyMedium
-                    ?.copyWith(fontSize: 11),
+                    ?.copyWith(fontSize: 11, overflow: TextOverflow.ellipsis),
                 autofocus: true,
                 useRoundedBorder: true,
               ),
@@ -169,8 +181,8 @@ class PropertyCell extends StatefulWidget {
   const PropertyCell({
     required this.cellContext,
     required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();
@@ -185,7 +197,10 @@ class _PropertyCellState extends State<PropertyCell> {
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
-      child: AccessoryHover(child: cell),
+      child: AccessoryHover(
+        fieldType: widget.cellContext.fieldType,
+        child: cell,
+      ),
     );
 
     return Container(
@@ -208,10 +223,13 @@ class _PropertyCellState extends State<PropertyCell> {
                     size: const Size.square(14),
                   ),
                   const HSpace(4.0),
-                  FlowyText.regular(
-                    widget.cellContext.fieldInfo.name,
-                    color: Theme.of(context).hintColor,
-                    fontSize: 11,
+                  Expanded(
+                    child: FlowyText.regular(
+                      widget.cellContext.fieldInfo.name,
+                      color: Theme.of(context).hintColor,
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),

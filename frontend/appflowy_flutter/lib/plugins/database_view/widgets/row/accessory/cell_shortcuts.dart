@@ -12,14 +12,14 @@ enum CellKeyboardKey {
 }
 
 abstract class CellShortcuts extends Widget {
-  const CellShortcuts({Key? key}) : super(key: key);
+  const CellShortcuts({super.key});
 
   Map<CellKeyboardKey, CellKeyboardAction> get shortcutHandlers;
 }
 
 class GridCellShortcuts extends StatelessWidget {
   final CellShortcuts child;
-  const GridCellShortcuts({required this.child, Key? key}) : super(key: key);
+  const GridCellShortcuts({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {

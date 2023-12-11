@@ -4,11 +4,9 @@ import { useAppDispatch } from '$app/stores/store';
 import { turnToBlockThunk } from '$app_reducers/document/async-actions';
 import { blockConfig } from '$app/constants/document/config';
 
-import Delta, { Op } from 'quill-delta';
+import Delta from 'quill-delta';
 import { useRangeRef } from '$app/components/document/_shared/SubscribeSelection.hooks';
-import { getBlock, getBlockDelta } from '$app/components/document/_shared/SubscribeNode.hooks';
-import isHotkey from 'is-hotkey';
-import { slashCommandActions } from '$app_reducers/document/slice';
+import { getBlockDelta } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { getDeltaText } from '$app/utils/document/delta';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { turnIntoConfig } from './shortchut';
@@ -157,7 +155,7 @@ export function useTurnIntoBlockEvents(id: string) {
           const data = getData();
 
           if (!data) return;
-          dispatch(turnToBlockThunk({ id, data, type: blockType, controller }));
+          void dispatch(turnToBlockThunk({ id, data, type: blockType, controller }));
         },
       };
     });
@@ -169,9 +167,8 @@ export function useTurnIntoBlockEvents(id: string) {
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
           if (!controller) return;
-          const delta = getDeltaContent();
 
-          dispatch(
+          void dispatch(
             turnToBlockThunk({
               id,
               controller,
@@ -188,7 +185,7 @@ export function useTurnIntoBlockEvents(id: string) {
           if (!controller) return;
           const defaultData = blockConfig[BlockType.CodeBlock].defaultData;
 
-          dispatch(
+          void dispatch(
             turnToBlockThunk({
               id,
               data: {
@@ -210,28 +207,12 @@ export function useTurnIntoBlockEvents(id: string) {
             formula,
           };
 
-          dispatch(turnToBlockThunk({ id, data, type: BlockType.EquationBlock, controller }));
-        },
-      },
-      {
-        // Here custom slash key event for TextBlock
-        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
-          const flag = getFlag();
-
-          return isHotkey('/', e) && flag === '';
-        },
-        handler: (_: React.KeyboardEvent<HTMLDivElement>) => {
-          if (!controller) return;
-          dispatch(
-            slashCommandActions.openSlashCommand({
-              blockId: id,
-              docId,
-            })
-          );
+          void dispatch(turnToBlockThunk({ id, data, type: BlockType.EquationBlock, controller }));
         },
       },
     ];
-  }, [canHandle, controller, dispatch, docId, getAttrs, getDeltaContent, getFlag, id, spaceTriggerMap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canHandle, controller, dispatch, getAttrs, getDeltaContent, id, spaceTriggerMap]);
 
   return turnIntoBlockEvents;
 }

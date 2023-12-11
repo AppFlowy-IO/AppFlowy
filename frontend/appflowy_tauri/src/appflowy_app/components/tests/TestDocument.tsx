@@ -5,7 +5,8 @@ import { DocumentBackendService } from '../../stores/effects/document/document_b
 async function testCreateDocument() {
   const view = await createTestDocument();
   const svc = new DocumentBackendService(view.id);
-  const document = await svc.open().then((result) => result.unwrap());
+
+  await svc.open().then((result) => result.unwrap());
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // const content = JSON.parse(document.content);

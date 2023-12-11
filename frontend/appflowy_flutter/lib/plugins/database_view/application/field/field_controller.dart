@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 
+import '../setting/setting_service.dart';
 import 'field_info.dart';
 import 'field_listener.dart';
 
@@ -165,7 +166,7 @@ class FieldController {
 
   /// Listen for filter changes in the backend.
   void _listenOnFilterChanges() {
-    deleteFilterFromChangeset(
+    void deleteFilterFromChangeset(
       List<FilterInfo> filters,
       FilterChangesetNotificationPB changeset,
     ) {
@@ -177,7 +178,7 @@ class FieldController {
       }
     }
 
-    insertFilterFromChangeset(
+    void insertFilterFromChangeset(
       List<FilterInfo> filters,
       FilterChangesetNotificationPB changeset,
     ) {
@@ -197,7 +198,7 @@ class FieldController {
       }
     }
 
-    updateFilterFromChangeset(
+    void updateFilterFromChangeset(
       List<FilterInfo> filters,
       FilterChangesetNotificationPB changeset,
     ) {
@@ -263,7 +264,7 @@ class FieldController {
 
   /// Listen for sort changes in the backend.
   void _listenOnSortChanged() {
-    deleteSortFromChangeset(
+    void deleteSortFromChangeset(
       List<SortInfo> newSortInfos,
       SortChangesetNotificationPB changeset,
     ) {
@@ -275,7 +276,7 @@ class FieldController {
       }
     }
 
-    insertSortFromChangeset(
+    void insertSortFromChangeset(
       List<SortInfo> newSortInfos,
       SortChangesetNotificationPB changeset,
     ) {
@@ -296,7 +297,7 @@ class FieldController {
       }
     }
 
-    updateSortFromChangeset(
+    void updateSortFromChangeset(
       List<SortInfo> newSortInfos,
       SortChangesetNotificationPB changeset,
     ) {
@@ -381,6 +382,13 @@ class FieldController {
         final updatedFieldInfo =
             fieldInfo.copyWith(fieldSettings: fieldSettings);
 
+        final index = _fieldSettings
+            .indexWhere((element) => element.fieldId == fieldInfo.id);
+        if (index != -1) {
+          _fieldSettings.removeAt(index);
+        }
+        _fieldSettings.add(fieldSettings);
+
         return updatedFieldInfo;
       });
     }
@@ -391,7 +399,7 @@ class FieldController {
       }
       final List<FieldInfo> newFields = fieldInfos;
       final Map<String, FieldIdPB> deletedFieldMap = {
-        for (final fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
+        for (final fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder,
       };
 
       newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
@@ -558,6 +566,7 @@ class FieldController {
             _loadFilters(),
             _loadSorts(),
             _loadAllFieldSettings(),
+            _loadSettings(),
           ]);
           _updateFieldInfos();
 
@@ -608,6 +617,22 @@ class FieldController {
     });
   }
 
+  Future<Either<Unit, FlowyError>> _loadSettings() async {
+    return SettingBackendService(viewId: viewId).getSetting().then(
+          (result) => result.fold(
+            (setting) {
+              _groupConfigurationByFieldId.clear();
+              for (final configuration in setting.groupSettings.items) {
+                _groupConfigurationByFieldId[configuration.fieldId] =
+                    configuration;
+              }
+              return left(unit);
+            },
+            (err) => right(err),
+          ),
+        );
+  }
+
   /// Attach corresponding `FieldInfo`s to the `FilterPB`s
   List<FilterInfo> _filterInfoListFromPBs(List<FilterPB> filterPBs) {
     FilterInfo? getFilterInfo(FilterPB filterPB) {
@@ -652,7 +677,7 @@ class FieldController {
     bool Function()? listenWhen,
   }) {
     if (onFieldsChanged != null) {
-      callback(List<FieldInfo> updateFields) {
+      void callback(List<FieldInfo> updateFields) {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
@@ -663,7 +688,7 @@ class FieldController {
     }
 
     if (onReceiveFields != null) {
-      callback() {
+      void callback() {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
@@ -675,7 +700,7 @@ class FieldController {
     }
 
     if (onFilters != null) {
-      callback() {
+      void callback() {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
@@ -687,7 +712,7 @@ class FieldController {
     }
 
     if (onSorts != null) {
-      callback() {
+      void callback() {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }

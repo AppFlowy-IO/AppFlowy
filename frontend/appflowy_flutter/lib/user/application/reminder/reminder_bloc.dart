@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
-import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_service.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
@@ -19,22 +21,35 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
-  final NotificationSettingsCubit _notificationSettings;
-
   late final NotificationActionBloc actionBloc;
   late final ReminderService reminderService;
   late final Timer timer;
 
-  ReminderBloc({
-    required NotificationSettingsCubit notificationSettings,
-  })  : _notificationSettings = notificationSettings,
-        super(ReminderState()) {
+  ReminderBloc() : super(ReminderState()) {
     actionBloc = getIt<NotificationActionBloc>();
     reminderService = const ReminderService();
     timer = _periodicCheck();
 
     on<ReminderEvent>((event, emit) async {
       await event.when(
+        markAllRead: () async {
+          final unreadReminders =
+              state.pastReminders.where((reminder) => !reminder.isRead);
+
+          final reminders = [...state.reminders];
+          final updatedReminders = <ReminderPB>[];
+          for (final reminder in unreadReminders) {
+            reminders.remove(reminder);
+
+            reminder.isRead = true;
+            await reminderService.updateReminder(reminder: reminder);
+
+            updatedReminders.add(reminder);
+          }
+
+          reminders.addAll(updatedReminders);
+          emit(state.copyWith(reminders: reminders));
+        },
         started: () async {
           final remindersOrFailure = await reminderService.fetchReminders();
 
@@ -92,7 +107,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
         },
-        pressReminder: (reminderId) {
+        pressReminder: (reminderId, path, view) {
           final reminder =
               state.reminders.firstWhereOrNull((r) => r.id == reminderId);
 
@@ -101,12 +116,23 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           }
 
           add(
-            ReminderEvent.update(ReminderUpdate(id: reminderId, isRead: true)),
+            ReminderEvent.update(
+              ReminderUpdate(
+                id: reminderId,
+                isRead: state.pastReminders.contains(reminder),
+              ),
+            ),
           );
 
           actionBloc.add(
             NotificationActionEvent.performAction(
-              action: NotificationAction(objectId: reminder.objectId),
+              action: NotificationAction(
+                objectId: reminder.objectId,
+                arguments: {
+                  ActionArgumentKeys.nodePath.name: path,
+                  ActionArgumentKeys.view.name: view,
+                },
+              ),
             ),
           );
         },
@@ -117,7 +143,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   Timer _periodicCheck() {
     return Timer.periodic(
       const Duration(minutes: 1),
-      (_) {
+      (_) async {
         final now = DateTime.now();
 
         for (final reminder in state.upcomingReminders) {
@@ -130,7 +156,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           );
 
           if (scheduledAt.isBefore(now)) {
-            if (_notificationSettings.state.isNotificationsEnabled) {
+            final notificationSettings =
+                await UserSettingsBackendService().getNotificationSettings();
+            if (notificationSettings.notificationsEnabled) {
               NotificationMessage(
                 identifier: reminder.id,
                 title: LocaleKeys.reminderNotification_title.tr(),
@@ -169,8 +197,14 @@ class ReminderEvent with _$ReminderEvent {
   // Update a reminder (eg. isAck, isRead, etc.)
   const factory ReminderEvent.update(ReminderUpdate update) = _Update;
 
-  const factory ReminderEvent.pressReminder({required String reminderId}) =
-      _PressReminder;
+  // Mark all unread reminders as read
+  const factory ReminderEvent.markAllRead() = _MarkAllRead;
+
+  const factory ReminderEvent.pressReminder({
+    required String reminderId,
+    @Default(null) int? path,
+    @Default(null) ViewPB? view,
+  }) = _PressReminder;
 }
 
 /// Object used to merge updates with
@@ -181,18 +215,25 @@ class ReminderUpdate {
   final bool? isAck;
   final bool? isRead;
   final DateTime? scheduledAt;
+  final bool? includeTime;
 
   ReminderUpdate({
     required this.id,
     this.isAck,
     this.isRead,
     this.scheduledAt,
+    this.includeTime,
   });
 
   ReminderPB merge({required ReminderPB a}) {
     final isAcknowledged = isAck == null && scheduledAt != null
         ? scheduledAt!.isBefore(DateTime.now())
         : a.isAck;
+
+    final meta = a.meta;
+    if (includeTime != a.includeTime) {
+      meta[ReminderMetaKeys.includeTime.name] = includeTime.toString();
+    }
 
     return ReminderPB(
       id: a.id,
@@ -204,7 +245,7 @@ class ReminderUpdate {
       isRead: isRead ?? a.isRead,
       title: a.title,
       message: a.message,
-      meta: a.meta,
+      meta: meta,
     );
   }
 }

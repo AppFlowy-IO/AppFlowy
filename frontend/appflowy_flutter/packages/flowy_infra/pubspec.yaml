@@ -19,7 +19,7 @@ dependencies:
   uuid: ">=2.2.2"
   bloc: ^8.1.2
   freezed_annotation: ^2.1.0
-  file_picker: ^5.3.1
+  file_picker: ^6.1.1
   file: ^6.1.4
 
 dev_dependencies:

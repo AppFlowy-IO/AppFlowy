@@ -1,9 +1,11 @@
 import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../cell_builder.dart';
 
@@ -35,8 +37,8 @@ class GridTextCell extends GridCellWidget {
   GridTextCell({
     required this.cellControllerBuilder,
     GridCellStyle? style,
-    Key? key,
-  }) : super(key: key) {
+    super.key,
+  }) {
     if (style != null) {
       cellStyle = (style as GridTextCellStyle);
     } else {
@@ -75,60 +77,58 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
             _controller.text = state.content;
           }
         },
-        child: Padding(
-          padding: widget.cellStyle.cellPadding ??
-              EdgeInsets.only(
-                left: GridSize.cellContentInsets.left,
-                right: GridSize.cellContentInsets.right,
-              ),
-          child: Row(
-            children: [
-              if (widget.cellStyle.showEmoji)
-                // Only build the emoji when it changes
-                BlocBuilder<TextCellBloc, TextCellState>(
-                  buildWhen: (p, c) => p.emoji != c.emoji,
-                  builder: (context, state) => Center(
-                    child: FlowyText(
-                      state.emoji,
-                      fontSize: widget.cellStyle.emojiFontSize,
-                    ),
+        child: Row(
+          children: [
+            if (widget.cellStyle.showEmoji) ...[
+              // Only build the emoji when it changes
+              BlocBuilder<TextCellBloc, TextCellState>(
+                buildWhen: (p, c) => p.emoji != c.emoji,
+                builder: (context, state) => Center(
+                  child: FlowyText(
+                    state.emoji,
+                    fontSize: widget.cellStyle.emojiFontSize,
                   ),
                 ),
+              ),
               HSpace(widget.cellStyle.emojiHPadding),
-              Expanded(
-                child: widget.cellStyle.useRoundedBorder
-                    ? FlowyTextField(
-                        controller: _controller,
-                        textStyle: widget.cellStyle.textStyle ??
-                            Theme.of(context).textTheme.bodyMedium,
-                        focusNode: focusNode,
-                        autoFocus: widget.cellStyle.autofocus,
-                        hintText: widget.cellStyle.placeholder,
-                        onChanged: (text) => _cellBloc.add(
-                          TextCellEvent.updateText(text),
-                        ),
-                        debounceDuration: const Duration(milliseconds: 300),
-                      )
-                    : TextField(
-                        controller: _controller,
-                        focusNode: focusNode,
-                        maxLines: null,
-                        style: widget.cellStyle.textStyle ??
-                            Theme.of(context).textTheme.bodyMedium,
-                        autofocus: widget.cellStyle.autofocus,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.only(
-                            top: GridSize.cellContentInsets.top,
-                            bottom: GridSize.cellContentInsets.bottom,
-                          ),
-                          border: InputBorder.none,
-                          hintText: widget.cellStyle.placeholder,
-                          isDense: true,
-                        ),
-                      ),
-              )
             ],
-          ),
+            Expanded(
+              child: widget.cellStyle.useRoundedBorder
+                  ? FlowyTextField(
+                      controller: _controller,
+                      textStyle: widget.cellStyle.textStyle ??
+                          Theme.of(context).textTheme.bodyMedium,
+                      focusNode: focusNode,
+                      autoFocus: widget.cellStyle.autofocus,
+                      hintText: widget.cellStyle.placeholder,
+                      onChanged: (text) => _cellBloc.add(
+                        TextCellEvent.updateText(text),
+                      ),
+                      debounceDuration: const Duration(milliseconds: 300),
+                    )
+                  : TextField(
+                      controller: _controller,
+                      focusNode: focusNode,
+                      maxLines: null,
+                      style: widget.cellStyle.textStyle ??
+                          Theme.of(context).textTheme.bodyMedium,
+                      autofocus: widget.cellStyle.autofocus,
+                      decoration: InputDecoration(
+                        contentPadding: widget.cellStyle.cellPadding ??
+                            GridSize.cellContentInsets,
+                        border: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        hintText: widget.cellStyle.placeholder,
+                        isDense: true,
+                        isCollapsed: true,
+                      ),
+                      onTapOutside: (_) => focusNode.unfocus(),
+                    ),
+            ),
+          ],
         ),
       ),
     );
@@ -136,6 +136,7 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
 
   @override
   Future<void> dispose() async {
+    _controller.dispose();
     _cellBloc.close();
     super.dispose();
   }

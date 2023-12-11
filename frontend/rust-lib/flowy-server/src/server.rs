@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Error;
+use client_api::collab_sync::collab_msg::CollabMessage;
 use client_api::ws::{WSConnectStateReceiver, WebSocketChannel};
 use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
@@ -50,6 +51,12 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   ///
   /// * `_enable` - A boolean to toggle the server synchronization.
   fn set_enable_sync(&self, _uid: i64, _enable: bool) {}
+
+  /// Sets the network reachability status.
+  ///
+  /// # Arguments
+  /// * `reachable`: A boolean indicating whether the network is reachable.
+  fn set_network_reachable(&self, _reachable: bool) {}
 
   /// Provides access to cloud-based user management functionalities. This includes operations
   /// such as user registration, authentication, profile management, and handling of user workspaces.
@@ -101,10 +108,18 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     None
   }
 
+  #[allow(clippy::type_complexity)]
   fn collab_ws_channel(
     &self,
     _object_id: &str,
-  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver)>, anyhow::Error> {
+  ) -> FutureResult<
+    Option<(
+      Arc<WebSocketChannel<CollabMessage>>,
+      WSConnectStateReceiver,
+      bool,
+    )>,
+    anyhow::Error,
+  > {
     FutureResult::new(async { Ok(None) })
   }
 

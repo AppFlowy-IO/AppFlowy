@@ -14,8 +14,8 @@ class TimestampCardCell<CustomCardData> extends CardCell {
   const TimestampCardCell({
     required this.cellControllerBuilder,
     this.renderHook,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<TimestampCardCell> createState() => _TimestampCellState();
@@ -56,12 +56,10 @@ class _TimestampCellState extends State<TimestampCardCell> {
           return Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: CardSizes.cardCellVPadding,
-              ),
+              padding: CardSizes.cardCellPadding,
               child: FlowyText.regular(
                 state.dateStr,
-                fontSize: 13,
+                fontSize: 11,
                 color: Theme.of(context).hintColor,
               ),
             ),

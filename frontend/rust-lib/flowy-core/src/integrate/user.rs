@@ -1,15 +1,16 @@
 use std::sync::Arc;
 
 use anyhow::Context;
+use tracing::event;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
-use flowy_folder2::manager::{FolderInitializeDataSource, FolderManager};
+use flowy_folder2::manager::{FolderInitDataSource, FolderManager};
 use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
 use flowy_user_deps::cloud::UserCloudConfig;
-use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
+use flowy_user_deps::entities::{Authenticator, UserProfile, UserWorkspace};
 use lib_infra::future::{to_fut, Fut};
 
 use crate::integrate::server::ServerProvider;
@@ -26,7 +27,7 @@ pub(crate) struct UserStatusCallbackImpl {
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
+  fn authenticator_did_changed(&self, _auth_type: Authenticator) {}
 
   fn did_init(
     &self,
@@ -46,7 +47,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       self
         .server_provider
         .set_enable_sync(user_id, cloud_config.enable_sync);
-      if cloud_config.enable_encrypt() {
+      if cloud_config.enable_encrypt {
         self
           .server_provider
           .set_encrypt_secret(cloud_config.encrypt_secret.clone());
@@ -59,7 +60,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           &user_workspace.id,
-          FolderInitializeDataSource::LocalDisk {
+          FolderInitDataSource::LocalDisk {
             create_if_not_exist: false,
           },
         )
@@ -82,8 +83,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     &self,
     user_id: i64,
     user_workspace: &UserWorkspace,
-    _device_id: &str,
+    device_id: &str,
   ) -> Fut<FlowyResult<()>> {
+    let device_id = device_id.to_owned();
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
     let folder_manager = self.folder_manager.clone();
@@ -91,6 +93,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let document_manager = self.document_manager.clone();
 
     to_fut(async move {
+      event!(
+        tracing::Level::TRACE,
+        "Notify did sign in: latest_workspace: {:?}, device_id: {}",
+        user_workspace,
+        device_id
+      );
+
       folder_manager
         .initialize_with_workspace_id(user_id, &user_workspace.id)
         .await?;
@@ -113,8 +122,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     is_new_user: bool,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
-    _device_id: &str,
+    device_id: &str,
   ) -> Fut<FlowyResult<()>> {
+    let device_id = device_id.to_owned();
     let user_profile = user_profile.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
@@ -122,14 +132,35 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let document_manager = self.document_manager.clone();
 
     to_fut(async move {
+      event!(
+        tracing::Level::TRACE,
+        "Notify did sign up: is new: {} user_workspace: {:?}, device_id: {}",
+        is_new_user,
+        user_workspace,
+        device_id
+      );
+
+      // In the current implementation, when a user signs up for AppFlowy Cloud, a default workspace
+      // is automatically created for them. However, for users who sign up through Supabase, the creation
+      // of the default workspace relies on the client-side operation. This means that the process
+      // for initializing a default workspace differs depending on the sign-up method used.
+      let data_source = match folder_manager
+        .cloud_service
+        .get_folder_doc_state(&user_workspace.id, user_profile.uid)
+        .await
+      {
+        Ok(doc_state) => FolderInitDataSource::Cloud(doc_state),
+        Err(_) => FolderInitDataSource::LocalDisk {
+          create_if_not_exist: true,
+        },
+      };
+
       folder_manager
         .initialize_with_new_user(
           user_profile.uid,
           &user_profile.token,
           is_new_user,
-          FolderInitializeDataSource::LocalDisk {
-            create_if_not_exist: true,
-          },
+          data_source,
           &user_workspace.id,
         )
         .await

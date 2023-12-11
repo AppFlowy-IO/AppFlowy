@@ -18,7 +18,7 @@ class MenuSharedState {
   }
 
   VoidCallback addLatestViewListener(void Function(ViewPB?) callback) {
-    listener() {
+    void listener() {
       callback(_latestOpenView.value);
     }
 

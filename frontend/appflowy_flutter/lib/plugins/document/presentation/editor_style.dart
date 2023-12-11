@@ -1,12 +1,18 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EditorStyleCustomizer {
@@ -27,13 +33,17 @@ class EditorStyleCustomizer {
     throw UnimplementedError();
   }
 
+  static EdgeInsets get documentPadding => PlatformExtension.isMobile
+      ? const EdgeInsets.only(left: 20, right: 20)
+      : const EdgeInsets.only(left: 40, right: 40 + 44);
+
   EditorStyle desktop() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
-
+    final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.desktop(
       padding: padding,
       cursorColor: theme.colorScheme.primary,
@@ -60,9 +70,9 @@ class EditorStyleCustomizer {
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
-        code: GoogleFonts.arefRuqaaInk(
+        code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize,
+            fontSize: codeFontSize,
             fontWeight: FontWeight.normal,
             fontStyle: FontStyle.italic,
             color: Colors.red,
@@ -78,37 +88,45 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
-
-    return EditorStyle.desktop(
+    final defaultTextDirection =
+        context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
+    final codeFontSize = max(0.0, fontSize - 2);
+    return EditorStyle.mobile(
       padding: padding,
-      cursorColor: theme.colorScheme.primary,
+      defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: baseTextStyle(fontFamily).copyWith(
+        bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
-        underline: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.underline),
-        strikethrough: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.lineThrough),
+        italic: baseTextStyle(fontFamily).copyWith(
+          fontStyle: FontStyle.italic,
+        ),
+        underline: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.underline,
+        ),
+        strikethrough: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.lineThrough,
+        ),
         href: baseTextStyle(fontFamily).copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
-        code: GoogleFonts.arefRuqaaInk(
+        code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize,
+            fontSize: codeFontSize,
             fontWeight: FontWeight.normal,
+            fontStyle: FontStyle.italic,
             color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface,
+            backgroundColor: Colors.grey.withOpacity(0.3),
           ),
         ),
       ),
+      textSpanDecorator: customizeAttributeDecorator,
     );
   }
 
@@ -120,11 +138,12 @@ class EditorStyleCustomizer {
       fontSize + 8,
       fontSize + 4,
       fontSize + 2,
-      fontSize
+      fontSize,
     ];
-    return TextStyle(
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    return baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
+      fontWeight: FontWeight.w600,
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
-      fontWeight: FontWeight.bold,
     );
   }
 
@@ -143,7 +162,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
-      fontFamily: 'poppins',
+      fontFamily: builtInFontFamily,
       fontSize: fontSize,
       height: 1.5,
       color: theme.colorScheme.onBackground.withOpacity(0.6),
@@ -168,7 +187,7 @@ class EditorStyleCustomizer {
       backgroundColor: theme.cardColor,
       groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
       menuItemTextColor: theme.colorScheme.onBackground,
-      menuItemSelectedColor: theme.hoverColor,
+      menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );
   }
@@ -190,7 +209,7 @@ class EditorStyleCustomizer {
         fontWeight: fontWeight,
       );
     } on Exception {
-      return GoogleFonts.getFont('Poppins');
+      return GoogleFonts.getFont(builtInFontFamily);
     }
   }
 
@@ -199,11 +218,12 @@ class EditorStyleCustomizer {
     Node node,
     int index,
     TextInsert text,
-    TextSpan textSpan,
+    TextSpan before,
+    TextSpan after,
   ) {
     final attributes = text.attributes;
     if (attributes == null) {
-      return textSpan;
+      return before;
     }
 
     // try to refresh font here.
@@ -222,6 +242,7 @@ class EditorStyleCustomizer {
       final type = mention[MentionBlockKeys.type];
       return WidgetSpan(
         alignment: PlaceholderAlignment.middle,
+        style: after.style,
         child: MentionBlock(
           key: ValueKey(
             switch (type) {
@@ -235,6 +256,7 @@ class EditorStyleCustomizer {
           node: node,
           index: index,
           mention: mention,
+          textStyle: after.style,
         ),
       );
     }
@@ -253,12 +275,75 @@ class EditorStyleCustomizer {
       );
     }
 
+    // customize the link on mobile
+    final href = attributes[AppFlowyRichTextKeys.href] as String?;
+    if (PlatformExtension.isMobile && href != null) {
+      return TextSpan(
+        style: before.style,
+        text: text.text,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            showEditLinkBottomSheet(
+              context,
+              text.text,
+              href,
+              (linkContext, newText, newHref) {
+                _updateTextAndHref(
+                  context,
+                  node,
+                  index,
+                  text.text,
+                  href,
+                  newText,
+                  newHref,
+                );
+                linkContext.pop();
+              },
+            );
+          },
+      );
+    }
+
     return defaultTextSpanDecoratorForAttribute(
       context,
       node,
       index,
       text,
-      textSpan,
+      before,
+      after,
     );
+  }
+
+  void _updateTextAndHref(
+    BuildContext context,
+    Node node,
+    int index,
+    String prevText,
+    String? prevHref,
+    String text,
+    String href,
+  ) async {
+    final selection = Selection.single(
+      path: node.path,
+      startOffset: index,
+      endOffset: index + prevText.length,
+    );
+    final editorState = context.read<EditorState>();
+    final transaction = editorState.transaction;
+    if (prevText != text) {
+      transaction.replaceText(
+        node,
+        selection.startIndex,
+        selection.length,
+        text,
+      );
+    }
+    // if the text is empty, it means the user wants to remove the text
+    if (text.isNotEmpty && prevHref != href) {
+      transaction.formatText(node, selection.startIndex, text.length, {
+        AppFlowyRichTextKeys.href: href.isEmpty ? null : href,
+      });
+    }
+    await editorState.apply(transaction);
   }
 }

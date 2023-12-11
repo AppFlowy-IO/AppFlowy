@@ -12,13 +12,11 @@ class CalendarEventEditorBloc
     extends Bloc<CalendarEventEditorEvent, CalendarEventEditorState> {
   final RowController rowController;
   final CalendarLayoutSettingPB layoutSettings;
-  final RowBackendService _rowService;
 
   CalendarEventEditorBloc({
     required this.rowController,
     required this.layoutSettings,
-  })  : _rowService = RowBackendService(viewId: rowController.viewId),
-        super(CalendarEventEditorState.initial()) {
+  }) : super(CalendarEventEditorState.initial()) {
     on<CalendarEventEditorEvent>((event, emit) async {
       await event.when(
         initial: () {
@@ -26,7 +24,12 @@ class CalendarEventEditorBloc
           final cells = rowController
               .loadData()
               .values
-              .where((cellContext) => cellContext.isVisible())
+              .where(
+                (cellContext) =>
+                    cellContext.isVisible() ||
+                    cellContext.fieldId == layoutSettings.fieldId ||
+                    cellContext.fieldInfo.isPrimary,
+              )
               .toList();
           if (!isClosed) {
             add(
@@ -38,7 +41,10 @@ class CalendarEventEditorBloc
           emit(state.copyWith(cells: cells));
         },
         delete: () async {
-          final result = await _rowService.deleteRow(rowController.rowId);
+          final result = await RowBackendService.deleteRow(
+            rowController.viewId,
+            rowController.rowId,
+          );
           result.fold((l) => null, (err) => Log.error(err));
         },
       );
@@ -50,7 +56,12 @@ class CalendarEventEditorBloc
       onRowChanged: (cells, reason) {
         if (!isClosed) {
           final cellData = cells.values
-              .where((cellContext) => cellContext.isVisible())
+              .where(
+                (cellContext) =>
+                    cellContext.isVisible() ||
+                    cellContext.fieldId == layoutSettings.fieldId ||
+                    cellContext.fieldInfo.isPrimary,
+              )
               .toList();
           add(
             CalendarEventEditorEvent.didReceiveCellDatas(cellData),

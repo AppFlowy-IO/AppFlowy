@@ -1,10 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
@@ -14,6 +16,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.d
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -36,6 +39,7 @@ class ViewItem extends StatelessWidget {
     this.isFirstChild = false,
     this.isDraggable = true,
     required this.isFeedback,
+    this.height = 28.0,
   });
 
   final ViewPB view;
@@ -67,6 +71,8 @@ class ViewItem extends StatelessWidget {
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
+  final double height;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -96,12 +102,15 @@ class ViewItem extends StatelessWidget {
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
             isFeedback: isFeedback,
+            height: height,
           );
         },
       ),
     );
   }
 }
+
+bool _isDragging = false;
 
 class InnerViewItem extends StatelessWidget {
   const InnerViewItem({
@@ -119,6 +128,7 @@ class InnerViewItem extends StatelessWidget {
     this.onTertiarySelected,
     this.isFirstChild = false,
     required this.isFeedback,
+    required this.height,
   });
 
   final ViewPB view;
@@ -138,6 +148,7 @@ class InnerViewItem extends StatelessWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -153,33 +164,56 @@ class InnerViewItem extends StatelessWidget {
       isDraggable: isDraggable,
       leftPadding: leftPadding,
       isFeedback: isFeedback,
+      height: height,
     );
 
     // if the view is expanded and has child views, render its child views
-    if (isExpanded && childViews.isNotEmpty) {
-      final children = childViews.map((childView) {
-        return ViewItem(
-          key: ValueKey('${categoryType.name} ${childView.id}'),
-          parentView: view,
-          categoryType: categoryType,
-          isFirstChild: childView.id == childViews.first.id,
-          view: childView,
-          level: level + 1,
-          onSelected: onSelected,
-          onTertiarySelected: onTertiarySelected,
-          isDraggable: isDraggable,
-          leftPadding: leftPadding,
-          isFeedback: isFeedback,
-        );
-      }).toList();
+    if (isExpanded) {
+      if (childViews.isNotEmpty) {
+        final children = childViews.map((childView) {
+          return ViewItem(
+            key: ValueKey('${categoryType.name} ${childView.id}'),
+            parentView: view,
+            categoryType: categoryType,
+            isFirstChild: childView.id == childViews.first.id,
+            view: childView,
+            level: level + 1,
+            onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
+            isDraggable: isDraggable,
+            leftPadding: leftPadding,
+            isFeedback: isFeedback,
+          );
+        }).toList();
 
-      child = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          child,
-          ...children,
-        ],
-      );
+        child = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            child,
+            ...children,
+          ],
+        );
+      } else {
+        child = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            child,
+            Container(
+              height: height,
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                // add 2px to make the text align with the view item
+                padding: EdgeInsets.only(left: (level + 1) * leftPadding + 2),
+                child: FlowyText.medium(
+                  LocaleKeys.noPagesInside.tr(),
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      }
     }
 
     // wrap the child with DraggableItem if isDraggable is true
@@ -188,6 +222,9 @@ class InnerViewItem extends StatelessWidget {
         isFirstChild: isFirstChild,
         view: view,
         child: child,
+        onDragging: (isDragging) {
+          _isDragging = isDragging;
+        },
         feedback: (context) {
           return ViewItem(
             view: view,
@@ -228,6 +265,7 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.onSelected,
     this.onTertiarySelected,
     required this.isFeedback,
+    required this.height,
   });
 
   final ViewPB view;
@@ -244,12 +282,16 @@ class SingleInnerViewItem extends StatefulWidget {
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final FolderCategoryType categoryType;
+  final double height;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
 }
 
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
+  final controller = PopoverController();
+  bool isIconPickerOpened = false;
+
   @override
   Widget build(BuildContext context) {
     if (widget.isFeedback) {
@@ -260,8 +302,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.secondary,
       ),
-      resetHoverOnRebuild: widget.showActions,
-      buildWhenOnHover: () => !widget.showActions,
+      resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
+      buildWhenOnHover: () =>
+          !widget.showActions && !_isDragging && !isIconPickerOpened,
       builder: (_, onHover) => _buildViewItem(onHover),
       isSelected: () =>
           widget.showActions ||
@@ -274,10 +317,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       // expand icon
       _buildLeftIcon(),
       // icon
-      SizedBox.square(
-        dimension: 16,
-        child: widget.view.defaultIcon(),
-      ),
+      _buildViewIconButton(),
       const HSpace(5),
       // title
       Expanded(
@@ -285,7 +325,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           widget.view.name,
           overflow: TextOverflow.ellipsis,
         ),
-      )
+      ),
     ];
 
     // hover action
@@ -304,7 +344,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
       child: SizedBox(
-        height: 26,
+        height: widget.height,
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
           child: Row(
@@ -312,6 +352,45 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildViewIconButton() {
+    final icon = widget.view.icon.value.isNotEmpty
+        ? EmojiText(
+            emoji: widget.view.icon.value,
+            fontSize: 18.0,
+          )
+        : SizedBox.square(
+            dimension: 20.0,
+            child: widget.view.defaultIcon(),
+          );
+    return AppFlowyPopover(
+      offset: const Offset(20, 0),
+      controller: controller,
+      direction: PopoverDirection.rightWithCenterAligned,
+      constraints: BoxConstraints.loose(const Size(360, 380)),
+      onClose: () => setState(() => isIconPickerOpened = false),
+      child: GestureDetector(
+        // prevent the tap event from being passed to the parent widget
+        onTap: () {},
+        child: FlowyTooltip(
+          message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
+          child: icon,
+        ),
+      ),
+      popupBuilder: (context) {
+        isIconPickerOpened = true;
+        return FlowyIconPicker(
+          onSelected: (result) {
+            ViewBackendService.updateViewIcon(
+              viewId: widget.view.id,
+              viewIcon: result.emoji,
+            );
+            controller.close();
+          },
+        );
+      },
     );
   }
 
@@ -339,6 +418,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
+    final viewBloc = context.read<ViewBloc>();
     return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
@@ -358,20 +438,20 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               _convertLayoutToHintText(pluginBuilder.layoutType!),
               (viewName) {
                 if (viewName.isNotEmpty) {
-                  context.read<ViewBloc>().add(
-                        ViewEvent.createView(
-                          viewName,
-                          pluginBuilder.layoutType!,
-                          openAfterCreated: openAfterCreated,
-                        ),
-                      );
+                  viewBloc.add(
+                    ViewEvent.createView(
+                      viewName,
+                      pluginBuilder.layoutType!,
+                      openAfterCreated: openAfterCreated,
+                    ),
+                  );
                 }
               },
             );
           }
-          context.read<ViewBloc>().add(
-                const ViewEvent.setIsExpanded(true),
-              );
+          viewBloc.add(
+            const ViewEvent.setIsExpanded(true),
+          );
         },
       ),
     );

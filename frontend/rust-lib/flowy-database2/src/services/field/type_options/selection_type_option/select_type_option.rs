@@ -26,6 +26,7 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
   /// If the option does not exist, it will be inserted at the beginning.
   fn insert_option(&mut self, new_option: SelectOption) {
     let options = self.mut_options();
+
     if let Some(index) = options
       .iter()
       .position(|option| option.id == new_option.id || option.name == new_option.name)
@@ -37,12 +38,9 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
     }
   }
 
-  fn delete_option(&mut self, delete_option: SelectOption) {
+  fn delete_option(&mut self, option_id: &str) {
     let options = self.mut_options();
-    if let Some(index) = options
-      .iter()
-      .position(|option| option.id == delete_option.id)
-    {
+    if let Some(index) = options.iter().position(|option| option.id == option_id) {
       options.remove(index);
     }
   }

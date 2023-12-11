@@ -104,7 +104,7 @@ void main() {
   });
 }
 
-const _sample = r'''
+const _sample = '''
 # Heading 1
 ## Heading 2
 ### Heading 3
@@ -113,9 +113,9 @@ const _sample = r'''
 
 [] Type followed by bullet or num to create a list.
 
-[x] Click `+ New Page` button at the bottom of your sidebar to add a new page.
+[x] Click `New Page` button at the bottom of your sidebar to add a new page.
 
-[] Click `+` next to any page title in the sidebar to quickly add a new subpage, `Document`, `Grid`, or `Kanban Board`.
+[] Click the plus sign next to any page title in the sidebar to quickly add a new subpage, `Document`, `Grid`, or `Kanban Board`.
 ---
 * bulleted list 1
 

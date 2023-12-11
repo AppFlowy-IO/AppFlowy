@@ -37,8 +37,8 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   const DateTypeOptionWidget({
     required this.typeOptionContext,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -136,8 +136,8 @@ class DateFormatButton extends StatelessWidget {
   const DateFormatButton({
     this.onTap,
     this.onHover,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -161,8 +161,8 @@ class TimeFormatButton extends StatelessWidget {
     required this.timeFormat,
     this.onTap,
     this.onHover,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -184,8 +184,8 @@ class DateFormatList extends StatelessWidget {
   const DateFormatList({
     required this.selectedFormat,
     required this.onSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -222,8 +222,8 @@ class DateFormatCell extends StatelessWidget {
     required this.dateFormat,
     required this.onSelected,
     required this.isSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -268,8 +268,8 @@ class TimeFormatList extends StatelessWidget {
   const TimeFormatList({
     required this.selectedFormat,
     required this.onSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -306,8 +306,8 @@ class TimeFormatCell extends StatelessWidget {
     required this.timeFormat,
     required this.onSelected,
     required this.isSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

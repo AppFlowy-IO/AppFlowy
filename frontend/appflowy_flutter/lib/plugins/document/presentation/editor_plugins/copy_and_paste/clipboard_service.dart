@@ -74,6 +74,12 @@ class ClipboardService {
     await ClipboardWriter.instance.write([item]);
   }
 
+  Future<void> setPlainText(String text) async {
+    await ClipboardWriter.instance.write([
+      DataWriterItem()..add(Formats.plainText(text)),
+    ]);
+  }
+
   Future<ClipboardServiceData> getData() async {
     final reader = await ClipboardReader.readClipboard();
 

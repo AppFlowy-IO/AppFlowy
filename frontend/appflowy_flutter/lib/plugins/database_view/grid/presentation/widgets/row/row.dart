@@ -1,11 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -14,11 +15,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../widgets/row/accessory/cell_accessory.dart';
-import '../../layout/sizes.dart';
 import '../../../../widgets/row/cells/cell_container.dart';
+import '../../layout/sizes.dart';
 import 'action.dart';
-import "package:appflowy/generated/locale_keys.g.dart";
-import 'package:easy_localization/easy_localization.dart';
 
 class GridRow extends StatefulWidget {
   final RowId viewId;
@@ -55,33 +54,30 @@ class _GridRowState extends State<GridRow> {
       rowId: widget.rowId,
       dataController: widget.dataController,
       viewId: widget.viewId,
-    );
-    _rowBloc.add(const RowEvent.initial());
+    )..add(const RowEvent.initial());
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _rowBloc,
-      child: _RowEnterRegion(
-        child: BlocBuilder<RowBloc, RowState>(
-          // The row need to rebuild when the cell count changes.
-          buildWhen: (p, c) =>
-              p.cellByFieldId.length != c.cellByFieldId.length ||
-              p.rowSource != c.rowSource,
-          builder: (context, state) {
-            final content = Expanded(
-              child: RowContent(
-                builder: widget.cellBuilder,
-                onExpand: () => widget.openDetailPage(
-                  context,
-                  widget.cellBuilder,
-                ),
+      child: BlocBuilder<RowBloc, RowState>(
+        // The row need to rebuild when the cell count changes.
+        buildWhen: (p, c) => p.rowSource != c.rowSource,
+        builder: (context, state) {
+          final content = Expanded(
+            child: RowContent(
+              builder: widget.cellBuilder,
+              onExpand: () => widget.openDetailPage(
+                context,
+                widget.cellBuilder,
               ),
-            );
+            ),
+          );
 
-            return Row(
-              key: ValueKey(state.rowSource),
+          return _RowEnterRegion(
+            key: ValueKey(state.rowSource),
+            child: Row(
               children: [
                 _RowLeading(
                   index: widget.index,
@@ -89,9 +85,9 @@ class _GridRowState extends State<GridRow> {
                 ),
                 content,
               ],
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -117,25 +113,19 @@ class _RowLeading extends StatefulWidget {
 }
 
 class _RowLeadingState extends State<_RowLeading> {
-  late final PopoverController popoverController;
-
-  @override
-  void initState() {
-    super.initState();
-    popoverController = PopoverController();
-  }
+  final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       controller: popoverController,
       triggerActions: PopoverTriggerFlags.none,
-      constraints: BoxConstraints.loose(const Size(140, 200)),
+      constraints: BoxConstraints.loose(const Size(176, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
-      margin: const EdgeInsets.all(6),
-      popupBuilder: (BuildContext popoverContext) {
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      popupBuilder: (_) {
         final bloc = context.read<RowBloc>();
-        return RowActions(
+        return RowActionMenu(
           viewId: bloc.viewId,
           rowId: bloc.rowId,
         );
@@ -156,19 +146,18 @@ class _RowLeadingState extends State<_RowLeading> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const InsertRowButton(),
-        if (isDraggable) ...[
+        if (isDraggable)
           ReorderableDragStartListener(
             index: widget.index!,
             child: RowMenuButton(
               isDragEnabled: isDraggable,
               openMenu: popoverController.show,
             ),
-          ),
-        ] else ...[
+          )
+        else
           RowMenuButton(
             openMenu: popoverController.show,
           ),
-        ],
       ],
     );
   }
@@ -177,7 +166,7 @@ class _RowLeadingState extends State<_RowLeading> {
 }
 
 class InsertRowButton extends StatelessWidget {
-  const InsertRowButton({Key? key}) : super(key: key);
+  const InsertRowButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -243,8 +232,8 @@ class RowContent extends StatelessWidget {
   const RowContent({
     required this.builder,
     required this.onExpand,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -254,8 +243,6 @@ class RowContent extends StatelessWidget {
       builder: (context, state) {
         return IntrinsicHeight(
           child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ..._makeCells(context, state.cellByFieldId),
@@ -274,11 +261,9 @@ class RowContent extends StatelessWidget {
     return cellByFieldId.values.map(
       (cellId) {
         final GridCellWidget child = builder.build(cellId);
-
         return CellContainer(
-          width: cellId.fieldInfo.field.width.toDouble(),
+          width: cellId.fieldInfo.fieldSettings!.width.toDouble(),
           isPrimary: cellId.fieldInfo.field.isPrimary,
-          cellContainerNotifier: CellContainerNotifier(child),
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
             final List<GridCellAccessoryBuilder> accessories = [];
@@ -318,7 +303,6 @@ class RowContent extends StatelessWidget {
             bottom: BorderSide(color: Theme.of(context).dividerColor),
           ),
         ),
-        child: const SizedBox.shrink(),
       ),
     );
   }
@@ -339,7 +323,7 @@ class RegionStateNotifier extends ChangeNotifier {
 
 class _RowEnterRegion extends StatefulWidget {
   final Widget child;
-  const _RowEnterRegion({required this.child, Key? key}) : super(key: key);
+  const _RowEnterRegion({required this.child, super.key});
 
   @override
   State<_RowEnterRegion> createState() => _RowEnterRegionState();

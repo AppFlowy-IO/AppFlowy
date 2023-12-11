@@ -2,9 +2,10 @@ use std::sync::{Arc, Weak};
 
 use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
+use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::util::timestamp;
 
 use crate::entities::*;
@@ -15,7 +16,7 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
-use crate::services::group::{GroupChangeset, GroupSettingChangeset};
+use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
 
 fn upgrade_manager(
@@ -318,16 +319,14 @@ pub(crate) async fn get_field_type_option_data_handler(
 
 /// Create TypeOptionPB and save it. Return the FieldTypeOptionData.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn create_field_type_option_data_handler(
+pub(crate) async fn create_field_handler(
   data: AFPluginData<CreateFieldPayloadPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: CreateFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let (field, data) = database_editor
-    .create_field_with_type_option(&params.view_id, &params.field_type, params.type_option_data)
-    .await;
+  let (field, data) = database_editor.create_field_with_type_option(&params).await;
 
   let data = TypeOptionPB {
     view_id: params.view_id,
@@ -345,14 +344,7 @@ pub(crate) async fn move_field_handler(
   let manager = upgrade_manager(manager)?;
   let params: MoveFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  database_editor
-    .move_field(
-      &params.view_id,
-      &params.field_id,
-      params.from_index,
-      params.to_index,
-    )
-    .await?;
+  database_editor.move_field(params).await?;
   Ok(())
 }
 
@@ -416,7 +408,7 @@ pub(crate) async fn duplicate_row_handler(
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
-    .duplicate_row(&params.view_id, params.group_id, &params.row_id)
+    .duplicate_row(&params.view_id, &params.row_id)
     .await;
   Ok(())
 }
@@ -431,7 +423,7 @@ pub(crate) async fn move_row_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .move_row(&params.view_id, params.from_row_id, params.to_row_id)
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -453,7 +445,7 @@ pub(crate) async fn create_row_handler(
     cells,
     height: 60,
     visibility: true,
-    prev_row_id: params.start_row_id,
+    row_position: params.row_position,
     timestamp: timestamp(),
   };
   match database_editor
@@ -597,20 +589,6 @@ pub(crate) async fn update_select_option_cell_handler(
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
-pub(crate) async fn get_checklist_cell_data_handler(
-  data: AFPluginData<CellIdPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<ChecklistCellDataPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params: CellIdParams = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let data = database_editor
-    .get_checklist_option(params.row_id, &params.field_id)
-    .await;
-  data_result_ok(data)
-}
-
-#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_checklist_cell_handler(
   data: AFPluginData<ChecklistCellDataChangesetPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
@@ -625,7 +603,7 @@ pub(crate) async fn update_checklist_cell_handler(
     update_options: params.update_options,
   };
   database_editor
-    .set_checklist_options(&params.view_id, params.row_id, &params.field_id, changeset)
+    .update_cell_with_changeset(&params.view_id, params.row_id, &params.field_id, changeset)
     .await?;
   Ok(())
 }
@@ -708,12 +686,16 @@ pub(crate) async fn update_group_handler(
   let params: UpdateGroupParams = data.into_inner().try_into()?;
   let view_id = params.view_id.clone();
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
-  let group_setting_changeset = GroupSettingChangeset {
-    update_groups: vec![GroupChangeset::from(params)],
-  };
-  database_editor
-    .update_group_setting(&view_id, group_setting_changeset)
-    .await?;
+  let group_changeset = GroupChangeset::from(params);
+  let (tx, rx) = oneshot::channel();
+  af_spawn(async move {
+    let result = database_editor
+      .update_group(&view_id, vec![group_changeset].into())
+      .await;
+    let _ = tx.send(result);
+  });
+
+  let _ = rx.await?;
   Ok(())
 }
 
@@ -742,11 +724,38 @@ pub(crate) async fn move_group_row_handler(
   database_editor
     .move_group_row(
       &params.view_id,
+      &params.from_group_id,
       &params.to_group_id,
       params.from_row_id,
       params.to_row_id,
     )
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(manager), err)]
+pub(crate) async fn create_group_handler(
+  data: AFPluginData<CreateGroupPayloadPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: CreateGroupParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .create_group(&params.view_id, &params.name)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn delete_group_handler(
+  data: AFPluginData<DeleteGroupPayloadPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: DeleteGroupParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor.delete_group(params).await?;
   Ok(())
 }
 
@@ -765,15 +774,11 @@ pub(crate) async fn set_layout_setting_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> FlowyResult<()> {
   let manager = upgrade_manager(manager)?;
-  let params: LayoutSettingChangeset = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let layout_params = LayoutSettingParams {
-    layout_type: params.layout_type,
-    calendar: params.calendar,
-  };
-  database_editor
-    .set_layout_setting(&params.view_id, layout_params)
-    .await;
+  let changeset = data.into_inner();
+  let view_id = changeset.view_id.clone();
+  let params: LayoutSettingChangeset = changeset.try_into()?;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  database_editor.set_layout_setting(&view_id, params).await?;
   Ok(())
 }
 
@@ -905,10 +910,8 @@ pub(crate) async fn get_field_settings_handler(
   let (view_id, field_ids) = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
 
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-
   let field_settings = database_editor
-    .get_field_settings(&view_id, layout_ty, field_ids.clone())
+    .get_field_settings(&view_id, field_ids.clone())
     .await?
     .into_iter()
     .map(FieldSettingsPB::from)
@@ -928,10 +931,8 @@ pub(crate) async fn get_all_field_settings_handler(
   let view_id = data.into_inner();
   let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
 
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-
   let field_settings = database_editor
-    .get_all_field_settings(view_id.as_ref(), layout_ty)
+    .get_all_field_settings(view_id.as_ref())
     .await?
     .into_iter()
     .map(FieldSettingsPB::from)

@@ -21,7 +21,7 @@ export const duplicateBelowNodeThunk = createAsyncThunk(
     if (!duplicateActions) return;
     await controller.applyActions(duplicateActions.actions);
 
-    dispatch(
+    await dispatch(
       setRectSelectionThunk({
         docId,
         selection: [duplicateActions.newNodeId],

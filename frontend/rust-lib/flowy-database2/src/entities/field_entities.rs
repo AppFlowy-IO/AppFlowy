@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::views::FieldOrder;
+use collab_database::views::{FieldOrder, OrderObjectPosition};
 use serde_repr::*;
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
@@ -12,6 +12,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
+use crate::entities::position_entities::OrderObjectPositionPB;
 use crate::impl_into_field_type;
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
@@ -155,30 +156,50 @@ pub struct CreateFieldPayloadPB {
   #[pb(index = 2)]
   pub field_type: FieldType,
 
+  #[pb(index = 3, one_of)]
+  pub field_name: Option<String>,
+
   /// If the type_option_data is not empty, it will be used to create the field.
   /// Otherwise, the default value will be used.
-  #[pb(index = 3, one_of)]
+  #[pb(index = 4, one_of)]
   pub type_option_data: Option<Vec<u8>>,
+
+  #[pb(index = 5)]
+  pub field_position: OrderObjectPositionPB,
 }
 
 #[derive(Clone)]
 pub struct CreateFieldParams {
   pub view_id: String,
+  pub field_name: Option<String>,
   pub field_type: FieldType,
-  /// If the type_option_data is not empty, it will be used to create the field.
-  /// Otherwise, the default value will be used.
   pub type_option_data: Option<Vec<u8>>,
+  pub position: OrderObjectPosition,
 }
 
 impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+
+    let field_name = match self.field_name {
+      Some(name) => Some(
+        NotEmptyStr::parse(name)
+          .map_err(|_| ErrorCode::InvalidParams)?
+          .0,
+      ),
+      None => None,
+    };
+
+    let position = self.field_position.try_into()?;
+
     Ok(CreateFieldParams {
       view_id: view_id.0,
+      field_name,
       field_type: self.field_type,
       type_option_data: self.type_option_data,
+      position,
     })
   }
 }
@@ -471,6 +492,7 @@ pub struct FieldChangesetParams {
 /// it would be better to append it to the end of the list.
 #[derive(
   Debug,
+  Copy,
   Clone,
   PartialEq,
   Hash,
@@ -499,7 +521,7 @@ pub enum FieldType {
 
 impl Display for FieldType {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    let value: i64 = self.clone().into();
+    let value: i64 = (*self).into();
     f.write_fmt(format_args!("{}", value))
   }
 }
@@ -512,20 +534,13 @@ impl AsRef<FieldType> for FieldType {
 
 impl From<&FieldType> for FieldType {
   fn from(field_type: &FieldType) -> Self {
-    field_type.clone()
+    *field_type
   }
 }
 
 impl FieldType {
   pub fn value(&self) -> i64 {
-    self.clone().into()
-  }
-
-  pub fn default_cell_width(&self) -> i32 {
-    match self {
-      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => 180,
-      _ => 150,
-    }
+    (*self).into()
   }
 
   pub fn default_name(&self) -> String {
@@ -608,7 +623,7 @@ impl From<FieldType> for i64 {
 
 impl From<&FieldType> for i64 {
   fn from(ty: &FieldType) -> Self {
-    i64::from(ty.clone())
+    i64::from(*ty)
   }
 }
 

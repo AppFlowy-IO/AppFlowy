@@ -1,7 +1,7 @@
 use std::sync::{Arc, Weak};
 
 use collab_database::database::WatchStream;
-use collab_folder::core::FolderData;
+use collab_folder::FolderData;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
@@ -15,6 +15,7 @@ use crate::errors::FlowyError;
 use crate::event_handler::*;
 use crate::manager::UserManager;
 
+#[rustfmt::skip]
 pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
   let store_preferences = user_session
     .upgrade()
@@ -24,13 +25,12 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .name("Flowy-User")
     .state(user_session)
     .state(store_preferences)
-    .event(UserEvent::SignIn, sign_in)
+    .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
-    .event(UserEvent::SignOut, sign_out)
+    .event(UserEvent::SignOut, sign_out_handler)
     .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
-    .event(UserEvent::CheckUser, check_user_handler)
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
     .event(UserEvent::GetUserSetting, get_user_setting)
@@ -38,22 +38,11 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
     .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
-    .event(UserEvent::OauthSignIn, oauth_handler)
-    .event(UserEvent::GetSignInURL, get_sign_in_url_handler)
-    .event(
-      UserEvent::GetOauthURLWithProvider,
-      sign_in_with_provider_handler,
-    )
-    .event(
-      UserEvent::GetAllUserWorkspaces,
-      get_all_user_workspace_handler,
-    )
+    .event(UserEvent::OauthSignIn, oauth_sign_in_handler)
+    .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
+    .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
+    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
-    .event(UserEvent::AddUserToWorkspace, add_user_to_workspace_handler)
-    .event(
-      UserEvent::RemoveUserToWorkspace,
-      remove_user_from_workspace_handler,
-    )
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
     .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
@@ -65,14 +54,142 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::ResetWorkspace, reset_workspace_handler)
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
-    .event(
-      UserEvent::SetNotificationSettings,
-      set_notification_settings,
-    )
-    .event(
-      UserEvent::GetNotificationSettings,
-      get_notification_settings,
-    )
+    .event(UserEvent::SetNotificationSettings, set_notification_settings)
+    .event(UserEvent::GetNotificationSettings, get_notification_settings) 
+      // Workspace member
+    .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
+    .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
+    .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
+    .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
+#[event_err = "FlowyError"]
+pub enum UserEvent {
+  /// Only use when the [Authenticator] is Local or SelfHosted
+  /// Logging into an account using a register email and password
+  #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
+  SignInWithEmailPassword = 0,
+
+  /// Only use when the [Authenticator] is Local or SelfHosted
+  /// Creating a new account
+  #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
+  SignUp = 1,
+
+  /// Logging out fo an account
+  #[event()]
+  SignOut = 2,
+
+  /// Update the user information
+  #[event(input = "UpdateUserProfilePayloadPB")]
+  UpdateUserProfile = 3,
+
+  /// Get the user information
+  #[event(output = "UserProfilePB")]
+  GetUserProfile = 4,
+
+  /// Initialize resources for the current user after launching the application
+  ///
+  #[event()]
+  InitUser = 6,
+
+  /// Change the visual elements of the interface, such as theme, font and more
+  #[event(input = "AppearanceSettingsPB")]
+  SetAppearanceSetting = 7,
+
+  /// Get the appearance setting
+  #[event(output = "AppearanceSettingsPB")]
+  GetAppearanceSetting = 8,
+
+  /// Get the settings of the user, such as the user storage folder
+  #[event(output = "UserSettingPB")]
+  GetUserSetting = 9,
+
+  #[event(input = "OauthSignInPB", output = "UserProfilePB")]
+  OauthSignIn = 10,
+
+  /// Get the OAuth callback url
+  /// Only use when the [Authenticator] is AFCloud
+  #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
+  GenerateSignInURL = 11,
+
+  #[event(input = "OauthProviderPB", output = "OauthProviderDataPB")]
+  GetOauthURLWithProvider = 12,
+
+  #[event(input = "UpdateCloudConfigPB")]
+  SetCloudConfig = 13,
+
+  #[event(output = "CloudSettingPB")]
+  GetCloudConfig = 14,
+
+  #[event(input = "UserSecretPB")]
+  SetEncryptionSecret = 15,
+
+  #[event(output = "UserEncryptionConfigurationPB")]
+  CheckEncryptionSign = 16,
+
+  /// Return the all the workspaces of the user
+  #[event(output = "RepeatedUserWorkspacePB")]
+  GetAllWorkspace = 17,
+
+  #[event(input = "UserWorkspaceIdPB")]
+  OpenWorkspace = 21,
+
+  #[event(input = "NetworkStatePB")]
+  UpdateNetworkState = 24,
+
+  #[event(output = "RepeatedHistoricalUserPB")]
+  GetHistoricalUsers = 25,
+
+  #[event(input = "HistoricalUserPB")]
+  OpenHistoricalUser = 26,
+
+  /// Push a realtime event to the user. Currently, the realtime event
+  /// is only used when the auth type is: [Authenticator::Supabase].
+  ///
+  #[event(input = "RealtimePayloadPB")]
+  PushRealtimeEvent = 27,
+
+  #[event(input = "ReminderPB")]
+  CreateReminder = 28,
+
+  #[event(output = "RepeatedReminderPB")]
+  GetAllReminders = 29,
+
+  #[event(input = "ReminderIdentifierPB")]
+  RemoveReminder = 30,
+
+  #[event(input = "ReminderPB")]
+  UpdateReminder = 31,
+
+  #[event(input = "ResetWorkspacePB")]
+  ResetWorkspace = 32,
+
+  /// Change the Date/Time formats globally
+  #[event(input = "DateTimeSettingsPB")]
+  SetDateTimeSettings = 33,
+
+  /// Retrieve the Date/Time formats
+  #[event(output = "DateTimeSettingsPB")]
+  GetDateTimeSettings = 34,
+
+  #[event(input = "NotificationSettingsPB")]
+  SetNotificationSettings = 35,
+
+  #[event(output = "NotificationSettingsPB")]
+  GetNotificationSettings = 36,
+
+  #[event(output = "AddWorkspaceMemberPB")]
+  AddWorkspaceMember = 37,
+
+  #[event(output = "RemoveWorkspaceMemberPB")]
+  RemoveWorkspaceMember = 38,
+
+  #[event(output = "UpdateWorkspaceMemberPB")]
+  UpdateWorkspaceMember = 39,
+
+  #[event(output = "QueryWorkspacePB")]
+  GetWorkspaceMember = 40,
 }
 
 pub struct SignUpContext {
@@ -84,9 +201,9 @@ pub struct SignUpContext {
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
-  /// When the [AuthType] changed, this method will be called. Currently, the auth type
+  /// When the [Authenticator] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
+  fn authenticator_did_changed(&self, _authenticator: Authenticator) {}
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
   fn did_init(
@@ -117,53 +234,71 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_update_network(&self, _reachable: bool) {}
 }
 
-/// The user cloud service provider.
-/// The provider can be supabase, firebase, aws, or any other cloud service.
+/// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
+/// including token management, synchronization settings, network reachability, and authentication.
+///
+/// This trait is intended for implementation by providers that offer cloud-based services for users.
+/// It includes methods for handling authentication tokens, enabling/disabling synchronization,
+/// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
+  /// Sets the authentication token for the cloud service.
+  ///
+  /// # Arguments
+  /// * `token`: A string slice representing the authentication token.
+  ///
+  /// # Returns
+  /// A `Result` which is `Ok` if the token is successfully set, or a `FlowyError` otherwise.
   fn set_token(&self, token: &str) -> Result<(), FlowyError>;
-  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
-    None
-  }
 
+  /// Subscribes to the state of the authentication token.
+  ///
+  /// # Returns
+  /// An `Option` containing a `WatchStream<UserTokenState>` if available, or `None` otherwise.
+  /// The stream allows the caller to watch for changes in the token state.
+  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>>;
+
+  /// Sets the synchronization state for a user.
+  ///
+  /// # Arguments
+  /// * `uid`: An i64 representing the user ID.
+  /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
+
+  /// Sets the network reachability status.
+  ///
+  /// # Arguments
+  /// * `reachable`: A boolean indicating whether the network is reachable.
+  fn set_network_reachable(&self, reachable: bool);
+
+  /// Sets the encryption secret for secure communication.
+  ///
+  /// # Arguments
+  /// * `secret`: A `String` representing the encryption secret.
   fn set_encrypt_secret(&self, secret: String);
-  fn set_auth_type(&self, auth_type: AuthType);
-  fn set_device_id(&self, device_id: &str);
+
+  /// Sets the authenticator used for authentication processes.
+  ///
+  /// # Arguments
+  /// * `authenticator`: An `Authenticator` object.
+  fn set_authenticator(&self, authenticator: Authenticator);
+
+  /// Retrieves the current authenticator.
+  ///
+  /// # Returns
+  /// The current `Authenticator` object.
+  fn get_authenticator(&self) -> Authenticator;
+
+  /// Retrieves the user-specific cloud service.
+  ///
+  /// # Returns
+  /// A `Result` containing an `Arc<dyn UserCloudService>` if successful, or a `FlowyError` otherwise.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
-  fn service_name(&self) -> String;
-}
 
-impl<T> UserCloudServiceProvider for Arc<T>
-where
-  T: UserCloudServiceProvider,
-{
-  fn set_token(&self, token: &str) -> Result<(), FlowyError> {
-    (**self).set_token(token)
-  }
-
-  fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
-    (**self).set_enable_sync(uid, enable_sync)
-  }
-
-  fn set_encrypt_secret(&self, secret: String) {
-    (**self).set_encrypt_secret(secret)
-  }
-
-  fn set_auth_type(&self, auth_type: AuthType) {
-    (**self).set_auth_type(auth_type)
-  }
-
-  fn set_device_id(&self, device_id: &str) {
-    (**self).set_device_id(device_id)
-  }
-
-  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    (**self).get_user_service()
-  }
-
-  fn service_name(&self) -> String {
-    (**self).service_name()
-  }
+  /// Retrieves the service URL.
+  ///
+  /// # Returns
+  /// A `String` representing the service URL.
+  fn service_url(&self) -> String;
 }
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
@@ -205,130 +340,4 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
-#[event_err = "FlowyError"]
-pub enum UserEvent {
-  /// Only use when the [AuthType] is Local or SelfHosted
-  /// Logging into an account using a register email and password
-  #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
-  SignIn = 0,
-
-  /// Only use when the [AuthType] is Local or SelfHosted
-  /// Creating a new account
-  #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
-  SignUp = 1,
-
-  /// Logging out fo an account
-  #[event()]
-  SignOut = 2,
-
-  /// Update the user information
-  #[event(input = "UpdateUserProfilePayloadPB")]
-  UpdateUserProfile = 3,
-
-  /// Get the user information
-  #[event(output = "UserProfilePB")]
-  GetUserProfile = 4,
-
-  /// Check the user current session is valid or not
-  #[event(output = "UserProfilePB")]
-  CheckUser = 5,
-
-  /// Initialize resources for the current user after launching the application
-  #[event()]
-  InitUser = 6,
-
-  /// Change the visual elements of the interface, such as theme, font and more
-  #[event(input = "AppearanceSettingsPB")]
-  SetAppearanceSetting = 7,
-
-  /// Get the appearance setting
-  #[event(output = "AppearanceSettingsPB")]
-  GetAppearanceSetting = 8,
-
-  /// Get the settings of the user, such as the user storage folder
-  #[event(output = "UserSettingPB")]
-  GetUserSetting = 9,
-
-  #[event(input = "OauthSignInPB", output = "UserProfilePB")]
-  OauthSignIn = 10,
-
-  /// Get the OAuth callback url
-  /// Only use when the [AuthType] is AFCloud
-  #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
-  GetSignInURL = 11,
-
-  #[event(input = "OauthProviderPB", output = "OauthProviderDataPB")]
-  GetOauthURLWithProvider = 12,
-
-  #[event(input = "UpdateCloudConfigPB")]
-  SetCloudConfig = 13,
-
-  #[event(output = "UserCloudConfigPB")]
-  GetCloudConfig = 14,
-
-  #[event(input = "UserSecretPB")]
-  SetEncryptionSecret = 15,
-
-  #[event(output = "UserEncryptionSecretCheckPB")]
-  CheckEncryptionSign = 16,
-
-  /// Return the all the workspaces of the user
-  #[event()]
-  GetAllUserWorkspaces = 20,
-
-  #[event(input = "UserWorkspacePB")]
-  OpenWorkspace = 21,
-
-  #[event(input = "AddWorkspaceUserPB")]
-  AddUserToWorkspace = 22,
-
-  #[event(input = "RemoveWorkspaceUserPB")]
-  RemoveUserToWorkspace = 23,
-
-  #[event(input = "NetworkStatePB")]
-  UpdateNetworkState = 24,
-
-  #[event(output = "RepeatedHistoricalUserPB")]
-  GetHistoricalUsers = 25,
-
-  #[event(input = "HistoricalUserPB")]
-  OpenHistoricalUser = 26,
-
-  /// Push a realtime event to the user. Currently, the realtime event
-  /// is only used when the auth type is: [AuthType::Supabase].
-  ///
-  #[event(input = "RealtimePayloadPB")]
-  PushRealtimeEvent = 27,
-
-  #[event(input = "ReminderPB")]
-  CreateReminder = 28,
-
-  #[event(output = "RepeatedReminderPB")]
-  GetAllReminders = 29,
-
-  #[event(input = "ReminderIdentifierPB")]
-  RemoveReminder = 30,
-
-  #[event(input = "ReminderPB")]
-  UpdateReminder = 31,
-
-  #[event(input = "ResetWorkspacePB")]
-  ResetWorkspace = 32,
-
-  /// Change the Date/Time formats globally
-  #[event(input = "DateTimeSettingsPB")]
-  SetDateTimeSettings = 33,
-
-  /// Retrieve the Date/Time formats
-  #[event(output = "DateTimeSettingsPB")]
-  GetDateTimeSettings = 34,
-
-  #[event(input = "NotificationSettingsPB")]
-  SetNotificationSettings = 35,
-
-  #[event(output = "NotificationSettingsPB")]
-  GetNotificationSettings = 36,
 }

@@ -31,7 +31,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
         .event(DatabaseEvent::MoveField, move_field_handler)
         .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
-        .event(DatabaseEvent::CreateTypeOption, create_field_type_option_data_handler)
+        .event(DatabaseEvent::CreateField, create_field_handler)
         // Row
         .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
@@ -50,17 +50,18 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
         // Checklist
-        .event(DatabaseEvent::GetChecklistCellData, get_checklist_cell_data_handler)
         .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
+        .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
         .event(DatabaseEvent::MoveGroup, move_group_handler)
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
         .event(DatabaseEvent::GetGroups, get_groups_handler)
         .event(DatabaseEvent::GetGroup, get_group_handler)
-        .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
         .event(DatabaseEvent::UpdateGroup, update_group_handler)
+        .event(DatabaseEvent::CreateGroup, create_group_handler)
+        .event(DatabaseEvent::DeleteGroup, delete_group_handler)
         // Database
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
@@ -167,8 +168,9 @@ pub enum DatabaseEvent {
   #[event(input = "DuplicateFieldPayloadPB")]
   DuplicateField = 21,
 
-  /// [MoveItem] event is used to move an item. For the moment, Item has two types defined in
-  /// [MoveItemTypePB].
+  /// [MoveFieldPB] event is used to reorder a field in a view. The
+  /// [MoveFieldPayloadPB] contains the `field_id` of the moved field and its
+  /// new position.
   #[event(input = "MoveFieldPayloadPB")]
   MoveField = 22,
 
@@ -181,9 +183,10 @@ pub enum DatabaseEvent {
   #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
   GetTypeOption = 23,
 
-  /// [CreateTypeOption] event is used to create a new FieldTypeOptionData.
+  /// [CreateField] event is used to create a new field with an optional
+  /// TypeOptionData.
   #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
-  CreateTypeOption = 24,
+  CreateField = 24,
 
   #[event(input = "DatabaseViewIdPB", output = "FieldPB")]
   GetPrimaryField = 25,
@@ -256,17 +259,19 @@ pub enum DatabaseEvent {
   #[event(input = "SelectOptionCellChangesetPB")]
   UpdateSelectOptionCell = 72,
 
-  #[event(input = "CellIdPB", output = "ChecklistCellDataPB")]
-  GetChecklistCellData = 73,
-
   #[event(input = "ChecklistCellDataChangesetPB")]
-  UpdateChecklistCell = 74,
+  UpdateChecklistCell = 73,
 
   /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that
   /// will be used by the `update_cell` function.
   #[event(input = "DateChangesetPB")]
   UpdateDateCell = 80,
+
+  /// [SetGroupByField] event is used to create a new grouping in a database
+  /// view based on the `field_id`
+  #[event(input = "GroupByFieldPayloadPB")]
+  SetGroupByField = 90,
 
   #[event(input = "DatabaseViewIdPB", output = "RepeatedGroupPB")]
   GetGroups = 100,
@@ -280,11 +285,14 @@ pub enum DatabaseEvent {
   #[event(input = "MoveGroupRowPayloadPB")]
   MoveGroupRow = 112,
 
-  #[event(input = "GroupByFieldPayloadPB")]
-  SetGroupByField = 113,
-
   #[event(input = "UpdateGroupPB")]
-  UpdateGroup = 114,
+  UpdateGroup = 113,
+
+  #[event(input = "CreateGroupPayloadPB")]
+  CreateGroup = 114,
+
+  #[event(input = "DeleteGroupPayloadPB")]
+  DeleteGroup = 115,
 
   /// Returns all the databases
   #[event(output = "RepeatedDatabaseDescriptionPB")]

@@ -25,6 +25,7 @@ const languages = [
   { key: 'pt-PT', title: 'Português' },
   { key: 'ru-RU', title: 'Русский' },
   { key: 'sv', title: 'Svenska' },
+  { key: 'th-TH', title: 'ไทย' },
   { key: 'tr-TR', title: 'Türkçe' },
   { key: 'zh-CN', title: '简体中文' },
   { key: 'zh-TW', title: '繁體中文' },
@@ -56,7 +57,7 @@ function LanguageSetting({
               onChange({
                 language,
               });
-              i18n.changeLanguage(language);
+              void i18n.changeLanguage(language);
             }}
           >
             {languages.map((option) => (

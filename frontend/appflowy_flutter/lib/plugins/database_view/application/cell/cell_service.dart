@@ -79,8 +79,7 @@ class DatabaseCellContext with _$DatabaseCellContext {
   /// It will be visible when the field is not hidden or when hidden fields
   /// should be shown.
   bool isVisible({bool showHiddenFields = false}) {
-    return fieldInfo.visibility != null &&
-        (showHiddenFields ||
-            fieldInfo.visibility != FieldVisibility.AlwaysHidden);
+    return showHiddenFields ||
+        fieldInfo.visibility != FieldVisibility.AlwaysHidden;
   }
 }

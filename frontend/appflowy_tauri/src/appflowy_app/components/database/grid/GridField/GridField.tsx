@@ -1,131 +1,188 @@
 import { Button, Tooltip } from '@mui/material';
-import { DragEventHandler, FC, useCallback, useMemo, useState } from 'react';
-import { Database } from '$app/interfaces/database';
+import { DragEventHandler, FC, HTMLAttributes, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { throttle } from '$app/utils/tool';
+import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
-import * as service from '../../database_bd_svc';
-import { useDatabase, useViewId } from '../../database.hooks';
-import { FieldTypeSvg } from './FieldTypeSvg';
-import { GridFieldMenu } from './GridFieldMenu';
+import { fieldService, Field } from '../../application';
+import { Property } from '$app/components/database/components/property';
+import GridResizer from '$app/components/database/grid/GridField/GridResizer';
+import GridFieldMenu from '$app/components/database/grid/GridField/GridFieldMenu';
+import { areEqual } from 'react-window';
+import { useOpenMenu } from '$app/components/database/grid/GridStickyHeader/GridStickyHeader.hooks';
 
-export interface GridFieldProps {
-  field: Database.Field;
+export interface GridFieldProps extends HTMLAttributes<HTMLDivElement> {
+  field: Field;
+  onOpenMenu?: (id: string) => void;
+  onCloseMenu?: (id: string) => void;
+  resizeColumnWidth?: (width: number) => void;
+  getScrollElement?: () => HTMLElement | null;
 }
 
-export const GridField: FC<GridFieldProps> = ({ field }) => {
-  const viewId = useViewId();
-  const { fields } = useDatabase();
-  const [ openMenu, setOpenMenu ] = useState(false);
-  const [ openTooltip, setOpenTooltip ] = useState(false);
-  const [ dropPosition, setDropPosition ] = useState<DropPosition>(DropPosition.Before);
+export const GridField: FC<GridFieldProps> = memo(
+  ({ getScrollElement, resizeColumnWidth, onOpenMenu, onCloseMenu, field, ...props }) => {
+    const menuOpened = useOpenMenu(field.id);
+    const viewId = useViewId();
+    const [openTooltip, setOpenTooltip] = useState(false);
+    const [propertyMenuOpened, setPropertyMenuOpened] = useState(false);
+    const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
 
-  const handleClick = useCallback(() => {
-    setOpenMenu(true);
-  }, []);
+    const handleTooltipOpen = useCallback(() => {
+      setOpenTooltip(true);
+    }, []);
 
-  const handleMenuClose = useCallback(() => {
-    setOpenMenu(false);
-  }, []);
+    const handleTooltipClose = useCallback(() => {
+      setOpenTooltip(false);
+    }, []);
 
-  const handleTooltipOpen = useCallback(() => {
-    setOpenTooltip(true);
-  }, []);
+    const draggingData = useMemo(
+      () => ({
+        field,
+      }),
+      [field]
+    );
 
-  const handleTooltipClose = useCallback(() => {
-    setOpenTooltip(false);
-  }, []);
+    const { isDragging, attributes, listeners, setPreviewRef, previewRef } = useDraggable({
+      type: DragType.Field,
+      data: draggingData,
+      scrollOnEdge: {
+        direction: ScrollDirection.Horizontal,
+        getScrollElement,
+      },
+    });
 
-  const draggingData = useMemo(() => ({
-    field,
-  }), [field]);
+    const onDragOver = useMemo<DragEventHandler>(() => {
+      return throttle((event) => {
+        const element = previewRef.current;
 
-  const {
-    isDragging,
-    attributes,
-    listeners,
-    setPreviewRef,
-    previewRef,
-  } = useDraggable({
-    type: DragType.Field,
-    data: draggingData,
-    scrollOnEdge: {
-      direction: ScrollDirection.Horizontal,
-    },
-  });
+        if (!element) {
+          return;
+        }
 
-  const onDragOver = useMemo<DragEventHandler>(() => {
-    return throttle((event) => {
-      const element = previewRef.current;
+        const { left, right } = element.getBoundingClientRect();
+        const middle = (left + right) / 2;
 
-      if (!element) {
+        setDropPosition(event.clientX < middle ? DropPosition.Before : DropPosition.After);
+      }, 20);
+    }, [previewRef]);
+
+    const onDrop = useCallback(
+      ({ data }: DragItem) => {
+        const dragField = data.field as Field;
+
+        if (dragField.id === field.id) {
+          return;
+        }
+
+        void fieldService.moveField(viewId, dragField.id, field.id);
+      },
+      [viewId, field]
+    );
+
+    const { isOver, listeners: dropListeners } = useDroppable({
+      accept: DragType.Field,
+      disabled: isDragging,
+      onDragOver,
+      onDrop,
+    });
+
+    const [menuAnchorPosition, setMenuAnchorPosition] = useState<
+      | {
+        top: number;
+        left: number;
+      }
+      | undefined
+    >(undefined);
+
+    const open = Boolean(menuAnchorPosition) && menuOpened;
+
+    const handleClick = useCallback(() => {
+      onOpenMenu?.(field.id);
+    }, [onOpenMenu, field.id]);
+
+    const handleMenuClose = useCallback(() => {
+      onCloseMenu?.(field.id);
+    }, [onCloseMenu, field.id]);
+
+    useEffect(() => {
+      if (!menuOpened) {
+        setMenuAnchorPosition(undefined);
         return;
       }
 
-      const { left, right } = element.getBoundingClientRect();
-      const middle = (left + right) / 2;
+      const rect = previewRef.current?.getBoundingClientRect();
 
-      setDropPosition(event.clientX < middle ? DropPosition.Before : DropPosition.After);
-    }, 20);
-  }, [previewRef]);
+      if (rect) {
+        setMenuAnchorPosition({
+          top: rect.top + rect.height,
+          left: rect.left,
+        });
+      } else {
+        setMenuAnchorPosition(undefined);
+      }
+    }, [menuOpened, previewRef]);
 
-  const onDrop = useCallback(({ data }: DragItem) => {
-    const dragField = data.field as Database.Field;
-    const fromIndex = fields.findIndex(item => item.id === dragField.id);
-    const dropIndex = fields.findIndex(item => item.id === field.id);
-    const toIndex = dropIndex + dropPosition + (fromIndex < dropIndex ? -1 : 0);
+    const handlePropertyMenuOpen = useCallback(() => {
+      setPropertyMenuOpened(true);
+    }, []);
 
-    if (fromIndex === toIndex) {
-      return;
-    }
+    const handlePropertyMenuClose = useCallback(() => {
+      setPropertyMenuOpened(false);
+    }, []);
 
-    void service.moveField(viewId, dragField.id, fromIndex, toIndex);
-  }, [viewId, field, fields, dropPosition]);
-
-  const {
-    isOver,
-    listeners: dropListeners,
-  } = useDroppable({
-    accept: DragType.Field,
-    disabled: isDragging,
-    onDragOver,
-    onDrop,
-  });
-
-  return (
-    <>
-      <Tooltip
-        open={openTooltip && !isDragging}
-        title={field.name}
-        placement="right"
-        enterDelay={1000}
-        enterNextDelay={1000}
-        onOpen={handleTooltipOpen}
-        onClose={handleTooltipClose}
-      >
-        <Button
-          ref={setPreviewRef}
-          className="flex items-center px-2 w-full relative"
-          disableRipple
-          onClick={handleClick}
-          {...attributes}
-          {...listeners}
-          {...dropListeners}
+    return (
+      <div className={'flex w-full border-r border-line-divider bg-bg-body'} {...props}>
+        <Tooltip
+          open={openTooltip && !isDragging}
+          title={field.name}
+          placement='right'
+          enterDelay={1000}
+          enterNextDelay={1000}
+          onOpen={handleTooltipOpen}
+          onClose={handleTooltipClose}
         >
-          <FieldTypeSvg className="text-base mr-1" type={field.type} />
-          <span className="flex-1 text-left text-xs truncate">
-            {field.name}
-          </span>
-          {isOver && <div className={`absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10 ${dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'}`} />}
-        </Button>
-      </Tooltip>
-      {openMenu && (
-        <GridFieldMenu
-          field={field}
-          open={openMenu}
-          anchorEl={previewRef.current}
-          onClose={handleMenuClose}
-        />
-      )}
-    </>
-  );
-};
+          <Button
+            color={'inherit'}
+            ref={setPreviewRef}
+            className='relative flex h-full w-full items-center px-0'
+            disableRipple
+            onContextMenu={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+              handleClick();
+            }}
+            onClick={handleClick}
+            {...attributes}
+            {...listeners}
+            {...dropListeners}
+          >
+            <Property
+              menuOpened={propertyMenuOpened}
+              onCloseMenu={handlePropertyMenuClose}
+              onOpenMenu={handlePropertyMenuOpen}
+              field={field}
+            />
+            {isOver && (
+              <div
+                className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'
+                  }`}
+              />
+            )}
+            <GridResizer field={field} onWidthChange={resizeColumnWidth} />
+          </Button>
+        </Tooltip>
+        {open && (
+          <GridFieldMenu
+            anchorPosition={menuAnchorPosition}
+            anchorReference={'anchorPosition'}
+            field={field}
+            open={open}
+            onClose={handleMenuClose}
+            onOpenPropertyMenu={handlePropertyMenuOpen}
+            onOpenMenu={onOpenMenu}
+          />
+        )}
+      </div>
+    );
+  },
+  areEqual
+);

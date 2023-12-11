@@ -6,6 +6,7 @@ import { ViewIconTypePB } from '@/services/backend';
 import { CoverType } from '$app/interfaces/document';
 import { updateNodeDataThunk } from '$app_reducers/document/async-actions';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
+
 export const heightCls = {
   cover: 'h-[220px]',
   icon: 'h-[80px]',
@@ -22,7 +23,7 @@ export function useDocumentBanner(id: string) {
 
   const onUpdateIcon = useCallback(
     (icon: string) => {
-      dispatch(
+      void dispatch(
         updatePageIcon({
           id: docId,
           icon: icon
@@ -39,7 +40,7 @@ export function useDocumentBanner(id: string) {
 
   const onUpdateCover = useCallback(
     (coverType: CoverType | null, cover: string | null) => {
-      dispatch(
+      void dispatch(
         updateNodeDataThunk({
           id,
           data: {

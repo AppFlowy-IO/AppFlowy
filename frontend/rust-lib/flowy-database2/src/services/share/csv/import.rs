@@ -9,7 +9,7 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::field::{default_type_option_data_from_type, CELL_DATA};
-use crate::services::field_settings::DatabaseFieldSettingsMapBuilder;
+use crate::services::field_settings::default_field_settings_for_fields;
 use crate::services::share::csv::CSVFormat;
 
 #[derive(Default)]
@@ -97,8 +97,7 @@ fn database_from_fields_and_rows(
     })
     .collect::<Vec<Field>>();
 
-  let field_settings =
-    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Grid).build();
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   let created_rows = rows
     .iter()
@@ -145,13 +144,8 @@ fn database_from_fields_and_rows(
 fn default_field(field_str: String, is_primary: bool) -> Field {
   let field_type = FieldType::RichText;
   let type_option_data = default_type_option_data_from_type(&field_type);
-  Field::new(
-    gen_field_id(),
-    field_str,
-    field_type.clone().into(),
-    is_primary,
-  )
-  .with_type_option_data(field_type, type_option_data)
+  Field::new(gen_field_id(), field_str, field_type.into(), is_primary)
+    .with_type_option_data(field_type, type_option_data)
 }
 
 struct FieldsRows {

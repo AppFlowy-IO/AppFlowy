@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -28,12 +27,15 @@ import 'cell_builder.dart';
 /// [RowDetailPage].
 class RowPropertyList extends StatelessWidget {
   final String viewId;
+  final FieldController fieldController;
   final GridCellBuilder cellBuilder;
+
   const RowPropertyList({
+    super.key,
     required this.viewId,
+    required this.fieldController,
     required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class RowPropertyList extends StatelessWidget {
                 key: ValueKey('row_detail_${cell.fieldId}'),
                 cellContext: cell,
                 cellBuilder: cellBuilder,
+                fieldController: fieldController,
                 index: index,
               ),
             )
@@ -54,22 +57,10 @@ class RowPropertyList extends StatelessWidget {
         return ReorderableListView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          onReorder: (oldIndex, newIndex) {
-            // when reorderiing downwards, need to update index
-            if (oldIndex < newIndex) {
-              newIndex--;
-            }
-            final reorderedFieldId = children[oldIndex].cellContext.fieldId;
-            final targetFieldId = children[newIndex].cellContext.fieldId;
-
-            context.read<RowDetailBloc>().add(
-                  RowDetailEvent.reorderField(
-                    reorderedFieldId,
-                    targetFieldId,
-                    oldIndex,
-                    newIndex,
-                  ),
-                );
+          onReorder: (from, to) {
+            context
+                .read<RowDetailBloc>()
+                .add(RowDetailEvent.reorderField(from, to));
           },
           buildDefaultDragHandles: false,
           proxyDecorator: (child, index, animation) => Material(
@@ -99,7 +90,10 @@ class RowPropertyList extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 4.0),
                     child: ToggleHiddenFieldsVisibilityButton(),
                   ),
-                CreateRowFieldButton(viewId: viewId),
+                CreateRowFieldButton(
+                  viewId: viewId,
+                  fieldController: fieldController,
+                ),
               ],
             ),
           ),
@@ -113,14 +107,16 @@ class RowPropertyList extends StatelessWidget {
 class _PropertyCell extends StatefulWidget {
   final DatabaseCellContext cellContext;
   final GridCellBuilder cellBuilder;
-
+  final FieldController fieldController;
   final int index;
+
   const _PropertyCell({
+    super.key,
     required this.cellContext,
     required this.cellBuilder,
-    Key? key,
+    required this.fieldController,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();
@@ -130,11 +126,11 @@ class _PropertyCellState extends State<_PropertyCell> {
   final PopoverController _popoverController = PopoverController();
   final PopoverController _fieldPopoverController = PopoverController();
 
-  bool _isFieldHover = false;
+  final ValueNotifier<bool> _isFieldHover = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
-    final style = _customCellStyle(widget.cellContext.fieldType);
+    final style = customCellStyle(widget.cellContext.fieldType);
     final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 
     final dragThumb = MouseRegion(
@@ -151,15 +147,19 @@ class _PropertyCellState extends State<_PropertyCell> {
           triggerActions: PopoverTriggerFlags.none,
           direction: PopoverDirection.bottomWithLeftAligned,
           popupBuilder: (popoverContext) => buildFieldEditor(),
-          child: _isFieldHover
-              ? BlockActionButton(
-                  onTap: () => _fieldPopoverController.show(),
-                  svg: FlowySvgs.drag_element_s,
-                  richMessage: TextSpan(
-                    text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
-                  ),
-                )
-              : const SizedBox.shrink(),
+          child: ValueListenableBuilder(
+            valueListenable: _isFieldHover,
+            builder: ((context, value, child) {
+              return value ? child! : const SizedBox.shrink();
+            }),
+            child: BlockActionButton(
+              onTap: () => _fieldPopoverController.show(),
+              svg: FlowySvgs.drag_element_s,
+              richMessage: TextSpan(
+                text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -167,23 +167,31 @@ class _PropertyCellState extends State<_PropertyCell> {
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
-      child: AccessoryHover(child: cell),
+      child: AccessoryHover(
+        fieldType: widget.cellContext.fieldType,
+        child: cell,
+      ),
     );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       constraints: const BoxConstraints(minHeight: 30),
       child: MouseRegion(
-        onEnter: (event) => setState(() => _isFieldHover = true),
-        onExit: (event) => setState(() => _isFieldHover = false),
+        onEnter: (event) => _isFieldHover.value = true,
+        onExit: (event) => _isFieldHover.value = false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            ReorderableDragStartListener(
-              index: widget.index,
-              enabled: _isFieldHover,
-              child: dragThumb,
+            ValueListenableBuilder(
+              valueListenable: _isFieldHover,
+              builder: (context, value, _) {
+                return ReorderableDragStartListener(
+                  index: widget.index,
+                  enabled: value,
+                  child: dragThumb,
+                );
+              },
             ),
             const HSpace(4),
             AppFlowyPopover(
@@ -196,12 +204,18 @@ class _PropertyCellState extends State<_PropertyCell> {
               child: SizedBox(
                 width: 160,
                 height: 30,
-                child: FieldCellButton(
-                  field: widget.cellContext.fieldInfo.field,
-                  onTap: () => _popoverController.show(),
-                  radius: BorderRadius.circular(6),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                child: Tooltip(
+                  waitDuration: const Duration(seconds: 1),
+                  preferBelow: false,
+                  verticalOffset: 15,
+                  message: widget.cellContext.fieldInfo.field.name,
+                  child: FieldCellButton(
+                    field: widget.cellContext.fieldInfo.field,
+                    onTap: () => _popoverController.show(),
+                    radius: BorderRadius.circular(6),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  ),
                 ),
               ),
             ),
@@ -216,35 +230,13 @@ class _PropertyCellState extends State<_PropertyCell> {
   Widget buildFieldEditor() {
     return FieldEditor(
       viewId: widget.cellContext.viewId,
-      fieldInfo: widget.cellContext.fieldInfo,
-      isGroupingField: widget.cellContext.fieldInfo.isGroupField,
-      typeOptionLoader: FieldTypeOptionLoader(
-        viewId: widget.cellContext.viewId,
-        field: widget.cellContext.fieldInfo.field,
-      ),
-      onToggleVisibility: (fieldId) {
-        _popoverController.close();
-        context
-            .read<RowDetailBloc>()
-            .add(RowDetailEvent.toggleFieldVisibility(fieldId));
-      },
-      onDeleted: (fieldId) {
-        _popoverController.close();
-
-        NavigatorAlertDialog(
-          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          confirm: () {
-            context
-                .read<RowDetailBloc>()
-                .add(RowDetailEvent.deleteField(fieldId));
-          },
-        ).show(context);
-      },
+      field: widget.cellContext.fieldInfo.field,
+      fieldController: widget.fieldController,
     );
   }
 }
 
-GridCellStyle? _customCellStyle(FieldType fieldType) {
+GridCellStyle? customCellStyle(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return GridCheckboxCellStyle(
@@ -271,15 +263,19 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.Checklist:
       return ChecklistCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        cellPadding: EdgeInsets.zero,
+        showTasksInline: true,
       );
     case FieldType.Number:
       return GridNumberCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       );
     case FieldType.RichText:
       return GridTextCellStyle(
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        showEmoji: false,
       );
     case FieldType.SingleSelect:
       return SelectOptionCellStyle(
@@ -290,6 +286,7 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.URL:
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         accessoryTypes: [
           GridURLCellAccessoryType.copyURL,
           GridURLCellAccessoryType.visitURL,
@@ -307,10 +304,14 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
         final text = switch (state.showHiddenFields) {
-          false => LocaleKeys.grid_rowPage_showHiddenFields
-              .plural(state.numHiddenFields),
-          true => LocaleKeys.grid_rowPage_hideHiddenFields
-              .plural(state.numHiddenFields),
+          false => LocaleKeys.grid_rowPage_showHiddenFields.plural(
+              state.numHiddenFields,
+              namedArgs: {'count': '${state.numHiddenFields}'},
+            ),
+          true => LocaleKeys.grid_rowPage_hideHiddenFields.plural(
+              state.numHiddenFields,
+              namedArgs: {'count': '${state.numHiddenFields}'},
+            ),
         };
 
         return SizedBox(
@@ -338,8 +339,13 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
 
 class CreateRowFieldButton extends StatefulWidget {
   final String viewId;
+  final FieldController fieldController;
 
-  const CreateRowFieldButton({required this.viewId, super.key});
+  const CreateRowFieldButton({
+    super.key,
+    required this.viewId,
+    required this.fieldController,
+  });
 
   @override
   State<CreateRowFieldButton> createState() => _CreateRowFieldButtonState();
@@ -373,7 +379,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
           ),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onTap: () async {
-            final result = await TypeOptionBackendService.createFieldTypeOption(
+            final result = await FieldBackendService.createField(
               viewId: widget.viewId,
             );
             result.fold(
@@ -390,24 +396,11 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
           ),
         ),
       ),
-      popupBuilder: (BuildContext popOverContext) {
+      popupBuilder: (BuildContext popoverContext) {
         return FieldEditor(
           viewId: widget.viewId,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.viewId,
-            field: typeOption.field_2,
-          ),
-          onDeleted: (fieldId) {
-            popoverController.close();
-            NavigatorAlertDialog(
-              title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-              confirm: () {
-                context
-                    .read<RowDetailBloc>()
-                    .add(RowDetailEvent.deleteField(fieldId));
-              },
-            ).show(context);
-          },
+          field: typeOption.field_2,
+          fieldController: widget.fieldController,
         );
       },
     );
