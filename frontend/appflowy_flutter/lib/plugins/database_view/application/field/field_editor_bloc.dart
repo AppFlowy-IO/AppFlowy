@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -77,22 +76,14 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
           },
           insertLeft: () async {
-            final result = await TypeOptionBackendService.createFieldTypeOption(
-              viewId: viewId,
-              position: CreateFieldPosition.Before,
-              targetFieldId: field.id,
-            );
+            final result = await fieldService.insertBefore();
             result.fold(
               (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           insertRight: () async {
-            final result = await TypeOptionBackendService.createFieldTypeOption(
-              viewId: viewId,
-              position: CreateFieldPosition.After,
-              targetFieldId: field.id,
-            );
+            final result = await fieldService.insertAfter();
             result.fold(
               (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
               (err) => Log.error("Failed creating field $err"),
@@ -109,14 +100,6 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               fieldId: state.field.id,
               fieldVisibility: newVisibility,
             );
-            _logIfError(result);
-          },
-          deleteField: () async {
-            final result = await fieldService.deleteField();
-            _logIfError(result);
-          },
-          duplicateField: () async {
-            final result = await fieldService.duplicateField();
             _logIfError(result);
           },
         );
@@ -151,8 +134,6 @@ class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.insertRight() = _InsertRight;
   const factory FieldEditorEvent.toggleFieldVisibility() =
       _ToggleFieldVisiblity;
-  const factory FieldEditorEvent.deleteField() = _DeleteField;
-  const factory FieldEditorEvent.duplicateField() = _DuplicateField;
 }
 
 @freezed

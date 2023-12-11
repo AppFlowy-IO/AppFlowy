@@ -7,6 +7,7 @@ import { rowService } from '$app/components/database/application';
 import { useViewId } from '$app/hooks';
 import GridRowDragButton from '$app/components/database/grid/GridRowActions/GridRowDragButton';
 import GridRowMenu from '$app/components/database/grid/GridRowActions/GridRowMenu';
+import { OrderObjectPositionTypePB } from '@/services/backend';
 
 function GridRowActions({
   rowId,
@@ -33,7 +34,8 @@ function GridRowActions({
 
   const handleInsertRecordBelow = useCallback(() => {
     void rowService.createRow(viewId, {
-      startRowId: rowId,
+      position: OrderObjectPositionTypePB.After,
+      rowId: rowId,
     });
   }, [viewId, rowId]);
 

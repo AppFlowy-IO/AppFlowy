@@ -4,11 +4,11 @@ import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { ReactComponent as DelSvg } from '$app/assets/delete.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
 import Popover, { PopoverProps } from '@mui/material/Popover';
-import { useGetPrevRowId } from '$app/components/database';
 import { useViewId } from '$app/hooks';
 import { useTranslation } from 'react-i18next';
 import { rowService } from '$app/components/database/application';
 import { Icon, MenuItem, MenuList } from '@mui/material';
+import { OrderObjectPositionTypePB } from '@/services/backend';
 
 interface Option {
   label: string;
@@ -22,25 +22,23 @@ interface Props extends PopoverProps {
 }
 
 function GridRowMenu({ rowId, ...props }: Props) {
-  const getPrevRowId = useGetPrevRowId();
-
   const viewId = useViewId();
 
   const { t } = useTranslation();
 
   const handleInsertRecordBelow = useCallback(() => {
     void rowService.createRow(viewId, {
-      startRowId: rowId,
+      position: OrderObjectPositionTypePB.After,
+      rowId: rowId,
     });
   }, [viewId, rowId]);
 
   const handleInsertRecordAbove = useCallback(() => {
-    const prevRowId = getPrevRowId(rowId);
-
     void rowService.createRow(viewId, {
-      startRowId: prevRowId || undefined,
+      position: OrderObjectPositionTypePB.Before,
+      rowId: rowId,
     });
-  }, [getPrevRowId, rowId, viewId]);
+  }, [rowId, viewId]);
 
   const handleDelRow = useCallback(() => {
     void rowService.deleteRow(viewId, rowId);

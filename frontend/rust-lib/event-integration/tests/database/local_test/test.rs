@@ -6,8 +6,8 @@ use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{
   CellChangesetPB, CellIdPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
-  DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, SelectOptionCellDataPB,
-  UpdateRowMetaChangesetPB,
+  DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, OrderObjectPositionPB,
+  SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
 };
 use lib_infra::util::timestamp;
 
@@ -202,7 +202,9 @@ async fn create_row_event_test() {
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
     .await;
 
-  let _ = test.create_row(&grid_view.id, None, None).await;
+  let _ = test
+    .create_row(&grid_view.id, OrderObjectPositionPB::default(), None)
+    .await;
   let database = test.get_database(&grid_view.id).await;
   assert_eq!(database.rows.len(), 4);
 }
@@ -755,7 +757,9 @@ async fn create_calendar_event_test() {
     .unwrap();
 
   // create a new row
-  let row = test.create_row(&calendar_view.id, None, None).await;
+  let row = test
+    .create_row(&calendar_view.id, OrderObjectPositionPB::default(), None)
+    .await;
 
   // Insert data into the date cell of the first row.
   let error = test

@@ -54,24 +54,6 @@ export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
 
 export const useContextDatabase = () => useContext(DatabaseContext);
 
-export const useGetPrevRowId = () => {
-  const database = useContextDatabase();
-
-  return useCallback(
-    (id: string) => {
-      const rowMetas = database.rowMetas;
-      const index = rowMetas.findIndex((rowMeta) => rowMeta.id === id);
-
-      if (index === 0) {
-        return null;
-      }
-
-      return rowMetas[index - 1].id;
-    },
-    [database]
-  );
-};
-
 export const useSelectorCell = (rowId: string, fieldId: string) => {
   const database = useContext(DatabaseContext);
   const cells = useSnapshot(database.cells);

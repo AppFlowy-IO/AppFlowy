@@ -1,7 +1,7 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB, GroupPB, FlowyError } from '@/services/backend';
+import { DatabasePB, GroupPB, FlowyError, OrderObjectPositionTypePB } from '@/services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok } from 'ts-results';
 import { DatabaseGroupController } from './group/group_controller';
@@ -108,7 +108,7 @@ export class DatabaseController {
   };
 
   createRowAfter = (rowId: string) => {
-    return this.backendService.createRow({ rowId });
+    return this.backendService.createRow({ rowId, position: OrderObjectPositionTypePB.After });
   };
 
   duplicateRow = async (rowId: string) => {
@@ -136,7 +136,7 @@ export class DatabaseController {
     return this.backendService.moveGroup(fromGroupId, toGroupId);
   };
 
-  moveField = (params: { fieldId: string; fromIndex: number; toIndex: number }) => {
+  moveField = (params: { fromFieldId: string; toFieldId: string }) => {
     return this.backendService.moveField(params);
   };
 
@@ -149,30 +149,28 @@ export class DatabaseController {
   };
 
   addFieldToLeft = async (fieldId: string) => {
-    const index = this.fieldController.fieldInfos.findIndex((fieldInfo) => fieldInfo.field.id === fieldId);
-
     await this.backendService.createField();
 
     const newFieldId = this.fieldController.fieldInfos[this.fieldController.fieldInfos.length - 1].field.id;
 
     await this.moveField({
-      fieldId: newFieldId,
-      fromIndex: this.fieldController.fieldInfos.length - 1,
-      toIndex: index,
+      fromFieldId: newFieldId,
+      toFieldId: fieldId,
     });
   };
 
   addFieldToRight = async (fieldId: string) => {
-    const index = this.fieldController.fieldInfos.findIndex((fieldInfo) => fieldInfo.field.id === fieldId);
-
     await this.backendService.createField();
 
     const newFieldId = this.fieldController.fieldInfos[this.fieldController.fieldInfos.length - 1].field.id;
 
+    const index = this.fieldController.fieldInfos.findIndex((fieldInfo) => fieldInfo.field.id === fieldId);
+
+    const toFieldId = this.fieldController.fieldInfos[index + 1].field.id;
+
     await this.moveField({
-      fieldId: newFieldId,
-      fromIndex: this.fieldController.fieldInfos.length - 1,
-      toIndex: index + 1,
+      fromFieldId: newFieldId,
+      toFieldId: toFieldId,
     });
   };
 

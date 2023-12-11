@@ -6,22 +6,20 @@ import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 
 interface Props {
   index: number;
-  startRowId?: string;
   groupId?: string;
   getContainerRef?: () => React.RefObject<HTMLDivElement>;
 }
 
 const CSS_HIGHLIGHT_PROPERTY = 'bg-content-blue-50';
 
-function GridNewRow({ index, startRowId, groupId, getContainerRef }: Props) {
+function GridNewRow({ index, groupId, getContainerRef }: Props) {
   const viewId = useViewId();
 
   const handleClick = useCallback(() => {
     void rowService.createRow(viewId, {
-      startRowId,
       groupId,
     });
-  }, [viewId, groupId, startRowId]);
+  }, [viewId, groupId]);
 
   const toggleCssProperty = useCallback(
     (status: boolean) => {

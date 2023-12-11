@@ -30,12 +30,12 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
               ),
             );
           },
-          deleteField: (fieldId) {
-            final fieldService = FieldBackendService(
+          deleteField: (fieldId) async {
+            final result = await FieldBackendService.deleteField(
               viewId: rowController.viewId,
               fieldId: fieldId,
             );
-            fieldService.deleteField();
+            result.fold((l) {}, (err) => Log.error(err));
           },
           toggleFieldVisibility: (fieldId) async {
             final fieldInfo = state.allCells
@@ -57,15 +57,8 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
               (err) => Log.error(err),
             );
           },
-          reorderField:
-              (reorderedFieldId, targetFieldId, fromIndex, toIndex) async {
-            await _reorderField(
-              reorderedFieldId,
-              targetFieldId,
-              fromIndex,
-              toIndex,
-              emit,
-            );
+          reorderField: (fromIndex, toIndex) async {
+            await _reorderField(fromIndex, toIndex, emit);
           },
           toggleHiddenFieldVisibility: () {
             final showHiddenFields = !state.showHiddenFields;
@@ -127,28 +120,24 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   }
 
   Future<void> _reorderField(
-    String reorderedFieldId,
-    String targetFieldId,
     int fromIndex,
     int toIndex,
     Emitter<RowDetailState> emit,
   ) async {
+    if (fromIndex < toIndex) {
+      toIndex--;
+    }
+    final fromId = state.visibleCells[fromIndex].fieldId;
+    final toId = state.visibleCells[toIndex].fieldId;
+
     final cells = List<DatabaseCellContext>.from(state.visibleCells);
     cells.insert(toIndex, cells.removeAt(fromIndex));
     emit(state.copyWith(visibleCells: cells));
 
-    final fromIndexInAllFields =
-        state.allCells.indexWhere((cell) => cell.fieldId == reorderedFieldId);
-    final toIndexInAllFields =
-        state.allCells.indexWhere((cell) => cell.fieldId == targetFieldId);
-
-    final fieldService = FieldBackendService(
+    final result = await FieldBackendService.moveField(
       viewId: rowController.viewId,
-      fieldId: reorderedFieldId,
-    );
-    final result = await fieldService.moveField(
-      fromIndexInAllFields,
-      toIndexInAllFields,
+      fromFieldId: fromId,
+      toFieldId: toId,
     );
     result.fold((l) {}, (err) => Log.error(err));
   }
@@ -161,8 +150,6 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.toggleFieldVisibility(String fieldId) =
       _ToggleFieldVisibility;
   const factory RowDetailEvent.reorderField(
-    String reorderFieldID,
-    String targetFieldID,
     int fromIndex,
     int toIndex,
   ) = _ReorderField;
