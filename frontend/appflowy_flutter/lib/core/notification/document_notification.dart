@@ -13,11 +13,9 @@ typedef DocumentNotificationCallback = void Function(
 class DocumentNotificationParser
     extends NotificationParser<DocumentNotification, FlowyError> {
   DocumentNotificationParser({
-    String? id,
-    required DocumentNotificationCallback callback,
+    super.id,
+    required super.callback,
   }) : super(
-          id: id,
-          callback: callback,
           tyParser: (ty) => DocumentNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );

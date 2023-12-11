@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
+import 'package:appflowy/workspace/application/recent/recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:collection/collection.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -16,12 +19,14 @@ part 'view_bloc.freezed.dart';
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
   final ViewBackendService viewBackendSvc;
   final ViewListener listener;
+  final FavoriteListener favoriteListener;
   final ViewPB view;
 
   ViewBloc({
     required this.view,
   })  : viewBackendSvc = ViewBackendService(),
         listener = ViewListener(viewId: view.id),
+        favoriteListener = FavoriteListener(),
         super(ViewState.init(view)) {
     on<ViewEvent>((event, emit) async {
       await event.map(
@@ -38,6 +43,17 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
                 (view) => add(ViewEvent.viewDidUpdate(left(view))),
                 (error) => add(ViewEvent.viewDidUpdate(right(error))),
               );
+            },
+          );
+          favoriteListener.start(
+            favoritesUpdated: (result, isFavorite) {
+              result.fold((error) {}, (result) {
+                final current =
+                    result.items.firstWhereOrNull((v) => v.id == view.id);
+                if (current != null) {
+                  add(ViewEvent.viewDidUpdate(left(current)));
+                }
+              });
             },
           );
           final isExpanded = await _getViewIsExpanded(view);
@@ -88,6 +104,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               (error) => state.copyWith(successOrFailure: right(error)),
             ),
           );
+          RecentService().updateRecentViews([view.id], false);
         },
         duplicate: (e) async {
           final result = await ViewBackendService.duplicate(view: view);
@@ -139,6 +156,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   @override
   Future<void> close() async {
     await listener.stop();
+    await favoriteListener.stop();
     return super.close();
   }
 

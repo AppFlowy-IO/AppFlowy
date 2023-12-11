@@ -8,11 +8,11 @@ void showSnapBar(BuildContext context, String title, {VoidCallback? onClosed}) {
       .showSnackBar(
         SnackBar(
           duration: const Duration(milliseconds: 8000),
-          content: WillPopScope(
-            onWillPop: () async {
+          content: PopScope(
+            canPop: () {
               ScaffoldMessenger.of(context).removeCurrentSnackBar();
               return true;
-            },
+            }(),
             child: FlowyText.medium(
               title,
               fontSize: 12,

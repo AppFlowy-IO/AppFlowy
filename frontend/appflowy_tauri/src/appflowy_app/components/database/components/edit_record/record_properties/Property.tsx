@@ -1,26 +1,26 @@
-import React, { HTMLAttributes, useCallback, useState } from 'react';
+import React, { HTMLAttributes } from 'react';
 import PropertyName from '$app/components/database/components/edit_record/record_properties/PropertyName';
 import PropertyValue from '$app/components/database/components/edit_record/record_properties/PropertyValue';
 import { Field } from '$app/components/database/application';
-import PropertyActions from '$app/components/database/components/edit_record/record_properties/PropertyActions';
+import { IconButton, Tooltip } from '@mui/material';
+import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
+import { useTranslation } from 'react-i18next';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   field: Field;
   rowId: string;
   ishovered: boolean;
   onHover: (id: string | null) => void;
+  menuOpened?: boolean;
+  onOpenMenu?: () => void;
+  onCloseMenu?: () => void;
 }
 
-function Property({ field, rowId, ishovered, onHover, ...props }: Props, ref: React.ForwardedRef<HTMLDivElement>) {
-  const [openMenu, setOpenMenu] = useState(false);
-
-  const handleOpenMenu = useCallback(() => {
-    setOpenMenu(true);
-  }, []);
-
-  const handleCloseMenu = useCallback(() => {
-    setOpenMenu(false);
-  }, []);
+function Property(
+  { field, rowId, ishovered, onHover, menuOpened, onCloseMenu, onOpenMenu, ...props }: Props,
+  ref: React.ForwardedRef<HTMLDivElement>
+) {
+  const { t } = useTranslation();
 
   return (
     <>
@@ -32,16 +32,24 @@ function Property({ field, rowId, ishovered, onHover, ...props }: Props, ref: Re
         onMouseLeave={() => {
           onHover(null);
         }}
-        className={'relative flex gap-6 rounded hover:bg-content-blue-50'}
+        className={'relative flex items-start gap-6 rounded hover:bg-content-blue-50'}
         key={field.id}
         {...props}
       >
-        <PropertyName openMenu={openMenu} onOpenMenu={handleOpenMenu} onCloseMenu={handleCloseMenu} field={field} />
+        <PropertyName menuOpened={menuOpened} onCloseMenu={onCloseMenu} onOpenMenu={onOpenMenu} field={field} />
         <PropertyValue rowId={rowId} field={field} />
-        {ishovered && <PropertyActions onOpenMenu={handleOpenMenu} />}
+        {ishovered && (
+          <div className={`absolute left-[-30px] flex h-full items-center `}>
+            <Tooltip placement='top' title={t('grid.row.dragAndClick')}>
+              <IconButton onClick={onOpenMenu} className='mx-1 cursor-grab active:cursor-grabbing'>
+                <DragSvg />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
       </div>
     </>
   );
 }
 
-export default React.memo(React.forwardRef(Property));
+export default React.forwardRef(Property);

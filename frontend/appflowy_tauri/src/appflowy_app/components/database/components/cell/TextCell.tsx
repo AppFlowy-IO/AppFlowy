@@ -1,89 +1,55 @@
-import { FC, FormEventHandler, Suspense, lazy, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useViewId } from '$app/hooks';
-import { cellService, Field, TextCell as TextCellType } from '../../application';
+import { FC, FormEventHandler, Suspense, lazy, useCallback, useRef, useMemo } from 'react';
+import { TextCell as TextCellType } from '../../application';
 import { CellText } from '../../_shared';
-import { useGridUIStateDispatcher, useGridUIStateSelector } from '$app/components/database/proxy/grid/ui_state/actions';
+import { useInputCell } from '$app/components/database/components/cell/Cell.hooks';
 
-const ExpandButton = lazy(() => import('$app/components/database/components/cell/ExpandButton'));
-const EditTextCellInput = lazy(() => import('$app/components/database/components/cell/EditTextCellInput'));
+const EditTextCellInput = lazy(() => import('$app/components/database/components/field_types/text/EditTextCellInput'));
 
-export const TextCell: FC<{
-  field: Field;
-  cell?: TextCellType;
-  documentId?: string;
-  icon?: string;
+interface TextCellProps {
+  cell: TextCellType;
   placeholder?: string;
-}> = ({ field, cell, documentId, icon, placeholder }) => {
-  const isPrimary = field.isPrimary;
-  const viewId = useViewId();
+}
+export const TextCell: FC<TextCellProps> = ({ placeholder, cell }) => {
   const cellRef = useRef<HTMLDivElement>(null);
-  const [editing, setEditing] = useState(false);
-  const [text, setText] = useState('');
-  const [width, setWidth] = useState<number | undefined>(undefined);
-  const { hoverRowId } = useGridUIStateSelector();
-  const isHover = hoverRowId === cell?.rowId;
-  const { setRowHover } = useGridUIStateDispatcher();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const showExpandIcon = cell && !editing && isHover && isPrimary;
+  const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);
   const handleClose = () => {
     if (!cell) return;
-    if (editing) {
-      if (text !== cell.data) {
-        void cellService.updateCell(viewId, cell.rowId, field.id, text);
-      }
-
-      setEditing(false);
-    }
+    updateCell();
   };
 
   const handleClick = useCallback(() => {
     if (!cell) return;
-    setText(cell.data);
+    setValue(cell.data);
     setEditing(true);
-  }, [cell]);
+  }, [cell, setEditing, setValue]);
 
-  const handleInput = useCallback<FormEventHandler<HTMLTextAreaElement>>((event) => {
-    setText((event.target as HTMLTextAreaElement).value);
-  }, []);
+  const handleInput = useCallback<FormEventHandler<HTMLTextAreaElement>>(
+    (event) => {
+      setValue((event.target as HTMLTextAreaElement).value);
+    },
+    [setValue]
+  );
 
-  useLayoutEffect(() => {
-    if (cellRef.current) {
-      setWidth(cellRef.current.clientWidth);
+  const content = useMemo(() => {
+    if (cell && typeof cell.data === 'string' && cell.data) {
+      return cell.data;
     }
-  }, [editing]);
 
-  useEffect(() => {
-    if (editing) {
-      setRowHover(null);
-    }
-  }, [editing, setRowHover]);
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-      // set the cursor to the end of the text
-      textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
-    }
-  }, []);
+    return <div className={'text-text-placeholder'}>{placeholder}</div>;
+  }, [cell, placeholder]);
 
   return (
     <>
-      <CellText ref={cellRef} onClick={handleClick}>
-        <div className='flex w-full items-center'>
-          {icon && <div className={'mr-2'}>{icon}</div>}
-          {cell?.data || <div className={'text-text-placeholder'}>{placeholder}</div>}
-        </div>
+      <CellText className={`min-h-[36px] w-full`} ref={cellRef} onClick={handleClick}>
+        {content}
       </CellText>
       <Suspense>
-        {cell && <ExpandButton visible={showExpandIcon} icon={icon} documentId={documentId} cell={cell} />}
         {editing && (
           <EditTextCellInput
             editing={editing}
             anchorEl={cellRef.current}
-            width={width}
             onClose={handleClose}
-            text={text}
+            text={value}
             onInput={handleInput}
           />
         )}

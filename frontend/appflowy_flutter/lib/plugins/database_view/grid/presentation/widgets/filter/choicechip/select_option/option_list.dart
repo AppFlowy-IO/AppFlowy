@@ -3,10 +3,9 @@ import 'package:appflowy/plugins/database_view/grid/application/filter/select_op
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,8 +19,8 @@ class SelectOptionFilterList extends StatelessWidget {
     required this.filterInfo,
     required this.selectedOptionIds,
     required this.onSelectedOptions,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +59,6 @@ class SelectOptionFilterList extends StatelessWidget {
             return ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              controller: ScrollController(),
               itemCount: state.visibleOptions.length,
               separatorBuilder: (context, index) {
                 return VSpace(GridSize.typeOptionSeparatorHeight);

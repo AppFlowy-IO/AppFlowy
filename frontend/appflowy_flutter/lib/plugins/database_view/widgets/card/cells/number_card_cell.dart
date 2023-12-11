@@ -20,11 +20,11 @@ class NumberCardCell<CustomCardData>
 
   const NumberCardCell({
     required this.cellControllerBuilder,
-    CustomCardData? cardData,
-    NumberCardCellStyle? style,
+    super.cardData,
+    super.style,
     this.renderHook,
-    Key? key,
-  }) : super(key: key, style: style, cardData: cardData);
+    super.key,
+  });
 
   @override
   State<NumberCardCell> createState() => _NumberCellState();

@@ -9,6 +9,7 @@ import 'package:appflowy/workspace/application/notifications/notification_action
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
@@ -106,7 +107,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
         },
-        pressReminder: (reminderId, path) {
+        pressReminder: (reminderId, path, view) {
           final reminder =
               state.reminders.firstWhereOrNull((r) => r.id == reminderId);
 
@@ -129,6 +130,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
                 objectId: reminder.objectId,
                 arguments: {
                   ActionArgumentKeys.nodePath.name: path,
+                  ActionArgumentKeys.view.name: view,
                 },
               ),
             ),
@@ -201,6 +203,7 @@ class ReminderEvent with _$ReminderEvent {
   const factory ReminderEvent.pressReminder({
     required String reminderId,
     @Default(null) int? path,
+    @Default(null) ViewPB? view,
   }) = _PressReminder;
 }
 

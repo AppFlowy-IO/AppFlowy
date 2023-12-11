@@ -50,7 +50,7 @@ lib-dispatch = { workspace = true }
 uuid.workspace = true
 tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 dotenv = "0.15.0"
-yrs = "0.16.5"
+yrs = "0.17.1"
 assert-json-diff = "2.0.2"
 serde_json.workspace = true
 client-api = { version = "0.1.0" }

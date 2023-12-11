@@ -17,7 +17,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -229,7 +228,6 @@ class _CalendarPageState extends State<CalendarPage> {
                           firstDate: CalendarConstants.epochDate.withoutTime,
                           lastDate: CalendarConstants.maxDate.withoutTime,
                           selectedDate: currentMonth,
-                          initialDate: currentMonth,
                           currentDate: DateTime.now(),
                           onChanged: (newDate) {
                             _calendarState?.currentState?.jumpToMonth(newDate);
@@ -422,8 +420,10 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 }
               },
               child: FlowyTooltip(
-                message: LocaleKeys.calendar_settings_noDateHint
-                    .plural(state.unscheduleEvents.length),
+                message: LocaleKeys.calendar_settings_noDateHint.plural(
+                  state.unscheduleEvents.length,
+                  namedArgs: {'count': '${state.unscheduleEvents.length}'},
+                ),
                 child: FlowyText.regular(
                   "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
                   fontSize: 10,
@@ -484,15 +484,10 @@ class UnscheduleEventsList extends StatelessWidget {
           onPressed: () {
             if (PlatformExtension.isMobile) {
               context.push(
-                MobileCardDetailScreen.routeName,
+                MobileRowDetailPage.routeName,
                 extra: {
-                  MobileCardDetailScreen.argRowController: RowController(
-                    rowMeta: event.rowMeta,
-                    viewId: databaseController.viewId,
-                    rowCache: databaseController.rowCache,
-                  ),
-                  MobileCardDetailScreen.argFieldController:
-                      databaseController.fieldController,
+                  MobileRowDetailPage.argRowId: event.rowMeta.id,
+                  MobileRowDetailPage.argDatabaseController: databaseController,
                 },
               );
               context.pop();

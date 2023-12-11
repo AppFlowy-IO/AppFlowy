@@ -17,11 +17,9 @@ typedef FolderNotificationCallback = void Function(
 class FolderNotificationParser
     extends NotificationParser<FolderNotification, FlowyError> {
   FolderNotificationParser({
-    String? id,
-    required FolderNotificationCallback callback,
+    super.id,
+    required super.callback,
   }) : super(
-          id: id,
-          callback: callback,
           tyParser: (ty) => FolderNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );

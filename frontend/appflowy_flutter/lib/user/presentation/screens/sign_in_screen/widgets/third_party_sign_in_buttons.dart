@@ -20,9 +20,13 @@ class ThirdPartySignInButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get themeMode from AppearanceSettingsCubit
     // When user changes themeMode, it changes the state in AppearanceSettingsCubit, but the themeMode for the MaterialApp won't change, it only got updated(get value from AppearanceSettingsCubit) when user open the app again. Thus, we should get themeMode from AppearanceSettingsCubit rather than MediaQuery.
-    final isDarkMode =
-        context.read<AppearanceSettingsCubit>().state.themeMode ==
-            ThemeMode.dark;
+
+    final themeModeFromCubit =
+        context.read<AppearanceSettingsCubit>().state.themeMode;
+
+    final isDarkMode = themeModeFromCubit == ThemeMode.system
+        ? MediaQuery.of(context).platformBrightness == Brightness.dark
+        : themeModeFromCubit == ThemeMode.dark;
 
     return Column(
       children: [
@@ -75,40 +79,37 @@ class _ThirdPartySignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context);
-    final isMobile = PlatformExtension.isMobile;
-    if (isMobile) {
-      // Use LayoutBuilder to get the maxWidth of parent widget(Column) and set the icon occupied area to 1/4 of maxWidth.
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          return SizedBox(
-            height: 48,
-            child: OutlinedButton.icon(
-              icon: Container(
-                width: constraints.maxWidth / 4,
-                alignment: Alignment.centerRight,
-                child: SizedBox(
-                  width: 24,
-                  child: FlowySvg(
-                    icon,
-                    blendMode: null,
-                  ),
-                ),
-              ),
-              label: Container(
-                padding: const EdgeInsets.only(left: 4),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  labelText,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
-              onPressed: onPressed,
-            ),
-          );
-        },
+    if (PlatformExtension.isMobile) {
+      return _MobileSignInButton(
+        icon: icon,
+        labelText: labelText,
+        onPressed: onPressed,
+      );
+    } else {
+      return _DesktopSignInButton(
+        icon: icon,
+        labelText: labelText,
+        onPressed: onPressed,
       );
     }
+  }
+}
+
+class _DesktopSignInButton extends StatelessWidget {
+  const _DesktopSignInButton({
+    required this.icon,
+    required this.labelText,
+    required this.onPressed,
+  });
+
+  final FlowySvgData icon;
+  final String labelText;
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context);
     // In desktop, the width of button is limited by [AuthFormContainer]
     return SizedBox(
       height: 48,
@@ -156,6 +157,63 @@ class _ThirdPartySignInButton extends StatelessWidget {
           ),
         ),
         onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+class _MobileSignInButton extends StatelessWidget {
+  const _MobileSignInButton({
+    required this.icon,
+    required this.labelText,
+    required this.onPressed,
+  });
+
+  final FlowySvgData icon;
+  final String labelText;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context);
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(4),
+          ),
+          border: Border.all(
+            color: style.colorScheme.outline,
+            width: 0.5,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
+              width: 30,
+              height: 30,
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  child: FlowySvg(
+                    icon,
+                    blendMode: null,
+                  ),
+                ),
+              ),
+            ),
+            const HSpace(8),
+            Text(
+              labelText,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ],
+        ),
       ),
     );
   }

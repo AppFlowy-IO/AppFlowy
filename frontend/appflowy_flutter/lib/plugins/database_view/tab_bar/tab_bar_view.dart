@@ -66,6 +66,12 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   }
 
   @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<DatabaseTabBarBloc>(
       create: (context) => DatabaseTabBarBloc(view: widget.view)
@@ -77,11 +83,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
             listener: (context, state) {
-              _pageController?.animateToPage(
-                state.selectedIndex,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
+              _pageController?.jumpToPage(state.selectedIndex);
             },
           ),
         ],

@@ -60,6 +60,7 @@ class FavoriteListener {
   Future<void> stop() async {
     _parser = null;
     await _streamSubscription?.cancel();
+    _streamSubscription = null;
     _favoriteUpdated = null;
   }
 }

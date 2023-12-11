@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -230,9 +230,11 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       alignment: Alignment.bottomLeft,
       width: double.infinity,
       padding: PlatformExtension.isDesktopOrWeb
-          ? EditorStyleCustomizer.documentPadding
+          ? EdgeInsets.symmetric(
+              horizontal: EditorStyleCustomizer.documentPadding.right,
+            )
           : EdgeInsets.symmetric(
-              horizontal: EditorStyleCustomizer.documentPadding.left - 6.0,
+              horizontal: EditorStyleCustomizer.documentPadding.left,
             ),
       child: SizedBox(
         height: 28,
@@ -276,7 +278,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           ),
           useIntrinsicWidth: true,
           leftIcon: const FlowySvg(FlowySvgs.image_s),
-          text: FlowyText.regular(
+          text: FlowyText.small(
             LocaleKeys.document_plugins_cover_addCover.tr(),
           ),
         ),
@@ -293,7 +295,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
             Icons.emoji_emotions_outlined,
             size: 18,
           ),
-          text: FlowyText.regular(
+          text: FlowyText.small(
             LocaleKeys.document_plugins_cover_removeIcon.tr(),
           ),
         ),
@@ -306,7 +308,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           Icons.emoji_emotions_outlined,
           size: 18,
         ),
-        text: FlowyText.regular(
+        text: FlowyText.small(
           LocaleKeys.document_plugins_cover_addIcon.tr(),
         ),
         onTap: PlatformExtension.isDesktop
@@ -426,12 +428,15 @@ class DocumentCoverState extends State<DocumentCover> {
               children: [
                 IntrinsicWidth(
                   child: RoundedTextButton(
+                    fontSize: 14,
                     onPressed: () {
-                      showFlowyMobileBottomSheet(
+                      showMobileBottomSheet(
                         context,
+                        showHeader: true,
+                        showDragHandle: true,
+                        showCloseButton: true,
                         title:
                             LocaleKeys.document_plugins_cover_changeCover.tr(),
-                        isScrollControlled: true,
                         builder: (context) {
                           return ConstrainedBox(
                             constraints: const BoxConstraints(
@@ -465,7 +470,10 @@ class DocumentCoverState extends State<DocumentCover> {
                         },
                       );
                     },
-                    fillColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fillColor: Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withOpacity(0.5),
                     height: 32,
                     title: LocaleKeys.document_plugins_cover_changeCover.tr(),
                   ),
@@ -584,7 +592,7 @@ class DeleteCoverButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final fillColor = PlatformExtension.isDesktopOrWeb
         ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
-        : Theme.of(context).colorScheme.onSurfaceVariant;
+        : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
     final svgColor = PlatformExtension.isDesktopOrWeb
         ? Theme.of(context).colorScheme.tertiary
         : Theme.of(context).colorScheme.onPrimary;

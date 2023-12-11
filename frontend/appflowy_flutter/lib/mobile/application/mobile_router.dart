@@ -1,29 +1,22 @@
-import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
+import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy/workspace/application/recent/recent_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class MobileRouterRecord {
-  PropertyValueNotifier<String> lastPushedRouter =
-      PropertyValueNotifier<String>('');
-}
-
 extension MobileRouter on BuildContext {
   Future<void> pushView(ViewPB view) async {
-    await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
-    getIt<MobileRouterRecord>().lastPushedRouter.value = view.routeName;
     push(
       Uri(
         path: view.routeName,
         queryParameters: view.queryParameters,
       ).toString(),
-    );
+    ).then((value) {
+      RecentService().updateRecentViews([view.id], true);
+    });
   }
 }
 

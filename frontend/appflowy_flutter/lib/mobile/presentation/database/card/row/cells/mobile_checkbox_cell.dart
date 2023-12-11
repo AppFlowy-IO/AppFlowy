@@ -38,11 +38,15 @@ class _CheckboxCellState extends GridCellState<MobileCheckboxCell> {
         builder: (context, state) {
           return Align(
             alignment: Alignment.centerLeft,
-            // TODO(yijing): improve icon here
-            child: FlowySvg(
-              state.isSelected ? FlowySvgs.checkbox_s : FlowySvgs.uncheck_s,
-              color: Theme.of(context).colorScheme.onBackground,
-              size: const Size.square(24),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: FlowySvg(
+                state.isSelected
+                    ? FlowySvgs.check_filled_s
+                    : FlowySvgs.uncheck_s,
+                blendMode: BlendMode.dst,
+                size: const Size.square(24),
+              ),
             ),
           );
         },

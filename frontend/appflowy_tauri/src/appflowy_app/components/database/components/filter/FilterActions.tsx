@@ -29,6 +29,7 @@ function FilterActions({ filter }: { filter: Filter }) {
         onClick={(e) => {
           setAnchorEl(e.currentTarget);
         }}
+        className={'mx-2 my-1.5'}
       >
         <MoreSvg />
       </IconButton>

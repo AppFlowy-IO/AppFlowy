@@ -1,75 +1,132 @@
-import { useVirtualizer } from '@tanstack/react-virtual';
-import React, { FC, useMemo, useRef } from 'react';
+import React, { FC, useCallback, useMemo, useRef } from 'react';
 import { RowMeta } from '../../application';
 import { useDatabaseVisibilityFields, useDatabaseVisibilityRows } from '../../Database.hooks';
-import { VirtualizedList } from '../../_shared';
-import { DEFAULT_FIELD_WIDTH, GridRow, RenderRow, RenderRowType, rowMetasToRenderRow } from '../GridRow';
+import { fieldsToColumns, GridColumn, RenderRow, RenderRowType, rowMetasToRenderRow } from '../constants';
+import { CircularProgress } from '@mui/material';
+import { GridChildComponentProps, GridOnScrollProps, VariableSizeGrid as Grid } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { GridCell } from '$app/components/database/grid/GridCell';
+import { useGridColumn, useGridRow } from '$app/components/database/grid/GridTable/GridTable.hooks';
+import GridStickyHeader from '$app/components/database/grid/GridStickyHeader/GridStickyHeader';
+import GridTableOverlay from '$app/components/database/grid/GridOverlay/GridTableOverlay';
+import ReactDOM from 'react-dom';
 
-const getRenderRowKey = (row: RenderRow) => {
-  if (row.type === RenderRowType.Row) {
-    return `row:${row.data.meta.id}`;
-  }
+export interface GridTableProps {
+  onEditRecord: (rowId: string) => void;
+}
 
-  return row.type;
-};
-
-export const GridTable: FC<{ tableHeight: number }> = React.memo(({ tableHeight }) => {
-  const verticalScrollElementRef = useRef<HTMLDivElement | null>(null);
-  const horizontalScrollElementRef = useRef<HTMLDivElement | null>(null);
+export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
   const rowMetas = useDatabaseVisibilityRows();
-  const renderRows = useMemo<RenderRow[]>(() => rowMetasToRenderRow(rowMetas as RowMeta[]), [rowMetas]);
   const fields = useDatabaseVisibilityFields();
-  const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
-    count: renderRows.length,
-    overscan: 5,
-    getItemKey: (i) => getRenderRowKey(renderRows[i]),
-    getScrollElement: () => verticalScrollElementRef.current,
-    estimateSize: () => 37,
-  });
+  const renderRows = useMemo<RenderRow[]>(() => rowMetasToRenderRow(rowMetas as RowMeta[]), [rowMetas]);
+  const columns = useMemo<GridColumn[]>(() => fieldsToColumns(fields), [fields]);
+  const ref = useRef<Grid<HTMLDivElement>>(null);
+  const { columnWidth } = useGridColumn(columns, ref);
+  const { rowHeight } = useGridRow();
 
-  const columnVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
-    horizontal: true,
-    count: fields.length,
-    overscan: 5,
-    getItemKey: (i) => fields[i].id,
-    getScrollElement: () => horizontalScrollElementRef.current,
-    estimateSize: (i) => {
-      return fields[i].width ?? DEFAULT_FIELD_WIDTH;
+  const getItemKey = useCallback(
+    ({ columnIndex, rowIndex }: { columnIndex: number; rowIndex: number }) => {
+      const row = renderRows[rowIndex];
+      const column = columns[columnIndex];
+
+      const field = column.field;
+
+      if (row.type === RenderRowType.Row) {
+        if (field) {
+          return `${row.data.meta.id}:${field.id}`;
+        }
+
+        return `${row.data.meta.id}:${column.type}`;
+      }
+
+      if (field) {
+        return `${row.type}:${field.id}`;
+      }
+
+      return `${row.type}:${column.type}`;
     },
-  });
+    [columns, renderRows]
+  );
 
-  const getPrevRowId = (id: string) => {
-    const index = rowMetas.findIndex((rowMeta) => rowMeta.id === id);
+  const getContainerRef = useCallback(() => {
+    return containerRef;
+  }, []);
 
-    if (index === 0) {
-      return null;
+  const Cell = useCallback(
+    ({ columnIndex, rowIndex, style }: GridChildComponentProps) => {
+      const row = renderRows[rowIndex];
+      const column = columns[columnIndex];
+
+      return (
+        <GridCell
+          getContainerRef={getContainerRef}
+          onEditRecord={onEditRecord}
+          columnIndex={columnIndex}
+          style={style}
+          row={row}
+          column={column}
+        />
+      );
+    },
+    [columns, getContainerRef, renderRows, onEditRecord]
+  );
+
+  const staticGrid = useRef<Grid<HTMLDivElement> | null>(null);
+
+  const onScroll = useCallback(({ scrollLeft, scrollUpdateWasRequested }: GridOnScrollProps) => {
+    if (!scrollUpdateWasRequested) {
+      staticGrid.current?.scrollTo({ scrollLeft, scrollTop: 0 });
     }
+  }, []);
 
-    return rowMetas[index - 1].id;
-  };
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const scrollElementRef = useRef<HTMLDivElement | null>(null);
+
+  const getScrollElement = useCallback(() => {
+    return scrollElementRef.current;
+  }, []);
 
   return (
-    <div
-      style={{
-        height: tableHeight,
-      }}
-      className={'flex w-full flex-col'}
-    >
-      <div
-        className={'w-full flex-1 overflow-auto'}
-        ref={(e) => {
-          verticalScrollElementRef.current = e;
-          horizontalScrollElementRef.current = e;
-        }}
-      >
-        <VirtualizedList
-          className='flex w-fit basis-full flex-col px-16'
-          virtualizer={rowVirtualizer}
-          itemClassName='flex'
-          renderItem={(index) => (
-            <GridRow getPrevRowId={getPrevRowId} row={renderRows[index]} virtualizer={columnVirtualizer} />
+    <div className={'flex w-full flex-1 flex-col '}>
+      {fields.length === 0 && (
+        <div className={'absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center bg-bg-body'}>
+          <CircularProgress />
+        </div>
+      )}
+      <div className={'h-[36px]'}>
+        <GridStickyHeader ref={staticGrid} getScrollElement={getScrollElement} columns={columns} />
+      </div>
+
+      <div className={'flex-1'}>
+        <AutoSizer>
+          {({ height, width }: { height: number; width: number }) => (
+            <Grid
+              ref={ref}
+              onScroll={onScroll}
+              columnCount={columns.length}
+              columnWidth={columnWidth}
+              height={height}
+              rowCount={renderRows.length}
+              rowHeight={rowHeight}
+              width={width}
+              overscanRowCount={10}
+              itemKey={getItemKey}
+              style={{
+                overscrollBehavior: 'none',
+              }}
+              outerRef={scrollElementRef}
+              innerRef={containerRef}
+            >
+              {Cell}
+            </Grid>
           )}
-        />
+        </AutoSizer>
+        {containerRef.current
+          ? ReactDOM.createPortal(
+              <GridTableOverlay getScrollElement={getScrollElement} containerRef={containerRef} />,
+              containerRef.current
+            )
+          : null}
       </div>
     </div>
   );

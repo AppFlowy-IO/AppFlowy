@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,11 +10,17 @@ class MobileTextCell extends GridCellWidget {
   MobileTextCell({
     super.key,
     required this.cellControllerBuilder,
-    this.hintText,
-  });
+    GridCellStyle? style,
+  }) {
+    if (style != null) {
+      cellStyle = (style as GridTextCellStyle);
+    } else {
+      cellStyle = const GridTextCellStyle();
+    }
+  }
 
   final CellControllerBuilder cellControllerBuilder;
-  final String? hintText;
+  late final GridTextCellStyle cellStyle;
 
   @override
   GridEditableTextCell<MobileTextCell> createState() => _MobileTextCellState();
@@ -49,15 +56,15 @@ class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
         child: TextField(
           controller: _controller,
           focusNode: focusNode,
-          // TODO(yijing): update text style
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15),
           decoration: InputDecoration(
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
-            hintText: widget.hintText,
-            contentPadding: EdgeInsets.zero,
+            hintText: widget.cellStyle.placeholder,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             isCollapsed: true,
           ),
-          // close keyboard when tapping outside of the text field
           onTapOutside: (event) =>
               FocusManager.instance.primaryFocus?.unfocus(),
         ),
@@ -76,9 +83,7 @@ class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
 
   @override
   Future<void> focusChanged() {
-    _cellBloc.add(
-      TextCellEvent.updateText(_controller.text),
-    );
+    _cellBloc.add(TextCellEvent.updateText(_controller.text));
     return super.focusChanged();
   }
 }

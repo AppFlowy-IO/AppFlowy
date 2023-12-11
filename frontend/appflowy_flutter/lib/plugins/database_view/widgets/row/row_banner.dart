@@ -137,8 +137,7 @@ class _BannerTitle extends StatefulWidget {
     required this.cellBuilder,
     required this.popoverController,
     required this.rowController,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_BannerTitle> createState() => _BannerTitleState();

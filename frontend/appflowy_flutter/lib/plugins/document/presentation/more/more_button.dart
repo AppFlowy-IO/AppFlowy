@@ -4,14 +4,15 @@ import 'package:appflowy/plugins/document/presentation/more/cubit/document_appea
 import 'package:appflowy/plugins/document/presentation/more/font_size_switcher.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentMoreButton extends StatelessWidget {
   const DocumentMoreButton({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +21,15 @@ class DocumentMoreButton extends StatelessWidget {
       offset: const Offset(0, 30),
       child: FlowyTooltip(
         message: LocaleKeys.moreAction_moreOptions.tr(),
-        child: FlowySvg(
-          FlowySvgs.details_s,
-          size: const Size(18, 18),
-          color: Theme.of(context).iconTheme.color,
+        child: FlowyHover(
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: FlowySvg(
+              FlowySvgs.details_s,
+              size: const Size(18, 18),
+              color: Theme.of(context).iconTheme.color,
+            ),
+          ),
         ),
       ),
       popupBuilder: (context) {

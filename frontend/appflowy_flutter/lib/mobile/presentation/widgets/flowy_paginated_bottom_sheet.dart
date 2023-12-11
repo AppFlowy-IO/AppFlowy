@@ -15,7 +15,7 @@ class SheetPage {
 
 void showPaginatedBottomSheet(BuildContext context, {required SheetPage page}) {
   showMobileBottomSheet(
-    context: context,
+    context,
     // Workaround for not causing drag to rebuild
     isDragEnabled: false,
     builder: (context) => FlowyBottomSheet(root: page),
@@ -121,15 +121,12 @@ class FlowyBottomSheetPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _SheetTopBar(title: title, isRoot: isRoot),
-          child,
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _SheetTopBar(title: title, isRoot: isRoot),
+        child,
+      ],
     );
   }
 }

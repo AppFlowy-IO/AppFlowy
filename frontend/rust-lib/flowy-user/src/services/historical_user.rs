@@ -1,4 +1,5 @@
 use diesel::RunQueryDsl;
+use tracing::instrument;
 
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::user_workspace_table;
@@ -13,6 +14,7 @@ use crate::services::user_workspace_sql::UserWorkspaceTable;
 
 const HISTORICAL_USER: &str = "af_historical_users";
 impl UserManager {
+  #[instrument(skip_all)]
   pub async fn get_migration_user(&self, auth_type: &Authenticator) -> Option<MigrationUser> {
     // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
     // auth type is not [AuthType::Local].

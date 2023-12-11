@@ -13,8 +13,8 @@ class CheckboxCardCell extends CardCell {
 
   const CheckboxCardCell({
     required this.cellControllerBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<CheckboxCardCell> createState() => _CheckboxCellState();

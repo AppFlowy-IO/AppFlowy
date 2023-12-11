@@ -2,6 +2,7 @@ import {
   CreateRowPayloadPB,
   MoveGroupRowPayloadPB,
   MoveRowPayloadPB,
+  OrderObjectPositionTypePB,
   RowIdPB,
   UpdateRowMetaChangesetPB,
 } from '@/services/backend';
@@ -17,13 +18,17 @@ import {
 import { pbToRowMeta, RowMeta } from './row_types';
 
 export async function createRow(viewId: string, params?: {
-  startRowId?: string;
+  position?: OrderObjectPositionTypePB;
+  rowId?: string;
   groupId?: string;
   data?: Record<string, string>;
 }): Promise<RowMeta> {
   const payload = CreateRowPayloadPB.fromObject({
     view_id: viewId,
-    start_row_id: params?.startRowId,
+    row_position: {
+      position: params?.position,
+      object_id: params?.rowId,
+    },
     group_id: params?.groupId,
     data: params?.data ? { cell_data_by_field_id: params.data } : undefined,
   });

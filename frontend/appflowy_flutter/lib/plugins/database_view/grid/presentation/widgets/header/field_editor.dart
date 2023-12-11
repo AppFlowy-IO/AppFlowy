@@ -57,6 +57,12 @@ class _FieldEditorState extends State<FieldEditor> {
   }
 
   @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => FieldEditorBloc(
@@ -263,18 +269,19 @@ enum FieldAction {
         break;
       case FieldAction.duplicate:
         PopoverContainer.of(context).close();
-        context
-            .read<FieldEditorBloc>()
-            .add(const FieldEditorEvent.duplicateField());
+        FieldBackendService.duplicateField(
+          viewId: viewId,
+          fieldId: fieldInfo.id,
+        );
         break;
       case FieldAction.delete:
         NavigatorAlertDialog(
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
-            FieldBackendService(
+            FieldBackendService.deleteField(
               viewId: viewId,
               fieldId: fieldInfo.id,
-            ).deleteField();
+            );
           },
         ).show(context);
         PopoverContainer.of(context).close();

@@ -21,7 +21,7 @@ import 'package:path/path.dart' as p;
 import '../../../../generated/locale_keys.g.dart';
 
 class FileExporterWidget extends StatefulWidget {
-  const FileExporterWidget({Key? key}) : super(key: key);
+  const FileExporterWidget({super.key});
 
   @override
   State<FileExporterWidget> createState() => _FileExporterWidgetState();
@@ -143,11 +143,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
 }
 
 class _ExpandedList extends StatefulWidget {
-  const _ExpandedList({
-    Key? key,
-    // required this.apps,
-    // required this.onChanged,
-  }) : super(key: key);
+  const _ExpandedList();
 
   // final List<AppPB> apps;
   // final void Function(Map<String, List<String>> selectedPages) onChanged;

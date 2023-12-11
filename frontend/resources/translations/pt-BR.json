@@ -32,6 +32,7 @@
   "signIn": {
     "loginTitle": "Conectar-se ao @:appName",
     "loginButtonText": "Conectar-se",
+    "loginStartWithAnonymous": "Iniciar com uma sessão anônima",
     "continueAnonymousUser": "Continuar em uma sessão anônima",
     "buttonText": "Entre",
     "forgotPassword": "Esqueceu sua senha?",
@@ -41,6 +42,9 @@
     "repeatPasswordEmptyError": "Senha não pode estar em branco.",
     "unmatchedPasswordError": "As senhas não conferem.",
     "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página",
+    "LogInWithGoogle": "Entrar com o Google",
+    "LogInWithGithub": "Entrar com o Github",
+    "LogInWithDiscord": "Entrar com o Discord",
     "signInWith": "Entrar com:",
     "loginAsGuestButtonText": "Iniciar"
   },
@@ -49,7 +53,10 @@
     "reset": "Redefinir espaço de trabalho",
     "resetWorkspacePrompt": "A redefinição do espaço de trabalho excluirá todas as páginas e dados contidos nele. Tem certeza de que deseja redefinir o espaço de trabalho? Alternativamente, você pode entrar em contato com a equipe de suporte para restaurar o espaço de trabalho",
     "hint": "Espaço de trabalho",
-    "notFoundError": "Espaço de trabalho não encontrado"
+    "notFoundError": "Espaço de trabalho não encontrado",
+    "errorActions": {
+      "reportIssue": "Reporte um problema"
+    }
   },
   "shareAction": {
     "buttonText": "Compartilhar",
@@ -159,7 +166,9 @@
     "dragRow": "Pressione e segure para reordenar a linha",
     "viewDataBase": "Visualizar banco de dados",
     "referencePage": "Esta {name} é uma referência",
-    "addBlockBelow": "Adicione um bloco abaixo"
+    "addBlockBelow": "Adicione um bloco abaixo",
+    "urlLaunchAccessory": "Abrir com o navegador",
+    "urlCopyAccessory": "Copiar URL"
   },
   "sideBar": {
     "closeSidebar": "Fechar barra lateral",
@@ -184,6 +193,7 @@
   },
   "button": {
     "done": "Feito",
+    "cancel": "Cancelar",
     "signIn": "Conectar",
     "signOut": "Desconectar",
     "complete": "Completar",
@@ -200,9 +210,14 @@
     "delete": "Excluir",
     "duplicate": "Duplicado",
     "putback": "Por de volta",
-    "OK": "Ok",
+    "share": "Compartilhar",
+    "removeFromFavorites": "Remover dos favoritos",
+    "addToFavorites": "Adicionar aos favoritos",
+    "rename": "Renomear",
+    "helpCenter": "Central de Ajuda",
     "Done": "Feito",
     "Cancel": "Cancelar",
+    "OK": "Ok",
     "tryAGain": "Tentar novamente"
   },
   "label": {
@@ -232,6 +247,7 @@
       "language": "Idioma",
       "user": "Usuário",
       "files": "Arquivos",
+      "notifications": "Notificações",
       "open": "Abrir Configurações",
       "logout": "Sair",
       "logoutPrompt": "Tem certeza de que deseja sair?",
@@ -239,6 +255,10 @@
       "syncSetting": "Configuração de sincronização",
       "enableSync": "Ativar sincronização",
       "enableEncrypt": "Criptografar dados",
+      "cloudSupabase": "Supabase",
+      "clickToCopy": "Clique para copiar",
+      "restartApp": "Reiniciar",
+      "restartAppTip": "Reinicie o aplicativo para que as alterações tenham efeito. Observe que isso pode desconectar sua conta atual",
       "enableEncryptPrompt": "Ative a criptografia para proteger seus dados com este segredo. Armazene-o com segurança; uma vez ativado, não pode ser desativado. Se perdidos, seus dados se tornarão irrecuperáveis. Clique para copiar",
       "inputEncryptPrompt": "Por favor, insira seu segredo de criptografia para",
       "clickToCopySecret": "Clique para copiar o segredo",
@@ -247,6 +267,11 @@
       "historicalUserListTooltip": "Esta lista exibe suas contas anônimas. Você pode clicar em uma conta para ver seus detalhes. Contas anônimas são criadas clicando no botão ‘Começar’",
       "openHistoricalUser": "Clique para abrir a conta anônima",
       "supabaseSetting": "Configuração de Supabase"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Habilitar notificações"
+      }
     },
     "appearance": {
       "resetSetting": "Redefinir esta configuração",
@@ -272,7 +297,13 @@
       },
       "theme": "Tema",
       "builtInsLabel": "Temas embutidos",
-      "pluginsLabel": "Plugins"
+      "pluginsLabel": "Plugins",
+      "dateFormat": {
+        "label": "Formato de data"
+      },
+      "timeFormat": {
+        "label": "Formato de hora"
+      }
     },
     "files": {
       "copy": "cópia de",
@@ -313,6 +344,7 @@
     "user": {
       "name": "Nome",
       "email": "E-mail",
+      "tooltipSelectIcon": "Selecionar ícone",
       "selectAnIcon": "Escolha um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
       "clickToLogout": "Clique para sair do usuário atual"
@@ -327,6 +359,9 @@
       "resetToDefault": "Redefinir para atalhos de teclado padrão",
       "couldNotLoadErrorMsg": "Não foi possível carregar os atalhos. Tente novamente",
       "couldNotSaveErrorMsg": "Não foi possível salvar os atalhos. Tente novamente"
+    },
+    "mobile": {
+      "privacyPolicy": "Política de Privacidade"
     }
   },
   "grid": {
@@ -630,11 +665,11 @@
     }
   },
   "board": {
-    "menuName": "Quadro",
-    "referencedBoardPrefix": "Vista de",
     "column": {
       "createNewCard": "Novo"
-    }
+    },
+    "menuName": "Quadro",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendário",
@@ -693,6 +728,9 @@
     "gray": "Cinza"
   },
   "emoji": {
+    "emojiTab": "Emoji",
+    "search": "Buscar emoji",
+    "noEmojiFound": "Nenhum emoji encontrado",
     "filter": "Filtro",
     "random": "Aleatório",
     "selectSkinTone": "Selecione o tom do tema",
@@ -710,5 +748,36 @@
       "nature": "Natureza",
       "frequentlyUsed": "Usado frequentemente"
     }
+  },
+  "relativeDates": {
+    "yesterday": "Ontem",
+    "today": "Hoje",
+    "tomorrow": "Amanhã"
+  },
+  "notificationHub": {
+    "title": "Notificações"
+  },
+  "editor": {
+    "bold": "Negrito",
+    "italic": "Itálico",
+    "strikethrough": "Tachado",
+    "underline": "Sublinhado",
+    "fontColorGray": "Cinza",
+    "fontColorBrown": "Marrom",
+    "fontColorOrange": "Laranja",
+    "fontColorYellow": "Amarelo",
+    "fontColorGreen": "Verde",
+    "fontColorBlue": "Azul",
+    "fontColorPurple": "Roxo",
+    "fontColorPink": "Rosa",
+    "fontColorRed": "Vermelho",
+    "cancel": "Cancelar",
+    "lightLightTint1": "Roxo",
+    "lightLightTint2": "Rosa",
+    "lightLightTint3": "Rosa Claro",
+    "lightLightTint4": "Laranja",
+    "lightLightTint5": "Amarelo",
+    "lightLightTint7": "Verde",
+    "lightLightTint9": "Azul"
   }
 }

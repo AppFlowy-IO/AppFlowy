@@ -13,6 +13,7 @@ class MobileCellContainer extends StatelessWidget {
   final AccessoryBuilder? accessoryBuilder;
   final double width;
   final bool isPrimary;
+  final VoidCallback? onPrimaryFieldCellTap;
 
   const MobileCellContainer({
     super.key,
@@ -20,6 +21,7 @@ class MobileCellContainer extends StatelessWidget {
     required this.width,
     required this.isPrimary,
     this.accessoryBuilder,
+    this.onPrimaryFieldCellTap,
   });
 
   @override
@@ -48,9 +50,17 @@ class MobileCellContainer extends StatelessWidget {
             }
           }
 
+          if (isPrimary) {
+            container = IgnorePointer(child: container);
+          }
+
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
+              if (isPrimary) {
+                onPrimaryFieldCellTap?.call();
+                return;
+              }
               if (!isFocus) {
                 child.requestFocus.notify();
               }
@@ -89,8 +99,7 @@ class _GridCellEnterRegion extends StatelessWidget {
     required this.child,
     required this.accessories,
     required this.isPrimary,
-    Key? key,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final List<GridCellAccessoryBuilder> accessories;
@@ -99,8 +108,7 @@ class _GridCellEnterRegion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<CellContainerNotifier, bool>(
-      selector: (context, cellNotifier) =>
-          !cellNotifier.isFocus && (cellNotifier.onEnter || isPrimary),
+      selector: (context, cellNotifier) => !cellNotifier.isFocus && isPrimary,
       builder: (context, showAccessory, _) {
         final List<Widget> children = [child];
 
@@ -112,17 +120,10 @@ class _GridCellEnterRegion extends StatelessWidget {
           );
         }
 
-        return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (p) =>
-              CellContainerNotifier.of(context, listen: false).onEnter = true,
-          onExit: (p) =>
-              CellContainerNotifier.of(context, listen: false).onEnter = false,
-          child: Stack(
-            alignment: AlignmentDirectional.center,
-            fit: StackFit.expand,
-            children: children,
-          ),
+        return Stack(
+          alignment: AlignmentDirectional.center,
+          fit: StackFit.expand,
+          children: children,
         );
       },
     );

@@ -158,6 +158,20 @@ pub(crate) async fn toggle_favorites_handler(
   Ok(())
 }
 
+pub(crate) async fn update_recent_views_handler(
+  data: AFPluginData<UpdateRecentViewPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let params: UpdateRecentViewPayloadPB = data.into_inner();
+  let folder = upgrade_folder(folder)?;
+  if params.add_in_recent {
+    let _ = folder.add_recent_views(params.view_ids).await;
+  } else {
+    let _ = folder.remove_recent_views(params.view_ids).await;
+  }
+  Ok(())
+}
+
 pub(crate) async fn set_latest_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,

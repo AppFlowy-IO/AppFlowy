@@ -2,7 +2,8 @@ import 'dart:collection';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
@@ -23,7 +24,6 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/card/card_cell_builder.dart';
@@ -89,11 +89,19 @@ class BoardPage extends StatelessWidget {
             child: CircularProgressIndicator.adaptive(),
           ),
           finish: (result) => result.successOrFail.fold(
-            (_) => BoardContent(onEditStateChanged: onEditStateChanged),
-            (err) => FlowyErrorPage.message(
-              err.toString(),
-              howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-            ),
+            (_) => PlatformExtension.isMobile
+                ? const MobileBoardContent()
+                : DesktopBoardContent(onEditStateChanged: onEditStateChanged),
+            (err) => PlatformExtension.isMobile
+                ? FlowyMobileStateContainer.error(
+                    emoji: '🛸',
+                    title: LocaleKeys.board_mobile_faildToLoad.tr(),
+                    errorMsg: err.toString(),
+                  )
+                : FlowyErrorPage.message(
+                    err.toString(),
+                    howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                  ),
           ),
         ),
       ),
@@ -101,8 +109,8 @@ class BoardPage extends StatelessWidget {
   }
 }
 
-class BoardContent extends StatefulWidget {
-  const BoardContent({
+class DesktopBoardContent extends StatefulWidget {
+  const DesktopBoardContent({
     super.key,
     this.onEditStateChanged,
   });
@@ -110,26 +118,28 @@ class BoardContent extends StatefulWidget {
   final VoidCallback? onEditStateChanged;
 
   @override
-  State<BoardContent> createState() => _BoardContentState();
+  State<DesktopBoardContent> createState() => _DesktopBoardContentState();
 }
 
-class _BoardContentState extends State<BoardContent> {
+class _DesktopBoardContentState extends State<DesktopBoardContent> {
   final renderHook = RowCardRenderHook<String>();
-  late final ScrollController scrollController;
-  late final AppFlowyBoardScrollController scrollManager;
+  final ScrollController scrollController = ScrollController();
+  final AppFlowyBoardScrollController scrollManager =
+      AppFlowyBoardScrollController();
 
   final config = const AppFlowyBoardConfig(
-    groupBackgroundColor: Color(0xffF7F8FC),
-    headerPadding: EdgeInsets.symmetric(horizontal: 8),
-    cardPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+    groupMargin: EdgeInsets.symmetric(horizontal: 4),
+    groupBodyPadding: EdgeInsets.symmetric(horizontal: 4),
+    groupFooterPadding: EdgeInsets.fromLTRB(4, 14, 4, 4),
+    groupHeaderPadding: EdgeInsets.symmetric(horizontal: 8),
+    cardMargin: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+    stretchGroupHeight: false,
   );
 
   @override
   void initState() {
     super.initState();
 
-    scrollManager = AppFlowyBoardScrollController();
-    scrollController = ScrollController();
     renderHook.addSelectOptionHook((options, groupId, _) {
       // The cell should hide if the option id is equal to the groupId.
       final isInGroup =
@@ -141,6 +151,12 @@ class _BoardContentState extends State<BoardContent> {
 
       return null;
     });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -161,13 +177,8 @@ class _BoardContentState extends State<BoardContent> {
               scrollController: scrollController,
               controller: context.read<BoardBloc>().boardController,
               groupConstraints: const BoxConstraints.tightFor(width: 256),
-              config: const AppFlowyBoardConfig(
-                groupPadding: EdgeInsets.symmetric(horizontal: 4),
-                groupItemPadding: EdgeInsets.symmetric(horizontal: 4),
-                footerPadding: EdgeInsets.fromLTRB(4, 14, 4, 4),
-                stretchGroupHeight: false,
-              ),
-              leading: HiddenGroupsColumn(margin: config.headerPadding),
+              config: config,
+              leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
               trailing: showCreateGroupButton
                   ? BoardTrailing(scrollController: scrollController)
                   : null,
@@ -175,7 +186,7 @@ class _BoardContentState extends State<BoardContent> {
                 value: context.read<BoardBloc>(),
                 child: BoardColumnHeader(
                   groupData: groupData,
-                  margin: config.headerPadding,
+                  margin: config.groupHeaderPadding,
                 ),
               ),
               footerBuilder: _buildFooter,
@@ -202,20 +213,27 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
-    return AppFlowyGroupFooter(
-      height: 36,
-      margin: config.footerPadding,
-      icon: FlowySvg(
-        FlowySvgs.add_s,
-        color: Theme.of(context).hintColor,
+    return Padding(
+      padding: config.groupFooterPadding,
+      child: FlowyTooltip(
+        message: LocaleKeys.board_column_addToColumnBottomTooltip.tr(),
+        child: FlowyHover(
+          child: AppFlowyGroupFooter(
+            height: 36,
+            icon: FlowySvg(
+              FlowySvgs.add_s,
+              color: Theme.of(context).hintColor,
+            ),
+            title: FlowyText.medium(
+              LocaleKeys.board_column_createNewCard.tr(),
+              color: Theme.of(context).hintColor,
+            ),
+            onAddButtonClick: () => context
+                .read<BoardBloc>()
+                .add(BoardEvent.createBottomRow(columnData.id)),
+          ),
+        ),
       ),
-      title: FlowyText.medium(
-        LocaleKeys.board_column_createNewCard.tr(),
-        color: Theme.of(context).hintColor,
-      ),
-      onAddButtonClick: () => context
-          .read<BoardBloc>()
-          .add(BoardEvent.createBottomRow(columnData.id)),
     );
   }
 
@@ -227,11 +245,14 @@ class _BoardContentState extends State<BoardContent> {
     final boardBloc = context.read<BoardBloc>();
     final groupItem = afGroupItem as GroupItem;
     final groupData = afGroupData.customData as GroupData;
-    final rowMeta = groupItem.row;
     final rowCache = boardBloc.getRowCache();
+    final rowInfo = rowCache?.getRow(groupItem.row.id);
 
-    /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return SizedBox.shrink(key: ObjectKey(groupItem));
+    /// Return placeholder widget if the rowCache or rowInfo is null.
+    if (rowCache == null) {
+      return SizedBox.shrink(key: ObjectKey(groupItem));
+    }
+
     final cellCache = rowCache.cellCache;
     final fieldController = boardBloc.fieldController;
     final viewId = boardBloc.viewId;
@@ -240,11 +261,12 @@ class _BoardContentState extends State<BoardContent> {
     final isEditing = boardBloc.state.isEditingRow &&
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
-    final groupItemId = groupItem.row.id + groupData.group.groupId;
+    final groupItemId = "${groupData.group.groupId}${groupItem.row.id}";
+    final rowMeta = rowInfo?.rowMeta ?? groupItem.row;
 
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
-      margin: config.cardPadding,
+      margin: config.cardMargin,
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
         rowMeta: rowMeta,
@@ -252,7 +274,6 @@ class _BoardContentState extends State<BoardContent> {
         rowCache: rowCache,
         cardData: groupData.group.groupId,
         groupingFieldId: groupItem.fieldInfo.id,
-        groupId: groupData.group.groupId,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         renderHook: renderHook,
@@ -272,10 +293,9 @@ class _BoardContentState extends State<BoardContent> {
             foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
           ),
         ),
-        onStartEditing: () => boardBloc
-            .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
-        onEndEditing: () =>
-            boardBloc.add(BoardEvent.endEditingRow(groupItem.row.id)),
+        onStartEditing: () =>
+            boardBloc.add(BoardEvent.startEditingRow(groupData.group, rowMeta)),
+        onEndEditing: () => boardBloc.add(BoardEvent.endEditingRow(rowMeta.id)),
       ),
     );
   }
@@ -329,25 +349,14 @@ class _BoardContentState extends State<BoardContent> {
       groupId: groupId,
     );
 
-    // navigate to card detail screen when it is in mobile
-    if (PlatformExtension.isMobile) {
-      context.push(
-        MobileCardDetailScreen.routeName,
-        extra: {
-          MobileCardDetailScreen.argRowController: dataController,
-          MobileCardDetailScreen.argFieldController: fieldController,
-        },
-      );
-    } else {
-      FlowyOverlay.show(
-        context: context,
-        builder: (_) => RowDetailPage(
-          fieldController: fieldController,
-          cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-          rowController: dataController,
-        ),
-      );
-    }
+    FlowyOverlay.show(
+      context: context,
+      builder: (_) => RowDetailPage(
+        fieldController: fieldController,
+        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+        rowController: dataController,
+      ),
+    );
   }
 }
 

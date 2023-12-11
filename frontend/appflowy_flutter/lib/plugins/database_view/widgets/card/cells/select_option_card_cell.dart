@@ -21,11 +21,11 @@ class SelectOptionCardCell<CustomCardData>
 
   SelectOptionCardCell({
     required this.cellControllerBuilder,
-    required CustomCardData? cardData,
+    required super.cardData,
     this.renderHook,
     this.editableNotifier,
-    Key? key,
-  }) : super(key: key, cardData: cardData);
+    super.key,
+  });
 
   @override
   State<SelectOptionCardCell> createState() => _SelectOptionCellState();
@@ -63,9 +63,11 @@ class _SelectOptionCellState extends State<SelectOptionCardCell> {
 
           final children = state.selectedOptions
               .map(
-                (option) => SelectOptionTag.fromOption(
-                  context: context,
+                (option) => SelectOptionTag(
                   option: option,
+                  fontSize: 11,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 ),
               )
               .toList();

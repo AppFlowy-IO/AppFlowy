@@ -157,10 +157,14 @@ export const EditRow = ({
 
   const onDragEnd: OnDragEndResponder = (result) => {
     if (!result.destination?.index) return;
+    const fields = cells
+      .filter((cell) => {
+        return fieldsStore[cell.cellIdentifier.fieldId]?.visible;
+      });
+
     void controller.moveField({
-      fieldId: result.draggableId,
-      fromIndex: result.source.index,
-      toIndex: result.destination.index,
+      fromFieldId: result.draggableId,
+      toFieldId: fields[result.source.index].fieldId,
     });
   };
 
@@ -186,9 +190,8 @@ export const EditRow = ({
   return (
     <>
       <div
-        className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
-          unveil ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${unveil ? 'opacity-100' : 'opacity-0'
+          }`}
         onClick={() => onCloseClick()}
       >
         <div
@@ -220,9 +223,8 @@ export const EditRow = ({
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className={`flex flex-1 flex-col gap-8 px-8 pb-8 ${
-                        showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
-                      }`}
+                      className={`flex flex-1 flex-col gap-8 px-8 pb-8 ${showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
+                        }`}
                     >
                       {cells
                         .filter((cell) => {

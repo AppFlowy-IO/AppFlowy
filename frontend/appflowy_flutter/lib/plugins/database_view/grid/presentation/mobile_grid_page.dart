@@ -2,11 +2,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/mobile_database_settings_button.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -26,9 +25,9 @@ import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
+import 'widgets/mobile_fab.dart';
 import 'widgets/row/mobile_row.dart';
 import 'widgets/shortcuts.dart';
-import '../../widgets/setting/mobile_database_settings_button.dart';
 
 class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
@@ -149,27 +148,47 @@ class _GridPageContentState extends State<GridPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
-      builder: (context, state) {
-        final contentWidth = GridLayout.headerWidth(state.fields.fields);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(right: GridSize.leadingHeaderPadding),
-              child:
-                  _GridHeader(headerScrollController: headerScrollController),
-            ),
-            _GridRows(
-              viewId: state.viewId,
-              contentWidth: contentWidth,
-              scrollController: _scrollController,
-            ),
-          ],
+    return BlocListener<GridBloc, GridState>(
+      listenWhen: (previous, current) =>
+          previous.createdRow != current.createdRow,
+      listener: (context, state) {
+        if (state.createdRow == null) {
+          return;
+        }
+        final bloc = context.read<GridBloc>();
+        context.push(
+          MobileRowDetailPage.routeName,
+          extra: {
+            MobileRowDetailPage.argRowId: state.createdRow!.id,
+            MobileRowDetailPage.argDatabaseController: bloc.databaseController,
+          },
         );
+        bloc.add(const GridEvent.resetCreatedRow());
       },
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(right: GridSize.leadingHeaderPadding),
+                child: _GridHeader(
+                  headerScrollController: headerScrollController,
+                ),
+              ),
+              _GridRows(
+                viewId: widget.view.id,
+                scrollController: _scrollController,
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: getGridFabs(context),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -193,47 +212,52 @@ class _GridHeader extends StatelessWidget {
 
 class _GridRows extends StatelessWidget {
   final String viewId;
-  final double contentWidth;
   final GridScrollController scrollController;
 
   const _GridRows({
     required this.viewId,
-    required this.contentWidth,
     required this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: _WrapScrollView(
-        scrollController: scrollController,
-        contentWidth: contentWidth,
-        child: BlocBuilder<GridBloc, GridState>(
-          buildWhen: (previous, current) => current.reason.maybeWhen(
-            reorderRows: () => true,
-            reorderSingleRow: (reorderRow, rowInfo) => true,
-            delete: (item) => true,
-            insert: (item) => true,
-            orElse: () => false,
+    return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => previous.fields != current.fields,
+      builder: (context, state) {
+        final contentWidth = GridLayout.headerWidth(state.fields);
+        return Expanded(
+          child: _WrapScrollView(
+            scrollController: scrollController,
+            contentWidth: contentWidth,
+            child: BlocBuilder<GridBloc, GridState>(
+              buildWhen: (previous, current) => current.reason.maybeWhen(
+                reorderRows: () => true,
+                reorderSingleRow: (reorderRow, rowInfo) => true,
+                delete: (item) => true,
+                insert: (item) => true,
+                orElse: () => false,
+              ),
+              builder: (context, state) {
+                final rowInfos = state.rowInfos;
+                final behavior = ScrollConfiguration.of(context).copyWith(
+                  scrollbars: false,
+                  physics: const ClampingScrollPhysics(),
+                );
+                return ScrollConfiguration(
+                  behavior: behavior,
+                  child: _renderList(context, contentWidth, state, rowInfos),
+                );
+              },
+            ),
           ),
-          builder: (context, state) {
-            final rowInfos = state.rowInfos;
-            final behavior = ScrollConfiguration.of(context).copyWith(
-              scrollbars: false,
-              physics: const ClampingScrollPhysics(),
-            );
-            return ScrollConfiguration(
-              behavior: behavior,
-              child: _renderList(context, state, rowInfos),
-            );
-          },
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _renderList(
     BuildContext context,
+    double contentWidth,
     GridState state,
     List<RowInfo> rowInfos,
   ) {
@@ -304,35 +328,31 @@ class _GridRows extends StatelessWidget {
     required bool isDraggable,
     Animation<double>? animation,
   }) {
-    final rowCache = context.read<GridBloc>().getRowCache(rowId);
-    final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+    final rowMeta = context
+        .read<GridBloc>()
+        .databaseController
+        .rowCache
+        .getRow(rowId)
+        ?.rowMeta;
 
     if (rowMeta == null) {
       Log.warn('RowMeta is null for rowId: $rowId');
       return const SizedBox.shrink();
     }
 
-    final fieldController =
-        context.read<GridBloc>().databaseController.fieldController;
-    final rowController = RowController(
-      viewId: viewId,
-      rowMeta: rowMeta,
-      rowCache: rowCache,
-    );
+    final databaseController = context.read<GridBloc>().databaseController;
 
     final child = MobileGridRow(
       key: ValueKey(rowMeta.id),
       rowId: rowId,
-      viewId: viewId,
       isDraggable: isDraggable,
-      dataController: rowController,
-      cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
-      openDetailPage: (context, cellBuilder) {
+      databaseController: databaseController,
+      openDetailPage: (context) {
         context.push(
-          MobileCardDetailScreen.routeName,
+          MobileRowDetailPage.routeName,
           extra: {
-            MobileCardDetailScreen.argRowController: rowController,
-            MobileCardDetailScreen.argFieldController: fieldController,
+            MobileRowDetailPage.argRowId: rowId,
+            MobileRowDetailPage.argDatabaseController: databaseController,
           },
         );
       },

@@ -3,18 +3,16 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 
 import '../../util.dart';
 
@@ -32,10 +30,6 @@ class GridTestContext {
 
   FieldController get fieldController {
     return gridController.fieldController;
-  }
-
-  Future<Either<RowMetaPB, FlowyError>> createRow() async {
-    return gridController.createRow();
   }
 
   Future<CellController> makeCellController(
@@ -135,7 +129,7 @@ class GridTestContext {
 Future<FieldEditorBloc> createFieldEditor({
   required DatabaseController databaseController,
 }) async {
-  final result = await TypeOptionBackendService.createFieldTypeOption(
+  final result = await FieldBackendService.createField(
     viewId: databaseController.viewId,
   );
   await gridResponseFuture();
@@ -211,7 +205,7 @@ class AppFlowyGridCellTest {
   }
 
   Future<void> createTestRow() async {
-    await context.createRow();
+    await RowBackendService.createRow(viewId: context.gridView.id);
   }
 
   Future<SelectOptionCellController> makeSelectOptionCellController(

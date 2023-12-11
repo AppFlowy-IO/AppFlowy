@@ -20,7 +20,7 @@ class FlowyTextField extends StatefulWidget {
   final bool submitOnLeave;
   final Duration? debounceDuration;
   final String? errorText;
-  final int maxLines;
+  final int? maxLines;
   final bool showCounter;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
@@ -28,6 +28,9 @@ class FlowyTextField extends StatefulWidget {
   final BoxConstraints? suffixIconConstraints;
   final BoxConstraints? hintTextConstraints;
   final TextStyle? hintStyle;
+  final InputDecoration? decoration;
+  final TextAlignVertical? textAlignVertical;
+  final TextInputAction? textInputAction;
 
   const FlowyTextField({
     super.key,
@@ -54,6 +57,9 @@ class FlowyTextField extends StatefulWidget {
     this.suffixIconConstraints,
     this.hintTextConstraints,
     this.hintStyle,
+    this.decoration,
+    this.textAlignVertical,
+    this.textInputAction,
   });
 
   @override
@@ -123,6 +129,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
+      textInputAction: widget.textInputAction,
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
       minLines: 1,
@@ -130,64 +137,66 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
-      textAlignVertical: TextAlignVertical.center,
+      textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
       keyboardType: TextInputType.multiline,
-      decoration: InputDecoration(
-        constraints: widget.hintTextConstraints ??
-            BoxConstraints(
-              maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58,
+      decoration: widget.decoration ??
+          InputDecoration(
+            constraints: widget.hintTextConstraints ??
+                BoxConstraints(
+                  maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58,
+                ),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical:
+                  (widget.maxLines == null || widget.maxLines! > 1) ? 12 : 0,
             ),
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: widget.maxLines > 1 ? 12 : 0,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s8Border,
-        ),
-        isDense: false,
-        hintText: widget.hintText,
-        errorText: widget.errorText,
-        errorStyle: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(color: Theme.of(context).colorScheme.error),
-        hintStyle: widget.hintStyle ??
-            Theme.of(context)
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+                width: 1.0,
+              ),
+              borderRadius: Corners.s8Border,
+            ),
+            isDense: false,
+            hintText: widget.hintText,
+            errorText: widget.errorText,
+            errorStyle: Theme.of(context)
                 .textTheme
                 .bodySmall!
-                .copyWith(color: Theme.of(context).hintColor),
-        suffixText: widget.showCounter ? _suffixText() : "",
-        counterText: "",
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1.0,
+                .copyWith(color: Theme.of(context).colorScheme.error),
+            hintStyle: widget.hintStyle ??
+                Theme.of(context)
+                    .textTheme
+                    .bodySmall!
+                    .copyWith(color: Theme.of(context).hintColor),
+            suffixText: widget.showCounter ? _suffixText() : "",
+            counterText: "",
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 1.0,
+              ),
+              borderRadius: Corners.s8Border,
+            ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+                width: 1.0,
+              ),
+              borderRadius: Corners.s8Border,
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+                width: 1.0,
+              ),
+              borderRadius: Corners.s8Border,
+            ),
+            prefixIcon: widget.prefixIcon,
+            suffixIcon: widget.suffixIcon,
+            prefixIconConstraints: widget.prefixIconConstraints,
+            suffixIconConstraints: widget.suffixIconConstraints,
           ),
-          borderRadius: Corners.s8Border,
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s8Border,
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s8Border,
-        ),
-        prefixIcon: widget.prefixIcon,
-        suffixIcon: widget.suffixIcon,
-        prefixIconConstraints: widget.prefixIconConstraints,
-        suffixIconConstraints: widget.suffixIconConstraints,
-      ),
     );
   }
 

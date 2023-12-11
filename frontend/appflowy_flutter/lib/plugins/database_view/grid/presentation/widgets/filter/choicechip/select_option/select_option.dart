@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,8 +15,7 @@ import 'select_option_loader.dart';
 
 class SelectOptionFilterChoicechip extends StatefulWidget {
   final FilterInfo filterInfo;
-  const SelectOptionFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const SelectOptionFilterChoicechip({required this.filterInfo, super.key});
 
   @override
   State<SelectOptionFilterChoicechip> createState() =>
@@ -77,8 +76,7 @@ class _SelectOptionFilterChoicechipState
 
 class SelectOptionFilterEditor extends StatefulWidget {
   final SelectOptionFilterEditorBloc bloc;
-  const SelectOptionFilterEditor({required this.bloc, Key? key})
-      : super(key: key);
+  const SelectOptionFilterEditor({required this.bloc, super.key});
 
   @override
   State<SelectOptionFilterEditor> createState() =>
@@ -125,7 +123,6 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             child: CustomScrollView(
               shrinkWrap: true,
               slivers: slivers,
-              controller: ScrollController(),
               physics: StyledScrollPhysics(),
             ),
           );

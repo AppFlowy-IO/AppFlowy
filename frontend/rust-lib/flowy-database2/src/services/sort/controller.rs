@@ -240,7 +240,7 @@ fn cmp_row(
   fields: &[Arc<Field>],
   cell_data_cache: &CellCache,
 ) -> Ordering {
-  let field_type = sort.field_type.clone();
+  let field_type = sort.field_type;
   match fields
     .iter()
     .find(|field_rev| field_rev.id == sort.field_id)

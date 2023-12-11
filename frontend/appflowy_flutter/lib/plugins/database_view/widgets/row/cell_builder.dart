@@ -1,4 +1,9 @@
+import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/checkbox_cell.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/number_cell.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/text_cell.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/url_cell.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
+import 'package:appflowy/mobile/presentation/database/card/row/cells/mobile_checklist_cell.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -120,76 +125,155 @@ class GridCellBuilder {
 
     throw UnimplementedError;
   }
-}
 
 // editable cell/(card's propery value) widget
-GridCellWidget _getMobileCardCellWidget(
-  ValueKey key,
-  DatabaseCellContext cellContext,
-  CellControllerBuilder cellControllerBuilder,
-  GridCellStyle? style,
-) {
-  switch (cellContext.fieldType) {
-    case FieldType.RichText:
-      style as GridTextCellStyle?;
-      return MobileTextCell(
-        cellControllerBuilder: cellControllerBuilder,
-        hintText: style?.placeholder,
-      );
-    case FieldType.Number:
-      style as GridNumberCellStyle?;
-      return MobileNumberCell(
-        cellControllerBuilder: cellControllerBuilder,
-        hintText: style?.placeholder,
-      );
-    case FieldType.LastEditedTime:
-    case FieldType.CreatedTime:
-      return MobileTimestampCell(
-        cellControllerBuilder: cellControllerBuilder,
-        key: key,
-      );
-    case FieldType.Checkbox:
-      return MobileCheckboxCell(
-        cellControllerBuilder: cellControllerBuilder,
-        key: key,
-      );
-    case FieldType.DateTime:
-      style as DateCellStyle?;
-      return GridDateCell(
-        cellControllerBuilder: cellControllerBuilder,
-        style: style,
-      );
-    case FieldType.URL:
-      style as GridURLCellStyle?;
-      return MobileURLCell(
-        cellControllerBuilder: cellControllerBuilder,
-        hintText: style?.placeholder,
-        key: key,
-      );
-    case FieldType.SingleSelect:
-      return GridSingleSelectCell(
-        cellControllerBuilder: cellControllerBuilder,
-        style: style,
-        key: key,
-      );
-    case FieldType.MultiSelect:
-      return GridMultiSelectCell(
-        cellControllerBuilder: cellControllerBuilder,
-        style: style,
-        key: key,
-      );
-    case FieldType.Checklist:
-      return GridChecklistCell(
-        cellControllerBuilder: cellControllerBuilder,
-        style: style,
-        key: key,
-      );
+  GridCellWidget _getMobileCardCellWidget(
+    ValueKey key,
+    DatabaseCellContext cellContext,
+    CellControllerBuilder cellControllerBuilder,
+    GridCellStyle? style,
+  ) {
+    switch (cellContext.fieldType) {
+      case FieldType.RichText:
+        style as GridTextCellStyle?;
+        return MobileTextCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+        );
+      case FieldType.Number:
+        style as GridNumberCellStyle?;
+        return MobileNumberCell(
+          cellControllerBuilder: cellControllerBuilder,
+          hintText: style?.placeholder,
+        );
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        return MobileTimestampCell(
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
+      case FieldType.Checkbox:
+        return MobileCheckboxCell(
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
+      case FieldType.DateTime:
+        style as DateCellStyle?;
+        return GridDateCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+        );
+      case FieldType.URL:
+        style as GridURLCellStyle?;
+        return MobileURLCell(
+          cellControllerBuilder: cellControllerBuilder,
+          hintText: style?.placeholder,
+          key: key,
+        );
+      case FieldType.SingleSelect:
+        return GridSingleSelectCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
+      case FieldType.MultiSelect:
+        return GridMultiSelectCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
+      case FieldType.Checklist:
+        return MobileChecklistCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
+    }
+    throw UnimplementedError;
   }
-  throw UnimplementedError;
+}
+
+class MobileRowDetailPageCellBuilder {
+  final CellMemCache cellCache;
+  MobileRowDetailPageCellBuilder({
+    required this.cellCache,
+  });
+
+  GridCellWidget build(
+    DatabaseCellContext cellContext, {
+    GridCellStyle? style,
+  }) {
+    final cellControllerBuilder = CellControllerBuilder(
+      cellContext: cellContext,
+      cellCache: cellCache,
+    );
+
+    final key = cellContext.key();
+
+    switch (cellContext.fieldType) {
+      case FieldType.RichText:
+        style as GridTextCellStyle?;
+        return RowDetailTextCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+        );
+      case FieldType.Number:
+        style as GridNumberCellStyle?;
+        return RowDetailNumberCell(
+          cellControllerBuilder: cellControllerBuilder,
+          hintText: style?.placeholder,
+        );
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        return GridTimestampCell(
+          cellControllerBuilder: cellControllerBuilder,
+          fieldType: cellContext.fieldType,
+          style: style,
+          key: key,
+        );
+      case FieldType.Checkbox:
+        return RowDetailCheckboxCell(
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
+      case FieldType.DateTime:
+        style as DateCellStyle?;
+        return GridDateCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+        );
+      case FieldType.URL:
+        style as GridURLCellStyle?;
+        return RowDetailURLCell(
+          cellControllerBuilder: cellControllerBuilder,
+          hintText: style?.placeholder,
+          key: key,
+        );
+      case FieldType.SingleSelect:
+        return GridSingleSelectCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
+      case FieldType.MultiSelect:
+        return GridMultiSelectCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
+      case FieldType.Checklist:
+        return MobileChecklistCell(
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
+    }
+    throw UnimplementedError;
+  }
 }
 
 class BlankCell extends StatelessWidget {
-  const BlankCell({Key? key}) : super(key: key);
+  const BlankCell({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +294,7 @@ typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
 );
 
 abstract class CellAccessory extends Widget {
-  const CellAccessory({Key? key}) : super(key: key);
+  const CellAccessory({super.key});
 
   // The hover will show if the isHover's value is true
   ValueNotifier<bool>? get onAccessoryHover;

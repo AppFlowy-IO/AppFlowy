@@ -12,7 +12,7 @@ mod tests {
   fn number_type_option_input_test() {
     let type_option = NumberTypeOption::default();
     let field_type = FieldType::Number;
-    let field = FieldBuilder::from_field_type(field_type.clone()).build();
+    let field = FieldBuilder::from_field_type(field_type).build();
 
     // Input is empty String
     assert_number(&type_option, "", "", &field_type, &field);
@@ -31,7 +31,7 @@ mod tests {
     let field_type = FieldType::Number;
     let mut type_option = NumberTypeOption::new();
     type_option.format = NumberFormat::USD;
-    let field = FieldBuilder::new(field_type.clone(), type_option.clone()).build();
+    let field = FieldBuilder::new(field_type, type_option.clone()).build();
 
     assert_number(&type_option, "", "", &field_type, &field);
     assert_number(&type_option, "abc", "", &field_type, &field);
@@ -49,7 +49,7 @@ mod tests {
     let field_type = FieldType::Number;
     let mut type_option = NumberTypeOption::new();
     type_option.format = NumberFormat::USD;
-    let field = FieldBuilder::new(field_type.clone(), type_option.clone()).build();
+    let field = FieldBuilder::new(field_type, type_option.clone()).build();
 
     assert_number(
       &type_option,
@@ -71,7 +71,7 @@ mod tests {
     let field_type = FieldType::Number;
     let mut type_option = NumberTypeOption::new();
     type_option.format = NumberFormat::USD;
-    let field = FieldBuilder::new(field_type.clone(), type_option.clone()).build();
+    let field = FieldBuilder::new(field_type, type_option.clone()).build();
 
     assert_number(&type_option, "€0.2", "$0.2", &field_type, &field);
     assert_number(&type_option, "-€0.2", "-$0.2", &field_type, &field);
@@ -85,7 +85,7 @@ mod tests {
     let field_type = FieldType::Number;
     let mut type_option = NumberTypeOption::new();
     type_option.format = NumberFormat::EUR;
-    let field = FieldBuilder::new(field_type.clone(), type_option.clone()).build();
+    let field = FieldBuilder::new(field_type, type_option.clone()).build();
 
     assert_number(&type_option, "0.2", "€0,2", &field_type, &field);
     assert_number(&type_option, "1000", "€1.000", &field_type, &field);

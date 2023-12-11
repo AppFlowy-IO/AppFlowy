@@ -216,13 +216,13 @@ where
         .map(|m| {
           (
             m.get(USER_METADATA_ICON_URL)
-              .map(|v| v.to_string())
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
               .unwrap_or_default(),
             m.get(USER_METADATA_OPEN_AI_KEY)
-              .map(|v| v.to_string())
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
               .unwrap_or_default(),
             m.get(USER_METADATA_STABILITY_AI_KEY)
-              .map(|v| v.to_string())
+              .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
               .unwrap_or_default(),
           )
         })
