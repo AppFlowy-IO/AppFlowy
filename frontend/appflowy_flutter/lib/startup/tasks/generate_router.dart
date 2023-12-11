@@ -1,9 +1,7 @@
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_edit_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
@@ -16,7 +14,6 @@ import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dar
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_block_settings_screen.dart';
@@ -29,7 +26,6 @@ import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 GoRouter generateRouter(Widget child) {
@@ -62,9 +58,7 @@ GoRouter generateRouter(Widget child) {
         _mobileCalendarScreenRoute(),
         // card detail page
         _mobileCardDetailScreenRoute(),
-        _mobileCardPropertyEditScreenRoute(),
         _mobileDateCellEditScreenRoute(),
-        _mobileCreateRowFieldScreenRoute(),
         _mobileNewPropertyPageRoute(),
         _mobileEditPropertyPageRoute(),
 
@@ -557,29 +551,6 @@ GoRoute _mobileCardDetailScreenRoute() {
   );
 }
 
-GoRoute _mobileCardPropertyEditScreenRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: CardPropertyEditScreen.routeName,
-    pageBuilder: (context, state) {
-      final args = state.extra as Map<String, dynamic>;
-      final cellContext = args[CardPropertyEditScreen.argCellContext];
-      final fieldController = args[CardPropertyEditScreen.argFieldController];
-      final rowDetailBloc = args[CardPropertyEditScreen.argRowDetailBloc];
-
-      return MaterialPage(
-        child: BlocProvider.value(
-          value: rowDetailBloc as RowDetailBloc,
-          child: CardPropertyEditScreen(
-            cellContext: cellContext,
-            fieldController: fieldController,
-          ),
-        ),
-      );
-    },
-  );
-}
-
 GoRoute _mobileDateCellEditScreenRoute() {
   return GoRoute(
     parentNavigatorKey: AppGlobals.rootNavKey,
@@ -598,29 +569,6 @@ GoRoute _mobileDateCellEditScreenRoute() {
           controller: controller,
           showAsFullScreen: fullScreen ?? true,
         ),
-      );
-    },
-  );
-}
-
-GoRoute _mobileCreateRowFieldScreenRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: MobileCreateRowFieldScreen.routeName,
-    pageBuilder: (context, state) {
-      final args = state.extra as Map<String, dynamic>;
-      final viewId = args[MobileCreateRowFieldScreen.argViewId];
-      final fieldController =
-          args[MobileCreateRowFieldScreen.argFieldController];
-      final typeOption = args[MobileCreateRowFieldScreen.argTypeOption];
-
-      return MaterialPage(
-        child: MobileCreateRowFieldScreen(
-          viewId: viewId,
-          typeOption: typeOption,
-          fieldController: fieldController,
-        ),
-        fullscreenDialog: true,
       );
     },
   );
