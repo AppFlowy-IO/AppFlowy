@@ -45,4 +45,4 @@ frontend/*.deb
 **/Cargo.toml.bak
 
 # ignore settings.json
-.vscode/settings.json
+frontend/.vscode/settings.json
