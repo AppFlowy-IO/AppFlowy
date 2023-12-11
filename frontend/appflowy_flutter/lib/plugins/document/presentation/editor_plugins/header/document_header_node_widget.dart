@@ -19,7 +19,6 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 
 import 'cover_editor.dart';
 

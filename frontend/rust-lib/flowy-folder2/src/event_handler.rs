@@ -1,5 +1,5 @@
 use std::sync::{Arc, Weak};
-use collab_folder::core::View;
+use collab_folder::View;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
