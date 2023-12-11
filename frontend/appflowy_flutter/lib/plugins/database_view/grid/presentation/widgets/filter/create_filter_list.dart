@@ -75,7 +75,6 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
               ),
               SliverToBoxAdapter(
                 child: ListView.separated(
-                  controller: ScrollController(),
                   shrinkWrap: true,
                   itemCount: cells.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -90,7 +89,6 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
             return CustomScrollView(
               shrinkWrap: true,
               slivers: slivers,
-              controller: ScrollController(),
               physics: StyledScrollPhysics(),
             );
           },

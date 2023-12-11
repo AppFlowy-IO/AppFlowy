@@ -66,6 +66,12 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   }
 
   @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<DatabaseTabBarBloc>(
       create: (context) => DatabaseTabBarBloc(view: widget.view)

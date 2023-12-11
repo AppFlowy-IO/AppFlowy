@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -123,7 +123,6 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             child: CustomScrollView(
               shrinkWrap: true,
               slivers: slivers,
-              controller: ScrollController(),
               physics: StyledScrollPhysics(),
             ),
           );

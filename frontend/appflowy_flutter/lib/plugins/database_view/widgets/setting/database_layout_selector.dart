@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database_view/application/layout/layout_bloc.da
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +48,6 @@ class _DatabaseLayoutSelectorState extends State<DatabaseLayoutSelector> {
               .toList();
 
           return ListView.separated(
-            controller: ScrollController(),
             shrinkWrap: true,
             itemCount: cells.length,
             padding: const EdgeInsets.symmetric(vertical: 6.0),

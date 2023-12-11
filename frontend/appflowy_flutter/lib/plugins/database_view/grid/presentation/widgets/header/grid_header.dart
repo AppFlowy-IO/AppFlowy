@@ -69,18 +69,12 @@ class _GridHeader extends StatefulWidget {
 
 class _GridHeaderState extends State<_GridHeader> {
   final Map<String, ValueKey<String>> _gridMap = {};
+  final _scrollController = ScrollController();
 
-  /// This is a workaround for [ReorderableRow].
-  /// [ReorderableRow] warps the child's key with a [GlobalKey].
-  /// It will trigger the child's widget's to recreate.
-  /// The state will lose.
-  ValueKey<String>? _getKeyById(String id) {
-    if (_gridMap.containsKey(id)) {
-      return _gridMap[id];
-    }
-    final newKey = ValueKey(id);
-    _gridMap[id] = newKey;
-    return newKey;
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -124,7 +118,7 @@ class _GridHeaderState extends State<_GridHeader> {
 
         return RepaintBoundary(
           child: ReorderableRow(
-            scrollController: ScrollController(),
+            scrollController: _scrollController,
             buildDraggableFeedback: (context, constraints, child) => Material(
               color: Colors.transparent,
               child: child,
@@ -148,6 +142,19 @@ class _GridHeaderState extends State<_GridHeader> {
         );
       },
     );
+  }
+
+  /// This is a workaround for [ReorderableRow].
+  /// [ReorderableRow] warps the child's key with a [GlobalKey].
+  /// It will trigger the child's widget's to recreate.
+  /// The state will lose.
+  ValueKey<String>? _getKeyById(String id) {
+    if (_gridMap.containsKey(id)) {
+      return _gridMap[id];
+    }
+    final newKey = ValueKey(id);
+    _gridMap[id] = newKey;
+    return newKey;
   }
 
   Widget _cellLeading(FieldInfo? fieldInfo) {
