@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useViewId } from '$app/hooks';
-import { useGetPrevRowId } from '$app/components/database';
 import { rowService } from '$app/components/database/application';
 import { autoScrollOnEdge, ScrollDirection } from '$app/components/database/_shared/dnd/utils';
 
@@ -71,7 +70,6 @@ export function useDraggableGridRow(
   const dropRowIdRef = useRef<string | undefined>(undefined);
   const previewRef = useRef<HTMLDivElement | undefined>();
   const viewId = useViewId();
-  const getPrevRowId = useGetPrevRowId();
   const onDragStart = useCallback(
     (e: React.DragEvent<HTMLButtonElement>) => {
       e.dataTransfer.effectAllowed = 'move';
@@ -172,7 +170,7 @@ export function useDraggableGridRow(
     container.addEventListener('dragover', onDragOver);
     container.addEventListener('dragend', onDragEnd);
     container.addEventListener('drop', onDrop);
-  }, [containerRef, getPrevRowId, isDragging, rowId, viewId]);
+  }, [containerRef, isDragging, rowId, viewId]);
 
   return {
     isDragging,

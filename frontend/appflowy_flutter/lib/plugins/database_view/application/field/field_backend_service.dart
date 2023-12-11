@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
@@ -38,26 +37,30 @@ class FieldServices {
   }
 
   Future<void> delete() async {
-    await fieldBackendService.deleteField();
+    await fieldBackendService.delete();
   }
 
   Future<void> duplicate() async {
-    await fieldBackendService.duplicateField();
+    await fieldBackendService.duplicate();
   }
 
   Future<void> insertLeft() async {
-    await TypeOptionBackendService.createFieldTypeOption(
+    await FieldBackendService.createField(
       viewId: viewId,
-      position: CreateFieldPosition.Before,
-      targetFieldId: fieldId,
+      position: OrderObjectPositionPB(
+        position: OrderObjectPositionTypePB.Before,
+        objectId: fieldId,
+      ),
     );
   }
 
   Future<void> insertRight() async {
-    await TypeOptionBackendService.createFieldTypeOption(
+    await FieldBackendService.createField(
       viewId: viewId,
-      position: CreateFieldPosition.After,
-      targetFieldId: fieldId,
+      position: OrderObjectPositionPB(
+        position: OrderObjectPositionTypePB.After,
+        objectId: fieldId,
+      ),
     );
   }
 

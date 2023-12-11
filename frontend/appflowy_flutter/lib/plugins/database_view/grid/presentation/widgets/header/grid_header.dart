@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/mobile_field_cell.dart';
@@ -15,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
 
-import '../../../../application/field/type_option/type_option_service.dart';
 import '../../layout/sizes.dart';
 import 'field_cell.dart';
 
@@ -134,34 +134,20 @@ class _GridHeaderState extends State<_GridHeader> {
             needsLongPressDraggable: PlatformExtension.isMobile,
             footer: _CellTrailing(viewId: widget.viewId),
             onReorder: (int oldIndex, int newIndex) {
-              _onReorder(
-                cells,
-                oldIndex,
-                context,
-                newIndex,
-              );
+              // to offset removing the first field from `state.fields`
+              if (PlatformExtension.isMobile) {
+                oldIndex++;
+                newIndex++;
+              }
+              context
+                  .read<GridHeaderBloc>()
+                  .add(GridHeaderEvent.moveField(oldIndex, newIndex));
             },
             children: cells,
           ),
         );
       },
     );
-  }
-
-  void _onReorder(
-    List<Widget> cells,
-    int oldIndex,
-    BuildContext context,
-    int newIndex,
-  ) {
-    if (cells.length > oldIndex) {
-      final field = PlatformExtension.isDesktop
-          ? (cells[oldIndex] as GridFieldCell).fieldInfo.field
-          : (cells[oldIndex] as MobileFieldButton).fieldInfo.field;
-      context
-          .read<GridHeaderBloc>()
-          .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
-    }
   }
 
   Widget _cellLeading(FieldInfo? fieldInfo) {
@@ -245,7 +231,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
         if (PlatformExtension.isMobile) {
           showCreateFieldBottomSheet(context, widget.viewId);
         } else {
-          final result = await TypeOptionBackendService.createFieldTypeOption(
+          final result = await FieldBackendService.createField(
             viewId: widget.viewId,
           );
           result.fold(

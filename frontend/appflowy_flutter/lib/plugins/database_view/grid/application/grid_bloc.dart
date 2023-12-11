@@ -28,7 +28,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             await _openGrid(emit);
           },
           createRow: () async {
-            final result = await databaseController.createRow();
+            final result = await RowBackendService.createRow(viewId: viewId);
             result.fold(
               (createdRow) => emit(state.copyWith(createdRow: createdRow)),
               (err) => Log.error(err),
@@ -87,6 +87,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       },
     );
   }
+
+  String get viewId => databaseController.viewId;
 
   RowCache getRowCache(RowId rowId) {
     return databaseController.rowCache;

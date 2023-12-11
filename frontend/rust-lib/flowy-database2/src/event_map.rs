@@ -168,8 +168,9 @@ pub enum DatabaseEvent {
   #[event(input = "DuplicateFieldPayloadPB")]
   DuplicateField = 21,
 
-  /// [MoveItem] event is used to move an item. For the moment, Item has two types defined in
-  /// [MoveItemTypePB].
+  /// [MoveFieldPB] event is used to reorder a field in a view. The
+  /// [MoveFieldPayloadPB] contains the `field_id` of the moved field and its
+  /// new position.
   #[event(input = "MoveFieldPayloadPB")]
   MoveField = 22,
 

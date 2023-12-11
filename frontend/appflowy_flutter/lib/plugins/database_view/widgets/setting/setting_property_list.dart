@@ -95,13 +95,9 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
             buildDefaultDragHandles: false,
             shrinkWrap: true,
             onReorder: (from, to) {
-              context.read<DatabasePropertyBloc>().add(
-                    DatabasePropertyEvent.moveField(
-                      fieldId: cells[from].fieldInfo.id,
-                      fromIndex: from,
-                      toIndex: to,
-                    ),
-                  );
+              context
+                  .read<DatabasePropertyBloc>()
+                  .add(DatabasePropertyEvent.moveField(from, to));
             },
             onReorderStart: (_) => _popoverMutex.close(),
             padding: const EdgeInsets.symmetric(vertical: 6.0),

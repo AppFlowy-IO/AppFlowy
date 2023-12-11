@@ -146,19 +146,18 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       (settings) async {
         final dateField = _getCalendarFieldInfo(settings.fieldId);
         if (dateField != null) {
-          final newRow = await databaseController
-              .createRow(
-                withCells: (builder) => builder.insertDate(dateField, date),
-              )
-              .then(
-                (result) => result.fold(
-                  (newRow) => newRow,
-                  (err) {
-                    Log.error(err);
-                    return null;
-                  },
-                ),
-              );
+          final newRow = await RowBackendService.createRow(
+            viewId: viewId,
+            withCells: (builder) => builder.insertDate(dateField, date),
+          ).then(
+            (result) => result.fold(
+              (newRow) => newRow,
+              (err) {
+                Log.error(err);
+                return null;
+              },
+            ),
+          );
 
           if (newRow != null) {
             final event = await _loadEvent(newRow.id);
