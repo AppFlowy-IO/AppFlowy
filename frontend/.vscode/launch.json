@@ -15,7 +15,7 @@
                 "RUST_LOG": "debug",
             },
             // uncomment the following line to testing performance.
-            "flutterMode": "profile",
+            // "flutterMode": "profile",
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
