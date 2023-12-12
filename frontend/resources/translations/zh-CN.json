@@ -222,9 +222,9 @@
     "addToFavorites": "添加到收藏夹",
     "rename": "重命名",
     "helpCenter": "帮助中心",
-    "OK": "确认",
     "Done": "完成",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "OK": "确认"
   },
   "label": {
     "welcome": "欢迎!",
@@ -259,10 +259,9 @@
       "logoutPrompt": "您确定要登出吗？",
       "selfEncryptionLogoutPrompt": "您确定要登出吗？请确保您已复制加密密钥",
       "syncSetting": "同步设置",
-      "cloudSetting": "云设置",
-      "cloudURL": "服务器 URL",
       "enableSync": "启用同步",
       "enableEncrypt": "加密数据",
+      "cloudURL": "服务器 URL",
       "enableEncryptPrompt": "启用加密以使用此密钥保护您的数据。安全存放；一旦启用，就无法关闭。如果丢失，您的数据将无法恢复。点击复制",
       "inputEncryptPrompt": "请输入您的加密密钥",
       "clickToCopySecret": "点击复制秘密",
@@ -270,7 +269,8 @@
       "historicalUserList": "用户登录历史记录",
       "historicalUserListTooltip": "此列表显示您的匿名帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建匿名帐户",
       "openHistoricalUser": "点击开设匿名账户",
-      "supabaseSetting": "超基设置"
+      "supabaseSetting": "超基设置",
+      "cloudSetting": "云设置"
     },
     "notifications": {
       "enableNotifications": {
@@ -1018,8 +1018,8 @@
     "divider": "分频器",
     "table": "桌子",
     "colAddBefore": "在前面添加",
-    "colAddAfter": "在后面添加",
     "rowAddBefore": "在前面添加",
+    "colAddAfter": "在后面添加",
     "rowAddAfter": "在后面添加",
     "colRemove": "移除列",
     "colDuplicate": "创建副本",

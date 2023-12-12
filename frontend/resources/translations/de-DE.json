@@ -206,9 +206,9 @@
     "delete": "Löschen",
     "duplicate": "Duplikat",
     "putback": "Zurück geben",
-    "OK": "OK",
     "Done": "Erledigt",
-    "Cancel": "Abbrechen"
+    "Cancel": "Abbrechen",
+    "OK": "OK"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -591,11 +591,11 @@
     }
   },
   "board": {
-    "menuName": "Planke",
-    "referencedBoardPrefix": "Sicht von",
     "column": {
       "createNewCard": "Neu"
-    }
+    },
+    "menuName": "Planke",
+    "referencedBoardPrefix": "Sicht von"
   },
   "calendar": {
     "menuName": "Kalender",

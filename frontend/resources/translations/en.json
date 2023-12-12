@@ -46,7 +46,8 @@
     "LogInWithGoogle": "Log in with Google",
     "LogInWithGithub": "Log in with Github",
     "LogInWithDiscord": "Log in with Discord",
-    "signInWith": "Sign in with:"
+    "signInWith": "Sign in with:",
+    "loginAsGuestButtonText": "Login as Guest"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -233,7 +234,9 @@
     "add": "Add",
     "yes": "Yes",
     "Done": "Done",
-    "Cancel": "Cancel"
+    "Cancel": "Cancel",
+    "OK": "Yes",
+    "tryAGain": "Try again"
   },
   "label": {
     "welcome": "Welcome!",
@@ -299,7 +302,9 @@
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account",
-      "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption"
+      "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
+      "supabaseSetting": "Supabase setting",
+      "cloudSetting": "Cloud setting"
     },
     "notifications": {
       "enableNotifications": {
@@ -360,7 +365,9 @@
         "twelveHour": "Twelve hour",
         "twentyFourHour": "Twenty four hour"
       },
-      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
+      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
+      "lightLabel": "Light",
+      "darkLabel": "Dark"
     },
     "files": {
       "copy": "Copy",
@@ -452,7 +459,8 @@
       "filterBy": "Filter by...",
       "typeAValue": "Type a value...",
       "layout": "Layout",
-      "databaseLayout": "Layout"
+      "databaseLayout": "Layout",
+      "Properties": "Properties"
     },
     "textFilter": {
       "contains": "Contains",
@@ -475,7 +483,8 @@
       "isChecked": "Checked",
       "isUnchecked": "Unchecked",
       "choicechipPrefix": {
-        "is": "is"
+        "is": "is",
+        "da": "Checkbox Prefix"
       }
     },
     "checklistFilter": {
@@ -571,7 +580,8 @@
       "ascending": "Ascending",
       "descending": "Descending",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add sort"
+      "addSort": "Add sort",
+      "deleteSort": "Clear sort"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -604,10 +614,12 @@
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search or create an option...",
-      "createNew": "Create an new",
+      "createNew": "Create a new",
       "orSelectOne": "Or select an option",
       "typeANewOption": "Type a new option",
-      "tagName": "Tag name"
+      "tagName": "Tag name",
+      "colorPannelTitle": "Color pannel",
+      "pannelTitle": "Option panel"
     },
     "checklist": {
       "taskHint": "Task description",
@@ -742,7 +754,8 @@
         "cut": "Cut",
         "paste": "Paste"
       },
-      "action": "Actions"
+      "action": "Actions",
+      "autoCompletionMenuItemName": "Auto completion menu item"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -823,6 +836,10 @@
     "errorBlock": {
       "theBlockIsNotSupported": "The current version does not support this block.",
       "blockContentHasBeenCopied": "The block content has been copied."
+    },
+    "data": {
+      "timeHintTextInTwelveHour": "Twelve hours",
+      "timeHintTextInTwentyFourHour": "Twenty four hours"
     }
   },
   "board": {
@@ -882,11 +899,7 @@
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
       "noDateTitle": "No Date",
-      "noDateHint": {
-        "zero": "Unscheduled events will show up here",
-        "one": "{count} unscheduled event",
-        "other": "{count} unscheduled events"
-      },
+      "noDateHint": "Unscheduled events will appear here",
       "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar settings"
@@ -1000,7 +1013,8 @@
       "groupByDate": "Group by date",
       "showUnreadsOnly": "Show unreads only",
       "resetToDefault": "Reset to default"
-    }
+    },
+    "empty": "Empty"
   },
   "reminderNotification": {
     "title": "Reminder",
