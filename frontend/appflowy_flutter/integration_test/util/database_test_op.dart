@@ -24,9 +24,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/create_sort_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/order_panel.dart';

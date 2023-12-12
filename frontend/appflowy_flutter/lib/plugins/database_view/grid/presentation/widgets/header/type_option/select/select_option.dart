@@ -1,17 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/select_option_type_option_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
-import '../../../layout/sizes.dart';
-import '../../../../../widgets/row/cells/select_option_cell/extension.dart';
-import '../../common/type_option_separator.dart';
 import 'select_option_editor.dart';
 
 class SelectOptionTypeOptionWidget extends StatelessWidget {
@@ -39,7 +37,6 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
           BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
         builder: (context, state) {
           final List<Widget> children = [
-            const TypeOptionSeparator(spacing: 8),
             const _OptionTitle(),
             const VSpace(4),
             if (state.isEditingOption) ...[
@@ -127,13 +124,7 @@ class _OptionCell extends StatefulWidget {
 }
 
 class _OptionCellState extends State<_OptionCell> {
-  late PopoverController _popoverController;
-
-  @override
-  void initState() {
-    _popoverController = PopoverController();
-    super.initState();
-  }
+  final PopoverController _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -230,18 +221,18 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
 
   @override
   void initState() {
-    _focusNode = FocusNode();
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
+    super.initState();
+    _focusNode = FocusNode()
+      ..addListener(() {
+        if (_focusNode.hasFocus) {
+          widget.popoverMutex?.close();
+        }
+      });
     widget.popoverMutex?.listenOnPopoverChanged(() {
       if (_focusNode.hasFocus) {
         _focusNode.unfocus();
       }
     });
-    super.initState();
   }
 
   @override

@@ -5,12 +5,21 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 part 'select_option_type_option_bloc.freezed.dart';
 
-abstract mixin class ISelectOptionAction {
-  Future<List<SelectOptionPB>> Function(String) get insertOption;
+abstract class ISelectOptionAction {
+  Future<List<SelectOptionPB>> insertOption(
+    List<SelectOptionPB> options,
+    String newOptionName,
+  );
 
-  List<SelectOptionPB> Function(SelectOptionPB) get deleteOption;
+  List<SelectOptionPB> deleteOption(
+    List<SelectOptionPB> options,
+    SelectOptionPB deletedOption,
+  );
 
-  List<SelectOptionPB> Function(SelectOptionPB) get updateOption;
+  List<SelectOptionPB> updateOption(
+    List<SelectOptionPB> options,
+    SelectOptionPB updatedOption,
+  );
 }
 
 class SelectOptionTypeOptionBloc
@@ -26,7 +35,7 @@ class SelectOptionTypeOptionBloc
         await event.when(
           createOption: (optionName) async {
             final List<SelectOptionPB> options =
-                await typeOptionAction.insertOption(optionName);
+                await typeOptionAction.insertOption(state.options, optionName);
             emit(state.copyWith(options: options));
           },
           addingOption: () {
@@ -37,12 +46,12 @@ class SelectOptionTypeOptionBloc
           },
           updateOption: (option) {
             final List<SelectOptionPB> options =
-                typeOptionAction.updateOption(option);
+                typeOptionAction.updateOption(state.options, option);
             emit(state.copyWith(options: options));
           },
           deleteOption: (option) {
             final List<SelectOptionPB> options =
-                typeOptionAction.deleteOption(option);
+                typeOptionAction.deleteOption(state.options, option);
             emit(state.copyWith(options: options));
           },
         );

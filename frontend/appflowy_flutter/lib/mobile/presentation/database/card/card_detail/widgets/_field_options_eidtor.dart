@@ -10,7 +10,7 @@ import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/w
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -93,39 +93,30 @@ class FieldOptionValues {
     }
   }
 
-  static Future<FieldOptionValues?> get({
-    required String viewId,
-    required String fieldId,
-    required FieldType fieldType,
-  }) async {
-    final service = FieldBackendService(viewId: viewId, fieldId: fieldId);
-    final result = await service.getFieldTypeOptionData(fieldType: fieldType);
-    return result.fold(
-      (option) {
-        final type = option.field_2.fieldType;
-        final buffer = option.typeOptionData;
-        return FieldOptionValues(
-          type: type,
-          name: option.field_2.name,
-          numberFormat: type == FieldType.Number
-              ? NumberTypeOptionPB.fromBuffer(buffer).format
-              : null,
-          dateFormate: type == FieldType.DateTime
-              ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
-              : null,
-          timeFormat: type == FieldType.DateTime
-              ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
-              : null,
-          selectOption: switch (type) {
-            FieldType.SingleSelect =>
-              SingleSelectTypeOptionPB.fromBuffer(buffer).options,
-            FieldType.MultiSelect =>
-              MultiSelectTypeOptionPB.fromBuffer(buffer).options,
-            _ => [],
-          },
-        );
+  factory FieldOptionValues.fromField({
+    required FieldPB field,
+  }) {
+    final fieldType = field.fieldType;
+    final buffer = field.typeOptionData;
+    return FieldOptionValues(
+      type: fieldType,
+      name: field.name,
+      numberFormat: fieldType == FieldType.Number
+          ? NumberTypeOptionPB.fromBuffer(buffer).format
+          : null,
+      dateFormate: fieldType == FieldType.DateTime
+          ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
+          : null,
+      timeFormat: fieldType == FieldType.DateTime
+          ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
+          : null,
+      selectOption: switch (fieldType) {
+        FieldType.SingleSelect =>
+          SingleSelectTypeOptionPB.fromBuffer(buffer).options,
+        FieldType.MultiSelect =>
+          MultiSelectTypeOptionPB.fromBuffer(buffer).options,
+        _ => [],
       },
-      (error) => null,
     );
   }
 }

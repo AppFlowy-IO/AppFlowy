@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,14 +33,9 @@ void main() {
     await boardResponseFuture();
 
     final fieldInfo = context.singleSelectFieldContext();
-    final loader = FieldTypeOptionLoader(
-      viewId: context.gridView.id,
-      field: fieldInfo.field,
-    );
 
     final editorBloc = FieldEditorBloc(
       viewId: context.gridView.id,
-      loader: loader,
       field: fieldInfo.field,
       fieldController: context.fieldController,
     )..add(const FieldEditorEvent.initial());

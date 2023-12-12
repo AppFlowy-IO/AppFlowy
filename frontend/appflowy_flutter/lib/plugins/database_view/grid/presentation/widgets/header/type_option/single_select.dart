@@ -1,49 +1,38 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/single_select_type_option.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
-import '../field_type_option_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+
 import 'builder.dart';
-import 'select_option.dart';
+import 'select/select_option.dart';
 
-class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  final SingleSelectTypeOptionWidget _widget;
-
-  SingleSelectTypeOptionWidgetBuilder(
-    SingleSelectTypeOptionContext singleSelectTypeOption,
-    PopoverMutex popoverMutex,
-  ) : _widget = SingleSelectTypeOptionWidget(
-          selectOptionAction: SingleSelectAction(
-            fieldId: singleSelectTypeOption.fieldId,
-            viewId: singleSelectTypeOption.viewId,
-            typeOptionContext: singleSelectTypeOption,
-          ),
-          popoverMutex: popoverMutex,
-        );
+class SingleSelectTypeOptionEditorFactory implements TypeOptionEditorFactory {
+  const SingleSelectTypeOptionEditorFactory();
 
   @override
-  Widget? build(BuildContext context) => _widget;
-}
+  Widget? build({
+    required BuildContext context,
+    required String viewId,
+    required FieldPB field,
+    required PopoverMutex popoverMutex,
+    required TypeOptionDataCallback onTypeOptionUpdated,
+  }) {
+    final typeOption = _parseTypeOptionData(field.typeOptionData);
 
-class SingleSelectTypeOptionWidget extends TypeOptionWidget {
-  final SingleSelectAction selectOptionAction;
-  final PopoverMutex? popoverMutex;
-
-  const SingleSelectTypeOptionWidget({
-    super.key,
-    required this.selectOptionAction,
-    this.popoverMutex,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     return SelectOptionTypeOptionWidget(
-      options: selectOptionAction.typeOption.options,
-      beginEdit: () {
-        PopoverContainer.of(context).closeAll();
-      },
+      options: typeOption.options,
+      beginEdit: () => PopoverContainer.of(context).closeAll(),
       popoverMutex: popoverMutex,
-      typeOptionAction: selectOptionAction,
+      typeOptionAction: SingleSelectAction(
+        viewId: viewId,
+        fieldId: field.id,
+        onTypeOptionUpdated: onTypeOptionUpdated,
+      ),
     );
+  }
+
+  SingleSelectTypeOptionPB _parseTypeOptionData(List<int> data) {
+    return SingleSelectTypeOptionDataParser().fromBuffer(data);
   }
 }

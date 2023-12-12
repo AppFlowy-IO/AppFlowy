@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/cell/date_cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
@@ -15,25 +16,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 
-part 'date_cal_bloc.freezed.dart';
+part 'date_cell_editor_bloc.freezed.dart';
 
-class DateCellCalendarBloc
-    extends Bloc<DateCellCalendarEvent, DateCellCalendarState> {
+class DateCellEditorBloc
+    extends Bloc<DateCellEditorEvent, DateCellEditorState> {
   final DateCellBackendService _dateCellBackendService;
   final DateCellController cellController;
   void Function()? _onCellChangedFn;
 
-  DateCellCalendarBloc({
-    required DateTypeOptionPB dateTypeOptionPB,
-    required DateCellDataPB? cellData,
+  DateCellEditorBloc({
     required this.cellController,
   })  : _dateCellBackendService = DateCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,
         ),
-        super(DateCellCalendarState.initial(dateTypeOptionPB, cellData)) {
-    on<DateCellCalendarEvent>(
+        super(DateCellEditorState.initial(cellController)) {
+    on<DateCellEditorEvent>(
       (event, emit) async {
         await event.when(
           initial: () async => _startListening(),
@@ -222,7 +221,7 @@ class DateCellCalendarBloc
         if (!isClosed &&
             (state.parseEndTimeError != null || state.parseTimeError != null)) {
           add(
-            const DateCellCalendarEvent.didReceiveTimeFormatError(null, null),
+            const DateCellEditorEvent.didReceiveTimeFormatError(null, null),
           );
         }
       },
@@ -237,7 +236,7 @@ class DateCellCalendarBloc
                 ? (timeFormatPrompt(err), null)
                 : (null, timeFormatPrompt(err));
             add(
-              DateCellCalendarEvent.didReceiveTimeFormatError(
+              DateCellEditorEvent.didReceiveTimeFormatError(
                 startError,
                 endError,
               ),
@@ -259,7 +258,7 @@ class DateCellCalendarBloc
         }
 
         add(
-          const DateCellCalendarEvent.didReceiveTimeFormatError(null, null),
+          const DateCellEditorEvent.didReceiveTimeFormatError(null, null),
         );
       },
       (err) => Log.error(err),
@@ -300,7 +299,6 @@ class DateCellCalendarBloc
       cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    await cellController.dispose();
     return super.close();
   }
 
@@ -308,14 +306,14 @@ class DateCellCalendarBloc
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cell) {
         if (!isClosed) {
-          add(DateCellCalendarEvent.didReceiveCellUpdate(cell));
+          add(DateCellEditorEvent.didReceiveCellUpdate(cell));
         }
       }),
     );
   }
 
   Future<void>? _updateTypeOption(
-    Emitter<DateCellCalendarState> emit, {
+    Emitter<DateCellEditorState> emit, {
     DateFormatPB? dateFormat,
     TimeFormatPB? timeFormat,
   }) async {
@@ -349,49 +347,49 @@ class DateCellCalendarBloc
 }
 
 @freezed
-class DateCellCalendarEvent with _$DateCellCalendarEvent {
+class DateCellEditorEvent with _$DateCellEditorEvent {
   // initial event
-  const factory DateCellCalendarEvent.initial() = _Initial;
+  const factory DateCellEditorEvent.initial() = _Initial;
 
   // notification that cell is updated in the backend
-  const factory DateCellCalendarEvent.didReceiveCellUpdate(
+  const factory DateCellEditorEvent.didReceiveCellUpdate(
     DateCellDataPB? data,
   ) = _DidReceiveCellUpdate;
-  const factory DateCellCalendarEvent.didReceiveTimeFormatError(
+  const factory DateCellEditorEvent.didReceiveTimeFormatError(
     String? parseTimeError,
     String? parseEndTimeError,
   ) = _DidReceiveTimeFormatError;
 
   // date cell data is modified
-  const factory DateCellCalendarEvent.selectDay(DateTime day) = _SelectDay;
-  const factory DateCellCalendarEvent.selectDateRange(
+  const factory DateCellEditorEvent.selectDay(DateTime day) = _SelectDay;
+  const factory DateCellEditorEvent.selectDateRange(
     DateTime? start,
     DateTime? end,
   ) = _SelectDateRange;
-  const factory DateCellCalendarEvent.setStartDay(
+  const factory DateCellEditorEvent.setStartDay(
     DateTime startDay,
   ) = _SetStartDay;
-  const factory DateCellCalendarEvent.setEndDay(
+  const factory DateCellEditorEvent.setEndDay(
     DateTime endDay,
   ) = _SetEndDay;
-  const factory DateCellCalendarEvent.setTime(String time) = _Time;
-  const factory DateCellCalendarEvent.setEndTime(String endTime) = _EndTime;
-  const factory DateCellCalendarEvent.setIncludeTime(bool includeTime) =
+  const factory DateCellEditorEvent.setTime(String time) = _Time;
+  const factory DateCellEditorEvent.setEndTime(String endTime) = _EndTime;
+  const factory DateCellEditorEvent.setIncludeTime(bool includeTime) =
       _IncludeTime;
-  const factory DateCellCalendarEvent.setIsRange(bool isRange) = _IsRange;
+  const factory DateCellEditorEvent.setIsRange(bool isRange) = _IsRange;
 
   // date field type options are modified
-  const factory DateCellCalendarEvent.setTimeFormat(TimeFormatPB timeFormat) =
+  const factory DateCellEditorEvent.setTimeFormat(TimeFormatPB timeFormat) =
       _TimeFormat;
-  const factory DateCellCalendarEvent.setDateFormat(DateFormatPB dateFormat) =
+  const factory DateCellEditorEvent.setDateFormat(DateFormatPB dateFormat) =
       _DateFormat;
 
-  const factory DateCellCalendarEvent.clearDate() = _ClearDate;
+  const factory DateCellEditorEvent.clearDate() = _ClearDate;
 }
 
 @freezed
-class DateCellCalendarState with _$DateCellCalendarState {
-  const factory DateCellCalendarState({
+class DateCellEditorState with _$DateCellEditorState {
+  const factory DateCellEditorState({
     // the date field's type option
     required DateTypeOptionPB dateTypeOptionPB,
 
@@ -413,15 +411,14 @@ class DateCellCalendarState with _$DateCellCalendarState {
     required String? parseTimeError,
     required String? parseEndTimeError,
     required String timeHintText,
-  }) = _DateCellCalendarState;
+  }) = _DateCellEditorState;
 
-  factory DateCellCalendarState.initial(
-    DateTypeOptionPB dateTypeOptionPB,
-    DateCellDataPB? cellData,
-  ) {
+  factory DateCellEditorState.initial(DateCellController controller) {
+    final typeOption = controller.getTypeOption(DateTypeOptionDataParser());
+    final cellData = controller.getCellData();
     final dateCellData = _dateDataFromCellData(cellData);
-    return DateCellCalendarState(
-      dateTypeOptionPB: dateTypeOptionPB,
+    return DateCellEditorState(
+      dateTypeOptionPB: typeOption,
       startDay: dateCellData.isRange ? dateCellData.dateTime : null,
       endDay: dateCellData.isRange ? dateCellData.endDateTime : null,
       dateTime: dateCellData.dateTime,
@@ -434,7 +431,7 @@ class DateCellCalendarState with _$DateCellCalendarState {
       isRange: dateCellData.isRange,
       parseTimeError: null,
       parseEndTimeError: null,
-      timeHintText: _timeHintText(dateTypeOptionPB),
+      timeHintText: _timeHintText(typeOption),
     );
   }
 }
@@ -450,13 +447,13 @@ String _timeHintText(DateTypeOptionPB typeOption) {
   }
 }
 
-DateCellData _dateDataFromCellData(
+_DateCellData _dateDataFromCellData(
   DateCellDataPB? cellData,
 ) {
   // a null DateCellDataPB may be returned, indicating that all the fields are
   // their default values: empty strings and false booleans
   if (cellData == null) {
-    return DateCellData(
+    return _DateCellData(
       dateTime: null,
       endDateTime: null,
       timeStr: null,
@@ -492,7 +489,7 @@ DateCellData _dateDataFromCellData(
   }
   final String dateStr = cellData.date;
 
-  return DateCellData(
+  return _DateCellData(
     dateTime: dateTime,
     endDateTime: endDateTime,
     timeStr: timeStr,
@@ -504,7 +501,7 @@ DateCellData _dateDataFromCellData(
   );
 }
 
-class DateCellData {
+class _DateCellData {
   final DateTime? dateTime;
   final DateTime? endDateTime;
   final String? timeStr;
@@ -514,7 +511,7 @@ class DateCellData {
   final String? dateStr;
   final String? endDateStr;
 
-  DateCellData({
+  _DateCellData({
     required this.dateTime,
     required this.endDateTime,
     required this.timeStr,

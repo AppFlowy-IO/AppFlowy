@@ -15,7 +15,7 @@ import 'package:textfield_tags/textfield_tags.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
-import '../../../../grid/presentation/widgets/header/type_option/select_option_editor.dart';
+import '../../../../grid/presentation/widgets/header/type_option/select/select_option_editor.dart';
 import 'extension.dart';
 import 'select_option_editor_bloc.dart';
 import 'text_field.dart';

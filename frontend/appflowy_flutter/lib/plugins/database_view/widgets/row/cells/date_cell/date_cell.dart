@@ -47,17 +47,17 @@ class GridDateCell extends GridCellWidget {
 }
 
 class _DateCellState extends GridCellState<GridDateCell> {
-  late PopoverController _popover;
+  final PopoverController _popover = PopoverController();
+  late final DateCellController _cellController;
   late DateCellBloc _cellBloc;
 
   @override
   void initState() {
-    _popover = PopoverController();
-    final cellController =
-        widget.cellControllerBuilder.build() as DateCellController;
-    _cellBloc = DateCellBloc(cellController: cellController)
-      ..add(const DateCellEvent.initial());
     super.initState();
+    _cellController =
+        widget.cellControllerBuilder.build() as DateCellController;
+    _cellBloc = DateCellBloc(cellController: _cellController)
+      ..add(const DateCellEvent.initial());
   }
 
   @override
@@ -93,8 +93,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
               ),
               popupBuilder: (BuildContext popoverContent) {
                 return DateCellEditor(
-                  cellController: widget.cellControllerBuilder.build()
-                      as DateCellController,
+                  cellController: _cellController,
                   onDismissed: () =>
                       widget.cellContainerNotifier.isFocus = false,
                 );
@@ -111,8 +110,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
                 padding: EdgeInsets.zero,
                 builder: (context) {
                   return MobileDateCellEditScreen(
-                    controller: widget.cellControllerBuilder.build()
-                        as DateCellController,
+                    controller: _cellController,
                     showAsFullScreen: false,
                   );
                 },
@@ -169,8 +167,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
                       Theme.of(context).colorScheme.secondaryContainer,
                   builder: (context) {
                     return MobileDateCellEditScreen(
-                      controller: widget.cellControllerBuilder.build()
-                          as DateCellController,
+                      controller: _cellController,
                       showAsFullScreen: false,
                     );
                   },
@@ -186,6 +183,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
   @override
   Future<void> dispose() async {
     _cellBloc.close();
+    _cellController.dispose();
     super.dispose();
   }
 

@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/board.dart';
@@ -82,15 +81,9 @@ class BoardTestContext {
   FieldEditorBloc makeFieldEditor({
     required FieldInfo fieldInfo,
   }) {
-    final loader = FieldTypeOptionLoader(
-      viewId: gridView.id,
-      field: fieldInfo.field,
-    );
-
     final editorBloc = FieldEditorBloc(
       viewId: databaseController.viewId,
       fieldController: fieldController,
-      loader: loader,
       field: fieldInfo.field,
     );
     return editorBloc;
