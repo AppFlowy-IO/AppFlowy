@@ -163,7 +163,7 @@ class InnerMobileViewItem extends StatelessWidget {
       if (childViews.isNotEmpty) {
         final children = childViews.map((childView) {
           return MobileViewItem(
-            key: ValueKey('${categoryType.name} ${childView.id}'),
+            key: ValueKey('${categoryType.name} ${childView.hashCode}'),
             parentView: view,
             categoryType: categoryType,
             isFirstChild: childView.id == childViews.first.id,
@@ -343,7 +343,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     if (widget.startActionPane != null || widget.endActionPane != null) {
       child = Slidable(
         // Specify a key if the Slidable is dismissible.
-        key: ValueKey(widget.view.id),
+        key: ValueKey(widget.view.hashCode),
         startActionPane: widget.startActionPane?.call(context),
         endActionPane: widget.endActionPane?.call(context),
         child: child,
