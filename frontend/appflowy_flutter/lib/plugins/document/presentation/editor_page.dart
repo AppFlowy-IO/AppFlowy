@@ -31,6 +31,7 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customPasteCommand,
   customCutCommand,
   ...standardCommandShortcutEvents,
+  emojiShortcutEvent,
 ];
 
 final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
@@ -85,6 +86,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customPasteCommand,
     customCutCommand,
     ...standardCommandShortcutEvents,
+    emojiShortcutEvent,
     ..._buildFindAndReplaceCommands(),
   ];
 
