@@ -195,7 +195,7 @@ async function testEditDateFormatPB() {
 
   // update date type option
   const dateTypeOptionContext = makeDateTypeOptionContext(typeOptionController);
-  const typeOption = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+  const typeOption = dateTypeOptionContext.getTypeOption();
 
   assert(typeOption.date_format === DateFormatPB.Friendly, 'Date format not match');
   assert(typeOption.time_format === TimeFormatPB.TwentyFourHour, 'Time format not match');
@@ -203,7 +203,7 @@ async function testEditDateFormatPB() {
   typeOption.time_format = TimeFormatPB.TwelveHour;
   await dateTypeOptionContext.setTypeOption(typeOption);
 
-  const typeOption2 = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+  const typeOption2 = dateTypeOptionContext.getTypeOption();
 
   assert(typeOption2.date_format === DateFormatPB.Local, 'Date format not match');
   assert(typeOption2.time_format === TimeFormatPB.TwelveHour, 'Time format not match');
@@ -224,13 +224,13 @@ async function testEditNumberFormatPB() {
 
   // update date type option
   const dateTypeOptionContext = makeNumberTypeOptionContext(typeOptionController);
-  const typeOption = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+  const typeOption = dateTypeOptionContext.getTypeOption();
 
   typeOption.format = NumberFormatPB.EUR;
   typeOption.name = 'Money';
   await dateTypeOptionContext.setTypeOption(typeOption);
 
-  const typeOption2 = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+  const typeOption2 = dateTypeOptionContext.getTypeOption();
 
   Log.info(typeOption2);
   await new Promise((resolve) => setTimeout(resolve, 200));
@@ -377,7 +377,7 @@ async function testGetSingleSelectFieldData() {
   ]);
 
   // Read options
-  const options = await singleSelectTypeOptionContext.getTypeOption().then((result) => result.unwrap());
+  const options = singleSelectTypeOptionContext.getTypeOption();
 
   console.log(options);
 
@@ -401,9 +401,8 @@ async function testSwitchFromSingleSelectToNumber() {
 
   // Check the number type option
   const numberTypeOptionContext = makeNumberTypeOptionContext(typeOptionController);
-  const numberTypeOption: NumberTypeOptionPB = await numberTypeOptionContext
-    .getTypeOption()
-    .then((result) => result.unwrap());
+  const numberTypeOption: NumberTypeOptionPB = numberTypeOptionContext
+    .getTypeOption();
   const format: NumberFormatPB = numberTypeOption.format;
 
   if (format !== NumberFormatPB.Num) {
@@ -452,7 +451,7 @@ async function testSwitchFromMultiSelectToRichText() {
   await selectOptionCellController.dispose();
 
   // Switch to RichText field type
-  await typeOptionController.switchToField(FieldType.RichText).then((result) => result.unwrap());
+  await typeOptionController.switchToField(FieldType.RichText);
   if (typeOptionController.fieldType !== FieldType.RichText) {
     throw Error('The field type should be text');
   }
@@ -486,7 +485,7 @@ async function testEditField() {
   await controller.setFieldName(newName);
 
   await new Promise((resolve) => setTimeout(resolve, 200));
-  await assertFieldName(view.id, firstFieldInfo.field.id, firstFieldInfo.field.field_type, newName);
+  await assertFieldName(controller, newName);
   await databaseController.dispose();
 }
 
