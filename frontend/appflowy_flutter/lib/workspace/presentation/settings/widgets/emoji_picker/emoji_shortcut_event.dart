@@ -21,8 +21,8 @@ CommandShortcutEventHandler _emojiShortcutHandler = (editorState) {
 
   final container = Overlay.of(context);
 
-  Alignment _alignment = Alignment.topLeft;
-  Offset _offset = Offset.zero;
+  Alignment alignment = Alignment.topLeft;
+  Offset offset = Offset.zero;
 
   final selectionService = editorState.service.selectionService;
   final selectionRects = selectionService.selectionRects;
@@ -43,43 +43,43 @@ CommandShortcutEventHandler _emojiShortcutHandler = (editorState) {
   final editorWidth = editorState.renderBox!.size.width;
 
   // show below default
-  _alignment = Alignment.topLeft;
+  alignment = Alignment.topLeft;
   final bottomRight = rect.bottomRight;
   final topRight = rect.topRight;
-  var offset = bottomRight + menuOffset;
-  _offset = Offset(
-    offset.dx,
-    offset.dy,
+  var newOffset = bottomRight + menuOffset;
+  offset = Offset(
+    newOffset.dx,
+    newOffset.dy,
   );
 
   // show above
-  if (offset.dy + menuHeight >= editorOffset.dy + editorHeight) {
+  if (newOffset.dy + menuHeight >= editorOffset.dy + editorHeight) {
     offset = topRight - menuOffset;
-    _alignment = Alignment.bottomLeft;
+    alignment = Alignment.bottomLeft;
 
-    _offset = Offset(
-      offset.dx,
-      MediaQuery.of(context).size.height - offset.dy,
+    offset = Offset(
+      newOffset.dx,
+      MediaQuery.of(context).size.height - newOffset.dy,
     );
   }
 
   // show on left
-  if (_offset.dx - editorOffset.dx > editorWidth / 2) {
-    _alignment = _alignment == Alignment.topLeft
+  if (offset.dx - editorOffset.dx > editorWidth / 2) {
+    alignment = _alignment == Alignment.topLeft
         ? Alignment.topRight
         : Alignment.bottomRight;
 
-    _offset = Offset(
-      editorWidth - _offset.dx + editorOffset.dx,
-      _offset.dy,
+    offset = Offset(
+      editorWidth - offset.dx + editorOffset.dx,
+      offset.dy,
     );
   }
 
   showEmojiPickerMenu(
     container,
     editorState,
-    _alignment,
-    _offset,
+    alignment,
+    offset,
   );
 
   return KeyEventResult.handled;
