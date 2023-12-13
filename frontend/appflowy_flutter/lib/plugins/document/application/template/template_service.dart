@@ -26,6 +26,11 @@ import 'package:flowy_infra/file_picker/file_picker_service.dart';
 /// Use [saveTemplate] to export template
 /// Use [unloadTemplate] to import template
 
+
+//TODO's: 
+// 1. Add databases to database[] field in config so that they can be loaded and re-linked again when imported!
+
+
 class TemplateService {
   Future<bool> saveTemplate(ViewPB view) async {
     final directory = await getApplicationDocumentsDirectory();
@@ -65,7 +70,8 @@ class TemplateService {
         final fileName = path.basename(filePath);
         final fileContent = await file.readAsBytes();
         encoder.addArchiveFile(
-            ArchiveFile(fileName, fileContent.length, fileContent));
+          ArchiveFile(fileName, fileContent.length, fileContent),
+        );
       }
     }
     encoder.close();
@@ -79,7 +85,10 @@ class TemplateService {
     final viewsAtId = await ViewBackendService.getChildViews(viewId: view.id);
     final List<ViewPB> views = viewsAtId.getLeftOrNull();
 
-    if (views.isEmpty) return;
+    // If it's a grid/board we don't need to export additional page "View of Grid/Board"
+    if (views.isEmpty ||
+        view.layout == ViewLayoutPB.Grid ||
+        view.layout == ViewLayoutPB.Board) return;
 
     for (int i = 0; i < views.length; i++) {
       final view = views[i];
@@ -173,6 +182,7 @@ class TemplateService {
 
     final contents = await file.readAsBytes();
     final archive = ZipDecoder().decodeBytes(contents);
+    
 
     return archive;
   }

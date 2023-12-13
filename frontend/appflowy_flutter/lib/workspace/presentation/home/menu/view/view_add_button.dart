@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_panel.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -79,10 +80,16 @@ class ViewAddButton extends StatelessWidget {
         } else if (action is ViewImportActionWrapper) {
           _showViewImportAction(context, action);
         } else if (action is TemplateActionWrapper) {
-          final TemplateService tService = getIt<TemplateService>();
-          final archive = await tService.pickTemplate();
-          await tService.unloadTemplate(parentViewId, archive);
+          // final TemplateService tService = getIt<TemplateService>();
+          // final archive = await tService.pickTemplate();
+          // await tService.unloadTemplate(parentViewId, archive);
+          TemplateDialog(
+            title: LocaleKeys.template_title.tr(),
+            confirm: () {},
+            parentViewId: parentViewId,
+          ).show(context);
         }
+
         popover.close();
       },
       onClosed: () {

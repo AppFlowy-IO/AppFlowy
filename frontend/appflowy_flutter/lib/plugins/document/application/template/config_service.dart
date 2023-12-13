@@ -18,6 +18,7 @@ class ConfigService {
       name: "template.json",
       childViews: [],
       images: [],
+      databases: [],
     ),
   );
 
@@ -30,6 +31,13 @@ class ConfigService {
     ViewPB view,
     FlowyTemplateItem model,
   ) async {
+    if (view.layout == ViewLayoutPB.Board || view.layout == ViewLayoutPB.Grid) {
+      // model.databases.add("${uuid()}.csv");
+      // return model;
+      return FlowyTemplateItem(
+          name: "${uuid()}.csv", childViews: [], images: [], databases: []);
+    }
+
     final viewsAtId = await ViewBackendService.getChildViews(viewId: view.id);
     final List<ViewPB> views = viewsAtId.getLeftOrNull();
 
@@ -40,13 +48,14 @@ class ConfigService {
       name: "${uuid()}.json",
       childViews: [],
       images: images,
+      databases: [],
     );
 
     for (int i = 0; i < views.length; i++) {
       final e = views[i];
 
       final temp = await ViewBackendService.getChildViews(viewId: e.id);
-      final viewsAtE = temp.getLeftOrNull();
+      final viewsAtE = temp.getLeftOrNull() ?? [];
 
       // If children are empty no need to continue
       if (viewsAtE.isEmpty) {
@@ -123,6 +132,7 @@ class ConfigService {
       name: "",
       childViews: [],
       images: images,
+      databases: [],
     );
 
     // Generate unique name for each document
@@ -175,6 +185,7 @@ class FlowyTemplateItem {
     required this.name,
     required this.images,
     required this.childViews,
+    required this.databases,
   });
 
   factory FlowyTemplateItem.fromJson(Map<String, dynamic> json) =>
@@ -184,6 +195,8 @@ class FlowyTemplateItem {
           json["childViews"].map((x) => FlowyTemplateItem.fromJson(x)),
         ),
         images: List<String>.from(json["images"].map((x) => x.toString())),
+        databases:
+            List<String>.from(json["databases"].map((x) => x.toString())),
       );
 
   Map<String, dynamic> toJson() {
@@ -192,6 +205,7 @@ class FlowyTemplateItem {
       "name": name,
       "childViews": [],
       "images": images,
+      "databases": databases,
     };
 
     _toJsonHelper(this, processed, result);
@@ -210,18 +224,21 @@ class FlowyTemplateItem {
 
     processed.add(model);
 
-    final childViews = <dynamic>[];
-    for (final child in model.childViews) {
-      final childResult = <String, dynamic>{
-        "name": child.name,
-        "childViews": [],
-        "images": child.images,
-      };
+    if (model.childViews.isNotEmpty) {
+      final childViews = <dynamic>[];
+      for (final child in model.childViews) {
+        final childResult = <String, dynamic>{
+          "name": child.name,
+          "childViews": [],
+          "images": child.images,
+          "databases": child.databases,
+        };
 
-      _toJsonHelper(child, processed, childResult);
-      childViews.add(childResult);
+        _toJsonHelper(child, processed, childResult);
+        childViews.add(childResult);
+      }
+
+      result["childViews"] = childViews;
     }
-
-    result["childViews"] = childViews;
   }
 }
