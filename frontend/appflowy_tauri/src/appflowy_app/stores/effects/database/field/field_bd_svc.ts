@@ -2,14 +2,11 @@ import {
   DeleteFieldPayloadPB,
   DuplicateFieldPayloadPB,
   FieldChangesetPB,
-  FieldType,
   TypeOptionChangesetPB,
-  TypeOptionPathPB,
 } from '@/services/backend';
 import {
   DatabaseEventDeleteField,
   DatabaseEventDuplicateField,
-  DatabaseEventGetTypeOption,
   DatabaseEventUpdateField,
   DatabaseEventUpdateFieldTypeOption,
 } from '@/services/backend/events/flowy-database2';
@@ -63,15 +60,5 @@ export class FieldBackendService {
     const payload = DuplicateFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
 
     return DatabaseEventDuplicateField(payload);
-  };
-
-  getTypeOptionData = (fieldType: FieldType) => {
-    const payload = TypeOptionPathPB.fromObject({
-      view_id: this.viewId,
-      field_id: this.fieldId,
-      field_type: fieldType,
-    });
-
-    return DatabaseEventGetTypeOption(payload);
   };
 }
