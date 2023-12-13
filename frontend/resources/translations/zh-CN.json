@@ -94,7 +94,7 @@
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
   "newDocumentText": "新文件",
-  "newGridText": "新建矩阵",
+  "newGridText": "新建网格",
   "newCalendarText": "新日历",
   "newBoardText": "新建看板",
   "trash": {
@@ -378,8 +378,8 @@
     },
     "shortcuts": {
       "shortcutsLabel": "快捷方式",
-      "command": "zh'li",
-      "keyBinding": "案件绑定",
+      "command": "指令",
+      "keyBinding": "按键绑定",
       "addNewCommand": "添加新指令",
       "updateShortcutStep": "按所需的组合键并按 ENTER",
       "shortcutIsAlreadyUsed": "此快捷方式已用于：{conflict}",
@@ -714,7 +714,7 @@
         "invalidImageUrl": "图片网址无效"
       },
       "embedLink": {
-        "label": "nei'q链接",
+        "label": "内嵌链接",
         "placeholder": "粘贴或输入图像链接"
       },
       "searchForAnImage": "搜索图像",
@@ -899,7 +899,7 @@
       "showUnreads": "未读"
     },
     "filters": {
-      "ascending": "上升",
+      "ascending": "升序",
       "descending": "降序",
       "groupByDate": "按日期分组",
       "showUnreadsOnly": "仅显示未读",
@@ -1015,8 +1015,8 @@
     "chooseImage": "选择图像",
     "loading": "加载中",
     "imageLoadFailed": "无法加载图像",
-    "divider": "分频器",
-    "table": "桌子",
+    "divider": "分隔线",
+    "table": "表格",
     "colAddBefore": "在前面添加",
     "colAddAfter": "在后面添加",
     "rowAddBefore": "在前面添加",
@@ -1034,7 +1034,7 @@
     "notesPlaceholder": "输入 / 以插入块，或开始键入"
   },
   "blockPlaceholders": {
-    "todoList": "去做",
+    "todoList": "待办",
     "bulletList": "列表",
     "numberList": "列表",
     "quote": "引用",
