@@ -726,6 +726,9 @@
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image"
       },
+      "urlPreview": {
+        "copiedToPasteBoard": "The link has been copied to the clipboard"
+      },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
       },

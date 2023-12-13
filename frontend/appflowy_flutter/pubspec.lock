@@ -59,6 +59,15 @@ packages:
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.1.0"
+  appflowy_editor_plugins:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "6c49fea"
+      resolved-ref: "6c49feabd65d87ab6ab5c6942df3e85fa5add98d"
+      url: "https://github.com/LucasXu0/appflowy_editor_plugins"
+    source: git
+    version: "0.0.1"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -563,6 +572,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
+  flutter_chat_types:
+    dependency: transitive
+    description:
+      name: flutter_chat_types
+      sha256: e285b588f6d19d907feb1f6d912deaf22e223656769c34093b64e1c59b094fb9
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.6.2"
   flutter_colorpicker:
     dependency: "direct main"
     description:
@@ -585,6 +602,22 @@ packages:
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"
+  flutter_link_previewer:
+    dependency: transitive
+    description:
+      name: flutter_link_previewer
+      sha256: "007069e60f42419fb59872beb7a3cc3ea21e9f1bdff5d40239f376fa62ca9f20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.2"
+  flutter_linkify:
+    dependency: transitive
+    description:
+      name: flutter_linkify
+      sha256: "74669e06a8f358fee4512b4320c0b80e51cffc496607931de68d28f099254073"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -994,6 +1027,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
+  linkify:
+    dependency: transitive
+    description:
+      name: linkify
+      sha256: "4139ea77f4651ab9c315b577da2dd108d9aa0bd84b5d03d33323f1970c645832"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
   lint:
     dependency: transitive
     description:
@@ -1892,10 +1933,10 @@ packages:
     dependency: "direct main"
     description:
       name: url_launcher
-      sha256: b1c9e98774adf8820c96fbc7ae3601231d324a7d5ebd8babe27b6dfac91357ba
+      sha256: e9aa5ea75c84cf46b3db4eea212523591211c3cf2e13099ee4ec147f54201c86
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.1"
+    version: "6.2.2"
   url_launcher_android:
     dependency: transitive
     description:

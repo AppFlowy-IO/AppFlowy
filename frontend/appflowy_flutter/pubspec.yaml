@@ -45,9 +45,10 @@ dependencies:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: 93a1b70
   appflowy_editor:
+  appflowy_editor_plugins:
     git:
-      url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "e6b1336"
+      url: https://github.com/LucasXu0/appflowy_editor_plugins
+      ref: "6c49fea"
 
   appflowy_popover:
     path: packages/appflowy_popover
@@ -156,10 +157,16 @@ dependency_overrides:
     git:
       url: https://github.com/LucasXu0/app_links
       ref: c64ce17
+
   url_protocol:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
       commit: 77a8420
+
+  appflowy_editor:
+    git:
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: "e6b1336"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
