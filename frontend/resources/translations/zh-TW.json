@@ -176,9 +176,9 @@
     "delete": "刪除",
     "duplicate": "複製",
     "putback": "放回去",
-    "OK": "OK",
     "Done": "完畢",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "OK": "OK"
   },
   "label": {
     "welcome": "歡迎！",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "看板",
-    "referencedBoardPrefix": "視圖",
     "column": {
       "createNewCard": "建立"
-    }
+    },
+    "menuName": "看板",
+    "referencedBoardPrefix": "視圖"
   },
   "calendar": {
     "menuName": "月曆",

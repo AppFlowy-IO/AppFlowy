@@ -176,9 +176,9 @@
     "delete": "يمسح",
     "duplicate": "ينسخ",
     "putback": "ضعها بالخلف",
-    "OK": "نعم",
     "Done": "منتهي",
-    "Cancel": "إلغاء"
+    "Cancel": "إلغاء",
+    "OK": "نعم"
   },
   "label": {
     "welcome": "مرحباً!",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "سبورة",
-    "referencedBoardPrefix": "نظرا ل",
     "column": {
       "createNewCard": "جديد"
-    }
+    },
+    "menuName": "سبورة",
+    "referencedBoardPrefix": "نظرا ل"
   },
   "calendar": {
     "menuName": "تقويم",
