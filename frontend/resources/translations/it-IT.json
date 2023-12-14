@@ -177,9 +177,9 @@
     "delete": "Eliminare",
     "duplicate": "Duplicare",
     "putback": "Rimettere a posto",
-    "OK": "OK",
     "Done": "Fatto",
-    "Cancel": "Annulla"
+    "Cancel": "Annulla",
+    "OK": "OK"
   },
   "label": {
     "welcome": "Benvenuto!",
@@ -558,11 +558,11 @@
     }
   },
   "board": {
-    "menuName": "Asse",
-    "referencedBoardPrefix": "Vista di",
     "column": {
       "createNewCard": "Nuovo"
-    }
+    },
+    "menuName": "Asse",
+    "referencedBoardPrefix": "Vista di"
   },
   "calendar": {
     "menuName": "Calendario",

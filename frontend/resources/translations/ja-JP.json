@@ -176,9 +176,9 @@
     "delete": "消去",
     "duplicate": "複製",
     "putback": "戻す",
-    "OK": "OK",
     "Done": "終わり",
-    "Cancel": "キャンセル"
+    "Cancel": "キャンセル",
+    "OK": "OK"
   },
   "label": {
     "welcome": "ようこそ！",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "ボード",
-    "referencedBoardPrefix": "のビュー",
     "column": {
       "createNewCard": "新しい"
-    }
+    },
+    "menuName": "ボード",
+    "referencedBoardPrefix": "のビュー"
   },
   "calendar": {
     "menuName": "カレンダー",

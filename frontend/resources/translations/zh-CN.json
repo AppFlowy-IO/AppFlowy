@@ -173,7 +173,9 @@
     "dragRow": "拖动来调整行",
     "viewDataBase": "查看数据库",
     "referencePage": "这个 {name} 正在被引用",
-    "addBlockBelow": "在下面添加一个块"
+    "addBlockBelow": "在下面添加一个块",
+    "urlLaunchAccessory": "在浏览器中打开",
+    "urlCopyAccessory": "复制链接"
   },
   "sideBar": {
     "closeSidebar": "关闭侧边栏",
@@ -205,6 +207,7 @@
     "complete": "完成",
     "save": "保存",
     "generate": "生成",
+    "esc": "退出",
     "keep": "保留",
     "tryAgain": "重试",
     "discard": "放弃",
@@ -222,9 +225,10 @@
     "addToFavorites": "添加到收藏夹",
     "rename": "重命名",
     "helpCenter": "帮助中心",
-    "OK": "确认",
+    "yes": "是",
     "Done": "完成",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "OK": "确认"
   },
   "label": {
     "welcome": "欢迎!",
@@ -259,18 +263,26 @@
       "logoutPrompt": "您确定要登出吗？",
       "selfEncryptionLogoutPrompt": "您确定要登出吗？请确保您已复制加密密钥",
       "syncSetting": "同步设置",
-      "cloudSetting": "云设置",
-      "cloudURL": "服务器 URL",
       "enableSync": "启用同步",
       "enableEncrypt": "加密数据",
+      "cloudURL": "服务器 URL",
+      "cloudAppFlowy": "AppFlowy云",
+      "clickToCopy": "点击此处复制",
+      "selfHostStart": "如果你还没有服务器，请参考",
+      "selfHostContent": "文档",
+      "selfHostEnd": "以获取建立个人服务器的指导",
+      "restartAppTip": "重启软件以使更改生效。请注意，此操作可能会使你的当前账户退出登录",
       "enableEncryptPrompt": "启用加密以使用此密钥保护您的数据。安全存放；一旦启用，就无法关闭。如果丢失，您的数据将无法恢复。点击复制",
       "inputEncryptPrompt": "请输入您的加密密钥",
-      "clickToCopySecret": "点击复制秘密",
-      "inputTextFieldHint": "你的秘密",
+      "clickToCopySecret": "点击复制密钥",
+      "configServerSetting": "调整你的服务器设置",
+      "inputTextFieldHint": "你的密钥",
       "historicalUserList": "用户登录历史记录",
       "historicalUserListTooltip": "此列表显示您的匿名帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建匿名帐户",
       "openHistoricalUser": "点击开设匿名账户",
-      "supabaseSetting": "超基设置"
+      "customPathPrompt": "将AppFlowy的数据存放在云同步文件夹（如Google Drive）中可能存在风险。当存放在此文件夹下的数据库被多个客户端同时访问或修改时，可能会发生同步冲突或者数据污染",
+      "supabaseSetting": "超基设置",
+      "cloudSetting": "云设置"
     },
     "notifications": {
       "enableNotifications": {
@@ -550,7 +562,9 @@
       "searchOption": "搜索标签",
       "searchOrCreateOption": "搜索或创建选项...",
       "createNew": "创建一个新的",
-      "orSelectOne": "或者选择一个选项"
+      "orSelectOne": "或者选择一个选项",
+      "typeANewOption": "输入一个新的选项",
+      "tagName": "标签名"
     },
     "checklist": {
       "taskHint": "任务描述",
@@ -1018,8 +1032,8 @@
     "divider": "分频器",
     "table": "桌子",
     "colAddBefore": "在前面添加",
-    "colAddAfter": "在后面添加",
     "rowAddBefore": "在前面添加",
+    "colAddAfter": "在后面添加",
     "rowAddAfter": "在后面添加",
     "colRemove": "移除列",
     "colDuplicate": "创建副本",
