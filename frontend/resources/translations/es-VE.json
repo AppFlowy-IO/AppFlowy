@@ -176,9 +176,9 @@
     "delete": "Borrar",
     "duplicate": "Duplicar",
     "putback": "Volver",
-    "OK": "OK",
     "Done": "Hecho",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "OK": "OK"
   },
   "label": {
     "welcome": "¡Bienvenido!",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "Junta",
-    "referencedBoardPrefix": "Vista de",
     "column": {
       "createNewCard": "Nuevo"
-    }
+    },
+    "menuName": "Junta",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendario",

@@ -98,7 +98,7 @@ class SplashScreen extends StatelessWidget {
       '_handleUnauthenticated -> cloud is enabled: $isAuthEnabled',
     );
     // replace Splash screen as root page
-    if (isAuthEnabled) {
+    if (isAuthEnabled || PlatformExtension.isMobile) {
       context.go(SignInScreen.routeName);
     } else {
       // if the env is not configured, we will skip to the 'skip login screen'.

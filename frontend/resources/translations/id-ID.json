@@ -225,9 +225,9 @@
     "addToFavorites": "Tambahkan ke Favorit",
     "rename": "Ganti nama",
     "helpCenter": "Pusat Bantuan",
-    "OK": "Ya",
     "Done": "Selesai",
-    "Cancel": "Batal"
+    "Cancel": "Batal",
+    "OK": "Ya"
   },
   "label": {
     "welcome": "Selamat datang!",

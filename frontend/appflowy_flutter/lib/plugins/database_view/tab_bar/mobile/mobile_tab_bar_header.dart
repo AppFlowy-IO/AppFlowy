@@ -27,7 +27,6 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
   @override
   void dispose() {
     controller.dispose();
-
     super.dispose();
   }
 
@@ -45,55 +44,45 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
 
         controller.text = currentView.view.name;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Row(
-                children: [
-                  _buildViewIconButton(currentView.view),
-                  const HSpace(8.0),
-                  Expanded(
-                    child: FlowyTextField(
-                      autoFocus: false,
-                      maxLines: null,
-                      controller: controller,
-                      textAlignVertical: TextAlignVertical.top,
-                      textInputAction: TextInputAction.done,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      textStyle: Theme.of(context).textTheme.titleLarge,
-                      onSubmitted: (value) {
-                        if (value.isNotEmpty) {
-                          context.read<ViewBloc>().add(
-                                ViewEvent.rename(value),
-                              );
-                        }
-                      },
-                      onCanceled: () {
-                        controller.text = currentView.view.name;
-                      },
-                    ),
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          child: Row(
+            children: [
+              _buildViewIconButton(currentView.view),
+              const HSpace(8.0),
+              Expanded(
+                child: FlowyTextField(
+                  autoFocus: false,
+                  maxLines: 1,
+                  controller: controller,
+                  textAlignVertical: TextAlignVertical.top,
+                  textInputAction: TextInputAction.done,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
                   ),
-                  MobileDatabaseSettingsButton(
-                    controller: state
-                        .tabBarControllerByViewId[currentView.viewId]!
-                        .controller,
-                    toggleExtension: ToggleExtensionNotifier(),
-                  ),
-                ],
+                  textStyle: Theme.of(context).textTheme.titleLarge,
+                  onSubmitted: (value) {
+                    if (value.isNotEmpty) {
+                      context.read<ViewBloc>().add(
+                            ViewEvent.rename(value),
+                          );
+                    }
+                  },
+                  onCanceled: () {
+                    controller.text = currentView.view.name;
+                  },
+                ),
               ),
-            ),
-            const Divider(
-              height: 1,
-              thickness: 1,
-            ),
-          ],
+              MobileDatabaseSettingsButton(
+                controller: state
+                    .tabBarControllerByViewId[currentView.viewId]!.controller,
+                toggleExtension: ToggleExtensionNotifier(),
+              ),
+            ],
+          ),
         );
       },
     );

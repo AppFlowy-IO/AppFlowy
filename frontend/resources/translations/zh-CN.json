@@ -1,4 +1,5 @@
 {
+  "appName": "AppFlowy",
   "defaultUsername": "我",
   "welcomeText": "欢迎使用 @:appName",
   "githubStarText": "在 GitHub 上 Star",
@@ -94,7 +95,7 @@
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
   "newDocumentText": "新文件",
-  "newGridText": "新建矩阵",
+  "newGridText": "新建网格",
   "newCalendarText": "新日历",
   "newBoardText": "新建看板",
   "trash": {
@@ -173,7 +174,9 @@
     "dragRow": "拖动来调整行",
     "viewDataBase": "查看数据库",
     "referencePage": "这个 {name} 正在被引用",
-    "addBlockBelow": "在下面添加一个块"
+    "addBlockBelow": "在下面添加一个块",
+    "urlLaunchAccessory": "在浏览器中打开",
+    "urlCopyAccessory": "复制链接"
   },
   "sideBar": {
     "closeSidebar": "关闭侧边栏",
@@ -205,6 +208,7 @@
     "complete": "完成",
     "save": "保存",
     "generate": "生成",
+    "esc": "退出",
     "keep": "保留",
     "tryAgain": "重试",
     "discard": "放弃",
@@ -222,9 +226,10 @@
     "addToFavorites": "添加到收藏夹",
     "rename": "重命名",
     "helpCenter": "帮助中心",
-    "OK": "确认",
+    "yes": "是",
     "Done": "完成",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "OK": "确认"
   },
   "label": {
     "welcome": "欢迎!",
@@ -259,18 +264,33 @@
       "logoutPrompt": "您确定要登出吗？",
       "selfEncryptionLogoutPrompt": "您确定要登出吗？请确保您已复制加密密钥",
       "syncSetting": "同步设置",
-      "cloudSetting": "云设置",
-      "cloudURL": "服务器 URL",
+      "cloudSettings": "云设置",
       "enableSync": "启用同步",
       "enableEncrypt": "加密数据",
+      "cloudURL": "服务器 URL",
+      "invalidCloudURLScheme": "无效格式",
+      "cloudServerType": "云服务器",
+      "cloudServerTypeTip": "请注意，更换云服务器可能会导致当前账户退出登录",
+      "cloudLocal": "本地",
+      "cloudAppFlowy": "AppFlowy云",
+      "clickToCopy": "点击此处复制",
+      "selfHostStart": "如果你还没有服务器，请参考",
+      "selfHostContent": "文档",
+      "selfHostEnd": "以获取建立个人服务器的指导",
+      "restartApp": "重启",
+      "restartAppTip": "重启软件以使更改生效。请注意，此操作可能会使你的当前账户退出登录",
       "enableEncryptPrompt": "启用加密以使用此密钥保护您的数据。安全存放；一旦启用，就无法关闭。如果丢失，您的数据将无法恢复。点击复制",
       "inputEncryptPrompt": "请输入您的加密密钥",
-      "clickToCopySecret": "点击复制秘密",
-      "inputTextFieldHint": "你的秘密",
+      "clickToCopySecret": "点击复制密钥",
+      "configServerSetting": "调整你的服务器设置",
+      "configServerGuide": "选中“快速开始”后，找到“设置”并进入“云设置”以调整你的个人服务器设置",
+      "inputTextFieldHint": "你的密钥",
       "historicalUserList": "用户登录历史记录",
       "historicalUserListTooltip": "此列表显示您的匿名帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建匿名帐户",
       "openHistoricalUser": "点击开设匿名账户",
-      "supabaseSetting": "超基设置"
+      "customPathPrompt": "将AppFlowy的数据存放在云同步文件夹（如Google Drive）中可能存在风险。当存放在此文件夹下的数据库被多个客户端同时访问或修改时，可能会发生同步冲突或者数据污染",
+      "supabaseSetting": "超基设置",
+      "cloudSetting": "云设置"
     },
     "notifications": {
       "enableNotifications": {
@@ -378,8 +398,8 @@
     },
     "shortcuts": {
       "shortcutsLabel": "快捷方式",
-      "command": "zh'li",
-      "keyBinding": "案件绑定",
+      "command": "指令",
+      "keyBinding": "按键绑定",
       "addNewCommand": "添加新指令",
       "updateShortcutStep": "按所需的组合键并按 ENTER",
       "shortcutIsAlreadyUsed": "此快捷方式已用于：{conflict}",
@@ -490,7 +510,12 @@
       "timeFormatTwelveHour": "十二小时制",
       "timeFormatTwentyFourHour": "24小时制",
       "clearDate": "清除日期",
+      "failedToLoadDate": "加载日期失败",
+      "selectTime": "选择时间",
+      "selectDate": "选择日期",
+      "visibility": "可见性",
       "addSelectOption": "添加一个标签",
+      "typeANewOption": "输入一个新的选项",
       "optionTitle": "标签",
       "addOption": "添加标签",
       "editProperty": "编辑列属性",
@@ -502,13 +527,14 @@
       "newField": "添加新字段",
       "fieldDragElementTooltip": "点击打开菜单",
       "showHiddenFields": {
-        "one": "显示 {} 隐藏字段",
-        "many": "显示 {} 隐藏字段",
-        "other": "显示 {} 个隐藏字段"
+        "one": "显示 {count} 个隐藏字段",
+        "many": "显示 {count} 个隐藏字段",
+        "other": "显示 {count} 个隐藏字段"
       },
       "hideHiddenFields": {
-        "one": "显示 {} 隐藏字段",
-        "other": "隐藏 {} 个隐藏字段"
+        "one": "隐藏 {count} 个隐藏字段",
+        "many": "隐藏 {count} 个隐藏字段",
+        "other": "隐藏 {count} 个隐藏字段"
       }
     },
     "sort": {
@@ -550,7 +576,9 @@
       "searchOption": "搜索标签",
       "searchOrCreateOption": "搜索或创建选项...",
       "createNew": "创建一个新的",
-      "orSelectOne": "或者选择一个选项"
+      "orSelectOne": "或者选择一个选项",
+      "typeANewOption": "输入一个新的选项",
+      "tagName": "标签名"
     },
     "checklist": {
       "taskHint": "任务描述",
@@ -665,6 +693,9 @@
         "copiedToPasteBoard": "图片链接已复制到剪贴板",
         "addAnImage": "添加图像"
       },
+      "urlPreview": {
+        "copiedToPasteBoard": "此链接已被复制到剪切板"
+      },
       "outline": {
         "addHeadingToCreateOutline": "添加标题以创建目录。"
       },
@@ -677,13 +708,14 @@
         "bgColor": "背景颜色"
       },
       "contextMenu": {
+        "copy": "复制",
         "cut": "剪切",
         "paste": "粘贴"
       },
       "action": "操作"
     },
     "textBlock": {
-      "placeholder": "输入“/”作为命令"
+      "placeholder": "输入 “/” 作为命令"
     },
     "title": {
       "placeholder": "无标题"
@@ -714,7 +746,7 @@
         "invalidImageUrl": "图片网址无效"
       },
       "embedLink": {
-        "label": "nei'q链接",
+        "label": "内嵌链接",
         "placeholder": "粘贴或输入图像链接"
       },
       "searchForAnImage": "搜索图像",
@@ -766,21 +798,36 @@
       "renameGroupTooltip": "按下以重命名群组",
       "createNewColumn": "添加新组",
       "addToColumnTopTooltip": "在顶部添加一张新卡片",
+      "addToColumnBottomTooltip": "在下方添加一个新的卡片",
       "renameColumn": "改名",
-      "hideColumn": "隐藏"
+      "hideColumn": "隐藏",
+      "groupActions": "组操作",
+      "newGroup": "新的组",
+      "deleteColumn": "删除",
+      "deleteColumnConfirmation": "此操作会删除这个组以及其中的所有卡片。你确定要继续吗？"
     },
     "hiddenGroupSection": {
       "sectionTitle": "隐藏组",
       "collapseTooltip": "隐藏隐藏组",
       "expandTooltip": "查看隐藏的组"
     },
+    "cardDetail": "卡片细节",
+    "cardActions": "卡片操作",
+    "cardDeleted": "卡片已删除",
+    "showOnCard": "在卡片细节中展示",
+    "setting": "设置",
     "menuName": "看板",
     "showUngrouped": "显示未分组的项目",
     "ungroupedButtonText": "未分组的",
     "ungroupedButtonTooltip": "包含不属于任何组的卡片",
     "ungroupedItemsTitle": "点击添加到看板",
     "groupBy": "通过...分组",
-    "referencedBoardPrefix": "视图"
+    "referencedBoardPrefix": "视图",
+    "mobile": {
+      "editURL": "编辑链接",
+      "unhideGroup": "显示隐藏的组",
+      "unhideGroupContent": "你确定要在看板上展示这一组吗？"
+    }
   },
   "calendar": {
     "menuName": "日历",
@@ -802,7 +849,8 @@
       "name": "日历布局",
       "noDateHint": "计划外事件将显示在此处"
     },
-    "referencedCalendarPrefix": "视图"
+    "referencedCalendarPrefix": "视图",
+    "quickJumpYear": "跳转到"
   },
   "errorDialog": {
     "title": "AppFlowy 错误",
@@ -834,12 +882,15 @@
     "yellow": "黄色",
     "green": "绿色",
     "blue": "蓝色",
+    "purple": "紫色",
+    "pink": "粉色",
     "brown": "棕色",
     "gray": "灰色"
   },
   "emoji": {
-    "search": "查找 emoji",
-    "noRecent": "没有最近的 emoji",
+    "emojiTab": "表情符号",
+    "search": "查找表情符号",
+    "noRecent": "没有最近的表情符号",
     "noEmojiFound": "没有找到表情符号",
     "filter": "筛选",
     "random": "随机的",
@@ -887,6 +938,9 @@
   },
   "notificationHub": {
     "title": "通知",
+    "mobile": {
+      "title": "更新"
+    },
     "emptyTitle": "都处理了！",
     "emptyBody": "没有待处理的通知或操作。享受平静。",
     "tabs": {
@@ -899,7 +953,7 @@
       "showUnreads": "未读"
     },
     "filters": {
-      "ascending": "上升",
+      "ascending": "升序",
       "descending": "降序",
       "groupByDate": "按日期分组",
       "showUnreadsOnly": "仅显示未读",
@@ -932,9 +986,9 @@
     "bulletedList": "符号列表",
     "checkbox": "复选框",
     "embedCode": "嵌入代码",
-    "heading1": "标题 1",
-    "heading2": "标题 2",
-    "heading3": "标题 3",
+    "heading1": "一级标题",
+    "heading2": "二级标题",
+    "heading3": "三级标题",
     "highlight": "强调",
     "color": "颜色",
     "image": "图像",
@@ -957,6 +1011,7 @@
     "backgroundColorGray": "灰色背景",
     "backgroundColorBrown": "棕色背景",
     "backgroundColorOrange": "橙色背景",
+    "backgroundColorYellow": "黄色背景",
     "backgroundColorGreen": "绿色背景",
     "backgroundColorBlue": "蓝色背景",
     "backgroundColorPurple": "紫色背景",
@@ -985,11 +1040,14 @@
     "mobileHeading1": "标题 1",
     "mobileHeading2": "标题 2",
     "mobileHeading3": "标题 3",
+    "textColor": "文字颜色",
     "backgroundColor": "背景颜色",
     "addYourLink": "添加您的链接",
+    "openLink": "打开链接",
     "copyLink": "复制链接",
     "removeLink": "移除链接",
     "editLink": "编辑链接",
+    "linkText": "文本",
     "linkTextHint": "请输入文本",
     "linkAddressHint": "请输入URL",
     "highlightColor": "高亮颜色",
@@ -999,12 +1057,15 @@
     "opacity": "不透明度",
     "resetToDefaultColor": "重置为默认颜色",
     "ltr": "从左到右",
+    "rtl": "从右到左",
     "auto": "自动",
     "copy": "复制",
+    "paste": "粘贴",
     "find": "查找",
     "previousMatch": "上一个匹配",
     "nextMatch": "下一个匹配",
     "closeFind": "关闭",
+    "replace": "替换",
     "replaceAll": "替换全部",
     "regex": "正则表达式",
     "caseSensitive": "区分大小写",
@@ -1015,26 +1076,29 @@
     "chooseImage": "选择图像",
     "loading": "加载中",
     "imageLoadFailed": "无法加载图像",
-    "divider": "分频器",
-    "table": "桌子",
+    "divider": "分隔线",
+    "table": "表格",
     "colAddBefore": "在前面添加",
-    "colAddAfter": "在后面添加",
     "rowAddBefore": "在前面添加",
+    "colAddAfter": "在后面添加",
     "rowAddAfter": "在后面添加",
     "colRemove": "移除列",
-    "colDuplicate": "创建副本",
-    "colClear": "清空内容",
-    "slashPlaceHolder": "输入 / 以插入块，或开始键入"
+    "rowRemove": "移除",
+    "colDuplicate": "创建列副本",
+    "rowDuplicate": "创建行副本",
+    "colClear": "清空列内容",
+    "rowClear": "清空行内容",
+    "slashPlaceHolder": "输入 “/” 以插入块，或开始键入"
   },
   "favorite": {
     "noFavorite": "没有收藏页面",
     "noFavoriteHintText": "向左滑动页面即可将其添加到您的收藏夹"
   },
   "cardDetails": {
-    "notesPlaceholder": "输入 / 以插入块，或开始键入"
+    "notesPlaceholder": "输入 “/” 以插入块，或开始键入"
   },
   "blockPlaceholders": {
-    "todoList": "去做",
+    "todoList": "待办",
     "bulletList": "列表",
     "numberList": "列表",
     "quote": "引用",
@@ -1043,6 +1107,7 @@
   "titleBar": {
     "pageIcon": "页面图标",
     "language": "语言",
-    "font": "字体"
+    "font": "字体",
+    "actions": "操作"
   }
 }
