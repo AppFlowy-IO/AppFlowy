@@ -28,12 +28,11 @@ packages:
   app_links:
     dependency: "direct main"
     description:
-      path: "."
-      ref: c64ce17
-      resolved-ref: c64ce174586267dbab1185ef9acb19b7c49fc7bd
-      url: "https://github.com/LucasXu0/app_links"
-    source: git
-    version: "3.4.3"
+      name: app_links
+      sha256: "4e392b5eba997df356ca6021f28431ce1cfeb16758699553a94b13add874a3bb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.0"
   appflowy_backend:
     dependency: "direct main"
     description:

@@ -45,7 +45,7 @@ class FavoriteFolder extends StatelessWidget {
                 ...views.map(
                   (view) => ViewItem(
                     key: ValueKey(
-                      '${FolderCategoryType.favorite.name} ${view.id}',
+                      '${FolderCategoryType.favorite.name} ${view.hashCode}',
                     ),
                     categoryType: FolderCategoryType.favorite,
                     isDraggable: false,
