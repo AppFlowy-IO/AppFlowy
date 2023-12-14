@@ -1,26 +1,19 @@
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:styled_widget/styled_widget.dart';
 
-import '../accessory/cell_accessory.dart';
 import '../accessory/cell_shortcuts.dart';
 import '../cell_builder.dart';
 import 'cell_container.dart';
 
 class MobileCellContainer extends StatelessWidget {
   final GridCellWidget child;
-  final AccessoryBuilder? accessoryBuilder;
-  final double width;
   final bool isPrimary;
   final VoidCallback? onPrimaryFieldCellTap;
 
   const MobileCellContainer({
     super.key,
     required this.child,
-    required this.width,
     required this.isPrimary,
-    this.accessoryBuilder,
     this.onPrimaryFieldCellTap,
   });
 
@@ -32,23 +25,6 @@ class MobileCellContainer extends StatelessWidget {
         selector: (context, notifier) => notifier.isFocus,
         builder: (providerContext, isFocus, _) {
           Widget container = Center(child: GridCellShortcuts(child: child));
-
-          if (accessoryBuilder != null) {
-            final accessories = accessoryBuilder!.call(
-              GridCellAccessoryBuildContext(
-                anchorContext: context,
-                isCellEditing: isFocus,
-              ),
-            );
-
-            if (accessories.isNotEmpty) {
-              container = _GridCellEnterRegion(
-                accessories: accessories,
-                isPrimary: isPrimary,
-                child: container,
-              );
-            }
-          }
 
           if (isPrimary) {
             container = IgnorePointer(child: container);
@@ -66,8 +42,8 @@ class MobileCellContainer extends StatelessWidget {
               }
             },
             child: Container(
-              constraints: BoxConstraints(maxWidth: width, minHeight: 46),
-              decoration: _makeBoxDecoration(context, isFocus),
+              constraints: const BoxConstraints(maxWidth: 200, minHeight: 46),
+              decoration: _makeBoxDecoration(context, isPrimary, isFocus),
               child: container,
             ),
           );
@@ -76,7 +52,11 @@ class MobileCellContainer extends StatelessWidget {
     );
   }
 
-  BoxDecoration _makeBoxDecoration(BuildContext context, bool isFocus) {
+  BoxDecoration _makeBoxDecoration(
+    BuildContext context,
+    bool isPrimary,
+    bool isFocus,
+  ) {
     if (isFocus) {
       return BoxDecoration(
         border: Border.fromBorderSide(
@@ -89,43 +69,11 @@ class MobileCellContainer extends StatelessWidget {
 
     final borderSide = BorderSide(color: Theme.of(context).dividerColor);
     return BoxDecoration(
-      border: Border(right: borderSide, bottom: borderSide),
-    );
-  }
-}
-
-class _GridCellEnterRegion extends StatelessWidget {
-  const _GridCellEnterRegion({
-    required this.child,
-    required this.accessories,
-    required this.isPrimary,
-  });
-
-  final Widget child;
-  final List<GridCellAccessoryBuilder> accessories;
-  final bool isPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Selector<CellContainerNotifier, bool>(
-      selector: (context, cellNotifier) => !cellNotifier.isFocus && isPrimary,
-      builder: (context, showAccessory, _) {
-        final List<Widget> children = [child];
-
-        if (showAccessory) {
-          children.add(
-            CellAccessoryContainer(accessories: accessories).positioned(
-              right: GridSize.cellContentInsets.right,
-            ),
-          );
-        }
-
-        return Stack(
-          alignment: AlignmentDirectional.center,
-          fit: StackFit.expand,
-          children: children,
-        );
-      },
+      border: Border(
+        left: isPrimary ? borderSide : BorderSide.none,
+        right: borderSide,
+        bottom: borderSide,
+      ),
     );
   }
 }
