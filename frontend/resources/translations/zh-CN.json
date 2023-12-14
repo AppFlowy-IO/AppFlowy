@@ -693,6 +693,9 @@
         "copiedToPasteBoard": "图片链接已复制到剪贴板",
         "addAnImage": "添加图像"
       },
+      "urlPreview": {
+        "copiedToPasteBoard": "此链接已被复制到剪切板"
+      },
       "outline": {
         "addHeadingToCreateOutline": "添加标题以创建目录。"
       },
@@ -712,7 +715,7 @@
       "action": "操作"
     },
     "textBlock": {
-      "placeholder": "输入“/”作为命令"
+      "placeholder": "输入 “/” 作为命令"
     },
     "title": {
       "placeholder": "无标题"
@@ -795,6 +798,7 @@
       "renameGroupTooltip": "按下以重命名群组",
       "createNewColumn": "添加新组",
       "addToColumnTopTooltip": "在顶部添加一张新卡片",
+      "addToColumnBottomTooltip": "在下方添加一个新的卡片",
       "renameColumn": "改名",
       "hideColumn": "隐藏",
       "groupActions": "组操作",
@@ -822,7 +826,7 @@
     "mobile": {
       "editURL": "编辑链接",
       "unhideGroup": "显示隐藏的组",
-      "unhideGroupContent": "年u企鹅的要把这一组展示在看板上吗"
+      "unhideGroupContent": "你确定要在看板上展示这一组吗？"
     }
   },
   "calendar": {
@@ -1103,6 +1107,7 @@
   "titleBar": {
     "pageIcon": "页面图标",
     "language": "语言",
-    "font": "字体"
+    "font": "字体",
+    "actions": "操作"
   }
 }
