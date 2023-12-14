@@ -186,28 +186,45 @@ class _CalendarPageState extends State<CalendarPage> {
     EventController eventController,
     int firstDayOfWeek,
   ) {
-    return Padding(
-      padding: PlatformExtension.isMobile
-          ? CalendarSize.contentInsetsMobile
-          : CalendarSize.contentInsets,
-      child: LayoutBuilder(
-        // must specify MonthView width for useAvailableVerticalSpace to work properly
-        builder: (context, constraints) => ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: MonthView(
-            key: _calendarState,
-            controller: _eventController,
-            width: constraints.maxWidth,
-            cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
-            startDay: _weekdayFromInt(firstDayOfWeek),
-            showBorder: false,
-            headerBuilder: _headerNavigatorBuilder,
-            weekDayBuilder: _headerWeekDayBuilder,
-            cellBuilder: _calendarDayBuilder,
-            useAvailableVerticalSpace: widget.shrinkWrap,
+    return LayoutBuilder(
+      // must specify MonthView width for useAvailableVerticalSpace to work properly
+      builder: (context, constraints) {
+        Widget calendar = Padding(
+          padding: PlatformExtension.isMobile
+              ? CalendarSize.contentInsetsMobile
+              : CalendarSize.contentInsets,
+          child: ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: MonthView(
+              key: _calendarState,
+              controller: _eventController,
+              width: constraints.maxWidth,
+              cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
+              startDay: _weekdayFromInt(firstDayOfWeek),
+              showBorder: false,
+              headerBuilder: _headerNavigatorBuilder,
+              weekDayBuilder: _headerWeekDayBuilder,
+              cellBuilder: _calendarDayBuilder,
+              useAvailableVerticalSpace: widget.shrinkWrap,
+            ),
           ),
-        ),
-      ),
+        );
+        if (PlatformExtension.isMobile) {
+          calendar = Column(
+            children: [
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: GridSize.leadingHeaderPadding / 2,
+                endIndent: GridSize.leadingHeaderPadding / 2,
+              ),
+              Expanded(child: calendar),
+            ],
+          );
+        }
+        return calendar;
+      },
     );
   }
 
