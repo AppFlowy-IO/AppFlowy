@@ -44,7 +44,7 @@ class PersonalFolder extends StatelessWidget {
                 ...views.map(
                   (view) => ViewItem(
                     key: ValueKey(
-                      '${FolderCategoryType.personal.name} ${view.hashCode}',
+                      '${FolderCategoryType.personal.name} ${view.id}',
                     ),
                     categoryType: FolderCategoryType.personal,
                     isFirstChild: view.id == views.first.id,
