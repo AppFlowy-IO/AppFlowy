@@ -120,7 +120,7 @@ dependencies:
   # TODO: Consider implementing custom package
   # to gather notification handling for all platforms
   local_notifier: ^0.1.5
-  app_links: ^3.4.1
+  app_links: ^3.5.0
   flutter_slidable: ^3.0.0
   image_picker: ^1.0.4
   image_gallery_saver: ^2.0.3
@@ -152,11 +152,6 @@ dependency_overrides:
       url: https://github.com/LucasXu0/supabase-flutter
       ref: 4bd9139
       path: packages/supabase_flutter
-
-  app_links:
-    git:
-      url: https://github.com/LucasXu0/app_links
-      ref: c64ce17
 
   url_protocol:
     git:
