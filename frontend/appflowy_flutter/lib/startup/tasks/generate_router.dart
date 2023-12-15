@@ -1,7 +1,7 @@
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_edit_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_create_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_edit_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
