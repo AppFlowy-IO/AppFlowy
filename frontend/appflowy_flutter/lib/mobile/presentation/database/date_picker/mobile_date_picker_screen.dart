@@ -72,23 +72,23 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
     return DraggableScrollableSheet(
       expand: false,
       snap: true,
-      initialChildSize: 0.6,
-      minChildSize: 0.6,
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      snapSizes: const [0.4, 0.7, 1.0],
       builder: (_, controller) => Material(
-        child: ColoredBox(
-          color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            children: [
-              const DragHandler(),
-              _buildHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: controller,
-                  child: _buildBody(),
-                ),
-              ),
-            ],
-          ),
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        child: ListView(
+          controller: controller,
+          children: [
+            ColoredBox(
+              color: Theme.of(context).colorScheme.surface,
+              child: const Center(child: DragHandler()),
+            ),
+            _buildHeader(),
+            Expanded(
+              child: _buildBody(),
+            ),
+          ],
         ),
       ),
     );
@@ -127,7 +127,8 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
   Widget _buildHeader() {
     const iconWidth = 30.0;
     const height = 44.0;
-    return Padding(
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Stack(
         children: [
@@ -200,10 +201,7 @@ class _ColoredDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return VSpace(
-      20.0,
-      color: Theme.of(context).colorScheme.secondaryContainer,
-    );
+    return const VSpace(20.0);
   }
 }
 
