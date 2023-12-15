@@ -1,51 +1,53 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options_eidtor.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_backend_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
+import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class MobileEditPropertyScreen extends StatefulWidget {
-  static const routeName = '/edit_property';
+class MobileNewPropertyScreen extends StatefulWidget {
+  static const routeName = '/new_property';
   static const argViewId = 'view_id';
-  static const argField = 'field';
+  static const argFieldTypeId = 'field_type_id';
 
-  const MobileEditPropertyScreen({
+  const MobileNewPropertyScreen({
     super.key,
     required this.viewId,
-    required this.field,
+    this.fieldType,
   });
 
   final String viewId;
-  final FieldPB field;
+  final FieldType? fieldType;
 
   @override
-  State<MobileEditPropertyScreen> createState() =>
-      _MobileEditPropertyScreenState();
+  State<MobileNewPropertyScreen> createState() =>
+      _MobileNewPropertyScreenState();
 }
 
-class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
+class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
   late FieldOptionValues optionValues;
 
   @override
   void initState() {
     super.initState();
-    optionValues = FieldOptionValues.fromField(field: widget.field);
+
+    final type = widget.fieldType ?? FieldType.RichText;
+    optionValues = FieldOptionValues(
+      type: type,
+      name: type.i18n,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewId = widget.viewId;
-    final fieldId = widget.field.id;
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: FlowyText.medium(
-          LocaleKeys.grid_field_editProperty.tr(),
+          LocaleKeys.grid_field_newProperty.tr(),
         ),
         leading: AppBarCancelButton(
           onTap: () => context.pop(),
@@ -60,29 +62,10 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
         ],
       ),
       body: FieldOptionEditor(
-        mode: FieldOptionMode.edit,
-        isPrimary: widget.field.isPrimary,
+        mode: FieldOptionMode.add,
         defaultValues: optionValues,
         onOptionValuesChanged: (optionValues) {
           this.optionValues = optionValues;
-        },
-        onAction: (action) {
-          final service = FieldServices(
-            viewId: viewId,
-            fieldId: fieldId,
-          );
-          switch (action) {
-            case FieldOptionAction.delete:
-              service.delete();
-              break;
-            case FieldOptionAction.duplicate:
-              service.duplicate();
-              break;
-            case FieldOptionAction.hide:
-              service.hide();
-              break;
-          }
-          context.pop();
         },
       ),
     );
