@@ -1,8 +1,8 @@
 import 'package:appflowy/mobile/presentation/database/card/card_content/card_cells/card_cells.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/timestamp_card_cell.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 import '../../application/cell/cell_service.dart';

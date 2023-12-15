@@ -1,4 +1,4 @@
-import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
