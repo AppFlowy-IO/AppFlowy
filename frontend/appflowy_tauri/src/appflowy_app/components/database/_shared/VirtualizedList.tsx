@@ -33,10 +33,11 @@ export const VirtualizedList: FC<VirtualizedListProps> = ({
         return (
           <div
             key={key}
+            ref={virtualizer.measureElement}
             className={itemClassName}
             style={{
-              [sizeProp]: size,
               ...getItemStyle?.(index),
+              ...(horizontal ? { [sizeProp]: size } : undefined),
             }}
             data-key={key}
             data-index={index}

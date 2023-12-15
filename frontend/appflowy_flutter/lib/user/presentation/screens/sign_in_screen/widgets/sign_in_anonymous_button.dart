@@ -2,7 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -55,7 +55,11 @@ class SignInAnonymousButton extends StatelessWidget {
                       minimumSize: const Size(double.infinity, 56),
                     ),
                     onPressed: onTap,
-                    child: Text(LocaleKeys.signIn_loginStartWithAnonymous.tr()),
+                    child: FlowyText(
+                      LocaleKeys.signIn_loginStartWithAnonymous.tr(),
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   );
                 }
                 // SignInAnonymousButton in desktop

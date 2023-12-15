@@ -1,5 +1,6 @@
 use collab_database::fields::Field;
 use collab_database::views::OrderObjectPosition;
+
 use flowy_database2::entities::{CreateFieldParams, FieldType};
 use flowy_database2::services::field::{
   type_option_to_pb, DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder,
@@ -9,7 +10,7 @@ use flowy_database2::services::field::{
 pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, Field) {
   let field_type = FieldType::RichText;
   let type_option = RichTextTypeOption::default();
-  let text_field = FieldBuilder::new(field_type.clone(), type_option.clone())
+  let text_field = FieldBuilder::new(field_type, type_option.clone())
     .name("Name")
     .visibility(true)
     .primary(true)
@@ -31,7 +32,7 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, Field) {
   let mut type_option = SingleSelectTypeOption::default();
   type_option.options.push(SelectOption::new("Done"));
   type_option.options.push(SelectOption::new("Progress"));
-  let single_select_field = FieldBuilder::new(field_type.clone(), type_option.clone())
+  let single_select_field = FieldBuilder::new(field_type, type_option.clone())
     .name("Name")
     .visibility(true)
     .build();
@@ -76,17 +77,15 @@ pub fn create_timestamp_field(grid_id: &str, field_type: FieldType) -> (CreateFi
     date_format: DateFormat::US,
     time_format: TimeFormat::TwentyFourHour,
     include_time: true,
-    field_type: field_type.clone(),
+    field_type,
   };
 
   let field: Field = match field_type {
-    FieldType::LastEditedTime => {
-      FieldBuilder::new(field_type.clone(), timestamp_type_option.clone())
-        .name("Updated At")
-        .visibility(true)
-        .build()
-    },
-    FieldType::CreatedTime => FieldBuilder::new(field_type.clone(), timestamp_type_option.clone())
+    FieldType::LastEditedTime => FieldBuilder::new(field_type, timestamp_type_option.clone())
+      .name("Updated At")
+      .visibility(true)
+      .build(),
+    FieldType::CreatedTime => FieldBuilder::new(field_type, timestamp_type_option.clone())
       .name("Created At")
       .visibility(true)
       .build(),

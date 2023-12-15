@@ -12,7 +12,7 @@ import '../../layout/sizes.dart';
 import '../filter/create_filter_list.dart';
 
 class FilterButton extends StatefulWidget {
-  const FilterButton({Key? key}) : super(key: key);
+  const FilterButton({super.key});
 
   @override
   State<FilterButton> createState() => _FilterButtonState();

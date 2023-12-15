@@ -8,9 +8,6 @@ import 'package:http/http.dart' as http;
 import 'error.dart';
 import 'text_completion.dart';
 
-// Please fill in your own API key
-const apiKey = '';
-
 enum OpenAIRequestType {
   textCompletion,
   textEdit,

@@ -41,6 +41,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.MultiSelect => FlowySvgs.field_option_select_s,
         FieldType.Checkbox => FlowySvgs.field_option_checkbox_s,
         FieldType.URL => FlowySvgs.field_option_url_s,
+        FieldType.Checklist => FlowySvgs.checklist_s,
         _ => throw UnimplementedError(),
       };
 }

@@ -37,7 +37,7 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
   late List<String> availableFonts;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
 
     availableFonts = _availableFonts;
@@ -54,9 +54,7 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
           LocaleKeys.titleBar_font.tr(),
           fontSize: 14.0,
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: SafeArea(
         child: ListView.separated(

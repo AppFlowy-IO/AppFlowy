@@ -25,7 +25,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.3.9"
+CURRENT_APP_VERSION = "0.3.9.1"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
 MACOSX_DEPLOYMENT_TARGET = "11.0"
@@ -201,6 +201,7 @@ TARGET_OS = "android"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
 LIB_EXT = "so"
+PRODUCT_EXT = "apk"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
 
 [env.production-android]
@@ -208,6 +209,7 @@ BUILD_FLAG = "release"
 TARGET_OS = "android"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "apk"
 LIB_EXT = "so"
 
 [tasks.echo_env]

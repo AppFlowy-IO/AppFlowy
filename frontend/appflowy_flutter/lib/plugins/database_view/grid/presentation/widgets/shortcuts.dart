@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 class GridShortcuts extends StatelessWidget {
   final Widget child;
-  const GridShortcuts({required this.child, Key? key}) : super(key: key);
+  const GridShortcuts({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {

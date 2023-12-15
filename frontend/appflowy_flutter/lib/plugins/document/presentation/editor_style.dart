@@ -140,9 +140,10 @@ class EditorStyleCustomizer {
       fontSize + 2,
       fontSize,
     ];
-    return TextStyle(
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    return baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
+      fontWeight: FontWeight.w600,
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
-      fontWeight: FontWeight.bold,
     );
   }
 
@@ -217,11 +218,12 @@ class EditorStyleCustomizer {
     Node node,
     int index,
     TextInsert text,
-    TextSpan textSpan,
+    TextSpan before,
+    TextSpan after,
   ) {
     final attributes = text.attributes;
     if (attributes == null) {
-      return textSpan;
+      return before;
     }
 
     // try to refresh font here.
@@ -240,6 +242,7 @@ class EditorStyleCustomizer {
       final type = mention[MentionBlockKeys.type];
       return WidgetSpan(
         alignment: PlaceholderAlignment.middle,
+        style: after.style,
         child: MentionBlock(
           key: ValueKey(
             switch (type) {
@@ -253,6 +256,7 @@ class EditorStyleCustomizer {
           node: node,
           index: index,
           mention: mention,
+          textStyle: after.style,
         ),
       );
     }
@@ -275,7 +279,7 @@ class EditorStyleCustomizer {
     final href = attributes[AppFlowyRichTextKeys.href] as String?;
     if (PlatformExtension.isMobile && href != null) {
       return TextSpan(
-        style: textSpan.style,
+        style: before.style,
         text: text.text,
         recognizer: TapGestureRecognizer()
           ..onTap = () {
@@ -305,7 +309,8 @@ class EditorStyleCustomizer {
       node,
       index,
       text,
-      textSpan,
+      before,
+      after,
     );
   }
 

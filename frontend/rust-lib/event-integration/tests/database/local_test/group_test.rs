@@ -131,7 +131,7 @@ async fn hide_group_event_test() {
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 4);
-  assert_eq!(groups[0].is_visible, false);
+  assert!(!groups[0].is_visible);
 }
 
 #[tokio::test]

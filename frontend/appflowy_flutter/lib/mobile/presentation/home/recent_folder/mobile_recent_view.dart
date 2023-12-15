@@ -76,7 +76,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
       onTap: () => context.pushView(view),
       child: Stack(
         children: [
-          Container(
+          DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: theme.colorScheme.outline),
@@ -101,7 +101,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
                     // https://github.com/flutter/flutter/issues/31134
                     child: Stack(
                       children: [
-                        FlowyText(
+                        FlowyText.medium(
                           view.name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -143,7 +143,9 @@ class _MobileRecentViewState extends State<MobileRecentView> {
       builder: ((context, snapshot) {
         final node = snapshot.data;
         final placeholder = Container(
-          color: Theme.of(context).colorScheme.onSecondaryContainer,
+          // random color, update it once we have a better placeholder
+          color:
+              Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
         );
         if (node == null) {
           return placeholder;

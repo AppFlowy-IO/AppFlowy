@@ -80,6 +80,7 @@ class DateCellCalendarBloc
             await _updateDateData(isRange: isRange);
           },
           setTime: (timeStr) async {
+            emit(state.copyWith(timeStr: timeStr));
             await _updateDateData(timeStr: timeStr);
           },
           selectDateRange: (DateTime? start, DateTime? end) async {
@@ -158,6 +159,7 @@ class DateCellCalendarBloc
             }
           },
           setEndTime: (String endTime) async {
+            emit(state.copyWith(endTimeStr: endTime));
             await _updateDateData(endTimeStr: endTime);
           },
           setDateFormat: (dateFormat) async {

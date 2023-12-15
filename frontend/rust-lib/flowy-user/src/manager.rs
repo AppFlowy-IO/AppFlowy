@@ -26,7 +26,9 @@ use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
-use crate::anon_user_upgrade::{migration_anon_user_on_sign_up, sync_user_data_to_cloud};
+use crate::anon_user_upgrade::{
+  migration_anon_user_on_sign_up, sync_af_user_data_to_cloud, sync_supabase_user_data_to_cloud,
+};
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
@@ -232,7 +234,8 @@ impl UserManager {
             Box::new(HistoricalEmptyDocumentMigration),
             Box::new(FavoriteV1AndWorkspaceArrayMigration),
           ];
-          match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool).run(migrations)
+          match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
+            .run(migrations, &current_authenticator)
           {
             Ok(applied_migrations) => {
               if !applied_migrations.is_empty() {
@@ -357,30 +360,30 @@ impl UserManager {
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
     // sign out the current user if there is one
+    let migration_user = self.get_migration_user(&authenticator).await;
     let _ = self.sign_out().await;
 
     self.update_authenticator(&authenticator).await;
-    let migration_user = self.get_migration_user(&authenticator).await;
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
-    let user_profile = UserProfile::from((&response, &authenticator));
-    if user_profile.encryption_type.require_encrypt_secret() {
+    let new_user_profile = UserProfile::from((&response, &authenticator));
+    if new_user_profile.encryption_type.require_encrypt_secret() {
       self
         .resumable_sign_up
         .lock()
         .await
         .replace(ResumableSignUp {
-          user_profile: user_profile.clone(),
+          user_profile: new_user_profile.clone(),
           migration_user,
           response,
           authenticator,
         });
     } else {
       self
-        .continue_sign_up(&user_profile, migration_user, response, &authenticator)
+        .continue_sign_up(&new_user_profile, migration_user, response, &authenticator)
         .await?;
     }
-    Ok(user_profile)
+    Ok(new_user_profile)
   }
 
   #[tracing::instrument(level = "info", skip(self))]
@@ -408,7 +411,7 @@ impl UserManager {
   #[tracing::instrument(level = "info", skip_all, err)]
   async fn continue_sign_up(
     &self,
-    user_profile: &UserProfile,
+    new_user_profile: &UserProfile,
     migration_user: Option<MigrationUser>,
     response: AuthResponse,
     authenticator: &Authenticator,
@@ -425,7 +428,7 @@ impl UserManager {
     if response.is_new_user {
       if let Some(old_user) = migration_user {
         let new_user = MigrationUser {
-          user_profile: user_profile.clone(),
+          user_profile: new_user_profile.clone(),
           session: new_session.clone(),
         };
         event!(
@@ -435,7 +438,7 @@ impl UserManager {
           new_user.user_profile.uid
         );
         self
-          .migrate_anon_user_data_to_cloud(&old_user, &new_user)
+          .migrate_anon_user_data_to_cloud(&old_user, &new_user, authenticator)
           .await?;
         let _ = self.database.close(old_user.session.user_id);
       }
@@ -454,7 +457,7 @@ impl UserManager {
       .await
       .did_sign_up(
         response.is_new_user,
-        user_profile,
+        new_user_profile,
         &new_session.user_workspace,
         &self.user_config.device_id,
       )
@@ -791,20 +794,38 @@ impl UserManager {
     &self,
     old_user: &MigrationUser,
     new_user: &MigrationUser,
+    authenticator: &Authenticator,
   ) -> Result<(), FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
     migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
 
-    if let Err(err) = sync_user_data_to_cloud(
-      self.cloud_services.get_user_service()?,
-      &self.user_config.device_id,
-      new_user,
-      &new_collab_db,
-    )
-    .await
-    {
-      error!("Sync user data to cloud failed: {:?}", err);
+    match authenticator {
+      Authenticator::Supabase => {
+        if let Err(err) = sync_supabase_user_data_to_cloud(
+          self.cloud_services.get_user_service()?,
+          &self.user_config.device_id,
+          new_user,
+          &new_collab_db,
+        )
+        .await
+        {
+          error!("Sync user data to cloud failed: {:?}", err);
+        }
+      },
+      Authenticator::AppFlowyCloud => {
+        if let Err(err) = sync_af_user_data_to_cloud(
+          self.cloud_services.get_user_service()?,
+          &self.user_config.device_id,
+          new_user,
+          &new_collab_db,
+        )
+        .await
+        {
+          error!("Sync user data to cloud failed: {:?}", err);
+        }
+      },
+      _ => {},
     }
 
     // Save the old user workspace setting.

@@ -9,12 +9,7 @@ pub struct FieldBuilder {
 
 impl FieldBuilder {
   pub fn new<T: Into<TypeOptionData>>(field_type: FieldType, type_option_data: T) -> Self {
-    let mut field = Field::new(
-      gen_field_id(),
-      "".to_string(),
-      field_type.clone().into(),
-      false,
-    );
+    let mut field = Field::new(gen_field_id(), "".to_string(), field_type.into(), false);
     field.width = 150;
     field
       .type_options

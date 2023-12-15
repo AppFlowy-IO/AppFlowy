@@ -28,10 +28,10 @@ class DateCellEditor extends StatefulWidget {
   final DateCellController cellController;
 
   const DateCellEditor({
-    Key? key,
+    super.key,
     required this.onDismissed,
     required this.cellController,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _DateCellEditor();
@@ -303,7 +303,7 @@ class _DatePickerState extends State<DatePicker> {
 }
 
 class _IncludeTimeButton extends StatelessWidget {
-  const _IncludeTimeButton({Key? key}) : super(key: key);
+  const _IncludeTimeButton();
 
   @override
   Widget build(BuildContext context) {
@@ -476,8 +476,8 @@ class DateTypeOptionButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   const DateTypeOptionButton({
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -524,8 +524,7 @@ class _CalDateTimeSetting extends StatefulWidget {
   const _CalDateTimeSetting({
     required this.dateTypeOptionPB,
     required this.onEvent,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_CalDateTimeSetting> createState() => _CalDateTimeSettingState();
@@ -581,7 +580,6 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       width: 180,
       child: ListView.separated(
         shrinkWrap: true,
-        controller: ScrollController(),
         separatorBuilder: (context, index) =>
             VSpace(GridSize.typeOptionSeparatorHeight),
         itemCount: children.length,
@@ -594,7 +592,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
 
 @visibleForTesting
 class ClearDateButton extends StatelessWidget {
-  const ClearDateButton({Key? key}) : super(key: key);
+  const ClearDateButton({super.key});
 
   @override
   Widget build(BuildContext context) {

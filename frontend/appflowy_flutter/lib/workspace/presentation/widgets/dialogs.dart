@@ -104,8 +104,8 @@ class NavigatorAlertDialog extends StatefulWidget {
     required this.title,
     this.confirm,
     this.cancel,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<NavigatorAlertDialog> createState() => _CreateFlowyAlertDialog();
@@ -168,7 +168,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final double? maxWidth;
 
   const NavigatorOkCancelDialog({
-    Key? key,
+    super.key,
     this.onOkPressed,
     this.onCancelPressed,
     this.okTitle,
@@ -176,7 +176,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
     this.title,
     required this.message,
     this.maxWidth,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +227,7 @@ class OkCancelButton extends StatelessWidget {
   final TextButtonMode mode;
 
   const OkCancelButton({
-    Key? key,
+    super.key,
     this.onOkPressed,
     this.onCancelPressed,
     this.okTitle,
@@ -235,7 +235,7 @@ class OkCancelButton extends StatelessWidget {
     this.minHeight,
     this.alignment = MainAxisAlignment.spaceAround,
     this.mode = TextButtonMode.big,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

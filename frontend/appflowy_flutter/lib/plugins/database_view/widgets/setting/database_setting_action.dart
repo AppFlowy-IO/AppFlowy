@@ -10,8 +10,8 @@ import 'package:appflowy/plugins/database_view/widgets/group/database_group.dart
 import 'package:appflowy/plugins/database_view/widgets/setting/mobile_calendar_settings.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_property_list.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';

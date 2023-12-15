@@ -29,7 +29,7 @@ class NavigationNotifier with ChangeNotifier {
 }
 
 class FlowyNavigation extends StatelessWidget {
-  const FlowyNavigation({Key? key}) : super(key: key);
+  const FlowyNavigation({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +134,7 @@ class FlowyNavigation extends StatelessWidget {
 
 class NaviItemWidget extends StatelessWidget {
   final NavigationItem item;
-  const NaviItemWidget(this.item, {Key? key}) : super(key: key);
+  const NaviItemWidget(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {

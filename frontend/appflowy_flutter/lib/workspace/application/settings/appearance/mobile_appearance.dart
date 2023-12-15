@@ -6,7 +6,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class MobileAppearance extends BaseAppearance {
-  static const _primaryColor = Color(0xFF2DA2F6); //primary 100
+  static const _primaryColor = Color(0xFF00BCF0); //primary 100
   static const _onBackgroundColor = Color(0xff2F3030); // text/title color
   static const _onSurfaceColor = Color(0xff676666); // text/body color
   static const _onSecondaryColor = Color(0xFFC5C7CB); // text/body2 color
@@ -62,7 +62,7 @@ class MobileAppearance extends BaseAppearance {
         : ColorScheme(
             brightness: brightness,
             primary: _primaryColor,
-            onPrimary: Colors.white,
+            onPrimary: Colors.black,
             // TODO(yijing): add color later
             secondary: const Color(0xff2d2d2d), //temp
             onSecondary: Colors.white,
@@ -79,11 +79,12 @@ class MobileAppearance extends BaseAppearance {
           );
 
     final hintColor = brightness == Brightness.light
-        ? const Color(0xff89909B)
+        ? const Color(0x991F2329)
         : _hintColorInDarkMode;
 
     return ThemeData(
       // color
+      useMaterial3: false,
       primaryColor: colorTheme.primary, //primary 100
       primaryColorLight: const Color(0xFF57B5F8), //primary 80
       dividerColor: colorTheme.outline, //caption
@@ -125,7 +126,7 @@ class MobileAppearance extends BaseAppearance {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.disabled)) {
-                return const Color(0xFF57B5F8);
+                return _primaryColor;
               }
               return colorTheme.primary;
             },
@@ -159,10 +160,6 @@ class MobileAppearance extends BaseAppearance {
           padding: MaterialStateProperty.all(
             const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           ),
-          // splash color
-          overlayColor: MaterialStateProperty.all(
-            Colors.grey[100],
-          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -176,7 +173,7 @@ class MobileAppearance extends BaseAppearance {
       fontFamily: fontStyle.fontFamily,
       textTheme: TextTheme(
         displayLarge: const TextStyle(
-          color: Color(0xFF57B5F8),
+          color: _primaryColor,
           fontSize: 32,
           fontWeight: FontWeight.w700,
           height: 1.20,

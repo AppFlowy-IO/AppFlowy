@@ -206,9 +206,9 @@
     "delete": "Löschen",
     "duplicate": "Duplikat",
     "putback": "Zurück geben",
-    "OK": "OK",
     "Done": "Erledigt",
-    "Cancel": "Abbrechen"
+    "Cancel": "Abbrechen",
+    "OK": "OK"
   },
   "label": {
     "welcome": "Willkommen!",

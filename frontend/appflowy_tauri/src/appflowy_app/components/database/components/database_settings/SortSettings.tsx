@@ -39,6 +39,10 @@ function SortSettings({ onToggleCollection }: Props) {
         open={open}
         anchorEl={sortAnchorEl}
         onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
       />
     </>
   );

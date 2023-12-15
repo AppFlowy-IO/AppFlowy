@@ -5,11 +5,11 @@ import 'package:appflowy/plugins/database_view/tab_bar/mobile/mobile_tab_bar_hea
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,6 +66,12 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   }
 
   @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<DatabaseTabBarBloc>(
       create: (context) => DatabaseTabBarBloc(view: widget.view)
@@ -77,11 +83,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
             listener: (context, state) {
-              _pageController?.animateToPage(
-                state.selectedIndex,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
+              _pageController?.jumpToPage(state.selectedIndex);
             },
           ),
         ],

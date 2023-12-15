@@ -14,8 +14,8 @@ class TimestampCardCell<CustomCardData> extends CardCell {
   const TimestampCardCell({
     required this.cellControllerBuilder,
     this.renderHook,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<TimestampCardCell> createState() => _TimestampCellState();

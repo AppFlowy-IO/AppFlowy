@@ -3,9 +3,10 @@ import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/num
 import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/text_cell.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/url_cell.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
+import 'package:appflowy/mobile/presentation/database/card/row/cells/mobile_checklist_cell.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -182,7 +183,7 @@ class GridCellBuilder {
           key: key,
         );
       case FieldType.Checklist:
-        return GridChecklistCell(
+        return MobileChecklistCell(
           cellControllerBuilder: cellControllerBuilder,
           style: style,
           key: key,
@@ -261,7 +262,7 @@ class MobileRowDetailPageCellBuilder {
           key: key,
         );
       case FieldType.Checklist:
-        return GridChecklistCell(
+        return MobileChecklistCell(
           cellControllerBuilder: cellControllerBuilder,
           style: style,
           key: key,
@@ -272,7 +273,7 @@ class MobileRowDetailPageCellBuilder {
 }
 
 class BlankCell extends StatelessWidget {
-  const BlankCell({Key? key}) : super(key: key);
+  const BlankCell({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +294,7 @@ typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
 );
 
 abstract class CellAccessory extends Widget {
-  const CellAccessory({Key? key}) : super(key: key);
+  const CellAccessory({super.key});
 
   // The hover will show if the isHover's value is true
   ValueNotifier<bool>? get onAccessoryHover;

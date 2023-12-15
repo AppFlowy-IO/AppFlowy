@@ -346,7 +346,7 @@ impl DatabaseEditor {
         }
 
         let old_field_type = FieldType::from(field.field_type);
-        let old_type_option = field.get_any_type_option(old_field_type.clone());
+        let old_type_option = field.get_any_type_option(old_field_type);
         let new_type_option = field
           .get_any_type_option(new_field_type)
           .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
@@ -402,37 +402,47 @@ impl DatabaseEditor {
   }
 
   // consider returning a result. But most of the time, it should be fine to just ignore the error.
-  pub async fn duplicate_row(&self, view_id: &str, group_id: Option<String>, row_id: &RowId) {
+  pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) {
     let params = self.database.lock().duplicate_row(row_id);
     match params {
-      None => {
-        warn!("Failed to duplicate row: {}", row_id);
-      },
+      None => warn!("Failed to duplicate row: {}", row_id),
       Some(params) => {
-        let _ = self.create_row(view_id, group_id, params).await;
+        let _ = self.create_row(view_id, None, params).await;
       },
     }
   }
 
-  pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
+  pub async fn move_row(
+    &self,
+    view_id: &str,
+    from_row_id: RowId,
+    to_row_id: RowId,
+  ) -> FlowyResult<()> {
     let database = self.database.lock();
-    if let (Some(row_detail), Some(from_index), Some(to_index)) = (
-      database.get_row_detail(&from),
-      database.index_of_row(view_id, &from),
-      database.index_of_row(view_id, &to),
-    ) {
-      database.views.update_database_view(view_id, |view| {
-        view.move_row_order(from_index as u32, to_index as u32);
-      });
-      drop(database);
 
-      let delete_row_id = from.into_inner();
-      let insert_row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(to_index as i32);
+    let row_detail = database.get_row_detail(&from_row_id).ok_or_else(|| {
+      let msg = format!("Cannot find row {}", from_row_id);
+      FlowyError::internal().with_context(msg)
+    })?;
+
+    database.views.update_database_view(view_id, |view| {
+      view.move_row_order(&from_row_id, &to_row_id);
+    });
+
+    let new_index = database.index_of_row(view_id, &from_row_id);
+    drop(database);
+
+    if let Some(index) = new_index {
+      let delete_row_id = from_row_id.into_inner();
+      let insert_row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32);
       let changes = RowsChangePB::from_move(vec![delete_row_id], vec![insert_row]);
+
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
         .send();
     }
+
+    Ok(())
   }
 
   pub async fn create_row(
@@ -464,7 +474,7 @@ impl DatabaseEditor {
     field.map(|field| {
       let field_type = FieldType::from(field.field_type);
       let type_option = field
-        .get_any_type_option(field_type.clone())
+        .get_any_type_option(field_type)
         .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
       (field, type_option_to_pb(type_option, &field_type))
     })
@@ -504,28 +514,34 @@ impl DatabaseEditor {
     )
   }
 
-  pub async fn move_field(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    from: i32,
-    to: i32,
-  ) -> FlowyResult<()> {
-    let (database_id, field) = {
+  pub async fn move_field(&self, params: MoveFieldParams) -> FlowyResult<()> {
+    let (field, new_index) = {
       let database = self.database.lock();
-      database.views.update_database_view(view_id, |view_update| {
-        view_update.move_field_order(from as u32, to as u32);
-      });
-      let field = database.fields.get_field(field_id);
-      let database_id = database.get_database_id();
-      (database_id, field)
+
+      let field = database
+        .fields
+        .get_field(&params.from_field_id)
+        .ok_or_else(|| {
+          let msg = format!("Field with id: {} not found", &params.from_field_id);
+          FlowyError::internal().with_context(msg)
+        })?;
+
+      database
+        .views
+        .update_database_view(&params.view_id, |view_update| {
+          view_update.move_field_order(&params.from_field_id, &params.to_field_id);
+        });
+
+      let new_index = database.index_of_field(&params.view_id, &params.from_field_id);
+
+      (field, new_index)
     };
 
-    if let Some(field) = field {
-      let delete_field = FieldIdPB::from(field_id);
-      let insert_field = IndexFieldPB::from_field(field, to as usize);
+    if let Some(index) = new_index {
+      let delete_field = FieldIdPB::from(params.from_field_id);
+      let insert_field = IndexFieldPB::from_field(field, index);
       let notified_changeset = DatabaseFieldChangesetPB {
-        view_id: database_id,
+        view_id: params.view_id,
         inserted_fields: vec![insert_field],
         deleted_fields: vec![delete_field],
         updated_fields: vec![],
@@ -533,6 +549,7 @@ impl DatabaseEditor {
 
       self.notify_did_update_database(notified_changeset).await?;
     }
+
     Ok(())
   }
 
@@ -833,6 +850,8 @@ impl DatabaseEditor {
     for option in options {
       type_option.delete_option(&option.id);
     }
+
+    notify_did_update_database_field(&self.database, field_id)?;
     self
       .database
       .lock()
@@ -953,7 +972,7 @@ impl DatabaseEditor {
             .map(|row_detail| row_detail.row.id.clone())
         };
         if let Some(row_id) = to_row.clone() {
-          self.move_row(view_id, from_row.clone(), row_id).await;
+          self.move_row(view_id, from_row.clone(), row_id).await?;
         }
 
         if from_group == to_group {
@@ -1263,7 +1282,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let (_, field) = self.database.lock().create_field_with_mut(
       view_id,
       name.to_string(),
-      field_type.clone().into(),
+      field_type.into(),
       &OrderObjectPosition::default(),
       |field| {
         field
@@ -1499,10 +1518,10 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .map(|field_id| {
         if !field_settings_map.contains_key(field_id) {
           let field_settings =
-            FieldSettings::from_anymap(field_id, layout_type, &default_field_settings);
+            FieldSettings::from_any_map(field_id, layout_type, &default_field_settings);
           (field_id.clone(), field_settings)
         } else {
-          let field_settings = FieldSettings::from_anymap(
+          let field_settings = FieldSettings::from_any_map(
             field_id,
             layout_type,
             field_settings_map.get(field_id).unwrap(),
@@ -1537,7 +1556,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
         .unwrap()
         .to_owned();
       let field_settings =
-        FieldSettings::from_anymap(field_id, layout_type, &default_field_settings);
+        FieldSettings::from_any_map(field_id, layout_type, &default_field_settings);
       FieldSettings {
         field_id: field_settings.field_id.clone(),
         visibility: visibility.unwrap_or(field_settings.visibility),

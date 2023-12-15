@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FormEventHandler, useCallback, useRef, useState } from 'react';
 import ViewBanner from '$app/components/_shared/ViewTitle/ViewBanner';
 import { Page, PageIcon } from '$app_reducers/pages/slice';
 import { ViewIconTypePB } from '@/services/backend';
@@ -37,13 +37,6 @@ function ViewTitle({ view, onTitleChange: onTitleChangeProp, onUpdateIcon: onUpd
     [onUpdateIconProp]
   );
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-      // set the cursor to the end of the text
-      textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
-    }
-  }, []);
   return (
     <div className={'flex flex-col'} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       <ViewBanner icon={icon} hover={hover} onUpdateIcon={onUpdateIcon} />

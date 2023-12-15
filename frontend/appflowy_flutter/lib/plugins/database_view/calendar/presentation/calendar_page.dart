@@ -10,14 +10,13 @@ import 'package:appflowy/plugins/database_view/calendar/application/calendar_blo
 import 'package:appflowy/plugins/database_view/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -187,28 +186,45 @@ class _CalendarPageState extends State<CalendarPage> {
     EventController eventController,
     int firstDayOfWeek,
   ) {
-    return Padding(
-      padding: PlatformExtension.isMobile
-          ? CalendarSize.contentInsetsMobile
-          : CalendarSize.contentInsets,
-      child: LayoutBuilder(
-        // must specify MonthView width for useAvailableVerticalSpace to work properly
-        builder: (context, constraints) => ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: MonthView(
-            key: _calendarState,
-            controller: _eventController,
-            width: constraints.maxWidth,
-            cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
-            startDay: _weekdayFromInt(firstDayOfWeek),
-            showBorder: false,
-            headerBuilder: _headerNavigatorBuilder,
-            weekDayBuilder: _headerWeekDayBuilder,
-            cellBuilder: _calendarDayBuilder,
-            useAvailableVerticalSpace: widget.shrinkWrap,
+    return LayoutBuilder(
+      // must specify MonthView width for useAvailableVerticalSpace to work properly
+      builder: (context, constraints) {
+        Widget calendar = Padding(
+          padding: PlatformExtension.isMobile
+              ? CalendarSize.contentInsetsMobile
+              : CalendarSize.contentInsets,
+          child: ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: MonthView(
+              key: _calendarState,
+              controller: _eventController,
+              width: constraints.maxWidth,
+              cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
+              startDay: _weekdayFromInt(firstDayOfWeek),
+              showBorder: false,
+              headerBuilder: _headerNavigatorBuilder,
+              weekDayBuilder: _headerWeekDayBuilder,
+              cellBuilder: _calendarDayBuilder,
+              useAvailableVerticalSpace: widget.shrinkWrap,
+            ),
           ),
-        ),
-      ),
+        );
+        if (PlatformExtension.isMobile) {
+          calendar = Column(
+            children: [
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: GridSize.leadingHeaderPadding / 2,
+                endIndent: GridSize.leadingHeaderPadding / 2,
+              ),
+              Expanded(child: calendar),
+            ],
+          );
+        }
+        return calendar;
+      },
     );
   }
 
@@ -229,7 +245,6 @@ class _CalendarPageState extends State<CalendarPage> {
                           firstDate: CalendarConstants.epochDate.withoutTime,
                           lastDate: CalendarConstants.maxDate.withoutTime,
                           selectedDate: currentMonth,
-                          initialDate: currentMonth,
                           currentDate: DateTime.now(),
                           onChanged: (newDate) {
                             _calendarState?.currentState?.jumpToMonth(newDate);
@@ -422,8 +437,10 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 }
               },
               child: FlowyTooltip(
-                message: LocaleKeys.calendar_settings_noDateHint
-                    .plural(state.unscheduleEvents.length),
+                message: LocaleKeys.calendar_settings_noDateHint.plural(
+                  state.unscheduleEvents.length,
+                  namedArgs: {'count': '${state.unscheduleEvents.length}'},
+                ),
                 child: FlowyText.regular(
                   "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
                   fontSize: 10,

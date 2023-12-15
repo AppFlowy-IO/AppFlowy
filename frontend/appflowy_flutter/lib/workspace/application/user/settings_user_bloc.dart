@@ -154,7 +154,7 @@ class SettingsUserState with _$SettingsUserState {
   factory SettingsUserState.initial(UserProfilePB userProfile) =>
       SettingsUserState(
         userProfile: userProfile,
-        historicalUsers: [],
+        historicalUsers: const [],
         successOrFailure: left(unit),
       );
 }

@@ -200,7 +200,7 @@ class CoverImagePreviewWidget extends StatefulWidget {
 }
 
 class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
-  _buildFilePickerWidget(BuildContext ctx) {
+  DecoratedBox _buildFilePickerWidget(BuildContext ctx) {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -255,7 +255,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
     );
   }
 
-  _buildImageDeleteButton(BuildContext ctx) {
+  Positioned _buildImageDeleteButton(BuildContext ctx) {
     return Positioned(
       right: 10,
       top: 10,

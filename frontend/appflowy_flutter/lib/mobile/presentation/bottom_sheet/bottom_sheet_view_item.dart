@@ -31,7 +31,7 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
   MobileBottomSheetType type = MobileBottomSheetType.view;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
 
     type = widget.defaultType;

@@ -68,5 +68,5 @@ module.exports = {
 
     ]
   },
-  ignorePatterns: ['src/**/*.test.ts'],
+  ignorePatterns: ['src/**/*.test.ts', 'package.json'],
 };

@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 
 class SettingsMenu extends StatelessWidget {
   const SettingsMenu({
-    Key? key,
+    super.key,
     required this.changeSelectedPage,
     required this.currentPage,
-  }) : super(key: key);
+  });
 
   final Function changeSelectedPage;
   final SettingsPage currentPage;
@@ -61,7 +61,7 @@ class SettingsMenu extends StatelessWidget {
         SettingsMenuElement(
           page: SettingsPage.cloud,
           selectedPage: currentPage,
-          label: LocaleKeys.settings_menu_cloudSetting.tr(),
+          label: LocaleKeys.settings_menu_cloudSettings.tr(),
           icon: Icons.sync,
           changeSelectedPage: changeSelectedPage,
         ),

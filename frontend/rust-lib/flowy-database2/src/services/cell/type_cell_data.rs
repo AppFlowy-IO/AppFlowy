@@ -25,7 +25,7 @@ impl TypeCellData {
   pub fn from_field_type(field_type: &FieldType) -> TypeCellData {
     Self {
       cell_str: "".to_string(),
-      field_type: field_type.clone(),
+      field_type: *field_type,
     }
   }
 

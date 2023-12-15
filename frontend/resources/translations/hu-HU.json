@@ -176,9 +176,9 @@
     "delete": "Töröl",
     "duplicate": "Másolat",
     "putback": "Visszatesz",
-    "OK": "OK",
     "Done": "Kész",
-    "Cancel": "Mégse"
+    "Cancel": "Mégse",
+    "OK": "OK"
   },
   "label": {
     "welcome": "Üdvözlünk!",

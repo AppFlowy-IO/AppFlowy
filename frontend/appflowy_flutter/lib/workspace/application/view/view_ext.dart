@@ -7,7 +7,9 @@ import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:dartz/dartz.dart' hide id;
 import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
@@ -15,73 +17,31 @@ enum FlowyPlugin {
   kanban,
 }
 
-extension FlowyPluginExtension on FlowyPlugin {
-  String displayName() {
-    switch (this) {
-      case FlowyPlugin.editor:
-        return "Doc";
-      case FlowyPlugin.kanban:
-        return "Kanban";
-      default:
-        return "";
-    }
-  }
-
-  bool enable() {
-    switch (this) {
-      case FlowyPlugin.editor:
-        return true;
-      case FlowyPlugin.kanban:
-        return false;
-      default:
-        return false;
-    }
-  }
-}
-
 extension ViewExtension on ViewPB {
-  Widget renderThumbnail({Color? iconColor}) {
-    return const FlowySvg(
-      FlowySvgs.document_s,
-    );
-  }
+  Widget defaultIcon() => FlowySvg(
+        switch (layout) {
+          ViewLayoutPB.Board => FlowySvgs.board_s,
+          ViewLayoutPB.Calendar => FlowySvgs.date_s,
+          ViewLayoutPB.Grid => FlowySvgs.grid_s,
+          ViewLayoutPB.Document => FlowySvgs.document_s,
+          _ => FlowySvgs.document_s,
+        },
+      );
 
-  Widget defaultIcon() {
-    return FlowySvg(
-      switch (layout) {
-        ViewLayoutPB.Board => FlowySvgs.board_s,
-        ViewLayoutPB.Calendar => FlowySvgs.date_s,
-        ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Document => FlowySvgs.document_s,
-        _ => FlowySvgs.document_s,
-      },
-    );
-  }
-
-  PluginType get pluginType {
-    switch (layout) {
-      case ViewLayoutPB.Board:
-        return PluginType.board;
-      case ViewLayoutPB.Calendar:
-        return PluginType.calendar;
-      case ViewLayoutPB.Document:
-        return PluginType.editor;
-      case ViewLayoutPB.Grid:
-        return PluginType.grid;
-    }
-
-    throw UnimplementedError;
-  }
+  PluginType get pluginType => switch (layout) {
+        ViewLayoutPB.Board => PluginType.board,
+        ViewLayoutPB.Calendar => PluginType.calendar,
+        ViewLayoutPB.Document => PluginType.editor,
+        ViewLayoutPB.Grid => PluginType.grid,
+        _ => throw UnimplementedError(),
+      };
 
   Plugin plugin({bool listenOnViewChanged = false}) {
     switch (layout) {
       case ViewLayoutPB.Board:
       case ViewLayoutPB.Calendar:
       case ViewLayoutPB.Grid:
-        return DatabaseTabBarViewPlugin(
-          view: this,
-          pluginType: pluginType,
-        );
+        return DatabaseTabBarViewPlugin(view: this, pluginType: pluginType);
       case ViewLayoutPB.Document:
         return DocumentPlugin(
           view: this,
@@ -92,31 +52,19 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  DatabaseTabBarItemBuilder tabBarItem() {
-    switch (layout) {
-      case ViewLayoutPB.Board:
-        return BoardPageTabBarBuilderImpl();
-      case ViewLayoutPB.Calendar:
-        return CalendarPageTabBarBuilderImpl();
-      case ViewLayoutPB.Grid:
-        return DesktopGridTabBarBuilderImpl();
-      default:
-        throw UnimplementedError;
-    }
-  }
+  DatabaseTabBarItemBuilder tabBarItem() => switch (layout) {
+        ViewLayoutPB.Board => BoardPageTabBarBuilderImpl(),
+        ViewLayoutPB.Calendar => CalendarPageTabBarBuilderImpl(),
+        ViewLayoutPB.Grid => DesktopGridTabBarBuilderImpl(),
+        _ => throw UnimplementedError,
+      };
 
-  DatabaseTabBarItemBuilder mobileTabBarItem() {
-    switch (layout) {
-      case ViewLayoutPB.Board:
-        return BoardPageTabBarBuilderImpl();
-      case ViewLayoutPB.Calendar:
-        return CalendarPageTabBarBuilderImpl();
-      case ViewLayoutPB.Grid:
-        return MobileGridTabBarBuilderImpl();
-      default:
-        throw UnimplementedError;
-    }
-  }
+  DatabaseTabBarItemBuilder mobileTabBarItem() => switch (layout) {
+        ViewLayoutPB.Board => BoardPageTabBarBuilderImpl(),
+        ViewLayoutPB.Calendar => CalendarPageTabBarBuilderImpl(),
+        ViewLayoutPB.Grid => MobileGridTabBarBuilderImpl(),
+        _ => throw UnimplementedError,
+      };
 
   FlowySvgData get iconData => layout.icon;
 
@@ -129,7 +77,8 @@ extension ViewExtension on ViewPB {
       final self = await ViewBackendService.getView(id);
       ancestors.add(self.getLeftOrNull<ViewPB>() ?? this);
     }
-    var parent = await ViewBackendService.getView(parentViewId);
+    Either<ViewPB, FlowyError> parent =
+        await ViewBackendService.getView(parentViewId);
     while (parent.isLeft()) {
       // parent is not null
       final view = parent.getLeftOrNull<ViewPB>();
@@ -144,33 +93,22 @@ extension ViewExtension on ViewPB {
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
-  FlowySvgData get icon {
-    switch (this) {
-      case ViewLayoutPB.Grid:
-        return FlowySvgs.grid_s;
-      case ViewLayoutPB.Board:
-        return FlowySvgs.board_s;
-      case ViewLayoutPB.Calendar:
-        return FlowySvgs.date_s;
-      case ViewLayoutPB.Document:
-        return FlowySvgs.document_s;
-      default:
-        throw Exception('Unknown layout type');
-    }
-  }
+  FlowySvgData get icon => switch (this) {
+        ViewLayoutPB.Grid => FlowySvgs.grid_s,
+        ViewLayoutPB.Board => FlowySvgs.board_s,
+        ViewLayoutPB.Calendar => FlowySvgs.date_s,
+        ViewLayoutPB.Document => FlowySvgs.document_s,
+        _ => throw Exception('Unknown layout type'),
+      };
 
-  bool get isDatabaseView {
-    switch (this) {
-      case ViewLayoutPB.Grid:
-      case ViewLayoutPB.Board:
-      case ViewLayoutPB.Calendar:
-        return true;
-      case ViewLayoutPB.Document:
-        return false;
-      default:
-        throw Exception('Unknown layout type');
-    }
-  }
+  bool get isDatabaseView => switch (this) {
+        ViewLayoutPB.Grid ||
+        ViewLayoutPB.Board ||
+        ViewLayoutPB.Calendar =>
+          true,
+        ViewLayoutPB.Document => false,
+        _ => throw Exception('Unknown layout type'),
+      };
 }
 
 extension ViewFinder on List<ViewPB> {

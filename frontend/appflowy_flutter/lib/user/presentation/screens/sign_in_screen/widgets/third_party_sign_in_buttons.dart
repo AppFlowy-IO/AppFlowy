@@ -2,8 +2,8 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -189,35 +189,30 @@ class _MobileSignInButton extends StatelessWidget {
             width: 0.5,
           ),
         ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
-                width: 30,
-                height: 30,
-                child: Center(
-                  child: SizedBox(
-                    width: 24,
-                    child: FlowySvg(
-                      icon,
-                      blendMode: null,
-                    ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
+              width: 30,
+              height: 30,
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  child: FlowySvg(
+                    icon,
+                    blendMode: null,
                   ),
                 ),
               ),
-              const HSpace(8),
-              SizedBox(
-                // To fit the longest label 'Log in with Discord'
-                width: 135,
-                child: Text(
-                  labelText,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
-            ],
-          ),
+            ),
+            const HSpace(8),
+            Text(
+              labelText,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ],
         ),
       ),
     );

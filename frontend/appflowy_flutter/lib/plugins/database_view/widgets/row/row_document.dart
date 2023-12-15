@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/grid/application/row/row_document
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -77,7 +78,7 @@ class _RowEditorState extends State<RowEditor> {
   }
 
   @override
-  dispose() {
+  void dispose() {
     documentBloc.close();
     super.dispose();
   }
@@ -98,43 +99,37 @@ class _RowEditorState extends State<RowEditor> {
         },
         child: BlocBuilder<DocumentBloc, DocumentState>(
           builder: (context, state) {
-            return state.loadingState.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator.adaptive(),
-              ),
-              finish: (result) {
-                return result.fold(
-                  (error) => FlowyErrorPage.message(
-                    error.toString(),
-                    howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator.adaptive());
+            }
+
+            final editorState = state.editorState;
+            final error = state.error;
+            if (error != null || editorState == null) {
+              Log.error(error);
+              return FlowyErrorPage.message(
+                error.toString(),
+                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+              );
+            }
+            return IntrinsicHeight(
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 300),
+                child: AppFlowyEditorPage(
+                  shrinkWrap: true,
+                  autoFocus: false,
+                  editorState: editorState,
+                  scrollController: widget.scrollController,
+                  styleCustomizer: EditorStyleCustomizer(
+                    context: context,
+                    padding: const EdgeInsets.only(left: 16, right: 54),
                   ),
-                  (_) {
-                    final editorState = documentBloc.editorState;
-                    if (editorState == null) {
-                      return const SizedBox.shrink();
-                    }
-                    return IntrinsicHeight(
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 300),
-                        child: AppFlowyEditorPage(
-                          shrinkWrap: true,
-                          autoFocus: false,
-                          editorState: editorState,
-                          scrollController: widget.scrollController,
-                          styleCustomizer: EditorStyleCustomizer(
-                            context: context,
-                            padding: const EdgeInsets.only(left: 16, right: 54),
-                          ),
-                          showParagraphPlaceholder: (editorState, node) =>
-                              editorState.document.isEmpty,
-                          placeholderText: (node) =>
-                              LocaleKeys.cardDetails_notesPlaceholder.tr(),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+                  showParagraphPlaceholder: (editorState, node) =>
+                      editorState.document.isEmpty,
+                  placeholderText: (node) =>
+                      LocaleKeys.cardDetails_notesPlaceholder.tr(),
+                ),
+              ),
             );
           },
         ),

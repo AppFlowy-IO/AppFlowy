@@ -1,21 +1,19 @@
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_row_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_edit_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_property_edit/card_property_edit_screen.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_create_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_edit_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_block_settings_screen.dart';
@@ -23,12 +21,11 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 GoRouter generateRouter(Widget child) {
@@ -61,9 +58,7 @@ GoRouter generateRouter(Widget child) {
         _mobileCalendarScreenRoute(),
         // card detail page
         _mobileCardDetailScreenRoute(),
-        _mobileCardPropertyEditScreenRoute(),
         _mobileDateCellEditScreenRoute(),
-        _mobileCreateRowFieldScreenRoute(),
         _mobileNewPropertyPageRoute(),
         _mobileEditPropertyPageRoute(),
 
@@ -181,21 +176,8 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(
-            path: '/e',
-            builder: (BuildContext context, GoRouterState state) =>
-                const RootPlaceholderScreen(
-              label: 'Notification',
-              detailsPath: '/e/details',
-            ),
-            routes: <RouteBase>[
-              GoRoute(
-                path: 'details',
-                builder: (BuildContext context, GoRouterState state) =>
-                    const DetailsPlaceholderScreen(
-                  label: 'Notification Page details',
-                ),
-              ),
-            ],
+            path: MobileNotificationsScreen.routeName,
+            builder: (_, __) => const MobileNotificationsScreen(),
           ),
         ],
       ),
@@ -386,7 +368,6 @@ GoRoute _mobileEditPropertyPageRoute() {
         child: MobileEditPropertyScreen(
           viewId: args[MobileEditPropertyScreen.argViewId],
           field: args[MobileEditPropertyScreen.argField],
-          isPrimary: args[MobileEditPropertyScreen.argIsPrimary],
         ),
       );
     },
@@ -493,12 +474,8 @@ GoRoute _mobileEditorScreenRoute() {
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
-      return MaterialPage(
-        child: MobileEditorScreen(
-          id: id,
-          title: title,
-        ),
-      );
+
+      return MaterialPage(child: MobileEditorScreen(id: id, title: title));
     },
   );
 }
@@ -574,29 +551,6 @@ GoRoute _mobileCardDetailScreenRoute() {
   );
 }
 
-GoRoute _mobileCardPropertyEditScreenRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: CardPropertyEditScreen.routeName,
-    pageBuilder: (context, state) {
-      final args = state.extra as Map<String, dynamic>;
-      final cellContext = args[CardPropertyEditScreen.argCellContext];
-      final fieldController = args[CardPropertyEditScreen.argFieldController];
-      final rowDetailBloc = args[CardPropertyEditScreen.argRowDetailBloc];
-
-      return MaterialPage(
-        child: BlocProvider.value(
-          value: rowDetailBloc as RowDetailBloc,
-          child: CardPropertyEditScreen(
-            cellContext: cellContext,
-            fieldController: fieldController,
-          ),
-        ),
-      );
-    },
-  );
-}
-
 GoRoute _mobileDateCellEditScreenRoute() {
   return GoRoute(
     parentNavigatorKey: AppGlobals.rootNavKey,
@@ -615,29 +569,6 @@ GoRoute _mobileDateCellEditScreenRoute() {
           controller: controller,
           showAsFullScreen: fullScreen ?? true,
         ),
-      );
-    },
-  );
-}
-
-GoRoute _mobileCreateRowFieldScreenRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: MobileCreateRowFieldScreen.routeName,
-    pageBuilder: (context, state) {
-      final args = state.extra as Map<String, dynamic>;
-      final viewId = args[MobileCreateRowFieldScreen.argViewId];
-      final fieldController =
-          args[MobileCreateRowFieldScreen.argFieldController];
-      final typeOption = args[MobileCreateRowFieldScreen.argTypeOption];
-
-      return MaterialPage(
-        child: MobileCreateRowFieldScreen(
-          viewId: viewId,
-          typeOption: typeOption,
-          fieldController: fieldController,
-        ),
-        fullscreenDialog: true,
       );
     },
   );

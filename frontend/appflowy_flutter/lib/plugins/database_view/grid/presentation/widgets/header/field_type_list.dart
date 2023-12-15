@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
-
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+
 import '../../layout/sizes.dart';
 import 'field_type_extension.dart';
 
@@ -11,8 +11,7 @@ typedef SelectFieldCallback = void Function(FieldType);
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
   final SelectFieldCallback onSelectField;
-  const FieldTypeList({required this.onSelectField, Key? key})
-      : super(key: key);
+  const FieldTypeList({required this.onSelectField, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,6 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
       width: 140,
       child: ListView.separated(
         shrinkWrap: true,
-        controller: ScrollController(),
         itemCount: cells.length,
         separatorBuilder: (context, index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
@@ -50,8 +48,8 @@ class FieldTypeCell extends StatelessWidget {
   const FieldTypeCell({
     required this.fieldType,
     required this.onSelectField,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

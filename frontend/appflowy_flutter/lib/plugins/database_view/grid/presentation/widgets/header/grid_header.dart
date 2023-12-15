@@ -1,10 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/mobile_field_cell.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
@@ -14,9 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
 
-import '../../../../application/field/type_option/type_option_service.dart';
 import '../../layout/sizes.dart';
-import 'field_cell.dart';
+import 'desktop_field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatefulWidget {
   final String viewId;
@@ -45,19 +43,13 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
           fieldController: fieldController,
         )..add(const GridHeaderEvent.initial());
       },
-      child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
-        buildWhen: (previous, current) =>
-            previous.fields.length != current.fields.length,
-        builder: (context, state) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            controller: widget.anchorScrollController,
-            child: _GridHeader(
-              viewId: widget.viewId,
-              fieldController: fieldController,
-            ),
-          );
-        },
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: widget.anchorScrollController,
+        child: _GridHeader(
+          viewId: widget.viewId,
+          fieldController: fieldController,
+        ),
       ),
     );
   }
@@ -74,18 +66,12 @@ class _GridHeader extends StatefulWidget {
 
 class _GridHeaderState extends State<_GridHeader> {
   final Map<String, ValueKey<String>> _gridMap = {};
+  final _scrollController = ScrollController();
 
-  /// This is a workaround for [ReorderableRow].
-  /// [ReorderableRow] warps the child's key with a [GlobalKey].
-  /// It will trigger the child's widget's to recreate.
-  /// The state will lose.
-  _getKeyById(String id) {
-    if (_gridMap.containsKey(id)) {
-      return _gridMap[id];
-    }
-    final newKey = ValueKey(id);
-    _gridMap[id] = newKey;
-    return newKey;
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -94,51 +80,41 @@ class _GridHeaderState extends State<_GridHeader> {
       builder: (context, state) {
         final cells = state.fields
             .map(
-              (fieldInfo) => PlatformExtension.isDesktop
-                  ? GridFieldCell(
-                      key: _getKeyById(fieldInfo.id),
-                      viewId: widget.viewId,
-                      fieldInfo: fieldInfo,
-                      fieldController: widget.fieldController,
-                      onTap: () => context
-                          .read<GridHeaderBloc>()
-                          .add(GridHeaderEvent.startEditingField(fieldInfo.id)),
-                      onFieldInsertedOnEitherSide: (fieldId) => context
-                          .read<GridHeaderBloc>()
-                          .add(GridHeaderEvent.startEditingNewField(fieldId)),
-                      onEditorOpened: () => context
-                          .read<GridHeaderBloc>()
-                          .add(const GridHeaderEvent.endEditingField()),
-                      isEditing: state.editingFieldId == fieldInfo.id,
-                      isNew: state.newFieldId == fieldInfo.id,
-                    )
-                  : MobileFieldButton(
-                      key: _getKeyById(fieldInfo.id),
-                      viewId: widget.viewId,
-                      fieldController: widget.fieldController,
-                      fieldInfo: fieldInfo,
-                    ),
+              (fieldInfo) => GridFieldCell(
+                key: _getKeyById(fieldInfo.id),
+                viewId: widget.viewId,
+                fieldInfo: fieldInfo,
+                fieldController: widget.fieldController,
+                onTap: () => context
+                    .read<GridHeaderBloc>()
+                    .add(GridHeaderEvent.startEditingField(fieldInfo.id)),
+                onFieldInsertedOnEitherSide: (fieldId) => context
+                    .read<GridHeaderBloc>()
+                    .add(GridHeaderEvent.startEditingNewField(fieldId)),
+                onEditorOpened: () => context
+                    .read<GridHeaderBloc>()
+                    .add(const GridHeaderEvent.endEditingField()),
+                isEditing: state.editingFieldId == fieldInfo.id,
+                isNew: state.newFieldId == fieldInfo.id,
+              ),
             )
             .toList();
 
         return RepaintBoundary(
           child: ReorderableRow(
-            scrollController: ScrollController(),
+            scrollController: _scrollController,
             buildDraggableFeedback: (context, constraints, child) => Material(
               color: Colors.transparent,
               child: child,
             ),
             draggingWidgetOpacity: 0,
-            header: const _CellLeading(),
+            header: _cellLeading(),
             needsLongPressDraggable: PlatformExtension.isMobile,
             footer: _CellTrailing(viewId: widget.viewId),
             onReorder: (int oldIndex, int newIndex) {
-              _onReorder(
-                cells,
-                oldIndex,
-                context,
-                newIndex,
-              );
+              context
+                  .read<GridHeaderBloc>()
+                  .add(GridHeaderEvent.moveField(oldIndex, newIndex));
             },
             children: cells,
           ),
@@ -147,31 +123,21 @@ class _GridHeaderState extends State<_GridHeader> {
     );
   }
 
-  void _onReorder(
-    List<Widget> cells,
-    int oldIndex,
-    BuildContext context,
-    int newIndex,
-  ) {
-    if (cells.length > oldIndex) {
-      final field = PlatformExtension.isDesktop
-          ? (cells[oldIndex] as GridFieldCell).fieldInfo.field
-          : (cells[oldIndex] as MobileFieldButton).fieldInfo.field;
-      context
-          .read<GridHeaderBloc>()
-          .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
+  /// This is a workaround for [ReorderableRow].
+  /// [ReorderableRow] warps the child's key with a [GlobalKey].
+  /// It will trigger the child's widget's to recreate.
+  /// The state will lose.
+  ValueKey<String>? _getKeyById(String id) {
+    if (_gridMap.containsKey(id)) {
+      return _gridMap[id];
     }
+    final newKey = ValueKey(id);
+    _gridMap[id] = newKey;
+    return newKey;
   }
-}
 
-class _CellLeading extends StatelessWidget {
-  const _CellLeading({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: GridSize.leadingHeaderPadding,
-    );
+  Widget _cellLeading() {
+    return SizedBox(width: GridSize.leadingHeaderPadding);
   }
 }
 
@@ -182,15 +148,13 @@ class _CellTrailing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderSide =
-        BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
     return Container(
       width: GridSize.trailHeaderPadding,
-      decoration: PlatformExtension.isDesktop
-          ? BoxDecoration(
-              border: Border(bottom: borderSide),
-            )
-          : null,
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1.0),
+        ),
+      ),
       padding: GridSize.headerContentInsets,
       child: CreateFieldButton(
         viewId: viewId,
@@ -220,32 +184,25 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      margin: PlatformExtension.isDesktop
-          ? GridSize.cellContentInsets
-          : const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      margin: GridSize.cellContentInsets,
       radius: BorderRadius.zero,
-      text: FlowyText.medium(
+      text: FlowyText(
         LocaleKeys.grid_field_newProperty.tr(),
         overflow: TextOverflow.ellipsis,
-        color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
       ),
       hoverColor: AFThemeExtension.of(context).greyHover,
       onTap: () async {
-        if (PlatformExtension.isMobile) {
-          showCreateFieldBottomSheet(context, widget.viewId);
-        } else {
-          final result = await TypeOptionBackendService.createFieldTypeOption(
-            viewId: widget.viewId,
-          );
-          result.fold(
-            (typeOptionPB) => widget.onFieldCreated(typeOptionPB.field_2.id),
-            (err) => Log.error("Failed to create field type option: $err"),
-          );
-        }
+        final result = await FieldBackendService.createField(
+          viewId: widget.viewId,
+        );
+        result.fold(
+          (typeOptionPB) => widget.onFieldCreated(typeOptionPB.field_2.id),
+          (err) => Log.error("Failed to create field type option: $err"),
+        );
       },
-      leftIcon: FlowySvg(
+      leftIcon: const FlowySvg(
         FlowySvgs.add_s,
-        color: PlatformExtension.isDesktop ? null : Theme.of(context).hintColor,
+        size: Size.square(18),
       ),
     );
   }

@@ -211,9 +211,9 @@
     "delete": "Excluir",
     "duplicate": "Duplicado",
     "putback": "Por de volta",
-    "OK": "OK",
     "Done": "Feito",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "OK": "OK"
   },
   "label": {
     "welcome": "Bem vindo!",

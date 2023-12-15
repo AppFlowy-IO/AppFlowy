@@ -25,7 +25,7 @@ impl std::convert::From<&Sort> for SortPB {
     Self {
       id: sort.id.clone(),
       field_id: sort.field_id.clone(),
-      field_type: sort.field_type.clone(),
+      field_type: sort.field_type,
       condition: sort.condition.into(),
     }
   }

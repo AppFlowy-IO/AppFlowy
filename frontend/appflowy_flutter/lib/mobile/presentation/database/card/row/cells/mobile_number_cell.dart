@@ -50,11 +50,13 @@ class _NumberCellState extends GridEditableTextCell<MobileNumberCell> {
         child: TextField(
           controller: _controller,
           focusNode: focusNode,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15),
           decoration: InputDecoration(
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             hintText: widget.hintText,
-            contentPadding: EdgeInsets.zero,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             isCollapsed: true,
           ),
           // close keyboard when tapping outside of the text field

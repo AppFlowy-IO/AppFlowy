@@ -176,9 +176,9 @@
     "delete": "Borrar",
     "duplicate": "Duplicar",
     "putback": "Volver",
-    "OK": "OK",
     "Done": "Hecho",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "OK": "OK"
   },
   "label": {
     "welcome": "¡Bienvenido!",

@@ -58,7 +58,7 @@ run_task = { name = [
   "code_generation",
   "set-app-version",
   "flutter-build-android",
-  "copy-to-product-mobile",
+  "copy-to-product-android",
 ] }
 script_runner = "@shell"
 
@@ -134,6 +134,23 @@ script = [
 
   product=${PRODUCT_NAME}.${PRODUCT_EXT}
   cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/Build/Products/${FLUTTER_OUTPUT_DIR}/${product} \
+  ${output_path}/${product}
+  """,
+]
+script_runner = "@shell"
+
+[tasks.copy-to-product-android]
+script = [
+  """
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${APP_VERSION}
+  output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
+  if [ -d "${output_path}" ]; then
+    rm -rf ${output_path}/
+  fi
+  mkdir -p ${output_path}
+
+  product=${PRODUCT_NAME}-arm64-v8a-release.${PRODUCT_EXT}
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
   ${output_path}/${product}
   """,
 ]

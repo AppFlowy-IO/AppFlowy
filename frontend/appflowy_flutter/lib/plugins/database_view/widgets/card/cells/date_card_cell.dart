@@ -14,8 +14,8 @@ class DateCardCell<CustomCardData> extends CardCell {
   const DateCardCell({
     required this.cellControllerBuilder,
     this.renderHook,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<DateCardCell> createState() => _DateCellState();
@@ -61,6 +61,7 @@ class _DateCellState extends State<DateCardCell> {
                 state.dateStr,
                 fontSize: 11,
                 color: Theme.of(context).hintColor,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           );

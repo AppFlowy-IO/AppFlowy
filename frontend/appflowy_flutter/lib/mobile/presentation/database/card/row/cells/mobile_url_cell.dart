@@ -59,7 +59,8 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 hintText: widget.hintText,
-                contentPadding: EdgeInsets.zero,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 isCollapsed: true,
               ),
               // close keyboard when tapping outside of the text field

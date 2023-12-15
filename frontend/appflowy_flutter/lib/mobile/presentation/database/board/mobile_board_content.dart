@@ -4,10 +4,12 @@ import 'package:appflowy/mobile/presentation/database/board/board.dart';
 import 'package:appflowy/mobile/presentation/database/board/widgets/group_card_header.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -80,31 +82,47 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
           final showCreateGroupButton =
               context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
           final showHiddenGroups = state.hiddenGroups.isNotEmpty;
-          return AppFlowyBoard(
-            boardScrollController: scrollManager,
-            scrollController: scrollController,
-            controller: context.read<BoardBloc>().boardController,
-            groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
-            config: config,
-            leading: showHiddenGroups
-                ? MobileHiddenGroupsColumn(padding: config.groupHeaderPadding)
-                : const HSpace(16),
-            trailing: showCreateGroupButton
-                ? const MobileBoardTrailing()
-                : const HSpace(16),
-            headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-              value: context.read<BoardBloc>(),
-              child: GroupCardHeader(
-                groupData: groupData,
+          return Column(
+            children: [
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: GridSize.leadingHeaderPadding / 2,
+                endIndent: GridSize.leadingHeaderPadding / 2,
               ),
-            ),
-            footerBuilder: _buildFooter,
-            cardBuilder: (_, column, columnItem) => _buildCard(
-              context: context,
-              afGroupData: column,
-              afGroupItem: columnItem,
-              cardMargin: config.cardMargin,
-            ),
+              Expanded(
+                child: AppFlowyBoard(
+                  boardScrollController: scrollManager,
+                  scrollController: scrollController,
+                  controller: context.read<BoardBloc>().boardController,
+                  groupConstraints:
+                      BoxConstraints.tightFor(width: screenWidth * 0.7),
+                  config: config,
+                  leading: showHiddenGroups
+                      ? MobileHiddenGroupsColumn(
+                          padding: config.groupHeaderPadding,
+                        )
+                      : const HSpace(16),
+                  trailing: showCreateGroupButton
+                      ? const MobileBoardTrailing()
+                      : const HSpace(16),
+                  headerBuilder: (_, groupData) =>
+                      BlocProvider<BoardBloc>.value(
+                    value: context.read<BoardBloc>(),
+                    child: GroupCardHeader(
+                      groupData: groupData,
+                    ),
+                  ),
+                  footerBuilder: _buildFooter,
+                  cardBuilder: (_, column, columnItem) => _buildCard(
+                    context: context,
+                    afGroupData: column,
+                    afGroupItem: columnItem,
+                    cardMargin: config.cardMargin,
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -172,7 +190,6 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
         rowCache: rowCache,
         cardData: groupData.group.groupId,
         groupingFieldId: groupItem.fieldInfo.id,
-        groupId: groupData.group.groupId,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         renderHook: renderHook,
@@ -201,22 +218,29 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
   }
 
   BoxDecoration _makeBoxDecoration(BuildContext context) {
+    final themeMode = context.read<AppearanceSettingsCubit>().state.themeMode;
     return BoxDecoration(
-      color: Theme.of(context).colorScheme.surface,
+      color: Theme.of(context).colorScheme.background,
       borderRadius: const BorderRadius.all(Radius.circular(8)),
-      border: Border.fromBorderSide(
-        BorderSide(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
-        ),
-      ),
-      boxShadow: [
-        // card shadow
-        BoxShadow(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
-          blurRadius: 4,
-          offset: const Offset(0, 2),
-        ),
-      ],
+      border: themeMode == ThemeMode.light
+          ? Border.fromBorderSide(
+              BorderSide(
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+              ),
+            )
+          : null,
+      boxShadow:
+          // The shadow is only visible in light mode.
+          themeMode == ThemeMode.light
+              ? [
+                  BoxShadow(
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
     );
   }
 }

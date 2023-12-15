@@ -1,6 +1,6 @@
 import React from 'react';
 import DialogContent from '@mui/material/DialogContent';
-import { Button, DialogActions } from '@mui/material';
+import { Button, DialogActions, Divider } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import { useTranslation } from 'react-i18next';
 
@@ -18,10 +18,11 @@ function ConfirmDialog({ open, title, subtitle, onOk, onClose }: Props) {
   return (
     <Dialog keepMounted={false} onMouseDown={(e) => e.stopPropagation()} open={open} onClose={onClose}>
       <DialogContent className={'flex w-[540px] flex-col items-center justify-center'}>
-        <div className={'text-md m-2 font-bold'}>{title}</div>
-        <div className={'m-1 text-sm text-text-caption'}>{subtitle}</div>
+        <div className={'text-md font-medium'}>{title}</div>
+        {subtitle && <div className={'m-1 text-sm text-text-caption'}>{subtitle}</div>}
       </DialogContent>
-      <DialogActions>
+      <Divider className={'mb-4'} />
+      <DialogActions className={'p-4 pt-0'}>
         <Button variant={'outlined'} onClick={onClose}>
           {t('button.cancel')}
         </Button>

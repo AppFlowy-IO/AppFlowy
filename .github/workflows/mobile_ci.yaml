@@ -18,7 +18,7 @@ on:
       - "!frontend/appflowy_tauri/**"
 
 env:
-  FLUTTER_VERSION: "3.13.9"
+  FLUTTER_VERSION: "3.16.2"
   RUST_TOOLCHAIN: "1.70"
 
 concurrency:

@@ -1,9 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/shortcuts.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/mobile_database_settings_button.dart';
 import 'package:appflowy_backend/log.dart';
@@ -21,12 +22,10 @@ import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 import 'grid_page.dart';
 import 'grid_scroll.dart';
-import 'layout/layout.dart';
 import 'layout/sizes.dart';
-import 'widgets/footer/grid_footer.dart';
-import 'widgets/header/grid_header.dart';
+import 'widgets/header/mobile_grid_header.dart';
+import 'widgets/mobile_fab.dart';
 import 'widgets/row/mobile_row.dart';
-import 'widgets/shortcuts.dart';
 
 class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
@@ -101,9 +100,7 @@ class _MobileGridPageState extends State<MobileGridPage> {
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => GridShortcuts(
-                child: GridPageContent(view: widget.view),
-              ),
+              (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
               (err) => FlowyErrorPage.message(
                 err.toString(),
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
@@ -147,27 +144,44 @@ class _GridPageContentState extends State<GridPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
-      builder: (context, state) {
-        final contentWidth = GridLayout.headerWidth(state.fields.fields);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(right: GridSize.leadingHeaderPadding),
-              child:
-                  _GridHeader(headerScrollController: headerScrollController),
-            ),
-            _GridRows(
-              viewId: state.viewId,
-              contentWidth: contentWidth,
-              scrollController: _scrollController,
-            ),
-          ],
+    return BlocListener<GridBloc, GridState>(
+      listenWhen: (previous, current) =>
+          previous.createdRow != current.createdRow,
+      listener: (context, state) {
+        if (state.createdRow == null) {
+          return;
+        }
+        final bloc = context.read<GridBloc>();
+        context.push(
+          MobileRowDetailPage.routeName,
+          extra: {
+            MobileRowDetailPage.argRowId: state.createdRow!.id,
+            MobileRowDetailPage.argDatabaseController: bloc.databaseController,
+          },
         );
+        bloc.add(const GridEvent.resetCreatedRow());
       },
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _GridHeader(
+                headerScrollController: headerScrollController,
+              ),
+              _GridRows(
+                viewId: widget.view.id,
+                scrollController: _scrollController,
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: getGridFabs(context),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -180,7 +194,7 @@ class _GridHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
       builder: (context, state) {
-        return GridHeaderSliverAdaptor(
+        return MobileGridHeader(
           viewId: state.viewId,
           anchorScrollController: headerScrollController,
         );
@@ -191,51 +205,54 @@ class _GridHeader extends StatelessWidget {
 
 class _GridRows extends StatelessWidget {
   final String viewId;
-  final double contentWidth;
   final GridScrollController scrollController;
 
   const _GridRows({
     required this.viewId,
-    required this.contentWidth,
     required this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: _WrapScrollView(
-        scrollController: scrollController,
-        contentWidth: contentWidth,
-        child: BlocBuilder<GridBloc, GridState>(
-          buildWhen: (previous, current) => current.reason.maybeWhen(
-            reorderRows: () => true,
-            reorderSingleRow: (reorderRow, rowInfo) => true,
-            delete: (item) => true,
-            insert: (item) => true,
-            orElse: () => false,
+    return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => previous.fields != current.fields,
+      builder: (context, state) {
+        final double contentWidth =
+            (state.fields.length + 1) * 200 + GridSize.leadingHeaderPadding;
+        return Expanded(
+          child: _WrapScrollView(
+            scrollController: scrollController,
+            contentWidth: contentWidth,
+            child: BlocBuilder<GridBloc, GridState>(
+              buildWhen: (previous, current) => current.reason.maybeWhen(
+                reorderRows: () => true,
+                reorderSingleRow: (reorderRow, rowInfo) => true,
+                delete: (item) => true,
+                insert: (item) => true,
+                orElse: () => false,
+              ),
+              builder: (context, state) {
+                final behavior = ScrollConfiguration.of(context).copyWith(
+                  scrollbars: false,
+                  physics: const ClampingScrollPhysics(),
+                );
+                return ScrollConfiguration(
+                  behavior: behavior,
+                  child: _renderList(context, state),
+                );
+              },
+            ),
           ),
-          builder: (context, state) {
-            final rowInfos = state.rowInfos;
-            final behavior = ScrollConfiguration.of(context).copyWith(
-              scrollbars: false,
-              physics: const ClampingScrollPhysics(),
-            );
-            return ScrollConfiguration(
-              behavior: behavior,
-              child: _renderList(context, state, rowInfos),
-            );
-          },
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _renderList(
     BuildContext context,
     GridState state,
-    List<RowInfo> rowInfos,
   ) {
-    final children = rowInfos.mapIndexed((index, rowInfo) {
+    final children = state.rowInfos.mapIndexed((index, rowInfo) {
       return ReorderableDelayedDragStartListener(
         key: ValueKey(rowInfo.rowMeta.id),
         index: index,
@@ -262,27 +279,14 @@ class _GridRows extends StatelessWidget {
         }
         context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
       },
-      itemCount: rowInfos.length,
+      itemCount: state.rowInfos.length,
       itemBuilder: (context, index) => children[index],
-      header: Padding(
-        padding: EdgeInsets.only(left: GridSize.leadingHeaderPadding),
-        child: Container(
-          height: 1,
-          width: contentWidth,
-          color: Theme.of(context).dividerColor,
-        ),
-      ),
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: GridSize.footerContentInsets,
-            child: const SizedBox(
-              height: 42,
-              child: GridAddRowButton(
-                key: Key('gridFooter'),
-              ),
-            ),
+            child: _AddRowButton(),
           ),
           Container(
             height: 30,
@@ -402,6 +406,49 @@ class _GridFooter extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _AddRowButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final borderSide = BorderSide(
+      color: Theme.of(context).dividerColor,
+      width: 1.0,
+    );
+    const radius = BorderRadius.only(
+      bottomLeft: Radius.circular(24),
+      bottomRight: Radius.circular(24),
+    );
+    final decoration = BoxDecoration(
+      borderRadius: radius,
+      border: BorderDirectional(
+        start: borderSide,
+        end: borderSide,
+        bottom: borderSide,
+      ),
+    );
+    return Container(
+      height: 54,
+      decoration: decoration,
+      child: FlowyButton(
+        text: FlowyText(
+          LocaleKeys.grid_row_newRow.tr(),
+          fontSize: 15,
+          color: Theme.of(context).hintColor,
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 20.0),
+        radius: radius,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
+        leftIcon: FlowySvg(
+          FlowySvgs.add_s,
+          color: Theme.of(context).hintColor,
+          size: const Size.square(18),
+        ),
+        leftIconSize: const Size.square(18),
+      ),
     );
   }
 }

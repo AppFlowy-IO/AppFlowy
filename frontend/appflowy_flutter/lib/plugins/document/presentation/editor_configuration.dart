@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
@@ -184,6 +185,28 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
           top: 12.0,
           bottom: 4.0,
         ),
+      ),
+    ),
+    LinkPreviewBlockKeys.type: LinkPreviewBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+      ),
+      cache: LinkPreviewDataCache(),
+      showMenu: true,
+      menuBuilder: (context, node, state) => Positioned(
+        top: 10,
+        right: 0,
+        child: LinkPreviewMenu(
+          node: node,
+          state: state,
+        ),
+      ),
+      builder: (context, node, url, title, description, imageUrl) =>
+          CustomLinkPreviewWidget(
+        url: url,
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
       ),
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(

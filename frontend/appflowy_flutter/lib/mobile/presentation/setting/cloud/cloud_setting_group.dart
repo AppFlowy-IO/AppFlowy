@@ -17,7 +17,7 @@ class CloudSettingGroup extends StatelessWidget {
     return FutureBuilder(
       future: PackageInfo.fromPlatform(),
       builder: (context, snapshot) => MobileSettingGroup(
-        groupTitle: LocaleKeys.settings_menu_cloudSetting.tr(),
+        groupTitle: LocaleKeys.settings_menu_cloudSettings.tr(),
         settingItemList: [
           MobileSettingItem(
             name: LocaleKeys.settings_menu_cloudAppFlowy.tr(),

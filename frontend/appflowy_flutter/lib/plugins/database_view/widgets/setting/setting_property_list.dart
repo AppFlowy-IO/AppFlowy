@@ -9,10 +9,10 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/field_visibility_extension.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -95,13 +95,9 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
             buildDefaultDragHandles: false,
             shrinkWrap: true,
             onReorder: (from, to) {
-              context.read<DatabasePropertyBloc>().add(
-                    DatabasePropertyEvent.moveField(
-                      fieldId: cells[from].fieldInfo.id,
-                      fromIndex: from,
-                      toIndex: to,
-                    ),
-                  );
+              context
+                  .read<DatabasePropertyBloc>()
+                  .add(DatabasePropertyEvent.moveField(from, to));
             },
             onReorderStart: (_) => _popoverMutex.close(),
             padding: const EdgeInsets.symmetric(vertical: 6.0),

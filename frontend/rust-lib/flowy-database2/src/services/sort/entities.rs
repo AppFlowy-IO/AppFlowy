@@ -109,7 +109,7 @@ impl From<&Sort> for SortType {
     Self {
       sort_id: data.id.clone(),
       field_id: data.field_id.clone(),
-      field_type: data.field_type.clone(),
+      field_type: data.field_type,
     }
   }
 }

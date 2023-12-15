@@ -13,7 +13,7 @@ class AppFlowyCloudPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(LocaleKeys.settings_mobile_privacyPolicy.tr()),
+        title: Text(LocaleKeys.settings_menu_cloudSettings.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

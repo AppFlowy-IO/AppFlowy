@@ -29,7 +29,7 @@ enum UploadImageType {
       case UploadImageType.url:
         return LocaleKeys.document_imageBlock_embedLink_label.tr();
       case UploadImageType.unsplash:
-        return 'Unsplash';
+        return LocaleKeys.document_imageBlock_unsplash_label.tr();
       case UploadImageType.openAI:
         return LocaleKeys.document_imageBlock_ai_label.tr();
       case UploadImageType.stabilityAI:

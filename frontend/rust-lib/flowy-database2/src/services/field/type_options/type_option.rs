@@ -272,7 +272,7 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
     FieldType::Number => NumberTypeOption::default().into(),
     FieldType::DateTime => DateTypeOption::default().into(),
     FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
-      field_type: field_type.clone(),
+      field_type: *field_type,
       date_format: DateFormat::Friendly,
       time_format: TimeFormat::TwelveHour,
       include_time: true,

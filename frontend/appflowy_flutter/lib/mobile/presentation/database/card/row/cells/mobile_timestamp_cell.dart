@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/timestamp_cell/timestamp_cell_bloc.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,7 +37,13 @@ class _TimestampCellState extends GridCellState<MobileTimestampCell> {
         builder: (context, state) {
           return Align(
             alignment: Alignment.centerLeft,
-            child: Text(state.dateStr),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: FlowyText(
+                state.dateStr,
+                fontSize: 15,
+              ),
+            ),
           );
         },
       ),
