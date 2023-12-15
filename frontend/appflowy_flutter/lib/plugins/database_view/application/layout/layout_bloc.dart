@@ -2,25 +2,23 @@ import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.da
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'layout_service.dart';
+import '../database_view_service.dart';
+
 part 'layout_bloc.freezed.dart';
 
 class DatabaseLayoutBloc
     extends Bloc<DatabaseLayoutEvent, DatabaseLayoutState> {
-  final DatabaseLayoutBackendService layoutService;
-
   DatabaseLayoutBloc({
     required String viewId,
     required DatabaseLayoutPB databaseLayout,
-  })  : layoutService = DatabaseLayoutBackendService(viewId),
-        super(DatabaseLayoutState.initial(viewId, databaseLayout)) {
+  }) : super(DatabaseLayoutState.initial(viewId, databaseLayout)) {
     on<DatabaseLayoutEvent>(
       (event, emit) async {
         event.when(
           initial: () {},
           updateLayout: (DatabaseLayoutPB layout) {
-            layoutService.updateLayout(
-              fieldId: viewId,
+            DatabaseViewBackendService.updateLayout(
+              viewId: viewId,
               layout: layout,
             );
             emit(state.copyWith(databaseLayout: layout));

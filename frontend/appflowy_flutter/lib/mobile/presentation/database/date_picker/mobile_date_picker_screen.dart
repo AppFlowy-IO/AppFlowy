@@ -180,24 +180,24 @@ class _DateCellEditBody extends StatelessWidget {
             showTopBorder: false,
             child: _IncludeTimePicker(),
           ),
-          _ColoredDivider(),
+          _Divider(),
           FlowyOptionDecorateBox(
             child: MobileDatePicker(),
           ),
-          _ColoredDivider(),
+          _Divider(),
           _EndDateSwitch(),
           _IncludeTimeSwitch(),
-          _ColoredDivider(),
+          _Divider(),
           _ClearDateButton(),
-          _ColoredDivider(),
+          _Divider(),
         ],
       ),
     );
   }
 }
 
-class _ColoredDivider extends StatelessWidget {
-  const _ColoredDivider();
+class _Divider extends StatelessWidget {
+  const _Divider();
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +364,7 @@ class _EndDateSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.isRange,
       builder: (context, isRange) {
-        return FlowyOptionTile.switcher(
+        return FlowyOptionTile.toggle(
           text: LocaleKeys.grid_field_isRange.tr(),
           isSelected: isRange,
           onValueChanged: (value) {
@@ -386,7 +386,7 @@ class _IncludeTimeSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.includeTime,
       builder: (context, includeTime) {
-        return FlowyOptionTile.switcher(
+        return FlowyOptionTile.toggle(
           showTopBorder: false,
           text: LocaleKeys.grid_field_includeTime.tr(),
           isSelected: includeTime,

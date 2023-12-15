@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
-import 'package:appflowy/mobile/presentation/database/field/bottom_sheet_create_field.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_field_bottom_sheets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_backend_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
@@ -82,15 +82,16 @@ class _QuickEditFieldState extends State<QuickEditField> {
             }
           },
         ),
-        FlowyOptionTile.text(
-          showTopBorder: false,
-          text: LocaleKeys.grid_field_hide.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.hide_s),
-          onTap: () async {
-            context.pop();
-            await service.hide();
-          },
-        ),
+        if (!widget.fieldInfo.isPrimary)
+          FlowyOptionTile.text(
+            showTopBorder: false,
+            text: LocaleKeys.grid_field_hide.tr(),
+            leftIcon: const FlowySvg(FlowySvgs.hide_s),
+            onTap: () async {
+              context.pop();
+              await service.hide();
+            },
+          ),
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.grid_field_insertLeft.tr(),
@@ -133,6 +134,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
             },
           ),
         ],
+        const VSpace(12),
       ],
     );
   }

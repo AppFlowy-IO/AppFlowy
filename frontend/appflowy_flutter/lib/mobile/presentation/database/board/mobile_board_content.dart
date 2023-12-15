@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/presentation/database/board/board.dart';
 import 'package:appflowy/mobile/presentation/database/board/widgets/group_card_header.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
@@ -57,7 +56,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     final config = AppFlowyBoardConfig(
       groupCornerRadius: 8,
       groupBackgroundColor: Theme.of(context).colorScheme.secondary,
-      groupMargin: const EdgeInsets.fromLTRB(4, 8, 4, 12),
+      groupMargin: const EdgeInsets.fromLTRB(4, 0, 4, 12),
       groupHeaderPadding: const EdgeInsets.all(8),
       groupBodyPadding: const EdgeInsets.all(4),
       groupFooterPadding: const EdgeInsets.all(8),
@@ -82,47 +81,33 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
           final showCreateGroupButton =
               context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
           final showHiddenGroups = state.hiddenGroups.isNotEmpty;
-          return Column(
-            children: [
-              Divider(
-                height: 1,
-                thickness: 1,
-                indent: GridSize.leadingHeaderPadding / 2,
-                endIndent: GridSize.leadingHeaderPadding / 2,
+          return AppFlowyBoard(
+            boardScrollController: scrollManager,
+            scrollController: scrollController,
+            controller: context.read<BoardBloc>().boardController,
+            groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
+            config: config,
+            leading: showHiddenGroups
+                ? MobileHiddenGroupsColumn(
+                    padding: config.groupHeaderPadding,
+                  )
+                : const HSpace(16),
+            trailing: showCreateGroupButton
+                ? const MobileBoardTrailing()
+                : const HSpace(16),
+            headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
+              value: context.read<BoardBloc>(),
+              child: GroupCardHeader(
+                groupData: groupData,
               ),
-              Expanded(
-                child: AppFlowyBoard(
-                  boardScrollController: scrollManager,
-                  scrollController: scrollController,
-                  controller: context.read<BoardBloc>().boardController,
-                  groupConstraints:
-                      BoxConstraints.tightFor(width: screenWidth * 0.7),
-                  config: config,
-                  leading: showHiddenGroups
-                      ? MobileHiddenGroupsColumn(
-                          padding: config.groupHeaderPadding,
-                        )
-                      : const HSpace(16),
-                  trailing: showCreateGroupButton
-                      ? const MobileBoardTrailing()
-                      : const HSpace(16),
-                  headerBuilder: (_, groupData) =>
-                      BlocProvider<BoardBloc>.value(
-                    value: context.read<BoardBloc>(),
-                    child: GroupCardHeader(
-                      groupData: groupData,
-                    ),
-                  ),
-                  footerBuilder: _buildFooter,
-                  cardBuilder: (_, column, columnItem) => _buildCard(
-                    context: context,
-                    afGroupData: column,
-                    afGroupItem: columnItem,
-                    cardMargin: config.cardMargin,
-                  ),
-                ),
-              ),
-            ],
+            ),
+            footerBuilder: _buildFooter,
+            cardBuilder: (_, column, columnItem) => _buildCard(
+              context: context,
+              afGroupData: column,
+              afGroupItem: columnItem,
+              cardMargin: config.cardMargin,
+            ),
           );
         },
       ),

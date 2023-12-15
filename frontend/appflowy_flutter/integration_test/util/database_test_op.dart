@@ -1610,8 +1610,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   ) async {
     final field = find.byWidgetPredicate(
       (widget) =>
-          widget is DesktopDatabasePropertyCell &&
-          widget.fieldInfo.name == fieldName,
+          widget is DatabasePropertyCell && widget.fieldInfo.name == fieldName,
     );
     final toggleVisibilityButton =
         find.descendant(of: field, matching: find.byType(FlowyIconButton));

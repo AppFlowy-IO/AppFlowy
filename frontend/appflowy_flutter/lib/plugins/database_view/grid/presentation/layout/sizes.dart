@@ -38,8 +38,10 @@ class GridSize {
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
         GridSize.leadingHeaderPadding,
         GridSize.headerContainerPadding,
-        GridSize.headerContainerPadding,
-        GridSize.headerContainerPadding,
+        PlatformExtension.isMobile
+            ? GridSize.leadingHeaderPadding
+            : GridSize.headerContainerPadding,
+        PlatformExtension.isMobile ? 100 : GridSize.headerContainerPadding,
       );
 
   static EdgeInsets get contentInsets => EdgeInsets.fromLTRB(
