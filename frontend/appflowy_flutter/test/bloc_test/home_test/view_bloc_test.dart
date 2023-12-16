@@ -95,6 +95,6 @@ void main() {
       );
     await blocResponseFuture();
 
-    assert(viewBloc.state.childViews.first.name == name);
+    assert(viewBloc.state.view.childViews.first.name == name);
   });
 }

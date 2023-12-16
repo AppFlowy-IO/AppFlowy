@@ -13,6 +13,7 @@ import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'view_bloc.freezed.dart';
 
@@ -39,17 +40,19 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               final view = await ViewBackendService.getView(
                 result.parentViewId,
               );
-              view.fold(
-                (view) => add(ViewEvent.viewDidUpdate(left(view))),
-                (error) => add(ViewEvent.viewDidUpdate(right(error))),
-              );
+              if (!isClosed) {
+                view.fold(
+                  (view) => add(ViewEvent.viewDidUpdate(left(view))),
+                  (error) => add(ViewEvent.viewDidUpdate(right(error))),
+                );
+              }
             },
           );
           favoriteListener.start(
             favoritesUpdated: (result, isFavorite) {
               result.fold((error) {}, (result) {
                 final current =
-                    result.items.firstWhereOrNull((v) => v.id == view.id);
+                    result.items.firstWhereOrNull((v) => v.id == state.view.id);
                 if (current != null) {
                   add(ViewEvent.viewDidUpdate(left(current)));
                 }
@@ -57,6 +60,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             },
           );
           final isExpanded = await _getViewIsExpanded(view);
+          emit(state.copyWith(isExpanded: isExpanded));
           await _loadViewsWhenExpanded(emit, isExpanded);
         },
         setIsEditing: (e) {
@@ -72,13 +76,19 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
         },
         viewDidUpdate: (e) {
           e.result.fold(
-            (view) => emit(
-              state.copyWith(
-                view: view,
-                childViews: view.childViews,
-                successOrFailure: left(unit),
-              ),
-            ),
+            (view) {
+              view.freeze();
+              final newView = view.rebuild((b) {
+                b.childViews.clear();
+                b.childViews.addAll(state.view.childViews);
+              });
+              emit(
+                state.copyWith(
+                  view: newView,
+                  successOrFailure: left(unit),
+                ),
+              );
+            },
             (error) => emit(
               state.copyWith(successOrFailure: right(error)),
             ),
@@ -91,7 +101,17 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
           emit(
             result.fold(
-              (l) => state.copyWith(successOrFailure: left(unit)),
+              (l) {
+                final view = state.view;
+                view.freeze();
+                final newView = view.rebuild(
+                  (b) => b.name = e.newName,
+                );
+                return state.copyWith(
+                  successOrFailure: left(unit),
+                  view: newView,
+                );
+              },
               (error) => state.copyWith(successOrFailure: right(error)),
             ),
           );
@@ -165,30 +185,39 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
     bool isExpanded,
   ) async {
     if (!isExpanded) {
-      return;
-    }
-    if (state.childViews.isNotEmpty) {
-      // notify the old child views
       emit(
         state.copyWith(
-          childViews: state.childViews,
-          isExpanded: true,
+          view: view,
+          isExpanded: false,
+          isLoading: false,
         ),
       );
+      return;
     }
+
     final viewsOrFailed =
         await ViewBackendService.getChildViews(viewId: state.view.id);
+
     viewsOrFailed.fold(
-      (childViews) => emit(
-        state.copyWith(
-          childViews: childViews,
-          isExpanded: true,
-        ),
-      ),
+      (childViews) {
+        state.view.freeze();
+        final viewWithChildViews = state.view.rebuild((b) {
+          b.childViews.clear();
+          b.childViews.addAll(childViews);
+        });
+        emit(
+          state.copyWith(
+            view: viewWithChildViews,
+            isExpanded: true,
+            isLoading: false,
+          ),
+        );
+      },
       (error) => emit(
         state.copyWith(
           successOrFailure: right(error),
           isExpanded: true,
+          isLoading: false,
         ),
       ),
     );
@@ -245,19 +274,19 @@ class ViewEvent with _$ViewEvent {
 class ViewState with _$ViewState {
   const factory ViewState({
     required ViewPB view,
-    required List<ViewPB> childViews,
     required bool isEditing,
     required bool isExpanded,
     required Either<Unit, FlowyError> successOrFailure,
+    @Default(true) bool isLoading,
     @Default(null) ViewPB? lastCreatedView,
   }) = _ViewState;
 
   factory ViewState.init(ViewPB view) => ViewState(
         view: view,
-        childViews: view.childViews,
         isExpanded: false,
         isEditing: false,
         successOrFailure: left(unit),
         lastCreatedView: null,
+        isLoading: true,
       );
 }

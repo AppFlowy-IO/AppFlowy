@@ -84,14 +84,11 @@ class ViewItem extends StatelessWidget {
         listener: (context, state) =>
             context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
-          // don't remove this code. it's related to the backend service.
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
+          print('view');
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.childViews,
+            childViews: state.view.childViews,
             categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
@@ -172,7 +169,7 @@ class InnerViewItem extends StatelessWidget {
       if (childViews.isNotEmpty) {
         final children = childViews.map((childView) {
           return ViewItem(
-            key: ValueKey('${categoryType.name} ${childView.id}'),
+            key: ValueKey('${categoryType.name} ${childView.hashCode}'),
             parentView: view,
             categoryType: categoryType,
             isFirstChild: childView.id == childViews.first.id,
