@@ -22,7 +22,7 @@ function ExpandRecordModal({ open, onClose, rowId }: Props) {
         open={open}
         onClose={onClose}
         PaperProps={{
-          className: 'h-[calc(100%-144px)] w-[80%] max-w-[960px]',
+          className: 'h-[calc(100%-144px)] w-[80%] max-w-[960px] overflow-visible',
         }}
       >
         <IconButton
@@ -34,7 +34,7 @@ function ExpandRecordModal({ open, onClose, rowId }: Props) {
         >
           <DetailsIcon />
         </IconButton>
-        <DialogContent>
+        <DialogContent className={'p-0'}>
           <EditRecord rowId={rowId} />
         </DialogContent>
       </Dialog>

@@ -1,18 +1,19 @@
-import React from 'react';
-import Document from '$app/components/document';
-import { ContainerType } from '$app/hooks/document.hooks';
+import React, { useCallback } from 'react';
+import { useAppSelector } from '$app/stores/store';
+import Editor from '$app/components/editor/Editor';
 
 interface Props {
   documentId: string;
-  getDocumentTitle?: () => React.ReactNode;
 }
 
-function RecordDocument({ documentId, getDocumentTitle }: Props) {
-  return (
-    <div className={'-ml-[72px] h-full min-h-[200px] w-[calc(100%+144px)]'}>
-      <Document getDocumentTitle={getDocumentTitle} containerType={ContainerType.EditRecord} documentId={documentId} />
-    </div>
-  );
+function RecordDocument({ documentId }: Props) {
+  const pages = useAppSelector((state) => state.pages.pageMap);
+
+  const getRecentPages = useCallback(async () => {
+    return Object.values(pages).map((page) => page);
+  }, [pages]);
+
+  return <Editor getRecentPages={getRecentPages} id={documentId} />;
 }
 
 export default React.memo(RecordDocument);

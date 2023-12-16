@@ -742,7 +742,15 @@
         "cut": "Cut",
         "paste": "Paste"
       },
-      "action": "Actions"
+      "action": "Actions",
+      "database": {
+        "selectDataSource": "Select data source",
+        "noDataSource": "No data source",
+        "selectADataSource": "Select a data source",
+        "toContinue": "to continue",
+        "newDatabase": "New Database",
+        "linkToDatabase": "Link to Database"
+      }
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"

@@ -1,9 +1,10 @@
 import React from 'react';
 import { IconButton } from '@mui/material';
-import { ShowMenuSvg } from '$app/components/_shared/svg/ShowMenuSvg';
-import { HideMenuSvg } from '$app/components/_shared/svg/HideMenuSvg';
+
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { sidebarActions } from '$app_reducers/sidebar/slice';
+import { ReactComponent as LeftSvg } from '$app/assets/left.svg';
+import { ReactComponent as RightSvg } from '$app/assets/right.svg';
 
 function CollapseMenuButton() {
   const isCollapsed = useAppSelector((state) => state.sidebar.isCollapsed);
@@ -13,8 +14,8 @@ function CollapseMenuButton() {
   };
 
   return (
-    <IconButton className={'h-6 w-6 p-2'} size={'small'} onClick={handleClick}>
-      {isCollapsed ? <ShowMenuSvg /> : <HideMenuSvg />}
+    <IconButton size={'small'} className={'font-bold'} onClick={handleClick}>
+      {isCollapsed ? <RightSvg /> : <LeftSvg />}
     </IconButton>
   );
 }

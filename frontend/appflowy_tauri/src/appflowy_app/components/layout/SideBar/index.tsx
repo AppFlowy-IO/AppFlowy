@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppSelector } from '$app/stores/store';
-import { ThemeMode } from '$app/interfaces';
+import { ThemeMode } from '$app/stores/reducers/current-user/slice';
 import { AppflowyLogoDark } from '$app/components/_shared/svg/AppflowyLogoDark';
 import { AppflowyLogoLight } from '$app/components/_shared/svg/AppflowyLogoLight';
 import CollapseMenuButton from '$app/components/layout/CollapseMenuButton';

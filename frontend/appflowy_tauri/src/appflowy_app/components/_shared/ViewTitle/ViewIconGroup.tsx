@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { PageIcon } from '$app_reducers/pages/slice';
 import React, { useCallback } from 'react';
-import { randomEmoji } from '$app/utils/document/emoji';
+import { randomEmoji } from '$app/utils/emoji';
 import { EmojiEmotionsOutlined } from '@mui/icons-material';
 import Button from '@mui/material/Button';
 
@@ -13,7 +13,7 @@ interface Props {
 function ViewIconGroup({ icon, onUpdateIcon }: Props) {
   const { t } = useTranslation();
 
-  const showAddIcon = !icon;
+  const showAddIcon = !icon?.value;
 
   const onAddIcon = useCallback(() => {
     const emoji = randomEmoji();

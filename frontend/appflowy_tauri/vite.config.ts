@@ -19,7 +19,7 @@ export default defineConfig({
               params: {
                 overrides: {
                   removeViewBox: false,
-                }
+                },
               },
             },
           ],
@@ -55,9 +55,13 @@ export default defineConfig({
   },
   resolve: {
     alias: [
+      { find: 'src/', replacement: `${__dirname}/src/` },
       { find: '@/', replacement: `${__dirname}/src/` },
       { find: '$app/', replacement: `${__dirname}/src/appflowy_app/` },
       { find: '$app_reducers/', replacement: `${__dirname}/src/appflowy_app/stores/reducers/` },
     ],
+  },
+  optimizeDeps: {
+    include: ['@mui/material/Tooltip', '@emotion/styled', '@mui/material/Unstable_Grid2'],
   },
 });

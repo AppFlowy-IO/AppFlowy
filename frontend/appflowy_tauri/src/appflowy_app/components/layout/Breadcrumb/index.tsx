@@ -3,9 +3,8 @@ import { useLoadExpandedPages } from '$app/components/layout/Breadcrumb/Breadcru
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
-import { Page } from '$app_reducers/pages/slice';
+import { Page, pageTypeMap } from '$app_reducers/pages/slice';
 import { useNavigate } from 'react-router-dom';
-import { pageTypeMap } from '$app/constants';
 import { useTranslation } from 'react-i18next';
 
 function Breadcrumb() {
