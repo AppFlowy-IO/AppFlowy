@@ -41,12 +41,18 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    final cursorColor =
+        context.read<DocumentAppearanceCubit>().state.cursorColor;
+
+    final selectionColor =
+        context.read<DocumentAppearanceCubit>().state.selectionColor;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
     final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.desktop(
       padding: padding,
-      cursorColor: theme.colorScheme.primary,
+      cursorColor: cursorColor,
+      selectionColor: selectionColor,
       defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(

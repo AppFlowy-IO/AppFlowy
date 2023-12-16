@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/create_file_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/date_format_setting.dart';
@@ -31,6 +32,15 @@ class SettingsAppearanceView extends StatelessWidget {
                 const Divider(),
                 ThemeFontFamilySetting(
                   currentFontFamily: state.font,
+                ),
+                const Divider(),
+                DocumentCursorColorSetting(
+                  currentCursorColor: state.documentCursorColor ??
+                      DefaultAppearanceSettings.kDefaultDocumentCursorColor,
+                ),
+                DocumentSelectionColorSetting(
+                  currentSelectionColor: state.documentSelectionColor ??
+                      DefaultAppearanceSettings.kDefaultDocumentSelectionColor,
                 ),
                 const Divider(),
                 LayoutDirectionSetting(
