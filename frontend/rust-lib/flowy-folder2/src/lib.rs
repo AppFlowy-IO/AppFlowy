@@ -9,6 +9,9 @@ pub mod protobuf;
 mod user_default;
 pub mod view_operation;
 
+mod manager_init;
+mod manager_observer;
 pub mod share;
 #[cfg(feature = "test_helper")]
 mod test_helper;
+mod util;
