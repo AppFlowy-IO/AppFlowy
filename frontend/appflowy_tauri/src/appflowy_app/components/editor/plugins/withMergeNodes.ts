@@ -9,8 +9,10 @@ export function withMergeNodes(editor: ReactEditor) {
   // if so, move the children of the node to the previous node
   editor.mergeNodes = (...args) => {
     const { selection } = editor;
+
     const isBlock = (n: Node) =>
       !Editor.isEditor(n) && Element.isElement(n) && n.type !== undefined && n.level !== undefined;
+
     const [match] = Editor.nodes(editor, {
       match: isBlock,
     });

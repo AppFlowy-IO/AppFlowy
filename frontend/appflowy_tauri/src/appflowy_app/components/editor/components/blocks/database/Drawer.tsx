@@ -33,28 +33,29 @@ function Drawer({
       onClick={(e) => {
         e.stopPropagation();
       }}
-      className={'absolute right-0 top-0 flex transform flex-col overflow-hidden border-l border-line-divider'}
+      className={'absolute right-0 top-0 h-full transform overflow-hidden'}
       style={{
-        width: open ? '30%' : '0',
-        height: '100%',
+        width: open ? '250px' : '0px',
         transition: 'width 0.3s ease-in-out',
       }}
     >
-      <div className={'flex h-[48px] w-full items-center justify-between p-2'}>
-        <div className={'px-2 font-medium'}>{t('document.plugins.database.selectDataSource')}</div>
-        <IconButton onClick={toggleDrawer(false)}>
-          <CloseSvg />
-        </IconButton>
-      </div>
-      {open && <DatabaseList node={node} />}
+      <div className={'flex h-full w-[250px] flex-col border-l border-line-divider'}>
+        <div className={'flex h-[48px] w-full items-center justify-between p-2'}>
+          <div className={'px-2 font-medium'}>{t('document.plugins.database.selectDataSource')}</div>
+          <IconButton onClick={toggleDrawer(false)}>
+            <CloseSvg />
+          </IconButton>
+        </div>
+        <div className={'flex-1'}>{open && <DatabaseList node={node} />}</div>
 
-      <div
-        onClick={handleCreateGrid}
-        className={'sticky bottom-0 left-0 h-[48px] w-full border-t border-line-divider p-2'}
-      >
-        <Button color={'inherit'} className={'w-full justify-start'} startIcon={<AddSvg />}>
-          {t('document.plugins.database.newDatabase')}
-        </Button>
+        <div
+          onClick={handleCreateGrid}
+          className={'sticky bottom-0 left-0 h-[48px] w-full border-t border-line-divider p-2'}
+        >
+          <Button color={'inherit'} className={'w-full justify-start'} startIcon={<AddSvg />}>
+            {t('document.plugins.database.newDatabase')}
+          </Button>
+        </div>
       </div>
     </div>
   );

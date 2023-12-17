@@ -66,9 +66,8 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
     if (!windowSelection) return;
 
     if (windowSelection.rangeCount === 0) return;
-    const range = windowSelection.getRangeAt(0);
 
-    rangeRef.current = range;
+    rangeRef.current = windowSelection.getRangeAt(0);
   }, []);
 
   return {

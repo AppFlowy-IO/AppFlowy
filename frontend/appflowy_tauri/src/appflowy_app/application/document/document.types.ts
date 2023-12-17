@@ -121,12 +121,10 @@ export interface EditorProps {
   id: string;
   sharedType?: YXmlText;
   appendTextRef?: MutableRefObject<((text: string) => void) | null>;
-  getRecentPages?: () => Promise<MentionPage[]>;
 }
 
 export enum EditorNodeType {
   Paragraph = 'paragraph',
-  PageBlock = 'page',
   HeadingBlock = 'heading',
   TodoListBlock = 'todo_list',
   BulletedListBlock = 'bulleted_list',
@@ -184,20 +182,23 @@ export enum EditorMarkFormat {
   Formula = 'formula',
 }
 
-export const markTypes: (string | EditorMarkFormat)[] = [
+export enum EditorStyleFormat {
+  FontColor = 'font_color',
+  BackgroundColor = 'bg_color',
+  Href = 'href',
+}
+
+export const markTypes: string[] = [
   EditorMarkFormat.Bold,
   EditorMarkFormat.Italic,
   EditorMarkFormat.Underline,
   EditorMarkFormat.StrikeThrough,
   EditorMarkFormat.Code,
   EditorMarkFormat.Formula,
+  EditorStyleFormat.Href,
+  EditorStyleFormat.FontColor,
+  EditorStyleFormat.BackgroundColor,
 ];
-
-export enum EditorStyleFormat {
-  FontColor = 'font_color',
-  BackgroundColor = 'bg_color',
-  Href = 'href',
-}
 
 export enum EditorTurnFormat {
   Paragraph = 'paragraph',
@@ -210,18 +211,6 @@ export enum EditorTurnFormat {
   Quote = 'quote',
   ToggleList = 'toggle_list',
 }
-
-export const InputNodeTypes = [
-  EditorNodeType.Paragraph,
-  EditorNodeType.HeadingBlock,
-  EditorNodeType.TodoListBlock,
-  EditorNodeType.BulletedListBlock,
-  EditorNodeType.NumberedListBlock,
-  EditorNodeType.ToggleListBlock,
-  EditorNodeType.CodeBlock,
-  EditorNodeType.QuoteBlock,
-  EditorNodeType.CalloutBlock,
-];
 
 export enum MentionType {
   PageRef = 'page',

@@ -10,7 +10,7 @@ import { Editor, Element, Transforms } from 'slate';
 import { EditorNodeType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
 
-function AddBlockBelow({ node }: { node: Element | null }) {
+function AddBlockBelow({ node }: { node: Element }) {
   const { t } = useTranslation();
   const [nodeEl, setNodeEl] = useState<HTMLElement | null>(null);
   const editor = useSlate();

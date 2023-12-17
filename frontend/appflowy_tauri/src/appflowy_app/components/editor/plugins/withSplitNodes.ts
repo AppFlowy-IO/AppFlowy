@@ -9,9 +9,9 @@ export function withSplitNodes(editor: ReactEditor) {
   const { splitNodes } = editor;
 
   editor.splitNodes = (...args) => {
-    const isVoids = args.some((arg) => arg?.voids);
+    const isInsertBreak = args.length === 1 && JSON.stringify(args[0]) === JSON.stringify({ always: true });
 
-    if (isVoids) {
+    if (!isInsertBreak) {
       splitNodes(...args);
       return;
     }

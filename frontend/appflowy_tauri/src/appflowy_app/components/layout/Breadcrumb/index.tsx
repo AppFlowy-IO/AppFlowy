@@ -12,7 +12,7 @@ function Breadcrumb() {
   const { pagePath } = useLoadExpandedPages();
   const navigate = useNavigate();
   const activePage = useMemo(() => pagePath[pagePath.length - 1], [pagePath]);
-  const parentPages = useMemo(() => pagePath.slice(1, pagePath.length - 1) as Page[], [pagePath]);
+  const parentPages = useMemo(() => pagePath.slice(1, pagePath.length - 1).filter(Boolean) as Page[], [pagePath]);
   const navigateToPage = useCallback(
     (page: Page) => {
       const pageType = pageTypeMap[page.layout];

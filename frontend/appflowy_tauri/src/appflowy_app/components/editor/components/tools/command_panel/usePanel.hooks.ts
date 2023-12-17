@@ -40,11 +40,15 @@ export function usePanel(ref: RefObject<HTMLDivElement | null>) {
           path: startPoint.current.path,
           offset: startPoint.current.offset - 1,
         };
+        const focus = {
+          path: endPoint.current.path,
+          offset: endPoint.current.offset,
+        };
 
         Transforms.delete(editor, {
           at: {
             anchor,
-            focus: endPoint.current,
+            focus,
           },
         });
       }

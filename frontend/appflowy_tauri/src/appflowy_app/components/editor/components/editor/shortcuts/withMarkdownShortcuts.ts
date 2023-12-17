@@ -108,7 +108,18 @@ const CharToMarkTypeMap: Record<string, EditorMarkFormat> = {
   '`': EditorMarkFormat.Code,
 };
 
-const matchShortcutType = (beforeText: string) => {
+const matchShortcutType = (beforeText: string, endChar: string) => {
+  if (endChar === '-') {
+    const dividerRegex = regexMap[EditorNodeType.DividerBlock][0];
+
+    return dividerRegex.pattern.test(beforeText + endChar)
+      ? {
+          type: EditorNodeType.DividerBlock,
+          data: {},
+        }
+      : null;
+  }
+
   for (const [type, regexes] of Object.entries(regexMap)) {
     for (const regex of regexes) {
       if (regex.pattern.test(beforeText)) {
@@ -204,7 +215,8 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
     }
 
     // end with space
-    if (text.endsWith(' ')) {
+    if (text.endsWith(' ') || text.endsWith('-')) {
+      const endChar = text.slice(-1);
       const [match] = Editor.nodes(editor, {
         match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type !== undefined,
       });
@@ -226,7 +238,7 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
         return;
       }
 
-      const matchItem = matchShortcutType(beforeText);
+      const matchItem = matchShortcutType(beforeText, endChar);
 
       if (matchItem) {
         const { type, data } = matchItem;

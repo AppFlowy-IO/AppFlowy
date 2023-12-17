@@ -9,7 +9,7 @@ export const movePageThunk = createAsyncThunk(
     payload: {
       sourceId: string;
       targetId: string;
-      insertType: 'before' | 'after' | 'into';
+      insertType: 'before' | 'after' | 'inside';
     },
     thunkAPI
   ) => {

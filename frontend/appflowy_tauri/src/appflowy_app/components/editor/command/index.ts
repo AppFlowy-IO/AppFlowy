@@ -65,8 +65,6 @@ export const CustomEditor = {
       at: path,
     });
 
-    console.log('CustomEditor.turnToBlock');
-
     Transforms.select(editor, selection);
   },
   tabForward,
@@ -332,5 +330,35 @@ export const CustomEditor = {
     );
     ReactEditor.focus(editor);
     Transforms.move(editor);
+  },
+
+  insertLineAtStart: (editor: ReactEditor & YjsEditor, node: Element) => {
+    const blockId = generateId();
+    const parentId = editor.sharedRoot.getAttribute('blockId');
+
+    ReactEditor.focus(editor);
+    editor.insertNode(
+      {
+        ...node,
+        blockId,
+        parentId,
+        textId: generateId(),
+        level: 1,
+      },
+      {
+        at: [0],
+      }
+    );
+
+    editor.select({
+      anchor: {
+        path: [0, 0],
+        offset: 0,
+      },
+      focus: {
+        path: [0, 0],
+        offset: 0,
+      },
+    });
   },
 };

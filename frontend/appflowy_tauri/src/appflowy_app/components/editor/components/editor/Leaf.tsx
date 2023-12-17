@@ -5,15 +5,31 @@ import { Link } from '$app/components/editor/components/marks';
 export function Leaf({ attributes, children, leaf }: RenderLeafProps) {
   let newChildren = children;
 
-  const classList = [
-    leaf.prism_token,
-    leaf.prism_token && 'token',
-    leaf.bold && 'font-bold',
-    leaf.italic && 'italic',
-    leaf.underline && 'underline',
-    leaf.strikethrough && 'line-through',
-    leaf.code && 'text-[#EB5757] font-normal rounded-md text-xs px-1 mx-0.5 bg-gray-300 bg-opacity-50',
-  ].filter(Boolean);
+  const classList = [leaf.prism_token, leaf.prism_token && 'token'].filter(Boolean);
+
+  if (leaf.code) {
+    newChildren = (
+      <code className={'mx-0.5 rounded-sm bg-gray-300 bg-opacity-50 px-1 text-xs font-normal text-[#EB5757]'}>
+        {newChildren}
+      </code>
+    );
+  }
+
+  if (leaf.underline) {
+    newChildren = <u>{newChildren}</u>;
+  }
+
+  if (leaf.strikethrough) {
+    newChildren = <s>{newChildren}</s>;
+  }
+
+  if (leaf.italic) {
+    newChildren = <em>{newChildren}</em>;
+  }
+
+  if (leaf.bold) {
+    newChildren = <strong>{newChildren}</strong>;
+  }
 
   const style: CSSProperties = {};
 
@@ -30,7 +46,7 @@ export function Leaf({ attributes, children, leaf }: RenderLeafProps) {
   }
 
   return (
-    <span {...attributes} style={style} className={classList.join(' ')}>
+    <span {...attributes} style={style} className={`${classList.join(' ')}`}>
       {newChildren}
     </span>
   );

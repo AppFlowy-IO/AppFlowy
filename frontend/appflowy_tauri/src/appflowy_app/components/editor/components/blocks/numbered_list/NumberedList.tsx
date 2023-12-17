@@ -1,13 +1,13 @@
 import React, { forwardRef, memo, useMemo } from 'react';
 import { EditorElementProps, NumberedListNode } from '$app/application/document/document.types';
 
-import { ReactEditor, useSlate } from 'slate-react';
+import { ReactEditor, useSlateStatic } from 'slate-react';
 import { Editor, Element } from 'slate';
 import Placeholder from '$app/components/editor/components/blocks/_shared/Placeholder';
 
 export const NumberedList = memo(
   forwardRef<HTMLDivElement, EditorElementProps<NumberedListNode>>(({ node, children, ...attributes }, ref) => {
-    const editor = useSlate();
+    const editor = useSlateStatic();
 
     const index = useMemo(() => {
       let index = 1;

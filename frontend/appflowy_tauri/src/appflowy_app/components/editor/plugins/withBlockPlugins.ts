@@ -6,9 +6,12 @@ import { withMergeNodes } from '$app/components/editor/plugins/withMergeNodes';
 import { withSplitNodes } from '$app/components/editor/plugins/withSplitNodes';
 import { withDatabaseBlockPlugin } from '$app/components/editor/components/blocks/database';
 import { withMathEquationPlugin } from '$app/components/editor/components/blocks/math_equation';
+import { withPasted } from '$app/components/editor/plugins/withPasted';
 
 export function withBlockPlugins(editor: ReactEditor) {
   return withMathEquationPlugin(
-    withDatabaseBlockPlugin(withSplitNodes(withMergeNodes(withBlockInsertBreak(withBlockDeleteBackward(editor)))))
+    withDatabaseBlockPlugin(
+      withPasted(withSplitNodes(withMergeNodes(withBlockInsertBreak(withBlockDeleteBackward(editor)))))
+    )
   );
 }

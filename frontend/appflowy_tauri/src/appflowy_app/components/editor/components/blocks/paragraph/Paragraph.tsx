@@ -6,7 +6,7 @@ export const Paragraph = memo(
   forwardRef<HTMLDivElement, EditorElementProps<ParagraphNode>>(({ node, children, ...attributes }, ref) => {
     {
       return (
-        <div ref={ref} {...attributes} className={`${attributes.className ?? ''} `}>
+        <div ref={ref} {...attributes} className={`${attributes.className ?? ''}`}>
           <span className={'relative'}>
             <Placeholder node={node} />
             {children}

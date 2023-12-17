@@ -57,4 +57,4 @@ function CalloutIcon({ node }: { node: CalloutNode }) {
   );
 }
 
-export default CalloutIcon;
+export default React.memo(CalloutIcon);

@@ -5,9 +5,9 @@ import { TextareaAutosize } from '@mui/material';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import { CustomEditor } from '$app/components/editor/command';
-import { useSlate } from 'slate-react';
 import { Element } from 'slate';
 import { KeyboardReturnOutlined } from '@mui/icons-material';
+import { useSlateStatic } from 'slate-react';
 
 function EditPopover({
   open,
@@ -20,7 +20,7 @@ function EditPopover({
   anchorEl: HTMLDivElement | null;
   onClose: () => void;
 }) {
-  const editor = useSlate();
+  const editor = useSlateStatic();
 
   const { t } = useTranslation();
   const [value, setValue] = useState<string>('');

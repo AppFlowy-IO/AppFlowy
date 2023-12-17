@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { EditorProps } from '../../application/document/document.types';
 
 import { Toaster } from 'react-hot-toast';
@@ -14,4 +14,4 @@ export function Editor(props: EditorProps) {
   );
 }
 
-export default Editor;
+export default memo(Editor);

@@ -4,7 +4,7 @@ import BlockActions from '$app/components/editor/components/tools/block_actions/
 
 import { getBlockCssProperty } from '$app/components/editor/components/tools/block_actions/utils';
 
-export function BlockActionsToolbar() {
+export function BlockActionsToolbar({ onSelectedBlock }: { onSelectedBlock: (blockId: string) => void }) {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { node } = useBlockActionsToolbar(ref);
@@ -26,7 +26,7 @@ export function BlockActionsToolbar() {
     >
       {/* Ensure the toolbar in middle */}
       <div className={'invisible'}>0</div>
-      <BlockActions node={node} />
+      {node && <BlockActions node={node} onSelectedBlock={onSelectedBlock} />}
     </div>
   );
 }

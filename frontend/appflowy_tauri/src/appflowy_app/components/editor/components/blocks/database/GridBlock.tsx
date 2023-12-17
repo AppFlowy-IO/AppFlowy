@@ -11,7 +11,7 @@ export const GridBlock = memo(
     return (
       <div
         contentEditable={false}
-        className='relative flex h-[400px] overflow-hidden border-b border-t border-line-divider py-3 caret-text-title'
+        className='relative flex h-[400px] overflow-hidden border-b border-t border-line-divider caret-text-title'
         ref={ref}
       >
         {viewId ? <GridView viewId={viewId} /> : <DatabaseEmpty node={node} />}

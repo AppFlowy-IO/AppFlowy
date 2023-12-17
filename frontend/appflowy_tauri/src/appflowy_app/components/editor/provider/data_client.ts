@@ -56,9 +56,9 @@ export class DataClient extends EventEmitter {
     return super.emit(event, ...args);
   }
 
-  private sendMessage = (events: DocEventPB) => {
+  private sendMessage = (docEvent: DocEventPB) => {
     // transform events to ops
-    this.emit('change', DocEvent2YDelta(events));
+    this.emit('change', DocEvent2YDelta(docEvent));
   };
 
   private handleReceiveMessage = (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]) => {

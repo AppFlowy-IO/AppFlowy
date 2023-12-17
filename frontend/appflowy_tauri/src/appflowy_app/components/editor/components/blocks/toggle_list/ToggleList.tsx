@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useMemo } from 'react';
+import React, { forwardRef, memo, useCallback, useMemo } from 'react';
 import { EditorElementProps, ToggleListNode } from '$app/application/document/document.types';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { ReactComponent as RightSvg } from '$app/assets/more.svg';
@@ -12,12 +12,15 @@ export const ToggleList = memo(
     const className = useMemo(() => {
       return `relative ${attributes.className ?? ''}`;
     }, [attributes.className]);
+    const toggleToggleList = useCallback(() => {
+      CustomEditor.toggleToggleList(editor, node);
+    }, [editor, node]);
 
     return (
       <div {...attributes} ref={ref} className={className}>
         <span
           contentEditable={false}
-          onClick={() => CustomEditor.toggleToggleList(editor, node)}
+          onClick={toggleToggleList}
           className='absolute left-0 top-0 inline-block cursor-pointer rounded text-xl text-text-title hover:bg-fill-list-hover'
         >
           {collapsed ? <RightSvg /> : <RightSvg className={'rotate-90 transform'} />}

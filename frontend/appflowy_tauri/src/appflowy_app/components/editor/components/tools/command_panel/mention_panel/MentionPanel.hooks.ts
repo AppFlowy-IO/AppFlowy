@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlate } from 'slate-react';
-import { EditorProps, Mention, MentionPage, MentionType } from '$app/application/document/document.types';
+import { Mention, MentionPage, MentionType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
+import { useAppSelector } from '$app/stores/store';
 
 export function useMentionPanel({
   closePanel,
   searchText,
-  getRecentPages,
 }: {
   searchText: string;
   closePanel: (deleteText?: boolean) => void;
-  getRecentPages: EditorProps['getRecentPages'];
 }) {
   const { t } = useTranslation();
   const editor = useSlate();
@@ -24,18 +23,17 @@ export function useMentionPanel({
     },
     [closePanel, editor]
   );
+  const pagesMap = useAppSelector((state) => state.pages.pageMap);
 
   const pagesRef = useRef<MentionPage[]>([]);
   const [recentPages, setPages] = useState<MentionPage[]>([]);
 
   const loadPages = useCallback(async () => {
-    if (!getRecentPages) return;
-
-    const pages = await getRecentPages();
+    const pages = Object.values(pagesMap);
 
     pagesRef.current = pages;
     setPages(pages);
-  }, [getRecentPages]);
+  }, [pagesMap]);
 
   useEffect(() => {
     void loadPages();

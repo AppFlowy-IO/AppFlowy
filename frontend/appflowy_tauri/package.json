@@ -69,7 +69,7 @@
     "react18-input-otp": "^1.1.2",
     "redux": "^4.2.1",
     "rxjs": "^7.8.0",
-    "slate": "^0.101.1",
+    "slate": "^0.101.4",
     "slate-history": "^0.100.0",
     "slate-react": "^0.101.3",
     "ts-results": "^3.3.0",

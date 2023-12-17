@@ -12,4 +12,4 @@ function GridView({ viewId }: { viewId: string }) {
   );
 }
 
-export default GridView;
+export default React.memo(GridView);

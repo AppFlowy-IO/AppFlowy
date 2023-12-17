@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, HTMLAttributes, useMemo } from 'react';
 import { RenderElementProps } from 'slate-react';
 import { EditorElementProps, EditorInlineNodeType, EditorNodeType } from '$app/application/document/document.types';
 import { Paragraph } from '$app/components/editor/components/blocks/paragraph';
@@ -15,6 +15,7 @@ import { Callout } from '$app/components/editor/components/blocks/callout';
 import { Mention } from '$app/components/editor/components/inline_nodes/mention';
 import { GridBlock } from '$app/components/editor/components/blocks/database';
 import { MathEquation } from '$app/components/editor/components/blocks/math_equation';
+import { useSelectedBlock } from '$app/components/editor/components/editor/Editor.hooks';
 
 function Element({ element, attributes, children }: RenderElementProps) {
   const node = element;
@@ -59,13 +60,15 @@ function Element({ element, attributes, children }: RenderElementProps) {
       default:
         return Paragraph;
     }
-  }, [node.type]) as FC<EditorElementProps>;
+  }, [node.type]) as FC<EditorElementProps & HTMLAttributes<HTMLElement>>;
 
   const marginLeft = useMemo(() => {
     if (!node.level) return;
 
     return (node.level - 1) * 24;
   }, [node.level]);
+
+  const isSelected = useSelectedBlock(node.blockId);
 
   if (InlineComponent) {
     return (
@@ -81,9 +84,11 @@ function Element({ element, attributes, children }: RenderElementProps) {
       style={{
         marginLeft,
       }}
-      className={`${node.isHidden ? 'hidden' : 'inline-block'} block-element leading-1 my-1 w-full px-16`}
+      className={`${node.isHidden ? 'hidden' : 'inline-block'} block-element leading-1 my-0.5 w-full px-16`}
     >
-      <Component node={node}>{children}</Component>
+      <Component className={`${isSelected ? 'bg-content-blue-100' : ''}`} node={node}>
+        {children}
+      </Component>
     </div>
   );
 }

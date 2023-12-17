@@ -1,4 +1,4 @@
-import React, { ComponentProps, useCallback } from 'react';
+import React, { ComponentProps } from 'react';
 import { Editable, ReactEditor, useSlate } from 'slate-react';
 import Element from './Element';
 import { Leaf } from './Leaf';
@@ -11,19 +11,9 @@ export function CustomEditable({ renderElement = Element, renderLeaf = Leaf, ...
   const editor = useSlate();
   const { t } = useTranslation();
 
-  const onDOMBeforeInput = useCallback((e: InputEvent) => {
-    if (e.inputType === 'insertFromComposition') {
-      e.preventDefault();
-    }
-  }, []);
-
   return (
     <Editable
       {...props}
-      onDOMBeforeInput={(e) => {
-        props.onDOMBeforeInput?.(e);
-        onDOMBeforeInput(e);
-      }}
       placeholder={t('editor.slashPlaceHolder')}
       renderPlaceholder={({ attributes, children }) => {
         const focused = ReactEditor.isFocused(editor);

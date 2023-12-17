@@ -55,11 +55,11 @@ function Placeholder({ node, className, style }: { node: Element; className?: st
     <span
       contentEditable={false}
       style={style}
-      className={`pointer-events-none absolute left-1 top-0 whitespace-nowrap text-text-placeholder ${className}`}
+      className={`pointer-events-none absolute left-0.5 top-0 whitespace-nowrap text-text-placeholder ${className}`}
     >
       {selected ? selectedPlaceholder : unSelectedPlaceholder}
     </span>
   ) : null;
 }
 
-export default Placeholder;
+export default React.memo(Placeholder);

@@ -67,7 +67,7 @@ function DatabaseList({ node }: { node: GridNode }) {
   );
 
   return (
-    <div className={'relative flex-1 overflow-y-auto overflow-x-hidden p-2'}>
+    <div className={'relative overflow-y-auto overflow-x-hidden p-2'}>
       <TextField
         onKeyDown={handleKeyDown}
         variant={'standard'}

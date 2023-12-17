@@ -5,8 +5,15 @@ export const DividerNode = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DividerNodeType>>(
     ({ node: _node, children: children, ...attributes }, ref) => {
       return (
-        <div {...attributes} ref={ref} contentEditable={false} className={'relative w-full'}>
-          <hr className={'my-2.5 w-full text-line-divider'} />
+        <div
+          {...attributes}
+          ref={ref}
+          contentEditable={false}
+          className={`${attributes.className ?? ''} relative w-full`}
+        >
+          <div className={'w-full py-2.5 text-line-divider'}>
+            <hr />
+          </div>
           <span className={'absolute left-0 top-0 h-0 w-0 opacity-0'}>{children}</span>
         </div>
       );

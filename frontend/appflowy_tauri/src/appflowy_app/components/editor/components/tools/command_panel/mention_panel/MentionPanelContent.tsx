@@ -4,16 +4,13 @@ import { useKeyDown } from '$app/components/editor/components/tools/command_pane
 import { useTranslation } from 'react-i18next';
 import { MenuItem, MenuList, Typography } from '@mui/material';
 import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
-import { EditorProps } from '$app/application/document/document.types';
 
 function MentionPanelContent({
   closePanel,
   searchText,
-  getRecentPages,
 }: {
   closePanel: (deleteText?: boolean) => void;
   searchText: string;
-  getRecentPages: EditorProps['getRecentPages'];
 }) {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -21,7 +18,6 @@ function MentionPanelContent({
   const { options, selectedOptionId, setSelectedOptionId } = useMentionPanel({
     closePanel,
     searchText,
-    getRecentPages,
   });
 
   const handleSelectKey = useCallback(

@@ -32,7 +32,7 @@ function DatabaseEmpty({ node }: { node: GridNode }) {
     <div
       ref={ref}
       onClick={toggleDrawer(false)}
-      className='flex flex-1 flex-col items-center justify-center text-text-caption'
+      className='relative flex w-full flex-1 flex-col items-center justify-center text-text-caption'
     >
       <CreateNewFolderIcon className={'h-10 w-10'} />
       <div className={'mb-2 text-base'}>{t('document.plugins.database.noDataSource')}</div>
@@ -42,9 +42,10 @@ function DatabaseEmpty({ node }: { node: GridNode }) {
         </span>
         {t('document.plugins.database.toContinue')}
       </div>
+
       <Drawer toggleDrawer={toggleDrawer} open={open} node={node} />
     </div>
   );
 }
 
-export default DatabaseEmpty;
+export default React.memo(DatabaseEmpty);

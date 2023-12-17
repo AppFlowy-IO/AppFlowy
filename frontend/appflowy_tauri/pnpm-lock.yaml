@@ -30,7 +30,7 @@ dependencies:
     version: 2.0.0(react-redux@8.0.5)(react@18.2.0)
   '@slate-yjs/core':
     specifier: ^1.0.2
-    version: 1.0.2(slate@0.101.1)(yjs@13.6.1)
+    version: 1.0.2(slate@0.101.4)(yjs@13.6.1)
   '@tanstack/react-virtual':
     specifier: 3.0.0-beta.54
     version: 3.0.0-beta.54(react@18.2.0)
@@ -155,14 +155,14 @@ dependencies:
     specifier: ^7.8.0
     version: 7.8.1
   slate:
-    specifier: ^0.101.1
-    version: 0.101.1
+    specifier: ^0.101.4
+    version: 0.101.4
   slate-history:
     specifier: ^0.100.0
-    version: 0.100.0(slate@0.101.1)
+    version: 0.100.0(slate@0.101.4)
   slate-react:
     specifier: ^0.101.3
-    version: 0.101.3(react-dom@18.2.0)(react@18.2.0)(slate@0.101.1)
+    version: 0.101.3(react-dom@18.2.0)(react@18.2.0)(slate@0.101.4)
   ts-results:
     specifier: ^3.3.0
     version: 3.3.0
@@ -1843,13 +1843,13 @@ packages:
     dependencies:
       '@sinonjs/commons': 3.0.0
 
-  /@slate-yjs/core@1.0.2(slate@0.101.1)(yjs@13.6.1):
+  /@slate-yjs/core@1.0.2(slate@0.101.4)(yjs@13.6.1):
     resolution: {integrity: sha512-X0hLFJbQu9c1ItWBaNuEn0pqcXYK76KCp8C4Gvy/VaTQVMo1VgAb2WiiJ0Je/AyuIYEPPSTNVOcyrGHwgA7e6Q==}
     peerDependencies:
       slate: '>=0.70.0'
       yjs: ^13.5.29
     dependencies:
-      slate: 0.101.1
+      slate: 0.101.4
       y-protocols: 1.0.6(yjs@13.6.1)
       yjs: 13.6.1
     dev: false
@@ -6192,16 +6192,16 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
 
-  /slate-history@0.100.0(slate@0.101.1):
+  /slate-history@0.100.0(slate@0.101.4):
     resolution: {integrity: sha512-x5rUuWLNtH97hs9PrFovGgt3Qc5zkTm/5mcUB+0NR/TK923eLax4HsL6xACLHMs245nI6aJElyM1y6hN0y5W/Q==}
     peerDependencies:
       slate: '>=0.65.3'
     dependencies:
       is-plain-object: 5.0.0
-      slate: 0.101.1
+      slate: 0.101.4
     dev: false
 
-  /slate-react@0.101.3(react-dom@18.2.0)(react@18.2.0)(slate@0.101.1):
+  /slate-react@0.101.3(react-dom@18.2.0)(react@18.2.0)(slate@0.101.4):
     resolution: {integrity: sha512-KMXK9FLeS7HYhhoVcI8SUi4Qp1I9C1lTQ2EgbPH95sVXfH/vq+hbhurEGIGCe0VQ9Opj4rSKJIv/g7De1+nJMA==}
     peerDependencies:
       react: '>=18.2.0'
@@ -6218,12 +6218,12 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       scroll-into-view-if-needed: 3.1.0
-      slate: 0.101.1
+      slate: 0.101.4
       tiny-invariant: 1.3.1
     dev: false
 
-  /slate@0.101.1:
-    resolution: {integrity: sha512-k/rVkVb0TEMmaTbkRVJeJzE8lxnyGDc0VC67D91Zrf5hcdHfVaWypBGD25QHCJsndn9Xa0jSJ/xfM2new5E2Zg==}
+  /slate@0.101.4:
+    resolution: {integrity: sha512-8LazZrNDsYFKDg1wpb0HouAfX5Pw/UmOZ/vIrtqD2GSCDZvraOkV2nVJ9Ery8kIlsU1jeybwgcaCy4KkVwfvEg==}
     dependencies:
       immer: 10.0.3
       is-plain-object: 5.0.0
