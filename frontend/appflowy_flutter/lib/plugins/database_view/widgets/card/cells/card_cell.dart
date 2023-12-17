@@ -64,7 +64,7 @@ class RowCardRenderHook<CustomCardData> {
   CellRenderHook<dynamic, CustomCardData> _typeSafeHook<C>(
     CellRenderHook<C, CustomCardData?> hook,
   ) {
-    hookFn(cellData, cardData, buildContext) {
+    Widget? hookFn(cellData, cardData, buildContext) {
       if (cellData == null) {
         return null;
       }

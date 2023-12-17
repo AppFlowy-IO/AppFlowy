@@ -16,8 +16,7 @@ import 'choicechip.dart';
 
 class TextFilterChoicechip extends StatefulWidget {
   final FilterInfo filterInfo;
-  const TextFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const TextFilterChoicechip({required this.filterInfo, super.key});
 
   @override
   State<TextFilterChoicechip> createState() => _TextFilterChoicechipState();
@@ -79,7 +78,7 @@ class _TextFilterChoicechipState extends State<TextFilterChoicechip> {
 
 class TextFilterEditor extends StatefulWidget {
   final TextFilterEditorBloc bloc;
-  const TextFilterEditor({required this.bloc, Key? key}) : super(key: key);
+  const TextFilterEditor({required this.bloc, super.key});
 
   @override
   State<TextFilterEditor> createState() => _TextFilterEditorState();
@@ -180,8 +179,8 @@ class TextFilterConditionPBList extends StatelessWidget {
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

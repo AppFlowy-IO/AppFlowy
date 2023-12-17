@@ -6,8 +6,8 @@ class BoardSettingBar extends StatelessWidget {
   final DatabaseController databaseController;
   const BoardSettingBar({
     required this.databaseController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

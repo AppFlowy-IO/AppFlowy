@@ -34,7 +34,7 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
 ];
 
 final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
-  ...commandShortcutEvents.map((e) => e.copyWith()).toList(),
+  ...commandShortcutEvents.map((e) => e.copyWith()),
 ];
 
 /// Wrapper for the appflowy editor.
@@ -220,7 +220,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     }
     inlineActionsService.dispose();
     editorScrollController.dispose();
-    widget.editorState.dispose();
 
     super.dispose();
   }
@@ -299,6 +298,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
                     onPaste: () => pasteCommand.execute(editorState),
                     onSelectAll: () => selectAllCommand.execute(editorState),
                     onLiveTextInput: null,
+                    onLookUp: null,
+                    onSearchWeb: null,
+                    onShare: null,
                     anchors: TextSelectionToolbarAnchors(
                       primaryAnchor: anchor,
                     ),
@@ -395,7 +397,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   Future<void> _initializeShortcuts() async {
-    // TODO(Xazin): Refactor lazy initialization
     defaultCommandShortcutEvents;
     final settingsShortcutService = SettingsShortcutService();
     final customizeShortcuts =

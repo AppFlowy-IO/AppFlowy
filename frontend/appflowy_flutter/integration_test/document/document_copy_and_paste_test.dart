@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -276,6 +277,22 @@ void main() {
       },
     );
   });
+
+  testWidgets(
+    'auto convert url to link preview block',
+    (widgetTester) async {
+      const url = 'https://appflowy.io';
+      await widgetTester.pasteContent(
+        plainText: url,
+        (editorState) {
+          expect(editorState.document.root.children.length, 2);
+          final node = editorState.getNodeAtPath([0])!;
+          expect(node.type, LinkPreviewBlockKeys.type);
+          expect(node.attributes[LinkPreviewBlockKeys.url], url);
+        },
+      );
+    },
+  );
 }
 
 extension on WidgetTester {

@@ -188,14 +188,14 @@ impl EventIntegrationTest {
   pub async fn create_row(
     &self,
     view_id: &str,
-    start_row_id: Option<String>,
+    row_position: OrderObjectPositionPB,
     data: Option<RowDataPB>,
   ) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::CreateRow)
       .payload(CreateRowPayloadPB {
         view_id: view_id.to_string(),
-        start_row_id,
+        row_position,
         group_id: None,
         data,
       })

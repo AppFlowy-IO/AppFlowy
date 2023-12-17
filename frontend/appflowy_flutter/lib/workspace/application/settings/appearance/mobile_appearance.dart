@@ -84,6 +84,7 @@ class MobileAppearance extends BaseAppearance {
 
     return ThemeData(
       // color
+      useMaterial3: false,
       primaryColor: colorTheme.primary, //primary 100
       primaryColorLight: const Color(0xFF57B5F8), //primary 80
       dividerColor: colorTheme.outline, //caption
@@ -158,10 +159,6 @@ class MobileAppearance extends BaseAppearance {
           ),
           padding: MaterialStateProperty.all(
             const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-          ),
-          // splash color
-          overlayColor: MaterialStateProperty.all(
-            Colors.grey[100],
           ),
         ),
       ),

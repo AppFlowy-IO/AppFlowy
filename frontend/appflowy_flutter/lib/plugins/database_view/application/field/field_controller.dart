@@ -166,7 +166,7 @@ class FieldController {
 
   /// Listen for filter changes in the backend.
   void _listenOnFilterChanges() {
-    deleteFilterFromChangeset(
+    void deleteFilterFromChangeset(
       List<FilterInfo> filters,
       FilterChangesetNotificationPB changeset,
     ) {
@@ -178,7 +178,7 @@ class FieldController {
       }
     }
 
-    insertFilterFromChangeset(
+    void insertFilterFromChangeset(
       List<FilterInfo> filters,
       FilterChangesetNotificationPB changeset,
     ) {
@@ -198,7 +198,7 @@ class FieldController {
       }
     }
 
-    updateFilterFromChangeset(
+    void updateFilterFromChangeset(
       List<FilterInfo> filters,
       FilterChangesetNotificationPB changeset,
     ) {
@@ -264,7 +264,7 @@ class FieldController {
 
   /// Listen for sort changes in the backend.
   void _listenOnSortChanged() {
-    deleteSortFromChangeset(
+    void deleteSortFromChangeset(
       List<SortInfo> newSortInfos,
       SortChangesetNotificationPB changeset,
     ) {
@@ -276,7 +276,7 @@ class FieldController {
       }
     }
 
-    insertSortFromChangeset(
+    void insertSortFromChangeset(
       List<SortInfo> newSortInfos,
       SortChangesetNotificationPB changeset,
     ) {
@@ -297,7 +297,7 @@ class FieldController {
       }
     }
 
-    updateSortFromChangeset(
+    void updateSortFromChangeset(
       List<SortInfo> newSortInfos,
       SortChangesetNotificationPB changeset,
     ) {
@@ -677,7 +677,7 @@ class FieldController {
     bool Function()? listenWhen,
   }) {
     if (onFieldsChanged != null) {
-      callback(List<FieldInfo> updateFields) {
+      void callback(List<FieldInfo> updateFields) {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
@@ -688,7 +688,7 @@ class FieldController {
     }
 
     if (onReceiveFields != null) {
-      callback() {
+      void callback() {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
@@ -700,7 +700,7 @@ class FieldController {
     }
 
     if (onFilters != null) {
-      callback() {
+      void callback() {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
@@ -712,7 +712,7 @@ class FieldController {
     }
 
     if (onSorts != null) {
-      callback() {
+      void callback() {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }

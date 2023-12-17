@@ -198,8 +198,8 @@ class CloudURLInput extends StatefulWidget {
     required this.url,
     required this.hint,
     required this.onChanged,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   CloudURLInputState createState() => CloudURLInputState();

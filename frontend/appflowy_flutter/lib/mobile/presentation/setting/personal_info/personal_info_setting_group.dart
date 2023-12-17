@@ -50,13 +50,9 @@ class PersonalInfoSettingGroup extends StatelessWidget {
                       return EditUsernameBottomSheet(
                         context,
                         userName: userName,
-                        onSubmitted: (value) {
-                          context.read<SettingsUserViewBloc>().add(
-                                SettingsUserEvent.updateUserName(
-                                  value,
-                                ),
-                              );
-                        },
+                        onSubmitted: (value) => context
+                            .read<SettingsUserViewBloc>()
+                            .add(SettingsUserEvent.updateUserName(value)),
                       );
                     },
                   );

@@ -113,25 +113,19 @@ class _RowLeading extends StatefulWidget {
 }
 
 class _RowLeadingState extends State<_RowLeading> {
-  late final PopoverController popoverController;
-
-  @override
-  void initState() {
-    super.initState();
-    popoverController = PopoverController();
-  }
+  final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       controller: popoverController,
       triggerActions: PopoverTriggerFlags.none,
-      constraints: BoxConstraints.loose(const Size(140, 200)),
+      constraints: BoxConstraints.loose(const Size(176, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
-      margin: const EdgeInsets.all(6),
-      popupBuilder: (BuildContext popoverContext) {
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      popupBuilder: (_) {
         final bloc = context.read<RowBloc>();
-        return RowActions(
+        return RowActionMenu(
           viewId: bloc.viewId,
           rowId: bloc.rowId,
         );
@@ -172,7 +166,7 @@ class _RowLeadingState extends State<_RowLeading> {
 }
 
 class InsertRowButton extends StatelessWidget {
-  const InsertRowButton({Key? key}) : super(key: key);
+  const InsertRowButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -238,8 +232,8 @@ class RowContent extends StatelessWidget {
   const RowContent({
     required this.builder,
     required this.onExpand,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +323,7 @@ class RegionStateNotifier extends ChangeNotifier {
 
 class _RowEnterRegion extends StatefulWidget {
   final Widget child;
-  const _RowEnterRegion({required this.child, Key? key}) : super(key: key);
+  const _RowEnterRegion({required this.child, super.key});
 
   @override
   State<_RowEnterRegion> createState() => _RowEnterRegionState();

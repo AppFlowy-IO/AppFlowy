@@ -88,18 +88,18 @@ class TypeOptionController {
 
     final result = await DatabaseEventUpdateFieldType(payload).send();
     await result.fold(
-      (_) {
+      (_) async {
         // Should load the type-option data after switching to a new field.
         // After loading the type-option data, the editor widget that uses
         // the type-option data will be rebuild.
-        reloadTypeOption();
+        await reloadTypeOption();
       },
       (err) => Future(() => Log.error(err)),
     );
   }
 
   void Function() addFieldListener(void Function(FieldPB) callback) {
-    listener() {
+    void listener() {
       callback(field);
     }
 

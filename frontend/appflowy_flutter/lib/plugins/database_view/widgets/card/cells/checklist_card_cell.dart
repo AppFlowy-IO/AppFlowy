@@ -9,8 +9,7 @@ import 'card_cell.dart';
 
 class ChecklistCardCell extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
-  const ChecklistCardCell({required this.cellControllerBuilder, Key? key})
-      : super(key: key);
+  const ChecklistCardCell({required this.cellControllerBuilder, super.key});
 
   @override
   State<ChecklistCardCell> createState() => _ChecklistCellState();

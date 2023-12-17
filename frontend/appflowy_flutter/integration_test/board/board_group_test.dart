@@ -19,7 +19,7 @@ void main() {
 
       await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
       final card1 = find.ancestor(
-        of: find.findTextInFlowyText(card1Name), 
+        of: find.findTextInFlowyText(card1Name),
         matching: find.byType(AppFlowyGroupCard),
       );
       final doingGroup = find.findTextInFlowyText('Doing');
@@ -27,7 +27,7 @@ void main() {
       final card1Center = tester.getCenter(card1);
 
       await tester.timedDrag(
-        card1, 
+        card1,
         doingGroupCenter.translate(-card1Center.dx, -card1Center.dy),
         const Duration(seconds: 1),
       );
@@ -36,9 +36,9 @@ void main() {
       await tester.pumpAndSettle();
 
       final card1StatusFinder = find.descendant(
-        of: find.byType(RowPropertyList), 
+        of: find.byType(RowPropertyList),
         matching: find.descendant(
-          of: find.byType(SelectOptionTag), 
+          of: find.byType(SelectOptionTag),
           matching: find.byType(FlowyText),
         ),
       );

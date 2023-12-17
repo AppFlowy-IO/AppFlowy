@@ -40,8 +40,8 @@ class TimestampTypeOptionWidget extends TypeOptionWidget {
   const TimestampTypeOptionWidget({
     required this.typeOptionContext,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

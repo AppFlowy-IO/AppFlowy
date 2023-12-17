@@ -38,7 +38,6 @@ class FlowyColorPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       shrinkWrap: true,
-      controller: ScrollController(),
       separatorBuilder: (context, index) {
         return VSpace(separatorSize);
       },

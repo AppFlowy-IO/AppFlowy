@@ -33,7 +33,7 @@ class FlowyContainer extends StatelessWidget {
         height: height,
         margin: margin,
         alignment: align,
-        duration: duration ?? Durations.medium,
+        duration: duration ?? FlowyDurations.medium,
         decoration: BoxDecoration(
             color: color,
             borderRadius: borderRadius,

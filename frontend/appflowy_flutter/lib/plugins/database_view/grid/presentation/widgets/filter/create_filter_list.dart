@@ -27,8 +27,8 @@ class GridCreateFilterList extends StatefulWidget {
     required this.fieldController,
     required this.onClosed,
     this.onCreateFilter,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _GridCreateFilterListState();
@@ -75,7 +75,6 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
               ),
               SliverToBoxAdapter(
                 child: ListView.separated(
-                  controller: ScrollController(),
                   shrinkWrap: true,
                   itemCount: cells.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -90,7 +89,6 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
             return CustomScrollView(
               shrinkWrap: true,
               slivers: slivers,
-              controller: ScrollController(),
               physics: StyledScrollPhysics(),
             );
           },
@@ -155,8 +153,8 @@ class GridFilterPropertyCell extends StatelessWidget {
   const GridFilterPropertyCell({
     required this.fieldInfo,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

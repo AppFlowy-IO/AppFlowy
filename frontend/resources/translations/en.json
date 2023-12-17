@@ -726,6 +726,9 @@
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image"
       },
+      "urlPreview": {
+        "copiedToPasteBoard": "The link has been copied to the clipboard"
+      },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
       },
@@ -779,6 +782,9 @@
         "label": "Embed link",
         "placeholder": "Paste or type an image link"
       },
+      "unsplash": {
+        "label": "Unsplash"
+      },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
       "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
@@ -828,6 +834,7 @@
       "renameGroupTooltip": "Press to rename group",
       "createNewColumn": "Add a new group",
       "addToColumnTopTooltip": "Add a new card at the top",
+      "addToColumnBottomTooltip": "Add a new card at the bottom",
       "renameColumn": "Rename",
       "hideColumn": "Hide",
       "groupActions": "Group Actions",
@@ -854,6 +861,7 @@
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
     "referencedBoardPrefix": "View of",
+    "notesTooltip": "Notes inside",
     "mobile": {
       "editURL": "Edit URL",
       "unhideGroup": "Unhide group",
@@ -975,6 +983,9 @@
   },
   "notificationHub": {
     "title": "Notifications",
+    "mobile": {
+      "title": "Updates"
+    },
     "emptyTitle": "All caught up!",
     "emptyBody": "No pending notifications or actions. Enjoy the calm.",
     "tabs": {

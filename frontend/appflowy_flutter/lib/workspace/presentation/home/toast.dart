@@ -8,7 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class FlowyMessageToast extends StatelessWidget {
   final String message;
-  const FlowyMessageToast({required this.message, Key? key}) : super(key: key);
+  const FlowyMessageToast({required this.message, super.key});
 
   @override
   Widget build(BuildContext context) {

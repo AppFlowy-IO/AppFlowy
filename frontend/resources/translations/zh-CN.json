@@ -98,7 +98,7 @@
   "blankPageTitle": "空白页",
   "newPageText": "新建页面",
   "newDocumentText": "新建文档",
-  "newGridText": "新建表格",
+  "newGridText": "新建网格",
   "newCalendarText": "新建日历",
   "newBoardText": "新建看板",
   "trash": {
@@ -179,7 +179,7 @@
     "viewDataBase": "查看数据库",
     "referencePage": "这个 {name} 已被引用",
     "addBlockBelow": "在下面添加一个块",
-    "urlLaunchAccessory": "从浏览器打开",
+    "urlLaunchAccessory": "在浏览器中打开",
     "urlCopyAccessory": "复制链接"
   },
   "sideBar": {
@@ -281,7 +281,7 @@
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase 网址",
       "cloudSupabaseAnonKey": "Supabase 匿名密钥",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "匿名密钥不能为空，因为Supabase 网址不为空",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "匿名密钥不能为空，因为 Supabase 网址不为空",
       "cloudAppFlowy": "AppFlowy Cloud",
       "clickToCopy": "点击以复制",
       "selfHostStart": "如果您没有服务器，请参阅",
@@ -302,6 +302,9 @@
       "historicalUserListTooltip": "此列表显示您的匿名帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建匿名帐户",
       "openHistoricalUser": "点击开设匿名账户",
       "customPathPrompt": "将 AppFlowy 数据文件夹存储在云同步文件夹（例如 Google Drive）中可能会带来风险。如果同时从多个位置访问或修改此文件夹中的数据库，可能会导致同步冲突和潜在的数据损坏"
+      "customPathPrompt": "将AppFlowy的数据存放在云同步文件夹（如Google Drive）中可能存在风险。当存放在此文件夹下的数据库被多个客户端同时访问或修改时，可能会发生同步冲突或者数据污染",
+      "supabaseSetting": "Supabase 设置",
+      "cloudSetting": "云设置"
     },
     "notifications": {
       "enableNotifications": {
@@ -728,6 +731,9 @@
         "copiedToPasteBoard": "图片链接已复制到剪贴板",
         "addAnImage": "添加图片"
       },
+      "urlPreview": {
+        "copiedToPasteBoard": "此链接已被复制到剪切板"
+      },
       "outline": {
         "addHeadingToCreateOutline": "添加标题以创建目录。"
       },
@@ -747,7 +753,7 @@
       "action": "操作"
     },
     "textBlock": {
-      "placeholder": "输入“/”作为命令"
+      "placeholder": "输入 “/” 作为命令"
     },
     "title": {
       "placeholder": "未命名"
@@ -830,6 +836,7 @@
       "renameGroupTooltip": "按下以重命名群组",
       "createNewColumn": "添加新组",
       "addToColumnTopTooltip": "在顶部添加一张新卡片",
+      "addToColumnBottomTooltip": "在下方添加一个新的卡片",
       "renameColumn": "改名",
       "hideColumn": "隐藏",
       "groupActions": "组操作",
@@ -977,6 +984,9 @@
   },
   "notificationHub": {
     "title": "通知",
+    "mobile": {
+      "title": "更新"
+    },
     "emptyTitle": "都处理了！",
     "emptyBody": "没有待处理的通知或操作。享受平静。",
     "tabs": {
@@ -1022,9 +1032,9 @@
     "bulletedList": "无序列表",
     "checkbox": "复选框",
     "embedCode": "嵌入代码",
-    "heading1": "标题 1",
-    "heading2": "标题 2",
-    "heading3": "标题 3",
+    "heading1": "一级标题",
+    "heading2": "二级标题",
+    "heading3": "三级标题",
     "highlight": "强调",
     "color": "颜色",
     "image": "图像",

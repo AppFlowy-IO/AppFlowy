@@ -20,7 +20,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/disclosure_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/footer/grid_footer.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';

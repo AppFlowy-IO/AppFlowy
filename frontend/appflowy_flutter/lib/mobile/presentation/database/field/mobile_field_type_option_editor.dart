@@ -5,12 +5,10 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/_field_options.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/util/field_type_extension.dart';
@@ -23,6 +21,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:protobuf/protobuf.dart';
+
+import 'mobile_field_type_grid.dart';
 
 enum FieldOptionMode {
   add,
@@ -56,7 +56,7 @@ class FieldOptionValues {
   Future<void> create({
     required String viewId,
   }) async {
-    await TypeOptionBackendService.createFieldTypeOption(
+    await FieldBackendService.createField(
       viewId: viewId,
       fieldType: type,
       fieldName: name,

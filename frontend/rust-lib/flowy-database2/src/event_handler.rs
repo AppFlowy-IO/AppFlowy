@@ -2,7 +2,6 @@ use std::sync::{Arc, Weak};
 
 use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
-use collab_database::views::OrderObjectPosition;
 use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -345,14 +344,7 @@ pub(crate) async fn move_field_handler(
   let manager = upgrade_manager(manager)?;
   let params: MoveFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  database_editor
-    .move_field(
-      &params.view_id,
-      &params.field_id,
-      params.from_index,
-      params.to_index,
-    )
-    .await?;
+  database_editor.move_field(params).await?;
   Ok(())
 }
 
@@ -416,7 +408,7 @@ pub(crate) async fn duplicate_row_handler(
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
-    .duplicate_row(&params.view_id, params.group_id, &params.row_id)
+    .duplicate_row(&params.view_id, &params.row_id)
     .await;
   Ok(())
 }
@@ -431,7 +423,7 @@ pub(crate) async fn move_row_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .move_row(&params.view_id, params.from_row_id, params.to_row_id)
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -448,16 +440,12 @@ pub(crate) async fn create_row_handler(
     CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
   let view_id = params.view_id;
   let group_id = params.group_id;
-  let position = match params.start_row_id {
-    Some(row_id) => OrderObjectPosition::After(row_id.into()),
-    None => OrderObjectPosition::Start,
-  };
   let params = collab_database::rows::CreateRowParams {
     id: gen_row_id(),
     cells,
     height: 60,
     visibility: true,
-    row_position: position,
+    row_position: params.row_position,
     timestamp: timestamp(),
   };
   match database_editor

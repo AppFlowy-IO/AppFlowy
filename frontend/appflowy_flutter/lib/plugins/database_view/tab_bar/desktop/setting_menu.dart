@@ -48,8 +48,7 @@ class _DatabaseViewSettingContent extends StatelessWidget {
   final FieldController fieldController;
   const _DatabaseViewSettingContent({
     required this.fieldController,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

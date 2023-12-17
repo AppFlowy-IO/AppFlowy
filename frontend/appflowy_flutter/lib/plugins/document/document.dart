@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -117,7 +118,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           key: ValueKey(view.id),
           view: view,
         ),
-        const SizedBox(width: 10),
+        const HSpace(4),
         const DocumentMoreButton(),
       ],
     );

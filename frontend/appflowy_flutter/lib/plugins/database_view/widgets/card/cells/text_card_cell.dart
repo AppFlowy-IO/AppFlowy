@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -142,9 +143,12 @@ class _TextCellState extends State<TextCardCell> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (widget.showNotes) ...[
-                    FlowySvg(
-                      FlowySvgs.notes_s,
-                      color: Theme.of(context).hintColor,
+                    FlowyTooltip(
+                      message: LocaleKeys.board_notesTooltip.tr(),
+                      child: FlowySvg(
+                        FlowySvgs.notes_s,
+                        color: Theme.of(context).hintColor,
+                      ),
                     ),
                     const HSpace(4),
                   ],

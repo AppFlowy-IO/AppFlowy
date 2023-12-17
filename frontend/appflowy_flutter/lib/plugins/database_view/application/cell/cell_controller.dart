@@ -124,7 +124,7 @@ class CellController<T, D> extends Equatable {
     _onRowMetaChanged = onRowMetaChanged;
 
     /// Notify the listener, the cell data was changed.
-    onCellChangedFn() => onCellChanged(_cellDataNotifier?.value);
+    void onCellChangedFn() => onCellChanged(_cellDataNotifier?.value);
     _cellDataNotifier?.addListener(onCellChangedFn);
 
     // Return the function pointer that can be used when calling removeListener.

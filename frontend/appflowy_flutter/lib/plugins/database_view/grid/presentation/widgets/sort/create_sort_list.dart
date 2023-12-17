@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/database_view/grid/application/sort/sort_create
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -27,8 +26,8 @@ class GridCreateSortList extends StatefulWidget {
     required this.fieldController,
     required this.onClosed,
     this.onCreateSort,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _GridCreateSortListState();
@@ -75,7 +74,6 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
               ),
               SliverToBoxAdapter(
                 child: ListView.separated(
-                  controller: ScrollController(),
                   shrinkWrap: true,
                   itemCount: cells.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -90,7 +88,6 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
             return CustomScrollView(
               shrinkWrap: true,
               slivers: slivers,
-              controller: ScrollController(),
               physics: StyledScrollPhysics(),
             );
           },
@@ -155,8 +152,8 @@ class GridSortPropertyCell extends StatelessWidget {
   const GridSortPropertyCell({
     required this.fieldInfo,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

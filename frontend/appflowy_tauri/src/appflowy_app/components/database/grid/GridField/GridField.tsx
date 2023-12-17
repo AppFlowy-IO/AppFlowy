@@ -4,7 +4,6 @@ import { throttle } from '$app/utils/tool';
 import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
 import { fieldService, Field } from '../../application';
-import { useDatabase } from '../../Database.hooks';
 import { Property } from '$app/components/database/components/property';
 import GridResizer from '$app/components/database/grid/GridField/GridResizer';
 import GridFieldMenu from '$app/components/database/grid/GridField/GridFieldMenu';
@@ -23,7 +22,6 @@ export const GridField: FC<GridFieldProps> = memo(
   ({ getScrollElement, resizeColumnWidth, onOpenMenu, onCloseMenu, field, ...props }) => {
     const menuOpened = useOpenMenu(field.id);
     const viewId = useViewId();
-    const { fields } = useDatabase();
     const [openTooltip, setOpenTooltip] = useState(false);
     const [propertyMenuOpened, setPropertyMenuOpened] = useState(false);
     const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
@@ -70,17 +68,14 @@ export const GridField: FC<GridFieldProps> = memo(
     const onDrop = useCallback(
       ({ data }: DragItem) => {
         const dragField = data.field as Field;
-        const fromIndex = fields.findIndex((item) => item.id === dragField.id);
-        const dropIndex = fields.findIndex((item) => item.id === field.id);
-        const toIndex = dropIndex + dropPosition + (fromIndex < dropIndex ? -1 : 0);
 
-        if (fromIndex === toIndex) {
+        if (dragField.id === field.id) {
           return;
         }
 
-        void fieldService.moveField(viewId, dragField.id, fromIndex, toIndex);
+        void fieldService.moveField(viewId, dragField.id, field.id);
       },
-      [viewId, field, fields, dropPosition]
+      [viewId, field]
     );
 
     const { isOver, listeners: dropListeners } = useDroppable({
@@ -92,9 +87,9 @@ export const GridField: FC<GridFieldProps> = memo(
 
     const [menuAnchorPosition, setMenuAnchorPosition] = useState<
       | {
-          top: number;
-          left: number;
-        }
+        top: number;
+        left: number;
+      }
       | undefined
     >(undefined);
 
@@ -168,9 +163,8 @@ export const GridField: FC<GridFieldProps> = memo(
             />
             {isOver && (
               <div
-                className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${
-                  dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'
-                }`}
+                className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'
+                  }`}
               />
             )}
             <GridResizer field={field} onWidthChange={resizeColumnWidth} />

@@ -18,8 +18,8 @@ class SortChoiceButton extends StatelessWidget {
     this.leftIcon,
     this.rightIcon,
     this.editable = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

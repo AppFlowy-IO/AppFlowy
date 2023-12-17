@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 
 class SettingsMenu extends StatelessWidget {
   const SettingsMenu({
-    Key? key,
+    super.key,
     required this.changeSelectedPage,
     required this.currentPage,
-  }) : super(key: key);
+  });
 
   final Function changeSelectedPage;
   final SettingsPage currentPage;

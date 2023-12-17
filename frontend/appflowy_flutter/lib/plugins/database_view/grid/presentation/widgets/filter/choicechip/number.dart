@@ -5,8 +5,7 @@ import 'choicechip.dart';
 
 class NumberFilterChoicechip extends StatelessWidget {
   final FilterInfo filterInfo;
-  const NumberFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const NumberFilterChoicechip({required this.filterInfo, super.key});
 
   @override
   Widget build(BuildContext context) {

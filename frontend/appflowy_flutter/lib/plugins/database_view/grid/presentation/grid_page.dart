@@ -32,7 +32,7 @@ import 'widgets/shortcuts.dart';
 class ToggleExtensionNotifier extends ChangeNotifier {
   bool _isToggled = false;
 
-  get isToggled => _isToggled;
+  bool get isToggled => _isToggled;
 
   void toggle() {
     _isToggled = !_isToggled;
@@ -90,8 +90,8 @@ class GridPage extends StatefulWidget {
     required this.view,
     required this.databaseController,
     this.onDeleted,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final ViewPB view;
   final VoidCallback? onDeleted;
@@ -258,7 +258,6 @@ class _GridRows extends StatelessWidget {
     }).toList()
       ..add(const GridRowBottomBar(key: Key('gridFooter')));
     return ReorderableListView.builder(
-      /// TODO(Xazin): Resolve inconsistent scrollbar behavior
       ///  This is a workaround related to
       ///  https://github.com/flutter/flutter/issues/25652
       cacheExtent: 5000,

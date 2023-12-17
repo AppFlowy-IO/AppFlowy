@@ -370,9 +370,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       controller: controller,
       direction: PopoverDirection.rightWithCenterAligned,
       constraints: BoxConstraints.loose(const Size(360, 380)),
-      onClose: () => setState(() {
-        isIconPickerOpened = false;
-      }),
+      onClose: () => setState(() => isIconPickerOpened = false),
       child: GestureDetector(
         // prevent the tap event from being passed to the parent widget
         onTap: () {},

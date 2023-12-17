@@ -33,6 +33,7 @@ class NotificationAction {
 }
 
 enum ActionArgumentKeys {
+  view('view'),
   nodePath('node_path');
 
   final String name;

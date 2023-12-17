@@ -21,8 +21,8 @@ class CardAccessoryContainer extends StatelessWidget {
   const CardAccessoryContainer({
     required this.accessories,
     required this.onTapAccessory,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

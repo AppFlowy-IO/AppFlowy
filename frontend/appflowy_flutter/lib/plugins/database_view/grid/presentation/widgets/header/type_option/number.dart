@@ -1,15 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
 import '../../common/type_option_separator.dart';
@@ -122,8 +121,8 @@ class NumberFormatList extends StatelessWidget {
   const NumberFormatList({
     required this.selectedFormat,
     required this.onSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +149,6 @@ class NumberFormatList extends StatelessWidget {
 
                 final list = ListView.separated(
                   shrinkWrap: true,
-                  controller: ScrollController(),
                   separatorBuilder: (context, index) {
                     return VSpace(GridSize.typeOptionSeparatorHeight);
                   },
@@ -178,8 +176,8 @@ class NumberFormatCell extends StatelessWidget {
     required this.isSelected,
     required this.format,
     required this.onSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +198,7 @@ class NumberFormatCell extends StatelessWidget {
 }
 
 class _FilterTextField extends StatelessWidget {
-  const _FilterTextField({Key? key}) : super(key: key);
+  const _FilterTextField();
   @override
   Widget build(BuildContext context) {
     return Padding(

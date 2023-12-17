@@ -26,7 +26,7 @@ class CocoaWindowChannel {
 }
 
 class MoveWindowDetector extends StatefulWidget {
-  const MoveWindowDetector({Key? key, this.child}) : super(key: key);
+  const MoveWindowDetector({super.key, this.child});
 
   final Widget? child;
 

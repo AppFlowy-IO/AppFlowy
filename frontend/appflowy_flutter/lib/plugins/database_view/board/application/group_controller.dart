@@ -40,6 +40,11 @@ class GroupController {
     }
   }
 
+  RowMetaPB? firstRow() {
+    if (group.rows.isEmpty) return null;
+    return group.rows.first;
+  }
+
   RowMetaPB? lastRow() {
     if (group.rows.isEmpty) return null;
     return group.rows.last;
