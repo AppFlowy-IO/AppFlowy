@@ -142,13 +142,14 @@ class TimestampTypeOptionWidget extends TypeOptionWidget {
 }
 
 class IncludeTimeButton extends StatelessWidget {
-  final bool value;
-  final Function(bool value) onChanged;
   const IncludeTimeButton({
     super.key,
-    required this.onChanged,
     required this.value,
+    required this.onChanged,
   });
+
+  final bool value;
+  final Function(bool value) onChanged;
 
   @override
   Widget build(BuildContext context) {
