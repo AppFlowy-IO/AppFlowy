@@ -61,9 +61,8 @@ function SelectionActions({
 
   const subMenu = useMemo(() => {
     if (!menuType) return null;
-    const styleMenu = styleSubMenu(menuType);
 
-    return styleMenu;
+    return styleSubMenu(menuType);
   }, [menuType, styleSubMenu]);
 
   const group = useMemo(() => {

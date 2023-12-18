@@ -1,10 +1,10 @@
-import { EventEmitter } from 'events';
 import * as Y from 'yjs';
 
 import { DataClient } from '$app/components/editor/provider/data_client';
 import { convertToIdList, fillIdRelationMap } from '$app/components/editor/provider/utils/relation';
 import { YDelta } from '$app/components/editor/provider/types/y_event';
 import { YEvents2BlockActions } from '$app/components/editor/provider/utils/action';
+import { EventEmitter } from 'events';
 
 const REMOTE_ORIGIN = 'remote';
 

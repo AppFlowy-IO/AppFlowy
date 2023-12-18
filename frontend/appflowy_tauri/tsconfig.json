@@ -21,10 +21,10 @@
       "@/*": ["src/*"],
       "$app/*": ["src/appflowy_app/*"],
       "$app_reducers/*": ["src/appflowy_app/stores/reducers/*"],
-      "src/*": ["src/*"],
+      "src/*": ["src/*"]
     }
   },
-  "include": ["src", "vite.config.ts", "../app_flowy/assets/translations"],
+  "include": ["src", "vite.config.ts"],
   "exclude": ["node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
