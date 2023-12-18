@@ -8,7 +8,7 @@ use collab_folder::{
   Folder, FolderData, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::{Mutex, RwLock};
-use tracing::{event, info, instrument, Level};
+use tracing::{error, event, info, instrument, Level};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
@@ -162,13 +162,30 @@ impl FolderManager {
       folder_doc_state.len()
     );
 
-    self
+    if let Err(err) = self
       .initialize(
         user_id,
         workspace_id,
         FolderInitDataSource::Cloud(folder_doc_state),
       )
-      .await?;
+      .await
+    {
+      // If failed to open folder with remote data, open from local disk. After open from the local
+      // disk. the data will be synced to the remote server.
+      error!(
+        "Failed to initialize folder with error {}, fallback to use local data",
+        err
+      );
+      self
+        .initialize(
+          user_id,
+          workspace_id,
+          FolderInitDataSource::LocalDisk {
+            create_if_not_exist: false,
+          },
+        )
+        .await?;
+    }
     Ok(())
   }
 

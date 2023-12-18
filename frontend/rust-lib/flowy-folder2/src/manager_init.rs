@@ -11,7 +11,6 @@ use crate::manager_observer::{
   subscribe_folder_snapshot_state_changed, subscribe_folder_sync_state_changed,
   subscribe_folder_trash_changed, subscribe_folder_view_changed,
 };
-
 use crate::user_default::DefaultFolderBuilder;
 use crate::util::is_exist_in_local_disk;
 
@@ -74,25 +73,10 @@ impl FolderManager {
             .await?
         } else {
           event!(Level::INFO, "Restore folder with remote data");
-          let result = self
+          let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db.clone(), raw_data)
-            .await;
-
-          // If failed to open folder with remote data, open from local disk. After open from the local
-          // disk. the data will be synced to the remote server.
-          match result {
-            Ok(collab) => Folder::open(UserId::from(uid), collab, Some(folder_notifier.clone()))?,
-            Err(err) => {
-              event!(
-                Level::ERROR,
-                "Open folder with remote data failed: {:?}, open from local disk",
-                err
-              );
-              self
-                .open_local_folder(uid, &workspace_id, collab_db, folder_notifier)
-                .await?
-            },
-          }
+            .await?;
+          Folder::open(UserId::from(uid), collab, Some(folder_notifier.clone()))?
         }
       },
       FolderInitDataSource::FolderData(folder_data) => {
@@ -123,7 +107,7 @@ impl FolderManager {
   async fn create_default_folder(
     &self,
     uid: i64,
-    workspace_id: &String,
+    workspace_id: &str,
     collab_db: Weak<RocksCollabDB>,
     folder_notifier: FolderNotify,
   ) -> Result<Folder, FlowyError> {
@@ -131,7 +115,7 @@ impl FolderManager {
     let folder_data =
       DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers).await;
     let collab = self
-      .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+      .collab_for_folder(uid, workspace_id, collab_db, vec![])
       .await?;
     Ok(Folder::create(
       UserId::from(uid),
@@ -144,13 +128,13 @@ impl FolderManager {
   async fn open_local_folder(
     &self,
     uid: i64,
-    workspace_id: &String,
+    workspace_id: &str,
     collab_db: Weak<RocksCollabDB>,
     folder_notifier: FolderNotify,
   ) -> Result<Folder, FlowyError> {
     event!(Level::INFO, "Init folder from local disk");
     let collab = self
-      .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+      .collab_for_folder(uid, workspace_id, collab_db, vec![])
       .await?;
     let folder = Folder::open(UserId::from(uid), collab, Some(folder_notifier))?;
     Ok(folder)
