@@ -175,7 +175,6 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
         key: ValueKey(buttonFontFamily),
         height: 32,
         child: FlowyButton(
-          // key: Key(buttonFontFamily),
           onHover: (_) => FocusScope.of(context).unfocus(),
           text: FlowyText.medium(
             parseFontFamilyName(style.fontFamily!),
