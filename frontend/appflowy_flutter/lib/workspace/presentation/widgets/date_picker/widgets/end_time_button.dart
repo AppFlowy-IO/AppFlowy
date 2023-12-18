@@ -8,7 +8,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
-@visibleForTesting
 class EndTimeButton extends StatelessWidget {
   const EndTimeButton({
     super.key,
@@ -34,7 +33,7 @@ class EndTimeButton extends StatelessWidget {
                 color: Theme.of(context).iconTheme.color,
               ),
               const HSpace(6),
-              FlowyText.medium(LocaleKeys.grid_field_isRange.tr()),
+              FlowyText.medium(LocaleKeys.datePicker_isRange.tr()),
               const Spacer(),
               Toggle(
                 value: isRange,

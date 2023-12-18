@@ -1,6 +1,6 @@
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/layout.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -63,7 +63,7 @@ class _DateTimeSettingState extends State<DateTimeSetting> {
       width: 180,
       child: ListView.separated(
         shrinkWrap: true,
-        separatorBuilder: (_, __) => VSpace(GridSize.typeOptionSeparatorHeight),
+        separatorBuilder: (_, __) => VSpace(DatePickerSize.seperatorHeight),
         itemCount: children.length,
         itemBuilder: (_, int index) => children[index],
         padding: const EdgeInsets.symmetric(vertical: 6.0),

@@ -9,7 +9,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
-@visibleForTesting
 class DateTypeOptionButton extends StatelessWidget {
   const DateTypeOptionButton({
     super.key,
@@ -29,7 +28,7 @@ class DateTypeOptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title =
-        "${LocaleKeys.grid_field_dateFormat.tr()} & ${LocaleKeys.grid_field_timeFormat.tr()}";
+        "${LocaleKeys.datePicker_dateFormat.tr()} & ${LocaleKeys.datePicker_timeFormat.tr()}";
     return AppFlowyPopover(
       mutex: popoverMutex,
       triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,

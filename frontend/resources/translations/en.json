@@ -973,7 +973,12 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "Change the date and time format in settings"
+    "dateTimeFormatTooltip": "Change the date and time format in settings",
+    "dateFormat": "Date format",
+    "includeTime": "Include time",
+    "isRange": "End date",
+    "timeFormat": "Time format",
+    "clearDate": "Clear date"
   },
   "relativeDates": {
     "yesterday": "Yesterday",
