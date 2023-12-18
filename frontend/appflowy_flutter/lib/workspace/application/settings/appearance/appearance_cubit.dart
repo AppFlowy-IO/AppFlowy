@@ -50,12 +50,12 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             dateTimeSettings.timeFormat,
             dateTimeSettings.timezoneId,
             appearanceSettings.documentSetting.cursorColor.isEmpty
-                ? DefaultAppearanceSettings.kDefaultDocumentCursorColor
+                ? null
                 : Color(
                     int.parse(appearanceSettings.documentSetting.cursorColor),
                   ),
             appearanceSettings.documentSetting.selectionColor.isEmpty
-                ? DefaultAppearanceSettings.kDefaultDocumentSelectionColor
+                ? null
                 : Color(
                     int.parse(
                       appearanceSettings.documentSetting.selectionColor,
@@ -128,9 +128,11 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   /// Reset document cursor color in the apperance settings
-  void resetDocumentCursorColor() => setDocumentCursorColor(
-        DefaultAppearanceSettings.kDefaultDocumentCursorColor,
-      );
+  void resetDocumentCursorColor() {
+    _appearanceSettings.documentSetting.cursorColor = '';
+    _saveAppearanceSettings();
+    emit(state.copyWith(documentCursorColor: null));
+  }
 
   /// Update document selection color in the apperance settings and emit an updated state.
   void setDocumentSelectionColor(Color color) {
@@ -140,9 +142,11 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   /// Reset document selection color in the apperance settings
-  void resetDocumentSelectionColor() => setDocumentSelectionColor(
-        DefaultAppearanceSettings.kDefaultDocumentSelectionColor,
-      );
+  void resetDocumentSelectionColor() {
+    _appearanceSettings.documentSetting.selectionColor = '';
+    _saveAppearanceSettings();
+    emit(state.copyWith(documentSelectionColor: null));
+  }
 
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.

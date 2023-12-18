@@ -24,6 +24,10 @@ class KVKeys {
       'kDocumentAppearanceFontFamily';
   static const String kDocumentAppearanceDefaultTextDirection =
       'kDocumentAppearanceDefaultTextDirection';
+  static const String kDocumentAppearanceCursorColor =
+      'kDocumentAppearanceCursorColor';
+  static const String kDocumentAppearanceSelectionColor =
+      'kDocumentAppearanceSelectionColor';
 
   /// The key for saving the expanded views
   ///

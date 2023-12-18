@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/document_color_setting_button.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/theme_setting_entry_template.dart';
@@ -19,22 +20,30 @@ class DocumentCursorColorSetting extends StatelessWidget {
     const label = 'Document Cursor Color';
     return ThemeSettingEntryTemplateWidget(
       label: label,
-      onResetRequested: () =>
-          context.read<AppearanceSettingsCubit>().resetDocumentCursorColor(),
+      resetButtonKey: const Key('DocumentCursorColorResetButton'),
+      onResetRequested: () {
+        context.read<AppearanceSettingsCubit>().resetDocumentCursorColor();
+        context.read<DocumentAppearanceCubit>().syncCursorColor(null);
+        // context.read<DocumentAppearanceCubit>().fetch();
+      },
       trailing: [
         DocumentColorSettingButton(
           key: const Key('DocumentCursorColorSettingButton'),
           currentColor: currentCursorColor,
           previewWidgetBuilder: (color) => _CursorColorValueWidget(
-            cursorColor: color ?? Colors.transparent,
+            cursorColor:
+                color ?? DefaultAppearanceSettings.kDefaultDocumentCursorColor,
           ),
           dialogTitle: label,
           onApply: (selectedColorOnDialog) {
             context
                 .read<AppearanceSettingsCubit>()
                 .setDocumentCursorColor(selectedColorOnDialog);
+            context
+                .read<DocumentAppearanceCubit>()
+                .syncCursorColor(selectedColorOnDialog);
             // update the state of document appearance cubit with latest cursor color
-            context.read<DocumentAppearanceCubit>().fetch();
+            // context.read<DocumentAppearanceCubit>().fetch();
           },
         ),
       ],

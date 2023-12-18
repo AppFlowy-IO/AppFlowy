@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/document_color_setting_button.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/theme_setting_entry_template.dart';
@@ -21,21 +22,28 @@ class DocumentSelectionColorSetting extends StatelessWidget {
     return ThemeSettingEntryTemplateWidget(
       label: label,
       resetButtonKey: const Key('DocumentSelectionColorResetButton'),
-      onResetRequested: () =>
-          context.read<AppearanceSettingsCubit>().resetDocumentSelectionColor(),
+      onResetRequested: () {
+        context.read<AppearanceSettingsCubit>().resetDocumentSelectionColor();
+        context.read<DocumentAppearanceCubit>().syncSelectionColor(null);
+        // context.read<DocumentAppearanceCubit>().fetch();
+      },
       trailing: [
         DocumentColorSettingButton(
           currentColor: currentSelectionColor,
-          previewWidgetBuilder: (color) => _SelectionColorValueWidget(
-            selectionColor: color ?? Colors.transparent,
+          previewWidgetBuilder: (color) => SelectionColorValueWidget(
+            selectionColor: color ??
+                DefaultAppearanceSettings.kDefaultDocumentSelectionColor,
           ),
           dialogTitle: label,
-          onApply: (selectedColorOnDialog) => {
+          onApply: (selectedColorOnDialog) {
             context
                 .read<AppearanceSettingsCubit>()
-                .setDocumentSelectionColor(selectedColorOnDialog),
+                .setDocumentSelectionColor(selectedColorOnDialog);
             // update the state of document appearance cubit with latest selection color
-            context.read<DocumentAppearanceCubit>().fetch(),
+            // context.read<DocumentAppearanceCubit>().fetch(),
+            context
+                .read<DocumentAppearanceCubit>()
+                .syncSelectionColor(selectedColorOnDialog);
           },
         ),
       ],
@@ -43,8 +51,8 @@ class DocumentSelectionColorSetting extends StatelessWidget {
   }
 }
 
-class _SelectionColorValueWidget extends StatelessWidget {
-  const _SelectionColorValueWidget({
+class SelectionColorValueWidget extends StatelessWidget {
+  const SelectionColorValueWidget({
     required this.selectionColor,
   });
 

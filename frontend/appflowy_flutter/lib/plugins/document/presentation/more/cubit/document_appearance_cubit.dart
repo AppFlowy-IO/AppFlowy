@@ -3,7 +3,6 @@ import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:bloc/bloc.dart';
-import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,12 +56,35 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     final defaultTextDirection =
         prefs.getString(KVKeys.kDocumentAppearanceDefaultTextDirection);
 
-    final selectionColor = await getSelectionColorFromBackend();
-    final cursorColor = await getCursorColorFromBackend();
+    final cursorColorString =
+        prefs.getString(KVKeys.kDocumentAppearanceCursorColor);
+    final selectionColorString =
+        prefs.getString(KVKeys.kDocumentAppearanceSelectionColor);
+    print('debug1 fetch cursorColorString : $cursorColorString');
+    print('debug1 fetch selectionColorString: $selectionColorString');
+    final cursorColor = cursorColorString == null
+        ? null
+        : Color(
+            int.parse(
+              cursorColorString,
+            ),
+          );
+    final selectionColor = selectionColorString == null
+        ? null
+        : Color(
+            int.parse(
+              selectionColorString,
+            ),
+          );
+
+    // final selectionColor = await getSelectionColorFromBackend();
+    // final cursorColor = await getCursorColorFromBackend();
 
     if (isClosed) {
       return;
     }
+    print('debug1 sharedPref fetch cursorColor: $cursorColor');
+    print('debug1 sharedPref fetch selectionColor: $selectionColor');
 
     emit(
       state.copyWith(
@@ -126,33 +148,88 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
       ),
     );
   }
+
+  Future<void> syncCursorColor(Color? cursorColor) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (cursorColor == null) {
+      prefs.remove(KVKeys.kDocumentAppearanceCursorColor);
+    } else {
+      prefs.setString(
+        KVKeys.kDocumentAppearanceCursorColor,
+        cursorColor.toHexString(),
+      );
+    }
+
+    if (isClosed) {
+      return;
+    }
+    print(
+      'debug1 sharedPref syncCursorColor: ${cursorColor?.toHexString()}',
+    );
+    emit(
+      state.copyWith(
+        cursorColor: cursorColor,
+      ),
+    );
+  }
+
+  Future<void> syncSelectionColor(Color? selectionColor) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (selectionColor == null) {
+      prefs.remove(KVKeys.kDocumentAppearanceSelectionColor);
+    } else {
+      prefs.setString(
+        KVKeys.kDocumentAppearanceSelectionColor,
+        selectionColor.toHexString(),
+      );
+    }
+
+    print(
+      'debug1  sharedPref s syncSelectionColor ${selectionColor?.toHexString()}',
+    );
+
+    if (isClosed) {
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        selectionColor: selectionColor,
+      ),
+    );
+  }
 }
 
-Future<Color?> getSelectionColorFromBackend() async {
-  final appearanceSetting =
-      await UserSettingsBackendService().getAppearanceSetting();
-  final selectionColor =
-      appearanceSetting.documentSetting.selectionColor.isEmpty
-          ? null
-          : Color(
-              int.parse(
-                appearanceSetting.documentSetting.selectionColor,
-              ),
-            );
 
-  return selectionColor;
-}
 
-Future<Color?> getCursorColorFromBackend() async {
-  final appearanceSetting =
-      await UserSettingsBackendService().getAppearanceSetting();
-  final cursorColor = appearanceSetting.documentSetting.cursorColor.isEmpty
-      ? null
-      : Color(
-          int.parse(
-            appearanceSetting.documentSetting.cursorColor,
-          ),
-        );
 
-  return cursorColor;
-}
+// Future<Color?> getSelectionColorFromBackend() async {
+//   final appearanceSetting =
+//       await UserSettingsBackendService().getAppearanceSetting();
+//   final selectionColor =
+//       appearanceSetting.documentSetting.selectionColor.isEmpty
+//           ? null
+//           : Color(
+//               int.parse(
+//                 appearanceSetting.documentSetting.selectionColor,
+//               ),
+//             );
+
+//   return selectionColor;
+// }
+
+// Future<Color?> getCursorColorFromBackend() async {
+//   final appearanceSetting =
+//       await UserSettingsBackendService().getAppearanceSetting();
+//   final cursorColor = appearanceSetting.documentSetting.cursorColor.isEmpty
+//       ? null
+//       : Color(
+//           int.parse(
+//             appearanceSetting.documentSetting.cursorColor,
+//           ),
+//         );
+
+//   return cursorColor;
+// }
