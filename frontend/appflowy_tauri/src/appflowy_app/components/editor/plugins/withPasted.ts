@@ -1,10 +1,10 @@
 import { ReactEditor } from 'slate-react';
 import { Editor, Element, Node, NodeEntry, Transforms } from 'slate';
-import { Log } from '$app/utils/log';
 import { generateId } from '$app/components/editor/provider/utils/convert';
+import { blockTypes, EditorNodeType } from '$app/application/document/document.types';
 
 export function withPasted(editor: ReactEditor) {
-  const { insertData, mergeNodes } = editor;
+  const { mergeNodes, insertFragment } = editor;
 
   editor.mergeNodes = (...args) => {
     const isBlock = (n: Node) =>
@@ -46,40 +46,56 @@ export function withPasted(editor: ReactEditor) {
     mergeNodes(...args);
   };
 
-  editor.insertData = (data) => {
-    const fragment = data.getData('application/x-slate-fragment');
+  editor.insertFragment = (fragment) => {
+    const idMap = new Map<string, string>();
 
-    try {
-      if (fragment) {
-        const decoded = decodeURIComponent(window.atob(fragment));
-        const parsed = JSON.parse(decoded);
+    let rootId = (editor.children[0] as Element)?.parentId;
 
-        if (parsed instanceof Array) {
-          const idMap = new Map<string, string>();
-
-          for (const parsedElement of parsed as Element[]) {
-            if (!parsedElement.blockId) continue;
-            const newBlockId = generateId();
-
-            if (parsedElement.parentId) {
-              parsedElement.parentId = idMap.get(parsedElement.parentId) ?? parsedElement.parentId;
-            }
-
-            idMap.set(parsedElement.blockId, newBlockId);
-            parsedElement.blockId = newBlockId;
-
-            parsedElement.textId = generateId();
-          }
-
-          editor.insertFragment(parsed);
-          return;
-        }
-      }
-    } catch (err) {
-      Log.error('insertData', err);
+    if (!rootId) {
+      rootId = generateId();
+      insertFragment([
+        {
+          type: EditorNodeType.Paragraph,
+          children: [
+            {
+              text: '',
+            },
+          ],
+          data: {},
+          blockId: rootId,
+          textId: generateId(),
+          parentId: '',
+          level: 1,
+        },
+      ]);
     }
 
-    insertData(data);
+    for (const parsedElement of fragment as Element[]) {
+      const newBlockId = generateId();
+
+      if (!blockTypes.includes(parsedElement.type)) {
+        parsedElement.type = EditorNodeType.Paragraph;
+      }
+
+      if (parsedElement.parentId) {
+        parsedElement.parentId = idMap.get(parsedElement.parentId) ?? parsedElement.parentId;
+      }
+
+      parsedElement.parentId = parsedElement.parentId ?? rootId;
+
+      parsedElement.level = parsedElement.level ?? 1;
+
+      parsedElement.data = parsedElement.data ?? {};
+
+      if (parsedElement.blockId) {
+        idMap.set(parsedElement.blockId, newBlockId);
+      }
+
+      parsedElement.blockId = newBlockId;
+      parsedElement.textId = generateId();
+    }
+
+    return insertFragment(fragment);
   };
 
   return editor;

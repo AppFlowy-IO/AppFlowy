@@ -139,6 +139,8 @@ export enum EditorNodeType {
   GridBlock = 'grid',
 }
 
+export const blockTypes: string[] = Object.values(EditorNodeType);
+
 export enum EditorInlineNodeType {
   Mention = 'mention',
   Formula = 'formula',

@@ -5,8 +5,7 @@ import { getHeadingCssProperty } from '$app/components/editor/plugins/utils';
 
 export const Heading = memo(
   forwardRef<HTMLDivElement, EditorElementProps<HeadingNode>>(({ node, children, ...attributes }, ref) => {
-    const { data } = node;
-    const { level } = data;
+    const level = node.data.level;
     const fontSizeCssProperty = getHeadingCssProperty(level);
 
     return (
