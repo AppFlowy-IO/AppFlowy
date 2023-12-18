@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -37,14 +38,9 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               add(ViewEvent.viewDidUpdate(left(result)));
             },
             onViewChildViewsUpdated: (result) async {
-              final view = await ViewBackendService.getView(
-                result.parentViewId,
-              );
-              if (!isClosed) {
-                view.fold(
-                  (view) => add(ViewEvent.viewDidUpdate(left(view))),
-                  (error) => add(ViewEvent.viewDidUpdate(right(error))),
-                );
+              final view = await _updateChildViews(result);
+              if (!isClosed && view != null) {
+                add(ViewEvent.viewUpdateChildView(view));
               }
             },
           );
@@ -67,7 +63,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           emit(state.copyWith(isEditing: e.isEditing));
         },
         setIsExpanded: (e) async {
-          if (e.isExpanded) {
+          if (e.isExpanded && !state.isExpanded) {
             await _loadViewsWhenExpanded(emit, true);
           } else {
             emit(state.copyWith(isExpanded: e.isExpanded));
@@ -77,14 +73,15 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
         viewDidUpdate: (e) {
           e.result.fold(
             (view) {
-              view.freeze();
-              final newView = view.rebuild((b) {
-                b.childViews.clear();
-                b.childViews.addAll(state.view.childViews);
-              });
+              // ignore child view changes because it only contains one level
+              // children data.
+              Log.debug('viewDidUpdate: ${view.name}(${view.id})');
+              if (_isSameViewIgnoreChildren(view, state.view)) {
+                return;
+              }
               emit(
                 state.copyWith(
-                  view: newView,
+                  view: view,
                   successOrFailure: left(unit),
                 ),
               );
@@ -169,6 +166,13 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             ),
           );
         },
+        viewUpdateChildView: (e) async {
+          emit(
+            state.copyWith(
+              view: e.result,
+            ),
+          );
+        },
       );
     });
   }
@@ -245,6 +249,70 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
       });
     });
   }
+
+  Future<ViewPB?> _updateChildViews(
+    ChildViewUpdatePB update,
+  ) async {
+    Log.debug(
+      'received child views of ${this.view.name}(${this.view.id}) update, $update',
+    );
+    if (update.createChildViews.isNotEmpty) {
+      // refresh the child views if the update isn't empty
+      // because there's no info to get the inserted index.
+      assert(update.parentViewId == this.view.id);
+      final view = await ViewBackendService.getView(
+        update.parentViewId,
+      );
+      return view.fold((l) => l, (r) => null);
+    }
+
+    final view = state.view;
+    view.freeze();
+    final childViews = [...view.childViews];
+    if (update.deleteChildViews.isNotEmpty) {
+      childViews.removeWhere((v) => update.deleteChildViews.contains(v.id));
+      return view.rebuild((p0) {
+        p0.childViews.clear();
+        p0.childViews.addAll(childViews);
+      });
+    }
+
+    if (update.updateChildViews.isNotEmpty) {
+      final view = await ViewBackendService.getView(
+        update.parentViewId,
+      );
+      final childViews = view.fold((l) => l.childViews, (r) => []);
+      bool isSameOrder = true;
+      if (childViews.length == update.updateChildViews.length) {
+        for (var i = 0; i < childViews.length; i++) {
+          if (childViews[i].id != update.updateChildViews[i].id) {
+            isSameOrder = false;
+            break;
+          }
+        }
+      } else {
+        isSameOrder = false;
+      }
+      if (!isSameOrder) {
+        return view.fold((l) => l, (r) => null);
+      }
+    }
+
+    return null;
+  }
+
+  bool _isSameViewIgnoreChildren(ViewPB from, ViewPB to) {
+    return _hash(from) == _hash(to);
+  }
+
+  int _hash(ViewPB view) => Object.hash(
+        view.id,
+        view.name,
+        view.createTime,
+        view.icon,
+        view.parentViewId,
+        view.layout,
+      );
 }
 
 @freezed
@@ -268,6 +336,8 @@ class ViewEvent with _$ViewEvent {
   }) = CreateView;
   const factory ViewEvent.viewDidUpdate(Either<ViewPB, FlowyError> result) =
       ViewDidUpdate;
+  const factory ViewEvent.viewUpdateChildView(ViewPB result) =
+      ViewUpdateChildView;
 }
 
 @freezed

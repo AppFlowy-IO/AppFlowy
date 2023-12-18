@@ -84,7 +84,6 @@ class ViewItem extends StatelessWidget {
         listener: (context, state) =>
             context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
-          print('view');
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
