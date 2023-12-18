@@ -3,13 +3,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
 import 'package:appflowy/plugins/database_view/application/layout/layout_service.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -29,11 +27,9 @@ class MobileEditDatabaseViewScreen extends StatefulWidget {
   const MobileEditDatabaseViewScreen({
     super.key,
     required this.databaseController,
-    required this.viewPB,
   });
 
   final DatabaseController databaseController;
-  final ViewPB viewPB;
 
   @override
   State<MobileEditDatabaseViewScreen> createState() =>
@@ -52,13 +48,11 @@ class _MobileEditDatabaseViewScreenState
           return switch (state.currentPage) {
             MobileEditDatabaseViewPageEnum.main => _EditDatabaseViewMainPage(
                 databaseController: widget.databaseController,
-                viewPB: widget.viewPB,
               ),
             MobileEditDatabaseViewPageEnum.fields => _wrapSubPage(
                 context,
                 MobileDatabaseFieldList(
                   databaseController: widget.databaseController,
-                  viewPB: widget.viewPB,
                 ),
               ),
             _ => const SizedBox.shrink(),
@@ -84,11 +78,9 @@ class _MobileEditDatabaseViewScreenState
 class _EditDatabaseViewMainPage extends StatelessWidget {
   const _EditDatabaseViewMainPage({
     required this.databaseController,
-    required this.viewPB,
   });
 
   final DatabaseController databaseController;
-  final ViewPB viewPB;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +99,6 @@ class _EditDatabaseViewMainPage extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: _EditDatabaseViewBody(
                     databaseController: databaseController,
-                    view: viewPB,
                   ),
                 ),
               ),
@@ -157,41 +148,34 @@ class _EditDatabaseViewHeader extends StatelessWidget {
 class _EditDatabaseViewBody extends StatelessWidget {
   const _EditDatabaseViewBody({
     required this.databaseController,
-    required this.view,
   });
 
   final DatabaseController databaseController;
-  final ViewPB view;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ViewBloc>(
-      create: (context) {
-        return ViewBloc(view: view)..add(const ViewEvent.initial());
+    return BlocBuilder<ViewBloc, ViewState>(
+      builder: (context, state) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _NameAndIcon(view: state.view),
+            _divider(),
+            DatabaseViewSettingTile(
+              setting: DatabaseViewSettings.layout,
+              databaseController: databaseController,
+              view: state.view,
+              showTopBorder: true,
+            ),
+            DatabaseViewSettingTile(
+              setting: DatabaseViewSettings.fields,
+              databaseController: databaseController,
+              view: state.view,
+            ),
+            _divider(),
+          ],
+        );
       },
-      child: BlocBuilder<ViewBloc, ViewState>(
-        builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _NameAndIcon(view: state.view),
-              _divider(),
-              DatabaseViewSettingTile(
-                setting: DatabaseViewSettings.layout,
-                databaseController: databaseController,
-                view: state.view,
-                showTopBorder: true,
-              ),
-              DatabaseViewSettingTile(
-                setting: DatabaseViewSettings.fields,
-                databaseController: databaseController,
-                view: state.view,
-              ),
-              _divider(),
-            ],
-          );
-        },
-      ),
     );
   }
 
@@ -220,37 +204,9 @@ class _NameAndIconState extends State<_NameAndIcon> {
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
       controller: textEditingController,
-      textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
       onTextChanged: (text) {
         context.read<ViewBloc>().add(ViewEvent.rename(text));
       },
-      leftIcon: _buildViewIcon(),
-    );
-  }
-
-  Widget _buildViewIcon() {
-    final icon = widget.view.icon.value.isNotEmpty
-        ? EmojiText(
-            emoji: widget.view.icon.value,
-            fontSize: 16.0,
-          )
-        : SizedBox.square(
-            dimension: 18.0,
-            child: widget.view.defaultIcon(),
-          );
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          border: Border.fromBorderSide(
-            BorderSide(color: Theme.of(context).dividerColor),
-          ),
-        ),
-        width: 36,
-        height: 36,
-        child: Center(child: icon),
-      ),
     );
   }
 }
@@ -351,7 +307,8 @@ class DatabaseViewSettingTile extends StatelessWidget {
         return Row(
           children: [
             FlowyText(
-              "$numVisible shown",
+              LocaleKeys.grid_settings_numberOfVisibleFields
+                  .tr(args: [numVisible.toString()]),
               color: Theme.of(context).hintColor,
             ),
             const HSpace(8),

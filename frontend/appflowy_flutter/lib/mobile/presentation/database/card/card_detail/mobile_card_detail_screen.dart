@@ -142,7 +142,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
     showMobileBottomSheet(
       context,
       backgroundColor: Theme.of(context).colorScheme.background,
-      padding: const EdgeInsets.only(top: 8, bottom: 36),
+      padding: const EdgeInsets.only(top: 8, bottom: 38),
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -1,15 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/view/database_view_list.dart';
 import 'package:appflowy/mobile/presentation/database/view/edit_database_view_screen.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_paginated_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/widgets/setting/database_settings_list.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -66,16 +64,40 @@ class MobileDatabaseControls extends StatelessWidget {
                     showMobileBottomSheet(
                       context,
                       padding: EdgeInsets.zero,
-                      builder: (_) => MobileEditDatabaseViewScreen(
-                        databaseController: controller,
-                        viewPB: context.read<ViewBloc>().state.view,
-                      ),
+                      builder: (_) {
+                        return BlocProvider<ViewBloc>.value(
+                          value: context.read<ViewBloc>(),
+                          child: MobileEditDatabaseViewScreen(
+                            databaseController: controller,
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
                 _DatabaseControlButton(
                   icon: FlowySvgs.align_left_s,
-                  onTap: () => _showMobileSettings(context, controller),
+                  onTap: () {
+                    showMobileBottomSheet(
+                      context,
+                      padding: EdgeInsets.zero,
+                      builder: (_) {
+                        return MultiBlocProvider(
+                          providers: [
+                            BlocProvider<ViewBloc>.value(
+                              value: context.read<ViewBloc>(),
+                            ),
+                            BlocProvider<DatabaseTabBarBloc>.value(
+                              value: context.read<DatabaseTabBarBloc>(),
+                            ),
+                          ],
+                          child: MobileDatabaseViewList(
+                            databaseController: controller,
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             );
