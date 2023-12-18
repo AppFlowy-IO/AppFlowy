@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
@@ -51,8 +52,10 @@ class EditorStyleCustomizer {
     final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.desktop(
       padding: padding,
-      cursorColor: cursorColor,
-      selectionColor: selectionColor,
+      cursorColor: cursorColor ??
+          DefaultAppearanceSettings.getDefaultDocumentCursorColor(context),
+      selectionColor: selectionColor ??
+          DefaultAppearanceSettings.getDefaultDocumentSelectionColor(context),
       defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(

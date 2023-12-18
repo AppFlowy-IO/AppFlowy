@@ -21,19 +21,30 @@ class DocumentAppearance {
   final Color? selectionColor;
   final String? defaultTextDirection;
 
+  ///For nullable fields (like `cursorColor`),
+  /// use the corresponding `isNull` flag (like `cursorColorIsNull`) to explicitly set the field to `null`.
+  ///
+  /// This is necessary because simply passing `null` as the value does not distinguish between wanting to
+  /// set the field to `null` and not wanting to update the field at all.
   DocumentAppearance copyWith({
     double? fontSize,
     String? fontFamily,
-    String? defaultTextDirection,
     Color? cursorColor,
     Color? selectionColor,
+    String? defaultTextDirection,
+    bool cursorColorIsNull = false,
+    bool selectionColorIsNull = false,
+    bool textDirectionIsNull = false,
   }) {
     return DocumentAppearance(
       fontSize: fontSize ?? this.fontSize,
       fontFamily: fontFamily ?? this.fontFamily,
-      cursorColor: cursorColor,
-      selectionColor: selectionColor,
-      defaultTextDirection: defaultTextDirection,
+      cursorColor: cursorColorIsNull ? null : cursorColor ?? this.cursorColor,
+      selectionColor:
+          selectionColorIsNull ? null : selectionColor ?? this.selectionColor,
+      defaultTextDirection: textDirectionIsNull
+          ? null
+          : defaultTextDirection ?? this.defaultTextDirection,
     );
   }
 }
@@ -60,31 +71,15 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         prefs.getString(KVKeys.kDocumentAppearanceCursorColor);
     final selectionColorString =
         prefs.getString(KVKeys.kDocumentAppearanceSelectionColor);
-    print('debug1 fetch cursorColorString : $cursorColorString');
-    print('debug1 fetch selectionColorString: $selectionColorString');
-    final cursorColor = cursorColorString == null
-        ? null
-        : Color(
-            int.parse(
-              cursorColorString,
-            ),
-          );
-    final selectionColor = selectionColorString == null
-        ? null
-        : Color(
-            int.parse(
-              selectionColorString,
-            ),
-          );
-
-    // final selectionColor = await getSelectionColorFromBackend();
-    // final cursorColor = await getCursorColorFromBackend();
+    final cursorColor =
+        cursorColorString != null ? Color(int.parse(cursorColorString)) : null;
+    final selectionColor = selectionColorString != null
+        ? Color(int.parse(selectionColorString))
+        : null;
 
     if (isClosed) {
       return;
     }
-    print('debug1 sharedPref fetch cursorColor: $cursorColor');
-    print('debug1 sharedPref fetch selectionColor: $selectionColor');
 
     emit(
       state.copyWith(
@@ -93,6 +88,9 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         cursorColor: cursorColor,
         selectionColor: selectionColor,
         defaultTextDirection: defaultTextDirection,
+        cursorColorIsNull: cursorColor == null,
+        selectionColorIsNull: selectionColor == null,
+        textDirectionIsNull: defaultTextDirection == null,
       ),
     );
   }
@@ -145,6 +143,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     emit(
       state.copyWith(
         defaultTextDirection: direction,
+        textDirectionIsNull: direction == null,
       ),
     );
   }
@@ -164,12 +163,11 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     if (isClosed) {
       return;
     }
-    print(
-      'debug1 sharedPref syncCursorColor: ${cursorColor?.toHexString()}',
-    );
+
     emit(
       state.copyWith(
         cursorColor: cursorColor,
+        cursorColorIsNull: cursorColor == null,
       ),
     );
   }
@@ -186,10 +184,6 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
       );
     }
 
-    print(
-      'debug1  sharedPref s syncSelectionColor ${selectionColor?.toHexString()}',
-    );
-
     if (isClosed) {
       return;
     }
@@ -197,39 +191,8 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     emit(
       state.copyWith(
         selectionColor: selectionColor,
+        selectionColorIsNull: selectionColor == null,
       ),
     );
   }
 }
-
-
-
-
-// Future<Color?> getSelectionColorFromBackend() async {
-//   final appearanceSetting =
-//       await UserSettingsBackendService().getAppearanceSetting();
-//   final selectionColor =
-//       appearanceSetting.documentSetting.selectionColor.isEmpty
-//           ? null
-//           : Color(
-//               int.parse(
-//                 appearanceSetting.documentSetting.selectionColor,
-//               ),
-//             );
-
-//   return selectionColor;
-// }
-
-// Future<Color?> getCursorColorFromBackend() async {
-//   final appearanceSetting =
-//       await UserSettingsBackendService().getAppearanceSetting();
-//   final cursorColor = appearanceSetting.documentSetting.cursorColor.isEmpty
-//       ? null
-//       : Color(
-//           int.parse(
-//             appearanceSetting.documentSetting.cursorColor,
-//           ),
-//         );
-
-//   return cursorColor;
-// }

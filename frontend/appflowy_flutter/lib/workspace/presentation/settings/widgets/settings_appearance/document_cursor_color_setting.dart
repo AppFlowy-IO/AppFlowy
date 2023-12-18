@@ -24,26 +24,26 @@ class DocumentCursorColorSetting extends StatelessWidget {
       onResetRequested: () {
         context.read<AppearanceSettingsCubit>().resetDocumentCursorColor();
         context.read<DocumentAppearanceCubit>().syncCursorColor(null);
-        // context.read<DocumentAppearanceCubit>().fetch();
       },
       trailing: [
         DocumentColorSettingButton(
           key: const Key('DocumentCursorColorSettingButton'),
           currentColor: currentCursorColor,
           previewWidgetBuilder: (color) => _CursorColorValueWidget(
-            cursorColor:
-                color ?? DefaultAppearanceSettings.kDefaultDocumentCursorColor,
+            cursorColor: color ??
+                DefaultAppearanceSettings.getDefaultDocumentCursorColor(
+                  context,
+                ),
           ),
           dialogTitle: label,
           onApply: (selectedColorOnDialog) {
             context
                 .read<AppearanceSettingsCubit>()
                 .setDocumentCursorColor(selectedColorOnDialog);
+            // update the state of document appearance cubit with latest cursor color
             context
                 .read<DocumentAppearanceCubit>()
                 .syncCursorColor(selectedColorOnDialog);
-            // update the state of document appearance cubit with latest cursor color
-            // context.read<DocumentAppearanceCubit>().fetch();
           },
         ),
       ],

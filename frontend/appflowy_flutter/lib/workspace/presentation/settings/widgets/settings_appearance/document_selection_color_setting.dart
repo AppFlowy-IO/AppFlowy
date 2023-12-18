@@ -25,14 +25,15 @@ class DocumentSelectionColorSetting extends StatelessWidget {
       onResetRequested: () {
         context.read<AppearanceSettingsCubit>().resetDocumentSelectionColor();
         context.read<DocumentAppearanceCubit>().syncSelectionColor(null);
-        // context.read<DocumentAppearanceCubit>().fetch();
       },
       trailing: [
         DocumentColorSettingButton(
           currentColor: currentSelectionColor,
-          previewWidgetBuilder: (color) => SelectionColorValueWidget(
+          previewWidgetBuilder: (color) => _SelectionColorValueWidget(
             selectionColor: color ??
-                DefaultAppearanceSettings.kDefaultDocumentSelectionColor,
+                DefaultAppearanceSettings.getDefaultDocumentSelectionColor(
+                  context,
+                ),
           ),
           dialogTitle: label,
           onApply: (selectedColorOnDialog) {
@@ -40,7 +41,6 @@ class DocumentSelectionColorSetting extends StatelessWidget {
                 .read<AppearanceSettingsCubit>()
                 .setDocumentSelectionColor(selectedColorOnDialog);
             // update the state of document appearance cubit with latest selection color
-            // context.read<DocumentAppearanceCubit>().fetch(),
             context
                 .read<DocumentAppearanceCubit>()
                 .syncSelectionColor(selectedColorOnDialog);
@@ -51,8 +51,8 @@ class DocumentSelectionColorSetting extends StatelessWidget {
   }
 }
 
-class SelectionColorValueWidget extends StatelessWidget {
-  const SelectionColorValueWidget({
+class _SelectionColorValueWidget extends StatelessWidget {
+  const _SelectionColorValueWidget({
     required this.selectionColor,
   });
 

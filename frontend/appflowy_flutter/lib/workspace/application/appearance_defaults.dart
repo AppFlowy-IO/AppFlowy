@@ -7,8 +7,12 @@ class DefaultAppearanceSettings {
   static const kDefaultThemeMode = ThemeMode.system;
   static const kDefaultThemeName = "Default";
   static const kDefaultTheme = BuiltInTheme.defaultTheme;
-  // same color as the default color in appflowy_eidtor package
-  static const kDefaultDocumentCursorColor = Color(0xFF00BCF0);
-  static const kDefaultDocumentSelectionColor =
-      Color.fromARGB(53, 111, 201, 231);
+
+  static Color getDefaultDocumentCursorColor(BuildContext context) {
+    return Theme.of(context).colorScheme.primary;
+  }
+
+  static Color getDefaultDocumentSelectionColor(BuildContext context) {
+    return Theme.of(context).colorScheme.primary.withOpacity(0.2);
+  }
 }

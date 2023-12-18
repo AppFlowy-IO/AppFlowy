@@ -36,11 +36,16 @@ class SettingsAppearanceView extends StatelessWidget {
                 const Divider(),
                 DocumentCursorColorSetting(
                   currentCursorColor: state.documentCursorColor ??
-                      DefaultAppearanceSettings.kDefaultDocumentCursorColor,
+                      DefaultAppearanceSettings.getDefaultDocumentCursorColor(
+                        context,
+                      ),
                 ),
                 DocumentSelectionColorSetting(
                   currentSelectionColor: state.documentSelectionColor ??
-                      DefaultAppearanceSettings.kDefaultDocumentSelectionColor,
+                      DefaultAppearanceSettings
+                          .getDefaultDocumentSelectionColor(
+                        context,
+                      ),
                 ),
                 const Divider(),
                 LayoutDirectionSetting(
