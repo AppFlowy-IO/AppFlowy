@@ -168,7 +168,7 @@ class InnerViewItem extends StatelessWidget {
       if (childViews.isNotEmpty) {
         final children = childViews.map((childView) {
           return ViewItem(
-            key: ValueKey('${categoryType.name} ${childView.hashCode}'),
+            key: ValueKey('${categoryType.name} ${childView.id}'),
             parentView: view,
             categoryType: categoryType,
             isFirstChild: childView.id == childViews.first.id,

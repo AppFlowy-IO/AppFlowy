@@ -202,7 +202,7 @@ extension Expectation on WidgetTester {
     return find.descendant(
       of: find.byWidgetPredicate(
         (widget) =>
-            widget is ViewItem &&
+            widget is InnerViewItem &&
             widget.view.name == parentName &&
             widget.view.layout == parentLayout,
         skipOffstage: false,

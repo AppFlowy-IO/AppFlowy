@@ -70,18 +70,22 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           }
           await _setViewIsExpanded(view, e.isExpanded);
         },
-        viewDidUpdate: (e) {
+        viewDidUpdate: (e) async {
+          final result = await ViewBackendService.getView(
+            view.id,
+          );
+          final view_ = result.fold((l) => l, (r) => null);
           e.result.fold(
-            (view) {
+            (view) async {
+              Log.debug('viewDidUpdate: $view');
               // ignore child view changes because it only contains one level
               // children data.
-              Log.debug('viewDidUpdate: ${view.name}(${view.id})');
               if (_isSameViewIgnoreChildren(view, state.view)) {
-                return;
+                // do nothing.
               }
               emit(
                 state.copyWith(
-                  view: view,
+                  view: view_ ?? view,
                   successOrFailure: left(unit),
                 ),
               );
