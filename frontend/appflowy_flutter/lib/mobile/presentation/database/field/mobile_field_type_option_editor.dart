@@ -431,12 +431,10 @@ class _DateOptionState extends State<_DateOption> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 6.0,
-            horizontal: 16.0,
-          ),
+          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 4.0),
           child: FlowyText(
-            LocaleKeys.grid_field_dateFormat.tr(),
+            LocaleKeys.grid_field_dateFormat.tr().toUpperCase(),
+            fontSize: 13,
             color: Theme.of(context).hintColor,
           ),
         ),
@@ -487,12 +485,10 @@ class _TimeOptionState extends State<_TimeOption> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 6.0,
-            horizontal: 16.0,
-          ),
+          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 4.0),
           child: FlowyText(
-            LocaleKeys.grid_field_timeFormat.tr(),
+            LocaleKeys.grid_field_timeFormat.tr().toUpperCase(),
+            fontSize: 13,
             color: Theme.of(context).hintColor,
           ),
         ),
@@ -620,12 +616,10 @@ class _SelectOption extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 6.0,
-            horizontal: 16.0,
-          ),
+          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 4.0),
           child: FlowyText(
-            LocaleKeys.grid_field_optionTitle.tr(),
+            LocaleKeys.grid_field_optionTitle.tr().toUpperCase(),
+            fontSize: 13,
             color: Theme.of(context).hintColor,
           ),
         ),
@@ -761,7 +755,10 @@ class __SelectOptionTileState extends State<_SelectOptionTile> {
       textFieldHintText: LocaleKeys.grid_field_typeANewOption.tr(),
       showTopBorder: widget.showTopBorder,
       showBottomBorder: widget.showBottomBorder,
-      textFieldPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+      textFieldPadding: const EdgeInsets.symmetric(
+        horizontal: 0.0,
+        vertical: 16.0,
+      ),
       trailing: _SelectOptionColor(
         color: option.color,
         onChanged: (color) {

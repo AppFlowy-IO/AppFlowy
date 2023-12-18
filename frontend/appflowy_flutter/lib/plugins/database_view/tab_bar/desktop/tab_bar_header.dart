@@ -37,12 +37,8 @@ class TabBarHeader extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-                builder: (context, state) {
-                  return const Flexible(
-                    child: DatabaseTabBar(),
-                  );
-                },
+              const Flexible(
+                child: DatabaseTabBar(),
               ),
               BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
                 builder: (context, state) {

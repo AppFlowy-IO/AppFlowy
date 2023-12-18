@@ -11,6 +11,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 
+import 'layout/layout_service.dart';
+
 class DatabaseViewBackendService {
   final String viewId;
   DatabaseViewBackendService({
@@ -23,6 +25,17 @@ class DatabaseViewBackendService {
     return DatabaseEventGetDatabaseId(payload)
         .send()
         .then((value) => value.leftMap((l) => l.value));
+  }
+
+  static Future<Either<ViewPB, FlowyError>> updateLayout({
+    required String viewId,
+    required DatabaseLayoutPB layout,
+  }) {
+    final payload = UpdateViewPayloadPB.create()
+      ..viewId = viewId
+      ..layout = viewLayoutFromDatabaseLayout(layout);
+
+    return FolderEventUpdateView(payload).send();
   }
 
   Future<Either<DatabasePB, FlowyError>> openDatabase() async {

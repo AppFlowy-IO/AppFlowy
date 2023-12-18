@@ -106,9 +106,11 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
     final icon = view?.icon.value;
+    final elevation = (view?.layout.isDatabaseView ?? false) ? 0.0 : null;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
+        elevation: elevation,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -118,9 +120,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 fontSize: 22.0,
               ),
             Expanded(
-              child: FlowyText.regular(
+              child: FlowyText.medium(
                 view?.name ?? widget.title ?? '',
-                fontSize: 14.0,
+                fontSize: 15.0,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

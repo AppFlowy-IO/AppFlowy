@@ -1,40 +1,53 @@
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Provides arguemnts for [AppFlowyCalender] when showing
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/date_time_format_ext.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/style_widget/decoration.dart';
+
+/// Provides arguemnts for [AppFlowyDatePicker] when showing
 /// a [DatePickerMenu]
 ///
 class DatePickerOptions {
   DatePickerOptions({
     DateTime? focusedDay,
+    this.popoverMutex,
     this.selectedDay,
     this.firstDay,
     this.lastDay,
+    this.timeStr,
     this.includeTime = false,
+    this.isRange = false,
+    this.enableRanges = true,
+    this.dateFormat = UserDateFormatPB.Friendly,
     this.timeFormat = UserTimeFormatPB.TwentyFourHour,
     this.onDaySelected,
     this.onIncludeTimeChanged,
-    this.onFormatChanged,
-    this.onPageChanged,
-    this.onTimeChanged,
+    this.onStartTimeChanged,
+    this.onEndTimeChanged,
   }) : focusedDay = focusedDay ?? DateTime.now();
 
   final DateTime focusedDay;
+  final PopoverMutex? popoverMutex;
   final DateTime? selectedDay;
   final DateTime? firstDay;
   final DateTime? lastDay;
+  final String? timeStr;
   final bool includeTime;
+  final bool isRange;
+  final bool enableRanges;
+  final UserDateFormatPB dateFormat;
   final UserTimeFormatPB timeFormat;
 
   final DaySelectedCallback? onDaySelected;
   final IncludeTimeChangedCallback? onIncludeTimeChanged;
-  final FormatChangedCallback? onFormatChanged;
-  final PageChangedCallback? onPageChanged;
-  final TimeChangedCallback? onTimeChanged;
+  final TimeChangedCallback? onStartTimeChanged;
+  final TimeChangedCallback? onEndTimeChanged;
 }
 
 abstract class DatePickerService {
@@ -43,8 +56,8 @@ abstract class DatePickerService {
 }
 
 const double _datePickerWidth = 260;
-const double _datePickerHeight = 325;
-const double _includeTimeHeight = 60;
+const double _datePickerHeight = 355;
+const double _includeTimeHeight = 40;
 const double _ySpacing = 15;
 
 class DatePickerMenu extends DatePickerService {
@@ -175,22 +188,27 @@ class _AnimatedDatePickerState extends State<_AnimatedDatePicker> {
         constraints: BoxConstraints.loose(
           const Size(_datePickerWidth, 465),
         ),
-        child: AppFlowyCalendar(
+        child: AppFlowyDatePicker(
+          popoverMutex: widget.options?.popoverMutex,
+          includeTime: _includeTime,
+          enableRanges: widget.options?.enableRanges ?? false,
+          isRange: widget.options?.isRange ?? false,
+          onIsRangeChanged: (_) {},
+          timeStr: widget.options?.timeStr,
+          dateFormat:
+              widget.options?.dateFormat.simplified ?? DateFormatPB.Friendly,
+          timeFormat: widget.options?.timeFormat.simplified ??
+              TimeFormatPB.TwentyFourHour,
+          selectedDay: widget.options?.selectedDay,
+          onIncludeTimeChanged: (includeTime) {
+            widget.options?.onIncludeTimeChanged?.call(!includeTime);
+            setState(() => _includeTime = !includeTime);
+          },
+          onStartTimeSubmitted: widget.options?.onStartTimeChanged,
+          onDaySelected: widget.options?.onDaySelected,
           focusedDay: widget.options?.focusedDay ?? DateTime.now(),
-          selectedDate: widget.options?.selectedDay,
           firstDay: widget.options?.firstDay,
           lastDay: widget.options?.lastDay,
-          includeTime: widget.options?.includeTime ?? false,
-          timeFormat:
-              widget.options?.timeFormat ?? UserTimeFormatPB.TwentyFourHour,
-          onDaySelected: widget.options?.onDaySelected,
-          onFormatChanged: widget.options?.onFormatChanged,
-          onPageChanged: widget.options?.onPageChanged,
-          onIncludeTimeChanged: (includeTime) {
-            widget.options?.onIncludeTimeChanged?.call(includeTime);
-            setState(() => _includeTime = includeTime);
-          },
-          onTimeChanged: widget.options?.onTimeChanged,
         ),
       ),
     );
