@@ -1,5 +1,4 @@
 import 'package:appflowy/core/config/kv_keys.dart';
-import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:bloc/bloc.dart';

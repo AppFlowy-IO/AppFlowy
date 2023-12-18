@@ -68,7 +68,11 @@ class _CursorColorValueWidget extends StatelessWidget {
           width: 2,
           height: 16,
         ),
-        const FlowyText('AppFlowy'),
+        FlowyText(
+          'AppFlowy',
+          // To avoid the text color changes when it is hovered in dark mode
+          color: Theme.of(context).colorScheme.onBackground,
+        ),
       ],
     );
   }

@@ -183,6 +183,7 @@ class _ColorSettingTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context);
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -190,11 +191,16 @@ class _ColorSettingTextField extends StatelessWidget {
         hintText: hintText,
         border: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
+            color: style.colorScheme.outline,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: style.colorScheme.outline,
           ),
         ),
       ),
-      style: Theme.of(context).textTheme.bodyMedium,
+      style: style.textTheme.bodyMedium,
       onChanged: onChanged,
     );
   }

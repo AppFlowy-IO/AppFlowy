@@ -60,14 +60,22 @@ class _SelectionColorValueWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // To avoid the text color changes when it is hovered in dark mode
+    final textColor = Theme.of(context).colorScheme.onBackground;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           color: selectionColor,
-          child: const FlowyText('App'),
+          child: FlowyText(
+            'App',
+            color: textColor,
+          ),
         ),
-        const FlowyText('flowy'),
+        FlowyText(
+          'flowy',
+          color: textColor,
+        ),
       ],
     );
   }
