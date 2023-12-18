@@ -1,7 +1,4 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_grid.dart';
-import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
-import 'package:appflowy/mobile/presentation/database/field/quick_edit_field_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import 'mobile_create_field_screen.dart';
 import 'mobile_edit_field_screen.dart';
+import 'mobile_field_type_grid.dart';
+import 'mobile_field_type_option_editor.dart';
+import 'mobile_quick_field_editor.dart';
 
 void showCreateFieldBottomSheet(BuildContext context, String viewId) {
   showMobileBottomSheet(
@@ -95,13 +95,10 @@ void showQuickEditField(
     backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
     resizeToAvoidBottomInset: true,
     builder: (context) {
-      return ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 500),
-        child: SingleChildScrollView(
-          child: QuickEditField(
-            viewId: viewId,
-            fieldInfo: fieldInfo,
-          ),
+      return SingleChildScrollView(
+        child: QuickEditField(
+          viewId: viewId,
+          fieldInfo: fieldInfo,
         ),
       );
     },

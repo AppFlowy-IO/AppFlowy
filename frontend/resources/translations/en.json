@@ -452,7 +452,14 @@
       "filterBy": "Filter by...",
       "typeAValue": "Type a value...",
       "layout": "Layout",
-      "databaseLayout": "Layout"
+      "databaseLayout": "Layout",
+      "editView": "Edit View",
+      "boardSettings": "Board settings",
+      "calendarSettings": "Calendar settings",
+      "createView": "New view",
+      "duplicateView": "Duplicate view",
+      "deleteView": "Delete view",
+      "numberOfVisibleFields": "{} shown"
     },
     "textFilter": {
       "contains": "Contains",

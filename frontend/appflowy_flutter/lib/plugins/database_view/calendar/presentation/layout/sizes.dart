@@ -15,9 +15,9 @@ class CalendarSize {
 
   static EdgeInsets get contentInsetsMobile => EdgeInsets.fromLTRB(
         GridSize.leadingHeaderPadding / 2,
-        CalendarSize.headerContainerPadding / 2,
+        0,
         GridSize.leadingHeaderPadding / 2,
-        CalendarSize.headerContainerPadding / 2,
+        0,
       );
 
   static double get scrollBarSize => 8 * scale;
