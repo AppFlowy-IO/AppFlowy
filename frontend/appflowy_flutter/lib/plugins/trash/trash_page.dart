@@ -100,8 +100,7 @@ class _TrashPageState extends State<TrashPage> {
               onTap: () {
                 showConfirmationDialog(
                   context: context,
-                  title: "Confirm Restore All",
-                  message: "Are you sure you want to restore all the files ?",
+                  title: LocaleKeys.trash_confirmRestoreAll_title.tr(),
                   onConfirm: () {
                     context.read<TrashBloc>().add(
                           const TrashEvent.restoreAll(),
@@ -119,8 +118,7 @@ class _TrashPageState extends State<TrashPage> {
               onTap: () {
                 showConfirmationDialog(
                   context: context,
-                  title: "Confirm Delete All",
-                  message: "Are you sure you want to delete all the files ?",
+                  title: LocaleKeys.trash_confirmDeleteAll_title.tr(),
                   onConfirm: () {
                     context.read<TrashBloc>().add(const TrashEvent.deleteAll());
                   },
@@ -153,8 +151,7 @@ class _TrashPageState extends State<TrashPage> {
               onRestore: () {
                 showConfirmationDialog(
                   context: context,
-                  title: "Confirm Restore",
-                  message: "Are you sure you want to restore this item?",
+                  title: LocaleKeys.deletePagePrompt_restore.tr(),
                   onConfirm: () {
                     context
                         .read<TrashBloc>()
@@ -165,8 +162,7 @@ class _TrashPageState extends State<TrashPage> {
               onDelete: () {
                 showConfirmationDialog(
                   context: context,
-                  title: "Confirm Delete",
-                  message: "Are you sure you want to delete this item?",
+                  title: LocaleKeys.deletePagePrompt_deletePermanent.tr(),
                   onConfirm: () {
                     context.read<TrashBloc>().add(TrashEvent.delete(object));
                   },

@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 void showConfirmationDialog({
   required BuildContext context,
   required String title,
-  required String message,
   required VoidCallback onConfirm,
 }) {
   NavigatorAlertDialog(
