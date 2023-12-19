@@ -57,7 +57,7 @@ custom-protocol = ["tauri/custom-protocol"]
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9589054f3874c60063878f084af01905b182d537" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5c1a16cec52e628e2fb7648455581d6fe5e84be1" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -67,14 +67,14 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "958
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8e17ba3bdfdee754a5dbbb1c65d630b551e5b268" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8e17ba3bdfdee754a5dbbb1c65d630b551e5b268" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8e17ba3bdfdee754a5dbbb1c65d630b551e5b268" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8e17ba3bdfdee754a5dbbb1c65d630b551e5b268" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8e17ba3bdfdee754a5dbbb1c65d630b551e5b268" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8e17ba3bdfdee754a5dbbb1c65d630b551e5b268" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8e17ba3bdfdee754a5dbbb1c65d630b551e5b268" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8e17ba3bdfdee754a5dbbb1c65d630b551e5b268" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0e117f568bd2465762582f6aeb8d9c11fe714e63" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0e117f568bd2465762582f6aeb8d9c11fe714e63" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0e117f568bd2465762582f6aeb8d9c11fe714e63" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0e117f568bd2465762582f6aeb8d9c11fe714e63" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0e117f568bd2465762582f6aeb8d9c11fe714e63" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0e117f568bd2465762582f6aeb8d9c11fe714e63" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0e117f568bd2465762582f6aeb8d9c11fe714e63" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0e117f568bd2465762582f6aeb8d9c11fe714e63" }
 
 
 

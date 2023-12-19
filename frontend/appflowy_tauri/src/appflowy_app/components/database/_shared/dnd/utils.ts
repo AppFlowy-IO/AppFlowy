@@ -61,7 +61,7 @@ export const calculateLeaveEdge = (
   { x: mouseX, y: mouseY }: { x: number; y: number },
   rect: DOMRect,
   gaps: EdgeGap,
-  direction: ScrollDirection,
+  direction: ScrollDirection
 ) => {
   if (direction === ScrollDirection.Horizontal) {
     if (mouseX - rect.left < gaps.left) {
@@ -111,26 +111,22 @@ export interface AutoScrollOnEdgeOptions {
 
 const defaultEdgeGap = 30;
 
-export const autoScrollOnEdge = ({
-  element,
-  direction,
-  edgeGap,
-  step = 8,
-}: AutoScrollOnEdgeOptions) => {
-  const gaps = typeof edgeGap === 'number'
-    ? {
-      top: edgeGap,
-      bottom: edgeGap,
-      left: edgeGap,
-      right: edgeGap,
-    }
-    : {
-      top: defaultEdgeGap,
-      bottom: defaultEdgeGap,
-      left: defaultEdgeGap,
-      right: defaultEdgeGap,
-      ...edgeGap,
-    };
+export const autoScrollOnEdge = ({ element, direction, edgeGap, step = 8 }: AutoScrollOnEdgeOptions) => {
+  const gaps =
+    typeof edgeGap === 'number'
+      ? {
+          top: edgeGap,
+          bottom: edgeGap,
+          left: edgeGap,
+          right: edgeGap,
+        }
+      : {
+          top: defaultEdgeGap,
+          bottom: defaultEdgeGap,
+          left: defaultEdgeGap,
+          right: defaultEdgeGap,
+          ...edgeGap,
+        };
 
   const keepScroll = interval(scrollElement, 8);
 
@@ -139,12 +135,7 @@ export const autoScrollOnEdge = ({
   const onDragOver = (event: DragEvent) => {
     const rect = element.getBoundingClientRect();
 
-    leaveEdge = calculateLeaveEdge(
-      { x: event.clientX, y: event.clientY },
-      rect,
-      gaps,
-      direction,
-    );
+    leaveEdge = calculateLeaveEdge({ x: event.clientX, y: event.clientY }, rect, gaps, direction);
 
     if (leaveEdge) {
       keepScroll(element, leaveEdge, step);

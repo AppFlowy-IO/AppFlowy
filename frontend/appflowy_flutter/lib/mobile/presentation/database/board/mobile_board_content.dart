@@ -56,7 +56,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     final config = AppFlowyBoardConfig(
       groupCornerRadius: 8,
       groupBackgroundColor: Theme.of(context).colorScheme.secondary,
-      groupMargin: const EdgeInsets.fromLTRB(4, 8, 4, 12),
+      groupMargin: const EdgeInsets.fromLTRB(4, 0, 4, 12),
       groupHeaderPadding: const EdgeInsets.all(8),
       groupBodyPadding: const EdgeInsets.all(4),
       groupFooterPadding: const EdgeInsets.all(8),
@@ -88,7 +88,9 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
             config: config,
             leading: showHiddenGroups
-                ? MobileHiddenGroupsColumn(padding: config.groupHeaderPadding)
+                ? MobileHiddenGroupsColumn(
+                    padding: config.groupHeaderPadding,
+                  )
                 : const HSpace(16),
             trailing: showCreateGroupButton
                 ? const MobileBoardTrailing()

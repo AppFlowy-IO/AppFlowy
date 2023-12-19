@@ -98,7 +98,7 @@
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
   "newDocumentText": "新文件",
-  "newGridText": "新建矩阵",
+  "newGridText": "新建网格",
   "newCalendarText": "新日历",
   "newBoardText": "新建看板",
   "trash": {
@@ -180,7 +180,7 @@
     "referencePage": "这个 {name} 正在被引用",
     "addBlockBelow": "在下面添加一个块",
     "urlLaunchAccessory": "在浏览器中打开",
-    "urlCopyAccessory": "复制URL"
+    "urlCopyAccessory": "复制链接"
   },
   "sideBar": {
     "closeSidebar": "关闭侧边栏",
@@ -213,7 +213,7 @@
     "complete": "完成",
     "save": "保存",
     "generate": "生成",
-    "esc": "ESC",
+    "esc": "退出",
     "keep": "保留",
     "tryAgain": "重试",
     "discard": "放弃",
@@ -413,8 +413,8 @@
     },
     "shortcuts": {
       "shortcutsLabel": "快捷方式",
-      "command": "zh'li",
-      "keyBinding": "案件绑定",
+      "command": "指令",
+      "keyBinding": "按键绑定",
       "addNewCommand": "添加新指令",
       "updateShortcutStep": "按所需的组合键并按 ENTER",
       "shortcutIsAlreadyUsed": "此快捷方式已用于：{conflict}",
@@ -562,14 +562,14 @@
       "newField": "添加新字段",
       "fieldDragElementTooltip": "点击打开菜单",
       "showHiddenFields": {
-        "one": "显示 {} 隐藏字段",
-        "many": "显示 {} 隐藏字段",
-        "other": "显示 {} 个隐藏字段"
+        "one": "显示 {count} 个隐藏字段",
+        "many": "显示 {count} 个隐藏字段",
+        "other": "显示 {count} 个隐藏字段"
       },
       "hideHiddenFields": {
-        "one": "显示 {} 隐藏字段",
+        "one": "隐藏 {count} 个隐藏字段",
         "many": "隐藏 {count} 个隐藏字段",
-        "other": "隐藏 {} 个隐藏字段"
+        "other": "隐藏 {count} 个隐藏字段"
       }
     },
     "sort": {
@@ -612,7 +612,7 @@
       "searchOrCreateOption": "搜索或创建选项...",
       "createNew": "创建一个新的",
       "orSelectOne": "或者选择一个选项",
-      "typeANewOption": "输入新选项",
+      "typeANewOption": "输入一个新的选项",
       "tagName": "标签名"
     },
     "checklist": {
@@ -754,7 +754,7 @@
       "action": "操作"
     },
     "textBlock": {
-      "placeholder": "输入“/”作为命令"
+      "placeholder": "输入 “/” 作为命令"
     },
     "title": {
       "placeholder": "无标题"
@@ -785,7 +785,7 @@
         "invalidImageUrl": "图片网址无效"
       },
       "embedLink": {
-        "label": "nei'q链接",
+        "label": "内嵌链接",
         "placeholder": "粘贴或输入图像链接"
       },
       "unsplash": {
@@ -870,7 +870,7 @@
     "notesTooltip": "内含笔记",
     "mobile": {
       "editURL": "编辑 URL",
-      "unhideGroup": "取消隐藏组",
+      "unhideGroup": "显示隐藏的组",
       "unhideGroupContent": "您确定要在看板上显示该组吗？",
       "faildToLoad": "无法加载看板视图"
     }
@@ -1033,9 +1033,9 @@
     "bulletedList": "符号列表",
     "checkbox": "复选框",
     "embedCode": "嵌入代码",
-    "heading1": "标题 1",
-    "heading2": "标题 2",
-    "heading3": "标题 3",
+    "heading1": "一级标题",
+    "heading2": "二级标题",
+    "heading3": "三级标题",
     "highlight": "强调",
     "color": "颜色",
     "image": "图像",
@@ -1127,7 +1127,7 @@
     "chooseImage": "选择图像",
     "loading": "加载中",
     "imageLoadFailed": "无法加载图像",
-    "divider": "分割线",
+    "divider": "分隔线",
     "table": "表格",
     "colAddBefore": "在前面添加",
     "rowAddBefore": "在前面添加",
@@ -1146,10 +1146,10 @@
     "noFavoriteHintText": "向左滑动页面即可将其添加到您的收藏夹"
   },
   "cardDetails": {
-    "notesPlaceholder": "输入 / 以插入块，或开始键入"
+    "notesPlaceholder": "输入 “/” 以插入块，或开始键入"
   },
   "blockPlaceholders": {
-    "todoList": "待办事项",
+    "todoList": "待办",
     "bulletList": "列表",
     "numberList": "列表",
     "quote": "引用",

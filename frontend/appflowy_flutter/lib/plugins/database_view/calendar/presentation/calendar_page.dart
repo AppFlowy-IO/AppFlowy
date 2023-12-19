@@ -10,9 +10,9 @@ import 'package:appflowy/plugins/database_view/calendar/application/calendar_blo
 import 'package:appflowy/plugins/database_view/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -186,28 +186,31 @@ class _CalendarPageState extends State<CalendarPage> {
     EventController eventController,
     int firstDayOfWeek,
   ) {
-    return Padding(
-      padding: PlatformExtension.isMobile
-          ? CalendarSize.contentInsetsMobile
-          : CalendarSize.contentInsets,
-      child: LayoutBuilder(
-        // must specify MonthView width for useAvailableVerticalSpace to work properly
-        builder: (context, constraints) => ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: MonthView(
-            key: _calendarState,
-            controller: _eventController,
-            width: constraints.maxWidth,
-            cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
-            startDay: _weekdayFromInt(firstDayOfWeek),
-            showBorder: false,
-            headerBuilder: _headerNavigatorBuilder,
-            weekDayBuilder: _headerWeekDayBuilder,
-            cellBuilder: _calendarDayBuilder,
-            useAvailableVerticalSpace: widget.shrinkWrap,
+    return LayoutBuilder(
+      // must specify MonthView width for useAvailableVerticalSpace to work properly
+      builder: (context, constraints) {
+        return Padding(
+          padding: PlatformExtension.isMobile
+              ? CalendarSize.contentInsetsMobile
+              : CalendarSize.contentInsets,
+          child: ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: MonthView(
+              key: _calendarState,
+              controller: _eventController,
+              width: constraints.maxWidth,
+              cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
+              startDay: _weekdayFromInt(firstDayOfWeek),
+              showBorder: false,
+              headerBuilder: _headerNavigatorBuilder,
+              weekDayBuilder: _headerWeekDayBuilder,
+              cellBuilder: _calendarDayBuilder,
+              useAvailableVerticalSpace: widget.shrinkWrap,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

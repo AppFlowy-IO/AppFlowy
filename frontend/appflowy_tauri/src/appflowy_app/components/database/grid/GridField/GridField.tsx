@@ -47,6 +47,7 @@ export const GridField: FC<GridFieldProps> = memo(
       scrollOnEdge: {
         direction: ScrollDirection.Horizontal,
         getScrollElement,
+        edgeGap: 80,
       },
     });
 

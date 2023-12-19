@@ -72,23 +72,23 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
     return DraggableScrollableSheet(
       expand: false,
       snap: true,
-      initialChildSize: 0.6,
-      minChildSize: 0.6,
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      snapSizes: const [0.4, 0.7, 1.0],
       builder: (_, controller) => Material(
-        child: ColoredBox(
-          color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            children: [
-              const DragHandler(),
-              _buildHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: controller,
-                  child: _buildBody(),
-                ),
-              ),
-            ],
-          ),
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        child: ListView(
+          controller: controller,
+          children: [
+            ColoredBox(
+              color: Theme.of(context).colorScheme.surface,
+              child: const Center(child: DragHandler()),
+            ),
+            _buildHeader(),
+            Expanded(
+              child: _buildBody(),
+            ),
+          ],
         ),
       ),
     );
@@ -127,7 +127,8 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
   Widget _buildHeader() {
     const iconWidth = 30.0;
     const height = 44.0;
-    return Padding(
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Stack(
         children: [
@@ -179,31 +180,28 @@ class _DateCellEditBody extends StatelessWidget {
             showTopBorder: false,
             child: _IncludeTimePicker(),
           ),
-          _ColoredDivider(),
+          _Divider(),
           FlowyOptionDecorateBox(
             child: MobileDatePicker(),
           ),
-          _ColoredDivider(),
+          _Divider(),
           _EndDateSwitch(),
           _IncludeTimeSwitch(),
-          _ColoredDivider(),
+          _Divider(),
           _ClearDateButton(),
-          _ColoredDivider(),
+          _Divider(),
         ],
       ),
     );
   }
 }
 
-class _ColoredDivider extends StatelessWidget {
-  const _ColoredDivider();
+class _Divider extends StatelessWidget {
+  const _Divider();
 
   @override
   Widget build(BuildContext context) {
-    return VSpace(
-      20.0,
-      color: Theme.of(context).colorScheme.secondaryContainer,
-    );
+    return const VSpace(20.0);
   }
 }
 
@@ -366,7 +364,7 @@ class _EndDateSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.isRange,
       builder: (context, isRange) {
-        return FlowyOptionTile.switcher(
+        return FlowyOptionTile.toggle(
           text: LocaleKeys.grid_field_isRange.tr(),
           isSelected: isRange,
           onValueChanged: (value) {
@@ -388,7 +386,7 @@ class _IncludeTimeSwitch extends StatelessWidget {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.includeTime,
       builder: (context, includeTime) {
-        return FlowyOptionTile.switcher(
+        return FlowyOptionTile.toggle(
           showTopBorder: false,
           text: LocaleKeys.grid_field_includeTime.tr(),
           isSelected: includeTime,

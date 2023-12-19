@@ -1,15 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 enum FlowyOptionTileType {
   text,
   textField,
   checkbox,
+  toggle,
 }
-
-// used in cell editor
 
 class FlowyOptionTile extends StatelessWidget {
   const FlowyOptionTile._({
@@ -59,8 +59,8 @@ class FlowyOptionTile extends StatelessWidget {
     void Function(String value)? onTextChanged,
     void Function(String value)? onTextSubmitted,
     EdgeInsets textFieldPadding = const EdgeInsets.symmetric(
-      horizontal: 12.0,
-      vertical: 2.0,
+      horizontal: 0.0,
+      vertical: 16.0,
     ),
     bool showTopBorder = true,
     bool showBottomBorder = true,
@@ -69,7 +69,7 @@ class FlowyOptionTile extends StatelessWidget {
     String? textFieldHintText,
   }) {
     return FlowyOptionTile._(
-      type: FlowyOptionTileType.text,
+      type: FlowyOptionTileType.textField,
       controller: controller,
       textFieldPadding: textFieldPadding,
       text: null,
@@ -88,6 +88,7 @@ class FlowyOptionTile extends StatelessWidget {
     required String text,
     required bool isSelected,
     required VoidCallback? onTap,
+    Widget? leftIcon,
     bool showTopBorder = true,
     bool showBottomBorder = true,
   }) {
@@ -98,6 +99,7 @@ class FlowyOptionTile extends StatelessWidget {
       onTap: onTap,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
+      leading: leftIcon,
       trailing: isSelected
           ? const FlowySvg(
               FlowySvgs.blue_check_s,
@@ -108,7 +110,7 @@ class FlowyOptionTile extends StatelessWidget {
     );
   }
 
-  factory FlowyOptionTile.switcher({
+  factory FlowyOptionTile.toggle({
     required String text,
     required bool isSelected,
     required void Function(bool value) onValueChanged,
@@ -117,14 +119,14 @@ class FlowyOptionTile extends StatelessWidget {
     Widget? leftIcon,
   }) {
     return FlowyOptionTile._(
-      type: FlowyOptionTileType.text,
+      type: FlowyOptionTileType.toggle,
       text: text,
       controller: null,
-      onTap: null,
+      onTap: () => onValueChanged(!isSelected),
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
-      trailing: _Switcher(value: isSelected, onChanged: onValueChanged),
+      trailing: _Toggle(value: isSelected, onChanged: onValueChanged),
     );
   }
 
@@ -150,110 +152,101 @@ class FlowyOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final leadingWidget = _buildLeading();
+
     final child = ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: FlowyOptionDecorateBox(
         showTopBorder: showTopBorder,
         showBottomBorder: showBottomBorder,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildText(),
-            ..._buildTextField(),
-            if (controller == null) const Spacer(),
-            trailing ?? const SizedBox.shrink(),
-            const HSpace(12.0),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (leadingWidget != null) leadingWidget,
+              _buildText(),
+              _buildTextField(),
+              if (trailing != null) trailing!,
+            ],
+          ),
         ),
       ),
     );
 
     if (type == FlowyOptionTileType.checkbox ||
+        type == FlowyOptionTileType.toggle ||
         type == FlowyOptionTileType.text) {
-      return FlowyButton(
-        expandText: true,
-        margin: EdgeInsets.zero,
+      return GestureDetector(
         onTap: onTap,
-        text: child,
+        child: child,
       );
     }
 
     return child;
   }
 
+  Widget? _buildLeading() {
+    if (leading != null) {
+      return Center(child: leading);
+    } else {
+      return null;
+    }
+  }
+
   Widget _buildText() {
-    if (text == null) {
+    if (text == null || type == FlowyOptionTileType.textField) {
       return const SizedBox.shrink();
     }
 
-    switch (type) {
-      case FlowyOptionTileType.text:
-        return FlowyButton(
-          useIntrinsicWidth: true,
-          text: FlowyText(
-            text!,
-            color: textColor,
-          ),
-          margin: const EdgeInsets.symmetric(
-            horizontal: 16.0,
-            vertical: 16.0,
-          ),
-          leftIcon: leading,
-          leftIconSize: const Size.square(24.0),
-          iconPadding: 8.0,
-          onTap: onTap,
-        );
-      case FlowyOptionTileType.textField:
-        return const SizedBox.shrink();
-      case FlowyOptionTileType.checkbox:
-        return Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16.0,
-            vertical: 16.0,
-          ),
-          child: FlowyText(
-            text!,
-          ),
-        );
-    }
-  }
+    final padding = EdgeInsets.symmetric(
+      horizontal: leading == null ? 0.0 : 8.0,
+      vertical: 16.0,
+    );
 
-  List<Widget> _buildTextField() {
-    if (controller == null) {
-      return [
-        const SizedBox.shrink(),
-      ];
-    }
-
-    return [
-      if (leading != null) leading!,
-      Expanded(
-        child: Container(
-          constraints: const BoxConstraints.tightFor(
-            height: 54.0,
-          ),
-          alignment: Alignment.center,
-          child: TextField(
-            controller: controller,
-            textInputAction: TextInputAction.done,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              contentPadding: textFieldPadding,
-              hintText: textFieldHintText,
-            ),
-            onChanged: onTextChanged,
-            onSubmitted: onTextSubmitted,
-          ),
+    return Expanded(
+      child: Padding(
+        padding: padding,
+        child: FlowyText(
+          text!,
+          fontSize: 15,
+          color: textColor,
         ),
       ),
-    ];
+    );
+  }
+
+  Widget _buildTextField() {
+    if (controller == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Expanded(
+      child: Container(
+        constraints: const BoxConstraints.tightFor(
+          height: 54.0,
+        ),
+        alignment: Alignment.center,
+        child: TextField(
+          controller: controller,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            contentPadding: textFieldPadding,
+            hintText: textFieldHintText,
+          ),
+          onChanged: onTextChanged,
+          onSubmitted: onTextSubmitted,
+        ),
+      ),
+    );
   }
 }
 
-class _Switcher extends StatelessWidget {
-  const _Switcher({
+class _Toggle extends StatelessWidget {
+  const _Toggle({
     required this.value,
     required this.onChanged,
   });
@@ -263,13 +256,16 @@ class _Switcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // CupertinoSwitch adds a 8px margin all around. The original size of the
+    // switch is 38 x 22.
     return SizedBox(
-      width: 48,
+      width: 46,
+      height: 30,
       child: FittedBox(
         fit: BoxFit.fill,
-        child: Switch.adaptive(
+        child: CupertinoSwitch(
           value: value,
-          activeColor: const Color(0xFF00BCF0),
+          activeColor: Theme.of(context).colorScheme.primary,
           onChanged: onChanged,
         ),
       ),

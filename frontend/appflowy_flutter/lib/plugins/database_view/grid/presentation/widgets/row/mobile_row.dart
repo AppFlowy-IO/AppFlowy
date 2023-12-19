@@ -126,7 +126,8 @@ class RowContent extends StatelessWidget {
       buildWhen: (previous, current) =>
           !listEquals(previous.cells, current.cells),
       builder: (context, state) {
-        return IntrinsicHeight(
+        return SizedBox(
+          height: 52,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -148,9 +149,7 @@ class RowContent extends StatelessWidget {
         final GridCellWidget child = builder.build(cellId);
 
         return MobileCellContainer(
-          width: cellId.fieldInfo.fieldSettings!.width.toDouble(),
           isPrimary: cellId.fieldInfo.field.isPrimary,
-          accessoryBuilder: (_) => [],
           onPrimaryFieldCellTap: onExpand,
           child: child,
         );
@@ -159,16 +158,14 @@ class RowContent extends StatelessWidget {
   }
 
   Widget _finalCellDecoration(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.basic,
-      child: Container(
-        width: GridSize.trailHeaderPadding,
-        padding: GridSize.headerContentInsets,
-        constraints: const BoxConstraints(minHeight: 46),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Theme.of(context).dividerColor),
-          ),
+    return Container(
+      width: 200,
+      padding: GridSize.headerContentInsets,
+      constraints: const BoxConstraints(minHeight: 46),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+          right: BorderSide(color: Theme.of(context).dividerColor),
         ),
       ),
     );

@@ -22,13 +22,10 @@ class OptionTextField extends StatelessWidget {
       controller: controller,
       textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
       onTextChanged: onTextChanged,
-      leftIcon: Padding(
-        padding: const EdgeInsets.only(left: 16.0),
-        child: FlowySvg(
-          type.svgData,
-          size: const Size.square(36.0),
-          blendMode: null,
-        ),
+      leftIcon: FlowySvg(
+        type.svgData,
+        size: const Size.square(36.0),
+        blendMode: null,
       ),
     );
   }

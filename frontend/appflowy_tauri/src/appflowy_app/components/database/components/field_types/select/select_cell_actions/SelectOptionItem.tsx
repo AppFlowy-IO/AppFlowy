@@ -4,7 +4,7 @@ import { ReactComponent as DetailsSvg } from '$app/assets/details.svg';
 import { SelectOption } from '../../../../application';
 import { SelectOptionMenu } from '../SelectOptionMenu';
 import { Tag } from '../Tag';
-import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
+import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
 
 export interface SelectOptionItemProps {
   option: SelectOption;

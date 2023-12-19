@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ArrowRightSvg } from '$app/components/_shared/svg/ArrowRightSvg';
-import MenuItem from '@mui/material/MenuItem';
 import { useAppSelector } from '$app/stores/store';
 import AddButton from './AddButton';
 import MoreButton from './MoreButton';
@@ -35,8 +34,10 @@ function NestedPageTitle({
   const isSelected = useSelectedPage(pageId);
 
   return (
-    <MenuItem
-      selected={isSelected}
+    <div
+      className={`m-1 cursor-pointer rounded-lg px-2 py-1  ${isHovering ? 'bg-fill-list-hover' : ''} ${
+        isSelected ? 'bg-fill-list-active' : ''
+      }`}
       onClick={onClick}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -74,7 +75,7 @@ function NestedPageTitle({
           />
         </div>
       </div>
-    </MenuItem>
+    </div>
   );
 }
 

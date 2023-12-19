@@ -3,7 +3,7 @@ import { Box, IconButton } from '@mui/material';
 import { Circle, DeleteOutlineRounded, SearchOutlined } from '@mui/icons-material';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
-import { randomEmoji } from '$app/utils/document/emoji';
+import { randomEmoji } from '$app/utils/emoji';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import Popover from '@mui/material/Popover';
 import { useSelectSkinPopoverProps } from '$app/components/_shared/EmojiPicker/EmojiPicker.hooks';
@@ -58,6 +58,7 @@ function EmojiPickerHeader({ onEmojiSelect, onSkinSelect, searchValue, onSearchC
             onChange={(e) => {
               onSearchChange(e.target.value);
             }}
+            autoFocus={true}
             label={t('search.label')}
             variant='standard'
           />
