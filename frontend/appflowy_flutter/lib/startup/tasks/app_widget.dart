@@ -168,7 +168,14 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         },
         child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
           builder: (context, state) => MaterialApp.router(
-            builder: overlayManagerBuilder(),
+            builder: (context, child) => MediaQuery(
+              // use the 1.0 as the textScaleFactor to avoid the text size
+              //  affected by the system setting.
+              data: MediaQuery.of(context).copyWith(
+                textScaler: const TextScaler.linear(1),
+              ),
+              child: overlayManagerBuilder()(context, child),
+            ),
             debugShowCheckedModeBanner: false,
             theme: state.lightTheme,
             darkTheme: state.darkTheme,
