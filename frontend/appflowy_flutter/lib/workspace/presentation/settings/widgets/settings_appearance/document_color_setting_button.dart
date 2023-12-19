@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/utils/hex_opacity_string_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -28,7 +29,7 @@ class DocumentColorSettingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      margin: const EdgeInsets.all(8),
       text: previewWidgetBuilder.call(currentColor),
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
       expandText: false,
@@ -76,16 +77,28 @@ class DocumentColorSettingDialogState
   late TextEditingController opacityController;
   final _formKey = GlobalKey<FormState>(debugLabel: 'colorSettingForm');
 
+  void updateSelectedColor() {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        final colorValue = int.tryParse(
+          hexController.text.combineHexWithOpacity(opacityController.text),
+        );
+        // colorValue has been validated in the _ColorSettingTextField for hex value and it won't be null as this point
+        selectedColorOnDialog = Color(colorValue!);
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     selectedColorOnDialog = widget.currentColor;
     currentColorHexString = widget.currentColor.toHexString();
     hexController = TextEditingController(
-      text: _extractColorHex(currentColorHexString),
+      text: currentColorHexString.extractHex(),
     );
     opacityController = TextEditingController(
-      text: _convertHexToOpacity(currentColorHexString),
+      text: currentColorHexString.extractOpacity(),
     );
   }
 
@@ -98,21 +111,6 @@ class DocumentColorSettingDialogState
 
   @override
   Widget build(BuildContext context) {
-    void updateSelectedColor() {
-      if (_formKey.currentState!.validate()) {
-        setState(() {
-          final colorValue = int.tryParse(
-            _combineColorHexAndOpacity(
-              hexController.text,
-              opacityController.text,
-            ),
-          );
-          // colorValue has been validated in the _ColorSettingTextField for hex value and it won't be null as this point
-          selectedColorOnDialog = Color(colorValue!);
-        });
-      }
-    }
-
     return FlowyDialog(
       constraints: const BoxConstraints(maxWidth: 360, maxHeight: 320),
       child: Padding(
@@ -143,9 +141,8 @@ class DocumentColorSettingDialogState
                       labelText: LocaleKeys.editor_hexValue.tr(),
                       hintText: '6fc9e7',
                       onFieldSubmitted: (_) => updateSelectedColor(),
-                      validator: (value) => validateHexValue(
-                        value,
-                        hexController.text,
+                      validator: (hexValue) => validateHexValue(
+                        hexValue,
                         opacityController.text,
                       ),
                     ),
@@ -170,7 +167,7 @@ class DocumentColorSettingDialogState
                     widget.onApply.call(selectedColorOnDialog!);
                   }
                 } else {
-                  // error message will be shown
+                  // error message will be shown below the text field
                   return;
                 }
                 Navigator.of(context).pop();
@@ -230,24 +227,19 @@ class _ColorSettingTextField extends StatelessWidget {
 }
 
 String? validateHexValue(
-  String? value,
-  String hexValue,
+  String? hexValue,
   String opacityValue,
 ) {
-  if (value == null || value.isEmpty) {
+  if (hexValue == null || hexValue.isEmpty) {
     return LocaleKeys.settings_appearance_documentSettings_hexEmptyError.tr();
   }
-  if (value.length != 6) {
+  if (hexValue.length != 6) {
     return LocaleKeys.settings_appearance_documentSettings_hexLengthError.tr();
   }
 
   if (validateOpacityValue(opacityValue) == null) {
-    final colorValue = int.tryParse(
-      _combineColorHexAndOpacity(
-        hexValue,
-        opacityValue,
-      ),
-    );
+    final colorValue =
+        int.tryParse(hexValue.combineHexWithOpacity(opacityValue));
 
     if (colorValue == null) {
       return LocaleKeys.settings_appearance_documentSettings_hexInvalidError
@@ -270,22 +262,4 @@ String? validateOpacityValue(String? value) {
         .tr();
   }
   return null;
-}
-
-String _combineColorHexAndOpacity(String colorHex, String opacity) {
-  final opacityHex = (int.parse(opacity) * 2.55).round().toRadixString(16);
-  return '0x$opacityHex$colorHex';
-}
-
-// same convert functions as in appflowy_editor
-String? _extractColorHex(String? colorHex) {
-  if (colorHex == null) return null;
-  return colorHex.substring(4);
-}
-
-String? _convertHexToOpacity(String? colorHex) {
-  if (colorHex == null) return null;
-  final opacityHex = colorHex.substring(2, 4);
-  final opacity = int.parse(opacityHex, radix: 16) / 2.55;
-  return opacity.toStringAsFixed(0);
 }

@@ -52,7 +52,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             appearanceSettings.documentSetting.cursorColor.isEmpty
                 ? null
                 : Color(
-                    int.parse(appearanceSettings.documentSetting.cursorColor),
+                    int.parse(
+                      appearanceSettings.documentSetting.cursorColor,
+                    ),
                   ),
             appearanceSettings.documentSetting.selectionColor.isEmpty
                 ? null
