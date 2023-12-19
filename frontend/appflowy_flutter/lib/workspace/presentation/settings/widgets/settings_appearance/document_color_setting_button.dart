@@ -241,15 +241,18 @@ String? validateHexValue(
     return LocaleKeys.settings_appearance_documentSettings_hexLengthError.tr();
   }
 
-  final colorValue = int.tryParse(
-    _combineColorHexAndOpacity(
-      hexValue,
-      opacityValue,
-    ),
-  );
+  if (validateOpacityValue(opacityValue) == null) {
+    final colorValue = int.tryParse(
+      _combineColorHexAndOpacity(
+        hexValue,
+        opacityValue,
+      ),
+    );
 
-  if (colorValue == null) {
-    return LocaleKeys.settings_appearance_documentSettings_hexInvalidError.tr();
+    if (colorValue == null) {
+      return LocaleKeys.settings_appearance_documentSettings_hexInvalidError
+          .tr();
+    }
   }
 
   return null;
