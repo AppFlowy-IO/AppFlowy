@@ -33,7 +33,7 @@ class ThemeFontFamilySetting extends StatefulWidget {
 class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_fontFamily_label.tr(),
       resetButtonKey: ThemeFontFamilySetting.resetButtonkey,
       onResetRequested: () {
@@ -91,7 +91,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeValueDropDown(
+    return FlowySettingValueDropDown(
       popoverKey: ThemeFontFamilySetting.popoverKey,
       popoverController: widget.popoverController,
       currentValue: parseFontFamilyName(widget.currentFontFamily),

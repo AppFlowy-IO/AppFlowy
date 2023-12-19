@@ -27,7 +27,7 @@ class ColorSchemeSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_theme.tr(),
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [

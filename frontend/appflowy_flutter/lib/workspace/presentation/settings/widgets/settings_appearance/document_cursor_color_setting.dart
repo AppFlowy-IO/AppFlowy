@@ -18,7 +18,7 @@ class DocumentCursorColorSetting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const label = 'Document Cursor Color';
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: label,
       resetButtonKey: const Key('DocumentCursorColorResetButton'),
       onResetRequested: () {

@@ -17,7 +17,7 @@ class SettingsNotificationsView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              ThemeSettingEntryTemplateWidget(
+              FlowySettingListTile(
                 label: LocaleKeys
                     .settings_notifications_enableNotifications_label
                     .tr(),

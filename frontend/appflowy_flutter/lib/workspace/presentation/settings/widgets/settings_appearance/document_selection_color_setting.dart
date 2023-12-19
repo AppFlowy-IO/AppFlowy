@@ -19,7 +19,7 @@ class DocumentSelectionColorSetting extends StatelessWidget {
   Widget build(BuildContext context) {
     const label = 'Document Selection Color';
 
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: label,
       resetButtonKey: const Key('DocumentSelectionColorResetButton'),
       onResetRequested: () {
