@@ -1,4 +1,6 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flutter/material.dart';
@@ -120,14 +122,14 @@ class DocumentColorSettingDialogState
                       children: [
                         _ColorSettingTextField(
                           controller: hexController,
-                          labelText: 'Hex value',
+                          labelText: LocaleKeys.editor_hexValue.tr(),
                           hintText: '6fc9e7',
                           onChanged: (_) => updateSelectedColor(),
                         ),
                         const VSpace(8),
                         _ColorSettingTextField(
                           controller: opacityController,
-                          labelText: 'Opacity',
+                          labelText: LocaleKeys.editor_opacity.tr(),
                           hintText: '50',
                           onChanged: (_) => updateSelectedColor(),
                         ),
@@ -157,7 +159,9 @@ class DocumentColorSettingDialogState
                 }
                 Navigator.of(context).pop();
               },
-              child: const Text('Apply'),
+              child: Text(
+                LocaleKeys.settings_appearance_documentSettings_apply.tr(),
+              ),
             ),
             const Spacer(),
           ],

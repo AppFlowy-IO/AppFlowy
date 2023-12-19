@@ -1,8 +1,10 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/document_color_setting_button.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/theme_setting_entry_template.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +19,8 @@ class DocumentSelectionColorSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const label = 'Document Selection Color';
+    final label =
+        LocaleKeys.settings_appearance_documentSettings_selectionColor.tr();
 
     return FlowySettingListTile(
       label: label,
@@ -68,12 +71,12 @@ class _SelectionColorValueWidget extends StatelessWidget {
         Container(
           color: selectionColor,
           child: FlowyText(
-            'App',
+            LocaleKeys.settings_appearance_documentSettings_app.tr(),
             color: textColor,
           ),
         ),
         FlowyText(
-          'flowy',
+          LocaleKeys.settings_appearance_documentSettings_flowy.tr(),
           color: textColor,
         ),
       ],

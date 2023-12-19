@@ -319,6 +319,13 @@
         "dark": "Dark Mode",
         "system": "Adapt to System"
       },
+      "documentSettings": {
+        "cursorColor": "Document cursor color",
+        "selectionColor": "Document selection color",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Apply"
+      },
       "layoutDirection": {
         "label": "Layout Direction",
         "hint": "Control the flow of content on your screen, from left to right or right to left.",
