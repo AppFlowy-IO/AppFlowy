@@ -2,6 +2,7 @@ import {
   ApplyActionPayloadPB,
   BlockActionPB,
   BlockPB,
+  CloseDocumentPayloadPB,
   OpenDocumentPayloadPB,
   TextDeltaPayloadPB,
 } from '@/services/backend';
@@ -9,6 +10,7 @@ import {
   DocumentEventApplyAction,
   DocumentEventApplyTextDeltaEvent,
   DocumentEventOpenDocument,
+  DocumentEventCloseDocument,
 } from '@/services/backend/events/flowy-document2';
 import get from 'lodash-es/get';
 import { EditorData, EditorNodeType } from '$app/application/document/document.types';
@@ -92,6 +94,20 @@ export async function openDocument(docId: string): Promise<EditorData> {
   });
 
   return data;
+}
+
+export async function closeDocument(docId: string) {
+  const payload = CloseDocumentPayloadPB.fromObject({
+    document_id: docId,
+  });
+
+  const result = await DocumentEventCloseDocument(payload);
+
+  if (!result.ok) {
+    return Promise.reject(result.val);
+  }
+
+  return result.val;
 }
 
 export async function applyActions(docId: string, actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]) {

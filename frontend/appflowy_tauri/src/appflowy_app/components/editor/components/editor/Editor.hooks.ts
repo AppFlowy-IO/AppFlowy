@@ -11,7 +11,7 @@ import { withYjs, YjsEditor, withYHistory } from '@slate-yjs/core';
 import * as Y from 'yjs';
 import { CustomEditor } from '$app/components/editor/command';
 
-export function useEditor(sharedType?: Y.XmlText) {
+export function useEditor(sharedType: Y.XmlText) {
   const editor = useMemo(() => {
     if (!sharedType) return null;
     const e = withShortcuts(withBlockPlugins(withInlines(withReact(withYHistory(withYjs(createEditor(), sharedType))))));
@@ -25,6 +25,8 @@ export function useEditor(sharedType?: Y.XmlText) {
       if (!Editor.isEditor(node) || node.children.length > 0) {
         return normalizeNode(entry);
       }
+
+      console.log('======');
 
       Transforms.insertNodes(
         e,

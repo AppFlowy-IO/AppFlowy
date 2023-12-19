@@ -16,17 +16,17 @@ export class Provider extends EventEmitter {
   idRelationMap: Y.Map<string> = this.document.getMap('idRelationMap');
   sharedType: Y.XmlText | null = null;
   dataClient: DataClient;
-  constructor(public id: string) {
+  constructor(public id: string, includeRoot?: boolean) {
     super();
     this.dataClient = new DataClient(id);
-    void this.initialDocument();
+    void this.initialDocument(includeRoot);
   }
 
-  initialDocument = async () => {
+  initialDocument = async (includeRoot = true) => {
     const sharedType = this.document.get('local', Y.XmlText) as Y.XmlText;
 
     // Load the initial value into the yjs document
-    const delta = await this.dataClient.getInsertDelta();
+    const delta = await this.dataClient.getInsertDelta(includeRoot);
 
     sharedType.applyDelta(delta);
 

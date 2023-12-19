@@ -76,14 +76,19 @@ export function withSplitNodes(editor: ReactEditor) {
       return;
     }
 
-    // should be split to another paragraph, eg: heading and quote
+    // should be split to another paragraph, eg: heading and quote and page
     if (BREAK_TO_PARAGRAPH_TYPES.includes(nodeType)) {
+      const level = node.level || 1;
+      const parentId = (node.parentId || node.blockId) as string;
+
       splitNodes(...args);
       Transforms.setNodes(editor, {
         type: EditorNodeType.Paragraph,
         data: {},
         blockId: newBlockId,
         textId: newTextId,
+        level,
+        parentId,
       });
       return;
     }

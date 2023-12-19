@@ -1,6 +1,5 @@
 import { ReactEditor } from 'slate-react';
 import { Editor, Element, NodeEntry } from 'slate';
-import { SOFT_BREAK_TYPES } from '$app/components/editor/plugins/constants';
 import { EditorNodeType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
 
@@ -17,9 +16,8 @@ export function withBlockInsertBreak(editor: ReactEditor) {
     const [node] = nodeEntry as NodeEntry<Element>;
     const type = node.type as EditorNodeType;
 
-    // should insert a soft break, eg: code block and callout
-    if (SOFT_BREAK_TYPES.includes(type)) {
-      editor.insertText('\n');
+    if (type === EditorNodeType.Page) {
+      insertBreak(...args);
       return;
     }
 

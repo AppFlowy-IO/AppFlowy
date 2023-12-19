@@ -123,7 +123,7 @@ export const CustomEditor = {
     const index = editor.children.findIndex((child) => (child as Element).blockId === node.blockId);
 
     const level = node.level ?? 1;
-    const subordinateNodes: Element[] = [];
+    const subordinateNodes: (Element & { level: number })[] = [];
 
     if (index === editor.children.length - 1) return subordinateNodes;
 
@@ -308,6 +308,24 @@ export const CustomEditor = {
     return CustomEditor.getBlockType(editor) === EditorNodeType.GridBlock;
   },
 
+  isRootBlock: (editor: ReactEditor) => {
+    const matchEntries = Editor.nodes(editor, {
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.type !== undefined,
+    });
+
+    for (const matchEntry of matchEntries) {
+      const node = matchEntry[0] as Element & {
+        type: EditorNodeType;
+      };
+
+      if (node.type === EditorNodeType.Page) {
+        return true;
+      }
+    }
+
+    return false;
+  },
+
   isCodeBlock: (editor: ReactEditor) => {
     return CustomEditor.getBlockType(editor) === EditorNodeType.CodeBlock;
   },
@@ -330,35 +348,5 @@ export const CustomEditor = {
     );
     ReactEditor.focus(editor);
     Transforms.move(editor);
-  },
-
-  insertLineAtStart: (editor: ReactEditor & YjsEditor, node: Element) => {
-    const blockId = generateId();
-    const parentId = editor.sharedRoot.getAttribute('blockId');
-
-    ReactEditor.focus(editor);
-    editor.insertNode(
-      {
-        ...node,
-        blockId,
-        parentId,
-        textId: generateId(),
-        level: 1,
-      },
-      {
-        at: [0],
-      }
-    );
-
-    editor.select({
-      anchor: {
-        path: [0, 0],
-        offset: 0,
-      },
-      focus: {
-        path: [0, 0],
-        offset: 0,
-      },
-    });
   },
 };

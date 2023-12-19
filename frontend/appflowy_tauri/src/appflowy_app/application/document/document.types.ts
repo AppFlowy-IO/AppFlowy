@@ -1,5 +1,5 @@
 import { Op } from 'quill-delta';
-import { HTMLAttributes, MutableRefObject } from 'react';
+import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
 import { ViewIconTypePB, ViewLayoutPB } from '@/services/backend';
 import { YXmlText } from 'yjs/dist/src/types/YXmlText';
@@ -14,6 +14,9 @@ export interface EditorNode {
   externalType?: string;
 }
 
+export interface PageNode extends Element {
+  type: EditorNodeType.Page;
+}
 export interface ParagraphNode extends Element {
   type: EditorNodeType.Paragraph;
 }
@@ -120,11 +123,14 @@ export interface MentionPage {
 export interface EditorProps {
   id: string;
   sharedType?: YXmlText;
-  appendTextRef?: MutableRefObject<((text: string) => void) | null>;
+  title?: string;
+  onTitleChange?: (title: string) => void;
+  showTitle?: boolean;
 }
 
 export enum EditorNodeType {
   Paragraph = 'paragraph',
+  Page = 'page',
   HeadingBlock = 'heading',
   TodoListBlock = 'todo_list',
   BulletedListBlock = 'bulleted_list',

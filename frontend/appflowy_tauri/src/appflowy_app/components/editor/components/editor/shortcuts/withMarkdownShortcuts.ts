@@ -138,7 +138,7 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
   const { insertText } = editor;
 
   editor.insertText = (text) => {
-    if (CustomEditor.isCodeBlock(editor)) {
+    if (CustomEditor.isCodeBlock(editor) || CustomEditor.isRootBlock(editor)) {
       insertText(text);
       return;
     }

@@ -24,7 +24,7 @@ export function withCommandShortcuts(editor: ReactEditor) {
   const { insertText, deleteBackward } = editor;
 
   editor.insertText = (text) => {
-    if (CustomEditor.isCodeBlock(editor)) {
+    if (CustomEditor.isCodeBlock(editor) || CustomEditor.isRootBlock(editor)) {
       insertText(text);
       return;
     }
