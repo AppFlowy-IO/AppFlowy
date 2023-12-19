@@ -97,19 +97,37 @@ class _TrashPageState extends State<TrashPage> {
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr()),
               leftIcon: const FlowySvg(FlowySvgs.restore_s),
-              onTap: () => context.read<TrashBloc>().add(
-                    const TrashEvent.restoreAll(),
-                  ),
+              onTap: () {
+                showConfirmationDialog(
+                  context: context,
+                  title: "Confirm Restore All",
+                  message: "Are you sure you want to restore all the files ?",
+                  onConfirm: () {
+                    context.read<TrashBloc>().add(
+                          const TrashEvent.restoreAll(),
+                        );
+                  },
+                );
+              },
             ),
           ),
           const HSpace(6),
           IntrinsicWidth(
             child: FlowyButton(
-              text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr()),
-              leftIcon: const FlowySvg(FlowySvgs.delete_s),
-              onTap: () =>
-                  context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
-            ),
+                text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr()),
+                leftIcon: const FlowySvg(FlowySvgs.delete_s),
+                onTap: () {
+                  showConfirmationDialog(
+                    context: context,
+                    title: "Confirm Delete All",
+                    message: "Are you sure you want to delete all the files ?",
+                    onConfirm: () {
+                      context
+                          .read<TrashBloc>()
+                          .add(const TrashEvent.deleteAll());
+                    },
+                  );
+                }),
           ),
         ],
       ),
