@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
-import 'package:appflowy/workspace/application/app/app_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +13,7 @@ void main() {
     testContext = await AppFlowyUnitTest.ensureInitialized();
   });
 
-  test('initi home screen', () async {
+  test('init home screen', () async {
     final workspaceSetting = await FolderEventGetCurrentWorkspaceSetting()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
@@ -36,16 +36,16 @@ void main() {
       ..add(const HomeEvent.initial());
     await blocResponseFuture();
 
-    final app = await testContext.createTestApp();
-    final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
-    assert(appBloc.state.latestCreatedView == null);
+    final app = await testContext.createWorkspace();
+    final appBloc = ViewBloc(view: app)..add(const ViewEvent.initial());
+    assert(appBloc.state.lastCreatedView == null);
 
     appBloc
-        .add(const AppEvent.createView("New document", ViewLayoutPB.Document));
+        .add(const ViewEvent.createView("New document", ViewLayoutPB.Document));
     await blocResponseFuture();
 
-    assert(appBloc.state.latestCreatedView != null);
-    final latestView = appBloc.state.latestCreatedView!;
+    assert(appBloc.state.lastCreatedView != null);
+    final latestView = appBloc.state.lastCreatedView!;
     final _ = DocumentBloc(view: latestView)
       ..add(const DocumentEvent.initial());
 
