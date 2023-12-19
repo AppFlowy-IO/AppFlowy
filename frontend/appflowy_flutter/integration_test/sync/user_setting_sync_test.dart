@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:integration_test/integration_test.dart';
+import '../util/database_test_op.dart';
 import '../util/dir.dart';
 import '../util/emoji.dart';
 import '../util/mock/mock_file_picker.dart';
@@ -60,6 +61,10 @@ void main() {
       );
       await tester.enterText(userNameFinder, name);
       await tester.pumpAndSettle();
+      await tester.tapEscButton();
+
+      // wait 2 seconds for the sync to finish
+      await tester.pumpAndSettle(const Duration(seconds: 2));
     });
   });
 
@@ -85,8 +90,8 @@ void main() {
 
     // verify name
     final userNameFinder = find.descendant(
-      of: find.byType(UserNameInput),
-      matching: find.byType(TextField),
+      of: find.byType(SettingsUserView),
+      matching: find.byType(UserNameInput),
     );
     final UserNameInput userNameInput =
         tester.widget(userNameFinder) as UserNameInput;
