@@ -49,7 +49,6 @@ class DependencyResolver {
     _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
-    _resolveDocDeps(getIt);
     _resolveCommonService(getIt, mode);
   }
 }
@@ -218,11 +217,4 @@ void _resolveFolderDeps(GetIt getIt) {
     () => TrashBloc(),
   );
   getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
-}
-
-void _resolveDocDeps(GetIt getIt) {
-// Doc
-  getIt.registerFactoryParam<DocumentBloc, ViewPB, void>(
-    (view, _) => DocumentBloc(view: view),
-  );
 }
