@@ -25,6 +25,9 @@ void main() {
   const pageName = 'Sample';
   final email = '${uuid()}@appflowy.io';
 
+// The test will create a new document called Sample, and sync it to the server.
+// Then the test will logout the user, and login with the same user. The data will
+// be synced from the server.
   group('appflowy cloud document', () {
     testWidgets('sync local docuemnt to server', (tester) async {
       await tester.initializeAppFlowy(
