@@ -98,34 +98,12 @@ bool get isAuthEnabled {
 /// if the application is in release or develop mode and the current cloud type
 /// is `CloudType.supabase`. Otherwise, it returns `false`.
 bool get isSupabaseEnabled {
-  // Only enable supabase in release and develop mode.
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    return currentCloudType() == AuthenticatorType.supabase;
-  } else {
-    return false;
-  }
+  return currentCloudType() == AuthenticatorType.supabase;
 }
 
 /// Determines if AppFlowy Cloud is enabled.
-///
-/// This getter assesses if AppFlowy Cloud should be enabled based on the
-/// current integration mode and cloud type setting.
-///
-/// Returns:
-/// A boolean value indicating whether AppFlowy Cloud is enabled. It returns
-/// `true` if the application is in release or develop mode and the current
-/// cloud type is `CloudType.appflowyCloud`. Otherwise, it returns `false`.
 bool get isAppFlowyCloudEnabled {
-  // Only enable appflowy cloud in release and develop mode.
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    return currentCloudType() == AuthenticatorType.appflowyCloud;
-  } else {
-    return false;
-  }
+  return currentCloudType() == AuthenticatorType.appflowyCloud;
 }
 
 enum AuthenticatorType {

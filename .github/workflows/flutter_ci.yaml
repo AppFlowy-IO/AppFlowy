@@ -398,12 +398,6 @@ jobs:
           tar -xf appflowy_flutter.tar.gz
           ls -al
 
-      - name: Enable env
-        working-directory: frontend/appflowy_flutter
-        run: |
-          cp env.cloud.test .env.cloud.test
-          dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs
-
       - name: Run flutter pub get
         working-directory: frontend
         run: cargo make pub_get

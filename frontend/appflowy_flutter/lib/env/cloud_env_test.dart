@@ -11,7 +11,7 @@ abstract class TestEnv {
   @EnviedField(
     obfuscate: true,
     varName: 'APPFLOWY_CLOUD_URL',
-    defaultValue: '',
+    defaultValue: 'http://localhost',
   )
   static final String afCloudUrl = _TestEnv.afCloudUrl;
 
