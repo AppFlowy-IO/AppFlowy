@@ -43,7 +43,7 @@ void main() {
           node.delta!.first.attributes![MentionBlockKeys.mention];
 
       expect(node.type, 'paragraph');
-      expect(mentionAttr['type'], MentionType.reminder.name);
+      expect(mentionAttr['type'], MentionType.date.name);
       expect(mentionAttr['date'], tomorrow.toIso8601String());
 
       await tester.tap(
@@ -67,7 +67,7 @@ void main() {
           _dateWithTime(dateTimeSettings.timeFormat, tomorrow, time);
 
       expect(node.type, 'paragraph');
-      expect(mentionAttr['type'], MentionType.reminder.name);
+      expect(mentionAttr['type'], MentionType.date.name);
       expect(mentionAttr['date'], tomorrowWithTime.toIso8601String());
     });
   });

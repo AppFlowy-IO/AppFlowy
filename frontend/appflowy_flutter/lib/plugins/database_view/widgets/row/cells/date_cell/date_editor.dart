@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'date_cell_editor_bloc.dart';
@@ -54,28 +57,40 @@ class _DateCellEditor extends State<DateCellEditor> {
             parseEndTimeError: state.parseEndTimeError,
             parseTimeError: state.parseTimeError,
             popoverMutex: popoverMutex,
-            onStartTimeSubmitted: (timeStr) {
-              bloc.add(DateCellEditorEvent.setTime(timeStr));
-            },
-            onEndTimeSubmitted: (timeStr) {
-              bloc.add(DateCellEditorEvent.setEndTime(timeStr));
-            },
-            onDaySelected: (selectedDay, _) {
-              bloc.add(DateCellEditorEvent.selectDay(selectedDay));
-            },
-            onRangeSelected: (start, end, _) {
-              bloc.add(DateCellEditorEvent.selectDateRange(start, end));
-            },
-            allowFormatChanges: true,
-            onDateFormatChanged: (format) {
-              bloc.add(DateCellEditorEvent.setDateFormat(format));
-            },
-            onTimeFormatChanged: (format) {
-              bloc.add(DateCellEditorEvent.setTimeFormat(format));
-            },
-            onClearDate: () {
-              bloc.add(const DateCellEditorEvent.clearDate());
-            },
+            options: [
+              OptionGroup(
+                options: [
+                  DateTypeOptionButton(
+                    popoverMutex: popoverMutex,
+                    dateFormat: state.dateTypeOptionPB.dateFormat,
+                    timeFormat: state.dateTypeOptionPB.timeFormat,
+                    onDateFormatChanged: (format) => context
+                        .read<DateCellEditorBloc>()
+                        .add(DateCellEditorEvent.setDateFormat(format)),
+                    onTimeFormatChanged: (format) => context
+                        .read<DateCellEditorBloc>()
+                        .add(DateCellEditorEvent.setTimeFormat(format)),
+                  ),
+                  ClearDateButton(
+                    onClearDate: () => context
+                        .read<DateCellEditorBloc>()
+                        .add(const DateCellEditorEvent.clearDate()),
+                  ),
+                ],
+              ),
+            ],
+            onStartTimeSubmitted: (timeStr) => context
+                .read<DateCellEditorBloc>()
+                .add(DateCellEditorEvent.setTime(timeStr)),
+            onEndTimeSubmitted: (timeStr) => context
+                .read<DateCellEditorBloc>()
+                .add(DateCellEditorEvent.setEndTime(timeStr)),
+            onDaySelected: (selectedDay, _) => context
+                .read<DateCellEditorBloc>()
+                .add(DateCellEditorEvent.selectDay(selectedDay)),
+            onRangeSelected: (start, end, _) => context
+                .read<DateCellEditorBloc>()
+                .add(DateCellEditorEvent.selectDateRange(start, end)),
           );
         },
       ),

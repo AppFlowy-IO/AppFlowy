@@ -5,7 +5,6 @@ use collab_document::blocks::DocumentData;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tracing::trace;
 use validator::ValidationError;
 
 pub fn get_delta_for_block(block_id: &str, data: &DocumentData) -> Option<Vec<InsertDelta>> {

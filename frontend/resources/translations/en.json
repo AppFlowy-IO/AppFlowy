@@ -1007,7 +1007,21 @@
     "includeTime": "Include time",
     "isRange": "End date",
     "timeFormat": "Time format",
-    "clearDate": "Clear date"
+    "clearDate": "Clear date",
+    "reminderLabel": "Reminder",
+    "reminderOptions": {
+      "none": "None",
+      "atTimeOfEvent": "Time of event",
+      "fiveMinsBefore": "5 mins before",
+      "tenMinsBefore": "10 mins before",
+      "fifteenMinsBefore": "15 mins before",
+      "thirtyMinsBefore": "30 mins before",
+      "oneHourBefore": "1 hour before",
+      "twoHoursBefore": "2 hours before",
+      "oneDayBefore": "1 day before",
+      "twoDaysBefore": "2 days before",
+      "custom": "Custom"
+    }
   },
   "relativeDates": {
     "yesterday": "Yesterday",

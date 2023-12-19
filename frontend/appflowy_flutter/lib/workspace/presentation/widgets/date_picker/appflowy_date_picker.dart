@@ -2,15 +2,20 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/common/type_option_separator.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_text_field.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/start_text_field.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+
+class OptionGroup {
+  OptionGroup({required this.options});
+
+  final List<Widget> options;
+}
 
 typedef DaySelectedCallback = Function(DateTime, DateTime);
 typedef RangeSelectedCallback = Function(DateTime?, DateTime?, DateTime);
@@ -38,14 +43,13 @@ class AppFlowyDatePicker extends StatefulWidget {
     this.parseEndTimeError,
     this.parseTimeError,
     this.popoverMutex,
+    this.selectedReminderOption = ReminderOption.none,
     this.onStartTimeSubmitted,
     this.onEndTimeSubmitted,
     this.onDaySelected,
     this.onRangeSelected,
-    this.allowFormatChanges = false,
-    this.onDateFormatChanged,
-    this.onTimeFormatChanged,
-    this.onClearDate,
+    this.onReminderSelected,
+    this.options,
   });
 
   final bool includeTime;
@@ -70,41 +74,33 @@ class AppFlowyDatePicker extends StatefulWidget {
   final String? parseEndTimeError;
   final String? parseTimeError;
   final PopoverMutex? popoverMutex;
+  final ReminderOption selectedReminderOption;
 
   final TimeChangedCallback? onStartTimeSubmitted;
   final TimeChangedCallback? onEndTimeSubmitted;
   final DaySelectedCallback? onDaySelected;
   final RangeSelectedCallback? onRangeSelected;
 
-  /// If this value is true, then [onTimeFormatChanged] and [onDateFormatChanged]
-  /// cannot be null
-  ///
-  final bool allowFormatChanges;
+  final OnReminderSelected? onReminderSelected;
 
-  /// If [allowFormatChanges] is true, this must be provided
+  /// A list of [OptionGroup] that will be rendered with proper
+  /// separators, each group can contain multiple options.
   ///
-  final Function(DateFormatPB)? onDateFormatChanged;
-
-  /// If [allowFormatChanges] is true, this must be provided
-  ///
-  final Function(TimeFormatPB)? onTimeFormatChanged;
-
-  /// If provided, the ClearDate button will be shown
-  /// Otherwise it will be hidden
-  ///
-  final VoidCallback? onClearDate;
+  final List<OptionGroup>? options;
 
   @override
   State<AppFlowyDatePicker> createState() => _AppFlowyDatePickerState();
 }
 
 class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
-  late DateTime? _selectedDay = widget.selectedDay;
+  late DateTime? _selectedDay;
+  late ReminderOption _selectedReminderOption;
 
   @override
-  void didChangeDependencies() {
+  void initState() {
+    super.initState();
     _selectedDay = widget.selectedDay;
-    super.didChangeDependencies();
+    _selectedReminderOption = widget.selectedReminderOption;
   }
 
   @override
@@ -161,28 +157,44 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
               onChanged: widget.onIncludeTimeChanged,
             ),
           ),
-          if (widget.onClearDate != null ||
-              (widget.allowFormatChanges &&
-                  widget.onDateFormatChanged != null &&
-                  widget.onTimeFormatChanged != null))
-            // Only show if either of the options are below it
-            const TypeOptionSeparator(spacing: 8.0),
-          if (widget.allowFormatChanges &&
-              widget.onDateFormatChanged != null &&
-              widget.onTimeFormatChanged != null)
-            DateTypeOptionButton(
-              popoverMutex: widget.popoverMutex,
-              dateFormat: widget.dateFormat,
-              timeFormat: widget.timeFormat,
-              onDateFormatChanged: widget.onDateFormatChanged!,
-              onTimeFormatChanged: widget.onTimeFormatChanged!,
+          const _GroupSeparator(),
+          ReminderSelector(
+            mutex: widget.popoverMutex,
+            selectedOption: _selectedReminderOption,
+            onOptionSelected: (option) {
+              setState(() => _selectedReminderOption = option);
+              widget.onReminderSelected?.call(option);
+            },
+          ),
+          if (widget.options?.isNotEmpty ?? false) ...[
+            const _GroupSeparator(),
+            ListView.separated(
+              shrinkWrap: true,
+              itemCount: widget.options!.length,
+              separatorBuilder: (_, __) => const _GroupSeparator(),
+              itemBuilder: (_, index) =>
+                  _renderGroupOptions(widget.options![index].options),
             ),
-          if (widget.onClearDate != null) ...[
-            const VSpace(4.0),
-            ClearDateButton(onClearDate: widget.onClearDate!),
           ],
         ],
       ),
     );
   }
+
+  Widget _renderGroupOptions(List<Widget> options) => ListView.separated(
+        shrinkWrap: true,
+        itemCount: options.length,
+        separatorBuilder: (_, __) => const VSpace(4),
+        itemBuilder: (_, index) => options[index],
+      );
+}
+
+class _GroupSeparator extends StatelessWidget {
+  const _GroupSeparator();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Container(color: Theme.of(context).dividerColor, height: 1.0),
+      );
 }

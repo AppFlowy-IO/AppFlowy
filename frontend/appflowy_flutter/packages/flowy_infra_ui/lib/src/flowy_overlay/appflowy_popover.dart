@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
-import 'package:flutter/material.dart';
 
 class AppFlowyPopover extends StatelessWidget {
   final Widget child;
@@ -58,12 +59,11 @@ class AppFlowyPopover extends StatelessWidget {
       offset: offset,
       clickHandler: clickHandler,
       popupBuilder: (context) {
-        final child = popupBuilder(context);
         return _PopoverContainer(
           constraints: constraints,
           margin: margin,
           decoration: decoration,
-          child: child,
+          child: popupBuilder(context),
         );
       },
       child: child,
@@ -72,18 +72,17 @@ class AppFlowyPopover extends StatelessWidget {
 }
 
 class _PopoverContainer extends StatelessWidget {
-  final Widget child;
-  final BoxConstraints constraints;
-  final EdgeInsets margin;
-  final Decoration? decoration;
-
   const _PopoverContainer({
     required this.child,
     required this.margin,
     required this.constraints,
     required this.decoration,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final Widget child;
+  final BoxConstraints constraints;
+  final EdgeInsets margin;
+  final Decoration? decoration;
 
   @override
   Widget build(BuildContext context) {
