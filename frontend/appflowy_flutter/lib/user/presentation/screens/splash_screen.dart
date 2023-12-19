@@ -1,4 +1,5 @@
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -95,7 +96,7 @@ class SplashScreen extends StatelessWidget {
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     Log.trace(
-      '_handleUnauthenticated -> appflowy cloud is enabled: $isAppFlowyCloudEnabled, config: ${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.toJson()}',
+      "_handleUnauthenticated -> enable custom cloud: ${Env.enableCustomCloud},  appflowy cloud is enabled: $isAppFlowyCloudEnabled, appflowy cloud config: ${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.toJson()}",
     );
     // replace Splash screen as root page
     if (isAuthEnabled || PlatformExtension.isMobile) {

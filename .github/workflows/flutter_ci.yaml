@@ -322,7 +322,7 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [prepare]
+    needs: [prepare, integration_test]
 #    if: github.event_name != 'pull_request'
     strategy:
       fail-fast: false

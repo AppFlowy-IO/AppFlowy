@@ -9,7 +9,7 @@ part 'cloud_env_test.g.dart';
 abstract class TestEnv {
   /// AppFlowy Cloud Configuration
   @EnviedField(
-    obfuscate: true,
+    obfuscate: false,
     varName: 'APPFLOWY_CLOUD_URL',
     defaultValue: 'http://localhost',
   )
@@ -17,13 +17,13 @@ abstract class TestEnv {
 
   // Supabase Configuration:
   @EnviedField(
-    obfuscate: true,
+    obfuscate: false,
     varName: 'SUPABASE_URL',
     defaultValue: '',
   )
   static final String supabaseUrl = _TestEnv.supabaseUrl;
   @EnviedField(
-    obfuscate: true,
+    obfuscate: false,
     varName: 'SUPABASE_ANON_KEY',
     defaultValue: '',
   )
