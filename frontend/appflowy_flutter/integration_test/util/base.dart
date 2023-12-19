@@ -71,6 +71,7 @@ extension AppFlowyTestBase on WidgetTester {
             if (cloudType != null) {
               switch (cloudType) {
                 case AuthenticatorType.local:
+                  await useLocal();
                   break;
                 case AuthenticatorType.supabase:
                   await useSupabaseCloud();
@@ -254,6 +255,10 @@ extension AppFlowyFinderTestBase on CommonFinders {
       (widget) => widget is FlowyText && widget.text == text,
     );
   }
+}
+
+Future<void> useLocal() async {
+  await setAuthenticatorType(AuthenticatorType.local);
 }
 
 Future<void> useSupabaseCloud() async {
