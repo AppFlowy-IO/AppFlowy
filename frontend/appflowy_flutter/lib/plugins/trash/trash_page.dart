@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/src/sizes.dart';
 import 'package:appflowy/plugins/trash/src/trash_header.dart';
+import 'package:appflowy/plugins/trash/application/trash_prompt.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -133,10 +134,27 @@ class _TrashPageState extends State<TrashPage> {
             child: TrashCell(
               object: object,
               onRestore: () {
-                context.read<TrashBloc>().add(TrashEvent.putback(object.id));
+                showConfirmationDialog(
+                  context: context,
+                  title: "Confirm Restore",
+                  message: "Are you sure you want to restore this item?",
+                  onConfirm: () {
+                    context
+                        .read<TrashBloc>()
+                        .add(TrashEvent.putback(object.id));
+                  },
+                );
               },
-              onDelete: () =>
-                  context.read<TrashBloc>().add(TrashEvent.delete(object)),
+              onDelete: () {
+                showConfirmationDialog(
+                  context: context,
+                  title: "Confirm Delete",
+                  message: "Are you sure you want to delete this item?",
+                  onConfirm: () {
+                    context.read<TrashBloc>().add(TrashEvent.delete(object));
+                  },
+                );
+              },
             ),
           );
         },
