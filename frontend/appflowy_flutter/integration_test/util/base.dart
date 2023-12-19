@@ -35,7 +35,7 @@ extension AppFlowyTestBase on WidgetTester {
     String? pathExtension,
     Size windowsSize = const Size(1600, 1200),
     AuthenticatorType? cloudType,
-    String? userEmail,
+    String? email,
   }) async {
     binding.setSurfaceSize(windowsSize);
 
@@ -83,7 +83,7 @@ extension AppFlowyTestBase on WidgetTester {
                   await useAppFlowyCloud();
                   getIt.unregister<AuthService>();
                   getIt.registerFactory<AuthService>(
-                    () => AppFlowyCloudMockAuthService(email: userEmail),
+                    () => AppFlowyCloudMockAuthService(email: email),
                   );
                   break;
               }

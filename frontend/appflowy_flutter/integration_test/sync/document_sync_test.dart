@@ -32,7 +32,7 @@ void main() {
     testWidgets('sync local docuemnt to server', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloud,
-        userEmail: email,
+        email: email,
       );
       await tester.tapGoogleLoginInButton();
       tester.expectToSeeHomePage();
@@ -59,7 +59,7 @@ void main() {
     testWidgets('sync doc from server', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloud,
-        userEmail: email,
+        email: email,
       );
       await tester.tapGoogleLoginInButton();
       tester.expectToSeeHomePage();

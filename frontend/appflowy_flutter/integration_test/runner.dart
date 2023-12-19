@@ -22,7 +22,6 @@ import 'settings/settings_runner.dart' as settings_test_runner;
 import 'share_markdown_test.dart' as share_markdown_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'switch_folder_test.dart' as switch_folder_test;
-import 'sync/document_sync_test.dart' as document_sync_test;
 import 'tabs_test.dart' as tabs_test;
 // import 'auth/supabase_auth_test.dart' as supabase_auth_test_runner;
 
@@ -76,9 +75,6 @@ Future<void> main() async {
 
   // User settings
   settings_test_runner.main();
-
-  // AppFlowy Cloud integration tests
-  document_sync_test.main();
 
   // board_test.main();
   // empty_document_test.main();
