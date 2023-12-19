@@ -127,6 +127,9 @@ class EditorStyleCustomizer {
         ),
       ),
       textSpanDecorator: customizeAttributeDecorator,
+      mobileDragHandleBallSize: const Size.square(12.0),
+      mobileDragHandleWidth: 2.0,
+      magnifierSize: const Size(144, 96),
     );
   }
 

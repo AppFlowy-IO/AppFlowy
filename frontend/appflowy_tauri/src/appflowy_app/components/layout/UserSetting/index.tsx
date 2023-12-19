@@ -5,7 +5,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide, { SlideProps } from '@mui/material/Slide';
 import UserSettingMenu, { MenuItem } from './Menu';
 import UserSettingPanel from './SettingPanel';
-import { Theme, UserSetting } from '$app/interfaces';
+import { Theme, UserSetting } from '$app/stores/reducers/current-user/slice';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { currentUserActions } from '$app_reducers/current-user/slice';
 import { useUserSettingControllerContext } from '$app/components/_shared/app-hooks/useUserSettingControllerContext';

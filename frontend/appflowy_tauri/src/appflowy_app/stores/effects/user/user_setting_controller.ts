@@ -1,6 +1,6 @@
 import { UserBackendService } from '$app/stores/effects/user/user_bd_svc';
 import { AppearanceSettingsPB } from '@/services/backend';
-import { Theme, ThemeMode, UserSetting } from '$app/interfaces';
+import { Theme, ThemeMode, UserSetting } from '$app/stores/reducers/current-user/slice';
 
 export class UserSettingController {
   private readonly backendService: UserBackendService;

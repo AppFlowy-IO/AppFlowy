@@ -11,6 +11,7 @@ module.exports = {
     project: 'tsconfig.json',
     sourceType: 'module',
     tsconfigRootDir: __dirname,
+    extraFileExtensions: ['.json'],
   },
   plugins: ['@typescript-eslint',  "react-hooks"],
   rules: {
@@ -68,5 +69,5 @@ module.exports = {
 
     ]
   },
-  ignorePatterns: ['src/**/*.test.ts', 'package.json'],
+  ignorePatterns: ['src/**/*.test.ts', '**/__tests__/**/*.json', 'package.json']
 };

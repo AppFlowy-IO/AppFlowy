@@ -1,5 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
@@ -26,14 +30,12 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/create_sort_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/order_panel.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_menu.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
-import 'package:appflowy/plugins/database_view/widgets/setting/database_layout_selector.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/sort_button.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/desktop/tab_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/desktop/tab_bar_header.dart';
@@ -51,10 +53,15 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/database_layout_selector.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_settings_list.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_property_list.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/include_time_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
@@ -67,9 +74,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:table_calendar/table_calendar.dart';
@@ -1610,8 +1614,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   ) async {
     final field = find.byWidgetPredicate(
       (widget) =>
-          widget is DesktopDatabasePropertyCell &&
-          widget.fieldInfo.name == fieldName,
+          widget is DatabasePropertyCell && widget.fieldInfo.name == fieldName,
     );
     final toggleVisibilityButton =
         find.descendant(of: field, matching: find.byType(FlowyIconButton));

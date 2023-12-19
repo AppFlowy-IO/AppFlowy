@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { PageController } from '$app/stores/effects/workspace/page/page_controller';
-import { Page, pagesActions } from '$app_reducers/pages/slice';
+import { Page, pagesActions, pageTypeMap } from '$app_reducers/pages/slice';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { ViewLayoutPB } from '@/services/backend';
 import { useNavigate, useParams } from 'react-router-dom';
-import { pageTypeMap } from '$app/constants';
 import { updatePageName } from '$app_reducers/pages/async_actions';
 
 export function useLoadChildPages(pageId: string) {

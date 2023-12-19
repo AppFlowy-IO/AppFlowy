@@ -100,7 +100,7 @@
     "shortcuts": "快捷鍵",
     "whatsNew": "新功能",
     "help": "幫助 & 支援",
-    "markdown": "降價",
+    "markdown": "Markdown",
     "debug": {
       "name": "除錯資訊",
       "success": "已將除錯資訊複製至剪貼簿！",
@@ -208,7 +208,7 @@
       "user": "使用者",
       "files": "檔案",
       "open": "開啟設定",
-      "supabaseSetting": "超基設置"
+      "supabaseSetting": "Supabase 設置"
     },
     "appearance": {
       "fontFamily": {
