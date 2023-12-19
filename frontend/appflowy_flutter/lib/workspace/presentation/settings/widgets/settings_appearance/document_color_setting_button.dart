@@ -74,7 +74,7 @@ class DocumentColorSettingDialogState
   late String currentColorHexString;
   late TextEditingController hexController;
   late TextEditingController opacityController;
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(debugLabel: 'colorSettingForm');
 
   @override
   void initState() {
@@ -87,6 +87,13 @@ class DocumentColorSettingDialogState
     opacityController = TextEditingController(
       text: _convertHexToOpacity(currentColorHexString),
     );
+  }
+
+  @override
+  void dispose() {
+    hexController.dispose();
+    opacityController.dispose();
+    super.dispose();
   }
 
   @override
@@ -217,6 +224,7 @@ class _ColorSettingTextField extends StatelessWidget {
       style: style.textTheme.bodyMedium,
       onFieldSubmitted: onFieldSubmitted,
       validator: validator,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
     );
   }
 }
