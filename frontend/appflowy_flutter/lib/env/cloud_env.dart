@@ -70,7 +70,6 @@ Future<AuthenticatorType> getAuthenticatorType() async {
 /// AppFlowy Cloud or Supabase configuration is valid.
 /// Returns `false` otherwise.
 bool get isAuthEnabled {
-  // Only enable supabase in release and develop mode.
   if (integrationMode().isRelease ||
       integrationMode().isDevelop ||
       integrationMode().isIntegrationTest) {

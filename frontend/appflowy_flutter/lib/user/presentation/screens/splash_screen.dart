@@ -95,7 +95,7 @@ class SplashScreen extends StatelessWidget {
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     Log.trace(
-      '_handleUnauthenticated -> cloud is enabled: $isAuthEnabled',
+      '_handleUnauthenticated -> appflowy cloud is enabled: $isAppFlowyCloudEnabled, config: ${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig}',
     );
     // replace Splash screen as root page
     if (isAuthEnabled || PlatformExtension.isMobile) {
