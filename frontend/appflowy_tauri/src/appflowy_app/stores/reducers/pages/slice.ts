@@ -1,6 +1,12 @@
 import { ViewIconTypePB, ViewLayoutPB, ViewPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export const pageTypeMap = {
+  [ViewLayoutPB.Document]: 'document',
+  [ViewLayoutPB.Board]: 'board',
+  [ViewLayoutPB.Grid]: 'grid',
+  [ViewLayoutPB.Calendar]: 'calendar',
+};
 export interface Page {
   id: string;
   parentId: string;
@@ -90,7 +96,7 @@ export const pagesSlice = createSlice({
       const id = action.payload;
 
       state.expandedIdMap[id] = true;
-      const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+      const ids = Object.keys(state.expandedIdMap).filter((id) => state.expandedIdMap[id]);
 
       storeExpandedPageIds(ids);
     },
@@ -99,7 +105,7 @@ export const pagesSlice = createSlice({
       const id = action.payload;
 
       state.expandedIdMap[id] = false;
-      const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+      const ids = Object.keys(state.expandedIdMap).filter((id) => state.expandedIdMap[id]);
 
       storeExpandedPageIds(ids);
     },

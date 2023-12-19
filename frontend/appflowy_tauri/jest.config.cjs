@@ -1,5 +1,6 @@
 const { compilerOptions } = require('./tsconfig.json');
 const { pathsToModuleNameMapper } = require("ts-jest");
+const esModules = ["lodash-es", "nanoid"].join("|");
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
@@ -7,12 +8,14 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>'],
   modulePaths: [compilerOptions.baseUrl],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths),
+    "^lodash-es(/(.*)|$)": "lodash$1",
+    "^nanoid(/(.*)|$)": "nanoid$1",
+  },
   "transform": {
     "(.*)/node_modules/nanoid/.+\\.(j|t)sx?$": "ts-jest"
   },
-  "transformIgnorePatterns": [
-    "node_modules/(?!nanoid/.*)"
-  ],
+  "transformIgnorePatterns": [`/node_modules/(?!${esModules})`],
   "testRegex": "(/__tests__/.*\.(test|spec))\\.(jsx?|tsx?)$",
 };

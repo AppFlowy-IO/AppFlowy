@@ -50,16 +50,13 @@ function EditRecord({ rowId }: Props) {
     void loadPage();
   }, [loadPage]);
 
-  const getDocumentTitle = useCallback(() => {
-    return row ? <RecordHeader page={page} row={row} /> : null;
-  }, [row, page]);
-
-  if (!id) return null;
+  if (!id || !page) return null;
 
   return (
-    <div className={'h-full px-12 py-6'}>
-      {page && <RecordDocument getDocumentTitle={getDocumentTitle} documentId={id} />}
-    </div>
+    <>
+      <RecordHeader page={page} row={row} />
+      <RecordDocument documentId={id} />
+    </>
   );
 }
 

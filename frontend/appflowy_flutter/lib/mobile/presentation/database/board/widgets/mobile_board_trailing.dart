@@ -25,7 +25,7 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
     final style = Theme.of(context);
 
     return Container(
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
       child: SizedBox(
         width: screenSize.width * 0.7,
         child: isEditing

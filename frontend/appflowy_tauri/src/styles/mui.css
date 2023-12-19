@@ -11,7 +11,7 @@
     background-color: var(--fill-list-active);
 }
 
-[class$='-MuiButtonBase-root-MuiMenuItem-root'].MuiButtonBase-root:hover {
+[class$='-MuiButtonBase-root-MuiMenuItem-root'].MuiButtonBase-root:hover, [class$='-MuiButtonBase-root-MuiMenuItem-root'].MuiButtonBase-root.Mui-selected:hover {
     background-color: var(--fill-list-active);
 }
 

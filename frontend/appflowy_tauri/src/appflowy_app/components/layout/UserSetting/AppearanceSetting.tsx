@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import Select from '@mui/material/Select';
-import { Theme, ThemeMode, UserSetting } from '$app/interfaces';
+import { Theme, ThemeMode, UserSetting } from '$app/stores/reducers/current-user/slice';
 import MenuItem from '@mui/material/MenuItem';
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +16,6 @@ function AppearanceSetting({
   const { t } = useTranslation();
 
   useEffect(() => {
-
     const html = document.documentElement;
 
     html?.setAttribute('data-dark-mode', String(themeMode === ThemeMode.Dark));

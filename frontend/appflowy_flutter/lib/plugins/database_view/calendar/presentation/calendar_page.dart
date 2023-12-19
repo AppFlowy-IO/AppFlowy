@@ -189,7 +189,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return LayoutBuilder(
       // must specify MonthView width for useAvailableVerticalSpace to work properly
       builder: (context, constraints) {
-        Widget calendar = Padding(
+        return Padding(
           padding: PlatformExtension.isMobile
               ? CalendarSize.contentInsetsMobile
               : CalendarSize.contentInsets,
@@ -210,20 +210,6 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
           ),
         );
-        if (PlatformExtension.isMobile) {
-          calendar = Column(
-            children: [
-              Divider(
-                height: 1,
-                thickness: 1,
-                indent: GridSize.leadingHeaderPadding / 2,
-                endIndent: GridSize.leadingHeaderPadding / 2,
-              ),
-              Expanded(child: calendar),
-            ],
-          );
-        }
-        return calendar;
       },
     );
   }

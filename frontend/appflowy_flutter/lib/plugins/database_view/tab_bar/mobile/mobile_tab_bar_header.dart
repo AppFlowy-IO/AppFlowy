@@ -1,18 +1,14 @@
-import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/widgets/setting/mobile_database_settings_button.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/mobile_database_controls.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../grid/presentation/grid_page.dart';
 
 class MobileTabBarHeader extends StatefulWidget {
   const MobileTabBarHeader({super.key});
@@ -22,13 +18,40 @@ class MobileTabBarHeader extends StatefulWidget {
 }
 
 class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
-  final controller = TextEditingController();
-
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Expanded(child: _DatabaseViewList()),
+          const HSpace(10),
+          BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+            builder: (context, state) {
+              final currentView = state.tabBars.firstWhereIndexedOrNull(
+                (index, tabBar) => index == state.selectedIndex,
+              );
+
+              if (currentView == null) {
+                return const SizedBox.shrink();
+              }
+
+              return MobileDatabaseControls(
+                controller: state
+                    .tabBarControllerByViewId[currentView.viewId]!.controller,
+                toggleExtension: ToggleExtensionNotifier(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
+}
+
+class _DatabaseViewList extends StatelessWidget {
+  const _DatabaseViewList();
 
   @override
   Widget build(BuildContext context) {
@@ -42,76 +65,127 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
           return const SizedBox.shrink();
         }
 
-        controller.text = currentView.view.name;
+        final children = state.tabBars.mapIndexed((index, tabBar) {
+          return Padding(
+            padding: EdgeInsetsDirectional.only(
+              start: index == 0 ? 0 : 2,
+              end: 2,
+            ),
+            child: _DatabaseViewListItem(
+              tabBar: tabBar,
+              isSelected: currentView.viewId == tabBar.viewId,
+            ),
+          );
+        }).toList();
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          child: Row(
-            children: [
-              _buildViewIconButton(currentView.view),
-              const HSpace(8.0),
-              Expanded(
-                child: FlowyTextField(
-                  autoFocus: false,
-                  maxLines: 1,
-                  controller: controller,
-                  textAlignVertical: TextAlignVertical.top,
-                  textInputAction: TextInputAction.done,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  textStyle: Theme.of(context).textTheme.titleLarge,
-                  onSubmitted: (value) {
-                    if (value.isNotEmpty) {
-                      context.read<ViewBloc>().add(
-                            ViewEvent.rename(value),
-                          );
-                    }
-                  },
-                  onCanceled: () {
-                    controller.text = currentView.view.name;
-                  },
-                ),
-              ),
-              MobileDatabaseSettingsButton(
-                controller: state
-                    .tabBarControllerByViewId[currentView.viewId]!.controller,
-                toggleExtension: ToggleExtensionNotifier(),
-              ),
-            ],
-          ),
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: children),
         );
       },
     );
   }
+}
 
-  Widget _buildViewIconButton(ViewPB view) {
-    final icon = view.icon.value.isNotEmpty
-        ? EmojiText(
-            emoji: view.icon.value,
-            fontSize: 24.0,
-          )
-        : SizedBox.square(
-            dimension: 26.0,
-            child: view.defaultIcon(),
-          );
-    return FlowyButton(
-      text: icon,
-      useIntrinsicWidth: true,
-      onTap: () async {
-        final result = await context.push<EmojiPickerResult>(
-          MobileEmojiPickerScreen.routeName,
-        );
-        if (context.mounted && result != null) {
-          await ViewBackendService.updateViewIcon(
-            viewId: view.id,
-            viewIcon: result.emoji,
-          );
+class _DatabaseViewListItem extends StatefulWidget {
+  const _DatabaseViewListItem({
+    required this.tabBar,
+    required this.isSelected,
+  });
+
+  final DatabaseTabBar tabBar;
+  final bool isSelected;
+
+  @override
+  State<_DatabaseViewListItem> createState() => _DatabaseViewListItemState();
+}
+
+class _DatabaseViewListItemState extends State<_DatabaseViewListItem> {
+  late final MaterialStatesController statesController;
+
+  @override
+  void initState() {
+    super.initState();
+    statesController = MaterialStatesController(
+      <MaterialState>{if (widget.isSelected) MaterialState.selected},
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isSelected != oldWidget.isSelected) {
+      statesController.update(MaterialState.selected, widget.isSelected);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      statesController: statesController,
+      style: ButtonStyle(
+        padding: const MaterialStatePropertyAll(
+          EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        ),
+        maximumSize: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const Size(150, 48);
+          }
+          return const Size(120, 48);
+        }),
+        minimumSize: const MaterialStatePropertyAll(Size(48, 0)),
+        shape: const MaterialStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ),
+        ),
+        backgroundColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const Color(0x0F212729);
+          }
+          return Colors.transparent;
+        }),
+        overlayColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.transparent;
+          }
+          return Theme.of(context).colorScheme.secondary;
+        }),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildViewIconButton(context, widget.tabBar.view),
+          const HSpace(6),
+          Flexible(
+            child: FlowyText(
+              widget.tabBar.view.name,
+              fontSize: 14,
+              fontWeight: widget.isSelected ? FontWeight.w500 : FontWeight.w400,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+      onPressed: () {
+        if (!widget.isSelected) {
+          context
+              .read<DatabaseTabBarBloc>()
+              .add(DatabaseTabBarEvent.selectView(widget.tabBar.viewId));
         }
       },
     );
+  }
+
+  Widget _buildViewIconButton(BuildContext context, ViewPB view) {
+    return view.icon.value.isNotEmpty
+        ? EmojiText(
+            emoji: view.icon.value,
+            fontSize: 16.0,
+          )
+        : SizedBox.square(
+            dimension: 16.0,
+            child: view.defaultIcon(),
+          );
   }
 }
