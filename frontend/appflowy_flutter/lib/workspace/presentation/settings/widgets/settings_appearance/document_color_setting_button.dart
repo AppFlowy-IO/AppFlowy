@@ -255,9 +255,9 @@ String? validateOpacityValue(String? value) {
     return LocaleKeys.settings_appearance_documentSettings_opacityEmptyError
         .tr();
   }
-  if (int.tryParse(value) == null ||
-      int.parse(value) > 100 ||
-      int.parse(value) <= 0) {
+
+  final opacityInt = int.tryParse(value);
+  if (opacityInt == null || opacityInt > 100 || opacityInt <= 0) {
     return LocaleKeys.settings_appearance_documentSettings_opacityRangeError
         .tr();
   }

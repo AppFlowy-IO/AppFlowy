@@ -20,7 +20,7 @@ class DocumentAppearance {
   final Color? selectionColor;
   final String? defaultTextDirection;
 
-  ///For nullable fields (like `cursorColor`),
+  /// For nullable fields (like `cursorColor`),
   /// use the corresponding `isNull` flag (like `cursorColorIsNull`) to explicitly set the field to `null`.
   ///
   /// This is necessary because simply passing `null` as the value does not distinguish between wanting to
