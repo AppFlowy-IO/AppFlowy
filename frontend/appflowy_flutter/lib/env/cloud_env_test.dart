@@ -1,4 +1,6 @@
 // lib/env/env.dart
+// ignore_for_file: prefer_const_declarations
+
 import 'package:envied/envied.dart';
 
 part 'cloud_env_test.g.dart';
