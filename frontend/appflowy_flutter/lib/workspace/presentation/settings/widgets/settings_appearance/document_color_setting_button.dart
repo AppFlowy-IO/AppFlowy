@@ -74,6 +74,8 @@ class DocumentColorSettingDialogState
   late String currentColorHexString;
   late TextEditingController hexController;
   late TextEditingController opacityController;
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -90,72 +92,79 @@ class DocumentColorSettingDialogState
   @override
   Widget build(BuildContext context) {
     void updateSelectedColor() {
-      setState(() {
-        final colorValue = int.tryParse(
-          _combineColorHexAndOpacity(
-            hexController.text,
-            opacityController.text,
-          ),
-        );
-        selectedColorOnDialog = colorValue != null ? Color(colorValue) : null;
-      });
+      if (_formKey.currentState!.validate()) {
+        setState(() {
+          final colorValue = int.tryParse(
+            _combineColorHexAndOpacity(
+              hexController.text,
+              opacityController.text,
+            ),
+          );
+          // colorValue has been validated in the _ColorSettingTextField for hex value and it won't be null as this point
+          selectedColorOnDialog = Color(colorValue!);
+        });
+      }
     }
 
     return FlowyDialog(
-      constraints: const BoxConstraints(maxWidth: 250, maxHeight: 250),
+      constraints: const BoxConstraints(maxWidth: 360, maxHeight: 320),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
             const Spacer(),
             FlowyText(widget.dialogTitle),
-            const VSpace(16),
+            const VSpace(8),
             SizedBox(
-              height: 108,
-              child: Row(
-                children: [
-                  const Spacer(),
-                  // set color
-                  SizedBox(
-                    width: 100,
-                    child: Column(
-                      children: [
-                        _ColorSettingTextField(
-                          controller: hexController,
-                          labelText: LocaleKeys.editor_hexValue.tr(),
-                          hintText: '6fc9e7',
-                          onChanged: (_) => updateSelectedColor(),
-                        ),
-                        const VSpace(8),
-                        _ColorSettingTextField(
-                          controller: opacityController,
-                          labelText: LocaleKeys.editor_opacity.tr(),
-                          hintText: '50',
-                          onChanged: (_) => updateSelectedColor(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const HSpace(8),
-                  // preview color
-                  SizedBox(
-                    width: 100,
-                    child: Center(
-                      child: widget.previewWidgetBuilder(
-                        selectedColorOnDialog,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                ],
+              width: 100,
+              height: 40,
+              child: Center(
+                child: widget.previewWidgetBuilder(
+                  selectedColorOnDialog,
+                ),
               ),
             ),
-            const VSpace(16),
+            const VSpace(8),
+            SizedBox(
+              height: 160,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _ColorSettingTextField(
+                      controller: hexController,
+                      labelText: LocaleKeys.editor_hexValue.tr(),
+                      hintText: '6fc9e7',
+                      onFieldSubmitted: (_) => updateSelectedColor(),
+                      validator: (value) => validateHexValue(
+                        value,
+                        hexController.text,
+                        opacityController.text,
+                      ),
+                    ),
+                    const VSpace(8),
+                    _ColorSettingTextField(
+                      controller: opacityController,
+                      labelText: LocaleKeys.editor_opacity.tr(),
+                      hintText: '50',
+                      onFieldSubmitted: (_) => updateSelectedColor(),
+                      validator: (value) => validateOpacityValue(value),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const VSpace(8),
             ElevatedButton(
               onPressed: () {
-                if (selectedColorOnDialog != null &&
-                    selectedColorOnDialog != widget.currentColor) {
-                  widget.onApply.call(selectedColorOnDialog!);
+                if (_formKey.currentState!.validate()) {
+                  if (selectedColorOnDialog != null &&
+                      selectedColorOnDialog != widget.currentColor) {
+                    widget.onApply.call(selectedColorOnDialog!);
+                  }
+                } else {
+                  // error message will be shown
+                  return;
                 }
                 Navigator.of(context).pop();
               },
@@ -163,7 +172,6 @@ class DocumentColorSettingDialogState
                 LocaleKeys.settings_appearance_documentSettings_apply.tr(),
               ),
             ),
-            const Spacer(),
           ],
         ),
       ),
@@ -176,19 +184,21 @@ class _ColorSettingTextField extends StatelessWidget {
     required this.controller,
     required this.labelText,
     required this.hintText,
-    required this.onChanged,
+    required this.onFieldSubmitted,
+    required this.validator,
   });
 
   final TextEditingController controller;
   final String labelText;
   final String hintText;
 
-  final void Function(String) onChanged;
+  final void Function(String) onFieldSubmitted;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context);
-    return TextField(
+    return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         labelText: labelText,
@@ -205,9 +215,55 @@ class _ColorSettingTextField extends StatelessWidget {
         ),
       ),
       style: style.textTheme.bodyMedium,
-      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      validator: validator,
     );
   }
+}
+
+String? validateHexValue(
+  String? value,
+  String hexValue,
+  String opacityValue,
+) {
+  if (value == null || value.isEmpty) {
+    return LocaleKeys.settings_appearance_documentSettings_hexEmptyError.tr();
+  }
+  if (value.length != 6) {
+    return LocaleKeys.settings_appearance_documentSettings_hexLengthError.tr();
+  }
+
+  final colorValue = int.tryParse(
+    _combineColorHexAndOpacity(
+      hexValue,
+      opacityValue,
+    ),
+  );
+
+  if (colorValue == null) {
+    return LocaleKeys.settings_appearance_documentSettings_hexInvalidError.tr();
+  }
+
+  return null;
+}
+
+String? validateOpacityValue(String? value) {
+  if (value == null || value.isEmpty) {
+    return LocaleKeys.settings_appearance_documentSettings_opacityEmptyError
+        .tr();
+  }
+  if (int.tryParse(value) == null ||
+      int.parse(value) > 100 ||
+      int.parse(value) <= 0) {
+    return LocaleKeys.settings_appearance_documentSettings_opacityRangeError
+        .tr();
+  }
+  return null;
+}
+
+String _combineColorHexAndOpacity(String colorHex, String opacity) {
+  final opacityHex = (int.parse(opacity) * 2.55).round().toRadixString(16);
+  return '0x$opacityHex$colorHex';
 }
 
 // same convert functions as in appflowy_editor
@@ -221,31 +277,4 @@ String? _convertHexToOpacity(String? colorHex) {
   final opacityHex = colorHex.substring(2, 4);
   final opacity = int.parse(opacityHex, radix: 16) / 2.55;
   return opacity.toStringAsFixed(0);
-}
-
-String _combineColorHexAndOpacity(String colorHex, String opacity) {
-  colorHex = _fixColorHex(colorHex);
-  opacity = _fixOpacity(opacity);
-  final opacityHex = (int.parse(opacity) * 2.55).round().toRadixString(16);
-  return '0x$opacityHex$colorHex';
-}
-
-String _fixColorHex(String colorHex) {
-  if (colorHex.length > 6) {
-    colorHex = colorHex.substring(0, 6);
-  }
-  if (int.tryParse(colorHex, radix: 16) == null) {
-    colorHex = 'FFFFFF';
-  }
-  return colorHex;
-}
-
-String _fixOpacity(String opacity) {
-  final RegExp regex = RegExp('[a-zA-Z]');
-  if (regex.hasMatch(opacity) ||
-      int.parse(opacity) > 100 ||
-      int.parse(opacity) < 0) {
-    return '100';
-  }
-  return opacity;
 }

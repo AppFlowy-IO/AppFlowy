@@ -322,6 +322,11 @@
       "documentSettings": {
         "cursorColor": "Document cursor color",
         "selectionColor": "Document selection color",
+        "hexEmptyError": "Hex color cannot be empty",
+        "hexLengthError": "Hex value must be 6 digits long",
+        "hexInvalidError": "Invalid hex value",
+        "opacityEmptyError": "Opacity cannot be empty",
+        "opacityRangeError": "Opacity must be between 1 and 100",
         "app": "App",
         "flowy": "Flowy",
         "apply": "Apply"
