@@ -305,7 +305,7 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [prepare, integration_test]
+    needs: [prepare]
     strategy:
       fail-fast: false
       matrix:
