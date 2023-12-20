@@ -1,8 +1,8 @@
 import 'package:integration_test/integration_test.dart';
 
-import 'auth/appflowy_cloud_auth_test.dart' as appflowy_cloud_auth_test;
-import 'sync/document_sync_test.dart' as document_sync_test;
-import 'sync/user_setting_sync_test.dart' as user_sync_test;
+import 'cloud/appflowy_cloud_auth_test.dart' as appflowy_cloud_auth_test;
+import 'cloud/document_sync_test.dart' as document_sync_test;
+import 'cloud/user_setting_sync_test.dart' as user_sync_test;
 import 'empty_test.dart' as first_test;
 
 Future<void> main() async {

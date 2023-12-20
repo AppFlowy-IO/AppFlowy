@@ -78,51 +78,64 @@ class AppFlowyCloudDeepLink {
   ) async {
     stateNotifier.value = DeepLinkResult(state: DeepLinkState.none);
     if (uri != null) {
-      _isAuthCallbackDeeplink(uri).fold((_) async {
-        final deviceId = await getDeviceId();
-        final payload = OauthSignInPB(
-          authType: AuthTypePB.AFCloud,
-          map: {
-            AuthServiceMapKeys.signInURL: uri.toString(),
-            AuthServiceMapKeys.deviceId: deviceId,
-          },
-        );
-        stateNotifier.value = DeepLinkResult(state: DeepLinkState.loading);
-        final result = await UserEventOauthSignIn(payload)
-            .send()
-            .then((value) => value.swap());
-
-        stateNotifier.value = DeepLinkResult(
-          state: DeepLinkState.finish,
-          result: result,
-        );
-        // If there is no completer, runAppFlowy() will be called.
-        if (_completer == null) {
-          result.fold(
-            (err) {
-              Log.error(err);
-              final context = AppGlobals.rootNavKey.currentState?.context;
-              if (context != null) {
-                showSnackBarMessage(
-                  context,
-                  err.msg,
-                );
-              }
-            },
-            (err) async {
-              Log.error(err);
-              await runAppFlowy();
+      _isAuthCallbackDeeplink(uri).fold(
+        (_) async {
+          final deviceId = await getDeviceId();
+          final payload = OauthSignInPB(
+            authType: AuthTypePB.AFCloud,
+            map: {
+              AuthServiceMapKeys.signInURL: uri.toString(),
+              AuthServiceMapKeys.deviceId: deviceId,
             },
           );
-        } else {
-          _completer?.complete(result);
-          _completer = null;
-        }
-      }, (err) {
-        Log.error('onDeepLinkError: Unexpect deep link: $err');
-        _completer?.complete(left(AuthError.signInWithOauthError));
-        _completer = null;
-      });
+          stateNotifier.value = DeepLinkResult(state: DeepLinkState.loading);
+          final result = await UserEventOauthSignIn(payload)
+              .send()
+              .then((value) => value.swap());
+
+          stateNotifier.value = DeepLinkResult(
+            state: DeepLinkState.finish,
+            result: result,
+          );
+          // If there is no completer, runAppFlowy() will be called.
+          if (_completer == null) {
+            result.fold(
+              (err) {
+                Log.error(err);
+                final context = AppGlobals.rootNavKey.currentState?.context;
+                if (context != null) {
+                  showSnackBarMessage(
+                    context,
+                    err.msg,
+                  );
+                }
+              },
+              (err) async {
+                Log.error(err);
+                await runAppFlowy();
+              },
+            );
+          } else {
+            _completer?.complete(result);
+            _completer = null;
+          }
+        },
+        (err) {
+          Log.error('onDeepLinkError: Unexpect deep link: $err');
+          if (_completer == null) {
+            final context = AppGlobals.rootNavKey.currentState?.context;
+            if (context != null) {
+              showSnackBarMessage(
+                context,
+                err.msg,
+              );
+            }
+          } else {
+            _completer?.complete(left(err));
+            _completer = null;
+          }
+        },
+      );
     } else {
       Log.error('onDeepLinkError: Unexpect empty deep link callback');
       _completer?.complete(left(AuthError.emptyDeeplink));
@@ -135,21 +148,11 @@ class AppFlowyCloudDeepLink {
       return left(());
     }
 
-    final queryParams = uri.queryParameters;
-    final errorCode = queryParams['error_code'];
-    var errorDesc = queryParams['error_description']?.replaceAll('+', ' ') ??
-        'No description';
-    errorDesc = Uri.decodeFull(errorDesc);
-
-    if (errorCode == null) {
-      return left(());
-    } else {
-      return right(
-        FlowyError.create()
-          ..code = ErrorCode.MissingAuthField
-          ..msg = errorDesc,
-      );
-    }
+    return right(
+      FlowyError.create()
+        ..code = ErrorCode.MissingAuthField
+        ..msg = uri.path,
+    );
   }
 }
 
