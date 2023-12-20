@@ -912,6 +912,7 @@
       "showWeekends": "Show weekends",
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
+      "changeLayoutDateField": "Change layout field",
       "noDateTitle": "No Date",
       "noDateHint": {
         "zero": "Unscheduled events will show up here",

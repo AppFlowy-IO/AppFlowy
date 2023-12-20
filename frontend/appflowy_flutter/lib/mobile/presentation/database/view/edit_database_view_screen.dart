@@ -167,6 +167,12 @@ class _EditDatabaseViewBody extends StatelessWidget {
               view: state.view,
               showTopBorder: true,
             ),
+            if (databaseController.databaseLayout == DatabaseLayoutPB.Calendar)
+              DatabaseViewSettingTile(
+                setting: DatabaseViewSettings.calendar,
+                databaseController: databaseController,
+                view: state.view,
+              ),
             DatabaseViewSettingTile(
               setting: DatabaseViewSettings.fields,
               databaseController: databaseController,

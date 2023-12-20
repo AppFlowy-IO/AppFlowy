@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import 'mobile_create_field_screen.dart';
 import 'mobile_edit_field_screen.dart';
+import 'mobile_field_picker_list.dart';
 import 'mobile_field_type_grid.dart';
 import 'mobile_field_type_option_editor.dart';
 import 'mobile_quick_field_editor.dart';
@@ -100,6 +102,25 @@ void showQuickEditField(
           viewId: viewId,
           fieldInfo: fieldInfo,
         ),
+      );
+    },
+  );
+}
+
+Future<String?> showFieldPicker(
+  BuildContext context,
+  String? selectedFieldId,
+  FieldController fieldController,
+  bool Function(FieldInfo fieldInfo) filterBy,
+) {
+  return showMobileBottomSheet<String>(
+    context,
+    padding: EdgeInsets.zero,
+    builder: (context) {
+      return MobileFieldPickerList(
+        selectedFieldId: selectedFieldId,
+        fieldController: fieldController,
+        filterBy: filterBy,
       );
     },
   );

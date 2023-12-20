@@ -106,20 +106,6 @@ class MobileDatabaseControls extends StatelessWidget {
       ),
     );
   }
-
-  void _showMobileSettings(
-    BuildContext context,
-    DatabaseController controller,
-  ) =>
-      showPaginatedBottomSheet(
-        context,
-        page: SheetPage(
-          title: LocaleKeys.settings_title.tr(),
-          body: DatabaseSettingsList(
-            databaseController: controller,
-          ),
-        ),
-      );
 }
 
 class _DatabaseControlButton extends StatelessWidget {
@@ -133,9 +119,8 @@ class _DatabaseControlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 36,
-      width: 36,
+    return SizedBox.square(
+      dimension: 36,
       child: IconButton(
         splashRadius: 18,
         padding: EdgeInsets.zero,
