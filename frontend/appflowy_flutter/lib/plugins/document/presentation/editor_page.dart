@@ -272,15 +272,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     if (PlatformExtension.isMobile) {
       final theme = Theme.of(context);
-      return MobileToolbarV2(
-        toolbarHeight: 48.0,
-        backgroundColor: theme.colorScheme.background,
-        foregroundColor: theme.colorScheme.onSurface,
-        iconColor: theme.iconTheme.color ?? theme.colorScheme.onSurface,
-        tabBarSelectedBackgroundColor: theme.colorScheme.onSurfaceVariant,
-        tabBarSelectedForegroundColor: theme.colorScheme.onPrimary,
+      return AppFlowyMobileToolbar(
+        toolbarHeight: 44.0,
         editorState: editorState,
-        toolbarItems: getMobileToolbarItems(),
+        toolbarItems: [
+          appflowyTextDecorationItem,
+        ],
         child: Column(
           children: [
             Expanded(
