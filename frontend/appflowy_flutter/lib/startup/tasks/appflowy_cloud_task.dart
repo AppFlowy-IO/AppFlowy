@@ -22,20 +22,15 @@ import 'package:url_protocol/url_protocol.dart';
 
 class AppFlowyCloudDeepLink {
   final _appLinks = AppLinks();
-  StreamSubscription<Uri?>? _deeplinkSubscription;
+  // The AppLinks is a singleton, so we need to cancel the previous subscription
+  // before creating a new one.
+  static StreamSubscription<Uri?>? _deeplinkSubscription;
   final ValueNotifier<DeepLinkResult?> stateNotifier = ValueNotifier(null);
   Completer<Either<FlowyError, UserProfilePB>>? _completer;
 
   AppFlowyCloudDeepLink() {
-    if (Platform.isWindows) {
-      // register deep link for Windows
-      registerProtocolHandler(appflowyDeepLinkSchema);
-    }
-
-    final Stream<Uri?> broadcastStream =
-        _appLinks.uriLinkStream.asBroadcastStream();
-
-    _deeplinkSubscription = broadcastStream.listen(
+    _deeplinkSubscription?.cancel();
+    _deeplinkSubscription = _appLinks.uriLinkStream.listen(
       (Uri? uri) async {
         Log.info('onDeepLink: ${uri.toString()}');
         await _handleUri(uri);
@@ -45,10 +40,15 @@ class AppFlowyCloudDeepLink {
         _deeplinkSubscription?.cancel();
       },
     );
+    if (Platform.isWindows) {
+      // register deep link for Windows
+      registerProtocolHandler(appflowyDeepLinkSchema);
+    }
   }
 
   Future<void> dispose() async {
     await _deeplinkSubscription?.cancel();
+    stateNotifier.dispose();
   }
 
   void resigerCompleter(
