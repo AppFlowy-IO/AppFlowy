@@ -302,7 +302,7 @@ jobs:
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           sudo apt-get install network-manager
-          flutter test integration_test/cloud_runner.dart -d Linux --coverage
+          flutter test integration_test/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 
   integration_test:
