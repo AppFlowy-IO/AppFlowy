@@ -100,11 +100,10 @@ class SelectOptionFilterListBloc<T>
   }
 
   void _loadOptions() {
-    delegate.loadOptions().then((options) {
-      if (!isClosed) {
-        add(SelectOptionFilterListEvent.didReceiveOptions(options));
-      }
-    });
+    if (!isClosed) {
+      final options = delegate.loadOptions();
+      add(SelectOptionFilterListEvent.didReceiveOptions(options));
+    }
   }
 
   void _startListening() {}

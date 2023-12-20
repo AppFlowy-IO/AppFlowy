@@ -31,12 +31,14 @@ class _SelectOptionFilterChoicechipState
     if (widget.filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
       bloc = SelectOptionFilterEditorBloc(
         filterInfo: widget.filterInfo,
-        delegate: SingleSelectOptionFilterDelegateImpl(widget.filterInfo),
+        delegate:
+            SingleSelectOptionFilterDelegateImpl(filterInfo: widget.filterInfo),
       );
     } else {
       bloc = SelectOptionFilterEditorBloc(
         filterInfo: widget.filterInfo,
-        delegate: MultiSelectOptionFilterDelegateImpl(widget.filterInfo),
+        delegate:
+            MultiSelectOptionFilterDelegateImpl(filterInfo: widget.filterInfo),
       );
     }
     bloc.add(const SelectOptionFilterEditorEvent.initial());

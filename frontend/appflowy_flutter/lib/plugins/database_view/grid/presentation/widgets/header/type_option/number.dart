@@ -1,127 +1,106 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/number_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pbenum.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:protobuf/protobuf.dart';
 
 import '../../../layout/sizes.dart';
 import '../../common/type_option_separator.dart';
-import '../field_type_option_editor.dart';
 import 'builder.dart';
 
-class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  final NumberTypeOptionWidget _widget;
-
-  NumberTypeOptionWidgetBuilder(
-    NumberTypeOptionContext typeOptionContext,
-    PopoverMutex popoverMutex,
-  ) : _widget = NumberTypeOptionWidget(
-          typeOptionContext: typeOptionContext,
-          popoverMutex: popoverMutex,
-        );
+class NumberTypeOptionEditorFactory implements TypeOptionEditorFactory {
+  const NumberTypeOptionEditorFactory();
 
   @override
-  Widget? build(BuildContext context) {
-    return Column(
-      children: [
-        VSpace(GridSize.typeOptionSeparatorHeight),
-        const TypeOptionSeparator(),
-        _widget,
-      ],
+  Widget? build({
+    required BuildContext context,
+    required String viewId,
+    required FieldPB field,
+    required PopoverMutex popoverMutex,
+    required TypeOptionDataCallback onTypeOptionUpdated,
+  }) {
+    final typeOption = _parseTypeOptionData(field.typeOptionData);
+
+    final selectNumUnitButton = SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: FlowyButton(
+        rightIcon: const FlowySvg(FlowySvgs.more_s),
+        text: FlowyText.medium(
+          typeOption.format.title(),
+        ),
+      ),
     );
-  }
-}
 
-class NumberTypeOptionWidget extends TypeOptionWidget {
-  final NumberTypeOptionContext typeOptionContext;
-  final PopoverMutex popoverMutex;
+    final numFormatTitle = Container(
+      padding: const EdgeInsets.only(left: 6),
+      height: GridSize.popoverItemHeight,
+      alignment: Alignment.centerLeft,
+      child: FlowyText.regular(
+        LocaleKeys.grid_field_numberFormat.tr(),
+        color: Theme.of(context).hintColor,
+        fontSize: 11,
+      ),
+    );
 
-  const NumberTypeOptionWidget({
-    super.key,
-    required this.typeOptionContext,
-    required this.popoverMutex,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
-      child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
-        listener: (context, state) =>
-            typeOptionContext.typeOption = state.typeOption,
-        builder: (context, state) {
-          final selectNumUnitButton = SizedBox(
-            height: GridSize.popoverItemHeight,
-            child: FlowyButton(
-              rightIcon: const FlowySvg(FlowySvgs.more_s),
-              text: FlowyText.regular(
-                state.typeOption.format.title(),
-              ),
-            ),
-          );
-
-          final numFormatTitle = Container(
-            padding: const EdgeInsets.only(left: 6),
-            height: GridSize.popoverItemHeight,
-            alignment: Alignment.centerLeft,
-            child: FlowyText.regular(
-              LocaleKeys.grid_field_numberFormat.tr(),
-              color: Theme.of(context).hintColor,
-              fontSize: 11,
-            ),
-          );
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                numFormatTitle,
-                AppFlowyPopover(
-                  mutex: popoverMutex,
-                  triggerActions:
-                      PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-                  offset: const Offset(16, 0),
-                  constraints: BoxConstraints.loose(const Size(460, 440)),
-                  margin: EdgeInsets.zero,
-                  child: selectNumUnitButton,
-                  popupBuilder: (BuildContext popoverContext) {
-                    return NumberFormatList(
-                      onSelected: (format) {
-                        context
-                            .read<NumberTypeOptionBloc>()
-                            .add(NumberTypeOptionEvent.didSelectFormat(format));
-                        PopoverContainer.of(popoverContext).close();
-                      },
-                      selectedFormat: state.typeOption.format,
-                    );
-                  },
-                ),
-              ],
-            ),
-          );
-        },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          numFormatTitle,
+          AppFlowyPopover(
+            mutex: popoverMutex,
+            triggerActions:
+                PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
+            offset: const Offset(16, 0),
+            constraints: BoxConstraints.loose(const Size(460, 440)),
+            margin: EdgeInsets.zero,
+            child: selectNumUnitButton,
+            popupBuilder: (BuildContext popoverContext) {
+              return NumberFormatList(
+                selectedFormat: typeOption.format,
+                onSelected: (format) {
+                  final newTypeOption = _updateNumberFormat(typeOption, format);
+                  onTypeOptionUpdated(newTypeOption.writeToBuffer());
+                  PopoverContainer.of(popoverContext).close();
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
+
+  NumberTypeOptionPB _parseTypeOptionData(List<int> data) {
+    return NumberTypeOptionDataParser().fromBuffer(data);
+  }
+
+  NumberTypeOptionPB _updateNumberFormat(
+    NumberTypeOptionPB typeOption,
+    NumberFormatPB format,
+  ) {
+    typeOption.freeze();
+    return typeOption.rebuild((typeOption) => typeOption.format = format);
+  }
 }
 
-typedef SelectNumberFormatCallback = Function(NumberFormatPB format);
+typedef SelectNumberFormatCallback = void Function(NumberFormatPB format);
 
 class NumberFormatList extends StatelessWidget {
   final SelectNumberFormatCallback onSelected;
   final NumberFormatPB selectedFormat;
+
   const NumberFormatList({
+    super.key,
     required this.selectedFormat,
     required this.onSelected,
-    super.key,
   });
 
   @override
@@ -171,7 +150,7 @@ class NumberFormatList extends StatelessWidget {
 class NumberFormatCell extends StatelessWidget {
   final NumberFormatPB format;
   final bool isSelected;
-  final Function(NumberFormatPB format) onSelected;
+  final SelectNumberFormatCallback onSelected;
   const NumberFormatCell({
     required this.isSelected,
     required this.format,
@@ -181,10 +160,7 @@ class NumberFormatCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget? checkmark;
-    if (isSelected) {
-      checkmark = const FlowySvg(FlowySvgs.check_s);
-    }
+    final checkmark = isSelected ? const FlowySvg(FlowySvgs.check_s) : null;
 
     return SizedBox(
       height: GridSize.popoverItemHeight,

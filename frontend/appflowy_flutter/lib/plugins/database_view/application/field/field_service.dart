@@ -15,7 +15,7 @@ class FieldBackendService {
   final String viewId;
   final String fieldId;
 
-  static Future<Either<TypeOptionPB, FlowyError>> createField({
+  static Future<Either<FieldPB, FlowyError>> createField({
     required String viewId,
     FieldType fieldType = FieldType.RichText,
     String? fieldName,
@@ -33,7 +33,7 @@ class FieldBackendService {
     return DatabaseEventCreateField(payload).send();
   }
 
-  Future<Either<TypeOptionPB, FlowyError>> insertBefore({
+  Future<Either<FieldPB, FlowyError>> insertBefore({
     FieldType fieldType = FieldType.RichText,
     String? fieldName,
     Uint8List? typeOptionData,
@@ -50,7 +50,7 @@ class FieldBackendService {
     );
   }
 
-  Future<Either<TypeOptionPB, FlowyError>> insertAfter({
+  Future<Either<FieldPB, FlowyError>> insertAfter({
     FieldType fieldType = FieldType.RichText,
     String? fieldName,
     Uint8List? typeOptionData,
@@ -61,7 +61,7 @@ class FieldBackendService {
       fieldName: fieldName,
       typeOptionData: typeOptionData,
       position: OrderObjectPositionPB(
-        position: OrderObjectPositionTypePB.Before,
+        position: OrderObjectPositionTypePB.After,
         objectId: fieldId,
       ),
     );
@@ -154,21 +154,6 @@ class FieldBackendService {
 
   Future<Either<Unit, FlowyError>> duplicate() {
     return duplicateField(viewId: viewId, fieldId: fieldId);
-  }
-
-  Future<Either<TypeOptionPB, FlowyError>> getFieldTypeOptionData({
-    required FieldType fieldType,
-  }) {
-    final payload = TypeOptionPathPB.create()
-      ..viewId = viewId
-      ..fieldId = fieldId
-      ..fieldType = fieldType;
-    return DatabaseEventGetTypeOption(payload).send().then((result) {
-      return result.fold(
-        (data) => left(data),
-        (err) => right(err),
-      );
-    });
   }
 
   /// Returns the primary field of the view.

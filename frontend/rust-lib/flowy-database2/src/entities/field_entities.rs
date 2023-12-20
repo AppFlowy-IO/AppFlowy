@@ -14,6 +14,7 @@ use flowy_error::ErrorCode;
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::position_entities::OrderObjectPositionPB;
 use crate::impl_into_field_type;
+use crate::services::field::{default_type_option_data_from_type, type_option_to_pb};
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -35,17 +36,25 @@ pub struct FieldPB {
 
   #[pb(index = 6)]
   pub is_primary: bool,
+
+  #[pb(index = 7)]
+  pub type_option_data: Vec<u8>,
 }
 
-impl std::convert::From<Field> for FieldPB {
-  fn from(field: Field) -> Self {
+impl FieldPB {
+  pub fn new(field: Field) -> Self {
+    let field_type = field.field_type.into();
+    let type_option = field
+      .get_any_type_option(field_type)
+      .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
     Self {
       id: field.id,
       name: field.name,
-      field_type: FieldType::from(field.field_type),
+      field_type,
       visibility: field.visibility,
       width: field.width as i32,
       is_primary: field.is_primary,
+      type_option_data: type_option_to_pb(type_option, &field_type).to_vec(),
     }
   }
 }
@@ -139,15 +148,6 @@ pub struct IndexFieldPB {
   pub index: i32,
 }
 
-impl IndexFieldPB {
-  pub fn from_field(field: Field, index: usize) -> Self {
-    Self {
-      field: FieldPB::from(field),
-      index: index as i32,
-    }
-  }
-}
-
 #[derive(Debug, Default, ProtoBuf)]
 pub struct CreateFieldPayloadPB {
   #[pb(index = 1)]
@@ -234,50 +234,6 @@ impl TryInto<EditFieldParams> for UpdateFieldTypePayloadPB {
       field_type: self.field_type,
     })
   }
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct TypeOptionPathPB {
-  #[pb(index = 1)]
-  pub view_id: String,
-
-  #[pb(index = 2)]
-  pub field_id: String,
-
-  #[pb(index = 3)]
-  pub field_type: FieldType,
-}
-
-pub struct TypeOptionPathParams {
-  pub view_id: String,
-  pub field_id: String,
-  pub field_type: FieldType,
-}
-
-impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<TypeOptionPathParams, Self::Error> {
-    let database_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
-    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-    Ok(TypeOptionPathParams {
-      view_id: database_id.0,
-      field_id: field_id.0,
-      field_type: self.field_type,
-    })
-  }
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct TypeOptionPB {
-  #[pb(index = 1)]
-  pub view_id: String,
-
-  #[pb(index = 2)]
-  pub field: FieldPB,
-
-  #[pb(index = 3)]
-  pub type_option_data: Vec<u8>,
 }
 
 /// Collection of the [FieldPB]

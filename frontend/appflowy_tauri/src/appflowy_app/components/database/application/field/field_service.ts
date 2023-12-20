@@ -25,7 +25,7 @@ import {
   DatabaseEventGetAllFieldSettings,
 } from '@/services/backend/events/flowy-database2';
 import { Field, pbToField } from './field_types';
-import { getTypeOption } from './type_option';
+import { bytesToTypeOption } from './type_option';
 import { Database } from '$app/components/database/application';
 
 export async function getFields(
@@ -64,7 +64,7 @@ export async function getFields(
 
       const field = pbToField(item);
 
-      const typeOption = await getTypeOption(viewId, item.id, item.field_type);
+      const typeOption = bytesToTypeOption(item.type_option_data, item.field_type);
 
       if (typeOption) {
         typeOptions[item.id] = typeOption;
@@ -110,7 +110,7 @@ export async function createField({
     return Promise.reject('Failed to create field');
   }
 
-  return pbToField(result.val.field);
+  return pbToField(result.val);
 }
 
 export async function duplicateField(viewId: string, fieldId: string): Promise<void> {

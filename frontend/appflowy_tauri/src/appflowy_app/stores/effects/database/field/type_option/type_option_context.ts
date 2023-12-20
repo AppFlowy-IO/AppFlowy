@@ -1,10 +1,9 @@
-import { None, Ok, Option, Result, Some } from 'ts-results';
+import { None, Option, Some } from 'ts-results';
 import { TypeOptionController } from './type_option_controller';
 import {
   CheckboxTypeOptionPB,
   ChecklistTypeOptionPB,
   DateTypeOptionPB,
-  FlowyError,
   MultiSelectTypeOptionPB,
   NumberTypeOptionPB,
   SingleSelectTypeOptionPB,
@@ -190,17 +189,12 @@ export class TypeOptionContext<T> {
     return this.controller.viewId;
   }
 
-  getTypeOption = async (): Promise<Result<T, FlowyError>> => {
-    const result = await this.controller.getTypeOption();
+  getTypeOption = (): T => {
+    const type_option_data = this.controller.getTypeOption();
+    const typeOption = this.parser.deserialize(type_option_data);
 
-    if (result.ok) {
-      const typeOption = this.parser.deserialize(result.val.type_option_data);
-
-      this.typeOption = Some(typeOption);
-      return Ok(typeOption);
-    } else {
-      return result;
-    }
+    this.typeOption = Some(typeOption);
+    return typeOption;
   };
 
   // Save the typeOption to disk

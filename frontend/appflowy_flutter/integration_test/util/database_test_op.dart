@@ -28,8 +28,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/create_sort_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/order_panel.dart';
@@ -61,7 +60,6 @@ import 'package:appflowy/plugins/database_view/widgets/setting/setting_property_
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/include_time_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';

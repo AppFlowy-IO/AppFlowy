@@ -28,19 +28,12 @@ class MobileEditPropertyScreen extends StatefulWidget {
 }
 
 class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
-  late Future<FieldOptionValues?> future;
-
-  FieldOptionValues? optionValues;
+  late FieldOptionValues optionValues;
 
   @override
   void initState() {
     super.initState();
-
-    future = FieldOptionValues.get(
-      viewId: widget.viewId,
-      fieldId: widget.field.id,
-      fieldType: widget.field.fieldType,
-    );
+    optionValues = FieldOptionValues.fromField(field: widget.field);
   }
 
   @override
@@ -66,39 +59,30 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<FieldOptionValues?>(
-        future: future,
-        builder: (context, snapshot) {
-          final optionValues = snapshot.data;
-          if (optionValues == null) {
-            return const Center(child: CircularProgressIndicator.adaptive());
-          }
-          return FieldOptionEditor(
-            mode: FieldOptionMode.edit,
-            isPrimary: widget.field.isPrimary,
-            defaultValues: optionValues,
-            onOptionValuesChanged: (optionValues) {
-              this.optionValues = optionValues;
-            },
-            onAction: (action) {
-              final service = FieldServices(
-                viewId: viewId,
-                fieldId: fieldId,
-              );
-              switch (action) {
-                case FieldOptionAction.delete:
-                  service.delete();
-                  break;
-                case FieldOptionAction.duplicate:
-                  service.duplicate();
-                  break;
-                case FieldOptionAction.hide:
-                  service.hide();
-                  break;
-              }
-              context.pop();
-            },
+      body: FieldOptionEditor(
+        mode: FieldOptionMode.edit,
+        isPrimary: widget.field.isPrimary,
+        defaultValues: optionValues,
+        onOptionValuesChanged: (optionValues) {
+          this.optionValues = optionValues;
+        },
+        onAction: (action) {
+          final service = FieldServices(
+            viewId: viewId,
+            fieldId: fieldId,
           );
+          switch (action) {
+            case FieldOptionAction.delete:
+              service.delete();
+              break;
+            case FieldOptionAction.duplicate:
+              service.duplicate();
+              break;
+            case FieldOptionAction.hide:
+              service.hide();
+              break;
+          }
+          context.pop();
         },
       ),
     );

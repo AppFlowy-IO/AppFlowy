@@ -26,7 +26,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
       let typeOption: SingleSelectTypeOptionPB | MultiSelectTypeOptionPB | undefined;
 
       if (field.field_type === FieldType.SingleSelect) {
-        typeOption = (await makeSingleSelectTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
+        typeOption = makeSingleSelectTypeOptionContext(typeOptionController).getTypeOption();
         if (!groupingFieldSelected) {
           if (dispatch) {
             dispatch(boardActions.setGroupingFieldId({ fieldId: field.id }));
@@ -37,7 +37,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
       }
 
       if (field.field_type === FieldType.MultiSelect) {
-        typeOption = (await makeMultiSelectTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
+        typeOption = makeMultiSelectTypeOptionContext(typeOptionController).getTypeOption();
       }
 
       if (typeOption) {
@@ -63,7 +63,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
     }
 
     case FieldType.Number: {
-      const typeOption = (await makeNumberTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
+      const typeOption = makeNumberTypeOptionContext(typeOptionController).getTypeOption();
 
       return {
         fieldId: field.id,
@@ -78,7 +78,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
     }
 
     case FieldType.DateTime: {
-      const typeOption = (await makeDateTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
+      const typeOption = makeDateTypeOptionContext(typeOptionController).getTypeOption();
 
       return {
         fieldId: field.id,
