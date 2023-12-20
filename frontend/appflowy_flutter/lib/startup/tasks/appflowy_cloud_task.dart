@@ -31,7 +31,6 @@ class AppFlowyCloudDeepLink {
       // register deep link for Windows
       registerProtocolHandler(appflowyDeepLinkSchema);
     }
-
     _deeplinkSubscription = _appLinks.uriLinkStream.listen(
       (Uri? uri) async {
         Log.info('onDeepLink: ${uri.toString()}');

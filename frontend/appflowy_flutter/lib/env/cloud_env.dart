@@ -70,22 +70,16 @@ Future<AuthenticatorType> getAuthenticatorType() async {
 /// AppFlowy Cloud or Supabase configuration is valid.
 /// Returns `false` otherwise.
 bool get isAuthEnabled {
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    final env = getIt<AppFlowyCloudSharedEnv>();
-    if (env.authenticatorType == AuthenticatorType.supabase) {
-      return env.supabaseConfig.isValid;
-    }
-
-    if (env.authenticatorType == AuthenticatorType.appflowyCloud) {
-      return env.appflowyCloudConfig.isValid;
-    }
-
-    return false;
-  } else {
-    return false;
+  final env = getIt<AppFlowyCloudSharedEnv>();
+  if (env.authenticatorType == AuthenticatorType.supabase) {
+    return env.supabaseConfig.isValid;
   }
+
+  if (env.authenticatorType == AuthenticatorType.appflowyCloud) {
+    return env.appflowyCloudConfig.isValid;
+  }
+
+  return false;
 }
 
 /// Checks if Supabase is enabled.
