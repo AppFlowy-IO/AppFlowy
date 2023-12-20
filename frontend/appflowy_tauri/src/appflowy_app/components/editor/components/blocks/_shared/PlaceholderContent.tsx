@@ -4,7 +4,7 @@ import { Element } from 'slate';
 import { EditorNodeType, HeadingNode } from '$app/application/document/document.types';
 import { useTranslation } from 'react-i18next';
 
-function PlaceholderContent({ node, className, style }: { node: Element; className?: string; style?: CSSProperties }) {
+function PlaceholderContent({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
   const { t } = useTranslation();
   const selected = useSelected();
   const editor = useSlateStatic();
@@ -65,12 +65,14 @@ function PlaceholderContent({ node, className, style }: { node: Element; classNa
     }
   }, [node.type, t, unSelectedPlaceholder]);
 
+  const className = useMemo(() => {
+    return `pointer-events-none absolute left-0.5 top-0 whitespace-nowrap text-text-placeholder ${
+      attributes.className ?? ''
+    }`;
+  }, [attributes.className]);
+
   return (
-    <span
-      contentEditable={false}
-      style={style}
-      className={`pointer-events-none absolute left-0.5 top-0 whitespace-nowrap text-text-placeholder ${className}`}
-    >
+    <span contentEditable={false} {...attributes} className={className}>
       {selected ? selectedPlaceholder : unSelectedPlaceholder}
     </span>
   );

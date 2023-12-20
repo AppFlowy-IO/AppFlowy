@@ -71,9 +71,9 @@ export function withMergeNodes(editor: ReactEditor) {
 
     if (oldNodeRemoved) {
       // if the old node is removed, we need to move the children of the old node to the new node
-      const oldNodeChildren = editor.children.filter((child) => (child as Element).parentId === nextNode.parentId);
 
-      oldNodeChildren.forEach((child) => {
+      editor.children.forEach((child) => {
+        if ((child as Element).parentId !== nextNode.parentId) return;
         const childPath = ReactEditor.findPath(editor, child);
 
         Transforms.setNodes(

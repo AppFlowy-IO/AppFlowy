@@ -308,22 +308,12 @@ export const CustomEditor = {
     return CustomEditor.getBlockType(editor) === EditorNodeType.GridBlock;
   },
 
-  isRootBlock: (editor: ReactEditor) => {
-    const matchEntries = Editor.nodes(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.type !== undefined,
+  selectionIncludeRoot: (editor: ReactEditor) => {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => Element.isElement(n) && n.blockId !== undefined && n.type === EditorNodeType.Page,
     });
 
-    for (const matchEntry of matchEntries) {
-      const node = matchEntry[0] as Element & {
-        type: EditorNodeType;
-      };
-
-      if (node.type === EditorNodeType.Page) {
-        return true;
-      }
-    }
-
-    return false;
+    return Boolean(match);
   },
 
   isCodeBlock: (editor: ReactEditor) => {

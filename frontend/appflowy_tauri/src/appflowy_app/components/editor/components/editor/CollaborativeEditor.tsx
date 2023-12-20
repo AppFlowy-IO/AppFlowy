@@ -17,11 +17,7 @@ export const CollaborativeEditor = ({ id, title, showTitle = true, onTitleChange
   }, [sharedType, showTitle]);
 
   useEffect(() => {
-    if (!root) return;
-
-    const name = root.toString();
-
-    if (name === title) return;
+    if (!root || root.toString() === title) return;
 
     if (root.length > 0) {
       root.delete(0, root.length);
@@ -37,9 +33,7 @@ export const CollaborativeEditor = ({ id, title, showTitle = true, onTitleChange
     };
 
     root.observe(onChange);
-    return () => {
-      root.unobserve(onChange);
-    };
+    return () => root.unobserve(onChange);
   }, [onTitleChange, root]);
 
   useEffect(() => {

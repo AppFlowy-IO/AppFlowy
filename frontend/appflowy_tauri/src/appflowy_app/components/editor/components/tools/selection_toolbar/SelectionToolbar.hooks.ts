@@ -30,7 +30,7 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
       return;
     }
 
-    if (CustomEditor.isRootBlock(editor)) {
+    if (CustomEditor.selectionIncludeRoot(editor)) {
       closeToolbar();
       return;
     }

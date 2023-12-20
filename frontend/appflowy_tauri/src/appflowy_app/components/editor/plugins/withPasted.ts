@@ -76,7 +76,6 @@ export function withPasted(editor: ReactEditor) {
         node.level = mergedNode.level;
       }
 
-      console.log(node.type);
       // if the pasted fragment is not matched with the block type, we need to convert it to paragraph
       // and if the pasted fragment is a page, we need to convert it to paragraph
       if (!blockTypes.includes(node.type as EditorNodeType) || node.type === EditorNodeType.Page) {
