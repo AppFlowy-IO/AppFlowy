@@ -25,30 +25,35 @@ class AppFlowyCloudDeepLink {
   // The AppLinks is a singleton, so we need to cancel the previous subscription
   // before creating a new one.
   static StreamSubscription<Uri?>? _deeplinkSubscription;
-  final ValueNotifier<DeepLinkResult?> stateNotifier = ValueNotifier(null);
+  ValueNotifier<DeepLinkResult?>? _stateNotifier = ValueNotifier(null);
   Completer<Either<FlowyError, UserProfilePB>>? _completer;
 
   AppFlowyCloudDeepLink() {
-    _deeplinkSubscription?.cancel();
-    _deeplinkSubscription = _appLinks.uriLinkStream.listen(
-      (Uri? uri) async {
-        Log.info('onDeepLink: ${uri.toString()}');
-        await _handleUri(uri);
-      },
-      onError: (Object err, StackTrace stackTrace) {
-        Log.error('on deeplink stream error: ${err.toString()}', stackTrace);
-        _deeplinkSubscription?.cancel();
-      },
-    );
-    if (Platform.isWindows) {
-      // register deep link for Windows
-      registerProtocolHandler(appflowyDeepLinkSchema);
+    if (_deeplinkSubscription == null) {
+      _deeplinkSubscription = _appLinks.uriLinkStream.listen(
+        (Uri? uri) async {
+          Log.info('onDeepLink: ${uri.toString()}');
+          await _handleUri(uri);
+        },
+        onError: (Object err, StackTrace stackTrace) {
+          Log.error('on deeplink stream error: ${err.toString()}', stackTrace);
+          _deeplinkSubscription?.cancel();
+          _deeplinkSubscription = null;
+        },
+      );
+      if (Platform.isWindows) {
+        // register deep link for Windows
+        registerProtocolHandler(appflowyDeepLinkSchema);
+      }
+    } else {
+      _deeplinkSubscription?.resume();
     }
   }
 
   Future<void> dispose() async {
-    await _deeplinkSubscription?.cancel();
-    stateNotifier.dispose();
+    _deeplinkSubscription?.pause();
+    _stateNotifier?.dispose();
+    _stateNotifier = null;
   }
 
   void resigerCompleter(
@@ -61,25 +66,22 @@ class AppFlowyCloudDeepLink {
     ValueChanged<DeepLinkResult> listener,
   ) {
     void listenerFn() {
-      if (stateNotifier.value != null) {
-        listener(stateNotifier.value!);
+      if (_stateNotifier?.value != null) {
+        listener(_stateNotifier!.value!);
       }
     }
 
-    stateNotifier.addListener(listenerFn);
+    _stateNotifier?.addListener(listenerFn);
     return listenerFn;
   }
 
-  void unsubscribeDeepLinkLoadingState(
-    VoidCallback listener,
-  ) {
-    stateNotifier.removeListener(listener);
-  }
+  void unsubscribeDeepLinkLoadingState(VoidCallback listener) =>
+      _stateNotifier?.removeListener(listener);
 
   Future<void> _handleUri(
     Uri? uri,
   ) async {
-    stateNotifier.value = DeepLinkResult(state: DeepLinkState.none);
+    _stateNotifier?.value = DeepLinkResult(state: DeepLinkState.none);
     if (uri != null) {
       _isAuthCallbackDeeplink(uri).fold(
         (_) async {
@@ -91,12 +93,12 @@ class AppFlowyCloudDeepLink {
               AuthServiceMapKeys.deviceId: deviceId,
             },
           );
-          stateNotifier.value = DeepLinkResult(state: DeepLinkState.loading);
+          _stateNotifier?.value = DeepLinkResult(state: DeepLinkState.loading);
           final result = await UserEventOauthSignIn(payload)
               .send()
               .then((value) => value.swap());
 
-          stateNotifier.value = DeepLinkResult(
+          _stateNotifier?.value = DeepLinkResult(
             state: DeepLinkState.finish,
             result: result,
           );
@@ -113,8 +115,7 @@ class AppFlowyCloudDeepLink {
                   );
                 }
               },
-              (err) async {
-                Log.error(err);
+              (_) async {
                 await runAppFlowy();
               },
             );
