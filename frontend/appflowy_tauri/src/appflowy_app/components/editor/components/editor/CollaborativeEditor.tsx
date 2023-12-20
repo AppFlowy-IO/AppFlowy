@@ -54,5 +54,5 @@ export const CollaborativeEditor = ({ id, title, showTitle = true, onTitleChange
     return null;
   }
 
-  return <Editor sharedType={sharedType} />;
+  return <Editor sharedType={sharedType} id={id} />;
 };

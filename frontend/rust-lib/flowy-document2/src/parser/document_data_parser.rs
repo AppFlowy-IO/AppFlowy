@@ -61,7 +61,13 @@ impl DocumentDataParser {
     let mut children = vec![];
     let mut start_found = false;
     let mut end_found = false;
-    self.block_to_nested_block(root_id, &mut children, &mut start_found, &mut end_found)
+
+    self
+      .block_to_nested_block(root_id, &mut children, &mut start_found, &mut end_found)
+      .map(|mut root| {
+        root.data.clear();
+        root
+      })
   }
 
   fn block_to_nested_block(

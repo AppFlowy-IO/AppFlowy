@@ -1,5 +1,5 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, Node, NodeEntry, Transforms } from 'slate';
+import { BasePoint, Editor, Element, Node, NodeEntry, Transforms } from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
 import { isMarkActive, toggleMark } from '$app/components/editor/command/mark';
 import { insertFormula, isFormulaActive, unwrapFormula, updateFormula } from '$app/components/editor/command/formula';
@@ -338,5 +338,42 @@ export const CustomEditor = {
     );
     ReactEditor.focus(editor);
     Transforms.move(editor);
+  },
+
+  basePointToIndexLength(editor: ReactEditor, point: BasePoint, toStart = false) {
+    const { path, offset } = point;
+
+    const node = editor.children[path[0]] as Element;
+    const blockId = node.blockId;
+
+    if (!blockId) return;
+    const beforeText = Editor.string(editor, {
+      anchor: {
+        path: [path[0], 0],
+        offset: 0,
+      },
+      focus: {
+        path,
+        offset,
+      },
+    });
+
+    const index = beforeText.length;
+    const fullText = Editor.string(editor, [path[0]]);
+    const length = fullText.length - index;
+
+    if (toStart) {
+      return {
+        index: 0,
+        length: index,
+        blockId,
+      };
+    } else {
+      return {
+        index,
+        length,
+        blockId,
+      };
+    }
   },
 };

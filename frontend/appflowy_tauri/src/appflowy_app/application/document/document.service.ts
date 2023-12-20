@@ -3,18 +3,26 @@ import {
   BlockActionPB,
   BlockPB,
   CloseDocumentPayloadPB,
+  ConvertDataToJsonPayloadPB,
+  ConvertDocumentPayloadPB,
+  InputType,
   OpenDocumentPayloadPB,
   TextDeltaPayloadPB,
 } from '@/services/backend';
 import {
   DocumentEventApplyAction,
   DocumentEventApplyTextDeltaEvent,
-  DocumentEventOpenDocument,
   DocumentEventCloseDocument,
+  DocumentEventConvertDataToJSON,
+  DocumentEventConvertDocument,
+  DocumentEventOpenDocument,
 } from '@/services/backend/events/flowy-document2';
 import get from 'lodash-es/get';
 import { EditorData, EditorNodeType } from '$app/application/document/document.types';
 import { Log } from '$app/utils/log';
+import { Op } from 'quill-delta';
+import { Element } from 'slate';
+import { generateId, transformToInlineElement } from '$app/components/editor/provider/utils/convert';
 
 export function blockPB2Node(block: BlockPB) {
   let data = {};
@@ -140,4 +148,147 @@ export async function applyText(docId: string, textId: string, delta: string) {
   }
 
   return res.val;
+}
+
+export async function getClipboardData(
+  docId: string,
+  range: {
+    start: {
+      blockId: string;
+      index: number;
+      length: number;
+    };
+    end?: {
+      blockId: string;
+      index: number;
+      length: number;
+    };
+  }
+) {
+  const payload = ConvertDocumentPayloadPB.fromObject({
+    range: {
+      start: {
+        block_id: range.start.blockId,
+        index: range.start.index,
+        length: range.start.length,
+      },
+      end: range.end
+        ? {
+            block_id: range.end.blockId,
+            index: range.end.index,
+            length: range.end.length,
+          }
+        : undefined,
+    },
+    document_id: docId,
+    parse_types: {
+      json: true,
+      html: true,
+      text: true,
+    },
+  });
+
+  const result = await DocumentEventConvertDocument(payload);
+
+  if (!result.ok) {
+    return Promise.reject(result.val);
+  }
+
+  return {
+    html: result.val.html,
+    text: result.val.text,
+    json: result.val.json,
+  };
+}
+
+export async function convertBlockToJson(data: string, type: InputType) {
+  const payload = ConvertDataToJsonPayloadPB.fromObject({
+    data,
+    input_type: type,
+  });
+
+  const result = await DocumentEventConvertDataToJSON(payload);
+
+  if (!result.ok) {
+    return Promise.reject(result.val);
+  }
+
+  try {
+    const block = JSON.parse(result.val.json);
+
+    return flattenBlockJson(block);
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+interface BlockJSON {
+  type: string;
+  children: BlockJSON[];
+  data: {
+    [key: string]: boolean | string | number | undefined;
+  } & {
+    delta?: Op[];
+  };
+}
+
+function flattenBlockJson(block: BlockJSON) {
+  const nodes: Element[] = [];
+
+  const traverse = (block: BlockJSON, parentId: string, level: number, isHidden: boolean) => {
+    const { delta, ...data } = block.data;
+    const blockId = generateId();
+    const node: Element = {
+      blockId,
+      type: block.type,
+      data,
+      children: [],
+      parentId,
+      level,
+      textId: generateId(),
+      isHidden,
+    };
+
+    node.children = delta
+      ? delta.map((op) => {
+          const matchInline = transformToInlineElement(op);
+
+          if (matchInline) {
+            return matchInline;
+          }
+
+          return {
+            text: op.insert as string,
+            ...op.attributes,
+          };
+        })
+      : [
+          {
+            text: '',
+          },
+        ];
+    nodes.push(node);
+    const children = block.children;
+
+    for (const child of children) {
+      let isHidden = false;
+
+      if (node.type === EditorNodeType.ToggleListBlock) {
+        const collapsed = (node.data as { collapsed: boolean })?.collapsed;
+
+        if (collapsed) {
+          isHidden = true;
+        }
+      }
+
+      traverse(child, blockId, level + 1, isHidden);
+    }
+
+    return node;
+  };
+
+  traverse(block, '', 0, false);
+
+  nodes.shift();
+  return nodes;
 }

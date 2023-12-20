@@ -8,9 +8,16 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
   const { t } = useTranslation();
   const selected = useSelected();
   const editor = useSlateStatic();
+
   const justOneParagraph = useMemo(() => {
-    return node.type === EditorNodeType.Paragraph && editor.children.length <= 2;
-  }, [editor.children.length, node.type]);
+    const root = editor.children[0] as Element;
+
+    if (node.type !== EditorNodeType.Paragraph) return false;
+
+    if (editor.children.length === 1) return true;
+
+    return root.type === EditorNodeType.Page && editor.children.length === 2;
+  }, [editor, node.type]);
 
   const unSelectedPlaceholder = useMemo(() => {
     switch (node.type) {

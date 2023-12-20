@@ -9,7 +9,12 @@ export function withMergeNodes(editor: ReactEditor) {
 
   editor.removeNodes = (...args) => {
     const isDeleteRoot = args.some((arg) => {
-      return arg?.at && (arg.at as Path).length === 1 && (arg.at as Path)[0] === 0;
+      return (
+        arg?.at &&
+        (arg.at as Path).length === 1 &&
+        (arg.at as Path)[0] === 0 &&
+        (editor.children[0] as Element).type === EditorNodeType.Page
+      );
     });
 
     // the root node cannot be deleted
@@ -30,8 +35,11 @@ export function withMergeNodes(editor: ReactEditor) {
       return;
     }
 
-    const [mergedNode, path] = merged as NodeEntry<Element & { level: number }>;
-    const root = editor.children[0] as Element;
+    const [mergedNode, path] = merged as NodeEntry<Element & { level: number; blockId: string }>;
+    const root = editor.children[0] as Element & {
+      blockId: string;
+      level: number;
+    };
     const selection = editor.selection;
     const start = Editor.start(editor, path);
 
@@ -48,14 +56,18 @@ export function withMergeNodes(editor: ReactEditor) {
         editor.select([0]);
         editor.insertText(text);
         editor.removeNodes({ at: path });
+        // move children to root
+        moveNodes(editor, 1, root.blockId, (n) => {
+          return n.parentId === mergedNode.blockId;
+        });
 
         return;
       }
     }
 
-    mergeNodes(...args);
-
     const nextNode = editor.children[path[0] + 1] as Element & { level: number };
+
+    mergeNodes(...args);
 
     if (!nextNode) {
       CustomEditor.insertEmptyLineAtEnd(editor as ReactEditor & YjsEditor);
@@ -63,6 +75,11 @@ export function withMergeNodes(editor: ReactEditor) {
     }
 
     if (mergedNode.blockId === nextNode.parentId) {
+      // the node will be deleted when the node has no text
+      if (mergedNode.children.length === 1 && 'text' in mergedNode.children[0] && mergedNode.children[0].text === '') {
+        moveNodes(editor, root.level + 1, root.blockId, (n) => n.parentId === mergedNode.blockId);
+      }
+
       return;
     }
 
@@ -71,19 +88,19 @@ export function withMergeNodes(editor: ReactEditor) {
 
     if (oldNodeRemoved) {
       // if the old node is removed, we need to move the children of the old node to the new node
-
-      editor.children.forEach((child) => {
-        if ((child as Element).parentId !== nextNode.parentId) return;
-        const childPath = ReactEditor.findPath(editor, child);
-
-        Transforms.setNodes(
-          editor,
-          { level: mergedNode.level + 1, parentId: mergedNode.blockId },
-          { at: [childPath[0] - 1] }
-        );
+      moveNodes(editor, mergedNode.level + 1, mergedNode.blockId, (n) => {
+        return n.parentId === nextNode.parentId;
       });
     }
   };
 
   return editor;
+}
+
+function moveNodes(editor: ReactEditor, level: number, parentId: string, match: (n: Element) => boolean) {
+  editor.children.forEach((child, index) => {
+    if (match(child as Element)) {
+      Transforms.setNodes(editor, { level, parentId }, { at: [index] });
+    }
+  });
 }

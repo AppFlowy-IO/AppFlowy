@@ -15,7 +15,7 @@ import { MentionPanel } from '$app/components/editor/components/tools/command_pa
 import { CircularProgress } from '@mui/material';
 import * as Y from 'yjs';
 
-function Editor({ sharedType }: { sharedType: Y.XmlText }) {
+function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
   const decorate = useDecorate(editor);
   const { onDOMBeforeInput, onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);

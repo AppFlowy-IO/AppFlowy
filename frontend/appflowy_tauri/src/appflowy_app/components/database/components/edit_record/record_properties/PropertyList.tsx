@@ -4,7 +4,6 @@ import Property from '$app/components/database/components/edit_record/record_pro
 import { Draggable } from 'react-beautiful-dnd';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  documentId?: string;
   properties: Field[];
   rowId: string;
   placeholderNode?: React.ReactNode;

@@ -1,10 +1,34 @@
 import { ReactEditor } from 'slate-react';
+import { convertBlockToJson } from '$app/application/document/document.service';
 import { Editor, Element } from 'slate';
 import { generateId } from '$app/components/editor/provider/utils/convert';
 import { blockTypes, EditorNodeType } from '$app/application/document/document.types';
+import { InputType } from '@/services/backend';
 
 export function withPasted(editor: ReactEditor) {
-  const { insertFragment } = editor;
+  const { insertData, insertFragment } = editor;
+
+  editor.insertData = (data) => {
+    const fragment = data.getData('application/x-slate-fragment');
+
+    if (fragment) {
+      insertData(data);
+      return;
+    }
+
+    const html = data.getData('text/html');
+    const text = data.getData('text/plain');
+    const inputType = html ? InputType.Html : InputType.PlainText;
+
+    if (html || text) {
+      void convertBlockToJson(html || text, inputType).then((nodes) => {
+        editor.insertFragment(nodes);
+      });
+      return;
+    }
+
+    insertData(data);
+  };
 
   editor.insertFragment = (fragment) => {
     let rootId = (editor.children[0] as Element)?.blockId;

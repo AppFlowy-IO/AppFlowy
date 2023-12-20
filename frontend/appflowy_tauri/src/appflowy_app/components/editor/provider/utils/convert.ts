@@ -63,7 +63,7 @@ export function convertToSlateValue(data: EditorData, includeRoot: boolean): Ele
     };
 
     const inlineNodes: (Text | Element)[] = delta
-      ? data.deltaMap[id].map((op) => {
+      ? delta.map((op) => {
           const matchInline = transformToInlineElement(op);
 
           if (matchInline) {
