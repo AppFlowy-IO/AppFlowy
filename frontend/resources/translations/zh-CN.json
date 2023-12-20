@@ -38,10 +38,10 @@
         "forgotPassword": "忘记密码?",
         "emailHint": "邮箱",
         "passwordHint": "密码",
-        "dontHaveAnAccount": "没有已注册的账户?",
+        "dontHaveAnAccount": "没有账户?",
         "repeatPasswordEmptyError": "确认密码不能为空",
         "unmatchedPasswordError": "两次密码输入不一致",
-        "syncPromptMessage": "同步数据可能需要一段时间。请不要关闭此页面",
+        "syncPromptMessage": "同步数据可能需要一段时间，请不要关闭此页面",
         "or": "或",
         "LogInWithGoogle": "使用 Google 登录",
         "LogInWithGithub": "使用 Github 登录",
@@ -50,16 +50,16 @@
         "loginAsGuestButtonText": "开始使用"
     },
     "workspace": {
-        "chooseWorkspace": "选择您的工作空间",
+        "chooseWorkspace": "选择您的工作区",
         "create": "新建工作区",
         "reset": "重置工作区",
-        "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？或者，您可以联系支持团队来恢复工作区",
-        "hint": "空间",
-        "notFoundError": "未知的空间",
-        "failedToLoad": "出了些问题！无法加载工作区。尝试关闭所有打开的 AppFlowy 实例，然后重试。",
+        "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？您也可以联系技术支持团队来恢复工作区",
+        "hint": "工作区",
+        "notFoundError": "找不到工作区",
+        "failedToLoad": "出了些问题！我们无法加载工作区。请尝试关闭所有打开的 AppFlowy 实例，然后重试。",
         "errorActions": {
             "reportIssue": "上报问题",
-            "reachOut": " Discord 联系我们"
+            "reachOut": "在 Discord 联系我们"
         }
     },
     "shareAction": {
@@ -70,7 +70,7 @@
         "copyLink": "复制链接"
     },
     "moreAction": {
-        "small": "小的",
+        "small": "小",
         "medium": "中",
         "large": "大",
         "fontSize": "字号",
@@ -78,7 +78,7 @@
         "moreOptions": "更多选项"
     },
     "importPanel": {
-        "textAndMarkdown": "文本和Markdown",
+        "textAndMarkdown": "文本 和 Markdown",
         "documentFromV010": "来自 v0.1.0 的文档",
         "databaseFromV010": "来自 v0.1.0 的数据库",
         "csv": "CSV",
@@ -134,7 +134,7 @@
     "dialogCreatePageNameHint": "页面名称",
     "questionBubble": {
         "shortcuts": "快捷键",
-        "whatsNew": "新功能?",
+        "whatsNew": "新功能",
         "help": "帮助和支持",
         "markdown": "Markdown",
         "debug": {
@@ -200,7 +200,7 @@
     },
     "contactsPage": {
         "title": "联系人",
-        "whatsHappening": "这周发生了哪些事?",
+        "whatsHappening": "这周发生了哪些事",
         "addContact": "添加联系人",
         "editContact": "编辑联系人"
     },
@@ -356,7 +356,7 @@
                 "local": "本地",
                 "us": "美国",
                 "iso": "ISO",
-                "friendly": "友好的",
+                "friendly": "易读",
                 "dmy": "日/月/年"
             },
             "timeFormat": {
@@ -439,7 +439,7 @@
         }
     },
     "grid": {
-        "deleteView": "您确定要删除这个方格吗?",
+        "deleteView": "您确定要删除这个表格吗?",
         "createView": "新建",
         "title": {
             "placeholder": "无标题"
@@ -789,7 +789,7 @@
                 "placeholder": "粘贴或输入图像链接"
             },
             "unsplash": {
-                "label": "Unspalsh"
+                "label": "Unsplash"
             },
             "searchForAnImage": "搜索图像",
             "pleaseInputYourOpenAIKey": "请在设置页面输入您的 OpenAI 密钥",
