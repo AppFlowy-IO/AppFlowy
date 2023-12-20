@@ -82,7 +82,7 @@ pub struct GroupContext<C> {
   reader: Arc<dyn GroupSettingReader>,
 
   /// A writer that implement the [GroupSettingWriter] trait is used to save the
-  /// configuration to disk  
+  /// configuration to disk
   ///
   writer: Arc<dyn GroupSettingWriter>,
 }
@@ -287,7 +287,7 @@ where
       old_groups.clear();
     }
 
-    // The `all_group_revs` is the combination of the new groups and old groups
+    // The `all_group` is the combination of the new groups and old groups
     let MergeGroupResult {
       mut all_groups,
       new_groups,
@@ -474,25 +474,30 @@ fn merge_groups(
     .into_iter()
     .map(|group| (group.id.clone(), group))
     .collect();
+  let mut no_status_group_inserted = false;
 
   // The group is ordered in old groups. Add them before adding the new groups
   for old in old_groups {
     if let Some(new) = new_group_map.shift_remove(&old.id) {
       merge_result.all_groups.push(new.clone());
+    } else if matches!(&no_status_group, Some(group) if group.id == old.id) {
+      merge_result
+        .all_groups
+        .push(no_status_group.clone().unwrap());
+      no_status_group_inserted = true;
     } else {
       merge_result.deleted_groups.push(old);
     }
   }
 
-  // Find out the new groups
   merge_result
     .all_groups
     .extend(new_group_map.values().cloned());
   merge_result.new_groups.extend(new_group_map.into_values());
 
   // The `No status` group index is initialized to 0
-  if let Some(no_status_group) = no_status_group {
-    merge_result.all_groups.insert(0, no_status_group);
+  if !no_status_group_inserted && no_status_group.is_some() {
+    merge_result.all_groups.insert(0, no_status_group.unwrap());
   }
   merge_result
 }
@@ -517,6 +522,77 @@ impl MergeGroupResult {
       all_groups: vec![],
       new_groups: vec![],
       deleted_groups: vec![],
+    }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::services::group::Group;
+
+  use super::{merge_groups, MergeGroupResult};
+
+  #[test]
+  fn merge_groups_test() {
+    struct GroupMergeTest<'a> {
+      no_status_group: &'a str,
+      old_groups: Vec<&'a str>,
+      new_groups: Vec<&'a str>,
+      exp_all_groups: Vec<&'a str>,
+      exp_new_groups: Vec<&'a str>,
+      exp_deleted_groups: Vec<&'a str>,
+    }
+
+    let new_group = |name: &str| Group::new(name.to_string(), name.to_string());
+    let groups_from_strings =
+      |strings: Vec<&str>| strings.iter().map(|s| new_group(s)).collect::<Vec<Group>>();
+    let group_stringify = |groups: Vec<Group>| {
+      groups
+        .iter()
+        .map(|group| group.name.clone())
+        .collect::<Vec<String>>()
+        .join(",")
+    };
+
+    let tests = vec![
+      GroupMergeTest {
+        no_status_group: "No Status",
+        old_groups: vec!["Doing", "Done", "To Do", "No Status"],
+        new_groups: vec!["To Do", "Doing", "Done"],
+        exp_all_groups: vec!["Doing", "Done", "To Do", "No Status"],
+        exp_new_groups: vec![],
+        exp_deleted_groups: vec![],
+      },
+      GroupMergeTest {
+        no_status_group: "No Status",
+        old_groups: vec!["To Do", "Doing", "Done", "No Status", "Archive"],
+        new_groups: vec!["backlog", "To Do", "Doing", "Done"],
+        exp_all_groups: vec!["To Do", "Doing", "Done", "No Status", "backlog"],
+        exp_new_groups: vec!["backlog"],
+        exp_deleted_groups: vec!["Archive"],
+      },
+    ];
+
+    for test in tests {
+      let MergeGroupResult {
+        all_groups,
+        new_groups,
+        deleted_groups,
+      } = merge_groups(
+        Some(new_group(test.no_status_group)),
+        groups_from_strings(test.old_groups),
+        groups_from_strings(test.new_groups),
+      );
+
+      let exp_all_groups = groups_from_strings(test.exp_all_groups);
+      let exp_new_groups = groups_from_strings(test.exp_new_groups);
+      let exp_deleted_groups = groups_from_strings(test.exp_deleted_groups);
+      assert_eq!(group_stringify(all_groups), group_stringify(exp_all_groups));
+      assert_eq!(group_stringify(new_groups), group_stringify(exp_new_groups));
+      assert_eq!(
+        group_stringify(deleted_groups),
+        group_stringify(exp_deleted_groups)
+      );
     }
   }
 }
