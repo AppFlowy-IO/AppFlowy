@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/heading_and_text_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -57,7 +58,7 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _HeadingsAndText(
+          HeadingsAndTextItems(
             editorState: editorState,
           ),
           const _ScaledVSpace(),
@@ -83,91 +84,6 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HeadingsAndText extends StatelessWidget {
-  const _HeadingsAndText({
-    required this.editorState,
-  });
-
-  final EditorState editorState;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _HeadingOrTextItem(
-          icon: FlowySvgs.h1_s,
-          blockType: HeadingBlockKeys.type,
-          editorState: editorState,
-          level: 1,
-        ),
-        _HeadingOrTextItem(
-          icon: FlowySvgs.h2_s,
-          blockType: HeadingBlockKeys.type,
-          editorState: editorState,
-          level: 2,
-        ),
-        _HeadingOrTextItem(
-          icon: FlowySvgs.h3_s,
-          blockType: HeadingBlockKeys.type,
-          editorState: editorState,
-          level: 3,
-        ),
-        _HeadingOrTextItem(
-          icon: FlowySvgs.text_s,
-          blockType: ParagraphBlockKeys.type,
-          editorState: editorState,
-        ),
-      ],
-    );
-  }
-}
-
-class _HeadingOrTextItem extends StatefulWidget {
-  const _HeadingOrTextItem({
-    required this.icon,
-    required this.blockType,
-    required this.editorState,
-    this.level,
-  });
-
-  final FlowySvgData icon;
-  final String blockType;
-  final EditorState editorState;
-  final int? level;
-
-  @override
-  State<_HeadingOrTextItem> createState() => _HeadingOrTextItemState();
-}
-
-class _HeadingOrTextItemState extends State<_HeadingOrTextItem> {
-  bool isSelected = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    isSelected = _isBlockTypeSelected(
-      widget.editorState,
-      widget.blockType,
-      level: widget.level,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _Item(
-      size: const Size(76, 52),
-      onTap: () {},
-      icon: widget.icon,
-      isSelected: isSelected,
-      iconPadding: const EdgeInsets.symmetric(
-        vertical: 14.0,
       ),
     );
   }
@@ -434,7 +350,8 @@ class _Item extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () {},
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
       child: Stack(
         children: [
           Container(
