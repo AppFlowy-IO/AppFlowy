@@ -259,6 +259,7 @@
     "title": "Settings",
     "menu": {
       "appearance": "Appearance",
+      "members": "Members",
       "language": "Language",
       "user": "User",
       "files": "Files",
@@ -305,6 +306,21 @@
       "enableNotifications": {
         "label": "Enable notifications",
         "hint": "Turn off to stop local notifications from appearing."
+      }
+    },
+    "members": {
+      "failureText": "We could not load the members of the workspace, please try again or reach out to the support team!",
+      "inviteMembers": "Invite members",
+      "sendInviteAction": "Send invite",
+      "inviteLink": "Invite link",
+      "copyLinkTooltip": "Copy link to clipboard",
+      "members": "Members",
+      "searchMembersHint": "Search members",
+      "linkCopiedMessage": "Invite link has been copied to clipboard",
+      "user": "User",
+      "role": "Role",
+      "actions": {
+        "remove": "Remove"
       }
     },
     "appearance": {

@@ -16,6 +16,7 @@ enum SettingsPage {
   notifications,
   cloud,
   shortcuts,
+  members,
 }
 
 class SettingsDialogBloc

@@ -92,6 +92,21 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
   }) : fontWeight = FontWeight.w600;
 
+  const FlowyText.bold(
+    this.text, {
+    super.key,
+    this.fontSize,
+    this.overflow,
+    this.color,
+    this.textAlign,
+    this.maxLines = 1,
+    this.decoration,
+    this.selectable = false,
+    this.fontFamily,
+    this.fallbackFontFamily,
+    this.lineHeight,
+  }) : fontWeight = FontWeight.w700;
+
   // Some emojis are not supported on Linux and Android, fallback to noto color emoji
   const FlowyText.emoji(
     this.text, {

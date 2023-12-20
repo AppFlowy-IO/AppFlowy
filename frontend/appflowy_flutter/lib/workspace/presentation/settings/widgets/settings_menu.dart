@@ -35,6 +35,14 @@ class SettingsMenu extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         SettingsMenuElement(
+          page: SettingsPage.members,
+          selectedPage: currentPage,
+          label: LocaleKeys.settings_menu_members.tr(),
+          icon: Icons.groups,
+          changeSelectedPage: changeSelectedPage,
+        ),
+        const SizedBox(height: 10),
+        SettingsMenuElement(
           page: SettingsPage.files,
           selectedPage: currentPage,
           label: LocaleKeys.settings_menu_files.tr(),
