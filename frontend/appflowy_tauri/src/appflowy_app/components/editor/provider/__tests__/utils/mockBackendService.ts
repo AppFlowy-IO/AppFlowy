@@ -14,6 +14,7 @@ jest.mock('$app/application/document/document.service', () => {
   return {
     openDocument: jest.fn().mockReturnValue(Promise.resolve(read_me)),
     applyActions,
+    closeDocument: jest.fn().mockReturnValue(Promise.resolve()),
   };
 });
 
