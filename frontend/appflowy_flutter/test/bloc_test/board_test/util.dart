@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
@@ -7,11 +8,10 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/board.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 
 import '../../util.dart';
 import '../grid_test/util.dart';
@@ -27,7 +27,7 @@ class AppFlowyBoardTest {
   }
 
   Future<BoardTestContext> createTestBoard() async {
-    final app = await unitTest.createTestApp();
+    final app = await unitTest.createWorkspace();
     final builder = BoardPluginBuilder();
     return ViewBackendService.createView(
       parentViewId: app.id,

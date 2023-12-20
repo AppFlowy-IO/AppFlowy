@@ -5,7 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pbenum.dart';
 import '../util.dart';
 
 Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
-  final app = await gridTest.unitTest.createTestApp();
+  final app = await gridTest.unitTest.createWorkspace();
   final context = await ViewBackendService.createView(
     parentViewId: app.id,
     name: "Filter Grid",
