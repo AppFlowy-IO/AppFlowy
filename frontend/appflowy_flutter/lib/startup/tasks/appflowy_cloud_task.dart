@@ -13,6 +13,7 @@ import 'package:appflowy/user/application/user_auth_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
@@ -77,7 +78,7 @@ class AppFlowyCloudDeepLink {
   ) async {
     stateNotifier.value = DeepLinkResult(state: DeepLinkState.none);
     if (uri != null) {
-      if (_isAuthCallbackDeeplink(uri)) {
+      _isAuthCallbackDeeplink(uri).fold((_) async {
         final deviceId = await getDeviceId();
         final payload = OauthSignInPB(
           authType: AuthTypePB.AFCloud,
@@ -117,11 +118,11 @@ class AppFlowyCloudDeepLink {
           _completer?.complete(result);
           _completer = null;
         }
-      } else {
-        Log.error('onDeepLinkError: Unexpect deep link: ${uri.toString()}');
+      }, (err) {
+        Log.error('onDeepLinkError: Unexpect deep link: $err');
         _completer?.complete(left(AuthError.signInWithOauthError));
         _completer = null;
-      }
+      });
     } else {
       Log.error('onDeepLinkError: Unexpect empty deep link callback');
       _completer?.complete(left(AuthError.emptyDeeplink));
@@ -129,8 +130,26 @@ class AppFlowyCloudDeepLink {
     }
   }
 
-  bool _isAuthCallbackDeeplink(Uri uri) {
-    return (uri.fragment.contains('access_token'));
+  Either<(), FlowyError> _isAuthCallbackDeeplink(Uri uri) {
+    if (uri.fragment.contains('access_token')) {
+      return left(());
+    }
+
+    final queryParams = uri.queryParameters;
+    final errorCode = queryParams['error_code'];
+    var errorDesc = queryParams['error_description']?.replaceAll('+', ' ') ??
+        'No description';
+    errorDesc = Uri.decodeFull(errorDesc);
+
+    if (errorCode == null) {
+      return left(());
+    } else {
+      return right(
+        FlowyError.create()
+          ..code = ErrorCode.MissingAuthField
+          ..msg = errorDesc,
+      );
+    }
   }
 }
 
