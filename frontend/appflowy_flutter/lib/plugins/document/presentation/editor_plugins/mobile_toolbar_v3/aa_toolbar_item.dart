@@ -5,16 +5,15 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_color_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_heading_and_text_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_indent_items.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-final appflowyTextDecorationItem = AppFlowyMobileToolbarItem(
+final aaToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, onMenu, _) {
     return AppFlowyMobileToolbarIconItem(
       keepSelectedStatus: true,
-      icon: FlowySvgs.m_text_decoration_m,
+      icon: FlowySvgs.m_toolbar_aa_s,
       onTap: () => onMenu?.call(),
     );
   },

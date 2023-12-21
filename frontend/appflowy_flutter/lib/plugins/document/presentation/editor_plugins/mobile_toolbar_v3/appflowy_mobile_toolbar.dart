@@ -1,6 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/keyboard_height_observer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -203,7 +205,15 @@ class _MobileToolbarState extends State<_MobileToolbar>
     //  - otherwise, add a spacer to push the toolbar up when the keyboard is shown
     return Column(
       children: [
+        Divider(
+          height: 0.5,
+          color: Colors.grey.withOpacity(0.5),
+        ),
         _buildToolbar(context),
+        Divider(
+          height: 0.5,
+          color: Colors.grey.withOpacity(0.5),
+        ),
         _buildMenuOrSpacer(context),
         // for debug
         const SizedBox(height: 40),
@@ -245,7 +255,7 @@ class _MobileToolbarState extends State<_MobileToolbar>
   // toolbar list view and close keyboard/menu button
   Widget _buildToolbar(BuildContext context) {
     return Container(
-      color: Colors.grey,
+      color: const Color(0xFFF3F3F8),
       height: widget.toolbarHeight,
       width: MediaQuery.of(context).size.width,
       child: Row(
@@ -296,6 +306,7 @@ class _MobileToolbarState extends State<_MobileToolbar>
             ),
             child: VerticalDivider(
               width: 1,
+              color: Colors.grey,
             ),
           ),
           // close menu or close keyboard button
@@ -386,26 +397,28 @@ class _ToolbarItemListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        final toolbarItem = toolbarItems[index];
-        return toolbarItem.itemBuilder.call(
-          context,
-          editorState,
-          toolbarItem.menuBuilder != null
-              ? () {
-                  itemWithMenuOnPressed(index);
-                }
-              : null,
-          toolbarItem.menuBuilder == null
-              ? () {
-                  itemWithActionOnPressed(index);
-                }
-              : null,
-        );
-      },
-      itemCount: toolbarItems.length,
+    final children = toolbarItems.mapIndexed(
+      (index, element) => element.itemBuilder.call(
+        context,
+        editorState,
+        element.menuBuilder != null
+            ? () {
+                itemWithMenuOnPressed(index);
+              }
+            : null,
+        element.menuBuilder == null
+            ? () {
+                itemWithActionOnPressed(index);
+              }
+            : null,
+      ),
+    );
+    return ListView(
       scrollDirection: Axis.horizontal,
+      children: [
+        const HSpace(8),
+        ...children.map((e) => [e, const HSpace(26)]).flattened,
+      ],
     );
   }
 }
@@ -421,15 +434,19 @@ class _CloseKeyboardOrMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      useIntrinsicWidth: true,
-      text: showingMenu
-          ? const AFMobileIcon(
-              afMobileIcons: AFMobileIcons.close,
-            )
-          : const Icon(
-              Icons.keyboard_hide,
-            ),
+    return SizedBox(
+      width: 64,
+      height: 46,
+      child: FlowyButton(
+        text: showingMenu
+            ? const FlowySvg(
+                FlowySvgs.m_toolbar_show_keyboard_s,
+              )
+            : const FlowySvg(
+                FlowySvgs.m_toolbar_hide_keyboard_s,
+              ),
+        onTap: onPressed,
+      ),
     );
   }
 }

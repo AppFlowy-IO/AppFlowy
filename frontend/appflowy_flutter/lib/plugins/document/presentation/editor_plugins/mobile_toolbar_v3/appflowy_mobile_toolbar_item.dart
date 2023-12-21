@@ -32,14 +32,16 @@ class AppFlowyMobileToolbarItem {
 class AppFlowyMobileToolbarIconItem extends StatefulWidget {
   const AppFlowyMobileToolbarIconItem({
     super.key,
-    required this.icon,
+    this.icon,
     this.keepSelectedStatus = false,
+    this.iconBuilder,
     required this.onTap,
   });
 
-  final FlowySvgData icon;
+  final FlowySvgData? icon;
   final bool keepSelectedStatus;
   final VoidCallback onTap;
+  final WidgetBuilder? iconBuilder;
 
   @override
   State<AppFlowyMobileToolbarIconItem> createState() =>
@@ -66,15 +68,16 @@ class _AppFlowyMobileToolbarIconItemState
           widget.onTap();
         },
         child: Container(
-          width: 48,
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          width: 46,
+          padding: const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
             color: isSelected ? Colors.blue.withOpacity(0.5) : null,
           ),
-          child: FlowySvg(
-            widget.icon,
-          ),
+          child: widget.iconBuilder?.call(context) ??
+              FlowySvg(
+                widget.icon!,
+              ),
         ),
       ),
     );

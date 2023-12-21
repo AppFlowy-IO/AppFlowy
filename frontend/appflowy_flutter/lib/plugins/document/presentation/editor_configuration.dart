@@ -12,7 +12,7 @@ import 'package:flutter/services.dart';
 
 List<AppFlowyMobileToolbarItem> getMobileToolbarItems() {
   return [
-    appflowyTextDecorationItem,
+    aaToolbarItem,
   ];
 }
 
