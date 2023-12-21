@@ -1,5 +1,6 @@
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -30,7 +31,11 @@ class AnonUserBloc extends Bloc<AnonUserEvent, AnonUserState> {
       (anonUser) {
         add(AnonUserEvent.didLoadAnonUsers([anonUser]));
       },
-      (error) => Log.error(error),
+      (error) {
+        if (error.code != ErrorCode.RecordNotFound) {
+          Log.error(error);
+        }
+      },
     );
   }
 }

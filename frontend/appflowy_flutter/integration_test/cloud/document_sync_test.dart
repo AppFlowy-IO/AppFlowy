@@ -63,14 +63,14 @@ void main() {
       );
       await tester.tapGoogleLoginInButton();
       tester.expectToSeeHomePage();
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // The document will be synced from the server
       await tester.openPage(
         pageName,
       );
 
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(find.text('hello world', findRichText: true), findsOneWidget);
     });
   });
