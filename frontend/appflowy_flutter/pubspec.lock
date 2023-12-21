@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "82f3baf"
-      resolved-ref: "82f3baf3f121277c5e235faa04687a7fc383b37d"
+      ref: "739cd59"
+      resolved-ref: "739cd598c3ded27a03854e3e67a113ec3ecc0d9c"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.1.0"

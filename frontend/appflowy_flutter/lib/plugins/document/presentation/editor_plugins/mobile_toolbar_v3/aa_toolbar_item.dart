@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_block_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_color_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_heading_and_text_items.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_indent_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -87,11 +88,13 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
             ],
           ),
           const ScaledVSpace(),
-          const Row(
+          Row(
             children: [
-              _FontFamilyItem(),
-              Spacer(),
-              _IndentAndOutdentItems(),
+              const _FontFamilyItem(),
+              const Spacer(),
+              IndentAndOutdentItems(
+                editorState: editorState,
+              ),
             ],
           ),
         ],
@@ -109,7 +112,7 @@ class _FontFamilyItem extends StatelessWidget {
       size: const Size(144, 52),
       onTap: () {},
       text: 'Sans Serif',
-      color: const Color(0xFFF2F2F7),
+      backgroundColor: const Color(0xFFF2F2F7),
       isSelected: false,
       showRightArrow: true,
       iconPadding: const EdgeInsets.only(
@@ -120,45 +123,6 @@ class _FontFamilyItem extends StatelessWidget {
       ),
       textPadding: const EdgeInsets.only(
         right: 16.0,
-      ),
-    );
-  }
-}
-
-class _IndentAndOutdentItems extends StatelessWidget {
-  const _IndentAndOutdentItems();
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          MobileToolbarItemWrapper(
-            size: const Size(95, 52),
-            onTap: () {},
-            icon: FlowySvgs.m_aa_outdent_s,
-            isSelected: false,
-            enableTopRightRadius: false,
-            enableBottomRightRadius: false,
-            iconPadding: const EdgeInsets.symmetric(
-              vertical: 14.0,
-            ),
-            color: const Color(0xFFF2F2F7),
-          ),
-          const ScaledVerticalDivider(),
-          MobileToolbarItemWrapper(
-            size: const Size(95, 52),
-            onTap: () {},
-            icon: FlowySvgs.m_aa_indent_s,
-            isSelected: false,
-            enableTopLeftRadius: false,
-            enableBottomLeftRadius: false,
-            iconPadding: const EdgeInsets.symmetric(
-              vertical: 14.0,
-            ),
-            color: const Color(0xFFF2F2F7),
-          ),
-        ],
       ),
     );
   }

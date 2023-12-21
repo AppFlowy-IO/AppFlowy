@@ -36,6 +36,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
 
   final configuration = BlockComponentConfiguration(
+    // use EdgeInsets.zero to remove the default padding.
     padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
         ? const EdgeInsets.only(left: 26.0)

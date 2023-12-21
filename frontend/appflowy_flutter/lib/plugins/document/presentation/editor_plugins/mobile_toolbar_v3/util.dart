@@ -7,10 +7,10 @@ class MobileToolbarItemWrapper extends StatelessWidget {
   const MobileToolbarItemWrapper({
     super.key,
     required this.size,
-    required this.onTap,
     this.icon,
+    this.iconColor,
     this.text,
-    this.color,
+    this.backgroundColor,
     required this.isSelected,
     required this.iconPadding,
     this.enableBottomLeftRadius = true,
@@ -20,11 +20,13 @@ class MobileToolbarItemWrapper extends StatelessWidget {
     this.showDownArrow = false,
     this.showRightArrow = false,
     this.textPadding = EdgeInsets.zero,
+    required this.onTap,
   });
 
   final Size size;
   final VoidCallback onTap;
   final FlowySvgData? icon;
+  final Color? iconColor;
   final String? text;
   final bool isSelected;
   final EdgeInsets iconPadding;
@@ -34,7 +36,7 @@ class MobileToolbarItemWrapper extends StatelessWidget {
   final bool enableBottomLeftRadius;
   final bool showDownArrow;
   final bool showRightArrow;
-  final Color? color;
+  final Color? backgroundColor;
   final EdgeInsets textPadding;
 
   @override
@@ -46,7 +48,7 @@ class MobileToolbarItemWrapper extends StatelessWidget {
     if (icon != null) {
       child = FlowySvg(
         icon!,
-        color: isSelected ? Colors.white : Colors.black,
+        color: iconColor ?? (isSelected ? Colors.white : Colors.black),
       );
     } else if (text != null) {
       child = Padding(
@@ -70,7 +72,7 @@ class MobileToolbarItemWrapper extends StatelessWidget {
             height: size.height * scale,
             width: size.width * scale,
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF00BCF0) : color,
+              color: isSelected ? const Color(0xFF00BCF0) : backgroundColor,
               borderRadius: BorderRadius.only(
                 topLeft: enableTopLeftRadius ? radius : Radius.zero,
                 topRight: enableTopRightRadius ? radius : Radius.zero,

@@ -13,7 +13,7 @@ class ColorItem extends StatelessWidget {
       size: const Size(82, 52),
       onTap: () {},
       icon: FlowySvgs.m_aa_color_s,
-      color: const Color(0xFFF2F2F7),
+      backgroundColor: const Color(0xFFF2F2F7),
       isSelected: false,
       showRightArrow: true,
       iconPadding: const EdgeInsets.only(

@@ -54,7 +54,7 @@ class BIUSItems extends StatelessWidget {
         enableBottomLeftRadius: index == 0,
         enableTopRightRadius: index == _bius.length - 1,
         enableBottomRightRadius: index == _bius.length - 1,
-        color: const Color(0xFFF2F2F7),
+        backgroundColor: const Color(0xFFF2F2F7),
         onTap: () async {
           await editorState.toggleAttribute(richTextKey);
           // refresh the status

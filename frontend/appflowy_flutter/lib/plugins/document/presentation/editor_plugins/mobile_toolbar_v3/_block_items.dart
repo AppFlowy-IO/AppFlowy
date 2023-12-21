@@ -58,7 +58,7 @@ class BlockItems extends StatelessWidget {
       onTap: () async {
         await editorState.convertBlockType(blockType);
       },
-      color: const Color(0xFFF2F2F7),
+      backgroundColor: const Color(0xFFF2F2F7),
       icon: icon,
       isSelected: editorState.isBlockTypeSelected(blockType),
       iconPadding: const EdgeInsets.symmetric(
@@ -76,7 +76,7 @@ class BlockItems extends StatelessWidget {
       enableBottomRightRadius: true,
       showDownArrow: true,
       onTap: () {},
-      color: const Color(0xFFF2F2F7),
+      backgroundColor: const Color(0xFFF2F2F7),
       icon: FlowySvgs.m_aa_link_s,
       isSelected: false,
       iconPadding: const EdgeInsets.symmetric(

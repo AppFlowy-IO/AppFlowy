@@ -24,7 +24,7 @@ class AlignItems extends StatelessWidget {
         vertical: 14.0,
       ),
       showDownArrow: true,
-      color: const Color(0xFFF2F2F7),
+      backgroundColor: const Color(0xFFF2F2F7),
     );
   }
 }
