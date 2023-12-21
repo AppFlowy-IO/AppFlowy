@@ -35,6 +35,7 @@ class AppFlowyMobileToolbarIconItem extends StatefulWidget {
     this.icon,
     this.keepSelectedStatus = false,
     this.iconBuilder,
+    this.isSelected,
     required this.onTap,
   });
 
@@ -42,6 +43,7 @@ class AppFlowyMobileToolbarIconItem extends StatefulWidget {
   final bool keepSelectedStatus;
   final VoidCallback onTap;
   final WidgetBuilder? iconBuilder;
+  final bool Function()? isSelected;
 
   @override
   State<AppFlowyMobileToolbarIconItem> createState() =>
@@ -53,26 +55,45 @@ class _AppFlowyMobileToolbarIconItemState
   bool isSelected = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    isSelected = widget.isSelected?.call() ?? false;
+  }
+
+  @override
+  void didUpdateWidget(covariant AppFlowyMobileToolbarIconItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.isSelected != null) {
+      isSelected = widget.isSelected!.call();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          if (widget.keepSelectedStatus) {
+          widget.onTap();
+          if (widget.keepSelectedStatus && widget.isSelected == null) {
             setState(() {
               isSelected = !isSelected;
             });
+          } else {
+            setState(() {
+              isSelected = widget.isSelected?.call() ?? false;
+            });
           }
-
-          widget.onTap();
         },
         child: Container(
-          width: 46,
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          width: 48,
+          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: isSelected ? Colors.blue.withOpacity(0.5) : null,
+            borderRadius: BorderRadius.circular(10),
+            color: isSelected ? const Color(0x1f232914) : null,
           ),
           child: widget.iconBuilder?.call(context) ??
               FlowySvg(

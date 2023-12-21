@@ -279,7 +279,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           undoToolbarItem,
           redoToolbarItem,
           addBlockToolbarItem,
-          checkboxToolbarItem,
+          todoListToolbarItem,
           aaToolbarItem,
           boldToolbarItem,
           italicToolbarItem,

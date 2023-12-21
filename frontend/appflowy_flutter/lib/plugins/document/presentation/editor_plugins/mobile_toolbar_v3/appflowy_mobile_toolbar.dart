@@ -417,7 +417,7 @@ class _ToolbarItemListView extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       children: [
         const HSpace(8),
-        ...children.map((e) => [e, const HSpace(26)]).flattened,
+        ...children.map((e) => [e, const HSpace(10)]).flattened,
       ],
     );
   }
