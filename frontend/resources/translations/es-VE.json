@@ -226,7 +226,7 @@
         "description": "Cargue su propio tema AppFlowy usando el botón de abajo.",
         "failure": "El tema que se cargó tenía un formato no válido.",
         "loading": "Espere mientras validamos y cargamos su tema...",
-        "uploadSuccess": "Tu tema fue subido con éxito",
+        "uploadSuccess": "Su tema se ha subido con éxito",
         "deletionFailure": "No se pudo eliminar el tema. Intenta eliminarlo manualmente.",
         "filePickerDialogTitle": "Elija un archivo .flowy_plugin",
         "urlUploadFailure": "No se pudo abrir la URL: {}"
