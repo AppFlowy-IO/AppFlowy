@@ -45,11 +45,16 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             ] else
               const _AddOptionButton(),
             const VSpace(4),
-            _OptionList(popoverMutex: popoverMutex),
+            ...state.options.map((option) {
+              return _OptionCell(
+                option: option,
+                popoverMutex: popoverMutex,
+              );
+            }),
           ];
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
+          return ListView(
+            shrinkWrap: true,
             children: children,
           );
         },
@@ -75,39 +80,6 @@ class _OptionTitle extends StatelessWidget {
               color: Theme.of(context).hintColor,
             ),
           ),
-        );
-      },
-    );
-  }
-}
-
-class _OptionList extends StatelessWidget {
-  final PopoverMutex? popoverMutex;
-  const _OptionList({this.popoverMutex});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
-      buildWhen: (previous, current) {
-        return previous.options != current.options;
-      },
-      builder: (context, state) {
-        final cells = state.options.map((option) {
-          return _OptionCell(
-            option: option,
-            popoverMutex: popoverMutex,
-          );
-        }).toList();
-
-        return ListView.separated(
-          shrinkWrap: true,
-          separatorBuilder: (context, index) {
-            return VSpace(GridSize.typeOptionSeparatorHeight);
-          },
-          itemCount: cells.length,
-          itemBuilder: (BuildContext context, int index) {
-            return cells[index];
-          },
         );
       },
     );
