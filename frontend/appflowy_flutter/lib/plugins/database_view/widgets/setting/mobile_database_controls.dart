@@ -65,8 +65,16 @@ class MobileDatabaseControls extends StatelessWidget {
                       context,
                       padding: EdgeInsets.zero,
                       builder: (_) {
-                        return BlocProvider<ViewBloc>.value(
-                          value: context.read<ViewBloc>(),
+                        return BlocProvider<ViewBloc>(
+                          create: (_) {
+                            return ViewBloc(
+                              view: context
+                                  .read<DatabaseTabBarBloc>()
+                                  .state
+                                  .tabBarControllerByViewId[controller.viewId]!
+                                  .view,
+                            )..add(const ViewEvent.initial());
+                          },
                           child: MobileEditDatabaseViewScreen(
                             databaseController: controller,
                           ),
