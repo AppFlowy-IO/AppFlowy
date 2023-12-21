@@ -1,7 +1,6 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
@@ -101,11 +100,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Future<void> _relaunchAppAndAutoRegister() async {
-    await FlowyRunner.run(
-      FlowyApp(),
-      integrationMode(),
-      isAnon: true,
-    );
+    await runAppFlowy(isAnon: true);
   }
 }
 
