@@ -50,7 +50,7 @@ pub fn migration_anon_user_on_sign_up(
       // Migration of all objects except the folder and database_with_views
       object_ids.retain(|id| {
         id != &old_user.session.user_workspace.id
-          && id != &old_user.session.user_workspace.database_views_aggregate_id
+          && id != &old_user.session.user_workspace.database_storage_id
       });
 
       tracing::info!("migrate collab objects: {:?}", object_ids.len());
@@ -138,20 +138,20 @@ where
 {
   let database_with_views_collab = Collab::new(
     old_user.session.user_id,
-    &old_user.session.user_workspace.database_views_aggregate_id,
+    &old_user.session.user_workspace.database_storage_id,
     "phantom",
     vec![],
   );
   database_with_views_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(
       old_user.session.user_id,
-      &old_user.session.user_workspace.database_views_aggregate_id,
+      &old_user.session.user_workspace.database_storage_id,
       txn,
     )
   })?;
 
   let new_uid = new_user.session.user_id;
-  let new_object_id = &new_user.session.user_workspace.database_views_aggregate_id;
+  let new_object_id = &new_user.session.user_workspace.database_storage_id;
 
   let array = DatabaseWithViewsArray::from_collab(&database_with_views_collab);
   for database_view in array.get_all_databases() {

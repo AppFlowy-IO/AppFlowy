@@ -24,7 +24,7 @@ tokio = { workspace = true, features = ["sync"]}
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 [features]
-default = []
+default = ["rocksdb_plugin", "snapshot_plugin"]
 supabase_integrate = ["collab-plugins/postgres_storage_plugin", "rocksdb_plugin"]
 appflowy_cloud_integrate = ["rocksdb_plugin"]
 snapshot_plugin = ["collab-plugins/snapshot_plugin"]

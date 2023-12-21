@@ -9,7 +9,6 @@ use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, User
 use crate::entities::required_not_empty_str;
 use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
-use crate::services::entities::HistoricalUser;
 
 use super::parser::UserStabilityAIKey;
 
@@ -235,53 +234,6 @@ impl From<UserWorkspace> for UserWorkspacePB {
     Self {
       workspace_id: value.id,
       name: value.name,
-    }
-  }
-}
-
-#[derive(ProtoBuf, Default, Clone)]
-pub struct RepeatedHistoricalUserPB {
-  #[pb(index = 1)]
-  pub items: Vec<HistoricalUserPB>,
-}
-
-#[derive(ProtoBuf, Default, Clone)]
-pub struct HistoricalUserPB {
-  #[pb(index = 1)]
-  pub user_id: i64,
-
-  #[pb(index = 2)]
-  pub user_name: String,
-
-  #[pb(index = 3)]
-  pub last_time: i64,
-
-  #[pb(index = 4)]
-  pub auth_type: AuthTypePB,
-
-  #[pb(index = 5)]
-  pub device_id: String,
-}
-
-impl From<Vec<HistoricalUser>> for RepeatedHistoricalUserPB {
-  fn from(historical_users: Vec<HistoricalUser>) -> Self {
-    Self {
-      items: historical_users
-        .into_iter()
-        .map(HistoricalUserPB::from)
-        .collect(),
-    }
-  }
-}
-
-impl From<HistoricalUser> for HistoricalUserPB {
-  fn from(historical_user: HistoricalUser) -> Self {
-    Self {
-      user_id: historical_user.user_id,
-      user_name: historical_user.user_name,
-      last_time: historical_user.sign_in_timestamp,
-      auth_type: historical_user.auth_type.into(),
-      device_id: historical_user.device_id,
     }
   }
 }
