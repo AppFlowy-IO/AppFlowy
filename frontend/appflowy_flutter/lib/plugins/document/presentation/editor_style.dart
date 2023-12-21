@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
@@ -39,15 +40,18 @@ class EditorStyleCustomizer {
 
   EditorStyle desktop() {
     final theme = Theme.of(context);
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
-    final defaultTextDirection =
-        context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
+    final appearance = context.read<DocumentAppearanceCubit>().state;
+    final fontSize = appearance.fontSize;
+    final fontFamily = appearance.fontFamily;
     final codeFontSize = max(0.0, fontSize - 2);
+
     return EditorStyle.desktop(
       padding: padding,
-      cursorColor: theme.colorScheme.primary,
-      defaultTextDirection: defaultTextDirection,
+      cursorColor: appearance.cursorColor ??
+          DefaultAppearanceSettings.getDefaultDocumentCursorColor(context),
+      selectionColor: appearance.selectionColor ??
+          DefaultAppearanceSettings.getDefaultDocumentSelectionColor(context),
+      defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
