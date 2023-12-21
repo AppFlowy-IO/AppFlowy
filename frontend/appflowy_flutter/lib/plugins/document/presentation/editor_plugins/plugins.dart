@@ -32,6 +32,7 @@ export 'math_equation/mobile_math_equation_toolbar_item.dart';
 export 'mobile_toolbar_v3/aa_toolbar_item.dart';
 export 'mobile_toolbar_v3/appflowy_mobile_toolbar.dart';
 export 'mobile_toolbar_v3/appflowy_mobile_toolbar_item.dart';
+export 'mobile_toolbar_v3/util.dart';
 export 'openai/widgets/auto_completion_node_widget.dart';
 export 'openai/widgets/smart_edit_node_widget.dart';
 export 'openai/widgets/smart_edit_toolbar_item.dart';

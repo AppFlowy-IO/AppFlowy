@@ -64,6 +64,7 @@ Future<T?> showMobileBottomSheet<T>(
                   : const SizedBox.shrink(),
               FlowyText(
                 title,
+                fontSize: 16.0,
               ),
               showCloseButton
                   ? HSpace(padding.right + 24)

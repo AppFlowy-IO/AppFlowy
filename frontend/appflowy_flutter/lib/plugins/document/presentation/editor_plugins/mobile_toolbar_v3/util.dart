@@ -235,4 +235,70 @@ extension MobileToolbarEditorState on EditorState {
       ),
     );
   }
+
+  Future<void> updateTextAndHref(
+    String? prevText,
+    String? prevHref,
+    String? text,
+    String? href, {
+    Selection? selection,
+  }) async {
+    if (prevText == null && text == null) {
+      return;
+    }
+
+    selection ??= this.selection;
+    // doesn't support multiple selection now
+    if (selection == null || !selection.isSingle) {
+      return;
+    }
+
+    final node = getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return;
+    }
+
+    final transaction = this.transaction;
+
+    // insert a new link
+    if (prevText == null &&
+        text != null &&
+        text.isNotEmpty &&
+        selection.isCollapsed) {
+      final attributes = href != null && href.isNotEmpty
+          ? {
+              AppFlowyRichTextKeys.href: href,
+            }
+          : null;
+      transaction.insertText(
+        node,
+        selection.startIndex,
+        text,
+        attributes: attributes,
+      );
+    } else if (text != null && prevText != text) {
+      // update text
+      transaction.replaceText(
+        node,
+        selection.startIndex,
+        selection.length,
+        text,
+      );
+    }
+
+    // if the text is empty, it means the user wants to remove the text
+    if (text != null && text.isNotEmpty && prevHref != href) {
+      // update href
+      transaction.formatText(
+        node,
+        selection.startIndex,
+        text.length,
+        {
+          AppFlowyRichTextKeys.href: href?.isEmpty == true ? null : href,
+        },
+      );
+    }
+
+    await apply(transaction);
+  }
 }

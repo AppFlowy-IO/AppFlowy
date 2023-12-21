@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ typedef AppFlowyMobileToolbarItemBuilder = Widget Function(
 typedef AppFlowyMobileToolbarItemMenuBuilder = Widget Function(
   BuildContext context,
   EditorState editorState,
-  MobileToolbarWidgetService service,
+  AppFlowyMobileToolbarWidgetService service,
 );
 
 class AppFlowyMobileToolbarItem {

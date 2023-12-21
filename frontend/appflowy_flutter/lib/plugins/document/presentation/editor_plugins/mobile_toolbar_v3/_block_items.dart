@@ -1,16 +1,21 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class BlockItems extends StatelessWidget {
   BlockItems({
     super.key,
+    required this.service,
     required this.editorState,
   });
 
   final EditorState editorState;
+  final AppFlowyMobileToolbarWidgetService service;
 
   final List<(FlowySvgData, String)> _blockItems = [
     (FlowySvgs.m_aa_bulleted_list_s, BulletedListBlockKeys.type),
@@ -75,7 +80,7 @@ class BlockItems extends StatelessWidget {
       enableTopRightRadius: true,
       enableBottomRightRadius: true,
       showDownArrow: true,
-      onTap: () {},
+      onTap: _onLinkItemTap,
       backgroundColor: const Color(0xFFF2F2F7),
       icon: FlowySvgs.m_aa_link_s,
       isSelected: false,
@@ -83,5 +88,53 @@ class BlockItems extends StatelessWidget {
         vertical: 14.0,
       ),
     );
+  }
+
+  void _onLinkItemTap() {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return;
+    }
+    final nodes = editorState.getNodesInSelection(selection);
+    // show edit link bottom sheet
+    final context = nodes.firstOrNull?.context;
+    if (context != null) {
+      _closeKeyboard(selection);
+
+      final text = editorState
+          .getTextInSelection(
+            selection,
+          )
+          .join('');
+      final href = editorState.getDeltaAttributeValueInSelection<String>(
+        AppFlowyRichTextKeys.href,
+        selection,
+      );
+      showEditLinkBottomSheet(
+        context,
+        text,
+        href,
+        (context, newText, newHref) {
+          editorState.updateTextAndHref(
+            text,
+            href,
+            newText,
+            newHref,
+            selection: selection,
+          );
+          context.pop();
+        },
+      );
+    }
+  }
+
+  void _closeKeyboard(Selection selection) {
+    editorState.updateSelectionWithReason(
+      selection,
+      extraInfo: {
+        disableMobileToolbarKey: true,
+      },
+    );
+    editorState.service.keyboardService?.closeKeyboard();
   }
 }

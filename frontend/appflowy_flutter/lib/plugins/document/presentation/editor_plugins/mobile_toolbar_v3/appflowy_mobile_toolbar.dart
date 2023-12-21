@@ -4,7 +4,10 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-const String disableMobileToolbarKey = 'disableMobileToolbar';
+abstract class AppFlowyMobileToolbarWidgetService {
+  void closeItemMenu();
+  void closeKeyboard();
+}
 
 class AppFlowyMobileToolbar extends StatefulWidget {
   const AppFlowyMobileToolbar({
@@ -140,7 +143,7 @@ class _MobileToolbar extends StatefulWidget {
 }
 
 class _MobileToolbarState extends State<_MobileToolbar>
-    implements MobileToolbarWidgetService {
+    implements AppFlowyMobileToolbarWidgetService {
   // used to control the toolbar menu items
   PropertyValueNotifier<bool> showMenuNotifier = PropertyValueNotifier(false);
 
@@ -211,6 +214,11 @@ class _MobileToolbarState extends State<_MobileToolbar>
   @override
   void closeItemMenu() {
     showMenuNotifier.value = false;
+  }
+
+  @override
+  void closeKeyboard() {
+    _closeKeyboard();
   }
 
   void showItemMenu() {
@@ -374,7 +382,7 @@ class _ToolbarItemListView extends StatelessWidget {
   final Function(int index) itemWithActionOnPressed;
   final List<AppFlowyMobileToolbarItem> toolbarItems;
   final EditorState editorState;
-  final MobileToolbarWidgetService toolbarWidgetService;
+  final AppFlowyMobileToolbarWidgetService toolbarWidgetService;
 
   @override
   Widget build(BuildContext context) {

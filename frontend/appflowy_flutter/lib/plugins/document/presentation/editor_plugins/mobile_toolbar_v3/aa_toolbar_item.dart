@@ -40,7 +40,7 @@ class _TextDecorationMenu extends StatefulWidget {
 
   final EditorState editorState;
   final Selection selection;
-  final MobileToolbarWidgetService service;
+  final AppFlowyMobileToolbarWidgetService service;
 
   @override
   State<_TextDecorationMenu> createState() => _TextDecorationMenuState();
@@ -79,6 +79,7 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
           Row(
             children: [
               BlockItems(
+                service: widget.service,
                 editorState: editorState,
               ),
               const Spacer(),

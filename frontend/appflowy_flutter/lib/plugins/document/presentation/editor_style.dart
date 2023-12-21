@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
@@ -286,19 +286,35 @@ class EditorStyleCustomizer {
         text: text.text,
         recognizer: TapGestureRecognizer()
           ..onTap = () {
+            final editorState = context.read<EditorState>();
+            if (editorState.selection == null) {
+              safeLaunchUrl(href);
+              return;
+            }
+
+            editorState.updateSelectionWithReason(
+              editorState.selection,
+              extraInfo: {
+                disableMobileToolbarKey: true,
+              },
+            );
+
             showEditLinkBottomSheet(
               context,
               text.text,
               href,
               (linkContext, newText, newHref) {
-                _updateTextAndHref(
-                  context,
-                  node,
-                  index,
+                final selection = Selection.single(
+                  path: node.path,
+                  startOffset: index,
+                  endOffset: index + text.text.length,
+                );
+                editorState.updateTextAndHref(
                   text.text,
                   href,
                   newText,
                   newHref,
+                  selection: selection,
                 );
                 linkContext.pop();
               },
@@ -315,38 +331,5 @@ class EditorStyleCustomizer {
       before,
       after,
     );
-  }
-
-  void _updateTextAndHref(
-    BuildContext context,
-    Node node,
-    int index,
-    String prevText,
-    String? prevHref,
-    String text,
-    String href,
-  ) async {
-    final selection = Selection.single(
-      path: node.path,
-      startOffset: index,
-      endOffset: index + prevText.length,
-    );
-    final editorState = context.read<EditorState>();
-    final transaction = editorState.transaction;
-    if (prevText != text) {
-      transaction.replaceText(
-        node,
-        selection.startIndex,
-        selection.length,
-        text,
-      );
-    }
-    // if the text is empty, it means the user wants to remove the text
-    if (text.isNotEmpty && prevHref != href) {
-      transaction.formatText(node, selection.startIndex, text.length, {
-        AppFlowyRichTextKeys.href: href.isEmpty ? null : href,
-      });
-    }
-    await editorState.apply(transaction);
   }
 }
