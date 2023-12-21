@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
@@ -12,30 +12,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:protobuf/protobuf.dart';
-
-abstract class ICalendarSetting {
-  const ICalendarSetting();
-
-  /// Returns the current layout settings for the calendar view.
-  CalendarLayoutSettingPB? getLayoutSetting();
-
-  /// Updates the layout settings for the calendar view.
-  void updateLayoutSettings(CalendarLayoutSettingPB layoutSettings);
-}
 
 /// Widget that displays a list of settings that alters the appearance of the
 /// calendar
 class CalendarLayoutSetting extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final ICalendarSetting calendarSettingController;
+  final DatabaseController databaseController;
 
   const CalendarLayoutSetting({
-    required this.viewId,
-    required this.fieldController,
-    required this.calendarSettingController,
     super.key,
+    required this.databaseController,
   });
 
   @override
@@ -43,61 +28,64 @@ class CalendarLayoutSetting extends StatefulWidget {
 }
 
 class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
-  late final PopoverMutex popoverMutex = PopoverMutex();
+  final PopoverMutex popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CalendarSettingBloc(
-        viewId: widget.viewId,
-        layoutSettings: widget.calendarSettingController.getLayoutSetting(),
-      )..add(const CalendarSettingEvent.init()),
+      create: (context) {
+        return CalendarSettingBloc(
+          databaseController: widget.databaseController,
+        )..add(const CalendarSettingEvent.initial());
+      },
       child: BlocBuilder<CalendarSettingBloc, CalendarSettingState>(
         builder: (context, state) {
-          final CalendarLayoutSettingPB? settings = state.layoutSetting
-              .foldLeft(null, (previous, settings) => settings);
+          final CalendarLayoutSettingPB? settings = state.layoutSetting;
 
           if (settings == null) {
             return const CircularProgressIndicator();
           }
-
           final availableSettings = _availableCalendarSettings(settings);
+          final bloc = context.read<CalendarSettingBloc>();
           final items = availableSettings.map((setting) {
             switch (setting) {
               case CalendarLayoutSettingAction.showWeekNumber:
                 return ShowWeekNumber(
                   showWeekNumbers: settings.showWeekNumbers,
-                  onUpdated: (showWeekNumbers) => _updateLayoutSettings(
-                    context,
-                    showWeekNumbers: showWeekNumbers,
+                  onUpdated: (showWeekNumbers) => bloc.add(
+                    CalendarSettingEvent.updateLayoutSetting(
+                      showWeekNumbers: showWeekNumbers,
+                    ),
                   ),
                 );
               case CalendarLayoutSettingAction.showWeekends:
                 return ShowWeekends(
                   showWeekends: settings.showWeekends,
-                  onUpdated: (showWeekends) => _updateLayoutSettings(
-                    context,
-                    showWeekends: showWeekends,
+                  onUpdated: (showWeekends) => bloc.add(
+                    CalendarSettingEvent.updateLayoutSetting(
+                      showWeekends: showWeekends,
+                    ),
                   ),
                 );
               case CalendarLayoutSettingAction.firstDayOfWeek:
                 return FirstDayOfWeek(
                   firstDayOfWeek: settings.firstDayOfWeek,
                   popoverMutex: popoverMutex,
-                  onUpdated: (firstDayOfWeek) => _updateLayoutSettings(
-                    context,
-                    firstDayOfWeek: firstDayOfWeek,
+                  onUpdated: (firstDayOfWeek) => bloc.add(
+                    CalendarSettingEvent.updateLayoutSetting(
+                      firstDayOfWeek: firstDayOfWeek,
+                    ),
                   ),
                 );
               case CalendarLayoutSettingAction.layoutField:
                 return LayoutDateField(
-                  fieldController: widget.fieldController,
-                  viewId: widget.viewId,
+                  databaseController: widget.databaseController,
                   fieldId: settings.fieldId,
                   popoverMutex: popoverMutex,
-                  onUpdated: (fieldId) => _updateLayoutSettings(
-                    context,
-                    layoutFieldId: fieldId,
+                  onUpdated: (fieldId) => bloc.add(
+                    CalendarSettingEvent.updateLayoutSetting(
+                      layoutFieldId: fieldId,
+                    ),
                   ),
                 );
               default:
@@ -140,59 +128,19 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
 
     return settings;
   }
-
-  void _updateLayoutSettings(
-    BuildContext context, {
-    bool? showWeekends,
-    bool? showWeekNumbers,
-    int? firstDayOfWeek,
-    String? layoutFieldId,
-  }) {
-    CalendarLayoutSettingPB setting = context
-        .read<CalendarSettingBloc>()
-        .state
-        .layoutSetting
-        .foldLeft(null, (previous, settings) => settings)!;
-    setting.freeze();
-    setting = setting.rebuild((setting) {
-      if (showWeekends != null) {
-        setting.showWeekends = !showWeekends;
-      }
-
-      if (showWeekNumbers != null) {
-        setting.showWeekNumbers = !showWeekNumbers;
-      }
-
-      if (firstDayOfWeek != null) {
-        setting.firstDayOfWeek = firstDayOfWeek;
-      }
-
-      if (layoutFieldId != null) {
-        setting.fieldId = layoutFieldId;
-      }
-    });
-
-    context
-        .read<CalendarSettingBloc>()
-        .add(CalendarSettingEvent.updateLayoutSetting(setting));
-
-    widget.calendarSettingController.updateLayoutSettings(setting);
-  }
 }
 
 class LayoutDateField extends StatelessWidget {
   const LayoutDateField({
     super.key,
+    required this.databaseController,
     required this.fieldId,
-    required this.fieldController,
-    required this.viewId,
     required this.popoverMutex,
     required this.onUpdated,
   });
 
+  final DatabaseController databaseController;
   final String fieldId;
-  final String viewId;
-  final FieldController fieldController;
   final PopoverMutex popoverMutex;
   final Function(String fieldId) onUpdated;
 
@@ -207,8 +155,8 @@ class LayoutDateField extends StatelessWidget {
       popupBuilder: (context) {
         return BlocProvider(
           create: (context) => DatabasePropertyBloc(
-            viewId: viewId,
-            fieldController: fieldController,
+            viewId: databaseController.viewId,
+            fieldController: databaseController.fieldController,
           )..add(const DatabasePropertyEvent.initial()),
           child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
             builder: (context, state) {

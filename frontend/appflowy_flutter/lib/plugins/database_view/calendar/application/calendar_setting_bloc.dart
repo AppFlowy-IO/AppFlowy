@@ -1,9 +1,10 @@
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/layout/layout_setting_listener.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:bloc/bloc.dart';
-import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'calendar_setting_bloc.freezed.dart';
 
@@ -11,28 +12,82 @@ typedef DayOfWeek = int;
 
 class CalendarSettingBloc
     extends Bloc<CalendarSettingEvent, CalendarSettingState> {
-  final String viewId;
+  final DatabaseController _databaseController;
   final DatabaseLayoutSettingListener _listener;
 
   CalendarSettingBloc({
-    required this.viewId,
-    required CalendarLayoutSettingPB? layoutSettings,
-  })  : _listener = DatabaseLayoutSettingListener(viewId),
-        super(CalendarSettingState.initial(layoutSettings)) {
+    required DatabaseController databaseController,
+  })  : _databaseController = databaseController,
+        _listener = DatabaseLayoutSettingListener(databaseController.viewId),
+        super(
+          CalendarSettingState.initial(
+            databaseController.databaseLayoutSetting?.calendar,
+          ),
+        ) {
     on<CalendarSettingEvent>((event, emit) {
       event.when(
-        init: () {
+        initial: () {
           _startListening();
         },
-        performAction: (action) {
-          emit(state.copyWith(selectedAction: Some(action)));
+        didUpdateLayoutSetting: (CalendarLayoutSettingPB setting) {
+          emit(state.copyWith(layoutSetting: layoutSetting));
         },
-        updateLayoutSetting: (setting) {
-          emit(state.copyWith(layoutSetting: Some(setting)));
+        updateLayoutSetting: (
+          bool? showWeekends,
+          bool? showWeekNumbers,
+          int? firstDayOfWeek,
+          String? layoutFieldId,
+        ) {
+          _updateLayoutSettings(
+            showWeekends,
+            showWeekNumbers,
+            firstDayOfWeek,
+            layoutFieldId,
+            emit,
+          );
         },
       );
     });
   }
+
+  void _updateLayoutSettings(
+    bool? showWeekends,
+    bool? showWeekNumbers,
+    int? firstDayOfWeek,
+    String? layoutFieldId,
+    Emitter<CalendarSettingState> emit,
+  ) {
+    final currentSetting = state.layoutSetting;
+    if (currentSetting == null) {
+      return;
+    }
+    currentSetting.freeze();
+    final newSetting = currentSetting.rebuild((setting) {
+      if (showWeekends != null) {
+        setting.showWeekends = !showWeekends;
+      }
+
+      if (showWeekNumbers != null) {
+        setting.showWeekNumbers = !showWeekNumbers;
+      }
+
+      if (firstDayOfWeek != null) {
+        setting.firstDayOfWeek = firstDayOfWeek;
+      }
+
+      if (layoutFieldId != null) {
+        setting.fieldId = layoutFieldId;
+      }
+    });
+
+    _databaseController.updateLayoutSetting(
+      calendarLayoutSetting: newSetting,
+    );
+    emit(state.copyWith(layoutSetting: newSetting));
+  }
+
+  CalendarLayoutSettingPB? get layoutSetting =>
+      _databaseController.databaseLayoutSetting?.calendar;
 
   void _startListening() {
     _listener.start(
@@ -42,8 +97,9 @@ class CalendarSettingBloc
         }
 
         result.fold(
-          (setting) =>
-              add(CalendarSettingEvent.updateLayoutSetting(setting.calendar)),
+          (setting) => add(
+            CalendarSettingEvent.didUpdateLayoutSetting(setting.calendar),
+          ),
           (r) => Log.error(r),
         );
       },
@@ -58,33 +114,28 @@ class CalendarSettingBloc
 }
 
 @freezed
-class CalendarSettingEvent with _$CalendarSettingEvent {
-  const factory CalendarSettingEvent.init() = _Init;
-  const factory CalendarSettingEvent.performAction(
-    CalendarSettingAction action,
-  ) = _PerformAction;
-  const factory CalendarSettingEvent.updateLayoutSetting(
-    CalendarLayoutSettingPB setting,
-  ) = _UpdateLayoutSetting;
-}
-
-enum CalendarSettingAction {
-  properties,
-  layout,
-}
-
-@freezed
 class CalendarSettingState with _$CalendarSettingState {
   const factory CalendarSettingState({
-    required Option<CalendarSettingAction> selectedAction,
-    required Option<CalendarLayoutSettingPB> layoutSetting,
+    required CalendarLayoutSettingPB? layoutSetting,
   }) = _CalendarSettingState;
 
   factory CalendarSettingState.initial(
     CalendarLayoutSettingPB? layoutSettings,
-  ) =>
-      CalendarSettingState(
-        selectedAction: none(),
-        layoutSetting: layoutSettings == null ? none() : Some(layoutSettings),
-      );
+  ) {
+    return CalendarSettingState(layoutSetting: layoutSettings);
+  }
+}
+
+@freezed
+class CalendarSettingEvent with _$CalendarSettingEvent {
+  const factory CalendarSettingEvent.initial() = _Initial;
+  const factory CalendarSettingEvent.didUpdateLayoutSetting(
+    CalendarLayoutSettingPB setting,
+  ) = _DidUpdateLayoutSetting;
+  const factory CalendarSettingEvent.updateLayoutSetting({
+    bool? showWeekends,
+    bool? showWeekNumbers,
+    int? firstDayOfWeek,
+    String? layoutFieldId,
+  }) = _UpdateLayoutSetting;
 }

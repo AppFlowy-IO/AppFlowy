@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_paginated_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
@@ -446,15 +446,21 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
   }
 
   void _showUnscheduledEventsMobile(List<CalendarEventPB> events) =>
-      showPaginatedBottomSheet(
+      showMobileBottomSheet(
         context,
-        page: SheetPage(
-          title: LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
-          body: UnscheduleEventsList(
-            databaseController: widget.databaseController,
-            unscheduleEvents: events,
-          ),
-        ),
+        builder: (_) {
+          return Column(
+            children: [
+              FlowyText.medium(
+                LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
+              ),
+              UnscheduleEventsList(
+                databaseController: widget.databaseController,
+                unscheduleEvents: events,
+              ),
+            ],
+          );
+        },
       );
 }
 

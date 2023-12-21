@@ -1,9 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/presentation/setting/widgets/mobile_setting_item_widget.dart';
 import 'package:appflowy/plugins/database_view/application/layout/layout_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -75,36 +73,6 @@ class DatabaseViewLayoutCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformExtension.isMobile) {
-      return MobileDatabaseViewLayoutCell(
-        isSelected: isSelected,
-        databaseLayout: databaseLayout,
-        onTap: onTap,
-      );
-    }
-
-    return DesktopDatabaseViewLayoutCell(
-      isSelected: isSelected,
-      databaseLayout: databaseLayout,
-      onTap: onTap,
-    );
-  }
-}
-
-class DesktopDatabaseViewLayoutCell extends StatelessWidget {
-  const DesktopDatabaseViewLayoutCell({
-    super.key,
-    required this.isSelected,
-    required this.databaseLayout,
-    required this.onTap,
-  });
-
-  final bool isSelected;
-  final DatabaseLayoutPB databaseLayout;
-  final void Function(DatabaseLayoutPB) onTap;
-
-  @override
-  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: SizedBox(
@@ -123,34 +91,6 @@ class DesktopDatabaseViewLayoutCell extends StatelessWidget {
           onTap: () => onTap(databaseLayout),
         ),
       ),
-    );
-  }
-}
-
-class MobileDatabaseViewLayoutCell extends StatelessWidget {
-  const MobileDatabaseViewLayoutCell({
-    super.key,
-    required this.isSelected,
-    required this.databaseLayout,
-    required this.onTap,
-  });
-
-  final bool isSelected;
-  final DatabaseLayoutPB databaseLayout;
-  final void Function(DatabaseLayoutPB) onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return MobileSettingItem(
-      padding: EdgeInsets.zero,
-      name: databaseLayout.layoutName,
-      trailing: isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
-      leadingIcon: FlowySvg(
-        databaseLayout.icon,
-        color: Theme.of(context).iconTheme.color,
-        size: const Size.square(18),
-      ),
-      onTap: () => onTap(databaseLayout),
     );
   }
 }

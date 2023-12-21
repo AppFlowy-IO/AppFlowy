@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/field_visibility_extension.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -23,11 +24,9 @@ class MobileDatabaseFieldList extends StatelessWidget {
   const MobileDatabaseFieldList({
     super.key,
     required this.databaseController,
-    required this.viewPB,
   });
 
   final DatabaseController databaseController;
-  final ViewPB viewPB;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +45,7 @@ class MobileDatabaseFieldList extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: _MobileDatabaseFieldListBody(
                     databaseController: databaseController,
-                    view: viewPB,
+                    view: context.read<ViewBloc>().state.view,
                   ),
                 ),
               ),
