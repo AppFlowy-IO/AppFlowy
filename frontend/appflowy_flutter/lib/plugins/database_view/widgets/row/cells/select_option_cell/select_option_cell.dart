@@ -248,8 +248,9 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       return FlowyButton(
         hoverColor: Colors.transparent,
         radius: BorderRadius.zero,
+        margin: EdgeInsets.zero,
         text: Padding(
-          padding: widget.cellStyle.cellPadding ?? GridSize.cellContentInsets,
+          padding: widget.cellStyle.cellPadding ?? EdgeInsets.zero,
           child: _buildMobileOptions(isInRowDetail: false),
         ),
         onTap: () {
@@ -324,13 +325,25 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
         },
       ).toList();
 
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Wrap(
-          runSpacing: 4,
-          children: children,
-        ),
-      );
+      return isInRowDetail
+          ? Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(
+                runSpacing: 4,
+                children: children,
+              ),
+            )
+          : Align(
+              alignment: Alignment.centerLeft,
+              child: ListView.separated(
+                separatorBuilder: (context, index) => const HSpace(4),
+                itemCount: children.length,
+                itemBuilder: (context, index) => children[index],
+                scrollDirection: Axis.horizontal,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+            );
     }
   }
 }

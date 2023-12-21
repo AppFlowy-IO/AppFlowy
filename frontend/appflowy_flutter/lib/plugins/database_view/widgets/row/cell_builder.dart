@@ -371,16 +371,6 @@ abstract class GridEditableTextCell<T extends GridCellWidget>
   }
 
   @override
-  void didUpdateWidget(covariant T oldWidget) {
-    // if (!focusNode.hasFocus && widget.cellContainerNotifier.isFocus) {
-    //   focusNode.requestFocus();
-    // } else if (focusNode.hasFocus && !widget.cellContainerNotifier.isFocus) {
-    //   focusNode.unfocus();
-    // }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   void dispose() {
     widget.shortcutHandlers.clear();
     focusNode.removeAllListener();

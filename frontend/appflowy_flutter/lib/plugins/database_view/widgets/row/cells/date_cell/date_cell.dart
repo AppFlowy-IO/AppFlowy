@@ -127,26 +127,11 @@ class _DateCellState extends GridCellState<GridDateCell> {
                   borderRadius: const BorderRadius.all(Radius.circular(14)),
                 ),
                 padding: padding,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FlowyText.regular(
-                        text,
-                        fontSize: 16,
-                        color: color,
-                        maxLines: null,
-                      ),
-                    ),
-                    const HSpace(6),
-                    RotatedBox(
-                      quarterTurns: 3,
-                      child: Icon(
-                        Icons.chevron_left,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    ),
-                    const HSpace(2),
-                  ],
+                child: FlowyText.regular(
+                  text,
+                  fontSize: 16,
+                  color: color,
+                  maxLines: null,
                 ),
               ),
             );
@@ -154,10 +139,20 @@ class _DateCellState extends GridCellState<GridDateCell> {
             return FlowyButton(
               radius: BorderRadius.zero,
               hoverColor: Colors.transparent,
-              text: Container(
+              margin: EdgeInsets.zero,
+              text: Align(
                 alignment: alignment,
-                padding: padding,
-                child: FlowyText(text, color: color, fontSize: 15),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: FlowyText(
+                    text,
+                    color: color,
+                    fontSize: 15,
+                    maxLines: 1,
+                  ),
+                ),
               ),
               onTap: () {
                 showMobileBottomSheet(
