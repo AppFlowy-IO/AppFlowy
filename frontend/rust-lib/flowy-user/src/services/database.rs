@@ -34,15 +34,6 @@ pub struct UserDB {
 
 impl UserDB {
   pub fn new(paths: impl UserDBPath) -> Self {
-    // if let Some(mut db) = DB_MAP.try_write_for(Duration::from_millis(300)) {
-    //   info!("clear sqlite db map");
-    //   db.clear();
-    // }
-    //
-    // if let Some(mut collab_db) = COLLAB_DB_MAP.try_write_for(Duration::from_millis(300)) {
-    //   info!("clear collab db map");
-    //   collab_db.clear();
-    // }
     Self {
       paths: Box::new(paths),
     }
@@ -132,12 +123,7 @@ impl UserDB {
   }
 
   pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    let collab_db = open_collab_db(
-      // self.paths.user_db_path(user_id),
-      self.paths.collab_db_path(user_id),
-      // self.paths.collab_db_history(user_id, false).ok(),
-      user_id,
-    )?;
+    let collab_db = open_collab_db(self.paths.collab_db_path(user_id), user_id)?;
     Ok(collab_db)
   }
 }

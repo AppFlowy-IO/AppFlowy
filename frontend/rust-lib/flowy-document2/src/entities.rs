@@ -413,16 +413,12 @@ pub struct DocumentSnapshotStatePB {
 pub struct DocumentSyncStatePB {
   #[pb(index = 1)]
   pub is_syncing: bool,
-
-  #[pb(index = 2)]
-  pub is_finish: bool,
 }
 
 impl From<SyncState> for DocumentSyncStatePB {
   fn from(value: SyncState) -> Self {
     Self {
       is_syncing: value.is_syncing(),
-      is_finish: value.is_sync_finished(),
     }
   }
 }

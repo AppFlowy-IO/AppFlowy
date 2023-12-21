@@ -512,6 +512,7 @@ impl UserManager {
   }
 
   pub async fn prepare_user(&self, session: &Session) {
+    let _ = self.database.close(session.user_id);
     self.set_collab_config(session);
     // Ensure to backup user data if a cloud drive is used for storage. While using a cloud drive
     // for storing user data is not advised due to potential data corruption risks, in scenarios where

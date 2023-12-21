@@ -80,54 +80,5 @@ void main() {
       await tester.toggleEnableSync(AppFlowyCloudEnableSync);
       tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
     });
-
-    // testWidgets('custom folder sign in', (tester) async {
-    //   const userA = 'UserA';
-    //   final userAEmail = "${uuid()}@appflowy.io";
-    //   final initialPath = p.join(userA, appFlowyDataFolder);
-    //   final context = await tester.initializeAppFlowy(
-    //     cloudType: AuthenticatorType.appflowyCloud,
-    //     pathExtension: initialPath,
-    //   );
-    //   getIt.registerFactory<AuthService>(
-    //     () => AppFlowyCloudMockAuthService(
-    //       email: userAEmail,
-    //     ),
-    //   );
-    //   // remove the last extension
-    //   final rootPath = context.applicationDataDirectory.replaceFirst(
-    //     initialPath,
-    //     '',
-    //   );
-    //   await tester.tapGoogleLoginInButton();
-
-    //   // Open the setting page and sign out
-    //   await tester.openSettings();
-    //   await tester.openSettingsPage(SettingsPage.user);
-    //   await tester.enterUserName(userA);
-
-    //   await tester.openSettingsPage(SettingsPage.files);
-    //   await tester.pumpAndSettle();
-
-    //   // mock the file_picker result
-    //   await mockGetDirectoryPath(
-    //     p.join(rootPath, "random_folder"),
-    //   );
-
-    //   // after selecting the folder, an annoymous user should be signed in
-    //   await tester.tapCustomLocationButton();
-    //   tester.expectToSeeHomePage();
-    //   await tester.pumpAndSettle();
-
-    //   // Login as userA in custom folder
-    //   await tester.openSettings();
-    //   await tester.openSettingsPage(SettingsPage.user);
-    //   await tester.tapGoogleLoginInButton();
-
-    //   await tester.pumpAndSettle(const Duration(seconds: 1));
-    //   tester.expectToSeeHomePage();
-    //   // UserA should be displayed
-    //   tester.expectToSeeUserName(userA);
-    // });
   });
 }
