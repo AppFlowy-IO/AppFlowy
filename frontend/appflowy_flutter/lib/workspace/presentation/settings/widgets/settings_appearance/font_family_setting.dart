@@ -173,37 +173,43 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
     TextStyle style,
   ) {
     final buttonFontFamily = parseFontFamilyName(style.fontFamily!);
-    return SizedBox(
-      key: UniqueKey(),
-      height: 32,
-      child: FlowyButton(
-        key: Key(buttonFontFamily),
-        onHover: (_) => FocusScope.of(context).unfocus(),
-        text: FlowyText.medium(
-          parseFontFamilyName(style.fontFamily!),
-          fontFamily: style.fontFamily!,
-        ),
-        rightIcon:
-            buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
-                ? const FlowySvg(
-                    FlowySvgs.check_s,
-                  )
-                : null,
-        onTap: () {
-          if (widget.onFontFamilyChanged != null) {
-            widget.onFontFamilyChanged!(style.fontFamily!);
-          } else {
-            final fontFamily = style.fontFamily!.parseFontFamilyName();
-            if (parseFontFamilyName(widget.currentFontFamily) !=
-                buttonFontFamily) {
-              context.read<AppearanceSettingsCubit>().setFontFamily(fontFamily);
-              context
-                  .read<DocumentAppearanceCubit>()
-                  .syncFontFamily(fontFamily);
+
+    return Tooltip(
+      message: buttonFontFamily,
+      waitDuration: const Duration(milliseconds: 150),
+      child: SizedBox(
+        key: ValueKey(buttonFontFamily),
+        height: 32,
+        child: FlowyButton(
+          onHover: (_) => FocusScope.of(context).unfocus(),
+          text: FlowyText.medium(
+            parseFontFamilyName(style.fontFamily!),
+            fontFamily: style.fontFamily!,
+          ),
+          rightIcon:
+              buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
+                  ? const FlowySvg(
+                      FlowySvgs.check_s,
+                    )
+                  : null,
+          onTap: () {
+            if (widget.onFontFamilyChanged != null) {
+              widget.onFontFamilyChanged!(style.fontFamily!);
+            } else {
+              final fontFamily = style.fontFamily!.parseFontFamilyName();
+              if (parseFontFamilyName(widget.currentFontFamily) !=
+                  buttonFontFamily) {
+                context
+                    .read<AppearanceSettingsCubit>()
+                    .setFontFamily(fontFamily);
+                context
+                    .read<DocumentAppearanceCubit>()
+                    .syncFontFamily(fontFamily);
+              }
             }
-          }
-          PopoverContainer.of(context).close();
-        },
+            PopoverContainer.of(context).close();
+          },
+        ),
       ),
     );
   }
