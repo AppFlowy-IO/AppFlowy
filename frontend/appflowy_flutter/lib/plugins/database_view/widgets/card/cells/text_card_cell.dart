@@ -33,6 +33,7 @@ class TextCardCell<CustomCardData>
 
   @override
   final EditableCardNotifier? editableNotifier;
+
   final CellControllerBuilder cellControllerBuilder;
   final CellRenderHook<String, CustomCardData>? renderHook;
   final bool showNotes;
@@ -88,7 +89,7 @@ class _TextCellState extends State<TextCardCell> {
   }
 
   @override
-  void didUpdateWidget(covariant TextCardCell oldWidget) {
+  void didUpdateWidget(covariant oldWidget) {
     _bindEditableNotifier();
     super.didUpdateWidget(oldWidget);
   }

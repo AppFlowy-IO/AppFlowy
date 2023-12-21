@@ -77,32 +77,17 @@ class _MobileChecklistCellState extends GridCellState<MobileChecklistCell> {
                   padding: widget.cellStyle.cellPadding ?? EdgeInsets.zero,
                   child: Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: state.tasks.isEmpty
-                              ? FlowyText(
-                                  widget.cellStyle.placeholder,
-                                  fontSize: 15,
-                                  color: Theme.of(context).hintColor,
-                                )
-                              : ChecklistProgressBar(
-                                  tasks: state.tasks,
-                                  percent: state.percent,
-                                  fontSize: 15,
-                                ),
-                        ),
-                        const HSpace(6),
-                        RotatedBox(
-                          quarterTurns: 3,
-                          child: Icon(
-                            Icons.chevron_left,
+                    child: state.tasks.isEmpty
+                        ? FlowyText(
+                            widget.cellStyle.placeholder,
+                            fontSize: 15,
                             color: Theme.of(context).hintColor,
+                          )
+                        : ChecklistProgressBar(
+                            tasks: state.tasks,
+                            percent: state.percent,
+                            fontSize: 15,
                           ),
-                        ),
-                        const HSpace(2),
-                      ],
-                    ),
                   ),
                 ),
               ),
