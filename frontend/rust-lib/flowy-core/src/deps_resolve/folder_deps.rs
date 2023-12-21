@@ -18,10 +18,10 @@ use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
 use flowy_folder::entities::ViewLayoutPB;
 use flowy_folder::manager::{FolderManager, FolderUser};
+use flowy_folder::search::{DocumentIndexContentGetter, FolderIndexStorage};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
-
 use flowy_folder_deps::entities::ImportData;
 use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
 use flowy_user::manager::UserManager;
@@ -46,6 +46,7 @@ impl FolderDepsResolver {
       database_manager: Arc::downgrade(database_manager),
     });
 
+    let index_storage = FolderIndexStorageImpl(user_manager.clone());
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
       FolderManager::new(
@@ -53,6 +54,7 @@ impl FolderDepsResolver {
         collab_builder,
         handlers,
         server_provider.clone(),
+        index_storage,
       )
       .await
       .unwrap(),
@@ -476,5 +478,17 @@ pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
     ViewLayoutPB::Board => DatabaseLayoutPB::Board,
     ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
     ViewLayoutPB::Document => DatabaseLayoutPB::Grid,
+  }
+}
+
+struct FolderIndexStorageImpl(Weak<UserManager>);
+
+impl FolderIndexStorage for FolderIndexStorageImpl {
+  fn add(&self, id: &str, content: &str) {
+    todo!()
+  }
+
+  fn remove(&self, id: &str) {
+    todo!()
   }
 }

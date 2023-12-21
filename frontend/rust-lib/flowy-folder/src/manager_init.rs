@@ -94,6 +94,8 @@ impl FolderManager {
     };
 
     let folder_state_rx = folder.subscribe_sync_state();
+    let index_content_rx = folder.subscribe_index_content();
+    self.indexer.set_index_content_receiver(index_content_rx);
     *self.mutex_folder.lock() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);

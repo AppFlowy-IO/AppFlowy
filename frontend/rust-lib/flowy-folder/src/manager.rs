@@ -29,6 +29,7 @@ use crate::manager_observer::{
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
 };
+use crate::search::{FolderIndexStorage, FolderIndexer};
 use crate::share::ImportParams;
 use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
@@ -53,12 +54,19 @@ pub trait FolderUser: Send + Sync {
 }
 
 pub struct FolderManager {
+  /// workspace_id represents as the id of the Folder.
   pub(crate) workspace_id: RwLock<Option<String>>,
+
+  /// MutexFolder is the folder that is used to store the data.
   pub(crate) mutex_folder: Arc<MutexFolder>,
+
+  /// The [AppFlowyCollabBuilder] is used to build the [Collab] for the folder.
   collab_builder: Arc<AppFlowyCollabBuilder>,
+
   pub(crate) user: Arc<dyn FolderUser>,
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
+  pub(crate) indexer: FolderIndexer,
 }
 
 impl FolderManager {
@@ -67,8 +75,10 @@ impl FolderManager {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
+    index_storage: impl FolderIndexStorage + 'static,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
+    let indexer = FolderIndexer::new(index_storage);
     let manager = Self {
       user,
       mutex_folder,
@@ -76,6 +86,7 @@ impl FolderManager {
       operation_handlers,
       cloud_service,
       workspace_id: Default::default(),
+      indexer,
     };
 
     Ok(manager)
@@ -1077,6 +1088,8 @@ pub(crate) fn get_workspace_view_pbs(_workspace_id: &str, folder: &Folder) -> Ve
     .collect()
 }
 
+/// The MutexFolder is a wrapper of the [Folder] that is used to share the folder between different
+/// threads.  
 #[derive(Clone, Default)]
 pub struct MutexFolder(Arc<Mutex<Option<Folder>>>);
 impl Deref for MutexFolder {
