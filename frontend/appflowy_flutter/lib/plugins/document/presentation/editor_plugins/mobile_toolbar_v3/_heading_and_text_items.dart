@@ -80,18 +80,7 @@ class _HeadingOrTextItem extends StatelessWidget {
   }
 
   Future<void> _convert(bool isSelected) async {
-    final selection = editorState.selection;
-    if (selection == null) {
-      return;
-    }
-    final node = editorState.getNodeAtPath(selection.start.path);
-    final type = node?.type;
-    if (node == null || type == null) {
-      return;
-    }
-
     editorState.convertBlockType(
-      selection,
       blockType,
       isSelected: isSelected,
       extraAttributes: level != null

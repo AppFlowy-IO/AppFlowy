@@ -187,11 +187,15 @@ extension MobileToolbarEditorState on EditorState {
   }
 
   Future<void> convertBlockType(
-    Selection selection,
     String newBlockType, {
+    Selection? selection,
     Attributes? extraAttributes,
     bool? isSelected,
   }) async {
+    selection = selection ?? this.selection;
+    if (selection == null) {
+      return;
+    }
     final node = getNodeAtPath(selection.start.path);
     final type = node?.type;
     if (node == null || type == null) {
@@ -212,6 +216,21 @@ extension MobileToolbarEditorState on EditorState {
           attributes: attributes,
         );
       },
+    );
+  }
+
+  Future<void> alignBlock(
+    String alignment, {
+    Selection? selection,
+  }) async {
+    await updateNode(
+      selection,
+      (node) => node.copyWith(
+        attributes: {
+          ...node.attributes,
+          blockComponentAlign: alignment,
+        },
+      ),
     );
   }
 }
