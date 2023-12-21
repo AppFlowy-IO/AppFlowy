@@ -23,10 +23,14 @@ class AppFlowyMobileToolbarItem {
   const AppFlowyMobileToolbarItem({
     required this.itemBuilder,
     this.menuBuilder,
+    this.pilotAtCollapsedSelection = false,
+    this.pilotAtExpandedSelection = false,
   });
 
   final AppFlowyMobileToolbarItemBuilder itemBuilder;
   final AppFlowyMobileToolbarItemMenuBuilder? menuBuilder;
+  final bool pilotAtCollapsedSelection;
+  final bool pilotAtExpandedSelection;
 }
 
 class AppFlowyMobileToolbarIconItem extends StatefulWidget {

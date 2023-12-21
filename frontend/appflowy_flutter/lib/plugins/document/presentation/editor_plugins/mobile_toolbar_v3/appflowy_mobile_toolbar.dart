@@ -5,6 +5,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 abstract class AppFlowyMobileToolbarWidgetService {
   void closeItemMenu();
@@ -380,7 +381,7 @@ class _MobileToolbarState extends State<_MobileToolbar>
   }
 }
 
-class _ToolbarItemListView extends StatelessWidget {
+class _ToolbarItemListView extends StatefulWidget {
   const _ToolbarItemListView({
     required this.toolbarItems,
     required this.editorState,
@@ -396,30 +397,104 @@ class _ToolbarItemListView extends StatelessWidget {
   final AppFlowyMobileToolbarWidgetService toolbarWidgetService;
 
   @override
+  State<_ToolbarItemListView> createState() => _ToolbarItemListViewState();
+}
+
+class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
+  final scrollController = ItemScrollController();
+  Selection? previousSelection;
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.editorState.selectionNotifier
+        .addListener(_debounceUpdatePilotPosition);
+    previousSelection = widget.editorState.selection;
+  }
+
+  @override
+  void dispose() {
+    widget.editorState.selectionNotifier
+        .removeListener(_debounceUpdatePilotPosition);
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final children = toolbarItems.mapIndexed(
-      (index, element) => element.itemBuilder.call(
-        context,
-        editorState,
-        element.menuBuilder != null
-            ? () {
-                itemWithMenuOnPressed(index);
-              }
-            : null,
-        element.menuBuilder == null
-            ? () {
-                itemWithActionOnPressed(index);
-              }
-            : null,
+    final children = [
+      const HSpace(8),
+      ...widget.toolbarItems
+          .mapIndexed(
+            (index, element) => element.itemBuilder.call(
+              context,
+              widget.editorState,
+              element.menuBuilder != null
+                  ? () {
+                      widget.itemWithMenuOnPressed(index);
+                    }
+                  : null,
+              element.menuBuilder == null
+                  ? () {
+                      widget.itemWithActionOnPressed(index);
+                    }
+                  : null,
+            ),
+          )
+          .map((e) => [e, const HSpace(10)])
+          .flattened,
+    ];
+
+    return PageStorage(
+      bucket: PageStorageBucket(),
+      child: ScrollablePositionedList.builder(
+        physics: const ClampingScrollPhysics(),
+        itemScrollController: scrollController,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) => children[index],
+        itemCount: children.length,
       ),
     );
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      children: [
-        const HSpace(8),
-        ...children.map((e) => [e, const HSpace(10)]).flattened,
-      ],
+  }
+
+  void _debounceUpdatePilotPosition() {
+    Debounce.debounce(
+      'updatePilotPosition',
+      const Duration(milliseconds: 250),
+      _updatePilotPosition,
     );
+  }
+
+  void _updatePilotPosition() {
+    final selection = widget.editorState.selection;
+    if (selection == null) {
+      return;
+    }
+
+    if (previousSelection != null &&
+        previousSelection!.isCollapsed == selection.isCollapsed) {
+      return;
+    }
+
+    final toolbarItems = widget.toolbarItems;
+    final alignment = selection.isCollapsed ? 0.0 : -1.0;
+    final index = toolbarItems.indexWhere(
+      (element) => selection.isCollapsed
+          ? element.pilotAtCollapsedSelection
+          : element.pilotAtExpandedSelection,
+    );
+    if (index != -1) {
+      scrollController.scrollTo(
+        alignment: alignment,
+        index: index,
+        duration: const Duration(
+          milliseconds: 250,
+        ),
+      );
+    }
+
+    previousSelection = selection;
   }
 }
 

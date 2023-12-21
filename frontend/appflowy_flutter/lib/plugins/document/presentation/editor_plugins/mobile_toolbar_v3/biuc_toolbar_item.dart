@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 final boldToolbarItem = AppFlowyMobileToolbarItem(
+  pilotAtExpandedSelection: true,
   itemBuilder: (context, editorState, _, onAction) {
     return AppFlowyMobileToolbarIconItem(
       isSelected: () => editorState.isTextDecorationSelected(

@@ -127,6 +127,7 @@ dependencies:
   cached_network_image: ^3.3.0
   leak_tracker: ^9.0.6
   keyboard_height_plugin: ^0.0.5
+  scrollable_positioned_list: ^0.3.8
 
 dev_dependencies:
   flutter_lints: ^3.0.1

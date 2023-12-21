@@ -4,6 +4,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 final undoToolbarItem = AppFlowyMobileToolbarItem(
+  pilotAtCollapsedSelection: true,
   itemBuilder: (context, editorState, _, onAction) {
     return AppFlowyMobileToolbarIconItem(
       iconBuilder: (context) {
