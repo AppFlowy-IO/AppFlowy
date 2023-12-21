@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
+import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -19,7 +22,6 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         Position,
         paragraphNode;
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -29,6 +31,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
     required this.view,
   })  : _documentListener = DocumentListener(id: view.id),
+        _syncStateListener = DocumentSyncStateListener(id: view.id),
         _viewListener = ViewListener(viewId: view.id),
         super(DocumentState.initial()) {
     on<DocumentEvent>(_onDocumentEvent);
@@ -37,6 +40,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final ViewPB view;
 
   final DocumentListener _documentListener;
+  final DocumentSyncStateListener _syncStateListener;
   final ViewListener _viewListener;
 
   final DocumentService _documentService = DocumentService();
@@ -52,6 +56,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   @override
   Future<void> close() async {
     await _documentListener.stop();
+    await _syncStateListener.stop();
     await _viewListener.stop();
     await _subscription?.cancel();
     await _documentService.closeDocument(view: view);
@@ -63,8 +68,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     DocumentEvent event,
     Emitter<DocumentState> emit,
   ) async {
-    await event.map(
-      initial: (Initial value) async {
+    await event.when(
+      initial: () async {
         final editorState = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
@@ -85,21 +90,24 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           ),
         );
       },
-      moveToTrash: (MoveToTrash value) async {
+      moveToTrash: () async {
         emit(state.copyWith(isDeleted: true));
       },
-      restore: (Restore value) async {
+      restore: () async {
         emit(state.copyWith(isDeleted: false));
       },
-      deletePermanently: (DeletePermanently value) async {
+      deletePermanently: () async {
         final result = await _trashService.deleteViews([view.id]);
         final forceClose = result.fold((l) => true, (r) => false);
         emit(state.copyWith(forceClose: forceClose));
       },
-      restorePage: (RestorePage value) async {
+      restorePage: () async {
         final result = await _trashService.putback(view.id);
         final isDeleted = result.fold((l) => false, (r) => true);
         emit(state.copyWith(isDeleted: isDeleted));
+      },
+      syncStateChanged: (isSyncing) {
+        emit(state.copyWith(isSyncing: isSyncing));
       },
     );
   }
@@ -122,6 +130,14 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   void _onDocumentChanged() {
     _documentListener.start(
       didReceiveUpdate: syncDocumentDataPB,
+    );
+
+    _syncStateListener.start(
+      didReceiveSyncState: (syncState) {
+        if (!isClosed) {
+          add(DocumentEvent.syncStateChanged(syncState.isSyncing));
+        }
+      },
     );
   }
 
@@ -234,6 +250,8 @@ class DocumentEvent with _$DocumentEvent {
   const factory DocumentEvent.restore() = Restore;
   const factory DocumentEvent.restorePage() = RestorePage;
   const factory DocumentEvent.deletePermanently() = DeletePermanently;
+  const factory DocumentEvent.syncStateChanged(bool isSyncing) =
+      syncStateChanged;
 }
 
 @freezed
@@ -242,6 +260,7 @@ class DocumentState with _$DocumentState {
     required bool isDeleted,
     required bool forceClose,
     required bool isLoading,
+    required bool isSyncing,
     bool? isDocumentEmpty,
     UserProfilePB? userProfilePB,
     EditorState? editorState,
@@ -256,5 +275,6 @@ class DocumentState with _$DocumentState {
         editorState: null,
         error: null,
         isLoading: true,
+        isSyncing: false,
       );
 }

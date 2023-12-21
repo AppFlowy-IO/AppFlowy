@@ -175,12 +175,12 @@ pub trait TypeOptionCellDataCompare: TypeOption {
   }
 }
 
-pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
+pub fn type_option_data_from_pb<T: Into<Bytes>>(
   bytes: T,
   field_type: &FieldType,
-) -> TypeOptionData {
+) -> Result<TypeOptionData, ProtobufError> {
   let bytes = bytes.into();
-  let result: Result<TypeOptionData, ProtobufError> = match field_type {
+  match field_type {
     FieldType::RichText => {
       RichTextTypeOptionPB::try_from(bytes).map(|pb| RichTextTypeOption::from(pb).into())
     },
@@ -206,9 +206,7 @@ pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
     FieldType::Checklist => {
       ChecklistTypeOptionPB::try_from(bytes).map(|pb| ChecklistTypeOption::from(pb).into())
     },
-  };
-
-  result.unwrap_or_else(|_| default_type_option_data_from_type(field_type))
+  }
 }
 
 pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) -> Bytes {

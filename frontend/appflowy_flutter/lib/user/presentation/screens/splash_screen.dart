@@ -1,4 +1,5 @@
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -7,9 +8,9 @@ import 'package:appflowy/user/domain/auth_state.dart';
 import 'package:appflowy/user/presentation/helpers/helpers.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -95,10 +96,10 @@ class SplashScreen extends StatelessWidget {
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     Log.trace(
-      '_handleUnauthenticated -> cloud is enabled: $isAuthEnabled',
+      "_handleUnauthenticated -> enable custom cloud: ${Env.enableCustomCloud},  appflowy cloud is enabled: $isAppFlowyCloudEnabled, appflowy cloud config: ${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.toJson()}",
     );
     // replace Splash screen as root page
-    if (isAuthEnabled) {
+    if (isAuthEnabled || PlatformExtension.isMobile) {
       context.go(SignInScreen.routeName);
     } else {
       // if the env is not configured, we will skip to the 'skip login screen'.

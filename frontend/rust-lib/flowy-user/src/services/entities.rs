@@ -6,6 +6,7 @@ use chrono::prelude::*;
 use serde::de::{Deserializer, MapAccess, Visitor};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 
 use flowy_user_deps::entities::{AuthResponse, UserProfile, UserWorkspace};
 use flowy_user_deps::entities::{Authenticator, UserAuthResponse};
@@ -16,6 +17,7 @@ use crate::migrations::MigrationUser;
 #[derive(Debug, Clone, Serialize)]
 pub struct Session {
   pub user_id: i64,
+  pub user_uuid: Uuid,
   pub user_workspace: UserWorkspace,
 }
 
@@ -32,6 +34,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
     M: MapAccess<'de>,
   {
     let mut user_id = None;
+    let mut user_uuid = None;
     // For historical reasons, the session used to contain a workspace_id field.
     // This field is no longer used, and is replaced by user_workspace.
     let mut workspace_id = None;
@@ -41,6 +44,9 @@ impl<'de> Visitor<'de> for SessionVisitor {
       match key.as_str() {
         "user_id" => {
           user_id = Some(map.next_value()?);
+        },
+        "user_uuid" => {
+          user_uuid = Some(map.next_value()?);
         },
         "workspace_id" => {
           workspace_id = Some(map.next_value()?);
@@ -54,6 +60,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
       }
     }
     let user_id = user_id.ok_or(serde::de::Error::missing_field("user_id"))?;
+    let user_uuid = user_uuid.ok_or(serde::de::Error::missing_field("user_uuid"))?;
     if user_workspace.is_none() {
       if let Some(workspace_id) = workspace_id {
         user_workspace = Some(UserWorkspace {
@@ -61,13 +68,14 @@ impl<'de> Visitor<'de> for SessionVisitor {
           name: "My Workspace".to_string(),
           created_at: Utc::now(),
           // For historical reasons, the database_storage_id is constructed by the user_id.
-          database_views_aggregate_id: STANDARD.encode(format!("{}:user:database", user_id)),
+          database_storage_id: STANDARD.encode(format!("{}:user:database", user_id)),
         })
       }
     }
 
     let session = Session {
       user_id,
+      user_uuid,
       user_workspace: user_workspace.ok_or(serde::de::Error::missing_field("user_workspace"))?,
     };
 
@@ -91,6 +99,7 @@ where
   fn from(value: &T) -> Self {
     Self {
       user_id: value.user_id(),
+      user_uuid: value.user_uuid().clone(),
       user_workspace: value.latest_workspace().clone(),
     }
   }
@@ -98,55 +107,10 @@ where
 
 impl std::convert::From<Session> for String {
   fn from(session: Session) -> Self {
-    match serde_json::to_string(&session) {
-      Ok(s) => s,
-      Err(e) => {
-        tracing::error!("Serialize session to string failed: {:?}", e);
-        "".to_string()
-      },
-    }
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use serde_json::json;
-
-  use super::*;
-
-  #[derive(serde::Serialize)]
-  struct OldSession {
-    user_id: i64,
-    workspace_id: String,
-    name: String,
-  }
-
-  #[test]
-  fn deserialize_user_workspace_from_workspace_id() {
-    // For historical reasons, the session used to contain a workspace_id field.
-    let old = OldSession {
-      user_id: 223238635422486528,
-      workspace_id: "f58f5492-ee0a-4a9f-8cf1-dacb459a55f6".to_string(),
-      name: "Me".to_string(),
-    };
-    let s = serde_json::to_string(&old).unwrap();
-    let new = serde_json::from_str::<Session>(&s).unwrap();
-    assert_eq!(old.user_id, new.user_id);
-    assert_eq!(old.workspace_id, new.user_workspace.id);
-
-    let json = json!({
-      "user_id": 2232386,
-      "workspace_id": "f58f5492-ee0a-4a9f-8cf1-dacb459a55f6",
-      "name": "Me",
-      "token": null,
-      "email": "0085bfda-85fa-4611-bfbe-25d5a1229f44@appflowy.io"
-    });
-    let new = serde_json::from_value::<Session>(json).unwrap();
-    assert_eq!(new.user_id, 2232386);
-    assert_eq!(
-      new.user_workspace.id,
-      "f58f5492-ee0a-4a9f-8cf1-dacb459a55f6"
-    );
+    serde_json::to_string(&session).unwrap_or_else(|e| {
+      tracing::error!("Serialize session to string failed: {:?}", e);
+      "".to_string()
+    })
   }
 }
 

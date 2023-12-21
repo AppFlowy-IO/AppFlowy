@@ -14,7 +14,6 @@ function Workspace({ workspace, opened }: { workspace: WorkspaceItem; opened: bo
           transition: 'height 0.2s ease-in-out',
         }}
       >
-        {/*<WorkspaceTitle workspace={workspace} openWorkspace={openWorkspace} onDelete={onDelete} />*/}
         <NestedViews workspaceId={workspace.id} />
       </div>
     </div>

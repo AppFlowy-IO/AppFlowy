@@ -90,17 +90,16 @@ class SelectOptionFilterEditorBloc
   }
 
   void _loadOptions() {
-    delegate.loadOptions().then((options) {
-      if (!isClosed) {
-        String filterDesc = '';
-        for (final option in options) {
-          if (state.filter.optionIds.contains(option.id)) {
-            filterDesc += "${option.name} ";
-          }
+    if (!isClosed) {
+      final options = delegate.loadOptions();
+      String filterDesc = '';
+      for (final option in options) {
+        if (state.filter.optionIds.contains(option.id)) {
+          filterDesc += "${option.name} ";
         }
-        add(SelectOptionFilterEditorEvent.updateFilterDescription(filterDesc));
       }
-    });
+      add(SelectOptionFilterEditorEvent.updateFilterDescription(filterDesc));
+    }
   }
 
   @override

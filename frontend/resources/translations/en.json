@@ -308,7 +308,7 @@
       }
     },
     "appearance": {
-      "resetSetting": "Reset this setting",
+      "resetSetting": "Reset",
       "fontFamily": {
         "label": "Font Family",
         "search": "Search"
@@ -318,6 +318,18 @@
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
+      },
+      "documentSettings": {
+        "cursorColor": "Document cursor color",
+        "selectionColor": "Document selection color",
+        "hexEmptyError": "Hex color cannot be empty",
+        "hexLengthError": "Hex value must be 6 digits long",
+        "hexInvalidError": "Invalid hex value",
+        "opacityEmptyError": "Opacity cannot be empty",
+        "opacityRangeError": "Opacity must be between 1 and 100",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Apply"
       },
       "layoutDirection": {
         "label": "Layout Direction",
@@ -452,7 +464,15 @@
       "filterBy": "Filter by...",
       "typeAValue": "Type a value...",
       "layout": "Layout",
-      "databaseLayout": "Layout"
+      "databaseLayout": "Layout",
+      "viewList": "Database Views",
+      "editView": "Edit View",
+      "boardSettings": "Board settings",
+      "calendarSettings": "Calendar settings",
+      "createView": "New view",
+      "duplicateView": "Duplicate view",
+      "deleteView": "Delete view",
+      "numberOfVisibleFields": "{} shown"
     },
     "textFilter": {
       "contains": "Contains",
@@ -726,6 +746,9 @@
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image"
       },
+      "urlPreview": {
+        "copiedToPasteBoard": "The link has been copied to the clipboard"
+      },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
       },
@@ -742,7 +765,15 @@
         "cut": "Cut",
         "paste": "Paste"
       },
-      "action": "Actions"
+      "action": "Actions",
+      "database": {
+        "selectDataSource": "Select data source",
+        "noDataSource": "No data source",
+        "selectADataSource": "Select a data source",
+        "toContinue": "to continue",
+        "newDatabase": "New Database",
+        "linkToDatabase": "Link to Database"
+      }
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -881,6 +912,7 @@
       "showWeekends": "Show weekends",
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
+      "changeLayoutDateField": "Change layout field",
       "noDateTitle": "No Date",
       "noDateHint": {
         "zero": "Unscheduled events will show up here",
@@ -970,7 +1002,12 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "Change the date and time format in settings"
+    "dateTimeFormatTooltip": "Change the date and time format in settings",
+    "dateFormat": "Date format",
+    "includeTime": "Include time",
+    "isRange": "End date",
+    "timeFormat": "Time format",
+    "clearDate": "Clear date"
   },
   "relativeDates": {
     "yesterday": "Yesterday",

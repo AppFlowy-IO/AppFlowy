@@ -21,7 +21,7 @@ async fn af_cloud_edit_document_test() {
     // wait all update are send to the remote
     let rx = test
       .notification_sender
-      .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| pb.is_finish);
+      .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| !pb.is_syncing);
     receive_with_timeout(rx, Duration::from_secs(25))
       .await
       .unwrap();

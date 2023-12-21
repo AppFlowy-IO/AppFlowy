@@ -176,9 +176,9 @@
     "delete": "Borrar",
     "duplicate": "Duplicar",
     "putback": "Volver",
-    "OK": "OK",
     "Done": "Hecho",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "OK": "OK"
   },
   "label": {
     "welcome": "¡Bienvenido!",
@@ -226,7 +226,7 @@
         "description": "Cargue su propio tema AppFlowy usando el botón de abajo.",
         "failure": "El tema que se cargó tenía un formato no válido.",
         "loading": "Espere mientras validamos y cargamos su tema...",
-        "uploadSuccess": "Tu tema fue subido con éxito",
+        "uploadSuccess": "Su tema se ha subido con éxito",
         "deletionFailure": "No se pudo eliminar el tema. Intenta eliminarlo manualmente.",
         "filePickerDialogTitle": "Elija un archivo .flowy_plugin",
         "urlUploadFailure": "No se pudo abrir la URL: {}"
@@ -547,11 +547,11 @@
     }
   },
   "board": {
-    "menuName": "Junta",
-    "referencedBoardPrefix": "Vista de",
     "column": {
       "createNewCard": "Nuevo"
-    }
+    },
+    "menuName": "Junta",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendario",

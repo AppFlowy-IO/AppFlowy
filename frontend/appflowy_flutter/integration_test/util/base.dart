@@ -35,7 +35,7 @@ extension AppFlowyTestBase on WidgetTester {
     String? pathExtension,
     Size windowsSize = const Size(1600, 1200),
     AuthenticatorType? cloudType,
-    String? userEmail,
+    String? email,
   }) async {
     binding.setSurfaceSize(windowsSize);
 
@@ -71,6 +71,7 @@ extension AppFlowyTestBase on WidgetTester {
             if (cloudType != null) {
               switch (cloudType) {
                 case AuthenticatorType.local:
+                  await useLocal();
                   break;
                 case AuthenticatorType.supabase:
                   await useSupabaseCloud();
@@ -83,7 +84,7 @@ extension AppFlowyTestBase on WidgetTester {
                   await useAppFlowyCloud();
                   getIt.unregister<AuthService>();
                   getIt.registerFactory<AuthService>(
-                    () => AppFlowyCloudMockAuthService(email: userEmail),
+                    () => AppFlowyCloudMockAuthService(email: email),
                   );
                   break;
               }
@@ -256,6 +257,10 @@ extension AppFlowyFinderTestBase on CommonFinders {
   }
 }
 
+Future<void> useLocal() async {
+  await setAuthenticatorType(AuthenticatorType.local);
+}
+
 Future<void> useSupabaseCloud() async {
   await setAuthenticatorType(AuthenticatorType.supabase);
   await setSupbaseServer(
@@ -266,5 +271,5 @@ Future<void> useSupabaseCloud() async {
 
 Future<void> useAppFlowyCloud() async {
   await setAuthenticatorType(AuthenticatorType.appflowyCloud);
-  // await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
+  await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
 }

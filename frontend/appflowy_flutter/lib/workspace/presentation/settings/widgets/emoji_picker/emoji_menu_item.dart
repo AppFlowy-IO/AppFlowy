@@ -36,7 +36,8 @@ void showEmojiPickerMenu(
   final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 
   keepEditorFocusNotifier.increase();
-  final emojiPickerMenuEntry = FullScreenOverlayEntry(
+  late OverlayEntry emojiPickerMenuEntry;
+  emojiPickerMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
@@ -57,6 +58,7 @@ void showEmojiPickerMenu(
           },
           onExit: () {
             // close emoji panel
+            emojiPickerMenuEntry.remove();
           },
         ),
       ),

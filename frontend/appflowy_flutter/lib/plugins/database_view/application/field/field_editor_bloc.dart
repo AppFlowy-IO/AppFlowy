@@ -1,7 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,32 +12,24 @@ import 'field_controller.dart';
 import 'field_info.dart';
 import 'field_listener.dart';
 import 'field_service.dart';
-import 'type_option/type_option_context.dart';
-import 'type_option/type_option_data_controller.dart';
 
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
-  final FieldPB field;
-
   final String viewId;
+  final String fieldId;
   final FieldController fieldController;
   final SingleFieldListener _singleFieldListener;
   final FieldBackendService fieldService;
   final FieldSettingsBackendService fieldSettingsService;
-  final TypeOptionController typeOptionController;
   final void Function(String newFieldId)? onFieldInserted;
 
   FieldEditorBloc({
     required this.viewId,
-    required this.field,
     required this.fieldController,
     this.onFieldInserted,
-    required FieldTypeOptionLoader loader,
-  })  : typeOptionController = TypeOptionController(
-          field: field,
-          loader: loader,
-        ),
+    required FieldPB field,
+  })  : fieldId = field.id,
         _singleFieldListener = SingleFieldListener(fieldId: field.id),
         fieldService = FieldBackendService(
           viewId: viewId,
@@ -48,12 +41,6 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            final fieldId = field.id;
-            typeOptionController.addFieldListener((field) {
-              if (!isClosed) {
-                add(FieldEditorEvent.didReceiveFieldChanged(fieldId));
-              }
-            });
             _singleFieldListener.start(
               onFieldChanged: (field) {
                 if (!isClosed) {
@@ -61,7 +48,6 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
                 }
               },
             );
-            await typeOptionController.reloadTypeOption();
             add(FieldEditorEvent.didReceiveFieldChanged(fieldId));
           },
           didReceiveFieldChanged: (fieldId) async {
@@ -69,23 +55,31 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(field: fieldController.getField(fieldId)!));
           },
           switchFieldType: (fieldType) async {
-            await typeOptionController.switchToField(fieldType);
+            await fieldService.updateFieldType(fieldType: fieldType);
           },
           renameField: (newName) async {
             final result = await fieldService.updateField(name: newName);
             _logIfError(result);
           },
+          updateTypeOption: (typeOptionData) async {
+            final result = await FieldBackendService.updateFieldTypeOption(
+              viewId: viewId,
+              fieldId: fieldId,
+              typeOptionData: typeOptionData,
+            );
+            _logIfError(result);
+          },
           insertLeft: () async {
             final result = await fieldService.insertBefore();
             result.fold(
-              (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
+              (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           insertRight: () async {
             final result = await fieldService.insertAfter();
             result.fold(
-              (typeOptionPB) => onFieldInserted?.call(typeOptionPB.field_2.id),
+              (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
@@ -129,6 +123,9 @@ class FieldEditorEvent with _$FieldEditorEvent {
       _DidReceiveFieldChanged;
   const factory FieldEditorEvent.switchFieldType(final FieldType fieldType) =
       _SwitchFieldType;
+  const factory FieldEditorEvent.updateTypeOption(
+    final Uint8List typeOptionData,
+  ) = _UpdateTypeOption;
   const factory FieldEditorEvent.renameField(final String name) = _RenameField;
   const factory FieldEditorEvent.insertLeft() = _InsertLeft;
   const factory FieldEditorEvent.insertRight() = _InsertRight;

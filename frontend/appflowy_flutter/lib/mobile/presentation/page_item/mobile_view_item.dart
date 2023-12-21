@@ -76,14 +76,10 @@ class MobileViewItem extends StatelessWidget {
             p.lastCreatedView?.id != c.lastCreatedView!.id,
         listener: (context, state) => context.pushView(state.lastCreatedView!),
         builder: (context, state) {
-          // don't remove this code. it's related to the backend service.
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
           return InnerMobileViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.childViews,
+            childViews: state.view.childViews,
             categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
@@ -343,7 +339,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     if (widget.startActionPane != null || widget.endActionPane != null) {
       child = Slidable(
         // Specify a key if the Slidable is dismissible.
-        key: ValueKey(widget.view.id),
+        key: ValueKey(widget.view.hashCode),
         startActionPane: widget.startActionPane?.call(context),
         endActionPane: widget.endActionPane?.call(context),
         child: child,

@@ -84,14 +84,10 @@ class ViewItem extends StatelessWidget {
         listener: (context, state) =>
             context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
-          // don't remove this code. it's related to the backend service.
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.childViews,
+            childViews: state.view.childViews,
             categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,

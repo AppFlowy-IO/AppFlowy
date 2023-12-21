@@ -2,11 +2,11 @@ import { CellIdentifier } from './cell_bd_svc';
 import { CellCache, CellCacheKey } from './cell_cache';
 import { CellDataLoader } from './data_parser';
 import { CellDataPersistence } from './data_persistence';
-import { FieldBackendService, TypeOptionParser } from '../field/field_bd_svc';
+import { FieldBackendService } from '../field/field_bd_svc';
 import { ChangeNotifier } from '$app/utils/change_notifier';
 import { CellObserver } from './cell_observer';
 import { Log } from '$app/utils/log';
-import { Err, None, Ok, Option, Some } from 'ts-results';
+import { None, Option, Some } from 'ts-results';
 import { DatabaseFieldObserver } from '../field/field_observer';
 
 type Callbacks<T> = { onCellChanged: (value: Option<T>) => void; onFieldChanged?: () => void };
@@ -68,16 +68,6 @@ export class CellController<T, D> {
         callbacks.onCellChanged(Some(cellData));
       }
     });
-  };
-
-  getTypeOption = async <P extends TypeOptionParser<PD>, PD>(parser: P) => {
-    const result = await this.fieldBackendService.getTypeOptionData(this.cellIdentifier.fieldType);
-
-    if (result.ok) {
-      return Ok(parser.fromBuffer(result.val.type_option_data));
-    } else {
-      return Err(result.val);
-    }
   };
 
   saveCellData = async (data: D) => {

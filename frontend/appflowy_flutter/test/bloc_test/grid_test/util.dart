@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
@@ -134,16 +133,11 @@ Future<FieldEditorBloc> createFieldEditor({
   );
   await gridResponseFuture();
   return result.fold(
-    (data) {
-      final loader = FieldTypeOptionLoader(
-        viewId: databaseController.viewId,
-        field: data.field_2,
-      );
+    (field) {
       return FieldEditorBloc(
         viewId: databaseController.viewId,
         fieldController: databaseController.fieldController,
-        loader: loader,
-        field: data.field_2,
+        field: field,
       );
     },
     (err) => throw Exception(err),
@@ -162,7 +156,7 @@ class AppFlowyGridTest {
   }
 
   Future<GridTestContext> createTestGrid() async {
-    final app = await unitTest.createTestApp();
+    final app = await unitTest.createWorkspace();
     final context = await ViewBackendService.createView(
       parentViewId: app.id,
       name: "Test Grid",

@@ -1,4 +1,4 @@
-import { ThemeMode } from '$app/interfaces';
+import { ThemeMode } from '$app/stores/reducers/current-user/slice';
 import { ThemeOptions } from '@mui/material';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

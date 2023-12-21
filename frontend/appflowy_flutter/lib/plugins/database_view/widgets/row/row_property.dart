@@ -6,7 +6,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_service.dar
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
@@ -353,7 +353,7 @@ class CreateRowFieldButton extends StatefulWidget {
 
 class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
   late PopoverController popoverController;
-  late TypeOptionPB typeOption;
+  FieldPB? createdField;
 
   @override
   void initState() {
@@ -383,8 +383,8 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
               viewId: widget.viewId,
             );
             result.fold(
-              (l) {
-                typeOption = l;
+              (newField) {
+                createdField = newField;
                 popoverController.show();
               },
               (r) => Log.error("Failed to create field type option: $r"),
@@ -397,9 +397,12 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
         ),
       ),
       popupBuilder: (BuildContext popoverContext) {
+        if (createdField == null) {
+          return const SizedBox.shrink();
+        }
         return FieldEditor(
           viewId: widget.viewId,
-          field: typeOption.field_2,
+          field: createdField!,
           fieldController: widget.fieldController,
         );
       },

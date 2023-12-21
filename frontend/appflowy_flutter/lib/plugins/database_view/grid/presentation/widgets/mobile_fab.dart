@@ -27,9 +27,9 @@ Widget getGridFabs(BuildContext context) {
           }
         },
         boxShadow: const BoxShadow(
-          offset: Offset(0, 6),
+          offset: Offset(0, 8),
           color: Color(0x145D7D8B),
-          blurRadius: 18,
+          blurRadius: 20,
         ),
         icon: FlowySvgs.properties_s,
         iconSize: const Size.square(24),
@@ -81,12 +81,13 @@ class MobileGridFab extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor,
+        border: const Border.fromBorderSide(BorderSide( width: 0.5, color: Color(0xFFE4EDF0))),
         borderRadius: radius,
         boxShadow: [boxShadow],
       ),
       child: Material(
         borderOnForeground: false,
-        color: backgroundColor,
+        color: Colors.transparent,
         borderRadius: radius,
         child: InkWell(
           borderRadius: radius,

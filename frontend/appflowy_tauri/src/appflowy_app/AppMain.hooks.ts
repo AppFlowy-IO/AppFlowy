@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { useCallback, useEffect, useMemo } from 'react';
 import { UserSettingController } from '$app/stores/effects/user/user_setting_controller';
 import { currentUserActions } from '$app_reducers/current-user/slice';
-import { Theme as ThemeType, ThemeMode } from '$app/interfaces';
+import { Theme as ThemeType, ThemeMode } from '$app/stores/reducers/current-user/slice';
 import { createTheme } from '@mui/material/styles';
 import { getDesignTokens } from '$app/utils/mui';
 import { useTranslation } from 'react-i18next';

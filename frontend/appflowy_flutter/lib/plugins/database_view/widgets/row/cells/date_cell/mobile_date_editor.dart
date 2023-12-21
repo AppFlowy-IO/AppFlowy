@@ -1,12 +1,13 @@
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'date_cal_bloc.dart';
+import 'date_cell_editor_bloc.dart';
 
 class MobileDatePicker extends StatefulWidget {
   const MobileDatePicker({
@@ -48,7 +49,7 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
         builder: (context, state) {
           return TableCalendar(
             firstDay: kFirstDay,
@@ -123,13 +124,13 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
             selectedDayPredicate: (day) =>
                 state.isRange ? false : isSameDay(state.dateTime, day),
             onDaySelected: (selectedDay, focusedDay) {
-              context.read<DateCellCalendarBloc>().add(
-                    DateCellCalendarEvent.selectDay(selectedDay),
+              context.read<DateCellEditorBloc>().add(
+                    DateCellEditorEvent.selectDay(selectedDay),
                   );
             },
             onRangeSelected: (start, end, focusedDay) {
-              context.read<DateCellCalendarBloc>().add(
-                    DateCellCalendarEvent.selectDateRange(start, end),
+              context.read<DateCellEditorBloc>().add(
+                    DateCellEditorEvent.selectDateRange(start, end),
                   );
             },
             onFormatChanged: (calendarFormat) => setState(() {

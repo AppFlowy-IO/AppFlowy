@@ -36,7 +36,7 @@ final CharacterShortcutEvent enterInCodeBlock = CharacterShortcutEvent(
 ///   - mobile
 ///
 final List<CharacterShortcutEvent> ignoreKeysInCodeBlock =
-    [' ', '/', '_', '*', '~']
+    [' ', '/', '_', '*', '~', '-']
         .map(
           (e) => CharacterShortcutEvent(
             key: 'press enter in code block',

@@ -1,9 +1,8 @@
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,9 +65,6 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
         if (!_shouldAccept(data.data, position)) {
           return;
         }
-        Log.debug(
-          'offset: $offset, position: $position, size: ${renderBox.size}',
-        );
         _updatePosition(position);
       },
       onLeave: (_) => _updatePosition(

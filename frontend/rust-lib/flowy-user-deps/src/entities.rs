@@ -13,6 +13,7 @@ pub const USER_METADATA_UPDATE_AT: &str = "updated_at";
 
 pub trait UserAuthResponse {
   fn user_id(&self) -> i64;
+  fn user_uuid(&self) -> &Uuid;
   fn user_name(&self) -> &str;
   fn latest_workspace(&self) -> &UserWorkspace;
   fn user_workspaces(&self) -> &[UserWorkspace];
@@ -43,6 +44,7 @@ pub struct SignUpParams {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AuthResponse {
   pub user_id: i64,
+  pub user_uuid: Uuid,
   pub name: String,
   pub latest_workspace: UserWorkspace,
   pub user_workspaces: Vec<UserWorkspace>,
@@ -57,6 +59,10 @@ pub struct AuthResponse {
 impl UserAuthResponse for AuthResponse {
   fn user_id(&self) -> i64 {
     self.user_id
+  }
+
+  fn user_uuid(&self) -> &Uuid {
+    &self.user_uuid
   }
 
   fn user_name(&self) -> &str {
@@ -132,8 +138,7 @@ pub struct UserWorkspace {
   pub name: String,
   pub created_at: DateTime<Utc>,
   /// The database storage id is used indexing all the database views in current workspace.
-  #[serde(rename = "database_storage_id")]
-  pub database_views_aggregate_id: String,
+  pub database_storage_id: String,
 }
 
 impl UserWorkspace {
@@ -142,7 +147,7 @@ impl UserWorkspace {
       id: workspace_id.to_string(),
       name: "".to_string(),
       created_at: Utc::now(),
-      database_views_aggregate_id: uuid::Uuid::new_v4().to_string(),
+      database_storage_id: Uuid::new_v4().to_string(),
     }
   }
 }

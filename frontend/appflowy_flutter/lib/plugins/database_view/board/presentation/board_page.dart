@@ -12,10 +12,10 @@ import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -123,8 +123,9 @@ class DesktopBoardContent extends StatefulWidget {
 
 class _DesktopBoardContentState extends State<DesktopBoardContent> {
   final renderHook = RowCardRenderHook<String>();
-  late final ScrollController scrollController;
-  late final AppFlowyBoardScrollController scrollManager;
+  final ScrollController scrollController = ScrollController();
+  final AppFlowyBoardScrollController scrollManager =
+      AppFlowyBoardScrollController();
 
   final config = const AppFlowyBoardConfig(
     groupMargin: EdgeInsets.symmetric(horizontal: 4),
@@ -139,8 +140,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   void initState() {
     super.initState();
 
-    scrollManager = AppFlowyBoardScrollController();
-    scrollController = ScrollController();
     renderHook.addSelectOptionHook((options, groupId, _) {
       // The cell should hide if the option id is equal to the groupId.
       final isInGroup =
@@ -152,6 +151,12 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
       return null;
     });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override

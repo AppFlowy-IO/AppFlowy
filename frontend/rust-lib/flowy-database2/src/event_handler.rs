@@ -13,7 +13,7 @@ use crate::manager::DatabaseManager;
 use crate::services::cell::CellBuilder;
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
-  type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
+  type_option_data_from_pb, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::GroupChangeset;
@@ -160,7 +160,7 @@ pub(crate) async fn get_fields_handler(
   let fields = database_editor
     .get_fields(&params.view_id, params.field_ids)
     .into_iter()
-    .map(FieldPB::from)
+    .map(FieldPB::new)
     .collect::<Vec<FieldPB>>()
     .into();
   data_result_ok(fields)
@@ -178,7 +178,7 @@ pub(crate) async fn get_primary_field_handler(
     .get_fields(&view_id, None)
     .into_iter()
     .filter(|field| field.is_primary)
-    .map(FieldPB::from)
+    .map(FieldPB::new)
     .collect::<Vec<FieldPB>>();
 
   if fields.is_empty() {
@@ -217,8 +217,7 @@ pub(crate) async fn update_field_type_option_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   if let Some(old_field) = database_editor.get_field(&params.field_id) {
     let field_type = FieldType::from(old_field.field_type);
-    let type_option_data =
-      type_option_data_from_pb_or_default(params.type_option_data, &field_type);
+    let type_option_data = type_option_data_from_pb(params.type_option_data, &field_type)?;
     database_editor
       .update_field_type_option(
         &params.view_id,
@@ -293,46 +292,19 @@ pub(crate) async fn duplicate_field_handler(
   Ok(())
 }
 
-/// Return the FieldTypeOptionData if the Field exists otherwise return record not found error.
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn get_field_type_option_data_handler(
-  data: AFPluginData<TypeOptionPathPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<TypeOptionPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params: TypeOptionPathParams = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  if let Some((field, data)) = database_editor
-    .get_field_type_option_data(&params.field_id)
-    .await
-  {
-    let data = TypeOptionPB {
-      view_id: params.view_id,
-      field: FieldPB::from(field),
-      type_option_data: data.to_vec(),
-    };
-    data_result_ok(data)
-  } else {
-    Err(FlowyError::record_not_found())
-  }
-}
-
-/// Create TypeOptionPB and save it. Return the FieldTypeOptionData.
+/// Create a field and save it. Returns the [FieldPB] in the current view.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn create_field_handler(
   data: AFPluginData<CreateFieldPayloadPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<TypeOptionPB, FlowyError> {
+) -> DataResult<FieldPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: CreateFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let (field, data) = database_editor.create_field_with_type_option(&params).await;
+  let data = database_editor
+    .create_field_with_type_option(params)
+    .await?;
 
-  let data = TypeOptionPB {
-    view_id: params.view_id,
-    field: FieldPB::from(field),
-    type_option_data: data.to_vec(),
-  };
   data_result_ok(data)
 }
 

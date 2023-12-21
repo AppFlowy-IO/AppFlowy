@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_backend/log.dart';
@@ -48,6 +49,20 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             dateTimeSettings.dateFormat,
             dateTimeSettings.timeFormat,
             dateTimeSettings.timezoneId,
+            appearanceSettings.documentSetting.cursorColor.isEmpty
+                ? null
+                : Color(
+                    int.parse(
+                      appearanceSettings.documentSetting.cursorColor,
+                    ),
+                  ),
+            appearanceSettings.documentSetting.selectionColor.isEmpty
+                ? null
+                : Color(
+                    int.parse(
+                      appearanceSettings.documentSetting.selectionColor,
+                    ),
+                  ),
           ),
         );
 
@@ -106,6 +121,34 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   /// Resets the current font family for the user preferences
   void resetFontFamily() =>
       setFontFamily(DefaultAppearanceSettings.kDefaultFontFamily);
+
+  /// Update document cursor color in the apperance settings and emit an updated state.
+  void setDocumentCursorColor(Color color) {
+    _appearanceSettings.documentSetting.cursorColor = color.toHexString();
+    _saveAppearanceSettings();
+    emit(state.copyWith(documentCursorColor: color));
+  }
+
+  /// Reset document cursor color in the apperance settings
+  void resetDocumentCursorColor() {
+    _appearanceSettings.documentSetting.cursorColor = '';
+    _saveAppearanceSettings();
+    emit(state.copyWith(documentCursorColor: null));
+  }
+
+  /// Update document selection color in the apperance settings and emit an updated state.
+  void setDocumentSelectionColor(Color color) {
+    _appearanceSettings.documentSetting.selectionColor = color.toHexString();
+    _saveAppearanceSettings();
+    emit(state.copyWith(documentSelectionColor: color));
+  }
+
+  /// Reset document selection color in the apperance settings
+  void resetDocumentSelectionColor() {
+    _appearanceSettings.documentSetting.selectionColor = '';
+    _saveAppearanceSettings();
+    emit(state.copyWith(documentSelectionColor: null));
+  }
 
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
@@ -308,6 +351,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required UserDateFormatPB dateFormat,
     required UserTimeFormatPB timeFormat,
     required String timezoneId,
+    required Color? documentCursorColor,
+    required Color? documentSelectionColor,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
@@ -323,6 +368,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     UserDateFormatPB dateFormat,
     UserTimeFormatPB timeFormat,
     String timezoneId,
+    Color? documentCursorColor,
+    Color? documentSelectionColor,
   ) {
     return AppearanceSettingsState(
       appTheme: appTheme,
@@ -337,6 +384,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       dateFormat: dateFormat,
       timeFormat: timeFormat,
       timezoneId: timezoneId,
+      documentCursorColor: documentCursorColor,
+      documentSelectionColor: documentSelectionColor,
     );
   }
 

@@ -69,7 +69,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_views_aggregate_id,
+          user_workspace.database_storage_id,
         )
         .await?;
       document_manager
@@ -107,7 +107,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_views_aggregate_id,
+          user_workspace.database_storage_id,
         )
         .await?;
       document_manager
@@ -170,7 +170,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize_with_new_user(
           user_profile.uid,
           user_workspace.id.clone(),
-          user_workspace.database_views_aggregate_id,
+          user_workspace.database_storage_id,
         )
         .await
         .context("DatabaseManager error")?;
@@ -208,7 +208,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_views_aggregate_id,
+          user_workspace.database_storage_id,
         )
         .await?;
       document_manager

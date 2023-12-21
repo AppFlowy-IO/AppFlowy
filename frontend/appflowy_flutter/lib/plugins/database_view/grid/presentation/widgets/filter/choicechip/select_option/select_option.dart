@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,12 +31,14 @@ class _SelectOptionFilterChoicechipState
     if (widget.filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
       bloc = SelectOptionFilterEditorBloc(
         filterInfo: widget.filterInfo,
-        delegate: SingleSelectOptionFilterDelegateImpl(widget.filterInfo),
+        delegate:
+            SingleSelectOptionFilterDelegateImpl(filterInfo: widget.filterInfo),
       );
     } else {
       bloc = SelectOptionFilterEditorBloc(
         filterInfo: widget.filterInfo,
-        delegate: MultiSelectOptionFilterDelegateImpl(widget.filterInfo),
+        delegate:
+            MultiSelectOptionFilterDelegateImpl(filterInfo: widget.filterInfo),
       );
     }
     bloc.add(const SelectOptionFilterEditorEvent.initial());
@@ -123,7 +125,6 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             child: CustomScrollView(
               shrinkWrap: true,
               slivers: slivers,
-              controller: ScrollController(),
               physics: StyledScrollPhysics(),
             ),
           );

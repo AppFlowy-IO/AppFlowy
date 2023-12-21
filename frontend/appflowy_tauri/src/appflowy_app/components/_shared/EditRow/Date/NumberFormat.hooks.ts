@@ -14,7 +14,7 @@ export const useNumberFormat = (cellIdentifier: CellIdentifier, fieldController:
 
     await typeOptionController.initialize();
     const numberTypeOptionContext = makeNumberTypeOptionContext(typeOptionController);
-    const typeOption = await numberTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+    const typeOption = numberTypeOptionContext.getTypeOption();
 
     typeOption.format = format;
     await numberTypeOptionContext.setTypeOption(typeOption);

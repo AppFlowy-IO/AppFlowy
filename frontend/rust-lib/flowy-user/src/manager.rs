@@ -33,11 +33,12 @@ use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettin
 use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
+use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
-use crate::services::database::{UserDB, UserDBPath};
+use crate::services::db::{UserDB, UserDBPath};
 use crate::services::entities::{ResumableSignUp, Session};
 use crate::services::user_awareness::UserAwarenessDataSource;
 use crate::services::user_sql::{UserTable, UserTableChangeset};
@@ -55,7 +56,7 @@ pub struct UserConfig {
   application_path: String,
   pub device_id: String,
   /// Used as the key of `Session` when saving session information to KV.
-  session_cache_key: String,
+  pub(crate) session_cache_key: String,
 }
 
 impl UserConfig {
@@ -103,6 +104,14 @@ impl UserManager {
     let database = Arc::new(UserDB::new(user_paths.clone()));
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
+    let current_session = Arc::new(parking_lot::RwLock::new(None));
+    let current_authenticator = current_authenticator();
+    migrate_session_with_user_uuid(
+      &current_authenticator,
+      &user_config,
+      &current_session,
+      &store_preferences,
+    );
 
     let refresh_user_profile_since = AtomicI64::new(0);
     let user_manager = Arc::new(Self {
@@ -116,7 +125,7 @@ impl UserManager {
       collab_builder,
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
       resumable_sign_up: Default::default(),
-      current_session: Default::default(),
+      current_session,
       refresh_user_profile_since,
     });
 
@@ -163,11 +172,7 @@ impl UserManager {
       let user = self.get_user_profile_from_disk(session.user_id).await?;
 
       // Get the current authenticator from the environment variable
-      let current_authenticator = match AuthenticatorType::from_env() {
-        AuthenticatorType::Local => Authenticator::Local,
-        AuthenticatorType::Supabase => Authenticator::Supabase,
-        AuthenticatorType::AppFlowyCloud => Authenticator::AppFlowyCloud,
-      };
+      let current_authenticator = current_authenticator();
 
       // If the current authenticator is different from the authenticator in the session and it's
       // not a local authenticator, we need to sign out the user.
@@ -512,6 +517,7 @@ impl UserManager {
   }
 
   pub async fn prepare_user(&self, session: &Session) {
+    let _ = self.database.close(session.user_id);
     self.set_collab_config(session);
     // Ensure to backup user data if a cloud drive is used for storage. While using a cloud drive
     // for storing user data is not advised due to potential data corruption risks, in scenarios where
@@ -583,14 +589,6 @@ impl UserManager {
           event!(
             tracing::Level::ERROR,
             "User is unauthorized, sign out the user"
-          );
-
-          self.add_historical_user(
-            uid,
-            &self.user_config.device_id,
-            old_user_profile.name.clone(),
-            &old_user_profile.authenticator,
-            self.user_dir(uid),
           );
 
           self.sign_out().await?;
@@ -747,15 +745,11 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let user_profile = UserProfile::from((response, authenticator));
     let uid = user_profile.uid;
-    event!(tracing::Level::DEBUG, "Save new history user: {:?}", uid);
-    self.add_historical_user(
-      uid,
-      &self.user_config.device_id,
-      response.user_name().to_string(),
-      authenticator,
-      self.user_dir(uid),
-    );
-    event!(tracing::Level::DEBUG, "Save new history user workspace");
+    if authenticator.is_local() {
+      event!(tracing::Level::DEBUG, "Save new anon user: {:?}", uid);
+      self.set_anon_user(session.clone());
+    }
+
     save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
     event!(tracing::Level::INFO, "Save new user profile to disk");
     self
@@ -835,6 +829,14 @@ impl UserManager {
       &[old_user.session.user_workspace.clone()],
     )?;
     Ok(())
+  }
+}
+
+fn current_authenticator() -> Authenticator {
+  match AuthenticatorType::from_env() {
+    AuthenticatorType::Local => Authenticator::Local,
+    AuthenticatorType::Supabase => Authenticator::Supabase,
+    AuthenticatorType::AppFlowyCloud => Authenticator::AppFlowyCloud,
   }
 }
 
