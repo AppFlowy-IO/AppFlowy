@@ -21,7 +21,7 @@ async fn supabase_user_sign_up_test() {
   let user: AuthResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
   assert!(!user.latest_workspace.id.is_empty());
   assert!(!user.user_workspaces.is_empty());
-  assert!(!user.latest_workspace.database_views_aggregate_id.is_empty());
+  assert!(!user.latest_workspace.database_storage_id.is_empty());
 }
 
 #[tokio::test]
@@ -38,7 +38,7 @@ async fn supabase_user_sign_up_with_existing_uuid_test() {
     .unwrap();
   let user: AuthResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
   assert!(!user.latest_workspace.id.is_empty());
-  assert!(!user.latest_workspace.database_views_aggregate_id.is_empty());
+  assert!(!user.latest_workspace.database_storage_id.is_empty());
   assert!(!user.user_workspaces.is_empty());
 }
 

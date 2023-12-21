@@ -465,25 +465,20 @@ pub async fn update_network_state_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn get_historical_users_handler(
+pub async fn get_anon_user_handler(
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<RepeatedHistoricalUserPB, FlowyError> {
+) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let users = RepeatedHistoricalUserPB::from(manager.get_historical_users());
-  data_result_ok(users)
+  let user_profile = manager.get_anon_user().await?;
+  data_result_ok(user_profile)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn open_historical_users_handler(
-  user: AFPluginData<HistoricalUserPB>,
+pub async fn open_anon_user_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
-  let user = user.into_inner();
   let manager = upgrade_manager(manager)?;
-  let auth_type = Authenticator::from(user.auth_type);
-  manager
-    .open_historical_user(user.user_id, auth_type)
-    .await?;
+  manager.open_anon_user().await?;
   Ok(())
 }
 

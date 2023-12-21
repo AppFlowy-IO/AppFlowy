@@ -13,7 +13,7 @@ use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user::services::database::{get_user_profile, get_user_workspace, open_user_db};
+use flowy_user::services::db::{get_user_profile, get_user_workspace, open_user_db};
 use flowy_user_deps::entities::*;
 
 use crate::AppFlowyCoreConfig;

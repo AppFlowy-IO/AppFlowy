@@ -13,7 +13,7 @@ use lib_dispatch::prelude::af_spawn;
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::manager::UserManager;
 use crate::notification::{send_notification, UserNotification};
-use crate::services::user_workspace_sql::UserWorkspaceTable;
+use crate::services::workspace_sql::UserWorkspaceTable;
 
 impl UserManager {
   #[instrument(skip(self), err)]

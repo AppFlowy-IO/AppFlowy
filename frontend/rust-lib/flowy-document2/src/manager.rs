@@ -10,7 +10,6 @@ use collab_document::YrsDocAction;
 use collab_entity::CollabType;
 use lru::LruCache;
 use parking_lot::Mutex;
-use tokio_stream::StreamExt;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;

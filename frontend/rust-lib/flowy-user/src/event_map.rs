@@ -44,8 +44,8 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
-    .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
-    .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
+    .event(UserEvent::OpenAnonUser, open_anon_user_handler)
+    .event(UserEvent::GetAnonUser, get_anon_user_handler)
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
@@ -138,11 +138,11 @@ pub enum UserEvent {
   #[event(input = "NetworkStatePB")]
   UpdateNetworkState = 24,
 
-  #[event(output = "RepeatedHistoricalUserPB")]
-  GetHistoricalUsers = 25,
+  #[event(output = "UserProfilePB")]
+  GetAnonUser = 25,
 
-  #[event(input = "HistoricalUserPB")]
-  OpenHistoricalUser = 26,
+  #[event()]
+  OpenAnonUser = 26,
 
   /// Push a realtime event to the user. Currently, the realtime event
   /// is only used when the auth type is: [Authenticator::Supabase].

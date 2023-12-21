@@ -1,34 +1,69 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import 'edit_database_view_screen.dart';
+
 /// [MobileDatabaseViewQuickActions] is gives users to quickly edit a database
 /// view from the [MobileDatabaseViewList]
-class MobileDatabaseViewQuickActions extends StatelessWidget {
-  const MobileDatabaseViewQuickActions({super.key});
+class MobileDatabaseViewQuickActions extends StatefulWidget {
+  const MobileDatabaseViewQuickActions({
+    super.key,
+    required this.view,
+    required this.databaseController,
+  });
+
+  final ViewPB view;
+  final DatabaseController databaseController;
+
+  @override
+  State<MobileDatabaseViewQuickActions> createState() =>
+      _MobileDatabaseViewQuickActionsState();
+}
+
+class _MobileDatabaseViewQuickActionsState
+    extends State<MobileDatabaseViewQuickActions> {
+  bool isEditing = false;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _actionButton(_Action.edit),
-        _divider(),
-        _actionButton(_Action.duplicate),
-        _divider(),
-        _actionButton(_Action.delete),
-        _divider(),
-      ],
-    );
+    return isEditing
+        ? MobileEditDatabaseViewScreen(
+            databaseController: widget.databaseController,
+          )
+        : Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 38),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _actionButton(context, _Action.edit),
+                _divider(),
+                _actionButton(context, _Action.duplicate),
+                _divider(),
+                _actionButton(context, _Action.delete),
+                _divider(),
+              ],
+            ),
+          );
   }
 
-  Widget _actionButton(_Action action) {
-    return MobileQuickActionButton(
-      icon: action.icon,
-      text: action.label,
-      onTap: () {},
+  Widget _actionButton(BuildContext context, _Action action) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: MobileQuickActionButton(
+        icon: action.icon,
+        text: action.label,
+        color: action.color(context),
+        onTap: () {
+          if (action == _Action.edit) {
+            setState(() => isEditing = true);
+          }
+        },
+      ),
     );
   }
 
@@ -50,7 +85,7 @@ enum _Action {
 
   FlowySvgData get icon {
     return switch (this) {
-      edit => FlowySvgs.grid_s,
+      edit => FlowySvgs.edit_s,
       duplicate => FlowySvgs.copy_s,
       delete => FlowySvgs.delete_s,
     };

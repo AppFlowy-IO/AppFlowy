@@ -331,7 +331,12 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
       const VSpace(8.0),
       SwitchFieldButton(popoverMutex: popoverMutex),
       const TypeOptionSeparator(spacing: 8.0),
-      FieldTypeOptionEditor(viewId: widget.viewId, popoverMutex: popoverMutex),
+      Flexible(
+        child: FieldTypeOptionEditor(
+          viewId: widget.viewId,
+          popoverMutex: popoverMutex,
+        ),
+      ),
       _addFieldVisibilityToggleButton(),
       _addDuplicateFieldButton(),
       _addDeleteFieldButton(),
@@ -437,7 +442,7 @@ class FieldTypeOptionEditor extends StatelessWidget {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            typeOptionEditor,
+            Flexible(child: typeOptionEditor),
             const TypeOptionSeparator(spacing: 8.0),
           ],
         );
