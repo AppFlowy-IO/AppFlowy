@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/application/template/template_service.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -80,9 +79,6 @@ class ViewAddButton extends StatelessWidget {
         } else if (action is ViewImportActionWrapper) {
           _showViewImportAction(context, action);
         } else if (action is TemplateActionWrapper) {
-          // final TemplateService tService = getIt<TemplateService>();
-          // final archive = await tService.pickTemplate();
-          // await tService.unloadTemplate(parentViewId, archive);
           TemplateDialog(
             title: LocaleKeys.template_title.tr(),
             confirm: () {},

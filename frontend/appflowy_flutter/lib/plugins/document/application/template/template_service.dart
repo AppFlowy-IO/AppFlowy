@@ -1,9 +1,17 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/application/template/config_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/database/database_view_block_component.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:archive/archive_io.dart';
+import 'package:dartz/dartz.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -26,16 +34,11 @@ import 'package:flowy_infra/file_picker/file_picker_service.dart';
 /// Use [saveTemplate] to export template
 /// Use [unloadTemplate] to import template
 
-
-//TODO's: 
-// 1. Add databases to database[] field in config so that they can be loaded and re-linked again when imported!
-
-
 class TemplateService {
   Future<bool> saveTemplate(ViewPB view) async {
     final directory = await getApplicationDocumentsDirectory();
 
-    // Delete the template folder, after c  reating zip
+    // Delete the template folder if already exists
     final tempDir = Directory(path.join(directory.path, 'template'));
     if (await tempDir.exists()) {
       await tempDir.delete(recursive: true);
@@ -47,6 +50,9 @@ class TemplateService {
 
     // Export parent view first and then continue with subviews
     await _exportDocumentAsJSON(view, template.documents);
+    if (view.childViews.isNotEmpty) {
+      await _getJsonFromView(view.childViews[0]);
+    }
     await _exportTemplate(view, template.documents.childViews);
 
     // Zip all the files exported
@@ -85,11 +91,6 @@ class TemplateService {
     final viewsAtId = await ViewBackendService.getChildViews(viewId: view.id);
     final List<ViewPB> views = viewsAtId.getLeftOrNull();
 
-    // If it's a grid/board we don't need to export additional page "View of Grid/Board"
-    if (views.isEmpty ||
-        view.layout == ViewLayoutPB.Grid ||
-        view.layout == ViewLayoutPB.Board) return;
-
     for (int i = 0; i < views.length; i++) {
       final view = views[i];
       final item = childViews[i];
@@ -114,7 +115,6 @@ class TemplateService {
         break;
       case ViewLayoutPB.Grid:
       case ViewLayoutPB.Board:
-        // Exported in config.json
         await _exportDBFile(view, item.name);
         break;
       default:
@@ -129,6 +129,22 @@ class TemplateService {
     final data = await _getJsonFromView(view);
 
     final document = json.decode(data);
+
+    final List<dynamic> children = document["document"]["children"];
+
+    if (item.databases.isNotEmpty) {
+      // Replace the database view id's with the new view id's
+      // Note: Databases are added from beginning of the document so we can read and replace in the same order.
+      int dbLength = 0;
+      for (int i = 0; i < children.length; i++) {
+        if (dbLength >= item.databases.length) break;
+        if (children[i]["type"] == ViewLayoutPB.Grid || children[i]["type"] == ViewLayoutPB.Board) {
+          children[i]["data"]["view_id"] = item.databases[dbLength];
+          dbLength++;
+        }
+      }
+    }
+
     final directory = await getApplicationDocumentsDirectory();
 
     final dir = Directory(path.join(directory.path, 'template'));
@@ -161,10 +177,8 @@ class TemplateService {
     await dbFile.writeAsString(pb);
   }
 
-  /// Steps for importing a template:
-  /// 1. Pick template(.zip)
-  /// 2. Zip may contain several files, use [config.json] to determine which files to use.
-  /// 3. Load template into editor, using [TemplateService.unloadTemplate] function
+  // Stores the old id's and the updated ones to update the database references
+  List<IdObj> updateValues = [];
 
   Future<Archive?> pickTemplate() async {
     // Pick a ZIP file from the system
@@ -182,14 +196,20 @@ class TemplateService {
 
     final contents = await file.readAsBytes();
     final archive = ZipDecoder().decodeBytes(contents);
-    
 
     return archive;
   }
 
+/*
+Approach for importing template: 
+1. First import all the databases, store the old and new view id's in a list. Because we need the database view id's to maintain the reference.
+2. Next, start importing the documents and databases, when you come across a database, don't import it instead just move it to the desired location.
+*/
+
   Future<void> unloadTemplate(
     String parentViewId,
     Archive? archive,
+    EditorState editorState,
   ) async {
     if (archive == null) return;
 
@@ -221,6 +241,7 @@ class TemplateService {
     final ViewPB? parentView = await _importDoc(
       parentViewId,
       template.documents,
+      editorState,
     );
 
     if (parentView == null) {
@@ -228,25 +249,115 @@ class TemplateService {
       return;
     }
 
-    await _loadTemplateIntoEditor(parentView.id, template.documents);
+    updateValues.clear();
+    await _loadDatabasesIntoEditor(parentView.id, template.documents);
+    await _loadTemplateIntoEditor(
+        parentView.id, template.documents, editorState);
+  }
+
+  // Import all db's in global scope first
+  Future<Either<void, FlowyError>> _loadDatabasesIntoEditor(
+    String parentViewId,
+    FlowyTemplateItem item,
+  ) async {
+    for (final e in item.childViews) {
+      // CASE: Database has no display view
+      if (e.name.endsWith(".csv")) {
+        if (e.childViews.isEmpty) {
+          final view = await _importDB(parentViewId, e);
+          if (view == null) {
+            return right(FlowyError(
+                msg:
+                    "An error occured while loading databases into global scope"));
+          }
+          // Even though we don't need to update the database id in any document,
+          // we still want to move it to right place later
+          updateValues.add(
+            IdObj(
+              parentId: parentViewId,
+              newViewId: view.id,
+              oldViewId: e.name.replaceAll(".csv", ""),
+            ),
+          );
+        } else {
+          // Case: Database has display views which should import as references to parent
+          final view = await _importDB(parentViewId, e);
+          if (view == null) {
+            return right(FlowyError(
+                msg:
+                    "An error occured while loading databases into global scope"));
+          }
+
+          updateValues.add(
+            IdObj(
+              parentId: parentViewId,
+              newViewId: view.id,
+              oldViewId: e.name.replaceAll(".csv", ""),
+            ),
+          );
+
+          // Now add all child views as linked views to the database
+          final databaseIdOrError =
+              await DatabaseViewBackendService(viewId: view.id).getDatabaseId();
+
+          final databaseId = databaseIdOrError.fold((l) => l, (r) => null);
+
+          if (databaseId == null) {
+            return right(
+                FlowyError(msg: "An error occured while loading database ID"));
+          }
+
+          final prefix = _referencedDatabasePrefix(view.layout);
+
+          for (int i = 0; i < e.childViews.length; i++) {
+            final res = await ViewBackendService.createDatabaseLinkedView(
+              parentViewId: view.id,
+              databaseId: databaseId,
+              layoutType: view.layout,
+              name: '$prefix ${e.name.replaceAll(".csv", "")} ${i + 1}',
+            );
+
+            final linkedView = res.fold((l) => l, (r) => null);
+            if (linkedView == null) {
+              return right(FlowyError(
+                  msg: "An error occured while loading database displays"));
+            }
+            updateValues.add(
+              IdObj(
+                parentId: view.id,
+                newViewId: linkedView.id,
+                oldViewId: e.childViews[i].name.replaceAll(".csv", ""),
+              ),
+            );
+          }
+        }
+      }
+      // CASE: where JSON Doc may have Database view
+      if (e.childViews.isNotEmpty && !(e.name.endsWith(".csv"))) {
+        await _loadDatabasesIntoEditor(parentViewId, e);
+      }
+    }
+    return left(null);
   }
 
   /// Recursively adds the template into the editor
   Future<void> _loadTemplateIntoEditor(
     String parentViewId,
     FlowyTemplateItem doc,
+    EditorState editorState,
   ) async {
     for (final e in doc.childViews) {
       if (e.childViews.isEmpty) {
-        await _importTemplateFile(parentViewId, e);
+        await _importTemplateFile(parentViewId, e, editorState);
         continue;
       } else {
-        final ViewPB? res = await _importTemplateFile(parentViewId, e);
+        final ViewPB? res =
+            await _importTemplateFile(parentViewId, e, editorState);
         if (res == null) {
           debugPrint("An error occured while loading template");
           return;
         }
-        await _loadTemplateIntoEditor(res.id, e);
+        await _loadTemplateIntoEditor(res.id, e, editorState);
       }
     }
   }
@@ -254,19 +365,46 @@ class TemplateService {
   Future<ViewPB?> _importTemplateFile(
     String parentViewId,
     FlowyTemplateItem doc,
-  ) {
+    EditorState editorState,
+  ) async {
     if (doc.name.endsWith(".json")) {
-      return _importDoc(parentViewId, doc);
+      return _importDoc(parentViewId, doc, editorState);
     } else {
-      return _importDB(parentViewId, doc);
+      // Already imported the databases,simply move to position now.
+      return _moveDBToPosition(parentViewId, doc);
     }
   }
 
-  Future<ViewPB?> _importDoc(String parentViewId, FlowyTemplateItem doc) async {
-    final directory = await getTemporaryDirectory();
+  Future<ViewPB?> _moveDBToPosition(
+    String parentViewId,
+    FlowyTemplateItem doc,
+  ) async {
+    final docName = doc.name.replaceAll(".csv", "");
+    for (final e in updateValues) {
+      if (docName == e.oldViewId) {
+        await ViewBackendService.moveViewV2(
+          viewId: e.newViewId,
+          newParentId: parentViewId,
+          prevViewId: e.parentId,
+        );
 
-    final String templateRes =
-        await File('${directory.path}/${doc.name}').readAsString();
+        final view = await ViewBackendService.getView(e.newViewId);
+        final res = view.fold((l) => l, (r) => null);
+        return res;
+      }
+    }
+    return null;
+  }
+
+  Future<ViewPB?> _importDoc(
+    String parentViewId,
+    FlowyTemplateItem doc,
+    EditorState editorState,
+  ) async {
+    final directory = await getTemporaryDirectory();
+    final templatePath = path.join(directory.path, doc.name);
+
+    final String templateRes = await File(templatePath).readAsString();
 
     final Map<String, dynamic> docJson = json.decode(templateRes);
 
@@ -277,6 +415,7 @@ class TemplateService {
       imagePaths.add(res);
     }
 
+    // Replace the image paths in the document
     final List<dynamic> children = docJson["document"]["children"];
     for (int i = 0; i < children.length; i++) {
       if (children[i]["type"] == ImageBlockKeys.type) {
@@ -292,6 +431,8 @@ class TemplateService {
 
     final docName = doc.name.replaceAll('.json', '');
 
+    // Import document first as we need the view to provide to [DocumentBloc]
+    // to perform update operations on database references
     final res = await ImportBackendService.importData(
       docBytes!,
       docName,
@@ -299,11 +440,69 @@ class TemplateService {
       ImportTypePB.HistoryDocument,
     );
 
+    final view = res.fold((l) => l, (r) => null);
+    if (view == null) return null;
+    _updateDoc(view);
+
     return res.fold((l) => l, (r) => null);
+  }
+
+  Future<void> _updateDoc(ViewPB view) async {
+    final jsonFromView = await _getJsonFromView(view);
+
+    final docBloc = DocumentBloc(view: view)
+      ..add(const DocumentEvent.initial());
+
+    StreamSubscription<DocumentState>? blocSubscription;
+
+    blocSubscription = docBloc.stream.listen((event) {
+      final docJson = json.decode(jsonFromView);
+      final document2 = Document.fromJson(docJson);
+      final List<Transaction> transactions = [];
+
+      var doc = docBloc.state.editorState!.document.first;
+      while (doc!.next != null) {
+        if (doc.type == DatabaseBlockKeys.gridType ||
+            doc.type == DatabaseBlockKeys.boardType) {
+          final oldViewId = doc.attributes["view_id"];
+          for (final e in updateValues) {
+            if (e.oldViewId == oldViewId) {
+              final attributes = {
+                "view_id": e.newViewId,
+                "parent_id": e.parentId,
+              };
+              final transaction = Transaction(document: document2)
+                ..updateNode(
+                  doc,
+                  attributes,
+                );
+
+              transactions.add(transaction);
+            }
+          }
+        }
+        doc = doc.next;
+      }
+
+      final es = event.editorState;
+      for (final transaction in transactions) {
+        es!.apply(transaction);
+      }
+
+      if (blocSubscription != null) {
+        blocSubscription.cancel();
+      } else {
+        debugPrint("Bloc subscription is null, may cause memory leaks!");
+      }
+    });
   }
 
   Future<String?> _importImage(String image) async {
     // 1. Get the image from the template folder
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return image;
+    }
+
     final directory = await getApplicationDocumentsDirectory();
     final imagePath = path.join(directory.path, "template", image);
     final imageFile = File(imagePath);
@@ -347,4 +546,28 @@ class TemplateService {
 
     return res.fold((l) => l, (r) => null);
   }
+
+  String _referencedDatabasePrefix(ViewLayoutPB layout) {
+    switch (layout) {
+      case ViewLayoutPB.Grid:
+        return LocaleKeys.grid_referencedGridPrefix.tr();
+      case ViewLayoutPB.Board:
+        return LocaleKeys.board_referencedBoardPrefix.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.calendar_referencedCalendarPrefix.tr();
+      default:
+        throw UnimplementedError();
+    }
+  }
+
+}
+
+class IdObj {
+  String parentId;
+  String newViewId;
+  String oldViewId;
+  IdObj(
+      {required this.parentId,
+      required this.newViewId,
+      required this.oldViewId});
 }

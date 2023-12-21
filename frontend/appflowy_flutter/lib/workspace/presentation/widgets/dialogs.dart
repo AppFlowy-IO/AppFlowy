@@ -1,7 +1,7 @@
-import 'dart:io';
-
+import 'package:appflowy/plugins/document/application/template/inbuilt_templates.dart';
 import 'package:appflowy/plugins/document/application/template/template_service.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:archive/archive_io.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -281,8 +281,8 @@ class TemplateDialog extends StatefulWidget {
     required this.parentViewId,
     this.confirm,
     this.cancel,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<TemplateDialog> createState() => _CreateTemplateDialog();
@@ -308,12 +308,9 @@ class _CreateTemplateDialog extends State<TemplateDialog> {
           const VSpace(30),
           Flex(
             direction: Axis.horizontal,
-            children: <Map<String, dynamic>>[
-              {"id": 0, "name": "Resume/CV"},
-              {"id": 1, "name": "To-Do List"},
-              {"id": 2, "name": "Daily Journal"},
-              {"id": -1, "name": "Pick from System"},
-            ].map((e) => _getFlexItem(e["id"], e["name"])).toList(),
+            children: inbuiltTemplates
+                .map((e) => _getFlexItem(e, EditorState.blank()))
+                .toList(),
           ),
           const VSpace(30),
           SecondaryTextButton(
@@ -328,22 +325,30 @@ class _CreateTemplateDialog extends State<TemplateDialog> {
     );
   }
 
-  Widget _getFlexItem(int id, String title) {
+  Widget _getFlexItem(TemplateDescription template, EditorState editorState) {
     return GestureDetector(
       onTap: () async {
-        if (id == -1) {
-          // Pick from system
+        if (template.type == TemplateType.manual) {
           final TemplateService tService = getIt<TemplateService>();
           final archive = await tService.pickTemplate();
-          await tService.unloadTemplate(widget.parentViewId, archive);
-          if (mounted) Navigator.pop(context);
+          await tService.unloadTemplate(
+              widget.parentViewId, archive, editorState);
         } else {
           final TemplateService tService = getIt<TemplateService>();
           // Load template from assets
-          final data =
-              await rootBundle.loadString("assets/template/resume.zip");
-              //TODO: load afrom assets
+          try {
+            final data = await rootBundle.load(template.path);
+
+            final archive = ZipDecoder().decodeBytes(data.buffer.asUint8List());
+            tService.unloadTemplate(widget.parentViewId, archive, editorState);
+          } catch (e) {
+            debugPrint(
+              "An error occured while loading template from assets: $e",
+            );
+          }
         }
+
+        if (mounted) Navigator.pop(context);
       },
       child: Container(
         margin: const EdgeInsets.only(right: 15.0),
@@ -359,7 +364,7 @@ class _CreateTemplateDialog extends State<TemplateDialog> {
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: FlowyText.medium(
-                title,
+                template.name,
                 fontSize: FontSizes.s16,
                 color: Theme.of(context).colorScheme.tertiary,
               ),
