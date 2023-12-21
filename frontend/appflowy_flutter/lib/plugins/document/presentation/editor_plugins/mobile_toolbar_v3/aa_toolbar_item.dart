@@ -1,0 +1,242 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_bius_items.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_color_item.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_heading_and_text_items.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+
+final appflowyTextDecorationItem = AppFlowyMobileToolbarItem(
+  itemBuilder: (context, editorState, onMenu, _) {
+    return AppFlowyMobileToolbarIconItem(
+      keepSelectedStatus: true,
+      icon: FlowySvgs.m_text_decoration_m,
+      onTap: () => onMenu?.call(),
+    );
+  },
+  menuBuilder: (context, editorState, service) {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return const SizedBox.shrink();
+    }
+    return _TextDecorationMenu(
+      editorState,
+      selection,
+      service,
+    );
+  },
+);
+
+class _TextDecorationMenu extends StatefulWidget {
+  const _TextDecorationMenu(
+    this.editorState,
+    this.selection,
+    this.service,
+  );
+
+  final EditorState editorState;
+  final Selection selection;
+  final MobileToolbarWidgetService service;
+
+  @override
+  State<_TextDecorationMenu> createState() => _TextDecorationMenuState();
+}
+
+class _TextDecorationMenuState extends State<_TextDecorationMenu> {
+  EditorState get editorState => widget.editorState;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+            top: 24,
+            bottom: 20,
+            left: 12,
+            right: 12,
+          ) *
+          context.scale,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HeadingsAndTextItems(
+            editorState: editorState,
+          ),
+          const ScaledVSpace(),
+          Row(
+            children: [
+              BIUSItems(
+                editorState: editorState,
+              ),
+              const Spacer(),
+              const ColorItem(),
+            ],
+          ),
+          const ScaledVSpace(),
+          Row(
+            children: [
+              _BlockItems(
+                editorState: editorState,
+              ),
+              const Spacer(),
+              const _AlignItems(),
+            ],
+          ),
+          const ScaledVSpace(),
+          const Row(
+            children: [
+              _FontFamilyItem(),
+              Spacer(),
+              _IndentAndOutdentItems(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BlockItems extends StatelessWidget {
+  _BlockItems({
+    required this.editorState,
+  });
+
+  final EditorState editorState;
+
+  final List<(FlowySvgData, String)> _blockItems = [
+    (FlowySvgs.m_aa_bulleted_list_s, BulletedListBlockKeys.type),
+    (FlowySvgs.m_aa_numbered_list_s, NumberedListBlockKeys.type),
+    (FlowySvgs.m_aa_quote_s, QuoteBlockKeys.type),
+    (FlowySvgs.m_aa_link_s, ToggleListBlockKeys.type),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ..._blockItems
+              .mapIndexed(
+                (index, e) => [
+                  _buildBlockItem(
+                    index,
+                    e.$1,
+                    e.$2,
+                  ),
+                  if (index != 0 || index != _blockItems.length - 1)
+                    const ScaledVerticalDivider(),
+                ],
+              )
+              .flattened,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBlockItem(
+    int index,
+    FlowySvgData icon,
+    String blockType,
+  ) {
+    return MobileToolbarItemWrapper(
+      size: const Size(62, 54),
+      enableTopLeftRadius: index == 0,
+      enableBottomLeftRadius: index == 0,
+      enableTopRightRadius: index == _blockItems.length - 1,
+      enableBottomRightRadius: index == _blockItems.length - 1,
+      showDownArrow: index == _blockItems.length - 1,
+      onTap: () {},
+      color: const Color(0xFFF2F2F7),
+      icon: icon,
+      isSelected: editorState.isBlockTypeSelected(blockType),
+      iconPadding: const EdgeInsets.symmetric(
+        vertical: 14.0,
+      ),
+    );
+  }
+}
+
+class _FontFamilyItem extends StatelessWidget {
+  const _FontFamilyItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return MobileToolbarItemWrapper(
+      size: const Size(144, 52),
+      onTap: () {},
+      text: 'Sans Serif',
+      color: const Color(0xFFF2F2F7),
+      isSelected: false,
+      showRightArrow: true,
+      iconPadding: const EdgeInsets.only(
+        top: 14.0,
+        bottom: 14.0,
+        left: 14.0,
+        right: 12.0,
+      ),
+      textPadding: const EdgeInsets.only(
+        right: 16.0,
+      ),
+    );
+  }
+}
+
+class _IndentAndOutdentItems extends StatelessWidget {
+  const _IndentAndOutdentItems();
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        children: [
+          MobileToolbarItemWrapper(
+            size: const Size(95, 52),
+            onTap: () {},
+            icon: FlowySvgs.m_aa_outdent_s,
+            isSelected: false,
+            enableTopRightRadius: false,
+            enableBottomRightRadius: false,
+            iconPadding: const EdgeInsets.symmetric(
+              vertical: 14.0,
+            ),
+            color: const Color(0xFFF2F2F7),
+          ),
+          const ScaledVerticalDivider(),
+          MobileToolbarItemWrapper(
+            size: const Size(95, 52),
+            onTap: () {},
+            icon: FlowySvgs.m_aa_indent_s,
+            isSelected: false,
+            enableTopLeftRadius: false,
+            enableBottomLeftRadius: false,
+            iconPadding: const EdgeInsets.symmetric(
+              vertical: 14.0,
+            ),
+            color: const Color(0xFFF2F2F7),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AlignItems extends StatelessWidget {
+  const _AlignItems();
+
+  @override
+  Widget build(BuildContext context) {
+    return MobileToolbarItemWrapper(
+      size: const Size(82, 52),
+      onTap: () {},
+      icon: FlowySvgs.m_aa_align_left_s,
+      isSelected: false,
+      iconPadding: const EdgeInsets.symmetric(
+        vertical: 14.0,
+      ),
+      showDownArrow: true,
+      color: const Color(0xFFF2F2F7),
+    );
+  }
+}

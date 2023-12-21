@@ -53,6 +53,7 @@ class MobileToolbarItemWrapper extends StatelessWidget {
         padding: textPadding * scale,
         child: FlowyText(
           text!,
+          fontSize: 16.0,
           overflow: TextOverflow.ellipsis,
         ),
       );
@@ -100,8 +101,8 @@ class MobileToolbarItemWrapper extends StatelessWidget {
   }
 }
 
-class VerticalDivider extends StatelessWidget {
-  const VerticalDivider({super.key});
+class ScaledVerticalDivider extends StatelessWidget {
+  const ScaledVerticalDivider({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +113,9 @@ class VerticalDivider extends StatelessWidget {
 }
 
 class ScaledVSpace extends StatelessWidget {
-  const ScaledVSpace({super.key});
+  const ScaledVSpace({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -154,26 +157,24 @@ extension MobileToolbarEditorState on EditorState {
     }
 
     final nodes = getNodesInSelection(selection);
-    bool isSelected;
+    bool isSelected = false;
     if (selection.isCollapsed) {
-      isSelected = toggledStyle.containsKey(
-        richTextKey,
-      );
-      if (isSelected) {
-        return true;
-      }
-      if (selection.startIndex != 0) {
-        // get previous index text style
-        isSelected = nodes.allSatisfyInSelection(
-            selection.copyWith(
-              start: selection.start.copyWith(
-                offset: selection.startIndex - 1,
-              ),
-            ), (delta) {
-          return delta.everyAttributes(
-            (attributes) => attributes[richTextKey] == true,
-          );
-        });
+      if (toggledStyle.containsKey(richTextKey)) {
+        isSelected = toggledStyle[richTextKey] as bool;
+      } else {
+        if (selection.startIndex != 0) {
+          // get previous index text style
+          isSelected = nodes.allSatisfyInSelection(
+              selection.copyWith(
+                start: selection.start.copyWith(
+                  offset: selection.startIndex - 1,
+                ),
+              ), (delta) {
+            return delta.everyAttributes(
+              (attributes) => attributes[richTextKey] == true,
+            );
+          });
+        }
       }
     } else {
       isSelected = nodes.allSatisfyInSelection(selection, (delta) {
