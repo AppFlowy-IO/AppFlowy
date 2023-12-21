@@ -20,7 +20,7 @@ use lib_dispatch::prelude::af_spawn;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
 
 use crate::services::user_sql::UserTable;
-use crate::services::user_workspace_sql::UserWorkspaceTable;
+use crate::services::workspace_sql::UserWorkspaceTable;
 
 pub trait UserDBPath: Send + Sync + 'static {
   fn user_db_path(&self, uid: i64) -> PathBuf;

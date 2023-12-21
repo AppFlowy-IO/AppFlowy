@@ -270,6 +270,7 @@ pub async fn user_sign_in_with_url(
 
   Ok(AuthResponse {
     user_id: user_profile.uid,
+    user_uuid: user_profile.uuid,
     name: user_profile.name.unwrap_or_default(),
     latest_workspace,
     user_workspaces,
@@ -287,7 +288,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     id: af_workspace.workspace_id.to_string(),
     name: af_workspace.workspace_name,
     created_at: af_workspace.created_at,
-    database_views_aggregate_id: af_workspace.database_storage_id.to_string(),
+    database_storage_id: af_workspace.database_storage_id.to_string(),
   }
 }
 

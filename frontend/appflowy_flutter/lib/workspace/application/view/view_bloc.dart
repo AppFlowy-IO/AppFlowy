@@ -77,7 +77,6 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           final view_ = result.fold((l) => l, (r) => null);
           e.result.fold(
             (view) async {
-              Log.debug('viewDidUpdate: $view');
               // ignore child view changes because it only contains one level
               // children data.
               if (_isSameViewIgnoreChildren(view, state.view)) {

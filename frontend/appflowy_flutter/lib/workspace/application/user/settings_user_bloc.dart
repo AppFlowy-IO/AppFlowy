@@ -70,12 +70,6 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
             );
           });
         },
-        didLoadHistoricalUsers: (List<HistoricalUserPB> historicalUsers) {
-          emit(state.copyWith(historicalUsers: historicalUsers));
-        },
-        openHistoricalUser: (HistoricalUserPB historicalUser) async {
-          await UserBackendService.openHistoricalUser(historicalUser);
-        },
         updateUserEmail: (String email) {
           _userService.updateUserProfile(email: email).then((result) {
             result.fold(
@@ -135,26 +129,18 @@ class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.didReceiveUserProfile(
     UserProfilePB newUserProfile,
   ) = _DidReceiveUserProfile;
-  const factory SettingsUserEvent.didLoadHistoricalUsers(
-    List<HistoricalUserPB> historicalUsers,
-  ) = _DidLoadHistoricalUsers;
-  const factory SettingsUserEvent.openHistoricalUser(
-    HistoricalUserPB historicalUser,
-  ) = _OpenHistoricalUser;
 }
 
 @freezed
 class SettingsUserState with _$SettingsUserState {
   const factory SettingsUserState({
     required UserProfilePB userProfile,
-    required List<HistoricalUserPB> historicalUsers,
     required Either<Unit, String> successOrFailure,
   }) = _SettingsUserState;
 
   factory SettingsUserState.initial(UserProfilePB userProfile) =>
       SettingsUserState(
         userProfile: userProfile,
-        historicalUsers: const [],
         successOrFailure: left(unit),
       );
 }

@@ -97,11 +97,13 @@ where
       }
 
       // Query the user profile and workspaces
-      tracing::debug!("user uuid: {}", params.uuid,);
-      let user_profile =
-        get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid))
-          .await?
-          .unwrap();
+      tracing::debug!("user uuid: {}", params.uuid);
+      let user_profile = get_user_profile(
+        postgrest.clone(),
+        GetUserProfileParams::Uuid(params.uuid.clone()),
+      )
+      .await?
+      .unwrap();
       let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.uid).await?;
       let latest_workspace = user_workspaces
         .iter()
@@ -116,6 +118,7 @@ where
 
       Ok(AuthResponse {
         user_id: user_profile.uid,
+        user_uuid: params.uuid,
         name: user_name,
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
@@ -134,7 +137,7 @@ where
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
       let params = oauth_params_from_box_any(params)?;
-      let uuid = params.uuid;
+      let uuid = params.uuid.clone();
       let response = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
         .await?
         .unwrap();
@@ -146,6 +149,7 @@ where
 
       Ok(AuthResponse {
         user_id: response.uid,
+        user_uuid: params.uuid,
         name: DEFAULT_USER_NAME(),
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
