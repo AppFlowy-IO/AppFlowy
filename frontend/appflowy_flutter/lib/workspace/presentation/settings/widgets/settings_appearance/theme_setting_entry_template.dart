@@ -5,9 +5,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class ThemeSettingEntryTemplateWidget extends StatelessWidget {
-  const ThemeSettingEntryTemplateWidget({
+class FlowySettingListTile extends StatelessWidget {
+  const FlowySettingListTile({
     super.key,
+    this.resetTooltipText,
     this.resetButtonKey,
     required this.label,
     this.hint,
@@ -17,6 +18,7 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
 
   final String label;
   final String? hint;
+  final String? resetTooltipText;
   final Key? resetButtonKey;
   final List<Widget>? trailing;
   final void Function()? onResetRequested;
@@ -57,7 +59,8 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
               color: Theme.of(context).iconTheme.color,
             ),
             iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
-            tooltipText: LocaleKeys.settings_appearance_resetSetting.tr(),
+            tooltipText: resetTooltipText ??
+                LocaleKeys.settings_appearance_resetSetting.tr(),
             onPressed: onResetRequested,
           ),
       ],
@@ -65,8 +68,8 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
   }
 }
 
-class ThemeValueDropDown extends StatefulWidget {
-  const ThemeValueDropDown({
+class FlowySettingValueDropDown extends StatefulWidget {
+  const FlowySettingValueDropDown({
     super.key,
     required this.currentValue,
     required this.popupBuilder,
@@ -86,10 +89,11 @@ class ThemeValueDropDown extends StatefulWidget {
   final Offset? offset;
 
   @override
-  State<ThemeValueDropDown> createState() => _ThemeValueDropDownState();
+  State<FlowySettingValueDropDown> createState() =>
+      _FlowySettingValueDropDownState();
 }
 
-class _ThemeValueDropDownState extends State<ThemeValueDropDown> {
+class _FlowySettingValueDropDownState extends State<FlowySettingValueDropDown> {
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(

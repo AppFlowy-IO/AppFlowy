@@ -18,12 +18,12 @@ class BrightnessSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_themeMode_label.tr(),
       hint: hintText,
       onResetRequested: context.read<AppearanceSettingsCubit>().resetThemeMode,
       trailing: [
-        ThemeValueDropDown(
+        FlowySettingValueDropDown(
           currentValue: currentThemeMode.labelText,
           popupBuilder: (context) => Column(
             mainAxisSize: MainAxisSize.min,

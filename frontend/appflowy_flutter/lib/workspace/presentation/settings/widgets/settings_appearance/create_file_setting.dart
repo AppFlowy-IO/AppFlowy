@@ -16,7 +16,7 @@ class CreateFileSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label:
           LocaleKeys.settings_appearance_showNamingDialogWhenCreatingPage.tr(),
       trailing: [
