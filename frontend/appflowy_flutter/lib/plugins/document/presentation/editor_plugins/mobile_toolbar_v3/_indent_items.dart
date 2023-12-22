@@ -19,8 +19,7 @@ class IndentAndOutdentItems extends StatelessWidget {
           MobileToolbarItemWrapper(
             size: const Size(95, 52),
             icon: FlowySvgs.m_aa_outdent_s,
-            iconColor:
-                isOutdentable(editorState) ? null : const Color(0xFFC7C7CC),
+            enable: isOutdentable(editorState),
             isSelected: false,
             enableTopRightRadius: false,
             enableBottomRightRadius: false,
@@ -34,8 +33,7 @@ class IndentAndOutdentItems extends StatelessWidget {
           MobileToolbarItemWrapper(
             size: const Size(95, 52),
             icon: FlowySvgs.m_aa_indent_s,
-            iconColor:
-                isIndentable(editorState) ? null : const Color(0xFFC7C7CC),
+            enable: isIndentable(editorState),
             isSelected: false,
             enableTopLeftRadius: false,
             enableBottomLeftRadius: false,

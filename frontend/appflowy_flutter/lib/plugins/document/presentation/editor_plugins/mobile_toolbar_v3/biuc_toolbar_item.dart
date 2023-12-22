@@ -4,7 +4,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 
 final boldToolbarItem = AppFlowyMobileToolbarItem(
   pilotAtExpandedSelection: true,
-  itemBuilder: (context, editorState, _, onAction) {
+  itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       isSelected: () => editorState.isTextDecorationSelected(
         AppFlowyRichTextKeys.bold,
@@ -18,7 +18,7 @@ final boldToolbarItem = AppFlowyMobileToolbarItem(
 );
 
 final italicToolbarItem = AppFlowyMobileToolbarItem(
-  itemBuilder: (context, editorState, _, onAction) {
+  itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       // keepSelectedStatus: true,
       isSelected: () => editorState.isTextDecorationSelected(
@@ -33,7 +33,7 @@ final italicToolbarItem = AppFlowyMobileToolbarItem(
 );
 
 final underlineToolbarItem = AppFlowyMobileToolbarItem(
-  itemBuilder: (context, editorState, _, onAction) {
+  itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       isSelected: () => editorState.isTextDecorationSelected(
         AppFlowyRichTextKeys.underline,
@@ -47,7 +47,7 @@ final underlineToolbarItem = AppFlowyMobileToolbarItem(
 );
 
 final colorToolbarItem = AppFlowyMobileToolbarItem(
-  itemBuilder: (context, editorState, _, onAction) {
+  itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       icon: FlowySvgs.m_toolbar_color_s,
       onTap: () {},

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 final undoToolbarItem = AppFlowyMobileToolbarItem(
   pilotAtCollapsedSelection: true,
-  itemBuilder: (context, editorState, _, onAction) {
+  itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       iconBuilder: (context) {
         final canUndo = editorState.undoManager.undoStack.isNonEmpty;
@@ -20,7 +20,7 @@ final undoToolbarItem = AppFlowyMobileToolbarItem(
 );
 
 final redoToolbarItem = AppFlowyMobileToolbarItem(
-  itemBuilder: (context, editorState, _, onAction) {
+  itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       iconBuilder: (context) {
         final canRedo = editorState.undoManager.redoStack.isNonEmpty;

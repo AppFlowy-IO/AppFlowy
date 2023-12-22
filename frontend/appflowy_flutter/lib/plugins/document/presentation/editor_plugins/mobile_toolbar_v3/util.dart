@@ -8,9 +8,10 @@ class MobileToolbarItemWrapper extends StatelessWidget {
     super.key,
     required this.size,
     this.icon,
-    this.iconColor,
     this.text,
     this.backgroundColor,
+    this.enable,
+    this.fontFamily,
     required this.isSelected,
     required this.iconPadding,
     this.enableBottomLeftRadius = true,
@@ -26,8 +27,9 @@ class MobileToolbarItemWrapper extends StatelessWidget {
   final Size size;
   final VoidCallback onTap;
   final FlowySvgData? icon;
-  final Color? iconColor;
   final String? text;
+  final bool? enable;
+  final String? fontFamily;
   final bool isSelected;
   final EdgeInsets iconPadding;
   final bool enableTopLeftRadius;
@@ -41,6 +43,13 @@ class MobileToolbarItemWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color? iconColor;
+    if (enable != null) {
+      iconColor = enable! ? null : const Color(0xFFC7C7CC);
+    } else {
+      iconColor = isSelected ? Colors.white : Colors.black;
+    }
+    final textColor = enable == false ? const Color(0xFFC7C7CC) : null;
     // the ui design is based on 375.0 width
     final scale = context.scale;
     final radius = Radius.circular(12 * scale);
@@ -48,7 +57,7 @@ class MobileToolbarItemWrapper extends StatelessWidget {
     if (icon != null) {
       child = FlowySvg(
         icon!,
-        color: iconColor ?? (isSelected ? Colors.white : Colors.black),
+        color: iconColor,
       );
     } else if (text != null) {
       child = Padding(
@@ -56,6 +65,8 @@ class MobileToolbarItemWrapper extends StatelessWidget {
         child: FlowyText(
           text!,
           fontSize: 16.0,
+          color: textColor,
+          fontFamily: fontFamily,
           overflow: TextOverflow.ellipsis,
         ),
       );
@@ -71,6 +82,7 @@ class MobileToolbarItemWrapper extends StatelessWidget {
           Container(
             height: size.height * scale,
             width: size.width * scale,
+            alignment: text != null ? Alignment.centerLeft : Alignment.center,
             decoration: BoxDecoration(
               color: isSelected ? const Color(0xFF00BCF0) : backgroundColor,
               borderRadius: BorderRadius.only(
@@ -92,9 +104,12 @@ class MobileToolbarItemWrapper extends StatelessWidget {
           if (showRightArrow)
             Positioned.fill(
               right: 12.0 * scale,
-              child: const Align(
+              child: Align(
                 alignment: Alignment.centerRight,
-                child: FlowySvg(FlowySvgs.m_aa_arrow_right_s),
+                child: FlowySvg(
+                  FlowySvgs.m_aa_arrow_right_s,
+                  color: iconColor,
+                ),
               ),
             ),
         ],

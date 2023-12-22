@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 final todoListToolbarItem = AppFlowyMobileToolbarItem(
-  itemBuilder: (context, editorState, _, onAction) {
+  itemBuilder: (context, editorState, _, __, onAction) {
     final isSelected = editorState.isBlockTypeSelected(TodoListBlockKeys.type);
     return AppFlowyMobileToolbarIconItem(
       keepSelectedStatus: true,

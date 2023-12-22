@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_bius_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_block_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_color_item.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_font_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_heading_and_text_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_indent_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -10,8 +11,9 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 final aaToolbarItem = AppFlowyMobileToolbarItem(
-  itemBuilder: (context, editorState, onMenu, _) {
+  itemBuilder: (context, editorState, service, onMenu, _) {
     return AppFlowyMobileToolbarIconItem(
+      isSelected: () => service.showMenuNotifier.value,
       keepSelectedStatus: true,
       icon: FlowySvgs.m_toolbar_aa_s,
       onTap: () => onMenu?.call(),
@@ -90,7 +92,9 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
           const ScaledVSpace(),
           Row(
             children: [
-              const _FontFamilyItem(),
+              FontFamilyItem(
+                editorState: editorState,
+              ),
               const Spacer(),
               IndentAndOutdentItems(
                 editorState: editorState,
@@ -98,31 +102,6 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FontFamilyItem extends StatelessWidget {
-  const _FontFamilyItem();
-
-  @override
-  Widget build(BuildContext context) {
-    return MobileToolbarItemWrapper(
-      size: const Size(144, 52),
-      onTap: () {},
-      text: 'Sans Serif',
-      backgroundColor: const Color(0xFFF2F2F7),
-      isSelected: false,
-      showRightArrow: true,
-      iconPadding: const EdgeInsets.only(
-        top: 14.0,
-        bottom: 14.0,
-        left: 14.0,
-        right: 12.0,
-      ),
-      textPadding: const EdgeInsets.only(
-        right: 16.0,
       ),
     );
   }

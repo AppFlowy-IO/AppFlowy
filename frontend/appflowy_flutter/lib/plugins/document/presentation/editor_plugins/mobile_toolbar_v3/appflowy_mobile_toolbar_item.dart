@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 typedef AppFlowyMobileToolbarItemBuilder = Widget Function(
   BuildContext context,
   EditorState editorState,
+  AppFlowyMobileToolbarWidgetService service,
   VoidCallback? onMenuCallback,
   VoidCallback? onActionCallback,
 );

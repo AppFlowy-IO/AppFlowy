@@ -5,11 +5,15 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 abstract class AppFlowyMobileToolbarWidgetService {
   void closeItemMenu();
   void closeKeyboard();
+
+  PropertyValueNotifier<bool> get showMenuNotifier;
 }
 
 class AppFlowyMobileToolbar extends StatefulWidget {
@@ -118,9 +122,14 @@ class _AppFlowyMobileToolbarState extends State<AppFlowyMobileToolbar> {
       ],
     );
 
+    final router = GoRouter.of(context);
+
     toolbarOverlay = OverlayEntry(
       builder: (context) {
-        return child;
+        return Provider.value(
+          value: router,
+          child: child,
+        );
       },
     );
 
@@ -148,6 +157,7 @@ class _MobileToolbar extends StatefulWidget {
 class _MobileToolbarState extends State<_MobileToolbar>
     implements AppFlowyMobileToolbarWidgetService {
   // used to control the toolbar menu items
+  @override
   PropertyValueNotifier<bool> showMenuNotifier = PropertyValueNotifier(false);
 
   // when the users click the menu item, the keyboard will be hidden,
@@ -430,6 +440,7 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
             (index, element) => element.itemBuilder.call(
               context,
               widget.editorState,
+              widget.toolbarWidgetService,
               element.menuBuilder != null
                   ? () {
                       widget.itemWithMenuOnPressed(index);
@@ -514,8 +525,11 @@ class _CloseKeyboardOrMenuButton extends StatelessWidget {
       height: 46,
       child: FlowyButton(
         text: showingMenu
-            ? const FlowySvg(
-                FlowySvgs.m_toolbar_show_keyboard_s,
+            ? const Padding(
+                padding: EdgeInsets.only(right: 0.5),
+                child: FlowySvg(
+                  FlowySvgs.m_toolbar_show_keyboard_s,
+                ),
               )
             : const FlowySvg(
                 FlowySvgs.m_toolbar_hide_keyboard_s,
