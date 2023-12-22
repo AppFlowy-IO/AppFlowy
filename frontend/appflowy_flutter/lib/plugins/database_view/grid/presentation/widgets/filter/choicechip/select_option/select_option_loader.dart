@@ -1,50 +1,35 @@
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
-import 'package:appflowy_backend/log.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 
-import '../../filter_info.dart';
-
 abstract class SelectOptionFilterDelegate {
-  Future<List<SelectOptionPB>> loadOptions();
+  List<SelectOptionPB> loadOptions();
 }
 
 class SingleSelectOptionFilterDelegateImpl
     implements SelectOptionFilterDelegate {
-  final SingleSelectTypeOptionContext typeOptionContext;
+  final FilterInfo filterInfo;
 
-  SingleSelectOptionFilterDelegateImpl(FilterInfo filterInfo)
-      : typeOptionContext = makeSingleSelectTypeOptionContext(
-          viewId: filterInfo.viewId,
-          fieldPB: filterInfo.fieldInfo.field,
-        );
+  SingleSelectOptionFilterDelegateImpl({
+    required this.filterInfo,
+  });
 
   @override
-  Future<List<SelectOptionPB>> loadOptions() {
-    return typeOptionContext
-        .loadTypeOptionData(
-          onError: (error) => Log.error(error),
-        )
-        .then((value) => value.options);
+  List<SelectOptionPB> loadOptions() {
+    final parser = SingleSelectTypeOptionDataParser();
+    return parser.fromBuffer(filterInfo.fieldInfo.field.typeOptionData).options;
   }
 }
 
 class MultiSelectOptionFilterDelegateImpl
     implements SelectOptionFilterDelegate {
-  final MultiSelectTypeOptionContext typeOptionContext;
+  final FilterInfo filterInfo;
 
-  MultiSelectOptionFilterDelegateImpl(FilterInfo filterInfo)
-      : typeOptionContext = makeMultiSelectTypeOptionContext(
-          viewId: filterInfo.viewId,
-          fieldPB: filterInfo.fieldInfo.field,
-        );
+  MultiSelectOptionFilterDelegateImpl({required this.filterInfo});
 
   @override
-  Future<List<SelectOptionPB>> loadOptions() {
-    return typeOptionContext
-        .loadTypeOptionData(
-          onError: (error) => Log.error(error),
-        )
-        .then((value) => value.options);
+  List<SelectOptionPB> loadOptions() {
+    final parser = MultiSelectTypeOptionDataParser();
+    return parser.fromBuffer(filterInfo.fieldInfo.field.typeOptionData).options;
   }
 }

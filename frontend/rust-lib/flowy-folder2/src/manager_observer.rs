@@ -2,7 +2,9 @@ use std::collections::HashSet;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab_state::SyncState;
-use collab_folder::{Folder, TrashChange, TrashChangeReceiver, ViewChange, ViewChangeReceiver};
+use collab_folder::{
+  Folder, TrashChange, TrashChangeReceiver, View, ViewChange, ViewChangeReceiver,
+};
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
 use tracing::{event, Level};
@@ -43,11 +45,12 @@ pub(crate) fn subscribe_folder_view_changed(
             }
           },
           ViewChange::DidUpdate { view } => {
+            notify_view_did_change(view.clone());
             notify_child_views_changed(
               view_pb_without_child_views(Arc::new(view.clone())),
               ChildViewChangeReason::DidUpdateView,
             );
-            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
+            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id.clone()]);
           },
         };
       }
@@ -179,6 +182,14 @@ pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
   send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)
     .send();
+}
+
+fn notify_view_did_change(view: View) -> Option<()> {
+  let view_pb = view_pb_without_child_views(Arc::new(view.clone()));
+  send_notification(&view.id, FolderNotification::DidUpdateView)
+    .payload(view_pb)
+    .send();
+  None
 }
 
 pub enum ChildViewChangeReason {

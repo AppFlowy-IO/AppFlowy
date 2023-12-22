@@ -45,7 +45,7 @@ class MobilePersonalFolder extends StatelessWidget {
                 ...views.map(
                   (view) => MobileViewItem(
                     key: ValueKey(
-                      '${FolderCategoryType.personal.name} ${view.hashCode} ',
+                      '${FolderCategoryType.personal.name} ${view.id}',
                     ),
                     isDraggable: true,
                     categoryType: FolderCategoryType.personal,

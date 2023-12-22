@@ -50,8 +50,8 @@ class DatabaseTabBarBloc
               );
             }
           },
-          createView: (layout) {
-            _createLinkedView(layout.layoutType, layout.layoutName);
+          createView: (layout, name) {
+            _createLinkedView(layout.layoutType, name ?? layout.layoutName);
           },
           deleteView: (String viewId) async {
             final result = await ViewBackendService.delete(viewId: viewId);
@@ -209,8 +209,10 @@ class DatabaseTabBarEvent with _$DatabaseTabBarEvent {
     List<ViewPB> childViews,
   ) = _DidLoadChildViews;
   const factory DatabaseTabBarEvent.selectView(String viewId) = _DidSelectView;
-  const factory DatabaseTabBarEvent.createView(DatabaseLayoutPB layout) =
-      _CreateView;
+  const factory DatabaseTabBarEvent.createView(
+    DatabaseLayoutPB layout,
+    String? name,
+  ) = _CreateView;
   const factory DatabaseTabBarEvent.renameView(String viewId, String newName) =
       _RenameView;
   const factory DatabaseTabBarEvent.deleteView(String viewId) = _DeleteView;

@@ -164,12 +164,14 @@ class _ViewTitleState extends State<_ViewTitle> {
     _resetTextEditingController();
     viewListener.start(
       onViewUpdated: (view) {
+        if (name != view.name || icon != view.icon.value) {
+          widget.onUpdated();
+        }
         setState(() {
           name = view.name;
           icon = view.icon.value;
           _resetTextEditingController();
         });
-        widget.onUpdated();
       },
     );
   }

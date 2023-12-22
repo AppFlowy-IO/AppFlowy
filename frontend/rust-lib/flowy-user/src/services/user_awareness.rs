@@ -6,6 +6,7 @@ use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_user::core::{MutexUserAwareness, UserAwareness};
 use tracing::{error, trace};
+use uuid::Uuid;
 
 use collab_integrate::RocksCollabDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -167,10 +168,11 @@ impl UserManager {
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;
+    let user_awareness_id = Uuid::new_v5(&session.user_uuid, b"user_awareness");
     let collab = collab_builder
       .build(
         session.user_id,
-        &session.user_id.to_string(),
+        &user_awareness_id.to_string(),
         CollabType::UserAwareness,
         raw_data,
         collab_db,

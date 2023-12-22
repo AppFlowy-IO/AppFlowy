@@ -42,6 +42,7 @@ class _TimestampCellState extends GridCellState<MobileTimestampCell> {
               child: FlowyText(
                 state.dateStr,
                 fontSize: 15,
+                maxLines: 1,
               ),
             ),
           );

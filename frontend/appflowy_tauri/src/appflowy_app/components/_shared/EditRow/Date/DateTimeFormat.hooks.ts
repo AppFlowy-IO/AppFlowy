@@ -14,7 +14,7 @@ export const useDateTimeFormat = (cellIdentifier: CellIdentifier, fieldControlle
 
     await typeOptionController.initialize();
     const dateTypeOptionContext = makeDateTypeOptionContext(typeOptionController);
-    const typeOption = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+    const typeOption = dateTypeOptionContext.getTypeOption();
 
     change(typeOption);
     await dateTypeOptionContext.setTypeOption(typeOption);

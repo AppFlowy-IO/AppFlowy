@@ -37,7 +37,6 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
       cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    await cellController.dispose();
     return super.close();
   }
 

@@ -6,7 +6,7 @@ use collab::preclude::Collab;
 use collab_integrate::{PersistenceError, YrsDocAction};
 use flowy_error::FlowyResult;
 
-pub fn load_collab<'a, R>(
+pub(crate) fn load_collab<'a, R>(
   uid: i64,
   collab_r_txn: &R,
   object_id: &str,

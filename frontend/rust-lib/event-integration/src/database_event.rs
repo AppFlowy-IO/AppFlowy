@@ -120,8 +120,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<TypeOptionPB>()
-      .field
+      .parse::<FieldPB>()
   }
 
   pub async fn update_field(&self, changeset: FieldChangesetPB) {

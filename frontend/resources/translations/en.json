@@ -308,7 +308,7 @@
       }
     },
     "appearance": {
-      "resetSetting": "Reset this setting",
+      "resetSetting": "Reset",
       "fontFamily": {
         "label": "Font Family",
         "search": "Search"
@@ -318,6 +318,18 @@
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
+      },
+      "documentSettings": {
+        "cursorColor": "Document cursor color",
+        "selectionColor": "Document selection color",
+        "hexEmptyError": "Hex color cannot be empty",
+        "hexLengthError": "Hex value must be 6 digits long",
+        "hexInvalidError": "Invalid hex value",
+        "opacityEmptyError": "Opacity cannot be empty",
+        "opacityRangeError": "Opacity must be between 1 and 100",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Apply"
       },
       "layoutDirection": {
         "label": "Layout Direction",
@@ -453,6 +465,7 @@
       "typeAValue": "Type a value...",
       "layout": "Layout",
       "databaseLayout": "Layout",
+      "viewList": "Database Views",
       "editView": "Edit View",
       "boardSettings": "Board settings",
       "calendarSettings": "Calendar settings",
@@ -899,6 +912,7 @@
       "showWeekends": "Show weekends",
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
+      "changeLayoutDateField": "Change layout field",
       "noDateTitle": "No Date",
       "noDateHint": {
         "zero": "Unscheduled events will show up here",

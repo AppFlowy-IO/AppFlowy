@@ -51,6 +51,7 @@ class _NumberCellState extends GridEditableTextCell<MobileNumberCell> {
           controller: _controller,
           focusNode: focusNode,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15),
+          maxLines: 1,
           decoration: InputDecoration(
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
@@ -59,7 +60,6 @@ class _NumberCellState extends GridEditableTextCell<MobileNumberCell> {
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             isCollapsed: true,
           ),
-          // close keyboard when tapping outside of the text field
           onTapOutside: (event) =>
               FocusManager.instance.primaryFocus?.unfocus(),
         ),

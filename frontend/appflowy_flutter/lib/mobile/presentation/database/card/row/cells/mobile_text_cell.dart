@@ -57,6 +57,7 @@ class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
           controller: _controller,
           focusNode: focusNode,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15),
+          maxLines: 1,
           decoration: InputDecoration(
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,

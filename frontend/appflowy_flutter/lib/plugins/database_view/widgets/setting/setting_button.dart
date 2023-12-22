@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_settings_list.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -51,20 +49,4 @@ class _SettingButtonState extends State<SettingButton> {
       ),
     );
   }
-}
-
-class ICalendarSettingImpl extends ICalendarSetting {
-  const ICalendarSettingImpl(this._databaseController);
-
-  final DatabaseController _databaseController;
-
-  @override
-  void updateLayoutSettings(CalendarLayoutSettingPB layoutSettings) =>
-      _databaseController.updateLayoutSetting(
-        calendarLayoutSetting: layoutSettings,
-      );
-
-  @override
-  CalendarLayoutSettingPB? getLayoutSetting() =>
-      _databaseController.databaseLayoutSetting?.calendar;
 }

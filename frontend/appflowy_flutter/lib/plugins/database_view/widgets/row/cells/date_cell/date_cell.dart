@@ -47,17 +47,17 @@ class GridDateCell extends GridCellWidget {
 }
 
 class _DateCellState extends GridCellState<GridDateCell> {
-  late PopoverController _popover;
+  final PopoverController _popover = PopoverController();
+  late final DateCellController _cellController;
   late DateCellBloc _cellBloc;
 
   @override
   void initState() {
-    _popover = PopoverController();
-    final cellController =
-        widget.cellControllerBuilder.build() as DateCellController;
-    _cellBloc = DateCellBloc(cellController: cellController)
-      ..add(const DateCellEvent.initial());
     super.initState();
+    _cellController =
+        widget.cellControllerBuilder.build() as DateCellController;
+    _cellBloc = DateCellBloc(cellController: _cellController)
+      ..add(const DateCellEvent.initial());
   }
 
   @override
@@ -93,8 +93,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
               ),
               popupBuilder: (BuildContext popoverContent) {
                 return DateCellEditor(
-                  cellController: widget.cellControllerBuilder.build()
-                      as DateCellController,
+                  cellController: _cellController,
                   onDismissed: () =>
                       widget.cellContainerNotifier.isFocus = false,
                 );
@@ -111,8 +110,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
                 padding: EdgeInsets.zero,
                 builder: (context) {
                   return MobileDateCellEditScreen(
-                    controller: widget.cellControllerBuilder.build()
-                        as DateCellController,
+                    controller: _cellController,
                     showAsFullScreen: false,
                   );
                 },
@@ -129,26 +127,11 @@ class _DateCellState extends GridCellState<GridDateCell> {
                   borderRadius: const BorderRadius.all(Radius.circular(14)),
                 ),
                 padding: padding,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FlowyText.regular(
-                        text,
-                        fontSize: 16,
-                        color: color,
-                        maxLines: null,
-                      ),
-                    ),
-                    const HSpace(6),
-                    RotatedBox(
-                      quarterTurns: 3,
-                      child: Icon(
-                        Icons.chevron_left,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    ),
-                    const HSpace(2),
-                  ],
+                child: FlowyText.regular(
+                  text,
+                  fontSize: 16,
+                  color: color,
+                  maxLines: null,
                 ),
               ),
             );
@@ -156,10 +139,20 @@ class _DateCellState extends GridCellState<GridDateCell> {
             return FlowyButton(
               radius: BorderRadius.zero,
               hoverColor: Colors.transparent,
-              text: Container(
+              margin: EdgeInsets.zero,
+              text: Align(
                 alignment: alignment,
-                padding: padding,
-                child: FlowyText(text, color: color, fontSize: 15),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: FlowyText(
+                    text,
+                    color: color,
+                    fontSize: 15,
+                    maxLines: 1,
+                  ),
+                ),
               ),
               onTap: () {
                 showMobileBottomSheet(
@@ -169,8 +162,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
                       Theme.of(context).colorScheme.secondaryContainer,
                   builder: (context) {
                     return MobileDateCellEditScreen(
-                      controller: widget.cellControllerBuilder.build()
-                          as DateCellController,
+                      controller: _cellController,
                       showAsFullScreen: false,
                     );
                   },
@@ -186,6 +178,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
   @override
   Future<void> dispose() async {
     _cellBloc.close();
+    _cellController.dispose();
     super.dispose();
   }
 

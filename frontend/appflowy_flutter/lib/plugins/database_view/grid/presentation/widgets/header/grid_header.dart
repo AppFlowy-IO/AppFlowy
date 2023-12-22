@@ -196,7 +196,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
           viewId: widget.viewId,
         );
         result.fold(
-          (typeOptionPB) => widget.onFieldCreated(typeOptionPB.field_2.id),
+          (field) => widget.onFieldCreated(field.id),
           (err) => Log.error("Failed to create field type option: $err"),
         );
       },

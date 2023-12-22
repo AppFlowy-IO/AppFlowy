@@ -134,7 +134,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
             },
           ),
         ],
-        const VSpace(12),
+        const VSpace(38),
       ],
     );
   }

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use bytes::Bytes;
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
@@ -28,8 +27,8 @@ use crate::services::database_view::{
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
-  SelectOptionIds, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  type_option_data_from_pb, SelectOptionCellChangeset, SelectOptionIds, TimestampCellData,
+  TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -469,28 +468,20 @@ impl DatabaseEditor {
     Ok(None)
   }
 
-  pub async fn get_field_type_option_data(&self, field_id: &str) -> Option<(Field, Bytes)> {
-    let field = self.database.lock().fields.get_field(field_id);
-    field.map(|field| {
-      let field_type = FieldType::from(field.field_type);
-      let type_option = field
-        .get_any_type_option(field_type)
-        .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
-      (field, type_option_to_pb(type_option, &field_type))
-    })
-  }
-
-  pub async fn create_field_with_type_option(&self, params: &CreateFieldParams) -> (Field, Bytes) {
+  pub async fn create_field_with_type_option(
+    &self,
+    params: CreateFieldParams,
+  ) -> FlowyResult<FieldPB> {
     let name = params
       .field_name
       .clone()
       .unwrap_or_else(|| params.field_type.default_name());
-    let type_option_data = match &params.type_option_data {
-      None => default_type_option_data_from_type(&params.field_type),
-      Some(type_option_data) => {
-        type_option_data_from_pb_or_default(type_option_data.clone(), &params.field_type)
-      },
-    };
+
+    let type_option_data = params
+      .type_option_data
+      .and_then(|data| type_option_data_from_pb(data, &params.field_type).ok())
+      .unwrap_or(default_type_option_data_from_type(&params.field_type));
+
     let (index, field) = self.database.lock().create_field_with_mut(
       &params.view_id,
       name,
@@ -499,7 +490,7 @@ impl DatabaseEditor {
       |field| {
         field
           .type_options
-          .insert(params.field_type.to_string(), type_option_data.clone());
+          .insert(params.field_type.to_string(), type_option_data);
       },
       default_field_settings_by_layout_map(),
     );
@@ -508,10 +499,7 @@ impl DatabaseEditor {
       .notify_did_insert_database_field(field.clone(), index)
       .await;
 
-    (
-      field,
-      type_option_to_pb(type_option_data, &params.field_type),
-    )
+    Ok(FieldPB::new(field))
   }
 
   pub async fn move_field(&self, params: MoveFieldParams) -> FlowyResult<()> {
@@ -539,7 +527,10 @@ impl DatabaseEditor {
 
     if let Some(index) = new_index {
       let delete_field = FieldIdPB::from(params.from_field_id);
-      let insert_field = IndexFieldPB::from_field(field, index);
+      let insert_field = IndexFieldPB {
+        field: FieldPB::new(field),
+        index: index as i32,
+      };
       let notified_changeset = DatabaseFieldChangesetPB {
         view_id: params.view_id,
         inserted_fields: vec![insert_field],
@@ -1058,7 +1049,10 @@ impl DatabaseEditor {
   #[tracing::instrument(level = "trace", skip_all, err)]
   async fn notify_did_insert_database_field(&self, field: Field, index: usize) -> FlowyResult<()> {
     let database_id = self.database.lock().get_database_id();
-    let index_field = IndexFieldPB::from_field(field, index);
+    let index_field = IndexFieldPB {
+      field: FieldPB::new(field),
+      index: index as i32,
+    };
     let notified_changeset = DatabaseFieldChangesetPB::insert(&database_id, vec![index_field]);
     let _ = self.notify_did_update_database(notified_changeset).await;
     Ok(())
@@ -1629,7 +1623,7 @@ fn notify_did_update_database_field(
   };
 
   if let Some(field) = field {
-    let updated_field = FieldPB::from(field);
+    let updated_field = FieldPB::new(field);
     let notified_changeset =
       DatabaseFieldChangesetPB::update(&database_id, vec![updated_field.clone()]);
 

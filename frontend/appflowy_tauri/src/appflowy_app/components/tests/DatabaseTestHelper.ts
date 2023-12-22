@@ -11,7 +11,6 @@ import {
   URLCellController,
 } from '$app/stores/effects/database/cell/controller_builder';
 import { None, Option, Some } from 'ts-results';
-import { TypeOptionBackendService } from '$app/stores/effects/database/field/type_option/type_option_bd_svc';
 import { DatabaseBackendService } from '$app/stores/effects/database/database_bd_svc';
 import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
@@ -175,12 +174,11 @@ export function findFirstFieldInfoWithFieldType(rowInfo: RowInfo, fieldType: Fie
   }
 }
 
-export async function assertFieldName(viewId: string, fieldId: string, fieldType: FieldType, expected: string) {
-  const svc = new TypeOptionBackendService(viewId);
-  const typeOptionPB = await svc.getTypeOption(fieldId, fieldType).then((result) => result.unwrap());
+export async function assertFieldName(controller: TypeOptionController, expected: string) {
+  const fieldInfo = controller.getFieldInfo();
 
-  if (typeOptionPB.field.name !== expected) {
-    throw Error('Expect field name:' + expected + 'but receive:' + typeOptionPB.field.name);
+  if (fieldInfo.field.name !== expected) {
+    throw Error('Expect field name:' + expected + 'but receive:' + fieldInfo.field.name);
   }
 }
 
@@ -218,9 +216,8 @@ export async function createSingleSelectOptions(viewId: string, fieldInfo: Field
   assert(fieldInfo.field.field_type === FieldType.SingleSelect, 'Only work on single select');
   const typeOptionController = new TypeOptionController(viewId, Some(fieldInfo));
   const singleSelectTypeOptionContext = makeSingleSelectTypeOptionContext(typeOptionController);
-  const singleSelectTypeOptionPB: SingleSelectTypeOptionPB = await singleSelectTypeOptionContext
-    .getTypeOption()
-    .then((result) => result.unwrap());
+  const singleSelectTypeOptionPB: SingleSelectTypeOptionPB = singleSelectTypeOptionContext
+    .getTypeOption();
 
   const backendSvc = new SelectOptionBackendService(viewId, fieldInfo.field.id);
 

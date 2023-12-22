@@ -1,85 +1,81 @@
+import 'dart:async';
+
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'dart:async';
-import 'select_option_type_option_bloc.dart';
-import 'type_option_context.dart';
-import 'type_option_service.dart';
-import 'package:protobuf/protobuf.dart';
 
-class MultiSelectAction with ISelectOptionAction {
-  final String viewId;
-  final String fieldId;
+import 'select_option_type_option_bloc.dart';
+import 'type_option_service.dart';
+
+class MultiSelectAction implements ISelectOptionAction {
   final TypeOptionBackendService service;
-  final MultiSelectTypeOptionContext typeOptionContext;
+  final TypeOptionDataCallback onTypeOptionUpdated;
 
   MultiSelectAction({
-    required this.viewId,
-    required this.fieldId,
-    required this.typeOptionContext,
-  }) : service = TypeOptionBackendService(
-          viewId: viewId,
-          fieldId: fieldId,
-        );
+    required this.onTypeOptionUpdated,
+    required String viewId,
+    required String fieldId,
+  }) : service = TypeOptionBackendService(viewId: viewId, fieldId: fieldId);
 
-  MultiSelectTypeOptionPB get typeOption => typeOptionContext.typeOption;
+  @override
+  Future<List<SelectOptionPB>> insertOption(
+    List<SelectOptionPB> options,
+    String optionName,
+  ) {
+    final newOptions = List<SelectOptionPB>.from(options);
+    return service.newOption(name: optionName).then((result) {
+      return result.fold(
+        (option) {
+          final exists =
+              newOptions.any((element) => element.name == option.name);
+          if (!exists) {
+            newOptions.insert(0, option);
+          }
 
-  set typeOption(MultiSelectTypeOptionPB newTypeOption) {
-    typeOptionContext.typeOption = newTypeOption;
+          _updateTypeOption(newOptions);
+          return newOptions;
+        },
+        (err) {
+          Log.error(err);
+          return newOptions;
+        },
+      );
+    });
   }
 
   @override
-  List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
-    return (SelectOptionPB option) {
-      typeOption.freeze();
-      typeOption = typeOption.rebuild((typeOption) {
-        final index =
-            typeOption.options.indexWhere((element) => element.id == option.id);
-        if (index != -1) {
-          typeOption.options.removeAt(index);
-        }
-      });
-      return typeOption.options;
-    };
+  List<SelectOptionPB> deleteOption(
+    List<SelectOptionPB> options,
+    SelectOptionPB deletedOption,
+  ) {
+    final newOptions = List<SelectOptionPB>.from(options);
+    final index =
+        newOptions.indexWhere((option) => option.id == deletedOption.id);
+    if (index != -1) {
+      newOptions.removeAt(index);
+    }
+
+    _updateTypeOption(newOptions);
+    return newOptions;
   }
 
   @override
-  Future<List<SelectOptionPB>> Function(String) get insertOption {
-    return (String optionName) {
-      return service.newOption(name: optionName).then((result) {
-        return result.fold(
-          (option) {
-            typeOption.freeze();
-            typeOption = typeOption.rebuild((typeOption) {
-              final exists = typeOption.options
-                  .any((element) => element.name == option.name);
-              if (!exists) {
-                typeOption.options.insert(0, option);
-              }
-            });
+  List<SelectOptionPB> updateOption(
+    List<SelectOptionPB> options,
+    SelectOptionPB option,
+  ) {
+    final newOptions = List<SelectOptionPB>.from(options);
+    final index = newOptions.indexWhere((element) => element.id == option.id);
+    if (index != -1) {
+      newOptions[index] = option;
+    }
 
-            return typeOption.options;
-          },
-          (err) {
-            Log.error(err);
-            return typeOption.options;
-          },
-        );
-      });
-    };
+    _updateTypeOption(newOptions);
+    return newOptions;
   }
 
-  @override
-  List<SelectOptionPB> Function(SelectOptionPB) get updateOption {
-    return (SelectOptionPB option) {
-      typeOption.freeze();
-      typeOption = typeOption.rebuild((typeOption) {
-        final index =
-            typeOption.options.indexWhere((element) => element.id == option.id);
-        if (index != -1) {
-          typeOption.options[index] = option;
-        }
-      });
-      return typeOption.options;
-    };
+  void _updateTypeOption(List<SelectOptionPB> options) {
+    final newTypeOption = MultiSelectTypeOptionPB()..options.addAll(options);
+    onTypeOptionUpdated(newTypeOption.writeToBuffer());
   }
 }

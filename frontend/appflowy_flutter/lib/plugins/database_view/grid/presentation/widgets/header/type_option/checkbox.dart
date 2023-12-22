@@ -1,10 +1,19 @@
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
+
 import 'builder.dart';
 
-class CheckboxTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  CheckboxTypeOptionWidgetBuilder(CheckboxTypeOptionContext typeOptionContext);
+class CheckboxTypeOptionEditorFactory implements TypeOptionEditorFactory {
+  const CheckboxTypeOptionEditorFactory();
 
   @override
-  Widget? build(BuildContext context) => null;
+  Widget? build({
+    required BuildContext context,
+    required String viewId,
+    required FieldPB field,
+    required PopoverMutex popoverMutex,
+    required TypeOptionDataCallback onTypeOptionUpdated,
+  }) =>
+      null;
 }

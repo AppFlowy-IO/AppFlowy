@@ -452,7 +452,7 @@
       "smartEditCouldNotFetchKey": "無法取得 OpenAI 密鑰",
       "smartEditDisabled": "在設定連結 OpenAI ",
       "discardResponse": "確定捨棄 AI 的回覆？",
-      "createInlineMathEquation": "創建方程",
+      "createInlineMathEquation": "創建公式",
       "toggleList": "切換列表",
       "cover": {
         "changeCover": "更換封面",

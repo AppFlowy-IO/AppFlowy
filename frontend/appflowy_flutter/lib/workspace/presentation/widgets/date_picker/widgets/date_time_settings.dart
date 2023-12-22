@@ -1,10 +1,10 @@
-import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/layout.dart';
-import 'package:flutter/material.dart';
-
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/widgets.dart';
+
+import '../utils/layout.dart';
 
 class DateTimeSetting extends StatefulWidget {
   const DateTimeSetting({
@@ -52,9 +52,9 @@ class _DateTimeSettingState extends State<DateTimeSetting> {
           selectedFormat: widget.timeFormat,
           onSelected: _onTimeFormatChanged,
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6.0),
-          child: TimeFormatButton(timeFormat: widget.timeFormat),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6.0),
+          child: TimeFormatButton(),
         ),
       ),
     ];

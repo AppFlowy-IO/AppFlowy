@@ -1,26 +1,26 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/application/historical_user_bloc.dart';
+import 'package:appflowy/user/application/anon_user_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HistoricalUserList extends StatelessWidget {
+class AnonUserList extends StatelessWidget {
   final VoidCallback didOpenUser;
-  const HistoricalUserList({required this.didOpenUser, super.key});
+  const AnonUserList({required this.didOpenUser, super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HistoricalUserBloc()
+      create: (context) => AnonUserBloc()
         ..add(
-          const HistoricalUserEvent.initial(),
+          const AnonUserEvent.initial(),
         ),
-      child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
+      child: BlocBuilder<AnonUserBloc, AnonUserState>(
         builder: (context, state) {
-          if (state.historicalUsers.isEmpty) {
+          if (state.anonUsers.isEmpty) {
             return const SizedBox.shrink();
           } else {
             return Column(
@@ -38,15 +38,15 @@ class HistoricalUserList extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     itemBuilder: (context, index) {
-                      final user = state.historicalUsers[index];
-                      return HistoricalUserItem(
-                        key: ValueKey(user.userId),
+                      final user = state.anonUsers[index];
+                      return AnonUserItem(
+                        key: ValueKey(user.id),
                         user: user,
                         isSelected: false,
                         didOpenUser: didOpenUser,
                       );
                     },
-                    itemCount: state.historicalUsers.length,
+                    itemCount: state.anonUsers.length,
                   ),
                 ),
               ],
@@ -58,11 +58,11 @@ class HistoricalUserList extends StatelessWidget {
   }
 }
 
-class HistoricalUserItem extends StatelessWidget {
+class AnonUserItem extends StatelessWidget {
   final VoidCallback didOpenUser;
   final bool isSelected;
-  final HistoricalUserPB user;
-  const HistoricalUserItem({
+  final UserProfilePB user;
+  const AnonUserItem({
     required this.user,
     required this.isSelected,
     required this.didOpenUser,
@@ -73,11 +73,7 @@ class HistoricalUserItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = isSelected ? const FlowySvg(FlowySvgs.check_s) : null;
     final isDisabled = isSelected || user.authType != AuthTypePB.Local;
-    final outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
-    final date =
-        DateTime.fromMillisecondsSinceEpoch(user.lastTime.toInt() * 1000);
-    final lastTime = outputFormat.format(date);
-    final desc = "${user.userName}\t ${user.authType}\t$lastTime";
+    final desc = "${user.name}\t ${user.authType}\t";
     final child = SizedBox(
       height: 30,
       child: FlowyButton(
@@ -88,9 +84,7 @@ class HistoricalUserItem extends StatelessWidget {
         ),
         rightIcon: icon,
         onTap: () {
-          context
-              .read<HistoricalUserBloc>()
-              .add(HistoricalUserEvent.openHistoricalUser(user));
+          context.read<AnonUserBloc>().add(AnonUserEvent.openAnonUser(user));
           didOpenUser();
         },
       ),
