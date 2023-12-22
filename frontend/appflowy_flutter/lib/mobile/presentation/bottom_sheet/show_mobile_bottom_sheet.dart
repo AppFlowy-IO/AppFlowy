@@ -18,6 +18,9 @@ Future<T?> showMobileBottomSheet<T>(
   Color? backgroundColor,
   bool isScrollControlled = true,
   BoxConstraints? constraints,
+  bool showDivider = true,
+  Color? barrierColor,
+  double? elevation,
 }) async {
   assert(() {
     if (showCloseButton || title.isNotEmpty) assert(showHeader);
@@ -32,6 +35,8 @@ Future<T?> showMobileBottomSheet<T>(
     clipBehavior: Clip.antiAlias,
     backgroundColor: backgroundColor,
     constraints: constraints,
+    barrierColor: barrierColor,
+    elevation: elevation,
     shape: shape ??
         const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -65,6 +70,7 @@ Future<T?> showMobileBottomSheet<T>(
               FlowyText(
                 title,
                 fontSize: 16.0,
+                fontWeight: FontWeight.w500,
               ),
               showCloseButton
                   ? HSpace(padding.right + 24)
@@ -72,7 +78,7 @@ Future<T?> showMobileBottomSheet<T>(
             ],
           ),
           const VSpace(4),
-          const Divider(),
+          if (showDivider) const Divider(),
         ]);
       }
 

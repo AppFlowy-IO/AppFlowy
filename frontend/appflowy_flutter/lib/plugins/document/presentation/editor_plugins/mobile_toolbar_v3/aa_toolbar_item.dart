@@ -73,7 +73,9 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
                 editorState: editorState,
               ),
               const Spacer(),
-              const ColorItem(),
+              ColorItem(
+                editorState: editorState,
+              ),
             ],
           ),
           const ScaledVSpace(),

@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_color_list.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
@@ -50,7 +51,9 @@ final colorToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       icon: FlowySvgs.m_toolbar_color_s,
-      onTap: () {},
+      onTap: () {
+        showTextColorAndBackgroundColorPicker(context);
+      },
     );
   },
 );

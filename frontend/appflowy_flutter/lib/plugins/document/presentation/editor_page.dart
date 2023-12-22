@@ -271,7 +271,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     _setInitialSelection(editorScrollController);
 
     if (PlatformExtension.isMobile) {
-      final theme = Theme.of(context);
       return AppFlowyMobileToolbar(
         toolbarHeight: 46.0,
         editorState: editorState,
