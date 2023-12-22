@@ -49,8 +49,8 @@ impl UserLocalDataMigration {
     authenticator: &Authenticator,
   ) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
-    let conn = self.sqlite_pool.get()?;
-    let record = get_all_records(&conn)?;
+    let mut conn = self.sqlite_pool.get()?;
+    let record = get_all_records(&mut conn)?;
     let mut duplicated_names = vec![];
     for migration in migrations {
       if !record
@@ -61,7 +61,7 @@ impl UserLocalDataMigration {
         if !duplicated_names.contains(&migration_name) {
           migration.run(&self.session, &self.collab_db, authenticator)?;
           applied_migrations.push(migration.name().to_string());
-          save_record(&conn, &migration_name);
+          save_record(&mut conn, &migration_name);
           duplicated_names.push(migration_name);
         } else {
           tracing::error!("Duplicated migration name: {}", migration_name);
@@ -83,7 +83,7 @@ pub trait UserDataMigration {
   ) -> FlowyResult<()>;
 }
 
-fn save_record(conn: &SqliteConnection, migration_name: &str) {
+fn save_record(conn: &mut SqliteConnection, migration_name: &str) {
   let new_record = NewUserDataMigrationRecord {
     migration_name: migration_name.to_string(),
   };
@@ -93,7 +93,7 @@ fn save_record(conn: &SqliteConnection, migration_name: &str) {
     .expect("Error inserting new migration record");
 }
 
-fn get_all_records(conn: &SqliteConnection) -> FlowyResult<Vec<UserDataMigrationRecord>> {
+fn get_all_records(conn: &mut SqliteConnection) -> FlowyResult<Vec<UserDataMigrationRecord>> {
   Ok(
     user_data_migration_records::table
       .load::<UserDataMigrationRecord>(conn)
@@ -102,7 +102,7 @@ fn get_all_records(conn: &SqliteConnection) -> FlowyResult<Vec<UserDataMigration
 }
 
 #[derive(Clone, Default, Queryable, Identifiable)]
-#[table_name = "user_data_migration_records"]
+#[diesel(table_name = user_data_migration_records)]
 pub struct UserDataMigrationRecord {
   pub id: i32,
   pub migration_name: String,
@@ -110,7 +110,7 @@ pub struct UserDataMigrationRecord {
 }
 
 #[derive(Insertable)]
-#[table_name = "user_data_migration_records"]
+#[diesel(table_name = user_data_migration_records)]
 pub struct NewUserDataMigrationRecord {
   pub migration_name: String,
 }
