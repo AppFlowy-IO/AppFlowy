@@ -35,7 +35,7 @@ class AppFlowyUnitTest {
     _pathProviderInitialized();
 
     await FlowyRunner.run(
-      FlowyTestApp(),
+      AppFlowyApplicationUniTest(),
       IntegrationMode.unitTest,
     );
 
@@ -111,7 +111,7 @@ void _pathProviderInitialized() {
   });
 }
 
-class FlowyTestApp implements EntryPoint {
+class AppFlowyApplicationUniTest implements EntryPoint {
   @override
   Widget create(LaunchConfiguration config) {
     return Container();

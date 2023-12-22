@@ -46,7 +46,7 @@ class SidebarUser extends StatelessWidget {
             Expanded(
               child: _buildUserName(context, state),
             ),
-            _buildSettingsButton(context, state),
+            UserSettingButton(userProfile: state.userProfile),
             const HSpace(4),
             NotificationButton(views: views),
           ],
@@ -64,8 +64,22 @@ class SidebarUser extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsButton(BuildContext context, MenuUserState state) {
-    final userProfile = state.userProfile;
+  /// Return the user name, if the user name is empty, return the default user name.
+  String _userName(UserProfilePB userProfile) {
+    String name = userProfile.name;
+    if (name.isEmpty) {
+      name = LocaleKeys.defaultUsername.tr();
+    }
+    return name;
+  }
+}
+
+class UserSettingButton extends StatelessWidget {
+  final UserProfilePB userProfile;
+  const UserSettingButton({required this.userProfile, super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return FlowyTooltip(
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(
@@ -108,14 +122,5 @@ class SidebarUser extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  /// Return the user name, if the user name is empty, return the default user name.
-  String _userName(UserProfilePB userProfile) {
-    String name = userProfile.name;
-    if (name.isEmpty) {
-      name = LocaleKeys.defaultUsername.tr();
-    }
-    return name;
   }
 }

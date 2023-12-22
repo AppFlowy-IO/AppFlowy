@@ -32,7 +32,7 @@ class FlowyRunnerContext {
 Future<void> runAppFlowy({bool isAnon = false}) async {
   if (kReleaseMode) {
     await FlowyRunner.run(
-      FlowyApp(),
+      AppFlowyApplication(),
       integrationMode(),
       isAnon: isAnon,
     );
@@ -40,7 +40,7 @@ Future<void> runAppFlowy({bool isAnon = false}) async {
     // When running the app in integration test mode, we need to
     // specify the mode to run the app again.
     await FlowyRunner.run(
-      FlowyApp(),
+      AppFlowyApplication(),
       FlowyRunner.currentMode,
       didInitGetItCallback: IntegrationTestHelper.didInitGetItCallback,
       rustEnvsBuilder: IntegrationTestHelper.rustEnvsBuilder,

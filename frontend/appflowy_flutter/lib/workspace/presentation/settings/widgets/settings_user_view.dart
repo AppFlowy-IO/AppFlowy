@@ -284,6 +284,7 @@ class UserNameInputState extends State<UserNameInput> {
   @override
   void dispose() {
     _controller.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 }
@@ -348,6 +349,7 @@ class UserEmailInputState extends State<UserEmailInput> {
   @override
   void dispose() {
     _controller.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 }

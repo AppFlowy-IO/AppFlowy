@@ -35,7 +35,7 @@ void main() {
         email: email,
       );
       await tester.tapGoogleLoginInButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
 
       // create a new document called Sample
       await tester.createNewPageWithName(
@@ -61,7 +61,7 @@ void main() {
         email: email,
       );
       await tester.tapGoogleLoginInButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // The document will be synced from the server

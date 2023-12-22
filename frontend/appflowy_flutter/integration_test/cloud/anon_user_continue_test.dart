@@ -31,7 +31,7 @@ void main() {
 
       tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
       await tester.tapGoButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
 
       // reanme the name of the anon user
       await tester.openSettings();
@@ -56,7 +56,7 @@ void main() {
       // tap the continue as anonymous button
       await tester
           .tapButton(find.text(LocaleKeys.signIn_continueAnonymousUser.tr()));
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
 
       // assert the name of the anon user is local_user
       await tester.openSettings();

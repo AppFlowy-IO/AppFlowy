@@ -16,6 +16,7 @@ import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:integration_test/integration_test.dart';
+import '../util/database_test_op.dart';
 import '../util/dir.dart';
 import '../util/mock/mock_file_picker.dart';
 import '../util/util.dart';
@@ -23,15 +24,21 @@ import '../util/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  late String dataDirectory;
+  setUpAll(() async {
+    dataDirectory = await mockApplicationDataStorage();
+  });
+
   group('appflowy cloud', () {
-    testWidgets('anon user and then sign in', (tester) async {
+    testWidgets('begin with anon user', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloud,
+        dataDirectory: dataDirectory,
       );
 
       tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
       await tester.tapGoButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
 
       // reanme the name of the anon user
       await tester.openSettings();
@@ -41,21 +48,41 @@ void main() {
         matching: find.byType(UserNameInput),
       );
       await tester.enterText(userNameFinder, 'local_user');
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.tapEscButton();
+      await tester.expectToSeeHomePage();
 
       // sign up with Google
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
       await tester.tapGoogleLoginInButton();
+
+      await tester.expectToSeeHomePage();
 
       // sign out
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       await tester.logout();
+      await tester.pumpAndSettle();
+
+      tester.expectToSeeText(LocaleKeys.signIn_continueAnonymousUser.tr());
+    });
+
+    testWidgets('continue anon user', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloud,
+        dataDirectory: dataDirectory,
+      );
 
       // tap the continue as anonymous button
-      await tester
-          .tapButton(find.text(LocaleKeys.signIn_continueAnonymousUser.tr()));
-      tester.expectToSeeHomePage();
+      await tester.tapButton(
+        find.textContaining(LocaleKeys.signIn_continueAnonymousUser.tr()),
+      );
+      await tester.expectToSeeHomePage();
 
+      final userNameFinder = find.descendant(
+        of: find.byType(SettingsUserView),
+        matching: find.byType(UserNameInput),
+      );
       // assert the name of the anon user is local_user
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
