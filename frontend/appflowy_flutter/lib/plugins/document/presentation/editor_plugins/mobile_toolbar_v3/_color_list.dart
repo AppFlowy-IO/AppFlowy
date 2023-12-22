@@ -1,13 +1,19 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-void showTextColorAndBackgroundColorPicker(BuildContext context) {
-  showMobileBottomSheet(
+Future<void> showTextColorAndBackgroundColorPicker(
+  BuildContext context, {
+  required EditorState editorState,
+  required Selection selection,
+}) async {
+  await showMobileBottomSheet(
     context,
     showHeader: true,
     showCloseButton: true,
@@ -19,16 +25,46 @@ void showTextColorAndBackgroundColorPicker(BuildContext context) {
     title: LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
     padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
     builder: (context) {
-      return const _TextColorAndBackgroundColor();
+      return _TextColorAndBackgroundColor(
+        editorState: editorState,
+        selection: selection,
+      );
     },
+  );
+  await editorState.updateSelectionWithReason(
+    null,
+    extraInfo: null,
   );
 }
 
-class _TextColorAndBackgroundColor extends StatelessWidget {
-  const _TextColorAndBackgroundColor();
+class _TextColorAndBackgroundColor extends StatefulWidget {
+  const _TextColorAndBackgroundColor({
+    required this.editorState,
+    required this.selection,
+  });
+
+  final EditorState editorState;
+  final Selection selection;
 
   @override
+  State<_TextColorAndBackgroundColor> createState() =>
+      _TextColorAndBackgroundColorState();
+}
+
+class _TextColorAndBackgroundColorState
+    extends State<_TextColorAndBackgroundColor> {
+  @override
   Widget build(BuildContext context) {
+    final String? selectedTextColor =
+        widget.editorState.getDeltaAttributeValueInSelection(
+      AppFlowyRichTextKeys.textColor,
+      widget.selection,
+    );
+    final String? selectedBackgroundColor =
+        widget.editorState.getDeltaAttributeValueInSelection(
+      AppFlowyRichTextKeys.highlightColor,
+      widget.selection,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -43,8 +79,21 @@ class _TextColorAndBackgroundColor extends StatelessWidget {
           ),
         ),
         _TextColors(
-          selectedColor: null,
-          onSelectedColor: (_) {},
+          selectedColor: selectedTextColor?.tryToColor(),
+          onSelectedColor: (textColor) async {
+            final hex = textColor.alpha == 0 ? null : textColor.toHex();
+            await widget.editorState.formatDelta(
+              widget.selection,
+              {
+                AppFlowyRichTextKeys.textColor: hex,
+              },
+              selectionExtraInfo: {
+                disableFloatingToolbar: true,
+                disableMobileToolbarKey: true,
+              },
+            );
+            setState(() {});
+          },
         ),
         Padding(
           padding: const EdgeInsets.only(
@@ -57,8 +106,22 @@ class _TextColorAndBackgroundColor extends StatelessWidget {
           ),
         ),
         _BackgroundColors(
-          selectedColor: null,
-          onSelectedColor: (_) {},
+          selectedColor: selectedBackgroundColor?.tryToColor(),
+          onSelectedColor: (backgroundColor) async {
+            final hex =
+                backgroundColor.alpha == 0 ? null : backgroundColor.toHex();
+            await widget.editorState.formatDelta(
+              widget.selection,
+              {
+                AppFlowyRichTextKeys.highlightColor: hex,
+              },
+              selectionExtraInfo: {
+                disableFloatingToolbar: true,
+                disableMobileToolbarKey: true,
+              },
+            );
+            setState(() {});
+          },
         ),
       ],
     );
@@ -67,7 +130,6 @@ class _TextColorAndBackgroundColor extends StatelessWidget {
 
 class _BackgroundColors extends StatelessWidget {
   _BackgroundColors({
-    super.key,
     this.selectedColor,
     required this.onSelectedColor,
   });
@@ -102,11 +164,12 @@ class _BackgroundColors extends StatelessWidget {
       crossAxisCount: 6,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      children: colors.map(
-        (color) {
+      children: colors.mapIndexed(
+        (index, color) {
           return _BackgroundColorItem(
             color: color,
-            isSelected: selectedColor == color,
+            isSelected:
+                selectedColor == null ? index == 0 : selectedColor == color,
             onTap: () => onSelectedColor(color),
           );
         },
@@ -181,11 +244,12 @@ class _TextColors extends StatelessWidget {
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
-      children: colors.map(
-        (color) {
+      children: colors.mapIndexed(
+        (index, color) {
           return _TextColorItem(
             color: color,
-            isSelected: selectedColor == color,
+            isSelected:
+                selectedColor == null ? index == 0 : selectedColor == color,
             onTap: () => onSelectedColor(color),
           );
         },

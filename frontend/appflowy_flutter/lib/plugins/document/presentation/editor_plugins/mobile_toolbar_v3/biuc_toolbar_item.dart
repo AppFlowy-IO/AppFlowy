@@ -48,11 +48,23 @@ final underlineToolbarItem = AppFlowyMobileToolbarItem(
 );
 
 final colorToolbarItem = AppFlowyMobileToolbarItem(
-  itemBuilder: (context, editorState, _, __, onAction) {
+  itemBuilder: (context, editorState, service, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       icon: FlowySvgs.m_toolbar_color_s,
       onTap: () {
-        showTextColorAndBackgroundColorPicker(context);
+        service.closeKeyboard();
+        editorState.updateSelectionWithReason(
+          editorState.selection,
+          extraInfo: {
+            disableMobileToolbarKey: true,
+          },
+        );
+        keepEditorFocusNotifier.increase();
+        showTextColorAndBackgroundColorPicker(
+          context,
+          editorState: editorState,
+          selection: editorState.selection!,
+        );
       },
     );
   },

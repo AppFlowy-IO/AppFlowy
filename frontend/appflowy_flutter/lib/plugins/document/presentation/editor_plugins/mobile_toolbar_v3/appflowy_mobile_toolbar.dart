@@ -226,8 +226,6 @@ class _MobileToolbarState extends State<_MobileToolbar>
           color: Colors.grey.withOpacity(0.5),
         ),
         _buildMenuOrSpacer(context),
-        // for debug
-        const SizedBox(height: 40),
       ],
     );
   }
