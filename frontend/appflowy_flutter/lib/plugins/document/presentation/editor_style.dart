@@ -43,7 +43,6 @@ class EditorStyleCustomizer {
     final appearance = context.read<DocumentAppearanceCubit>().state;
     final fontSize = appearance.fontSize;
     final fontFamily = appearance.fontFamily;
-    final codeFontSize = max(0.0, fontSize - 2);
 
     return EditorStyle.desktop(
       padding: padding,
@@ -76,9 +75,8 @@ class EditorStyleCustomizer {
         ),
         code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: codeFontSize,
+            fontSize: fontSize - 2,
             fontWeight: FontWeight.normal,
-            fontStyle: FontStyle.italic,
             color: Colors.red,
             backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
           ),

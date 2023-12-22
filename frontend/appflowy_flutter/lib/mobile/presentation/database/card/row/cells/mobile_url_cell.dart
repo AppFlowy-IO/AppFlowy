@@ -55,6 +55,7 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
             return TextField(
               focusNode: _focusNode,
               keyboardType: TextInputType.url,
+              maxLines: 1,
               decoration: InputDecoration(
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -63,7 +64,6 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 isCollapsed: true,
               ),
-              // close keyboard when tapping outside of the text field
               onTapOutside: (event) =>
                   FocusManager.instance.primaryFocus?.unfocus(),
               onSubmitted: (value) =>
@@ -99,12 +99,18 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
                   );
                 },
               ),
-              child: Text(
-                content,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      decoration: TextDecoration.underline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Text(
+                  content,
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        decoration: TextDecoration.underline,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                ),
               ),
             ),
           );
