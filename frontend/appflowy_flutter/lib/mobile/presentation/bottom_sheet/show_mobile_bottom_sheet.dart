@@ -48,7 +48,6 @@ Future<T?> showMobileBottomSheet<T>(
 
       if (showDragHandle) {
         children.addAll([
-          const VSpace(4),
           const DragHandler(),
         ]);
       }

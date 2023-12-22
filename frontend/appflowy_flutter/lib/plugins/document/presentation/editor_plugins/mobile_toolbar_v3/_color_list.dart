@@ -23,7 +23,7 @@ Future<void> showTextColorAndBackgroundColorPicker(
     backgroundColor: Colors.white,
     elevation: 20,
     title: LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
-    padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
+    padding: const EdgeInsets.fromLTRB(18, 4, 18, 0),
     builder: (context) {
       return _TextColorAndBackgroundColor(
         editorState: editorState,
