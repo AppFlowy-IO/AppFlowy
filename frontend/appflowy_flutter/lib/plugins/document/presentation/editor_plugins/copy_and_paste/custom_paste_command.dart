@@ -18,7 +18,7 @@ import 'package:string_validator/string_validator.dart';
 ///   - mobile
 ///
 final CommandShortcutEvent customPasteCommand = CommandShortcutEvent(
-  key: 'paste the content',
+  key: 'paste the content (with formatting)',
   command: 'ctrl+v',
   macOSCommand: 'cmd+v',
   handler: _pasteCommandHandler,
