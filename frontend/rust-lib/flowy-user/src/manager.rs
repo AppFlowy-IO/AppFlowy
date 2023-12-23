@@ -533,7 +533,7 @@ impl UserManager {
   pub async fn get_user_profile_from_disk(&self, uid: i64) -> Result<UserProfile, FlowyError> {
     let user: UserProfile = user_table::dsl::user_table
       .filter(user_table::id.eq(&uid.to_string()))
-      .first::<UserTable>(&*(self.db_connection(uid)?))
+      .first::<UserTable>(&mut *(self.db_connection(uid)?))
       .map_err(|err| {
         FlowyError::record_not_found().with_context(format!(
           "Can't find the user profile for user id: {}, error: {:?}",
@@ -639,15 +639,15 @@ impl UserManager {
   }
 
   async fn save_user(&self, uid: i64, user: UserTable) -> Result<(), FlowyError> {
-    let conn = self.db_connection(uid)?;
-    conn.immediate_transaction(|| {
+    let mut conn = self.db_connection(uid)?;
+    conn.immediate_transaction(|conn| {
       // delete old user if exists
       diesel::delete(user_table::dsl::user_table.filter(user_table::dsl::id.eq(&user.id)))
-        .execute(&*conn)?;
+        .execute(conn)?;
 
       let _ = diesel::insert_into(user_table::table)
         .values(user)
-        .execute(&*conn)?;
+        .execute(conn)?;
       Ok::<(), FlowyError>(())
     })?;
 
@@ -858,11 +858,11 @@ fn upsert_user_profile_change(
     "Update user profile with changeset: {:?}",
     changeset
   );
-  let conn = pool.get()?;
-  diesel_update_table!(user_table, changeset, &*conn);
+  let mut conn = pool.get()?;
+  diesel_update_table!(user_table, changeset, &mut *conn);
   let user: UserProfile = user_table::dsl::user_table
     .filter(user_table::id.eq(&uid.to_string()))
-    .first::<UserTable>(&*conn)?
+    .first::<UserTable>(&mut *conn)?
     .into();
   send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
     .payload(UserProfilePB::from(user))
