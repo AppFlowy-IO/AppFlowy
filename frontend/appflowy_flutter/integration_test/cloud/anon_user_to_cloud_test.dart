@@ -7,6 +7,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/sign_in_anonymous_button.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -24,16 +25,10 @@ import '../util/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  late String dataDirectory;
-  setUpAll(() async {
-    dataDirectory = await mockApplicationDataStorage();
-  });
-
   group('appflowy cloud', () {
-    testWidgets('begin with anon user', (tester) async {
+    testWidgets('anon user -> af cloud -> continue anon', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloud,
-        dataDirectory: dataDirectory,
       );
 
       tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
@@ -48,6 +43,7 @@ void main() {
         matching: find.byType(UserNameInput),
       );
       await tester.enterText(userNameFinder, 'local_user');
+      await tester.openSettingsPage(SettingsPage.user);
       await tester.tapEscButton();
       await tester.expectToSeeHomePage();
 
@@ -65,25 +61,10 @@ void main() {
       await tester.pumpAndSettle();
 
       tester.expectToSeeText(LocaleKeys.signIn_continueAnonymousUser.tr());
-    });
-
-    testWidgets('continue anon user', (tester) async {
-      await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
-        dataDirectory: dataDirectory,
-      );
-
       // tap the continue as anonymous button
-      await tester.tapButton(
-        find.textContaining(LocaleKeys.signIn_continueAnonymousUser.tr()),
-      );
-      await tester.expectToSeeHomePage();
+      await tester.tapButton(find.byType(SignInAnonymousButton));
 
-      final userNameFinder = find.descendant(
-        of: find.byType(SettingsUserView),
-        matching: find.byType(UserNameInput),
-      );
-      // assert the name of the anon user is local_user
+      await tester.expectToSeeHomePage();
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       final userNameInput = tester.widget(userNameFinder) as UserNameInput;
