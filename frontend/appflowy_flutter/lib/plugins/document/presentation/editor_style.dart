@@ -267,8 +267,8 @@ class EditorStyleCustomizer {
     }
 
     // customize the inline math equation block
-    final formula = attributes[InlineMathEquationKeys.formula] as String?;
-    if (formula != null) {
+    final formula = attributes[InlineMathEquationKeys.formula];
+    if (formula is String) {
       return WidgetSpan(
         alignment: PlaceholderAlignment.middle,
         child: InlineMathEquation(
