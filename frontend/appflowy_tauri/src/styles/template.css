@@ -38,6 +38,14 @@ body {
     scrollbar-shadow-color: var(--bg-body);
 }
 
+.block-element:not([data-block-type="toggle_list"]):not([data-block-type="quote"]) .block-element {
+    margin-left: 24px;
+}
+
+.block-element .collapsed .block-element {
+    display: none;
+}
+
 .btn {
   @apply rounded-xl border border-line-divider px-4 py-3;
 }

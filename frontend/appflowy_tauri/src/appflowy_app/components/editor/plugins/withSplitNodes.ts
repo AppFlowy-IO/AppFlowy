@@ -1,9 +1,9 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, NodeEntry, Transforms } from 'slate';
+import { Transforms, Editor, Element, NodeEntry, Path } from 'slate';
 import { EditorMarkFormat, EditorNodeType, markTypes, ToggleListNode } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
-import { BREAK_TO_PARAGRAPH_TYPES } from '$app/components/editor/plugins/constants';
 import { generateId } from '$app/components/editor/provider/utils/convert';
+import cloneDeep from 'lodash-es/cloneDeep';
 
 export function withSplitNodes(editor: ReactEditor) {
   const { splitNodes } = editor;
@@ -26,91 +26,78 @@ export function withSplitNodes(editor: ReactEditor) {
       }
     });
 
-    const [match] = Editor.nodes(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.type !== undefined,
-    });
+    const match = CustomEditor.getBlock(editor);
 
     if (!match) {
       splitNodes(...args);
       return;
     }
 
-    const [node, path] = match as NodeEntry<Element>;
-
+    const [node, path] = match;
+    const nodeType = node.type as EditorNodeType;
     const newBlockId = generateId();
     const newTextId = generateId();
 
-    const nodeType = node.type as EditorNodeType;
+    splitNodes(...args);
 
-    // should be split to a new paragraph for the first child of the toggle list
+    const matchTextNode = editor.above({
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === EditorNodeType.Text,
+    });
+
+    if (!matchTextNode) return;
+    const [textNode, textNodePath] = matchTextNode as NodeEntry<Element>;
+
+    editor.removeNodes({
+      at: textNodePath,
+    });
+
+    const newNodeType = [EditorNodeType.HeadingBlock, EditorNodeType.QuoteBlock, EditorNodeType.Page].includes(
+      node.type as EditorNodeType
+    )
+      ? EditorNodeType.Paragraph
+      : node.type;
+
+    const newNode: Element = {
+      type: newNodeType,
+      data: {},
+      blockId: newBlockId,
+      children: [
+        {
+          ...cloneDeep(textNode),
+          textId: newTextId,
+        },
+      ],
+    };
+    let newNodePath;
+
     if (nodeType === EditorNodeType.ToggleListBlock) {
       const collapsed = (node as ToggleListNode).data.collapsed;
-      const level = node.level ?? 1;
-      const blockId = node.blockId as string;
-      const parentId = node.parentId as string;
 
-      // if the toggle list is collapsed, split to a new paragraph append to the children of the toggle list
       if (!collapsed) {
-        splitNodes(...args);
-        Transforms.setNodes(editor, {
-          type: EditorNodeType.Paragraph,
-          data: {},
-          level: level + 1,
-          blockId: newBlockId,
-          parentId: blockId,
-          textId: newTextId,
-        });
+        newNode.type = EditorNodeType.Paragraph;
+        newNodePath = textNodePath;
       } else {
-        // if the toggle list is not collapsed, split to a toggle list after the toggle list
-        const nextNode = CustomEditor.findNextNode(editor, node, level);
-        const nextIndex = nextNode ? ReactEditor.findPath(editor, nextNode)[0] : null;
-        const index = path[0];
-
-        splitNodes(...args);
-        Transforms.setNodes(editor, { level, data: {}, blockId: newBlockId, parentId, textId: newTextId });
-        if (nextIndex) {
-          Transforms.moveNodes(editor, { at: [index + 1], to: [nextIndex] });
-        }
+        newNode.type = EditorNodeType.ToggleListBlock;
+        newNodePath = Path.next(path);
       }
 
-      return;
-    }
-
-    // should be split to another paragraph, eg: heading and quote and page
-    if (BREAK_TO_PARAGRAPH_TYPES.includes(nodeType)) {
-      const level = node.level || 1;
-      const parentId = (node.parentId || node.blockId) as string;
-
-      splitNodes(...args);
-      Transforms.setNodes(editor, {
-        type: EditorNodeType.Paragraph,
-        data: {},
-        blockId: newBlockId,
-        textId: newTextId,
-        level,
-        parentId,
+      Transforms.insertNodes(editor, newNode, {
+        at: newNodePath,
+        select: true,
       });
       return;
     }
 
-    splitNodes(...args);
-
-    Transforms.setNodes(editor, { blockId: newBlockId, data: {}, textId: newTextId });
-
-    const children = CustomEditor.findNodeChildren(editor, node);
-
-    children.forEach((child) => {
-      const childPath = ReactEditor.findPath(editor, child);
-
-      Transforms.setNodes(
-        editor,
-        {
-          parentId: newBlockId,
-        },
-        {
-          at: [childPath[0] + 1],
-        }
-      );
+    newNodePath = textNodePath;
+    Transforms.insertNodes(editor, newNode, {
+      at: newNodePath,
+    });
+    editor.select(newNodePath);
+    editor.collapse({
+      edge: 'start',
+    });
+    editor.liftNodes({
+      at: newNodePath,
     });
   };
 

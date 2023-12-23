@@ -14,6 +14,12 @@ export interface EditorNode {
   externalType?: string;
 }
 
+export interface TextNode extends Element {
+  type: EditorNodeType.Text;
+  textId: string;
+  blockId: string;
+}
+
 export interface PageNode extends Element {
   type: EditorNodeType.Page;
 }
@@ -129,6 +135,7 @@ export interface EditorProps {
 }
 
 export enum EditorNodeType {
+  Text = 'text',
   Paragraph = 'paragraph',
   Page = 'page',
   HeadingBlock = 'heading',

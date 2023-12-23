@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { EditorNodeType, CodeNode } from '$app/application/document/document.types';
 
-import { createEditor, NodeEntry, BaseRange, Editor, Element } from 'slate';
+import { createEditor, NodeEntry, BaseRange, Editor } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
 import { withBlockPlugins } from '$app/components/editor/plugins/withBlockPlugins';
 import { decorateCode } from '$app/components/editor/components/blocks/code/utils';
@@ -91,28 +91,11 @@ export function useSelectedBlock(blockId?: string) {
 
 export const EditorSelectedBlockProvider = EditorSelectedBlockContext.Provider;
 
-export function useEditorSelectedBlock(editor: ReactEditor) {
+export function useEditorSelectedBlock() {
   const [selectedBlockId, setSelectedBlockId] = useState<string[]>([]);
-  const onSelectedBlock = useCallback(
-    (blockId: string) => {
-      const children = editor.children.filter((node) => (node as Element).parentId === blockId);
-      const blockIds = [blockId, ...children.map((node) => (node as Element).blockId as string)];
-      const node = editor.children.find((node) => (node as Element).blockId === blockId);
-
-      if (node) {
-        const path = ReactEditor.findPath(editor, node);
-
-        ReactEditor.focus(editor);
-        editor.select(path);
-        editor.collapse({
-          edge: 'start',
-        });
-      }
-
-      setSelectedBlockId(blockIds);
-    },
-    [editor]
-  );
+  const onSelectedBlock = useCallback((blockId: string) => {
+    setSelectedBlockId([blockId]);
+  }, []);
 
   useEffect(() => {
     const handleClick = () => {

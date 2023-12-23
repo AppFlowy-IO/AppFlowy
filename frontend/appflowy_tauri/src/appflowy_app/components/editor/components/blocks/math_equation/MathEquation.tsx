@@ -17,14 +17,10 @@ export const MathEquation = memo(
         <>
           <div
             contentEditable={false}
-            ref={ref}
-            {...attributes}
             onClick={(e) => {
               setAnchorEl(e.currentTarget);
             }}
-            className={`${
-              className ?? ''
-            } relative cursor-pointer rounded border border-line-divider bg-content-blue-50 px-3 `}
+            className={`relative cursor-pointer rounded border border-line-divider bg-content-blue-50 px-3`}
           >
             {formula ? (
               <KatexMath latex={formula} />
@@ -34,7 +30,10 @@ export const MathEquation = memo(
                 {t('document.plugins.mathEquation.addMathEquation')}
               </div>
             )}
-            <div className={'invisible absolute'}>{children}</div>
+          </div>
+
+          <div ref={ref} {...attributes} className={`invisible absolute ${className}`}>
+            {children}
           </div>
           {open && (
             <EditPopover

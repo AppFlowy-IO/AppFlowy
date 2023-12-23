@@ -5,17 +5,18 @@ import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
 import BlockOperationMenu from '$app/components/editor/components/tools/block_actions/BlockOperationMenu';
 import { Element } from 'slate';
 
-function DragBlock({ node, onSelectedBlock }: { node: Element; onSelectedBlock: (blockId: string) => void }) {
+function DragBlock({ node, onSelectedBlock }: { node?: Element; onSelectedBlock: (blockId: string) => void }) {
   const dragBtnRef = useRef<HTMLButtonElement>(null);
   const [openMenu, setOpenMenu] = useState(false);
   const { t } = useTranslation();
+  const [selectedNode, setSelectedNode] = useState<Element>();
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       setOpenMenu(true);
       if (!node || !node.blockId) return;
-
+      setSelectedNode(node);
       onSelectedBlock(node.blockId);
     },
     [node, onSelectedBlock]
@@ -28,7 +29,7 @@ function DragBlock({ node, onSelectedBlock }: { node: Element; onSelectedBlock: 
           <DragSvg />
         </IconButton>
       </Tooltip>
-      {openMenu && node && (
+      {openMenu && selectedNode && (
         <BlockOperationMenu
           onMouseMove={(e) => {
             e.stopPropagation();
@@ -41,7 +42,7 @@ function DragBlock({ node, onSelectedBlock }: { node: Element; onSelectedBlock: 
             vertical: 'center',
             horizontal: 'left',
           }}
-          node={node}
+          node={selectedNode}
           open={openMenu}
           anchorEl={dragBtnRef.current}
           onClose={() => setOpenMenu(false)}

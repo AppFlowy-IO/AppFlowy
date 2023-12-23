@@ -7,10 +7,10 @@ import SlashCommandPanelContent from '$app/components/editor/components/tools/co
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { useTranslation } from 'react-i18next';
 import { Editor, Element, Transforms } from 'slate';
-import { EditorNodeType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
+import { EditorNodeType } from '$app/application/document/document.types';
 
-function AddBlockBelow({ node }: { node: Element }) {
+function AddBlockBelow({ node }: { node?: Element }) {
   const { t } = useTranslation();
   const [nodeEl, setNodeEl] = useState<HTMLElement | null>(null);
   const editor = useSlate();
@@ -47,36 +47,39 @@ function AddBlockBelow({ node }: { node: Element }) {
     if (!node) return;
     ReactEditor.focus(editor);
 
-    const path = ReactEditor.findPath(editor, node);
+    const [textNode] = node.children as Element[];
+    const path =
+      textNode.type === EditorNodeType.Text
+        ? ReactEditor.findPath(editor, textNode)
+        : ReactEditor.findPath(editor, node);
 
     editor.select(path);
     editor.collapse({
       edge: 'end',
     });
 
-    const isEmptyNode = editor.isEmpty(node);
+    const isEmptyNode = textNode && editor.isEmpty(textNode);
 
     if (isEmptyNode) {
       const nodeDom = ReactEditor.toDOMNode(editor, node);
 
       setNodeEl(nodeDom);
-    } else {
-      CustomEditor.splitToParagraph(editor);
+      return;
+    }
 
-      requestAnimationFrame(() => {
-        const nextNodeEntry = Editor.next(editor, {
-          at: path,
-          match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) && n.type === EditorNodeType.Paragraph,
-        });
+    editor.insertBreak();
 
-        if (!nextNodeEntry) return;
-        const nextNode = nextNodeEntry[0] as Element;
+    requestAnimationFrame(() => {
+      const block = CustomEditor.getBlock(editor);
 
-        const nodeDom = ReactEditor.toDOMNode(editor, nextNode);
+      if (block) {
+        const [node] = block;
+
+        const nodeDom = ReactEditor.toDOMNode(editor, node);
 
         setNodeEl(nodeDom);
-      });
-    }
+      }
+    });
   };
 
   const searchText = useMemo(() => {
@@ -100,13 +103,12 @@ function AddBlockBelow({ node }: { node: Element }) {
           {...PopoverPreventBlurProps}
           anchorOrigin={{
             vertical: 30,
-            horizontal: 64,
+            horizontal: 'left',
           }}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'left',
           }}
-          onMouseMove={(e) => e.stopPropagation()}
           open={openSlashCommandPanel}
           anchorEl={nodeEl}
           onClose={() => handleSlashCommandPanelClose(false)}

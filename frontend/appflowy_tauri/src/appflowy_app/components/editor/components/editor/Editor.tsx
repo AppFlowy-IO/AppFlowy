@@ -20,7 +20,7 @@ function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
   const decorate = useDecorate(editor);
   const { onDOMBeforeInput, onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
 
-  const { onSelectedBlock, selectedBlockId } = useEditorSelectedBlock(editor);
+  const { onSelectedBlock, selectedBlockId } = useEditorSelectedBlock();
 
   if (editor.sharedRoot.length === 0) {
     return <CircularProgress className='m-auto' />;
@@ -36,7 +36,7 @@ function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
           onDOMBeforeInput={onDOMBeforeInput}
           onKeyDown={onShortcutsKeyDown}
           decorate={decorate}
-          className={'caret-text-title outline-none focus:outline-none'}
+          className={'px-16 caret-text-title outline-none focus:outline-none'}
         />
         <SlashCommandPanel />
         <MentionPanel />

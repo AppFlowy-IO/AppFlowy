@@ -1,48 +1,67 @@
 import * as Y from 'yjs';
 import { YDelta } from '$app/components/editor/provider/types/y_event';
 
-export function findPreviousSibling(yXmlText: Y.XmlText) {
-  let prev = yXmlText.prevSibling;
+export function getStructureFromDelta(rootId: string, delta: YDelta) {
+  const map = new Map();
 
-  if (!prev) return null;
+  const traverse = (
+    delta: YDelta
+  ): {
+    id: string;
+    type: string;
+  }[] => {
+    const children: {
+      id: string;
+      type: string;
+    }[] = [];
 
-  const level = yXmlText.getAttribute('level');
+    delta.forEach((op) => {
+      if (op.insert && op.insert instanceof Y.XmlText) {
+        const blockId = op.insert.getAttribute('blockId');
+        const textId = op.insert.getAttribute('textId');
 
-  if (!level) return null;
+        if (blockId) {
+          map.set(blockId, traverse(op.insert.toDelta()));
+          children.push({ type: 'block', id: blockId });
+        }
 
-  while (prev) {
-    const prevLevel = prev.getAttribute('level');
+        if (textId) {
+          children.push({
+            type: 'text',
+            id: textId,
+          });
+        }
+      }
+    });
 
-    if (prevLevel === level) return prev;
-    if (prevLevel < level) return null;
+    return children;
+  };
 
-    prev = prev.prevSibling;
-  }
+  map.set(rootId, traverse(delta));
 
-  return prev;
+  return map;
 }
 
-export function fillIdRelationMap(yXmlText: Y.XmlText, idRelationMap: Y.Map<string>) {
-  const id = yXmlText.getAttribute('blockId');
-  const parentId = yXmlText.getAttribute('parentId');
+export function getYTarget(doc: Y.Doc, path: (string | number)[]) {
+  const sharedType = doc.get('sharedType', Y.XmlText) as Y.XmlText;
 
-  if (id && parentId) {
-    idRelationMap.set(id, parentId);
-  }
-}
+  const getTarget = (node: Y.XmlText, path: (string | number)[]): Y.XmlText => {
+    if (path.length === 0) return node;
+    const delta = node.toDelta();
+    const index = path[0];
 
-export function convertToIdList(ops: YDelta) {
-  return ops.map((op) => {
-    if (op.insert instanceof Y.XmlText) {
-      const id = op.insert.getAttribute('blockId');
+    const current = delta[index];
 
-      return {
-        insert: {
-          id,
-        },
-      };
+    if (current.insert instanceof Y.XmlText) {
+      if (path.length === 1) {
+        return current.insert;
+      }
+
+      return getTarget(current.insert, path.slice(1));
     }
 
-    return op;
-  });
+    return node;
+  };
+
+  return getTarget(sharedType, path);
 }

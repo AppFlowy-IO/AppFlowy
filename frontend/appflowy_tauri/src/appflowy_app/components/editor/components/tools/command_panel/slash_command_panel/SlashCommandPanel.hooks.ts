@@ -2,7 +2,7 @@ import { EditorNodeType } from '$app/application/document/document.types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlate } from 'slate-react';
-import { Editor, Transforms } from 'slate';
+import { Editor, Transforms, Element } from 'slate';
 import { getBlock } from '$app/components/editor/plugins/utils';
 import { ReactComponent as TextIcon } from '$app/assets/text.svg';
 import { ReactComponent as TodoListIcon } from '$app/assets/todo-list.svg';
@@ -134,18 +134,17 @@ export function useSlashCommandPanel({
 
       if (!newNode) return;
 
-      const isEmpty = Editor.isEmpty(editor, newNode);
+      const textNode = newNode.children[0] as Element;
+      const isEmpty = Editor.isEmpty(editor, textNode);
 
-      if (isEmpty) {
-        CustomEditor.turnToBlock(editor, {
-          type: nodeType,
-          data,
-        });
-        return;
+      if (!isEmpty) {
+        Transforms.splitNodes(editor, { always: true });
       }
 
-      Transforms.splitNodes(editor, { always: true });
-      Transforms.setNodes(editor, { type: nodeType, data });
+      CustomEditor.turnToBlock(editor, {
+        type: nodeType,
+        data,
+      });
     },
     [editor, closePanel]
   );

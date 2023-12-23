@@ -5,16 +5,20 @@ import CalloutIcon from '$app/components/editor/components/blocks/callout/Callou
 export const Callout = memo(
   forwardRef<HTMLDivElement, EditorElementProps<CalloutNode>>(({ node, children, ...attributes }, ref) => {
     return (
-      <div
-        {...attributes}
-        className={`${
-          attributes.className ?? ''
-        } relative my-2 flex w-full items-start gap-3 rounded border border-solid border-line-divider bg-content-blue-50 p-2`}
-        ref={ref}
-      >
-        <CalloutIcon node={node} />
-        <div className={'flex-1 py-1.5'}>{children}</div>
-      </div>
+      <>
+        <div contentEditable={false} className={'absolute p-2'}>
+          <CalloutIcon node={node} />
+        </div>
+        <div
+          {...attributes}
+          className={`${
+            attributes.className ?? ''
+          } my-2 flex-1 items-start rounded border border-solid border-line-divider bg-content-blue-50 py-1.5 pl-12`}
+          ref={ref}
+        >
+          {children}
+        </div>
+      </>
     );
   })
 );

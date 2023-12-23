@@ -4,6 +4,7 @@ import Editor from '$app/components/editor/components/editor/Editor';
 import { EditorProps } from '$app/application/document/document.types';
 import { Provider } from '$app/components/editor/provider';
 import { YXmlText } from 'yjs/dist/src/types/YXmlText';
+import { getYTarget } from '$app/components/editor/provider/utils/relation';
 
 export const CollaborativeEditor = ({ id, title, showTitle = true, onTitleChange }: EditorProps) => {
   const [sharedType, setSharedType] = useState<YXmlText | null>(null);
@@ -13,14 +14,16 @@ export const CollaborativeEditor = ({ id, title, showTitle = true, onTitleChange
   }, [id, showTitle]);
 
   const root = useMemo(() => {
-    return showTitle ? (sharedType?.toDelta()[0].insert as YXmlText | null) : null;
+    if (!showTitle || !sharedType || !sharedType.doc) return null;
+
+    return getYTarget(sharedType?.doc, [0, 0]);
   }, [sharedType, showTitle]);
 
   useEffect(() => {
     if (!root || root.toString() === title) return;
 
     if (root.length > 0) {
-      root.delete(0, root.length);
+      root.toDelta();
     }
 
     root.insert(0, title || '');

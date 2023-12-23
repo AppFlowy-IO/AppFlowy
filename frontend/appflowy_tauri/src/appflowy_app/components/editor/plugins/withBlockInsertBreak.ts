@@ -1,5 +1,5 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, NodeEntry } from 'slate';
+import { Editor } from 'slate';
 import { EditorNodeType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
 
@@ -7,13 +7,11 @@ export function withBlockInsertBreak(editor: ReactEditor) {
   const { insertBreak } = editor;
 
   editor.insertBreak = (...args) => {
-    const nodeEntry = Editor.above(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && Editor.isBlock(editor, n),
-    });
+    const block = CustomEditor.getBlock(editor);
 
-    if (!nodeEntry) return insertBreak(...args);
+    if (!block) return insertBreak(...args);
 
-    const [node] = nodeEntry as NodeEntry<Element>;
+    const [node] = block;
     const type = node.type as EditorNodeType;
 
     if (type === EditorNodeType.Page) {

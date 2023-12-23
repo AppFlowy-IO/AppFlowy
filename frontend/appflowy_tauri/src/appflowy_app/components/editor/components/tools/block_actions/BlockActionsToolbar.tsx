@@ -26,7 +26,7 @@ export function BlockActionsToolbar({ onSelectedBlock }: { onSelectedBlock: (blo
     >
       {/* Ensure the toolbar in middle */}
       <div className={'invisible'}>0</div>
-      {node && <BlockActions node={node} onSelectedBlock={onSelectedBlock} />}
+      {<BlockActions node={node || undefined} onSelectedBlock={onSelectedBlock} />}
     </div>
   );
 }

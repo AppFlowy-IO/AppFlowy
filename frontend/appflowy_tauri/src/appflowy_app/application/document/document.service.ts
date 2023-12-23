@@ -22,7 +22,7 @@ import { EditorData, EditorNodeType } from '$app/application/document/document.t
 import { Log } from '$app/utils/log';
 import { Op } from 'quill-delta';
 import { Element } from 'slate';
-import { generateId, transformToInlineElement } from '$app/components/editor/provider/utils/convert';
+import { getInlinesWithDelta } from '$app/components/editor/provider/utils/convert';
 
 export function blockPB2Node(block: BlockPB) {
   let data = {};
@@ -33,7 +33,7 @@ export function blockPB2Node(block: BlockPB) {
     Log.error('[Document Open] json parse error', block.data);
   }
 
-  const node = {
+  return {
     id: block.id,
     type: block.ty as EditorNodeType,
     parent: block.parent_id,
@@ -42,8 +42,6 @@ export function blockPB2Node(block: BlockPB) {
     externalId: block.external_id,
     externalType: block.external_type,
   };
-
-  return node;
 }
 
 export const BLOCK_MAP_NAME = 'blocks';
@@ -51,7 +49,6 @@ export const META_NAME = 'meta';
 export const CHILDREN_MAP_NAME = 'children_map';
 
 export const TEXT_MAP_NAME = 'text_map';
-export const EQUATION_PLACEHOLDER = '$';
 export async function openDocument(docId: string): Promise<EditorData> {
   const payload = OpenDocumentPayloadPB.fromObject({
     document_id: docId,
@@ -233,62 +230,33 @@ interface BlockJSON {
 }
 
 function flattenBlockJson(block: BlockJSON) {
-  const nodes: Element[] = [];
-
-  const traverse = (block: BlockJSON, parentId: string, level: number, isHidden: boolean) => {
+  const traverse = (block: BlockJSON) => {
     const { delta, ...data } = block.data;
-    const blockId = generateId();
-    const node: Element = {
-      blockId,
+
+    const slateNode: Element = {
       type: block.type,
-      data,
+      data: data,
       children: [],
-      parentId,
-      level,
-      textId: generateId(),
-      isHidden,
     };
 
-    node.children = delta
-      ? delta.map((op) => {
-          const matchInline = transformToInlineElement(op);
+    const textNode: Element = {
+      type: 'text',
+      children: [],
+    };
 
-          if (matchInline) {
-            return matchInline;
-          }
+    const inlinesNodes = getInlinesWithDelta(delta);
 
-          return {
-            text: op.insert as string,
-            ...op.attributes,
-          };
-        })
-      : [
-          {
-            text: '',
-          },
-        ];
-    nodes.push(node);
+    textNode.children.push(...inlinesNodes);
+
     const children = block.children;
 
-    for (const child of children) {
-      let isHidden = false;
+    slateNode.children = children.map((child) => traverse(child));
+    slateNode.children.unshift(textNode);
 
-      if (node.type === EditorNodeType.ToggleListBlock) {
-        const collapsed = (node.data as { collapsed: boolean })?.collapsed;
-
-        if (collapsed) {
-          isHidden = true;
-        }
-      }
-
-      traverse(child, blockId, level + 1, isHidden);
-    }
-
-    return node;
+    return slateNode;
   };
 
-  traverse(block, '', 0, false);
+  const root = traverse(block);
 
-  nodes.shift();
-  return nodes;
+  return root.children;
 }

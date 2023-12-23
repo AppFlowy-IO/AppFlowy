@@ -5,7 +5,7 @@ import { PopoverPreventBlurProps } from '$app/components/editor/components/tools
 import { PopoverProps } from '@mui/material/Popover';
 import { commandPanelShowProperty } from '$app/components/editor/components/editor/shortcuts/withCommandShortcuts';
 import { Editor, Point, Transforms } from 'slate';
-import { getBlockEntry } from '$app/components/editor/plugins/utils';
+import { CustomEditor } from '$app/components/editor/command';
 
 export const PanelPopoverProps: Partial<PopoverProps> = {
   ...PopoverPreventBlurProps,
@@ -66,7 +66,7 @@ export function usePanel(ref: RefObject<HTMLDivElement | null>) {
         return;
       }
 
-      const nodeEntry = getBlockEntry(editor);
+      const nodeEntry = CustomEditor.getBlock(editor);
 
       if (!nodeEntry) return;
 
@@ -128,10 +128,8 @@ export function usePanel(ref: RefObject<HTMLDivElement | null>) {
         const isSelectionChange = editor.operations.every((op) => op.type === 'set_selection');
         const currentPoint = Editor.end(editor, editor.selection);
         const isBackward = currentPoint.offset < startPoint.current.offset;
-        const isAnotherBlock =
-          currentPoint.path[0] !== startPoint.current.path[0] || currentPoint.path[1] !== startPoint.current.path[1];
 
-        if (isAnotherBlock || isBackward) {
+        if (isBackward) {
           closePanel(false);
           return;
         }

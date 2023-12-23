@@ -1,43 +1,38 @@
 import * as Y from 'yjs';
 
 import { DataClient } from '$app/components/editor/provider/data_client';
-import { convertToIdList, fillIdRelationMap } from '$app/components/editor/provider/utils/relation';
 import { YDelta } from '$app/components/editor/provider/types/y_event';
 import { YEvents2BlockActions } from '$app/components/editor/provider/utils/action';
 import { EventEmitter } from 'events';
+import { getStructureFromDelta } from '$app/components/editor/provider/utils/relation';
 
 const REMOTE_ORIGIN = 'remote';
 
 export class Provider extends EventEmitter {
   document: Y.Doc = new Y.Doc();
-  // id order
-  idList: Y.XmlText = this.document.get('idList', Y.XmlText) as Y.XmlText;
-  // id -> parentId
-  idRelationMap: Y.Map<string> = this.document.getMap('idRelationMap');
   sharedType: Y.XmlText | null = null;
   dataClient: DataClient;
+  // get origin data after document updated
+  backupDoc: Y.Doc = new Y.Doc();
+  blockStruct: Map<string, { id: string; type: string }[]> = new Map();
   constructor(public id: string, includeRoot?: boolean) {
     super();
     this.dataClient = new DataClient(id);
     void this.initialDocument(includeRoot);
+    this.document.on('update', this.documentUpdate);
   }
 
   initialDocument = async (includeRoot = true) => {
-    const sharedType = this.document.get('local', Y.XmlText) as Y.XmlText;
-
+    const sharedType = this.document.get('sharedType', Y.XmlText) as Y.XmlText;
     // Load the initial value into the yjs document
     const delta = await this.dataClient.getInsertDelta(includeRoot);
 
     sharedType.applyDelta(delta);
 
-    this.idList.applyDelta(convertToIdList(delta));
-    delta.forEach((op) => {
-      if (op.insert instanceof Y.XmlText) {
-        fillIdRelationMap(op.insert, this.idRelationMap);
-      }
-    });
+    const rootId = this.dataClient.rootId as string;
 
-    sharedType.setAttribute('blockId', this.dataClient.rootId);
+    sharedType.setAttribute('blockId', rootId);
+    this.blockStruct = getStructureFromDelta(rootId, delta);
 
     this.sharedType = sharedType;
     this.sharedType?.observeDeep(this.onChange);
@@ -63,7 +58,7 @@ export class Provider extends EventEmitter {
 
     if (!this.sharedType || !events.length) return;
     // transform events to actions
-    this.dataClient.emit('update', YEvents2BlockActions(this.sharedType, events));
+    this.dataClient.emit('update', YEvents2BlockActions(this.backupDoc, events));
   };
 
   onRemoteChange = (delta: YDelta) => {
@@ -72,5 +67,9 @@ export class Provider extends EventEmitter {
     this.document.transact(() => {
       this.sharedType?.applyDelta(delta);
     }, REMOTE_ORIGIN);
+  };
+
+  documentUpdate = (update: Uint8Array) => {
+    Y.applyUpdate(this.backupDoc, update);
   };
 }
