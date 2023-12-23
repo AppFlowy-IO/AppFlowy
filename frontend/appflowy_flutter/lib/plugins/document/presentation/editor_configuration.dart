@@ -10,19 +10,9 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-List<MobileToolbarItem> getMobileToolbarItems() {
+List<AppFlowyMobileToolbarItem> getMobileToolbarItems() {
   return [
-    customTextDecorationMobileToolbarItem,
-    buildTextAndBackgroundColorMobileToolbarItem(),
-    mobileAddBlockToolbarItem,
-    mobileConvertBlockToolbarItem,
-    imageMobileToolbarItem,
-    mobileAlignToolbarItem,
-    mobileIndentToolbarItem,
-    mobileOutdentToolbarItem,
-    undoMobileToolbarItem,
-    redoMobileToolbarItem,
-    mobileBlockSettingsToolbarItem,
+    aaToolbarItem,
   ];
 }
 
@@ -46,6 +36,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
 
   final configuration = BlockComponentConfiguration(
+    // use EdgeInsets.zero to remove the default padding.
     padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
         ? const EdgeInsets.only(left: 26.0)

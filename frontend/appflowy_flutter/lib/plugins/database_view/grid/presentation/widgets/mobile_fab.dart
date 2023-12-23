@@ -81,7 +81,9 @@ class MobileGridFab extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: const Border.fromBorderSide(BorderSide( width: 0.5, color: Color(0xFFE4EDF0))),
+        border: const Border.fromBorderSide(
+          BorderSide(width: 0.5, color: Color(0xFFE4EDF0)),
+        ),
         borderRadius: radius,
         boxShadow: [boxShadow],
       ),
