@@ -258,7 +258,7 @@ pub async fn create_view(
 pub async fn read_view(sdk: &EventIntegrationTest, view_id: &str) -> ViewPB {
   let view_id = ViewIdPB::from(view_id);
   EventBuilder::new(sdk.clone())
-    .event(ReadView)
+    .event(GetView)
     .payload(view_id)
     .async_send()
     .await
@@ -330,7 +330,7 @@ pub async fn delete_view(sdk: &EventIntegrationTest, view_ids: Vec<String>) {
 
 pub async fn read_trash(sdk: &EventIntegrationTest) -> RepeatedTrashPB {
   EventBuilder::new(sdk.clone())
-    .event(ReadTrash)
+    .event(ListTrashItems)
     .async_send()
     .await
     .parse::<RepeatedTrashPB>()
@@ -341,7 +341,7 @@ pub async fn restore_app_from_trash(sdk: &EventIntegrationTest, app_id: &str) {
     id: app_id.to_owned(),
   };
   EventBuilder::new(sdk.clone())
-    .event(PutbackTrash)
+    .event(RestoreTrashItem)
     .payload(id)
     .async_send()
     .await;
@@ -352,7 +352,7 @@ pub async fn restore_view_from_trash(sdk: &EventIntegrationTest, view_id: &str) 
     id: view_id.to_owned(),
   };
   EventBuilder::new(sdk.clone())
-    .event(PutbackTrash)
+    .event(RestoreTrashItem)
     .payload(id)
     .async_send()
     .await;
@@ -360,7 +360,7 @@ pub async fn restore_view_from_trash(sdk: &EventIntegrationTest, view_id: &str) 
 
 pub async fn delete_all_trash(sdk: &EventIntegrationTest) {
   EventBuilder::new(sdk.clone())
-    .event(DeleteAllTrash)
+    .event(PermanentlyDeleteAllTrashItem)
     .async_send()
     .await;
 }

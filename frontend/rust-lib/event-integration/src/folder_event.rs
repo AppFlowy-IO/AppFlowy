@@ -66,7 +66,7 @@ impl EventIntegrationTest {
 
   pub async fn get_views(&self, parent_view_id: &str) -> ViewPB {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadView)
+      .event(FolderEvent::GetView)
       .payload(ViewIdPB {
         value: parent_view_id.to_string(),
       })
@@ -129,7 +129,7 @@ impl EventIntegrationTest {
 
   pub async fn get_view(&self, view_id: &str) -> ViewPB {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadView)
+      .event(FolderEvent::GetView)
       .payload(ViewIdPB {
         value: view_id.to_string(),
       })

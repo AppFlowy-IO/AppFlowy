@@ -9,6 +9,6 @@ class HomeService {
   Future<Either<ViewPB, FlowyError>> readApp({required String appId}) {
     final payload = ViewIdPB.create()..value = appId;
 
-    return FolderEventReadView(payload).send();
+    return FolderEventGetView(payload).send();
   }
 }

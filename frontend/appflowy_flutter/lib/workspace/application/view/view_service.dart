@@ -107,7 +107,7 @@ class ViewBackendService {
   }) {
     final payload = ViewIdPB.create()..value = viewId;
 
-    return FolderEventReadView(payload).send().then((result) {
+    return FolderEventGetView(payload).send().then((result) {
       return result.fold(
         (view) => left(view.childViews),
         (error) => right(error),
@@ -247,7 +247,7 @@ class ViewBackendService {
     String viewID,
   ) async {
     final payload = ViewIdPB.create()..value = viewID;
-    return FolderEventReadView(payload).send();
+    return FolderEventGetView(payload).send();
   }
 
   Future<Either<ViewPB, FlowyError>> getChildView({
@@ -255,7 +255,7 @@ class ViewBackendService {
     required String childViewId,
   }) async {
     final payload = ViewIdPB.create()..value = parentViewId;
-    return FolderEventReadView(payload).send().then((result) {
+    return FolderEventGetView(payload).send().then((result) {
       return result.fold(
         (app) => left(
           app.childViews.firstWhere((e) => e.id == childViewId),

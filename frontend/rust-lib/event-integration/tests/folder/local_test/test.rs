@@ -122,7 +122,7 @@ async fn delete_view_event_test() {
     value: view.id.clone(),
   };
   let error = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadView)
+    .event(flowy_folder2::event_map::FolderEvent::GetView)
     .payload(payload)
     .async_send()
     .await
@@ -145,7 +145,7 @@ async fn put_back_trash_event_test() {
     value: view.id.clone(),
   };
   let error = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadView)
+    .event(flowy_folder2::event_map::FolderEvent::GetView)
     .payload(payload)
     .async_send()
     .await
@@ -157,7 +157,7 @@ async fn put_back_trash_event_test() {
     id: view.id.clone(),
   };
   EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::PutbackTrash)
+    .event(flowy_folder2::event_map::FolderEvent::RestoreTrashItem)
     .payload(payload)
     .async_send()
     .await;
@@ -166,7 +166,7 @@ async fn put_back_trash_event_test() {
     value: view.id.clone(),
   };
   let error = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadView)
+    .event(flowy_folder2::event_map::FolderEvent::GetView)
     .payload(payload)
     .async_send()
     .await
@@ -193,7 +193,7 @@ async fn delete_view_permanently_event_test() {
     .await;
 
   let trash = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadTrash)
+    .event(flowy_folder2::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
     .parse::<flowy_folder2::entities::RepeatedTrashPB>()
@@ -208,14 +208,14 @@ async fn delete_view_permanently_event_test() {
     }],
   };
   EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::DeleteTrash)
+    .event(flowy_folder2::event_map::FolderEvent::PermanentlyDeleteTrashItem)
     .payload(payload)
     .async_send()
     .await;
 
   // After delete the last view, the trash should be empty
   let trash = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadTrash)
+    .event(flowy_folder2::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
     .parse::<flowy_folder2::entities::RepeatedTrashPB>()
@@ -244,7 +244,7 @@ async fn delete_all_trash_test() {
   }
 
   let trash = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadTrash)
+    .event(flowy_folder2::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
     .parse::<flowy_folder2::entities::RepeatedTrashPB>()
@@ -253,13 +253,13 @@ async fn delete_all_trash_test() {
 
   // Delete all the trash
   EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::DeleteAllTrash)
+    .event(flowy_folder2::event_map::FolderEvent::PermanentlyDeleteAllTrashItem)
     .async_send()
     .await;
 
   // After delete the last view, the trash should be empty
   let trash = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadTrash)
+    .event(flowy_folder2::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
     .parse::<flowy_folder2::entities::RepeatedTrashPB>()
@@ -323,7 +323,7 @@ async fn multiple_hierarchy_view_test() {
       };
 
       let child = EventBuilder::new(test.clone())
-        .event(flowy_folder2::event_map::FolderEvent::ReadView)
+        .event(flowy_folder2::event_map::FolderEvent::GetView)
         .payload(payload)
         .async_send()
         .await
