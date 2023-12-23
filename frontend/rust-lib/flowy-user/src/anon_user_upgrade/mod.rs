@@ -1,7 +1,7 @@
-pub use anon_user_data::*;
-pub use sync_af_cloud_new_user::*;
-pub use sync_supabase_new_user::*;
+pub use migrate_anon_user_collab::*;
+pub use sync_af_user_collab::*;
+pub use sync_supabase_user_collab::*;
 
-mod anon_user_data;
-mod sync_af_cloud_new_user;
-mod sync_supabase_new_user;
+mod migrate_anon_user_collab;
+mod sync_af_user_collab;
+mod sync_supabase_user_collab;
