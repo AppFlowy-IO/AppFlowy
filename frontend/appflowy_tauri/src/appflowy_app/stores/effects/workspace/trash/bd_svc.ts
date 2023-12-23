@@ -1,11 +1,11 @@
 import {
-  FolderEventReadTrash,
-  FolderEventPutbackTrash,
-  FolderEventDeleteAllTrash,
-  FolderEventRestoreAllTrash,
-  FolderEventDeleteTrash,
   TrashIdPB,
   RepeatedTrashIdPB,
+  FolderEventListTrashItems,
+  FolderEventRestoreTrashItem,
+  FolderEventPermanentlyDeleteTrashItem,
+  FolderEventPermanentlyDeleteAllTrashItem,
+  FolderEventRecoverAllTrashItems,
 } from '@/services/backend/events/flowy-folder2';
 
 export class TrashBackendService {
@@ -14,7 +14,7 @@ export class TrashBackendService {
   }
 
   getTrash = async () => {
-    return FolderEventReadTrash();
+    return FolderEventListTrashItems();
   };
 
   putback = async (id: string) => {
@@ -22,7 +22,7 @@ export class TrashBackendService {
       id,
     });
 
-    return FolderEventPutbackTrash(payload);
+    return FolderEventRestoreTrashItem(payload);
   };
 
   delete = async (ids: string[]) => {
@@ -31,14 +31,14 @@ export class TrashBackendService {
       items,
     });
 
-    return FolderEventDeleteTrash(payload);
+    return FolderEventPermanentlyDeleteTrashItem(payload);
   };
 
   deleteAll = async () => {
-    return FolderEventDeleteAllTrash();
+    return FolderEventPermanentlyDeleteAllTrashItem();
   };
 
   restoreAll = async () => {
-    return FolderEventRestoreAllTrash();
+    return FolderEventRecoverAllTrashItems();
   };
 }

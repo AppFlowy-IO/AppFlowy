@@ -18,7 +18,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
      // View
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
-    .event(FolderEvent::ReadView, read_view_handler)
+    .event(FolderEvent::GetView, read_view_handler)
     .event(FolderEvent::UpdateView, update_view_handler)
     .event(FolderEvent::DeleteView, delete_view_handler)
     .event(FolderEvent::DuplicateView, duplicate_view_handler)
@@ -27,11 +27,11 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::MoveView, move_view_handler)
     .event(FolderEvent::MoveNestedView, move_nested_view_handler)
     // Trash
-    .event(FolderEvent::ReadTrash, read_trash_handler)
-    .event(FolderEvent::PutbackTrash, putback_trash_handler)
-    .event(FolderEvent::DeleteTrash, delete_trash_handler)
-    .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
-    .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
+    .event(FolderEvent::ListTrashItems, read_trash_handler)
+    .event(FolderEvent::RestoreTrashItem, putback_trash_handler)
+    .event(FolderEvent::PermanentlyDeleteTrashItem, delete_trash_handler)
+    .event(FolderEvent::RecoverAllTrashItems, restore_all_trash_handler)
+    .event(FolderEvent::PermanentlyDeleteAllTrashItem, delete_all_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
     .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
@@ -71,7 +71,7 @@ pub enum FolderEvent {
 
   /// Return the view info
   #[event(input = "ViewIdPB", output = "ViewPB")]
-  ReadView = 11,
+  GetView = 11,
 
   /// Update the view's properties including the name,description, etc.
   #[event(input = "UpdateViewPayloadPB", output = "ViewPB")]
@@ -107,23 +107,23 @@ pub enum FolderEvent {
 
   /// Read the trash that was deleted by the user
   #[event(output = "RepeatedTrashPB")]
-  ReadTrash = 23,
+  ListTrashItems = 23,
 
   /// Put back the trash to the origin folder
   #[event(input = "TrashIdPB")]
-  PutbackTrash = 24,
+  RestoreTrashItem = 24,
 
   /// Delete the trash from the disk
   #[event(input = "RepeatedTrashIdPB")]
-  DeleteTrash = 25,
+  PermanentlyDeleteTrashItem = 25,
 
   /// Put back all the trash to its original folder
   #[event()]
-  RestoreAllTrash = 26,
+  RecoverAllTrashItems = 26,
 
   /// Delete all the trash from the disk
   #[event()]
-  DeleteAllTrash = 27,
+  PermanentlyDeleteAllTrashItem = 27,
 
   #[event(input = "ImportPB")]
   ImportData = 30,

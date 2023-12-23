@@ -2,7 +2,7 @@ import { CreateViewPayloadPB, RepeatedViewIdPB, UpdateViewPayloadPB, ViewIdPB, V
 import {
   FolderEventCreateView,
   FolderEventDeleteView,
-  FolderEventReadView,
+  FolderEventGetView,
   FolderEventUpdateView,
 } from '@/services/backend/events/flowy-folder2';
 import { databaseService } from '../database';
@@ -11,7 +11,7 @@ import { Page, parserViewPBToPage } from '$app_reducers/pages/slice';
 export async function getDatabaseViews(viewId: string): Promise<Page[]> {
   const payload = ViewIdPB.fromObject({ value: viewId });
 
-  const result = await FolderEventReadView(payload);
+  const result = await FolderEventGetView(payload);
 
   if (result.ok) {
     return [parserViewPBToPage(result.val), ...result.val.child_views.map(parserViewPBToPage)];
