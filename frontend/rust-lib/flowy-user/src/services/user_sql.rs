@@ -7,7 +7,7 @@ use flowy_user_deps::entities::*;
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
 /// Check out the [schema.rs] for table schema.
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
-#[table_name = "user_table"]
+#[diesel(table_name = user_table)]
 pub struct UserTable {
   pub(crate) id: String,
   pub(crate) name: String,
@@ -68,7 +68,7 @@ impl From<UserTable> for UserProfile {
 }
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
-#[table_name = "user_table"]
+#[diesel(table_name = user_table)]
 pub struct UserTableChangeset {
   pub id: String,
   pub workspace: Option<String>, // deprecated

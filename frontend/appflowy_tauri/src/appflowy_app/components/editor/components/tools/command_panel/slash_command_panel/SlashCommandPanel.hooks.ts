@@ -16,6 +16,7 @@ import { ReactComponent as ToggleListIcon } from '$app/assets/show-menu.svg';
 import { ReactComponent as GridIcon } from '$app/assets/grid.svg';
 import { DataObjectOutlined, FunctionsOutlined, HorizontalRuleOutlined, MenuBookOutlined } from '@mui/icons-material';
 import { CustomEditor } from '$app/components/editor/command';
+import { randomEmoji } from '$app/utils/emoji';
 
 enum SlashCommandPanelTab {
   BASIC = 'basic',
@@ -107,7 +108,25 @@ export function useSlashCommandPanel({
 
       if (!nodeType) return;
 
-      const data = headingTypes.includes(type) ? { level: headingTypeToLevelMap[type] } : {};
+      const data = {};
+
+      if (headingTypes.includes(type)) {
+        Object.assign(data, {
+          level: headingTypeToLevelMap[type],
+        });
+      }
+
+      if (nodeType === EditorNodeType.CalloutBlock) {
+        Object.assign(data, {
+          icon: randomEmoji(),
+        });
+      }
+
+      if (nodeType === EditorNodeType.CodeBlock) {
+        Object.assign(data, {
+          language: 'javascript',
+        });
+      }
 
       closePanel(true);
 

@@ -163,7 +163,7 @@ export function YEvent2BlockActions(
     return blockOps2BlockActions(sharedType, delta);
   }
 
-  const actions = textOps2BlockActions(yXmlText, delta);
+  const actions = textOps2BlockActions(sharedType, yXmlText, delta);
 
   if (keys.size > 0) {
     actions.push(...parentUpdatedOps2BlockActions(yXmlText, keys));
@@ -174,8 +174,19 @@ export function YEvent2BlockActions(
   return actions;
 }
 
-function textOps2BlockActions(yXmlText: Y.XmlText, ops: YDelta): ReturnType<typeof BlockActionPB.prototype.toObject>[] {
+function textOps2BlockActions(
+  sharedType: Y.XmlText,
+  yXmlText: Y.XmlText,
+  ops: YDelta
+): ReturnType<typeof BlockActionPB.prototype.toObject>[] {
   if (ops.length === 0) return [];
+  const blockId = yXmlText.getAttribute('blockId');
+  const rootId = sharedType.getAttribute('rootId');
+
+  if (blockId === rootId) {
+    return [];
+  }
+
   return generateApplyTextActions(yXmlText, ops);
 }
 

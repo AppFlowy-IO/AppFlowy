@@ -148,10 +148,10 @@ pub fn open_user_db(
 
 pub fn get_user_profile(pool: &Arc<ConnectionPool>, uid: i64) -> Result<UserProfile, FlowyError> {
   let uid = uid.to_string();
-  let conn = pool.get()?;
+  let mut conn = pool.get()?;
   let user = dsl::user_table
     .filter(user_table::id.eq(&uid))
-    .first::<UserTable>(&*conn)?;
+    .first::<UserTable>(&mut *conn)?;
 
   Ok(user.into())
 }
@@ -160,10 +160,10 @@ pub fn get_user_workspace(
   pool: &Arc<ConnectionPool>,
   uid: i64,
 ) -> Result<Option<UserWorkspace>, FlowyError> {
-  let conn = pool.get()?;
+  let mut conn = pool.get()?;
   let row = user_workspace_table::dsl::user_workspace_table
     .filter(user_workspace_table::uid.eq(uid))
-    .first::<UserWorkspaceTable>(&*conn)?;
+    .first::<UserWorkspaceTable>(&mut *conn)?;
   Ok(Some(UserWorkspace::from(row)))
 }
 

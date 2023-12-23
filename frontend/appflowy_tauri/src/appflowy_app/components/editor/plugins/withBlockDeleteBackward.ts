@@ -21,7 +21,7 @@ export function withBlockDeleteBackward(editor: ReactEditor) {
     const [node] = match as NodeEntry<Element>;
 
     // if the current node is not a paragraph, convert it to a paragraph
-    if (node.type !== EditorNodeType.Paragraph) {
+    if (node.type !== EditorNodeType.Paragraph && node.type !== EditorNodeType.Page) {
       CustomEditor.turnToBlock(editor, { type: EditorNodeType.Paragraph });
       return;
     }

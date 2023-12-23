@@ -7,7 +7,7 @@ use flowy_sqlite::schema::user_workspace_table;
 use flowy_user_deps::entities::UserWorkspace;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
-#[table_name = "user_workspace_table"]
+#[diesel(table_name = user_workspace_table)]
 pub struct UserWorkspaceTable {
   pub id: String,
   pub name: String,

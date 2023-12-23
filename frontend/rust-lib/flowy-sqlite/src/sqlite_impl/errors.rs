@@ -11,7 +11,7 @@ error_chain! {
     }
     foreign_links {
         R2D2(::r2d2::Error);
-        Migrations(::diesel_migrations::RunMigrationsError);
+        Migrations(::diesel_migrations::MigrationError);
         Diesel(::diesel::result::Error);
         Connection(::diesel::ConnectionError);
         Io(::std::io::Error);

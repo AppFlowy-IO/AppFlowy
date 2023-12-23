@@ -66,6 +66,8 @@ export const updatePageName = createAsyncThunk(
     const { id, name } = payload;
     const page = pageMap[id];
 
+    if (name === page.name) return;
+
     dispatch(
       pagesActions.onPageChanged({
         ...page,

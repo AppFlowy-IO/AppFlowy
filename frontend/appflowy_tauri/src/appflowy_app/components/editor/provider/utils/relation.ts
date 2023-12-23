@@ -8,6 +8,8 @@ export function findPreviousSibling(yXmlText: Y.XmlText) {
 
   const level = yXmlText.getAttribute('level');
 
+  if (!level) return null;
+
   while (prev) {
     const prevLevel = prev.getAttribute('level');
 

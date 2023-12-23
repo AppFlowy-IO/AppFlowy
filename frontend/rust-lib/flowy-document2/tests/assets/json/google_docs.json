@@ -6,7 +6,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "The Notion Document"
@@ -23,7 +22,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "Heading-1"
@@ -40,7 +38,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "Heading - 2"
@@ -57,7 +54,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "Heading - 3"
@@ -74,7 +70,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "Heading - 4"
@@ -91,7 +86,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a paragraph"
@@ -107,7 +101,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "paragraph’s child"
@@ -123,7 +116,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a bulleted list - 1"
@@ -138,7 +130,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a bulleted list - 1 - 1"
@@ -153,7 +144,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a bulleted list - 2"
@@ -168,7 +158,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a paragraph"
@@ -193,7 +182,6 @@
             "delta": [
               {
                 "attributes": {
-                  "bg_color": "transparent",
                   "font_color": "#000000"
                 },
                 "insert": "This is a todo - 1"
@@ -225,7 +213,6 @@
             "delta": [
               {
                 "attributes": {
-                  "bg_color": "transparent",
                   "font_color": "#000000"
                 },
                 "insert": "This is a todo - 1-1"
@@ -248,7 +235,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a paragraph"
@@ -264,7 +250,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a numbered list -1"
@@ -279,7 +264,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a numbered list -2"
@@ -294,7 +278,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a numbered list-1-1"
@@ -309,7 +292,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a paragraph"
@@ -325,7 +307,6 @@
         "delta": [
           {
             "attributes": {
-              "bg_color": "transparent",
               "font_color": "#000000"
             },
             "insert": "This is a paragraph"

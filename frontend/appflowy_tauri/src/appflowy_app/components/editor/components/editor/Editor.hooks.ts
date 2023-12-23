@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { EditorNodeType, CodeNode } from '$app/application/document/document.types';
 
-import { createEditor, NodeEntry, BaseRange, Editor, Transforms, Element } from 'slate';
+import { createEditor, NodeEntry, BaseRange, Editor, Element } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
 import { withBlockPlugins } from '$app/components/editor/plugins/withBlockPlugins';
 import { decorateCode } from '$app/components/editor/components/blocks/code/utils';
@@ -11,7 +11,7 @@ import { withYjs, YjsEditor, withYHistory } from '@slate-yjs/core';
 import * as Y from 'yjs';
 import { CustomEditor } from '$app/components/editor/command';
 
-export function useEditor(sharedType?: Y.XmlText) {
+export function useEditor(sharedType: Y.XmlText) {
   const editor = useMemo(() => {
     if (!sharedType) return null;
     const e = withShortcuts(withBlockPlugins(withInlines(withReact(withYHistory(withYjs(createEditor(), sharedType))))));
@@ -26,16 +26,8 @@ export function useEditor(sharedType?: Y.XmlText) {
         return normalizeNode(entry);
       }
 
-      Transforms.insertNodes(
-        e,
-        [
-          {
-            type: EditorNodeType.Paragraph,
-            children: [{ text: '' }],
-          },
-        ],
-        { at: [0] }
-      );
+      // Ensure editor always has at least 1 valid child
+      CustomEditor.insertEmptyLineAtEnd(e as ReactEditor & YjsEditor);
     };
 
     return e;

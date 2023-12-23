@@ -13,7 +13,7 @@ export const Callout = memo(
         ref={ref}
       >
         <CalloutIcon node={node} />
-        <div className={'flex-1'}>{children}</div>
+        <div className={'flex-1 py-1.5'}>{children}</div>
       </div>
     );
   })

@@ -5,11 +5,11 @@ import { ReactEditor } from 'slate-react';
 export function getHeadingCssProperty(level: number) {
   switch (level) {
     case 1:
-      return 'text-3xl pt-4';
+      return 'text-3xl pt-4 pb-2';
     case 2:
-      return 'text-2xl pt-3';
+      return 'text-2xl pt-3 pb-2';
     case 3:
-      return 'text-xl pt-2';
+      return 'text-xl pt-2 pb-2';
     default:
       return '';
   }
