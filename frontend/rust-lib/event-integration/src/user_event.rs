@@ -12,6 +12,8 @@ use uuid::Uuid;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::NotificationSender;
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_URL, USER_UUID};
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
+use flowy_server_config::AuthenticatorType;
 use flowy_user::entities::{
   AuthTypePB, CloudSettingPB, OauthSignInPB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB,
   UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB,
@@ -296,4 +298,16 @@ pub fn login_password() -> String {
 pub struct SignUpContext {
   pub user_profile: UserProfilePB,
   pub password: String,
+}
+
+pub async fn user_localhost_af_cloud() {
+  AuthenticatorType::AppFlowyCloud.write_env();
+  AFCloudConfiguration {
+    base_url: "http://localhost:8000".to_string(),
+    ws_base_url: "ws://localhost:8000/ws".to_string(),
+    gotrue_url: "http://localhost:9998".to_string(),
+  }
+  .write_env();
+  std::env::set_var("GOTRUE_ADMIN_EMAIL", "admin@example.com");
+  std::env::set_var("GOTRUE_ADMIN_PASSWORD", "password");
 }
