@@ -43,21 +43,29 @@ export function tabForward(editor: ReactEditor) {
 
   const [node, path] = match as NodeEntry<Element>;
 
+  if (!node.level) return;
   // the node is not a list item
   if (!LIST_ITEM_TYPES.includes(node.type as EditorNodeType)) {
     return;
   }
 
-  const previous = Editor.previous(editor, {
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && Editor.isBlock(editor, n) && n.level === node.level,
-    at: path,
-  });
+  let previousNode;
 
-  if (!previous) return;
+  for (let i = path[0] - 1; i >= 0; i--) {
+    const ancestor = editor.children[i] as Element & { level: number };
 
-  const [previousNode] = previous as NodeEntry<Element>;
+    if (ancestor.level === node.level) {
+      previousNode = ancestor;
+      break;
+    }
+
+    if (ancestor.level < node.level) {
+      break;
+    }
+  }
 
   if (!previousNode) return;
+
   const type = previousNode.type as EditorNodeType;
 
   // the previous node is not a list
@@ -111,7 +119,7 @@ export function tabBackward(editor: ReactEditor) {
 
   const level = node.level;
 
-  if (level === 1) return;
+  if (level <= 1) return;
   const parent = CustomEditor.findParentNode(editor, node);
 
   if (!parent) return;
@@ -121,6 +129,24 @@ export function tabBackward(editor: ReactEditor) {
   if (!newParentId) return;
 
   const newProperties = { level: level - 1, parentId: newParentId };
+
+  const subordinates = CustomEditor.findNodeSubordinate(editor, node);
+
+  subordinates.forEach((subordinate) => {
+    const subordinatePath = ReactEditor.findPath(editor, subordinate);
+
+    const subordinateLevel = subordinate.level;
+
+    Transforms.setNodes(
+      editor,
+      {
+        level: subordinateLevel - 1,
+      },
+      {
+        at: subordinatePath,
+      }
+    );
+  });
 
   const parentChildren = CustomEditor.findNodeChildren(editor, parent);
 

@@ -1,85 +1,118 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, Node, NodeEntry, Transforms } from 'slate';
-import { Log } from '$app/utils/log';
+import { convertBlockToJson } from '$app/application/document/document.service';
+import { Editor, Element } from 'slate';
 import { generateId } from '$app/components/editor/provider/utils/convert';
+import { blockTypes, EditorNodeType } from '$app/application/document/document.types';
+import { InputType } from '@/services/backend';
 
 export function withPasted(editor: ReactEditor) {
-  const { insertData, mergeNodes } = editor;
-
-  editor.mergeNodes = (...args) => {
-    const isBlock = (n: Node) =>
-      !Editor.isEditor(n) && Element.isElement(n) && n.type !== undefined && n.level !== undefined;
-
-    const [match] = Editor.nodes(editor, {
-      match: isBlock,
-    });
-
-    const node = match ? (match[0] as Element) : null;
-
-    if (!node) {
-      mergeNodes(...args);
-      return;
-    }
-
-    // This is a hack to fix the bug that the children of the node will be moved to the previous node
-    const previous = Editor.previous(editor, {
-      match: (n) => {
-        return !Editor.isEditor(n) && Element.isElement(n) && n.type !== undefined && n.level === (node.level ?? 1) - 1;
-      },
-    });
-
-    if (previous) {
-      const [previousNode] = previous as NodeEntry<Element>;
-
-      if (previousNode && previousNode.blockId !== node.parentId) {
-        const children = editor.children.filter((child) => (child as Element).parentId === node.parentId);
-
-        children.forEach((child) => {
-          const childIndex = editor.children.findIndex((c) => c === child);
-          const childPath = [childIndex];
-
-          Transforms.setNodes(editor, { parentId: previousNode.blockId }, { at: childPath });
-        });
-      }
-    }
-
-    mergeNodes(...args);
-  };
+  const { insertData, insertFragment } = editor;
 
   editor.insertData = (data) => {
     const fragment = data.getData('application/x-slate-fragment');
 
-    try {
-      if (fragment) {
-        const decoded = decodeURIComponent(window.atob(fragment));
-        const parsed = JSON.parse(decoded);
+    if (fragment) {
+      insertData(data);
+      return;
+    }
 
-        if (parsed instanceof Array) {
-          const idMap = new Map<string, string>();
+    const html = data.getData('text/html');
+    const text = data.getData('text/plain');
+    const inputType = html ? InputType.Html : InputType.PlainText;
 
-          for (const parsedElement of parsed as Element[]) {
-            if (!parsedElement.blockId) continue;
-            const newBlockId = generateId();
-
-            if (parsedElement.parentId) {
-              parsedElement.parentId = idMap.get(parsedElement.parentId) ?? parsedElement.parentId;
-            }
-
-            idMap.set(parsedElement.blockId, newBlockId);
-            parsedElement.blockId = newBlockId;
-
-            parsedElement.textId = generateId();
-          }
-
-          editor.insertFragment(parsed);
-          return;
-        }
-      }
-    } catch (err) {
-      Log.error('insertData', err);
+    if (html || text) {
+      void convertBlockToJson(html || text, inputType).then((nodes) => {
+        editor.insertFragment(nodes);
+      });
+      return;
     }
 
     insertData(data);
+  };
+
+  editor.insertFragment = (fragment) => {
+    let rootId = (editor.children[0] as Element)?.blockId;
+
+    if (!rootId) {
+      rootId = generateId();
+      insertFragment([
+        {
+          type: EditorNodeType.Paragraph,
+          children: [
+            {
+              text: '',
+            },
+          ],
+          data: {},
+          blockId: rootId,
+          textId: generateId(),
+          parentId: '',
+          level: 0,
+        },
+      ]);
+    }
+
+    const [mergedMatch] = Editor.nodes(editor, {
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type !== undefined,
+    });
+
+    const mergedNode = mergedMatch
+      ? (mergedMatch[0] as Element & {
+          blockId: string;
+          parentId: string;
+          level: number;
+        })
+      : null;
+
+    if (!mergedNode) return insertFragment(fragment);
+
+    const isEmpty = Editor.isEmpty(editor, mergedNode);
+
+    const mergedNodeId = isEmpty ? undefined : mergedNode.blockId;
+
+    const idMap = new Map<string, string>();
+    const levelMap = new Map<string, number>();
+
+    for (let i = 0; i < fragment.length; i++) {
+      const node = fragment[i] as Element & {
+        blockId: string;
+        parentId: string;
+        level: number;
+      };
+
+      const newBlockId = i === 0 && mergedNodeId ? mergedNodeId : generateId();
+
+      const parentId = idMap.get(node.parentId);
+
+      if (parentId) {
+        node.parentId = parentId;
+      } else {
+        idMap.set(node.parentId, mergedNode.parentId);
+        node.parentId = mergedNode.parentId;
+      }
+
+      const parentLevel = levelMap.get(node.parentId);
+
+      if (parentLevel !== undefined) {
+        node.level = parentLevel + 1;
+      } else {
+        levelMap.set(node.parentId, mergedNode.level - 1);
+        node.level = mergedNode.level;
+      }
+
+      // if the pasted fragment is not matched with the block type, we need to convert it to paragraph
+      // and if the pasted fragment is a page, we need to convert it to paragraph
+      if (!blockTypes.includes(node.type as EditorNodeType) || node.type === EditorNodeType.Page) {
+        node.type = EditorNodeType.Paragraph;
+      }
+
+      idMap.set(node.blockId, newBlockId);
+      levelMap.set(newBlockId, node.level);
+      node.blockId = newBlockId;
+      node.textId = generateId();
+    }
+
+    return insertFragment(fragment);
   };
 
   return editor;

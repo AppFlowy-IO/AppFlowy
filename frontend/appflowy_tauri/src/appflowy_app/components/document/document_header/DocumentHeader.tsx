@@ -1,29 +1,17 @@
 import React, { useCallback } from 'react';
-import { PageIcon } from '$app_reducers/pages/slice';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { Page, PageIcon } from '$app_reducers/pages/slice';
+import { useAppDispatch } from '$app/stores/store';
 import ViewTitle from '$app/components/_shared/ViewTitle';
-import { updatePageIcon, updatePageName } from '$app_reducers/pages/async_actions';
+import { updatePageIcon } from '$app_reducers/pages/async_actions';
 
 interface DocumentHeaderProps {
-  pageId: string;
-  onSplitTitle: (splitText: string) => void;
+  page: Page;
 }
 
-export function DocumentHeader({ pageId, onSplitTitle }: DocumentHeaderProps) {
-  const page = useAppSelector((state) => state.pages.pageMap[pageId]);
+export function DocumentHeader({ page }: DocumentHeaderProps) {
   const dispatch = useAppDispatch();
-  const onTitleChange = useCallback(
-    (newTitle: string) => {
-      void dispatch(
-        updatePageName({
-          id: pageId,
-          name: newTitle,
-        })
-      );
-    },
-    [dispatch, pageId]
-  );
 
+  const pageId = page.id;
   const onUpdateIcon = useCallback(
     (icon: PageIcon) => {
       void dispatch(
@@ -39,7 +27,7 @@ export function DocumentHeader({ pageId, onSplitTitle }: DocumentHeaderProps) {
   if (!page) return null;
   return (
     <div className={'document-header px-16 py-4'}>
-      <ViewTitle onSplitTitle={onSplitTitle} onUpdateIcon={onUpdateIcon} onTitleChange={onTitleChange} view={page} />
+      <ViewTitle showTitle={false} onUpdateIcon={onUpdateIcon} view={page} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ReactEditor, useSlate } from 'slate-react';
 import { getBlockActionsPosition } from '$app/components/editor/components/tools/block_actions/utils';
 import { Element } from 'slate';
+import { EditorNodeType } from '$app/application/document/document.types';
 
 export function useBlockActionsToolbar(ref: React.RefObject<HTMLDivElement>) {
   const editor = useSlate();
@@ -57,6 +58,6 @@ export function useBlockActionsToolbar(ref: React.RefObject<HTMLDivElement>) {
   }, [editor, ref]);
 
   return {
-    node,
+    node: node?.type === EditorNodeType.Page ? null : node,
   };
 }

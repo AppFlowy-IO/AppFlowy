@@ -10,8 +10,8 @@ import { withPasted } from '$app/components/editor/plugins/withPasted';
 
 export function withBlockPlugins(editor: ReactEditor) {
   return withMathEquationPlugin(
-    withDatabaseBlockPlugin(
-      withPasted(withSplitNodes(withMergeNodes(withBlockInsertBreak(withBlockDeleteBackward(editor)))))
+    withPasted(
+      withDatabaseBlockPlugin(withSplitNodes(withMergeNodes(withBlockInsertBreak(withBlockDeleteBackward(editor)))))
     )
   );
 }

@@ -5,12 +5,36 @@ import { EditorProps } from '$app/application/document/document.types';
 import { Provider } from '$app/components/editor/provider';
 import { YXmlText } from 'yjs/dist/src/types/YXmlText';
 
-export const CollaborativeEditor = (props: EditorProps) => {
+export const CollaborativeEditor = ({ id, title, showTitle = true, onTitleChange }: EditorProps) => {
   const [sharedType, setSharedType] = useState<YXmlText | null>(null);
   const provider = useMemo(() => {
     setSharedType(null);
-    return new Provider(props.id);
-  }, [props.id]);
+    return new Provider(id, showTitle);
+  }, [id, showTitle]);
+
+  const root = useMemo(() => {
+    return showTitle ? (sharedType?.toDelta()[0].insert as YXmlText | null) : null;
+  }, [sharedType, showTitle]);
+
+  useEffect(() => {
+    if (!root || root.toString() === title) return;
+
+    if (root.length > 0) {
+      root.delete(0, root.length);
+    }
+
+    root.insert(0, title || '');
+  }, [title, root]);
+
+  useEffect(() => {
+    if (!root) return;
+    const onChange = () => {
+      onTitleChange?.(root.toString());
+    };
+
+    root.observe(onChange);
+    return () => root.unobserve(onChange);
+  }, [onTitleChange, root]);
 
   useEffect(() => {
     provider.connect();
@@ -26,9 +50,9 @@ export const CollaborativeEditor = (props: EditorProps) => {
     };
   }, [provider]);
 
-  if (!sharedType || props.id !== provider.id) {
+  if (!sharedType || id !== provider.id) {
     return null;
   }
 
-  return <Editor {...props} sharedType={sharedType || undefined} />;
+  return <Editor sharedType={sharedType} id={id} />;
 };

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   EditorSelectedBlockProvider,
   useDecorate,
@@ -7,33 +7,18 @@ import {
 } from '$app/components/editor/components/editor/Editor.hooks';
 import { Slate } from 'slate-react';
 import { CustomEditable } from '$app/components/editor/components/editor/CustomEditable';
-import { EditorNodeType, EditorProps } from '$app/application/document/document.types';
 import { SelectionToolbar } from '$app/components/editor/components/tools/selection_toolbar';
 import { useShortcuts } from '$app/components/editor/components/editor/shortcuts';
 import { BlockActionsToolbar } from '$app/components/editor/components/tools/block_actions';
 import { SlashCommandPanel } from '$app/components/editor/components/tools/command_panel/slash_command_panel';
 import { MentionPanel } from '$app/components/editor/components/tools/command_panel/mention_panel';
 import { CircularProgress } from '@mui/material';
-import { CustomEditor } from '$app/components/editor/command';
+import * as Y from 'yjs';
 
-function Editor({ sharedType, appendTextRef }: EditorProps) {
+function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
   const decorate = useDecorate(editor);
   const { onDOMBeforeInput, onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
-
-  useEffect(() => {
-    if (!appendTextRef) return;
-    appendTextRef.current = (text: string) => {
-      CustomEditor.insertLineAtStart(editor, {
-        type: EditorNodeType.Paragraph,
-        children: [{ text }],
-      });
-    };
-
-    return () => {
-      appendTextRef.current = null;
-    };
-  }, [appendTextRef, editor]);
 
   const { onSelectedBlock, selectedBlockId } = useEditorSelectedBlock(editor);
 

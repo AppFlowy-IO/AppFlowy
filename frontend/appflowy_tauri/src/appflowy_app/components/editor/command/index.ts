@@ -1,5 +1,5 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, Node, NodeEntry, Transforms } from 'slate';
+import { BasePoint, Editor, Element, Node, NodeEntry, Transforms } from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
 import { isMarkActive, toggleMark } from '$app/components/editor/command/mark';
 import { insertFormula, isFormulaActive, unwrapFormula, updateFormula } from '$app/components/editor/command/formula';
@@ -123,7 +123,7 @@ export const CustomEditor = {
     const index = editor.children.findIndex((child) => (child as Element).blockId === node.blockId);
 
     const level = node.level ?? 1;
-    const subordinateNodes: Element[] = [];
+    const subordinateNodes: (Element & { level: number })[] = [];
 
     if (index === editor.children.length - 1) return subordinateNodes;
 
@@ -308,6 +308,14 @@ export const CustomEditor = {
     return CustomEditor.getBlockType(editor) === EditorNodeType.GridBlock;
   },
 
+  selectionIncludeRoot: (editor: ReactEditor) => {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => Element.isElement(n) && n.blockId !== undefined && n.type === EditorNodeType.Page,
+    });
+
+    return Boolean(match);
+  },
+
   isCodeBlock: (editor: ReactEditor) => {
     return CustomEditor.getBlockType(editor) === EditorNodeType.CodeBlock;
   },
@@ -332,33 +340,40 @@ export const CustomEditor = {
     Transforms.move(editor);
   },
 
-  insertLineAtStart: (editor: ReactEditor & YjsEditor, node: Element) => {
-    const blockId = generateId();
-    const parentId = editor.sharedRoot.getAttribute('blockId');
+  basePointToIndexLength(editor: ReactEditor, point: BasePoint, toStart = false) {
+    const { path, offset } = point;
 
-    ReactEditor.focus(editor);
-    editor.insertNode(
-      {
-        ...node,
-        blockId,
-        parentId,
-        textId: generateId(),
-        level: 1,
-      },
-      {
-        at: [0],
-      }
-    );
+    const node = editor.children[path[0]] as Element;
+    const blockId = node.blockId;
 
-    editor.select({
+    if (!blockId) return;
+    const beforeText = Editor.string(editor, {
       anchor: {
-        path: [0, 0],
+        path: [path[0], 0],
         offset: 0,
       },
       focus: {
-        path: [0, 0],
-        offset: 0,
+        path,
+        offset,
       },
     });
+
+    const index = beforeText.length;
+    const fullText = Editor.string(editor, [path[0]]);
+    const length = fullText.length - index;
+
+    if (toStart) {
+      return {
+        index: 0,
+        length: index,
+        blockId,
+      };
+    } else {
+      return {
+        index,
+        length,
+        blockId,
+      };
+    }
   },
 };

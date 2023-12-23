@@ -45,7 +45,7 @@ export function transformToInlineElement(op: Op): Element | null {
   return null;
 }
 
-export function convertToSlateValue(data: EditorData): Element[] {
+export function convertToSlateValue(data: EditorData, includeRoot: boolean): Element[] {
   const nodes: Element[] = [];
   const traverse = (id: string, level: number, isHidden?: boolean) => {
     const node = data.nodeMap[id];
@@ -63,7 +63,7 @@ export function convertToSlateValue(data: EditorData): Element[] {
     };
 
     const inlineNodes: (Text | Element)[] = delta
-      ? data.deltaMap[id].map((op) => {
+      ? delta.map((op) => {
           const matchInline = transformToInlineElement(op);
 
           if (matchInline) {
@@ -105,7 +105,9 @@ export function convertToSlateValue(data: EditorData): Element[] {
 
   traverse(rootId, 0);
 
-  nodes.shift();
+  if (!includeRoot) {
+    nodes.shift();
+  }
 
   return nodes;
 }

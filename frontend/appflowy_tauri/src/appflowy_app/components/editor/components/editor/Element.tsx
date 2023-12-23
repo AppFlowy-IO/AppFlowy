@@ -16,6 +16,7 @@ import { Mention } from '$app/components/editor/components/inline_nodes/mention'
 import { GridBlock } from '$app/components/editor/components/blocks/database';
 import { MathEquation } from '$app/components/editor/components/blocks/math_equation';
 import { useSelectedBlock } from '$app/components/editor/components/editor/Editor.hooks';
+import Page from '../blocks/page/Page';
 
 function Element({ element, attributes, children }: RenderElementProps) {
   const node = element;
@@ -33,6 +34,8 @@ function Element({ element, attributes, children }: RenderElementProps) {
 
   const Component = useMemo(() => {
     switch (node.type) {
+      case EditorNodeType.Page:
+        return Page;
       case EditorNodeType.HeadingBlock:
         return Heading;
       case EditorNodeType.TodoListBlock:

@@ -34,7 +34,7 @@ lru = "0.12.0"
 [dependencies]
 serde_json.workspace = true
 serde.workspace = true
-tauri = { version = "1.5", features = ["fs-all", "shell-open"] }
+tauri = { version = "1.5", features = ["clipboard-all", "fs-all", "shell-open"] }
 tauri-utils = "1.5"
 bytes.workspace = true
 tracing.workspace = true
