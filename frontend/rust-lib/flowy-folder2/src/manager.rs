@@ -47,9 +47,6 @@ pub struct FolderManager {
   pub cloud_service: Arc<dyn FolderCloudService>,
 }
 
-unsafe impl Send for FolderManager {}
-unsafe impl Sync for FolderManager {}
-
 impl FolderManager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
