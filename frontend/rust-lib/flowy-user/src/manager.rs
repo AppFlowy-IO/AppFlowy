@@ -105,13 +105,7 @@ impl UserManager {
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
     let current_session = Arc::new(parking_lot::RwLock::new(None));
-    let current_authenticator = current_authenticator();
-    migrate_session_with_user_uuid(
-      &current_authenticator,
-      &user_config,
-      &current_session,
-      &store_preferences,
-    );
+    migrate_session_with_user_uuid(&user_config, &current_session, &store_preferences);
 
     let refresh_user_profile_since = AtomicI64::new(0);
     let user_manager = Arc::new(Self {
