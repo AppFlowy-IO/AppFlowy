@@ -5,7 +5,7 @@
 description = "Run flutter test with single case in single file. Input: cargo make flutter_test 'path to the file' --name 'test case name'"
 script = '''
 cd appflowy_flutter
-RUST_LOG=trace flutter test -d macOS -j, "${@}"
+RUST_LOG=debug flutter test -j, "${@}"
 '''
 script_runner = "@shell"
 
