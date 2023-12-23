@@ -166,10 +166,9 @@ impl From<&Authenticator> for ServerType {
 }
 
 pub fn current_server_type(store_preferences: &Arc<StorePreferences>) -> ServerType {
-  match store_preferences.get_object::<ServerType>(SERVER_PROVIDER_TYPE_KEY) {
-    None => ServerType::Local,
-    Some(provider_type) => provider_type,
-  }
+  store_preferences
+    .get_object::<ServerType>(SERVER_PROVIDER_TYPE_KEY)
+    .unwrap_or_else(|| ServerType::Local)
 }
 
 struct LocalServerDBImpl {

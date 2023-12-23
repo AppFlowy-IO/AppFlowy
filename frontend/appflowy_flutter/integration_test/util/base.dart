@@ -39,7 +39,7 @@ extension AppFlowyTestBase on WidgetTester {
     String? email,
   }) async {
     // view.physicalSize = windowsSize;
-    // binding.setSurfaceSize(windowsSize);
+    binding.setSurfaceSize(windowsSize);
     // addTearDown(() => binding.setSurfaceSize(null));
 
     mockHotKeyManagerHandlers();

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
+import 'package:archive/archive.dart';
 
 Future<void> deleteDirectoriesWithSameBaseNameAsPrefix(
   String path,
@@ -25,6 +26,28 @@ Future<void> deleteDirectoriesWithSameBaseNameAsPrefix(
         // ignore: avoid_print
         print('Failed to delete directory: ${entity.path}, Error: $e');
       }
+    }
+  }
+}
+
+Future<void> unzipFile(File zipFile, Directory targetDirectory) async {
+  // Read the Zip file from disk.
+  final bytes = zipFile.readAsBytesSync();
+
+  // Decode the Zip file
+  final archive = ZipDecoder().decodeBytes(bytes);
+
+  // Extract the contents of the Zip archive to disk.
+  for (final file in archive) {
+    final filename = file.name;
+    if (file.isFile) {
+      final data = file.content as List<int>;
+      File(p.join(targetDirectory.path, filename))
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(data);
+    } else {
+      Directory(p.join(targetDirectory.path, filename))
+          .createSync(recursive: true);
     }
   }
 }
