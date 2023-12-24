@@ -5,18 +5,20 @@ import GridView from '$app/components/editor/components/blocks/database/GridView
 import DatabaseEmpty from '$app/components/editor/components/blocks/database/DatabaseEmpty';
 
 export const GridBlock = memo(
-  forwardRef<HTMLDivElement, EditorElementProps<GridNode>>(({ node, children }, ref) => {
+  forwardRef<HTMLDivElement, EditorElementProps<GridNode>>(({ node, children, className = '', ...attributes }, ref) => {
     const viewId = node.data.viewId;
 
     return (
-      <div
-        contentEditable={false}
-        className='relative flex h-[400px] overflow-hidden border-b border-t border-line-divider caret-text-title'
-        ref={ref}
-      >
-        {viewId ? <GridView viewId={viewId} /> : <DatabaseEmpty node={node} />}
-
-        <div className={'invisible absolute'}>{children}</div>
+      <div {...attributes} className={`${className} relative my-2`}>
+        <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
+          {children}
+        </div>
+        <div
+          contentEditable={false}
+          className='flex h-[400px] overflow-hidden border-b border-t border-line-divider py-2 caret-text-title'
+        >
+          {viewId ? <GridView viewId={viewId} /> : <DatabaseEmpty node={node} />}
+        </div>
       </div>
     );
   })

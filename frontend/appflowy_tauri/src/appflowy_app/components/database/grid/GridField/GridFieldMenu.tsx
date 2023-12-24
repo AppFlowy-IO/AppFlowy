@@ -15,6 +15,7 @@ function GridFieldMenu({ field, onOpenPropertyMenu, onOpenMenu, ...props }: Prop
   return (
     <Portal>
       <Popover
+        disableRestoreFocus={true}
         transformOrigin={{
           vertical: 'top',
           horizontal: 'left',

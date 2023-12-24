@@ -6,7 +6,7 @@ import { PopoverPreventBlurProps } from '$app/components/editor/components/tools
 import SlashCommandPanelContent from '$app/components/editor/components/tools/command_panel/slash_command_panel/SlashCommandPanelContent';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { useTranslation } from 'react-i18next';
-import { Editor, Element, Transforms } from 'slate';
+import { Editor, Element, Transforms, Path } from 'slate';
 import { CustomEditor } from '$app/components/editor/command';
 import { EditorNodeType } from '$app/application/document/document.types';
 
@@ -48,17 +48,16 @@ function AddBlockBelow({ node }: { node?: Element }) {
     ReactEditor.focus(editor);
 
     const [textNode] = node.children as Element[];
-    const path =
-      textNode.type === EditorNodeType.Text
-        ? ReactEditor.findPath(editor, textNode)
-        : ReactEditor.findPath(editor, node);
+    const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
+
+    const path = hasTextNode ? ReactEditor.findPath(editor, textNode) : ReactEditor.findPath(editor, node);
 
     editor.select(path);
     editor.collapse({
       edge: 'end',
     });
 
-    const isEmptyNode = textNode && editor.isEmpty(textNode);
+    const isEmptyNode = hasTextNode && editor.isEmpty(textNode);
 
     if (isEmptyNode) {
       const nodeDom = ReactEditor.toDOMNode(editor, node);
@@ -67,7 +66,13 @@ function AddBlockBelow({ node }: { node?: Element }) {
       return;
     }
 
-    editor.insertBreak();
+    const nextPath = Path.next(path);
+
+    CustomEditor.insertParagraph(editor, nextPath);
+    editor.select(nextPath);
+    editor.collapse({
+      edge: 'end',
+    });
 
     requestAnimationFrame(() => {
       const block = CustomEditor.getBlock(editor);

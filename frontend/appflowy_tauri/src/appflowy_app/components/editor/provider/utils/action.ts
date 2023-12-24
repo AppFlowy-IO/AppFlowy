@@ -3,7 +3,9 @@ import { BlockActionPB, BlockActionTypePB } from '@/services/backend';
 import { generateId } from '$app/components/editor/provider/utils/convert';
 import { YDelta2Delta } from '$app/components/editor/provider/utils/delta';
 import { YDelta } from '$app/components/editor/provider/types/y_event';
-import { getYTarget } from '$app/components/editor/provider/utils/relation';
+import { getInsertTarget, getYTarget } from '$app/components/editor/provider/utils/relation';
+import { EditorNodeType } from '$app/application/document/document.types';
+import { Log } from '$app/utils/log';
 
 export function YEvents2BlockActions(
   backupDoc: Readonly<Y.Doc>,
@@ -93,21 +95,23 @@ function blockOps2BlockActions(
   if (ops.length > 1) {
     const [deleteOp, insertOp, ...otherOps] = newOps;
 
-    if (deleteOp.delete === 1 && insertOp.insert && insertOp.insert instanceof Y.XmlText) {
-      const textNode = blockYXmlText.toDelta()[0].insert as Y.XmlText;
+    const insert = insertOp.insert;
+
+    if (deleteOp.delete === 1 && insert && insert instanceof Y.XmlText) {
+      const textNode = getInsertTarget(blockYXmlText, [0]);
       const textId = textNode.getAttribute('textId');
 
       if (textId) {
         const length = textNode.length;
 
-        insertOp.insert.setAttribute('textId', textId);
+        insert.setAttribute('textId', textId);
 
         actions.push(
-          ...generateApplyTextActions(insertOp.insert, [
+          ...generateApplyTextActions(insert, [
             {
               delete: length,
             },
-            ...insertOp.insert.toDelta(),
+            ...insert.toDelta(),
           ])
         );
       }
@@ -139,9 +143,9 @@ function blockOps2BlockActions(
       index += op.retain;
     } else if (op.delete) {
       for (let i = index; i < op.delete + index; i++) {
-        const target = blockYXmlText.toDelta()[i].insert;
+        const target = getInsertTarget(blockYXmlText, [i]);
 
-        if (target && target instanceof Y.XmlText) {
+        if (target) {
           const deletedId = target.getAttribute('blockId') as string;
 
           if (deletedId) {
@@ -247,6 +251,16 @@ export function generateInsertBlockActions(
   const type = insertYXmlText.getAttribute('type');
   const id = insertYXmlText.getAttribute('blockId');
 
+  if (!id) {
+    Log.error('generateInsertBlockActions', 'id is not exist');
+    return [];
+  }
+
+  if (!type || type === 'text' || Object.values(EditorNodeType).indexOf(type) === -1) {
+    Log.error('generateInsertBlockActions', 'type is error: ' + type);
+    return [];
+  }
+
   const actions: ReturnType<typeof BlockActionPB.prototype.toObject>[] = [
     ...textInsertActions,
     {
@@ -259,7 +273,7 @@ export function generateInsertBlockActions(
           parent_id: parentId,
           children_id: childrenId,
           external_id: externalId,
-          external_type: 'text',
+          external_type: externalId ? 'text' : undefined,
         },
         prev_id: prevId,
         parent_id: parentId,

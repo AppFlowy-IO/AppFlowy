@@ -4,7 +4,6 @@ import { DataClient } from '$app/components/editor/provider/data_client';
 import { YDelta } from '$app/components/editor/provider/types/y_event';
 import { YEvents2BlockActions } from '$app/components/editor/provider/utils/action';
 import { EventEmitter } from 'events';
-import { getStructureFromDelta } from '$app/components/editor/provider/utils/relation';
 
 const REMOTE_ORIGIN = 'remote';
 
@@ -14,7 +13,6 @@ export class Provider extends EventEmitter {
   dataClient: DataClient;
   // get origin data after document updated
   backupDoc: Y.Doc = new Y.Doc();
-  blockStruct: Map<string, { id: string; type: string }[]> = new Map();
   constructor(public id: string, includeRoot?: boolean) {
     super();
     this.dataClient = new DataClient(id);
@@ -32,7 +30,6 @@ export class Provider extends EventEmitter {
     const rootId = this.dataClient.rootId as string;
 
     sharedType.setAttribute('blockId', rootId);
-    this.blockStruct = getStructureFromDelta(rootId, delta);
 
     this.sharedType = sharedType;
     this.sharedType?.observeDeep(this.onChange);

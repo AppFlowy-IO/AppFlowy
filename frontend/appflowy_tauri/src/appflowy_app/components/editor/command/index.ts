@@ -1,5 +1,5 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, Node, NodeEntry, Point, Range, Transforms } from 'slate';
+import { Editor, Element, Node, NodeEntry, Point, Range, Transforms, Location } from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
 import { isMarkActive, toggleMark } from '$app/components/editor/command/mark';
 import { insertFormula, isFormulaActive, unwrapFormula, updateFormula } from '$app/components/editor/command/formula';
@@ -10,6 +10,7 @@ import {
   Mention,
   TodoListNode,
   ToggleListNode,
+  noTextBlockTypes,
 } from '$app/application/document/document.types';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { generateId } from '$app/components/editor/provider/utils/convert';
@@ -40,7 +41,7 @@ export const CustomEditor = {
 
     const [firstTextNode, ...children] = node.children as Element[];
     const textNode =
-      firstTextNode && firstTextNode.type === EditorNodeType.Text
+      firstTextNode && firstTextNode.type === EditorNodeType.Text && !noTextBlockTypes.includes(cloneNode.type)
         ? {
             textId: generateId(),
             type: EditorNodeType.Text,
@@ -73,7 +74,9 @@ export const CustomEditor = {
       });
     }
 
-    Transforms.select(editor, selection);
+    if (!noTextBlockTypes.includes(cloneNode.type)) {
+      Transforms.select(editor, selection);
+    }
   },
   tabForward,
   tabBackward,
@@ -114,6 +117,31 @@ export const CustomEditor = {
 
   splitToParagraph(editor: ReactEditor) {
     Transforms.splitNodes(editor, { always: true });
+  },
+
+  insertParagraph(editor: ReactEditor, at: Location) {
+    Transforms.insertNodes(
+      editor,
+      {
+        type: EditorNodeType.Paragraph,
+        data: {},
+        blockId: generateId(),
+        children: [
+          {
+            type: EditorNodeType.Text,
+            textId: generateId(),
+            children: [
+              {
+                text: '',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        at,
+      }
+    );
   },
 
   toggleTodo(editor: ReactEditor, node: TodoListNode) {

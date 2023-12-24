@@ -239,19 +239,23 @@ function flattenBlockJson(block: BlockJSON) {
       children: [],
     };
 
-    const textNode: Element = {
-      type: 'text',
-      children: [],
-    };
+    const textNode: Element | null = delta
+      ? {
+          type: 'text',
+          children: [],
+        }
+      : null;
 
     const inlinesNodes = getInlinesWithDelta(delta);
 
-    textNode.children.push(...inlinesNodes);
+    textNode?.children.push(...inlinesNodes);
 
     const children = block.children;
 
     slateNode.children = children.map((child) => traverse(child));
-    slateNode.children.unshift(textNode);
+    if (textNode) {
+      slateNode.children.unshift(textNode);
+    }
 
     return slateNode;
   };

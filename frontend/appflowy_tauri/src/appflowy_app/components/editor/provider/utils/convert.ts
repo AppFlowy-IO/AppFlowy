@@ -123,7 +123,5 @@ export function convertToSlateValue(data: EditorData, includeRoot: boolean): Ele
     });
   }
 
-  console.log(nodes);
-
   return nodes;
 }

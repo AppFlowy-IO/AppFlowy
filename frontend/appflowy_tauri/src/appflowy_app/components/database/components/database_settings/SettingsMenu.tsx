@@ -38,7 +38,7 @@ function SettingsMenu(props: SettingsMenuProps) {
 
   return (
     <>
-      <Menu {...props}>
+      <Menu {...props} disableRestoreFocus={true}>
         <MenuItem
           onClick={(event) => {
             const rect = event.currentTarget.getBoundingClientRect();
@@ -54,6 +54,7 @@ function SettingsMenu(props: SettingsMenuProps) {
         </MenuItem>
       </Menu>
       <Popover
+        disableRestoreFocus={true}
         open={openProperties}
         onClose={() => {
           setPropertiesAnchorElPosition(undefined);

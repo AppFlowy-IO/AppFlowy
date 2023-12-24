@@ -1,67 +1,24 @@
 import * as Y from 'yjs';
-import { YDelta } from '$app/components/editor/provider/types/y_event';
 
-export function getStructureFromDelta(rootId: string, delta: YDelta) {
-  const map = new Map();
+export function getInsertTarget(root: Y.XmlText, path: (string | number)[]): Y.XmlText {
+  const delta = root.toDelta();
+  const index = path[0];
 
-  const traverse = (
-    delta: YDelta
-  ): {
-    id: string;
-    type: string;
-  }[] => {
-    const children: {
-      id: string;
-      type: string;
-    }[] = [];
+  const current = delta[index];
 
-    delta.forEach((op) => {
-      if (op.insert && op.insert instanceof Y.XmlText) {
-        const blockId = op.insert.getAttribute('blockId');
-        const textId = op.insert.getAttribute('textId');
+  if (current && current.insert instanceof Y.XmlText) {
+    if (path.length === 1) {
+      return current.insert;
+    }
 
-        if (blockId) {
-          map.set(blockId, traverse(op.insert.toDelta()));
-          children.push({ type: 'block', id: blockId });
-        }
+    return getInsertTarget(current.insert, path.slice(1));
+  }
 
-        if (textId) {
-          children.push({
-            type: 'text',
-            id: textId,
-          });
-        }
-      }
-    });
-
-    return children;
-  };
-
-  map.set(rootId, traverse(delta));
-
-  return map;
+  return root;
 }
 
 export function getYTarget(doc: Y.Doc, path: (string | number)[]) {
   const sharedType = doc.get('sharedType', Y.XmlText) as Y.XmlText;
 
-  const getTarget = (node: Y.XmlText, path: (string | number)[]): Y.XmlText => {
-    if (path.length === 0) return node;
-    const delta = node.toDelta();
-    const index = path[0];
-
-    const current = delta[index];
-
-    if (current.insert instanceof Y.XmlText) {
-      if (path.length === 1) {
-        return current.insert;
-      }
-
-      return getTarget(current.insert, path.slice(1));
-    }
-
-    return node;
-  };
-
-  return getTarget(sharedType, path);
+  return getInsertTarget(sharedType, path);
 }

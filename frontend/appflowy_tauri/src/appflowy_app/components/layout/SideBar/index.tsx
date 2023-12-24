@@ -29,7 +29,7 @@ function SideBar() {
           <div className={'flex h-[36px] items-center'}>
             <UserInfo />
           </div>
-          <div className={'flex-1'}>
+          <div className={'flex-1 overflow-hidden'}>
             <WorkspaceManager />
           </div>
         </div>

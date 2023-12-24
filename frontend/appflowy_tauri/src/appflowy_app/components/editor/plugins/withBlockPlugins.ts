@@ -7,11 +7,14 @@ import { withDatabaseBlockPlugin } from '$app/components/editor/components/block
 import { withMathEquationPlugin } from '$app/components/editor/components/blocks/math_equation';
 import { withPasted } from '$app/components/editor/plugins/withPasted';
 import { withBlockMove } from '$app/components/editor/plugins/withBlockMove';
+import { withDividerPlugin } from '$app/components/editor/components/blocks/divider';
 
 export function withBlockPlugins(editor: ReactEditor) {
-  return withMathEquationPlugin(
-    withPasted(
-      withDatabaseBlockPlugin(withBlockMove(withSplitNodes(withBlockInsertBreak(withBlockDeleteBackward(editor)))))
+  return withDividerPlugin(
+    withMathEquationPlugin(
+      withPasted(
+        withDatabaseBlockPlugin(withBlockMove(withSplitNodes(withBlockInsertBreak(withBlockDeleteBackward(editor)))))
+      )
     )
   );
 }

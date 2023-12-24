@@ -218,7 +218,7 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
     if (text.endsWith(' ') || text.endsWith('-')) {
       const endChar = text.slice(-1);
       const [match] = Editor.nodes(editor, {
-        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type !== undefined,
+        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === EditorNodeType.Text,
       });
 
       if (!match) {

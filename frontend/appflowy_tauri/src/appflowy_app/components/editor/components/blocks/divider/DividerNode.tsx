@@ -9,7 +9,7 @@ export const DividerNode = memo(
           <div contentEditable={false} className={'absolute w-full py-2.5 text-line-divider'}>
             <hr />
           </div>
-          <div {...attributes} ref={ref} className={`${attributes.className ?? ''}`}>
+          <div {...attributes} ref={ref} className={`${attributes.className ?? ''} caret-transparent`}>
             <span className={'h-6 w-full'}>{children}</span>
           </div>
         </>

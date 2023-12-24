@@ -152,7 +152,12 @@ export enum EditorNodeType {
   GridBlock = 'grid',
 }
 
-export const blockTypes: string[] = Object.values(EditorNodeType);
+export const noTextBlockTypes: string[] = [
+  EditorNodeType.ImageBlock,
+  EditorNodeType.GridBlock,
+  EditorNodeType.EquationBlock,
+  EditorNodeType.DividerBlock,
+];
 
 export enum EditorInlineNodeType {
   Mention = 'mention',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
   EditorSelectedBlockProvider,
   useDecorate,
@@ -46,4 +46,4 @@ function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
   );
 }
 
-export default Editor;
+export default memo(Editor);
