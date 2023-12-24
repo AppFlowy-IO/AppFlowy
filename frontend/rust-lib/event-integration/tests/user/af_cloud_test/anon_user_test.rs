@@ -1,9 +1,9 @@
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
-use flowy_user::entities::AuthTypePB;
+use flowy_user::entities::AuthenticatorPB;
 
-use crate::util::{get_af_cloud_config, unzip_history_user_db};
+use crate::util::unzip_history_user_db;
 
 #[tokio::test]
 async fn reading_039_anon_user_data_test() {
@@ -38,9 +38,6 @@ async fn reading_039_anon_user_data_test() {
 }
 #[tokio::test]
 async fn anon_user_to_af_cloud_test() {
-  if get_af_cloud_config().is_none() {
-    return;
-  }
   let (cleaner, user_db_path) = unzip_history_user_db("./tests/asset", "039_local").unwrap();
   user_localhost_af_cloud().await;
   let test =
@@ -52,7 +49,7 @@ async fn anon_user_to_af_cloud_test() {
     .child_views;
 
   let user = test.af_cloud_sign_up().await;
-  assert_eq!(user.auth_type, AuthTypePB::AFCloud);
+  assert_eq!(user.authenticator, AuthenticatorPB::AppFlowyCloud);
   // let mut sync_state = test
   //   .folder_manager
   //   .get_mutex_folder()

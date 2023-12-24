@@ -14,7 +14,7 @@ import '../../../generated/locale_keys.g.dart';
 import 'device_id.dart';
 
 class BackendAuthService implements AuthService {
-  final AuthTypePB authType;
+  final AuthenticatorPB authType;
 
   BackendAuthService(this.authType);
 
@@ -73,7 +73,7 @@ class BackendAuthService implements AuthService {
       ..email = userEmail
       ..password = password
       // When sign up as guest, the auth type is always local.
-      ..authType = AuthTypePB.Local
+      ..authType = AuthenticatorPB.Local
       ..deviceId = await getDeviceId();
     final response = await UserEventSignUp(request).send().then(
           (value) => value.swap(),
@@ -84,7 +84,7 @@ class BackendAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
-    AuthTypePB authType = AuthTypePB.Local,
+    AuthenticatorPB authType = AuthenticatorPB.Local,
     Map<String, String> params = const {},
   }) async {
     return left(

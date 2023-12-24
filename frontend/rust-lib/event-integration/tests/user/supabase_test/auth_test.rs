@@ -14,7 +14,9 @@ use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_encrypt::decrypt_text;
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
-use flowy_user::entities::{AuthTypePB, OauthSignInPB, UpdateUserProfilePayloadPB, UserProfilePB};
+use flowy_user::entities::{
+  AuthenticatorPB, OauthSignInPB, UpdateUserProfilePayloadPB, UserProfilePB,
+};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;
 
@@ -33,7 +35,7 @@ async fn third_party_sign_up_test() {
     map.insert(USER_DEVICE_ID.to_string(), uuid::Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthTypePB::Supabase,
+      auth_type: AuthenticatorPB::Supabase,
     };
 
     let response = EventBuilder::new(test.clone())
@@ -77,7 +79,7 @@ async fn third_party_sign_up_with_duplicated_uuid() {
       .event(OauthSignIn)
       .payload(OauthSignInPB {
         map: map.clone(),
-        auth_type: AuthTypePB::Supabase,
+        auth_type: AuthenticatorPB::Supabase,
       })
       .async_send()
       .await
@@ -88,7 +90,7 @@ async fn third_party_sign_up_with_duplicated_uuid() {
       .event(OauthSignIn)
       .payload(OauthSignInPB {
         map: map.clone(),
-        auth_type: AuthTypePB::Supabase,
+        auth_type: AuthenticatorPB::Supabase,
       })
       .async_send()
       .await

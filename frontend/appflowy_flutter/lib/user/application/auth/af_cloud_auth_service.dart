@@ -17,7 +17,7 @@ class AppFlowyCloudAuthService implements AuthService {
   AppFlowyCloudAuthService();
 
   final BackendAuthService _backendAuthService = BackendAuthService(
-    AuthTypePB.AFCloud,
+    AuthenticatorPB.AppFlowyCloud,
   );
 
   @override

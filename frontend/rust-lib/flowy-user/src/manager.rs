@@ -786,7 +786,13 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    migration_anon_user_on_sign_up(
+      old_user,
+      &old_collab_db,
+      new_user,
+      &new_collab_db,
+      authenticator,
+    )?;
 
     match authenticator {
       Authenticator::Supabase => {

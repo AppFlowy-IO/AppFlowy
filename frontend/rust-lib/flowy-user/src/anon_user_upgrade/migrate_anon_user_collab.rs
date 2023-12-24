@@ -17,6 +17,7 @@ use parking_lot::{Mutex, RwLock};
 use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::gen_view_id;
+use flowy_user_deps::entities::Authenticator;
 
 use crate::migrations::MigrationUser;
 
@@ -27,6 +28,7 @@ pub fn migration_anon_user_on_sign_up(
   old_collab_db: &Arc<RocksCollabDB>,
   new_user: &MigrationUser,
   new_collab_db: &Arc<RocksCollabDB>,
+  authenticator: &Authenticator,
 ) -> FlowyResult<()> {
   new_collab_db
     .with_write_txn(|new_collab_w_txn| {
@@ -72,6 +74,7 @@ pub fn migration_anon_user_on_sign_up(
         &old_collab_r_txn,
         new_user,
         new_collab_w_txn,
+        authenticator,
       )?;
 
       // Migrate other collab objects
@@ -191,6 +194,7 @@ fn migrate_workspace_folder<'a, 'b, W>(
   old_collab_r_txn: &'b W,
   new_user: &MigrationUser,
   new_collab_w_txn: &'a W,
+  authenticator: &Authenticator,
 ) -> Result<(), PersistenceError>
 where
   'a: 'b,
