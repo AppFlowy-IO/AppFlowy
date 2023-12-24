@@ -14,7 +14,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
       await tester.openSettings();
 
       await tester.openSettingsPage(SettingsPage.language);
