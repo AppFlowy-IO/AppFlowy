@@ -1,5 +1,5 @@
 use anyhow::Error;
-use client_api::entity::QueryCollabParams;
+use client_api::entity::{QueryCollab, QueryCollabParams};
 use collab::core::origin::CollabOrigin;
 use collab_document::document::Document;
 use collab_entity::CollabType;
@@ -27,8 +27,10 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id,
-        object_id: document_id.to_string(),
-        collab_type: CollabType::Document,
+        inner: QueryCollab {
+          object_id: document_id.to_string(),
+          collab_type: CollabType::Document,
+        },
       };
       let data = try_get_client?
         .get_collab(params)
@@ -60,8 +62,10 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id,
-        object_id: document_id.clone(),
-        collab_type: CollabType::Document,
+        inner: QueryCollab {
+          object_id: document_id.clone(),
+          collab_type: CollabType::Document,
+        },
       };
       let doc_state = try_get_client?
         .get_collab(params)

@@ -198,16 +198,18 @@ impl UserManager {
       let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
       if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
         event!(tracing::Level::DEBUG, "Listen token state change");
+        let user_uid = user.uid;
+        let user_token = user.token.clone();
         af_spawn(async move {
           while let Some(token_state) = token_state_rx.next().await {
             debug!("Token state changed: {:?}", token_state);
             match token_state {
               UserTokenState::Refresh { token } => {
                 // Only save the token if the token is different from the current token
-                if token != user.token {
+                if token != user_token {
                   if let Some(pool) = weak_pool.upgrade() {
                     // Save the new token
-                    if let Err(err) = save_user_token(user.uid, pool, token) {
+                    if let Err(err) = save_user_token(user_uid, pool, token) {
                       error!("Save user token failed: {}", err);
                     }
                   }
@@ -234,7 +236,7 @@ impl UserManager {
             Box::new(FavoriteV1AndWorkspaceArrayMigration),
           ];
           match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
-            .run(migrations, &current_authenticator)
+            .run(migrations, &user.authenticator)
           {
             Ok(applied_migrations) => {
               if !applied_migrations.is_empty() {

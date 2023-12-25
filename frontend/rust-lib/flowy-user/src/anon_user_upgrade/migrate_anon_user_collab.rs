@@ -194,7 +194,7 @@ fn migrate_workspace_folder<'a, 'b, W>(
   old_collab_r_txn: &'b W,
   new_user: &MigrationUser,
   new_collab_w_txn: &'a W,
-  authenticator: &Authenticator,
+  _authenticator: &Authenticator,
 ) -> Result<(), PersistenceError>
 where
   'a: 'b,

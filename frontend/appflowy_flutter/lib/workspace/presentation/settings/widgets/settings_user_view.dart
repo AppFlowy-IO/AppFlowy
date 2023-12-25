@@ -54,7 +54,8 @@ class SettingsUserView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildUserIconSetting(context),
-              if (isAuthEnabled && user.authType != AuthenticatorPB.Local) ...[
+              if (isAuthEnabled &&
+                  user.authenticator != AuthenticatorPB.Local) ...[
                 const VSpace(12),
                 UserEmailInput(user.email),
               ],
@@ -146,7 +147,7 @@ class SettingsUserView extends StatelessWidget {
     }
 
     // If the user is logged in locally, render a third-party login button.
-    if (state.userProfile.authType == AuthenticatorPB.Local) {
+    if (state.userProfile.authenticator == AuthenticatorPB.Local) {
       return SettingThirdPartyLogin(didLogin: didLogin);
     }
 

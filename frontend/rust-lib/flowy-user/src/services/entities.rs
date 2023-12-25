@@ -99,7 +99,7 @@ where
   fn from(value: &T) -> Self {
     Self {
       user_id: value.user_id(),
-      user_uuid: value.user_uuid().clone(),
+      user_uuid: *value.user_uuid(),
       user_workspace: value.latest_workspace().clone(),
     }
   }

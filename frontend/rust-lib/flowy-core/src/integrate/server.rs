@@ -165,7 +165,7 @@ impl From<&Authenticator> for Server {
 pub fn current_server_type(store_preferences: &Arc<StorePreferences>) -> Server {
   store_preferences
     .get_object::<Server>(SERVER_PROVIDER_TYPE_KEY)
-    .unwrap_or_else(|| Server::Local)
+    .unwrap_or(Server::Local)
 }
 
 struct LocalServerDBImpl {
