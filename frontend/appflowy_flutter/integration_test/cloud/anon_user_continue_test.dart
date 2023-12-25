@@ -66,4 +66,92 @@ void main() {
       expect(userNameInput.name, 'local_user');
     });
   });
+
+  group('appflowy cloud2', () {
+    testWidgets('anon user and then sign in', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloud,
+      );
+
+      tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
+      await tester.tapGoButton();
+      await tester.expectToSeeHomePage();
+
+      // reanme the name of the anon user
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      final userNameFinder = find.descendant(
+        of: find.byType(SettingsUserView),
+        matching: find.byType(UserNameInput),
+      );
+      await tester.enterText(userNameFinder, 'local_user');
+      await tester.openSettingsPage(SettingsPage.user);
+      await tester.pumpAndSettle();
+
+      // sign up with Google
+      await tester.tapGoogleLoginInButton();
+
+      // sign out
+      await tester.expectToSeeHomePage();
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      await tester.logout();
+      await tester.pumpAndSettle();
+
+      // tap the continue as anonymous button
+      await tester
+          .tapButton(find.text(LocaleKeys.signIn_continueAnonymousUser.tr()));
+      await tester.expectToSeeHomePage();
+
+      // assert the name of the anon user is local_user
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      final userNameInput = tester.widget(userNameFinder) as UserNameInput;
+      expect(userNameInput.name, 'local_user');
+    });
+  });
+
+  group('appflowy cloud3', () {
+    testWidgets('anon user and then sign in', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloud,
+      );
+
+      tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
+      await tester.tapGoButton();
+      await tester.expectToSeeHomePage();
+
+      // reanme the name of the anon user
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      final userNameFinder = find.descendant(
+        of: find.byType(SettingsUserView),
+        matching: find.byType(UserNameInput),
+      );
+      await tester.enterText(userNameFinder, 'local_user');
+      await tester.openSettingsPage(SettingsPage.user);
+      await tester.pumpAndSettle();
+
+      // sign up with Google
+      await tester.tapGoogleLoginInButton();
+
+      // sign out
+      await tester.expectToSeeHomePage();
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      await tester.logout();
+      await tester.pumpAndSettle();
+
+      // tap the continue as anonymous button
+      await tester
+          .tapButton(find.text(LocaleKeys.signIn_continueAnonymousUser.tr()));
+      await tester.expectToSeeHomePage();
+
+      // assert the name of the anon user is local_user
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      final userNameInput = tester.widget(userNameFinder) as UserNameInput;
+      expect(userNameInput.name, 'local_user');
+    });
+  });
 }

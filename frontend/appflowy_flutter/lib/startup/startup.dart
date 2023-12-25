@@ -5,7 +5,6 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/tasks/memory_leak_detector.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
