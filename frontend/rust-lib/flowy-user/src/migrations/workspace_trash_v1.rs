@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use collab_folder::Folder;
-use tracing::instrument;
+use tracing::{info, instrument};
 
 use collab_integrate::{RocksCollabDB, YrsDocAction};
 use flowy_error::{internal_error, FlowyResult};
@@ -11,7 +11,7 @@ use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;
 use crate::services::entities::Session;
 
-/// 1. Migrate the workspace: { trash: [view_id] } to { trash: { uid: [view_id] } }
+/// Migrate the workspace: { trash: [view_id] } to { trash: { uid: [view_id] } }
 pub struct WorkspaceTrashMapToSectionMigration;
 
 impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
@@ -36,6 +36,7 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
         .collect::<Vec<String>>();
 
       if !trash_ids.is_empty() {
+        info!("add trash: {:?}", trash_ids);
         folder.add_trash(trash_ids);
       }
 

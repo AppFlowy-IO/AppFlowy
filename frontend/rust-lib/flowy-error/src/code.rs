@@ -262,6 +262,9 @@ pub enum ErrorCode {
 
   #[error("rocksdb internal error")]
   RocksdbInternal = 87,
+
+  #[error("Local version not support")]
+  LocalVersionNotSupport = 88,
 }
 
 impl ErrorCode {

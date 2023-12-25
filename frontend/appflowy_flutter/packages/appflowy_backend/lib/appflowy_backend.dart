@@ -24,7 +24,7 @@ class FlowySDK {
 
   FlowySDK();
 
-  void dispose() {}
+  Future<void> dispose() async {}
 
   Future<void> init(String configuration) async {
     final port = RustStreamReceiver.shared.port;

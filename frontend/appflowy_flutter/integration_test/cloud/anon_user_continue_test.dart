@@ -41,13 +41,14 @@ void main() {
         matching: find.byType(UserNameInput),
       );
       await tester.enterText(userNameFinder, 'local_user');
+      await tester.openSettingsPage(SettingsPage.user);
       await tester.pumpAndSettle();
 
       // sign up with Google
       await tester.tapGoogleLoginInButton();
-      await tester.pumpAndSettle();
 
       // sign out
+      await tester.expectToSeeHomePage();
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       await tester.logout();

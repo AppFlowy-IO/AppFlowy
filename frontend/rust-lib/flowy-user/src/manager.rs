@@ -75,7 +75,7 @@ impl UserConfig {
 
   /// Returns bool whether the user choose a custom path for the user data.
   pub fn is_custom_storage_path(&self) -> bool {
-    self.storage_path != self.application_path
+    !self.storage_path.contains(&self.application_path)
   }
 }
 
@@ -140,6 +140,14 @@ impl UserManager {
     }
 
     user_manager
+  }
+
+  pub fn close_db(&self) {
+    if let Ok(session) = self.get_session() {
+      if let Err(err) = self.database.close(session.user_id) {
+        error!("Close db failed: {:?}", err);
+      }
+    }
   }
 
   pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
@@ -582,6 +590,9 @@ impl UserManager {
         Ok(())
       },
       Err(err) => {
+        if err.is_local_version_not_support() {
+          return Ok(());
+        }
         // If the user is not found, notify the frontend to logout
         if err.is_unauthorized() {
           event!(

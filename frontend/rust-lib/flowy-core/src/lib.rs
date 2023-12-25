@@ -66,6 +66,10 @@ impl AppFlowyCore {
     runtime.block_on(Self::init(config, cloned_runtime))
   }
 
+  pub fn close_db(&self) {
+    self.user_manager.close_db();
+  }
+
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     #[allow(clippy::if_same_then_else)]

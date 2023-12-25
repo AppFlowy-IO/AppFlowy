@@ -42,7 +42,7 @@ impl EventIntegrationTest {
       vec![
         "flowy_test".to_string(),
         "tokio".to_string(),
-        "lib_dispatch".to_string(),
+        // "lib_dispatch".to_string(),
       ],
     );
 

@@ -140,9 +140,14 @@ Future<void> initGetIt(
   LaunchConfiguration config,
 ) async {
   getIt.registerFactory<EntryPoint>(() => f);
-  getIt.registerLazySingleton<FlowySDK>(() {
-    return FlowySDK();
-  });
+  getIt.registerLazySingleton<FlowySDK>(
+    () {
+      return FlowySDK();
+    },
+    dispose: (sdk) async {
+      await sdk.dispose();
+    },
+  );
   getIt.registerLazySingleton<AppLauncher>(
     () => AppLauncher(
       context: LaunchContext(
@@ -206,7 +211,6 @@ class AppLauncher {
   }
 
   Future<void> dispose() async {
-    Log.info('AppLauncher dispose');
     for (final task in tasks) {
       await task.dispose();
     }

@@ -13,7 +13,6 @@ use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user::services::db::{get_user_profile, get_user_workspace, open_user_db};
 use flowy_user_deps::entities::*;
 
 use crate::AppFlowyCoreConfig;
@@ -169,19 +168,22 @@ pub fn current_server_type(store_preferences: &Arc<StorePreferences>) -> Server 
 }
 
 struct LocalServerDBImpl {
+  #[allow(dead_code)]
   storage_path: String,
 }
 
 impl LocalServerDB for LocalServerDBImpl {
-  fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
-    let sqlite_db = open_user_db(&self.storage_path, uid)?;
-    let user_profile = get_user_profile(&sqlite_db, uid)?;
-    Ok(user_profile)
+  fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
+    Err(
+      FlowyError::local_version_not_support()
+        .with_context("LocalServer doesn't support get_user_profile"),
+    )
   }
 
-  fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
-    let sqlite_db = open_user_db(&self.storage_path, uid)?;
-    let user_workspace = get_user_workspace(&sqlite_db, uid)?;
-    Ok(user_workspace)
+  fn get_user_workspace(&self, _uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
+    Err(
+      FlowyError::local_version_not_support()
+        .with_context("LocalServer doesn't support get_user_workspace"),
+    )
   }
 }
