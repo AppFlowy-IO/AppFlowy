@@ -109,7 +109,7 @@ fn sync_view(
           encode_v1.len()
         );
         user_service
-          .create_collab_object(&collab_object, encode_v1)
+          .create_collab_object(&collab_object, encode_v1, false)
           .await?;
       },
       ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
@@ -121,7 +121,7 @@ fn sync_view(
           database_encode_v1.len()
         );
         user_service
-          .create_collab_object(&collab_object, database_encode_v1)
+          .create_collab_object(&collab_object, database_encode_v1, false)
           .await?;
 
         // sync database's row
@@ -145,7 +145,7 @@ fn sync_view(
           );
 
           let _ = user_service
-            .create_collab_object(&database_row_collab_object, database_row_encode_v1)
+            .create_collab_object(&database_row_collab_object, database_row_encode_v1, false)
             .await;
 
           let database_row_document = CollabObject::new(
@@ -165,7 +165,7 @@ fn sync_view(
               document_encode_v1.len()
             );
             let _ = user_service
-              .create_collab_object(&database_row_document, document_encode_v1)
+              .create_collab_object(&database_row_document, document_encode_v1, false)
               .await;
           }
         }
@@ -271,7 +271,7 @@ async fn sync_folder(
     encode_v1.len()
   );
   if let Err(err) = user_service
-    .create_collab_object(&collab_object, encode_v1)
+    .create_collab_object(&collab_object, encode_v1, true)
     .await
   {
     tracing::error!("🔴sync folder failed: {:?}", err);
@@ -316,7 +316,7 @@ async fn sync_database_views(
   if let Ok((records, encode_v1)) = result {
     if let Ok(encode_v1) = encode_v1 {
       let _ = user_service
-        .create_collab_object(&collab_object, encode_v1)
+        .create_collab_object(&collab_object, encode_v1, false)
         .await;
     }
 

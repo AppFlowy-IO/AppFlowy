@@ -26,7 +26,7 @@ use crate::deps_resolve::collab_backup::RocksdbBackupImpl;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::init_log;
-use crate::integrate::server::{current_server_type, ServerProvider, ServerType};
+use crate::integrate::server::{current_server_type, Server, ServerProvider};
 use crate::integrate::user::UserStatusCallbackImpl;
 
 pub mod config;
@@ -232,12 +232,12 @@ fn init_user_manager(
   )
 }
 
-impl From<ServerType> for CollabDataSource {
-  fn from(server_type: ServerType) -> Self {
+impl From<Server> for CollabDataSource {
+  fn from(server_type: Server) -> Self {
     match server_type {
-      ServerType::Local => CollabDataSource::Local,
-      ServerType::AFCloud => CollabDataSource::AppFlowyCloud,
-      ServerType::Supabase => CollabDataSource::Supabase,
+      Server::Local => CollabDataSource::Local,
+      Server::AppFlowyCloud => CollabDataSource::AppFlowyCloud,
+      Server::Supabase => CollabDataSource::Supabase,
     }
   }
 }

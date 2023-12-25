@@ -18,7 +18,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
       : userEmail = email ?? "${uuid()}@appflowy.io";
 
   final BackendAuthService _appFlowyAuthService =
-      BackendAuthService(AuthTypePB.Supabase);
+      BackendAuthService(AuthenticatorPB.Supabase);
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUp({
@@ -45,7 +45,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
     Map<String, String> params = const {},
   }) async {
     final payload = SignInUrlPayloadPB.create()
-      ..authType = AuthTypePB.AFCloud
+      ..authType = AuthenticatorPB.AppFlowyCloud
       // don't use nanoid here, the gotrue server will transform the email
       ..email = userEmail;
 
@@ -55,7 +55,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
     return getSignInURLResult.fold(
       (urlPB) async {
         final payload = OauthSignInPB(
-          authType: AuthTypePB.AFCloud,
+          authType: AuthenticatorPB.AppFlowyCloud,
           map: {
             AuthServiceMapKeys.signInURL: urlPB.signInUrl,
             AuthServiceMapKeys.deviceId: deviceId,

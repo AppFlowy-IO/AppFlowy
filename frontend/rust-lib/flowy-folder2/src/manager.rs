@@ -47,9 +47,6 @@ pub struct FolderManager {
   pub cloud_service: Arc<dyn FolderCloudService>,
 }
 
-unsafe impl Send for FolderManager {}
-unsafe impl Sync for FolderManager {}
-
 impl FolderManager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
@@ -1012,8 +1009,8 @@ impl FolderManager {
 
 /// Return the views that belong to the workspace. The views are filtered by the trash.
 pub(crate) fn get_workspace_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
-  let trash_ids = folder
-    .get_all_trash()
+  let items = folder.get_all_trash();
+  let trash_ids = items
     .into_iter()
     .map(|trash| trash.id)
     .collect::<Vec<String>>();

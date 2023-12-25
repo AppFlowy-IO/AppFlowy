@@ -1,11 +1,11 @@
 
 # If you want to test a single file with single case, you can try this command:
-# RUST_LOG="debug" flutter test -j, --concurrency=1 'path to the file' --name 'test case name'
+# RUST_LOG="debug" flutter test -d macOS -j, 'path to the file' --name 'test case name'
 [tasks.flutter_test]
 description = "Run flutter test with single case in single file. Input: cargo make flutter_test 'path to the file' --name 'test case name'"
 script = '''
 cd appflowy_flutter
-RUST_LOG="debug" flutter test -j, --concurrency=1 "${@}"
+flutter test -j, --concurrency=1 "${@}"
 '''
 script_runner = "@shell"
 

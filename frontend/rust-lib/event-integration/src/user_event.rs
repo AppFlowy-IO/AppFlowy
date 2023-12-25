@@ -15,7 +15,7 @@ use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::AuthenticatorType;
 use flowy_user::entities::{
-  AuthTypePB, CloudSettingPB, OauthSignInPB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB,
+  AuthenticatorPB, CloudSettingPB, OauthSignInPB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB,
   UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
@@ -59,7 +59,7 @@ impl EventIntegrationTest {
       email,
       name: "appflowy".to_string(),
       password: password.clone(),
-      auth_type: AuthTypePB::Local,
+      auth_type: AuthenticatorPB::Local,
       device_id: uuid::Uuid::new_v4().to_string(),
     }
     .into_bytes()
@@ -88,7 +88,7 @@ impl EventIntegrationTest {
     let map = third_party_sign_up_param(Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthTypePB::Supabase,
+      auth_type: AuthenticatorPB::Supabase,
     };
 
     EventBuilder::new(self.clone())
@@ -106,7 +106,7 @@ impl EventIntegrationTest {
       .await;
   }
 
-  pub fn set_auth_type(&self, auth_type: AuthTypePB) {
+  pub fn set_auth_type(&self, auth_type: AuthenticatorPB) {
     *self.auth_type.write() = auth_type;
   }
 
@@ -133,7 +133,7 @@ impl EventIntegrationTest {
   pub async fn af_cloud_sign_in_with_email(&self, email: &str) -> FlowyResult<UserProfilePB> {
     let payload = SignInUrlPayloadPB {
       email: email.to_string(),
-      auth_type: AuthTypePB::AFCloud,
+      auth_type: AuthenticatorPB::AppFlowyCloud,
     };
     let sign_in_url = EventBuilder::new(self.clone())
       .event(GenerateSignInURL)
@@ -148,7 +148,7 @@ impl EventIntegrationTest {
     map.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthTypePB::AFCloud,
+      auth_type: AuthenticatorPB::AppFlowyCloud,
     };
 
     let user_profile = EventBuilder::new(self.clone())
@@ -175,7 +175,7 @@ impl EventIntegrationTest {
     );
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthTypePB::Supabase,
+      auth_type: AuthenticatorPB::Supabase,
     };
 
     let user_profile = EventBuilder::new(self.clone())

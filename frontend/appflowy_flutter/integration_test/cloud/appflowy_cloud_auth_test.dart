@@ -25,7 +25,7 @@ void main() {
         cloudType: AuthenticatorType.appflowyCloud,
       );
       await tester.tapGoogleLoginInButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
     });
 
     testWidgets('sign out', (tester) async {

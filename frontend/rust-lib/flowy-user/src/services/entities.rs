@@ -11,7 +11,7 @@ use uuid::Uuid;
 use flowy_user_deps::entities::{AuthResponse, UserProfile, UserWorkspace};
 use flowy_user_deps::entities::{Authenticator, UserAuthResponse};
 
-use crate::entities::AuthTypePB;
+use crate::entities::AuthenticatorPB;
 use crate::migrations::MigrationUser;
 
 #[derive(Debug, Clone, Serialize)]
@@ -99,7 +99,7 @@ where
   fn from(value: &T) -> Self {
     Self {
       user_id: value.user_id(),
-      user_uuid: value.user_uuid().clone(),
+      user_uuid: *value.user_uuid(),
       user_workspace: value.latest_workspace().clone(),
     }
   }
@@ -114,22 +114,22 @@ impl std::convert::From<Session> for String {
   }
 }
 
-impl From<AuthTypePB> for Authenticator {
-  fn from(pb: AuthTypePB) -> Self {
+impl From<AuthenticatorPB> for Authenticator {
+  fn from(pb: AuthenticatorPB) -> Self {
     match pb {
-      AuthTypePB::Supabase => Authenticator::Supabase,
-      AuthTypePB::Local => Authenticator::Local,
-      AuthTypePB::AFCloud => Authenticator::AppFlowyCloud,
+      AuthenticatorPB::Supabase => Authenticator::Supabase,
+      AuthenticatorPB::Local => Authenticator::Local,
+      AuthenticatorPB::AppFlowyCloud => Authenticator::AppFlowyCloud,
     }
   }
 }
 
-impl From<Authenticator> for AuthTypePB {
+impl From<Authenticator> for AuthenticatorPB {
   fn from(auth_type: Authenticator) -> Self {
     match auth_type {
-      Authenticator::Supabase => AuthTypePB::Supabase,
-      Authenticator::Local => AuthTypePB::Local,
-      Authenticator::AppFlowyCloud => AuthTypePB::AFCloud,
+      Authenticator::Supabase => AuthenticatorPB::Supabase,
+      Authenticator::Local => AuthenticatorPB::Local,
+      Authenticator::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
     }
   }
 }

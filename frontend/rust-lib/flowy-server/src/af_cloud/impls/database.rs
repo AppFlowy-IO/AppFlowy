@@ -1,6 +1,6 @@
 use anyhow::Error;
 use client_api::entity::QueryCollabResult::{Failed, Success};
-use client_api::entity::{BatchQueryCollab, BatchQueryCollabParams, QueryCollabParams};
+use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
 use collab::core::collab_plugin::EncodedCollabV1;
 use collab_entity::CollabType;
@@ -31,8 +31,10 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id,
-        object_id,
-        collab_type,
+        inner: QueryCollab {
+          object_id,
+          collab_type,
+        },
       };
       match try_get_client?.get_collab(params).await {
         Ok(data) => Ok(vec![data.doc_state.to_vec()]),
@@ -57,15 +59,13 @@ where
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let params = BatchQueryCollabParams(
-        object_ids
-          .into_iter()
-          .map(|object_id| BatchQueryCollab {
-            object_id,
-            collab_type: object_ty.clone(),
-          })
-          .collect(),
-      );
+      let params = object_ids
+        .into_iter()
+        .map(|object_id| QueryCollab {
+          object_id,
+          collab_type: object_ty.clone(),
+        })
+        .collect();
       let results = client.batch_get_collab(&workspace_id, params).await?;
       Ok(
         results

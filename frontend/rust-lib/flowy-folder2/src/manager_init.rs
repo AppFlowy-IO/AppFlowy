@@ -37,10 +37,10 @@ impl FolderManager {
     let collab_db = self.user.collab_db(uid)?;
 
     let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-    let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+    let (section_change_tx, section_change_rx) = tokio::sync::broadcast::channel(100);
     let folder_notifier = FolderNotify {
       view_change_tx: view_tx,
-      trash_change_tx: trash_tx,
+      section_change_tx,
     };
 
     let folder = match initial_data {
@@ -99,7 +99,7 @@ impl FolderManager {
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
     subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
     subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
-    subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
+    subscribe_folder_trash_changed(section_change_rx, &weak_mutex_folder);
     subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
     Ok(())
   }

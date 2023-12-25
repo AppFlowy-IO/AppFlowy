@@ -1,7 +1,7 @@
 use nanoid::nanoid;
 
 use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
-use flowy_user::entities::{AuthTypePB, UpdateUserProfilePayloadPB, UserProfilePB};
+use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB, UserProfilePB};
 use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
 
 use crate::user::local_test::helper::*;
@@ -32,7 +32,7 @@ async fn anon_user_profile_get() {
   assert_eq!(user_profile.openai_key, user.openai_key);
   assert_eq!(user_profile.stability_ai_key, user.stability_ai_key);
   assert_eq!(user_profile.workspace_id, user.workspace_id);
-  assert_eq!(user_profile.auth_type, AuthTypePB::Local);
+  assert_eq!(user_profile.authenticator, AuthenticatorPB::Local);
 }
 
 #[tokio::test]

@@ -22,7 +22,7 @@ class SupabaseAuthService implements AuthService {
   GoTrueClient get _auth => _client.auth;
 
   final BackendAuthService _backendAuthService = BackendAuthService(
-    AuthTypePB.Supabase,
+    AuthenticatorPB.Supabase,
   );
 
   @override
@@ -171,7 +171,7 @@ class SupabaseAuthService implements AuthService {
     required Map<String, String> map,
   }) async {
     final payload = OauthSignInPB(
-      authType: AuthTypePB.Supabase,
+      authType: AuthenticatorPB.Supabase,
       map: map,
     );
 

@@ -15,7 +15,7 @@ void main() {
     testWidgets('sign in with supabase', (tester) async {
       await tester.initializeAppFlowy(cloudType: AuthenticatorType.supabase);
       await tester.tapGoogleLoginInButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
     });
 
     testWidgets('sign out with supabase', (tester) async {

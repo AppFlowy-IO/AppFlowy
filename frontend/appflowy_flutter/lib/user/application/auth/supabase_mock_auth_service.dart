@@ -21,7 +21,7 @@ class SupabaseMockAuthService implements AuthService {
   GoTrueClient get _auth => _client.auth;
 
   final BackendAuthService _appFlowyAuthService =
-      BackendAuthService(AuthTypePB.Supabase);
+      BackendAuthService(AuthenticatorPB.Supabase);
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUp({
@@ -67,7 +67,7 @@ class SupabaseMockAuthService implements AuthService {
 
       // Create the OAuth sign-in payload.
       final payload = OauthSignInPB(
-        authType: AuthTypePB.Supabase,
+        authType: AuthenticatorPB.Supabase,
         map: {
           AuthServiceMapKeys.uuid: uuid,
           AuthServiceMapKeys.email: email,

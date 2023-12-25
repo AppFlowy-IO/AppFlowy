@@ -3,7 +3,8 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab_state::SyncState;
 use collab_folder::{
-  Folder, TrashChange, TrashChangeReceiver, View, ViewChange, ViewChangeReceiver,
+  Folder, SectionChange, SectionChangeReceiver, TrashSectionChange, View, ViewChange,
+  ViewChangeReceiver,
 };
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
@@ -102,7 +103,7 @@ pub(crate) fn subscribe_folder_sync_state_changed(
 
 /// Listen on the [TrashChange]s and notify the frontend some views were changed.
 pub(crate) fn subscribe_folder_trash_changed(
-  mut rx: TrashChangeReceiver,
+  mut rx: SectionChangeReceiver,
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
@@ -111,25 +112,29 @@ pub(crate) fn subscribe_folder_trash_changed(
       if let Some(folder) = weak_mutex_folder.upgrade() {
         let mut unique_ids = HashSet::new();
         tracing::trace!("Did receive trash change: {:?}", value);
-        let ids = match value {
-          TrashChange::DidCreateTrash { ids } => ids,
-          TrashChange::DidDeleteTrash { ids } => ids,
-        };
 
-        if let Some(folder) = folder.lock().as_ref() {
-          let views = folder.views.get_views(&ids);
-          for view in views {
-            unique_ids.insert(view.parent_view_id.clone());
-          }
+        match value {
+          SectionChange::Trash(change) => {
+            let ids = match change {
+              TrashSectionChange::TrashItemAdded { ids } => ids,
+              TrashSectionChange::TrashItemRemoved { ids } => ids,
+            };
+            if let Some(folder) = folder.lock().as_ref() {
+              let views = folder.views.get_views(&ids);
+              for view in views {
+                unique_ids.insert(view.parent_view_id.clone());
+              }
 
-          let repeated_trash: RepeatedTrashPB = folder.get_all_trash().into();
-          send_notification("trash", FolderNotification::DidUpdateTrash)
-            .payload(repeated_trash)
-            .send();
+              let repeated_trash: RepeatedTrashPB = folder.get_all_trash().into();
+              send_notification("trash", FolderNotification::DidUpdateTrash)
+                .payload(repeated_trash)
+                .send();
+            }
+
+            let parent_view_ids = unique_ids.into_iter().collect();
+            notify_parent_view_did_change(folder.clone(), parent_view_ids);
+          },
         }
-
-        let parent_view_ids = unique_ids.into_iter().collect();
-        notify_parent_view_did_change(folder.clone(), parent_view_ids);
       }
     }
   });

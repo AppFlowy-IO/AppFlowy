@@ -8,7 +8,7 @@ use parking_lot::RwLock;
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
-use flowy_user::entities::AuthTypePB;
+use flowy_user::entities::AuthenticatorPB;
 
 use crate::user_event::TestNotificationSender;
 
@@ -21,7 +21,7 @@ pub mod user_event;
 
 #[derive(Clone)]
 pub struct EventIntegrationTest {
-  pub auth_type: Arc<RwLock<AuthTypePB>>,
+  pub auth_type: Arc<RwLock<AuthenticatorPB>>,
   pub inner: AppFlowyCore,
   #[allow(dead_code)]
   cleaner: Arc<Cleaner>,
@@ -48,7 +48,7 @@ impl EventIntegrationTest {
 
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
-    let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
+    let auth_type = Arc::new(RwLock::new(AuthenticatorPB::Local));
     register_notification_sender(notification_sender.clone());
     std::mem::forget(inner.dispatcher());
     Self {

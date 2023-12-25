@@ -22,55 +22,47 @@ import '../util/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  const pageName = 'Sample';
-  final email = '${uuid()}@appflowy.io';
 
-// The test will create a new document called Sample, and sync it to the server.
-// Then the test will logout the user, and login with the same user. The data will
-// be synced from the server.
-  group('appflowy cloud document', () {
-    testWidgets('sync local docuemnt to server', (tester) async {
+  group('appflowy cloud', () {
+    testWidgets('anon user and then sign in', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloud,
-        email: email,
       );
-      await tester.tapGoogleLoginInButton();
+
+      tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
+      await tester.tapGoButton();
       await tester.expectToSeeHomePage();
 
-      // create a new document called Sample
-      await tester.createNewPageWithName(
-        name: pageName,
-        layout: ViewLayoutPB.Document,
+      // reanme the name of the anon user
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      final userNameFinder = find.descendant(
+        of: find.byType(SettingsUserView),
+        matching: find.byType(UserNameInput),
       );
-
-      // focus on the editor
-      await tester.editor.tapLineOfEditorAt(0);
-      await tester.ime.insertText('hello world');
-
+      await tester.enterText(userNameFinder, 'local_user');
       await tester.pumpAndSettle();
-      expect(find.text('hello world', findRichText: true), findsOneWidget);
 
+      // sign up with Google
+      await tester.tapGoogleLoginInButton();
+      await tester.pumpAndSettle();
+
+      // sign out
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       await tester.logout();
-    });
+      await tester.pumpAndSettle();
 
-    testWidgets('sync doc from server', (tester) async {
-      await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
-        email: email,
-      );
-      await tester.tapGoogleLoginInButton();
+      // tap the continue as anonymous button
+      await tester
+          .tapButton(find.text(LocaleKeys.signIn_continueAnonymousUser.tr()));
       await tester.expectToSeeHomePage();
-      await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      // The document will be synced from the server
-      await tester.openPage(
-        pageName,
-      );
-
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-      expect(find.text('hello world', findRichText: true), findsOneWidget);
+      // assert the name of the anon user is local_user
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.user);
+      final userNameInput = tester.widget(userNameFinder) as UserNameInput;
+      expect(userNameInput.name, 'local_user');
     });
   });
 }

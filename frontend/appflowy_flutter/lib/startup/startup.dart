@@ -29,14 +29,30 @@ class FlowyRunnerContext {
   FlowyRunnerContext({required this.applicationDataDirectory});
 }
 
-Future<void> runAppFlowy() async {
-  await FlowyRunner.run(
-    FlowyApp(),
-    integrationMode(),
-  );
+Future<void> runAppFlowy({bool isAnon = false}) async {
+  if (kReleaseMode) {
+    await FlowyRunner.run(
+      AppFlowyApplication(),
+      integrationMode(),
+      isAnon: isAnon,
+    );
+  } else {
+    // When running the app in integration test mode, we need to
+    // specify the mode to run the app again.
+    await FlowyRunner.run(
+      AppFlowyApplication(),
+      FlowyRunner.currentMode,
+      didInitGetItCallback: IntegrationTestHelper.didInitGetItCallback,
+      rustEnvsBuilder: IntegrationTestHelper.rustEnvsBuilder,
+      isAnon: isAnon,
+    );
+  }
 }
 
 class FlowyRunner {
+  // This variable specifies the initial mode of the app when it is launched for the first time.
+  // The same mode will be automatically applied in subsequent executions when the runAppFlowy()
+  // method is called.
   static var currentMode = integrationMode();
 
   static Future<FlowyRunnerContext> run(
@@ -55,6 +71,13 @@ class FlowyRunner {
     bool isAnon = false,
   }) async {
     currentMode = mode;
+
+    // Only set the mode when it's not release mode
+    if (!kReleaseMode) {
+      IntegrationTestHelper.didInitGetItCallback = didInitGetItCallback;
+      IntegrationTestHelper.rustEnvsBuilder = rustEnvsBuilder;
+    }
+
     // Clear all the states in case of rebuilding.
     await getIt.reset();
 
@@ -219,4 +242,10 @@ IntegrationMode integrationMode() {
   }
 
   return IntegrationMode.develop;
+}
+
+/// Only used for integration test
+class IntegrationTestHelper {
+  static Future Function()? didInitGetItCallback;
+  static Map<String, String> Function()? rustEnvsBuilder;
 }

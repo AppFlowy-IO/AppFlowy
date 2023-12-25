@@ -30,7 +30,7 @@ use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
-use crate::integrate::server::{ServerProvider, ServerType, SERVER_PROVIDER_TYPE_KEY};
+use crate::integrate::server::{Server, ServerProvider, SERVER_PROVIDER_TYPE_KEY};
 
 impl FileStorageService for ServerProvider {
   fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
@@ -91,12 +91,12 @@ impl UserCloudServiceProvider for ServerProvider {
 
   /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
   ///
-  /// Each [Authenticator] has a corresponding [ServerType]. The [ServerType] is used
-  /// to create a new [AppFlowyServer] if it doesn't exist. Once the [ServerType] is set,
+  /// Each [Authenticator] has a corresponding [Server]. The [Server] is used
+  /// to create a new [AppFlowyServer] if it doesn't exist. Once the [Server] is set,
   /// it will be used when user open the app again.
   ///
   fn set_authenticator(&self, authenticator: Authenticator) {
-    let server_type: ServerType = authenticator.into();
+    let server_type: Server = authenticator.into();
     self.set_server_type(server_type.clone());
 
     match self.store_preferences.upgrade() {
@@ -117,7 +117,7 @@ impl UserCloudServiceProvider for ServerProvider {
     Authenticator::from(server_type)
   }
 
-  /// Returns the [UserCloudService] base on the current [ServerType].
+  /// Returns the [UserCloudService] base on the current [Server].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
     let server_type = self.get_server_type();
@@ -127,11 +127,11 @@ impl UserCloudServiceProvider for ServerProvider {
 
   fn service_url(&self) -> String {
     match self.get_server_type() {
-      ServerType::Local => "".to_string(),
-      ServerType::AFCloud => AFCloudConfiguration::from_env()
+      Server::Local => "".to_string(),
+      Server::AppFlowyCloud => AFCloudConfiguration::from_env()
         .map(|config| config.base_url)
         .unwrap_or_default(),
-      ServerType::Supabase => SupabaseConfiguration::from_env()
+      Server::Supabase => SupabaseConfiguration::from_env()
         .map(|config| config.url)
         .unwrap_or_default(),
     }
@@ -325,7 +325,7 @@ impl CollabStorageProvider for ServerProvider {
         collab_object,
         local_collab,
       } => {
-        if let Ok(server) = self.get_server(&ServerType::AFCloud) {
+        if let Ok(server) = self.get_server(&Server::AppFlowyCloud) {
           to_fut(async move {
             let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
             match server.collab_ws_channel(&collab_object.object_id).await {
@@ -373,7 +373,7 @@ impl CollabStorageProvider for ServerProvider {
       } => {
         let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
         if let Some(remote_collab_storage) = self
-          .get_server(&ServerType::Supabase)
+          .get_server(&Server::Supabase)
           .ok()
           .and_then(|provider| provider.collab_storage(&collab_object))
         {

@@ -23,7 +23,7 @@ use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user::entities::{AuthTypePB, UpdateUserProfilePayloadPB};
+use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB};
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::event_map::UserEvent::*;
@@ -43,7 +43,7 @@ impl FlowySupabaseTest {
   pub async fn new() -> Option<Self> {
     let _ = get_supabase_config()?;
     let test = EventIntegrationTest::new().await;
-    test.set_auth_type(AuthTypePB::Supabase);
+    test.set_auth_type(AuthenticatorPB::Supabase);
     test
       .server_provider
       .set_authenticator(Authenticator::Supabase);
@@ -210,7 +210,7 @@ impl AFCloudTest {
   pub async fn new() -> Option<Self> {
     let _ = get_af_cloud_config()?;
     let test = EventIntegrationTest::new().await;
-    test.set_auth_type(AuthTypePB::AFCloud);
+    test.set_auth_type(AuthenticatorPB::AppFlowyCloud);
     test
       .server_provider
       .set_authenticator(Authenticator::AppFlowyCloud);

@@ -35,6 +35,7 @@ use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
+use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
@@ -198,16 +199,18 @@ impl UserManager {
       let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
       if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
         event!(tracing::Level::DEBUG, "Listen token state change");
+        let user_uid = user.uid;
+        let user_token = user.token.clone();
         af_spawn(async move {
           while let Some(token_state) = token_state_rx.next().await {
             debug!("Token state changed: {:?}", token_state);
             match token_state {
               UserTokenState::Refresh { token } => {
                 // Only save the token if the token is different from the current token
-                if token != user.token {
+                if token != user_token {
                   if let Some(pool) = weak_pool.upgrade() {
                     // Save the new token
-                    if let Err(err) = save_user_token(user.uid, pool, token) {
+                    if let Err(err) = save_user_token(user_uid, pool, token) {
                       error!("Save user token failed: {}", err);
                     }
                   }
@@ -232,9 +235,10 @@ impl UserManager {
           let migrations: Vec<Box<dyn UserDataMigration>> = vec![
             Box::new(HistoricalEmptyDocumentMigration),
             Box::new(FavoriteV1AndWorkspaceArrayMigration),
+            Box::new(WorkspaceTrashMapToSectionMigration),
           ];
           match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
-            .run(migrations, &current_authenticator)
+            .run(migrations, &user.authenticator)
           {
             Ok(applied_migrations) => {
               if !applied_migrations.is_empty() {
@@ -786,7 +790,13 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    migration_anon_user_on_sign_up(
+      old_user,
+      &old_collab_db,
+      new_user,
+      &new_collab_db,
+      authenticator,
+    )?;
 
     match authenticator {
       Authenticator::Supabase => {

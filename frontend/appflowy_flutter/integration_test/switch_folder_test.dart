@@ -33,7 +33,7 @@ void main() {
       );
 
       await tester.tapGoButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
 
       // switch to user B
       {
@@ -51,7 +51,7 @@ void main() {
         );
         await tester.tapCustomLocationButton();
         await tester.pumpAndSettle();
-        tester.expectToSeeHomePage();
+        await tester.expectToSeeHomePage();
 
         // set user name for userB
         await tester.openSettings();
@@ -71,7 +71,7 @@ void main() {
         await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
-        tester.expectToSeeHomePage();
+        await tester.expectToSeeHomePage();
         tester.expectToSeeUserName(userA);
       }
 
@@ -88,7 +88,7 @@ void main() {
         await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
-        tester.expectToSeeHomePage();
+        await tester.expectToSeeHomePage();
         tester.expectToSeeUserName(userB);
       }
     });
@@ -99,7 +99,7 @@ void main() {
       await tester.tapGoButton();
 
       // home and readme document
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
 
       // open settings and restore the location
       await tester.openSettings();

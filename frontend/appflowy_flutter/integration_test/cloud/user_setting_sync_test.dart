@@ -36,7 +36,7 @@ void main() {
         email: email,
       );
       await tester.tapGoogleLoginInButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePage();
 
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
@@ -74,7 +74,7 @@ void main() {
       email: email,
     );
     await tester.tapGoogleLoginInButton();
-    tester.expectToSeeHomePage();
+    await tester.expectToSeeHomePage();
     await tester.pumpAndSettle();
 
     await tester.openSettings();

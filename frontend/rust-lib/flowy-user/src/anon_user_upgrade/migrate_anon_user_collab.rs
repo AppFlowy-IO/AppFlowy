@@ -17,6 +17,7 @@ use parking_lot::{Mutex, RwLock};
 use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::gen_view_id;
+use flowy_user_deps::entities::Authenticator;
 
 use crate::migrations::MigrationUser;
 
@@ -27,6 +28,7 @@ pub fn migration_anon_user_on_sign_up(
   old_collab_db: &Arc<RocksCollabDB>,
   new_user: &MigrationUser,
   new_collab_db: &Arc<RocksCollabDB>,
+  authenticator: &Authenticator,
 ) -> FlowyResult<()> {
   new_collab_db
     .with_write_txn(|new_collab_w_txn| {
@@ -72,6 +74,7 @@ pub fn migration_anon_user_on_sign_up(
         &old_collab_r_txn,
         new_user,
         new_collab_w_txn,
+        authenticator,
       )?;
 
       // Migrate other collab objects
@@ -191,6 +194,7 @@ fn migrate_workspace_folder<'a, 'b, W>(
   old_collab_r_txn: &'b W,
   new_user: &MigrationUser,
   new_collab_w_txn: &'a W,
+  _authenticator: &Authenticator,
 ) -> Result<(), PersistenceError>
 where
   'a: 'b,
@@ -206,9 +210,9 @@ where
   old_folder_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(old_uid, old_workspace_id, txn)
   })?;
-  let oid_user_id = UserId::from(old_uid);
+  let old_user_id = UserId::from(old_uid);
   let old_folder = Folder::open(
-    oid_user_id,
+    old_user_id.clone(),
     Arc::new(MutexCollab::from_collab(old_folder_collab)),
     None,
   )
@@ -218,6 +222,41 @@ where
     .ok_or(PersistenceError::Internal(anyhow!(
       "Can't migrate the folder data"
     )))?;
+
+  if let Some(old_fav_map) = folder_data.favorites.remove(&old_user_id) {
+    let fav_map = old_fav_map
+      .into_iter()
+      .map(|mut item| {
+        let new_view_id = old_to_new_id_map.get_new_id(&item.id);
+        item.id = new_view_id;
+        item
+      })
+      .collect();
+    folder_data.favorites.insert(UserId::from(new_uid), fav_map);
+  }
+  if let Some(old_trash_map) = folder_data.trash.remove(&old_user_id) {
+    let trash_map = old_trash_map
+      .into_iter()
+      .map(|mut item| {
+        let new_view_id = old_to_new_id_map.get_new_id(&item.id);
+        item.id = new_view_id;
+        item
+      })
+      .collect();
+    folder_data.trash.insert(UserId::from(new_uid), trash_map);
+  }
+
+  if let Some(old_recent_map) = folder_data.recent.remove(&old_user_id) {
+    let recent_map = old_recent_map
+      .into_iter()
+      .map(|mut item| {
+        let new_view_id = old_to_new_id_map.get_new_id(&item.id);
+        item.id = new_view_id;
+        item
+      })
+      .collect();
+    folder_data.recent.insert(UserId::from(new_uid), recent_map);
+  }
 
   old_to_new_id_map
     .0
