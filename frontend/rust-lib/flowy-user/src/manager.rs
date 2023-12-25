@@ -35,6 +35,7 @@ use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
+use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
@@ -234,6 +235,7 @@ impl UserManager {
           let migrations: Vec<Box<dyn UserDataMigration>> = vec![
             Box::new(HistoricalEmptyDocumentMigration),
             Box::new(FavoriteV1AndWorkspaceArrayMigration),
+            Box::new(WorkspaceTrashMapToSectionMigration),
           ];
           match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
             .run(migrations, &user.authenticator)

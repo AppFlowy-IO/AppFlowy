@@ -54,19 +54,18 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
 
   let user_first_level_views = test.get_all_workspace_views().await;
   let user_second_level_views = test
-    .get_views(&user_first_level_views[1].id)
+    .get_views(&user_first_level_views[0].id)
     .await
     .child_views;
 
   // first
   assert_eq!(anon_first_level_views.len(), 1);
-  assert_eq!(user_first_level_views.len(), 2);
+  assert_eq!(user_first_level_views.len(), 1);
   assert_eq!(
     anon_first_level_views[0].name,
-    // The first one is the get started document
-    user_first_level_views[1].name
+    user_first_level_views[0].name
   );
-  assert_ne!(anon_first_level_views[0].id, user_first_level_views[1].id);
+  assert_ne!(anon_first_level_views[0].id, user_first_level_views[0].id);
 
   // second
   assert_eq!(anon_second_level_views.len(), user_second_level_views.len());
