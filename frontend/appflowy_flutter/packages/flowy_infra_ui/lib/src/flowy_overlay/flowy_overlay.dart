@@ -1,6 +1,7 @@
 // ignore_for_file: unused_element
 
 import 'dart:ui';
+
 import 'package:flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -315,11 +316,11 @@ class FlowyOverlayState extends State<FlowyOverlay> {
         ),
         child: Focus(
             focusNode: focusNode,
-            onKey: (node, event) {
+            onKeyEvent: (node, event) {
               KeyEventResult result = KeyEventResult.ignored;
               for (final ShortcutActivator activator
                   in _keyboardShortcutBindings.keys) {
-                if (activator.accepts(event, RawKeyboard.instance)) {
+                if (activator.accepts(event, HardwareKeyboard.instance)) {
                   _keyboardShortcutBindings[activator]!.call(identifier);
                   result = KeyEventResult.handled;
                 }

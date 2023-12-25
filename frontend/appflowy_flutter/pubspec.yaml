@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.3.9+1
 
 environment:
-  flutter: ">=3.16.0"
+  flutter: ">=3.18.0-0.2.pre0"
   sdk: ">=3.1.5 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
@@ -164,6 +164,9 @@ dependency_overrides:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
       ref: "92e4260"
+
+  file: ^7.0.0
+
 
   logger: ^2.0.0
 
