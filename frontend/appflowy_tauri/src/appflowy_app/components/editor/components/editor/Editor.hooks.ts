@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { EditorNodeType, CodeNode } from '$app/application/document/document.types';
 
-import { createEditor, NodeEntry, BaseRange, Editor } from 'slate';
-import { ReactEditor, withReact } from 'slate-react';
+import { createEditor, NodeEntry, BaseRange, Editor, Element } from 'slate';
+import { ReactEditor, useSelected, useSlateStatic, withReact } from 'slate-react';
 import { withBlockPlugins } from '$app/components/editor/plugins/withBlockPlugins';
 import { decorateCode } from '$app/components/editor/components/blocks/code/utils';
 import { withShortcuts } from '$app/components/editor/components/editor/shortcuts';
@@ -79,14 +79,13 @@ export function useDecorate(editor: ReactEditor) {
 
 export const EditorSelectedBlockContext = createContext<string[]>([]);
 
-export function useSelectedBlock(blockId?: string) {
+export function useSelectedBlock(block: Element) {
+  const editor = useSlateStatic();
   const blockIds = useContext(EditorSelectedBlockContext);
+  const isSelected = useSelected() && !editor.isSelectable(block);
 
-  if (blockId === undefined) {
-    return false;
-  }
-
-  return blockIds.includes(blockId);
+  if (block.blockId === undefined) return false;
+  return blockIds.includes(block.blockId) || isSelected;
 }
 
 export const EditorSelectedBlockProvider = EditorSelectedBlockContext.Provider;

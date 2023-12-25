@@ -167,7 +167,6 @@ export function generateUpdateActions(
   yXmlText: Y.XmlText,
   {
     data,
-    external_id,
   }: {
     data?: Record<string, string | boolean>;
     external_id?: string;
@@ -183,7 +182,6 @@ export function generateUpdateActions(
         block: {
           id,
           data: JSON.stringify(data),
-          external_id,
         },
         parent_id: parentId,
       },

@@ -30,7 +30,7 @@ describe('Provider connected', () => {
     const sharedType = provider.sharedType;
 
     const parentId = sharedType?.getAttribute('blockId') as string;
-    const insertTextOp = generateInsertTextOp('', parentId, 1);
+    const insertTextOp = generateInsertTextOp('');
 
     sharedType?.applyDelta([{ retain: 2 }, insertTextOp]);
 

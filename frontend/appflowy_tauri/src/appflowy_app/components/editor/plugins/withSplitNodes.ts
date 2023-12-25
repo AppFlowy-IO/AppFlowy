@@ -1,10 +1,9 @@
 import { ReactEditor } from 'slate-react';
 import { Transforms, Editor, Element, NodeEntry, Path } from 'slate';
-import { EditorMarkFormat, EditorNodeType, ToggleListNode } from '$app/application/document/document.types';
+import { EditorNodeType, ToggleListNode } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
 import { generateId } from '$app/components/editor/provider/utils/convert';
 import cloneDeep from 'lodash-es/cloneDeep';
-import { removeMarks } from '$app/components/editor/command/mark';
 
 export function withSplitNodes(editor: ReactEditor) {
   const { splitNodes } = editor;

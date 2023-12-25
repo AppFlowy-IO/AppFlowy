@@ -71,7 +71,7 @@ function Element({ element, attributes, children }: RenderElementProps) {
     }
   }, [node.type]) as FC<EditorElementProps & HTMLAttributes<HTMLElement>>;
 
-  const isSelected = useSelectedBlock(node.blockId);
+  const isSelected = useSelectedBlock(node);
 
   if (InlineComponent) {
     return (
@@ -90,8 +90,12 @@ function Element({ element, attributes, children }: RenderElementProps) {
   }
 
   return (
-    <div {...attributes} data-block-type={node.type} className={'block-element'}>
-      <Component className={`flex w-full flex-col ${isSelected ? 'bg-content-blue-100' : ''}`} node={node}>
+    <div
+      {...attributes}
+      data-block-type={node.type}
+      className={`block-element rounded ${isSelected ? 'bg-content-blue-100' : ''}`}
+    >
+      <Component className={`flex w-full flex-col px-1`} node={node}>
         {children}
       </Component>
     </div>

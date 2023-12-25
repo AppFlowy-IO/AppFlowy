@@ -50,7 +50,10 @@ function AddBlockBelow({ node }: { node?: Element }) {
     const [textNode] = node.children as Element[];
     const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
 
-    const path = hasTextNode ? ReactEditor.findPath(editor, textNode) : ReactEditor.findPath(editor, node);
+    const nodePath = ReactEditor.findPath(editor, node);
+    const textPath = ReactEditor.findPath(editor, textNode);
+
+    const path = hasTextNode ? textPath : nodePath;
 
     editor.select(path);
     editor.collapse({
@@ -66,7 +69,7 @@ function AddBlockBelow({ node }: { node?: Element }) {
       return;
     }
 
-    const nextPath = Path.next(path);
+    const nextPath = Path.next(nodePath);
 
     CustomEditor.insertParagraph(editor, nextPath);
     editor.select(nextPath);

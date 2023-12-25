@@ -3,16 +3,16 @@ import { EditorElementProps, DividerNode as DividerNodeType } from '$app/applica
 
 export const DividerNode = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DividerNodeType>>(
-    ({ node: _node, children: children, ...attributes }, ref) => {
+    ({ node: _node, children: children, className, ...attributes }, ref) => {
       return (
-        <>
-          <div contentEditable={false} className={'absolute w-full py-2.5 text-line-divider'}>
+        <div {...attributes} className={`${className} relative`}>
+          <div contentEditable={false} className={'w-full py-2.5 text-line-divider'}>
             <hr />
           </div>
-          <div {...attributes} ref={ref} className={`${attributes.className ?? ''} caret-transparent`}>
-            <span className={'h-6 w-full'}>{children}</span>
+          <div ref={ref} className={`absolute h-full w-full caret-transparent`}>
+            {children}
           </div>
-        </>
+        </div>
       );
     }
   )

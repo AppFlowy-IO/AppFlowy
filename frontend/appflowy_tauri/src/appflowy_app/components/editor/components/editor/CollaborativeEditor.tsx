@@ -28,7 +28,7 @@ export const CollaborativeEditor = memo(({ id, title, showTitle = true, onTitleC
     if (!rootText || rootText.toString() === title) return;
 
     if (rootText.length > 0) {
-      rootText.toDelta();
+      rootText.delete(0, rootText.length);
     }
 
     rootText.insert(0, title || '');
