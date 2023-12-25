@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/keyboard_height_observer.dart';
@@ -173,12 +175,19 @@ class _MobileToolbarState extends State<_MobileToolbar>
 
   bool closeKeyboardInitiative = false;
 
+  final ScrollOffsetListener offsetListener = ScrollOffsetListener.create();
+  late final StreamSubscription offsetSubscription;
+  ValueNotifier<double> toolbarOffset = ValueNotifier(0.0);
+
   @override
   void initState() {
     super.initState();
 
     currentSelection = widget.editorState.selection;
     KeyboardHeightObserver.instance.addListener(_onKeyboardHeightChanged);
+    offsetSubscription = offsetListener.changes.listen((event) {
+      toolbarOffset.value = event;
+    });
   }
 
   @override
@@ -196,6 +205,8 @@ class _MobileToolbarState extends State<_MobileToolbar>
     showMenuNotifier.dispose();
     cachedKeyboardHeight.dispose();
     KeyboardHeightObserver.instance.removeListener(_onKeyboardHeightChanged);
+    offsetSubscription.cancel();
+    toolbarOffset.dispose();
 
     super.dispose();
   }
@@ -264,15 +275,26 @@ class _MobileToolbarState extends State<_MobileToolbar>
   // toolbar list view and close keyboard/menu button
   Widget _buildToolbar(BuildContext context) {
     return Container(
-      color: const Color(0xFFF3F3F8),
       height: widget.toolbarHeight,
       width: MediaQuery.of(context).size.width,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF3F3F8),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x0F181818),
+            blurRadius: 40,
+            offset: Offset(0, -4),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           // toolbar list view
           Expanded(
             child: _ToolbarItemListView(
+              offsetListener: offsetListener,
               toolbarItems: widget.toolbarItems,
               editorState: widget.editorState,
               toolbarWidgetService: this,
@@ -308,36 +330,52 @@ class _MobileToolbarState extends State<_MobileToolbar>
               },
             ),
           ),
-          // divider
-          const Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 8,
-            ),
-            child: VerticalDivider(
-              width: 1,
-              color: Colors.grey,
-            ),
-          ),
           // close menu or close keyboard button
-          ValueListenableBuilder(
-            valueListenable: showMenuNotifier,
-            builder: (_, showingMenu, __) {
-              return _CloseKeyboardOrMenuButton(
-                showingMenu: showingMenu,
-                onPressed: () {
-                  if (showingMenu) {
-                    // close the menu and show the keyboard
-                    closeItemMenu();
-                    _showKeyboard();
-                  } else {
-                    closeKeyboardInitiative = true;
-                    // close the keyboard and clear the selection
-                    // if the selection is null, the keyboard and the toolbar will be hidden automatically
-                    widget.editorState.selection = null;
-                  }
-                },
-              );
-            },
+          ClipRect(
+            clipper: const _MyClipper(
+              offset: -20,
+            ),
+            child: ValueListenableBuilder(
+              valueListenable: showMenuNotifier,
+              builder: (_, showingMenu, __) {
+                return ValueListenableBuilder(
+                  valueListenable: toolbarOffset,
+                  builder: (_, offset, __) {
+                    final showShadow = offset > 0;
+                    return DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F3F8),
+                        boxShadow: showShadow
+                            ? [
+                                const BoxShadow(
+                                  color: Color(0x51000000),
+                                  blurRadius: 20,
+                                  offset: Offset(-2, 0),
+                                  spreadRadius: -10,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: _CloseKeyboardOrMenuButton(
+                        showingMenu: showingMenu,
+                        onPressed: () {
+                          if (showingMenu) {
+                            // close the menu and show the keyboard
+                            closeItemMenu();
+                            _showKeyboard();
+                          } else {
+                            closeKeyboardInitiative = true;
+                            // close the keyboard and clear the selection
+                            // if the selection is null, the keyboard and the toolbar will be hidden automatically
+                            widget.editorState.selection = null;
+                          }
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
           const SizedBox(
             width: 4.0,
@@ -391,6 +429,7 @@ class _MobileToolbarState extends State<_MobileToolbar>
 
 class _ToolbarItemListView extends StatefulWidget {
   const _ToolbarItemListView({
+    required this.offsetListener,
     required this.toolbarItems,
     required this.editorState,
     required this.toolbarWidgetService,
@@ -403,6 +442,7 @@ class _ToolbarItemListView extends StatefulWidget {
   final List<AppFlowyMobileToolbarItem> toolbarItems;
   final EditorState editorState;
   final AppFlowyMobileToolbarWidgetService toolbarWidgetService;
+  final ScrollOffsetListener offsetListener;
 
   @override
   State<_ToolbarItemListView> createState() => _ToolbarItemListViewState();
@@ -432,7 +472,7 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
   @override
   Widget build(BuildContext context) {
     final children = [
-      const HSpace(8),
+      const HSpace(16),
       ...widget.toolbarItems
           .mapIndexed(
             (index, element) => element.itemBuilder.call(
@@ -453,12 +493,14 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
           )
           .map((e) => [e, const HSpace(10)])
           .flattened,
+      const HSpace(16),
     ];
 
     return PageStorage(
       bucket: PageStorageBucket(),
       child: ScrollablePositionedList.builder(
         physics: const ClampingScrollPhysics(),
+        scrollOffsetListener: widget.offsetListener,
         itemScrollController: scrollController,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) => children[index],
@@ -536,4 +578,18 @@ class _CloseKeyboardOrMenuButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MyClipper extends CustomClipper<Rect> {
+  const _MyClipper({
+    this.offset = 0,
+  });
+
+  final double offset;
+
+  @override
+  Rect getClip(Size size) => Rect.fromLTWH(offset, 0, 64.0, 46.0);
+
+  @override
+  bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
 }
