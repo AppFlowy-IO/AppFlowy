@@ -35,7 +35,7 @@ void main() {
         email: email,
       );
       await tester.tapGoogleLoginInButton();
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
 
       // create a new document called Sample
       await tester.createNewPageWithName(

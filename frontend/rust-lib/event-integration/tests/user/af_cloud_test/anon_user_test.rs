@@ -52,6 +52,10 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
     .get_views(&anon_first_level_views[0].id)
     .await
     .child_views;
+  let anon_third_level_views = test
+    .get_views(&anon_second_level_views[0].id)
+    .await
+    .child_views;
 
   // The anon user data will be migrated to the AppFlowy cloud after sign up
   let user = test.af_cloud_sign_up().await;
@@ -62,22 +66,31 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
     .get_views(&user_first_level_views[0].id)
     .await
     .child_views;
+  let user_third_level_views = test
+    .get_views(&user_second_level_views[0].id)
+    .await
+    .child_views;
 
-  // first
+  // check first level
   assert_eq!(anon_first_level_views.len(), 1);
   assert_eq!(user_first_level_views.len(), 1);
+  assert_ne!(anon_first_level_views[0].id, user_first_level_views[0].id);
   assert_eq!(
     anon_first_level_views[0].name,
     user_first_level_views[0].name
   );
-  assert_ne!(anon_first_level_views[0].id, user_first_level_views[0].id);
 
-  // second
+  // check second level
   assert_eq!(anon_second_level_views.len(), user_second_level_views.len());
+  assert_ne!(anon_second_level_views[0].id, user_second_level_views[0].id);
   assert_eq!(
     anon_second_level_views[0].name,
     user_second_level_views[0].name
   );
-  assert_ne!(anon_second_level_views[0].id, user_second_level_views[0].id);
+
+  // check third level
+  assert_eq!(anon_third_level_views.len(), 2);
+  assert_eq!(user_third_level_views[0].name, "Grid1".to_string());
+  assert_eq!(user_third_level_views[1].name, "Grid2".to_string());
   drop(cleaner);
 }

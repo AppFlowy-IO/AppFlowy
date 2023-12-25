@@ -33,7 +33,7 @@ void main() {
 
       tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
       await tester.tapGoButton();
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
 
       // reanme the name of the anon user
       await tester.openSettings();
@@ -45,14 +45,14 @@ void main() {
       await tester.enterText(userNameFinder, 'local_user');
       await tester.openSettingsPage(SettingsPage.user);
       await tester.tapEscButton();
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
 
       // sign up with Google
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       await tester.tapGoogleLoginInButton();
 
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
 
       // sign out
       await tester.openSettings();
@@ -64,7 +64,7 @@ void main() {
       // tap the continue as anonymous button
       await tester.tapButton(find.byType(SignInAnonymousButton));
 
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       final userNameInput = tester.widget(userNameFinder) as UserNameInput;

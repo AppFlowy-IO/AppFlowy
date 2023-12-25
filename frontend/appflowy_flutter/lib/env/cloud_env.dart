@@ -184,6 +184,13 @@ class AppFlowyCloudSharedEnv {
       );
     }
   }
+
+  @override
+  String toString() {
+    return 'authenticator: $_authenticatorType\n'
+        'appflowy: ${appflowyCloudConfig.toJson()}\n'
+        'supabase: ${supabaseConfig.toJson()})\n';
+  }
 }
 
 Future<AppFlowyCloudConfiguration> configurationFromUri(

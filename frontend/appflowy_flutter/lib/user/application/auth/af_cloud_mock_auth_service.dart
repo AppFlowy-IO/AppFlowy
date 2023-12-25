@@ -5,6 +5,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
@@ -61,11 +62,16 @@ class AppFlowyCloudMockAuthService implements AuthService {
             AuthServiceMapKeys.deviceId: deviceId,
           },
         );
-        return await UserEventOauthSignIn(payload)
-            .send()
-            .then((value) => value.swap());
+        Log.info("UserEventOauthSignIn with payload: $payload");
+        return await UserEventOauthSignIn(payload).send().then((value) {
+          value.fold((l) => null, (err) => Log.error(err));
+          return value.swap();
+        });
       },
-      (r) => left(r),
+      (r) {
+        Log.error(r);
+        return left(r);
+      },
     );
   }
 
