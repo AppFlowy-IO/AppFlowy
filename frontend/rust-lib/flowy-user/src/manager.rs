@@ -230,6 +230,7 @@ impl UserManager {
         });
       }
       self.prepare_user(&session).await;
+      self.prepare_backup(&session).await;
 
       // Do the user data migration if needed
       event!(tracing::Level::INFO, "Prepare user data migration");
@@ -525,6 +526,9 @@ impl UserManager {
   pub async fn prepare_user(&self, session: &Session) {
     let _ = self.database.close(session.user_id);
     self.set_collab_config(session);
+  }
+
+  pub async fn prepare_backup(&self, session: &Session) {
     // Ensure to backup user data if a cloud drive is used for storage. While using a cloud drive
     // for storing user data is not advised due to potential data corruption risks, in scenarios where
     // users opt for cloud storage, the application should automatically create a backup of the user

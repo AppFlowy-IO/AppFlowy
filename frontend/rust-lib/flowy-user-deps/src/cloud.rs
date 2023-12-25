@@ -142,7 +142,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     collab_object: &CollabObject,
     data: Vec<u8>,
     override_if_exist: bool,
-  ) -> FutureResult<(), Error>;
+  ) -> FutureResult<(), FlowyError>;
 }
 
 pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;

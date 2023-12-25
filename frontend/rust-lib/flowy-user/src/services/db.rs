@@ -248,6 +248,11 @@ impl CollabDBZipBackup {
   #[instrument(skip_all, err)]
   pub fn restore_latest_backup(&self) -> io::Result<()> {
     let mut latest_zip: Option<(String, PathBuf)> = None;
+    // When the history folder does not exist, there is no backup to restore
+    if !self.history_folder.exists() {
+      return Ok(());
+    }
+
     for entry in fs::read_dir(&self.history_folder)? {
       let entry = entry?;
       let path = entry.path();
@@ -266,11 +271,16 @@ impl CollabDBZipBackup {
       }
     }
 
+    if latest_zip.is_none() {
+      return Ok(());
+    }
+
     let restore_path = latest_zip
       .map(|(_, path)| path)
       .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "No backup folder found"))?;
 
-    unzip_and_replace(&restore_path, &self.collab_db_path)?;
+    unzip_and_replace(&restore_path, &self.collab_db_path)
+      .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
     info!("Restore collab db from {:?}", restore_path);
     Ok(())
   }
