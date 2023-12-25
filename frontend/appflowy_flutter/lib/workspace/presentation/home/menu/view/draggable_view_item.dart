@@ -57,7 +57,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     return DraggableItem<ViewPB>(
       data: widget.view,
       onDragging: widget.onDragging,
-      onWillAccept: (data) => true,
+      onWillAcceptWithDetails: (data) => true,
       onMove: (data) {
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
@@ -70,7 +70,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       onLeave: (_) => _updatePosition(
         DraggableHoverPosition.none,
       ),
-      onAccept: (data) {
+      onAcceptWithDetails: (details) {
+        final data = details.data;
         _move(
           data,
           widget.view,
