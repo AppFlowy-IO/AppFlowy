@@ -131,6 +131,7 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^3.0.1
+  analyzer: ^6.3.0
 
   flutter_test:
     sdk: flutter
@@ -166,7 +167,6 @@ dependency_overrides:
       ref: "92e4260"
 
   file: ^7.0.0
-
 
   logger: ^2.0.0
 

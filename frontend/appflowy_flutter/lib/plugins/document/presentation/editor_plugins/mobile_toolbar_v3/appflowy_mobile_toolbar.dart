@@ -186,7 +186,7 @@ class _MobileToolbarState extends State<_MobileToolbar>
     currentSelection = widget.editorState.selection;
     KeyboardHeightObserver.instance.addListener(_onKeyboardHeightChanged);
     offsetSubscription = offsetListener.changes.listen((event) {
-      toolbarOffset.value = event;
+      toolbarOffset.value += event;
     });
   }
 
