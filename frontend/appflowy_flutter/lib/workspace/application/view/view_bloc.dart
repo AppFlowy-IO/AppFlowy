@@ -256,7 +256,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   Future<ViewPB?> _updateChildViews(
     ChildViewUpdatePB update,
   ) async {
-    Log.debug(
+    Log.trace(
       'received child views of ${this.view.name}(${this.view.id}) update, $update',
     );
     if (update.createChildViews.isNotEmpty) {
