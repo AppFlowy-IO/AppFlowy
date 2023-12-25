@@ -24,3 +24,13 @@ export function isMarkActive(editor: ReactEditor, format: string) {
 
   return marks ? !!marks[format] : false;
 }
+
+export function removeMarks(editor: ReactEditor) {
+  const marks = Editor.marks(editor);
+
+  if (!marks) return;
+
+  for (const key in marks) {
+    Editor.removeMark(editor, key);
+  }
+}

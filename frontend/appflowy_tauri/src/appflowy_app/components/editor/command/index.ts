@@ -1,7 +1,7 @@
 import { ReactEditor } from 'slate-react';
 import { Editor, Element, Node, NodeEntry, Point, Range, Transforms, Location } from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
-import { isMarkActive, toggleMark } from '$app/components/editor/command/mark';
+import { isMarkActive, removeMarks, toggleMark } from '$app/components/editor/command/mark';
 import { insertFormula, isFormulaActive, unwrapFormula, updateFormula } from '$app/components/editor/command/formula';
 import {
   EditorInlineNodeType,
@@ -10,7 +10,6 @@ import {
   Mention,
   TodoListNode,
   ToggleListNode,
-  noTextBlockTypes,
 } from '$app/application/document/document.types';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { generateId } from '$app/components/editor/provider/utils/convert';
@@ -39,9 +38,11 @@ export const CustomEditor = {
       children: [],
     };
 
+    const isSelectable = editor.isSelectable(cloneNode);
+
     const [firstTextNode, ...children] = node.children as Element[];
     const textNode =
-      firstTextNode && firstTextNode.type === EditorNodeType.Text && !noTextBlockTypes.includes(cloneNode.type)
+      firstTextNode && firstTextNode.type === EditorNodeType.Text && isSelectable
         ? {
             textId: generateId(),
             type: EditorNodeType.Text,
@@ -74,13 +75,14 @@ export const CustomEditor = {
       });
     }
 
-    if (!noTextBlockTypes.includes(cloneNode.type)) {
+    if (isSelectable) {
       Transforms.select(editor, selection);
     }
   },
   tabForward,
   tabBackward,
   toggleMark,
+  removeMarks,
   isMarkActive,
   isFormulaActive,
   updateFormula,

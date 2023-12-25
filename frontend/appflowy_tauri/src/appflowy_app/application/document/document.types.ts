@@ -152,13 +152,6 @@ export enum EditorNodeType {
   GridBlock = 'grid',
 }
 
-export const noTextBlockTypes: string[] = [
-  EditorNodeType.ImageBlock,
-  EditorNodeType.GridBlock,
-  EditorNodeType.EquationBlock,
-  EditorNodeType.DividerBlock,
-];
-
 export enum EditorInlineNodeType {
   Mention = 'mention',
   Formula = 'formula',
@@ -207,18 +200,6 @@ export enum EditorStyleFormat {
   BackgroundColor = 'bg_color',
   Href = 'href',
 }
-
-export const markTypes: string[] = [
-  EditorMarkFormat.Bold,
-  EditorMarkFormat.Italic,
-  EditorMarkFormat.Underline,
-  EditorMarkFormat.StrikeThrough,
-  EditorMarkFormat.Code,
-  EditorMarkFormat.Formula,
-  EditorStyleFormat.Href,
-  EditorStyleFormat.FontColor,
-  EditorStyleFormat.BackgroundColor,
-];
 
 export enum EditorTurnFormat {
   Paragraph = 'paragraph',

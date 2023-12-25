@@ -1,9 +1,10 @@
 import { ReactEditor } from 'slate-react';
 import { Transforms, Editor, Element, NodeEntry, Path } from 'slate';
-import { EditorMarkFormat, EditorNodeType, markTypes, ToggleListNode } from '$app/application/document/document.types';
+import { EditorMarkFormat, EditorNodeType, ToggleListNode } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
 import { generateId } from '$app/components/editor/provider/utils/convert';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { removeMarks } from '$app/components/editor/command/mark';
 
 export function withSplitNodes(editor: ReactEditor) {
   const { splitNodes } = editor;
@@ -15,16 +16,6 @@ export function withSplitNodes(editor: ReactEditor) {
       splitNodes(...args);
       return;
     }
-
-    // This is a workaround for the bug that the new paragraph will inherit the marks of the previous paragraph
-    // remove all marks in current selection, otherwise the new paragraph will inherit the marks
-    markTypes.forEach((markType) => {
-      const isActive = CustomEditor.isMarkActive(editor, markType as EditorMarkFormat);
-
-      if (isActive) {
-        editor.removeMark(markType as EditorMarkFormat);
-      }
-    });
 
     const match = CustomEditor.getBlock(editor);
 
@@ -85,20 +76,27 @@ export function withSplitNodes(editor: ReactEditor) {
         at: newNodePath,
         select: true,
       });
+
+      CustomEditor.removeMarks(editor);
       return;
     }
 
     newNodePath = textNodePath;
+
     Transforms.insertNodes(editor, newNode, {
       at: newNodePath,
     });
+
     editor.select(newNodePath);
     editor.collapse({
       edge: 'start',
     });
+
     editor.liftNodes({
       at: newNodePath,
     });
+
+    CustomEditor.removeMarks(editor);
   };
 
   return editor;

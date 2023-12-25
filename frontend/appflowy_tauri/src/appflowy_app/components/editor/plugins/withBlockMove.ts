@@ -60,8 +60,9 @@ export function withBlockMove(editor: ReactEditor) {
           parent.children.forEach((child, childIndex) => {
             if (childIndex > index) {
               Transforms.moveNodes(editor, {
-                at: [...parentPath, childIndex],
+                at: [...parentPath, index + 1],
                 to: [...path, childIndex - index],
+                mode: 'all',
               });
             }
           });
