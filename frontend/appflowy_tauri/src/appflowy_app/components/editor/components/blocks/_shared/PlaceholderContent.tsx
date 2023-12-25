@@ -6,9 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 function PlaceholderContent({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
   const { t } = useTranslation();
-  const selected = useSelected();
   const editor = useSlateStatic();
-
+  const selected = useSelected();
   const block = useMemo(() => {
     const path = ReactEditor.findPath(editor, node);
     const match = Editor.above(editor, {

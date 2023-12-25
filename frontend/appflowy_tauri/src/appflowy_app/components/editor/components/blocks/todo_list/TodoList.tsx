@@ -10,9 +10,7 @@ export const TodoList = memo(
     const { checked } = node.data;
     const editor = useSlateStatic();
     const className = useMemo(() => {
-      return `flex w-full flex-col pl-6 ${checked ? 'text-text-caption line-through' : ''} ${
-        attributes.className ?? ''
-      }`;
+      return `flex w-full flex-col pl-6 ${checked ? 'checked' : ''} ${attributes.className ?? ''}`;
     }, [attributes.className, checked]);
     const toggleTodo = useCallback(() => {
       CustomEditor.toggleTodo(editor, node);

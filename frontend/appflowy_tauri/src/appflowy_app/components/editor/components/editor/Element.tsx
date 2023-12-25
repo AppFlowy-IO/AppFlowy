@@ -93,9 +93,9 @@ function Element({ element, attributes, children }: RenderElementProps) {
     <div
       {...attributes}
       data-block-type={node.type}
-      className={`block-element rounded ${isSelected ? 'bg-content-blue-100' : ''}`}
+      className={`block-element my-1 flex rounded ${isSelected ? 'bg-content-blue-100' : ''}`}
     >
-      <Component className={`flex w-full flex-col px-1`} node={node}>
+      <Component className={`flex w-full flex-col`} node={node}>
         {children}
       </Component>
     </div>

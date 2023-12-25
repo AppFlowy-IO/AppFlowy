@@ -5,7 +5,7 @@ export const Paragraph = memo(
   forwardRef<HTMLDivElement, EditorElementProps<ParagraphNode>>(({ node: _, children, ...attributes }, ref) => {
     {
       return (
-        <div ref={ref} {...attributes} className={`${attributes.className ?? ''} flex flex-1 flex-col`}>
+        <div ref={ref} {...attributes} className={`${attributes.className ?? ''}`}>
           {children}
         </div>
       );
