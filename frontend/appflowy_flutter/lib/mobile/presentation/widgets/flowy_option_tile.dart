@@ -27,6 +27,7 @@ class FlowyOptionTile extends StatelessWidget {
       vertical: 2.0,
     ),
     this.isSelected = false,
+    this.onValueChanged,
     this.textFieldHintText,
     this.onTextChanged,
     this.onTextSubmitted,
@@ -117,6 +118,7 @@ class FlowyOptionTile extends StatelessWidget {
     required String text,
     required bool isSelected,
     required void Function(bool value) onValueChanged,
+    void Function()? onTap,
     bool showTopBorder = true,
     bool showBottomBorder = true,
     Widget? leftIcon,
@@ -125,7 +127,8 @@ class FlowyOptionTile extends StatelessWidget {
       type: FlowyOptionTileType.toggle,
       text: text,
       controller: null,
-      onTap: () => onValueChanged(!isSelected),
+      onTap: onTap ?? () => onValueChanged(!isSelected),
+      onValueChanged: onValueChanged,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
@@ -145,6 +148,9 @@ class FlowyOptionTile extends StatelessWidget {
 
   // only used in checkbox or switcher
   final bool isSelected;
+
+  // only used in switcher
+  final void Function(bool value)? onValueChanged;
 
   // only used in textfield
   final String? textFieldHintText;
