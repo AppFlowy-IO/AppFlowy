@@ -25,7 +25,13 @@ const regexMap: Record<
   ],
   [EditorNodeType.QuoteBlock]: [
     {
-      pattern: /^("|“|”)$/,
+      pattern: /^”$/,
+    },
+    {
+      pattern: /^“$/,
+    },
+    {
+      pattern: /^"$/,
     },
   ],
   [EditorNodeType.TodoListBlock]: [

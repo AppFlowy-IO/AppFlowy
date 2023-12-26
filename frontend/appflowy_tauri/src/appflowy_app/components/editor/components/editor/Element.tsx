@@ -21,9 +21,9 @@ import { Callout } from '$app/components/editor/components/blocks/callout';
 import { Mention } from '$app/components/editor/components/inline_nodes/mention';
 import { GridBlock } from '$app/components/editor/components/blocks/database';
 import { MathEquation } from '$app/components/editor/components/blocks/math_equation';
-import { useSelectedBlock } from '$app/components/editor/components/editor/Editor.hooks';
 import { Text as TextComponent } from '../blocks/text';
 import { Page } from '../blocks/page';
+import { useElementState } from '$app/components/editor/components/editor/Element.hooks';
 
 function Element({ element, attributes, children }: RenderElementProps) {
   const node = element;
@@ -72,7 +72,7 @@ function Element({ element, attributes, children }: RenderElementProps) {
     }
   }, [node.type]) as FC<EditorElementProps & HTMLAttributes<HTMLElement>>;
 
-  const isSelected = useSelectedBlock(node);
+  const { isSelected } = useElementState(node);
 
   const className = useMemo(() => {
     return `block-element my-1 flex rounded ${isSelected ? 'bg-content-blue-100' : ''}`;

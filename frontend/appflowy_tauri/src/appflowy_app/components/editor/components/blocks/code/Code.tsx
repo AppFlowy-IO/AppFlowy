@@ -10,7 +10,7 @@ export const Code = memo(
 
     return (
       <>
-        <div contentEditable={false} className={'absolute w-full px-4 py-2'}>
+        <div contentEditable={false} className={'absolute w-full select-none px-7 py-6'}>
           <LanguageSelect language={language} onChangeLanguage={handleChangeLanguage} />
         </div>
         <div
@@ -18,9 +18,9 @@ export const Code = memo(
           ref={ref}
           className={`${
             attributes.className ?? ''
-          } my-2 flex w-full flex-col rounded border border-solid border-line-divider bg-content-blue-50 p-6 pt-12`}
+          } my-2 flex w-full rounded border border-solid border-line-divider bg-content-blue-50 p-6 pt-14`}
         >
-          <pre className='code-block-element'>
+          <pre>
             <code>{children}</code>
           </pre>
         </div>

@@ -1,8 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { EditorNodeType, CodeNode } from '$app/application/document/document.types';
 
 import { createEditor, NodeEntry, BaseRange, Editor, Element } from 'slate';
-import { ReactEditor, useSelected, useSlateStatic, withReact } from 'slate-react';
+import { ReactEditor, withReact } from 'slate-react';
 import { withBlockPlugins } from '$app/components/editor/plugins/withBlockPlugins';
 import { decorateCode } from '$app/components/editor/components/blocks/code/utils';
 import { withShortcuts } from '$app/components/editor/components/editor/shortcuts';
@@ -10,6 +10,7 @@ import { withInlines } from '$app/components/editor/components/inline_nodes';
 import { withYjs, YjsEditor, withYHistory } from '@slate-yjs/core';
 import * as Y from 'yjs';
 import { CustomEditor } from '$app/components/editor/command';
+import { proxySet, subscribeKey } from 'valtio/utils';
 
 export function useEditor(sharedType: Y.XmlText) {
   const editor = useMemo(() => {
@@ -77,73 +78,60 @@ export function useDecorate(editor: ReactEditor) {
   );
 }
 
-export const EditorSelectedBlockContext = createContext<string[]>([]);
+export function useEditorState(editor: ReactEditor) {
+  const selectedBlocks = useMemo(() => proxySet([]), []);
 
-export function useSelectedBlock(block: Element) {
-  const editor = useSlateStatic();
-  const blockIds = useContext(EditorSelectedBlockContext);
-  const isSelected = useSelected() && !editor.isSelectable(block);
+  const [selectedLength, setSelectedLength] = useState(0);
 
-  if (block.blockId === undefined) return false;
-  return blockIds.includes(block.blockId) || isSelected;
-}
-
-export const EditorSelectedBlockProvider = EditorSelectedBlockContext.Provider;
-
-export function useEditorSelectedBlock(editor: ReactEditor) {
-  const [selectedBlockId, setSelectedBlockId] = useState<string[]>([]);
-  const onSelectedBlock = useCallback((blockId: string) => {
-    setSelectedBlockId([blockId]);
-  }, []);
-
-  const focusBlock = useCallback(
-    (blockId: string) => {
-      if (ReactEditor.isFocused(editor)) return;
-      ReactEditor.focus(editor);
-      const [block] = editor.nodes({
-        at: [],
-        match: (n) => Element.isElement(n) && n.blockId === blockId,
-      });
-
-      if (block) {
-        const [, path] = block;
-
-        editor.select(path);
-        editor.collapse({
-          edge: 'start',
-        });
-      }
-    },
-    [editor]
-  );
-
-  const clearSelectedBlock = useCallback(() => {
-    if (selectedBlockId.length === 0) return;
-    const blockId = selectedBlockId[0];
-
-    setSelectedBlockId([]);
-    if (blockId !== undefined) {
-      focusBlock(blockId);
-    }
-  }, [focusBlock, selectedBlockId]);
+  subscribeKey(selectedBlocks, 'size', (v) => setSelectedLength(v));
 
   useEffect(() => {
-    if (selectedBlockId.length > 0) {
-      document.addEventListener('click', clearSelectedBlock);
-      document.addEventListener('keydown', clearSelectedBlock);
+    const { onChange } = editor;
+
+    const onKeydown = (e: KeyboardEvent) => {
+      if (!ReactEditor.isFocused(editor) && selectedLength > 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        const selectedBlockId = selectedBlocks.values().next().value;
+        const [selectedBlock] = editor.nodes({
+          at: [],
+          match: (n) => Element.isElement(n) && n.blockId === selectedBlockId,
+        });
+        const [, path] = selectedBlock;
+
+        editor.select(path);
+        ReactEditor.focus(editor);
+      }
+    };
+
+    if (selectedLength > 0) {
+      editor.onChange = (...args) => {
+        const isSelectionChange = editor.operations.every((arg) => arg.type === 'set_selection');
+
+        if (isSelectionChange) {
+          selectedBlocks.clear();
+        }
+
+        onChange(...args);
+      };
+
+      document.addEventListener('keydown', onKeydown);
     } else {
-      document.removeEventListener('click', clearSelectedBlock);
-      document.removeEventListener('keydown', clearSelectedBlock);
+      editor.onChange = onChange;
+      document.removeEventListener('keydown', onKeydown);
     }
 
     return () => {
-      document.removeEventListener('click', clearSelectedBlock);
-      document.removeEventListener('keydown', clearSelectedBlock);
+      editor.onChange = onChange;
+      document.removeEventListener('keydown', onKeydown);
     };
-  }, [clearSelectedBlock, selectedBlockId.length]);
+  }, [editor, selectedBlocks, selectedLength]);
 
   return {
-    selectedBlockId,
-    onSelectedBlock,
+    selectedBlocks,
   };
 }
+
+export const EditorSelectedBlockContext = createContext<Set<string>>(new Set());
+
+export const EditorSelectedBlockProvider = EditorSelectedBlockContext.Provider;

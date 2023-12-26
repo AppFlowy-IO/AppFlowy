@@ -86,7 +86,9 @@ export function useShortcuts(editor: ReactEditor) {
       if (isHotkey('shift+Enter', e) && node) {
         e.preventDefault();
         if (SOFT_BREAK_TYPES.includes(node.type as EditorNodeType)) {
-          CustomEditor.splitToParagraph(editor);
+          editor.splitNodes({
+            always: true,
+          });
         } else {
           editor.insertText('\n');
         }

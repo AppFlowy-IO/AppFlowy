@@ -3,7 +3,7 @@ import {
   EditorSelectedBlockProvider,
   useDecorate,
   useEditor,
-  useEditorSelectedBlock,
+  useEditorState,
 } from '$app/components/editor/components/editor/Editor.hooks';
 import { Slate } from 'slate-react';
 import { CustomEditable } from '$app/components/editor/components/editor/CustomEditable';
@@ -19,18 +19,17 @@ function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
   const decorate = useDecorate(editor);
   const { onDOMBeforeInput, onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
-
-  const { onSelectedBlock, selectedBlockId } = useEditorSelectedBlock(editor);
+  const { selectedBlocks } = useEditorState(editor);
 
   if (editor.sharedRoot.length === 0) {
     return <CircularProgress className='m-auto' />;
   }
 
   return (
-    <EditorSelectedBlockProvider value={selectedBlockId}>
+    <EditorSelectedBlockProvider value={selectedBlocks}>
       <Slate editor={editor} initialValue={initialValue}>
         <SelectionToolbar />
-        <BlockActionsToolbar onSelectedBlock={onSelectedBlock} />
+        <BlockActionsToolbar />
         <CustomEditable
           {...props}
           onDOMBeforeInput={onDOMBeforeInput}

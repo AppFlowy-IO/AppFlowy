@@ -115,10 +115,6 @@ export const CustomEditor = {
     Transforms.move(editor);
   },
 
-  splitToParagraph(editor: ReactEditor) {
-    Transforms.splitNodes(editor, { always: true });
-  },
-
   toggleTodo(editor: ReactEditor, node: TodoListNode) {
     const checked = node.data.checked;
     const path = ReactEditor.findPath(editor, node);

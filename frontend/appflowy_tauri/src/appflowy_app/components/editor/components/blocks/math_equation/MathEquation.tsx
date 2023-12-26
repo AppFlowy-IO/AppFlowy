@@ -22,7 +22,10 @@ export const MathEquation = memo(
             }}
             className={`${className} relative my-2 cursor-pointer`}
           >
-            <div contentEditable={false} className={`w-full rounded border border-line-divider bg-content-blue-50 px-3`}>
+            <div
+              contentEditable={false}
+              className={`w-full select-none rounded border border-line-divider bg-content-blue-50 px-3`}
+            >
               {formula ? (
                 <KatexMath latex={formula} />
               ) : (

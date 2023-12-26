@@ -4,6 +4,7 @@ import { EditorNodeType, ToggleListNode } from '$app/application/document/docume
 import { CustomEditor } from '$app/components/editor/command';
 import { generateId } from '$app/components/editor/provider/utils/convert';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { SOFT_BREAK_TYPES } from '$app/components/editor/plugins/constants';
 
 export function withSplitNodes(editor: ReactEditor) {
   const { splitNodes } = editor;
@@ -25,6 +26,7 @@ export function withSplitNodes(editor: ReactEditor) {
 
     const [node, path] = match;
     const nodeType = node.type as EditorNodeType;
+
     const newBlockId = generateId();
     const newTextId = generateId();
 
@@ -41,9 +43,12 @@ export function withSplitNodes(editor: ReactEditor) {
       at: textNodePath,
     });
 
-    const newNodeType = [EditorNodeType.HeadingBlock, EditorNodeType.QuoteBlock, EditorNodeType.Page].includes(
-      node.type as EditorNodeType
-    )
+    const newNodeType = [
+      EditorNodeType.HeadingBlock,
+      EditorNodeType.QuoteBlock,
+      EditorNodeType.Page,
+      ...SOFT_BREAK_TYPES,
+    ].includes(node.type as EditorNodeType)
       ? EditorNodeType.Paragraph
       : node.type;
 

@@ -63,6 +63,9 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
 
       case EditorNodeType.Page:
         return t('document.title.placeholder');
+      case EditorNodeType.CalloutBlock:
+      case EditorNodeType.CodeBlock:
+        return t('editor.typeSomething');
       default:
         return '';
     }
@@ -74,11 +77,11 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
         return unSelectedPlaceholder;
       case EditorNodeType.Page:
         return t('document.title.placeholder');
-      case EditorNodeType.CodeBlock:
-      case EditorNodeType.CalloutBlock:
       case EditorNodeType.GridBlock:
       case EditorNodeType.EquationBlock:
+      case EditorNodeType.CodeBlock:
         return '';
+
       default:
         return t('editor.slashPlaceHolder');
     }

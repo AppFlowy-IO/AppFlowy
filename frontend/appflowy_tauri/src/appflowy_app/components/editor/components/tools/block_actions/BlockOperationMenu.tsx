@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Popover, { PopoverProps } from '@mui/material/Popover';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
@@ -8,11 +8,12 @@ import { useTranslation } from 'react-i18next';
 import { Button, Divider, MenuProps, Menu } from '@mui/material';
 import { PopoverCommonProps } from '$app/components/editor/components/tools/popover';
 import { Element } from 'slate';
-import { useSlateStatic } from 'slate-react';
+import { ReactEditor, useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
-import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
-import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
+
 import { FontColorPicker, BgColorPicker } from '$app/components/editor/components/tools/_shared';
+import Typography from '@mui/material/Typography';
+import { useBlockMenuKeyDown } from '$app/components/editor/components/tools/block_actions/BlockMenu.hooks';
 
 enum SubMenuType {
   TextColor = 'textColor',
@@ -36,14 +37,31 @@ export function BlockOperationMenu({
 }: {
   node: Element;
 } & PopoverProps) {
-  const formatOptionsRef = React.useRef<HTMLDivElement>(null);
+  const optionsRef = React.useRef<HTMLDivElement>(null);
   const editor = useSlateStatic();
   const { t } = useTranslation();
+
+  const handleClose = useCallback(() => {
+    props.onClose?.({}, 'backdropClick');
+    ReactEditor.focus(editor);
+    const path = ReactEditor.findPath(editor, node);
+
+    editor.select(path);
+    if (editor.isSelectable(node)) {
+      editor.collapse({
+        edge: 'start',
+      });
+    }
+  }, [editor, node, props]);
+
+  const { onKeyDown } = useBlockMenuKeyDown({
+    onClose: handleClose,
+  });
   const [subMenuType, setSubMenuType] = useState<null | SubMenuType>(null);
 
   const subMenuAnchorEl = useMemo(() => {
     if (!subMenuType) return null;
-    return formatOptionsRef.current?.querySelector(`[data-submenu-type="${subMenuType}"]`);
+    return optionsRef.current?.querySelector(`[data-submenu-type="${subMenuType}"]`);
   }, [subMenuType]);
 
   const subMenuOpen = Boolean(subMenuAnchorEl);
@@ -55,7 +73,7 @@ export function BlockOperationMenu({
         text: t('button.delete'),
         onClick: () => {
           CustomEditor.deleteNode(editor, node);
-          props.onClose?.({}, 'backdropClick');
+          handleClose();
         },
       },
       {
@@ -63,18 +81,17 @@ export function BlockOperationMenu({
         text: t('button.duplicate'),
         onClick: () => {
           CustomEditor.duplicateNode(editor, node);
-          props.onClose?.({}, 'backdropClick');
+          handleClose();
         },
       },
     ],
-    [editor, node, props, t]
+    [editor, node, handleClose, t]
   );
 
-  const formatOptions = useMemo(
+  const colorOptions = useMemo(
     () => [
       {
         type: SubMenuType.TextColor,
-        icon: <FormatColorTextIcon />,
         text: t('editor.textColor'),
         onClick: () => {
           setSubMenuType(SubMenuType.TextColor);
@@ -82,7 +99,6 @@ export function BlockOperationMenu({
       },
       {
         type: SubMenuType.BackgroundColor,
-        icon: <FormatColorFillIcon />,
         text: t('editor.backgroundColor'),
         onClick: () => {
           setSubMenuType(SubMenuType.BackgroundColor);
@@ -99,7 +115,7 @@ export function BlockOperationMenu({
           <FontColorPicker
             onChange={(color) => {
               CustomEditor.setBlockColor(editor, node, { font_color: color });
-              props.onClose?.({}, 'backdropClick');
+              handleClose();
             }}
           />
         );
@@ -108,17 +124,24 @@ export function BlockOperationMenu({
           <BgColorPicker
             onChange={(color) => {
               CustomEditor.setBlockColor(editor, node, { bg_color: color });
-              props.onClose?.({}, 'backdropClick');
+              handleClose();
             }}
           />
         );
       default:
         return null;
     }
-  }, [editor, node, props, subMenuType]);
+  }, [editor, node, handleClose, subMenuType]);
 
   return (
-    <Popover {...PopoverCommonProps} onMouseDown={(e) => e.stopPropagation()} {...props}>
+    <Popover
+      {...PopoverCommonProps}
+      disableAutoFocus={false}
+      onKeyDown={onKeyDown}
+      onMouseDown={(e) => e.stopPropagation()}
+      {...props}
+      onClose={handleClose}
+    >
       <div className={'flex flex-col p-2'}>
         {operationOptions.map((option, index) => (
           <Button
@@ -134,13 +157,15 @@ export function BlockOperationMenu({
         ))}
       </div>
       <Divider className={'my-1'} />
-      <div ref={formatOptionsRef} className={'flex flex-col p-2'}>
-        {formatOptions.map((option, index) => (
+      <div ref={optionsRef} className={'flex flex-col p-2'}>
+        <Typography variant={'body2'} className={'mb-1 text-text-caption'}>
+          {t('editor.color')}
+        </Typography>
+        {colorOptions.map((option, index) => (
           <Button
             data-submenu-type={option.type}
             color={'inherit'}
             onClick={option.onClick}
-            startIcon={option.icon}
             size={'small'}
             endIcon={<MoreSvg />}
             className={'w-full justify-between'}
@@ -151,7 +176,7 @@ export function BlockOperationMenu({
         ))}
       </div>
       <Menu
-        container={formatOptionsRef.current}
+        container={optionsRef.current}
         {...PopoverCommonProps}
         {...subMenuProps}
         open={subMenuOpen}
