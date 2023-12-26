@@ -6,7 +6,7 @@ import { PopoverPreventBlurProps } from '$app/components/editor/components/tools
 import SlashCommandPanelContent from '$app/components/editor/components/tools/command_panel/slash_command_panel/SlashCommandPanelContent';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { useTranslation } from 'react-i18next';
-import { Editor, Element, Transforms, Path } from 'slate';
+import { Element } from 'slate';
 import { CustomEditor } from '$app/components/editor/command';
 import { EditorNodeType } from '$app/application/document/document.types';
 
@@ -19,23 +19,12 @@ function AddBlockBelow({ node }: { node?: Element }) {
   const handleSlashCommandPanelClose = useCallback(
     (deleteText?: boolean) => {
       if (!nodeEl) return;
-      const node = ReactEditor.toSlateNode(editor, nodeEl);
+      const node = ReactEditor.toSlateNode(editor, nodeEl) as Element;
+
+      if (!node) return;
 
       if (deleteText) {
-        const path = ReactEditor.findPath(editor, node);
-
-        Transforms.select(editor, path);
-        Transforms.insertNodes(
-          editor,
-          [
-            {
-              text: '',
-            },
-          ],
-          {
-            select: true,
-          }
-        );
+        CustomEditor.deleteAllText(editor, node);
       }
 
       setNodeEl(null);
@@ -53,14 +42,14 @@ function AddBlockBelow({ node }: { node?: Element }) {
     const nodePath = ReactEditor.findPath(editor, node);
     const textPath = ReactEditor.findPath(editor, textNode);
 
-    const path = hasTextNode ? textPath : nodePath;
+    const focusPath = hasTextNode ? textPath : nodePath;
 
-    editor.select(path);
+    editor.select(focusPath);
     editor.collapse({
       edge: 'end',
     });
 
-    const isEmptyNode = hasTextNode && editor.isEmpty(textNode);
+    const isEmptyNode = CustomEditor.isEmptyText(editor, node);
 
     if (isEmptyNode) {
       const nodeDom = ReactEditor.toDOMNode(editor, node);
@@ -69,12 +58,9 @@ function AddBlockBelow({ node }: { node?: Element }) {
       return;
     }
 
-    const nextPath = Path.next(nodePath);
-
-    CustomEditor.insertParagraph(editor, nextPath);
-    editor.select(nextPath);
-    editor.collapse({
-      edge: 'end',
+    editor.insertBreak();
+    CustomEditor.turnToBlock(editor, {
+      type: EditorNodeType.Paragraph,
     });
 
     requestAnimationFrame(() => {
@@ -92,10 +78,11 @@ function AddBlockBelow({ node }: { node?: Element }) {
 
   const searchText = useMemo(() => {
     if (!nodeEl) return '';
-    const node = ReactEditor.toSlateNode(editor, nodeEl);
-    const path = ReactEditor.findPath(editor, node);
+    const node = ReactEditor.toSlateNode(editor, nodeEl) as Element;
 
-    return Editor.string(editor, path);
+    if (!node) return '';
+
+    return CustomEditor.getNodeText(editor, node);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, nodeEl, editor.selection]);
 

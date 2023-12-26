@@ -79,7 +79,15 @@ export function tabBackward(editor: ReactEditor) {
 
   if (!match) return;
 
-  const [, path] = match as NodeEntry<Element & { level: number }>;
+  const [node, path] = match as NodeEntry<Element & { level: number }>;
+
+  if (node.type === EditorNodeType.Page) return;
+  if (node.type !== EditorNodeType.Paragraph) {
+    CustomEditor.turnToBlock(editor, {
+      type: EditorNodeType.Paragraph,
+    });
+    return;
+  }
 
   editor.liftNodes({
     at: path,

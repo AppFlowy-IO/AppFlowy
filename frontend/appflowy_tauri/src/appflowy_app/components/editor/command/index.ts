@@ -22,6 +22,16 @@ export const CustomEditor = {
       match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
     });
   },
+
+  /**
+   * turn the current block to a new block
+   * 1. clone the current block to a new block
+   * 2. remove the current block
+   * 3. insert the new block
+   * 4. lift the children of the new block if the new block doesn't allow has children
+   * @param editor
+   * @param newProperties
+   */
   turnToBlock: (editor: ReactEditor, newProperties: Partial<Element>) => {
     const selection = editor.selection;
 
@@ -32,52 +42,37 @@ export const CustomEditor = {
 
     const [node, path] = match as NodeEntry<Element>;
 
-    const cloneNode: Element = {
-      blockId: generateId(),
-      data: newProperties.data || {},
-      type: newProperties.type || EditorNodeType.Paragraph,
-      children: [],
-    };
-
-    const isSelectable = editor.isSelectable(cloneNode);
-
-    const [firstTextNode, ...children] = node.children as Element[];
-    const textNode =
-      firstTextNode && firstTextNode.type === EditorNodeType.Text && isSelectable
-        ? {
-            textId: generateId(),
-            type: EditorNodeType.Text,
-            children: cloneDeep(firstTextNode.children),
-          }
-        : undefined;
-
-    if (textNode) {
-      cloneNode.children.push(textNode);
-    }
-
-    cloneNode.children.push(...children);
+    const cloneNode = CustomEditor.cloneBlock(editor, node);
 
     Transforms.removeNodes(editor, {
       at: path,
     });
 
+    Object.assign(cloneNode, newProperties);
+
+    const [, ...children] = cloneNode.children;
+
     Transforms.insertNodes(editor, cloneNode, { at: path });
 
     const isListType = LIST_TYPES.includes(cloneNode.type as EditorNodeType);
 
-    // if node doesn't allow has children, the children should be lift
+    // if node doesn't allow has children, the children should be lifted
     if (!isListType) {
-      children.forEach((_, index) => {
-        const childIndex = textNode ? index + 1 : index;
+      const length = children.length;
 
+      for (let i = 0; i < length; i++) {
         editor.liftNodes({
-          at: [...path, childIndex],
+          at: [...path, length - i],
         });
-      });
+      }
     }
+
+    const isSelectable = editor.isSelectable(cloneNode);
 
     if (isSelectable) {
       Transforms.select(editor, selection);
+    } else {
+      Transforms.select(editor, path);
     }
   },
   tabForward,
@@ -96,6 +91,7 @@ export const CustomEditor = {
       }
     }
   },
+
   isBlockActive(editor: ReactEditor, format?: string) {
     const match = CustomEditor.getBlock(editor);
 
@@ -105,6 +101,7 @@ export const CustomEditor = {
 
     return !!match;
   },
+
   insertMention(editor: ReactEditor, mention: Mention) {
     const mentionElement = {
       type: EditorInlineNodeType.Mention,
@@ -120,31 +117,6 @@ export const CustomEditor = {
 
   splitToParagraph(editor: ReactEditor) {
     Transforms.splitNodes(editor, { always: true });
-  },
-
-  insertParagraph(editor: ReactEditor, at: Location) {
-    Transforms.insertNodes(
-      editor,
-      {
-        type: EditorNodeType.Paragraph,
-        data: {},
-        blockId: generateId(),
-        children: [
-          {
-            type: EditorNodeType.Text,
-            textId: generateId(),
-            children: [
-              {
-                text: '',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        at,
-      }
-    );
   },
 
   toggleTodo(editor: ReactEditor, node: TodoListNode) {
@@ -215,8 +187,10 @@ export const CustomEditor = {
       children: [],
     };
     const [firstTextNode, ...children] = block.children as Element[];
+    const isSelectable = editor.isSelectable(cloneNode);
+
     const textNode =
-      firstTextNode && firstTextNode.type === EditorNodeType.Text
+      firstTextNode && firstTextNode.type === EditorNodeType.Text && isSelectable
         ? {
             textId: generateId(),
             type: EditorNodeType.Text,
@@ -330,5 +304,40 @@ export const CustomEditor = {
     } as Partial<Element>;
 
     Transforms.setNodes(editor, newProperties, { at: path });
+  },
+
+  deleteAllText(editor: ReactEditor, node: Element) {
+    const [textNode] = (node.children || []) as Element[];
+    const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
+
+    if (!hasTextNode) return;
+    const path = ReactEditor.findPath(editor, textNode);
+    const textLength = editor.string(path).length;
+    const start = Editor.start(editor, path);
+
+    for (let i = 0; i < textLength; i++) {
+      editor.select(start);
+      editor.deleteForward('character');
+    }
+  },
+
+  getNodeText: (editor: ReactEditor, node: Element) => {
+    const [textNode] = (node.children || []) as Element[];
+    const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
+
+    if (!hasTextNode) return '';
+
+    const path = ReactEditor.findPath(editor, textNode);
+
+    return editor.string(path);
+  },
+
+  isEmptyText: (editor: ReactEditor, node: Element) => {
+    const [textNode] = (node.children || []) as Element[];
+    const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
+
+    if (!hasTextNode) return false;
+
+    return editor.isEmpty(textNode);
   },
 };
