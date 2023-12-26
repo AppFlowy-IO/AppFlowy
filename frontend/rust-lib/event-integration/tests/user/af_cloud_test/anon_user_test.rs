@@ -59,17 +59,22 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
 
   // The anon user data will be migrated to the AppFlowy cloud after sign up
   let user = test.af_cloud_sign_up().await;
+  let workspace = test.get_current_workspace().await;
+  println!("user workspace: {:?}", workspace.id);
   assert_eq!(user.authenticator, AuthenticatorPB::AppFlowyCloud);
 
   let user_first_level_views = test.get_all_workspace_views().await;
+  println!("user first level views: {:?}", user_first_level_views);
   let user_second_level_views = test
     .get_views(&user_first_level_views[0].id)
     .await
     .child_views;
+  println!("user second level views: {:?}", user_second_level_views);
   let user_third_level_views = test
     .get_views(&user_second_level_views[0].id)
     .await
     .child_views;
+  println!("user third level views: {:?}", user_third_level_views);
 
   // check first level
   assert_eq!(anon_first_level_views.len(), 1);
