@@ -83,7 +83,6 @@ class FlowyRunner {
         const DebugTask(),
         // localization
         const InitLocalizationTask(),
-        const AndroidUITask(),
         // init the app window
         const InitAppWindowTask(),
         // Init Rust SDK
