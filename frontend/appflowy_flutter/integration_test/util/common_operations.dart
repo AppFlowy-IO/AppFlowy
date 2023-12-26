@@ -290,7 +290,7 @@ extension CommonOperations on WidgetTester {
     await tapButton(markdownButton);
   }
 
-  Future<void> createNewPageWithName({
+  Future<void> createNewPageWithNameUnderParent({
     String? name,
     ViewLayoutPB layout = ViewLayoutPB.Document,
     String? parentName,
@@ -331,6 +331,13 @@ extension CommonOperations on WidgetTester {
       );
       await pumpAndSettle();
     }
+  }
+
+  Future<void> createNewPage({
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+    bool openAfterCreated = true,
+  }) async {
+    await tapButton(find.byType(SidebarNewPageButton));
   }
 
   Future<void> simulateKeyEvent(

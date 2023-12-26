@@ -14,7 +14,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // open setting
       await tester.tapDatabaseSettingButton();
@@ -31,7 +31,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // open setting
       await tester.tapDatabaseSettingButton();

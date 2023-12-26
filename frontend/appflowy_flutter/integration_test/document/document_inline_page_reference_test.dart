@@ -86,7 +86,7 @@ void main() {
 Future<String> createDocumentToReference(WidgetTester tester) async {
   final name = 'document_${uuid()}';
 
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: name,
     layout: ViewLayoutPB.Document,
     openAfterCreated: false,

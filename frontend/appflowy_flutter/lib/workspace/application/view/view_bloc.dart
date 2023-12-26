@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -256,9 +255,6 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   Future<ViewPB?> _updateChildViews(
     ChildViewUpdatePB update,
   ) async {
-    Log.trace(
-      'received child views of ${this.view.name}(${this.view.id}) update, $update',
-    );
     if (update.createChildViews.isNotEmpty) {
       // refresh the child views if the update isn't empty
       // because there's no info to get the inserted index.

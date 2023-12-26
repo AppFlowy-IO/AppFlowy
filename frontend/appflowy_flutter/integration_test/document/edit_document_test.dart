@@ -18,7 +18,7 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: pageName,
         layout: ViewLayoutPB.Document,
       );
@@ -75,7 +75,7 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: pageName,
         layout: ViewLayoutPB.Document,
       );

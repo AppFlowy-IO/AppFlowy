@@ -17,7 +17,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName();
+      await tester.createNewPageWithNameUnderParent();
 
       // expect to see a new document
       tester.expectToSeePageName(
