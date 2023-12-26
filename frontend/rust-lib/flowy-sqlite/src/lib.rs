@@ -18,6 +18,7 @@ pub mod kv;
 mod sqlite_impl;
 
 pub mod schema;
+pub mod search;
 
 #[macro_use]
 pub mod macros;
@@ -44,6 +45,9 @@ pub fn init<P: AsRef<Path>>(storage_path: P) -> Result<Database, io::Error> {
   (*conn)
     .run_pending_migrations(MIGRATIONS)
     .map_err(|e| io::Error::new(io::ErrorKind::Other, format!("{:?}", e)))?;
+
+  search::run_migrations(&mut conn).map_err(as_io_error)?;
+
   Ok(database)
 }
 
