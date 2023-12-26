@@ -209,6 +209,7 @@ class _NameAndIconState extends State<_NameAndIcon> {
   @override
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
+      autofocus: true,
       controller: textEditingController,
       onTextChanged: (text) {
         context.read<ViewBloc>().add(ViewEvent.rename(text));

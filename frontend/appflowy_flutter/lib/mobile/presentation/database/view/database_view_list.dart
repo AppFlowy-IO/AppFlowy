@@ -243,6 +243,7 @@ class _MobileCreateDatabaseViewState extends State<MobileCreateDatabaseView> {
           selectedLayout: layoutType,
         ),
         FlowyOptionTile.textField(
+          autofocus: true,
           controller: controller,
         ),
         const VSpace(20),
