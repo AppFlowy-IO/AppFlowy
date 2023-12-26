@@ -31,7 +31,7 @@ import Functions from '@mui/icons-material/Functions';
 import { ReactEditor } from 'slate-react';
 import React, { useCallback, useMemo } from 'react';
 import { getBlock } from '$app/components/editor/plugins/utils';
-import { FontColorPicker, BgColorPicker } from '$app/components/editor/components/tools/selection_toolbar/sub_menu';
+import { FontColorPicker, BgColorPicker } from '$app/components/editor/components/tools/_shared';
 import { useTranslation } from 'react-i18next';
 import { addMark, Editor } from 'slate';
 import { CustomEditor } from '$app/components/editor/command';

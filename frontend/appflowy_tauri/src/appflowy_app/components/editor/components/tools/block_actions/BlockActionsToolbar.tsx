@@ -19,6 +19,7 @@ export function BlockActionsToolbar({ onSelectedBlock }: { onSelectedBlock: (blo
       onMouseDown={(e) => {
         // prevent toolbar from taking focus away from editor
         e.preventDefault();
+        e.stopPropagation();
       }}
       onMouseUp={(e) => {
         e.stopPropagation();

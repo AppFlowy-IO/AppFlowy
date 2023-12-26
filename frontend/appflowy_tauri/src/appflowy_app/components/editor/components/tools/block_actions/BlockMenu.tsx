@@ -5,7 +5,7 @@ import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
 import BlockOperationMenu from '$app/components/editor/components/tools/block_actions/BlockOperationMenu';
 import { Element } from 'slate';
 
-function DragBlock({ node, onSelectedBlock }: { node?: Element; onSelectedBlock: (blockId: string) => void }) {
+function BlockMenu({ node, onSelectedBlock }: { node?: Element; onSelectedBlock: (blockId: string) => void }) {
   const dragBtnRef = useRef<HTMLButtonElement>(null);
   const [openMenu, setOpenMenu] = useState(false);
   const { t } = useTranslation();
@@ -42,6 +42,11 @@ function DragBlock({ node, onSelectedBlock }: { node?: Element; onSelectedBlock:
             vertical: 'center',
             horizontal: 'left',
           }}
+          PaperProps={{
+            onClick: (e) => {
+              e.stopPropagation();
+            },
+          }}
           node={selectedNode}
           open={openMenu}
           anchorEl={dragBtnRef.current}
@@ -52,4 +57,4 @@ function DragBlock({ node, onSelectedBlock }: { node?: Element; onSelectedBlock:
   );
 }
 
-export default DragBlock;
+export default BlockMenu;

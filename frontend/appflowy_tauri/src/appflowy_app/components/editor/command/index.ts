@@ -16,8 +16,9 @@ import { generateId } from '$app/components/editor/provider/utils/convert';
 import { YjsEditor } from '@slate-yjs/core';
 
 export const CustomEditor = {
-  getBlock: (editor: ReactEditor): NodeEntry<Element> | undefined => {
+  getBlock: (editor: ReactEditor, at?: Location): NodeEntry<Element> | undefined => {
     return Editor.above(editor, {
+      at,
       match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
     });
   },
@@ -313,5 +314,21 @@ export const CustomEditor = {
     }
 
     return false;
+  },
+
+  setBlockColor(
+    editor: ReactEditor,
+    node: Element,
+    data: {
+      font_color?: string;
+      bg_color?: string;
+    }
+  ) {
+    const path = ReactEditor.findPath(editor, node);
+    const newProperties = {
+      data,
+    } as Partial<Element>;
+
+    Transforms.setNodes(editor, newProperties, { at: path });
   },
 };

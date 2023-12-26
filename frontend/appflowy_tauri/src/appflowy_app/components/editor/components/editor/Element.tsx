@@ -1,6 +1,7 @@
 import React, { FC, HTMLAttributes, useMemo } from 'react';
 import { RenderElementProps } from 'slate-react';
 import {
+  BlockData,
   EditorElementProps,
   EditorInlineNodeType,
   EditorNodeType,
@@ -73,6 +74,19 @@ function Element({ element, attributes, children }: RenderElementProps) {
 
   const isSelected = useSelectedBlock(node);
 
+  const className = useMemo(() => {
+    return `block-element my-1 flex rounded ${isSelected ? 'bg-content-blue-100' : ''}`;
+  }, [isSelected]);
+
+  const style = useMemo(() => {
+    const data = (node.data as BlockData) || {};
+
+    return {
+      backgroundColor: data.bg_color,
+      color: data.font_color,
+    };
+  }, [node.data]);
+
   if (InlineComponent) {
     return (
       <span {...attributes}>
@@ -90,12 +104,8 @@ function Element({ element, attributes, children }: RenderElementProps) {
   }
 
   return (
-    <div
-      {...attributes}
-      data-block-type={node.type}
-      className={`block-element my-1 flex rounded ${isSelected ? 'bg-content-blue-100' : ''}`}
-    >
-      <Component className={`flex w-full flex-col`} node={node}>
+    <div {...attributes} data-block-type={node.type} className={className}>
+      <Component style={style} className={`flex w-full flex-col`} node={node}>
         {children}
       </Component>
     </div>

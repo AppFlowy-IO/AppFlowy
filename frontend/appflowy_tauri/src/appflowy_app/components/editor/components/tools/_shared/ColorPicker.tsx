@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CustomColorPicker } from '$app/components/editor/components/tools/selection_toolbar/sub_menu/CustomColorPicker';
+import { CustomColorPicker } from '$app/components/editor/components/tools/_shared/CustomColorPicker';
 import Typography from '@mui/material/Typography';
 import { MenuItem, MenuList } from '@mui/material';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';

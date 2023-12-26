@@ -8,7 +8,7 @@ export interface EditorNode {
   id: string;
   type: EditorNodeType;
   parent?: string | null;
-  data?: unknown;
+  data?: BlockData;
   children?: string;
   externalId?: string;
   externalType?: string;
@@ -27,32 +27,38 @@ export interface ParagraphNode extends Element {
   type: EditorNodeType.Paragraph;
 }
 
+export type BlockData = {
+  [key: string]: string | boolean | number | undefined;
+  font_color?: string;
+  bg_color?: string;
+};
+
 export interface HeadingNode extends Element {
   type: EditorNodeType.HeadingBlock;
   data: {
     level: number;
-  };
+  } & BlockData;
 }
 
 export interface GridNode extends Element {
   type: EditorNodeType.GridBlock;
   data: {
     viewId?: string;
-  };
+  } & BlockData;
 }
 
 export interface TodoListNode extends Element {
   type: EditorNodeType.TodoListBlock;
   data: {
     checked: boolean;
-  };
+  } & BlockData;
 }
 
 export interface CodeNode extends Element {
   type: EditorNodeType.CodeBlock;
   data: {
     language: string;
-  };
+  } & BlockData;
 }
 
 export interface QuoteNode extends Element {
@@ -71,7 +77,7 @@ export interface ToggleListNode extends Element {
   type: EditorNodeType.ToggleListBlock;
   data: {
     collapsed: boolean;
-  };
+  } & BlockData;
 }
 
 export interface DividerNode extends Element {
@@ -82,18 +88,19 @@ export interface CalloutNode extends Element {
   type: EditorNodeType.CalloutBlock;
   data: {
     icon: string;
-  };
+  } & BlockData;
 }
 
 export interface MathEquationNode extends Element {
   type: EditorNodeType.EquationBlock;
   data: {
     formula?: string;
-  };
+  } & BlockData;
 }
 
 export interface FormulaNode extends Element {
   type: EditorInlineNodeType.Formula;
+  data: boolean;
 }
 
 export interface MentionNode extends Element {

@@ -90,23 +90,58 @@ export function useSelectedBlock(block: Element) {
 
 export const EditorSelectedBlockProvider = EditorSelectedBlockContext.Provider;
 
-export function useEditorSelectedBlock() {
+export function useEditorSelectedBlock(editor: ReactEditor) {
   const [selectedBlockId, setSelectedBlockId] = useState<string[]>([]);
   const onSelectedBlock = useCallback((blockId: string) => {
     setSelectedBlockId([blockId]);
   }, []);
 
-  useEffect(() => {
-    const handleClick = () => {
-      if (selectedBlockId.length === 0) return;
-      setSelectedBlockId([]);
-    };
+  const focusBlock = useCallback(
+    (blockId: string) => {
+      if (ReactEditor.isFocused(editor)) return;
+      ReactEditor.focus(editor);
+      const [block] = editor.nodes({
+        at: [],
+        match: (n) => Element.isElement(n) && n.blockId === blockId,
+      });
 
-    document.addEventListener('click', handleClick);
+      if (block) {
+        const [, path] = block;
+
+        editor.select(path);
+        editor.collapse({
+          edge: 'start',
+        });
+      }
+    },
+    [editor]
+  );
+
+  const clearSelectedBlock = useCallback(() => {
+    if (selectedBlockId.length === 0) return;
+    const blockId = selectedBlockId[0];
+
+    setSelectedBlockId([]);
+    if (blockId !== undefined) {
+      focusBlock(blockId);
+    }
+  }, [focusBlock, selectedBlockId]);
+
+  useEffect(() => {
+    if (selectedBlockId.length > 0) {
+      document.addEventListener('click', clearSelectedBlock);
+      document.addEventListener('keydown', clearSelectedBlock);
+    } else {
+      document.removeEventListener('click', clearSelectedBlock);
+      document.removeEventListener('keydown', clearSelectedBlock);
+    }
+
     return () => {
-      document.removeEventListener('click', handleClick);
+      document.removeEventListener('click', clearSelectedBlock);
+      document.removeEventListener('keydown', clearSelectedBlock);
     };
-  }, [selectedBlockId]);
+  }, [clearSelectedBlock, selectedBlockId.length]);
+
   return {
     selectedBlockId,
     onSelectedBlock,
