@@ -378,7 +378,8 @@ class _PropertyType extends StatelessWidget {
               minChildSize: 0.7,
               builder: (context, controller) => FieldOptions(
                 scrollController: controller,
-                onAddField: (type) {
+                mode: FieldOptionMode.edit,
+                onSelectFieldType: (type) {
                   onSelected(type);
                   context.pop();
                 },

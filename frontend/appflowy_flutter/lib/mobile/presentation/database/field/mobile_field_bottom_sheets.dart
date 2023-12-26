@@ -24,7 +24,8 @@ void showCreateFieldBottomSheet(BuildContext context, String viewId) {
         minChildSize: 0.7,
         builder: (context, controller) => FieldOptions(
           scrollController: controller,
-          onAddField: (type) async {
+          mode: FieldOptionMode.add,
+          onSelectFieldType: (type) async {
             final optionValues = await context.push<FieldOptionValues>(
               Uri(
                 path: MobileNewPropertyScreen.routeName,
