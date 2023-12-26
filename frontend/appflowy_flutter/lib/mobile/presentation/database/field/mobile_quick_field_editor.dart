@@ -92,15 +92,16 @@ class _QuickEditFieldState extends State<QuickEditField> {
               await service.hide();
             },
           ),
-        FlowyOptionTile.text(
-          showTopBorder: false,
-          text: LocaleKeys.grid_field_insertLeft.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.insert_left_s),
-          onTap: () async {
-            context.pop();
-            await service.insertLeft();
-          },
-        ),
+        if (!widget.fieldInfo.isPrimary)
+          FlowyOptionTile.text(
+            showTopBorder: false,
+            text: LocaleKeys.grid_field_insertLeft.tr(),
+            leftIcon: const FlowySvg(FlowySvgs.insert_left_s),
+            onTap: () async {
+              context.pop();
+              await service.insertLeft();
+            },
+          ),
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.grid_field_insertRight.tr(),
