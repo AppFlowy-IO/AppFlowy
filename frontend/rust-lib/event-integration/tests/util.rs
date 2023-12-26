@@ -8,7 +8,6 @@ use std::time::Duration;
 use anyhow::Error;
 use collab_folder::FolderData;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
-use nanoid::nanoid;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::timeout;
 use uuid::Uuid;

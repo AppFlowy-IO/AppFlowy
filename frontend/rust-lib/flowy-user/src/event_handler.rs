@@ -255,8 +255,10 @@ pub async fn oauth_sign_in_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let auth_type: Authenticator = params.auth_type.into();
-  let user_profile = manager.sign_up(auth_type, BoxAny::new(params.map)).await?;
+  let authenticator: Authenticator = params.authenticator.into();
+  let user_profile = manager
+    .sign_up(authenticator, BoxAny::new(params.map))
+    .await?;
   data_result_ok(user_profile.into())
 }
 
@@ -267,9 +269,9 @@ pub async fn gen_sign_in_url_handler(
 ) -> DataResult<SignInUrlPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let auth_type: Authenticator = params.auth_type.into();
+  let authenticator: Authenticator = params.authenticator.into();
   let sign_in_url = manager
-    .generate_sign_in_url_with_email(&auth_type, &params.email)
+    .generate_sign_in_url_with_email(&authenticator, &params.email)
     .await?;
   data_result_ok(SignInUrlPB { sign_in_url })
 }

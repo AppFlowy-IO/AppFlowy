@@ -373,7 +373,6 @@ impl UserManager {
   ) -> Result<UserProfile, FlowyError> {
     // sign out the current user if there is one
     let migration_user = self.get_migration_user(&authenticator).await;
-    let _ = self.sign_out().await;
 
     self.update_authenticator(&authenticator).await;
     let auth_service = self.cloud_services.get_user_service()?;

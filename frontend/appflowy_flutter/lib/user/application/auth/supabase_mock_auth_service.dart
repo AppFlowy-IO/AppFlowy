@@ -67,7 +67,7 @@ class SupabaseMockAuthService implements AuthService {
 
       // Create the OAuth sign-in payload.
       final payload = OauthSignInPB(
-        authType: AuthenticatorPB.Supabase,
+        authenticator: AuthenticatorPB.Supabase,
         map: {
           AuthServiceMapKeys.uuid: uuid,
           AuthServiceMapKeys.email: email,

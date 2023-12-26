@@ -88,7 +88,7 @@ impl EventIntegrationTest {
     let map = third_party_sign_up_param(Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthenticatorPB::Supabase,
+      authenticator: AuthenticatorPB::Supabase,
     };
 
     EventBuilder::new(self.clone())
@@ -133,7 +133,7 @@ impl EventIntegrationTest {
   pub async fn af_cloud_sign_in_with_email(&self, email: &str) -> FlowyResult<UserProfilePB> {
     let payload = SignInUrlPayloadPB {
       email: email.to_string(),
-      auth_type: AuthenticatorPB::AppFlowyCloud,
+      authenticator: AuthenticatorPB::AppFlowyCloud,
     };
     let sign_in_url = EventBuilder::new(self.clone())
       .event(GenerateSignInURL)
@@ -148,7 +148,7 @@ impl EventIntegrationTest {
     map.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthenticatorPB::AppFlowyCloud,
+      authenticator: AuthenticatorPB::AppFlowyCloud,
     };
 
     let user_profile = EventBuilder::new(self.clone())
@@ -175,7 +175,7 @@ impl EventIntegrationTest {
     );
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthenticatorPB::Supabase,
+      authenticator: AuthenticatorPB::Supabase,
     };
 
     let user_profile = EventBuilder::new(self.clone())
