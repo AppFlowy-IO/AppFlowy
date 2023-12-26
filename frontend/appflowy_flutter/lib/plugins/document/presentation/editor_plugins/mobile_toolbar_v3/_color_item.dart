@@ -25,6 +25,7 @@ class ColorItem extends StatelessWidget {
           extraInfo: {
             selectionExtraInfoDisableMobileToolbarKey: true,
             selectionExtraInfoDisableFloatingToolbar: true,
+            selectionExtraInfoDoNotAttachTextService: true,
           },
         );
         keepEditorFocusNotifier.increase();
@@ -38,6 +39,7 @@ class ColorItem extends StatelessWidget {
       backgroundColor: const Color(0xFFF2F2F7),
       isSelected: false,
       showRightArrow: true,
+      enable: editorState.selection?.isCollapsed == false,
       iconPadding: const EdgeInsets.only(
         top: 14.0,
         bottom: 14.0,

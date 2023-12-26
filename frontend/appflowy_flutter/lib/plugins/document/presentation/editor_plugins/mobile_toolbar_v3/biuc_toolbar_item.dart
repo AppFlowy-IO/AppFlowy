@@ -65,6 +65,8 @@ final colorToolbarItem = AppFlowyMobileToolbarItem(
           editorState.selection,
           extraInfo: {
             selectionExtraInfoDisableMobileToolbarKey: true,
+            selectionExtraInfoDisableFloatingToolbar: true,
+            selectionExtraInfoDoNotAttachTextService: true,
           },
         );
         keepEditorFocusNotifier.increase();

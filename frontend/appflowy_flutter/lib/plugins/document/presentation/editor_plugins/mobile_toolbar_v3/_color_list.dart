@@ -31,10 +31,15 @@ Future<void> showTextColorAndBackgroundColorPicker(
       );
     },
   );
-  await editorState.updateSelectionWithReason(
-    null,
-    extraInfo: null,
-  );
+  Future.delayed(const Duration(milliseconds: 100), () {
+    // highlight the selected text again.
+    editorState.updateSelectionWithReason(
+      selection,
+      extraInfo: {
+        selectionExtraInfoDisableFloatingToolbar: true,
+      },
+    );
+  });
 }
 
 class _TextColorAndBackgroundColor extends StatefulWidget {
@@ -90,6 +95,7 @@ class _TextColorAndBackgroundColorState
               selectionExtraInfo: {
                 selectionExtraInfoDisableFloatingToolbar: true,
                 selectionExtraInfoDisableMobileToolbarKey: true,
+                selectionExtraInfoDoNotAttachTextService: true,
               },
             );
             setState(() {});
@@ -118,6 +124,7 @@ class _TextColorAndBackgroundColorState
               selectionExtraInfo: {
                 selectionExtraInfoDisableFloatingToolbar: true,
                 selectionExtraInfoDisableMobileToolbarKey: true,
+                selectionExtraInfoDoNotAttachTextService: true,
               },
             );
             setState(() {});

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_close_keyboard_or_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/keyboard_height_observer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -357,7 +357,7 @@ class _MobileToolbarState extends State<_MobileToolbar>
                               ]
                             : null,
                       ),
-                      child: _CloseKeyboardOrMenuButton(
+                      child: CloseKeyboardOrMenuButton(
                         showingMenu: showingMenu,
                         onPressed: () {
                           if (showingMenu) {
@@ -547,37 +547,6 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
     }
 
     previousSelection = selection;
-  }
-}
-
-class _CloseKeyboardOrMenuButton extends StatelessWidget {
-  const _CloseKeyboardOrMenuButton({
-    required this.showingMenu,
-    required this.onPressed,
-  });
-
-  final bool showingMenu;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 64,
-      height: 46,
-      child: FlowyButton(
-        text: showingMenu
-            ? const Padding(
-                padding: EdgeInsets.only(right: 0.5),
-                child: FlowySvg(
-                  FlowySvgs.m_toolbar_show_keyboard_s,
-                ),
-              )
-            : const FlowySvg(
-                FlowySvgs.m_toolbar_hide_keyboard_s,
-              ),
-        onTap: onPressed,
-      ),
-    );
   }
 }
 

@@ -166,6 +166,7 @@ class BlockItems extends StatelessWidget {
       selection,
       extraInfo: {
         selectionExtraInfoDisableMobileToolbarKey: true,
+        selectionExtraInfoDoNotAttachTextService: true,
       },
     );
     editorState.service.keyboardService?.closeKeyboard();

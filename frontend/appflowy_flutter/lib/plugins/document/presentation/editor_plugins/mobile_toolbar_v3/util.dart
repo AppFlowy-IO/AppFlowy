@@ -208,6 +208,7 @@ extension MobileToolbarEditorState on EditorState {
     Selection? selection,
     Attributes? extraAttributes,
     bool? isSelected,
+    Map? selectionExtraInfo,
   }) async {
     selection = selection ?? this.selection;
     if (selection == null) {
@@ -233,12 +234,14 @@ extension MobileToolbarEditorState on EditorState {
           attributes: attributes,
         );
       },
+      selectionExtraInfo: selectionExtraInfo,
     );
   }
 
   Future<void> alignBlock(
     String alignment, {
     Selection? selection,
+    Map? selectionExtraInfo,
   }) async {
     await updateNode(
       selection,
@@ -248,6 +251,7 @@ extension MobileToolbarEditorState on EditorState {
           blockComponentAlign: alignment,
         },
       ),
+      selectionExtraInfo: selectionExtraInfo,
     );
   }
 
