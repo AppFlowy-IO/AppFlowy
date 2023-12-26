@@ -22,7 +22,7 @@ pub mod user_event;
 #[derive(Clone)]
 pub struct EventIntegrationTest {
   pub authenticator: Arc<RwLock<AuthenticatorPB>>,
-  pub inner: AppFlowyCore,
+  pub appflowy_core: AppFlowyCore,
   #[allow(dead_code)]
   cleaner: Arc<Cleaner>,
   pub notification_sender: TestNotificationSender,
@@ -55,7 +55,7 @@ impl EventIntegrationTest {
     // In case of dropping the runtime that runs the core, we need to forget the dispatcher
     std::mem::forget(inner.dispatcher());
     Self {
-      inner,
+      appflowy_core: inner,
       authenticator,
       notification_sender,
       cleaner: Arc::new(Cleaner(path_buf)),
@@ -82,7 +82,7 @@ impl std::ops::Deref for EventIntegrationTest {
   type Target = AppFlowyCore;
 
   fn deref(&self) -> &Self::Target {
-    &self.inner
+    &self.appflowy_core
   }
 }
 

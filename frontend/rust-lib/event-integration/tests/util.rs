@@ -15,7 +15,6 @@ use uuid::Uuid;
 use zip::ZipArchive;
 
 use event_integration::event_builder::EventBuilder;
-use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::Cleaner;
 use event_integration::EventIntegrationTest;
 use flowy_database_deps::cloud::DatabaseCloudService;
@@ -35,7 +34,7 @@ pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
 }
 
 pub struct FlowySupabaseTest {
-  inner: EventIntegrationTest,
+  event_test: EventIntegrationTest,
 }
 
 impl FlowySupabaseTest {
@@ -55,7 +54,7 @@ impl FlowySupabaseTest {
     &self,
     payload: UpdateUserProfilePayloadPB,
   ) -> Option<FlowyError> {
-    EventBuilder::new(self.inner.clone())
+    EventBuilder::new(self.event_test.clone())
       .event(UpdateUserProfile)
       .payload(payload)
       .async_send()
@@ -68,7 +67,7 @@ impl Deref for FlowySupabaseTest {
   type Target = EventIntegrationTest;
 
   fn deref(&self) -> &Self::Target {
-    &self.inner
+    &self.event_test
   }
 }
 

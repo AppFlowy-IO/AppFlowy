@@ -17,7 +17,7 @@ use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
-  pub async fn create_document(
+  pub async fn create_and_open_document(
     &self,
     parent_id: &str,
     name: String,

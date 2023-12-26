@@ -97,6 +97,10 @@ impl DocumentManager {
       let collab = self.collab_for_document(uid, doc_id, vec![]).await?;
       let data = data.unwrap_or_else(default_document_data);
       let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
+      self
+        .documents
+        .lock()
+        .put(doc_id.to_string(), document.clone());
       Ok(document)
     }
   }

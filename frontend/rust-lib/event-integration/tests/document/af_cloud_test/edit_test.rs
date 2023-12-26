@@ -5,7 +5,6 @@ use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
 use flowy_document2::entities::DocumentSyncStatePB;
 
-use crate::document::af_cloud_test::util::AFCloudDocumentTest;
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
@@ -17,7 +16,7 @@ async fn af_cloud_edit_document_test() {
   // create document and then insert content
   let current_workspace = test.get_current_workspace().await;
   let view = test
-    .create_document(&current_workspace.id, "my document".to_string(), vec![])
+    .create_and_open_document(&current_workspace.id, "my document".to_string(), vec![])
     .await;
   test.insert_document_text(&view.id, "hello world", 0).await;
 
