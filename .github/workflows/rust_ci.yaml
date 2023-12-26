@@ -52,21 +52,21 @@ jobs:
           workspaces: |
             frontend/rust-lib
 
-      - name: Create .env file in flowy-server
-        working-directory: frontend/rust-lib/flowy-server
-        run: |
-          touch .env.ci
-          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
-          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
-          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
-
-      - name: Create .env file in event-integration
-        working-directory: frontend/rust-lib/event-integration
-        run: |
-          touch .env.ci
-          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
-          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
-          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
+#      - name: Create .env file in flowy-server
+#        working-directory: frontend/rust-lib/flowy-server
+#        run: |
+#          touch .env.ci
+#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+#          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
+#
+#      - name: Create .env file in event-integration
+#        working-directory: frontend/rust-lib/event-integration
+#        run: |
+#          touch .env.ci
+#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+#          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
 
       - name: Checkout appflowy cloud code
         uses: actions/checkout@v3
@@ -86,7 +86,6 @@ jobs:
           sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
           sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
-          cat .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud

@@ -107,7 +107,7 @@ impl EventIntegrationTest {
   }
 
   pub fn set_auth_type(&self, auth_type: AuthenticatorPB) {
-    *self.auth_type.write() = auth_type;
+    *self.authenticator.write() = auth_type;
   }
 
   pub async fn init_anon_user(&self) -> UserProfilePB {
@@ -246,7 +246,7 @@ impl TestNotificationSender {
     F: Fn(&T) -> bool + Send + 'static,
   {
     let id = id.to_string();
-    let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
+    let (tx, rx) = tokio::sync::mpsc::channel::<T>(1);
     let mut receiver = self.sender.subscribe();
     af_spawn(async move {
       while let Ok(value) = receiver.recv().await {

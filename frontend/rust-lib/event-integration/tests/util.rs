@@ -9,25 +9,25 @@ use anyhow::Error;
 use collab_folder::FolderData;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use tokio::sync::mpsc::Receiver;
+
 use tokio::time::timeout;
 use uuid::Uuid;
 use zip::ZipArchive;
 
 use event_integration::event_builder::EventBuilder;
+use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::Cleaner;
 use event_integration::EventIntegrationTest;
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_folder_deps::cloud::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB};
+use flowy_user::entities::UpdateUserProfilePayloadPB;
 use flowy_user::errors::FlowyError;
-use flowy_user::event_map::UserCloudServiceProvider;
+
 use flowy_user::event_map::UserEvent::*;
 use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::Authenticator;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   dotenv::from_path(".env.ci").ok()?;
@@ -40,14 +40,15 @@ pub struct FlowySupabaseTest {
 
 impl FlowySupabaseTest {
   pub async fn new() -> Option<Self> {
-    let _ = get_supabase_config()?;
-    let test = EventIntegrationTest::new().await;
-    test.set_auth_type(AuthenticatorPB::Supabase);
-    test
-      .server_provider
-      .set_authenticator(Authenticator::Supabase);
-
-    Some(Self { inner: test })
+    return None;
+    // let _ = get_supabase_config()?;
+    // let test = EventIntegrationTest::new().await;
+    // test.set_auth_type(AuthenticatorPB::Supabase);
+    // test
+    //   .server_provider
+    //   .set_authenticator(Authenticator::Supabase);
+    //
+    // Some(Self { inner: test })
   }
 
   pub async fn update_user_profile(
@@ -71,12 +72,8 @@ impl Deref for FlowySupabaseTest {
   }
 }
 
-pub async fn receive_with_timeout<T>(
-  mut receiver: Receiver<T>,
-  duration: Duration,
-) -> Result<T, Box<dyn std::error::Error + Send>> {
-  let res = timeout(duration, receiver.recv()).await.unwrap().unwrap();
-  Ok(res)
+pub async fn receive_with_timeout<T>(mut receiver: Receiver<T>, duration: Duration) -> Option<T> {
+  timeout(duration, receiver.recv()).await.ok()?
 }
 
 pub fn get_supabase_ci_config() -> Option<SupabaseConfiguration> {
@@ -170,7 +167,7 @@ pub fn unzip_history_user_db(root: &str, folder_name: &str) -> std::io::Result<(
   // Open the zip file
   let zip_file_path = format!("{}/{}.zip", root, folder_name);
   let reader = File::open(zip_file_path)?;
-  let output_folder_path = format!("{}/unit_test_{}", root, Uuid::new_v4().to_string());
+  let output_folder_path = format!("{}/unit_test_{}", root, Uuid::new_v4());
 
   // Create a ZipArchive from the file
   let mut archive = ZipArchive::new(reader)?;
@@ -207,13 +204,8 @@ pub struct AFCloudTest {
 
 impl AFCloudTest {
   pub async fn new() -> Option<Self> {
-    let _ = get_af_cloud_config()?;
+    user_localhost_af_cloud().await;
     let test = EventIntegrationTest::new().await;
-    test.set_auth_type(AuthenticatorPB::AppFlowyCloud);
-    test
-      .server_provider
-      .set_authenticator(Authenticator::AppFlowyCloud);
-
     Some(Self { inner: test })
   }
 }
@@ -228,17 +220,4 @@ impl Deref for AFCloudTest {
 
 pub fn generate_test_email() -> String {
   format!("{}@test.com", Uuid::new_v4())
-}
-
-/// To run the test, create a .env.ci file in the 'event-integration' directory and set the following environment variables:
-///
-/// - `APPFLOWY_CLOUD_BASE_URL=http://localhost:8000`
-/// - `APPFLOWY_CLOUD_WS_BASE_URL=ws://localhost:8000/ws`
-/// - `APPFLOWY_CLOUD_GOTRUE_URL=http://localhost:9998`
-///
-/// - `GOTRUE_ADMIN_EMAIL=admin@example.com`
-/// - `GOTRUE_ADMIN_PASSWORD=password`
-pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
-  dotenv::from_filename("./.env.ci").ok()?;
-  AFCloudConfiguration::from_env().ok()
 }

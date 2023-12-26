@@ -21,7 +21,7 @@ pub mod user_event;
 
 #[derive(Clone)]
 pub struct EventIntegrationTest {
-  pub auth_type: Arc<RwLock<AuthenticatorPB>>,
+  pub authenticator: Arc<RwLock<AuthenticatorPB>>,
   pub inner: AppFlowyCore,
   #[allow(dead_code)]
   cleaner: Arc<Cleaner>,
@@ -48,12 +48,12 @@ impl EventIntegrationTest {
 
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
-    let auth_type = Arc::new(RwLock::new(AuthenticatorPB::Local));
+    let authenticator = Arc::new(RwLock::new(AuthenticatorPB::Local));
     register_notification_sender(notification_sender.clone());
     std::mem::forget(inner.dispatcher());
     Self {
       inner,
-      auth_type,
+      authenticator,
       notification_sender,
       cleaner: Arc::new(Cleaner(path_buf)),
     }

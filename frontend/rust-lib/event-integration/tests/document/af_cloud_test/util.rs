@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use crate::util::{generate_test_email, AFCloudTest};
+use crate::util::AFCloudTest;
 
 pub struct AFCloudDocumentTest {
   inner: AFCloudTest,
@@ -9,8 +9,7 @@ pub struct AFCloudDocumentTest {
 impl AFCloudDocumentTest {
   pub async fn new() -> Option<Self> {
     let inner = AFCloudTest::new().await?;
-    let email = generate_test_email();
-    let _ = inner.af_cloud_sign_in_with_email(&email).await.unwrap();
+    inner.af_cloud_sign_up().await;
     Some(Self { inner })
   }
 
