@@ -290,6 +290,17 @@ extension CommonOperations on WidgetTester {
     await tapButton(markdownButton);
   }
 
+  /// Tap the export template button
+  ///
+  /// Must call [tapShareButton] first.
+  ///
+  Future<void> tapTemplateButton() async {
+    final templateButton = find.textContaining(
+      LocaleKeys.template_title.tr(),
+    );
+    await tapButton(templateButton);
+  }
+
   Future<void> createNewPageWithName({
     String? name,
     ViewLayoutPB layout = ViewLayoutPB.Document,
@@ -485,6 +496,18 @@ extension CommonOperations on WidgetTester {
     await tapButton(find.byType(EmojiPickerButton));
     await tapEmoji(icon);
     await pumpAndSettle();
+  }
+
+  Future<void> expandPage(String name) async {
+    final pageToggleButton = find.descendant(
+      of: findPageName(name),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is FlowySvg && widget.svg == FlowySvgs.drop_menu_hide_m,
+      ),
+    );
+    await tap(pageToggleButton);
+    await pumpAndSettle(const Duration(milliseconds: 500));
   }
 }
 

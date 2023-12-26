@@ -1,4 +1,5 @@
 use std::sync::{Arc, Weak};
+use collab_folder::View;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -312,11 +313,11 @@ pub(crate) async fn delete_all_trash_handler(
 pub(crate) async fn import_data_handler(
   data: AFPluginData<ImportPB>,
   folder: AFPluginState<Weak<FolderManager>>,
-) -> Result<(), FlowyError> {
+) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: ImportParams = data.into_inner().try_into()?;
-  folder.import(params).await?;
-  Ok(())
+  let view: View = folder.import(params).await?;
+  data_result_ok(view_pb_without_child_views(Arc::new(view)))
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]

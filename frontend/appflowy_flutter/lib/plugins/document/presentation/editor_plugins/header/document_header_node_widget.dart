@@ -121,6 +121,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             editorState: widget.editorState,
             hasCover: hasCover,
             hasIcon: hasIcon,
+            view: widget.view,
           ),
         ),
         if (hasCover)
@@ -193,14 +194,17 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
 class DocumentHeaderToolbar extends StatefulWidget {
   final Node node;
   final EditorState editorState;
+  final ViewPB view;
   final bool hasCover;
   final bool hasIcon;
+
   final Future<void> Function({(CoverType, String?)? cover, String? icon})
       onCoverChanged;
 
   const DocumentHeaderToolbar({
     required this.node,
     required this.editorState,
+    required this.view,
     required this.hasCover,
     required this.hasIcon,
     required this.onCoverChanged,

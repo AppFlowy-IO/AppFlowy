@@ -1197,5 +1197,9 @@
     "date": "Date",
     "addField": "Add field",
     "userIcon": "User icon"
+  },
+  "template": {
+    "title": "Template",
+    "exportTemplateSuccess": "Exported Template Successfully!"
   }
 }

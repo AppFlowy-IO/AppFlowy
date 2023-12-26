@@ -18,6 +18,7 @@ import 'document_with_toggle_list_test.dart' as document_with_toggle_list_test;
 import 'edit_document_test.dart' as document_edit_test;
 import 'document_inline_page_reference_test.dart'
     as document_inline_page_reference_test;
+import 'document_template_test.dart' as document_template_test;
 
 void startTesting() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -38,4 +39,5 @@ void startTesting() {
   document_option_action_test.main();
   document_with_image_block_test.main();
   document_inline_page_reference_test.main();
+  document_template_test.main();
 }

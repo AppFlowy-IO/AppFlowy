@@ -2,6 +2,7 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/application/template/template_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
@@ -124,6 +125,8 @@ void _resolveCommonService(
   getIt.registerFactory<BaseAppearance>(
     () => PlatformExtension.isMobile ? MobileAppearance() : DesktopAppearance(),
   );
+
+  getIt.registerFactory<TemplateService>(() => TemplateService());
 }
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {

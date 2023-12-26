@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_panel.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -43,6 +44,13 @@ class ViewAddButton extends StatelessWidget {
               pluginBuilder: pluginBuilder,
             ),
           ),
+
+      // add template ...
+      ...getIt<PluginSandbox>().builders.whereType<DocumentPluginBuilder>().map(
+            (pluginBuilder) => TemplateActionWrapper(
+              pluginBuilder: pluginBuilder,
+            ),
+          ),
     ];
   }
 
@@ -64,13 +72,20 @@ class ViewAddButton extends StatelessWidget {
           },
         );
       },
-      onSelected: (action, popover) {
+      onSelected: (action, popover) async {
         onEditing(false);
         if (action is ViewAddButtonActionWrapper) {
           _showViewAddButtonActions(context, action);
         } else if (action is ViewImportActionWrapper) {
           _showViewImportAction(context, action);
+        } else if (action is TemplateActionWrapper) {
+          TemplateDialog(
+            title: LocaleKeys.template_title.tr(),
+            confirm: () {},
+            parentViewId: parentViewId,
+          ).show(context);
         }
+
         popover.close();
       },
       onClosed: () {
@@ -128,4 +143,18 @@ class ViewImportActionWrapper extends ActionCell {
 
   @override
   String get name => LocaleKeys.moreAction_import.tr();
+}
+
+class TemplateActionWrapper extends ActionCell {
+  final PluginBuilder pluginBuilder;
+
+  TemplateActionWrapper({
+    required this.pluginBuilder,
+  });
+
+  @override
+  Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.template_s);
+
+  @override
+  String get name => LocaleKeys.template_title.tr();
 }
