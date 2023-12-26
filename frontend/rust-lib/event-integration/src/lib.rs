@@ -51,6 +51,8 @@ impl EventIntegrationTest {
     let notification_sender = TestNotificationSender::new();
     let authenticator = Arc::new(RwLock::new(AuthenticatorPB::Local));
     register_notification_sender(notification_sender.clone());
+
+    // In case of dropping the runtime that runs the core, we need to forget the dispatcher
     std::mem::forget(inner.dispatcher());
     Self {
       inner,
