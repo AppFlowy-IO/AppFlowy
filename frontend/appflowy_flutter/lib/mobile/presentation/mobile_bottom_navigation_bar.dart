@@ -19,6 +19,7 @@ class MobileBottomNavigationBar extends StatelessWidget {
     final style = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: Colors.red,
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
