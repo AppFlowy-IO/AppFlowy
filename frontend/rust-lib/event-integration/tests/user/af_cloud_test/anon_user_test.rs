@@ -42,11 +42,21 @@ async fn reading_039_anon_user_data_test() {
 
 #[tokio::test]
 async fn migrate_anon_user_data_to_af_cloud_test() {
-  let (cleaner, user_db_path) = unzip_history_user_db("./tests/asset", "039_local").unwrap();
+  let (cleaner, user_db_path) = unzip_history_user_db("./tests/asset", "040_local").unwrap();
+  // In the 040_local, the structure is:
+  // workspace:
+  //  view: Document1
+  //    view: Document2
+  //      view: Grid1
+  //      view: Grid2
   user_localhost_af_cloud().await;
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path.clone(), DEFAULT_NAME.to_string())
       .await;
+  let trash = test.get_trash().await;
+  assert_eq!(trash.items.len(), 1);
+  assert_eq!(trash.items[0].name, "Local Getting started".to_string());
+
   let anon_first_level_views = test.get_all_workspace_views().await;
   let anon_second_level_views = test
     .get_views(&anon_first_level_views[0].id)

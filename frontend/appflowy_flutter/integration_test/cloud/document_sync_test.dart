@@ -64,7 +64,7 @@ void main() {
       await tester.tapGoogleLoginInButton();
       await tester.expectToSeeHomePage();
 
-// the latest document will be opened, so the content must be the inputContent
+      // the latest document will be opened, so the content must be the inputContent
       await tester.pumpAndSettle();
       expect(find.text(inputContent, findRichText: true), findsOneWidget);
     });
