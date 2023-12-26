@@ -47,7 +47,8 @@ void main() {
       await tester.editor.tapLineOfEditorAt(0);
       await tester.ime.insertText('hello world');
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      // 6 seconds for data sync
+      await tester.waitForSeconds(6);
       expect(find.text('hello world', findRichText: true), findsOneWidget);
 
       await tester.openSettings();
@@ -62,14 +63,14 @@ void main() {
       );
       await tester.tapGoogleLoginInButton();
       await tester.expectToSeeHomePage();
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.waitForSeconds(6);
 
       // The document will be synced from the server
       await tester.openPage(
         pageName,
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
       expect(find.text('hello world', findRichText: true), findsOneWidget);
     });
   });
