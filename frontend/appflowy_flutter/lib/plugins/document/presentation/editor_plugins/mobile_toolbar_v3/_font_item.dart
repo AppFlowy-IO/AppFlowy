@@ -37,7 +37,7 @@ class FontFamilyItem extends StatelessWidget {
           await editorState.updateSelectionWithReason(
             selection,
             extraInfo: {
-              disableFloatingToolbar: true,
+              selectionExtraInfoDisableFloatingToolbar: true,
             },
           );
         }

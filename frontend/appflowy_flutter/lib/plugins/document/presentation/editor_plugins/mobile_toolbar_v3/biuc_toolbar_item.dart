@@ -13,7 +13,7 @@ final boldToolbarItem = AppFlowyMobileToolbarItem(
       onTap: () async => await editorState.toggleAttribute(
         AppFlowyRichTextKeys.bold,
         selectionExtraInfo: {
-          disableFloatingToolbar: true,
+          selectionExtraInfoDisableFloatingToolbar: true,
         },
       ),
     );
@@ -31,7 +31,7 @@ final italicToolbarItem = AppFlowyMobileToolbarItem(
       onTap: () async => await editorState.toggleAttribute(
         AppFlowyRichTextKeys.italic,
         selectionExtraInfo: {
-          disableFloatingToolbar: true,
+          selectionExtraInfoDisableFloatingToolbar: true,
         },
       ),
     );
@@ -48,7 +48,7 @@ final underlineToolbarItem = AppFlowyMobileToolbarItem(
       onTap: () async => await editorState.toggleAttribute(
         AppFlowyRichTextKeys.underline,
         selectionExtraInfo: {
-          disableFloatingToolbar: true,
+          selectionExtraInfoDisableFloatingToolbar: true,
         },
       ),
     );
@@ -64,7 +64,7 @@ final colorToolbarItem = AppFlowyMobileToolbarItem(
         editorState.updateSelectionWithReason(
           editorState.selection,
           extraInfo: {
-            disableMobileToolbarKey: true,
+            selectionExtraInfoDisableMobileToolbarKey: true,
           },
         );
         keepEditorFocusNotifier.increase();

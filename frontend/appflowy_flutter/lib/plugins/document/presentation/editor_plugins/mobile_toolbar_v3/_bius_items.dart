@@ -59,7 +59,8 @@ class BIUSItems extends StatelessWidget {
           await editorState.toggleAttribute(
             richTextKey,
             selectionExtraInfo: {
-              disableFloatingToolbar: true,
+              selectionExtraInfoDisableFloatingToolbar: true,
+              selectionExtraInfoDoNotAttachTextService: true,
             },
           );
           // refresh the status

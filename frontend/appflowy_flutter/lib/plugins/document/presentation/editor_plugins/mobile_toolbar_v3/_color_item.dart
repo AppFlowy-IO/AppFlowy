@@ -23,8 +23,8 @@ class ColorItem extends StatelessWidget {
         editorState.updateSelectionWithReason(
           editorState.selection,
           extraInfo: {
-            disableMobileToolbarKey: true,
-            disableFloatingToolbar: true,
+            selectionExtraInfoDisableMobileToolbarKey: true,
+            selectionExtraInfoDisableFloatingToolbar: true,
           },
         );
         keepEditorFocusNotifier.increase();

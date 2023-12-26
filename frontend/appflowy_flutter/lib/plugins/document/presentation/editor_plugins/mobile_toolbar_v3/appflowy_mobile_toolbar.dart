@@ -96,7 +96,8 @@ class _AppFlowyMobileToolbarState extends State<AppFlowyMobileToolbar> {
       builder: (_, Selection? selection, __) {
         // if the selection is null, hide the toolbar
         if (selection == null ||
-            widget.editorState.selectionExtraInfo?[disableMobileToolbarKey] ==
+            widget.editorState.selectionExtraInfo?[
+                    selectionExtraInfoDisableMobileToolbarKey] ==
                 true) {
           return const SizedBox.shrink();
         }

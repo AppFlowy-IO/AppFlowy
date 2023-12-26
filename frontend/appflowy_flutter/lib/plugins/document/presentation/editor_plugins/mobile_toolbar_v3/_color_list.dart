@@ -88,8 +88,8 @@ class _TextColorAndBackgroundColorState
                 AppFlowyRichTextKeys.textColor: hex,
               },
               selectionExtraInfo: {
-                disableFloatingToolbar: true,
-                disableMobileToolbarKey: true,
+                selectionExtraInfoDisableFloatingToolbar: true,
+                selectionExtraInfoDisableMobileToolbarKey: true,
               },
             );
             setState(() {});
@@ -116,8 +116,8 @@ class _TextColorAndBackgroundColorState
                 AppFlowyRichTextKeys.highlightColor: hex,
               },
               selectionExtraInfo: {
-                disableFloatingToolbar: true,
-                disableMobileToolbarKey: true,
+                selectionExtraInfoDisableFloatingToolbar: true,
+                selectionExtraInfoDisableMobileToolbarKey: true,
               },
             );
             setState(() {});
