@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 final boldToolbarItem = AppFlowyMobileToolbarItem(
-  pilotAtExpandedSelection: true,
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
       isSelected: () => editorState.isTextDecorationSelected(
@@ -13,6 +12,9 @@ final boldToolbarItem = AppFlowyMobileToolbarItem(
       icon: FlowySvgs.m_toolbar_bold_s,
       onTap: () async => await editorState.toggleAttribute(
         AppFlowyRichTextKeys.bold,
+        selectionExtraInfo: {
+          disableFloatingToolbar: true,
+        },
       ),
     );
   },
@@ -28,6 +30,9 @@ final italicToolbarItem = AppFlowyMobileToolbarItem(
       icon: FlowySvgs.m_toolbar_italic_s,
       onTap: () async => await editorState.toggleAttribute(
         AppFlowyRichTextKeys.italic,
+        selectionExtraInfo: {
+          disableFloatingToolbar: true,
+        },
       ),
     );
   },
@@ -42,6 +47,9 @@ final underlineToolbarItem = AppFlowyMobileToolbarItem(
       icon: FlowySvgs.m_toolbar_underline_s,
       onTap: () async => await editorState.toggleAttribute(
         AppFlowyRichTextKeys.underline,
+        selectionExtraInfo: {
+          disableFloatingToolbar: true,
+        },
       ),
     );
   },

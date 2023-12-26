@@ -56,7 +56,12 @@ class BIUSItems extends StatelessWidget {
         enableBottomRightRadius: index == _bius.length - 1,
         backgroundColor: const Color(0xFFF2F2F7),
         onTap: () async {
-          await editorState.toggleAttribute(richTextKey);
+          await editorState.toggleAttribute(
+            richTextKey,
+            selectionExtraInfo: {
+              disableFloatingToolbar: true,
+            },
+          );
           // refresh the status
           setState(() {});
         },

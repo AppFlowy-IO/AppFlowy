@@ -11,6 +11,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 final aaToolbarItem = AppFlowyMobileToolbarItem(
+  pilotAtExpandedSelection: true,
   itemBuilder: (context, editorState, service, onMenu, _) {
     return AppFlowyMobileToolbarIconItem(
       isSelected: () => service.showMenuNotifier.value,
@@ -56,7 +57,7 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.only(
-              top: 24,
+              top: 16,
               bottom: 20,
               left: 12,
               right: 12,
@@ -77,6 +78,7 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
                 const Spacer(),
                 ColorItem(
                   editorState: editorState,
+                  service: widget.service,
                 ),
               ],
             ),

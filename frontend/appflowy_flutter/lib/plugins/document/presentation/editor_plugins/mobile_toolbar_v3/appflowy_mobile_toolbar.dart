@@ -493,7 +493,7 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
           )
           .map((e) => [e, const HSpace(10)])
           .flattened,
-      const HSpace(16),
+      const HSpace(4),
     ];
 
     return PageStorage(
