@@ -46,7 +46,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
     Map<String, String> params = const {},
   }) async {
     final payload = SignInUrlPayloadPB.create()
-      ..authType = AuthenticatorPB.AppFlowyCloud
+      ..authenticator = AuthenticatorPB.AppFlowyCloud
       // don't use nanoid here, the gotrue server will transform the email
       ..email = userEmail;
 
