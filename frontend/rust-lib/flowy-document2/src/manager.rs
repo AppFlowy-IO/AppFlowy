@@ -113,7 +113,7 @@ impl DocumentManager {
       // Try to get the document from the cloud service
       let result: Result<CollabRawData, FlowyError> = self
         .cloud_service
-        .get_document_updates(doc_id, &self.user.workspace_id()?)
+        .get_document_doc_state(doc_id, &self.user.workspace_id()?)
         .await;
 
       updates = match result {
@@ -155,7 +155,7 @@ impl DocumentManager {
     if !self.is_doc_exist(doc_id)? {
       updates = self
         .cloud_service
-        .get_document_updates(doc_id, &self.user.workspace_id()?)
+        .get_document_doc_state(doc_id, &self.user.workspace_id()?)
         .await?;
     }
     let uid = self.user.user_id()?;

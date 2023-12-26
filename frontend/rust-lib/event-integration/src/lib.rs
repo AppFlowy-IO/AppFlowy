@@ -34,6 +34,7 @@ impl EventIntegrationTest {
     std::fs::create_dir_all(&temp_dir).unwrap();
     Self::new_with_user_data_path(temp_dir, nanoid!(6)).await
   }
+
   pub async fn new_with_user_data_path(path_buf: PathBuf, name: String) -> Self {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();

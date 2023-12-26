@@ -16,7 +16,7 @@ impl<T> DocumentCloudService for AFCloudDocumentCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     document_id: &str,
     workspace_id: &str,

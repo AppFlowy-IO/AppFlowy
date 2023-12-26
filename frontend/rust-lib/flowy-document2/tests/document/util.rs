@@ -129,7 +129,7 @@ pub fn gen_id() -> String {
 
 pub struct LocalTestDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     _document_id: &str,
     _workspace_id: &str,

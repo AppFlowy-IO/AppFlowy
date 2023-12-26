@@ -29,7 +29,7 @@ async fn supabase_document_edit_sync_test() {
       .unwrap();
 
     let document_data = test.get_document_data(&document_id).await;
-    let update = test.get_document_update(&document_id).await;
+    let update = test.get_document_doc_state(&document_id).await;
     assert_document_data_equal(&update, &document_id, document_data);
   }
 }
@@ -55,7 +55,7 @@ async fn supabase_document_edit_sync_test2() {
       .unwrap();
 
     let document_data = test.get_document_data(&document_id).await;
-    let update = test.get_document_update(&document_id).await;
+    let update = test.get_document_doc_state(&document_id).await;
     assert_document_data_equal(&update, &document_id, document_data);
   }
 }

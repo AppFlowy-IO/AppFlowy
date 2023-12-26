@@ -86,11 +86,11 @@ impl EventIntegrationTest {
     DocumentData::from(pb)
   }
 
-  pub async fn get_document_update(&self, document_id: &str) -> Vec<u8> {
+  pub async fn get_document_doc_state(&self, document_id: &str) -> Vec<u8> {
     let workspace_id = self.user_manager.workspace_id().unwrap();
     let cloud_service = self.document_manager.get_cloud_service().clone();
     let remote_updates = cloud_service
-      .get_document_updates(document_id, &workspace_id)
+      .get_document_doc_state(document_id, &workspace_id)
       .await
       .unwrap();
 
@@ -107,10 +107,10 @@ impl EventIntegrationTest {
   }
 }
 
-pub fn assert_document_data_equal(collab_update: &[u8], doc_id: &str, expected: DocumentData) {
+pub fn assert_document_data_equal(doc_state: &[u8], doc_id: &str, expected: DocumentData) {
   let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![]);
   collab.lock().with_origin_transact_mut(|txn| {
-    let update = Update::decode_v1(collab_update).unwrap();
+    let update = Update::decode_v1(doc_state).unwrap();
     txn.apply_update(update);
   });
   let document = Document::open(Arc::new(collab)).unwrap();

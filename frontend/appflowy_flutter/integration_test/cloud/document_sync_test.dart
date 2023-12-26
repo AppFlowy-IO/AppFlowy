@@ -47,7 +47,7 @@ void main() {
       await tester.editor.tapLineOfEditorAt(0);
       await tester.ime.insertText('hello world');
 
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       expect(find.text('hello world', findRichText: true), findsOneWidget);
 
       await tester.openSettings();

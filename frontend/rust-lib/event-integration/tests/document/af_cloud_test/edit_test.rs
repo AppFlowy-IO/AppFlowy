@@ -1,6 +1,8 @@
 use std::time::Duration;
 
 use event_integration::document_event::assert_document_data_equal;
+use event_integration::user_event::user_localhost_af_cloud;
+use event_integration::EventIntegrationTest;
 use flowy_document2::entities::DocumentSyncStatePB;
 
 use crate::document::af_cloud_test::util::AFCloudDocumentTest;
@@ -8,25 +10,26 @@ use crate::util::receive_with_timeout;
 
 #[tokio::test]
 async fn af_cloud_edit_document_test() {
-  if let Some(test) = AFCloudDocumentTest::new().await {
-    let document_id = test.create_document().await;
-    let cloned_test = test.clone();
-    let cloned_document_id = document_id.clone();
-    test.inner.dispatcher().spawn(async move {
-      cloned_test
-        .insert_document_text(&cloned_document_id, "hello world", 0)
-        .await;
-    });
+  user_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new().await;
+  test.af_cloud_sign_up().await;
 
-    // wait all update are send to the remote
-    let rx = test
-      .notification_sender
-      .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| !pb.is_syncing);
-    let _ = receive_with_timeout(rx, Duration::from_secs(10)).await;
+  // create document and then insert content
+  let current_workspace = test.get_current_workspace().await;
+  let view = test
+    .create_document(&current_workspace.id, "my document".to_string(), vec![])
+    .await;
+  test.insert_document_text(&view.id, "hello world", 0).await;
 
-    let document_data = test.get_document_data(&document_id).await;
-    let update = test.get_document_update(&document_id).await;
-    assert!(!update.is_empty());
-    assert_document_data_equal(&update, &document_id, document_data);
-  }
+  let document_id = view.id;
+  // wait all update are send to the remote
+  let rx = test
+    .notification_sender
+    .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| !pb.is_syncing);
+  let _ = receive_with_timeout(rx, Duration::from_secs(10)).await;
+
+  let document_data = test.get_document_data(&document_id).await;
+  let doc_state = test.get_document_doc_state(&document_id).await;
+  assert!(!doc_state.is_empty());
+  assert_document_data_equal(&doc_state, &document_id, document_data);
 }

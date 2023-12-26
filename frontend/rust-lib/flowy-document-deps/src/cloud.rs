@@ -8,7 +8,7 @@ use lib_infra::future::FutureResult;
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
 pub trait DocumentCloudService: Send + Sync + 'static {
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     document_id: &str,
     workspace_id: &str,

@@ -198,26 +198,6 @@ pub fn unzip_history_user_db(root: &str, folder_name: &str) -> std::io::Result<(
   ))
 }
 
-pub struct AFCloudTest {
-  inner: EventIntegrationTest,
-}
-
-impl AFCloudTest {
-  pub async fn new() -> Option<Self> {
-    user_localhost_af_cloud().await;
-    let test = EventIntegrationTest::new().await;
-    Some(Self { inner: test })
-  }
-}
-
-impl Deref for AFCloudTest {
-  type Target = EventIntegrationTest;
-
-  fn deref(&self) -> &Self::Target {
-    &self.inner
-  }
-}
-
 pub fn generate_test_email() -> String {
   format!("{}@test.com", Uuid::new_v4())
 }

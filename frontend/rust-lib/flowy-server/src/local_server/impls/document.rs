@@ -7,7 +7,7 @@ use lib_infra::future::FutureResult;
 pub(crate) struct LocalServerDocumentCloudServiceImpl();
 
 impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     _document_id: &str,
     _workspace_id: &str,

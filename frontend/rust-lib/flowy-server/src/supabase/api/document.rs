@@ -28,7 +28,7 @@ where
   T: SupabaseServerService,
 {
   #[tracing::instrument(level = "debug", skip(self))]
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     document_id: &str,
     workspace_id: &str,
