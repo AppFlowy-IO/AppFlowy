@@ -30,6 +30,7 @@ class FlowyOptionTile extends StatelessWidget {
     this.textFieldHintText,
     this.onTextChanged,
     this.onTextSubmitted,
+    this.autofocus,
   });
 
   factory FlowyOptionTile.text({
@@ -67,6 +68,7 @@ class FlowyOptionTile extends StatelessWidget {
     Widget? leftIcon,
     Widget? trailing,
     String? textFieldHintText,
+    bool autofocus = false,
   }) {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.textField,
@@ -81,6 +83,7 @@ class FlowyOptionTile extends StatelessWidget {
       textFieldHintText: textFieldHintText,
       onTextChanged: onTextChanged,
       onTextSubmitted: onTextSubmitted,
+      autofocus: autofocus,
     );
   }
 
@@ -147,6 +150,7 @@ class FlowyOptionTile extends StatelessWidget {
   final String? textFieldHintText;
   final void Function(String value)? onTextChanged;
   final void Function(String value)? onTextSubmitted;
+  final bool? autofocus;
 
   final FlowyOptionTileType type;
 
@@ -229,6 +233,7 @@ class FlowyOptionTile extends StatelessWidget {
         alignment: Alignment.center,
         child: TextField(
           controller: controller,
+          autofocus: autofocus ?? false,
           textInputAction: TextInputAction.done,
           decoration: InputDecoration(
             border: InputBorder.none,
