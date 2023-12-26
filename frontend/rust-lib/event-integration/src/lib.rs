@@ -1,13 +1,17 @@
 use std::env::temp_dir;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 
 use nanoid::nanoid;
 use parking_lot::RwLock;
+use tokio::select;
+use tokio::time::sleep;
 
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
+use flowy_server::AppFlowyServer;
 use flowy_user::entities::AuthenticatorPB;
 
 use crate::user_event::TestNotificationSender;
@@ -59,6 +63,43 @@ impl EventIntegrationTest {
       authenticator,
       notification_sender,
       cleaner: Arc::new(Cleaner(path_buf)),
+    }
+  }
+
+  pub fn get_appflowy_cloud_server(&self) -> Arc<dyn AppFlowyServer> {
+    self
+      .appflowy_core
+      .server_provider
+      .get_appflowy_cloud_server()
+      .unwrap()
+  }
+
+  pub async fn wait_ws_connected(&self) {
+    if self
+      .get_appflowy_cloud_server()
+      .get_ws_state()
+      .is_connected()
+    {
+      return;
+    }
+
+    let mut ws_state = self
+      .get_appflowy_cloud_server()
+      .subscribe_ws_state()
+      .unwrap();
+    loop {
+      select! {
+        _ = sleep(Duration::from_secs(20)) => {
+          panic!("wait_ws_connected timeout");
+        }
+        state = ws_state.recv() => {
+          if let Ok(state) = &state {
+            if state.is_connected() {
+              break;
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -22,11 +22,13 @@ use flowy_folder_deps::cloud::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user::entities::UpdateUserProfilePayloadPB;
+use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB};
 use flowy_user::errors::FlowyError;
+use flowy_user::event_map::UserCloudServiceProvider;
 
 use flowy_user::event_map::UserEvent::*;
 use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::entities::Authenticator;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   dotenv::from_path(".env.ci").ok()?;
@@ -39,15 +41,14 @@ pub struct FlowySupabaseTest {
 
 impl FlowySupabaseTest {
   pub async fn new() -> Option<Self> {
-    return None;
-    // let _ = get_supabase_config()?;
-    // let test = EventIntegrationTest::new().await;
-    // test.set_auth_type(AuthenticatorPB::Supabase);
-    // test
-    //   .server_provider
-    //   .set_authenticator(Authenticator::Supabase);
-    //
-    // Some(Self { inner: test })
+    let _ = get_supabase_config()?;
+    let event_test = EventIntegrationTest::new().await;
+    event_test.set_auth_type(AuthenticatorPB::Supabase);
+    event_test
+      .server_provider
+      .set_authenticator(Authenticator::Supabase);
+
+    Some(Self { event_test })
   }
 
   pub async fn update_user_profile(

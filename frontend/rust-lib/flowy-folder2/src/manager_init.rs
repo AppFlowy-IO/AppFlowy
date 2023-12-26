@@ -67,7 +67,7 @@ impl FolderManager {
       },
       FolderInitDataSource::Cloud(raw_data) => {
         if raw_data.is_empty() {
-          event!(Level::INFO, "remote folder data is empty, open from local");
+          event!(Level::ERROR, "remote folder data is empty, open from local");
           self
             .open_local_folder(uid, &workspace_id, collab_db, folder_notifier)
             .await?
@@ -111,7 +111,11 @@ impl FolderManager {
     collab_db: Weak<RocksCollabDB>,
     folder_notifier: FolderNotify,
   ) -> Result<Folder, FlowyError> {
-    event!(Level::INFO, "Create folder with default folder builder");
+    event!(
+      Level::INFO,
+      "Create folder:{} with default folder builder",
+      workspace_id
+    );
     let folder_data =
       DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers).await;
     let collab = self

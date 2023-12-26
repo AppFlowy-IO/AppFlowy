@@ -53,9 +53,12 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path.clone(), DEFAULT_NAME.to_string())
       .await;
-  let trash = test.get_trash().await;
-  assert_eq!(trash.items.len(), 1);
-  assert_eq!(trash.items[0].name, "Local Getting started".to_string());
+  let anon_trash = test.get_trash().await;
+  assert_eq!(anon_trash.items.len(), 1);
+  assert_eq!(
+    anon_trash.items[0].name,
+    "Local Getting started".to_string()
+  );
 
   let anon_first_level_views = test.get_all_workspace_views().await;
   let anon_second_level_views = test
@@ -69,6 +72,7 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
 
   // The anon user data will be migrated to the AppFlowy cloud after sign up
   let user = test.af_cloud_sign_up().await;
+  let user_trash = test.get_trash().await;
   let workspace = test.get_current_workspace().await;
   println!("user workspace: {:?}", workspace.id);
   assert_eq!(user.authenticator, AuthenticatorPB::AppFlowyCloud);
@@ -108,4 +112,8 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   assert_eq!(user_third_level_views[0].name, "Grid1".to_string());
   assert_eq!(user_third_level_views[1].name, "Grid2".to_string());
   drop(cleaner);
+
+  // check the trash
+  assert_eq!(user_trash.items.len(), 1);
+  assert_eq!(user_trash.items[0].name, anon_trash.items[0].name);
 }

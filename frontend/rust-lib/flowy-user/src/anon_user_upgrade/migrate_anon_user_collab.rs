@@ -301,7 +301,7 @@ where
     .map_err(|err| PersistenceError::Internal(err.into()))?;
   let mutex_collab = Arc::new(MutexCollab::from_collab(new_folder_collab));
   let new_user_id = UserId::from(new_uid);
-  info!("migrate folder: {:?}", folder_data);
+  info!("migrated folder: {:?}", folder_data);
   let _ = Folder::create(new_user_id, mutex_collab.clone(), None, folder_data);
 
   {

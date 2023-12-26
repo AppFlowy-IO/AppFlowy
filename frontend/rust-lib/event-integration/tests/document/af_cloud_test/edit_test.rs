@@ -12,6 +12,7 @@ async fn af_cloud_edit_document_test() {
   user_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   test.af_cloud_sign_up().await;
+  test.wait_ws_connected().await;
 
   // create document and then insert content
   let current_workspace = test.get_current_workspace().await;
@@ -21,11 +22,13 @@ async fn af_cloud_edit_document_test() {
   test.insert_document_text(&view.id, "hello world", 0).await;
 
   let document_id = view.id;
+  println!("document_id: {}", document_id);
+
   // wait all update are send to the remote
   let rx = test
     .notification_sender
     .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| !pb.is_syncing);
-  let _ = receive_with_timeout(rx, Duration::from_secs(10)).await;
+  let _ = receive_with_timeout(rx, Duration::from_secs(30)).await;
 
   let document_data = test.get_document_data(&document_id).await;
   let doc_state = test.get_document_doc_state(&document_id).await;

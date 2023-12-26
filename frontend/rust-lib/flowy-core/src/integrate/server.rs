@@ -89,8 +89,13 @@ impl ServerProvider {
     *self.server.write() = server_type;
   }
 
+  pub fn get_appflowy_cloud_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
+    let server = self.get_server(&Server::AppFlowyCloud)?;
+    Ok(server)
+  }
+
   /// Returns a [AppFlowyServer] trait implementation base on the provider_type.
-  pub(crate) fn get_server(&self, server_type: &Server) -> FlowyResult<Arc<dyn AppFlowyServer>> {
+  pub fn get_server(&self, server_type: &Server) -> FlowyResult<Arc<dyn AppFlowyServer>> {
     if let Some(provider) = self.providers.read().get(server_type) {
       return Ok(provider.clone());
     }

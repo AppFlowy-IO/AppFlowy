@@ -25,7 +25,7 @@ env:
 
 jobs:
   test-on-ubuntu:
-    environment: SUPABASE_CI
+#    environment: SUPABASE_CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -90,6 +90,7 @@ jobs:
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         run: |
+          docker compose down -v --remove-orphans
           docker compose up -d
 
       - name: Run rust-lib tests
