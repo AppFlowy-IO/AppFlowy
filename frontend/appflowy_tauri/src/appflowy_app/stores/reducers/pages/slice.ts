@@ -1,5 +1,6 @@
 import { ViewIconTypePB, ViewLayoutPB, ViewPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import isEqual from 'lodash-es/isEqual';
 
 export const pageTypeMap = {
   [ViewLayoutPB.Document]: 'document',
@@ -83,7 +84,9 @@ export const pagesSlice = createSlice({
     onPageChanged(state, action: PayloadAction<Page>) {
       const page = action.payload;
 
-      state.pageMap[page.id] = page;
+      if (!isEqual(state.pageMap[page.id], page)) {
+        state.pageMap[page.id] = page;
+      }
     },
 
     removeChildPages(state, action: PayloadAction<string>) {

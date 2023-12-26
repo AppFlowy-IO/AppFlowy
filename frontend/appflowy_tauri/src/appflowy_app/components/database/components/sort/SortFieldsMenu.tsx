@@ -28,7 +28,7 @@ const SortFieldsMenu: FC<
   );
 
   return (
-    <Popover keepMounted={false} {...props}>
+    <Popover disableRestoreFocus={true} keepMounted={false} {...props}>
       <PropertiesList showSearch={true} onItemClick={addSort} searchPlaceholder={t('grid.settings.sortBy')} />
     </Popover>
   );

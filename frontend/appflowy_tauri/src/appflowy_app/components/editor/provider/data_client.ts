@@ -32,7 +32,9 @@ export class DataClient extends EventEmitter {
 
     this.rootId = data.rootId;
 
-    return slateNodesToInsertDelta(convertToSlateValue(data, includeRoot));
+    const slateValue = convertToSlateValue(data, includeRoot);
+
+    return slateNodesToInsertDelta(slateValue);
   }
 
   public on(event: 'change', listener: (events: YDelta) => void): this;

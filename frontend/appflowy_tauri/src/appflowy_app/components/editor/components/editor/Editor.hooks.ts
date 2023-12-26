@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { EditorNodeType, CodeNode } from '$app/application/document/document.types';
 
 import { createEditor, NodeEntry, BaseRange, Editor, Element } from 'slate';
@@ -10,6 +10,7 @@ import { withInlines } from '$app/components/editor/components/inline_nodes';
 import { withYjs, YjsEditor, withYHistory } from '@slate-yjs/core';
 import * as Y from 'yjs';
 import { CustomEditor } from '$app/components/editor/command';
+import { proxySet, subscribeKey } from 'valtio/utils';
 
 export function useEditor(sharedType: Y.XmlText) {
   const editor = useMemo(() => {
@@ -77,56 +78,60 @@ export function useDecorate(editor: ReactEditor) {
   );
 }
 
-export const EditorSelectedBlockContext = createContext<string[]>([]);
+export function useEditorState(editor: ReactEditor) {
+  const selectedBlocks = useMemo(() => proxySet([]), []);
 
-export function useSelectedBlock(blockId?: string) {
-  const blockIds = useContext(EditorSelectedBlockContext);
+  const [selectedLength, setSelectedLength] = useState(0);
 
-  if (blockId === undefined) {
-    return false;
-  }
-
-  return blockIds.includes(blockId);
-}
-
-export const EditorSelectedBlockProvider = EditorSelectedBlockContext.Provider;
-
-export function useEditorSelectedBlock(editor: ReactEditor) {
-  const [selectedBlockId, setSelectedBlockId] = useState<string[]>([]);
-  const onSelectedBlock = useCallback(
-    (blockId: string) => {
-      const children = editor.children.filter((node) => (node as Element).parentId === blockId);
-      const blockIds = [blockId, ...children.map((node) => (node as Element).blockId as string)];
-      const node = editor.children.find((node) => (node as Element).blockId === blockId);
-
-      if (node) {
-        const path = ReactEditor.findPath(editor, node);
-
-        ReactEditor.focus(editor);
-        editor.select(path);
-        editor.collapse({
-          edge: 'start',
-        });
-      }
-
-      setSelectedBlockId(blockIds);
-    },
-    [editor]
-  );
+  subscribeKey(selectedBlocks, 'size', (v) => setSelectedLength(v));
 
   useEffect(() => {
-    const handleClick = () => {
-      if (selectedBlockId.length === 0) return;
-      setSelectedBlockId([]);
+    const { onChange } = editor;
+
+    const onKeydown = (e: KeyboardEvent) => {
+      if (!ReactEditor.isFocused(editor) && selectedLength > 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        const selectedBlockId = selectedBlocks.values().next().value;
+        const [selectedBlock] = editor.nodes({
+          at: [],
+          match: (n) => Element.isElement(n) && n.blockId === selectedBlockId,
+        });
+        const [, path] = selectedBlock;
+
+        editor.select(path);
+        ReactEditor.focus(editor);
+      }
     };
 
-    document.addEventListener('click', handleClick);
+    if (selectedLength > 0) {
+      editor.onChange = (...args) => {
+        const isSelectionChange = editor.operations.every((arg) => arg.type === 'set_selection');
+
+        if (isSelectionChange) {
+          selectedBlocks.clear();
+        }
+
+        onChange(...args);
+      };
+
+      document.addEventListener('keydown', onKeydown);
+    } else {
+      editor.onChange = onChange;
+      document.removeEventListener('keydown', onKeydown);
+    }
+
     return () => {
-      document.removeEventListener('click', handleClick);
+      editor.onChange = onChange;
+      document.removeEventListener('keydown', onKeydown);
     };
-  }, [selectedBlockId]);
+  }, [editor, selectedBlocks, selectedLength]);
+
   return {
-    selectedBlockId,
-    onSelectedBlock,
+    selectedBlocks,
   };
 }
+
+export const EditorSelectedBlockContext = createContext<Set<string>>(new Set());
+
+export const EditorSelectedBlockProvider = EditorSelectedBlockContext.Provider;

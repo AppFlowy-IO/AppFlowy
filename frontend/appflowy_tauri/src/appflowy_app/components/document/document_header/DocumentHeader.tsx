@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Page, PageIcon } from '$app_reducers/pages/slice';
 import { useAppDispatch } from '$app/stores/store';
 import ViewTitle from '$app/components/_shared/ViewTitle';
@@ -32,4 +32,4 @@ export function DocumentHeader({ page }: DocumentHeaderProps) {
   );
 }
 
-export default DocumentHeader;
+export default memo(DocumentHeader);

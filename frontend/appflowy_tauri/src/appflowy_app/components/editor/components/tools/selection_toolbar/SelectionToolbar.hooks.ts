@@ -53,7 +53,22 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
     el.style.opacity = '1';
     el.style.pointerEvents = 'auto';
     el.style.top = `${position.top + slateEditorDom.offsetTop - el.offsetHeight}px`;
-    el.style.left = `${position.left + slateEditorDom.offsetLeft - el.offsetWidth / 2 + position.width / 2}px`;
+
+    const left = position.left + slateEditorDom.offsetLeft - el.offsetWidth / 2 + position.width / 2;
+
+    if (left < 0) {
+      el.style.left = '0';
+      return;
+    }
+
+    const right = left + el.offsetWidth;
+
+    if (right > slateEditorDom.offsetWidth) {
+      el.style.left = `${slateEditorDom.offsetWidth - el.offsetWidth}px`;
+      return;
+    }
+
+    el.style.left = `${left}px`;
   }, [closeToolbar, editor, ref]);
 
   useEffect(() => {

@@ -778,6 +778,7 @@
     "textBlock": {
       "placeholder": "Type '/' for commands"
     },
+
     "title": {
       "placeholder": "Untitled"
     },
@@ -1171,7 +1172,8 @@
     "rowDuplicate": "Duplicate",
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
-    "slashPlaceHolder": "Type '/' to insert a block, or start typing"
+    "slashPlaceHolder": "Type '/' to insert a block, or start typing",
+    "typeSomething": "Type something..."
   },
   "favorite": {
     "noFavorite": "No favorite page",

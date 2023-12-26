@@ -13,7 +13,7 @@ function NumberFormatMenu({
   onChangeFormat: (value: NumberFormatPB) => void;
 }) {
   return (
-    <Menu {...props}>
+    <Menu {...props} disableRestoreFocus={true}>
       {formats.map((format) => (
         <MenuItem
           onClick={() => {

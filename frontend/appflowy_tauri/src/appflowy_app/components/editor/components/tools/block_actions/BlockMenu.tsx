@@ -1,24 +1,28 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
 import BlockOperationMenu from '$app/components/editor/components/tools/block_actions/BlockOperationMenu';
 import { Element } from 'slate';
+import { EditorSelectedBlockContext } from '$app/components/editor/components/editor/Editor.hooks';
 
-function DragBlock({ node, onSelectedBlock }: { node: Element; onSelectedBlock: (blockId: string) => void }) {
+function BlockMenu({ node }: { node?: Element }) {
   const dragBtnRef = useRef<HTMLButtonElement>(null);
   const [openMenu, setOpenMenu] = useState(false);
   const { t } = useTranslation();
+  const [selectedNode, setSelectedNode] = useState<Element>();
+  const selectedBlockContext = useContext(EditorSelectedBlockContext);
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       setOpenMenu(true);
       if (!node || !node.blockId) return;
-
-      onSelectedBlock(node.blockId);
+      setSelectedNode(node);
+      selectedBlockContext.clear();
+      selectedBlockContext.add(node.blockId);
     },
-    [node, onSelectedBlock]
+    [node, selectedBlockContext]
   );
 
   return (
@@ -28,27 +32,34 @@ function DragBlock({ node, onSelectedBlock }: { node: Element; onSelectedBlock: 
           <DragSvg />
         </IconButton>
       </Tooltip>
-      {openMenu && node && (
+      {openMenu && selectedNode && (
         <BlockOperationMenu
           onMouseMove={(e) => {
             e.stopPropagation();
           }}
           anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
             vertical: 'center',
             horizontal: 'left',
           }}
-          node={node}
+          transformOrigin={{
+            vertical: 'center',
+            horizontal: 'right',
+          }}
+          PaperProps={{
+            onClick: (e) => {
+              e.stopPropagation();
+            },
+          }}
+          node={selectedNode}
           open={openMenu}
           anchorEl={dragBtnRef.current}
-          onClose={() => setOpenMenu(false)}
+          onClose={() => {
+            setOpenMenu(false);
+          }}
         />
       )}
     </>
   );
 }
 
-export default DragBlock;
+export default BlockMenu;

@@ -113,6 +113,7 @@ export const EditFieldPopup = ({
         await save();
         onOutsideClick();
       }}
+      disableRestoreFocus={true}
       anchorOrigin={{
         vertical: 'bottom',
         horizontal: 'left',

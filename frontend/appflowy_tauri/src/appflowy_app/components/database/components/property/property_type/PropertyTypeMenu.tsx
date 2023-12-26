@@ -40,7 +40,7 @@ export const PropertyTypeMenu: FC<
   );
 
   return (
-    <Menu {...props} PopoverClasses={PopoverClasses}>
+    <Menu {...props} disableRestoreFocus={true} PopoverClasses={PopoverClasses}>
       {FieldTypeGroup.map((group, index) => [
         <MenuItem key={group.name} dense disabled>
           {group.name}

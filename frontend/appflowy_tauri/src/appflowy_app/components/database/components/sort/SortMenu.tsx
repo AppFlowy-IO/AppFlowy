@@ -30,6 +30,7 @@ export const SortMenu: FC<MenuProps> = (props) => {
   return (
     <>
       <Menu
+        disableRestoreFocus={true}
         keepMounted={false}
         MenuListProps={{
           className: 'py-1',

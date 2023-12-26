@@ -30,8 +30,8 @@ import Functions from '@mui/icons-material/Functions';
 
 import { ReactEditor } from 'slate-react';
 import React, { useCallback, useMemo } from 'react';
-import { getBlock, getBlockEntry } from '$app/components/editor/plugins/utils';
-import { FontColorPicker, BgColorPicker } from '$app/components/editor/components/tools/selection_toolbar/sub_menu';
+import { getBlock } from '$app/components/editor/plugins/utils';
+import { FontColorPicker, BgColorPicker } from '$app/components/editor/components/tools/_shared';
 import { useTranslation } from 'react-i18next';
 import { addMark, Editor } from 'slate';
 import { CustomEditor } from '$app/components/editor/command';
@@ -257,7 +257,7 @@ export function useBlockFormatActionMap(editor: ReactEditor) {
         },
         Icon: TodoListSvg,
         isActive: () => {
-          const entry = getBlockEntry(editor);
+          const entry = CustomEditor.getBlock(editor);
 
           if (!entry) return false;
 
@@ -279,7 +279,7 @@ export function useBlockFormatActionMap(editor: ReactEditor) {
         },
         Icon: QuoteSvg,
         isActive: () => {
-          const entry = getBlockEntry(editor);
+          const entry = CustomEditor.getBlock(editor);
 
           if (!entry) return false;
 
@@ -302,7 +302,7 @@ export function useBlockFormatActionMap(editor: ReactEditor) {
         },
         Icon: ToggleListSvg,
         isActive: () => {
-          const entry = getBlockEntry(editor);
+          const entry = CustomEditor.getBlock(editor);
 
           if (!entry) return false;
 
@@ -325,7 +325,7 @@ export function useBlockFormatActionMap(editor: ReactEditor) {
         },
         Icon: NumberedListSvg,
         isActive: () => {
-          const entry = getBlockEntry(editor);
+          const entry = CustomEditor.getBlock(editor);
 
           if (!entry) return false;
 
@@ -348,7 +348,7 @@ export function useBlockFormatActionMap(editor: ReactEditor) {
         },
         Icon: BulletedListSvg,
         isActive: () => {
-          const entry = getBlockEntry(editor);
+          const entry = CustomEditor.getBlock(editor);
 
           if (!entry) return false;
 

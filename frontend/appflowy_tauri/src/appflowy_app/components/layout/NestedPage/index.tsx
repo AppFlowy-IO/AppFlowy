@@ -34,7 +34,7 @@ function NestedPage({ pageId }: { pageId: string }) {
   });
 
   const className = useMemo(() => {
-    const defaultClassName = 'relative flex flex-col w-full';
+    const defaultClassName = 'relative flex-1 flex flex-col w-full';
 
     if (isDragging) {
       return `${defaultClassName} opacity-40`;

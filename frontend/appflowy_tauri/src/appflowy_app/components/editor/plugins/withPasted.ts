@@ -1,12 +1,12 @@
 import { ReactEditor } from 'slate-react';
 import { convertBlockToJson } from '$app/application/document/document.service';
-import { Editor, Element } from 'slate';
+import { Editor, Element, NodeEntry, Path, Location, Range } from 'slate';
 import { generateId } from '$app/components/editor/provider/utils/convert';
-import { blockTypes, EditorNodeType } from '$app/application/document/document.types';
+import { EditorNodeType } from '$app/application/document/document.types';
 import { InputType } from '@/services/backend';
 
 export function withPasted(editor: ReactEditor) {
-  const { insertData, insertFragment } = editor;
+  const { insertData } = editor;
 
   editor.insertData = (data) => {
     const fragment = data.getData('application/x-slate-fragment');
@@ -30,90 +30,113 @@ export function withPasted(editor: ReactEditor) {
     insertData(data);
   };
 
-  editor.insertFragment = (fragment) => {
-    let rootId = (editor.children[0] as Element)?.blockId;
+  editor.insertFragment = (fragment, options = {}) => {
+    Editor.withoutNormalizing(editor, () => {
+      const { at = getDefaultInsertLocation(editor) } = options;
 
-    if (!rootId) {
-      rootId = generateId();
-      insertFragment([
-        {
-          type: EditorNodeType.Paragraph,
-          children: [
-            {
-              text: '',
-            },
-          ],
-          data: {},
-          blockId: rootId,
-          textId: generateId(),
-          parentId: '',
-          level: 0,
-        },
-      ]);
-    }
+      if (!fragment.length) {
+        return;
+      }
 
-    const [mergedMatch] = Editor.nodes(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type !== undefined,
-    });
+      if (Range.isRange(at) && !Range.isCollapsed(at)) {
+        editor.delete({
+          unit: 'character',
+        });
+      }
 
-    const mergedNode = mergedMatch
-      ? (mergedMatch[0] as Element & {
-          blockId: string;
-          parentId: string;
-          level: number;
-        })
-      : null;
+      const mergedText = editor.above({
+        match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === EditorNodeType.Text,
+      }) as NodeEntry<
+        Element & {
+          textId: string;
+        }
+      >;
 
-    if (!mergedNode) return insertFragment(fragment);
+      if (!mergedText) return;
 
-    const isEmpty = Editor.isEmpty(editor, mergedNode);
+      const [mergedTextNode, mergedTextNodePath] = mergedText;
 
-    const mergedNodeId = isEmpty ? undefined : mergedNode.blockId;
+      const traverse = (node: Element) => {
+        if (node.type === EditorNodeType.Text) {
+          node.textId = generateId();
+          return;
+        }
 
-    const idMap = new Map<string, string>();
-    const levelMap = new Map<string, number>();
-
-    for (let i = 0; i < fragment.length; i++) {
-      const node = fragment[i] as Element & {
-        blockId: string;
-        parentId: string;
-        level: number;
+        node.blockId = generateId();
+        node.children?.forEach((child) => traverse(child as Element));
       };
 
-      const newBlockId = i === 0 && mergedNodeId ? mergedNodeId : generateId();
+      fragment?.forEach((node) => traverse(node as Element));
 
-      const parentId = idMap.get(node.parentId);
+      const firstNode = fragment[0] as Element;
 
-      if (parentId) {
-        node.parentId = parentId;
-      } else {
-        idMap.set(node.parentId, mergedNode.parentId);
-        node.parentId = mergedNode.parentId;
+      if (firstNode && firstNode.type !== 'text') {
+        if (firstNode.children && firstNode.children.length > 0) {
+          const [textNode, ...children] = firstNode.children;
+
+          fragment[0] = textNode;
+          fragment.splice(1, 0, ...children);
+        } else {
+          fragment.unshift(getEmptyText());
+        }
       }
 
-      const parentLevel = levelMap.get(node.parentId);
+      editor.insertNodes((fragment[0] as Element).children, {
+        at: [...mergedTextNodePath, mergedTextNode.children.length],
+      });
+      editor.select(mergedTextNodePath);
+      editor.collapse({
+        edge: 'end',
+      });
+      const otherNodes = fragment.slice(1);
 
-      if (parentLevel !== undefined) {
-        node.level = parentLevel + 1;
-      } else {
-        levelMap.set(node.parentId, mergedNode.level - 1);
-        node.level = mergedNode.level;
+      if (otherNodes.length > 0) {
+        const parentPath = Path.parent(mergedTextNodePath);
+
+        const nextPath = Path.next(parentPath);
+        const lastNodeText = (otherNodes[otherNodes.length - 1] as Element).children?.[0] as Element;
+
+        let canSelect = true;
+
+        if (!lastNodeText || lastNodeText.type !== EditorNodeType.Text) {
+          canSelect = false;
+        }
+
+        editor.insertNodes(otherNodes, {
+          at: nextPath,
+          select: canSelect,
+        });
+
+        if (canSelect) {
+          editor.collapse({
+            edge: 'end',
+          });
+        }
       }
-
-      // if the pasted fragment is not matched with the block type, we need to convert it to paragraph
-      // and if the pasted fragment is a page, we need to convert it to paragraph
-      if (!blockTypes.includes(node.type as EditorNodeType) || node.type === EditorNodeType.Page) {
-        node.type = EditorNodeType.Paragraph;
-      }
-
-      idMap.set(node.blockId, newBlockId);
-      levelMap.set(newBlockId, node.level);
-      node.blockId = newBlockId;
-      node.textId = generateId();
-    }
-
-    return insertFragment(fragment);
+    });
   };
 
   return editor;
 }
+
+function getEmptyText(): Element {
+  return {
+    type: EditorNodeType.Text,
+    textId: generateId(),
+    children: [
+      {
+        text: '',
+      },
+    ],
+  };
+}
+
+export const getDefaultInsertLocation = (editor: Editor): Location => {
+  if (editor.selection) {
+    return editor.selection;
+  } else if (editor.children.length > 0) {
+    return Editor.end(editor, []);
+  } else {
+    return [0];
+  }
+};

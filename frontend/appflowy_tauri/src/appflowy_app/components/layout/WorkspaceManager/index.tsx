@@ -9,13 +9,13 @@ function WorkspaceManager() {
 
   return (
     <div className={'flex h-full flex-col justify-between'}>
-      <div className={'flex w-full flex-1 flex-col'}>
-        <div className={'flex-1 overflow-hidden'}>
+      <div className={'flex w-full flex-1 flex-col overflow-y-auto overflow-x-hidden'}>
+        <div className={'flex-1'}>
           {workspaces.map((workspace) => (
             <Workspace opened={currentWorkspace?.id === workspace.id} key={workspace.id} workspace={workspace} />
           ))}
         </div>
-        <div className={'sticky bottom-0 flex h-[48px] w-[100%] items-center px-2'}>
+        <div className={'flex w-[100%] items-center px-2'}>
           <TrashButton />
         </div>
       </div>
