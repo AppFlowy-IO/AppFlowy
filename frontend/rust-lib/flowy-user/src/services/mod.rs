@@ -4,6 +4,7 @@ pub mod data_import;
 pub mod db;
 pub mod entities;
 pub(crate) mod historical_user;
+pub(crate) mod search_indexing;
 pub(crate) mod user_awareness;
 pub(crate) mod user_encryption;
 pub(crate) mod user_sql;
