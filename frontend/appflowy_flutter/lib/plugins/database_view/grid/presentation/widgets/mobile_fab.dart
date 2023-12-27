@@ -39,7 +39,9 @@ Widget getGridFabs(BuildContext context) {
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         onTap: () {
-          context.read<GridBloc>().add(const GridEvent.createRow());
+          context
+              .read<GridBloc>()
+              .add(const GridEvent.createRow(openRowDetail: true));
         },
         overlayColor: const MaterialStatePropertyAll<Color>(Color(0xFF009FD1)),
         boxShadow: const BoxShadow(
