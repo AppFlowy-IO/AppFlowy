@@ -88,12 +88,7 @@ fn sync_view(
 ) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send + Sync>> {
   Box::pin(async move {
     let collab_type = collab_type_from_view_layout(&view.layout);
-<<<<<<< Updated upstream
-    let object_id = object_id_from_view(&view, &database_records)?;
-
-=======
     let object_id = object_id_from_view(&view, &database_view_tracker)?;
->>>>>>> Stashed changes
     tracing::debug!(
       "sync view: {:?}:{} with object_id: {}",
       view.layout,
