@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_popup_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -35,6 +36,7 @@ class BlockItems extends StatelessWidget {
               .mapIndexed(
                 (index, e) => [
                   _buildBlockItem(
+                    context,
                     index,
                     e.$1,
                     e.$2,
@@ -44,18 +46,20 @@ class BlockItems extends StatelessWidget {
               )
               .flattened,
           // this item is a special case, use link item here instead of block item
-          _buildLinkItem(),
+          _buildLinkItem(context),
         ],
       ),
     );
   }
 
   Widget _buildBlockItem(
+    BuildContext context,
     int index,
     FlowySvgData icon,
     String blockType,
   ) {
-    return MobileToolbarItemWrapper(
+    final theme = ToolbarColorExtension.of(context);
+    return MobileToolbarMenuItemWrapper(
       size: const Size(62, 54),
       enableTopLeftRadius: index == 0,
       enableBottomLeftRadius: index == 0,
@@ -64,7 +68,7 @@ class BlockItems extends StatelessWidget {
       onTap: () async {
         await editorState.convertBlockType(blockType);
       },
-      backgroundColor: const Color(0xFFF2F2F7),
+      backgroundColor: theme.toolbarMenuItemBackgroundColor,
       icon: icon,
       isSelected: editorState.isBlockTypeSelected(blockType),
       iconPadding: const EdgeInsets.symmetric(
@@ -73,7 +77,8 @@ class BlockItems extends StatelessWidget {
     );
   }
 
-  Widget _buildLinkItem() {
+  Widget _buildLinkItem(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     final items = [
       (AppFlowyRichTextKeys.code, FlowySvgs.m_aa_code_s),
       // (InlineMathEquationKeys.formula, FlowySvgs.m_aa_math_s),
@@ -87,7 +92,7 @@ class BlockItems extends StatelessWidget {
         final children = items
             .mapIndexed(
               (index, e) => [
-                MenuItem(
+                PopupMenuItemWrapper(
                   key: keys[index],
                   isSelected: currentIndex == index,
                   icon: e.$2,
@@ -97,14 +102,14 @@ class BlockItems extends StatelessWidget {
             )
             .flattened
             .toList();
-        return MenuWrapper(
+        return PopupMenuWrapper(
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: children,
           ),
         );
       },
-      builder: (context, key) => MobileToolbarItemWrapper(
+      builder: (context, key) => MobileToolbarMenuItemWrapper(
         key: key,
         size: const Size(62, 54),
         enableTopLeftRadius: false,
@@ -113,7 +118,7 @@ class BlockItems extends StatelessWidget {
         enableBottomRightRadius: true,
         showDownArrow: true,
         onTap: _onLinkItemTap,
-        backgroundColor: const Color(0xFFF2F2F7),
+        backgroundColor: theme.toolbarMenuItemBackgroundColor,
         icon: FlowySvgs.m_aa_link_s,
         isSelected: false,
         iconPadding: const EdgeInsets.symmetric(

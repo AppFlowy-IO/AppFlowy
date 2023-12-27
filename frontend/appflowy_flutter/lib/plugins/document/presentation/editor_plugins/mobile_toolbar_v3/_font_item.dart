@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -17,12 +18,13 @@ class FontFamilyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     final fontFamily = editorState.getDeltaAttributeValueInSelection<String>(
       AppFlowyRichTextKeys.fontFamily,
     );
     final systemFonFamily =
         context.read<DocumentAppearanceCubit>().state.fontFamily;
-    return MobileToolbarItemWrapper(
+    return MobileToolbarMenuItemWrapper(
       size: const Size(144, 52),
       onTap: () async {
         final selection = editorState.selection;
@@ -44,7 +46,7 @@ class FontFamilyItem extends StatelessWidget {
       },
       text: fontFamily ?? systemFonFamily,
       fontFamily: fontFamily ?? systemFonFamily,
-      backgroundColor: const Color(0xFFF2F2F7),
+      backgroundColor: theme.toolbarMenuItemBackgroundColor,
       isSelected: false,
       enable: editorState.selection?.isCollapsed == false,
       showRightArrow: true,

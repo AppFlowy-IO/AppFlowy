@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -83,6 +84,7 @@ class _PopupMenuState extends State<PopupMenu> {
   }
 
   void _showMenu(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     _hideMenu();
 
     indexNotifier.value = widget.itemLength - 1;
@@ -94,12 +96,15 @@ class _PopupMenuState extends State<PopupMenu> {
         return Positioned(
           right: right,
           bottom: bottom,
-          child: ValueListenableBuilder(
-            valueListenable: indexNotifier,
-            builder: (context, value, _) => widget.menuBuilder(
-              context,
-              itemKeys,
-              value,
+          child: ColoredBox(
+            color: theme.toolbarMenuBackgroundColor,
+            child: ValueListenableBuilder(
+              valueListenable: indexNotifier,
+              builder: (context, value, _) => widget.menuBuilder(
+                context,
+                itemKeys,
+                value,
+              ),
             ),
           ),
         );
