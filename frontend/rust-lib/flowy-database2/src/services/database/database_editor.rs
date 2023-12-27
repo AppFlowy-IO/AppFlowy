@@ -1062,7 +1062,7 @@ impl DatabaseEditor {
     &self,
     changeset: DatabaseFieldChangesetPB,
   ) -> FlowyResult<()> {
-    let views = self.database.lock().get_all_views_description();
+    let views = self.database.lock().get_all_database_views_meta();
     for view in views {
       send_notification(&view.id, DatabaseNotification::DidUpdateFields)
         .payload(changeset.clone())
@@ -1618,7 +1618,7 @@ fn notify_did_update_database_field(
       .ok_or(FlowyError::internal().with_context("fail to acquire the lock of database"))?;
     let database_id = database.get_database_id();
     let field = database.fields.get_field(field_id);
-    let views = database.get_all_views_description();
+    let views = database.get_all_database_views_meta();
     (database_id, field, views)
   };
 
