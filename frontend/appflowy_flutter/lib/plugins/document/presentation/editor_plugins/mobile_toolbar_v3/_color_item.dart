@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_color_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,8 @@ class ColorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MobileToolbarItemWrapper(
+    final theme = ToolbarColorExtension.of(context);
+    return MobileToolbarMenuItemWrapper(
       size: const Size(82, 52),
       onTap: () async {
         service.closeKeyboard();
@@ -36,7 +38,7 @@ class ColorItem extends StatelessWidget {
         );
       },
       icon: FlowySvgs.m_aa_color_s,
-      backgroundColor: const Color(0xFFF2F2F7),
+      backgroundColor: theme.toolbarMenuItemBackgroundColor,
       isSelected: false,
       showRightArrow: true,
       enable: editorState.selection?.isCollapsed == false,
