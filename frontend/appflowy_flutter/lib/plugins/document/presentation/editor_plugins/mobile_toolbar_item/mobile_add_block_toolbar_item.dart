@@ -228,7 +228,7 @@ bool _unSelectable(
   return false;
 }
 
-extension on EditorState {
+extension EditorStateAddBlock on EditorState {
   Future<void> insertBlockOrReplaceCurrentBlock(
     Selection selection,
     Node insertedNode,
@@ -257,7 +257,8 @@ extension on EditorState {
         ..deleteNode(node)
         ..afterSelection = Selection.collapsed(
           Position(path: path, offset: 0),
-        );
+        )
+        ..selectionExtraInfo = null;
     }
     await apply(transaction);
     service.keyboardService?.enableKeyBoard(selection);
