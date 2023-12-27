@@ -484,11 +484,36 @@ pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
 struct FolderIndexStorageImpl(Weak<UserManager>);
 
 impl FolderIndexStorage for FolderIndexStorageImpl {
-  fn add(&self, id: &str, content: &str) {
-    todo!()
+  fn add(&self, id: &str, content: &str) -> Result<(), FlowyError> {
+    let manager = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+
+    let uid = manager.user_id()?;
+    manager.add_view_index(uid, id, content)?;
+    Ok(())
   }
 
-  fn remove(&self, id: &str) {
-    todo!()
+  fn update(&self, id: &str, content: &str) -> Result<(), FlowyError> {
+    let manager = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+
+    let uid = manager.user_id()?;
+    manager.update_view_index(uid, id, content)?;
+    Ok(())
+  }
+
+  fn remove(&self, ids: &[String]) -> Result<(), FlowyError> {
+    let manager = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+
+    let uid = manager.user_id()?;
+    manager.delete_view_index(uid, ids)?;
+    Ok(())
   }
 }
