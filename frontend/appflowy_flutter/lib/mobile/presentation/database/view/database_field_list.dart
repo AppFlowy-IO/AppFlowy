@@ -110,7 +110,19 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
       )..add(const DatabasePropertyEvent.initial()),
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
         builder: (context, state) {
-          final cells = state.fieldContexts
+          if (state.fieldContexts.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          final fields = [...state.fieldContexts];
+          final firstField = fields.removeAt(0);
+          final firstCell = DatabaseFieldListTile(
+            key: ValueKey(firstField.id),
+            viewId: view.id,
+            fieldController: databaseController.fieldController,
+            fieldInfo: firstField,
+            showTopBorder: true,
+          );
+          final cells = fields
               .mapIndexed(
                 (index, field) => DatabaseFieldListTile(
                   key: ValueKey(field.id),
@@ -118,14 +130,14 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                   fieldController: databaseController.fieldController,
                   fieldInfo: field,
                   index: index,
-                  showTopBorder: index == 0,
+                  showTopBorder: false,
                 ),
               )
               .toList();
 
           return ReorderableListView.builder(
             proxyDecorator: (_, index, anim) {
-              final field = state.fieldContexts[index];
+              final field = fields[index];
               return AnimatedBuilder(
                 animation: anim,
                 builder: (BuildContext context, Widget? child) {
@@ -151,10 +163,13 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
             buildDefaultDragHandles: true,
             shrinkWrap: true,
             onReorder: (from, to) {
+              from++;
+              to++;
               context
                   .read<DatabasePropertyBloc>()
                   .add(DatabasePropertyEvent.moveField(from, to));
             },
+            header: firstCell,
             footer: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -176,14 +191,14 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
 class DatabaseFieldListTile extends StatelessWidget {
   const DatabaseFieldListTile({
     super.key,
-    required this.index,
+    this.index,
     required this.fieldInfo,
     required this.viewId,
     required this.fieldController,
     required this.showTopBorder,
   });
 
-  final int index;
+  final int? index;
   final FieldInfo fieldInfo;
   final String viewId;
   final FieldController fieldController;

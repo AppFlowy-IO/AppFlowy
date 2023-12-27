@@ -1,7 +1,6 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -57,32 +56,9 @@ Future<FieldOptionValues?> showEditFieldScreen(
     MobileEditPropertyScreen.routeName,
     extra: {
       MobileEditPropertyScreen.argViewId: viewId,
-      MobileEditPropertyScreen.argField: field.field,
+      MobileEditPropertyScreen.argField: field,
     },
   );
-  if (optionValues != null) {
-    final service = FieldBackendService(
-      viewId: viewId,
-      fieldId: field.id,
-    );
-
-    if (optionValues.name != field.name) {
-      await service.updateField(name: optionValues.name);
-    }
-
-    if (optionValues.type != field.fieldType) {
-      await service.updateFieldType(fieldType: optionValues.type);
-    }
-
-    final data = optionValues.toTypeOptionBuffer();
-    if (data != null) {
-      await FieldBackendService.updateFieldTypeOption(
-        viewId: viewId,
-        fieldId: field.id,
-        typeOptionData: data,
-      );
-    }
-  }
 
   return optionValues;
 }
