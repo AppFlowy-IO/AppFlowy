@@ -496,15 +496,15 @@
       "smartEditCouldNotFetchKey": "Der OpenAI-Schlüssel konnte nicht abgerufen werden",
       "smartEditDisabled": "Verbinden Sie OpenAI in den Einstellungen",
       "discardResponse": "Möchten Sie die KI-Antworten verwerfen?",
-      "createInlineMathEquation": "Gleichung erstellen",
+      "createInlineMathEquation": "Formel erstellen",
       "toggleList": "Liste umschalten",
       "cover": {
-        "changeCover": "Deckung wechseln",
+        "changeCover": "Titelbild wechseln",
         "colors": "Farben",
         "images": "Bilder",
         "clearAll": "Alles löschen",
         "abstract": "Abstrakt",
-        "addCover": "Abdeckung hinzufügen",
+        "addCover": "Titelbild hinzufügen",
         "addLocalImage": "Lokales Bild hinzufügen",
         "invalidImageUrl": "Ungültige Bild-URL",
         "failedToAddImageToGallery": "Das Bild konnte nicht zur Galerie hinzugefügt werden",
@@ -523,8 +523,8 @@
         "alertDialogConfirmation": "Bist du dir sicher, dass du weitermachen willst?"
       },
       "mathEquation": {
-        "addMathEquation": "Mathematische Gleichung hinzufügen",
-        "editMathEquation": "Bearbeiten Sie die mathematische Gleichung"
+        "addMathEquation": "Mathematische Formel hinzufügen",
+        "editMathEquation": "Bearbeiten Sie die mathematische Formel"
       },
       "optionAction": {
         "click": "Klicken",
@@ -594,7 +594,7 @@
     "column": {
       "createNewCard": "Neu"
     },
-    "menuName": "Planke",
+    "menuName": "Board",
     "referencedBoardPrefix": "Sicht von"
   },
   "calendar": {
