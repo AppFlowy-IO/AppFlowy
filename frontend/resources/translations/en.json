@@ -620,7 +620,7 @@
       "aquaColor": "Aqua",
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
-      "colorPanelTitle": "Colors",
+      "colorPanelTitle": "Color",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search or create an option...",
@@ -778,7 +778,6 @@
     "textBlock": {
       "placeholder": "Type '/' for commands"
     },
-
     "title": {
       "placeholder": "Untitled"
     },

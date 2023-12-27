@@ -101,7 +101,7 @@ class _Header extends StatelessWidget {
                 ),
                 onPressed: () => context.pop(newFieldId),
                 child: FlowyText.medium(
-                  LocaleKeys.button_save.tr(),
+                  LocaleKeys.button_done.tr(),
                   fontSize: 16,
                   color: Theme.of(context).colorScheme.onPrimary,
                   overflow: TextOverflow.ellipsis,
