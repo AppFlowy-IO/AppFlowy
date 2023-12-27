@@ -110,7 +110,7 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
   let data = default_document_data();
   let uid = test.user.user_id().unwrap();
   // create a document
-  _ = test
+  test
     .create_document(uid, &doc_id, Some(data.clone()))
     .await
     .unwrap();

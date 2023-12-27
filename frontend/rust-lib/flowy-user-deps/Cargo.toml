@@ -16,3 +16,4 @@ serde_repr.workspace = true
 chrono = { workspace = true,  default-features = false, features = ["clock", "serde"] }
 anyhow.workspace = true
 tokio = { workspace = true, features = ["sync"] }
+tokio-stream = "0.1.14"

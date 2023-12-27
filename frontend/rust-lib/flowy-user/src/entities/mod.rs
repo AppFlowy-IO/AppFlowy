@@ -1,6 +1,7 @@
 use validator::ValidationError;
 
 pub use auth::*;
+pub use file::*;
 pub use realtime::*;
 pub use reminder::*;
 pub use user_profile::*;
@@ -9,6 +10,7 @@ pub use workspace_member::*;
 
 pub mod auth;
 pub mod date_time;
+mod file;
 pub mod parser;
 pub mod realtime;
 mod reminder;

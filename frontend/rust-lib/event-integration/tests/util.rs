@@ -8,6 +8,7 @@ use std::time::Duration;
 use anyhow::Error;
 use collab_folder::FolderData;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
+use nanoid::nanoid;
 use tokio::sync::mpsc::Receiver;
 
 use tokio::time::timeout;
@@ -167,7 +168,7 @@ pub fn unzip_history_user_db(root: &str, folder_name: &str) -> std::io::Result<(
   // Open the zip file
   let zip_file_path = format!("{}/{}.zip", root, folder_name);
   let reader = File::open(zip_file_path)?;
-  let output_folder_path = format!("{}/unit_test_{}", root, Uuid::new_v4());
+  let output_folder_path = format!("{}/unit_test_{}", root, nanoid!(6));
 
   // Create a ZipArchive from the file
   let mut archive = ZipArchive::new(reader)?;

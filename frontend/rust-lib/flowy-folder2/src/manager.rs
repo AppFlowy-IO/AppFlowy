@@ -463,7 +463,7 @@ impl FolderManager {
 
           notify_child_views_changed(
             view_pb_without_child_views(view),
-            ChildViewChangeReason::DidDeleteView,
+            ChildViewChangeReason::Delete,
           );
         }
       },

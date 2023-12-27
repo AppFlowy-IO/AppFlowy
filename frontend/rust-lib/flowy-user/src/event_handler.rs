@@ -621,3 +621,11 @@ pub async fn update_workspace_member_handler(
     .await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn sync_appflowy_data_folder_handler(
+  data: AFPluginData<SyncAppFlowyDataPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  Ok(())
+}
