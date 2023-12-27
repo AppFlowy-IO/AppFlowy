@@ -18,13 +18,13 @@ export const GridBlock = memo(
     }, [blockId, selectedBlockContext]);
 
     return (
-      <div {...attributes} onClick={onClick} className={`${className} relative my-2`}>
+      <div {...attributes} onClick={onClick} className={`${className} relative my-2 w-full`}>
         <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
           {children}
         </div>
         <div
           contentEditable={false}
-          className='flex h-[400px] overflow-hidden border-b border-t border-line-divider bg-bg-body py-3 caret-text-title'
+          className='flex h-[400px] w-full overflow-hidden border-b border-t border-line-divider bg-bg-body py-3 caret-text-title'
         >
           {viewId ? <GridView viewId={viewId} /> : <DatabaseEmpty node={node} />}
         </div>

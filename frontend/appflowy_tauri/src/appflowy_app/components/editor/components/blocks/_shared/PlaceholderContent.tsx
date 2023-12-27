@@ -21,7 +21,7 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
   }, [editor, node]);
 
   const className = useMemo(() => {
-    return `pointer-events-none absolute left-0.5 top-0 whitespace-nowrap text-text-placeholder ${
+    return `pointer-events-none px-1 absolute left-0.5 top-0 whitespace-nowrap text-text-placeholder ${
       attributes.className ?? ''
     }`;
   }, [attributes.className]);

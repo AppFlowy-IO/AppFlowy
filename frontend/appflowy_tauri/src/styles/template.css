@@ -44,6 +44,18 @@ body {
     margin-left: 24px;
 }
 
+.block-element.block-align-left .text-element {
+    justify-content: flex-start;
+}
+
+.block-element.block-align-right .text-element {
+    justify-content: flex-end;
+}
+
+.block-element.block-align-center .text-element {
+    justify-content: center;
+}
+
 .block-element[data-block-type="todo_list"] .checked > .text-element {
     text-decoration: line-through;
     color: var(--text-caption);

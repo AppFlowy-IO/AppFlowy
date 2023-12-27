@@ -5,7 +5,7 @@ export const DividerNode = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DividerNodeType>>(
     ({ node: _node, children: children, className, ...attributes }, ref) => {
       return (
-        <div {...attributes} className={`${className} relative`}>
+        <div {...attributes} className={`${className} relative w-full`}>
           <div contentEditable={false} className={'w-full py-2.5 text-line-divider'}>
             <hr />
           </div>

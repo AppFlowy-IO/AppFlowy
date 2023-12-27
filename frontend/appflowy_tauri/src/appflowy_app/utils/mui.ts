@@ -14,6 +14,19 @@ export const getDesignTokens = (mode: ThemeMode): ThemeOptions => {
         textTransform: 'none',
       },
     },
+    components: {
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: {
+            backgroundColor: 'var(--bg-tips)',
+            color: 'var(--text-title)',
+            fontSize: '0.85rem',
+            borderRadius: '8px',
+            fontWeight: 400,
+          },
+        },
+      },
+    },
     palette: {
       mode: isDark ? 'dark' : 'light',
       primary: {

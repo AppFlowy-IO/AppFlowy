@@ -206,6 +206,7 @@ export enum EditorStyleFormat {
   FontColor = 'font_color',
   BackgroundColor = 'bg_color',
   Href = 'href',
+  Align = 'align',
 }
 
 export enum EditorTurnFormat {

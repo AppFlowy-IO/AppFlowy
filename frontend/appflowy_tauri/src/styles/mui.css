@@ -45,13 +45,6 @@
     background: var(--fill-default);
 }
 
-.MuiTooltip-tooltip	 {
-    background: var(--bg-tips) !important;
-    color: var(--text-title) !important;
-    font-size: 0.85rem !important;
-    border-radius: 8px !important;
-    font-weight: 400 !important;
-}
 
 .MuiTooltip-arrow {
     color: var(--bg-tips) !important;

@@ -24,6 +24,7 @@ import { MathEquation } from '$app/components/editor/components/blocks/math_equa
 import { Text as TextComponent } from '../blocks/text';
 import { Page } from '../blocks/page';
 import { useElementState } from '$app/components/editor/components/editor/Element.hooks';
+import UnSupportBlock from '$app/components/editor/components/blocks/_shared/unSupportBlock';
 
 function Element({ element, attributes, children }: RenderElementProps) {
   const node = element;
@@ -68,15 +69,24 @@ function Element({ element, attributes, children }: RenderElementProps) {
       case EditorNodeType.EquationBlock:
         return MathEquation;
       default:
-        return Paragraph;
+        return UnSupportBlock;
     }
   }, [node.type]) as FC<EditorElementProps & HTMLAttributes<HTMLElement>>;
 
   const { isSelected } = useElementState(node);
 
   const className = useMemo(() => {
-    return `block-element my-1 flex rounded ${isSelected ? 'bg-content-blue-100' : ''}`;
-  }, [isSelected]);
+    const align =
+      (
+        node.data as {
+          align: 'left' | 'center' | 'right';
+        }
+      )?.align || 'left';
+
+    return `block-element my-1 flex rounded ${isSelected ? 'bg-content-blue-100' : ''} ${
+      align ? `block-align-${align}` : ''
+    }`;
+  }, [isSelected, node.data]);
 
   const style = useMemo(() => {
     const data = (node.data as BlockData) || {};

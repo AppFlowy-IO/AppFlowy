@@ -37,7 +37,7 @@ export const NumberedList = memo(
           <span contentEditable={false} className={'absolute flex w-6 select-none justify-center font-medium'}>
             {index}.
           </span>
-          <div ref={ref} {...attributes} className={`${className} ml-6`}>
+          <div ref={ref} {...attributes} className={`${className} pl-6`}>
             {children}
           </div>
         </>

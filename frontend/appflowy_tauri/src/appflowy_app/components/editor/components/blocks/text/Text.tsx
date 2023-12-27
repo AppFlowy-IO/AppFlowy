@@ -4,7 +4,7 @@ import { EditorElementProps, TextNode } from '$app/application/document/document
 import { useSlateStatic } from 'slate-react';
 
 export const Text = memo(
-  forwardRef<HTMLDivElement, EditorElementProps<TextNode>>(({ node, children, ...attributes }, ref) => {
+  forwardRef<HTMLDivElement, EditorElementProps<TextNode>>(({ node, children, className, ...attributes }, ref) => {
     const editor = useSlateStatic();
     const isEmpty = editor.isEmpty(node);
 
@@ -12,7 +12,7 @@ export const Text = memo(
       <div
         ref={ref}
         {...attributes}
-        className={`text-element mx-1 ${!isEmpty ? 'flex items-center' : ''} relative h-full`}
+        className={`text-element w-full px-1 ${!isEmpty ? 'flex items-center' : ''} ${className ?? ''} relative h-full`}
       >
         <Placeholder isEmpty={isEmpty} node={node} />
         <span>{children}</span>
