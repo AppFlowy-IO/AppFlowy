@@ -75,6 +75,14 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
+  pub async fn get_trash(&self) -> RepeatedTrashPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ListTrashItems)
+      .async_send()
+      .await
+      .parse::<RepeatedTrashPB>()
+  }
+
   pub async fn delete_view(&self, view_id: &str) {
     let payload = RepeatedViewIdPB {
       items: vec![view_id.to_string()],

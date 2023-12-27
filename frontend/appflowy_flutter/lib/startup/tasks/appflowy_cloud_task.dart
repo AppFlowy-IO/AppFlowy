@@ -87,7 +87,7 @@ class AppFlowyCloudDeepLink {
         (_) async {
           final deviceId = await getDeviceId();
           final payload = OauthSignInPB(
-            authType: AuthenticatorPB.AppFlowyCloud,
+            authenticator: AuthenticatorPB.AppFlowyCloud,
             map: {
               AuthServiceMapKeys.signInURL: uri.toString(),
               AuthServiceMapKeys.deviceId: deviceId,

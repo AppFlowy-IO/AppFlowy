@@ -10,7 +10,7 @@ use collab_folder::{
 use parking_lot::{Mutex, RwLock};
 use tracing::{error, event, info, instrument, Level};
 
-use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
@@ -134,6 +134,7 @@ impl FolderManager {
         collab_db,
         raw_data,
         &CollabPersistenceConfig::new().enable_snapshot(true),
+        CollabBuilderConfig::default().sync_enable(true),
       )
       .await?;
     Ok(collab)

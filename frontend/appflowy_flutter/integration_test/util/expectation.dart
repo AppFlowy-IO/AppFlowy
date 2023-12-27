@@ -18,13 +18,19 @@ const String gettingStarted = 'Getting started';
 
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
-  Future<void> expectToSeeHomePage() async {
+  Future<void> expectToSeeHomePageWithGetStartedPage() async {
     final finder = find.byType(HomeStack);
     await pumpUntilFound(finder);
     expect(finder, findsOneWidget);
 
     final docFinder = find.textContaining(gettingStarted);
     await pumpUntilFound(docFinder);
+  }
+
+  Future<void> expectToSeeHomePage() async {
+    final finder = find.byType(HomeStack);
+    await pumpUntilFound(finder);
+    expect(finder, findsOneWidget);
   }
 
   /// Expect to see the page name on the home page.

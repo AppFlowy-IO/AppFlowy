@@ -21,7 +21,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       final findFirstCard = find.descendant(
         of: find.byType(AppFlowyGroupCard),
@@ -64,7 +64,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       final findLastCard = find.descendant(
         of: find.byType(AppFlowyGroupCard),

@@ -14,7 +14,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Create board view
       await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);
@@ -35,7 +35,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Create board view
       await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);
@@ -60,7 +60,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Create board view
       await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);

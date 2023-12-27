@@ -4,6 +4,7 @@ use anyhow::Context;
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
+use collab_integrate::collab_builder::CollabBuilderConfig;
 use collab_user::core::{MutexUserAwareness, UserAwareness};
 use tracing::{error, trace};
 use uuid::Uuid;
@@ -176,6 +177,7 @@ impl UserManager {
         CollabType::UserAwareness,
         raw_data,
         collab_db,
+        CollabBuilderConfig::default().sync_enable(true),
       )
       .await
       .context("Build collab for user awareness failed")?;

@@ -136,13 +136,13 @@ Future<void> insertReferenceDatabase(
   // create a new grid
   final id = uuid();
   final name = '${layout.name}_$id';
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: name,
     layout: layout,
     openAfterCreated: false,
   );
   // create a new document
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: 'insert_a_reference_${layout.name}',
     layout: ViewLayoutPB.Document,
     openAfterCreated: true,
@@ -171,7 +171,7 @@ Future<void> createInlineDatabase(
 ) async {
   // create a new document
   final documentName = 'insert_a_inline_${layout.name}';
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: documentName,
     layout: ViewLayoutPB.Document,
     openAfterCreated: true,

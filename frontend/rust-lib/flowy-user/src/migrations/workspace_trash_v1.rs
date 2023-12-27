@@ -11,7 +11,7 @@ use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;
 use crate::services::entities::Session;
 
-/// 1. Migrate the workspace: { trash: [view_id] } to { trash: { uid: [view_id] } }
+/// Migrate the workspace: { trash: [view_id] } to { trash: { uid: [view_id] } }
 pub struct WorkspaceTrashMapToSectionMigration;
 
 impl UserDataMigration for WorkspaceTrashMapToSectionMigration {

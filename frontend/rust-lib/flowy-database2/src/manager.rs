@@ -16,7 +16,7 @@ use lru::LruCache;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
-use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
@@ -457,6 +457,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       collab_db,
       collab_raw_data,
       config,
+      CollabBuilderConfig::default().sync_enable(true),
     ))
     .unwrap()
   }

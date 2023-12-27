@@ -49,6 +49,8 @@ pub async fn sync_af_user_data_to_cloud(
   )
   .await;
 
+  let synced_database = Arc::new(Mutex::new(vec![]));
+
   let views = folder.lock().get_current_workspace_views();
   for view in views {
     let view_id = view.id.clone();
@@ -61,6 +63,7 @@ pub async fn sync_af_user_data_to_cloud(
       view,
       collab_db.clone(),
       user_service.clone(),
+      synced_database.clone(),
     )
     .await
     {
@@ -81,10 +84,12 @@ fn sync_view(
   view: Arc<View>,
   collab_db: Arc<RocksCollabDB>,
   user_service: Arc<dyn UserCloudService>,
+  synced_database: Arc<Mutex<Vec<String>>>,
 ) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send + Sync>> {
   Box::pin(async move {
     let collab_type = collab_type_from_view_layout(&view.layout);
     let object_id = object_id_from_view(&view, &database_records)?;
+
     tracing::debug!(
       "sync view: {:?}:{} with object_id: {}",
       view.layout,
@@ -113,60 +118,65 @@ fn sync_view(
           .await?;
       },
       ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
-        let (database_encode_v1, row_ids) =
-          get_database_encode_v1(uid, &collab_object, &collab_db)?;
-        tracing::info!(
-          "sync object: {} with update: {}",
-          collab_object,
-          database_encode_v1.len()
-        );
-        user_service
-          .create_collab_object(&collab_object, database_encode_v1, false)
-          .await?;
+        let is_synced = synced_database.lock().contains(&collab_object.object_id);
+        if !is_synced {
+          synced_database.lock().push(collab_object.object_id.clone());
 
-        // sync database's row
-        for row_id in row_ids {
-          tracing::debug!("sync row: {}", row_id);
-          let document_id = database_row_document_id_from_row_id(&row_id);
-
-          let database_row_collab_object = CollabObject::new(
-            uid,
-            row_id,
-            CollabType::DatabaseRow,
-            workspace_id.to_string(),
-            device_id.clone(),
-          );
-          let database_row_encode_v1 =
-            get_collab_encode_v1(uid, &database_row_collab_object, &collab_db)?;
+          let (database_encode_v1, row_ids) =
+            get_database_encode_v1(uid, &collab_object, &collab_db)?;
           tracing::info!(
             "sync object: {} with update: {}",
-            database_row_collab_object,
-            database_row_encode_v1.len()
+            collab_object,
+            database_encode_v1.len()
           );
+          user_service
+            .create_collab_object(&collab_object, database_encode_v1, false)
+            .await?;
 
-          let _ = user_service
-            .create_collab_object(&database_row_collab_object, database_row_encode_v1, false)
-            .await;
+          // sync database's row
+          for row_id in row_ids {
+            tracing::debug!("sync row: {}", row_id);
+            let document_id = database_row_document_id_from_row_id(&row_id);
 
-          let database_row_document = CollabObject::new(
-            uid,
-            document_id,
-            CollabType::Document,
-            workspace_id.to_string(),
-            device_id.to_string(),
-          );
-          // sync document in the row if exist
-          if let Ok(document_encode_v1) =
-            get_collab_encode_v1(uid, &database_row_document, &collab_db)
-          {
-            tracing::info!(
-              "sync database row document: {} with update: {}",
-              database_row_document,
-              document_encode_v1.len()
+            let database_row_collab_object = CollabObject::new(
+              uid,
+              row_id,
+              CollabType::DatabaseRow,
+              workspace_id.to_string(),
+              device_id.clone(),
             );
+            let database_row_encode_v1 =
+              get_collab_encode_v1(uid, &database_row_collab_object, &collab_db)?;
+            tracing::info!(
+              "sync object: {} with update: {}",
+              database_row_collab_object,
+              database_row_encode_v1.len()
+            );
+
             let _ = user_service
-              .create_collab_object(&database_row_document, document_encode_v1, false)
+              .create_collab_object(&database_row_collab_object, database_row_encode_v1, false)
               .await;
+
+            let database_row_document = CollabObject::new(
+              uid,
+              document_id,
+              CollabType::Document,
+              workspace_id.to_string(),
+              device_id.to_string(),
+            );
+            // sync document in the row if exist
+            if let Ok(document_encode_v1) =
+              get_collab_encode_v1(uid, &database_row_document, &collab_db)
+            {
+              tracing::info!(
+                "sync database row document: {} with update: {}",
+                database_row_document,
+                document_encode_v1.len()
+              );
+              let _ = user_service
+                .create_collab_object(&database_row_document, document_encode_v1, false)
+                .await;
+            }
           }
         }
       },
@@ -186,6 +196,7 @@ fn sync_view(
         child_view,
         collab_db.clone(),
         user_service.clone(),
+        synced_database.clone(),
       ))
       .await
       {

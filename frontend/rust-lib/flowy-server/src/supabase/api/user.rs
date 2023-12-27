@@ -311,7 +311,7 @@ where
     collab_object: &CollabObject,
     data: Vec<u8>,
     _override_if_exist: bool,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let cloned_collab_object = collab_object.clone();
     let (tx, rx) = channel();

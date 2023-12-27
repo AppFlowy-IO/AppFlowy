@@ -66,7 +66,7 @@ impl EventIntegrationTest {
     .unwrap();
 
     let request = AFPluginRequest::new(SignUp).payload(payload);
-    let user_profile = AFPluginDispatcher::async_send(self.inner.dispatcher(), request)
+    let user_profile = AFPluginDispatcher::async_send(self.appflowy_core.dispatcher(), request)
       .await
       .parse::<UserProfilePB, FlowyError>()
       .unwrap()
@@ -88,7 +88,7 @@ impl EventIntegrationTest {
     let map = third_party_sign_up_param(Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthenticatorPB::Supabase,
+      authenticator: AuthenticatorPB::Supabase,
     };
 
     EventBuilder::new(self.clone())
@@ -107,7 +107,7 @@ impl EventIntegrationTest {
   }
 
   pub fn set_auth_type(&self, auth_type: AuthenticatorPB) {
-    *self.auth_type.write() = auth_type;
+    *self.authenticator.write() = auth_type;
   }
 
   pub async fn init_anon_user(&self) -> UserProfilePB {
@@ -133,7 +133,7 @@ impl EventIntegrationTest {
   pub async fn af_cloud_sign_in_with_email(&self, email: &str) -> FlowyResult<UserProfilePB> {
     let payload = SignInUrlPayloadPB {
       email: email.to_string(),
-      auth_type: AuthenticatorPB::AppFlowyCloud,
+      authenticator: AuthenticatorPB::AppFlowyCloud,
     };
     let sign_in_url = EventBuilder::new(self.clone())
       .event(GenerateSignInURL)
@@ -148,7 +148,7 @@ impl EventIntegrationTest {
     map.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthenticatorPB::AppFlowyCloud,
+      authenticator: AuthenticatorPB::AppFlowyCloud,
     };
 
     let user_profile = EventBuilder::new(self.clone())
@@ -175,7 +175,7 @@ impl EventIntegrationTest {
     );
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthenticatorPB::Supabase,
+      authenticator: AuthenticatorPB::Supabase,
     };
 
     let user_profile = EventBuilder::new(self.clone())
@@ -246,7 +246,7 @@ impl TestNotificationSender {
     F: Fn(&T) -> bool + Send + 'static,
   {
     let id = id.to_string();
-    let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
+    let (tx, rx) = tokio::sync::mpsc::channel::<T>(1);
     let mut receiver = self.sender.subscribe();
     af_spawn(async move {
       while let Ok(value) = receiver.recv().await {

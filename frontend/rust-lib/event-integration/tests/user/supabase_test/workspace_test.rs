@@ -21,7 +21,7 @@ async fn initial_workspace_test() {
     );
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthenticatorPB::Supabase,
+      authenticator: AuthenticatorPB::Supabase,
     };
 
     let _ = EventBuilder::new(test.clone())

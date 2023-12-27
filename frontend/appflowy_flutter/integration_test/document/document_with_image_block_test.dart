@@ -31,7 +31,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: LocaleKeys.document_plugins_image_addAnImage.tr(),
         layout: ViewLayoutPB.Document,
       );
@@ -79,7 +79,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: LocaleKeys.document_plugins_image_addAnImage.tr(),
         layout: ViewLayoutPB.Document,
       );
@@ -133,7 +133,7 @@ void main() {
         await tester.tapGoButton();
 
         // create a new document
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: LocaleKeys.document_plugins_image_addAnImage.tr(),
           layout: ViewLayoutPB.Document,
         );

@@ -232,7 +232,7 @@ where
     collab_object: &CollabObject,
     data: Vec<u8>,
     override_if_exist: bool,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     let collab_object = collab_object.clone();
     FutureResult::new(async move {

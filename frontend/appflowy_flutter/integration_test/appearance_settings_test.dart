@@ -16,7 +16,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
       await tester.openSettings();
 
       await tester.openSettingsPage(SettingsPage.appearance);
@@ -48,7 +48,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
       await tester.openSettings();
 
       await tester.openSettingsPage(SettingsPage.appearance);

@@ -35,7 +35,7 @@ async fn third_party_sign_up_test() {
     map.insert(USER_DEVICE_ID.to_string(), uuid::Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthenticatorPB::Supabase,
+      authenticator: AuthenticatorPB::Supabase,
     };
 
     let response = EventBuilder::new(test.clone())
@@ -79,7 +79,7 @@ async fn third_party_sign_up_with_duplicated_uuid() {
       .event(OauthSignIn)
       .payload(OauthSignInPB {
         map: map.clone(),
-        auth_type: AuthenticatorPB::Supabase,
+        authenticator: AuthenticatorPB::Supabase,
       })
       .async_send()
       .await
@@ -90,7 +90,7 @@ async fn third_party_sign_up_with_duplicated_uuid() {
       .event(OauthSignIn)
       .payload(OauthSignInPB {
         map: map.clone(),
-        auth_type: AuthenticatorPB::Supabase,
+        authenticator: AuthenticatorPB::Supabase,
       })
       .async_send()
       .await

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use std::cmp::Ordering;
 use std::fs::File;
 use std::path::{Path, PathBuf};
@@ -110,13 +111,17 @@ pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()
   Ok(())
 }
 
-pub fn unzip_and_replace(zip_path: impl AsRef<Path>, target_folder: &Path) -> io::Result<()> {
+pub fn unzip_and_replace(
+  zip_path: impl AsRef<Path>,
+  target_folder: &Path,
+) -> Result<(), anyhow::Error> {
   // Create a temporary directory for unzipping
   let temp_dir = tempdir()?;
 
   // Unzip the file
-  let file = File::open(zip_path.as_ref())?;
-  let mut archive = ZipArchive::new(file)?;
+  let file = File::open(zip_path.as_ref())
+    .context(format!("Can't find the zip file: {:?}", zip_path.as_ref()))?;
+  let mut archive = ZipArchive::new(file).context("Unzip file fail")?;
 
   for i in 0..archive.len() {
     let mut file = archive.by_index(i)?;
@@ -137,7 +142,8 @@ pub fn unzip_and_replace(zip_path: impl AsRef<Path>, target_folder: &Path) -> io
 
   // Replace the contents of the target folder
   if target_folder.exists() {
-    fs::remove_dir_all(target_folder)?;
+    fs::remove_dir_all(target_folder)
+      .context(format!("Remove all files in {:?}", target_folder))?;
   }
 
   fs::create_dir_all(target_folder)?;

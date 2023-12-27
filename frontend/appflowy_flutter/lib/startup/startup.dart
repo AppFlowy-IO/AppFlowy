@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -139,9 +138,14 @@ Future<void> initGetIt(
   LaunchConfiguration config,
 ) async {
   getIt.registerFactory<EntryPoint>(() => f);
-  getIt.registerLazySingleton<FlowySDK>(() {
-    return FlowySDK();
-  });
+  getIt.registerLazySingleton<FlowySDK>(
+    () {
+      return FlowySDK();
+    },
+    dispose: (sdk) async {
+      await sdk.dispose();
+    },
+  );
   getIt.registerLazySingleton<AppLauncher>(
     () => AppLauncher(
       context: LaunchContext(
@@ -205,7 +209,6 @@ class AppLauncher {
   }
 
   Future<void> dispose() async {
-    Log.info('AppLauncher dispose');
     for (final task in tasks) {
       await task.dispose();
     }

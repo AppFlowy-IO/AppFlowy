@@ -171,7 +171,7 @@ class SupabaseAuthService implements AuthService {
     required Map<String, String> map,
   }) async {
     final payload = OauthSignInPB(
-      authType: AuthenticatorPB.Supabase,
+      authenticator: AuthenticatorPB.Supabase,
       map: map,
     );
 

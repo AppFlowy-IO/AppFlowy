@@ -75,7 +75,7 @@ impl UserConfig {
 
   /// Returns bool whether the user choose a custom path for the user data.
   pub fn is_custom_storage_path(&self) -> bool {
-    self.storage_path != self.application_path
+    !self.storage_path.contains(&self.application_path)
   }
 }
 
@@ -140,6 +140,14 @@ impl UserManager {
     }
 
     user_manager
+  }
+
+  pub fn close_db(&self) {
+    if let Ok(session) = self.get_session() {
+      if let Err(err) = self.database.close(session.user_id) {
+        error!("Close db failed: {:?}", err);
+      }
+    }
   }
 
   pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
@@ -222,6 +230,7 @@ impl UserManager {
         });
       }
       self.prepare_user(&session).await;
+      self.prepare_backup(&session).await;
 
       // Do the user data migration if needed
       event!(tracing::Level::INFO, "Prepare user data migration");
@@ -364,7 +373,6 @@ impl UserManager {
   ) -> Result<UserProfile, FlowyError> {
     // sign out the current user if there is one
     let migration_user = self.get_migration_user(&authenticator).await;
-    let _ = self.sign_out().await;
 
     self.update_authenticator(&authenticator).await;
     let auth_service = self.cloud_services.get_user_service()?;
@@ -517,6 +525,9 @@ impl UserManager {
   pub async fn prepare_user(&self, session: &Session) {
     let _ = self.database.close(session.user_id);
     self.set_collab_config(session);
+  }
+
+  pub async fn prepare_backup(&self, session: &Session) {
     // Ensure to backup user data if a cloud drive is used for storage. While using a cloud drive
     // for storing user data is not advised due to potential data corruption risks, in scenarios where
     // users opt for cloud storage, the application should automatically create a backup of the user
@@ -582,6 +593,9 @@ impl UserManager {
         Ok(())
       },
       Err(err) => {
+        if err.is_local_version_not_support() {
+          return Ok(());
+        }
         // If the user is not found, notify the frontend to logout
         if err.is_unauthorized() {
           event!(

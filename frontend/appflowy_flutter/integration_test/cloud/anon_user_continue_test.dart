@@ -31,7 +31,7 @@ void main() {
 
       tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
       await tester.tapGoButton();
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
 
       // reanme the name of the anon user
       await tester.openSettings();
@@ -41,13 +41,14 @@ void main() {
         matching: find.byType(UserNameInput),
       );
       await tester.enterText(userNameFinder, 'local_user');
+      await tester.openSettingsPage(SettingsPage.user);
       await tester.pumpAndSettle();
 
       // sign up with Google
       await tester.tapGoogleLoginInButton();
-      await tester.pumpAndSettle();
 
       // sign out
+      await tester.expectToSeeHomePage();
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       await tester.logout();

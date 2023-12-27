@@ -14,7 +14,9 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Calendar);
+      await tester.createNewPageWithNameUnderParent(
+        layout: ViewLayoutPB.Calendar,
+      );
 
       // open setting
       await tester.tapDatabaseSettingButton();
@@ -36,7 +38,7 @@ void main() {
 
       // Create calendar view
       const name = 'calendar';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: name,
         layout: ViewLayoutPB.Calendar,
       );
@@ -68,7 +70,9 @@ void main() {
       await tester.tapGoButton();
 
       // Create the calendar view
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Calendar);
+      await tester.createNewPageWithNameUnderParent(
+        layout: ViewLayoutPB.Calendar,
+      );
 
       // Scroll until today's date cell is visible
       await tester.scrollToToday();
@@ -148,7 +152,9 @@ void main() {
       await tester.tapGoButton();
 
       // Create the calendar view
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Calendar);
+      await tester.createNewPageWithNameUnderParent(
+        layout: ViewLayoutPB.Calendar,
+      );
 
       // Create a new event on the first of this month
       final today = DateTime.now();

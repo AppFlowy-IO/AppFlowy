@@ -18,7 +18,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
       final card1 = find.findTextInFlowyText(name);
       await tester.hoverOnWidget(
@@ -36,7 +36,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
       final card1 = find.findTextInFlowyText(name);
       await tester.hoverOnWidget(
@@ -53,7 +53,7 @@ void main() {
     testWidgets('add new group', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       // assert number of groups
       tester.assertNumberOfGroups(4);

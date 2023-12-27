@@ -261,7 +261,7 @@ impl DatabaseCloudService for ServerProvider {
 }
 
 impl DocumentCloudService for ServerProvider {
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     document_id: &str,
     workspace_id: &str,
@@ -272,7 +272,7 @@ impl DocumentCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_document_updates(&document_id, &workspace_id)
+        .get_document_doc_state(&document_id, &workspace_id)
         .await
     })
   }

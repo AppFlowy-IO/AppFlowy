@@ -18,7 +18,7 @@ void main() {
 
       // create document, board, grid and calendar views
       for (final value in ViewLayoutPB.values) {
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: value.name,
           parentName: gettingStarted,
           layout: value,
@@ -46,7 +46,7 @@ void main() {
 
       // create document, board, grid and calendar views
       for (final value in ViewLayoutPB.values) {
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: value.name,
           parentName: gettingStarted,
           layout: value,

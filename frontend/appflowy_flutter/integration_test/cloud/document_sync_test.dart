@@ -22,8 +22,8 @@ import '../util/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  const pageName = 'Sample';
   final email = '${uuid()}@appflowy.io';
+  const inputContent = 'Hello world, this is a test document';
 
 // The test will create a new document called Sample, and sync it to the server.
 // Then the test will logout the user, and login with the same user. The data will
@@ -35,20 +35,21 @@ void main() {
         email: email,
       );
       await tester.tapGoogleLoginInButton();
-      await tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
 
       // create a new document called Sample
-      await tester.createNewPageWithName(
-        name: pageName,
+      await tester.createNewPage(
         layout: ViewLayoutPB.Document,
       );
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);
-      await tester.ime.insertText('hello world');
+      await tester.ime.insertText(inputContent);
+      expect(find.text(inputContent, findRichText: true), findsOneWidget);
 
-      await tester.pumpAndSettle();
-      expect(find.text('hello world', findRichText: true), findsOneWidget);
+      // TODO(nathan): remove the await
+      // 6 seconds for data sync
+      await tester.waitForSeconds(6);
 
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
@@ -62,15 +63,10 @@ void main() {
       );
       await tester.tapGoogleLoginInButton();
       await tester.expectToSeeHomePage();
-      await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      // The document will be synced from the server
-      await tester.openPage(
-        pageName,
-      );
-
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-      expect(find.text('hello world', findRichText: true), findsOneWidget);
+      // the latest document will be opened, so the content must be the inputContent
+      await tester.pumpAndSettle();
+      expect(find.text(inputContent, findRichText: true), findsOneWidget);
     });
   });
 }
