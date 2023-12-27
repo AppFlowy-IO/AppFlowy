@@ -296,11 +296,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
                   return AdaptiveTextSelectionToolbar.editable(
                     clipboardStatus: ClipboardStatus.pasteable,
                     onCopy: () {
-                      copyCommand.execute(editorState);
+                      customCopyCommand.execute(editorState);
                       closeToolbar();
                     },
-                    onCut: () => cutCommand.execute(editorState),
-                    onPaste: () => pasteCommand.execute(editorState),
+                    onCut: () => customCutCommand.execute(editorState),
+                    onPaste: () => customPasteCommand.execute(editorState),
                     onSelectAll: () => selectAllCommand.execute(editorState),
                     onLiveTextInput: null,
                     onLookUp: null,

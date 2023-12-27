@@ -34,6 +34,12 @@ class FontFamilyItem extends StatelessWidget {
             AppFlowyRichTextKeys.fontFamily:
                 GoogleFonts.getFont(newFont).fontFamily,
           });
+          await editorState.updateSelectionWithReason(
+            selection,
+            extraInfo: {
+              selectionExtraInfoDisableFloatingToolbar: true,
+            },
+          );
         }
       },
       text: fontFamily ?? systemFonFamily,

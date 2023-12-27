@@ -297,7 +297,7 @@ class EditorStyleCustomizer {
             editorState.updateSelectionWithReason(
               editorState.selection,
               extraInfo: {
-                disableMobileToolbarKey: true,
+                selectionExtraInfoDisableMobileToolbarKey: true,
               },
             );
 

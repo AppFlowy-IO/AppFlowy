@@ -88,6 +88,9 @@ class _HeadingOrTextItem extends StatelessWidget {
               HeadingBlockKeys.level: level!,
             }
           : null,
+      selectionExtraInfo: {
+        selectionExtraInfoDoNotAttachTextService: true,
+      },
     );
   }
 }

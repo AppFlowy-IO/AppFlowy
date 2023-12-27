@@ -144,6 +144,13 @@ extension MobileToolbarBuildContext on BuildContext {
   double get scale => MediaQuery.of(this).size.width / 375.0;
 }
 
+final _blocksCanContainChildren = [
+  ParagraphBlockKeys.type,
+  BulletedListBlockKeys.type,
+  NumberedListBlockKeys.type,
+  TodoListBlockKeys.type,
+];
+
 extension MobileToolbarEditorState on EditorState {
   bool isBlockTypeSelected(
     String blockType, {
@@ -208,6 +215,7 @@ extension MobileToolbarEditorState on EditorState {
     Selection? selection,
     Attributes? extraAttributes,
     bool? isSelected,
+    Map? selectionExtraInfo,
   }) async {
     selection = selection ?? this.selection;
     if (selection == null) {
@@ -220,6 +228,20 @@ extension MobileToolbarEditorState on EditorState {
       return;
     }
     final selected = isSelected ?? type == newBlockType;
+
+    // if the new block type can't contain children, we need to move all the children to the parent
+    bool needToDeleteChildren = false;
+    if (!selected &&
+        node.children.isNotEmpty &&
+        !_blocksCanContainChildren.contains(newBlockType)) {
+      final transaction = this.transaction;
+      needToDeleteChildren = true;
+      transaction.insertNodes(
+        selection.end.path.next,
+        node.children.map((e) => e.copyWith()),
+      );
+      await apply(transaction);
+    }
     await formatNode(
       selection,
       (node) {
@@ -231,14 +253,17 @@ extension MobileToolbarEditorState on EditorState {
         return node.copyWith(
           type: selected ? ParagraphBlockKeys.type : newBlockType,
           attributes: attributes,
+          children: needToDeleteChildren ? [] : null,
         );
       },
+      selectionExtraInfo: selectionExtraInfo,
     );
   }
 
   Future<void> alignBlock(
     String alignment, {
     Selection? selection,
+    Map? selectionExtraInfo,
   }) async {
     await updateNode(
       selection,
@@ -248,6 +273,7 @@ extension MobileToolbarEditorState on EditorState {
           blockComponentAlign: alignment,
         },
       ),
+      selectionExtraInfo: selectionExtraInfo,
     );
   }
 

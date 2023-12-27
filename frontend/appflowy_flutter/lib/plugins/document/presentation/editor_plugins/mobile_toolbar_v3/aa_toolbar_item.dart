@@ -11,6 +11,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 final aaToolbarItem = AppFlowyMobileToolbarItem(
+  pilotAtExpandedSelection: true,
   itemBuilder: (context, editorState, service, onMenu, _) {
     return AppFlowyMobileToolbarIconItem(
       isSelected: () => service.showMenuNotifier.value,
@@ -52,58 +53,64 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-            top: 24,
-            bottom: 20,
-            left: 12,
-            right: 12,
-          ) *
-          context.scale,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          HeadingsAndTextItems(
-            editorState: editorState,
-          ),
-          const ScaledVSpace(),
-          Row(
+    return SingleChildScrollView(
+      child: ColoredBox(
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.only(
+                top: 16,
+                bottom: 20,
+                left: 12,
+                right: 12,
+              ) *
+              context.scale,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BIUSItems(
+              HeadingsAndTextItems(
                 editorState: editorState,
               ),
-              const Spacer(),
-              ColorItem(
-                editorState: editorState,
+              const ScaledVSpace(),
+              Row(
+                children: [
+                  BIUSItems(
+                    editorState: editorState,
+                  ),
+                  const Spacer(),
+                  ColorItem(
+                    editorState: editorState,
+                    service: widget.service,
+                  ),
+                ],
+              ),
+              const ScaledVSpace(),
+              Row(
+                children: [
+                  BlockItems(
+                    service: widget.service,
+                    editorState: editorState,
+                  ),
+                  const Spacer(),
+                  AlignItems(
+                    editorState: editorState,
+                  ),
+                ],
+              ),
+              const ScaledVSpace(),
+              Row(
+                children: [
+                  FontFamilyItem(
+                    editorState: editorState,
+                  ),
+                  const Spacer(),
+                  IndentAndOutdentItems(
+                    editorState: editorState,
+                  ),
+                ],
               ),
             ],
           ),
-          const ScaledVSpace(),
-          Row(
-            children: [
-              BlockItems(
-                service: widget.service,
-                editorState: editorState,
-              ),
-              const Spacer(),
-              AlignItems(
-                editorState: editorState,
-              ),
-            ],
-          ),
-          const ScaledVSpace(),
-          Row(
-            children: [
-              FontFamilyItem(
-                editorState: editorState,
-              ),
-              const Spacer(),
-              IndentAndOutdentItems(
-                editorState: editorState,
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

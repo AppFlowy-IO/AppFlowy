@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
@@ -22,6 +20,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         Position,
         paragraphNode;
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -60,6 +59,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     await _viewListener.stop();
     await _subscription?.cancel();
     await _documentService.closeDocument(view: view);
+    state.editorState?.selection = null;
     state.editorState?.dispose();
     return super.close();
   }

@@ -177,7 +177,7 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
     editorState.updateSelectionWithReason(
       widget.selection,
       extraInfo: {
-        disableMobileToolbarKey: true,
+        selectionExtraInfoDisableMobileToolbarKey: true,
       },
     );
     editorState.service.keyboardService?.closeKeyboard();

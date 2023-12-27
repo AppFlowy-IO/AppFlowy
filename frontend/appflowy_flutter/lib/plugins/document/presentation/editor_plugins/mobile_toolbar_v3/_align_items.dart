@@ -26,7 +26,13 @@ class AlignItems extends StatelessWidget {
     return PopupMenu(
       itemLength: alignMenuItems.length,
       onSelected: (index) {
-        editorState.alignBlock(alignMenuItems[index].$1);
+        editorState.alignBlock(
+          alignMenuItems[index].$1,
+          selectionExtraInfo: {
+            selectionExtraInfoDoNotAttachTextService: true,
+            selectionExtraInfoDisableFloatingToolbar: true,
+          },
+        );
       },
       menuBuilder: (context, keys, currentIndex) {
         final children = alignMenuItems
@@ -54,7 +60,13 @@ class AlignItems extends StatelessWidget {
         key: key,
         size: const Size(82, 52),
         onTap: () async {
-          await editorState.alignBlock(currentAlignItem.$1);
+          await editorState.alignBlock(
+            currentAlignItem.$1,
+            selectionExtraInfo: {
+              selectionExtraInfoDoNotAttachTextService: true,
+              selectionExtraInfoDisableFloatingToolbar: true,
+            },
+          );
         },
         icon: currentAlignItem.$2,
         isSelected: false,
@@ -78,23 +90,28 @@ class AlignItems extends StatelessWidget {
   }
 
   List<(String, FlowySvgData)> _getAlignMenuItems() {
-    final align = _getCurrentBlockAlign();
-
-    if (align == _center) {
-      return [
-        (_left, FlowySvgs.m_aa_align_left_s),
-        (_right, FlowySvgs.m_aa_align_right_s),
-      ];
-    } else if (align == _right) {
-      return [
-        (_left, FlowySvgs.m_aa_align_left_s),
-        (_center, FlowySvgs.m_aa_align_center_s),
-      ];
-    }
     return [
+      (_left, FlowySvgs.m_aa_align_left_s),
       (_center, FlowySvgs.m_aa_align_center_s),
       (_right, FlowySvgs.m_aa_align_right_s),
     ];
+    // final align = _getCurrentBlockAlign();
+
+    // if (align == _center) {
+    //   return [
+    //     (_left, FlowySvgs.m_aa_align_left_s),
+    //     (_right, FlowySvgs.m_aa_align_right_s),
+    //   ];
+    // } else if (align == _right) {
+    //   return [
+    //     (_left, FlowySvgs.m_aa_align_left_s),
+    //     (_center, FlowySvgs.m_aa_align_center_s),
+    //   ];
+    // }
+    // return [
+    //   (_center, FlowySvgs.m_aa_align_center_s),
+    //   (_right, FlowySvgs.m_aa_align_right_s),
+    // ];
   }
 
   String _getCurrentBlockAlign() {
