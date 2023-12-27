@@ -59,7 +59,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     await _viewListener.stop();
     await _subscription?.cancel();
     await _documentService.closeDocument(view: view);
-    state.editorState?.service.keyboardService?.closeKeyboard();
+    state.editorState?.selection = null;
     state.editorState?.dispose();
     return super.close();
   }

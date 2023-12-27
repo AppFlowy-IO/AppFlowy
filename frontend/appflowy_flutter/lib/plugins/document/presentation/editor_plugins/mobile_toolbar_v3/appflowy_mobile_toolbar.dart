@@ -257,15 +257,15 @@ class _MobileToolbarState extends State<_MobileToolbar>
   }
 
   void _onKeyboardHeightChanged(double height) {
-    if (canUpdateCachedKeyboardHeight) {
-      cachedKeyboardHeight.value = height;
-    }
-
     // if the keyboard is not closed initiative, we need to close the menu at same time
     if (!closeKeyboardInitiative &&
         cachedKeyboardHeight.value != 0 &&
         height == 0) {
       widget.editorState.selection = null;
+    }
+
+    if (canUpdateCachedKeyboardHeight) {
+      cachedKeyboardHeight.value = height;
     }
 
     if (height == 0) {
