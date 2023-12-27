@@ -55,12 +55,14 @@ class FieldOptionValues {
 
   Future<void> create({
     required String viewId,
+    OrderObjectPositionPB? position,
   }) async {
     await FieldBackendService.createField(
       viewId: viewId,
       fieldType: type,
       fieldName: name,
       typeOptionData: getTypeOptionData(),
+      position: position,
     );
   }
 

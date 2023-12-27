@@ -1,6 +1,7 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,7 +12,11 @@ import 'mobile_field_type_grid.dart';
 import 'mobile_field_type_option_editor.dart';
 import 'mobile_quick_field_editor.dart';
 
-void showCreateFieldBottomSheet(BuildContext context, String viewId) {
+void showCreateFieldBottomSheet(
+  BuildContext context,
+  String viewId, {
+  OrderObjectPositionPB? position,
+}) {
   showMobileBottomSheet(
     context,
     padding: EdgeInsets.zero,
@@ -35,7 +40,7 @@ void showCreateFieldBottomSheet(BuildContext context, String viewId) {
               ).toString(),
             );
             if (optionValues != null) {
-              await optionValues.create(viewId: viewId);
+              await optionValues.create(viewId: viewId, position: position);
               if (context.mounted) {
                 context.pop();
               }

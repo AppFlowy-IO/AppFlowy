@@ -114,7 +114,14 @@ class _QuickEditFieldState extends State<QuickEditField> {
             leftIcon: const FlowySvg(FlowySvgs.insert_left_s),
             onTap: () async {
               context.pop();
-              await service.insertLeft();
+              showCreateFieldBottomSheet(
+                context,
+                widget.viewId,
+                position: OrderObjectPositionPB(
+                  position: OrderObjectPositionTypePB.Before,
+                  objectId: widget.fieldInfo.id,
+                ),
+              );
             },
           ),
         FlowyOptionTile.text(
@@ -123,7 +130,14 @@ class _QuickEditFieldState extends State<QuickEditField> {
           leftIcon: const FlowySvg(FlowySvgs.insert_right_s),
           onTap: () async {
             context.pop();
-            await service.insertRight();
+            showCreateFieldBottomSheet(
+              context,
+              widget.viewId,
+              position: OrderObjectPositionPB(
+                position: OrderObjectPositionTypePB.After,
+                objectId: widget.fieldInfo.id,
+              ),
+            );
           },
         ),
         if (!widget.fieldInfo.isPrimary) ...[
