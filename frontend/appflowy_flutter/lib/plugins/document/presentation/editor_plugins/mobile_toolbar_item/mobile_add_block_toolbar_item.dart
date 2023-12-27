@@ -320,10 +320,10 @@ extension EditorStateAddBlock on EditorState {
         paragraphNode(),
       );
     }
+    transaction.selectionExtraInfo = {};
     transaction.afterSelection = Selection.collapsed(
       Position(path: insertedPath.next),
     );
     await apply(transaction);
-    service.keyboardService?.enableKeyBoard(selection);
   }
 }
