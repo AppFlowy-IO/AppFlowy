@@ -2,7 +2,13 @@ import { ReactEditor } from 'slate-react';
 import { Editor, Element, Node, NodeEntry, Point, Range, Transforms, Location } from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
 import { isMarkActive, removeMarks, toggleMark } from '$app/components/editor/command/mark';
-import { insertFormula, isFormulaActive, unwrapFormula, updateFormula } from '$app/components/editor/command/formula';
+import {
+  deleteFormula,
+  insertFormula,
+  isFormulaActive,
+  unwrapFormula,
+  updateFormula,
+} from '$app/components/editor/command/formula';
 import {
   EditorInlineNodeType,
   EditorNodeType,
@@ -82,13 +88,12 @@ export const CustomEditor = {
   isMarkActive,
   isFormulaActive,
   updateFormula,
-  toggleInlineElement: (editor: ReactEditor, format: EditorInlineNodeType) => {
-    if (format === EditorInlineNodeType.Formula) {
-      if (isFormulaActive(editor)) {
-        unwrapFormula(editor);
-      } else {
-        insertFormula(editor);
-      }
+  deleteFormula,
+  toggleFormula: (editor: ReactEditor) => {
+    if (isFormulaActive(editor)) {
+      unwrapFormula(editor);
+    } else {
+      insertFormula(editor);
     }
   },
 

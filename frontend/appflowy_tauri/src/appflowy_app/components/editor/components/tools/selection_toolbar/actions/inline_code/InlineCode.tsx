@@ -4,15 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as CodeSvg } from '$app/assets/inline-code.svg';
+import { EditorMarkFormat } from '$app/application/document/document.types';
 
 export function InlineCode() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
-  const isActivated = CustomEditor.isMarkActive(editor, 'code');
+  const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Code);
 
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {
-      key: 'code',
+      key: EditorMarkFormat.Code,
       value: true,
     });
   }, [editor]);

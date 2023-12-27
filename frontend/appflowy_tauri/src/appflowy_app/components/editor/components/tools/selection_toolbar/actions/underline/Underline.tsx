@@ -4,15 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as UnderlineSvg } from '$app/assets/underline.svg';
+import { EditorMarkFormat } from '$app/application/document/document.types';
 
 export function Underline() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
-  const isActivated = CustomEditor.isMarkActive(editor, 'underline');
+  const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Underline);
 
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {
-      key: 'underline',
+      key: EditorMarkFormat.Underline,
       value: true,
     });
   }, [editor]);

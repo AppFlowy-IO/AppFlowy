@@ -3,7 +3,7 @@ import ActionButton from '$app/components/editor/components/tools/selection_tool
 import { useTranslation } from 'react-i18next';
 import { getBlock } from '$app/components/editor/plugins/utils';
 import { CustomEditor } from '$app/components/editor/command';
-import { EditorNodeType, EditorTurnFormat } from '$app/application/document/document.types';
+import { EditorNodeType } from '$app/application/document/document.types';
 import { useSlateStatic } from 'slate-react';
 import { ReactComponent as ParagraphSvg } from '$app/assets/text.svg';
 
@@ -21,7 +21,7 @@ export function Paragraph() {
     });
   }, [editor]);
 
-  const isActive = CustomEditor.isBlockActive(editor, EditorTurnFormat.Paragraph);
+  const isActive = CustomEditor.isBlockActive(editor, EditorNodeType.Paragraph);
 
   return (
     <ActionButton active={isActive} onClick={onClick} tooltip={t('editor.text')}>

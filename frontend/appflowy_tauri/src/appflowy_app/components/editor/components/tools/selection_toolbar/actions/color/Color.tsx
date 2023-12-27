@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ActionButton from '$app/components/editor/components/tools/selection_toolbar/actions/_shared/ActionButton';
 import { CustomEditor } from '$app/components/editor/command';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { addMark } from 'slate';
 import { Popover } from '@mui/material';
 import { BgColorPicker, FontColorPicker } from '$app/components/editor/components/tools/_shared';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
+import { EditorMarkFormat } from '$app/application/document/document.types';
 
 export function Color({ onClose, onOpen }: { onClose?: () => void; onOpen?: () => void }) {
   const { t } = useTranslation();
@@ -22,21 +23,23 @@ export function Color({ onClose, onOpen }: { onClose?: () => void; onOpen?: () =
       onClose?.();
     }
   }, [onClose, onOpen, open]);
-  const isActivated = CustomEditor.isMarkActive(editor, 'font_color') || CustomEditor.isMarkActive(editor, 'bg_color');
+  const isActivated =
+    CustomEditor.isMarkActive(editor, EditorMarkFormat.FontColor) ||
+    CustomEditor.isMarkActive(editor, EditorMarkFormat.BgColor);
 
   const handleChange = useCallback(
-    (format: 'font_color' | 'bg_color', color: string) => {
+    (format: EditorMarkFormat.FontColor | EditorMarkFormat.BgColor, color: string) => {
       addMark(editor, format, color);
     },
     [editor]
   );
 
   const fontColor = useMemo(() => {
-    return editor.getMarks()?.font_color;
+    return editor.getMarks()?.[EditorMarkFormat.FontColor];
   }, [editor]);
 
   const bgColor = useMemo(() => {
-    return editor.getMarks()?.bg_color;
+    return editor.getMarks()?.[EditorMarkFormat.BgColor];
   }, [editor]);
 
   return (
@@ -76,12 +79,10 @@ export function Color({ onClose, onOpen }: { onClose?: () => void; onOpen?: () =
             e.stopPropagation();
           }}
         >
-          <FontColorPicker color={fontColor} onChange={(color) => handleChange('font_color', color)} />
-          <BgColorPicker color={bgColor} onChange={(color) => handleChange('bg_color', color)} />
+          <FontColorPicker color={fontColor} onChange={(color) => handleChange(EditorMarkFormat.FontColor, color)} />
+          <BgColorPicker color={bgColor} onChange={(color) => handleChange(EditorMarkFormat.BgColor, color)} />
         </Popover>
       )}
     </>
   );
 }
-
-export default Color;

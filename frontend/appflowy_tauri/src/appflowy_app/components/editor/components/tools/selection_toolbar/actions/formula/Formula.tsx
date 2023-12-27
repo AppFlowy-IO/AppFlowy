@@ -3,7 +3,6 @@ import ActionButton from '$app/components/editor/components/tools/selection_tool
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
-import { EditorInlineNodeType } from '$app/application/document/document.types';
 import Functions from '@mui/icons-material/Functions';
 
 export function Formula() {
@@ -12,7 +11,7 @@ export function Formula() {
   const isActivated = CustomEditor.isFormulaActive(editor);
 
   const onClick = useCallback(() => {
-    CustomEditor.toggleInlineElement(editor, EditorInlineNodeType.Formula);
+    CustomEditor.toggleFormula(editor);
   }, [editor]);
 
   return (

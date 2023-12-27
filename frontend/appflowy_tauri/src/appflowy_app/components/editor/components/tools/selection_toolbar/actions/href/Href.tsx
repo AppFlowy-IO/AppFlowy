@@ -4,18 +4,22 @@ import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as LinkSvg } from '$app/assets/link.svg';
-import { addMark, Editor } from 'slate';
+import { Editor } from 'slate';
+import { EditorMarkFormat } from '$app/application/document/document.types';
 
 export function Href() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
-  const isActivated = CustomEditor.isMarkActive(editor, 'href');
+  const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Href);
 
   const onClick = useCallback(() => {
     if (!editor.selection) return;
     const text = Editor.string(editor, editor.selection);
 
-    addMark(editor, 'href', text);
+    CustomEditor.toggleMark(editor, {
+      key: EditorMarkFormat.Href,
+      value: text,
+    });
   }, [editor]);
 
   return (

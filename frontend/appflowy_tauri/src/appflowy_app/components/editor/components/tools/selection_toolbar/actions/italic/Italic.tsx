@@ -4,15 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as ItalicSvg } from '$app/assets/italic.svg';
+import { EditorMarkFormat } from '$app/application/document/document.types';
 
 export function Italic() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
-  const isActivated = CustomEditor.isMarkActive(editor, 'italic');
+  const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Italic);
 
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {
-      key: 'italic',
+      key: EditorMarkFormat.Italic,
       value: true,
     });
   }, [editor]);
