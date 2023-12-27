@@ -27,7 +27,7 @@ impl UserManager {
   }
 
   /// Deletes the views from the search index in `ids` for the user with `uid`.
-  pub fn delete_view_index(&self, uid: i64, ids: &Vec<String>) -> FlowyResult<()> {
+  pub fn delete_view_index(&self, uid: i64, ids: &[String]) -> FlowyResult<()> {
     let mut conn = self.db_connection(uid)?;
     for id in ids {
       delete_view(&mut conn, id)?;
