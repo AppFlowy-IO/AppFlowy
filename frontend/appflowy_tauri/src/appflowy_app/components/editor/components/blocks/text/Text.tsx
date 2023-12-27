@@ -9,7 +9,11 @@ export const Text = memo(
     const isEmpty = editor.isEmpty(node);
 
     return (
-      <div ref={ref} {...attributes} className={`text-element mx-1 ${!isEmpty ? 'flex' : ''} relative h-full`}>
+      <div
+        ref={ref}
+        {...attributes}
+        className={`text-element mx-1 ${!isEmpty ? 'flex items-center' : ''} relative h-full`}
+      >
         <Placeholder isEmpty={isEmpty} node={node} />
         <span>{children}</span>
       </div>

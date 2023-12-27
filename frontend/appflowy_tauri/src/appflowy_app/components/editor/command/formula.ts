@@ -39,7 +39,6 @@ export function wrapFormula(editor: ReactEditor, formula?: string) {
     Transforms.insertNodes(editor, formulaElement);
   } else {
     Transforms.wrapNodes(editor, formulaElement, { split: true });
-    Transforms.collapse(editor, { edge: 'end' });
   }
 }
 

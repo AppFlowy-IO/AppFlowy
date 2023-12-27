@@ -13,7 +13,7 @@ export const Mention = memo(
         {...attributes}
         data-playwright-selected={focused}
         contentEditable={false}
-        className={`${attributes.className ?? ''} text-sx relative rounded px-1 hover:bg-content-blue-100`}
+        className={`${attributes.className ?? ''} text-sx relative rounded px-1`}
         ref={ref}
         style={{
           backgroundColor: focused ? 'var(--content-blue-100)' : undefined,

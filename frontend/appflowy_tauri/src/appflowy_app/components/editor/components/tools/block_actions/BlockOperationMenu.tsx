@@ -175,16 +175,18 @@ export function BlockOperationMenu({
           </Button>
         ))}
       </div>
-      <Menu
-        container={optionsRef.current}
-        {...PopoverCommonProps}
-        {...subMenuProps}
-        open={subMenuOpen}
-        anchorEl={subMenuAnchorEl}
-        onClose={() => setSubMenuType(null)}
-      >
-        {subMenuContent}
-      </Menu>
+      {subMenuOpen && (
+        <Menu
+          container={optionsRef.current}
+          {...PopoverCommonProps}
+          {...subMenuProps}
+          open={subMenuOpen}
+          anchorEl={subMenuAnchorEl}
+          onClose={() => setSubMenuType(null)}
+        >
+          {subMenuContent}
+        </Menu>
+      )}
     </Popover>
   );
 }
