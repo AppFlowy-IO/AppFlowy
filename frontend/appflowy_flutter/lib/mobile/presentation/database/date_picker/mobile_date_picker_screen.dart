@@ -72,10 +72,8 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
               child: const Center(child: DragHandler()),
             ),
             _buildHeader(),
-            Expanded(
-              child: _DateCellEditBody(
-                dateCellController: widget.controller,
-              ),
+            _DateCellEditBody(
+              dateCellController: widget.controller,
             ),
           ],
         ),

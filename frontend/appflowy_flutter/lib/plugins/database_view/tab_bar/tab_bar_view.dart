@@ -110,12 +110,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                         child: const TabBarHeader(),
                       );
                     } else {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          left: GridSize.leadingHeaderPadding,
-                          right: 8,
-                        ),
-                        child: const MobileTabBarHeader(),
+                      return const Padding(
+                        padding: EdgeInsets.only(right: 8),
+                        child: MobileTabBarHeader(),
                       );
                     }
                   },
