@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_popup_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -23,6 +24,7 @@ class AlignItems extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentAlignItem = _getCurrentAlignItem();
     final alignMenuItems = _getAlignMenuItems();
+    final theme = ToolbarColorExtension.of(context);
     return PopupMenu(
       itemLength: alignMenuItems.length,
       onSelected: (index) {
@@ -38,7 +40,7 @@ class AlignItems extends StatelessWidget {
         final children = alignMenuItems
             .mapIndexed(
               (index, e) => [
-                MenuItem(
+                PopupMenuItemWrapper(
                   key: keys[index],
                   isSelected: currentIndex == index,
                   icon: e.$2,
@@ -49,14 +51,14 @@ class AlignItems extends StatelessWidget {
             )
             .flattened
             .toList();
-        return MenuWrapper(
+        return PopupMenuWrapper(
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: children,
           ),
         );
       },
-      builder: (context, key) => MobileToolbarItemWrapper(
+      builder: (context, key) => MobileToolbarMenuItemWrapper(
         key: key,
         size: const Size(82, 52),
         onTap: () async {
@@ -74,7 +76,7 @@ class AlignItems extends StatelessWidget {
           vertical: 14.0,
         ),
         showDownArrow: true,
-        backgroundColor: const Color(0xFFF2F2F7),
+        backgroundColor: theme.toolbarMenuItemBackgroundColor,
       ),
     );
   }

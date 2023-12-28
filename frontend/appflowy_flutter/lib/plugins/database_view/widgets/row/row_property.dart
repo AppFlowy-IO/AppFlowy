@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -314,24 +315,63 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
             ),
         };
 
-        return SizedBox(
-          height: 30,
-          child: FlowyButton(
-            text: FlowyText.medium(text, color: Theme.of(context).hintColor),
-            hoverColor: AFThemeExtension.of(context).lightGreyHover,
-            leftIcon: RotatedBox(
-              quarterTurns: state.showHiddenFields ? 1 : 3,
-              child: FlowySvg(
-                FlowySvgs.arrow_left_s,
+        if (PlatformExtension.isDesktop) {
+          return SizedBox(
+            height: 30,
+            child: FlowyButton(
+              text: FlowyText.medium(text, color: Theme.of(context).hintColor),
+              hoverColor: AFThemeExtension.of(context).lightGreyHover,
+              leftIcon: RotatedBox(
+                quarterTurns: state.showHiddenFields ? 1 : 3,
+                child: FlowySvg(
+                  FlowySvgs.arrow_left_s,
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              onTap: () => context.read<RowDetailBloc>().add(
+                    const RowDetailEvent.toggleHiddenFieldVisibility(),
+                  ),
+            ),
+          );
+        } else {
+          return ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: double.infinity),
+            child: TextButton.icon(
+              style: Theme.of(context).textButtonTheme.style?.copyWith(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        side: BorderSide.none,
+                      ),
+                    ),
+                    overlayColor: MaterialStateProperty.all<Color>(
+                      Theme.of(context).hoverColor,
+                    ),
+                    alignment: AlignmentDirectional.centerStart,
+                    splashFactory: NoSplash.splashFactory,
+                    padding: const MaterialStatePropertyAll(
+                      EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+                    ),
+                  ),
+              label: FlowyText.medium(
+                text,
+                fontSize: 15,
                 color: Theme.of(context).hintColor,
               ),
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-            onTap: () => context.read<RowDetailBloc>().add(
-                  const RowDetailEvent.toggleHiddenFieldVisibility(),
+              onPressed: () => context
+                  .read<RowDetailBloc>()
+                  .add(const RowDetailEvent.toggleHiddenFieldVisibility()),
+              icon: RotatedBox(
+                quarterTurns: state.showHiddenFields ? 1 : 3,
+                child: FlowySvg(
+                  FlowySvgs.arrow_left_s,
+                  color: Theme.of(context).hintColor,
                 ),
-          ),
-        );
+              ),
+            ),
+          );
+        }
       },
     );
   }

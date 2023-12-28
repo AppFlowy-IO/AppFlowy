@@ -99,9 +99,7 @@ class MobileDatabaseControls extends StatelessWidget {
                               value: context.read<DatabaseTabBarBloc>(),
                             ),
                           ],
-                          child: MobileDatabaseViewList(
-                            databaseController: controller,
-                          ),
+                          child: const MobileDatabaseViewList(),
                         );
                       },
                     );

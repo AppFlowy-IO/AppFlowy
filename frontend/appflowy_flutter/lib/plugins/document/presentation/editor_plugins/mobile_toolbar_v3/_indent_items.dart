@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,11 @@ class IndentAndOutdentItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     return IntrinsicHeight(
       child: Row(
         children: [
-          MobileToolbarItemWrapper(
+          MobileToolbarMenuItemWrapper(
             size: const Size(95, 52),
             icon: FlowySvgs.m_aa_outdent_s,
             enable: isOutdentable(editorState),
@@ -24,13 +26,13 @@ class IndentAndOutdentItems extends StatelessWidget {
             enableTopRightRadius: false,
             enableBottomRightRadius: false,
             iconPadding: const EdgeInsets.symmetric(vertical: 14.0),
-            backgroundColor: const Color(0xFFF2F2F7),
+            backgroundColor: theme.toolbarMenuItemBackgroundColor,
             onTap: () {
               outdentCommand.execute(editorState);
             },
           ),
           const ScaledVerticalDivider(),
-          MobileToolbarItemWrapper(
+          MobileToolbarMenuItemWrapper(
             size: const Size(95, 52),
             icon: FlowySvgs.m_aa_indent_s,
             enable: isIndentable(editorState),
@@ -38,7 +40,7 @@ class IndentAndOutdentItems extends StatelessWidget {
             enableTopLeftRadius: false,
             enableBottomLeftRadius: false,
             iconPadding: const EdgeInsets.symmetric(vertical: 14.0),
-            backgroundColor: const Color(0xFFF2F2F7),
+            backgroundColor: theme.toolbarMenuItemBackgroundColor,
             onTap: () {
               indentCommand.execute(editorState);
             },

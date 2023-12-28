@@ -402,7 +402,6 @@ class MobileRowDetailPageContentState
                         children: [
                           if (rowDetailState.numHiddenFields != 0) ...[
                             const ToggleHiddenFieldsVisibilityButton(),
-                            const VSpace(12),
                           ],
                           MobileRowDetailCreateFieldButton(
                             viewId: viewId,

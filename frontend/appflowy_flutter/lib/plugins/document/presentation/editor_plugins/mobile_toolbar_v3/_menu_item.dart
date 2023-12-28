@@ -1,8 +1,9 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
-class MenuItem extends StatelessWidget {
-  const MenuItem({
+class PopupMenuItemWrapper extends StatelessWidget {
+  const PopupMenuItemWrapper({
     super.key,
     required this.isSelected,
     required this.icon,
@@ -13,11 +14,12 @@ class MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     return Container(
       width: 62,
       height: 44,
       decoration: ShapeDecoration(
-        color: isSelected ? const Color(0xFF00BCF0) : null,
+        color: isSelected ? theme.toolbarMenuItemSelectedBackgroundColor : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -25,14 +27,16 @@ class MenuItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
       child: FlowySvg(
         icon,
-        color: isSelected ? Colors.white : null,
+        color: isSelected
+            ? theme.toolbarMenuIconSelectedColor
+            : theme.toolbarMenuIconColor,
       ),
     );
   }
 }
 
-class MenuWrapper extends StatelessWidget {
-  const MenuWrapper({
+class PopupMenuWrapper extends StatelessWidget {
+  const PopupMenuWrapper({
     super.key,
     required this.child,
   });
@@ -41,6 +45,7 @@ class MenuWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(
@@ -48,15 +53,15 @@ class MenuWrapper extends StatelessWidget {
         vertical: 10,
       ),
       decoration: ShapeDecoration(
-        color: Colors.white,
+        color: theme.toolbarMenuBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        shadows: const [
+        shadows: [
           BoxShadow(
-            color: Color(0x2D000000),
+            color: theme.toolbarShadowColor,
             blurRadius: 20,
-            offset: Offset(0, 10),
+            offset: const Offset(0, 10),
             spreadRadius: 0,
           ),
         ],

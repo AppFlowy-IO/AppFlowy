@@ -1,6 +1,6 @@
 use collab::core::collab_state::SyncState;
 use collab_database::rows::RowId;
-use collab_database::user::DatabaseWithViews;
+use collab_database::user::DatabaseViewTracker;
 use collab_database::views::DatabaseLayout;
 
 use flowy_derive::ProtoBuf;
@@ -195,16 +195,12 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct DatabaseDescriptionPB {
   #[pb(index = 1)]
-  pub name: String,
-
-  #[pb(index = 2)]
   pub database_id: String,
 }
 
-impl From<DatabaseWithViews> for DatabaseDescriptionPB {
-  fn from(data: DatabaseWithViews) -> Self {
+impl From<DatabaseViewTracker> for DatabaseDescriptionPB {
+  fn from(data: DatabaseViewTracker) -> Self {
     Self {
-      name: data.name,
       database_id: data.database_id,
     }
   }

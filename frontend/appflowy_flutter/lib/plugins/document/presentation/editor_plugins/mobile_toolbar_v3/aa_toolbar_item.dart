@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_font_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_heading_and_text_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_indent_items.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -53,9 +54,10 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: ColoredBox(
-        color: Colors.white,
+    final theme = ToolbarColorExtension.of(context);
+    return ColoredBox(
+      color: theme.toolbarMenuBackgroundColor,
+      child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(
                 top: 16,

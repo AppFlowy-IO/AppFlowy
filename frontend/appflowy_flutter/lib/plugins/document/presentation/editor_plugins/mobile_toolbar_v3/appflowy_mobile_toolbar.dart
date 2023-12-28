@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_close_keyboard_or_menu_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/keyboard_height_observer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -275,12 +278,13 @@ class _MobileToolbarState extends State<_MobileToolbar>
 
   // toolbar list view and close keyboard/menu button
   Widget _buildToolbar(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     return Container(
       height: widget.toolbarHeight,
       width: MediaQuery.of(context).size.width,
-      decoration: const BoxDecoration(
-        color: Color(0xFFF3F3F8),
-        boxShadow: [
+      decoration: BoxDecoration(
+        color: theme.toolbarBackgroundColor,
+        boxShadow: const [
           BoxShadow(
             color: Color(0x0F181818),
             blurRadius: 40,
@@ -345,13 +349,13 @@ class _MobileToolbarState extends State<_MobileToolbar>
                     final showShadow = offset > 0;
                     return DecoratedBox(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F3F8),
+                        color: theme.toolbarBackgroundColor,
                         boxShadow: showShadow
                             ? [
-                                const BoxShadow(
-                                  color: Color(0x51000000),
+                                BoxShadow(
+                                  color: theme.toolbarShadowColor,
                                   blurRadius: 20,
-                                  offset: Offset(-2, 0),
+                                  offset: const Offset(-2, 0),
                                   spreadRadius: -10,
                                 ),
                               ]
@@ -369,6 +373,12 @@ class _MobileToolbarState extends State<_MobileToolbar>
                             // close the keyboard and clear the selection
                             // if the selection is null, the keyboard and the toolbar will be hidden automatically
                             widget.editorState.selection = null;
+
+                            // sometimes, the keyboard is not closed after the selection is cleared
+                            if (Platform.isAndroid) {
+                              SystemChannels.textInput
+                                  .invokeMethod('TextInput.hide');
+                            }
                           }
                         },
                       ),

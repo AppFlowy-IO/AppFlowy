@@ -36,6 +36,13 @@ class FieldServices {
     );
   }
 
+  Future<void> show() async {
+    await fieldSettingsService.updateFieldSettings(
+      fieldId: fieldId,
+      fieldVisibility: FieldVisibility.AlwaysShown,
+    );
+  }
+
   Future<void> delete() async {
     await fieldBackendService.delete();
   }

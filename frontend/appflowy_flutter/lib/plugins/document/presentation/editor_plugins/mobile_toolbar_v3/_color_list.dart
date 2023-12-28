@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +14,7 @@ Future<void> showTextColorAndBackgroundColorPicker(
   required EditorState editorState,
   required Selection selection,
 }) async {
+  final theme = ToolbarColorExtension.of(context);
   await showMobileBottomSheet(
     context,
     showHeader: true,
@@ -20,7 +22,7 @@ Future<void> showTextColorAndBackgroundColorPicker(
     showDivider: false,
     showDragHandle: true,
     barrierColor: Colors.transparent,
-    backgroundColor: Colors.white,
+    backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
     title: LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
     padding: const EdgeInsets.fromLTRB(18, 4, 18, 0),
@@ -198,6 +200,7 @@ class _BackgroundColorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -209,7 +212,7 @@ class _BackgroundColorItem extends StatelessWidget {
           borderRadius: Corners.s12Border,
           border: Border.all(
             color: isSelected
-                ? const Color(0xff00C6F1)
+                ? theme.toolbarMenuItemSelectedBackgroundColor
                 : Theme.of(context).dividerColor,
           ),
         ),

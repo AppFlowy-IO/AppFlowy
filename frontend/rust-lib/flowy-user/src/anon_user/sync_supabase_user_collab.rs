@@ -8,7 +8,7 @@ use collab::core::collab::MutexCollab;
 use collab::preclude::Collab;
 use collab_database::database::get_database_row_ids;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_database::user::{get_database_with_views, DatabaseWithViews};
+use collab_database::user::{get_database_with_views, DatabaseViewTracker};
 use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
 use parking_lot::Mutex;
@@ -75,7 +75,7 @@ pub async fn sync_supabase_user_data_to_cloud(
 fn sync_view(
   uid: i64,
   folder: Arc<MutexFolder>,
-  database_records: Vec<Arc<DatabaseWithViews>>,
+  database_records: Vec<Arc<DatabaseViewTracker>>,
   workspace_id: String,
   device_id: String,
   view: Arc<View>,
@@ -297,7 +297,7 @@ async fn sync_database_views(
   database_views_aggregate_id: &str,
   collab_db: &Arc<RocksCollabDB>,
   user_service: Arc<dyn UserCloudService>,
-) -> Vec<Arc<DatabaseWithViews>> {
+) -> Vec<Arc<DatabaseViewTracker>> {
   let collab_object = CollabObject::new(
     uid,
     database_views_aggregate_id.to_string(),
@@ -357,7 +357,7 @@ fn collab_type_from_view_layout(view_layout: &ViewLayout) -> CollabType {
 
 fn object_id_from_view(
   view: &Arc<View>,
-  database_records: &[Arc<DatabaseWithViews>],
+  database_records: &[Arc<DatabaseViewTracker>],
 ) -> Result<String, Error> {
   if view.layout.is_database() {
     match database_records
