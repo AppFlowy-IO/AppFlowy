@@ -102,8 +102,44 @@ async fn import_appflowy_data_folder_test2() {
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 2);
   assert_eq!(views[1].name, import_container_name);
+  assert_040_local_2_import_content(&test, &views[1].id).await;
 
-  let _local_2_child_views = test.get_views(&views[1].id).await.child_views;
+  test
+    .import_appflowy_data(
+      user_db_path.to_str().unwrap().to_string(),
+      &import_container_name,
+    )
+    .await;
+  // after import, the structure is:
+  //   Getting Started
+  //   040_local_2
+  //      Getting started
+  //         Doc1
+  //         Doc2
+  //         Grid1
+  //         Doc3
+  //            Doc3_grid_1
+  //            Doc3_grid_2
+  //            Doc3_calendar_1
+  //   040_local_2
+  //      Getting started
+  //         Doc1
+  //         Doc2
+  //         Grid1
+  //         Doc3
+  //            Doc3_grid_1
+  //            Doc3_grid_2
+  //            Doc3_calendar_1
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views.len(), 3);
+  assert_eq!(views[2].name, import_container_name);
+  assert_040_local_2_import_content(&test, &views[1].id).await;
+  assert_040_local_2_import_content(&test, &views[2].id).await;
+  drop(cleaner);
+}
+
+async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id: &str) {
+  let _local_2_child_views = test.get_views(view_id).await.child_views;
   assert_eq!(_local_2_child_views.len(), 1);
   assert_eq!(_local_2_child_views[0].name, "Getting started");
 
@@ -124,7 +160,10 @@ async fn import_appflowy_data_folder_test2() {
 
   let grid_1 = local_2_getting_started_child_views[2].clone();
   assert_eq!(grid_1.name, "Grid1");
-  assert_eq!(test.get_database_export_data(&grid_1.id).await, "");
+  assert_eq!(
+    test.get_database_export_data(&grid_1.id).await,
+    "Name,Type,Done\n1,A,Yes\n2,,Yes\n3,,No\n"
+  );
 
   assert_eq!(local_2_getting_started_child_views[3].name, "Doc3");
 
@@ -134,10 +173,14 @@ async fn import_appflowy_data_folder_test2() {
     .child_views;
   assert_eq!(doc_3_child_views.len(), 3);
   assert_eq!(doc_3_child_views[0].name, "doc3_grid_1");
-  assert_eq!(doc_3_child_views[1].name, "doc3_grid_2");
-  assert_eq!(doc_3_child_views[2].name, "doc3_calendar_1");
 
-  drop(cleaner);
+  let doc3_grid_2 = doc_3_child_views[1].clone();
+  assert_eq!(doc3_grid_2.name, "doc3_grid_2");
+  assert_eq!(
+    test.get_database_export_data(&doc3_grid_2.id).await,
+    "Name,Type,Done\n1,A,Yes\n2,,\n,,\n"
+  );
+  assert_eq!(doc_3_child_views[2].name, "doc3_calendar_1");
 }
 
 fn expected_doc_1_json() -> Value {

@@ -19,7 +19,7 @@ impl EventIntegrationTest {
       .get_database_with_view_id(database_view_id)
       .await
       .unwrap()
-      .export_csv(CSVFormat::META)
+      .export_csv(CSVFormat::Original)
       .await
       .unwrap()
   }

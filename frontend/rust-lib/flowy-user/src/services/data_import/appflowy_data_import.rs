@@ -195,17 +195,6 @@ where
           .lock()
           .renew_id(&database_view.database_id);
 
-        tracing::trace!(
-          "migrate database view id from: {}, to: {}",
-          database_view.id,
-          new_view_id,
-        );
-        tracing::trace!(
-          "migrate database view database id from: {}, to: {}",
-          database_view.database_id,
-          new_database_id,
-        );
-
         database_view.id = new_view_id;
         database_view.database_id = new_database_id;
         database_view.row_orders.iter_mut().for_each(|row_order| {
@@ -266,7 +255,7 @@ where
 {
   let txn = collab.transact();
   if let Err(err) = w_txn.create_new_doc(new_uid, &new_object_id, &txn) {
-    tracing::error!("🔴migrate collab failed: {:?}", err);
+    tracing::error!("import collab failed: {:?}", err);
   }
 }
 
