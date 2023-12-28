@@ -22,7 +22,7 @@ export const TodoList = memo(
           data-playwright-selected={false}
           contentEditable={false}
           onClick={toggleTodo}
-          className='absolute cursor-pointer select-none text-xl text-fill-default'
+          className='absolute cursor-pointer select-none pt-[3px] text-xl text-fill-default'
         >
           {checked ? <CheckboxCheckSvg /> : <CheckboxUncheckSvg />}
         </span>

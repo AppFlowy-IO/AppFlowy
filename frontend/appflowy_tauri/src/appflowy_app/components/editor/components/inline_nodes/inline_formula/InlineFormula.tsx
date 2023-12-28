@@ -1,19 +1,17 @@
 import React, { forwardRef, memo, useCallback, MouseEvent, useRef, useEffect, useState } from 'react';
-import { ReactEditor, useSlate } from 'slate-react';
-import { Transforms } from 'slate';
+import { ReactEditor, useSelected, useSlate } from 'slate-react';
+import { Transforms, Range, Editor } from 'slate';
 import { EditorElementProps, FormulaNode } from '$app/application/document/document.types';
 import FormulaLeaf from '$app/components/editor/components/inline_nodes/inline_formula/FormulaLeaf';
-import { InlineChromiumBugfix } from '$app/components/editor/components/inline_nodes/InlineChromiumBugfix';
 import FormulaEditPopover from '$app/components/editor/components/inline_nodes/inline_formula/FormulaEditPopover';
 import { getNodePath, moveCursorToNodeEnd } from '$app/components/editor/components/editor/utils';
-import { useElementFocused } from '$app/components/editor/components/inline_nodes/useElementFocused';
 import { CustomEditor } from '$app/components/editor/command';
 
 export const InlineFormula = memo(
   forwardRef<HTMLSpanElement, EditorElementProps<FormulaNode>>(({ node, children, ...attributes }, ref) => {
     const editor = useSlate();
     const formula = node.data;
-    const focused = useElementFocused(node);
+    const selected = useSelected();
 
     const anchor = useRef<HTMLSpanElement | null>(null);
     const [openEditPopover, setOpenEditPopover] = useState<boolean>(false);
@@ -31,12 +29,19 @@ export const InlineFormula = memo(
     );
 
     useEffect(() => {
-      if (focused) {
-        setOpenEditPopover(true);
+      const selection = editor.selection;
+
+      if (selected && selection) {
+        const path = ReactEditor.findPath(editor, node);
+        const nodeRange = Editor.range(editor, path);
+
+        if (Range.includes(nodeRange, selection.anchor) && Range.includes(nodeRange, selection.focus)) {
+          setOpenEditPopover(true);
+        }
       } else {
         setOpenEditPopover(false);
       }
-    }, [focused]);
+    }, [editor, node, selected]);
 
     const handleEditPopoverClose = useCallback(() => {
       setOpenEditPopover(false);
@@ -64,12 +69,10 @@ export const InlineFormula = memo(
           contentEditable={false}
           onDoubleClick={handleClick}
           onClick={handleClick}
-          className={`relative rounded px-1 py-0.5 text-xs ${focused ? 'bg-fill-list-active' : ''}`}
-          data-playwright-selected={focused}
+          className={`relative rounded px-1 py-0.5 text-xs ${selected ? 'bg-fill-list-active' : ''}`}
+          data-playwright-selected={selected}
         >
-          <InlineChromiumBugfix />
           <FormulaLeaf formula={formula}>{children}</FormulaLeaf>
-          <InlineChromiumBugfix />
         </span>
         {openEditPopover && (
           <FormulaEditPopover

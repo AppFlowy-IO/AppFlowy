@@ -6,6 +6,7 @@ import React from 'react';
 export const InlineChromiumBugfix = () => (
   <span
     contentEditable={false}
+    className={'absolute caret-transparent'}
     style={{
       fontSize: 0,
     }}

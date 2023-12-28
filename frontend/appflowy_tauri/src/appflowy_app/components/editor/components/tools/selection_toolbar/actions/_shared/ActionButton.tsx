@@ -21,9 +21,7 @@ const ActionButton = forwardRef<
           color: active ? 'var(--fill-default)' : undefined,
         }}
         {...props}
-        className={`${
-          className ?? ''
-        } bg-transparent px-1.5 py-0 text-bg-body hover:bg-transparent hover:text-fill-hover`}
+        className={`${className ?? ''} bg-transparent px-1 py-2 text-bg-body hover:bg-transparent hover:text-fill-hover`}
       >
         {children}
       </IconButton>

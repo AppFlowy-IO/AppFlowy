@@ -1,5 +1,4 @@
 @import './variables/index.css';
-@import './mui.css';
 
 /* stop body from scrolling */
 html,
@@ -40,6 +39,13 @@ body {
     scrollbar-shadow-color: var(--bg-body);
 }
 
+.block-element {
+    @apply my-[1px];
+}
+
+.block-element .block-element {
+    @apply mb-0;
+}
 .block-element[data-block-type="paragraph"] .block-element {
     margin-left: 24px;
 }

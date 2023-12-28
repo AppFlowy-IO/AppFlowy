@@ -29,18 +29,18 @@ export function MentionLeaf({ children, mention }: { mention: Mention; children:
   }, [navigate, page]);
 
   return (
-    <>
+    <span className={'relative'}>
       {page && (
         <span
           className={'relative inline-flex cursor-pointer items-center hover:bg-content-blue-100'}
           onClick={openPage}
         >
           <span className={'text-sx absolute left-0'}>{page.icon?.value || <DocumentSvg />}</span>
-          <span className={'text-sx ml-4 underline'}>{page.name || t('document.title.placeholder')}</span>
+          <span className={'ml-6 underline'}>{page.name || t('document.title.placeholder')}</span>
         </span>
       )}
-      <span className={'invisible absolute left-0 right-0'}>{children}</span>
-    </>
+      <span className={'invisible'}>{children}</span>
+    </span>
   );
 }
 

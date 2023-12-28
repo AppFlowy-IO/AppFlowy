@@ -12,7 +12,9 @@ export const Text = memo(
       <div
         ref={ref}
         {...attributes}
-        className={`text-element w-full px-1 ${!isEmpty ? 'flex items-center' : ''} ${className ?? ''} relative h-full`}
+        className={`text-element min-h-[26px] px-1 ${!isEmpty ? 'flex items-center' : 'select-none leading-[26px]'} ${
+          className ?? ''
+        } relative h-full`}
       >
         <Placeholder isEmpty={isEmpty} node={node} />
         <span>{children}</span>

@@ -1,35 +1,15 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Popover, { PopoverProps } from '@mui/material/Popover';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
-import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
-
 import { useTranslation } from 'react-i18next';
-import { Button, Divider, MenuProps, Menu } from '@mui/material';
+import { Button, Divider } from '@mui/material';
 import { PopoverCommonProps } from '$app/components/editor/components/tools/popover';
 import { Element } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
-
-import { FontColorPicker, BgColorPicker } from '$app/components/editor/components/tools/_shared';
-import Typography from '@mui/material/Typography';
 import { useBlockMenuKeyDown } from '$app/components/editor/components/tools/block_actions/BlockMenu.hooks';
-
-enum SubMenuType {
-  TextColor = 'textColor',
-  BackgroundColor = 'backgroundColor',
-}
-
-const subMenuProps: Partial<MenuProps> = {
-  anchorOrigin: {
-    vertical: 'top',
-    horizontal: 'right',
-  },
-  transformOrigin: {
-    vertical: 'top',
-    horizontal: 'left',
-  },
-};
+import { Color } from './color';
 
 export function BlockOperationMenu({
   node,
@@ -37,7 +17,6 @@ export function BlockOperationMenu({
 }: {
   node: Element;
 } & PopoverProps) {
-  const optionsRef = React.useRef<HTMLDivElement>(null);
   const editor = useSlateStatic();
   const { t } = useTranslation();
 
@@ -57,14 +36,6 @@ export function BlockOperationMenu({
   const { onKeyDown } = useBlockMenuKeyDown({
     onClose: handleClose,
   });
-  const [subMenuType, setSubMenuType] = useState<null | SubMenuType>(null);
-
-  const subMenuAnchorEl = useMemo(() => {
-    if (!subMenuType) return null;
-    return optionsRef.current?.querySelector(`[data-submenu-type="${subMenuType}"]`);
-  }, [subMenuType]);
-
-  const subMenuOpen = Boolean(subMenuAnchorEl);
 
   const operationOptions = useMemo(
     () => [
@@ -87,51 +58,6 @@ export function BlockOperationMenu({
     ],
     [editor, node, handleClose, t]
   );
-
-  const colorOptions = useMemo(
-    () => [
-      {
-        type: SubMenuType.TextColor,
-        text: t('editor.textColor'),
-        onClick: () => {
-          setSubMenuType(SubMenuType.TextColor);
-        },
-      },
-      {
-        type: SubMenuType.BackgroundColor,
-        text: t('editor.backgroundColor'),
-        onClick: () => {
-          setSubMenuType(SubMenuType.BackgroundColor);
-        },
-      },
-    ],
-    [t]
-  );
-
-  const subMenuContent = useMemo(() => {
-    switch (subMenuType) {
-      case SubMenuType.TextColor:
-        return (
-          <FontColorPicker
-            onChange={(color) => {
-              CustomEditor.setBlockColor(editor, node, { font_color: color });
-              handleClose();
-            }}
-          />
-        );
-      case SubMenuType.BackgroundColor:
-        return (
-          <BgColorPicker
-            onChange={(color) => {
-              CustomEditor.setBlockColor(editor, node, { bg_color: color });
-              handleClose();
-            }}
-          />
-        );
-      default:
-        return null;
-    }
-  }, [editor, node, handleClose, subMenuType]);
 
   return (
     <Popover
@@ -157,36 +83,17 @@ export function BlockOperationMenu({
         ))}
       </div>
       <Divider className={'my-1'} />
-      <div ref={optionsRef} className={'flex flex-col p-2'}>
-        <Typography variant={'body2'} className={'mb-1 text-text-caption'}>
-          {t('editor.color')}
-        </Typography>
-        {colorOptions.map((option, index) => (
-          <Button
-            data-submenu-type={option.type}
-            color={'inherit'}
-            onClick={option.onClick}
-            size={'small'}
-            endIcon={<MoreSvg />}
-            className={'w-full justify-between'}
-            key={index}
-          >
-            <div className={'flex-1 text-left'}>{option.text}</div>
-          </Button>
-        ))}
-      </div>
-      {subMenuOpen && (
-        <Menu
-          container={optionsRef.current}
-          {...PopoverCommonProps}
-          {...subMenuProps}
-          open={subMenuOpen}
-          anchorEl={subMenuAnchorEl}
-          onClose={() => setSubMenuType(null)}
-        >
-          {subMenuContent}
-        </Menu>
-      )}
+      <Color
+        node={
+          node as Element & {
+            data?: {
+              font_color?: string;
+              bg_color?: string;
+            };
+          }
+        }
+        onClose={handleClose}
+      />
     </Popover>
   );
 }

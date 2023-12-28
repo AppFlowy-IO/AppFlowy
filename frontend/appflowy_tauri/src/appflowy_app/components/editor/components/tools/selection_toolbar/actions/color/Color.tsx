@@ -9,12 +9,13 @@ import { Popover } from '@mui/material';
 import { BgColorPicker, FontColorPicker } from '$app/components/editor/components/tools/_shared';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 import { EditorMarkFormat } from '$app/application/document/document.types';
+import { PopoverNoBackdropProps } from '$app/components/editor/components/tools/popover';
 
 export function Color({ onClose, onOpen }: { onClose?: () => void; onOpen?: () => void }) {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -45,44 +46,50 @@ export function Color({ onClose, onOpen }: { onClose?: () => void; onOpen?: () =
   return (
     <>
       <ActionButton
-        onClick={(e) => {
-          e.stopPropagation();
+        ref={ref}
+        onMouseEnter={() => {
           setOpen(true);
+        }}
+        onMouseLeave={() => {
+          setOpen(false);
         }}
         tooltip={t('editor.color')}
         active={isActivated}
       >
-        <div ref={ref} className={'flex items-center justify-between'}>
+        <div className={'flex items-center justify-between'}>
           <ColorLensOutlinedIcon className={'w-[14px]'} />
           <MoreSvg className={'rotate-90 transform'} />
         </div>
+        {open && (
+          <Popover
+            {...PopoverNoBackdropProps}
+            open={open}
+            anchorEl={ref.current}
+            onClose={() => {
+              setOpen(false);
+            }}
+            PaperProps={{
+              ...PopoverNoBackdropProps.PaperProps,
+              className: 'w-[200px] max-h-[360px] overflow-x-hidden overflow-y-auto',
+            }}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'center',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'center',
+            }}
+            disableAutoFocus={false}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <FontColorPicker color={fontColor} onChange={(color) => handleChange(EditorMarkFormat.FontColor, color)} />
+            <BgColorPicker color={bgColor} onChange={(color) => handleChange(EditorMarkFormat.BgColor, color)} />
+          </Popover>
+        )}
       </ActionButton>
-      {open && (
-        <Popover
-          open={open}
-          anchorEl={ref.current}
-          onClose={() => {
-            setOpen(false);
-          }}
-          PaperProps={{
-            className: 'w-[200px] max-h-[360px] overflow-x-hidden overflow-y-auto',
-          }}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
-          onKeyDown={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <FontColorPicker color={fontColor} onChange={(color) => handleChange(EditorMarkFormat.FontColor, color)} />
-          <BgColorPicker color={bgColor} onChange={(color) => handleChange(EditorMarkFormat.BgColor, color)} />
-        </Popover>
-      )}
     </>
   );
 }

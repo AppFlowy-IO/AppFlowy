@@ -47,7 +47,7 @@ function SelectionActions({
   }, [editor.selection, editor]);
 
   return (
-    <div className={'flex w-fit flex-grow items-center'}>
+    <div className={'flex w-fit flex-grow items-center gap-1'}>
       {!isAcrossBlockSelection && (
         <>
           <Paragraph />

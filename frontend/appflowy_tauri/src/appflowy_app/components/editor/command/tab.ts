@@ -81,6 +81,8 @@ export function tabBackward(editor: ReactEditor) {
 
   const [node, path] = match as NodeEntry<Element & { level: number }>;
 
+  const depth = path.length;
+
   if (node.type === EditorNodeType.Page) return;
   if (node.type !== EditorNodeType.Paragraph) {
     CustomEditor.turnToBlock(editor, {
@@ -89,6 +91,7 @@ export function tabBackward(editor: ReactEditor) {
     return;
   }
 
+  if (depth === 1) return;
   editor.liftNodes({
     at: path,
   });

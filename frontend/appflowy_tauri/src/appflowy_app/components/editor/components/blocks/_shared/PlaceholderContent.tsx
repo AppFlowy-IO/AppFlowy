@@ -1,13 +1,14 @@
 import React, { CSSProperties, useMemo } from 'react';
 import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
-import { Editor, Element } from 'slate';
+import { Editor, Element, Range } from 'slate';
 import { EditorNodeType, HeadingNode } from '$app/application/document/document.types';
 import { useTranslation } from 'react-i18next';
 
 function PlaceholderContent({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
   const { t } = useTranslation();
   const editor = useSlateStatic();
-  const selected = useSelected();
+  const selected = useSelected() && !!editor.selection && Range.isCollapsed(editor.selection);
+
   const block = useMemo(() => {
     const path = ReactEditor.findPath(editor, node);
     const match = Editor.above(editor, {
@@ -21,7 +22,7 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
   }, [editor, node]);
 
   const className = useMemo(() => {
-    return `pointer-events-none px-1 absolute left-0.5 top-0 whitespace-nowrap text-text-placeholder ${
+    return `pointer-events-none select-none mx-1 absolute left-0.5 min-h-[26px] top-0 whitespace-nowrap text-text-placeholder ${
       attributes.className ?? ''
     }`;
   }, [attributes.className]);

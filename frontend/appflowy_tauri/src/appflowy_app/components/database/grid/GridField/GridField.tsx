@@ -1,6 +1,5 @@
 import { Button, Tooltip } from '@mui/material';
 import { DragEventHandler, FC, HTMLAttributes, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { throttle } from '$app/utils/tool';
 import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
 import { fieldService, Field } from '../../application';
@@ -9,6 +8,7 @@ import GridResizer from '$app/components/database/grid/GridField/GridResizer';
 import GridFieldMenu from '$app/components/database/grid/GridField/GridFieldMenu';
 import { areEqual } from 'react-window';
 import { useOpenMenu } from '$app/components/database/grid/GridStickyHeader/GridStickyHeader.hooks';
+import throttle from 'lodash-es/throttle';
 
 export interface GridFieldProps extends HTMLAttributes<HTMLDivElement> {
   field: Field;
@@ -88,9 +88,9 @@ export const GridField: FC<GridFieldProps> = memo(
 
     const [menuAnchorPosition, setMenuAnchorPosition] = useState<
       | {
-        top: number;
-        left: number;
-      }
+          top: number;
+          left: number;
+        }
       | undefined
     >(undefined);
 
@@ -164,8 +164,9 @@ export const GridField: FC<GridFieldProps> = memo(
             />
             {isOver && (
               <div
-                className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'
-                  }`}
+                className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${
+                  dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'
+                }`}
               />
             )}
             <GridResizer field={field} onWidthChange={resizeColumnWidth} />

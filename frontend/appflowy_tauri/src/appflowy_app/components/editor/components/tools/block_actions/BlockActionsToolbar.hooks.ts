@@ -7,6 +7,7 @@ import { EditorNodeType } from '$app/application/document/document.types';
 export function useBlockActionsToolbar(ref: React.RefObject<HTMLDivElement>) {
   const editor = useSlate();
   const [node, setNode] = useState<Element | null>(null);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -69,15 +70,22 @@ export function useBlockActionsToolbar(ref: React.RefObject<HTMLDivElement>) {
 
     const dom = ReactEditor.toDOMNode(editor, editor);
 
-    dom.addEventListener('mousemove', handleMouseMove);
-    dom.parentElement?.addEventListener('mouseleave', handleMouseLeave);
+    if (!menuVisible) {
+      dom.addEventListener('mousemove', handleMouseMove);
+      dom.parentElement?.addEventListener('mouseleave', handleMouseLeave);
+    } else {
+      dom.removeEventListener('mousemove', handleMouseMove);
+      dom.parentElement?.removeEventListener('mouseleave', handleMouseLeave);
+    }
+
     return () => {
       dom.removeEventListener('mousemove', handleMouseMove);
       dom.parentElement?.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [editor, ref]);
+  }, [editor, ref, menuVisible]);
 
   return {
+    setMenuVisible,
     node: node?.type === EditorNodeType.Page ? null : node,
   };
 }

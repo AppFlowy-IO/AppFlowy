@@ -2,10 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomColorPicker } from '$app/components/editor/components/tools/_shared/CustomColorPicker';
 import Typography from '@mui/material/Typography';
-import { MenuItem, MenuList } from '@mui/material';
-import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
+import { IconButton, MenuItem, MenuList } from '@mui/material';
+import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 import { PopoverNoBackdropProps } from '$app/components/editor/components/tools/popover';
+import Tooltip from '@mui/material/Tooltip';
+import { useAppSelector } from '$app/stores/store';
+import { ThemeMode } from '$app_reducers/current-user/slice';
 
 export interface ColorPickerProps {
   onFocus?: () => void;
@@ -14,63 +17,49 @@ export interface ColorPickerProps {
   color?: string;
   onChange?: (color: string) => void;
 }
-export function ColorPicker({ onFocus, onBlur, label, color, onChange }: ColorPickerProps) {
+export function ColorPicker({ onFocus, onBlur, label, color = '', onChange }: ColorPickerProps) {
   const { t } = useTranslation();
-  const colors = useMemo(
-    () => [
-      {
-        key: 'default',
-        name: t('colors.default'),
-        color: '',
-      },
-      {
-        key: 'gray',
-        name: t('colors.gray'),
-        color: '#78909c',
-      },
-      {
-        key: 'brown',
-        name: t('colors.brown'),
-        color: '#8d6e63',
-      },
-      {
-        key: 'orange',
-        name: t('colors.orange'),
-        color: '#ff9100',
-      },
-      {
-        key: 'yellow',
-        name: t('colors.yellow'),
-        color: '#ffd600',
-      },
-      {
-        key: 'green',
-        name: t('colors.green'),
-        color: '#00e676',
-      },
-      {
-        key: 'blue',
-        name: t('colors.blue'),
-        color: '#448aff',
-      },
-      {
-        key: 'purple',
-        name: t('colors.purple'),
-        color: '#e040fb',
-      },
-      {
-        key: 'pink',
-        name: t('colors.pink'),
-        color: '#ff4081',
-      },
-      {
-        key: 'red',
-        name: t('colors.red'),
-        color: '#ff5252',
-      },
-    ],
-    [t]
-  );
+  const isDark = useAppSelector((state) => state.currentUser?.userSetting?.themeMode === ThemeMode.Dark);
+  const [selectedColor, setSelectedColor] = useState(color);
+
+  useEffect(() => {
+    setSelectedColor(color);
+  }, [color]);
+
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color);
+    onChange?.(color);
+  };
+
+  const colors = useMemo(() => {
+    return !isDark
+      ? [
+          '#e8e0ff',
+          '#ffd6e8',
+          '#f5d0ff',
+          '#e1fbff',
+          '#ffebcc',
+          '#fff7cc',
+          '#e8ffcc',
+          '#e8f4ff',
+          '#fff2cd',
+          '#d9d9d9',
+          '#f0f0f0',
+        ]
+      : [
+          '#4D4078',
+          '#7B2CBF',
+          '#FFB800',
+          '#00B800',
+          '#00B8FF',
+          '#007BFF',
+          '#B800FF',
+          '#FF00B8',
+          '#FF0000',
+          '#FF6C00',
+          '#FFD800',
+        ];
+  }, [isDark]);
 
   const [openCustomColorPicker, setOpenCustomColorPicker] = useState(false);
 
@@ -97,16 +86,16 @@ export function ColorPicker({ onFocus, onBlur, label, color, onChange }: ColorPi
           onMouseLeave={() => {
             setOpenCustomColorPicker(false);
           }}
-          className={'flex px-2 py-1'}
+          className={'mx-2 mb-2 flex px-2.5 py-1'}
           ref={customItemRef}
         >
-          <div className={'flex-1'}>{t('colors.custom')}</div>
+          <div className={'flex-1 text-xs'}>{t('colors.custom')}</div>
           <MoreSvg className={'h-4 w-4'} />
           {openCustomColorPicker && (
             <CustomColorPicker
               anchorEl={customItemRef.current}
               open={openCustomColorPicker}
-              onColorChange={onChange}
+              onColorChange={handleColorChange}
               onMouseDown={(e) => e.stopPropagation()}
               {...PopoverNoBackdropProps}
               onClose={() => {
@@ -127,34 +116,39 @@ export function ColorPicker({ onFocus, onBlur, label, color, onChange }: ColorPi
             />
           )}
         </MenuItem>
-        {colors.map((c) => {
-          return (
-            <MenuItem
-              className={'flex px-2 py-1'}
-              key={c.key}
+        <div className={'flex flex-grow flex-wrap items-center gap-1 px-3 py-0'}>
+          <Tooltip title={t('colors.default')}>
+            <IconButton
+              className={'rounded-full'}
               onClick={() => {
-                onChange?.(c.color);
+                handleColorChange('');
               }}
             >
-              <div
-                className={'mr-2 flex h-4 w-4 items-center justify-center rounded-full border-2 p-0.5'}
+              <DeleteSvg />
+            </IconButton>
+          </Tooltip>
+          {colors.map((c) => {
+            return (
+              <IconButton
+                key={c}
+                onClick={() => {
+                  handleColorChange(c);
+                }}
+                className={'flex h-6 w-6 cursor-pointer items-center justify-center rounded-full p-1'}
                 style={{
-                  borderColor: c.color,
+                  backgroundColor: c === selectedColor ? 'var(--content-blue-100)' : undefined,
                 }}
               >
                 <div
-                  className={'h-2 w-2 rounded-full'}
+                  className={'h-full w-full rounded-full'}
                   style={{
-                    backgroundColor: c.color,
+                    backgroundColor: c,
                   }}
                 />
-              </div>
-              <div className={'flex-1'}>{c.name}</div>
-
-              {color && color === c.color && <SelectCheckSvg />}
-            </MenuItem>
-          );
-        })}
+              </IconButton>
+            );
+          })}
+        </div>
       </MenuList>
     </div>
   );

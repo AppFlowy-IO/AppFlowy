@@ -83,7 +83,7 @@ function Element({ element, attributes, children }: RenderElementProps) {
         }
       )?.align || 'left';
 
-    return `block-element my-1 flex rounded ${isSelected ? 'bg-content-blue-100' : ''} ${
+    return `block-element flex rounded ${isSelected ? 'bg-content-blue-100' : ''} ${
       align ? `block-align-${align}` : ''
     }`;
   }, [isSelected, node.data]);

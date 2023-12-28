@@ -27,9 +27,11 @@ export function wrapFormula(editor: ReactEditor, formula?: string) {
   }
 
   const { selection } = editor;
+
+  if (!selection) return;
   const isCollapsed = selection && Range.isCollapsed(selection);
 
-  const data = formula || editor.string(selection as Range);
+  const data = formula || editor.string(selection);
   const formulaElement = {
     type: EditorInlineNodeType.Formula,
     data,
@@ -44,7 +46,9 @@ export function wrapFormula(editor: ReactEditor, formula?: string) {
     Transforms.delete(editor);
   }
 
-  Transforms.insertNodes(editor, formulaElement);
+  Transforms.insertNodes(editor, formulaElement, {
+    select: true,
+  });
 }
 
 export function unwrapFormula(editor: ReactEditor) {

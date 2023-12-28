@@ -6,7 +6,7 @@ export const DividerNode = memo(
     ({ node: _node, children: children, className, ...attributes }, ref) => {
       return (
         <div {...attributes} className={`${className} relative w-full`}>
-          <div contentEditable={false} className={'w-full py-2.5 text-line-divider'}>
+          <div contentEditable={false} className={'w-full py-3 text-line-divider'}>
             <hr />
           </div>
           <div ref={ref} className={`absolute h-full w-full caret-transparent`}>

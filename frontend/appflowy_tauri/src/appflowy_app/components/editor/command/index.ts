@@ -157,10 +157,9 @@ export const CustomEditor = {
       },
     };
 
-    Transforms.insertNodes(editor, mentionElement);
-    const path = ReactEditor.findPath(editor, mentionElement);
-
-    editor.select(path);
+    Transforms.insertNodes(editor, mentionElement, {
+      select: true,
+    });
   },
 
   toggleTodo(editor: ReactEditor, node: TodoListNode) {

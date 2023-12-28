@@ -7,7 +7,7 @@ import { getBlockCssProperty } from '$app/components/editor/components/tools/blo
 export function BlockActionsToolbar() {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const { node } = useBlockActionsToolbar(ref);
+  const { node, setMenuVisible } = useBlockActionsToolbar(ref);
 
   const cssProperty = node && getBlockCssProperty(node);
 
@@ -15,7 +15,7 @@ export function BlockActionsToolbar() {
     <div
       ref={ref}
       contentEditable={false}
-      className={`block-actions ${cssProperty} absolute z-10 flex w-[64px] flex-grow transform items-center justify-end px-1 opacity-0 transition-opacity`}
+      className={`block-actions ${cssProperty} absolute z-10 flex min-h-[26px] w-[64px] flex-grow transform items-center justify-end px-1 opacity-0 transition-opacity`}
       onMouseDown={(e) => {
         // prevent toolbar from taking focus away from editor
         e.preventDefault();
@@ -26,8 +26,8 @@ export function BlockActionsToolbar() {
       }}
     >
       {/* Ensure the toolbar in middle */}
-      <div className={'invisible'}>0</div>
-      {<BlockActions node={node || undefined} />}
+      <div className={`invisible`}>$</div>
+      {<BlockActions setMenuVisible={setMenuVisible} node={node || undefined} />}
     </div>
   );
 }
