@@ -540,7 +540,8 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
     }
 
     final toolbarItems = widget.toolbarItems;
-    final alignment = selection.isCollapsed ? 0.0 : -1.0;
+    // use -0.4 to make sure the pilot is in the front of the toolbar item
+    final alignment = selection.isCollapsed ? 0.0 : -0.4;
     final index = toolbarItems.indexWhere(
       (element) => selection.isCollapsed
           ? element.pilotAtCollapsedSelection
