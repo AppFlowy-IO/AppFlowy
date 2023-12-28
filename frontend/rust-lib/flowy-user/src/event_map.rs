@@ -1,17 +1,14 @@
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 
-use collab_database::database::WatchStream;
-use collab_folder::FolderData;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::{UserCloudConfig, UserCloudService};
+use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
-use crate::errors::FlowyError;
 use crate::event_handler::*;
 use crate::manager::UserManager;
 
@@ -61,7 +58,6 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
-    .event(UserEvent::SyncAppFlowyDataFolder, sync_appflowy_data_folder_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -191,9 +187,6 @@ pub enum UserEvent {
 
   #[event(output = "QueryWorkspacePB")]
   GetWorkspaceMember = 40,
-
-  #[event(input = "SyncAppFlowyDataPB")]
-  SyncAppFlowyDataFolder = 41,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

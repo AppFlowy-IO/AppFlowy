@@ -16,7 +16,7 @@ use lib_infra::future::FutureResult;
 
 use crate::entities::{
   AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
-  UserWorkspace, WorkspaceMember,
+  UserTokenState, UserWorkspace, WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -231,11 +231,4 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
     .as_str();
   let uuid = Uuid::from_str(uuid)?;
   Ok(uuid)
-}
-
-pub type UserTokenStateReceiver = tokio::sync::broadcast::Receiver<UserTokenState>;
-#[derive(Debug, Clone)]
-pub enum UserTokenState {
-  Refresh,
-  Invalid,
 }

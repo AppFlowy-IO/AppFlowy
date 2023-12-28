@@ -1,20 +1,26 @@
 use crate::services::data_import::appflowy_data_import::import_appflowy_data_folder;
 use crate::services::entities::Session;
 use collab_integrate::RocksCollabDB;
+
+use flowy_folder_deps::folder_builder::ParentChildViews;
 use std::sync::Arc;
 
-pub enum DataImportSource {
-  AppFlowyDataFolder(String),
+pub enum ImportDataSource {
+  AppFlowyDataFolder {
+    path: String,
+    container_name: String,
+  },
 }
 
-pub async fn import_data(
+pub(crate) fn import_data(
   session: &Session,
-  source: DataImportSource,
+  source: ImportDataSource,
   collab_db: Arc<RocksCollabDB>,
-) {
+) -> anyhow::Result<ParentChildViews> {
   match source {
-    DataImportSource::AppFlowyDataFolder(path) => {
-      import_appflowy_data_folder(session, path, &collab_db).await;
-    },
+    ImportDataSource::AppFlowyDataFolder {
+      path,
+      container_name,
+    } => import_appflowy_data_folder(session, path, container_name, &collab_db),
   }
 }

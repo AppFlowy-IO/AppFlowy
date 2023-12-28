@@ -43,7 +43,7 @@ pub async fn sync_af_user_data_to_cloud(
     uid,
     &workspace_id,
     device_id,
-    &new_user.session.user_workspace.database_storage_id,
+    &new_user.session.user_workspace.database_view_tracker_id,
     collab_db,
     user_service.clone(),
   )

@@ -1,14 +1,13 @@
 use std::sync::Arc;
 
 use collab_folder::{FolderData, RepeatedViewIdentifier, ViewIdentifier, Workspace};
+use flowy_folder_deps::folder_builder::{FlattedViews, ParentChildViews, WorkspaceViewBuilder};
 use tokio::sync::RwLock;
 
 use lib_infra::util::timestamp;
 
 use crate::entities::{view_pb_with_child_views, ViewPB};
-use crate::view_operation::{
-  FlattedViews, FolderOperationHandlers, ParentChildViews, WorkspaceViewBuilder,
-};
+use crate::view_operation::FolderOperationHandlers;
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {

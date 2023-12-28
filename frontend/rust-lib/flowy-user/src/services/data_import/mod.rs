@@ -1,2 +1,4 @@
 mod appflowy_data_import;
-mod importer;
+pub(crate) mod importer;
+
+pub use importer::ImportDataSource;

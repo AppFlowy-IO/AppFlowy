@@ -1991,6 +1991,7 @@ dependencies = [
  "collab-folder",
  "flowy-error",
  "lib-infra",
+ "tokio",
  "uuid",
 ]
 
@@ -2022,6 +2023,7 @@ dependencies = [
  "tracing",
  "unicode-segmentation",
  "uuid",
+ "validator",
 ]
 
 [[package]]
@@ -2206,6 +2208,7 @@ dependencies = [
  "chrono",
  "collab-entity",
  "flowy-error",
+ "flowy-folder-deps",
  "lib-infra",
  "serde",
  "serde_json",
@@ -3013,6 +3016,7 @@ dependencies = [
  "rand 0.8.5",
  "tempfile",
  "tokio",
+ "validator",
  "walkdir",
  "zip",
 ]

@@ -15,7 +15,6 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::GetCurrentWorkspaceSetting, read_current_workspace_setting_handler)
     .event(FolderEvent::ReadCurrentWorkspace, read_current_workspace_handler)
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
-     // View
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
     .event(FolderEvent::GetView, read_view_handler)
@@ -26,7 +25,6 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::CloseView, close_view_handler)
     .event(FolderEvent::MoveView, move_view_handler)
     .event(FolderEvent::MoveNestedView, move_nested_view_handler)
-    // Trash
     .event(FolderEvent::ListTrashItems, read_trash_handler)
     .event(FolderEvent::RestoreTrashItem, putback_trash_handler)
     .event(FolderEvent::PermanentlyDeleteTrashItem, delete_trash_handler)
@@ -39,6 +37,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
+    .event(FolderEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -154,4 +153,7 @@ pub enum FolderEvent {
   // used for add or remove recent views, like history
   #[event(input = "UpdateRecentViewPayloadPB")]
   UpdateRecentViews = 37,
+
+  #[event(input = "ImportAppFlowyDataPB")]
+  ImportAppFlowyDataFolder = 38,
 }

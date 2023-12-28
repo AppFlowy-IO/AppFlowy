@@ -25,8 +25,7 @@ use flowy_folder_deps::cloud::{
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStorageService, StorageObject};
-use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_deps::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 

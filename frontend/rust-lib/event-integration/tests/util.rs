@@ -25,10 +25,9 @@ use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB};
 use flowy_user::errors::FlowyError;
-use flowy_user::event_map::UserCloudServiceProvider;
 
 use flowy_user::event_map::UserEvent::*;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_deps::entities::Authenticator;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {

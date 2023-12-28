@@ -34,9 +34,13 @@ pub struct EventIntegrationTest {
 
 impl EventIntegrationTest {
   pub async fn new() -> Self {
+    Self::new_with_name(nanoid!(6)).await
+  }
+
+  pub async fn new_with_name<T: ToString>(name: T) -> Self {
     let temp_dir = temp_dir().join(nanoid!(6));
     std::fs::create_dir_all(&temp_dir).unwrap();
-    Self::new_with_user_data_path(temp_dir, nanoid!(6)).await
+    Self::new_with_user_data_path(temp_dir, name.to_string()).await
   }
 
   pub async fn new_with_user_data_path(path_buf: PathBuf, name: String) -> Self {

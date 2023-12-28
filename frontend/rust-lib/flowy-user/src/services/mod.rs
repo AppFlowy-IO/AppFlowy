@@ -1,6 +1,6 @@
 pub mod cloud_config;
 pub mod collab_interact;
-pub(crate) mod data_import;
+pub mod data_import;
 pub mod db;
 pub mod entities;
 pub(crate) mod historical_user;

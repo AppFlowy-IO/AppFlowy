@@ -12,8 +12,9 @@ use tracing::{error, event, info, instrument, Level};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
+use flowy_folder_deps::folder_builder::ParentChildViews;
 
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
@@ -28,7 +29,9 @@ use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
 };
 use crate::share::ImportParams;
-use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
+use crate::util::{
+  folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
+};
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
 /// [FolderUser] represents the user for folder.
@@ -36,6 +39,12 @@ pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+
+  fn import_appflowy_data_folder(
+    &self,
+    path: &str,
+    container_name: &str,
+  ) -> Result<ParentChildViews, FlowyError>;
 }
 
 pub struct FolderManager {
@@ -818,6 +827,21 @@ impl FolderManager {
         handler.delete_view(view_id).await?;
       }
     }
+    Ok(())
+  }
+
+  pub async fn import_appflowy_data(&self, path: String, name: String) -> Result<(), FlowyError> {
+    let folder = self.mutex_folder.clone();
+    let user = self.user.clone();
+    tokio::task::spawn_blocking(move || {
+      let view = user.import_appflowy_data_folder(&path, &name)?;
+      if let Some(folder) = &*folder.lock() {
+        insert_parent_child_views(folder, view);
+      }
+      Ok::<(), FlowyError>(())
+    })
+    .await
+    .map_err(internal_error)??;
     Ok(())
   }
 

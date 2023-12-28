@@ -12,9 +12,7 @@ use collab_document::blocks::{
 use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{
-  data_result_ok, AFPluginData, AFPluginDataValidator, AFPluginState, DataResult,
-};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
 use crate::parser::document_data_parser::DocumentDataParser;
@@ -383,7 +381,7 @@ pub async fn convert_document_handler(
 pub(crate) async fn convert_data_to_json_handler(
   data: AFPluginData<ConvertDataToJsonPayloadPB>,
 ) -> DataResult<ConvertDataToJsonResponsePB, FlowyError> {
-  let payload: ConvertDataToJsonParams = data.validate()?.into_inner().try_into()?;
+  let payload: ConvertDataToJsonParams = data.try_into_inner()?.try_into()?;
   let parser = ExternalDataToNestedJSONParser::new(payload.data, payload.input_type);
 
   let result = match parser.to_nested_block() {

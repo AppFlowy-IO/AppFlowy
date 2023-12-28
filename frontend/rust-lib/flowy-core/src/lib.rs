@@ -14,9 +14,10 @@ use flowy_folder2::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::manager::UserManager;
 use flowy_user::services::entities::UserConfig;
+use flowy_user_deps::cloud::UserCloudServiceProvider;
+
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
@@ -118,6 +119,7 @@ impl AppFlowyCore {
         server_provider.clone(),
         config.device_id.clone(),
       ));
+
       let user_manager = init_user_manager(
         &config,
         &store_preference,

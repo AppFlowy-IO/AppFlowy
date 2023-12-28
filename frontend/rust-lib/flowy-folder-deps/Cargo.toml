@@ -11,3 +11,6 @@ flowy-error  = { workspace = true }
 collab-folder = { version = "0.1.0" }
 uuid.workspace = true
 anyhow.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

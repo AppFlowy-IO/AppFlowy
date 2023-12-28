@@ -11,6 +11,7 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_folder_deps::folder_builder::ParentChildViews;
 use flowy_server_config::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
@@ -18,10 +19,11 @@ use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_deps::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_deps::entities::*;
+
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
-use crate::anon_user_upgrade::{
+use crate::anon_user::{
   migration_anon_user_on_sign_up, sync_af_user_data_to_cloud, sync_supabase_user_data_to_cloud,
 };
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
@@ -34,6 +36,7 @@ use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
+use crate::services::data_import::importer::{import_data, ImportDataSource};
 use crate::services::db::UserDB;
 use crate::services::entities::{ResumableSignUp, Session, UserConfig, UserPaths};
 use crate::services::user_awareness::UserAwarenessDataSource;
@@ -662,6 +665,13 @@ impl UserManager {
         Ok(session)
       },
     }
+  }
+
+  pub fn import_data(&self, source: ImportDataSource) -> Result<ParentChildViews, FlowyError> {
+    let session = self.get_session()?;
+    let collab_db = self.database.get_collab_db(session.user_id)?;
+    let view = import_data(&session, source, collab_db)?;
+    Ok(view)
   }
 
   pub(crate) fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {

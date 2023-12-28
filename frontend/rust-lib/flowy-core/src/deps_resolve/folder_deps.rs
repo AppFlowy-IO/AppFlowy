@@ -18,12 +18,12 @@ use flowy_error::FlowyError;
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::{FolderManager, FolderUser};
 use flowy_folder2::share::ImportType;
-use flowy_folder2::view_operation::{
-  FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
-};
+use flowy_folder2::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder2::ViewLayout;
 use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
 use flowy_user::manager::UserManager;
+use flowy_user::services::data_import::ImportDataSource;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
 
@@ -87,6 +87,21 @@ impl FolderUser for FolderUserImpl {
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
+  }
+
+  fn import_appflowy_data_folder(
+    &self,
+    path: &str,
+    container_name: &str,
+  ) -> Result<ParentChildViews, FlowyError> {
+    self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
+      .import_data(ImportDataSource::AppFlowyDataFolder {
+        path: path.to_string(),
+        container_name: container_name.to_string(),
+      })
   }
 }
 

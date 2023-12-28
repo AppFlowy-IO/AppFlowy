@@ -292,7 +292,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     id: af_workspace.workspace_id.to_string(),
     name: af_workspace.workspace_name,
     created_at: af_workspace.created_at,
-    database_storage_id: af_workspace.database_storage_id.to_string(),
+    database_view_tracker_id: af_workspace.database_storage_id.to_string(),
   }
 }
 

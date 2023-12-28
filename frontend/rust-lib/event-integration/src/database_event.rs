@@ -1,9 +1,11 @@
 use std::convert::TryFrom;
 
 use bytes::Bytes;
+use collab_database::database::DatabaseData;
 
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
+use flowy_database2::services::share::csv::CSVFormat;
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_user::errors::FlowyError;
@@ -12,6 +14,18 @@ use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
+  pub async fn get_database_export_data(&self, database_view_id: &str) -> String {
+    self
+      .appflowy_core
+      .database_manager
+      .get_database_with_view_id(database_view_id)
+      .await
+      .unwrap()
+      .export_csv(CSVFormat::META)
+      .await
+      .unwrap()
+  }
+
   pub async fn create_grid(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
