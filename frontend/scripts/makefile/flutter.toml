@@ -85,6 +85,15 @@ run_task = { name = [
 ] }
 script_runner = "@shell"
 
+[tasks.appflowy-android-dev-ci]
+dependencies = ["appflowy-core-dev-android"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build-android",
+] }
+script_runner = "@shell"
+
 [tasks.appflowy-macos-dev]
 dependencies = ["appflowy-core-dev"]
 run_task = { name = [
@@ -267,6 +276,14 @@ script = ["""
   cd appflowy_flutter/
   flutter pub get
   flutter build apk --split-per-abi --verbose
+  """]
+script_runner = "@shell"
+
+[tasks.flutter-build-android-ci]
+script = ["""
+  cd appflowy_flutter/
+  flutter pub get
+  flutter build apk --debug
   """]
 script_runner = "@shell"
 

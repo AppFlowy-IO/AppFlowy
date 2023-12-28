@@ -73,6 +73,10 @@ jobs:
             ndk-version: "r24"
             add-to-path: true
 
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 7.6.3
+
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: ${{ matrix.os }}
@@ -110,4 +114,4 @@ jobs:
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
-          cargo make --profile development-android appflowy-android-dev
+          cargo make --profile development-android appflowy-android-dev-ci
