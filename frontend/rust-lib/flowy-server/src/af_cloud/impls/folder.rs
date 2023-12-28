@@ -1,12 +1,13 @@
 use anyhow::{anyhow, Error};
-use client_api::entity::{QueryCollab, QueryCollabParams};
+use client_api::entity::{CollabParams, QueryCollab, QueryCollabParams};
 use collab::core::collab::CollabDocState;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 
 use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{
-  Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+  Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
+  WorkspaceRecord,
 };
 use lib_infra::future::FutureResult;
 
@@ -90,7 +91,7 @@ where
   fn get_collab_doc_state_f(
     &self,
     workspace_id: &str,
-    uid: i64,
+    _uid: i64,
     collab_type: CollabType,
     object_id: &str,
   ) -> FutureResult<CollabDocState, Error> {
@@ -112,6 +113,31 @@ where
         .doc_state
         .to_vec();
       Ok(doc_state)
+    })
+  }
+
+  fn batch_create_collab_object(
+    &self,
+    workspace_id: &str,
+    objects: Vec<FolderCollabParams>,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let params = objects
+        .into_iter()
+        .map(|object| CollabParams {
+          object_id: object.object_id,
+          encoded_collab_v1: object.encoded_collab_v1,
+          collab_type: object.collab_type,
+          override_if_exist: object.override_if_exist,
+        })
+        .collect::<Vec<_>>();
+      try_get_client?
+        .batch_create_collab(&workspace_id, params)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(())
     })
   }
 

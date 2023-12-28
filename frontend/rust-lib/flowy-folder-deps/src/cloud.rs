@@ -39,7 +39,21 @@ pub trait FolderCloudService: Send + Sync + 'static {
     object_id: &str,
   ) -> FutureResult<CollabDocState, Error>;
 
+  fn batch_create_collab_object(
+    &self,
+    workspace_id: &str,
+    objects: Vec<FolderCollabParams>,
+  ) -> FutureResult<(), Error>;
+
   fn service_name(&self) -> String;
+}
+
+#[derive(Debug)]
+pub struct FolderCollabParams {
+  pub object_id: String,
+  pub encoded_collab_v1: Vec<u8>,
+  pub collab_type: CollabType,
+  pub override_if_exist: bool,
 }
 
 pub struct FolderSnapshot {

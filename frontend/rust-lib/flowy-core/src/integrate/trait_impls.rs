@@ -19,7 +19,7 @@ use flowy_document2::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{
-  FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+  FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
@@ -199,6 +199,21 @@ impl FolderCloudService for ServerProvider {
       server?
         .folder_service()
         .get_collab_doc_state_f(&workspace_id, uid, collab_type, &object_id)
+        .await
+    })
+  }
+
+  fn batch_create_collab_object(
+    &self,
+    workspace_id: &str,
+    objects: Vec<FolderCollabParams>,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server(&self.get_server_type());
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .batch_create_collab_object(&workspace_id, objects)
         .await
     })
   }

@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 use chrono::{DateTime, Utc};
 use collab::core::collab::CollabDocState;
 use collab::core::origin::CollabOrigin;
@@ -10,8 +10,8 @@ use tokio::sync::oneshot::channel;
 use yrs::merge_updates_v1;
 
 use flowy_folder_deps::cloud::{
-  gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
-  WorkspaceRecord,
+  gen_workspace_id, Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
+  Workspace, WorkspaceRecord,
 };
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
@@ -134,8 +134,8 @@ where
 
   fn get_collab_doc_state_f(
     &self,
-    workspace_id: &str,
-    uid: i64,
+    _workspace_id: &str,
+    _uid: i64,
     collab_type: CollabType,
     object_id: &str,
   ) -> FutureResult<CollabDocState, Error> {
@@ -153,6 +153,18 @@ where
       )
     });
     FutureResult::new(async { rx.await? })
+  }
+
+  fn batch_create_collab_object(
+    &self,
+    _workspace_id: &str,
+    _objects: Vec<FolderCollabParams>,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async {
+      Err(anyhow!(
+        "supabase server doesn't support batch create collab"
+      ))
+    })
   }
 
   fn service_name(&self) -> String {
