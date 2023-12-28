@@ -25,7 +25,13 @@ const regexMap: Record<
   ],
   [EditorNodeType.QuoteBlock]: [
     {
-      pattern: /^("|“|”)$/,
+      pattern: /^”$/,
+    },
+    {
+      pattern: /^“$/,
+    },
+    {
+      pattern: /^"$/,
     },
   ],
   [EditorNodeType.TodoListBlock]: [
@@ -138,7 +144,7 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
   const { insertText } = editor;
 
   editor.insertText = (text) => {
-    if (CustomEditor.isCodeBlock(editor)) {
+    if (CustomEditor.isCodeBlock(editor) || CustomEditor.selectionIncludeRoot(editor)) {
       insertText(text);
       return;
     }
@@ -218,7 +224,7 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
     if (text.endsWith(' ') || text.endsWith('-')) {
       const endChar = text.slice(-1);
       const [match] = Editor.nodes(editor, {
-        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type !== undefined,
+        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === EditorNodeType.Text,
       });
 
       if (!match) {

@@ -43,7 +43,7 @@ function ViewActions({ view, ...props }: { view: Page } & MenuProps) {
 
   return (
     <>
-      <Menu keepMounted={false} {...props}>
+      <Menu keepMounted={false} disableRestoreFocus={true} {...props}>
         {options.map((option) => (
           <MenuItem key={option.id} onClick={option.action}>
             <div className={'mr-1.5'}>{option.icon}</div>

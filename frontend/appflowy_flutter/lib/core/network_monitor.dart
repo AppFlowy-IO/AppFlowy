@@ -49,7 +49,6 @@ class NetworkListener {
           return NetworkTypePB.NetworkUnknown;
       }
     }();
-    Log.info("Network type: $networkType");
     final state = NetworkStatePB.create()..ty = networkType;
     UserEventUpdateNetworkState(state).send().then((result) {
       result.fold(

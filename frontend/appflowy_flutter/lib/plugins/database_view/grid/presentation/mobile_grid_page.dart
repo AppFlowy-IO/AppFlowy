@@ -139,7 +139,7 @@ class _GridPageContentState extends State<GridPageContent> {
       listenWhen: (previous, current) =>
           previous.createdRow != current.createdRow,
       listener: (context, state) {
-        if (state.createdRow == null) {
+        if (state.createdRow == null || !state.openRowDetail) {
           return;
         }
         final bloc = context.read<GridBloc>();

@@ -35,6 +35,7 @@ use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
+use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
@@ -74,7 +75,7 @@ impl UserConfig {
 
   /// Returns bool whether the user choose a custom path for the user data.
   pub fn is_custom_storage_path(&self) -> bool {
-    self.storage_path != self.application_path
+    !self.storage_path.contains(&self.application_path)
   }
 }
 
@@ -105,13 +106,7 @@ impl UserManager {
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
     let current_session = Arc::new(parking_lot::RwLock::new(None));
-    let current_authenticator = current_authenticator();
-    migrate_session_with_user_uuid(
-      &current_authenticator,
-      &user_config,
-      &current_session,
-      &store_preferences,
-    );
+    migrate_session_with_user_uuid(&user_config, &current_session, &store_preferences);
 
     let refresh_user_profile_since = AtomicI64::new(0);
     let user_manager = Arc::new(Self {
@@ -145,6 +140,14 @@ impl UserManager {
     }
 
     user_manager
+  }
+
+  pub fn close_db(&self) {
+    if let Ok(session) = self.get_session() {
+      if let Err(err) = self.database.close(session.user_id) {
+        error!("Close db failed: {:?}", err);
+      }
+    }
   }
 
   pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
@@ -204,16 +207,18 @@ impl UserManager {
       let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
       if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
         event!(tracing::Level::DEBUG, "Listen token state change");
+        let user_uid = user.uid;
+        let user_token = user.token.clone();
         af_spawn(async move {
           while let Some(token_state) = token_state_rx.next().await {
             debug!("Token state changed: {:?}", token_state);
             match token_state {
               UserTokenState::Refresh { token } => {
                 // Only save the token if the token is different from the current token
-                if token != user.token {
+                if token != user_token {
                   if let Some(pool) = weak_pool.upgrade() {
                     // Save the new token
-                    if let Err(err) = save_user_token(user.uid, pool, token) {
+                    if let Err(err) = save_user_token(user_uid, pool, token) {
                       error!("Save user token failed: {}", err);
                     }
                   }
@@ -225,6 +230,7 @@ impl UserManager {
         });
       }
       self.prepare_user(&session).await;
+      self.prepare_backup(&session).await;
 
       // Do the user data migration if needed
       event!(tracing::Level::INFO, "Prepare user data migration");
@@ -238,9 +244,10 @@ impl UserManager {
           let migrations: Vec<Box<dyn UserDataMigration>> = vec![
             Box::new(HistoricalEmptyDocumentMigration),
             Box::new(FavoriteV1AndWorkspaceArrayMigration),
+            Box::new(WorkspaceTrashMapToSectionMigration),
           ];
           match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
-            .run(migrations, &current_authenticator)
+            .run(migrations, &user.authenticator)
           {
             Ok(applied_migrations) => {
               if !applied_migrations.is_empty() {
@@ -366,7 +373,6 @@ impl UserManager {
   ) -> Result<UserProfile, FlowyError> {
     // sign out the current user if there is one
     let migration_user = self.get_migration_user(&authenticator).await;
-    let _ = self.sign_out().await;
 
     self.update_authenticator(&authenticator).await;
     let auth_service = self.cloud_services.get_user_service()?;
@@ -519,6 +525,9 @@ impl UserManager {
   pub async fn prepare_user(&self, session: &Session) {
     let _ = self.database.close(session.user_id);
     self.set_collab_config(session);
+  }
+
+  pub async fn prepare_backup(&self, session: &Session) {
     // Ensure to backup user data if a cloud drive is used for storage. While using a cloud drive
     // for storing user data is not advised due to potential data corruption risks, in scenarios where
     // users opt for cloud storage, the application should automatically create a backup of the user
@@ -539,7 +548,7 @@ impl UserManager {
   pub async fn get_user_profile_from_disk(&self, uid: i64) -> Result<UserProfile, FlowyError> {
     let user: UserProfile = user_table::dsl::user_table
       .filter(user_table::id.eq(&uid.to_string()))
-      .first::<UserTable>(&*(self.db_connection(uid)?))
+      .first::<UserTable>(&mut *(self.db_connection(uid)?))
       .map_err(|err| {
         FlowyError::record_not_found().with_context(format!(
           "Can't find the user profile for user id: {}, error: {:?}",
@@ -584,6 +593,9 @@ impl UserManager {
         Ok(())
       },
       Err(err) => {
+        if err.is_local_version_not_support() {
+          return Ok(());
+        }
         // If the user is not found, notify the frontend to logout
         if err.is_unauthorized() {
           event!(
@@ -645,15 +657,15 @@ impl UserManager {
   }
 
   async fn save_user(&self, uid: i64, user: UserTable) -> Result<(), FlowyError> {
-    let conn = self.db_connection(uid)?;
-    conn.immediate_transaction(|| {
+    let mut conn = self.db_connection(uid)?;
+    conn.immediate_transaction(|conn| {
       // delete old user if exists
       diesel::delete(user_table::dsl::user_table.filter(user_table::dsl::id.eq(&user.id)))
-        .execute(&*conn)?;
+        .execute(conn)?;
 
       let _ = diesel::insert_into(user_table::table)
         .values(user)
-        .execute(&*conn)?;
+        .execute(conn)?;
       Ok::<(), FlowyError>(())
     })?;
 
@@ -792,7 +804,13 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    migration_anon_user_on_sign_up(
+      old_user,
+      &old_collab_db,
+      new_user,
+      &new_collab_db,
+      authenticator,
+    )?;
 
     match authenticator {
       Authenticator::Supabase => {
@@ -864,11 +882,11 @@ fn upsert_user_profile_change(
     "Update user profile with changeset: {:?}",
     changeset
   );
-  let conn = pool.get()?;
-  diesel_update_table!(user_table, changeset, &*conn);
+  let mut conn = pool.get()?;
+  diesel_update_table!(user_table, changeset, &mut *conn);
   let user: UserProfile = user_table::dsl::user_table
     .filter(user_table::id.eq(&uid.to_string()))
-    .first::<UserTable>(&*conn)?
+    .first::<UserTable>(&mut *conn)?
     .into();
   send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
     .payload(UserProfilePB::from(user))

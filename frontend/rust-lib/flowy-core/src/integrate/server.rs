@@ -13,7 +13,6 @@ use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user::services::db::{get_user_profile, get_user_workspace, open_user_db};
 use flowy_user_deps::entities::*;
 
 use crate::AppFlowyCoreConfig;
@@ -22,25 +21,25 @@ pub(crate) const SERVER_PROVIDER_TYPE_KEY: &str = "server_provider_type";
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
-pub enum ServerType {
+pub enum Server {
   /// Local server provider.
   /// Offline mode, no user authentication and the data is stored locally.
   Local = 0,
   /// AppFlowy Cloud server provider.
   /// The [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Cloud) is still a work in
   /// progress.
-  AFCloud = 1,
+  AppFlowyCloud = 1,
   /// Supabase server provider.
   /// It uses supabase postgresql database to store data and user authentication.
   Supabase = 2,
 }
 
-impl Display for ServerType {
+impl Display for Server {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      ServerType::Local => write!(f, "Local"),
-      ServerType::AFCloud => write!(f, "AppFlowyCloud"),
-      ServerType::Supabase => write!(f, "Supabase"),
+      Server::Local => write!(f, "Local"),
+      Server::AppFlowyCloud => write!(f, "AppFlowyCloud"),
+      Server::Supabase => write!(f, "Supabase"),
     }
   }
 }
@@ -51,8 +50,8 @@ impl Display for ServerType {
 /// Each server implements the [AppFlowyServer] trait, which provides the [UserCloudService], etc.
 pub struct ServerProvider {
   config: AppFlowyCoreConfig,
-  server_type: RwLock<ServerType>,
-  providers: RwLock<HashMap<ServerType, Arc<dyn AppFlowyServer>>>,
+  server: RwLock<Server>,
+  providers: RwLock<HashMap<Server, Arc<dyn AppFlowyServer>>>,
   pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   pub(crate) store_preferences: Weak<StorePreferences>,
   pub(crate) enable_sync: RwLock<bool>,
@@ -62,13 +61,13 @@ pub struct ServerProvider {
 impl ServerProvider {
   pub fn new(
     config: AppFlowyCoreConfig,
-    server_type: ServerType,
+    server: Server,
     store_preferences: Weak<StorePreferences>,
   ) -> Self {
     let encryption = EncryptionImpl::new(None);
     Self {
       config,
-      server_type: RwLock::new(server_type),
+      server: RwLock::new(server),
       providers: RwLock::new(HashMap::new()),
       enable_sync: RwLock::new(true),
       encryption: RwLock::new(Arc::new(encryption)),
@@ -77,37 +76,39 @@ impl ServerProvider {
     }
   }
 
-  pub fn get_server_type(&self) -> ServerType {
-    self.server_type.read().clone()
+  pub fn get_server_type(&self) -> Server {
+    self.server.read().clone()
   }
 
-  pub fn set_server_type(&self, server_type: ServerType) {
-    let old_server_type = self.server_type.read().clone();
+  pub fn set_server_type(&self, server_type: Server) {
+    let old_server_type = self.server.read().clone();
     if server_type != old_server_type {
       self.providers.write().remove(&old_server_type);
     }
 
-    *self.server_type.write() = server_type;
+    *self.server.write() = server_type;
+  }
+
+  pub fn get_appflowy_cloud_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
+    let server = self.get_server(&Server::AppFlowyCloud)?;
+    Ok(server)
   }
 
   /// Returns a [AppFlowyServer] trait implementation base on the provider_type.
-  pub(crate) fn get_server(
-    &self,
-    server_type: &ServerType,
-  ) -> FlowyResult<Arc<dyn AppFlowyServer>> {
+  pub fn get_server(&self, server_type: &Server) -> FlowyResult<Arc<dyn AppFlowyServer>> {
     if let Some(provider) = self.providers.read().get(server_type) {
       return Ok(provider.clone());
     }
 
     let server = match server_type {
-      ServerType::Local => {
+      Server::Local => {
         let local_db = Arc::new(LocalServerDBImpl {
           storage_path: self.config.storage_path.clone(),
         });
         let server = Arc::new(LocalServer::new(local_db));
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
-      ServerType::AFCloud => {
+      Server::AppFlowyCloud => {
         let config = AFCloudConfiguration::from_env()?;
         let server = Arc::new(AppFlowyCloudServer::new(
           config,
@@ -117,7 +118,7 @@ impl ServerProvider {
 
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
-      ServerType::Supabase => {
+      Server::Supabase => {
         let config = SupabaseConfiguration::from_env()?;
         let uid = self.uid.clone();
         tracing::trace!("🔑Supabase config: {:?}", config);
@@ -140,52 +141,54 @@ impl ServerProvider {
   }
 }
 
-impl From<Authenticator> for ServerType {
+impl From<Authenticator> for Server {
   fn from(auth_provider: Authenticator) -> Self {
     match auth_provider {
-      Authenticator::Local => ServerType::Local,
-      Authenticator::AppFlowyCloud => ServerType::AFCloud,
-      Authenticator::Supabase => ServerType::Supabase,
+      Authenticator::Local => Server::Local,
+      Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
+      Authenticator::Supabase => Server::Supabase,
     }
   }
 }
 
-impl From<ServerType> for Authenticator {
-  fn from(ty: ServerType) -> Self {
+impl From<Server> for Authenticator {
+  fn from(ty: Server) -> Self {
     match ty {
-      ServerType::Local => Authenticator::Local,
-      ServerType::AFCloud => Authenticator::AppFlowyCloud,
-      ServerType::Supabase => Authenticator::Supabase,
+      Server::Local => Authenticator::Local,
+      Server::AppFlowyCloud => Authenticator::AppFlowyCloud,
+      Server::Supabase => Authenticator::Supabase,
     }
   }
 }
-impl From<&Authenticator> for ServerType {
+impl From<&Authenticator> for Server {
   fn from(auth_provider: &Authenticator) -> Self {
     Self::from(auth_provider.clone())
   }
 }
 
-pub fn current_server_type(store_preferences: &Arc<StorePreferences>) -> ServerType {
-  match store_preferences.get_object::<ServerType>(SERVER_PROVIDER_TYPE_KEY) {
-    None => ServerType::Local,
-    Some(provider_type) => provider_type,
-  }
+pub fn current_server_type(store_preferences: &Arc<StorePreferences>) -> Server {
+  store_preferences
+    .get_object::<Server>(SERVER_PROVIDER_TYPE_KEY)
+    .unwrap_or(Server::Local)
 }
 
 struct LocalServerDBImpl {
+  #[allow(dead_code)]
   storage_path: String,
 }
 
 impl LocalServerDB for LocalServerDBImpl {
-  fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
-    let sqlite_db = open_user_db(&self.storage_path, uid)?;
-    let user_profile = get_user_profile(&sqlite_db, uid)?;
-    Ok(user_profile)
+  fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
+    Err(
+      FlowyError::local_version_not_support()
+        .with_context("LocalServer doesn't support get_user_profile"),
+    )
   }
 
-  fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
-    let sqlite_db = open_user_db(&self.storage_path, uid)?;
-    let user_workspace = get_user_workspace(&sqlite_db, uid)?;
-    Ok(user_workspace)
+  fn get_user_workspace(&self, _uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
+    Err(
+      FlowyError::local_version_not_support()
+        .with_context("LocalServer doesn't support get_user_workspace"),
+    )
   }
 }

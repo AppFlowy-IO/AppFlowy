@@ -27,9 +27,11 @@ class FlowyOptionTile extends StatelessWidget {
       vertical: 2.0,
     ),
     this.isSelected = false,
+    this.onValueChanged,
     this.textFieldHintText,
     this.onTextChanged,
     this.onTextSubmitted,
+    this.autofocus,
   });
 
   factory FlowyOptionTile.text({
@@ -67,6 +69,7 @@ class FlowyOptionTile extends StatelessWidget {
     Widget? leftIcon,
     Widget? trailing,
     String? textFieldHintText,
+    bool autofocus = false,
   }) {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.textField,
@@ -81,6 +84,7 @@ class FlowyOptionTile extends StatelessWidget {
       textFieldHintText: textFieldHintText,
       onTextChanged: onTextChanged,
       onTextSubmitted: onTextSubmitted,
+      autofocus: autofocus,
     );
   }
 
@@ -114,6 +118,7 @@ class FlowyOptionTile extends StatelessWidget {
     required String text,
     required bool isSelected,
     required void Function(bool value) onValueChanged,
+    void Function()? onTap,
     bool showTopBorder = true,
     bool showBottomBorder = true,
     Widget? leftIcon,
@@ -122,7 +127,8 @@ class FlowyOptionTile extends StatelessWidget {
       type: FlowyOptionTileType.toggle,
       text: text,
       controller: null,
-      onTap: () => onValueChanged(!isSelected),
+      onTap: onTap ?? () => onValueChanged(!isSelected),
+      onValueChanged: onValueChanged,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
@@ -143,10 +149,14 @@ class FlowyOptionTile extends StatelessWidget {
   // only used in checkbox or switcher
   final bool isSelected;
 
+  // only used in switcher
+  final void Function(bool value)? onValueChanged;
+
   // only used in textfield
   final String? textFieldHintText;
   final void Function(String value)? onTextChanged;
   final void Function(String value)? onTextSubmitted;
+  final bool? autofocus;
 
   final FlowyOptionTileType type;
 
@@ -229,6 +239,7 @@ class FlowyOptionTile extends StatelessWidget {
         alignment: Alignment.center,
         child: TextField(
           controller: controller,
+          autofocus: autofocus ?? false,
           textInputAction: TextInputAction.done,
           decoration: InputDecoration(
             border: InputBorder.none,

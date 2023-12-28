@@ -6,7 +6,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -115,11 +114,11 @@ class CalendarDayCard extends StatelessWidget {
                         ],
                       );
                     },
-                    onAccept: (CalendarDayEvent event) {
+                    onAcceptWithDetails: (details) {
+                      final event = details.data;
                       if (event.date == date) {
                         return;
                       }
-
                       context
                           .read<CalendarBloc>()
                           .add(CalendarEvent.moveEvent(event, date));

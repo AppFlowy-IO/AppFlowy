@@ -24,7 +24,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         layout: ViewLayoutPB.Document,
       );
 

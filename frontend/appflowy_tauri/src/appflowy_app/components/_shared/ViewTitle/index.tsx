@@ -6,12 +6,12 @@ import ViewTitleInput from '$app/components/_shared/ViewTitle/ViewTitleInput';
 
 interface Props {
   view: Page;
-  onTitleChange: (title: string) => void;
-  onUpdateIcon: (icon: PageIcon) => void;
-  onSplitTitle?: (splitText: string) => void;
+  showTitle?: boolean;
+  onTitleChange?: (title: string) => void;
+  onUpdateIcon?: (icon: PageIcon) => void;
 }
 
-function ViewTitle({ view, onTitleChange, onUpdateIcon: onUpdateIconProp, onSplitTitle }: Props) {
+function ViewTitle({ view, onTitleChange, showTitle = true, onUpdateIcon: onUpdateIconProp }: Props) {
   const [hover, setHover] = useState(false);
   const [icon, setIcon] = useState<PageIcon | undefined>(view.icon);
 
@@ -27,7 +27,7 @@ function ViewTitle({ view, onTitleChange, onUpdateIcon: onUpdateIconProp, onSpli
       };
 
       setIcon(newIcon);
-      onUpdateIconProp(newIcon);
+      onUpdateIconProp?.(newIcon);
     },
     [onUpdateIconProp]
   );
@@ -39,9 +39,11 @@ function ViewTitle({ view, onTitleChange, onUpdateIcon: onUpdateIconProp, onSpli
       onMouseLeave={() => setHover(false)}
     >
       <ViewBanner icon={icon} hover={hover} onUpdateIcon={onUpdateIcon} />
-      <div className='relative'>
-        <ViewTitleInput value={view.name} onChange={onTitleChange} onSplitTitle={onSplitTitle} />
-      </div>
+      {showTitle && (
+        <div className='relative'>
+          <ViewTitleInput value={view.name} onChange={onTitleChange} />
+        </div>
+      )}
     </div>
   );
 }

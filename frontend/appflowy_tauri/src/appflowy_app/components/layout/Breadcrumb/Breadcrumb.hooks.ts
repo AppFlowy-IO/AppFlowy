@@ -12,6 +12,8 @@ export function useLoadExpandedPages() {
   const isTrash = useMemo(() => location.pathname.includes('trash'), [location.pathname]);
   const currentPageId = params.id;
   const pageMap = useAppSelector((state) => state.pages.pageMap);
+  const currentPage = currentPageId ? pageMap[currentPageId] : null;
+
   const [pagePath, setPagePath] = useState<
     (
       | Page
@@ -78,5 +80,6 @@ export function useLoadExpandedPages() {
 
   return {
     pagePath,
+    currentPage,
   };
 }

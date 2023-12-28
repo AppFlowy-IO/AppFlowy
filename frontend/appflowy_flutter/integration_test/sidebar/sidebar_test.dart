@@ -41,7 +41,7 @@ void main() {
       for (final layout in ViewLayoutPB.values) {
         // create a new page
         final name = 'AppFlowy_$layout';
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: name,
           layout: layout,
         );
@@ -79,7 +79,7 @@ void main() {
       final names = [1, 2, 3, 4].map((e) => 'document_$e').toList();
       for (var i = 0; i < names.length; i++) {
         final parentName = i == 0 ? gettingStarted : names[i - 1];
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: names[i],
           parentName: parentName,
           layout: ViewLayoutPB.Document,
@@ -144,14 +144,14 @@ void main() {
       await tester.tapGoButton();
 
       const document = 'document';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: document,
         openAfterCreated: false,
       );
       tester.expectToSeePageName(document, layout: ViewLayoutPB.Document);
 
       const grid = 'grid';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: grid,
         layout: ViewLayoutPB.Grid,
         openAfterCreated: false,
@@ -187,7 +187,7 @@ void main() {
       await tester.tapGoButton();
 
       const grid = 'grid';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: grid,
         layout: ViewLayoutPB.Grid,
         openAfterCreated: true,

@@ -11,14 +11,26 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'util.dart';
+
 // const String readme = 'Read me';
 const String gettingStarted = 'Getting started';
 
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
-  void expectToSeeHomePage() {
-    expect(find.byType(HomeStack), findsOneWidget);
-    expect(find.textContaining(gettingStarted), findsWidgets);
+  Future<void> expectToSeeHomePageWithGetStartedPage() async {
+    final finder = find.byType(HomeStack);
+    await pumpUntilFound(finder);
+    expect(finder, findsOneWidget);
+
+    final docFinder = find.textContaining(gettingStarted);
+    await pumpUntilFound(docFinder);
+  }
+
+  Future<void> expectToSeeHomePage() async {
+    final finder = find.byType(HomeStack);
+    await pumpUntilFound(finder);
+    expect(finder, findsOneWidget);
   }
 
   /// Expect to see the page name on the home page.

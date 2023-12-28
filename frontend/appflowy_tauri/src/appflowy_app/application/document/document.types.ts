@@ -1,5 +1,5 @@
 import { Op } from 'quill-delta';
-import { HTMLAttributes, MutableRefObject } from 'react';
+import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
 import { ViewIconTypePB, ViewLayoutPB } from '@/services/backend';
 import { YXmlText } from 'yjs/dist/src/types/YXmlText';
@@ -8,42 +8,57 @@ export interface EditorNode {
   id: string;
   type: EditorNodeType;
   parent?: string | null;
-  data?: unknown;
+  data?: BlockData;
   children?: string;
   externalId?: string;
   externalType?: string;
 }
 
+export interface TextNode extends Element {
+  type: EditorNodeType.Text;
+  textId: string;
+  blockId: string;
+}
+
+export interface PageNode extends Element {
+  type: EditorNodeType.Page;
+}
 export interface ParagraphNode extends Element {
   type: EditorNodeType.Paragraph;
 }
+
+export type BlockData = {
+  [key: string]: string | boolean | number | undefined;
+  font_color?: string;
+  bg_color?: string;
+};
 
 export interface HeadingNode extends Element {
   type: EditorNodeType.HeadingBlock;
   data: {
     level: number;
-  };
+  } & BlockData;
 }
 
 export interface GridNode extends Element {
   type: EditorNodeType.GridBlock;
   data: {
     viewId?: string;
-  };
+  } & BlockData;
 }
 
 export interface TodoListNode extends Element {
   type: EditorNodeType.TodoListBlock;
   data: {
     checked: boolean;
-  };
+  } & BlockData;
 }
 
 export interface CodeNode extends Element {
   type: EditorNodeType.CodeBlock;
   data: {
     language: string;
-  };
+  } & BlockData;
 }
 
 export interface QuoteNode extends Element {
@@ -62,7 +77,7 @@ export interface ToggleListNode extends Element {
   type: EditorNodeType.ToggleListBlock;
   data: {
     collapsed: boolean;
-  };
+  } & BlockData;
 }
 
 export interface DividerNode extends Element {
@@ -73,18 +88,19 @@ export interface CalloutNode extends Element {
   type: EditorNodeType.CalloutBlock;
   data: {
     icon: string;
-  };
+  } & BlockData;
 }
 
 export interface MathEquationNode extends Element {
   type: EditorNodeType.EquationBlock;
   data: {
     formula?: string;
-  };
+  } & BlockData;
 }
 
 export interface FormulaNode extends Element {
   type: EditorInlineNodeType.Formula;
+  data: boolean;
 }
 
 export interface MentionNode extends Element {
@@ -120,11 +136,15 @@ export interface MentionPage {
 export interface EditorProps {
   id: string;
   sharedType?: YXmlText;
-  appendTextRef?: MutableRefObject<((text: string) => void) | null>;
+  title?: string;
+  onTitleChange?: (title: string) => void;
+  showTitle?: boolean;
 }
 
 export enum EditorNodeType {
+  Text = 'text',
   Paragraph = 'paragraph',
+  Page = 'page',
   HeadingBlock = 'heading',
   TodoListBlock = 'todo_list',
   BulletedListBlock = 'bulleted_list',
@@ -187,18 +207,6 @@ export enum EditorStyleFormat {
   BackgroundColor = 'bg_color',
   Href = 'href',
 }
-
-export const markTypes: string[] = [
-  EditorMarkFormat.Bold,
-  EditorMarkFormat.Italic,
-  EditorMarkFormat.Underline,
-  EditorMarkFormat.StrikeThrough,
-  EditorMarkFormat.Code,
-  EditorMarkFormat.Formula,
-  EditorStyleFormat.Href,
-  EditorStyleFormat.FontColor,
-  EditorStyleFormat.BackgroundColor,
-];
 
 export enum EditorTurnFormat {
   Paragraph = 'paragraph',

@@ -8,6 +8,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'mobile_field_type_option_editor.dart';
+
 const _supportedFieldTypes = [
   FieldType.RichText,
   FieldType.Number,
@@ -22,18 +24,20 @@ const _supportedFieldTypes = [
 class FieldOptions extends StatelessWidget {
   const FieldOptions({
     super.key,
-    required this.onAddField,
+    required this.mode,
+    required this.onSelectFieldType,
     this.scrollController,
   });
 
-  final void Function(FieldType) onAddField;
+  final FieldOptionMode mode;
+  final void Function(FieldType) onSelectFieldType;
   final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const _FieldHeader(),
+        _FieldHeader(mode: mode),
         const VSpace(12.0),
         Expanded(
           child: SingleChildScrollView(
@@ -46,7 +50,7 @@ class FieldOptions extends StatelessWidget {
                   .map(
                     (e) => _Field(
                       type: e,
-                      onTap: () => onAddField(e),
+                      onTap: () => onSelectFieldType(e),
                     ),
                   )
                   .toList(),
@@ -59,7 +63,9 @@ class FieldOptions extends StatelessWidget {
 }
 
 class _FieldHeader extends StatelessWidget {
-  const _FieldHeader();
+  const _FieldHeader({required this.mode});
+
+  final FieldOptionMode mode;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +82,10 @@ class _FieldHeader extends StatelessWidget {
             ),
           ),
           FlowyText.medium(
-            LocaleKeys.titleBar_addField.tr(),
+            switch (mode) {
+              FieldOptionMode.add => LocaleKeys.grid_field_newProperty.tr(),
+              FieldOptionMode.edit => LocaleKeys.grid_field_editProperty.tr(),
+            },
             fontSize: 17.0,
           ),
           const HSpace(120),

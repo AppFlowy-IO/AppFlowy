@@ -2,7 +2,7 @@ import { EditorNodeType } from '$app/application/document/document.types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlate } from 'slate-react';
-import { Editor, Transforms } from 'slate';
+import { Transforms } from 'slate';
 import { getBlock } from '$app/components/editor/plugins/utils';
 import { ReactComponent as TextIcon } from '$app/assets/text.svg';
 import { ReactComponent as TodoListIcon } from '$app/assets/todo-list.svg';
@@ -16,6 +16,7 @@ import { ReactComponent as ToggleListIcon } from '$app/assets/show-menu.svg';
 import { ReactComponent as GridIcon } from '$app/assets/grid.svg';
 import { DataObjectOutlined, FunctionsOutlined, HorizontalRuleOutlined, MenuBookOutlined } from '@mui/icons-material';
 import { CustomEditor } from '$app/components/editor/command';
+import { randomEmoji } from '$app/utils/emoji';
 
 enum SlashCommandPanelTab {
   BASIC = 'basic',
@@ -107,7 +108,25 @@ export function useSlashCommandPanel({
 
       if (!nodeType) return;
 
-      const data = headingTypes.includes(type) ? { level: headingTypeToLevelMap[type] } : {};
+      const data = {};
+
+      if (headingTypes.includes(type)) {
+        Object.assign(data, {
+          level: headingTypeToLevelMap[type],
+        });
+      }
+
+      if (nodeType === EditorNodeType.CalloutBlock) {
+        Object.assign(data, {
+          icon: randomEmoji(),
+        });
+      }
+
+      if (nodeType === EditorNodeType.CodeBlock) {
+        Object.assign(data, {
+          language: 'javascript',
+        });
+      }
 
       closePanel(true);
 
@@ -115,18 +134,16 @@ export function useSlashCommandPanel({
 
       if (!newNode) return;
 
-      const isEmpty = Editor.isEmpty(editor, newNode);
+      const isEmpty = CustomEditor.isEmptyText(editor, newNode);
 
-      if (isEmpty) {
-        CustomEditor.turnToBlock(editor, {
-          type: nodeType,
-          data,
-        });
-        return;
+      if (!isEmpty) {
+        Transforms.splitNodes(editor, { always: true });
       }
 
-      Transforms.splitNodes(editor, { always: true });
-      Transforms.setNodes(editor, { type: nodeType, data });
+      CustomEditor.turnToBlock(editor, {
+        type: nodeType,
+        data,
+      });
     },
     [editor, closePanel]
   );

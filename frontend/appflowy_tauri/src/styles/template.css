@@ -8,7 +8,9 @@ body {
   height: 100%;
   overflow: hidden;
 }
-
+[contenteditable] {
+    -webkit-tap-highlight-color: transparent;
+}
 input,
 textarea {
   outline: 0;
@@ -36,6 +38,19 @@ body {
 body {
     scrollbar-track-color: var(--bg-body);
     scrollbar-shadow-color: var(--bg-body);
+}
+
+.block-element[data-block-type="paragraph"] .block-element {
+    margin-left: 24px;
+}
+
+.block-element[data-block-type="todo_list"] .checked > .text-element {
+    text-decoration: line-through;
+    color: var(--text-caption);
+}
+
+.block-element .collapsed .block-element {
+    display: none;
 }
 
 .btn {

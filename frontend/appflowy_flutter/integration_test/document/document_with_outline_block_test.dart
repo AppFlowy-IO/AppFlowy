@@ -15,7 +15,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',
         layout: ViewLayoutPB.Document,
       );
@@ -32,7 +32,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',
         layout: ViewLayoutPB.Document,
       );

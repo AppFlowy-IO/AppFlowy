@@ -25,10 +25,7 @@ interface EditorInlineAttributes {
 type CustomElement = {
   children: (CustomText | CustomElement)[];
   type: string;
-  level?: number;
   data?: unknown;
-  isHidden?: boolean;
-  parentId?: string;
   blockId?: string;
   textId?: string;
 };

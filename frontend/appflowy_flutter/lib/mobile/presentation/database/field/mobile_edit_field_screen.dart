@@ -2,7 +2,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_backend_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/field_visibility_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,7 @@ class MobileEditPropertyScreen extends StatefulWidget {
   });
 
   final String viewId;
-  final FieldPB field;
+  final FieldInfo field;
 
   @override
   State<MobileEditPropertyScreen> createState() =>
@@ -28,12 +30,17 @@ class MobileEditPropertyScreen extends StatefulWidget {
 }
 
 class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
-  late FieldOptionValues optionValues;
+  late final FieldBackendService fieldService;
+  late FieldOptionValues field;
 
   @override
   void initState() {
     super.initState();
-    optionValues = FieldOptionValues.fromField(field: widget.field);
+    field = FieldOptionValues.fromField(field: widget.field.field);
+    fieldService = FieldBackendService(
+      viewId: widget.viewId,
+      fieldId: widget.field.id,
+    );
   }
 
   @override
@@ -47,24 +54,40 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
         title: FlowyText.medium(
           LocaleKeys.grid_field_editProperty.tr(),
         ),
-        leading: AppBarCancelButton(
+        leading: AppBarBackButton(
           onTap: () => context.pop(),
         ),
-        leadingWidth: 120,
-        actions: [
-          _SaveButton(
-            onSave: () {
-              context.pop(optionValues);
-            },
-          ),
-        ],
       ),
       body: FieldOptionEditor(
         mode: FieldOptionMode.edit,
         isPrimary: widget.field.isPrimary,
-        defaultValues: optionValues,
-        onOptionValuesChanged: (optionValues) {
-          this.optionValues = optionValues;
+        defaultValues: field,
+        actions: [
+          if (widget.field.fieldSettings?.visibility.isVisibleState() ?? true)
+            FieldOptionAction.hide
+          else
+            FieldOptionAction.show,
+          FieldOptionAction.duplicate,
+          FieldOptionAction.delete,
+        ],
+        onOptionValuesChanged: (newField) async {
+          if (newField.name != field.name) {
+            await fieldService.updateField(name: newField.name);
+          }
+
+          if (newField.type != field.type) {
+            await fieldService.updateFieldType(fieldType: newField.type);
+          }
+
+          final data = newField.getTypeOptionData();
+          if (data != null) {
+            await FieldBackendService.updateFieldTypeOption(
+              viewId: viewId,
+              fieldId: widget.field.id,
+              typeOptionData: data,
+            );
+          }
+          // setState(() => field = newField);
         },
         onAction: (action) {
           final service = FieldServices(
@@ -81,34 +104,12 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
             case FieldOptionAction.hide:
               service.hide();
               break;
+            case FieldOptionAction.show:
+              service.show();
+              break;
           }
           context.pop();
         },
-      ),
-    );
-  }
-}
-
-class _SaveButton extends StatelessWidget {
-  const _SaveButton({
-    required this.onSave,
-  });
-
-  final VoidCallback onSave;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16.0),
-      child: Align(
-        alignment: Alignment.center,
-        child: GestureDetector(
-          onTap: onSave,
-          child: FlowyText.medium(
-            LocaleKeys.button_save.tr(),
-            color: const Color(0xFF00ADDC),
-          ),
-        ),
       ),
     );
   }

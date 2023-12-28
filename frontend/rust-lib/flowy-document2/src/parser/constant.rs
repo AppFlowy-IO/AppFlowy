@@ -105,6 +105,9 @@ pub const FONT_STYLE: &str = "font-style";
 pub const TEXT_DECORATION: &str = "text-decoration";
 
 pub const BACKGROUND_COLOR: &str = "background-color";
+
+pub const TRANSPARENT: &str = "transparent";
+pub const DEFAULT_FONT_COLOR: &str = "rgb(0, 0, 0)";
 pub const COLOR: &str = "color";
 pub const LINE_THROUGH: &str = "line-through";
 

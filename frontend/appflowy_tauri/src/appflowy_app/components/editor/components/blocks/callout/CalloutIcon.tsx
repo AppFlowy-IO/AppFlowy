@@ -27,7 +27,7 @@ function CalloutIcon({ node }: { node: CalloutNode }) {
         onClick={() => {
           setOpen(true);
         }}
-        className={`p-1`}
+        className={`h-8 w-8 p-1`}
       >
         {node.data.icon}
       </IconButton>

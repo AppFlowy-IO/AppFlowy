@@ -121,7 +121,10 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   fn open_workspace(&self, _workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
     FutureResult::new(async {
-      Err(FlowyError::not_support().with_context("local server doesn't support open workspace"))
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("local server doesn't support open workspace"),
+      )
     })
   }
 
@@ -141,7 +144,8 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     &self,
     _collab_object: &CollabObject,
     _data: Vec<u8>,
-  ) -> FutureResult<(), Error> {
+    _override_if_exist: bool,
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 }

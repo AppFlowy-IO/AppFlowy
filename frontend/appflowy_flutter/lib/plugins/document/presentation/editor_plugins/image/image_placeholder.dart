@@ -104,6 +104,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     } else {
       return GestureDetector(
         onTap: () {
+          editorState.updateSelectionWithReason(null, extraInfo: {});
           showUploadImageMenu();
         },
         child: child,

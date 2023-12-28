@@ -17,7 +17,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       final card1 = find.ancestor(
         of: find.findTextInFlowyText(card1Name),
         matching: find.byType(AppFlowyGroupCard),

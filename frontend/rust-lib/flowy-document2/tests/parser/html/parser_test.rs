@@ -18,7 +18,7 @@ macro_rules! generate_test_cases {
 /// - input html: <p>Hello</p><p> World!</p>
 #[tokio::test]
 async fn html_to_document_test() {
-  let test_cases = generate_test_cases!(notion, google_docs);
+  let test_cases = generate_test_cases!(notion, google_docs, simple);
 
   for (json, html) in test_cases.iter() {
     let parser = ExternalDataToNestedJSONParser::new(html.to_string(), InputType::Html);

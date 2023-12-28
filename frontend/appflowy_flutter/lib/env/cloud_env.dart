@@ -105,7 +105,7 @@ enum AuthenticatorType {
   supabase,
   appflowyCloud;
 
-  bool get isEnabled => this != AuthenticatorType.local;
+  bool get isLocal => this == AuthenticatorType.local;
   int get value {
     switch (this) {
       case AuthenticatorType.local:
@@ -161,8 +161,12 @@ class AppFlowyCloudSharedEnv {
     if (Env.enableCustomCloud) {
       // Use the custom cloud configuration.
       final cloudType = await getAuthenticatorType();
-      final appflowyCloudConfig = await getAppFlowyCloudConfig();
-      final supabaseCloudConfig = await getSupabaseCloudConfig();
+      final appflowyCloudConfig = cloudType.isLocal
+          ? AppFlowyCloudConfiguration.defaultConfig()
+          : await getAppFlowyCloudConfig();
+      final supabaseCloudConfig = cloudType.isLocal
+          ? SupabaseConfiguration.defaultConfig()
+          : await getSupabaseCloudConfig();
 
       return AppFlowyCloudSharedEnv(
         authenticatorType: cloudType,
@@ -183,6 +187,13 @@ class AppFlowyCloudSharedEnv {
         supabaseConfig: SupabaseConfiguration.defaultConfig(),
       );
     }
+  }
+
+  @override
+  String toString() {
+    return 'authenticator: $_authenticatorType\n'
+        'appflowy: ${appflowyCloudConfig.toJson()}\n'
+        'supabase: ${supabaseConfig.toJson()})\n';
   }
 }
 

@@ -20,7 +20,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: 'math equation',
         layout: ViewLayoutPB.Document,
       );
@@ -66,7 +66,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: 'math equation',
         layout: ViewLayoutPB.Document,
       );

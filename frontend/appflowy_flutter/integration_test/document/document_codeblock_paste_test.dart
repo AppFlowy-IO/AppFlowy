@@ -18,7 +18,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName();
+      await tester.createNewPageWithNameUnderParent();
 
       // mock the clipboard
       const lines = 3;

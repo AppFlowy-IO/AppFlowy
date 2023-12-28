@@ -98,12 +98,10 @@ where
 
       // Query the user profile and workspaces
       tracing::debug!("user uuid: {}", params.uuid);
-      let user_profile = get_user_profile(
-        postgrest.clone(),
-        GetUserProfileParams::Uuid(params.uuid.clone()),
-      )
-      .await?
-      .unwrap();
+      let user_profile =
+        get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid))
+          .await?
+          .unwrap();
       let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.uid).await?;
       let latest_workspace = user_workspaces
         .iter()
@@ -137,7 +135,7 @@ where
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
       let params = oauth_params_from_box_any(params)?;
-      let uuid = params.uuid.clone();
+      let uuid = params.uuid;
       let response = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
         .await?
         .unwrap();
@@ -311,15 +309,16 @@ where
   fn create_collab_object(
     &self,
     collab_object: &CollabObject,
-    update: Vec<u8>,
-  ) -> FutureResult<(), Error> {
+    data: Vec<u8>,
+    _override_if_exist: bool,
+  ) -> FutureResult<(), FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let cloned_collab_object = collab_object.clone();
     let (tx, rx) = channel();
     af_spawn(async move {
       tx.send(
         async move {
-          CreateCollabAction::new(cloned_collab_object, try_get_postgrest?, update)
+          CreateCollabAction::new(cloned_collab_object, try_get_postgrest?, data)
             .run()
             .await?;
           Ok(())

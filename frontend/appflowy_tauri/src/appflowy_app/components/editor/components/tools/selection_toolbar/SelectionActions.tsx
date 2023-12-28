@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ReactEditor, useSlate } from 'slate-react';
 import IconButton from '@mui/material/IconButton';
-
+import { Range } from 'slate';
 import {
   SelectionAction,
   useBlockFormatActions,
@@ -14,6 +14,7 @@ import Popover from '@mui/material/Popover';
 import { EditorStyleFormat } from '$app/application/document/document.types';
 import { PopoverPreventBlurProps } from '$app/components/editor/components/tools/popover';
 import { Tooltip } from '@mui/material';
+import { CustomEditor } from '$app/components/editor/command';
 
 function SelectionActions({
   toolbarVisible,
@@ -48,7 +49,32 @@ function SelectionActions({
     handleBlur();
   }, [handleBlur]);
 
-  const isMultiple = editor.getFragment().length > 1;
+  const [isMultiple, setIsMultiple] = useState(false);
+  const getIsMultiple = useCallback(() => {
+    if (!editor.selection) return false;
+    const selection = editor.selection;
+    const start = selection.anchor;
+    const end = selection.focus;
+
+    if (!start || !end) return false;
+
+    if (!Range.isExpanded(selection)) return false;
+
+    const startNode = CustomEditor.getBlock(editor, start);
+
+    const endNode = CustomEditor.getBlock(editor, end);
+
+    return Boolean(startNode && endNode && startNode[0].blockId !== endNode[0].blockId);
+  }, [editor]);
+
+  useEffect(() => {
+    if (toolbarVisible) {
+      setIsMultiple(getIsMultiple());
+    } else {
+      setIsMultiple(false);
+    }
+  }, [editor, getIsMultiple, toolbarVisible]);
+
   const markOptions = useSelectionMarkFormatActions(editor);
   const textOptions = useSelectionTextFormatActions(editor);
   const blockOptions = useBlockFormatActions(editor);

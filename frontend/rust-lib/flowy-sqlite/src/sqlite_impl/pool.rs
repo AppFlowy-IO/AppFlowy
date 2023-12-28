@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Duration};
 
-use diesel::{connection::Connection, SqliteConnection};
+use diesel::{connection::Connection, r2d2::R2D2Connection, SqliteConnection};
 use r2d2::{CustomizeConnection, ManageConnection, Pool};
 use scheduled_thread_pool::ScheduledThreadPool;
 
@@ -94,7 +94,7 @@ impl ManageConnection for ConnectionManager {
   }
 
   fn is_valid(&self, conn: &mut Self::Connection) -> Result<()> {
-    Ok(conn.execute("SELECT 1").map(|_| ())?)
+    Ok(conn.ping()?)
   }
 
   fn has_broken(&self, _conn: &mut Self::Connection) -> bool {

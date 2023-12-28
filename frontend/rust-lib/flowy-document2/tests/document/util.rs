@@ -57,7 +57,13 @@ pub struct FakeUser {
 
 impl FakeUser {
   pub fn new() -> Self {
-    Self { collab_db: db() }
+    setup_log();
+
+    let tempdir = TempDir::new().unwrap();
+    let path = tempdir.into_path();
+    let collab_db = Arc::new(RocksCollabDB::open(path).unwrap());
+
+    Self { collab_db }
   }
 }
 
@@ -79,7 +85,7 @@ impl DocumentUser for FakeUser {
   }
 }
 
-pub fn db() -> Arc<RocksCollabDB> {
+pub fn setup_log() {
   static START: Once = Once::new();
   START.call_once(|| {
     std::env::set_var("RUST_LOG", "collab_persistence=trace");
@@ -89,10 +95,6 @@ pub fn db() -> Arc<RocksCollabDB> {
       .finish();
     subscriber.try_init().unwrap();
   });
-
-  let tempdir = TempDir::new().unwrap();
-  let path = tempdir.into_path();
-  Arc::new(RocksCollabDB::open(path).unwrap())
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
@@ -129,7 +131,7 @@ pub fn gen_id() -> String {
 
 pub struct LocalTestDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     _document_id: &str,
     _workspace_id: &str,

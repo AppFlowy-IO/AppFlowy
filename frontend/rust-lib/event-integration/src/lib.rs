@@ -1,14 +1,18 @@
 use std::env::temp_dir;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 
 use nanoid::nanoid;
 use parking_lot::RwLock;
+use tokio::select;
+use tokio::time::sleep;
 
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
-use flowy_user::entities::AuthTypePB;
+use flowy_server::AppFlowyServer;
+use flowy_user::entities::AuthenticatorPB;
 
 use crate::user_event::TestNotificationSender;
 
@@ -21,8 +25,8 @@ pub mod user_event;
 
 #[derive(Clone)]
 pub struct EventIntegrationTest {
-  pub auth_type: Arc<RwLock<AuthTypePB>>,
-  pub inner: AppFlowyCore,
+  pub authenticator: Arc<RwLock<AuthenticatorPB>>,
+  pub appflowy_core: AppFlowyCore,
   #[allow(dead_code)]
   cleaner: Arc<Cleaner>,
   pub notification_sender: TestNotificationSender,
@@ -34,6 +38,7 @@ impl EventIntegrationTest {
     std::fs::create_dir_all(&temp_dir).unwrap();
     Self::new_with_user_data_path(temp_dir, nanoid!(6)).await
   }
+
   pub async fn new_with_user_data_path(path_buf: PathBuf, name: String) -> Self {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
@@ -42,20 +47,59 @@ impl EventIntegrationTest {
       vec![
         "flowy_test".to_string(),
         "tokio".to_string(),
-        "lib_dispatch".to_string(),
+        // "lib_dispatch".to_string(),
       ],
     );
 
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
-    let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
+    let authenticator = Arc::new(RwLock::new(AuthenticatorPB::Local));
     register_notification_sender(notification_sender.clone());
+
+    // In case of dropping the runtime that runs the core, we need to forget the dispatcher
     std::mem::forget(inner.dispatcher());
     Self {
-      inner,
-      auth_type,
+      appflowy_core: inner,
+      authenticator,
       notification_sender,
       cleaner: Arc::new(Cleaner(path_buf)),
+    }
+  }
+
+  pub fn get_appflowy_cloud_server(&self) -> Arc<dyn AppFlowyServer> {
+    self
+      .appflowy_core
+      .server_provider
+      .get_appflowy_cloud_server()
+      .unwrap()
+  }
+
+  pub async fn wait_ws_connected(&self) {
+    if self
+      .get_appflowy_cloud_server()
+      .get_ws_state()
+      .is_connected()
+    {
+      return;
+    }
+
+    let mut ws_state = self
+      .get_appflowy_cloud_server()
+      .subscribe_ws_state()
+      .unwrap();
+    loop {
+      select! {
+        _ = sleep(Duration::from_secs(20)) => {
+          panic!("wait_ws_connected timeout");
+        }
+        state = ws_state.recv() => {
+          if let Ok(state) = &state {
+            if state.is_connected() {
+              break;
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -79,7 +123,7 @@ impl std::ops::Deref for EventIntegrationTest {
   type Target = AppFlowyCore;
 
   fn deref(&self) -> &Self::Target {
-    &self.inner
+    &self.appflowy_core
   }
 }
 

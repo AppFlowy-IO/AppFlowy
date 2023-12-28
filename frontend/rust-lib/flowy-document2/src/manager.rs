@@ -3,6 +3,9 @@ use std::sync::Arc;
 use std::sync::Weak;
 
 use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab_plugin::EncodedCollabV1;
+use collab::core::origin::CollabOrigin;
+use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::{default_document_collab_data, default_document_data};
@@ -12,10 +15,10 @@ use lru::LruCache;
 use parking_lot::Mutex;
 use tracing::{event, instrument};
 
-use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::RocksCollabDB;
 use flowy_document_deps::cloud::DocumentCloudService;
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
 
 use crate::document::MutexDocument;
@@ -88,16 +91,26 @@ impl DocumentManager {
     uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
-  ) -> FlowyResult<Arc<MutexDocument>> {
+  ) -> FlowyResult<()> {
     tracing::trace!("create a document: {:?}", doc_id);
-
     if self.is_doc_exist(doc_id).unwrap_or(false) {
-      self.get_document(doc_id).await
+      Err(FlowyError::new(
+        ErrorCode::RecordAlreadyExists,
+        format!("document {} already exists", doc_id),
+      ))
     } else {
-      let collab = self.collab_for_document(uid, doc_id, vec![]).await?;
-      let data = data.unwrap_or_else(default_document_data);
-      let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
-      Ok(document)
+      let encoded_collab_v1 =
+        doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?;
+      let collab = self
+        .collab_for_document(
+          uid,
+          doc_id,
+          vec![encoded_collab_v1.doc_state.to_vec()],
+          false,
+        )
+        .await?;
+      collab.lock().flush();
+      Ok(())
     }
   }
 
@@ -113,7 +126,7 @@ impl DocumentManager {
       // Try to get the document from the cloud service
       let result: Result<CollabRawData, FlowyError> = self
         .cloud_service
-        .get_document_updates(doc_id, &self.user.workspace_id()?)
+        .get_document_doc_state(doc_id, &self.user.workspace_id()?)
         .await;
 
       updates = match result {
@@ -138,7 +151,7 @@ impl DocumentManager {
 
     let uid = self.user.user_id()?;
     event!(tracing::Level::DEBUG, "Initialize document: {}", doc_id);
-    let collab = self.collab_for_document(uid, doc_id, updates).await?;
+    let collab = self.collab_for_document(uid, doc_id, updates, true).await?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
@@ -155,11 +168,13 @@ impl DocumentManager {
     if !self.is_doc_exist(doc_id)? {
       updates = self
         .cloud_service
-        .get_document_updates(doc_id, &self.user.workspace_id()?)
+        .get_document_doc_state(doc_id, &self.user.workspace_id()?)
         .await?;
     }
     let uid = self.user.user_id()?;
-    let collab = self.collab_for_document(uid, doc_id, updates).await?;
+    let collab = self
+      .collab_for_document(uid, doc_id, updates, false)
+      .await?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
@@ -218,12 +233,20 @@ impl DocumentManager {
     &self,
     uid: i64,
     doc_id: &str,
-    updates: Vec<Vec<u8>>,
+    doc_state: Vec<Vec<u8>>,
+    sync_enable: bool,
   ) -> FlowyResult<Arc<MutexCollab>> {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, CollabType::Document, updates, db)
+      .build(
+        uid,
+        doc_id,
+        CollabType::Document,
+        doc_state,
+        db,
+        CollabBuilderConfig::default().sync_enable(sync_enable),
+      )
       .await?;
     Ok(collab)
   }
@@ -248,4 +271,17 @@ impl DocumentManager {
   pub fn get_file_storage_service(&self) -> &Weak<dyn FileStorageService> {
     &self.storage_service
   }
+}
+
+fn doc_state_from_document_data(
+  doc_id: &str,
+  data: DocumentData,
+) -> Result<EncodedCollabV1, FlowyError> {
+  let collab = Arc::new(MutexCollab::from_collab(Collab::new_with_origin(
+    CollabOrigin::Empty,
+    doc_id,
+    vec![],
+  )));
+  let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
+  Ok(collab.encode_collab_v1())
 }

@@ -2,13 +2,13 @@ import React from 'react';
 
 import { Element } from 'slate';
 import AddBlockBelow from '$app/components/editor/components/tools/block_actions/AddBlockBelow';
-import DragBlock from '$app/components/editor/components/tools/block_actions/DragBlock';
+import BlockMenu from '$app/components/editor/components/tools/block_actions/BlockMenu';
 
-export function BlockActions({ node, onSelectedBlock }: { node: Element; onSelectedBlock: (blockId: string) => void }) {
+export function BlockActions({ node }: { node?: Element }) {
   return (
     <>
       <AddBlockBelow node={node} />
-      <DragBlock node={node} onSelectedBlock={onSelectedBlock} />
+      <BlockMenu node={node} />
     </>
   );
 }

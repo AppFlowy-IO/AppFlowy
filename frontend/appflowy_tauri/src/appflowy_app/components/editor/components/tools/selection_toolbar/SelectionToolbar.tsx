@@ -11,7 +11,7 @@ export const SelectionToolbar = memo(() => {
     <div
       ref={ref}
       className={
-        'selection-toolbar pointer-events-none absolute z-10 flex w-fit flex-grow transform items-center rounded-lg bg-[var(--fill-toolbar)] p-2 opacity-0 shadow-lg transition-opacity'
+        'selection-toolbar pointer-events-none absolute z-[100] flex w-fit flex-grow transform items-center rounded-lg bg-[var(--fill-toolbar)] p-2 opacity-0 shadow-lg transition-opacity'
       }
       onMouseDown={(e) => {
         // prevent toolbar from taking focus away from editor

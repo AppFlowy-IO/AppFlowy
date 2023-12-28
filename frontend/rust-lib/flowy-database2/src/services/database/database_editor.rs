@@ -842,14 +842,14 @@ impl DatabaseEditor {
       type_option.delete_option(&option.id);
     }
 
-    notify_did_update_database_field(&self.database, field_id)?;
-    self
-      .database
-      .lock()
-      .fields
-      .update_field(field_id, |update| {
-        update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
-      });
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    update_field_type_option_fn(
+      &self.database,
+      &view_editor,
+      type_option.to_type_option_data(),
+      field.clone(),
+    )
+    .await?;
 
     self
       .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
@@ -1062,7 +1062,7 @@ impl DatabaseEditor {
     &self,
     changeset: DatabaseFieldChangesetPB,
   ) -> FlowyResult<()> {
-    let views = self.database.lock().get_all_views_description();
+    let views = self.database.lock().get_all_database_views_meta();
     for view in views {
       send_notification(&view.id, DatabaseNotification::DidUpdateFields)
         .payload(changeset.clone())
@@ -1618,7 +1618,7 @@ fn notify_did_update_database_field(
       .ok_or(FlowyError::internal().with_context("fail to acquire the lock of database"))?;
     let database_id = database.get_database_id();
     let field = database.fields.get_field(field_id);
-    let views = database.get_all_views_description();
+    let views = database.get_all_database_views_meta();
     (database_id, field, views)
   };
 

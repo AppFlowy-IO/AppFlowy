@@ -129,7 +129,7 @@ fn database_from_fields_and_rows(
   CreateDatabaseParams {
     database_id,
     view_id: view_id.to_string(),
-    name: "".to_string(),
+    view_name: "".to_string(),
     layout: DatabaseLayout::Grid,
     layout_settings: Default::default(),
     filters: vec![],

@@ -22,6 +22,7 @@ function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props)
 
   return (
     <Popover
+      disableRestoreFocus={true}
       open={editing}
       anchorEl={anchorEl}
       PaperProps={{

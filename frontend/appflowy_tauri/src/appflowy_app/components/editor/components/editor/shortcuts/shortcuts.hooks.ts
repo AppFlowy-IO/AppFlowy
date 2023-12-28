@@ -58,8 +58,15 @@ export function useShortcuts(editor: ReactEditor) {
         });
       }
 
+      const node = getBlock(editor);
+
       if (isHotkey('Tab', e)) {
         e.preventDefault();
+        if (SOFT_BREAK_TYPES.includes(node?.type as EditorNodeType)) {
+          editor.insertText('\t');
+          return;
+        }
+
         return CustomEditor.tabForward(editor);
       }
 
@@ -68,14 +75,21 @@ export function useShortcuts(editor: ReactEditor) {
         return CustomEditor.tabBackward(editor);
       }
 
-      const node = getBlock(editor);
+      if (isHotkey('Enter', e)) {
+        if (SOFT_BREAK_TYPES.includes(node?.type as EditorNodeType)) {
+          e.preventDefault();
+          editor.insertText('\n');
+          return;
+        }
+      }
 
       if (isHotkey('shift+Enter', e) && node) {
+        e.preventDefault();
         if (SOFT_BREAK_TYPES.includes(node.type as EditorNodeType)) {
-          e.preventDefault();
-          CustomEditor.splitToParagraph(editor);
-        } else if (node.type === EditorNodeType.Paragraph) {
-          e.preventDefault();
+          editor.splitNodes({
+            always: true,
+          });
+        } else {
           editor.insertText('\n');
         }
 

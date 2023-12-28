@@ -6,7 +6,7 @@ interface Props {
 }
 
 function RecordDocument({ documentId }: Props) {
-  return <Editor id={documentId} />;
+  return <Editor id={documentId} showTitle={false} />;
 }
 
 export default React.memo(RecordDocument);

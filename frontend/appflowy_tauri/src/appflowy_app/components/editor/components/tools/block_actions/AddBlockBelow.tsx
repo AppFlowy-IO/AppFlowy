@@ -6,11 +6,11 @@ import { PopoverPreventBlurProps } from '$app/components/editor/components/tools
 import SlashCommandPanelContent from '$app/components/editor/components/tools/command_panel/slash_command_panel/SlashCommandPanelContent';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { useTranslation } from 'react-i18next';
-import { Editor, Element, Transforms } from 'slate';
-import { EditorNodeType } from '$app/application/document/document.types';
+import { Element } from 'slate';
 import { CustomEditor } from '$app/components/editor/command';
+import { EditorNodeType } from '$app/application/document/document.types';
 
-function AddBlockBelow({ node }: { node: Element }) {
+function AddBlockBelow({ node }: { node?: Element }) {
   const { t } = useTranslation();
   const [nodeEl, setNodeEl] = useState<HTMLElement | null>(null);
   const editor = useSlate();
@@ -19,23 +19,12 @@ function AddBlockBelow({ node }: { node: Element }) {
   const handleSlashCommandPanelClose = useCallback(
     (deleteText?: boolean) => {
       if (!nodeEl) return;
-      const node = ReactEditor.toSlateNode(editor, nodeEl);
+      const node = ReactEditor.toSlateNode(editor, nodeEl) as Element;
+
+      if (!node) return;
 
       if (deleteText) {
-        const path = ReactEditor.findPath(editor, node);
-
-        Transforms.select(editor, path);
-        Transforms.insertNodes(
-          editor,
-          [
-            {
-              text: '',
-            },
-          ],
-          {
-            select: true,
-          }
-        );
+        CustomEditor.deleteAllText(editor, node);
       }
 
       setNodeEl(null);
@@ -47,44 +36,53 @@ function AddBlockBelow({ node }: { node: Element }) {
     if (!node) return;
     ReactEditor.focus(editor);
 
-    const path = ReactEditor.findPath(editor, node);
+    const [textNode] = node.children as Element[];
+    const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
 
-    editor.select(path);
+    const nodePath = ReactEditor.findPath(editor, node);
+    const textPath = ReactEditor.findPath(editor, textNode);
+
+    const focusPath = hasTextNode ? textPath : nodePath;
+
+    editor.select(focusPath);
     editor.collapse({
       edge: 'end',
     });
 
-    const isEmptyNode = editor.isEmpty(node);
+    const isEmptyNode = CustomEditor.isEmptyText(editor, node);
 
     if (isEmptyNode) {
       const nodeDom = ReactEditor.toDOMNode(editor, node);
 
       setNodeEl(nodeDom);
-    } else {
-      CustomEditor.splitToParagraph(editor);
+      return;
+    }
 
-      requestAnimationFrame(() => {
-        const nextNodeEntry = Editor.next(editor, {
-          at: path,
-          match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) && n.type === EditorNodeType.Paragraph,
-        });
+    editor.insertBreak();
+    CustomEditor.turnToBlock(editor, {
+      type: EditorNodeType.Paragraph,
+    });
 
-        if (!nextNodeEntry) return;
-        const nextNode = nextNodeEntry[0] as Element;
+    requestAnimationFrame(() => {
+      const block = CustomEditor.getBlock(editor);
 
-        const nodeDom = ReactEditor.toDOMNode(editor, nextNode);
+      if (block) {
+        const [node] = block;
+
+        const nodeDom = ReactEditor.toDOMNode(editor, node);
 
         setNodeEl(nodeDom);
-      });
-    }
+      }
+    });
   };
 
   const searchText = useMemo(() => {
     if (!nodeEl) return '';
-    const node = ReactEditor.toSlateNode(editor, nodeEl);
-    const path = ReactEditor.findPath(editor, node);
+    const node = ReactEditor.toSlateNode(editor, nodeEl) as Element;
 
-    return Editor.string(editor, path);
+    if (!node) return '';
+
+    return CustomEditor.getNodeText(editor, node);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, nodeEl, editor.selection]);
 
@@ -100,13 +98,12 @@ function AddBlockBelow({ node }: { node: Element }) {
           {...PopoverPreventBlurProps}
           anchorOrigin={{
             vertical: 30,
-            horizontal: 64,
+            horizontal: 'left',
           }}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'left',
           }}
-          onMouseMove={(e) => e.stopPropagation()}
           open={openSlashCommandPanel}
           anchorEl={nodeEl}
           onClose={() => handleSlashCommandPanelClose(false)}

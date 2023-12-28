@@ -1,46 +1,24 @@
 import * as Y from 'yjs';
-import { YDelta } from '$app/components/editor/provider/types/y_event';
 
-export function findPreviousSibling(yXmlText: Y.XmlText) {
-  let prev = yXmlText.prevSibling;
+export function getInsertTarget(root: Y.XmlText, path: (string | number)[]): Y.XmlText {
+  const delta = root.toDelta();
+  const index = path[0];
 
-  if (!prev) return null;
+  const current = delta[index];
 
-  const level = yXmlText.getAttribute('level');
-
-  while (prev) {
-    const prevLevel = prev.getAttribute('level');
-
-    if (prevLevel === level) return prev;
-    if (prevLevel < level) return null;
-
-    prev = prev.prevSibling;
-  }
-
-  return prev;
-}
-
-export function fillIdRelationMap(yXmlText: Y.XmlText, idRelationMap: Y.Map<string>) {
-  const id = yXmlText.getAttribute('blockId');
-  const parentId = yXmlText.getAttribute('parentId');
-
-  if (id && parentId) {
-    idRelationMap.set(id, parentId);
-  }
-}
-
-export function convertToIdList(ops: YDelta) {
-  return ops.map((op) => {
-    if (op.insert instanceof Y.XmlText) {
-      const id = op.insert.getAttribute('blockId');
-
-      return {
-        insert: {
-          id,
-        },
-      };
+  if (current && current.insert instanceof Y.XmlText) {
+    if (path.length === 1) {
+      return current.insert;
     }
 
-    return op;
-  });
+    return getInsertTarget(current.insert, path.slice(1));
+  }
+
+  return root;
+}
+
+export function getYTarget(doc: Y.Doc, path: (string | number)[]) {
+  const sharedType = doc.get('sharedType', Y.XmlText) as Y.XmlText;
+
+  return getInsertTarget(sharedType, path);
 }

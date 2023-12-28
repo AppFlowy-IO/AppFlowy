@@ -61,6 +61,7 @@ export const SelectCell: FC<{
         {open ? (
           <Menu
             keepMounted={false}
+            disableRestoreFocus={true}
             className='h-full w-full'
             open={open}
             anchorEl={anchorEl}

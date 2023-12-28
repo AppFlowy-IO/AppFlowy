@@ -59,6 +59,7 @@ extension InsertImage on EditorState {
         offset: 0,
       ),
     );
+    transaction.selectionExtraInfo = {};
 
     return apply(transaction);
   }

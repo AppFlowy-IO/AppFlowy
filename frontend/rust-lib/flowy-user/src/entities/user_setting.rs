@@ -114,22 +114,13 @@ impl std::default::Default for LocaleSettingsPB {
   }
 }
 
-#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone, Default)]
 pub struct DocumentSettingsPB {
   #[pb(index = 1, one_of)]
   pub cursor_color: Option<String>,
 
   #[pb(index = 2, one_of)]
   pub selection_color: Option<String>,
-}
-
-impl std::default::Default for DocumentSettingsPB {
-  fn default() -> Self {
-    Self {
-      cursor_color: None,
-      selection_color: None,
-    }
-  }
 }
 
 pub const APPEARANCE_DEFAULT_THEME: &str = "Default";

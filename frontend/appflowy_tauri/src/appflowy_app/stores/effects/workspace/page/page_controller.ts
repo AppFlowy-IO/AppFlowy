@@ -73,7 +73,8 @@ export class PageController {
   subscribe = async (callbacks: { onPageChanged?: (page: Page, children: Page[]) => void }) => {
     const didUpdateView = (payload: Uint8Array) => {
       const res = ViewPB.deserializeBinary(payload);
-      const page = parserViewPBToPage(ViewPB.deserializeBinary(payload));
+      const page = parserViewPBToPage(res);
+
       const childPages = res.child_views.map(parserViewPBToPage);
 
       callbacks.onPageChanged?.(page, childPages);

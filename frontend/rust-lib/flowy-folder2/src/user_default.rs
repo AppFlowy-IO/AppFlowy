@@ -54,6 +54,7 @@ impl DefaultFolderBuilder {
       views: FlattedViews::flatten_views(views),
       favorites: Default::default(),
       recent: Default::default(),
+      trash: Default::default(),
     }
   }
 }

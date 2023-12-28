@@ -35,6 +35,7 @@ export const PropertyMenu: FC<GridFieldMenuProps> = ({ field, ...props }) => {
 
   return (
     <Popover
+      disableRestoreFocus={true}
       transformOrigin={{
         vertical: -10,
         horizontal: 'left',

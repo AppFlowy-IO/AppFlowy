@@ -620,7 +620,7 @@
       "aquaColor": "Aqua",
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
-      "colorPanelTitle": "Colors",
+      "colorPanelTitle": "Color",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search or create an option...",
@@ -1171,7 +1171,8 @@
     "rowDuplicate": "Duplicate",
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
-    "slashPlaceHolder": "Type '/' to insert a block, or start typing"
+    "slashPlaceHolder": "Type '/' to insert a block, or start typing",
+    "typeSomething": "Type something..."
   },
   "favorite": {
     "noFavorite": "No favorite page",

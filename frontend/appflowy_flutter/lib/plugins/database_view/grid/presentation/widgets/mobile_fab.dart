@@ -39,7 +39,9 @@ Widget getGridFabs(BuildContext context) {
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         onTap: () {
-          context.read<GridBloc>().add(const GridEvent.createRow());
+          context
+              .read<GridBloc>()
+              .add(const GridEvent.createRow(openRowDetail: true));
         },
         overlayColor: const MaterialStatePropertyAll<Color>(Color(0xFF009FD1)),
         boxShadow: const BoxShadow(
@@ -81,7 +83,9 @@ class MobileGridFab extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: const Border.fromBorderSide(BorderSide( width: 0.5, color: Color(0xFFE4EDF0))),
+        border: const Border.fromBorderSide(
+          BorderSide(width: 0.5, color: Color(0xFFE4EDF0)),
+        ),
         borderRadius: radius,
         boxShadow: [boxShadow],
       ),

@@ -168,6 +168,14 @@ impl AppFlowyServer for AppFlowyCloudServer {
     Arc::new(AFCloudDocumentCloudServiceImpl(server))
   }
 
+  fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {
+    Some(self.ws_client.subscribe_connect_state())
+  }
+
+  fn get_ws_state(&self) -> ConnectState {
+    self.ws_client.get_state()
+  }
+
   #[allow(clippy::type_complexity)]
   fn collab_ws_channel(
     &self,

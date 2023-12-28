@@ -105,14 +105,14 @@ Future<String> insertInlinePage(
   // create a new grid
   final id = uuid();
   final name = '${layout.name}_$id';
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: name,
     layout: layout,
     openAfterCreated: false,
   );
 
   // create a new document
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: 'insert_a_inline_page_${layout.name}',
     layout: ViewLayoutPB.Document,
   );

@@ -18,7 +18,7 @@ use crate::EventIntegrationTest;
 const TEXT_BLOCK_TY: &str = "paragraph";
 
 pub struct DocumentEventTest {
-  inner: EventIntegrationTest,
+  event_test: EventIntegrationTest,
 }
 
 pub struct OpenDocumentData {
@@ -29,15 +29,15 @@ pub struct OpenDocumentData {
 impl DocumentEventTest {
   pub async fn new() -> Self {
     let sdk = EventIntegrationTest::new_with_guest_user().await;
-    Self { inner: sdk }
+    Self { event_test: sdk }
   }
 
   pub fn new_with_core(core: EventIntegrationTest) -> Self {
-    Self { inner: core }
+    Self { event_test: core }
   }
 
   pub async fn create_document(&self) -> ViewPB {
-    let core = &self.inner;
+    let core = &self.event_test;
     let current_workspace = core.get_current_workspace().await;
     let parent_id = current_workspace.id.clone();
 
@@ -61,22 +61,12 @@ impl DocumentEventTest {
   }
 
   pub async fn open_document(&self, doc_id: String) -> OpenDocumentData {
-    let core = &self.inner;
-    let payload = OpenDocumentPayloadPB {
-      document_id: doc_id.clone(),
-    };
-    let data = EventBuilder::new(core.clone())
-      .event(DocumentEvent::OpenDocument)
-      .payload(payload)
-      .async_send()
-      .await
-      .parse::<DocumentDataPB>();
-    OpenDocumentData { id: doc_id, data }
+    self.event_test.open_document(doc_id).await
   }
 
   pub async fn get_block(&self, doc_id: &str, block_id: &str) -> Option<BlockPB> {
-    let document = self.open_document(doc_id.to_string()).await;
-    document.data.blocks.get(block_id).cloned()
+    let document_data = self.event_test.open_document(doc_id.to_string()).await;
+    document_data.data.blocks.get(block_id).cloned()
   }
 
   pub async fn get_page_id(&self, doc_id: &str) -> String {
@@ -85,8 +75,8 @@ impl DocumentEventTest {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> DocumentDataPB {
-    let document = self.open_document(doc_id.to_string()).await;
-    document.data
+    let document_data = self.event_test.open_document(doc_id.to_string()).await;
+    document_data.data
   }
 
   pub async fn get_block_children(&self, doc_id: &str, block_id: &str) -> Option<Vec<String>> {
@@ -104,7 +94,7 @@ impl DocumentEventTest {
   }
 
   pub async fn apply_actions(&self, payload: ApplyActionPayloadPB) {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ApplyAction)
       .payload(payload)
@@ -116,7 +106,7 @@ impl DocumentEventTest {
     &self,
     payload: ConvertDocumentPayloadPB,
   ) -> ConvertDocumentResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ConvertDocument)
       .payload(payload)
@@ -130,7 +120,7 @@ impl DocumentEventTest {
     &self,
     payload: ConvertDataToJsonPayloadPB,
   ) -> ConvertDataToJsonResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ConvertDataToJSON)
       .payload(payload)
@@ -140,7 +130,7 @@ impl DocumentEventTest {
   }
 
   pub async fn create_text(&self, payload: TextDeltaPayloadPB) {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::CreateText)
       .payload(payload)
@@ -149,7 +139,7 @@ impl DocumentEventTest {
   }
 
   pub async fn apply_text_delta(&self, payload: TextDeltaPayloadPB) {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ApplyTextDeltaEvent)
       .payload(payload)
@@ -158,7 +148,7 @@ impl DocumentEventTest {
   }
 
   pub async fn undo(&self, doc_id: String) -> DocumentRedoUndoResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     let payload = DocumentRedoUndoPayloadPB {
       document_id: doc_id.clone(),
     };
@@ -171,7 +161,7 @@ impl DocumentEventTest {
   }
 
   pub async fn redo(&self, doc_id: String) -> DocumentRedoUndoResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     let payload = DocumentRedoUndoPayloadPB {
       document_id: doc_id.clone(),
     };
@@ -184,7 +174,7 @@ impl DocumentEventTest {
   }
 
   pub async fn can_undo_redo(&self, doc_id: String) -> DocumentRedoUndoResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     let payload = DocumentRedoUndoPayloadPB {
       document_id: doc_id.clone(),
     };

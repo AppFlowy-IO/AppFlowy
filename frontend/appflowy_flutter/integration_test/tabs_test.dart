@@ -32,12 +32,12 @@ void main() {
         findsNothing,
       );
 
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: _documentName,
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: _documentTwoName,
         layout: ViewLayoutPB.Document,
       );

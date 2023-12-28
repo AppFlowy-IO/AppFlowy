@@ -10,7 +10,7 @@ use collab_folder::{
 use parking_lot::{Mutex, RwLock};
 use tracing::{error, event, info, instrument, Level};
 
-use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
@@ -46,9 +46,6 @@ pub struct FolderManager {
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
 }
-
-unsafe impl Send for FolderManager {}
-unsafe impl Sync for FolderManager {}
 
 impl FolderManager {
   pub async fn new(
@@ -137,6 +134,7 @@ impl FolderManager {
         collab_db,
         raw_data,
         &CollabPersistenceConfig::new().enable_snapshot(true),
+        CollabBuilderConfig::default().sync_enable(true),
       )
       .await?;
     Ok(collab)
@@ -1012,8 +1010,8 @@ impl FolderManager {
 
 /// Return the views that belong to the workspace. The views are filtered by the trash.
 pub(crate) fn get_workspace_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
-  let trash_ids = folder
-    .get_all_trash()
+  let items = folder.get_all_trash();
+  let trash_ids = items
     .into_iter()
     .map(|trash| trash.id)
     .collect::<Vec<String>>();
