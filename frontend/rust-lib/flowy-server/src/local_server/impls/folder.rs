@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
 use collab::core::collab::CollabDocState;
+use collab_entity::CollabType;
 
 use flowy_folder_deps::cloud::{
   gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
@@ -51,10 +52,12 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_folder_doc_state(
+  fn get_collab_doc_state_f(
     &self,
-    _workspace_id: &str,
-    _uid: i64,
+    workspace_id: &str,
+    uid: i64,
+    collab_type: CollabType,
+    object_id: &str,
   ) -> FutureResult<CollabDocState, Error> {
     FutureResult::new(async {
       Err(anyhow!(

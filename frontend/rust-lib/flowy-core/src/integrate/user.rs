@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Context;
+use collab_entity::CollabType;
 use tracing::event;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -146,7 +147,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       // for initializing a default workspace differs depending on the sign-up method used.
       let data_source = match folder_manager
         .cloud_service
-        .get_folder_doc_state(&user_workspace.id, user_profile.uid)
+        .get_collab_doc_state_f(
+          &user_workspace.id,
+          user_profile.uid,
+          CollabType::Folder,
+          &user_workspace.id,
+        )
         .await
       {
         Ok(doc_state) => FolderInitDataSource::Cloud(doc_state),

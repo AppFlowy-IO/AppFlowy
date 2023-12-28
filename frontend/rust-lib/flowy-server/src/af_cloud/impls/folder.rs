@@ -87,19 +87,22 @@ where
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_folder_doc_state(
+  fn get_collab_doc_state_f(
     &self,
     workspace_id: &str,
-    _uid: i64,
+    uid: i64,
+    collab_type: CollabType,
+    object_id: &str,
   ) -> FutureResult<CollabDocState, Error> {
+    let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let params = QueryCollabParams {
-        workspace_id: workspace_id.clone(),
+        workspace_id,
         inner: QueryCollab {
-          object_id: workspace_id,
-          collab_type: CollabType::Folder,
+          object_id,
+          collab_type,
         },
       };
       let doc_state = try_get_client?

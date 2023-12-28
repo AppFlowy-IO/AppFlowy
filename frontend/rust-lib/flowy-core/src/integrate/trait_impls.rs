@@ -185,17 +185,20 @@ impl FolderCloudService for ServerProvider {
     })
   }
 
-  fn get_folder_doc_state(
+  fn get_collab_doc_state_f(
     &self,
     workspace_id: &str,
     uid: i64,
+    collab_type: CollabType,
+    object_id: &str,
   ) -> FutureResult<CollabDocState, Error> {
+    let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_folder_doc_state(&workspace_id, uid)
+        .get_collab_doc_state_f(&workspace_id, uid, collab_type, &object_id)
         .await
     })
   }
@@ -209,7 +212,7 @@ impl FolderCloudService for ServerProvider {
 }
 
 impl DatabaseCloudService for ServerProvider {
-  fn get_collab_doc_state(
+  fn get_collab_doc_state_db(
     &self,
     object_id: &str,
     collab_type: CollabType,
@@ -221,12 +224,12 @@ impl DatabaseCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_doc_state(&database_id, collab_type, &workspace_id)
+        .get_collab_doc_state_db(&database_id, collab_type, &workspace_id)
         .await
     })
   }
 
-  fn batch_get_collab_doc_state(
+  fn batch_get_collab_doc_state_db(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
@@ -237,7 +240,7 @@ impl DatabaseCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_doc_state(object_ids, object_ty, &workspace_id)
+        .batch_get_collab_doc_state_db(object_ids, object_ty, &workspace_id)
         .await
     })
   }

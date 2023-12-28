@@ -1,5 +1,6 @@
 pub use anyhow::Error;
 use collab::core::collab::CollabDocState;
+use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use uuid::Uuid;
 
@@ -29,10 +30,13 @@ pub trait FolderCloudService: Send + Sync + 'static {
     limit: usize,
   ) -> FutureResult<Vec<FolderSnapshot>, Error>;
 
-  fn get_folder_doc_state(
+  /// The suffix 'f' in the method name serves as a workaround to avoid naming conflicts with the existing method `get_collab_doc_state`.
+  fn get_collab_doc_state_f(
     &self,
     workspace_id: &str,
     uid: i64,
+    collab_type: CollabType,
+    object_id: &str,
   ) -> FutureResult<CollabDocState, Error>;
 
   fn service_name(&self) -> String;

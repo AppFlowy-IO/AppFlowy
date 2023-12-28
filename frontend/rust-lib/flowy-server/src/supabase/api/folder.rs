@@ -132,19 +132,21 @@ where
     })
   }
 
-  fn get_folder_doc_state(
+  fn get_collab_doc_state_f(
     &self,
     workspace_id: &str,
-    _uid: i64,
+    uid: i64,
+    collab_type: CollabType,
+    object_id: &str,
   ) -> FutureResult<CollabDocState, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
-    let workspace_id = workspace_id.to_string();
+    let object_id = object_id.to_string();
     let (tx, rx) = channel();
     af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
-          let action = FetchObjectUpdateAction::new(workspace_id, CollabType::Folder, postgrest);
+          let action = FetchObjectUpdateAction::new(object_id, collab_type, postgrest);
           action.run_with_fix_interval(5, 10).await
         }
         .await,

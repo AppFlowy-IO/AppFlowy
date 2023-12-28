@@ -8,7 +8,7 @@ use lib_infra::future::FutureResult;
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();
 
 impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
-  fn get_collab_doc_state(
+  fn get_collab_doc_state_db(
     &self,
     _object_id: &str,
     _collab_type: CollabType,
@@ -17,7 +17,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn batch_get_collab_doc_state(
+  fn batch_get_collab_doc_state_db(
     &self,
     _object_ids: Vec<String>,
     _object_ty: CollabType,

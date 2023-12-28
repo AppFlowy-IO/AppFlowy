@@ -102,7 +102,7 @@ impl DatabaseManager {
       trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_doc_state(
+        .get_collab_doc_state_db(
           &database_views_aggregate_id,
           CollabType::WorkspaceDatabase,
           &workspace_id,
@@ -423,7 +423,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .get_collab_doc_state(&object_id, object_ty, &workspace_id)
+            .get_collab_doc_state_db(&object_id, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -446,7 +446,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .batch_get_collab_doc_state(object_ids, object_ty, &workspace_id)
+            .batch_get_collab_doc_state_db(object_ids, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },

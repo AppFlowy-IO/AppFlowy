@@ -18,7 +18,7 @@ impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  fn get_collab_doc_state(
+  fn get_collab_doc_state_db(
     &self,
     object_id: &str,
     collab_type: CollabType,
@@ -48,7 +48,7 @@ where
     })
   }
 
-  fn batch_get_collab_doc_state(
+  fn batch_get_collab_doc_state_db(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,

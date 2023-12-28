@@ -5,6 +5,7 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{JsonValue, Update};
+use collab_entity::CollabType;
 use collab_folder::FolderData;
 
 use event_integration::event_builder::EventBuilder;
@@ -50,7 +51,12 @@ impl FlowySupabaseFolderTest {
   pub async fn get_collab_update(&self, workspace_id: &str) -> Vec<u8> {
     let cloud_service = self.folder_manager.get_cloud_service().clone();
     cloud_service
-      .get_folder_doc_state(workspace_id, self.user_manager.user_id().unwrap())
+      .get_collab_doc_state_f(
+        workspace_id,
+        self.user_manager.user_id().unwrap(),
+        CollabType::Folder,
+        workspace_id,
+      )
       .await
       .unwrap()
   }
