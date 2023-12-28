@@ -1,5 +1,5 @@
 use crate::util::unzip_history_user_db;
-use assert_json_diff::{assert_json_eq, assert_json_include};
+use assert_json_diff::assert_json_include;
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;

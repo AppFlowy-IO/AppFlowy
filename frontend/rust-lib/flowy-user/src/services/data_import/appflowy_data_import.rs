@@ -9,10 +9,11 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::user::DatabaseWithViewsArray;
+use collab_database::user::DatabaseViewTrackerList;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use flowy_folder_deps::cloud::gen_view_id;
+use flowy_folder_deps::entities::ImportData;
 use flowy_folder_deps::folder_builder::{ParentChildViews, ViewBuilder};
 use flowy_sqlite::kv::StorePreferences;
 use parking_lot::{Mutex, RwLock};
@@ -31,7 +32,7 @@ pub(crate) fn import_appflowy_data_folder(
   path: String,
   container_name: String,
   collab_db: &Arc<RocksCollabDB>,
-) -> anyhow::Result<ParentChildViews> {
+) -> anyhow::Result<ImportData> {
   let user_paths = UserPaths::new(path.clone());
   let other_store_preferences = Arc::new(StorePreferences::new(&path)?);
   migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
@@ -46,6 +47,7 @@ pub(crate) fn import_appflowy_data_folder(
     user_paths.collab_db_path(other_session.user_id),
   )?);
   let other_collab_read_txn = other_collab_db.read_txn();
+  let mut database_view_ids_by_database_id: HashMap<String, Vec<String>> = HashMap::new();
 
   let view = collab_db.with_write_txn(|collab_write_txn| {
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
@@ -64,8 +66,7 @@ pub(crate) fn import_appflowy_data_folder(
       &mut old_to_new_id_map.lock(),
       &other_session,
       &other_collab_read_txn,
-      session,
-      collab_write_txn,
+      &mut database_view_ids_by_database_id,
     )?;
 
     // load other collab objects
@@ -116,8 +117,10 @@ pub(crate) fn import_appflowy_data_folder(
 
     Ok(view)
   })?;
-
-  Ok(view)
+  Ok(ImportData::AppFlowyDataFolder {
+    view,
+    database_view_ids_by_database_id,
+  })
 }
 
 fn migrate_database_view_tracker<'a, W>(
@@ -125,8 +128,7 @@ fn migrate_database_view_tracker<'a, W>(
   old_to_new_id_map: &mut OldToNewIdMap,
   other_session: &Session,
   other_collab_read_txn: &'a W,
-  session: &Session,
-  collab_write_txn: &'a W,
+  database_view_ids_by_database_id: &mut HashMap<String, Vec<String>>,
 ) -> Result<(), PersistenceError>
 where
   W: YrsDocAction<'a>,
@@ -147,26 +149,17 @@ where
     )
   })?;
 
-  let new_uid = session.user_id;
-  let new_object_id = &session.user_workspace.database_view_tracker_id;
-  let array = DatabaseWithViewsArray::from_collab(&database_view_tracker_collab);
-  for database_view in array.get_all_databases() {
-    array.update_database(&database_view.database_id, |update| {
-      let new_linked_views = update
+  let array = DatabaseViewTrackerList::from_collab(&database_view_tracker_collab);
+  for database_view_tracker in array.get_all_database_tracker() {
+    database_view_ids_by_database_id.insert(
+      old_to_new_id_map.renew_id(&database_view_tracker.database_id),
+      database_view_tracker
         .linked_views
-        .iter()
-        .map(|view_id| old_to_new_id_map.renew_id(view_id))
-        .collect();
-      update.database_id = old_to_new_id_map.renew_id(&update.database_id);
-      update.linked_views = new_linked_views;
-    })
+        .into_iter()
+        .map(|view_id| old_to_new_id_map.renew_id(&view_id))
+        .collect(),
+    );
   }
-
-  let txn = database_view_tracker_collab.transact();
-  if let Err(err) = collab_write_txn.create_new_doc(new_uid, new_object_id, &txn) {
-    tracing::error!("🔴migrate database storage failed: {:?}", err);
-  }
-  drop(txn);
   Ok(())
 }
 

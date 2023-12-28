@@ -15,6 +15,7 @@ use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_deps::folder_builder::ParentChildViews;
+use lib_infra::async_trait::async_trait;
 
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
@@ -35,12 +36,13 @@ use crate::util::{
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
 /// [FolderUser] represents the user for folder.
+#[async_trait]
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
 
-  fn import_appflowy_data_folder(
+  async fn import_appflowy_data_folder(
     &self,
     path: &str,
     container_name: &str,
@@ -831,17 +833,26 @@ impl FolderManager {
   }
 
   pub async fn import_appflowy_data(&self, path: String, name: String) -> Result<(), FlowyError> {
+    let (tx, rx) = tokio::sync::oneshot::channel();
     let folder = self.mutex_folder.clone();
     let user = self.user.clone();
-    tokio::task::spawn_blocking(move || {
-      let view = user.import_appflowy_data_folder(&path, &name)?;
-      if let Some(folder) = &*folder.lock() {
-        insert_parent_child_views(folder, view);
+
+    tokio::spawn(async move {
+      match user.import_appflowy_data_folder(&path, &name).await {
+        Ok(view) => {
+          if let Some(folder) = &*folder.lock() {
+            insert_parent_child_views(folder, view);
+          }
+          let _ = tx.send(Ok(()));
+        },
+        Err(err) => {
+          let _ = tx.send(Err(err));
+        },
       }
-      Ok::<(), FlowyError>(())
-    })
-    .await
-    .map_err(internal_error)??;
+    });
+
+    rx.await.map_err(internal_error)??;
+
     Ok(())
   }
 

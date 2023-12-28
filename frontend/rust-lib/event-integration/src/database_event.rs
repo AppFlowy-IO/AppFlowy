@@ -1,8 +1,6 @@
 use std::convert::TryFrom;
 
 use bytes::Bytes;
-use collab_database::database::DatabaseData;
-
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_database2::services::share::csv::CSVFormat;

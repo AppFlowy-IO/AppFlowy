@@ -11,7 +11,7 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use flowy_folder_deps::folder_builder::ParentChildViews;
+use flowy_folder_deps::entities::ImportData;
 use flowy_server_config::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
@@ -667,11 +667,11 @@ impl UserManager {
     }
   }
 
-  pub fn import_data(&self, source: ImportDataSource) -> Result<ParentChildViews, FlowyError> {
+  pub fn import_data(&self, source: ImportDataSource) -> Result<ImportData, FlowyError> {
     let session = self.get_session()?;
     let collab_db = self.database.get_collab_db(session.user_id)?;
-    let view = import_data(&session, source, collab_db)?;
-    Ok(view)
+    let import_result = import_data(&session, source, collab_db)?;
+    Ok(import_result)
   }
 
   pub(crate) fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Weak};
 
@@ -170,6 +171,19 @@ impl DatabaseManager {
         .collect();
     }
     RepeatedDatabaseDescriptionPB { items }
+  }
+
+  pub async fn track_database(
+    &self,
+    view_ids_by_database_id: HashMap<String, Vec<String>>,
+  ) -> FlowyResult<()> {
+    let wdb = self.get_workspace_database().await?;
+    view_ids_by_database_id
+      .into_iter()
+      .for_each(|(database_id, view_ids)| {
+        wdb.track_database(&database_id, view_ids);
+      });
+    Ok(())
   }
 
   pub async fn get_database_with_view_id(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {

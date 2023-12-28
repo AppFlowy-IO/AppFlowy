@@ -14,17 +14,19 @@ use flowy_database2::DatabaseManager;
 use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
-use flowy_error::FlowyError;
+use flowy_error::{internal_error, FlowyError};
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::{FolderManager, FolderUser};
 use flowy_folder2::share::ImportType;
 use flowy_folder2::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder2::ViewLayout;
 use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_folder_deps::entities::ImportData;
 use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
 use flowy_user::manager::UserManager;
 use flowy_user::services::data_import::ImportDataSource;
 use lib_dispatch::prelude::ToBytes;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 pub struct FolderDepsResolver();
@@ -36,7 +38,10 @@ impl FolderDepsResolver {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     folder_cloud: Arc<dyn FolderCloudService>,
   ) -> Arc<FolderManager> {
-    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_manager.clone()));
+    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
+      user_manager: user_manager.clone(),
+      database_manager: Arc::downgrade(database_manager),
+    });
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
@@ -63,11 +68,16 @@ fn folder_operation_handlers(
   Arc::new(map)
 }
 
-struct FolderUserImpl(Weak<UserManager>);
+struct FolderUserImpl {
+  user_manager: Weak<UserManager>,
+  database_manager: Weak<DatabaseManager>,
+}
+
+#[async_trait]
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
-      .0
+      .user_manager
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
@@ -75,7 +85,7 @@ impl FolderUser for FolderUserImpl {
 
   fn token(&self) -> Result<Option<String>, FlowyError> {
     self
-      .0
+      .user_manager
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .token()
@@ -83,25 +93,41 @@ impl FolderUser for FolderUserImpl {
 
   fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
     self
-      .0
+      .user_manager
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
   }
 
-  fn import_appflowy_data_folder(
+  async fn import_appflowy_data_folder(
     &self,
     path: &str,
     container_name: &str,
   ) -> Result<ParentChildViews, FlowyError> {
-    self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .import_data(ImportDataSource::AppFlowyDataFolder {
-        path: path.to_string(),
-        container_name: container_name.to_string(),
-      })
+    match (self.user_manager.upgrade(), self.database_manager.upgrade()) {
+      (Some(user_manager), Some(data_manager)) => {
+        let source = ImportDataSource::AppFlowyDataFolder {
+          path: path.to_string(),
+          container_name: container_name.to_string(),
+        };
+        let import_data = tokio::task::spawn_blocking(move || user_manager.import_data(source))
+          .await
+          .map_err(internal_error)??;
+
+        match import_data {
+          ImportData::AppFlowyDataFolder {
+            view,
+            database_view_ids_by_database_id,
+          } => {
+            data_manager
+              .track_database(database_view_ids_by_database_id)
+              .await?;
+            Ok(view)
+          },
+        }
+      },
+      _ => Err(FlowyError::internal().with_context("Unexpected error: UserSession is None")),
+    }
   }
 }
 

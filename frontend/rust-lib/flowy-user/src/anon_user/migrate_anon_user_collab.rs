@@ -10,7 +10,7 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::user::DatabaseWithViewsArray;
+use collab_database::user::DatabaseViewTrackerList;
 use collab_folder::{Folder, UserId};
 use parking_lot::{Mutex, RwLock};
 use tracing::info;
@@ -157,9 +157,9 @@ where
   let new_uid = new_user.session.user_id;
   let new_object_id = &new_user.session.user_workspace.database_view_tracker_id;
 
-  let array = DatabaseWithViewsArray::from_collab(&database_with_views_collab);
-  for database_view in array.get_all_databases() {
-    array.update_database(&database_view.database_id, |update| {
+  let array = DatabaseViewTrackerList::from_collab(&database_with_views_collab);
+  for database_view_tracker in array.get_all_database_tracker() {
+    array.update_database(&database_view_tracker.database_id, |update| {
       let new_linked_views = update
         .linked_views
         .iter()

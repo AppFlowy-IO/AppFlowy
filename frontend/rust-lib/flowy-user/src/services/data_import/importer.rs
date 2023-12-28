@@ -2,7 +2,7 @@ use crate::services::data_import::appflowy_data_import::import_appflowy_data_fol
 use crate::services::entities::Session;
 use collab_integrate::RocksCollabDB;
 
-use flowy_folder_deps::folder_builder::ParentChildViews;
+use flowy_folder_deps::entities::ImportData;
 use std::sync::Arc;
 
 pub enum ImportDataSource {
@@ -16,7 +16,7 @@ pub(crate) fn import_data(
   session: &Session,
   source: ImportDataSource,
   collab_db: Arc<RocksCollabDB>,
-) -> anyhow::Result<ParentChildViews> {
+) -> anyhow::Result<ImportData> {
   match source {
     ImportDataSource::AppFlowyDataFolder {
       path,
