@@ -106,6 +106,7 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
                   ),
                   const Spacer(),
                   IndentAndOutdentItems(
+                    service: widget.service,
                     editorState: editorState,
                   ),
                 ],

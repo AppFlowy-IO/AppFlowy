@@ -1,3 +1,4 @@
+import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
 
 typedef KeyboardHeightCallback = void Function(double height);
@@ -32,6 +33,12 @@ class KeyboardHeightObserver {
   }
 
   void notify(double height) {
+    // the keyboard height will notify twice with the same value on Android 14
+    if (DeviceInfoTask.androidSDKVersion == 34) {
+      if (height == 0 && currentKeyboardHeight == 0) {
+        return;
+      }
+    }
     for (final listener in _listeners) {
       listener(height);
     }

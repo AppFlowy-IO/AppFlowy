@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -184,7 +185,7 @@ class _AddBlockMenu extends StatelessWidget {
       onTap: () => _insertBlock(quoteNode()),
     ),
 
-    // divider,
+    // divider
     _AddBlockMenuItemData(
       blockType: DividerBlockKeys.type,
       backgroundColor: const Color(0xFF98F4CD),
@@ -194,6 +195,25 @@ class _AddBlockMenu extends StatelessWidget {
         AppGlobals.rootNavKey.currentContext?.pop(true);
         Future.delayed(const Duration(milliseconds: 100), () {
           editorState.insertDivider(selection);
+        });
+      },
+    ),
+
+    // image
+    _AddBlockMenuItemData(
+      blockType: DividerBlockKeys.type,
+      backgroundColor: const Color(0xFF98F4CD),
+      text: LocaleKeys.editor_image.tr(),
+      icon: FlowySvgs.m_toolbar_imae_lg,
+      onTap: () async {
+        AppGlobals.rootNavKey.currentContext?.pop(true);
+        Future.delayed(const Duration(milliseconds: 400), () async {
+          final imagePlaceholderKey = GlobalKey<ImagePlaceholderState>();
+          await editorState.insertEmptyImageBlock(imagePlaceholderKey);
+
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            imagePlaceholderKey.currentState?.controller.show();
+          });
         });
       },
     ),
@@ -257,7 +277,7 @@ class _AddBlockMenuItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(20 * context.scale),
             child: FlowySvg(
               data.icon,
               color: Colors.black,
@@ -266,7 +286,7 @@ class _AddBlockMenuItem extends StatelessWidget {
           const VSpace(4),
           FlowyText(
             data.text,
-            fontSize: 13.0,
+            fontSize: 12.0,
           ),
         ],
       ),

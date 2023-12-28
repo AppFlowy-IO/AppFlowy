@@ -103,6 +103,7 @@ class FlowyRunner {
         // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
         MemoryLeakDetectorTask(),
         const DebugTask(),
+        const DeviceInfoTask(),
         // localization
         const InitLocalizationTask(),
         // init the app window
