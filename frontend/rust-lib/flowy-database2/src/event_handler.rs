@@ -219,12 +219,7 @@ pub(crate) async fn update_field_type_option_handler(
     let field_type = FieldType::from(old_field.field_type);
     let type_option_data = type_option_data_from_pb(params.type_option_data, &field_type)?;
     database_editor
-      .update_field_type_option(
-        &params.view_id,
-        &params.field_id,
-        type_option_data,
-        old_field,
-      )
+      .update_field_type_option(&params.field_id, type_option_data, old_field)
       .await?;
   }
   Ok(())
@@ -262,12 +257,7 @@ pub(crate) async fn switch_to_field_handler(
     match (old_field, new_type_option) {
       (Some(old_field), Some(new_type_option)) => {
         database_editor
-          .update_field_type_option(
-            &params.view_id,
-            &params.field_id,
-            new_type_option,
-            old_field,
-          )
+          .update_field_type_option(&params.field_id, new_type_option, old_field)
           .await?;
       },
       _ => {
