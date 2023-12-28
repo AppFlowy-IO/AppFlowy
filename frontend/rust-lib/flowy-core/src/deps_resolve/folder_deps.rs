@@ -3,10 +3,12 @@ use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
 
 use bytes::Bytes;
+use collab_entity::CollabType;
 use tokio::sync::RwLock;
+use tracing::info;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
@@ -14,17 +16,17 @@ use flowy_database2::DatabaseManager;
 use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
-use flowy_error::{internal_error, FlowyError};
+use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::{FolderManager, FolderUser};
 use flowy_folder2::share::ImportType;
 use flowy_folder2::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder2::ViewLayout;
-use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_folder_deps::cloud::{FolderCloudService, FolderCollabParams};
 use flowy_folder_deps::entities::ImportData;
 use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
 use flowy_user::manager::UserManager;
-use flowy_user::services::data_import::ImportDataSource;
+use flowy_user::services::data_import::{load_collab_by_oid, ImportDataSource};
 
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::async_trait::async_trait;
@@ -42,6 +44,7 @@ impl FolderDepsResolver {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       user_manager: user_manager.clone(),
       database_manager: Arc::downgrade(database_manager),
+      folder_cloud: folder_cloud.clone(),
     });
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
@@ -72,6 +75,7 @@ fn folder_operation_handlers(
 struct FolderUserImpl {
   user_manager: Weak<UserManager>,
   database_manager: Weak<DatabaseManager>,
+  folder_cloud: Arc<dyn FolderCloudService>,
 }
 
 #[async_trait]
@@ -102,6 +106,7 @@ impl FolderUser for FolderUserImpl {
 
   async fn import_appflowy_data_folder(
     &self,
+    workspace_id: &str,
     path: &str,
     container_name: &str,
   ) -> Result<ParentChildViews, FlowyError> {
@@ -111,18 +116,108 @@ impl FolderUser for FolderUserImpl {
           path: path.to_string(),
           container_name: container_name.to_string(),
         };
-        let import_data = tokio::task::spawn_blocking(move || user_manager.import_data(source))
-          .await
-          .map_err(internal_error)??;
+        let cloned_user_manager = user_manager.clone();
+        let import_data =
+          tokio::task::spawn_blocking(move || cloned_user_manager.import_data(source))
+            .await
+            .map_err(internal_error)??;
 
         match import_data {
           ImportData::AppFlowyDataFolder {
             view,
             database_view_ids_by_database_id,
+            row_object_ids,
+            database_object_ids,
+            document_object_ids,
           } => {
+            let uid = self.user_id()?;
+            let collab_db = self
+              .collab_db(uid)
+              .unwrap()
+              .upgrade()
+              .ok_or(FlowyError::new(
+                ErrorCode::Internal,
+                "Can't get the collab db",
+              ))?;
+
+            let object_by_collab_type = tokio::task::spawn_blocking(move || {
+              let collab_read = collab_db.read_txn();
+              let mut object_by_collab_type = HashMap::new();
+              object_by_collab_type.insert(
+                CollabType::Database,
+                load_and_process_collab_data(uid, &collab_read, &database_object_ids),
+              );
+
+              object_by_collab_type.insert(
+                CollabType::Document,
+                load_and_process_collab_data(uid, &collab_read, &document_object_ids),
+              );
+
+              object_by_collab_type.insert(
+                CollabType::DatabaseRow,
+                load_and_process_collab_data(uid, &collab_read, &row_object_ids),
+              );
+
+              object_by_collab_type
+            })
+            .await
+            .map_err(internal_error)?;
+
+            // Upload
+            let mut size_counter = 0;
+            let mut objects: Vec<FolderCollabParams> = vec![];
+            let upload_size_limit = 2 * 1024 * 1024;
+            for (collab_type, encoded_v1_by_oid) in object_by_collab_type {
+              info!(
+                "Batch import collab:{} ids: {:?}",
+                collab_type,
+                encoded_v1_by_oid.keys(),
+              );
+              for (oid, encoded_v1) in encoded_v1_by_oid {
+                let obj_size = encoded_v1.len();
+                if size_counter + obj_size > upload_size_limit && !objects.is_empty() {
+                  // When the limit is exceeded, batch create with the current list of objects
+                  // and reset for the next batch.
+                  self
+                    .folder_cloud
+                    .batch_create_collab_object(workspace_id, objects)
+                    .await?;
+                  objects = Vec::new();
+                  size_counter = 0;
+                }
+
+                // Add the current object to the batch.
+                objects.push(FolderCollabParams {
+                  object_id: oid,
+                  encoded_collab_v1: encoded_v1,
+                  collab_type: collab_type.clone(),
+                  override_if_exist: false,
+                });
+                size_counter += obj_size;
+              }
+            }
+
+            // After the loop, upload any remaining objects.
+            if !objects.is_empty() {
+              info!(
+                "Batch create collab objects: {}, payload size: {}",
+                objects
+                  .iter()
+                  .map(|o| o.object_id.clone())
+                  .collect::<Vec<_>>()
+                  .join(", "),
+                size_counter
+              );
+              self
+                .folder_cloud
+                .batch_create_collab_object(workspace_id, objects)
+                .await?;
+            }
+
             data_manager
               .track_database(database_view_ids_by_database_id)
               .await?;
+
             Ok(view)
           },
         }
@@ -452,4 +547,25 @@ pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
     ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
     ViewLayoutPB::Document => DatabaseLayoutPB::Grid,
   }
+}
+
+fn load_and_process_collab_data<'a, R>(
+  uid: i64,
+  collab_read: &R,
+  object_ids: &[String],
+) -> HashMap<String, Vec<u8>>
+where
+  R: YrsDocAction<'a>,
+  PersistenceError: From<R::Error>,
+{
+  load_collab_by_oid(uid, collab_read, object_ids)
+    .into_iter()
+    .filter_map(|(oid, collab)| {
+      collab
+        .encode_collab_v1()
+        .encode_to_bytes()
+        .ok()
+        .map(|encoded_v1| (oid, encoded_v1))
+    })
+    .collect()
 }

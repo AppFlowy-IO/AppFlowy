@@ -1,3 +1,8 @@
+use collab::core::collab::CollabDocState;
+use collab::core::origin::CollabOrigin;
+use collab_document::blocks::DocumentData;
+use collab_document::document::Document;
+use collab_entity::CollabType;
 use std::env::temp_dir;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -13,6 +18,7 @@ use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
 use flowy_server::AppFlowyServer;
 use flowy_user::entities::AuthenticatorPB;
+use flowy_user::errors::FlowyError;
 
 use crate::user_event::TestNotificationSender;
 
@@ -109,6 +115,32 @@ impl EventIntegrationTest {
       }
     }
   }
+
+  pub async fn get_collab_doc_state(
+    &self,
+    oid: &str,
+    collay_type: CollabType,
+  ) -> Result<CollabDocState, FlowyError> {
+    let server = self.server_provider.get_appflowy_cloud_server().unwrap();
+    let workspace_id = self.get_current_workspace().await.id;
+    let uid = self.get_user_profile().await?.id;
+    let doc_state = server
+      .folder_service()
+      .get_collab_doc_state_f(&workspace_id, uid, collay_type, oid)
+      .await?;
+
+    Ok(doc_state)
+  }
+}
+
+pub fn document_data_from_document_doc_state(
+  doc_id: &str,
+  doc_state: CollabDocState,
+) -> DocumentData {
+  Document::from_doc_state(CollabOrigin::Empty, doc_state, doc_id, vec![])
+    .unwrap()
+    .get_document_data()
+    .unwrap()
 }
 
 #[cfg(feature = "single_thread")]

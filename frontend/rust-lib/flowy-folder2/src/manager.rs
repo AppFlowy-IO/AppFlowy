@@ -44,6 +44,7 @@ pub trait FolderUser: Send + Sync {
 
   async fn import_appflowy_data_folder(
     &self,
+    workspace_id: &str,
     path: &str,
     container_name: &str,
   ) -> Result<ParentChildViews, FlowyError>;
@@ -352,7 +353,6 @@ impl FolderManager {
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
-    let _workspace_id = self.get_current_workspace_id().await?;
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     let meta = params.meta.clone();
@@ -834,11 +834,15 @@ impl FolderManager {
 
   pub async fn import_appflowy_data(&self, path: String, name: String) -> Result<(), FlowyError> {
     let (tx, rx) = tokio::sync::oneshot::channel();
+    let workspace_id = self.get_current_workspace_id().await?;
     let folder = self.mutex_folder.clone();
     let user = self.user.clone();
 
     tokio::spawn(async move {
-      match user.import_appflowy_data_folder(&path, &name).await {
+      match user
+        .import_appflowy_data_folder(&workspace_id, &path, &name)
+        .await
+      {
         Ok(view) => {
           if let Some(folder) = &*folder.lock() {
             insert_parent_child_views(folder, view);

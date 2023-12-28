@@ -169,7 +169,7 @@ impl UserManager {
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;
-    let user_awareness_id = Uuid::new_v5(&session.user_uuid, b"user_awareness");
+    let user_awareness_id = awareness_oid_from_user_uuid(&session.user_uuid);
     let collab = collab_builder
       .build(
         session.user_id,
@@ -212,6 +212,10 @@ impl UserManager {
       Some(user_awareness) => f(&user_awareness.lock()),
     }
   }
+}
+
+pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
+  Uuid::new_v5(user_uuid, b"user_awareness")
 }
 
 /// Indicate using which data source to initialize the user awareness

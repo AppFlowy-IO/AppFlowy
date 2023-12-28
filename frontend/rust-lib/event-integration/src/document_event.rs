@@ -6,6 +6,7 @@ use collab::preclude::updates::decoder::Decode;
 use collab::preclude::Update;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
+use collab_entity::CollabType;
 
 use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
 use flowy_document2::event_map::DocumentEvent;
@@ -87,18 +88,10 @@ impl EventIntegrationTest {
   }
 
   pub async fn get_document_doc_state(&self, document_id: &str) -> Vec<u8> {
-    let workspace_id = self.user_manager.workspace_id().unwrap();
-    let cloud_service = self.document_manager.get_cloud_service().clone();
-    let doc_state = cloud_service
-      .get_document_doc_state(document_id, &workspace_id)
+    self
+      .get_collab_doc_state(document_id, CollabType::Document)
       .await
-      .unwrap();
-
-    if doc_state.is_empty() {
-      return vec![];
-    }
-
-    doc_state
+      .unwrap()
   }
 }
 

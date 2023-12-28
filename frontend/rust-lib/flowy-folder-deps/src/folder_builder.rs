@@ -147,6 +147,7 @@ impl ViewBuilder {
   }
 }
 
+#[derive(Clone)]
 pub struct ParentChildViews {
   pub parent_view: View,
   pub child_views: Vec<ParentChildViews>,
@@ -158,6 +159,10 @@ impl ParentChildViews {
       parent_view: view,
       child_views: vec![],
     }
+  }
+
+  pub fn flatten(self) -> Vec<View> {
+    FlattedViews::flatten_views(vec![self])
   }
 }
 

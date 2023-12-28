@@ -1,7 +1,8 @@
 use crate::util::unzip_history_user_db;
 use assert_json_diff::assert_json_include;
+use collab_entity::CollabType;
 use event_integration::user_event::user_localhost_af_cloud;
-use event_integration::EventIntegrationTest;
+use event_integration::{document_data_from_document_doc_state, EventIntegrationTest};
 use flowy_core::DEFAULT_NAME;
 use serde_json::{json, Value};
 
@@ -65,6 +66,29 @@ async fn import_appflowy_data_folder_test2() {
   let import_container_name = "040_local_2".to_string();
   let (cleaner, user_db_path) =
     unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  user_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
+  let _ = test.af_cloud_sign_up().await;
+  test
+    .import_appflowy_data(
+      user_db_path.to_str().unwrap().to_string(),
+      &import_container_name,
+    )
+    .await;
+
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views.len(), 2);
+  assert_eq!(views[1].name, import_container_name);
+  assert_040_local_2_import_content(&test, &views[1].id).await;
+
+  drop(cleaner);
+}
+
+#[tokio::test]
+async fn import_appflowy_data_folder_multiple_times_test() {
+  let import_container_name = "040_local_2".to_string();
+  let (cleaner, user_db_path) =
+    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
   // In the 040_local_2, the structure is:
   //  Getting Started
   //     Doc1
@@ -77,10 +101,6 @@ async fn import_appflowy_data_folder_test2() {
   user_localhost_af_cloud().await;
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
   let _ = test.af_cloud_sign_up().await;
-  // after sign up, the initial workspace is created, so the structure is:
-  // workspace:
-  //   view: Getting Started
-
   test
     .import_appflowy_data(
       user_db_path.to_str().unwrap().to_string(),
@@ -90,14 +110,6 @@ async fn import_appflowy_data_folder_test2() {
   // after import, the structure is:
   //   Getting Started
   //   040_local_2
-  //      Getting started
-  //         Doc1
-  //         Doc2
-  //         Grid1
-  //         Doc3
-  //            Doc3_grid_1
-  //            Doc3_grid_2
-  //            Doc3_calendar_1
 
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 2);
@@ -114,22 +126,8 @@ async fn import_appflowy_data_folder_test2() {
   //   Getting Started
   //   040_local_2
   //      Getting started
-  //         Doc1
-  //         Doc2
-  //         Grid1
-  //         Doc3
-  //            Doc3_grid_1
-  //            Doc3_grid_2
-  //            Doc3_calendar_1
   //   040_local_2
   //      Getting started
-  //         Doc1
-  //         Doc2
-  //         Grid1
-  //         Doc3
-  //            Doc3_grid_1
-  //            Doc3_grid_2
-  //            Doc3_calendar_1
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);
   assert_eq!(views[2].name, import_container_name);
@@ -139,6 +137,15 @@ async fn import_appflowy_data_folder_test2() {
 }
 
 async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id: &str) {
+  //   040_local_2
+  //      Getting started
+  //         Doc1
+  //         Doc2
+  //         Grid1
+  //         Doc3
+  //            Doc3_grid_1
+  //            Doc3_grid_2
+  //            Doc3_calendar_1
   let _local_2_child_views = test.get_views(view_id).await.child_views;
   assert_eq!(_local_2_child_views.len(), 1);
   assert_eq!(_local_2_child_views[0].name, "Getting started");
@@ -148,15 +155,28 @@ async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id:
     .await
     .child_views;
 
+  // Check doc 1 local content
   let doc_1 = local_2_getting_started_child_views[0].clone();
   assert_eq!(doc_1.name, "Doc1");
   let data = test.get_document_data(&doc_1.id).await;
   assert_json_include!(actual: json!(data), expected: expected_doc_1_json());
 
+  // Check doc 1 remote content
+  let doc_1_doc_state = test
+    .get_collab_doc_state(&doc_1.id, CollabType::Document)
+    .await
+    .unwrap();
+  assert_json_include!(actual:document_data_from_document_doc_state(&doc_1.id, doc_1_doc_state), expected: expected_doc_1_json());
+
+  // Check doc 2 local content
   let doc_2 = local_2_getting_started_child_views[1].clone();
   assert_eq!(doc_2.name, "Doc2");
   let data = test.get_document_data(&doc_2.id).await;
   assert_json_include!(actual: json!(data), expected: expected_doc_2_json());
+
+  // Check doc 2 remote content
+  let doc_2_doc_state = test.get_document_doc_state(&doc_2.id).await;
+  assert_json_include!(actual:document_data_from_document_doc_state(&doc_2.id, doc_2_doc_state), expected: expected_doc_2_json());
 
   let grid_1 = local_2_getting_started_child_views[2].clone();
   assert_eq!(grid_1.name, "Grid1");
