@@ -2010,6 +2010,7 @@ name = "flowy-database-deps"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "collab",
  "collab-entity",
  "flowy-error",
  "lib-infra",
@@ -2097,6 +2098,7 @@ name = "flowy-document-deps"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "collab",
  "collab-document",
  "flowy-error",
  "lib-infra",
@@ -2183,6 +2185,8 @@ name = "flowy-folder-deps"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "collab",
+ "collab-entity",
  "collab-folder",
  "flowy-error",
  "lib-infra",
@@ -2277,6 +2281,7 @@ dependencies = [
  "tracing",
  "url",
  "uuid",
+ "yrs",
 ]
 
 [[package]]
@@ -2385,6 +2390,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "collab",
  "collab-entity",
  "flowy-error",
  "flowy-folder-deps",
