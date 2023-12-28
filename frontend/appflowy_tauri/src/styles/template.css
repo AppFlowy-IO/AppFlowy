@@ -46,6 +46,12 @@ body {
 .block-element .block-element {
     @apply mb-0;
 }
+
+.block-element[data-block-type="page"] .text-element {
+    min-height: 52px !important;
+    line-height: 52px !important;
+}
+
 .block-element[data-block-type="paragraph"] .block-element {
     margin-left: 24px;
 }

@@ -65,13 +65,13 @@ export function tabForward(editor: ReactEditor) {
     to: toPath,
   });
 
-  node.children.forEach((child, index) => {
-    if (index === 0) return;
+  const length = node.children.length;
 
+  for (let i = length - 1; i > 0; i--) {
     editor.liftNodes({
-      at: [...toPath, index],
+      at: [...toPath, i],
     });
-  });
+  }
 }
 
 export function tabBackward(editor: ReactEditor) {
