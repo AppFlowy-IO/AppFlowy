@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
-use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_entity::CollabType;
 use collab_folder::{
   Folder, FolderData, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate, Workspace,
@@ -134,7 +134,7 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<RocksCollabDB>,
-    raw_data: CollabRawData,
+    collab_doc_state: CollabDocState,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab = self
       .collab_builder
@@ -143,7 +143,7 @@ impl FolderManager {
         workspace_id,
         CollabType::Folder,
         collab_db,
-        raw_data,
+        collab_doc_state,
         &CollabPersistenceConfig::new().enable_snapshot(true),
         CollabBuilderConfig::default().sync_enable(true),
       )
@@ -1084,7 +1084,7 @@ pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
-  Cloud(CollabRawData),
+  Cloud(CollabDocState),
   /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
   FolderData(FolderData),
 }

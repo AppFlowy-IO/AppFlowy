@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Error};
 use client_api::entity::{QueryCollab, QueryCollabParams};
+use collab::core::collab::CollabDocState;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 
@@ -72,13 +73,8 @@ where
         .map_err(FlowyError::from)?
         .doc_state
         .to_vec();
-      let folder = Folder::from_collab_raw_data(
-        uid,
-        CollabOrigin::Empty,
-        vec![doc_state],
-        &workspace_id,
-        vec![],
-      )?;
+      let folder =
+        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, doc_state, &workspace_id, vec![])?;
       Ok(folder.get_folder_data())
     })
   }
@@ -95,7 +91,7 @@ where
     &self,
     workspace_id: &str,
     _uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<CollabDocState, Error> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
@@ -112,7 +108,7 @@ where
         .map_err(FlowyError::from)?
         .doc_state
         .to_vec();
-      Ok(vec![doc_state])
+      Ok(doc_state)
     })
   }
 

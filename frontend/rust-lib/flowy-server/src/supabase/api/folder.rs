@@ -2,10 +2,12 @@ use std::str::FromStr;
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
+use collab::core::collab::CollabDocState;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
+use yrs::merge_updates_v1;
 
 use flowy_folder_deps::cloud::{
   gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
@@ -89,18 +91,20 @@ where
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let updates = get_updates_from_server(&workspace_id, &CollabType::Folder, &postgrest).await?;
-      let updates = updates
-        .into_iter()
-        .map(|item| item.value)
-        .collect::<Vec<_>>();
-
-      if updates.is_empty() {
+      let items = get_updates_from_server(&workspace_id, &CollabType::Folder, &postgrest).await?;
+      if items.is_empty() {
         return Ok(None);
       }
+      let updates = items
+        .iter()
+        .map(|update| update.value.as_ref())
+        .collect::<Vec<&[u8]>>();
+
+      let doc_state = merge_updates_v1(&updates)
+        .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
 
       let folder =
-        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, doc_state, &workspace_id, vec![])?;
       Ok(folder.get_folder_data())
     })
   }
@@ -132,7 +136,7 @@ where
     &self,
     workspace_id: &str,
     _uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<CollabDocState, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let workspace_id = workspace_id.to_string();
     let (tx, rx) = channel();

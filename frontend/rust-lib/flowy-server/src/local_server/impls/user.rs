@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Error;
+use collab::core::collab::CollabDocState;
 use collab_entity::CollabObject;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
@@ -132,7 +133,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_user_awareness_doc_state(&self, _uid: i64) -> FutureResult<CollabDocState, Error> {
     FutureResult::new(async { Ok(vec![]) })
   }
 

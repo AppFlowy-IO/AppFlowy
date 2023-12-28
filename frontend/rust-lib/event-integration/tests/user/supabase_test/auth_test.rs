@@ -390,7 +390,7 @@ async fn migrate_anon_data_on_cloud_signup() {
       }
 
       assert!(cloud_service
-        .get_collab_update(&database_id, CollabType::Database, &workspace_id)
+        .get_collab_doc_state(&database_id, CollabType::Database, &workspace_id)
         .await
         .is_ok());
     }

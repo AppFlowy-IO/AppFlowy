@@ -4,6 +4,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use anyhow::Error;
+use collab::core::collab::CollabDocState;
 use collab_entity::CollabObject;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -196,7 +197,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
+  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<CollabDocState, Error>;
 
   fn receive_realtime_event(&self, _json: Value) {}
 

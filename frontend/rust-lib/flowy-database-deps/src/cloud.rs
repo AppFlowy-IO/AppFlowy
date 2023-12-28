@@ -1,30 +1,30 @@
 use std::collections::HashMap;
 
 use anyhow::Error;
+use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 
 use lib_infra::future::FutureResult;
 
-pub type CollabObjectUpdateByOid = HashMap<String, CollabObjectUpdate>;
-pub type CollabObjectUpdate = Vec<Vec<u8>>;
+pub type CollabDocStateByOid = HashMap<String, CollabDocState>;
 
 /// A trait for database cloud service.
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
 pub trait DatabaseCloudService: Send + Sync {
-  fn get_collab_update(
+  fn get_collab_doc_state(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdate, Error>;
+  ) -> FutureResult<CollabDocState, Error>;
 
-  fn batch_get_collab_updates(
+  fn batch_get_collab_doc_state(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdateByOid, Error>;
+  ) -> FutureResult<CollabDocStateByOid, Error>;
 
   fn get_collab_snapshots(
     &self,

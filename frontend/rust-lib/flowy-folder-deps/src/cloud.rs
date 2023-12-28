@@ -1,4 +1,5 @@
 pub use anyhow::Error;
+use collab::core::collab::CollabDocState;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use uuid::Uuid;
 
@@ -28,8 +29,11 @@ pub trait FolderCloudService: Send + Sync + 'static {
     limit: usize,
   ) -> FutureResult<Vec<FolderSnapshot>, Error>;
 
-  fn get_folder_doc_state(&self, workspace_id: &str, uid: i64)
-    -> FutureResult<Vec<Vec<u8>>, Error>;
+  fn get_folder_doc_state(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FutureResult<CollabDocState, Error>;
 
   fn service_name(&self) -> String;
 }
