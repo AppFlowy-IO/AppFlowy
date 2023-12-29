@@ -55,7 +55,7 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
           LocaleKeys.grid_field_editProperty.tr(),
         ),
         leading: AppBarBackButton(
-          onTap: () => context.pop(),
+          onTap: () => context.pop(field),
         ),
       ),
       body: FieldOptionEditor(
@@ -108,7 +108,7 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
               service.show();
               break;
           }
-          context.pop();
+          context.pop(field);
         },
       ),
     );
