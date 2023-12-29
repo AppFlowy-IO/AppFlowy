@@ -96,7 +96,7 @@ impl AppFlowyCore {
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let server_type = current_server_type(&store_preference);
+    let server_type = current_server_type();
     debug!("🔥runtime:{}, server:{}", runtime, server_type);
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),

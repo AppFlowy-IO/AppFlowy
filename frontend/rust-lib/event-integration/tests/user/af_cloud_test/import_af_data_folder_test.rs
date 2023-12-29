@@ -4,7 +4,9 @@ use collab_entity::CollabType;
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::{document_data_from_document_doc_state, EventIntegrationTest};
 use flowy_core::DEFAULT_NAME;
+use flowy_user::errors::ErrorCode;
 use serde_json::{json, Value};
+use std::env::temp_dir;
 
 #[tokio::test]
 async fn import_appflowy_data_folder_test() {
@@ -29,7 +31,8 @@ async fn import_appflowy_data_folder_test() {
       user_db_path.to_str().unwrap().to_string(),
       &import_container_name,
     )
-    .await;
+    .await
+    .unwrap();
   // after import, the structure is:
   // workspace:
   //   view: Getting Started
@@ -74,7 +77,8 @@ async fn import_appflowy_data_folder_test2() {
       user_db_path.to_str().unwrap().to_string(),
       &import_container_name,
     )
-    .await;
+    .await
+    .unwrap();
 
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 2);
@@ -82,6 +86,19 @@ async fn import_appflowy_data_folder_test2() {
   assert_040_local_2_import_content(&test, &views[1].id).await;
 
   drop(cleaner);
+}
+
+#[tokio::test]
+async fn import_empty_appflowy_data_folder_test() {
+  let path = temp_dir();
+  user_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
+  let _ = test.af_cloud_sign_up().await;
+  let error = test
+    .import_appflowy_data(path.to_str().unwrap().to_string(), "empty_folder")
+    .await
+    .unwrap_err();
+  assert_eq!(error.code, ErrorCode::AppFlowyDataFolderImportError);
 }
 
 #[tokio::test]
@@ -106,7 +123,8 @@ async fn import_appflowy_data_folder_multiple_times_test() {
       user_db_path.to_str().unwrap().to_string(),
       &import_container_name,
     )
-    .await;
+    .await
+    .unwrap();
   // after import, the structure is:
   //   Getting Started
   //   040_local_2
@@ -121,7 +139,8 @@ async fn import_appflowy_data_folder_multiple_times_test() {
       user_db_path.to_str().unwrap().to_string(),
       &import_container_name,
     )
-    .await;
+    .await
+    .unwrap();
   // after import, the structure is:
   //   Getting Started
   //   040_local_2

@@ -75,7 +75,7 @@ where
         .doc_state
         .to_vec();
       let folder =
-        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, doc_state, &workspace_id, vec![])?;
+        Folder::from_collab_doc_state(uid, CollabOrigin::Empty, doc_state, &workspace_id, vec![])?;
       Ok(folder.get_folder_data())
     })
   }

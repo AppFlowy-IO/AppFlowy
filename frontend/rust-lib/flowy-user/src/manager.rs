@@ -670,7 +670,8 @@ impl UserManager {
   pub fn import_data(&self, source: ImportDataSource) -> Result<ImportData, FlowyError> {
     let session = self.get_session()?;
     let collab_db = self.database.get_collab_db(session.user_id)?;
-    let import_result = import_data(&session, source, collab_db)?;
+    let import_result = import_data(&session, source, collab_db)
+      .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))?;
     Ok(import_result)
   }
 

@@ -190,16 +190,21 @@ impl EventIntegrationTest {
     Ok(user_profile)
   }
 
-  pub async fn import_appflowy_data(&self, path: String, name: &str) {
+  pub async fn import_appflowy_data(&self, path: String, name: &str) -> Result<(), FlowyError> {
     let payload = ImportAppFlowyDataPB {
       path,
       import_container_name: name.to_string(),
     };
-    EventBuilder::new(self.clone())
+    match EventBuilder::new(self.clone())
       .event(FolderEvent::ImportAppFlowyDataFolder)
       .payload(payload)
       .async_send()
-      .await;
+      .await
+      .error()
+    {
+      Some(err) => Err(err),
+      None => Ok(()),
+    }
   }
 }
 

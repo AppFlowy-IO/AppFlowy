@@ -332,7 +332,7 @@ where
   W: YrsDocAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let collab = Collab::new_with_raw_data(CollabOrigin::Empty, new_object_id, doc_state, vec![])?;
+  let collab = Collab::new_with_doc_state(CollabOrigin::Empty, new_object_id, doc_state, vec![])?;
   import_collab_object(&collab, new_uid, new_object_id, w_txn);
   Ok(())
 }
