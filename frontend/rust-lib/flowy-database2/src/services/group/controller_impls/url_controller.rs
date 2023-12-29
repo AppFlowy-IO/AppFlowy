@@ -179,10 +179,8 @@ impl GroupCustomize for URLGroupController {
         deleted_group = Some(GroupPB::from(group.clone()));
       }
     }
-    if deleted_group.is_some() {
-      let _ = self
-        .context
-        .delete_group(&deleted_group.as_ref().unwrap().group_id);
+    if let Some(deleted_group) = deleted_group.as_ref() {
+      let _ = self.context.delete_group(&deleted_group.group_id);
     }
     deleted_group
   }

@@ -21,7 +21,6 @@ use flowy_user_deps::cloud::UserCloudServiceProvider;
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
-pub use module::*;
 
 use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::collab_backup::RocksdbBackupImpl;

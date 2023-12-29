@@ -118,7 +118,7 @@ pub fn make_test_board() -> DatabaseData {
         // let option1 = SelectOption::with_color(FIRST_THING, SelectOptionColor::Purple);
         // let option2 = SelectOption::with_color(SECOND_THING, SelectOptionColor::Orange);
         // let option3 = SelectOption::with_color(THIRD_THING, SelectOptionColor::Yellow);
-        let type_option = ChecklistTypeOption::default();
+        let type_option = ChecklistTypeOption;
         // type_option.options.extend(vec![option1, option2, option3]);
         let checklist_field = FieldBuilder::new(field_type, type_option)
           .name("TODO")
