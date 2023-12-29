@@ -300,7 +300,10 @@
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account",
       "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
-      "importAppFlowyData": "Import AppFlowy data"
+      "importAppFlowyData": "Import Data from External AppFlowy Folder",
+      "importAppFlowyDataDescription": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
+      "importSuccess": "Successfully imported the AppFlowy data folder",
+      "importFailed": "Importing the AppFlowy data folder failed"
     },
     "notifications": {
       "enableNotifications": {
