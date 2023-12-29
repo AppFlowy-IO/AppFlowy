@@ -147,7 +147,13 @@ class _CalloutBlockComponentWidgetState
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
-  String get emoji => node.attributes[CalloutBlockKeys.icon] ?? '📌';
+  String get emoji {
+    final icon = node.attributes[CalloutBlockKeys.icon];
+    if (icon == null || icon.isEmpty) {
+      return '📌';
+    }
+    return icon;
+  }
 
   // get access to the editor state via provider
   @override
@@ -184,6 +190,7 @@ class _CalloutBlockComponentWidgetState
               key: ValueKey(
                 emoji.toString(),
               ), // force to refresh the popover state
+              title: '',
               emoji: emoji,
               onSubmitted: (emoji, controller) {
                 setEmoji(emoji);
