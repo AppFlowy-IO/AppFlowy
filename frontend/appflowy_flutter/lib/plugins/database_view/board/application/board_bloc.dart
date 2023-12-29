@@ -211,7 +211,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               state.copyWith(isEditingHeader: true, editingHeaderId: groupId),
             );
           },
-          endEditingHeader: (String groupId, String groupName) async {
+          endEditingHeader: (String groupId, String? groupName) async {
             await groupBackendSvc.updateGroup(
               fieldId: groupControllers.values.first.group.fieldId,
               groupId: groupId,
@@ -505,7 +505,7 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.createGroup(String name) = _CreateGroup;
   const factory BoardEvent.startEditingHeader(String groupId) =
       _StartEditingHeader;
-  const factory BoardEvent.endEditingHeader(String groupId, String groupName) =
+  const factory BoardEvent.endEditingHeader(String groupId, String? groupName) =
       _EndEditingHeader;
   const factory BoardEvent.didCreateRow(
     GroupPB group,
