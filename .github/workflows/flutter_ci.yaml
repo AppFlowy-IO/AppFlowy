@@ -251,7 +251,6 @@ jobs:
           cat .env
 
       - name: Check if server is running
-        id: check-server
         run: |
           if nc -zv 127.0.0.1 8000; then
             echo "Server is already running."
@@ -259,6 +258,7 @@ jobs:
           else
             echo "Server is not running."
             echo "SERVER_RUNNING=false" >> $GITHUB_ENV
+        shell: bash
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
