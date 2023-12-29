@@ -45,7 +45,7 @@ class AlignItems extends StatelessWidget {
                   isSelected: currentIndex == index,
                   icon: e.$2,
                 ),
-                if (index != 0 || index != alignMenuItems.length - 1)
+                if (index != 0 && index != alignMenuItems.length - 1)
                   const HSpace(12),
               ],
             )
