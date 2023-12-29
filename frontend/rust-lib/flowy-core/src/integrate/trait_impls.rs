@@ -3,6 +3,7 @@ use std::sync::Arc;
 use anyhow::Error;
 use bytes::Bytes;
 use client_api::collab_sync::{SinkConfig, SinkStrategy, SyncObject, SyncPlugin};
+use collab::core::collab::CollabDocState;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
@@ -13,20 +14,17 @@ use collab_integrate::collab_builder::{
   CollabDataSource, CollabStorageProvider, CollabStorageProviderContext,
 };
 use collab_integrate::postgres::SupabaseDBPlugin;
-use flowy_database_deps::cloud::{
-  CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
-};
+use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use flowy_document2::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{
-  FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+  FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStorageService, StorageObject};
-use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_deps::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
@@ -187,17 +185,35 @@ impl FolderCloudService for ServerProvider {
     })
   }
 
-  fn get_folder_doc_state(
+  fn get_collab_doc_state_f(
     &self,
     workspace_id: &str,
     uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+    collab_type: CollabType,
+    object_id: &str,
+  ) -> FutureResult<CollabDocState, Error> {
+    let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_folder_doc_state(&workspace_id, uid)
+        .get_collab_doc_state_f(&workspace_id, uid, collab_type, &object_id)
+        .await
+    })
+  }
+
+  fn batch_create_collab_object(
+    &self,
+    workspace_id: &str,
+    objects: Vec<FolderCollabParams>,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server(&self.get_server_type());
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .batch_create_collab_object(&workspace_id, objects)
         .await
     })
   }
@@ -211,35 +227,35 @@ impl FolderCloudService for ServerProvider {
 }
 
 impl DatabaseCloudService for ServerProvider {
-  fn get_collab_update(
+  fn get_collab_doc_state_db(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdate, Error> {
+  ) -> FutureResult<CollabDocState, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_update(&database_id, collab_type, &workspace_id)
+        .get_collab_doc_state_db(&database_id, collab_type, &workspace_id)
         .await
     })
   }
 
-  fn batch_get_collab_updates(
+  fn batch_get_collab_doc_state_db(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdateByOid, Error> {
+  ) -> FutureResult<CollabDocStateByOid, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_updates(object_ids, object_ty, &workspace_id)
+        .batch_get_collab_doc_state_db(object_ids, object_ty, &workspace_id)
         .await
     })
   }
@@ -265,7 +281,7 @@ impl DocumentCloudService for ServerProvider {
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  ) -> FutureResult<CollabDocState, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
     let server = self.get_server(&self.get_server_type());

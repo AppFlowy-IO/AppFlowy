@@ -1,5 +1,6 @@
 use anyhow::Error;
 use client_api::entity::{QueryCollab, QueryCollabParams};
+use collab::core::collab::CollabDocState;
 use collab::core::origin::CollabOrigin;
 use collab_document::document::Document;
 use collab_entity::CollabType;
@@ -20,7 +21,7 @@ where
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  ) -> FutureResult<CollabDocState, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     let document_id = document_id.to_string();
@@ -32,13 +33,13 @@ where
           collab_type: CollabType::Document,
         },
       };
-      let data = try_get_client?
+      let doc_state = try_get_client?
         .get_collab(params)
         .await
         .map_err(FlowyError::from)?
         .doc_state
         .to_vec();
-      Ok(vec![data])
+      Ok(doc_state)
     })
   }
 
@@ -74,7 +75,7 @@ where
         .doc_state
         .to_vec();
       let document =
-        Document::from_updates(CollabOrigin::Empty, vec![doc_state], &document_id, vec![])?;
+        Document::from_doc_state(CollabOrigin::Empty, doc_state, &document_id, vec![])?;
       Ok(document.get_document_data().ok())
     })
   }

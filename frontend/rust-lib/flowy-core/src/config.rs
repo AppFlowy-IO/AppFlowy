@@ -6,7 +6,7 @@ use tracing::{error, info};
 
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user::manager::URL_SAFE_ENGINE;
+use flowy_user::services::entities::URL_SAFE_ENGINE;
 use lib_infra::file_util::copy_dir_recursive;
 
 use crate::integrate::log::create_log_filter;

@@ -10,7 +10,7 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::user::DatabaseWithViewsArray;
+use collab_database::user::DatabaseViewTrackerList;
 use collab_folder::{Folder, UserId};
 use parking_lot::{Mutex, RwLock};
 use tracing::info;
@@ -53,10 +53,10 @@ pub fn migration_anon_user_on_sign_up(
       // Migration of all objects except the folder and database_with_views
       object_ids.retain(|id| {
         id != &old_user.session.user_workspace.id
-          && id != &old_user.session.user_workspace.database_storage_id
+          && id != &old_user.session.user_workspace.database_view_tracker_id
       });
 
-      tracing::info!("migrate collab objects: {:?}", object_ids.len());
+      info!("migrate collab objects: {:?}", object_ids.len());
       let collab_by_oid = make_collab_by_oid(old_user, &old_collab_r_txn, &object_ids);
       migrate_databases(
         &old_to_new_id_map,
@@ -142,24 +142,24 @@ where
 {
   let database_with_views_collab = Collab::new(
     old_user.session.user_id,
-    &old_user.session.user_workspace.database_storage_id,
+    &old_user.session.user_workspace.database_view_tracker_id,
     "phantom",
     vec![],
   );
   database_with_views_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(
       old_user.session.user_id,
-      &old_user.session.user_workspace.database_storage_id,
+      &old_user.session.user_workspace.database_view_tracker_id,
       txn,
     )
   })?;
 
   let new_uid = new_user.session.user_id;
-  let new_object_id = &new_user.session.user_workspace.database_storage_id;
+  let new_object_id = &new_user.session.user_workspace.database_view_tracker_id;
 
-  let array = DatabaseWithViewsArray::from_collab(&database_with_views_collab);
-  for database_view in array.get_all_databases() {
-    array.update_database(&database_view.database_id, |update| {
+  let array = DatabaseViewTrackerList::from_collab(&database_with_views_collab);
+  for database_view_tracker in array.get_all_database_tracker() {
+    array.update_database(&database_view_tracker.database_id, |update| {
       let new_linked_views = update
         .linked_views
         .iter()

@@ -1,12 +1,7 @@
-use std::fs;
-use std::path::PathBuf;
 use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 
-use base64::alphabet::URL_SAFE;
-use base64::engine::general_purpose::PAD;
-use base64::engine::GeneralPurpose;
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
@@ -16,21 +11,23 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_folder_deps::entities::ImportData;
 use flowy_server_config::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
-use flowy_user_deps::cloud::UserUpdate;
+use flowy_user_deps::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_deps::entities::*;
+
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
-use crate::anon_user_upgrade::{
+use crate::anon_user::{
   migration_anon_user_on_sign_up, sync_af_user_data_to_cloud, sync_supabase_user_data_to_cloud,
 };
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
-use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
+use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
@@ -39,45 +36,14 @@ use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
-use crate::services::db::{UserDB, UserDBPath};
-use crate::services::entities::{ResumableSignUp, Session};
+use crate::services::data_import::importer::{import_data, ImportDataSource};
+use crate::services::db::UserDB;
+use crate::services::entities::{ResumableSignUp, Session, UserConfig, UserPaths};
 use crate::services::user_awareness::UserAwarenessDataSource;
+use crate::services::user_encryption::validate_encryption_sign;
 use crate::services::user_sql::{UserTable, UserTableChangeset};
 use crate::services::user_workspace::save_user_workspaces;
 use crate::{errors::FlowyError, notification::*};
-
-pub const URL_SAFE_ENGINE: GeneralPurpose = GeneralPurpose::new(&URL_SAFE, PAD);
-pub struct UserConfig {
-  /// Used to store the user data
-  storage_path: String,
-  /// application_path is the path of the application binary. By default, the
-  /// storage_path is the same as the application_path. However, when the user
-  /// choose a custom path for the user data, the storage_path will be different from
-  /// the application_path.
-  application_path: String,
-  pub device_id: String,
-  /// Used as the key of `Session` when saving session information to KV.
-  pub(crate) session_cache_key: String,
-}
-
-impl UserConfig {
-  /// The `root_dir` represents as the root of the user folders. It must be unique for each
-  /// users.
-  pub fn new(name: &str, storage_path: &str, application_path: &str, device_id: &str) -> Self {
-    let session_cache_key = format!("{}_session_cache", name);
-    Self {
-      storage_path: storage_path.to_owned(),
-      application_path: application_path.to_owned(),
-      session_cache_key,
-      device_id: device_id.to_owned(),
-    }
-  }
-
-  /// Returns bool whether the user choose a custom path for the user data.
-  pub fn is_custom_storage_path(&self) -> bool {
-    !self.storage_path.contains(&self.application_path)
-  }
-}
 
 pub struct UserManager {
   database: Arc<UserDB>,
@@ -106,7 +72,9 @@ impl UserManager {
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
     let current_session = Arc::new(parking_lot::RwLock::new(None));
-    migrate_session_with_user_uuid(&user_config, &current_session, &store_preferences);
+
+    *current_session.write() =
+      migrate_session_with_user_uuid(&user_config.session_cache_key, &store_preferences);
 
     let refresh_user_profile_since = AtomicI64::new(0);
     let user_manager = Arc::new(Self {
@@ -699,6 +667,13 @@ impl UserManager {
     }
   }
 
+  pub fn import_data(&self, source: ImportDataSource) -> Result<ImportData, FlowyError> {
+    let session = self.get_session()?;
+    let collab_db = self.database.get_collab_db(session.user_id)?;
+    let import_result = import_data(&session, source, collab_db)?;
+    Ok(import_result)
+  }
+
   pub(crate) fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
     debug!("Set current user: {:?}", session);
     match &session {
@@ -858,20 +833,6 @@ fn current_authenticator() -> Authenticator {
   }
 }
 
-fn validate_encryption_sign(user_profile: &UserProfile, encryption_sign: &str) -> bool {
-  // If the local user profile's encryption sign is not equal to the user update's encryption sign,
-  // which means the user enable encryption in another device, we should logout the current user.
-  let is_valid = user_profile.encryption_type.sign() == encryption_sign;
-  if !is_valid {
-    send_auth_state_notification(AuthStateChangedPB {
-      state: AuthStatePB::InvalidAuth,
-      message: "Encryption configuration was changed".to_string(),
-    })
-    .send();
-  }
-  is_valid
-}
-
 fn upsert_user_profile_change(
   uid: i64,
   pool: Arc<ConnectionPool>,
@@ -899,40 +860,4 @@ fn save_user_token(uid: i64, pool: Arc<ConnectionPool>, token: String) -> FlowyR
   let params = UpdateUserProfileParams::new(uid).with_token(token);
   let changeset = UserTableChangeset::new(params);
   upsert_user_profile_change(uid, pool, changeset)
-}
-
-#[derive(Clone)]
-struct UserPaths {
-  root: String,
-}
-
-impl UserPaths {
-  fn new(root: String) -> Self {
-    Self { root }
-  }
-
-  /// Returns the path to the user's data directory.
-  fn user_data_dir(&self, uid: i64) -> String {
-    format!("{}/{}", self.root, uid)
-  }
-}
-
-impl UserDBPath for UserPaths {
-  fn user_db_path(&self, uid: i64) -> PathBuf {
-    PathBuf::from(self.user_data_dir(uid))
-  }
-
-  fn collab_db_path(&self, uid: i64) -> PathBuf {
-    let mut path = PathBuf::from(self.user_data_dir(uid));
-    path.push("collab_db");
-    path
-  }
-
-  fn collab_db_history(&self, uid: i64, create_if_not_exist: bool) -> std::io::Result<PathBuf> {
-    let path = PathBuf::from(self.user_data_dir(uid)).join("collab_db_history");
-    if !path.exists() && create_if_not_exist {
-      fs::create_dir_all(&path)?;
-    }
-    Ok(path)
-  }
 }

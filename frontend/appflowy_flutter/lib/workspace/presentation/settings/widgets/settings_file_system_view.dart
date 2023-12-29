@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_file_import_appflowy_data_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_export_file_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_customize_location_view.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
     const SettingsFileLocationCustomizer(),
     // disable export data for v0.2.0 in release mode.
     if (kDebugMode) const SettingsExportFileWidget(),
+    const ImportAppFlowyData(),
   ];
 
   @override

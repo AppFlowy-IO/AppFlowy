@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use bytes::Bytes;
+use collab::core::collab::CollabDocState;
 use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
 use collab_document::document_data::default_document_data;
@@ -110,7 +111,7 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
   let data = default_document_data();
   let uid = test.user.user_id().unwrap();
   // create a document
-  _ = test
+  test
     .create_document(uid, &doc_id, Some(data.clone()))
     .await
     .unwrap();
@@ -135,7 +136,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     &self,
     _document_id: &str,
     _workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  ) -> FutureResult<CollabDocState, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 

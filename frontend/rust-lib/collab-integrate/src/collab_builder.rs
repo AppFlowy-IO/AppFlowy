@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::sync::{Arc, Weak};
 
 use anyhow::Error;
-use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::preclude::{CollabBuilder, CollabPlugin};
 use collab_entity::{CollabObject, CollabType};
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
@@ -153,7 +153,7 @@ impl AppFlowyCollabBuilder {
   /// - `uid`: The user ID associated with the collaboration.
   /// - `object_id`: A string reference representing the ID of the object.
   /// - `object_type`: The type of the collaboration, defined by the [CollabType] enum.
-  /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabRawData] type.
+  /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabDocState] type.
   /// - `collab_db`: A weak reference to the [RocksCollabDB].
   ///
   pub async fn build(
@@ -161,7 +161,7 @@ impl AppFlowyCollabBuilder {
     uid: i64,
     object_id: &str,
     object_type: CollabType,
-    doc_state: CollabRawData,
+    collab_doc_state: CollabDocState,
     collab_db: Weak<RocksCollabDB>,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
@@ -172,7 +172,7 @@ impl AppFlowyCollabBuilder {
         object_id,
         object_type,
         collab_db,
-        doc_state,
+        collab_doc_state,
         &persistence_config,
         build_config,
       )
@@ -190,7 +190,7 @@ impl AppFlowyCollabBuilder {
   /// - `uid`: The user ID associated with the collaboration.
   /// - `object_id`: A string reference representing the ID of the object.
   /// - `object_type`: The type of the collaboration, defined by the [CollabType] enum.
-  /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabRawData] type.
+  /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabDocState] type.
   /// - `collab_db`: A weak reference to the [RocksCollabDB].
   ///
   #[allow(clippy::too_many_arguments)]
@@ -200,13 +200,13 @@ impl AppFlowyCollabBuilder {
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<RocksCollabDB>,
-    doc_state: CollabRawData,
+    collab_doc_state: CollabDocState,
     persistence_config: &CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
     let collab = Arc::new(
       CollabBuilder::new(uid, object_id)
-        .with_raw_data(doc_state)
+        .with_doc_state(collab_doc_state)
         .with_plugin(RocksdbDiskPlugin::new_with_config(
           uid,
           collab_db.clone(),

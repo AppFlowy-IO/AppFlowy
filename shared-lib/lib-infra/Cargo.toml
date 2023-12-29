@@ -18,3 +18,4 @@ anyhow.workspace = true
 walkdir = "2.4.0"
 zip = "0.6.6"
 tempfile = "3.8.1"
+validator = "0.16.0"

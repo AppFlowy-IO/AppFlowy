@@ -120,8 +120,7 @@ pub async fn print_encryption_folder_snapshot(
     .pop()
     .unwrap();
   let collab = Arc::new(
-    MutexCollab::new_with_raw_data(CollabOrigin::Empty, folder_id, vec![snapshot.blob], vec![])
-      .unwrap(),
+    MutexCollab::new_with_raw_data(CollabOrigin::Empty, folder_id, snapshot.blob, vec![]).unwrap(),
   );
   let folder_data = Folder::open(uid, collab, None)
     .unwrap()

@@ -30,6 +30,7 @@ protobuf.workspace = true
 uuid.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
 serde_json.workspace = true
+validator = "0.16.0"
 
 [build-dependencies]
 flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

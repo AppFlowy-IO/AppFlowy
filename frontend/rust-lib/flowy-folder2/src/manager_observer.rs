@@ -33,7 +33,7 @@ pub(crate) fn subscribe_folder_view_changed(
           ViewChange::DidCreateView { view } => {
             notify_child_views_changed(
               view_pb_without_child_views(Arc::new(view.clone())),
-              ChildViewChangeReason::DidCreateView,
+              ChildViewChangeReason::Create,
             );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
           },
@@ -41,7 +41,7 @@ pub(crate) fn subscribe_folder_view_changed(
             for view in views {
               notify_child_views_changed(
                 view_pb_without_child_views(view),
-                ChildViewChangeReason::DidDeleteView,
+                ChildViewChangeReason::Delete,
               );
             }
           },
@@ -49,7 +49,7 @@ pub(crate) fn subscribe_folder_view_changed(
             notify_view_did_change(view.clone());
             notify_child_views_changed(
               view_pb_without_child_views(Arc::new(view.clone())),
-              ChildViewChangeReason::DidUpdateView,
+              ChildViewChangeReason::Update,
             );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id.clone()]);
           },
@@ -198,9 +198,9 @@ fn notify_view_did_change(view: View) -> Option<()> {
 }
 
 pub enum ChildViewChangeReason {
-  DidCreateView,
-  DidDeleteView,
-  DidUpdateView,
+  Create,
+  Delete,
+  Update,
 }
 
 /// Notify the the list of parent view ids that its child views were changed.
@@ -213,13 +213,13 @@ pub(crate) fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChang
   };
 
   match reason {
-    ChildViewChangeReason::DidCreateView => {
+    ChildViewChangeReason::Create => {
       payload.create_child_views.push(view_pb);
     },
-    ChildViewChangeReason::DidDeleteView => {
+    ChildViewChangeReason::Delete => {
       payload.delete_child_views.push(view_pb.id);
     },
-    ChildViewChangeReason::DidUpdateView => {
+    ChildViewChangeReason::Update => {
       payload.update_child_views.push(view_pb);
     },
   }

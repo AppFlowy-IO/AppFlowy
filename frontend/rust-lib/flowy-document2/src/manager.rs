@@ -2,7 +2,7 @@ use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::sync::Weak;
 
-use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::core::collab_plugin::EncodedCollabV1;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
@@ -102,12 +102,7 @@ impl DocumentManager {
       let encoded_collab_v1 =
         doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?;
       let collab = self
-        .collab_for_document(
-          uid,
-          doc_id,
-          vec![encoded_collab_v1.doc_state.to_vec()],
-          false,
-        )
+        .collab_for_document(uid, doc_id, encoded_collab_v1.doc_state.to_vec(), false)
         .await?;
       collab.lock().flush();
       Ok(())
@@ -121,15 +116,15 @@ impl DocumentManager {
       return Ok(doc);
     }
 
-    let mut updates = vec![];
+    let mut doc_state = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      let result: Result<CollabRawData, FlowyError> = self
+      let result: Result<CollabDocState, FlowyError> = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user.workspace_id()?)
         .await;
 
-      updates = match result {
+      doc_state = match result {
         Ok(data) => data,
         Err(err) => {
           if err.is_record_not_found() {
@@ -141,7 +136,7 @@ impl DocumentManager {
               "can't find the document in the cloud, doc_id: {}",
               doc_id
             );
-            vec![default_document_collab_data(doc_id).doc_state.to_vec()]
+            default_document_collab_data(doc_id).doc_state.to_vec()
           } else {
             return Err(err);
           }
@@ -151,7 +146,9 @@ impl DocumentManager {
 
     let uid = self.user.user_id()?;
     event!(tracing::Level::DEBUG, "Initialize document: {}", doc_id);
-    let collab = self.collab_for_document(uid, doc_id, updates, true).await?;
+    let collab = self
+      .collab_for_document(uid, doc_id, doc_state, true)
+      .await?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
@@ -233,7 +230,7 @@ impl DocumentManager {
     &self,
     uid: i64,
     doc_id: &str,
-    doc_state: Vec<Vec<u8>>,
+    doc_state: CollabDocState,
     sync_enable: bool,
   ) -> FlowyResult<Arc<MutexCollab>> {
     let db = self.user.collab_db(uid)?;

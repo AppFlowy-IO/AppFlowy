@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Context;
+use collab_entity::CollabType;
 use tracing::event;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -8,8 +9,8 @@ use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
 use flowy_folder2::manager::{FolderInitDataSource, FolderManager};
-use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
-use flowy_user_deps::cloud::UserCloudConfig;
+use flowy_user::event_map::UserStatusCallback;
+use flowy_user_deps::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_deps::entities::{Authenticator, UserProfile, UserWorkspace};
 use lib_infra::future::{to_fut, Fut};
 
@@ -69,7 +70,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_storage_id,
+          user_workspace.database_view_tracker_id,
         )
         .await?;
       document_manager
@@ -107,7 +108,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_storage_id,
+          user_workspace.database_view_tracker_id,
         )
         .await?;
       document_manager
@@ -146,7 +147,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       // for initializing a default workspace differs depending on the sign-up method used.
       let data_source = match folder_manager
         .cloud_service
-        .get_folder_doc_state(&user_workspace.id, user_profile.uid)
+        .get_collab_doc_state_f(
+          &user_workspace.id,
+          user_profile.uid,
+          CollabType::Folder,
+          &user_workspace.id,
+        )
         .await
       {
         Ok(doc_state) => FolderInitDataSource::Cloud(doc_state),
@@ -170,7 +176,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize_with_new_user(
           user_profile.uid,
           user_workspace.id.clone(),
-          user_workspace.database_storage_id,
+          user_workspace.database_view_tracker_id,
         )
         .await
         .context("DatabaseManager error")?;
@@ -208,7 +214,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_storage_id,
+          user_workspace.database_view_tracker_id,
         )
         .await?;
       document_manager

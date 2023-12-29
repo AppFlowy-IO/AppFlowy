@@ -1,11 +1,14 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+use std::sync::Arc;
 
 use anyhow::Error;
+use collab::core::collab::CollabDocState;
 use collab_entity::CollabObject;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -13,8 +16,8 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::entities::{
-  AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
-  WorkspaceMember,
+  AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
+  UserTokenState, UserWorkspace, WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -50,6 +53,73 @@ impl Display for UserCloudConfig {
       self.enable_sync, self.enable_encrypt
     )
   }
+}
+
+/// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
+/// including token management, synchronization settings, network reachability, and authentication.
+///
+/// This trait is intended for implementation by providers that offer cloud-based services for users.
+/// It includes methods for handling authentication tokens, enabling/disabling synchronization,
+/// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
+pub trait UserCloudServiceProvider: Send + Sync + 'static {
+  /// Sets the authentication token for the cloud service.
+  ///
+  /// # Arguments
+  /// * `token`: A string slice representing the authentication token.
+  ///
+  /// # Returns
+  /// A `Result` which is `Ok` if the token is successfully set, or a `FlowyError` otherwise.
+  fn set_token(&self, token: &str) -> Result<(), FlowyError>;
+
+  /// Subscribes to the state of the authentication token.
+  ///
+  /// # Returns
+  /// An `Option` containing a `WatchStream<UserTokenState>` if available, or `None` otherwise.
+  /// The stream allows the caller to watch for changes in the token state.
+  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>>;
+
+  /// Sets the synchronization state for a user.
+  ///
+  /// # Arguments
+  /// * `uid`: An i64 representing the user ID.
+  /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
+  fn set_enable_sync(&self, uid: i64, enable_sync: bool);
+
+  /// Sets the network reachability status.
+  ///
+  /// # Arguments
+  /// * `reachable`: A boolean indicating whether the network is reachable.
+  fn set_network_reachable(&self, reachable: bool);
+
+  /// Sets the encryption secret for secure communication.
+  ///
+  /// # Arguments
+  /// * `secret`: A `String` representing the encryption secret.
+  fn set_encrypt_secret(&self, secret: String);
+
+  /// Sets the authenticator used for authentication processes.
+  ///
+  /// # Arguments
+  /// * `authenticator`: An `Authenticator` object.
+  fn set_authenticator(&self, authenticator: Authenticator);
+
+  /// Retrieves the current authenticator.
+  ///
+  /// # Returns
+  /// The current `Authenticator` object.
+  fn get_authenticator(&self) -> Authenticator;
+
+  /// Retrieves the user-specific cloud service.
+  ///
+  /// # Returns
+  /// A `Result` containing an `Arc<dyn UserCloudService>` if successful, or a `FlowyError` otherwise.
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
+
+  /// Retrieves the service URL.
+  ///
+  /// # Returns
+  /// A `String` representing the service URL.
+  fn service_url(&self) -> String;
 }
 
 /// Provide the generic interface for the user cloud service
@@ -127,7 +197,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
+  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<CollabDocState, Error>;
 
   fn receive_realtime_event(&self, _json: Value) {}
 
@@ -162,11 +232,4 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
     .as_str();
   let uuid = Uuid::from_str(uuid)?;
   Ok(uuid)
-}
-
-pub type UserTokenStateReceiver = tokio::sync::broadcast::Receiver<UserTokenState>;
-#[derive(Debug, Clone)]
-pub enum UserTokenState {
-  Refresh,
-  Invalid,
 }

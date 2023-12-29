@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
-use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_entity::CollabType;
 use collab_folder::{
   Folder, FolderData, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate, Workspace,
@@ -12,8 +12,10 @@ use tracing::{error, event, info, instrument, Level};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
+use flowy_folder_deps::folder_builder::ParentChildViews;
+use lib_infra::async_trait::async_trait;
 
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
@@ -28,14 +30,24 @@ use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
 };
 use crate::share::ImportParams;
-use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
+use crate::util::{
+  folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
+};
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
 /// [FolderUser] represents the user for folder.
+#[async_trait]
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+
+  async fn import_appflowy_data_folder(
+    &self,
+    workspace_id: &str,
+    path: &str,
+    container_name: &str,
+  ) -> Result<ParentChildViews, FlowyError>;
 }
 
 pub struct FolderManager {
@@ -123,7 +135,7 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<RocksCollabDB>,
-    raw_data: CollabRawData,
+    collab_doc_state: CollabDocState,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab = self
       .collab_builder
@@ -132,7 +144,7 @@ impl FolderManager {
         workspace_id,
         CollabType::Folder,
         collab_db,
-        raw_data,
+        collab_doc_state,
         &CollabPersistenceConfig::new().enable_snapshot(true),
         CollabBuilderConfig::default().sync_enable(true),
       )
@@ -150,7 +162,7 @@ impl FolderManager {
   ) -> FlowyResult<()> {
     let folder_doc_state = self
       .cloud_service
-      .get_folder_doc_state(workspace_id, user_id)
+      .get_collab_doc_state_f(workspace_id, user_id, CollabType::Folder, workspace_id)
       .await?;
 
     event!(
@@ -207,7 +219,7 @@ impl FolderManager {
       // when the user signs up for the first time.
       let result = self
         .cloud_service
-        .get_folder_doc_state(workspace_id, user_id)
+        .get_collab_doc_state_f(workspace_id, user_id, CollabType::Folder, workspace_id)
         .await
         .map_err(FlowyError::from);
 
@@ -341,7 +353,6 @@ impl FolderManager {
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
-    let _workspace_id = self.get_current_workspace_id().await?;
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     let meta = params.meta.clone();
@@ -463,7 +474,7 @@ impl FolderManager {
 
           notify_child_views_changed(
             view_pb_without_child_views(view),
-            ChildViewChangeReason::DidDeleteView,
+            ChildViewChangeReason::Delete,
           );
         }
       },
@@ -821,6 +832,34 @@ impl FolderManager {
     Ok(())
   }
 
+  pub async fn import_appflowy_data(&self, path: String, name: String) -> Result<(), FlowyError> {
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    let workspace_id = self.get_current_workspace_id().await?;
+    let folder = self.mutex_folder.clone();
+    let user = self.user.clone();
+
+    tokio::spawn(async move {
+      match user
+        .import_appflowy_data_folder(&workspace_id, &path, &name)
+        .await
+      {
+        Ok(view) => {
+          if let Some(folder) = &*folder.lock() {
+            insert_parent_child_views(folder, view);
+          }
+          let _ = tx.send(Ok(()));
+        },
+        Err(err) => {
+          let _ = tx.send(Err(err));
+        },
+      }
+    });
+
+    rx.await.map_err(internal_error)??;
+
+    Ok(())
+  }
+
   pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
@@ -1049,7 +1088,7 @@ pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
-  Cloud(CollabRawData),
+  Cloud(CollabDocState),
   /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
   FolderData(FolderData),
 }
