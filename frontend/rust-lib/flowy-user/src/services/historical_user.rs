@@ -41,7 +41,7 @@ impl UserManager {
   }
 
   pub fn remove_anon_user(&self) {
-    let _ = self.store_preferences.remove(ANON_USER);
+    self.store_preferences.remove(ANON_USER);
   }
 
   pub async fn get_anon_user(&self) -> FlowyResult<UserProfilePB> {
