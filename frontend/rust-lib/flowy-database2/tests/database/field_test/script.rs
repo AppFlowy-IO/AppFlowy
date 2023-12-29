@@ -99,7 +99,7 @@ impl DatabaseFieldTest {
         let old_field = self.editor.get_field(&field_id).unwrap();
         self
           .editor
-          .update_field_type_option(&self.view_id, &field_id, type_option, old_field)
+          .update_field_type_option(&field_id, type_option, old_field)
           .await
           .unwrap();
       },

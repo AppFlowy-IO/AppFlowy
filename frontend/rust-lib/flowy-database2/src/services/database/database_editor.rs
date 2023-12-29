@@ -317,13 +317,12 @@ impl DatabaseEditor {
   /// Do nothing if the [TypeOptionData] is empty.
   pub async fn update_field_type_option(
     &self,
-    view_id: &str,
     _field_id: &str,
     type_option_data: TypeOptionData,
     old_field: Field,
   ) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(view_id).await?;
-    update_field_type_option_fn(&self.database, &view_editor, type_option_data, old_field).await?;
+    let view_editors = self.database_views.editors().await;
+    update_field_type_option_fn(&self.database, &view_editors, type_option_data, old_field).await?;
 
     Ok(())
   }
@@ -808,9 +807,15 @@ impl DatabaseEditor {
       .for_each(|option| type_option.insert_option(option.into()));
 
     // Update the field's type option
-    self
-      .update_field_type_option(view_id, field_id, type_option.to_type_option_data(), field)
-      .await?;
+    let view_editors = self.database_views.editors().await;
+    update_field_type_option_fn(
+      &self.database,
+      &view_editors,
+      type_option.to_type_option_data(),
+      field.clone(),
+    )
+    .await?;
+
     // Insert the options into the cell
     self
       .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
@@ -842,10 +847,10 @@ impl DatabaseEditor {
       type_option.delete_option(&option.id);
     }
 
-    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    let view_editors = self.database_views.editors().await;
     update_field_type_option_fn(
       &self.database,
-      &view_editor,
+      &view_editors,
       type_option.to_type_option_data(),
       field.clone(),
     )
@@ -1290,22 +1295,23 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 
   fn update_field(
     &self,
-    view_id: &str,
     type_option_data: TypeOptionData,
     old_field: Field,
   ) -> FutureResult<(), FlowyError> {
-    let view_id = view_id.to_string();
     let weak_editor_by_view_id = Arc::downgrade(&self.editor_by_view_id);
     let weak_database = Arc::downgrade(&self.database);
     FutureResult::new(async move {
       if let (Some(database), Some(editor_by_view_id)) =
         (weak_database.upgrade(), weak_editor_by_view_id.upgrade())
       {
-        let view_editor = editor_by_view_id.read().await.get(&view_id).cloned();
-        if let Some(view_editor) = view_editor {
-          let _ =
-            update_field_type_option_fn(&database, &view_editor, type_option_data, old_field).await;
-        }
+        let view_editors = editor_by_view_id
+          .read()
+          .await
+          .values()
+          .map(|editor| editor.clone())
+          .collect();
+        let _ =
+          update_field_type_option_fn(&database, &view_editors, type_option_data, old_field).await;
       }
       Ok(())
     })
@@ -1573,7 +1579,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub async fn update_field_type_option_fn(
   database: &Arc<MutexDatabase>,
-  view_editor: &Arc<DatabaseViewEditor>,
+  view_editors: &Vec<Arc<DatabaseViewEditor>>,
   type_option_data: TypeOptionData,
   old_field: Field,
 ) -> FlowyResult<()> {
@@ -1601,9 +1607,12 @@ pub async fn update_field_type_option_fn(
     });
 
   let _ = notify_did_update_database_field(database, &old_field.id);
-  view_editor
-    .v_did_update_field_type_option(&old_field)
-    .await?;
+  for view_editor in view_editors {
+    view_editor
+      .v_did_update_field_type_option(&old_field)
+      .await?;
+  }
+
   Ok(())
 }
 

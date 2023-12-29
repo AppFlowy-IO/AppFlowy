@@ -363,7 +363,7 @@ impl DatabaseViewEditor {
       if let (Some(type_option_data), Some(payload)) = result {
         self
           .delegate
-          .update_field(&self.view_id, type_option_data, old_field)
+          .update_field(type_option_data, old_field)
           .await?;
 
         let group_changes = GroupChangesPB {
@@ -402,10 +402,7 @@ impl DatabaseViewEditor {
       changes.deleted_rows.extend(deleted_rows);
 
       if let Some(type_option) = type_option_data {
-        self
-          .delegate
-          .update_field(&self.view_id, type_option, field)
-          .await?;
+        self.delegate.update_field(type_option, field).await?;
       }
       let notification = GroupChangesPB {
         view_id: self.view_id.clone(),
@@ -436,7 +433,7 @@ impl DatabaseViewEditor {
       if !type_option_data.is_empty() {
         self
           .delegate
-          .update_field(&self.view_id, type_option_data, old_field)
+          .update_field(type_option_data, old_field)
           .await?;
       }
       let notification = GroupChangesPB {
