@@ -2,25 +2,27 @@
   "appName": "AppFlowy",
   "defaultUsername": "Ich",
   "welcomeText": "Willkommen bei @:appName",
-  "githubStarText": "GitHub Star vergeben",
+  "githubStarText": "Mit einem Stern auf GitHub markieren",
   "subscribeNewsletterText": "Abonniere den Newsletter",
   "letsGoButtonText": "Los geht's",
   "title": "Titel",
   "youCanAlso": "Du kannst auch",
-  "and": "Und",
+  "and": "und",
   "blockActions": {
-    "addBelowTooltip": "Klicken Sie unten, um etwas hinzuzufügen",
+    "addBelowTooltip": "Klicken um etwas unten hinzuzufügen",
     "addAboveCmd": "Alt+Klick",
-    "addAboveMacCmd": "Wahl+Klick",
-    "addAboveTooltip": "oben hinzufügen"
+    "addAboveMacCmd": "Option+Klick",
+    "addAboveTooltip": "oben hinzufügen",
+    "dragTooltip": "Verschieben durch ziehen",
+    "openMenuTooltip": "Klicken, um das Menü zu öffnen"
   },
   "signUp": {
     "buttonText": "Registrieren",
     "title": "Registriere dich bei @:appName",
     "getStartedText": "Erste Schritte",
-    "emptyPasswordError": "Passwort darf nicht leer sein",
-    "repeatPasswordEmptyError": "Passwortwiederholung darf nicht leer sein",
-    "unmatchedPasswordError": "Passwörter stimmen nicht überein",
+    "emptyPasswordError": "Das Passwort darf nicht leer sein",
+    "repeatPasswordEmptyError": "Die Passwortwiederholung darf nicht leer sein",
+    "unmatchedPasswordError": "Die Passwörter stimmen nicht überein",
     "alreadyHaveAnAccount": "Bereits registriert?",
     "emailHint": "E-Mail",
     "passwordHint": "Passwort",
@@ -36,7 +38,7 @@
     "forgotPassword": "Passwort vergessen?",
     "emailHint": "E-Mail",
     "passwordHint": "Passwort",
-    "dontHaveAnAccount": "Du besitzt noch kein Konto?",
+    "dontHaveAnAccount": "Noch kein Konto?",
     "repeatPasswordEmptyError": "Passwortwiederholung darf nicht leer sein",
     "unmatchedPasswordError": "Passwörter stimmen nicht überein",
     "syncPromptMessage": "Die Synchronisation kann ein paar Minuten dauern. Bitte diese Seite nicht schließen",
@@ -44,8 +46,7 @@
     "LogInWithGoogle": "Mit Google-Account anmelden",
     "LogInWithGithub": "Mit GitHub-Account anmelden",
     "LogInWithDiscord": "Mit Discord-Account anmelden",
-    "signInWith": "Anmeldeoptionen:",
-    "loginAsGuestButtonText": "Loslegen"
+    "signInWith": "Anmeldeoptionen:"
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",
@@ -77,7 +78,7 @@
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
-    "documentFromV010": "Dokument von v0.1.0",
+    "documentFromV010": "Dokument ab v0.1.0",
     "databaseFromV010": "Datenbank ab v0.1.0",
     "csv": "CSV",
     "database": "Datenbank"
@@ -96,6 +97,7 @@
   "blankPageTitle": "Leere Seite",
   "newPageText": "Neue Seite",
   "newDocumentText": "Neues Dokument",
+  "newGridText": "Neues Raster",
   "newCalendarText": "Neuer Kalender",
   "newBoardText": "Neues Board",
   "trash": {
@@ -108,12 +110,19 @@
       "created": "Erstellt"
     },
     "confirmDeleteAll": {
-      "title": "Sind Sie sicher, dass alle Seiten im Papierkorb gelöscht werden?",
+      "title": "Sicher, dass alle Seiten im Papierkorb gelöscht werden?",
       "caption": "Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "confirmRestoreAll": {
-      "title": "Sind Sie sicher, dass alle Seiten im Papierkorb wiederhergestellt werden?",
+      "title": "Sicher, dass alle Seiten im Papierkorb wiederhergestellt werden?",
       "caption": "Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "mobile": {
+      "actions": "Papierkorbaktionen",
+      "empty": "Der Papierkorb ist leer",
+      "emptyDescription": "Es sind keine gelöschten Dateien vorhanden",
+      "isDeleted": "ist gelöscht",
+      "isRestored": "ist wiederhergestellt"
     }
   },
   "deletePagePrompt": {
@@ -123,30 +132,31 @@
   },
   "dialogCreatePageNameHint": "Seitenname",
   "questionBubble": {
-    "shortcuts": "Abkürzungen",
+    "shortcuts": "Tastenkürzel",
     "whatsNew": "Was gibt es Neues?",
     "help": "Hilfe & Support",
-    "markdown": "Abschlag",
+    "markdown": "Markdown",
     "debug": {
       "name": "Debug-Informationen",
       "success": "Debug-Informationen in die Zwischenablage kopiert!",
       "fail": "Debug-Informationen können nicht in die Zwischenablage kopiert werden"
     },
-    "feedback": "Rückmeldung"
+    "feedback": "Feedback"
   },
   "menuAppHeader": {
-    "moreButtonToolTip": "Entfernen, verschieben und mehr...",
-    "addPageTooltip": "Schnell eine Seite innerhalb hinzufügen",
+    "moreButtonToolTip": "Entfernen, umbenennen und mehr...",
+    "addPageTooltip": "Hier eine Seite direkt hinzufügen",
     "defaultNewPageName": "Unbenannt",
     "renameDialog": "Umbenennen"
   },
+  "noPagesInside": "Keine Unterseiten",
   "toolbar": {
     "undo": "Rückgängig",
     "redo": "Wiederherstellen",
     "bold": "Fett",
     "italic": "Kursiv",
-    "underline": "Unterstreichen",
-    "strike": "Durchstreichen",
+    "underline": "Unterstrichen",
+    "strike": "Durchstrichen",
     "numList": "Nummerierte Liste",
     "bulletList": "Aufzählung",
     "checkList": "Checkliste",
@@ -155,60 +165,75 @@
     "header": "Überschrift",
     "highlight": "Hervorhebung",
     "color": "Farbe",
-    "addLink": "Link hinzufügen",
+    "addLink": "Verknüpfung hinzufügen",
     "link": "Verknüpfung"
   },
   "tooltip": {
     "lightMode": "In den hellen Modus wechseln",
     "darkMode": "In den dunklen Modus wechseln",
     "openAsPage": "Als Seite öffnen",
-    "addNewRow": "Fügen Sie eine neue Zeile hinzu",
-    "openMenu": "Klicken Sie hier, um das Menü zu öffnen",
-    "dragRow": "Lange drücken, um die Zeile neu anzuordnen",
+    "addNewRow": "Neue Zeile hinzufügen",
+    "openMenu": "Menü öffnen",
+    "dragRow": "Gedrückt halten, um die Zeile neu anzuordnen",
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
-    "addBlockBelow": "Fügen Sie unten einen Block hinzu"
+    "addBlockBelow": "Einen Block unten hinzufügen",
+    "urlLaunchAccessory": "Im Browser öffnen",
+    "urlCopyAccessory": "Webadresse kopieren."
   },
   "sideBar": {
-    "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar",
+    "closeSidebar": "Seitenleiste schließenr",
+    "openSidebar": "Seitenleiste öffnen",
+    "personal": "Persönlich",
     "favorites": "Favoriten",
-    "clickToHideFavorites": "Klicken um Favoriten zu verbergen",
-    "addAPage": "Seite hinzufügen"
+    "clickToHidePersonal": "Klicken, um den persönlichen Abschnitt zu verbergen",
+    "clickToHideFavorites": "Klicken, um Favoriten zu verbergen",
+    "addAPage": "Seite hinzufügen",
+    "recent": "Zueletzt"
   },
   "notifications": {
     "export": {
       "markdown": "Notiz nach Markdown exportiert",
-      "path": "Dokumente/fließend"
+      "path": "Dokumente/flowy"
     }
   },
   "contactsPage": {
     "title": "Kontakte",
-    "whatsHappening": "Was geschieht diese Woche?",
+    "whatsHappening": "Was passiert diese Woche?",
     "addContact": "Kontakt hinzufügen",
     "editContact": "Kontakt bearbeiten"
   },
   "button": {
+    "ok": "OK",
     "done": "Erledigt",
+    "cancel": "Abbrechen",
     "signIn": "Anmelden",
     "signOut": "Abmelden",
     "complete": "Fertig",
     "save": "Speichern",
-    "generate": "Generieren",
+    "generate": "Erstellen",
     "esc": "ESC",
     "keep": "Halten",
-    "tryAgain": "Versuchen Sie es erneut",
+    "tryAgain": "Nochmal versuchen",
     "discard": "Verwerfen",
     "replace": "Ersetzen",
     "insertBelow": "Unten einfügen",
+    "insertAbove": "Oben einfügen",
     "upload": "Hochladen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "duplicate": "Duplikat",
     "putback": "Zurück geben",
+    "update": "Update",
+    "share": "Teilen",
+    "removeFromFavorites": "Von den Favoriten entfernen",
+    "addToFavorites": "Zu den Favoriten hinzufügen",
+    "rename": "Umbenennen",
+    "helpCenter": "Hilfe",
+    "add": "Hinzufügen",
+    "yes": "Ja",
     "Done": "Erledigt",
-    "Cancel": "Abbrechen",
-    "OK": "OK"
+    "Cancel": "Abbrechen"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -220,7 +245,7 @@
   "oAuth": {
     "err": {
       "failedTitle": "Keine Verbindung zu Ihrem Konto möglich.",
-      "failedMsg": "Bitte vergewissern Sie sich, dass Sie den Anmeldevorgang in Ihrem Browser abgeschlossen haben."
+      "failedMsg": "Bitte prüfen, ob der Anmeldevorgang im Browser abgeschlossen wurde."
     },
     "google": {
       "title": "GOOGLE ANMELDUNG",
@@ -233,28 +258,70 @@
   "settings": {
     "title": "Einstellungen",
     "menu": {
-      "appearance": "Aussehen",
+      "appearance": "Oberfläche",
       "language": "Sprache",
-      "user": "Benutzer",
+      "user": "Nutzer",
       "files": "Dateien",
       "notifications": "Benachrichtigungen",
       "open": "Einstellungen öffnen",
       "logout": "Abmelden",
       "logoutPrompt": "Wollen sie sich wirklich Abmelden?",
+      "selfEncryptionLogoutPrompt": "Wollen sie sich wirklich Abmelden? Bitte sicherstellen, dass der Encryption Secret Code kopiert wurde.",
+      "syncSetting": "Sync Einstellung",
+      "cloudSettings": "Cloud Einstellungen",
+      "enableSync": "Sync aktivieren",
       "enableEncrypt": "Daten verschlüsseln",
-      "supabaseSetting": "Supabase-Einstellung"
+      "cloudURL": "Basis URL",
+      "invalidCloudURLScheme": "Ungültiges Format",
+      "cloudServerType": "Cloud Server",
+      "cloudServerTypeTip": "Bitte beachten, dass Sie vom aktuellen Account ausgeloggt werden, nach dem Wechsel zum Cloud Server",
+      "cloudLocal": "Lokal",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseAnonKey": "Supabase anonymer Schlüssel",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "Der anonyme Schlüssel darf nicht leer sein, wenn die Supabase URL gesetzt ist.",
+      "cloudAppFlowy": "AppFlowy Cloud",
+      "clickToCopy": "Klicken, um zu kopieren",
+      "selfHostStart": "Falls Sie keinen Server haben, verweisen Sie bitte auf",
+      "selfHostContent": "Dokument",
+      "selfHostEnd": "für Hilfe, um einen einen Server aufzusetzen",
+      "cloudURLHint": "Eingabe der Basis- URL Ihres Servers",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "Eingbe der Websocket Adresse Ihres Servers",
+      "restartApp": "Neustart",
+      "restartAppTip": "Programm neustarten, um die Änderungen zu übernehmen. Bitte bachten, dass Sie vom aktuellen Account eventuell ausgeloggt werden.",
+      "enableEncryptPrompt": "Verschlüsselung aktivieren, um Ihre Daten mit dem Secret Key zu verschlüsseln. Verwahren Sie den Schlüssel sicher. Einmal aktiviert kann es nicht mehr rückgängig gemacht werden. Falls der Schlüssel verloren geht sind Ihre Daten unwiderbringlich verloren. Klicken, um zu kopieren.",
+      "inputEncryptPrompt": "Bitte den Encryption Secret Code eingeben",
+      "clickToCopySecret": "Klicken, um den Secret Code zu kopieren",
+      "configServerSetting": "Ihre Servereinstellungen anpassen",
+      "configServerGuide": "Zu erst `Schnellstart/Quick Start` auswählen, dann zu den `Einstellungen/Settings` wechseln und dann die Cloud-Einstellungen \"Cloud Settings\" auswählen, um Ihren Server zu konfigurieren.",
+      "inputTextFieldHint": "Ihr Secret Code",
+      "historicalUserList": "Nutzer-Anmelde-Historie",
+      "historicalUserListTooltip": "Diese Liste zeigt Ihre anonymen Accounts. Sie können einen Account anklicken, um die Detailinformationen zu sehen. Anonyme Accounts werden über den 'Erste Schritte' Button erstellt",
+      "openHistoricalUser": "Klicken, um den anonymen Account zu öffnen",
+      "customPathPrompt": "Den AppFlowy Daten-Ordner in einem mit der Cloud synchronisierten Ordner (z.B. Google Drive) zu speichern, könnte Risiken bergen. Falls die Datenbank innerhalb dieses Ordners gleichzeitig von mehreren Orten zugegriffen oder verändert wird könnte es zu Synchronisationskonflikten und potentiellen Daten-Beschädigung führen",
+      "importAppFlowyData": "Daten von einem externen AppFlowy Ordner importieren.",
+      "importAppFlowyDataDescription": "Daten von einem externen AppFlowy Ordner kopieren und in den aktuellen AppFlowy Datenordner importieren.",
+      "importSuccess": "Der AppFlowy Datenordner wurde erfolgreich importiert",
+      "importFailed": "Der AppFlowy Datenordner-Import ist fehlgeschlagen"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Benachrichtigungen aktivieren",
+        "hint": "Ausschalten, um die lokalen Benachrichtigungen abzuschalten"
+      }
     },
     "appearance": {
-      "resetSetting": "Einstellung zurücksetzen",
+      "resetSetting": "Zurücksetzen",
       "fontFamily": {
         "label": "Schriftfamilie",
         "search": "Suchen"
       },
       "themeMode": {
-        "label": "Themenmodus",
-        "light": "Lichtmodus",
-        "dark": "Dunkler Modus",
-        "system": "An das System anpassen"
+        "label": "Designmodus",
+        "light": "Helles Design",
+        "dark": "Dunkles Design",
+        "system": "Automatisch, wie Betriebssystem"
       },
       "themeUpload": {
         "button": "Hochladen",
