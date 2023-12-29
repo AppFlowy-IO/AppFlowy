@@ -85,6 +85,15 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
 
+  /// Sets the authentication type for a user. The authentication type is the type when user sign in or sign up.
+  fn set_user_authenticator(&self, authenticator: &Authenticator);
+
+  /// Sets the authenticator when user sign in or sign up.
+  ///
+  /// # Arguments
+  /// * `authenticator`: An `Authenticator` object.
+  fn set_authenticator(&self, authenticator: Authenticator);
+
   /// Sets the network reachability status.
   ///
   /// # Arguments
@@ -96,12 +105,6 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   /// # Arguments
   /// * `secret`: A `String` representing the encryption secret.
   fn set_encrypt_secret(&self, secret: String);
-
-  /// Sets the authenticator used for authentication processes.
-  ///
-  /// # Arguments
-  /// * `authenticator`: An `Authenticator` object.
-  fn set_authenticator(&self, authenticator: Authenticator);
 
   /// Retrieves the current authenticator.
   ///

@@ -73,8 +73,7 @@ pub(crate) fn validate_encryption_sign(user_profile: &UserProfile, encryption_si
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::InvalidAuth,
       message: "Encryption configuration was changed".to_string(),
-    })
-    .send();
+    });
   }
   is_valid
 }
