@@ -26,7 +26,7 @@ fn convert_json_to_document() {
   let page_block = blocks.get(&page_id).unwrap();
   let page_children = children_map.get(&page_block.children_id).unwrap();
   assert_eq!(page_children.children.len(), 1);
-  let paragraph1 = blocks.get(page_children.children.get(0).unwrap()).unwrap();
+  let paragraph1 = blocks.get(page_children.children.first().unwrap()).unwrap();
   assert_eq!(paragraph1.ty, "paragraph1");
   assert_eq!(paragraph1.parent_id, page_block.id);
 }

@@ -19,7 +19,7 @@ async fn grid_cell_update() {
   let rows = &test.row_details;
 
   let mut scripts = vec![];
-  for (_, row_detail) in rows.iter().enumerate() {
+  for row_detail in rows.iter() {
     for field in &fields {
       let field_type = FieldType::from(field.field_type);
       if field_type == FieldType::LastEditedTime || field_type == FieldType::CreatedTime {

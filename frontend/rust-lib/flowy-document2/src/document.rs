@@ -26,6 +26,7 @@ impl MutexDocument {
   /// # Returns
   /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
   pub fn open(doc_id: &str, collab: Arc<MutexCollab>) -> FlowyResult<Self> {
+    #[allow(clippy::arc_with_non_send_sync)]
     let document = Document::open(collab.clone()).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
     subscribe_document_changed(doc_id, &document);
     subscribe_document_snapshot_state(&collab);
@@ -41,6 +42,7 @@ impl MutexDocument {
   /// # Returns
   /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
   pub fn create_with_data(collab: Arc<MutexCollab>, data: DocumentData) -> FlowyResult<Self> {
+    #[allow(clippy::arc_with_non_send_sync)]
     let document =
       Document::create_with_data(collab, data).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
     Ok(document)

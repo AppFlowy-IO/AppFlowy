@@ -369,9 +369,7 @@ fn filter_row(
   cell_filter_cache: &CellFilterCache,
 ) -> Option<(RowId, bool)> {
   // Create a filter result cache if it's not exist
-  let mut filter_result = result_by_row_id
-    .entry(row.id.clone())
-    .or_insert_with(FilterResult::default);
+  let mut filter_result = result_by_row_id.entry(row.id.clone()).or_default();
   let old_is_visible = filter_result.is_visible();
 
   // Iterate each cell of the row to check its visibility

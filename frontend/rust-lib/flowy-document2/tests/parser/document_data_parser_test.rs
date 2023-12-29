@@ -71,7 +71,7 @@ async fn document_data_to_json_with_range_2_test() {
   let start_block_id = children_map
     .get(start_block_parent.children.as_str())
     .unwrap()
-    .get(0)
+    .first()
     .unwrap();
 
   let start = Selection {
@@ -89,7 +89,7 @@ async fn document_data_to_json_with_range_2_test() {
   let end_block_children = children_map
     .get(end_block_parent.children.as_str())
     .unwrap();
-  let end_block_id = end_block_children.get(0).unwrap();
+  let end_block_id = end_block_children.first().unwrap();
   let end = Selection {
     block_id: end_block_id.to_string(),
     index: 0,

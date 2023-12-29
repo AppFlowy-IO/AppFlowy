@@ -30,9 +30,10 @@ impl TryFrom<SortMap> for Sort {
       value.get_i64_value(FIELD_TYPE).map(FieldType::from),
     ) {
       (Some(id), Some(field_id), Some(field_type)) => {
-        let condition =
-          SortCondition::try_from(value.get_i64_value(SORT_CONDITION).unwrap_or_default())
-            .unwrap_or_default();
+        let condition = value
+          .get_i64_value(SORT_CONDITION)
+          .map(SortCondition::from)
+          .unwrap_or_default();
         Ok(Self {
           id,
           field_id,

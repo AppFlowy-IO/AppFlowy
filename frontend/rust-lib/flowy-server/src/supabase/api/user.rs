@@ -271,8 +271,6 @@ where
   }
 
   fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error> {
-    let collab_object = collab_object;
-
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
     let init_update = default_workspace_doc_state(&collab_object);

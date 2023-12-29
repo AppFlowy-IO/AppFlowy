@@ -115,14 +115,14 @@ where
     let no_status_group_rows = other_group_changesets
       .iter()
       .flat_map(|changeset| &changeset.deleted_rows)
-      .cloned()
-      .filter(|row_id| {
+      .filter(|&row_id| {
         // if the [other_group_inserted_row] contains the row_id of the row
         // which means the row should not move to the default group.
         !other_group_inserted_row
           .iter()
           .any(|inserted_row| &inserted_row.row_meta.id == row_id)
       })
+      .cloned()
       .collect::<Vec<String>>();
 
     let mut changeset = GroupRowsNotificationPB::new(no_status_group.id.clone());
