@@ -210,10 +210,6 @@ class _AddBlockMenu extends StatelessWidget {
         Future.delayed(const Duration(milliseconds: 400), () async {
           final imagePlaceholderKey = GlobalKey<ImagePlaceholderState>();
           await editorState.insertEmptyImageBlock(imagePlaceholderKey);
-
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            imagePlaceholderKey.currentState?.controller.show();
-          });
         });
       },
     ),
