@@ -112,6 +112,7 @@ impl UserManager {
 
   pub fn close_db(&self) {
     if let Ok(session) = self.get_session() {
+      info!("Close db for user: {}", session.user_id);
       if let Err(err) = self.database.close(session.user_id) {
         error!("Close db failed: {:?}", err);
       }
@@ -670,7 +671,7 @@ impl UserManager {
   }
 
   pub(crate) fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    debug!("Set current user: {:?}", session);
+    debug!("Set current user session: {:?}", session);
     match &session {
       None => {
         self.current_session.write().take();
@@ -735,10 +736,10 @@ impl UserManager {
 
     save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
     event!(tracing::Level::INFO, "Save new user profile to disk");
+    self.set_session(Some(session.clone()))?;
     self
       .save_user(uid, (user_profile, authenticator.clone()).into())
       .await?;
-    self.set_session(Some(session.clone()))?;
     Ok(())
   }
 
