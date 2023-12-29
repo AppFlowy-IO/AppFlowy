@@ -73,11 +73,14 @@ impl Action for FetchObjectUpdateAction {
         Some(postgrest) => {
           match get_updates_from_server(&object_id, &object_ty, &postgrest).await {
             Ok(items) => {
+              if items.is_empty() {
+                return Ok(vec![]);
+              }
+
               let updates = items
                 .iter()
                 .map(|update| update.value.as_ref())
                 .collect::<Vec<&[u8]>>();
-
               let doc_state = merge_updates_v1(&updates)
                 .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
               Ok(doc_state)
@@ -280,15 +283,18 @@ pub async fn batch_get_updates_from_server(
       if let Some(oid) = record.get("oid").and_then(|value| value.as_str()) {
         match parser_updates_form_json(record.clone(), &postgrest.secret()) {
           Ok(items) => {
-            let updates = items
-              .iter()
-              .map(|update| update.value.as_ref())
-              .collect::<Vec<&[u8]>>();
+            if items.is_empty() {
+              updates_by_oid.insert(oid.to_string(), vec![]);
+            } else {
+              let updates = items
+                .iter()
+                .map(|update| update.value.as_ref())
+                .collect::<Vec<&[u8]>>();
 
-            let doc_state = merge_updates_v1(&updates)
-              .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
-
-            updates_by_oid.insert(oid.to_string(), doc_state);
+              let doc_state = merge_updates_v1(&updates)
+                .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
+              updates_by_oid.insert(oid.to_string(), doc_state);
+            }
           },
           Err(e) => {
             tracing::error!("parser_updates_form_json error: {:?}", e);

@@ -75,9 +75,9 @@ where
 
   async fn get_snapshots(&self, object_id: &str, limit: usize) -> Vec<RemoteCollabSnapshot> {
     match self.server.try_get_postgrest() {
-      Ok(postgrest) => match get_snapshots_from_server(object_id, postgrest, limit).await {
-        Ok(snapshots) => snapshots,
-        Err(err) => {
+      Ok(postgrest) => get_snapshots_from_server(object_id, postgrest, limit)
+        .await
+        .unwrap_or_else(|err| {
           tracing::error!(
             "🔴fetch snapshots by oid:{} with limit: {} failed: {:?}",
             object_id,
@@ -85,8 +85,7 @@ where
             err
           );
           vec![]
-        },
-      },
+        }),
       Err(err) => {
         tracing::error!("🔴get postgrest failed: {:?}", err);
         vec![]

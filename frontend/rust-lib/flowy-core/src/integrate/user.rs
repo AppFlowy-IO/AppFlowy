@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use collab_entity::CollabType;
-use tracing::event;
+use tracing::{event, info};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
@@ -14,7 +14,7 @@ use flowy_user_deps::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_deps::entities::{Authenticator, UserProfile, UserWorkspace};
 use lib_infra::future::{to_fut, Fut};
 
-use crate::integrate::server::ServerProvider;
+use crate::integrate::server::{Server, ServerProvider};
 use crate::AppFlowyCoreConfig;
 
 pub(crate) struct UserStatusCallbackImpl {
@@ -131,6 +131,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
     let user_workspace = user_workspace.clone();
     let document_manager = self.document_manager.clone();
+    let server_type = self.server_provider.get_server_type();
 
     to_fut(async move {
       event!(
@@ -155,7 +156,21 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         )
         .await
       {
-        Ok(doc_state) => FolderInitDataSource::Cloud(doc_state),
+        Ok(doc_state) => match server_type {
+          Server::Local => FolderInitDataSource::LocalDisk {
+            create_if_not_exist: true,
+          },
+          Server::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
+          Server::Supabase => {
+            if is_new_user {
+              FolderInitDataSource::LocalDisk {
+                create_if_not_exist: true,
+              }
+            } else {
+              FolderInitDataSource::Cloud(doc_state)
+            }
+          },
+        },
         Err(_) => FolderInitDataSource::LocalDisk {
           create_if_not_exist: true,
         },

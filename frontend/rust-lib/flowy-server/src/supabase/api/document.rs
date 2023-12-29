@@ -82,7 +82,7 @@ where
   fn get_document_data(
     &self,
     document_id: &str,
-    workspace_id: &str,
+    _workspace_id: &str,
   ) -> FutureResult<Option<DocumentData>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
