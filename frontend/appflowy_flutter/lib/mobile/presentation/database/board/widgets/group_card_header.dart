@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
-import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
@@ -107,9 +106,11 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   splashRadius: 5,
-                  onPressed: () => showFlowyMobileBottomSheet(
+                  onPressed: () => showMobileBottomSheet(
                     context,
                     title: LocaleKeys.board_column_groupActions.tr(),
+                    showHeader: true,
+                    showCloseButton: true,
                     builder: (_) {
                       return Row(
                         children: [
