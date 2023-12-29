@@ -8,10 +8,10 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use tokio_stream::wrappers::WatchStream;
-use tracing::instrument;
+use tracing::{debug, instrument};
 
 use collab_integrate::collab_builder::{
-  CollabDataSource, CollabStorageProvider, CollabStorageProviderContext,
+  CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use collab_integrate::postgres::SupabaseDBPlugin;
 use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
@@ -71,20 +71,14 @@ impl UserCloudServiceProvider for ServerProvider {
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
     if let Ok(server) = self.get_server(&self.get_server_type()) {
       server.set_enable_sync(uid, enable_sync);
-      *self.enable_sync.write() = enable_sync;
+      *self.user_enable_sync.write() = enable_sync;
       *self.uid.write() = Some(uid);
     }
   }
 
-  fn set_network_reachable(&self, reachable: bool) {
-    if let Ok(server) = self.get_server(&self.get_server_type()) {
-      server.set_network_reachable(reachable);
-    }
-  }
-
-  fn set_encrypt_secret(&self, secret: String) {
-    tracing::info!("🔑Set encrypt secret");
-    self.encryption.write().set_secret(secret);
+  fn set_user_authenticator(&self, authenticator: &Authenticator) {
+    debug!("set user authenticator: {:?}", authenticator);
+    *self.user_authenticator.write() = authenticator.clone();
   }
 
   /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
@@ -96,6 +90,17 @@ impl UserCloudServiceProvider for ServerProvider {
   fn set_authenticator(&self, authenticator: Authenticator) {
     let server_type: Server = authenticator.into();
     self.set_server_type(server_type.clone());
+  }
+
+  fn set_network_reachable(&self, reachable: bool) {
+    if let Ok(server) = self.get_server(&self.get_server_type()) {
+      server.set_network_reachable(reachable);
+    }
+  }
+
+  fn set_encrypt_secret(&self, secret: String) {
+    tracing::info!("🔑Set encrypt secret");
+    self.encryption.write().set_secret(secret);
   }
 
   fn get_authenticator(&self) -> Authenticator {
@@ -315,16 +320,25 @@ impl DocumentCloudService for ServerProvider {
   }
 }
 
-impl CollabStorageProvider for ServerProvider {
-  fn storage_source(&self) -> CollabDataSource {
+impl CollabCloudPluginProvider for ServerProvider {
+  fn provider_type(&self) -> CollabPluginProviderType {
     self.get_server_type().into()
   }
 
   #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
-  fn get_plugins(&self, context: CollabStorageProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+    // If the user is local, we don't need to create a sync plugin.
+    if self.user_authenticator.read().is_local() {
+      debug!(
+        "User authenticator is local, skip create sync plugin for: {}",
+        context
+      );
+      return to_fut(async move { vec![] });
+    }
+
     match context {
-      CollabStorageProviderContext::Local => to_fut(async move { vec![] }),
-      CollabStorageProviderContext::AppFlowyCloud {
+      CollabPluginProviderContext::Local => to_fut(async move { vec![] }),
+      CollabPluginProviderContext::AppFlowyCloud {
         uid: _,
         collab_object,
         local_collab,
@@ -332,6 +346,9 @@ impl CollabStorageProvider for ServerProvider {
         if let Ok(server) = self.get_server(&Server::AppFlowyCloud) {
           to_fut(async move {
             let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
+
+            // If the user is local, we don't need to create a sync plugin.
+
             match server.collab_ws_channel(&collab_object.object_id).await {
               Ok(Some((channel, ws_connect_state, is_connected))) => {
                 let origin = CollabOrigin::Client(CollabClient::new(
@@ -369,7 +386,7 @@ impl CollabStorageProvider for ServerProvider {
           to_fut(async move { vec![] })
         }
       },
-      CollabStorageProviderContext::Supabase {
+      CollabPluginProviderContext::Supabase {
         uid,
         collab_object,
         local_collab,
@@ -397,7 +414,7 @@ impl CollabStorageProvider for ServerProvider {
   }
 
   fn is_sync_enabled(&self) -> bool {
-    *self.enable_sync.read()
+    *self.user_enable_sync.read()
   }
 }
 

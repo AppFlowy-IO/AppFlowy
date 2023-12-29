@@ -9,8 +9,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'auth/auth_service.dart';
-
 /// A service to manage realtime interactions with Supabase.
 ///
 /// `SupbaseRealtimeService` handles subscribing to table changes in Supabase
@@ -37,10 +35,10 @@ class SupabaseRealtimeService {
       },
       onInvalidAuth: (message) async {
         Log.error(message);
-        await getIt<AuthService>().signOut();
         channel?.unsubscribe();
         channel = null;
         if (!isLoggingOut) {
+          isLoggingOut = true;
           await runAppFlowy();
         }
       },

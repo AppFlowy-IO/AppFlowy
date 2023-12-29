@@ -54,7 +54,10 @@ pub struct ServerProvider {
   pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   #[allow(dead_code)]
   pub(crate) store_preferences: Weak<StorePreferences>,
-  pub(crate) enable_sync: RwLock<bool>,
+  pub(crate) user_enable_sync: RwLock<bool>,
+
+  /// The authenticator type of the user.
+  pub(crate) user_authenticator: RwLock<Authenticator>,
   pub(crate) uid: Arc<RwLock<Option<i64>>>,
 }
 
@@ -69,7 +72,8 @@ impl ServerProvider {
       config,
       server: RwLock::new(server),
       providers: RwLock::new(HashMap::new()),
-      enable_sync: RwLock::new(true),
+      user_enable_sync: RwLock::new(true),
+      user_authenticator: RwLock::new(Authenticator::Local),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
       uid: Default::default(),
@@ -112,7 +116,7 @@ impl ServerProvider {
         let config = AFCloudConfiguration::from_env()?;
         let server = Arc::new(AppFlowyCloudServer::new(
           config,
-          *self.enable_sync.read(),
+          *self.user_enable_sync.read(),
           self.config.device_id.clone(),
         ));
 
@@ -126,7 +130,7 @@ impl ServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
           uid,
           config,
-          *self.enable_sync.read(),
+          *self.user_enable_sync.read(),
           self.config.device_id.clone(),
           encryption,
         )))

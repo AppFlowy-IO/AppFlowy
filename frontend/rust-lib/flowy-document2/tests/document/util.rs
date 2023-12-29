@@ -14,7 +14,8 @@ use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 use uuid::Uuid;
 
 use collab_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabDataSource, CollabStorageProvider, CollabStorageProviderContext,
+  AppFlowyCollabBuilder, CollabCloudPluginProvider, CollabPluginProviderContext,
+  CollabPluginProviderType,
 };
 use collab_integrate::RocksCollabDB;
 use flowy_document2::document::MutexDocument;
@@ -176,12 +177,12 @@ impl FileStorageService for DocumentTestFileStorageService {
 struct DefaultCollabStorageProvider();
 
 #[async_trait]
-impl CollabStorageProvider for DefaultCollabStorageProvider {
-  fn storage_source(&self) -> CollabDataSource {
-    CollabDataSource::Local
+impl CollabCloudPluginProvider for DefaultCollabStorageProvider {
+  fn provider_type(&self) -> CollabPluginProviderType {
+    CollabPluginProviderType::Local
   }
 
-  fn get_plugins(&self, _context: CollabStorageProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
     to_fut(async move { vec![] })
   }
 

@@ -112,6 +112,7 @@ impl UserManager {
 
   pub fn close_db(&self) {
     if let Ok(session) = self.get_session() {
+      info!("Close db for user: {}", session.user_id);
       if let Err(err) = self.database.close(session.user_id) {
         error!("Close db failed: {:?}", err);
       }
@@ -227,15 +228,12 @@ impl UserManager {
         },
         _ => error!("Failed to get collab db or sqlite pool"),
       }
-      // Init the user awareness
-      self
-        .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
-        .await;
 
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       if let Err(e) = user_status_callback
         .did_init(
-          session.user_id,
+          user.uid,
+          &user.authenticator,
           &cloud_config,
           &session.user_workspace,
           &self.user_config.device_id,
@@ -244,6 +242,10 @@ impl UserManager {
       {
         error!("Failed to call did_init callback: {:?}", e);
       }
+      // Init the user awareness
+      self
+        .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
+        .await;
     }
     Ok(())
   }
@@ -312,17 +314,11 @@ impl UserManager {
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
       message: "Sign in success".to_string(),
-    })
-    .send();
+    });
     Ok(user_profile)
   }
 
   pub(crate) async fn update_authenticator(&self, authenticator: &Authenticator) {
-    self
-      .user_status_callback
-      .read()
-      .await
-      .authenticator_did_changed(authenticator.clone());
     self.cloud_services.set_authenticator(authenticator.clone());
   }
 
@@ -422,9 +418,6 @@ impl UserManager {
         let _ = self.database.close(old_user.session.user_id);
       }
     }
-    self
-      .initialize_user_awareness(&new_session, user_awareness_source)
-      .await;
 
     self
       .save_auth_data(&response, authenticator, &new_session)
@@ -442,11 +435,14 @@ impl UserManager {
       )
       .await?;
 
+    self
+      .initialize_user_awareness(&new_session, user_awareness_source)
+      .await;
+
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
       message: "Sign up success".to_string(),
-    })
-    .send();
+    });
     Ok(())
   }
 
@@ -575,8 +571,7 @@ impl UserManager {
           send_auth_state_notification(AuthStateChangedPB {
             state: AuthStatePB::InvalidAuth,
             message: "User is not found on the server".to_string(),
-          })
-          .send();
+          });
         }
         Err(err)
       },
@@ -676,13 +671,14 @@ impl UserManager {
   }
 
   pub(crate) fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    debug!("Set current user: {:?}", session);
+    debug!("Set current user session: {:?}", session);
     match &session {
       None => {
         self.current_session.write().take();
         self
           .store_preferences
-          .remove(&self.user_config.session_cache_key)
+          .remove(self.user_config.session_cache_key.as_ref());
+        Ok(())
       },
       Some(session) => {
         self.current_session.write().replace(session.clone());
@@ -690,9 +686,9 @@ impl UserManager {
           .store_preferences
           .set_object(&self.user_config.session_cache_key, session.clone())
           .map_err(internal_error)?;
+        Ok(())
       },
     }
-    Ok(())
   }
 
   pub(crate) async fn generate_sign_in_url_with_email(
@@ -740,10 +736,10 @@ impl UserManager {
 
     save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
     event!(tracing::Level::INFO, "Save new user profile to disk");
+    self.set_session(Some(session.clone()))?;
     self
       .save_user(uid, (user_profile, authenticator.clone()).into())
       .await?;
-    self.set_session(Some(session.clone()))?;
     Ok(())
   }
 

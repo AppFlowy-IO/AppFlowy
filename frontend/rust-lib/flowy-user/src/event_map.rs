@@ -198,6 +198,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_init(
     &self,
     user_id: i64,
+    user_authenticator: &Authenticator,
     cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     device_id: &str,
@@ -229,6 +230,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   fn did_init(
     &self,
     _user_id: i64,
+    _authenticator: &Authenticator,
     _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
