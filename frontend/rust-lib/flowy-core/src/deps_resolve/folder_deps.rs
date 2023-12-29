@@ -28,6 +28,7 @@ use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
 use flowy_user::manager::UserManager;
 use flowy_user::services::data_import::{load_collab_by_oid, ImportDataSource};
 
+use crate::integrate::server::ServerProvider;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
@@ -39,19 +40,24 @@ impl FolderDepsResolver {
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
-    folder_cloud: Arc<dyn FolderCloudService>,
+    server_provider: Arc<ServerProvider>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       user_manager: user_manager.clone(),
       database_manager: Arc::downgrade(database_manager),
-      folder_cloud: folder_cloud.clone(),
+      server_provider: server_provider.clone(),
     });
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
-      FolderManager::new(user.clone(), collab_builder, handlers, folder_cloud)
-        .await
-        .unwrap(),
+      FolderManager::new(
+        user.clone(),
+        collab_builder,
+        handlers,
+        server_provider.clone(),
+      )
+      .await
+      .unwrap(),
     )
   }
 }
@@ -75,7 +81,7 @@ fn folder_operation_handlers(
 struct FolderUserImpl {
   user_manager: Weak<UserManager>,
   database_manager: Weak<DatabaseManager>,
-  folder_cloud: Arc<dyn FolderCloudService>,
+  server_provider: Arc<ServerProvider>,
 }
 
 #[async_trait]
@@ -131,88 +137,15 @@ impl FolderUser for FolderUserImpl {
             document_object_ids,
           } => {
             let uid = self.user_id()?;
-            let collab_db = self
-              .collab_db(uid)
-              .unwrap()
-              .upgrade()
-              .ok_or(FlowyError::new(
-                ErrorCode::Internal,
-                "Can't get the collab db",
-              ))?;
-
-            let object_by_collab_type = tokio::task::spawn_blocking(move || {
-              let collab_read = collab_db.read_txn();
-              let mut object_by_collab_type = HashMap::new();
-              object_by_collab_type.insert(
-                CollabType::Database,
-                load_and_process_collab_data(uid, &collab_read, &database_object_ids),
-              );
-
-              object_by_collab_type.insert(
-                CollabType::Document,
-                load_and_process_collab_data(uid, &collab_read, &document_object_ids),
-              );
-
-              object_by_collab_type.insert(
-                CollabType::DatabaseRow,
-                load_and_process_collab_data(uid, &collab_read, &row_object_ids),
-              );
-
-              object_by_collab_type
-            })
-            .await
-            .map_err(internal_error)?;
-
-            // Upload
-            let mut size_counter = 0;
-            let mut objects: Vec<FolderCollabParams> = vec![];
-            let upload_size_limit = 2 * 1024 * 1024;
-            for (collab_type, encoded_v1_by_oid) in object_by_collab_type {
-              info!(
-                "Batch import collab:{} ids: {:?}",
-                collab_type,
-                encoded_v1_by_oid.keys(),
-              );
-              for (oid, encoded_v1) in encoded_v1_by_oid {
-                let obj_size = encoded_v1.len();
-                if size_counter + obj_size > upload_size_limit && !objects.is_empty() {
-                  // When the limit is exceeded, batch create with the current list of objects
-                  // and reset for the next batch.
-                  self
-                    .folder_cloud
-                    .batch_create_collab_object(workspace_id, objects)
-                    .await?;
-                  objects = Vec::new();
-                  size_counter = 0;
-                }
-
-                // Add the current object to the batch.
-                objects.push(FolderCollabParams {
-                  object_id: oid,
-                  encoded_collab_v1: encoded_v1,
-                  collab_type: collab_type.clone(),
-                  override_if_exist: false,
-                });
-                size_counter += obj_size;
-              }
-            }
-
-            // After the loop, upload any remaining objects.
-            if !objects.is_empty() {
-              info!(
-                "Batch create collab objects: {}, payload size: {}",
-                objects
-                  .iter()
-                  .map(|o| o.object_id.clone())
-                  .collect::<Vec<_>>()
-                  .join(", "),
-                size_counter
-              );
-              self
-                .folder_cloud
-                .batch_create_collab_object(workspace_id, objects)
-                .await?;
-            }
+            self
+              .upload_collab_data(
+                workspace_id,
+                row_object_ids,
+                database_object_ids,
+                document_object_ids,
+                uid,
+              )
+              .await?;
 
             data_manager
               .track_database(database_view_ids_by_database_id)
@@ -224,6 +157,106 @@ impl FolderUser for FolderUserImpl {
       },
       _ => Err(FlowyError::internal().with_context("Unexpected error: UserSession is None")),
     }
+  }
+}
+
+impl FolderUserImpl {
+  async fn upload_collab_data(
+    &self,
+    workspace_id: &str,
+    row_object_ids: Vec<String>,
+    database_object_ids: Vec<String>,
+    document_object_ids: Vec<String>,
+    uid: i64,
+  ) -> Result<(), FlowyError> {
+    // Only support uploading the collab data when the current server is AppFlowy Cloud server
+    if self.server_provider.get_appflowy_cloud_server().is_err() {
+      return Ok(());
+    }
+
+    let collab_db = self
+      .collab_db(uid)
+      .unwrap()
+      .upgrade()
+      .ok_or(FlowyError::new(
+        ErrorCode::Internal,
+        "Can't get the collab db",
+      ))?;
+
+    let object_by_collab_type = tokio::task::spawn_blocking(move || {
+      let collab_read = collab_db.read_txn();
+      let mut object_by_collab_type = HashMap::new();
+      object_by_collab_type.insert(
+        CollabType::Database,
+        load_and_process_collab_data(uid, &collab_read, &database_object_ids),
+      );
+
+      object_by_collab_type.insert(
+        CollabType::Document,
+        load_and_process_collab_data(uid, &collab_read, &document_object_ids),
+      );
+
+      object_by_collab_type.insert(
+        CollabType::DatabaseRow,
+        load_and_process_collab_data(uid, &collab_read, &row_object_ids),
+      );
+
+      object_by_collab_type
+    })
+    .await
+    .map_err(internal_error)?;
+
+    // Upload
+    let mut size_counter = 0;
+    let mut objects: Vec<FolderCollabParams> = vec![];
+    let upload_size_limit = 2 * 1024 * 1024;
+    for (collab_type, encoded_v1_by_oid) in object_by_collab_type {
+      info!(
+        "Batch import collab:{} ids: {:?}",
+        collab_type,
+        encoded_v1_by_oid.keys(),
+      );
+      for (oid, encoded_v1) in encoded_v1_by_oid {
+        let obj_size = encoded_v1.len();
+        if size_counter + obj_size > upload_size_limit && !objects.is_empty() {
+          // When the limit is exceeded, batch create with the current list of objects
+          // and reset for the next batch.
+          self
+            .server_provider
+            .batch_create_collab_object(workspace_id, objects)
+            .await?;
+          objects = Vec::new();
+          size_counter = 0;
+        }
+
+        // Add the current object to the batch.
+        objects.push(FolderCollabParams {
+          object_id: oid,
+          encoded_collab_v1: encoded_v1,
+          collab_type: collab_type.clone(),
+          override_if_exist: false,
+        });
+        size_counter += obj_size;
+      }
+    }
+
+    // After the loop, upload any remaining objects.
+    if !objects.is_empty() {
+      info!(
+        "Batch create collab objects: {}, payload size: {}",
+        objects
+          .iter()
+          .map(|o| o.object_id.clone())
+          .collect::<Vec<_>>()
+          .join(", "),
+        size_counter
+      );
+      self
+        .server_provider
+        .batch_create_collab_object(workspace_id, objects)
+        .await?;
+    }
+    Ok(())
   }
 }
 
