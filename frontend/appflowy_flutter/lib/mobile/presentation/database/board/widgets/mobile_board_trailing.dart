@@ -118,6 +118,9 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
                 icon: const Icon(Icons.add),
                 label: Text(
                   LocaleKeys.board_column_newGroup.tr(),
+                  style: style.textTheme.bodyMedium!.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onPressed: () => setState(
                   () => isEditing = true,
