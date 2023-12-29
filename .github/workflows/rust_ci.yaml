@@ -90,7 +90,6 @@ jobs:
       - name: Check if server is running
         id: check-server
         run: |
-          #appflowy cloud deploy at port 8000
           if nc -zv 127.0.0.1 8000; then
             echo "Server is already running."
             echo "SERVER_RUNNING=true" >> $GITHUB_ENV
