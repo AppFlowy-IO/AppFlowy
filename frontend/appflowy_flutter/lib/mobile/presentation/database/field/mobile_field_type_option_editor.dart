@@ -202,8 +202,9 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
                   () {
                     if (widget.mode == FieldOptionMode.add) {
                       controller.text = type.i18n;
+                      _updateOptionValues(name: type.i18n);
                     }
-                    _updateOptionValues(type: type, name: type.i18n);
+                    _updateOptionValues(type: type);
                   },
                 ),
               ),
