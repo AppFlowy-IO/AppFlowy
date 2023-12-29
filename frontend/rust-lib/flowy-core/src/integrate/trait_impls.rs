@@ -28,7 +28,7 @@ use flowy_user_deps::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_deps::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
-use crate::integrate::server::{Server, ServerProvider, SERVER_PROVIDER_TYPE_KEY};
+use crate::integrate::server::{Server, ServerProvider};
 
 impl FileStorageService for ServerProvider {
   fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
@@ -96,18 +96,6 @@ impl UserCloudServiceProvider for ServerProvider {
   fn set_authenticator(&self, authenticator: Authenticator) {
     let server_type: Server = authenticator.into();
     self.set_server_type(server_type.clone());
-
-    match self.store_preferences.upgrade() {
-      None => tracing::error!("🔴Failed to update server provider type: store preferences is drop"),
-      Some(store_preferences) => {
-        match store_preferences.set_object(SERVER_PROVIDER_TYPE_KEY, server_type.clone()) {
-          Ok(_) => tracing::trace!("Set server provider: {:?}", server_type),
-          Err(e) => {
-            tracing::error!("🔴Failed to update server provider type: {:?}", e);
-          },
-        }
-      },
-    }
   }
 
   fn get_authenticator(&self) -> Authenticator {
