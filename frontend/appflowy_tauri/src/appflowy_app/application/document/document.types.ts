@@ -100,7 +100,7 @@ export interface MathEquationNode extends Element {
 
 export interface FormulaNode extends Element {
   type: EditorInlineNodeType.Formula;
-  data: boolean;
+  data: string;
 }
 
 export interface MentionNode extends Element {
@@ -173,51 +173,15 @@ export interface EditorElementProps<T = Element> extends HTMLAttributes<HTMLDivE
   node: T;
 }
 
-export interface EditorInlineAttributes {
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  strikethrough?: boolean;
-  font_color?: string;
-  bg_color?: string;
-  href?: string;
-  code?: boolean;
-  formula?: boolean;
-  prism_token?: string;
-  mention?: {
-    type: string;
-    // inline page ref id
-    page?: string;
-    // reminder date ref id
-    date?: string;
-  };
-}
-
 export enum EditorMarkFormat {
   Bold = 'bold',
   Italic = 'italic',
   Underline = 'underline',
   StrikeThrough = 'strikethrough',
   Code = 'code',
-  Formula = 'formula',
-}
-
-export enum EditorStyleFormat {
-  FontColor = 'font_color',
-  BackgroundColor = 'bg_color',
   Href = 'href',
-}
-
-export enum EditorTurnFormat {
-  Paragraph = 'paragraph',
-  Heading1 = 'heading1', // 'heading1' is a special format, it's not a slate node type, but a slate node type's data
-  Heading2 = 'heading2',
-  Heading3 = 'heading3',
-  TodoList = 'todo_list',
-  BulletedList = 'bulleted_list',
-  NumberedList = 'numbered_list',
-  Quote = 'quote',
-  ToggleList = 'toggle_list',
+  FontColor = 'font_color',
+  BgColor = 'bg_color',
 }
 
 export enum MentionType {

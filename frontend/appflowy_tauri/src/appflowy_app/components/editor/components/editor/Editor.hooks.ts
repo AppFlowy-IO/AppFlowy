@@ -1,7 +1,7 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { EditorNodeType, CodeNode } from '$app/application/document/document.types';
 
-import { createEditor, NodeEntry, BaseRange, Editor, Element } from 'slate';
+import { createEditor, NodeEntry, BaseRange, Editor, Element, Range } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
 import { withBlockPlugins } from '$app/components/editor/plugins/withBlockPlugins';
 import { decorateCode } from '$app/components/editor/components/blocks/code/utils';
@@ -11,6 +11,7 @@ import { withYjs, YjsEditor, withYHistory } from '@slate-yjs/core';
 import * as Y from 'yjs';
 import { CustomEditor } from '$app/components/editor/command';
 import { proxySet, subscribeKey } from 'valtio/utils';
+import { useSnapshot } from 'valtio';
 
 export function useEditor(sharedType: Y.XmlText) {
   const editor = useMemo(() => {
@@ -57,7 +58,7 @@ export function useEditor(sharedType: Y.XmlText) {
   };
 }
 
-export function useDecorate(editor: ReactEditor) {
+export function useDecorateCodeHighlight(editor: ReactEditor) {
   return useCallback(
     (entry: NodeEntry): BaseRange[] => {
       const path = entry[1];
@@ -80,8 +81,18 @@ export function useDecorate(editor: ReactEditor) {
 
 export function useEditorState(editor: ReactEditor) {
   const selectedBlocks = useMemo(() => proxySet([]), []);
+  const decorateState = useMemo(
+    () =>
+      proxySet<{
+        range: BaseRange;
+        class_name: string;
+      }>([]),
+    []
+  );
 
   const [selectedLength, setSelectedLength] = useState(0);
+
+  const ranges = useSnapshot(decorateState);
 
   subscribeKey(selectedBlocks, 'size', (v) => setSelectedLength(v));
 
@@ -127,11 +138,44 @@ export function useEditorState(editor: ReactEditor) {
     };
   }, [editor, selectedBlocks, selectedLength]);
 
+  const decorate = useCallback(
+    ([, path]: NodeEntry): BaseRange[] => {
+      const highlightRanges: (Range & {
+        class_name: string;
+      })[] = [];
+
+      ranges.forEach((state) => {
+        const intersection = Range.intersection(state.range, Editor.range(editor, path));
+
+        if (intersection) {
+          highlightRanges.push({
+            ...intersection,
+            class_name: state.class_name,
+          });
+        }
+      });
+
+      return highlightRanges;
+    },
+    [editor, ranges]
+  );
+
   return {
     selectedBlocks,
+    decorate,
+    decorateState,
   };
 }
 
 export const EditorSelectedBlockContext = createContext<Set<string>>(new Set());
 
 export const EditorSelectedBlockProvider = EditorSelectedBlockContext.Provider;
+
+export const DecorateStateContext = createContext<
+  Set<{
+    range: BaseRange;
+    class_name: string;
+  }>
+>(new Set());
+
+export const DecorateStateProvider = DecorateStateContext.Provider;

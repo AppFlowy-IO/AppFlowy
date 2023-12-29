@@ -5,7 +5,6 @@ import { PopoverCommonProps } from '$app/components/editor/components/tools/popo
 import Button from '@mui/material/Button';
 import { getNodePath } from '$app/components/editor/components/editor/utils';
 import { addMark, BasePoint, Editor, Transforms, removeMark } from 'slate';
-import { EditorStyleFormat } from '$app/application/document/document.types';
 import { useSlate } from 'slate-react';
 import { ReactComponent as RemoveSvg } from '$app/assets/delete.svg';
 import { ReactComponent as LinkSvg } from '$app/assets/link.svg';
@@ -13,6 +12,7 @@ import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
 import { open as openWindow } from '@tauri-apps/api/shell';
 import { OutlinedInput } from '@mui/material';
 import { notify } from '$app/components/editor/components/tools/notify';
+import { EditorMarkFormat } from '$app/application/document/document.types';
 
 const pattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
 
@@ -37,10 +37,11 @@ export function LinkEditPopover({
 
     // select the node before updating the formula
     Transforms.select(editor, path);
+
     if (link === '') {
-      removeMark(editor, EditorStyleFormat.Href);
+      removeMark(editor, EditorMarkFormat.Href);
     } else {
-      addMark(editor, EditorStyleFormat.Href, link);
+      addMark(editor, EditorMarkFormat.Href, link);
     }
 
     onClose();
@@ -54,7 +55,8 @@ export function LinkEditPopover({
 
     // select the node before updating the formula
     Transforms.select(editor, path);
-    editor.removeMark(EditorStyleFormat.Href);
+
+    editor.removeMark(EditorMarkFormat.Href);
 
     onClose(beforePathEnd);
   }, [editor, anchorEl, onClose]);

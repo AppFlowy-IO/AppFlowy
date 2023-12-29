@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
@@ -6,13 +6,20 @@ import BlockOperationMenu from '$app/components/editor/components/tools/block_ac
 import { Element } from 'slate';
 import { EditorSelectedBlockContext } from '$app/components/editor/components/editor/Editor.hooks';
 
-function BlockMenu({ node }: { node?: Element }) {
+function BlockMenu({ node, setMenuVisible }: { node?: Element; setMenuVisible: (visible: boolean) => void }) {
   const dragBtnRef = useRef<HTMLButtonElement>(null);
   const [openMenu, setOpenMenu] = useState(false);
   const { t } = useTranslation();
   const [selectedNode, setSelectedNode] = useState<Element>();
   const selectedBlockContext = useContext(EditorSelectedBlockContext);
 
+  useEffect(() => {
+    if (openMenu) {
+      setMenuVisible(true);
+    } else {
+      setMenuVisible(false);
+    }
+  }, [openMenu, setMenuVisible]);
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();

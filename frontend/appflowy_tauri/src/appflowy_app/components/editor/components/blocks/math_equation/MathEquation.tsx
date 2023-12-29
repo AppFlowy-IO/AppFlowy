@@ -20,7 +20,7 @@ export const MathEquation = memo(
             onClick={(e) => {
               setAnchorEl(e.currentTarget);
             }}
-            className={`${className} relative my-2 cursor-pointer`}
+            className={`${className} relative my-2 w-full cursor-pointer`}
           >
             <div
               contentEditable={false}

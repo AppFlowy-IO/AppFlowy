@@ -6,7 +6,7 @@ import { updatePageName } from '$app_reducers/pages/async_actions';
 
 export const DatabaseTitle = () => {
   const viewId = useViewId();
-  const pageName = useAppSelector((state) => state.pages.pageMap[viewId].name);
+  const pageName = useAppSelector((state) => state.pages.pageMap[viewId]?.name || '');
   const dispatch = useAppDispatch();
 
   const handleInput = useCallback<FormEventHandler>(
