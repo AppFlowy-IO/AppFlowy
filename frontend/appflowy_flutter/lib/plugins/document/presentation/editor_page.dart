@@ -287,7 +287,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           italicToolbarItem,
           underlineToolbarItem,
           colorToolbarItem,
-          moreToolbarItem,
         ],
         child: Column(
           children: [
