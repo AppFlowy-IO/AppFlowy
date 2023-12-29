@@ -5,13 +5,15 @@ use crate::services::db::UserDBPath;
 use crate::services::entities::{Session, UserPaths};
 use crate::services::user_awareness::awareness_oid_from_user_uuid;
 use anyhow::anyhow;
-use collab::core::collab::MutexCollab;
+use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
 use collab_database::user::DatabaseViewTrackerList;
+use collab_document::document_data::default_document_collab_data;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use flowy_folder_deps::cloud::gen_view_id;
@@ -26,8 +28,8 @@ use std::sync::Arc;
 /// This path refers to the directory where AppFlowy stores its data. The directory structure is as follows:
 /// root folder:
 ///   - cache.db
-///   - log.xxxxx (log files with unique identifiers)
-///   - 2761499xxxxxxx (other relevant files or directories, identified by unique numbers)
+///   - log (log files with unique identifiers)
+///   - 2761499 (other relevant files or directories, identified by unique numbers)
 
 pub(crate) fn import_appflowy_data_folder(
   session: &Session,
@@ -53,6 +55,7 @@ pub(crate) fn import_appflowy_data_folder(
   let row_object_ids = Mutex::new(HashSet::new());
   let document_object_ids = Mutex::new(HashSet::new());
   let database_object_ids = Mutex::new(HashSet::new());
+  let import_container_view_id = gen_view_id().to_string();
 
   let view = collab_db.with_write_txn(|collab_write_txn| {
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
@@ -113,9 +116,8 @@ pub(crate) fn import_appflowy_data_folder(
     }
 
     // create a root view that contains all the views
-    let view_id = gen_view_id().to_string();
     let child_views = import_workspace_views(
-      &view_id,
+      &import_container_view_id,
       &mut old_to_new_id_map.lock(),
       &other_session,
       &other_collab_read_txn,
@@ -130,14 +132,26 @@ pub(crate) fn import_appflowy_data_folder(
       container_name
     };
 
-    let view = ViewBuilder::new(session.user_id, session.user_workspace.id.clone())
-      .with_view_id(view_id)
-      .with_layout(ViewLayout::Document)
-      .with_name(name)
-      .with_child_views(child_views)
-      .build();
+    // create the content for the container view
+    let import_container_doc_state = default_document_collab_data(&import_container_view_id)
+      .doc_state
+      .to_vec();
+    import_collab_object_with_doc_state(
+      import_container_doc_state,
+      session.user_id,
+      &import_container_view_id,
+      collab_write_txn,
+    )?;
 
-    Ok(view)
+    let import_container_view =
+      ViewBuilder::new(session.user_id, session.user_workspace.id.clone())
+        .with_view_id(import_container_view_id)
+        .with_layout(ViewLayout::Document)
+        .with_name(name)
+        .with_child_views(child_views)
+        .build();
+
+    Ok(import_container_view)
   })?;
   Ok(ImportData::AppFlowyDataFolder {
     view,
@@ -308,6 +322,21 @@ where
   }
 }
 
+fn import_collab_object_with_doc_state<'a, W>(
+  doc_state: CollabDocState,
+  new_uid: i64,
+  new_object_id: &str,
+  w_txn: &'a W,
+) -> Result<(), anyhow::Error>
+where
+  W: YrsDocAction<'a>,
+  PersistenceError: From<W::Error>,
+{
+  let collab = Collab::new_with_raw_data(CollabOrigin::Empty, new_object_id, doc_state, vec![])?;
+  import_collab_object(&collab, new_uid, new_object_id, w_txn);
+  Ok(())
+}
+
 fn import_workspace_views<'a, 'b, W>(
   parent_view_id: &str,
   old_to_new_id_map: &mut OldToNewIdMap,
@@ -392,10 +421,12 @@ where
 
   let parent_views = first_level_views
     .into_iter()
-    .flat_map(|view_iden| match all_views_map.remove(&view_iden.id) {
-      None => None,
-      Some(view) => parent_view_from_view(view, &mut all_views_map),
-    })
+    .flat_map(
+      |view_identifier| match all_views_map.remove(&view_identifier.id) {
+        None => None,
+        Some(view) => parent_view_from_view(view, &mut all_views_map),
+      },
+    )
     .collect::<Vec<ParentChildViews>>();
 
   Ok(parent_views)
