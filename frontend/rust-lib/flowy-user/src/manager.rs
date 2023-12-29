@@ -415,6 +415,7 @@ impl UserManager {
         self
           .migrate_anon_user_data_to_cloud(&old_user, &new_user, authenticator)
           .await?;
+        self.remove_anon_user();
         let _ = self.database.close(old_user.session.user_id);
       }
     }
