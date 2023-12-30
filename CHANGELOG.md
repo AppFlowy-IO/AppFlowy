@@ -1,5 +1,21 @@
 # Release Notes
 
+## Version 0.4.0 - 12/30/2023
+
+## Version 0.3.9.1 - 12/07/2023
+
+### Bug fixes
+- Fix potential blank pages that may occur in an empty document
+
+## Version 0.3.9 - 12/07/2023
+
+### New Features
+- Support inserting a new field to the left or right of an existing one
+
+### Bug fixes
+- Fix some emojis are shown in black/white
+- Fix unable to rename a subpage of subpage
+
 ## Version 0.3.8 - 11/13/2023
 
 ### New Features

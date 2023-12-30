@@ -2,6 +2,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -67,26 +68,30 @@ class MobileSignInScreen extends StatelessWidget {
                   const Spacer(
                     flex: 2,
                   ),
-                  const SignInAnonymousButton(),
-                  const VSpace(spacing),
+                  if (!PlatformExtension.isMobile) ...[
+                    const SignInAnonymousButton(),
+                    const VSpace(spacing),
+                  ],
                   if (isAuthEnabled) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Expanded(child: Divider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            LocaleKeys.signIn_or.tr(),
-                            style: style.textTheme.bodyMedium?.copyWith(
-                              color: style.colorScheme.onSecondary,
+                    if (!PlatformExtension.isMobile) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              LocaleKeys.signIn_or.tr(),
+                              style: style.textTheme.bodyMedium?.copyWith(
+                                color: style.colorScheme.onSecondary,
+                              ),
                             ),
                           ),
-                        ),
-                        const Expanded(child: Divider()),
-                      ],
-                    ),
-                    const VSpace(spacing),
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
+                      const VSpace(spacing),
+                    ],
                     const ThirdPartySignInButtons(),
                   ],
                   if (!isAuthEnabled)
