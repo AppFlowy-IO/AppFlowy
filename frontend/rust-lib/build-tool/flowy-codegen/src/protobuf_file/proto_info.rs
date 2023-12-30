@@ -3,7 +3,7 @@ use crate::flowy_toml::{parse_crate_config_from, CrateConfig, FlowyConfig};
 use crate::util::*;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use walkdir::WalkDir;
 
@@ -35,7 +35,7 @@ impl ProtobufCrateContext {
       .write(true)
       .append(false)
       .truncate(true)
-      .open(&mod_file_path)
+      .open(Path::new(&mod_file_path))
     {
       Ok(ref mut file) => {
         file.write_all(content.as_bytes()).unwrap();

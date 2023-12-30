@@ -217,7 +217,7 @@ fn generate_dart_protobuf_files(
     .write(true)
     .append(false)
     .truncate(true)
-    .open(&protobuf_dart)
+    .open(Path::new(&protobuf_dart))
   {
     Ok(ref mut file) => {
       let mut export = String::new();
