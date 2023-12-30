@@ -78,6 +78,8 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   assert_eq!(user.authenticator, AuthenticatorPB::AppFlowyCloud);
 
   let user_first_level_views = test.get_all_workspace_views().await;
+  // assert_eq!(user_first_level_views.len(), 2);
+
   println!("user first level views: {:?}", user_first_level_views);
   let user_second_level_views = test
     .get_views(&user_first_level_views[0].id)

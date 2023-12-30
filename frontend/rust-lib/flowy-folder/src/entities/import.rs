@@ -91,6 +91,6 @@ pub struct ImportAppFlowyDataPB {
   #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub path: String,
 
-  #[pb(index = 2)]
-  pub import_container_name: String,
+  #[pb(index = 2, one_of)]
+  pub import_container_name: Option<String>,
 }
