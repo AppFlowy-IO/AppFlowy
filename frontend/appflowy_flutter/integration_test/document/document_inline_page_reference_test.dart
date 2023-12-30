@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/link_to_page_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder//protobuf.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

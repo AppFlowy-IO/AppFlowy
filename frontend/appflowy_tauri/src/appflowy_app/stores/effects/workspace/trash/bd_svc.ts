@@ -6,7 +6,7 @@ import {
   FolderEventPermanentlyDeleteTrashItem,
   FolderEventPermanentlyDeleteAllTrashItem,
   FolderEventRecoverAllTrashItems,
-} from '@/services/backend/events/flowy-folder2';
+} from '@/services/backend/events/flowy-folder';
 
 export class TrashBackendService {
   constructor() {

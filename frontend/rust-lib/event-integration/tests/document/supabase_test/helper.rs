@@ -3,7 +3,7 @@ use std::ops::Deref;
 use event_integration::event_builder::EventBuilder;
 use flowy_document2::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB};
 use flowy_document2::event_map::DocumentEvent::GetDocumentSnapshots;
-use flowy_folder2::entities::ViewPB;
+use flowy_folder::entities::ViewPB;
 
 use crate::util::FlowySupabaseTest;
 

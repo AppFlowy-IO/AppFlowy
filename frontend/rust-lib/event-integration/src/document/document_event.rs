@@ -8,8 +8,8 @@ use flowy_document2::parser::parser_entities::{
   ConvertDataToJsonPayloadPB, ConvertDataToJsonResponsePB, ConvertDocumentPayloadPB,
   ConvertDocumentResponsePB,
 };
-use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
-use flowy_folder2::event_map::FolderEvent;
+use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
+use flowy_folder::event_map::FolderEvent;
 
 use crate::document::utils::{gen_delta_str, gen_id, gen_text_block_data};
 use crate::event_builder::EventBuilder;

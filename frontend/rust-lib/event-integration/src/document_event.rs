@@ -10,8 +10,8 @@ use collab_entity::CollabType;
 
 use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
 use flowy_document2::event_map::DocumentEvent;
-use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
-use flowy_folder2::event_map::FolderEvent;
+use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
+use flowy_folder::event_map::FolderEvent;
 
 use crate::document::document_event::{DocumentEventTest, OpenDocumentData};
 use crate::event_builder::EventBuilder;

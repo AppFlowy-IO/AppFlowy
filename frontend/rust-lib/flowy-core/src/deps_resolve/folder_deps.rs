@@ -17,12 +17,13 @@ use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
 use flowy_error::{internal_error, ErrorCode, FlowyError};
-use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::{FolderManager, FolderUser};
-use flowy_folder2::share::ImportType;
-use flowy_folder2::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
-use flowy_folder2::ViewLayout;
+use flowy_folder::entities::ViewLayoutPB;
+use flowy_folder::manager::{FolderManager, FolderUser};
+use flowy_folder::share::ImportType;
+use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
+use flowy_folder::ViewLayout;
 use flowy_folder_deps::cloud::{FolderCloudService, FolderCollabParams};
+
 use flowy_folder_deps::entities::ImportData;
 use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
 use flowy_user::manager::UserManager;

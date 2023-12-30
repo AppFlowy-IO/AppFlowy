@@ -9,7 +9,7 @@ edition = "2018"
 flowy-core = { workspace = true }
 flowy-user = { workspace = true }
 flowy-user-deps = { workspace = true }
-flowy-folder2 = { path = "../flowy-folder2", features = ["test_helper"] }
+flowy-folder = { path = "../flowy-folder", features = ["test_helper"] }
 flowy-folder-deps = { workspace = true }
 flowy-database2 = { path = "../flowy-database2" }
 flowy-database-deps = { workspace = true }

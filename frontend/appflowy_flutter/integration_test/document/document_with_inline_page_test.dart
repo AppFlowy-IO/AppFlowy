@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder//protobuf.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_test/flutter_test.dart';

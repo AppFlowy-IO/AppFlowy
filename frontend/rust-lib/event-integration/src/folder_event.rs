@@ -1,7 +1,7 @@
-use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent;
-use flowy_folder2::event_map::FolderEvent::*;
+use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent;
+use flowy_folder::event_map::FolderEvent::*;
 use flowy_user::entities::{
   AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
   WorkspaceMemberPB,

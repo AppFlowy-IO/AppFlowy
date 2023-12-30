@@ -10,7 +10,7 @@ lib-dispatch = { workspace = true }
 lib-log = { workspace = true }
 flowy-user = { workspace = true }
 flowy-user-deps = { workspace = true }
-flowy-folder2 = { workspace = true }
+flowy-folder = { workspace = true }
 flowy-folder-deps = { workspace = true }
 flowy-database2 = { workspace = true }
 flowy-database-deps = { workspace = true }
@@ -59,7 +59,7 @@ use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
     "flowy-date/dart",
-    "flowy-folder2/dart",
+    "flowy-folder/dart",
     "flowy-database2/dart",
     "flowy-document2/dart",
     "flowy-config/dart",
@@ -67,7 +67,7 @@ dart = [
 ts = [
     "flowy-user/ts",
     "flowy-date/ts",
-    "flowy-folder2/ts",
+    "flowy-folder/ts",
     "flowy-database2/ts",
     "flowy-document2/ts",
     "flowy-config/ts",

@@ -1,5 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 ViewLayoutPB viewLayoutFromDatabaseLayout(DatabaseLayoutPB databaseLayout) {
   switch (databaseLayout) {

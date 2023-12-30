@@ -17,7 +17,7 @@ import { TypeOptionController } from '$app/stores/effects/database/field/type_op
 import { makeSingleSelectTypeOptionContext } from '$app/stores/effects/database/field/type_option/type_option_context';
 import { SelectOptionBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
 import { WorkspaceController } from '$app/stores/effects/workspace/workspace_controller';
-import { FolderEventGetCurrentWorkspaceSetting } from '@/services/backend/events/flowy-folder2';
+import { FolderEventGetCurrentWorkspaceSetting } from '@/services/backend/events/flowy-folder';
 
 // Create a database page for specific layout type
 // Do not use it production code. Just for testing
@@ -216,8 +216,7 @@ export async function createSingleSelectOptions(viewId: string, fieldInfo: Field
   assert(fieldInfo.field.field_type === FieldType.SingleSelect, 'Only work on single select');
   const typeOptionController = new TypeOptionController(viewId, Some(fieldInfo));
   const singleSelectTypeOptionContext = makeSingleSelectTypeOptionContext(typeOptionController);
-  const singleSelectTypeOptionPB: SingleSelectTypeOptionPB = singleSelectTypeOptionContext
-    .getTypeOption();
+  const singleSelectTypeOptionPB: SingleSelectTypeOptionPB = singleSelectTypeOptionContext.getTypeOption();
 
   const backendSvc = new SelectOptionBackendService(viewId, fieldInfo.field.id);
 
