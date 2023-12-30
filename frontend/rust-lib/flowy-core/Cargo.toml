@@ -43,7 +43,7 @@ parking_lot.workspace = true
 anyhow.workspace = true
 base64 = "0.21.5"
 
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true

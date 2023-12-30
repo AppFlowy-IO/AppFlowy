@@ -20,7 +20,7 @@ tracing.workspace = true
 flowy-error = { path = "../flowy-error", features = ["impl_from_dispatch_error"]}
 lib-dispatch = { workspace = true }
 bytes.workspace = true
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 nanoid = "0.4.0"
 lazy_static = "1.4.0"

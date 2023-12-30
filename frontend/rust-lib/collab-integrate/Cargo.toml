@@ -21,7 +21,7 @@ parking_lot.workspace = true
 futures.workspace = true
 async-trait.workspace = true
 tokio = { workspace = true, features = ["sync"]}
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 
 [features]
 default = ["rocksdb_plugin", "snapshot_plugin"]

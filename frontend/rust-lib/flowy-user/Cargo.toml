@@ -11,7 +11,7 @@ flowy-sqlite = { workspace = true, optional = true }
 flowy-encrypt = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error"] }
 flowy-folder-deps = { workspace = true }
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 flowy-notification  = { workspace = true }
 flowy-server-config = { workspace = true }
 lib-dispatch = { workspace = true }

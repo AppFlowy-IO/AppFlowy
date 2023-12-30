@@ -17,7 +17,7 @@ flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-notification  = { workspace = true }
 flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_sqlite", "impl_from_dispatch_error", "impl_from_collab"] }
 lib-dispatch = { workspace = true }
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 validator = "0.16.0"
 protobuf.workspace = true
 bytes.workspace = true

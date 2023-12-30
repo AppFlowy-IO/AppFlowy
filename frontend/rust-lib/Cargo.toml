@@ -11,7 +11,7 @@ members = [
   "flowy-folder",
   "flowy-folder-deps",
   "flowy-notification",
-    "flowy-document",
+  "flowy-document",
   "flowy-document-deps",
   "flowy-error",
   "flowy-database2",
@@ -25,12 +25,14 @@ members = [
   "collab-integrate",
   "flowy-ai",
   "flowy-date",
+  "lib-infra",
 ]
 resolver = "2"
 
 [workspace.dependencies]
 lib-dispatch = { workspace = true, path = "lib-dispatch" }
 lib-log = { workspace = true, path = "lib-log" }
+lib-infra= { workspace = true, path = "lib-infra" }
 flowy-core = { workspace = true, path = "flowy-core" }
 dart-ffi = { workspace = true, path = "dart-ffi" }
 flowy-user = { workspace = true, path = "flowy-user" }

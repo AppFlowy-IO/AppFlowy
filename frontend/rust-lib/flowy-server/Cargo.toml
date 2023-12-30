@@ -30,7 +30,7 @@ collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
 hex = "0.4.3"
 postgrest = "1.0"
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 flowy-user-deps = { workspace = true }
 flowy-folder-deps  = { workspace = true }
 flowy-database-deps = { workspace = true }
