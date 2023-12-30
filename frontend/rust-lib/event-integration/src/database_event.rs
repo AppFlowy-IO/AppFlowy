@@ -4,8 +4,8 @@ use bytes::Bytes;
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_database2::services::share::csv::CSVFormat;
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent;
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent;
 use flowy_user::errors::FlowyError;
 
 use crate::event_builder::EventBuilder;

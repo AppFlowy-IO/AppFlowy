@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { WorkspaceSettingPB } from '@/services/backend/models/flowy-folder2/workspace';
+import { WorkspaceSettingPB } from '@/services/backend/models/flowy-folder/workspace';
 import { ThemeModePB as ThemeMode } from '@/services/backend';
 
 export { ThemeMode };

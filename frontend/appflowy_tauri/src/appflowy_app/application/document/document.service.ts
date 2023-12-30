@@ -16,7 +16,7 @@ import {
   DocumentEventConvertDataToJSON,
   DocumentEventConvertDocument,
   DocumentEventOpenDocument,
-} from '@/services/backend/events/flowy-document2';
+} from '@/services/backend/events/flowy-document';
 import get from 'lodash-es/get';
 import { EditorData, EditorNodeType } from '$app/application/document/document.types';
 import { Log } from '$app/utils/log';

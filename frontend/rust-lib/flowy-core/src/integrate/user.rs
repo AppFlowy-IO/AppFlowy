@@ -6,9 +6,9 @@ use tracing::event;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager;
+use flowy_document::manager::DocumentManager;
 use flowy_error::FlowyResult;
-use flowy_folder2::manager::{FolderInitDataSource, FolderManager};
+use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user_deps::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_deps::entities::{Authenticator, UserProfile, UserWorkspace};

@@ -1977,11 +1977,11 @@ dependencies = [
  "flowy-database-deps",
  "flowy-database2",
  "flowy-date",
+ "flowy-document",
  "flowy-document-deps",
- "flowy-document2",
  "flowy-error",
+ "flowy-folder",
  "flowy-folder-deps",
- "flowy-folder2",
  "flowy-server",
  "flowy-server-config",
  "flowy-sqlite",
@@ -2094,18 +2094,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document-deps"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "collab",
- "collab-document",
- "flowy-error",
- "lib-infra",
-]
-
-[[package]]
-name = "flowy-document2"
+name = "flowy-document"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2137,6 +2126,17 @@ dependencies = [
  "tracing",
  "uuid",
  "validator",
+]
+
+[[package]]
+name = "flowy-document-deps"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "collab",
+ "collab-document",
+ "flowy-error",
+ "lib-infra",
 ]
 
 [[package]]
@@ -2181,20 +2181,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-folder-deps"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "collab",
- "collab-entity",
- "collab-folder",
- "flowy-error",
- "lib-infra",
- "uuid",
-]
-
-[[package]]
-name = "flowy-folder2"
+name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -2222,6 +2209,19 @@ dependencies = [
  "unicode-segmentation",
  "uuid",
  "validator",
+]
+
+[[package]]
+name = "flowy-folder-deps"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "collab",
+ "collab-entity",
+ "collab-folder",
+ "flowy-error",
+ "lib-infra",
+ "uuid",
 ]
 
 [[package]]

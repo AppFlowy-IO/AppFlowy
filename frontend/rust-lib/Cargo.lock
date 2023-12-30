@@ -384,6 +384,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
 
 [[package]]
+name = "basic-toml"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f2139706359229bfa8f19142ac1155b4b80beafb7a60471ac5dd109d4a19778"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "bincode"
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1149,7 +1158,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1579,11 +1588,11 @@ dependencies = [
  "flowy-core",
  "flowy-database-deps",
  "flowy-database2",
+ "flowy-document",
  "flowy-document-deps",
- "flowy-document2",
  "flowy-encrypt",
+ "flowy-folder",
  "flowy-folder-deps",
- "flowy-folder2",
  "flowy-notification",
  "flowy-server",
  "flowy-server-config",
@@ -1779,11 +1788,11 @@ dependencies = [
  "flowy-database-deps",
  "flowy-database2",
  "flowy-date",
+ "flowy-document",
  "flowy-document-deps",
- "flowy-document2",
  "flowy-error",
+ "flowy-folder",
  "flowy-folder-deps",
- "flowy-folder2",
  "flowy-server",
  "flowy-server-config",
  "flowy-sqlite",
@@ -1893,22 +1902,13 @@ dependencies = [
  "quote",
  "serde_json",
  "syn 1.0.109",
+ "tokio",
+ "trybuild",
  "walkdir",
 ]
 
 [[package]]
-name = "flowy-document-deps"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "collab",
- "collab-document",
- "flowy-error",
- "lib-infra",
-]
-
-[[package]]
-name = "flowy-document2"
+name = "flowy-document"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1942,6 +1942,17 @@ dependencies = [
  "tracing-subscriber",
  "uuid",
  "validator",
+]
+
+[[package]]
+name = "flowy-document-deps"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "collab",
+ "collab-document",
+ "flowy-error",
+ "lib-infra",
 ]
 
 [[package]]
@@ -1986,21 +1997,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-folder-deps"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "collab",
- "collab-entity",
- "collab-folder",
- "flowy-error",
- "lib-infra",
- "tokio",
- "uuid",
-]
-
-[[package]]
-name = "flowy-folder2"
+name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -2028,6 +2025,20 @@ dependencies = [
  "unicode-segmentation",
  "uuid",
  "validator",
+]
+
+[[package]]
+name = "flowy-folder-deps"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "collab",
+ "collab-entity",
+ "collab-folder",
+ "flowy-error",
+ "lib-infra",
+ "tokio",
+ "uuid",
 ]
 
 [[package]]
@@ -3675,7 +3686,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros",
+ "phf_macros 0.8.0",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -3695,6 +3706,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -3760,6 +3772,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.31",
 ]
 
 [[package]]
@@ -3965,7 +3990,7 @@ checksum = "8bdf592881d821b83d471f8af290226c8d51402259e9bb5be7f9f8bdebbb11ac"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
  "multimap",
  "once_cell",
@@ -3986,7 +4011,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "265baba7fabd416cf5078179f7d2cbeca4ce7a9041111900675ea7c4cb8a4c32"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.31",
@@ -5432,6 +5457,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "termcolor"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff1bc3d3f05aff0403e8ac0d92ced918ec05b666a43f83297ccef5bea8a3d449"
+dependencies = [
+ "winapi-util",
+]
+
+[[package]]
 name = "terminal_size"
 version = "0.1.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5874,6 +5908,21 @@ name = "try-lock"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
+
+[[package]]
+name = "trybuild"
+version = "1.0.86"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8419ecd263363827c5730386f418715766f584e2f874d32c23c5b00bd9727e7e"
+dependencies = [
+ "basic-toml",
+ "glob",
+ "once_cell",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "termcolor",
+]
 
 [[package]]
 name = "tungstenite"

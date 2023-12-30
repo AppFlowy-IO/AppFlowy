@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use event_integration::document_event::assert_document_data_equal;
-use flowy_document2::entities::DocumentSyncStatePB;
+use flowy_document::entities::DocumentSyncStatePB;
 
 use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
 use crate::util::receive_with_timeout;

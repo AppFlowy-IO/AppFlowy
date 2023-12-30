@@ -2,14 +2,14 @@ use std::collections::HashMap;
 
 use serde_json::Value;
 
-use flowy_document2::entities::*;
-use flowy_document2::event_map::DocumentEvent;
-use flowy_document2::parser::parser_entities::{
+use flowy_document::entities::*;
+use flowy_document::event_map::DocumentEvent;
+use flowy_document::parser::parser_entities::{
   ConvertDataToJsonPayloadPB, ConvertDataToJsonResponsePB, ConvertDocumentPayloadPB,
   ConvertDocumentResponsePB,
 };
-use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
-use flowy_folder2::event_map::FolderEvent;
+use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
+use flowy_folder::event_map::FolderEvent;
 
 use crate::document::utils::{gen_delta_str, gen_id, gen_text_block_data};
 use crate::event_builder::EventBuilder;

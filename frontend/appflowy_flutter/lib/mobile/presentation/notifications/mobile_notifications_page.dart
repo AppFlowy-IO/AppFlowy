@@ -9,8 +9,8 @@ import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_scr
 import 'package:appflowy/workspace/presentation/notifications/reminder_extension.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/inbox_action_bar.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_view.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';

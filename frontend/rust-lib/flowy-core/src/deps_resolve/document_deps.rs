@@ -3,7 +3,7 @@ use std::sync::{Arc, Weak};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::{DocumentManager, DocumentUser};
+use flowy_document::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_storage::FileStorageService;

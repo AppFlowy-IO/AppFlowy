@@ -3,8 +3,8 @@ use std::convert::TryFrom;
 use std::sync::Weak;
 
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager;
-use flowy_document2::reminder::{DocumentReminder, DocumentReminderAction};
+use flowy_document::manager::DocumentManager;
+use flowy_document::reminder::{DocumentReminder, DocumentReminderAction};
 use flowy_folder_deps::cloud::Error;
 use flowy_user::services::collab_interact::CollabInteract;
 use lib_infra::future::FutureResult;

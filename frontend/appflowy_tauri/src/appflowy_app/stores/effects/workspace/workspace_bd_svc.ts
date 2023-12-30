@@ -5,7 +5,7 @@ import {
   WorkspaceIdPB,
   FolderEventReadWorkspaceViews,
   FolderEventReadCurrentWorkspace,
-} from '@/services/backend/events/flowy-folder2';
+} from '@/services/backend/events/flowy-folder';
 import { UserEventOpenWorkspace, UserWorkspaceIdPB } from '@/services/backend/events/flowy-user';
 
 export class WorkspaceBackendService {
