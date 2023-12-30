@@ -8,7 +8,6 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
-      - "shared-lib/**"
 
   pull_request:
     branches:
@@ -17,7 +16,6 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
-      - "shared-lib/**"
 
 env:
   CARGO_TERM_COLOR: always

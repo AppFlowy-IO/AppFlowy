@@ -12,11 +12,11 @@ tracing.workspace = true
 bytes.workspace = true
 serde.workspace = true
 
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive.workspace = true
 lib-dispatch = { workspace = true }
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen" }
+flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart"]

@@ -13,7 +13,7 @@ collab-integrate = { workspace = true, features = ["rocksdb_plugin", "snapshot_p
 flowy-document-deps = { workspace = true }
 flowy-storage = { workspace = true }
 
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive.workspace = true
 flowy-notification  = { workspace = true }
 flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_sqlite", "impl_from_dispatch_error", "impl_from_collab"] }
 lib-dispatch = { workspace = true }
@@ -42,7 +42,7 @@ tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 collab-integrate = { workspace = true }
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}
+flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]

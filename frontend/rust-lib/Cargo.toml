@@ -26,6 +26,9 @@ members = [
   "flowy-ai",
   "flowy-date",
   "lib-infra",
+  "build-tool/flowy-ast",
+  "build-tool/flowy-codegen",
+  "build-tool/flowy-derive",
 ]
 resolver = "2"
 
@@ -33,6 +36,9 @@ resolver = "2"
 lib-dispatch = { workspace = true, path = "lib-dispatch" }
 lib-log = { workspace = true, path = "lib-log" }
 lib-infra= { workspace = true, path = "lib-infra" }
+flowy-ast = { workspace = true, path = "build-tool/flowy-ast" }
+flowy-codegen = { workspace = true, path = "build-tool/flowy-codegen" }
+flowy-derive = { workspace = true, path = "build-tool/flowy-derive" }
 flowy-core = { workspace = true, path = "flowy-core" }
 dart-ffi = { workspace = true, path = "dart-ffi" }
 flowy-user = { workspace = true, path = "flowy-user" }

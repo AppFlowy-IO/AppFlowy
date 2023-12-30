@@ -17,10 +17,10 @@ path = "tests/progress.rs"
 syn = { version = "1.0.109", features = ["extra-traits", "visit"] }
 quote = "1.0"
 proc-macro2 = "1.0"
-flowy-ast = { path = "../flowy-ast" }
+flowy-ast.workspace = true
 lazy_static = {version = "1.4.0"}
 dashmap = "5"
-flowy-codegen = { path = "../flowy-codegen"}
+flowy-codegen.workspace = true
 serde_json.workspace = true
 walkdir = "2.3.2"
 
