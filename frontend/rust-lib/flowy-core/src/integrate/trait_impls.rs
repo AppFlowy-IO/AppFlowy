@@ -196,7 +196,7 @@ impl FolderCloudService for ServerProvider {
     })
   }
 
-  fn batch_create_collab_object(
+  fn batch_create_collab_object_f(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,
@@ -206,7 +206,7 @@ impl FolderCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .folder_service()
-        .batch_create_collab_object(&workspace_id, objects)
+        .batch_create_collab_object_f(&workspace_id, objects)
         .await
     })
   }

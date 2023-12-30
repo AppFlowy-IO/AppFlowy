@@ -5,7 +5,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::core::origin::CollabOrigin;
 use collab_entity::{CollabObject, CollabType};
@@ -325,6 +325,18 @@ where
       )
     });
     FutureResult::new(async { rx.await? })
+  }
+
+  fn batch_create_collab_object(
+    &self,
+    _workspace_id: &str,
+    _objects: Vec<UserCollabParams>,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async {
+      Err(anyhow!(
+        "supabase server doesn't support batch create collab"
+      ))
+    })
   }
 }
 

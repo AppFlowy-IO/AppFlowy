@@ -47,7 +47,6 @@ pub trait FolderUser: Send + Sync {
   /// Otherwise, the data will be imported to the current workspace.
   async fn import_appflowy_data_folder(
     &self,
-    workspace_id: &str,
     path: &str,
     container_name: Option<String>,
   ) -> Result<Vec<ParentChildViews>, FlowyError>;
@@ -841,15 +840,11 @@ impl FolderManager {
     name: Option<String>,
   ) -> Result<(), FlowyError> {
     let (tx, rx) = tokio::sync::oneshot::channel();
-    let workspace_id = self.get_current_workspace_id().await?;
     let folder = self.mutex_folder.clone();
     let user = self.user.clone();
 
     tokio::spawn(async move {
-      match user
-        .import_appflowy_data_folder(&workspace_id, &path, name)
-        .await
-      {
+      match user.import_appflowy_data_folder(&path, name).await {
         Ok(views) => {
           if let Some(folder) = &*folder.lock() {
             for view in views {
@@ -865,7 +860,6 @@ impl FolderManager {
     });
 
     rx.await.map_err(internal_error)??;
-
     Ok(())
   }
 

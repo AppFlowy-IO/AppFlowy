@@ -11,3 +11,9 @@ pub enum ImportData {
     database_object_ids: Vec<String>,
   },
 }
+
+pub struct ImportViews {
+  pub views: Vec<ParentChildViews>,
+  /// Used to update the [DatabaseViewTrackerList] when importing the database.
+  pub database_view_ids_by_database_id: HashMap<String, Vec<String>>,
+}

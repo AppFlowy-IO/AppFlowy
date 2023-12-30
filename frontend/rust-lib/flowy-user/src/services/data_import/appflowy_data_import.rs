@@ -14,21 +14,26 @@ use collab_database::database::{
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
 use collab_database::user::DatabaseViewTrackerList;
 use collab_document::document_data::default_document_collab_data;
+use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use flowy_error::{internal_error, FlowyError};
 use flowy_folder_deps::cloud::gen_view_id;
 use flowy_folder_deps::entities::ImportData;
 use flowy_folder_deps::folder_builder::{ParentChildViews, ViewBuilder};
 use flowy_sqlite::kv::StorePreferences;
+use flowy_user_deps::cloud::{UserCloudService, UserCollabParams};
+use flowy_user_deps::entities::Authenticator;
 use parking_lot::{Mutex, RwLock};
 use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
+use tracing::info;
 
 pub(crate) struct ImportContext {
-  session: Session,
-  collab_db: RocksCollabDB,
-  container_name: Option<String>,
+  pub imported_session: Session,
+  pub imported_collab_db: Arc<RocksCollabDB>,
+  pub container_name: Option<String>,
 }
 
 impl ImportContext {
@@ -38,7 +43,7 @@ impl ImportContext {
   }
 }
 
-pub fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Result<ImportContext> {
+pub(crate) fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Result<ImportContext> {
   let user_paths = UserPaths::new(path.to_string());
   let other_store_preferences = Arc::new(StorePreferences::new(path)?);
   migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
@@ -50,10 +55,10 @@ pub fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Result<Imp
     ))?;
 
   let collab_db_path = user_paths.collab_db_path(session.user_id);
-  let collab_db = RocksCollabDB::open(collab_db_path)?;
+  let collab_db = Arc::new(RocksCollabDB::open(collab_db_path)?);
   Ok(ImportContext {
-    session,
-    collab_db,
+    imported_session: session,
+    imported_collab_db: collab_db,
     container_name: None,
   })
 }
@@ -70,10 +75,10 @@ pub(crate) fn import_appflowy_data_folder(
   collab_db: &Arc<RocksCollabDB>,
   import_context: ImportContext,
 ) -> anyhow::Result<ImportData> {
-  let other_session = import_context.session;
-  let other_collab_db = import_context.collab_db;
+  let imported_session = import_context.imported_session;
+  let imported_collab_db = import_context.imported_collab_db;
   let container_name = import_context.container_name;
-  let other_collab_read_txn = other_collab_db.read_txn();
+  let imported_collab_read_txn = imported_collab_db.read_txn();
 
   let mut database_view_ids_by_database_id: HashMap<String, Vec<String>> = HashMap::new();
   let row_object_ids = Mutex::new(HashSet::new());
@@ -87,22 +92,22 @@ pub(crate) fn import_appflowy_data_folder(
   let views = collab_db.with_write_txn(|collab_write_txn| {
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
     let old_to_new_id_map = Arc::new(Mutex::new(OldToNewIdMap::new()));
-    let mut all_object_ids = other_collab_read_txn
+    let mut all_object_ids = imported_collab_read_txn
       .get_all_docs()
       .map(|iter| iter.collect::<Vec<String>>())
       .unwrap_or_default();
 
     // when doing import, we don't want to import the user workspace, database view tracker and the user awareness
-    all_object_ids.retain(|id| id != &other_session.user_workspace.id);
-    all_object_ids.retain(|id| id != &other_session.user_workspace.database_view_tracker_id);
+    all_object_ids.retain(|id| id != &imported_session.user_workspace.id);
+    all_object_ids.retain(|id| id != &imported_session.user_workspace.database_view_tracker_id);
     all_object_ids
-      .retain(|id| id != &awareness_oid_from_user_uuid(&other_session.user_uuid).to_string());
+      .retain(|id| id != &awareness_oid_from_user_uuid(&imported_session.user_uuid).to_string());
 
     // import database view tracker
     migrate_database_view_tracker(
       &mut old_to_new_id_map.lock(),
-      &other_session,
-      &other_collab_read_txn,
+      &imported_session,
+      &imported_collab_read_txn,
       &mut database_view_ids_by_database_id,
       &database_object_ids,
     )?;
@@ -117,8 +122,8 @@ pub(crate) fn import_appflowy_data_folder(
 
     // load other collab objects
     let collab_by_oid = load_collab_by_oid(
-      other_session.user_id,
-      &other_collab_read_txn,
+      imported_session.user_id,
+      &imported_collab_read_txn,
       &all_object_ids,
     );
     // import the database
@@ -146,8 +151,8 @@ pub(crate) fn import_appflowy_data_folder(
     let child_views = import_workspace_views(
       &import_container_view_id,
       &mut old_to_new_id_map.lock(),
-      &other_session,
-      &other_collab_read_txn,
+      &imported_session,
+      &imported_collab_read_txn,
     )?;
 
     match container_name {
@@ -512,4 +517,125 @@ impl DerefMut for OldToNewIdMap {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
   }
+}
+
+pub async fn upload_imported_data(
+  uid: i64,
+  user_collab_db: Arc<RocksCollabDB>,
+  workspace_id: &str,
+  user_authenticator: &Authenticator,
+  import_data: &ImportData,
+  user_cloud_service: Arc<dyn UserCloudService>,
+) -> Result<(), FlowyError> {
+  // Only support uploading the collab data when the current server is AppFlowy Cloud server
+  if !user_authenticator.is_appflowy_cloud() {
+    return Ok(());
+  }
+
+  let (row_object_ids, document_object_ids, database_object_ids) = match import_data {
+    ImportData::AppFlowyDataFolder {
+      views: _,
+      database_view_ids_by_database_id: _,
+      row_object_ids,
+      document_object_ids,
+      database_object_ids,
+    } => (
+      row_object_ids.clone(),
+      document_object_ids.clone(),
+      database_object_ids.clone(),
+    ),
+  };
+
+  let object_by_collab_type = tokio::task::spawn_blocking(move || {
+    let collab_read = user_collab_db.read_txn();
+    let mut object_by_collab_type = HashMap::new();
+    object_by_collab_type.insert(
+      CollabType::Database,
+      load_and_process_collab_data(uid, &collab_read, &database_object_ids),
+    );
+
+    object_by_collab_type.insert(
+      CollabType::Document,
+      load_and_process_collab_data(uid, &collab_read, &document_object_ids),
+    );
+
+    object_by_collab_type.insert(
+      CollabType::DatabaseRow,
+      load_and_process_collab_data(uid, &collab_read, &row_object_ids),
+    );
+
+    object_by_collab_type
+  })
+  .await
+  .map_err(internal_error)?;
+
+  // Upload
+  let mut size_counter = 0;
+  let mut objects: Vec<UserCollabParams> = vec![];
+  let upload_size_limit = 2 * 1024 * 1024;
+  for (collab_type, encoded_v1_by_oid) in object_by_collab_type {
+    info!(
+      "Batch import collab:{} ids: {:?}",
+      collab_type,
+      encoded_v1_by_oid.keys(),
+    );
+    for (oid, encoded_v1) in encoded_v1_by_oid {
+      let obj_size = encoded_v1.len();
+      if size_counter + obj_size > upload_size_limit && !objects.is_empty() {
+        // When the limit is exceeded, batch create with the current list of objects
+        // and reset for the next batch.
+        user_cloud_service
+          .batch_create_collab_object(workspace_id, objects)
+          .await?;
+        objects = Vec::new();
+        size_counter = 0;
+      }
+
+      // Add the current object to the batch.
+      objects.push(UserCollabParams {
+        object_id: oid,
+        encoded_collab_v1: encoded_v1,
+        collab_type: collab_type.clone(),
+      });
+      size_counter += obj_size;
+    }
+  }
+
+  // After the loop, upload any remaining objects.
+  if !objects.is_empty() {
+    info!(
+      "Batch create collab objects: {}, payload size: {}",
+      objects
+        .iter()
+        .map(|o| o.object_id.clone())
+        .collect::<Vec<_>>()
+        .join(", "),
+      size_counter
+    );
+    user_cloud_service
+      .batch_create_collab_object(workspace_id, objects)
+      .await?;
+  }
+  Ok(())
+}
+
+fn load_and_process_collab_data<'a, R>(
+  uid: i64,
+  collab_read: &R,
+  object_ids: &[String],
+) -> HashMap<String, Vec<u8>>
+where
+  R: YrsDocAction<'a>,
+  PersistenceError: From<R::Error>,
+{
+  load_collab_by_oid(uid, collab_read, object_ids)
+    .into_iter()
+    .filter_map(|(oid, collab)| {
+      collab
+        .encode_collab_v1()
+        .encode_to_bytes()
+        .ok()
+        .map(|encoded_v1| (oid, encoded_v1))
+    })
+    .collect()
 }
