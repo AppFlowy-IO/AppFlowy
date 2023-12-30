@@ -127,6 +127,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 LIB_EXT = "dll"
+BUILD_ARCHS = "x86"
 APP_ENVIRONMENT = "production"
 
 [env.development-linux-x86_64]
