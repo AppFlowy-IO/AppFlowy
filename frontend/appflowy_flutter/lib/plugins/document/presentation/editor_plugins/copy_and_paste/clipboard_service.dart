@@ -71,17 +71,21 @@ class ClipboardService {
           throw Exception('unsupported image format: ${image.$1}');
       }
     }
-    await ClipboardWriter.instance.write([item]);
+    await SystemClipboard.instance?.write([item]);
   }
 
   Future<void> setPlainText(String text) async {
-    await ClipboardWriter.instance.write([
+    await SystemClipboard.instance?.write([
       DataWriterItem()..add(Formats.plainText(text)),
     ]);
   }
 
   Future<ClipboardServiceData> getData() async {
-    final reader = await ClipboardReader.readClipboard();
+    final reader = await SystemClipboard.instance?.read();
+
+    if (reader == null) {
+      return const ClipboardServiceData();
+    }
 
     for (final item in reader.items) {
       final availableFormats = await item.rawReader!.getAvailableFormats();
