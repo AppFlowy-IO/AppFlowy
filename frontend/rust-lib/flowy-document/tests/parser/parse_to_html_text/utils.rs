@@ -1,5 +1,5 @@
-use flowy_document2::parser::document_data_parser::DocumentDataParser;
-use flowy_document2::parser::json::parser::JsonToDocumentParser;
+use flowy_document::parser::document_data_parser::DocumentDataParser;
+use flowy_document::parser::json::parser::JsonToDocumentParser;
 use std::sync::Arc;
 
 pub fn assert_document_html_eq(source: &str, expect: &str) {

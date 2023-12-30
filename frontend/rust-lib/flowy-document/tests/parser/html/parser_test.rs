@@ -1,5 +1,5 @@
-use flowy_document2::parser::external::parser::ExternalDataToNestedJSONParser;
-use flowy_document2::parser::parser_entities::{InputType, NestedBlock};
+use flowy_document::parser::external::parser::ExternalDataToNestedJSONParser;
+use flowy_document::parser::parser_entities::{InputType, NestedBlock};
 
 macro_rules! generate_test_cases {
     ($($ty:ident),*) => {

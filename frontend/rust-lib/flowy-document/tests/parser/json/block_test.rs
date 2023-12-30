@@ -1,6 +1,6 @@
 use serde_json::json;
 
-use flowy_document2::parser::json::block::SerdeBlock;
+use flowy_document::parser::json::block::SerdeBlock;
 
 #[test]
 fn test_empty_data_and_children() {

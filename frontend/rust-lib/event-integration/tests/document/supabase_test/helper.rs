@@ -1,8 +1,8 @@
 use std::ops::Deref;
 
 use event_integration::event_builder::EventBuilder;
-use flowy_document2::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB};
-use flowy_document2::event_map::DocumentEvent::GetDocumentSnapshots;
+use flowy_document::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB};
+use flowy_document::event_map::DocumentEvent::GetDocumentSnapshots;
 use flowy_folder::entities::ViewPB;
 
 use crate::util::FlowySupabaseTest;

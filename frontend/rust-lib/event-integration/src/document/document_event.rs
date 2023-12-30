@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use serde_json::Value;
 
-use flowy_document2::entities::*;
-use flowy_document2::event_map::DocumentEvent;
-use flowy_document2::parser::parser_entities::{
+use flowy_document::entities::*;
+use flowy_document::event_map::DocumentEvent;
+use flowy_document::parser::parser_entities::{
   ConvertDataToJsonPayloadPB, ConvertDataToJsonResponsePB, ConvertDocumentPayloadPB,
   ConvertDocumentResponsePB,
 };

@@ -8,8 +8,8 @@ use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_entity::CollabType;
 
-use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
-use flowy_document2::event_map::DocumentEvent;
+use flowy_document::entities::{DocumentDataPB, OpenDocumentPayloadPB};
+use flowy_document::event_map::DocumentEvent;
 use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder::event_map::FolderEvent;
 

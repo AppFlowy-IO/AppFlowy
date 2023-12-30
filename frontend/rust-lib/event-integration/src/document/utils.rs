@@ -1,5 +1,5 @@
 use crate::document::document_event::*;
-use flowy_document2::entities::*;
+use flowy_document::entities::*;
 use nanoid::nanoid;
 use serde_json::json;
 use std::collections::HashMap;

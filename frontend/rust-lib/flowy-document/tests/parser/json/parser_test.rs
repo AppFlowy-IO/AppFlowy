@@ -1,5 +1,5 @@
 use collab_document::blocks::json_str_to_hashmap;
-use flowy_document2::parser::json::parser::JsonToDocumentParser;
+use flowy_document::parser::json::parser::JsonToDocumentParser;
 use serde_json::json;
 
 #[test]

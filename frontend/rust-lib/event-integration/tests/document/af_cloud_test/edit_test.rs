@@ -6,7 +6,7 @@ use event_integration::document_event::assert_document_data_equal;
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
-use flowy_document2::entities::DocumentSyncStatePB;
+use flowy_document::entities::DocumentSyncStatePB;
 
 use crate::util::{receive_with_timeout, unzip_history_user_db};
 

@@ -4,7 +4,7 @@ import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_item.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notifications_hub_empty.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';

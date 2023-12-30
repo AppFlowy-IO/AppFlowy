@@ -15,7 +15,7 @@ flowy-folder-deps = { workspace = true }
 flowy-database2 = { workspace = true }
 flowy-database-deps = { workspace = true }
 flowy-sqlite = { workspace = true }
-flowy-document2 = { workspace = true }
+flowy-document = { workspace = true }
 flowy-document-deps = { workspace = true }
 flowy-error = { workspace = true }
 flowy-task = { workspace = true }
@@ -61,7 +61,7 @@ dart = [
     "flowy-date/dart",
     "flowy-folder/dart",
     "flowy-database2/dart",
-    "flowy-document2/dart",
+    "flowy-document/dart",
     "flowy-config/dart",
 ]
 ts = [
@@ -69,7 +69,7 @@ ts = [
     "flowy-date/ts",
     "flowy-folder/ts",
     "flowy-database2/ts",
-    "flowy-document2/ts",
+    "flowy-document/ts",
     "flowy-config/ts",
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]

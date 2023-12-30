@@ -1,4 +1,4 @@
-use flowy_document2::{
+use flowy_document::{
   entities::{ConvertDataPayloadPB, ConvertType},
   event_handler::convert_data_to_document_internal,
 };

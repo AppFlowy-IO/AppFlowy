@@ -1,7 +1,7 @@
 use collab_document::blocks::DocumentData;
-use flowy_document2::parser::document_data_parser::DocumentDataParser;
-use flowy_document2::parser::json::parser::JsonToDocumentParser;
-use flowy_document2::parser::parser_entities::{NestedBlock, Range, Selection};
+use flowy_document::parser::document_data_parser::DocumentDataParser;
+use flowy_document::parser::json::parser::JsonToDocumentParser;
+use flowy_document::parser::parser_entities::{NestedBlock, Range, Selection};
 use std::sync::Arc;
 
 #[tokio::test]

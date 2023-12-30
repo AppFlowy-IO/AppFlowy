@@ -1579,8 +1579,8 @@ dependencies = [
  "flowy-core",
  "flowy-database-deps",
  "flowy-database2",
+ "flowy-document",
  "flowy-document-deps",
- "flowy-document2",
  "flowy-encrypt",
  "flowy-folder",
  "flowy-folder-deps",
@@ -1779,8 +1779,8 @@ dependencies = [
  "flowy-database-deps",
  "flowy-database2",
  "flowy-date",
+ "flowy-document",
  "flowy-document-deps",
- "flowy-document2",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-deps",
@@ -1897,18 +1897,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document-deps"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "collab",
- "collab-document",
- "flowy-error",
- "lib-infra",
-]
-
-[[package]]
-name = "flowy-document2"
+name = "flowy-document"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1942,6 +1931,17 @@ dependencies = [
  "tracing-subscriber",
  "uuid",
  "validator",
+]
+
+[[package]]
+name = "flowy-document-deps"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "collab",
+ "collab-document",
+ "flowy-error",
+ "lib-infra",
 ]
 
 [[package]]

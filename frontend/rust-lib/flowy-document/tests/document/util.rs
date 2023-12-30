@@ -18,8 +18,8 @@ use collab_integrate::collab_builder::{
   CollabPluginProviderType,
 };
 use collab_integrate::RocksCollabDB;
-use flowy_document2::document::MutexDocument;
-use flowy_document2::manager::{DocumentManager, DocumentUser};
+use flowy_document::document::MutexDocument;
+use flowy_document::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
 use flowy_error::FlowyError;
 use flowy_storage::{FileStorageService, StorageObject};

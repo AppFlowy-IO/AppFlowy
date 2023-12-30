@@ -11,7 +11,7 @@ members = [
   "flowy-folder",
   "flowy-folder-deps",
   "flowy-notification",
-  "flowy-document2",
+    "flowy-document",
   "flowy-document-deps",
   "flowy-error",
   "flowy-database2",
@@ -39,7 +39,7 @@ flowy-sqlite = { workspace = true, path = "flowy-sqlite" }
 flowy-folder = { workspace = true, path = "flowy-folder" }
 flowy-folder-deps = { workspace = true, path = "flowy-folder-deps" }
 flowy-notification = { workspace = true, path = "flowy-notification" }
-flowy-document2 = { workspace = true, path = "flowy-document2" }
+flowy-document = { workspace = true, path = "flowy-document" }
 flowy-document-deps = { workspace = true, path = "flowy-document-deps" }
 flowy-error = { workspace = true, path = "flowy-error" }
 flowy-database2 = { workspace = true, path = "flowy-database2" }

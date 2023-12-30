@@ -15,7 +15,7 @@ use collab_integrate::collab_builder::{
 };
 use collab_integrate::postgres::SupabaseDBPlugin;
 use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
-use flowy_document2::deps::DocumentData;
+use flowy_document::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{

@@ -13,7 +13,7 @@ flowy-folder = { path = "../flowy-folder", features = ["test_helper"] }
 flowy-folder-deps = { workspace = true }
 flowy-database2 = { path = "../flowy-database2" }
 flowy-database-deps = { workspace = true }
-flowy-document2 = { path = "../flowy-document2" }
+flowy-document = { path = "../flowy-document" }
 flowy-document-deps = { workspace = true }
 flowy-encrypt = { workspace = true }
 lib-dispatch = { workspace = true }
