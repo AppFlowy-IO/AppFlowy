@@ -348,6 +348,10 @@ impl Authenticator {
   pub fn is_local(&self) -> bool {
     matches!(self, Authenticator::Local)
   }
+
+  pub fn is_appflowy_cloud(&self) -> bool {
+    matches!(self, Authenticator::AppFlowyCloud)
+  }
 }
 
 impl From<i32> for Authenticator {

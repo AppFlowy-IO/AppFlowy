@@ -114,13 +114,13 @@ impl FolderUser for FolderUserImpl {
     &self,
     workspace_id: &str,
     path: &str,
-    container_name: &str,
-  ) -> Result<ParentChildViews, FlowyError> {
+    container_name: Option<String>,
+  ) -> Result<Vec<ParentChildViews>, FlowyError> {
     match (self.user_manager.upgrade(), self.database_manager.upgrade()) {
       (Some(user_manager), Some(data_manager)) => {
         let source = ImportDataSource::AppFlowyDataFolder {
           path: path.to_string(),
-          container_name: container_name.to_string(),
+          container_name,
         };
         let cloned_user_manager = user_manager.clone();
         let import_data =
@@ -130,7 +130,7 @@ impl FolderUser for FolderUserImpl {
 
         match import_data {
           ImportData::AppFlowyDataFolder {
-            view,
+            views,
             database_view_ids_by_database_id,
             row_object_ids,
             database_object_ids,
@@ -151,7 +151,7 @@ impl FolderUser for FolderUserImpl {
               .track_database(database_view_ids_by_database_id)
               .await?;
 
-            Ok(view)
+            Ok(views)
           },
         }
       },
@@ -170,7 +170,11 @@ impl FolderUserImpl {
     uid: i64,
   ) -> Result<(), FlowyError> {
     // Only support uploading the collab data when the current server is AppFlowy Cloud server
-    if self.server_provider.get_appflowy_cloud_server().is_err() {
+    if !self
+      .server_provider
+      .get_user_authenticator()
+      .is_appflowy_cloud()
+    {
       return Ok(());
     }
 

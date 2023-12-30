@@ -9,7 +9,7 @@ use serde_json::{json, Value};
 use std::env::temp_dir;
 
 #[tokio::test]
-async fn import_appflowy_data_folder_test() {
+async fn import_appflowy_data_folder_into_new_view_test() {
   let import_container_name = "040_local".to_string();
   let (cleaner, user_db_path) =
     unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
@@ -29,7 +29,7 @@ async fn import_appflowy_data_folder_test() {
   test
     .import_appflowy_data(
       user_db_path.to_str().unwrap().to_string(),
-      &import_container_name,
+      Some(import_container_name.clone()),
     )
     .await
     .unwrap();
@@ -65,7 +65,55 @@ async fn import_appflowy_data_folder_test() {
 }
 
 #[tokio::test]
-async fn import_appflowy_data_folder_test2() {
+async fn import_appflowy_data_folder_into_current_workspace_test() {
+  let import_container_name = "040_local".to_string();
+  let (cleaner, user_db_path) =
+    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  // In the 040_local, the structure is:
+  // workspace:
+  //  view: Document1
+  //    view: Document2
+  //      view: Grid1
+  //      view: Grid2
+  user_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
+  let _ = test.af_cloud_sign_up().await;
+  // after sign up, the initial workspace is created, so the structure is:
+  // workspace:
+  //   view: Getting Started
+
+  test
+    .import_appflowy_data(user_db_path.to_str().unwrap().to_string(), None)
+    .await
+    .unwrap();
+  // after import, the structure is:
+  // workspace:
+  //   view: Getting Started
+  //   view: Document1
+  //      view: Document2
+  //        view: Grid1
+  //        view: Grid2
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views.len(), 2);
+  assert_eq!(views[1].name, "Document1");
+
+  let document_1_child_views = test.get_views(&views[1].id).await.child_views;
+  assert_eq!(document_1_child_views.len(), 1);
+  assert_eq!(document_1_child_views[0].name, "Document2");
+
+  let document2_child_views = test
+    .get_views(&document_1_child_views[0].id)
+    .await
+    .child_views;
+  assert_eq!(document2_child_views.len(), 2);
+  assert_eq!(document2_child_views[0].name, "Grid1");
+  assert_eq!(document2_child_views[1].name, "Grid2");
+
+  drop(cleaner);
+}
+
+#[tokio::test]
+async fn import_appflowy_data_folder_into_new_view_test2() {
   let import_container_name = "040_local_2".to_string();
   let (cleaner, user_db_path) =
     unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
@@ -75,7 +123,7 @@ async fn import_appflowy_data_folder_test2() {
   test
     .import_appflowy_data(
       user_db_path.to_str().unwrap().to_string(),
-      &import_container_name,
+      Some(import_container_name.clone()),
     )
     .await
     .unwrap();
@@ -95,7 +143,10 @@ async fn import_empty_appflowy_data_folder_test() {
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
   let _ = test.af_cloud_sign_up().await;
   let error = test
-    .import_appflowy_data(path.to_str().unwrap().to_string(), "empty_folder")
+    .import_appflowy_data(
+      path.to_str().unwrap().to_string(),
+      Some("empty_folder".to_string()),
+    )
     .await
     .unwrap_err();
   assert_eq!(error.code, ErrorCode::AppFlowyDataFolderImportError);
@@ -121,7 +172,7 @@ async fn import_appflowy_data_folder_multiple_times_test() {
   test
     .import_appflowy_data(
       user_db_path.to_str().unwrap().to_string(),
-      &import_container_name,
+      Some(import_container_name.clone()),
     )
     .await
     .unwrap();
@@ -137,7 +188,7 @@ async fn import_appflowy_data_folder_multiple_times_test() {
   test
     .import_appflowy_data(
       user_db_path.to_str().unwrap().to_string(),
-      &import_container_name,
+      Some(import_container_name.clone()),
     )
     .await
     .unwrap();

@@ -25,6 +25,39 @@ use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
+pub(crate) struct ImportContext {
+  session: Session,
+  collab_db: RocksCollabDB,
+  container_name: Option<String>,
+}
+
+impl ImportContext {
+  pub fn with_container_name(mut self, container_name: Option<String>) -> Self {
+    self.container_name = container_name;
+    self
+  }
+}
+
+pub fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Result<ImportContext> {
+  let user_paths = UserPaths::new(path.to_string());
+  let other_store_preferences = Arc::new(StorePreferences::new(path)?);
+  migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
+  let session = other_store_preferences
+    .get_object::<Session>("appflowy_session_cache")
+    .ok_or(anyhow!(
+      "Can't find the session cache in the appflowy data folder at path: {}",
+      path
+    ))?;
+
+  let collab_db_path = user_paths.collab_db_path(session.user_id);
+  let collab_db = RocksCollabDB::open(collab_db_path)?;
+  Ok(ImportContext {
+    session,
+    collab_db,
+    container_name: None,
+  })
+}
+
 /// This path refers to the directory where AppFlowy stores its data. The directory structure is as follows:
 /// root folder:
 ///   - cache.db
@@ -33,31 +66,25 @@ use std::sync::Arc;
 
 pub(crate) fn import_appflowy_data_folder(
   session: &Session,
-  path: String,
-  container_name: String,
+  workspace_id: &str,
   collab_db: &Arc<RocksCollabDB>,
+  import_context: ImportContext,
 ) -> anyhow::Result<ImportData> {
-  let user_paths = UserPaths::new(path.clone());
-  let other_store_preferences = Arc::new(StorePreferences::new(&path)?);
-  migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
-  let other_session = other_store_preferences
-    .get_object::<Session>("appflowy_session_cache")
-    .ok_or(anyhow!(
-      "Can't find the session cache in the appflowy data folder at path: {}",
-      path
-    ))?;
-
-  let other_collab_db = Arc::new(RocksCollabDB::open(
-    user_paths.collab_db_path(other_session.user_id),
-  )?);
+  let other_session = import_context.session;
+  let other_collab_db = import_context.collab_db;
+  let container_name = import_context.container_name;
   let other_collab_read_txn = other_collab_db.read_txn();
+
   let mut database_view_ids_by_database_id: HashMap<String, Vec<String>> = HashMap::new();
   let row_object_ids = Mutex::new(HashSet::new());
   let document_object_ids = Mutex::new(HashSet::new());
   let database_object_ids = Mutex::new(HashSet::new());
-  let import_container_view_id = gen_view_id().to_string();
+  let import_container_view_id = match &container_name {
+    None => workspace_id.to_string(),
+    Some(_) => gen_view_id().to_string(),
+  };
 
-  let view = collab_db.with_write_txn(|collab_write_txn| {
+  let views = collab_db.with_write_txn(|collab_write_txn| {
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
     let old_to_new_id_map = Arc::new(Mutex::new(OldToNewIdMap::new()));
     let mut all_object_ids = other_collab_read_txn
@@ -123,38 +150,42 @@ pub(crate) fn import_appflowy_data_folder(
       &other_collab_read_txn,
     )?;
 
-    let name = if container_name.is_empty() {
-      format!(
-        "import_{}",
-        chrono::Local::now().format("%Y-%m-%d %H:%M:%S")
-      )
-    } else {
-      container_name
-    };
+    match container_name {
+      None => Ok(child_views),
+      Some(container_name) => {
+        let name = if container_name.is_empty() {
+          format!(
+            "import_{}",
+            chrono::Local::now().format("%Y-%m-%d %H:%M:%S")
+          )
+        } else {
+          container_name
+        };
 
-    // create the content for the container view
-    let import_container_doc_state = default_document_collab_data(&import_container_view_id)
-      .doc_state
-      .to_vec();
-    import_collab_object_with_doc_state(
-      import_container_doc_state,
-      session.user_id,
-      &import_container_view_id,
-      collab_write_txn,
-    )?;
+        // create the content for the container view
+        let import_container_doc_state = default_document_collab_data(&import_container_view_id)
+          .doc_state
+          .to_vec();
+        import_collab_object_with_doc_state(
+          import_container_doc_state,
+          session.user_id,
+          &import_container_view_id,
+          collab_write_txn,
+        )?;
 
-    let import_container_view =
-      ViewBuilder::new(session.user_id, session.user_workspace.id.clone())
-        .with_view_id(import_container_view_id)
-        .with_layout(ViewLayout::Document)
-        .with_name(name)
-        .with_child_views(child_views)
-        .build();
-
-    Ok(import_container_view)
+        let import_container_view =
+          ViewBuilder::new(session.user_id, session.user_workspace.id.clone())
+            .with_view_id(import_container_view_id)
+            .with_layout(ViewLayout::Document)
+            .with_name(name)
+            .with_child_views(child_views)
+            .build();
+        Ok(vec![import_container_view])
+      },
+    }
   })?;
   Ok(ImportData::AppFlowyDataFolder {
-    view,
+    views,
     database_view_ids_by_database_id,
     row_object_ids: row_object_ids.into_inner().into_iter().collect(),
     database_object_ids: database_object_ids.into_inner().into_iter().collect(),
