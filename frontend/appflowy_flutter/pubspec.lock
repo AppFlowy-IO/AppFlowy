@@ -950,18 +950,18 @@ packages:
     dependency: transitive
     description:
       name: irondash_engine_context
-      sha256: f66a1af95756d5fece5034d357853d0127e09b9e4ef58be1f022ca47e11c6f7e
+      sha256: "8b8c58f2b6414b0db739b329ca08baf3b66d4fcfc3c315525ddac61639addb90"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.5.0"
   irondash_message_channel:
     dependency: transitive
     description:
       name: irondash_message_channel
-      sha256: "500daa1fbe679f7d28a5258df3ff47dab6de352e680dc93c1ca9eae1555d8db5"
+      sha256: "131d64d97a3612bc3617aefc878f3e3a8e23e0ce18b3bba8e78cb1930befcec1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1"
+    version: "0.5.0"
   isolates:
     dependency: transitive
     description:
@@ -1703,6 +1703,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   sqflite:
     dependency: transitive
     description:
@@ -1796,18 +1804,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: "10774204b35b68f8dc5884ab620f83220d2c12620a8dcf4e6f39c94666f3549f"
+      sha256: "6281b19e4f4af4c4897c7b4117758164a21f63bbeee63da09c04d47823f8b228"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0"
+    version: "0.8.1"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: b2fb454a90308f4f25e8ab928272490883d87a28d362307678c76989287cae43
+      sha256: d6d445a644856430cdca70c233213065c413bc3046a3b1e21858e19087d01645
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0"
+    version: "0.8.1"
   sync_http:
     dependency: transitive
     description:
@@ -2018,13 +2026,13 @@ packages:
     source: git
     version: "1.0.0"
   uuid:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: uuid
-      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
+      sha256: bb55f38968b9427ce5dcdb8aaaa41049282195e0cfa4cf48593572fa3d1f36bc
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.7"
+    version: "4.3.1"
   value_layout_builder:
     dependency: transitive
     description:

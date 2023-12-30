@@ -107,7 +107,7 @@ dependencies:
   url_protocol:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  super_clipboard: ^0.7.0
+  super_clipboard: 0.8.1
   go_router: ^12.1.1
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
@@ -169,6 +169,7 @@ dependency_overrides:
   file: ^7.0.0
 
   logger: ^2.0.0
+  uuid: ^4.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
