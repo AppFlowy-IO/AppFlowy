@@ -3,6 +3,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/import.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -14,7 +15,11 @@ class SettingFileImporterBloc
     on<SettingFileImportEvent>((event, emit) async {
       await event.when(
         importAppFlowyDataFolder: (String path) async {
-          final payload = ImportAppFlowyDataPB.create()..path = path;
+          final formattedDate =
+              DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+          final payload = ImportAppFlowyDataPB.create()
+            ..path = path
+            ..importContainerName = "appflowy_import_$formattedDate";
           final result =
               await FolderEventImportAppFlowyDataFolder(payload).send();
           result.fold(

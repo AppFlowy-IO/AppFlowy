@@ -37,6 +37,9 @@ use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
 use crate::services::data_import::importer::{import_data, ImportDataSource};
+use crate::services::data_import::{
+  get_appflowy_data_folder_import_context, upload_imported_data, ImportContext,
+};
 use crate::services::db::UserDB;
 use crate::services::entities::{ResumableSignUp, Session, UserConfig, UserPaths};
 use crate::services::user_awareness::UserAwarenessDataSource;
@@ -399,30 +402,42 @@ impl UserManager {
     } else {
       UserAwarenessDataSource::Remote
     };
+    self
+      .save_auth_data(&response, authenticator, &new_session)
+      .await?;
 
     if response.is_new_user {
       if let Some(old_user) = migration_user {
-        let new_user = MigrationUser {
-          user_profile: new_user_profile.clone(),
-          session: new_session.clone(),
-        };
         event!(
           tracing::Level::INFO,
           "Migrate anon user data from {:?} to {:?}",
           old_user.user_profile.uid,
-          new_user.user_profile.uid
+          new_user_profile.uid
         );
         self
-          .migrate_anon_user_data_to_cloud(&old_user, &new_user, authenticator)
+          .migrate_anon_user_data_to_cloud(
+            &old_user,
+            &MigrationUser {
+              user_profile: new_user_profile.clone(),
+              session: new_session.clone(),
+            },
+            authenticator,
+          )
           .await?;
+
+        // let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
+        // self
+        //   .import_appflowy_data_with_context(ImportContext {
+        //     imported_session: old_user.session.clone(),
+        //     imported_collab_db: old_collab_db,
+        //     container_name: None,
+        //   })
+        //   .await?;
+
         self.remove_anon_user();
         let _ = self.database.close(old_user.session.user_id);
       }
     }
-
-    self
-      .save_auth_data(&response, authenticator, &new_session)
-      .await?;
 
     self
       .user_status_callback
@@ -663,12 +678,23 @@ impl UserManager {
     }
   }
 
-  pub fn import_data(&self, source: ImportDataSource) -> Result<ImportData, FlowyError> {
-    let session = self.get_session()?;
-    let collab_db = self.database.get_collab_db(session.user_id)?;
-    let import_result = import_data(&session, source, collab_db)
-      .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))?;
-    Ok(import_result)
+  pub async fn import_data_from_source(
+    &self,
+    source: ImportDataSource,
+  ) -> Result<ImportData, FlowyError> {
+    match source {
+      ImportDataSource::AppFlowyDataFolder {
+        path,
+        container_name,
+      } => {
+        let context = get_appflowy_data_folder_import_context(&path)
+          .map_err(|err| {
+            FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string())
+          })?
+          .with_container_name(container_name);
+        self.import_appflowy_data(context).await
+      },
+    }
   }
 
   pub(crate) fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
@@ -820,6 +846,32 @@ impl UserManager {
       &[old_user.session.user_workspace.clone()],
     )?;
     Ok(())
+  }
+
+  async fn import_appflowy_data(&self, context: ImportContext) -> Result<ImportData, FlowyError> {
+    let session = self.get_session()?;
+    let uid = session.user_id;
+    let user_collab_db = self.database.get_collab_db(session.user_id)?;
+    let cloned_collab_db = user_collab_db.clone();
+    let import_data = tokio::task::spawn_blocking(move || {
+      import_data(&session, context, cloned_collab_db)
+        .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))
+    })
+    .await
+    .map_err(internal_error)??;
+    let user = self.get_user_profile_from_disk(uid).await?;
+
+    upload_imported_data(
+      uid,
+      user_collab_db,
+      &user.workspace_id,
+      &user.authenticator,
+      &import_data,
+      self.cloud_services.get_user_service()?,
+    )
+    .await?;
+
+    Ok(import_data)
   }
 }
 

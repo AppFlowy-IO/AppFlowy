@@ -116,7 +116,7 @@ where
     })
   }
 
-  fn batch_create_collab_object(
+  fn batch_create_collab_object_f(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,

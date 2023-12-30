@@ -39,7 +39,8 @@ pub trait FolderCloudService: Send + Sync + 'static {
     object_id: &str,
   ) -> FutureResult<CollabDocState, Error>;
 
-  fn batch_create_collab_object(
+  /// The suffix 'f' in the method name serves as a workaround to avoid naming conflicts with the existing method `get_collab_doc_state`.
+  fn batch_create_collab_object_f(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,

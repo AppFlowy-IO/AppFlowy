@@ -5,13 +5,14 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use collab::core::collab::CollabDocState;
-use collab_entity::CollabObject;
+use collab_entity::{CollabObject, CollabType};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
+
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -216,6 +217,12 @@ pub trait UserCloudService: Send + Sync + 'static {
     data: Vec<u8>,
     override_if_exist: bool,
   ) -> FutureResult<(), FlowyError>;
+
+  fn batch_create_collab_object(
+    &self,
+    workspace_id: &str,
+    objects: Vec<UserCollabParams>,
+  ) -> FutureResult<(), Error>;
 }
 
 pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;
@@ -235,4 +242,11 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
     .as_str();
   let uuid = Uuid::from_str(uuid)?;
   Ok(uuid)
+}
+
+#[derive(Debug)]
+pub struct UserCollabParams {
+  pub object_id: String,
+  pub encoded_collab_v1: Vec<u8>,
+  pub collab_type: CollabType,
 }

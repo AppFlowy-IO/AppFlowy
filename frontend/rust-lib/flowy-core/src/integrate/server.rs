@@ -93,6 +93,10 @@ impl ServerProvider {
     *self.server.write() = server_type;
   }
 
+  pub fn get_user_authenticator(&self) -> Authenticator {
+    self.user_authenticator.read().clone()
+  }
+
   pub fn get_appflowy_cloud_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
     let server = self.get_server(&Server::AppFlowyCloud)?;
     Ok(server)

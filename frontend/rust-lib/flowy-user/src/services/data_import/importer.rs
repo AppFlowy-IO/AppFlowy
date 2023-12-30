@@ -3,6 +3,7 @@ use crate::services::entities::Session;
 use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use std::collections::HashMap;
 
+use crate::services::data_import::ImportContext;
 use collab::preclude::Collab;
 use flowy_folder_deps::entities::ImportData;
 use std::sync::Arc;
@@ -10,21 +11,19 @@ use std::sync::Arc;
 pub enum ImportDataSource {
   AppFlowyDataFolder {
     path: String,
-    container_name: String,
+    container_name: Option<String>,
   },
 }
 
+/// Import appflowy data from the given path.
+/// If the container name is not empty, then the data will be imported to the given container.
+/// Otherwise, the data will be imported to the current workspace.
 pub(crate) fn import_data(
   session: &Session,
-  source: ImportDataSource,
+  context: ImportContext,
   collab_db: Arc<RocksCollabDB>,
 ) -> anyhow::Result<ImportData> {
-  match source {
-    ImportDataSource::AppFlowyDataFolder {
-      path,
-      container_name,
-    } => import_appflowy_data_folder(session, path, container_name, &collab_db),
-  }
+  import_appflowy_data_folder(session, &session.user_workspace.id, &collab_db, context)
 }
 
 pub fn load_collab_by_oid<'a, R>(
