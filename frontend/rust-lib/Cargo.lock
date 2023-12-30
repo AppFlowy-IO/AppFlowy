@@ -1563,15 +1563,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "error-chain"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07e791d3be96241c77c43846b665ef1384606da2cd2a48730abe606a12906e02"
-dependencies = [
- "backtrace",
-]
-
-[[package]]
 name = "event-integration"
 version = "0.1.0"
 dependencies = [
@@ -2121,7 +2112,6 @@ dependencies = [
  "diesel",
  "diesel_derives",
  "diesel_migrations",
- "error-chain",
  "lazy_static",
  "libsqlite3-sys",
  "openssl",
@@ -2131,7 +2121,7 @@ dependencies = [
  "scheduled-thread-pool",
  "serde",
  "serde_json",
- "tempfile",
+ "thiserror",
  "tracing",
 ]
 
@@ -3091,9 +3081,9 @@ dependencies = [
 
 [[package]]
 name = "libsqlite3-sys"
-version = "0.22.2"
+version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "290b64917f8b0cb885d9de0f9959fe1f775d7fa12f1da2db9001c1c8ab60f89d"
+checksum = "cf4e226dcd58b4be396f7bd3c20da8fdee2911400705297ba7d2d7cc2c30f716"
 dependencies = [
  "cc",
  "pkg-config",

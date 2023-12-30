@@ -1,5 +1,6 @@
 #![allow(clippy::upper_case_acronyms)]
 
+use anyhow::anyhow;
 use std::{
   convert::{TryFrom, TryInto},
   fmt,
@@ -139,7 +140,7 @@ impl FromStr for SQLiteJournalMode {
       "MEMORY" => Ok(Self::MEMORY),
       "WAL" => Ok(Self::WAL),
       "OFF" => Ok(Self::OFF),
-      _ => Err(format!("Unknown value {} for JournalMode", s).into()),
+      _ => Err(anyhow!("Unknown value {} for JournalMode", s).into()),
     }
   }
 }
@@ -176,7 +177,7 @@ impl TryFrom<i32> for SQLiteSynchronous {
       1 => Ok(Self::NORMAL),
       2 => Ok(Self::FULL),
       3 => Ok(Self::EXTRA),
-      _ => Err(format!("Unknown value {} for Synchronous", v).into()),
+      _ => Err(anyhow!("Unknown value {} for Synchronous", v).into()),
     }
   }
 }
@@ -190,7 +191,7 @@ impl FromStr for SQLiteSynchronous {
       "1" | "NORMAL" => Ok(Self::NORMAL),
       "2" | "FULL" => Ok(Self::FULL),
       "3" | "EXTRA" => Ok(Self::EXTRA),
-      _ => Err(format!("Unknown value {} for Synchronous", s).into()),
+      _ => Err(anyhow!("Unknown value {} for Synchronous", s).into()),
     }
   }
 }
