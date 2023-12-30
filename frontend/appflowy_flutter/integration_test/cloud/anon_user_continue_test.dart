@@ -56,14 +56,14 @@ void main() {
 
       // tap the continue as anonymous button
       await tester
-          .tapButton(find.text(LocaleKeys.signIn_continueAnonymousUser.tr()));
+          .tapButton(find.text(LocaleKeys.signIn_loginStartWithAnonymous.tr()));
       await tester.expectToSeeHomePage();
 
-      // assert the name of the anon user is local_user
+      // New anon user name
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
       final userNameInput = tester.widget(userNameFinder) as UserNameInput;
-      expect(userNameInput.name, 'local_user');
+      expect(userNameInput.name, 'Me');
     });
   });
 }
