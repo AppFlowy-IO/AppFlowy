@@ -1,8 +1,12 @@
+use crate::entities::{AuthStateChangedPB, AuthStatePB};
 use flowy_encrypt::{decrypt_text, encrypt_text};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_deps::entities::{EncryptionType, UpdateUserProfileParams, UserCredentials};
+use flowy_user_deps::entities::{
+  EncryptionType, UpdateUserProfileParams, UserCredentials, UserProfile,
+};
 
 use crate::manager::UserManager;
+use crate::notification::send_auth_state_notification;
 use crate::services::cloud_config::get_encrypt_secret;
 
 impl UserManager {
@@ -59,4 +63,17 @@ impl UserManager {
       Err(ErrorCode::InvalidEncryptSecret.into())
     }
   }
+}
+
+pub(crate) fn validate_encryption_sign(user_profile: &UserProfile, encryption_sign: &str) -> bool {
+  // If the local user profile's encryption sign is not equal to the user update's encryption sign,
+  // which means the user enable encryption in another device, we should logout the current user.
+  let is_valid = user_profile.encryption_type.sign() == encryption_sign;
+  if !is_valid {
+    send_auth_state_notification(AuthStateChangedPB {
+      state: AuthStatePB::InvalidAuth,
+      message: "Encryption configuration was changed".to_string(),
+    });
+  }
+  is_valid
 }

@@ -53,8 +53,9 @@ function ButtonPopoverList({ popoverOrigin, isVisible, children, popoverOptions,
                   option.onClick();
                   handleClose();
                 }}
+                className={'flex items-center gap-1 rounded-none px-2 text-xs font-medium'}
               >
-                <span className={'mr-2'}>{option.icon}</span>
+                <span className={'text-base'}>{option.icon}</span>
                 <span>{option.label}</span>
               </MenuItem>
             ))}

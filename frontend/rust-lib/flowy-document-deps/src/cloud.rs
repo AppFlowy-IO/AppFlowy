@@ -1,4 +1,5 @@
 use anyhow::Error;
+use collab::core::collab::CollabDocState;
 pub use collab_document::blocks::DocumentData;
 
 use flowy_error::FlowyError;
@@ -12,7 +13,7 @@ pub trait DocumentCloudService: Send + Sync + 'static {
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+  ) -> FutureResult<CollabDocState, FlowyError>;
 
   fn get_document_snapshots(
     &self,

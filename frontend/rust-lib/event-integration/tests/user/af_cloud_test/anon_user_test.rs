@@ -78,6 +78,8 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   assert_eq!(user.authenticator, AuthenticatorPB::AppFlowyCloud);
 
   let user_first_level_views = test.get_all_workspace_views().await;
+  // assert_eq!(user_first_level_views.len(), 2);
+
   println!("user first level views: {:?}", user_first_level_views);
   let user_second_level_views = test
     .get_views(&user_first_level_views[0].id)
@@ -111,9 +113,10 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   assert_eq!(anon_third_level_views.len(), 2);
   assert_eq!(user_third_level_views[0].name, "Grid1".to_string());
   assert_eq!(user_third_level_views[1].name, "Grid2".to_string());
-  drop(cleaner);
 
   // check the trash
   assert_eq!(user_trash.items.len(), 1);
   assert_eq!(user_trash.items[0].name, anon_trash.items[0].name);
+
+  drop(cleaner);
 }

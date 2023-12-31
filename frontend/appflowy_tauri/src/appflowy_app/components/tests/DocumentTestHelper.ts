@@ -1,6 +1,6 @@
 import { ViewLayoutPB, WorkspaceSettingPB } from '@/services/backend';
 import { WorkspaceController } from '../../stores/effects/workspace/workspace_controller';
-import { FolderEventGetCurrentWorkspaceSetting } from '@/services/backend/events/flowy-folder2';
+import { FolderEventGetCurrentWorkspaceSetting } from '@/services/backend/events/flowy-folder';
 
 export async function createTestDocument() {
   const workspaceSetting: WorkspaceSettingPB = await FolderEventGetCurrentWorkspaceSetting().then((result) =>

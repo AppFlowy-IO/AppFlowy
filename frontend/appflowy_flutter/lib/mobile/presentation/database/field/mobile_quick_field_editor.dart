@@ -77,6 +77,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
             widget.fieldInfo.field.freeze();
             final field = widget.fieldInfo.field.rebuild((field) {
               field.name = controller.text;
+              field.fieldType = fieldType;
             });
             final optionValues = await showEditFieldScreen(
               context,

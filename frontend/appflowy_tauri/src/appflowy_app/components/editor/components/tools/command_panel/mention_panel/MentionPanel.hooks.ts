@@ -18,7 +18,7 @@ export function useMentionPanel({
 
   const onClick = useCallback(
     (type: MentionType, mention: Mention) => {
-      closePanel(false);
+      closePanel(true);
       CustomEditor.insertMention(editor, mention);
     },
     [closePanel, editor]

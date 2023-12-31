@@ -2,13 +2,12 @@ use anyhow::Error;
 use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
+use collab::core::collab::CollabDocState;
 use collab::core::collab_plugin::EncodedCollabV1;
 use collab_entity::CollabType;
 use tracing::error;
 
-use flowy_database_deps::cloud::{
-  CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
-};
+use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;
@@ -19,12 +18,12 @@ impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  fn get_collab_update(
+  fn get_collab_doc_state_db(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdate, Error> {
+  ) -> FutureResult<CollabDocState, Error> {
     let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
     let try_get_client = self.0.try_get_client();
@@ -37,7 +36,7 @@ where
         },
       };
       match try_get_client?.get_collab(params).await {
-        Ok(data) => Ok(vec![data.doc_state.to_vec()]),
+        Ok(data) => Ok(data.doc_state.to_vec()),
         Err(err) => {
           if err.code == RecordNotFound {
             Ok(vec![])
@@ -49,12 +48,12 @@ where
     })
   }
 
-  fn batch_get_collab_updates(
+  fn batch_get_collab_doc_state_db(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdateByOid, Error> {
+  ) -> FutureResult<CollabDocStateByOid, Error> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
@@ -74,7 +73,7 @@ where
           .flat_map(|(object_id, result)| match result {
             Success { encode_collab_v1 } => {
               match EncodedCollabV1::decode_from_bytes(&encode_collab_v1) {
-                Ok(encode) => Some((object_id, vec![encode.doc_state.to_vec()])),
+                Ok(encode) => Some((object_id, encode.doc_state.to_vec())),
                 Err(err) => {
                   error!("Failed to decode collab: {}", err);
                   None
@@ -86,7 +85,7 @@ where
               None
             },
           })
-          .collect::<CollabObjectUpdateByOid>(),
+          .collect::<CollabDocStateByOid>(),
       )
     })
   }

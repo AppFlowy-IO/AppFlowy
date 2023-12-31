@@ -119,8 +119,9 @@ class MobileAppearance extends BaseAppearance {
           fixedSize: MaterialStateProperty.all(const Size.fromHeight(48)),
           elevation: MaterialStateProperty.all(0),
           textStyle: MaterialStateProperty.all(
-            const TextStyle(
+            TextStyle(
               fontSize: 14,
+              fontFamily: fontStyle.fontFamily,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -139,8 +140,9 @@ class MobileAppearance extends BaseAppearance {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
           textStyle: MaterialStateProperty.all(
-            const TextStyle(
+            TextStyle(
               fontSize: 14,
+              fontFamily: fontStyle.fontFamily,
               fontWeight: FontWeight.w500,
             ),
           ),

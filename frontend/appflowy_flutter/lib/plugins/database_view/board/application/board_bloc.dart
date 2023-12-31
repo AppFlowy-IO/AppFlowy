@@ -9,7 +9,7 @@ import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -211,7 +211,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               state.copyWith(isEditingHeader: true, editingHeaderId: groupId),
             );
           },
-          endEditingHeader: (String groupId, String groupName) async {
+          endEditingHeader: (String groupId, String? groupName) async {
             await groupBackendSvc.updateGroup(
               fieldId: groupControllers.values.first.group.fieldId,
               groupId: groupId,
@@ -505,7 +505,7 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.createGroup(String name) = _CreateGroup;
   const factory BoardEvent.startEditingHeader(String groupId) =
       _StartEditingHeader;
-  const factory BoardEvent.endEditingHeader(String groupId, String groupName) =
+  const factory BoardEvent.endEditingHeader(String groupId, String? groupName) =
       _EndEditingHeader;
   const factory BoardEvent.didCreateRow(
     GroupPB group,

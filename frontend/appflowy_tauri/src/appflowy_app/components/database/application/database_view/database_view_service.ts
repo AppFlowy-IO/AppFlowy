@@ -4,7 +4,7 @@ import {
   FolderEventDeleteView,
   FolderEventGetView,
   FolderEventUpdateView,
-} from '@/services/backend/events/flowy-folder2';
+} from '@/services/backend/events/flowy-folder';
 import { databaseService } from '../database';
 import { Page, parserViewPBToPage } from '$app_reducers/pages/slice';
 

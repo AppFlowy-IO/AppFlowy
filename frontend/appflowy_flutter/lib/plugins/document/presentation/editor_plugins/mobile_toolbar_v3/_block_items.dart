@@ -128,7 +128,7 @@ class BlockItems extends StatelessWidget {
     );
   }
 
-  void _onLinkItemTap() {
+  void _onLinkItemTap() async {
     final selection = editorState.selection;
     if (selection == null) {
       return;
@@ -139,6 +139,17 @@ class BlockItems extends StatelessWidget {
     if (context != null) {
       _closeKeyboard(selection);
 
+      // keep the selection
+      editorState.updateSelectionWithReason(
+        selection,
+        extraInfo: {
+          selectionExtraInfoDisableMobileToolbarKey: true,
+          selectionExtraInfoDoNotAttachTextService: true,
+          selectionExtraInfoDisableFloatingToolbar: true,
+        },
+      );
+      keepEditorFocusNotifier.increase();
+
       final text = editorState
           .getTextInSelection(
             selection,
@@ -148,7 +159,7 @@ class BlockItems extends StatelessWidget {
         AppFlowyRichTextKeys.href,
         selection,
       );
-      showEditLinkBottomSheet(
+      await showEditLinkBottomSheet(
         context,
         text,
         href,
@@ -160,8 +171,13 @@ class BlockItems extends StatelessWidget {
             newHref,
             selection: selection,
           );
-          context.pop();
+          context.pop(true);
         },
+      );
+      // re-open the keyboard again
+      editorState.updateSelectionWithReason(
+        selection,
+        extraInfo: {},
       );
     }
   }

@@ -196,7 +196,7 @@ async fn change_date_on_moving_row_to_another_group() {
 
   let group = test.group_at_index(2).await;
   let rows = group.clone().rows;
-  let row_id = &rows.get(0).unwrap().id;
+  let row_id = &rows.first().unwrap().id;
   let row_detail = test
     .get_rows()
     .await

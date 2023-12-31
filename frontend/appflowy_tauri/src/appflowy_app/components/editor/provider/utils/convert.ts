@@ -11,12 +11,12 @@ export function transformToInlineElement(op: Op): Element | null {
   const attributes = op.attributes;
 
   if (!attributes) return null;
-  const isFormula = attributes.formula;
+  const formula = attributes.formula as string;
 
-  if (isFormula) {
+  if (formula) {
     return {
       type: EditorInlineNodeType.Formula,
-      data: true,
+      data: formula,
       children: [
         {
           text: op.insert as string,

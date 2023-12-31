@@ -12,12 +12,11 @@ use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_config::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_deps::entities::*;
 
 use crate::AppFlowyCoreConfig;
-
-pub(crate) const SERVER_PROVIDER_TYPE_KEY: &str = "server_provider_type";
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
@@ -53,8 +52,12 @@ pub struct ServerProvider {
   server: RwLock<Server>,
   providers: RwLock<HashMap<Server, Arc<dyn AppFlowyServer>>>,
   pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
+  #[allow(dead_code)]
   pub(crate) store_preferences: Weak<StorePreferences>,
-  pub(crate) enable_sync: RwLock<bool>,
+  pub(crate) user_enable_sync: RwLock<bool>,
+
+  /// The authenticator type of the user.
+  pub(crate) user_authenticator: RwLock<Authenticator>,
   pub(crate) uid: Arc<RwLock<Option<i64>>>,
 }
 
@@ -69,7 +72,8 @@ impl ServerProvider {
       config,
       server: RwLock::new(server),
       providers: RwLock::new(HashMap::new()),
-      enable_sync: RwLock::new(true),
+      user_enable_sync: RwLock::new(true),
+      user_authenticator: RwLock::new(Authenticator::Local),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
       uid: Default::default(),
@@ -87,6 +91,10 @@ impl ServerProvider {
     }
 
     *self.server.write() = server_type;
+  }
+
+  pub fn get_user_authenticator(&self) -> Authenticator {
+    self.user_authenticator.read().clone()
   }
 
   pub fn get_appflowy_cloud_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
@@ -112,7 +120,7 @@ impl ServerProvider {
         let config = AFCloudConfiguration::from_env()?;
         let server = Arc::new(AppFlowyCloudServer::new(
           config,
-          *self.enable_sync.read(),
+          *self.user_enable_sync.read(),
           self.config.device_id.clone(),
         ));
 
@@ -126,7 +134,7 @@ impl ServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
           uid,
           config,
-          *self.enable_sync.read(),
+          *self.user_enable_sync.read(),
           self.config.device_id.clone(),
           encryption,
         )))
@@ -166,10 +174,12 @@ impl From<&Authenticator> for Server {
   }
 }
 
-pub fn current_server_type(store_preferences: &Arc<StorePreferences>) -> Server {
-  store_preferences
-    .get_object::<Server>(SERVER_PROVIDER_TYPE_KEY)
-    .unwrap_or(Server::Local)
+pub fn current_server_type() -> Server {
+  match AuthenticatorType::from_env() {
+    AuthenticatorType::Local => Server::Local,
+    AuthenticatorType::Supabase => Server::Supabase,
+    AuthenticatorType::AppFlowyCloud => Server::AppFlowyCloud,
+  }
 }
 
 struct LocalServerDBImpl {

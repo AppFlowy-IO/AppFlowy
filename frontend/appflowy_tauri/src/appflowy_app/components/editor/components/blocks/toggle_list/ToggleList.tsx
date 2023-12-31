@@ -21,7 +21,7 @@ export const ToggleList = memo(
           data-playwright-selected={false}
           contentEditable={false}
           onClick={toggleToggleList}
-          className='absolute cursor-pointer select-none text-xl hover:text-fill-default'
+          className='absolute cursor-pointer select-none pt-[3px] text-xl hover:text-fill-default'
         >
           {collapsed ? <RightSvg /> : <RightSvg className={'rotate-90 transform'} />}
         </span>

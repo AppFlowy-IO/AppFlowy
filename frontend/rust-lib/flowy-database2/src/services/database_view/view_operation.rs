@@ -41,7 +41,6 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   fn update_field(
     &self,
-    view_id: &str,
     type_option_data: TypeOptionData,
     old_field: Field,
   ) -> FutureResult<(), FlowyError>;

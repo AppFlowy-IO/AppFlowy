@@ -65,13 +65,13 @@ export function tabForward(editor: ReactEditor) {
     to: toPath,
   });
 
-  node.children.forEach((child, index) => {
-    if (index === 0) return;
+  const length = node.children.length;
 
+  for (let i = length - 1; i > 0; i--) {
     editor.liftNodes({
-      at: [...toPath, index],
+      at: [...toPath, i],
     });
-  });
+  }
 }
 
 export function tabBackward(editor: ReactEditor) {
@@ -81,6 +81,8 @@ export function tabBackward(editor: ReactEditor) {
 
   const [node, path] = match as NodeEntry<Element & { level: number }>;
 
+  const depth = path.length;
+
   if (node.type === EditorNodeType.Page) return;
   if (node.type !== EditorNodeType.Paragraph) {
     CustomEditor.turnToBlock(editor, {
@@ -89,6 +91,7 @@ export function tabBackward(editor: ReactEditor) {
     return;
   }
 
+  if (depth === 1) return;
   editor.liftNodes({
     at: path,
   });

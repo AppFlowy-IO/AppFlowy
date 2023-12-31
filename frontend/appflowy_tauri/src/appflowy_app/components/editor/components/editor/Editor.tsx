@@ -1,7 +1,8 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
+  DecorateStateProvider,
   EditorSelectedBlockProvider,
-  useDecorate,
+  useDecorateCodeHighlight,
   useEditor,
   useEditorState,
 } from '$app/components/editor/components/editor/Editor.hooks';
@@ -14,12 +15,23 @@ import { SlashCommandPanel } from '$app/components/editor/components/tools/comma
 import { MentionPanel } from '$app/components/editor/components/tools/command_panel/mention_panel';
 import { CircularProgress } from '@mui/material';
 import * as Y from 'yjs';
+import { NodeEntry } from 'slate';
 
 function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
-  const decorate = useDecorate(editor);
+  const decorateCodeHighlight = useDecorateCodeHighlight(editor);
   const { onDOMBeforeInput, onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
-  const { selectedBlocks } = useEditorState(editor);
+  const { selectedBlocks, decorate: decorateCustomRange, decorateState } = useEditorState(editor);
+
+  const decorate = useCallback(
+    (entry: NodeEntry) => {
+      const codeRanges = decorateCodeHighlight(entry);
+      const customRanges = decorateCustomRange(entry);
+
+      return [...codeRanges, ...customRanges];
+    },
+    [decorateCodeHighlight, decorateCustomRange]
+  );
 
   if (editor.sharedRoot.length === 0) {
     return <CircularProgress className='m-auto' />;
@@ -27,20 +39,22 @@ function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
 
   return (
     <EditorSelectedBlockProvider value={selectedBlocks}>
-      <Slate editor={editor} initialValue={initialValue}>
-        <SelectionToolbar />
-        <BlockActionsToolbar />
-        <CustomEditable
-          {...props}
-          onDOMBeforeInput={onDOMBeforeInput}
-          onKeyDown={onShortcutsKeyDown}
-          decorate={decorate}
-          className={'px-16 caret-text-title outline-none focus:outline-none'}
-        />
-        <SlashCommandPanel />
-        <MentionPanel />
-        <div onClick={handleOnClickEnd} className={'relative bottom-0 left-0 h-10 w-full cursor-text'} />
-      </Slate>
+      <DecorateStateProvider value={decorateState}>
+        <Slate editor={editor} initialValue={initialValue}>
+          <SelectionToolbar />
+          <BlockActionsToolbar />
+          <CustomEditable
+            {...props}
+            onDOMBeforeInput={onDOMBeforeInput}
+            onKeyDown={onShortcutsKeyDown}
+            decorate={decorate}
+            className={'px-16 caret-text-title outline-none focus:outline-none'}
+          />
+          <SlashCommandPanel />
+          <MentionPanel />
+          <div onClick={handleOnClickEnd} className={'relative bottom-0 left-0 h-10 w-full cursor-text'} />
+        </Slate>
+      </DecorateStateProvider>
     </EditorSelectedBlockProvider>
   );
 }

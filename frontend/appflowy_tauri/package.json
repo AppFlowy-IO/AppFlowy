@@ -79,7 +79,7 @@
   },
   "devDependencies": {
     "@svgr/plugin-svgo": "^8.0.1",
-    "@tauri-apps/cli": "^1.2.2",
+    "@tauri-apps/cli": "^1.5.6",
     "@types/google-protobuf": "^3.15.6",
     "@types/is-hotkey": "^0.1.7",
     "@types/jest": "^29.5.3",

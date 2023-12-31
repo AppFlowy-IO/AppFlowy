@@ -1,3 +1,8 @@
+use collab::core::collab::CollabDocState;
+use collab::core::origin::CollabOrigin;
+use collab_document::blocks::DocumentData;
+use collab_document::document::Document;
+use collab_entity::CollabType;
 use std::env::temp_dir;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -13,6 +18,7 @@ use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
 use flowy_server::AppFlowyServer;
 use flowy_user::entities::AuthenticatorPB;
+use flowy_user::errors::FlowyError;
 
 use crate::user_event::TestNotificationSender;
 
@@ -34,16 +40,23 @@ pub struct EventIntegrationTest {
 
 impl EventIntegrationTest {
   pub async fn new() -> Self {
+    Self::new_with_name(nanoid!(6)).await
+  }
+
+  pub async fn new_with_name<T: ToString>(name: T) -> Self {
     let temp_dir = temp_dir().join(nanoid!(6));
     std::fs::create_dir_all(&temp_dir).unwrap();
-    Self::new_with_user_data_path(temp_dir, nanoid!(6)).await
+    Self::new_with_user_data_path(temp_dir, name.to_string()).await
   }
 
   pub async fn new_with_user_data_path(path_buf: PathBuf, name: String) -> Self {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
+
+    let level = "info";
+    std::env::set_var("RUST_LOG", level);
     let config = AppFlowyCoreConfig::new(path.clone(), path, device_id, name).log_filter(
-      "trace",
+      level,
       vec![
         "flowy_test".to_string(),
         "tokio".to_string(),
@@ -102,6 +115,32 @@ impl EventIntegrationTest {
       }
     }
   }
+
+  pub async fn get_collab_doc_state(
+    &self,
+    oid: &str,
+    collay_type: CollabType,
+  ) -> Result<CollabDocState, FlowyError> {
+    let server = self.server_provider.get_appflowy_cloud_server().unwrap();
+    let workspace_id = self.get_current_workspace().await.id;
+    let uid = self.get_user_profile().await?.id;
+    let doc_state = server
+      .folder_service()
+      .get_collab_doc_state_f(&workspace_id, uid, collay_type, oid)
+      .await?;
+
+    Ok(doc_state)
+  }
+}
+
+pub fn document_data_from_document_doc_state(
+  doc_id: &str,
+  doc_state: CollabDocState,
+) -> DocumentData {
+  Document::from_doc_state(CollabOrigin::Empty, doc_state, doc_id, vec![])
+    .unwrap()
+    .get_document_data()
+    .unwrap()
 }
 
 #[cfg(feature = "single_thread")]

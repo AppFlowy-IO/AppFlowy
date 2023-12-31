@@ -306,14 +306,9 @@ impl DatabaseGroupTest {
     action: impl FnOnce(&mut SingleSelectTypeOption),
   ) {
     let single_select = self.get_single_select_field().await;
-    edit_single_select_type_option(
-      &self.view_id,
-      &single_select.id,
-      self.editor.clone(),
-      action,
-    )
-    .await
-    .unwrap();
+    edit_single_select_type_option(&single_select.id, self.editor.clone(), action)
+      .await
+      .unwrap();
   }
 
   pub async fn get_url_field(&self) -> Field {

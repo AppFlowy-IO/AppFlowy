@@ -2,7 +2,13 @@ import { ReactEditor } from 'slate-react';
 import { Editor, Element, Node, NodeEntry, Point, Range, Transforms, Location } from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
 import { isMarkActive, removeMarks, toggleMark } from '$app/components/editor/command/mark';
-import { insertFormula, isFormulaActive, unwrapFormula, updateFormula } from '$app/components/editor/command/formula';
+import {
+  deleteFormula,
+  insertFormula,
+  isFormulaActive,
+  unwrapFormula,
+  updateFormula,
+} from '$app/components/editor/command/formula';
 import {
   EditorInlineNodeType,
   EditorNodeType,
@@ -82,13 +88,12 @@ export const CustomEditor = {
   isMarkActive,
   isFormulaActive,
   updateFormula,
-  toggleInlineElement: (editor: ReactEditor, format: EditorInlineNodeType) => {
-    if (format === EditorInlineNodeType.Formula) {
-      if (isFormulaActive(editor)) {
-        unwrapFormula(editor);
-      } else {
-        insertFormula(editor);
-      }
+  deleteFormula,
+  toggleFormula: (editor: ReactEditor) => {
+    if (isFormulaActive(editor)) {
+      unwrapFormula(editor);
+    } else {
+      insertFormula(editor);
     }
   },
 
@@ -102,6 +107,47 @@ export const CustomEditor = {
     return !!match;
   },
 
+  toggleAlign(editor: ReactEditor, format: string) {
+    const matchNodes = Array.from(
+      Editor.nodes(editor, {
+        match: (n) => Element.isElement(n) && n.blockId !== undefined,
+      })
+    );
+
+    if (!matchNodes) return;
+
+    matchNodes.forEach((match) => {
+      const [node] = match as NodeEntry<
+        Element & {
+          data: {
+            align?: string;
+          };
+        }
+      >;
+      const path = ReactEditor.findPath(editor, node);
+
+      const data = (node.data as { align?: string }) || {};
+      const newProperties = {
+        data: {
+          ...data,
+          align: data.align === format ? undefined : format,
+        },
+      } as Partial<Element>;
+
+      Transforms.setNodes(editor, newProperties, { at: path });
+    });
+  },
+
+  getAlign(editor: ReactEditor) {
+    const match = CustomEditor.getBlock(editor);
+
+    if (!match) return undefined;
+
+    const [node] = match as NodeEntry<Element>;
+
+    return (node.data as { align?: string })?.align;
+  },
+
   insertMention(editor: ReactEditor, mention: Mention) {
     const mentionElement = {
       type: EditorInlineNodeType.Mention,
@@ -111,8 +157,9 @@ export const CustomEditor = {
       },
     };
 
-    Transforms.insertNodes(editor, mentionElement);
-    Transforms.move(editor);
+    Transforms.insertNodes(editor, mentionElement, {
+      select: true,
+    });
   },
 
   toggleTodo(editor: ReactEditor, node: TodoListNode) {

@@ -27,6 +27,7 @@ class FontFamilyItem extends StatelessWidget {
     return MobileToolbarMenuItemWrapper(
       size: const Size(144, 52),
       onTap: () async {
+        keepEditorFocusNotifier.increase();
         final selection = editorState.selection;
         final newFont = await context
             .read<GoRouter>()
@@ -36,13 +37,17 @@ class FontFamilyItem extends StatelessWidget {
             AppFlowyRichTextKeys.fontFamily:
                 GoogleFonts.getFont(newFont).fontFamily,
           });
-          await editorState.updateSelectionWithReason(
+        }
+        // wait for the font picker screen to be dismissed.
+        Future.delayed(const Duration(milliseconds: 250), () {
+          // highlight the selected text again.
+          editorState.updateSelectionWithReason(
             selection,
             extraInfo: {
               selectionExtraInfoDisableFloatingToolbar: true,
             },
           );
-        }
+        });
       },
       text: fontFamily ?? systemFonFamily,
       fontFamily: fontFamily ?? systemFonFamily,

@@ -31,7 +31,7 @@ import {
   ViewIdPB,
   OrderObjectPositionTypePB,
 } from '@/services/backend';
-import { FolderEventCloseView } from '@/services/backend/events/flowy-folder2';
+import { FolderEventCloseView } from '@/services/backend/events/flowy-folder';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { None } from 'ts-results';
 
@@ -64,11 +64,7 @@ export class DatabaseBackendService {
   /// 2.The row will be placed after the passed-in rowId
   /// 3.The row will be moved to the group with groupId. Currently, grouping is
   /// only support in kanban board.
-  createRow = async (params?: {
-    groupId?: string;
-    position?: OrderObjectPositionTypePB;
-    rowId?: string;
-  }) => {
+  createRow = async (params?: { groupId?: string; position?: OrderObjectPositionTypePB; rowId?: string }) => {
     const payload = CreateRowPayloadPB.fromObject({
       view_id: this.viewId,
       row_position: {
@@ -154,7 +150,11 @@ export class DatabaseBackendService {
   };
 
   changeWidth = (params: { fieldId: string; width: number }) => {
-    const payload = FieldChangesetPB.fromObject({ view_id: this.viewId, field_id: params.fieldId, width: params.width });
+    const payload = FieldChangesetPB.fromObject({
+      view_id: this.viewId,
+      field_id: params.fieldId,
+      width: params.width,
+    });
 
     return DatabaseEventUpdateField(payload);
   };

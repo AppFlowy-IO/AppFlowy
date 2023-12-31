@@ -2,9 +2,9 @@ use collab_folder::ViewLayout;
 
 use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
-use flowy_folder2::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB};
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent::*;
+use flowy_folder::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB};
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent::*;
 
 pub enum FolderScript {
   #[allow(dead_code)]
