@@ -24,7 +24,6 @@ flowy-server-config = { workspace = true }
 flowy-config = { workspace = true }
 flowy-date = { workspace = true }
 collab-integrate = { workspace = true, features = ["supabase_integrate", "appflowy_cloud_integrate", "snapshot_plugin"] }
-flowy-ai = { workspace = true }
 collab-entity = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab = { version = "0.1.0" }
