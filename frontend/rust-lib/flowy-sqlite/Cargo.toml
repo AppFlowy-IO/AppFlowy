@@ -19,9 +19,12 @@ parking_lot.workspace = true
 r2d2 = "0.8.10"
 libsqlite3-sys = { version = "0.27.0", features = ["bundled"] }
 scheduled-thread-pool = "0.2.6"
-openssl = { version = "0.10.45", optional = true, features = ["vendored"] }
-openssl-sys = { version = "0.9.80", optional = true, features = ["vendored"] }
+openssl = { version = "0.10.62", optional = true, features = ["vendored"] }
+openssl-sys = { version = "0.9.98", optional = true, features = ["vendored"] }
 thiserror = "1.0"
+
+[dev-dependencies]
+tempfile = "3.5.0"
 
 [features]
 openssl_vendored = ["openssl", "openssl-sys"]
