@@ -736,7 +736,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7d7f53250f7a8297c69e2cdc72e441f5469eaf11#7d7f53250f7a8297c69e2cdc72e441f5469eaf11"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -755,14 +755,13 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7d7f53250f7a8297c69e2cdc72e441f5469eaf11#7d7f53250f7a8297c69e2cdc72e441f5469eaf11"
 dependencies = [
  "anyhow",
  "async-trait",
  "base64 0.21.5",
  "chrono",
  "collab",
- "collab-derive",
  "collab-entity",
  "collab-persistence",
  "collab-plugins",
@@ -783,25 +782,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "collab-derive"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
-dependencies = [
- "proc-macro2",
- "quote",
- "serde_json",
- "syn 1.0.109",
- "yrs",
-]
-
-[[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7d7f53250f7a8297c69e2cdc72e441f5469eaf11#7d7f53250f7a8297c69e2cdc72e441f5469eaf11"
 dependencies = [
  "anyhow",
  "collab",
- "collab-derive",
  "collab-persistence",
  "nanoid",
  "parking_lot",
@@ -816,7 +802,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7d7f53250f7a8297c69e2cdc72e441f5469eaf11#7d7f53250f7a8297c69e2cdc72e441f5469eaf11"
 dependencies = [
  "anyhow",
  "bytes",
@@ -830,12 +816,11 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7d7f53250f7a8297c69e2cdc72e441f5469eaf11#7d7f53250f7a8297c69e2cdc72e441f5469eaf11"
 dependencies = [
  "anyhow",
  "chrono",
  "collab",
- "collab-derive",
  "collab-persistence",
  "parking_lot",
  "serde",
@@ -868,7 +853,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7d7f53250f7a8297c69e2cdc72e441f5469eaf11#7d7f53250f7a8297c69e2cdc72e441f5469eaf11"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -889,7 +874,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7d7f53250f7a8297c69e2cdc72e441f5469eaf11#7d7f53250f7a8297c69e2cdc72e441f5469eaf11"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -915,7 +900,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f#cf6aae1fbeb97d7b2f475fcdfc73217942ed8c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7d7f53250f7a8297c69e2cdc72e441f5469eaf11#7d7f53250f7a8297c69e2cdc72e441f5469eaf11"
 dependencies = [
  "anyhow",
  "collab",
@@ -1683,6 +1668,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-openai",
+ "dotenv",
  "lib-infra",
  "reqwest",
  "serde",
