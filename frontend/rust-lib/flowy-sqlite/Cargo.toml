@@ -10,7 +10,6 @@ diesel.workspace = true
 diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
 diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
 tracing.workspace = true
-lazy_static = "1.4.0"
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true

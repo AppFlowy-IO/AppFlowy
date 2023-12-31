@@ -13,4 +13,3 @@ anyhow.workspace = true
 lib-infra = { workspace = true }
 async-openai = "0.14.2"
 tokio = { workspace = true, features = ["rt", "sync"] }
-dotenv = "0.15.0"
