@@ -42,6 +42,7 @@
     "repeatPasswordEmptyError": "Senha não pode estar em branco.",
     "unmatchedPasswordError": "As senhas não conferem.",
     "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página",
+    "or": "OU",
     "LogInWithGoogle": "Entrar com o Google",
     "LogInWithGithub": "Entrar com o Github",
     "LogInWithDiscord": "Entrar com o Discord",
@@ -49,13 +50,16 @@
     "loginAsGuestButtonText": "Iniciar"
   },
   "workspace": {
+    "chooseWorkspace": "Escolha sua área de trabalho",
     "create": "Crie um espaço de trabalho",
     "reset": "Redefinir espaço de trabalho",
     "resetWorkspacePrompt": "A redefinição do espaço de trabalho excluirá todas as páginas e dados contidos nele. Tem certeza de que deseja redefinir o espaço de trabalho? Alternativamente, você pode entrar em contato com a equipe de suporte para restaurar o espaço de trabalho",
     "hint": "Espaço de trabalho",
     "notFoundError": "Espaço de trabalho não encontrado",
+    "failedToLoad": "Algo deu errado! Falha ao carregar área de trabalho. Feche o AppFlowy e tente novamente.",
     "errorActions": {
-      "reportIssue": "Reporte um problema"
+      "reportIssue": "Reporte um problema",
+      "reachOut": "Entre em contato no Discord"
     }
   },
   "shareAction": {
@@ -113,6 +117,13 @@
     "confirmRestoreAll": {
       "title": "Tem certeza de que deseja restaurar todas as páginas da Lixeira?",
       "caption": "Essa ação não pode ser desfeita."
+    },
+    "mobile": {
+      "actions": "Ações da Lixeira",
+      "empty": "Lixeira está vazia",
+      "emptyDescription": "Você não tem nenhum arquivo removido",
+      "isDeleted": "removido",
+      "isRestored": "restaurado"
     }
   },
   "deletePagePrompt": {
@@ -139,6 +150,7 @@
     "defaultNewPageName": "Sem título",
     "renameDialog": "Renomear"
   },
+  "noPagesInside": "Sem páginas internas",
   "toolbar": {
     "undo": "Desfazer",
     "redo": "Refazer",
@@ -177,7 +189,8 @@
     "favorites": "Favoritos",
     "clickToHidePersonal": "Clique para ocultar a seção pessoal",
     "clickToHideFavorites": "Clique para ocultar a seção favorita",
-    "addAPage": "Adicionar uma página"
+    "addAPage": "Adicionar uma página",
+    "recent": "Recentes"
   },
   "notifications": {
     "export": {
@@ -192,6 +205,7 @@
     "editContact": "Editar um contato"
   },
   "button": {
+    "ok": "OK",
     "done": "Feito",
     "cancel": "Cancelar",
     "signIn": "Conectar",
@@ -205,16 +219,20 @@
     "discard": "Descartar",
     "replace": "substituir",
     "insertBelow": "Inserir Abaixo",
+    "insertAbove": "Insira acima",
     "upload": "Carregar",
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
     "putback": "Por de volta",
+    "update": "Atualizar",
     "share": "Compartilhar",
     "removeFromFavorites": "Remover dos favoritos",
     "addToFavorites": "Adicionar aos favoritos",
     "rename": "Renomear",
     "helpCenter": "Central de Ajuda",
+    "add": "Adicionar",
+    "yes": "Sim",
     "Done": "Feito",
     "Cancel": "Cancelar",
     "OK": "Ok",
@@ -253,24 +271,38 @@
       "logoutPrompt": "Tem certeza de que deseja sair?",
       "selfEncryptionLogoutPrompt": "Tem certeza que deseja sair? Certifique-se de ter copiado o segredo de criptografia",
       "syncSetting": "Configuração de sincronização",
+      "cloudSettings": "Configurações da Nuvem",
       "enableSync": "Ativar sincronização",
       "enableEncrypt": "Criptografar dados",
+      "cloudURL": "URL padrão",
+      "cloudServerType": "Servidor de Nuvem",
+      "cloudLocal": "Local",
       "cloudSupabase": "Supabase",
+      "cloudAppFlowy": "Nuvem do AppFlowy",
       "clickToCopy": "Clique para copiar",
+      "selfHostContent": "documento",
+      "cloudURLHint": "Insira a URL padrão do seu servidor",
       "restartApp": "Reiniciar",
       "restartAppTip": "Reinicie o aplicativo para que as alterações tenham efeito. Observe que isso pode desconectar sua conta atual",
       "enableEncryptPrompt": "Ative a criptografia para proteger seus dados com este segredo. Armazene-o com segurança; uma vez ativado, não pode ser desativado. Se perdidos, seus dados se tornarão irrecuperáveis. Clique para copiar",
       "inputEncryptPrompt": "Por favor, insira seu segredo de criptografia para",
       "clickToCopySecret": "Clique para copiar o segredo",
+      "configServerSetting": "Configure seu servidor",
       "inputTextFieldHint": "Seu segredo",
       "historicalUserList": "Histórico de login do usuário",
       "historicalUserListTooltip": "Esta lista exibe suas contas anônimas. Você pode clicar em uma conta para ver seus detalhes. Contas anônimas são criadas clicando no botão ‘Começar’",
       "openHistoricalUser": "Clique para abrir a conta anônima",
+      "importAppFlowyData": "Importar dados de uma Pasta Externa do AppFlowy",
+      "importAppFlowyDataDescription": "Copie os dados de uma Pasta Externa do AppFlowy e importe na Pasta de dados atual",
+      "importSuccess": "Pasta de Dados do AppFlowy importada com sucesso",
+      "importFailed": "A importação da Pasta de Dados falhou",
+      "importGuide": "Para mais detalhes, por favor verifique o documento indicado",
       "supabaseSetting": "Configuração de Supabase"
     },
     "notifications": {
       "enableNotifications": {
-        "label": "Habilitar notificações"
+        "label": "Habilitar notificações",
+        "hint": "Desligue para impedir notificações locais de aparecer"
       }
     },
     "appearance": {
@@ -284,6 +316,21 @@
         "light": "Modo claro",
         "dark": "Modo escuro",
         "system": "Adaptar-se ao sistema"
+      },
+      "documentSettings": {
+        "cursorColor": "Cor do cursor de documento",
+        "selectionColor": "Cor de seleção do documento",
+        "hexEmptyError": "Código HEX de cor não pode ser vazio",
+        "hexLengthError": "Valor HEX deve ter 6 caracteres",
+        "hexInvalidError": "Valor HEX inválido",
+        "opacityEmptyError": "Opacidade não pode ser vazia",
+        "opacityRangeError": "Opacidade deve estar entre 1 e 100",
+        "app": "Aplicativo",
+        "flowy": "Flowy",
+        "apply": "Aplicar"
+      },
+      "textDirection": {
+        "label": "Direção padrão do texto"
       },
       "themeUpload": {
         "button": "Carregar",
@@ -361,12 +408,16 @@
       "couldNotSaveErrorMsg": "Não foi possível salvar os atalhos. Tente novamente"
     },
     "mobile": {
+      "support": "Suporte",
       "privacyPolicy": "Política de Privacidade"
     }
   },
   "grid": {
     "deleteView": "Tem certeza de que deseja excluir esta visualização?",
     "createView": "Novo",
+    "title": {
+      "placeholder": "Sem título"
+    },
     "settings": {
       "filter": "Filtro",
       "sort": "Organizar",
