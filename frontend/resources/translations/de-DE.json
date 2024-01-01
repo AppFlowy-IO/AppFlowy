@@ -905,23 +905,31 @@
   "calendar": {
     "menuName": "Kalender",
     "defaultNewCalendarTitle": "Ohne Titel",
+    "newEventButtonTooltip": "Einen neues Ereignis eintragen",
     "navigation": {
       "today": "Heute",
       "jumpToday": "Springe zu Heute",
       "previousMonth": "Vorheriger Monat",
-      "nextMonth": "Nächsten Monat"
+      "nextMonth": "Nächster Monat"
     },
     "settings": {
       "showWeekNumbers": "Wochennummern anzeigen",
       "showWeekends": "Wochenenden anzeigen",
       "firstDayOfWeek": "Beginnen Sie die Woche am",
       "layoutDateField": "Layoutkalender von",
+      "changeLayoutDateField": "Layoutfeld ändern",
       "noDateTitle": "Kein Datum",
+      "noDateHint": {
+        "zero": "Ereignisse ohne Datum werden hier angezeigt",
+        "one": "{count} Ereignisse ohne Datum",
+        "other": "{count} Ereignisse ohne Datum"
+      },
+      "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Klicken Sie, um es zum Kalender hinzuzufügen",
-      "name": "Kalenderlayout",
-      "noDateHint": "Außerplanmäßige Ereignisse werden hier angezeigt"
+      "name": "Kalendereinstellungen"
     },
-    "referencedCalendarPrefix": "Sicht von"
+    "referencedCalendarPrefix": "Sicht von",
+    "quickJumpYear": "Spring zu"
   },
   "errorDialog": {
     "title": "AppFlowy-Fehler",
