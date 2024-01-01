@@ -9,7 +9,7 @@
   "youCanAlso": "Du kannst auch",
   "and": "und",
   "blockActions": {
-    "addBelowTooltip": "Klicken um etwas unten hinzuzufügen",
+    "addBelowTooltip": "Klicken, um etwas unten hinzuzufügen",
     "addAboveCmd": "Alt+Klick",
     "addAboveMacCmd": "Option+Klick",
     "addAboveTooltip": "oben hinzufügen",
