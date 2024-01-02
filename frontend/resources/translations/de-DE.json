@@ -915,7 +915,7 @@
     "settings": {
       "showWeekNumbers": "Wochennummern anzeigen",
       "showWeekends": "Wochenenden anzeigen",
-      "firstDayOfWeek": "Beginnen Sie die Woche am",
+      "firstDayOfWeek": "Wochenstart",
       "layoutDateField": "Layoutkalender von",
       "changeLayoutDateField": "Layoutfeld ändern",
       "noDateTitle": "Kein Datum",
