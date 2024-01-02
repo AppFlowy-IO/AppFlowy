@@ -4,6 +4,7 @@ use std::sync::{Arc, Weak};
 
 use bytes::Bytes;
 
+use flowy_document::DocumentIndexContent;
 use tokio::sync::RwLock;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -47,6 +48,7 @@ impl FolderDepsResolver {
     });
 
     let index_storage = FolderIndexStorageImpl(user_manager.clone());
+    let document_index_content_getter = DocumentIndexContentGetterImpl(document_manager.clone());
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
       FolderManager::new(
@@ -55,6 +57,7 @@ impl FolderDepsResolver {
         handlers,
         server_provider.clone(),
         index_storage,
+        document_index_content_getter,
       )
       .await
       .unwrap(),
@@ -484,7 +487,7 @@ pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
 struct FolderIndexStorageImpl(Weak<UserManager>);
 
 impl FolderIndexStorage for FolderIndexStorageImpl {
-  fn add(&self, id: &str, content: &str) -> Result<(), FlowyError> {
+  fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
     let manager = self
       .0
       .upgrade()
@@ -495,7 +498,7 @@ impl FolderIndexStorage for FolderIndexStorageImpl {
     Ok(())
   }
 
-  fn update(&self, id: &str, content: &str) -> Result<(), FlowyError> {
+  fn update_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
     let manager = self
       .0
       .upgrade()
@@ -506,7 +509,7 @@ impl FolderIndexStorage for FolderIndexStorageImpl {
     Ok(())
   }
 
-  fn remove(&self, ids: &[String]) -> Result<(), FlowyError> {
+  fn remove_view(&self, ids: &[String]) -> Result<(), FlowyError> {
     let manager = self
       .0
       .upgrade()
@@ -515,5 +518,52 @@ impl FolderIndexStorage for FolderIndexStorageImpl {
     let uid = manager.user_id()?;
     manager.delete_view_index(uid, ids)?;
     Ok(())
+  }
+
+  fn add_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError> {
+    let manager = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+
+    let uid = manager.user_id()?;
+    manager.add_document_index(uid, view_id, page_id, content)?;
+    Ok(())
+  }
+
+  fn update_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError> {
+    let manager = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+
+    let uid = manager.user_id()?;
+    manager.update_document_index(uid, view_id, page_id, content)?;
+    Ok(())
+  }
+
+  fn remove_document(&self, page_ids: &[String]) -> Result<(), FlowyError> {
+    let manager = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+
+    let uid = manager.user_id()?;
+    manager.delete_view_index(uid, page_ids)?;
+    Ok(())
+  }
+}
+
+struct DocumentIndexContentGetterImpl(Arc<DocumentManager>);
+
+#[async_trait]
+impl DocumentIndexContentGetter for DocumentIndexContentGetterImpl {
+  async fn get_document_index_content(
+    &self,
+    doc_id: &str,
+  ) -> Result<DocumentIndexContent, FlowyError> {
+    let doc = self.0.get_document(doc_id).await?;
+    let index_data = DocumentIndexContent::from(&*doc);
+    Ok(index_data)
   }
 }
