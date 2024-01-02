@@ -584,6 +584,15 @@ pub async fn upload_imported_data(
       if size_counter + obj_size > upload_size_limit && !objects.is_empty() {
         // When the limit is exceeded, batch create with the current list of objects
         // and reset for the next batch.
+        info!(
+          "Exceeded maximum payload size. Batch creating collab objects: {}, payload size: {}",
+          objects
+            .iter()
+            .map(|o| o.object_id.clone())
+            .collect::<Vec<_>>()
+            .join(", "),
+          size_counter
+        );
         user_cloud_service
           .batch_create_collab_object(workspace_id, objects)
           .await?;
