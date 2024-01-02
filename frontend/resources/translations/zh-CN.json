@@ -232,10 +232,7 @@
     "rename": "重命名",
     "helpCenter": "帮助中心",
     "add": "添加",
-    "yes": "是",
-    "Done": "完成",
-    "Cancel": "取消",
-    "OK": "确定"
+    "yes": "是"
   },
   "label": {
     "welcome": "欢迎！",
