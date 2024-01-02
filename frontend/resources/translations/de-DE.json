@@ -548,7 +548,7 @@
       "checklistFieldName": "Checkliste",
       "numberFormat": "Zahlenformat",
       "dateFormat": "Datumsformat",
-      "includeTime": "Zeit einbeziehen",
+      "includeTime": "Zeitangabe",
       "isRange": "Enddatum",
       "dateFormatFriendly": "Monat Tag, Jahr",
       "dateFormatISO": "Jahr-Monat-Tag",
