@@ -4,7 +4,10 @@ use std::{
 };
 
 use collab::core::collab::MutexCollab;
-use collab_document::{blocks::DocumentData, document::Document};
+use collab_document::{
+  blocks::DocumentData,
+  document::{Document, DocumentIndexContent},
+};
 use futures::StreamExt;
 use parking_lot::Mutex;
 
@@ -107,5 +110,12 @@ impl Deref for MutexDocument {
 impl DerefMut for MutexDocument {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
+  }
+}
+
+impl From<&MutexDocument> for DocumentIndexContent {
+  fn from(doc: &MutexDocument) -> Self {
+    let doc = doc.lock();
+    DocumentIndexContent::from(&*doc)
   }
 }
