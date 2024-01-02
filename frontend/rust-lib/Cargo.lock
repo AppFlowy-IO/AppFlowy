@@ -1532,6 +1532,7 @@ dependencies = [
  "anyhow",
  "assert-json-diff",
  "bytes",
+ "chrono",
  "collab",
  "collab-database",
  "collab-document",

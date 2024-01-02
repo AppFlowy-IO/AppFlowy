@@ -45,16 +45,16 @@ async fn import_appflowy_data_folder_into_new_view_test() {
   assert_eq!(views.len(), 2);
   assert_eq!(views[1].name, import_container_name);
 
-  let local_child_views = test.get_views(&views[1].id).await.child_views;
+  let local_child_views = test.get_view(&views[1].id).await.child_views;
   assert_eq!(local_child_views.len(), 1);
   assert_eq!(local_child_views[0].name, "Document1");
 
-  let document1_child_views = test.get_views(&local_child_views[0].id).await.child_views;
+  let document1_child_views = test.get_view(&local_child_views[0].id).await.child_views;
   assert_eq!(document1_child_views.len(), 1);
   assert_eq!(document1_child_views[0].name, "Document2");
 
   let document2_child_views = test
-    .get_views(&document1_child_views[0].id)
+    .get_view(&document1_child_views[0].id)
     .await
     .child_views;
   assert_eq!(document2_child_views.len(), 2);
@@ -97,12 +97,12 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
   assert_eq!(views.len(), 2);
   assert_eq!(views[1].name, "Document1");
 
-  let document_1_child_views = test.get_views(&views[1].id).await.child_views;
+  let document_1_child_views = test.get_view(&views[1].id).await.child_views;
   assert_eq!(document_1_child_views.len(), 1);
   assert_eq!(document_1_child_views[0].name, "Document2");
 
   let document2_child_views = test
-    .get_views(&document_1_child_views[0].id)
+    .get_view(&document_1_child_views[0].id)
     .await
     .child_views;
   assert_eq!(document2_child_views.len(), 2);
@@ -216,14 +216,12 @@ async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id:
   //            Doc3_grid_1
   //            Doc3_grid_2
   //            Doc3_calendar_1
-  let _local_2_child_views = test.get_views(view_id).await.child_views;
+  let _local_2_child_views = test.get_view(view_id).await.child_views;
   assert_eq!(_local_2_child_views.len(), 1);
   assert_eq!(_local_2_child_views[0].name, "Getting started");
 
-  let local_2_getting_started_child_views = test
-    .get_views(&_local_2_child_views[0].id)
-    .await
-    .child_views;
+  let local_2_getting_started_child_views =
+    test.get_view(&_local_2_child_views[0].id).await.child_views;
 
   // Check doc 1 local content
   let doc_1 = local_2_getting_started_child_views[0].clone();
@@ -258,7 +256,7 @@ async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id:
   assert_eq!(local_2_getting_started_child_views[3].name, "Doc3");
 
   let doc_3_child_views = test
-    .get_views(&local_2_getting_started_child_views[3].id)
+    .get_view(&local_2_getting_started_child_views[3].id)
     .await
     .child_views;
   assert_eq!(doc_3_child_views.len(), 3);
