@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
-use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
+use crate::entities::{DateCellDataPB, DateFilterPB, FieldType, ReminderOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
@@ -79,6 +79,9 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     let end_timestamp = cell_data.end_timestamp;
     let (end_date, end_time) = self.formatted_date_time_from_timestamp(&end_timestamp);
 
+    let reminder_id = cell_data.reminder_id;
+    let reminder_option = cell_data.reminder_option;
+
     DateCellDataPB {
       date,
       time,
@@ -88,6 +91,8 @@ impl TypeOptionCellDataSerde for DateTypeOption {
       end_timestamp: end_timestamp.unwrap_or_default(),
       include_time,
       is_range,
+      reminder_id,
+      reminder_option,
     }
   }
 
@@ -257,7 +262,14 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (previous_timestamp, previous_end_timestamp, include_time, is_range) = match cell {
+    let (
+      previous_timestamp,
+      previous_end_timestamp,
+      include_time,
+      is_range,
+      reminder_id,
+      reminder_option,
+    ) = match cell {
       Some(cell) => {
         let cell_data = DateCellData::from(&cell);
         (
@@ -265,9 +277,18 @@ impl CellDataChangeset for DateTypeOption {
           cell_data.end_timestamp,
           cell_data.include_time,
           cell_data.is_range,
+          cell_data.reminder_id,
+          cell_data.reminder_option,
         )
       },
-      None => (None, None, false, false),
+      None => (
+        None,
+        None,
+        false,
+        false,
+        String::new(),
+        ReminderOptionPB::None,
+      ),
     };
 
     if changeset.clear_flag == Some(true) {
@@ -276,6 +297,8 @@ impl CellDataChangeset for DateTypeOption {
         end_timestamp: None,
         include_time,
         is_range,
+        reminder_id: String::new(),
+        reminder_option: ReminderOptionPB::None,
       };
 
       return Ok((Cell::from(&cell_data), cell_data));
@@ -284,6 +307,8 @@ impl CellDataChangeset for DateTypeOption {
     // update include_time and is_range if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
     let is_range = changeset.is_range.unwrap_or(is_range);
+    let reminder_id = changeset.reminder_id.unwrap_or(reminder_id);
+    let reminder_option = changeset.reminder_option.unwrap_or(reminder_option);
 
     // Calculate the timestamp in the time zone specified in type option. If
     // a new timestamp is included in the changeset without an accompanying
@@ -323,6 +348,8 @@ impl CellDataChangeset for DateTypeOption {
       end_timestamp,
       include_time,
       is_range,
+      reminder_id,
+      reminder_option,
     };
 
     Ok((Cell::from(&cell_data), cell_data))

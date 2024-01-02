@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/application/cell/date_cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
@@ -12,6 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
 import 'package:flowy_infra/time/duration.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -54,6 +56,8 @@ class DateCellEditorBloc
                 endDay: endDay,
                 dateStr: dateCellData.dateStr,
                 endDateStr: dateCellData.endDateStr,
+                reminderId: dateCellData.reminderId,
+                reminderOption: dateCellData.reminderOption,
               ),
             );
           },
@@ -170,6 +174,21 @@ class DateCellEditorBloc
           clearDate: () async {
             await _clearDate();
           },
+          setReminder: (option, reminderId) async {
+            final reminderOption = option.toDataObject();
+
+            emit(
+              state.copyWith(
+                reminderOption: reminderOption,
+                reminderId: reminderId,
+              ),
+            );
+
+            await _dateCellBackendService.updateReminder(
+              option: reminderOption,
+              reminderId: reminderId,
+            );
+          },
         );
       },
     );
@@ -182,6 +201,8 @@ class DateCellEditorBloc
     String? endTimeStr,
     bool? includeTime,
     bool? isRange,
+    String? reminderId,
+    ReminderOptionPB? option,
   }) async {
     // make sure that not both date and time are updated at the same time
     assert(
@@ -214,6 +235,8 @@ class DateCellEditorBloc
       endTime: newEndTime,
       includeTime: includeTime ?? state.includeTime,
       isRange: isRange ?? state.isRange,
+      reminderId: reminderId ?? state.reminderId,
+      reminderOption: option ?? state.reminderOption,
     );
 
     result.fold(
@@ -304,11 +327,11 @@ class DateCellEditorBloc
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cell) {
+      onCellChanged: (cell) {
         if (!isClosed) {
           add(DateCellEditorEvent.didReceiveCellUpdate(cell));
         }
-      }),
+      },
     );
   }
 
@@ -372,17 +395,21 @@ class DateCellEditorEvent with _$DateCellEditorEvent {
   const factory DateCellEditorEvent.setEndDay(
     DateTime endDay,
   ) = _SetEndDay;
-  const factory DateCellEditorEvent.setTime(String time) = _Time;
-  const factory DateCellEditorEvent.setEndTime(String endTime) = _EndTime;
+  const factory DateCellEditorEvent.setTime(String time) = _SetTime;
+  const factory DateCellEditorEvent.setEndTime(String endTime) = _SetEndTime;
   const factory DateCellEditorEvent.setIncludeTime(bool includeTime) =
       _IncludeTime;
-  const factory DateCellEditorEvent.setIsRange(bool isRange) = _IsRange;
+  const factory DateCellEditorEvent.setIsRange(bool isRange) = _SetIsRange;
+  const factory DateCellEditorEvent.setReminder({
+    required ReminderOption option,
+    String? reminderId,
+  }) = _SetReminder;
 
   // date field type options are modified
   const factory DateCellEditorEvent.setTimeFormat(TimeFormatPB timeFormat) =
-      _TimeFormat;
+      _SetTimeFormat;
   const factory DateCellEditorEvent.setDateFormat(DateFormatPB dateFormat) =
-      _DateFormat;
+      _SetDateFormat;
 
   const factory DateCellEditorEvent.clearDate() = _ClearDate;
 }
@@ -406,6 +433,8 @@ class DateCellEditorState with _$DateCellEditorState {
     required bool isRange,
     required String? dateStr,
     required String? endDateStr,
+    required String? reminderId,
+    required ReminderOptionPB? reminderOption,
 
     // error and hint text
     required String? parseTimeError,
@@ -417,6 +446,7 @@ class DateCellEditorState with _$DateCellEditorState {
     final typeOption = controller.getTypeOption(DateTypeOptionDataParser());
     final cellData = controller.getCellData();
     final dateCellData = _dateDataFromCellData(cellData);
+
     return DateCellEditorState(
       dateTypeOptionPB: typeOption,
       startDay: dateCellData.isRange ? dateCellData.dateTime : null,
@@ -432,6 +462,8 @@ class DateCellEditorState with _$DateCellEditorState {
       parseTimeError: null,
       parseEndTimeError: null,
       timeHintText: _timeHintText(typeOption),
+      reminderId: dateCellData.reminderId,
+      reminderOption: dateCellData.reminderOption,
     );
   }
 }
@@ -462,6 +494,8 @@ _DateCellData _dateDataFromCellData(
       isRange: false,
       dateStr: null,
       endDateStr: null,
+      reminderId: null,
+      reminderOption: ReminderOptionPB.None,
     );
   }
 
@@ -498,6 +532,8 @@ _DateCellData _dateDataFromCellData(
     isRange: isRange,
     dateStr: dateStr,
     endDateStr: endDateStr,
+    reminderId: cellData.reminderId,
+    reminderOption: cellData.reminderOption,
   );
 }
 
@@ -510,6 +546,8 @@ class _DateCellData {
   final bool isRange;
   final String? dateStr;
   final String? endDateStr;
+  final String? reminderId;
+  final ReminderOptionPB reminderOption;
 
   _DateCellData({
     required this.dateTime,
@@ -520,5 +558,7 @@ class _DateCellData {
     required this.isRange,
     required this.dateStr,
     required this.endDateStr,
+    required this.reminderId,
+    required this.reminderOption,
   });
 }

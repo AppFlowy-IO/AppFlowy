@@ -10,7 +10,7 @@ use strum_macros::EnumIter;
 
 use flowy_error::{internal_error, FlowyResult};
 
-use crate::entities::{DateCellDataPB, FieldType};
+use crate::entities::{DateCellDataPB, FieldType, ReminderOptionPB};
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString, ToCellChangeset,
 };
@@ -25,6 +25,8 @@ pub struct DateCellChangeset {
   pub include_time: Option<bool>,
   pub is_range: Option<bool>,
   pub clear_flag: Option<bool>,
+  pub reminder_id: Option<String>,
+  pub reminder_option: Option<ReminderOptionPB>,
 }
 
 impl FromCellChangeset for DateCellChangeset {
@@ -50,15 +52,26 @@ pub struct DateCellData {
   pub include_time: bool,
   #[serde(default)]
   pub is_range: bool,
+  pub reminder_id: String,
+  #[serde(default)]
+  pub reminder_option: ReminderOptionPB,
 }
 
 impl DateCellData {
-  pub fn new(timestamp: i64, include_time: bool, is_range: bool) -> Self {
+  pub fn new(
+    timestamp: i64,
+    include_time: bool,
+    is_range: bool,
+    reminder_id: String,
+    reminder_option: ReminderOptionPB,
+  ) -> Self {
     Self {
       timestamp: Some(timestamp),
       end_timestamp: None,
       include_time,
       is_range,
+      reminder_id,
+      reminder_option,
     }
   }
 }
@@ -79,11 +92,17 @@ impl From<&Cell> for DateCellData {
       .and_then(|data| data.parse::<i64>().ok());
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
     let is_range = cell.get_bool_value("is_range").unwrap_or_default();
+    let reminder_id = cell.get_str_value("reminder_id").unwrap_or_default();
+    let reminder_option_raw = cell.get_str_value("reminder_option").unwrap_or_default();
+    let reminder_option = serde_json::from_str(&reminder_option_raw).unwrap();
+
     Self {
       timestamp,
       end_timestamp,
       include_time,
       is_range,
+      reminder_id,
+      reminder_option,
     }
   }
 }
@@ -95,6 +114,8 @@ impl From<&DateCellDataPB> for DateCellData {
       end_timestamp: Some(data.end_timestamp),
       include_time: data.include_time,
       is_range: data.is_range,
+      reminder_id: data.reminder_id.to_owned(),
+      reminder_option: data.reminder_option,
     }
   }
 }
@@ -116,6 +137,11 @@ impl From<&DateCellData> for Cell {
       .insert_str_value("end_timestamp", end_timestamp_string)
       .insert_bool_value("include_time", cell_data.include_time)
       .insert_bool_value("is_range", cell_data.is_range)
+      .insert_str_value("reminder_id", cell_data.reminder_id.to_owned())
+      .insert_str_value(
+        "reminder_option",
+        serde_json::to_string(&cell_data.reminder_option).unwrap_or_default(),
+      )
       .build()
   }
 }
@@ -145,6 +171,8 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
           end_timestamp: None,
           include_time: false,
           is_range: false,
+          reminder_id: String::new(),
+          reminder_option: ReminderOptionPB::None,
         })
       }
 
@@ -163,6 +191,8 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
         let mut end_timestamp: Option<i64> = None;
         let mut include_time: Option<bool> = None;
         let mut is_range: Option<bool> = None;
+        let mut reminder_id: Option<String> = None;
+        let mut reminder_option: Option<ReminderOptionPB> = None;
 
         while let Some(key) = map.next_key()? {
           match key {
@@ -178,18 +208,28 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
             "is_range" => {
               is_range = map.next_value()?;
             },
+            "reminder_id" => {
+              reminder_id = map.next_value()?;
+            },
+            "reminder_option" => {
+              reminder_option = map.next_value()?;
+            },
             _ => {},
           }
         }
 
         let include_time = include_time.unwrap_or_default();
         let is_range = is_range.unwrap_or_default();
+        let reminder_id = reminder_id.unwrap_or_default();
+        let reminder_option = reminder_option.unwrap_or_default();
 
         Ok(DateCellData {
           timestamp,
           end_timestamp,
           include_time,
           is_range,
+          reminder_id,
+          reminder_option,
         })
       }
     }

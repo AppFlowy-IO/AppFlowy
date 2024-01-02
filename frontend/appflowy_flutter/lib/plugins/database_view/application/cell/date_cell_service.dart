@@ -17,13 +17,32 @@ final class DateCellBackendService {
           ..fieldId = fieldId
           ..rowId = rowId;
 
+  Future<Either<FlowyError, Unit>> updateReminder({
+    String? reminderId,
+    ReminderOptionPB? option,
+  }) async {
+    final payload = DateChangesetPB.create()..cellId = cellId;
+
+    if (reminderId != null) {
+      payload.reminderId = reminderId;
+    }
+
+    if (option != null) {
+      payload.reminderOption = option;
+    }
+
+    return (await DatabaseEventUpdateDateCell(payload).send()).swap();
+  }
+
   Future<Either<Unit, FlowyError>> update({
+    required includeTime,
+    required isRange,
     DateTime? date,
     String? time,
     DateTime? endDate,
     String? endTime,
-    required includeTime,
-    required isRange,
+    String? reminderId,
+    ReminderOptionPB? reminderOption,
   }) {
     final payload = DateChangesetPB.create()
       ..cellId = cellId
@@ -43,6 +62,12 @@ final class DateCellBackendService {
     }
     if (endTime != null) {
       payload.endTime = endTime;
+    }
+    if (reminderId != null) {
+      payload.reminderId = reminderId;
+    }
+    if (reminderOption != null) {
+      payload.reminderOption = reminderOption;
     }
 
     return DatabaseEventUpdateDateCell(payload).send();
