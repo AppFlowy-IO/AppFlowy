@@ -93,15 +93,8 @@ class AppFlowyDatePicker extends StatefulWidget {
 }
 
 class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
-  late DateTime? _selectedDay;
-  late ReminderOption _selectedReminderOption;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedDay = widget.selectedDay;
-    _selectedReminderOption = widget.selectedReminderOption;
-  }
+  late DateTime? _selectedDay = widget.selectedDay;
+  late ReminderOption _selectedReminderOption = widget.selectedReminderOption;
 
   @override
   Widget build(BuildContext context) {

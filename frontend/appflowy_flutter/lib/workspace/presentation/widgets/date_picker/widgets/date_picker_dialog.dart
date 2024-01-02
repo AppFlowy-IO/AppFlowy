@@ -66,8 +66,8 @@ abstract class DatePickerService {
 }
 
 const double _datePickerWidth = 260;
-const double _datePickerHeight = 400;
-const double _includeTimeHeight = 35;
+const double _datePickerHeight = 370;
+const double _includeTimeHeight = 32;
 const double _ySpacing = 15;
 
 class DatePickerMenu extends DatePickerService {
@@ -186,10 +186,10 @@ class _AnimatedDatePickerState extends State<_AnimatedDatePicker> {
         ),
         constraints: BoxConstraints.loose(const Size(_datePickerWidth, 465)),
         child: AppFlowyDatePicker(
-          includeTime: widget.options.includeTime,
+          includeTime: _includeTime,
           onIncludeTimeChanged: (includeTime) {
-            widget.options.onIncludeTimeChanged.call(includeTime);
-            setState(() => _includeTime = includeTime);
+            widget.options.onIncludeTimeChanged.call(!includeTime);
+            setState(() => _includeTime = !includeTime);
           },
           enableRanges: widget.options.enableRanges,
           isRange: widget.options.isRange,
