@@ -8,7 +8,7 @@ import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -22,9 +22,7 @@ import 'database_view_quick_actions.dart';
 /// [MobileDatabaseViewList] shows a list of all the views in the database and
 /// adds a button to create a new database view.
 class MobileDatabaseViewList extends StatelessWidget {
-  const MobileDatabaseViewList({super.key, required this.databaseController});
-
-  final DatabaseController databaseController;
+  const MobileDatabaseViewList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +35,6 @@ class MobileDatabaseViewList extends StatelessWidget {
           ...views.mapIndexed(
             (index, view) => MobileDatabaseViewListButton(
               view: view,
-              databaseController: databaseController,
               showTopBorder: index == 0,
             ),
           ),
@@ -93,12 +90,10 @@ class MobileDatabaseViewListButton extends StatelessWidget {
   const MobileDatabaseViewListButton({
     super.key,
     required this.view,
-    required this.databaseController,
     required this.showTopBorder,
   });
 
   final ViewPB view;
-  final DatabaseController databaseController;
   final bool showTopBorder;
 
   @override
@@ -116,7 +111,11 @@ class MobileDatabaseViewListButton extends StatelessWidget {
                 .add(DatabaseTabBarEvent.selectView(view.id));
           },
           leftIcon: _buildViewIconButton(context, view),
-          trailing: _trailing(context, isSelected),
+          trailing: _trailing(
+            context,
+            state.tabBarControllerByViewId[view.id]!.controller,
+            isSelected,
+          ),
           showTopBorder: showTopBorder,
         );
       },
@@ -130,7 +129,11 @@ class MobileDatabaseViewListButton extends StatelessWidget {
     );
   }
 
-  Widget _trailing(BuildContext context, bool isSelected) {
+  Widget _trailing(
+    BuildContext context,
+    DatabaseController databaseController,
+    bool isSelected,
+  ) {
     final more = FlowyIconButton(
       icon: FlowySvg(
         FlowySvgs.three_dots_s,
@@ -240,6 +243,7 @@ class _MobileCreateDatabaseViewState extends State<MobileCreateDatabaseView> {
           selectedLayout: layoutType,
         ),
         FlowyOptionTile.textField(
+          autofocus: true,
           controller: controller,
         ),
         const VSpace(20),

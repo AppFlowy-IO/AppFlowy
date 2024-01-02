@@ -1,8 +1,9 @@
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/database_view/application/tab_bar_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/mobile_database_controls.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class _DatabaseViewList extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final children = state.tabBars.mapIndexed((index, tabBar) {
+        final children = state.tabBars.mapIndexed<Widget>((index, tabBar) {
           return Padding(
             padding: EdgeInsetsDirectional.only(
               start: index == 0 ? 0 : 2,
@@ -77,6 +78,8 @@ class _DatabaseViewList extends StatelessWidget {
             ),
           );
         }).toList();
+
+        children.insert(0, HSpace(GridSize.leadingHeaderPadding));
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,

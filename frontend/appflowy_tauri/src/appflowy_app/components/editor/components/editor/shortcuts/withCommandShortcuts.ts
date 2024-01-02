@@ -1,7 +1,5 @@
 import { ReactEditor } from 'slate-react';
 import { Editor, Range } from 'slate';
-import { getBlockEntry, isDeleteBackwardAtStartOfBlock } from '$app/components/editor/plugins/utils';
-import { EditorNodeType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
 
 export enum EditorCommand {
@@ -36,7 +34,7 @@ export function withCommandShortcuts(editor: ReactEditor) {
     });
 
     if (endOfPanelChar !== undefined && selection && Range.isCollapsed(selection)) {
-      const block = getBlockEntry(editor);
+      const block = CustomEditor.getBlock(editor);
       const path = block ? block[1] : [];
       const { anchor } = selection;
       const beforeText = Editor.string(editor, { anchor, focus: Editor.start(editor, path) }) + text.slice(0, -1);
@@ -67,7 +65,7 @@ export function withCommandShortcuts(editor: ReactEditor) {
 
     if (selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
-      const block = getBlockEntry(editor);
+      const block = CustomEditor.getBlock(editor);
       const path = block ? block[1] : [];
       const beforeText = Editor.string(editor, { anchor, focus: Editor.start(editor, path) });
 
@@ -81,7 +79,7 @@ export function withCommandShortcuts(editor: ReactEditor) {
       }
 
       // if delete backward at start of paragraph, and then it will be deleted, so we should close the panel if it is open
-      if (isDeleteBackwardAtStartOfBlock(editor, EditorNodeType.Paragraph)) {
+      if (CustomEditor.focusAtStartOfBlock(editor)) {
         const slateDom = ReactEditor.toDOMNode(editor, editor);
 
         commands.forEach((char) => {

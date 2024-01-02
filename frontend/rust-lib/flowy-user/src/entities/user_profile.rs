@@ -1,13 +1,11 @@
 use std::convert::TryInto;
-
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_deps::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::required_not_empty_str;
-use crate::entities::AuthTypePB;
+use crate::entities::AuthenticatorPB;
 use crate::errors::ErrorCode;
 
 use super::parser::UserStabilityAIKey;
@@ -45,7 +43,7 @@ pub struct UserProfilePB {
   pub openai_key: String,
 
   #[pb(index = 7)]
-  pub auth_type: AuthTypePB,
+  pub authenticator: AuthenticatorPB,
 
   #[pb(index = 8)]
   pub encryption_sign: String,
@@ -85,7 +83,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
-      auth_type: user_profile.authenticator.into(),
+      authenticator: user_profile.authenticator.into(),
       encryption_sign,
       encryption_type: encryption_ty,
       workspace_id: user_profile.workspace_id,
@@ -222,7 +220,7 @@ impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
 #[derive(ProtoBuf, Default, Debug, Clone, Validate)]
 pub struct UserWorkspacePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub workspace_id: String,
 
   #[pb(index = 2)]

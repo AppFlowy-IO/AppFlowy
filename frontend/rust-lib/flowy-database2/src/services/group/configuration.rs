@@ -496,8 +496,10 @@ fn merge_groups(
   merge_result.new_groups.extend(new_group_map.into_values());
 
   // The `No status` group index is initialized to 0
-  if !no_status_group_inserted && no_status_group.is_some() {
-    merge_result.all_groups.insert(0, no_status_group.unwrap());
+  if !no_status_group_inserted {
+    if let Some(group) = no_status_group {
+      merge_result.all_groups.insert(0, group);
+    }
   }
   merge_result
 }

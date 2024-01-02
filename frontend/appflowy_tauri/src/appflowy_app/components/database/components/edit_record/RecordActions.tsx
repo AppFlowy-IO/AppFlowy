@@ -39,7 +39,7 @@ function RecordActions({ anchorEl, open, onClose, rowId }: Props) {
   ];
 
   return (
-    <Menu anchorEl={anchorEl} open={open} onClose={onClose}>
+    <Menu anchorEl={anchorEl} disableRestoreFocus={true} open={open} onClose={onClose}>
       {menuOptions.map((option) => (
         <MenuItem
           key={option.label}

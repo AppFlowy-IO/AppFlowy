@@ -1,13 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Popover, { PopoverProps } from '@mui/material/Popover';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@mui/material';
+import { Button, Divider } from '@mui/material';
 import { PopoverCommonProps } from '$app/components/editor/components/tools/popover';
 import { Element } from 'slate';
-import { useSlateStatic } from 'slate-react';
+import { ReactEditor, useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
+import { useBlockMenuKeyDown } from '$app/components/editor/components/tools/block_actions/BlockMenu.hooks';
+import { Color } from './color';
 
 export function BlockOperationMenu({
   node,
@@ -17,14 +19,32 @@ export function BlockOperationMenu({
 } & PopoverProps) {
   const editor = useSlateStatic();
   const { t } = useTranslation();
-  const options = useMemo(
+
+  const handleClose = useCallback(() => {
+    props.onClose?.({}, 'backdropClick');
+    ReactEditor.focus(editor);
+    const path = ReactEditor.findPath(editor, node);
+
+    editor.select(path);
+    if (editor.isSelectable(node)) {
+      editor.collapse({
+        edge: 'start',
+      });
+    }
+  }, [editor, node, props]);
+
+  const { onKeyDown } = useBlockMenuKeyDown({
+    onClose: handleClose,
+  });
+
+  const operationOptions = useMemo(
     () => [
       {
         icon: <DeleteSvg />,
         text: t('button.delete'),
         onClick: () => {
           CustomEditor.deleteNode(editor, node);
-          props.onClose?.({}, 'backdropClick');
+          handleClose();
         },
       },
       {
@@ -32,17 +52,24 @@ export function BlockOperationMenu({
         text: t('button.duplicate'),
         onClick: () => {
           CustomEditor.duplicateNode(editor, node);
-          props.onClose?.({}, 'backdropClick');
+          handleClose();
         },
       },
     ],
-    [editor, node, props, t]
+    [editor, node, handleClose, t]
   );
 
   return (
-    <Popover {...PopoverCommonProps} {...props}>
+    <Popover
+      {...PopoverCommonProps}
+      disableAutoFocus={false}
+      onKeyDown={onKeyDown}
+      onMouseDown={(e) => e.stopPropagation()}
+      {...props}
+      onClose={handleClose}
+    >
       <div className={'flex flex-col p-2'}>
-        {options.map((option, index) => (
+        {operationOptions.map((option, index) => (
           <Button
             color={'inherit'}
             onClick={option.onClick}
@@ -55,6 +82,18 @@ export function BlockOperationMenu({
           </Button>
         ))}
       </div>
+      <Divider className={'my-1'} />
+      <Color
+        node={
+          node as Element & {
+            data?: {
+              font_color?: string;
+              bg_color?: string;
+            };
+          }
+        }
+        onClose={handleClose}
+      />
     </Popover>
   );
 }

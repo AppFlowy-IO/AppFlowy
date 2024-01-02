@@ -8,4 +8,4 @@ mod pragma;
 pub use database::*;
 pub use pool::*;
 
-pub use errors::{Error, ErrorKind, Result};
+pub use errors::Error;

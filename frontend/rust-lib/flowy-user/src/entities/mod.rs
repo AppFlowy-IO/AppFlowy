@@ -1,5 +1,3 @@
-use validator::ValidationError;
-
 pub use auth::*;
 pub use realtime::*;
 pub use reminder::*;
@@ -15,10 +13,3 @@ mod reminder;
 mod user_profile;
 mod user_setting;
 mod workspace_member;
-
-pub fn required_not_empty_str(s: &str) -> Result<(), ValidationError> {
-  if s.is_empty() {
-    return Err(ValidationError::new("should not be empty string"));
-  }
-  Ok(())
-}

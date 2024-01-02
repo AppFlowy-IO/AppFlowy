@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Popover from '@mui/material/Popover';
 import { PopoverCommonProps } from '$app/components/editor/components/tools/popover';
 import { TextareaAutosize } from '@mui/material';
@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { CustomEditor } from '$app/components/editor/command';
 import { Element } from 'slate';
 import { KeyboardReturnOutlined } from '@mui/icons-material';
-import { useSlateStatic } from 'slate-react';
+import { ReactEditor, useSlateStatic } from 'slate-react';
 
 function EditPopover({
   open,
@@ -28,10 +28,19 @@ function EditPopover({
     setValue(event.currentTarget.value);
   };
 
+  const handleClose = useCallback(() => {
+    onClose();
+    if (!node) return;
+    ReactEditor.focus(editor);
+    const path = ReactEditor.findPath(editor, node);
+
+    editor.select(path);
+  }, [onClose, editor, node]);
+
   const handleDone = () => {
     if (!node) return;
     CustomEditor.setMathEquationBlockFormula(editor, node, value);
-    onClose();
+    handleClose();
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -58,7 +67,7 @@ function EditPopover({
         vertical: 'bottom',
         horizontal: 'center',
       }}
-      onClose={onClose}
+      onClose={handleClose}
     >
       <div className={'flex flex-col gap-3 p-4'}>
         <TextareaAutosize

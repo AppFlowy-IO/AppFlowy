@@ -5,11 +5,11 @@ import { Link } from '$app/components/editor/components/marks';
 export function Leaf({ attributes, children, leaf }: RenderLeafProps) {
   let newChildren = children;
 
-  const classList = [leaf.prism_token, leaf.prism_token && 'token'].filter(Boolean);
+  const classList = [leaf.prism_token, leaf.prism_token && 'token', leaf.class_name].filter(Boolean);
 
   if (leaf.code) {
     newChildren = (
-      <code className={'mx-0.5 rounded-sm bg-gray-300 bg-opacity-50 px-1 text-xs font-normal text-[#EB5757]'}>
+      <code className={'bg-gray-300 bg-opacity-50 text-xs font-normal tracking-wider text-[#EB5757]'}>
         {newChildren}
       </code>
     );

@@ -24,8 +24,7 @@ describe('Transform events to actions', () => {
   test('should transform insert event to insert action', () => {
     const sharedType = provider.sharedType;
 
-    const parentId = sharedType?.getAttribute('blockId') as string;
-    const insertTextOp = generateInsertTextOp('insert text', parentId, 1);
+    const insertTextOp = generateInsertTextOp('insert text');
 
     sharedType?.applyDelta([{ retain: 2 }, insertTextOp]);
 
@@ -43,24 +42,6 @@ describe('Transform events to actions', () => {
     expect(actions[1].payload.prev_id).toBe('2qonPRrNTO');
   });
 
-  test('should transform move event to move action', () => {
-    const sharedType = provider.sharedType;
-
-    const parentId = 'CxPil0324P';
-    const yText = sharedType?.toDelta()[4].insert as Y.XmlText;
-    sharedType?.doc?.transact(() => {
-      yText.setAttribute('level', 2);
-      yText.setAttribute('parentId', parentId);
-    });
-
-    const actions = applyActions.mock.calls[0][1];
-    expect(actions).toHaveLength(1);
-    expect(actions[0].action).toBe(BlockActionTypePB.Move);
-    expect(actions[0].payload.block.id).toBe('Fn4KACkt1i');
-    expect(actions[0].payload.parent_id).toBe('CxPil0324P');
-    expect(actions[0].payload.prev_id).toBe('');
-  });
-
   test('should transform delete event to delete action', () => {
     const sharedType = provider.sharedType;
 
@@ -72,7 +53,6 @@ describe('Transform events to actions', () => {
     expect(actions).toHaveLength(1);
     expect(actions[0].action).toBe(BlockActionTypePB.Delete);
     expect(actions[0].payload.block.id).toBe('Fn4KACkt1i');
-    expect(actions[0].payload.parent_id).toBe('3EzeCrtxlh');
   });
 
   test('should transform update event to update action', () => {
@@ -90,17 +70,17 @@ describe('Transform events to actions', () => {
     expect(actions[0].action).toBe(BlockActionTypePB.Update);
     expect(actions[0].payload.block.id).toBe('Fn4KACkt1i');
     expect(actions[0].payload.block.data).toBe('{"checked":true}');
-    expect(actions[0].payload.parent_id).toBe('3EzeCrtxlh');
   });
 
   test('should transform apply delta event to apply delta action (insert text)', () => {
     const sharedType = provider.sharedType;
 
-    const yText = sharedType?.toDelta()[4].insert as Y.XmlText;
+    const blockYText = sharedType?.toDelta()[4].insert as Y.XmlText;
+    const textYText = blockYText.toDelta()[0].insert as Y.XmlText;
     sharedType?.doc?.transact(() => {
-      yText.applyDelta([{ retain: 1 }, { insert: 'apply delta' }]);
+      textYText.applyDelta([{ retain: 1 }, { insert: 'apply delta' }]);
     });
-    const textId = yText.getAttribute('textId');
+    const textId = textYText.getAttribute('textId');
 
     const actions = applyActions.mock.calls[0][1];
     expect(actions).toHaveLength(1);
@@ -112,7 +92,8 @@ describe('Transform events to actions', () => {
   test('should transform apply delta event to apply delta action: insert mention', () => {
     const sharedType = provider.sharedType;
 
-    const yText = sharedType?.toDelta()[4].insert as Y.XmlText;
+    const blockYText = sharedType?.toDelta()[4].insert as Y.XmlText;
+    const yText = blockYText.toDelta()[0].insert as Y.XmlText;
     sharedType?.doc?.transact(() => {
       yText.applyDelta([{ retain: 1 }, genersteMentionInsertTextOp()]);
     });
@@ -126,7 +107,8 @@ describe('Transform events to actions', () => {
   test('should transform apply delta event to apply delta action: insert formula', () => {
     const sharedType = provider.sharedType;
 
-    const yText = sharedType?.toDelta()[4].insert as Y.XmlText;
+    const blockYText = sharedType?.toDelta()[4].insert as Y.XmlText;
+    const yText = blockYText.toDelta()[0].insert as Y.XmlText;
     sharedType?.doc?.transact(() => {
       yText.applyDelta([{ retain: 1 }, generateFormulaInsertTextOp()]);
     });

@@ -49,7 +49,7 @@ function GridNewRow({ index, groupId, getContainerRef }: Props) {
         toggleCssProperty(false);
       }}
       onClick={handleClick}
-      className={'grid-new-row flex grow'}
+      className={'grid-new-row flex grow cursor-pointer'}
     >
       <span
         style={{

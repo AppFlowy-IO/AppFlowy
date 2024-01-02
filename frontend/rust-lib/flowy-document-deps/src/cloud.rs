@@ -1,4 +1,5 @@
 use anyhow::Error;
+use collab::core::collab::CollabDocState;
 pub use collab_document::blocks::DocumentData;
 
 use flowy_error::FlowyError;
@@ -8,11 +9,11 @@ use lib_infra::future::FutureResult;
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
 pub trait DocumentCloudService: Send + Sync + 'static {
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+  ) -> FutureResult<CollabDocState, FlowyError>;
 
   fn get_document_snapshots(
     &self,

@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +78,7 @@ class _AppFlowyMobileToolbarIconItemState
 
   @override
   Widget build(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: GestureDetector(
@@ -98,11 +100,12 @@ class _AppFlowyMobileToolbarIconItemState
           padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: isSelected ? const Color(0x1f232914) : null,
+            color: isSelected ? theme.toolbarItemSelectedBackgroundColor : null,
           ),
           child: widget.iconBuilder?.call(context) ??
               FlowySvg(
                 widget.icon!,
+                color: theme.toolbarItemIconColor,
               ),
         ),
       ),

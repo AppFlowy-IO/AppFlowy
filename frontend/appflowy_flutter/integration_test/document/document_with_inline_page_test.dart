@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -105,14 +105,14 @@ Future<String> insertInlinePage(
   // create a new grid
   final id = uuid();
   final name = '${layout.name}_$id';
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: name,
     layout: layout,
     openAfterCreated: false,
   );
 
   // create a new document
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: 'insert_a_inline_page_${layout.name}',
     layout: ViewLayoutPB.Document,
   );

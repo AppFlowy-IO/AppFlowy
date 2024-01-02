@@ -1,17 +1,13 @@
-import React, { CSSProperties } from 'react';
-import { Editor, Element } from 'slate';
-import { useSlateStatic } from 'slate-react';
+import React from 'react';
+import { Element } from 'slate';
 import PlaceholderContent from '$app/components/editor/components/blocks/_shared/PlaceholderContent';
 
-function Placeholder({ node, ...props }: { node: Element; className?: string; style?: CSSProperties }) {
-  const editor = useSlateStatic();
-  const isEmpty = Editor.isEmpty(editor, node);
-
+function Placeholder({ node, isEmpty }: { node: Element; isEmpty: boolean }) {
   if (!isEmpty) {
     return null;
   }
 
-  return <PlaceholderContent node={node} {...props} />;
+  return <PlaceholderContent node={node} />;
 }
 
 export default React.memo(Placeholder);

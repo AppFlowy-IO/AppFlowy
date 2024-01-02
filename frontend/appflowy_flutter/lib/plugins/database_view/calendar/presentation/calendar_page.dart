@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
-import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
@@ -11,7 +10,7 @@ import 'package:appflowy/plugins/database_view/calendar/application/unschedule_e
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -222,9 +221,11 @@ class _CalendarPageState extends State<CalendarPage> {
         children: [
           GestureDetector(
             onTap: PlatformExtension.isMobile
-                ? () => showFlowyMobileBottomSheet(
+                ? () => showMobileBottomSheet(
                       context,
                       title: LocaleKeys.calendar_quickJumpYear.tr(),
+                      showHeader: true,
+                      showCloseButton: true,
                       builder: (_) => SizedBox(
                         height: 200,
                         child: YearPicker(

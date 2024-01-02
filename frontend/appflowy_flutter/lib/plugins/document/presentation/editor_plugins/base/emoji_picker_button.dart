@@ -17,6 +17,7 @@ class EmojiPickerButton extends StatelessWidget {
     this.defaultIcon,
     this.offset,
     this.direction,
+    this.title,
   });
 
   final String emoji;
@@ -27,6 +28,7 @@ class EmojiPickerButton extends StatelessWidget {
   final Widget? defaultIcon;
   final Offset? offset;
   final PopoverDirection? direction;
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +81,12 @@ class EmojiPickerButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         onPressed: () async {
           final result = await context.push<EmojiPickerResult>(
-            MobileEmojiPickerScreen.routeName,
+            Uri(
+              path: MobileEmojiPickerScreen.routeName,
+              queryParameters: {
+                MobileEmojiPickerScreen.pageTitle: title,
+              },
+            ).toString(),
           );
           if (result != null) {
             onSubmitted(

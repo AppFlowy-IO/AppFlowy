@@ -280,6 +280,6 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
     FieldType::MultiSelect => MultiSelectTypeOption::default().into(),
     FieldType::Checkbox => CheckboxTypeOption::default().into(),
     FieldType::URL => URLTypeOption::default().into(),
-    FieldType::Checklist => ChecklistTypeOption::default().into(),
+    FieldType::Checklist => ChecklistTypeOption.into(),
   }
 }

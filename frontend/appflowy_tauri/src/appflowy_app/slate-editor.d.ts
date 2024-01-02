@@ -12,7 +12,7 @@ interface EditorInlineAttributes {
   code?: boolean;
   formula?: string;
   prism_token?: string;
-  temporary?: string;
+  class_name?: string;
   mention?: {
     type: string;
     // inline page ref id
@@ -25,10 +25,7 @@ interface EditorInlineAttributes {
 type CustomElement = {
   children: (CustomText | CustomElement)[];
   type: string;
-  level?: number;
   data?: unknown;
-  isHidden?: boolean;
-  parentId?: string;
   blockId?: string;
   textId?: string;
 };

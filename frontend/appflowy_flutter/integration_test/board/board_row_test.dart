@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +18,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
       final card1 = find.findTextInFlowyText(name);
       await tester.hoverOnWidget(
@@ -36,7 +36,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
       final card1 = find.findTextInFlowyText(name);
       await tester.hoverOnWidget(
@@ -53,7 +53,7 @@ void main() {
     testWidgets('add new group', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       // assert number of groups
       tester.assertNumberOfGroups(4);

@@ -1,10 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class MobileToolbarItemWrapper extends StatelessWidget {
-  const MobileToolbarItemWrapper({
+class MobileToolbarMenuItemWrapper extends StatelessWidget {
+  const MobileToolbarMenuItemWrapper({
     super.key,
     required this.size,
     this.icon,
@@ -43,13 +44,17 @@ class MobileToolbarItemWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     Color? iconColor;
     if (enable != null) {
-      iconColor = enable! ? null : const Color(0xFFC7C7CC);
+      iconColor = enable! ? null : theme.toolbarMenuIconDisabledColor;
     } else {
-      iconColor = isSelected ? Colors.white : Colors.black;
+      iconColor = isSelected
+          ? theme.toolbarMenuIconSelectedColor
+          : theme.toolbarMenuIconColor;
     }
-    final textColor = enable == false ? const Color(0xFFC7C7CC) : null;
+    final textColor =
+        enable == false ? theme.toolbarMenuIconDisabledColor : null;
     // the ui design is based on 375.0 width
     final scale = context.scale;
     final radius = Radius.circular(12 * scale);
@@ -84,7 +89,9 @@ class MobileToolbarItemWrapper extends StatelessWidget {
             width: size.width * scale,
             alignment: text != null ? Alignment.centerLeft : Alignment.center,
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF00BCF0) : backgroundColor,
+              color: isSelected
+                  ? theme.toolbarMenuItemSelectedBackgroundColor
+                  : backgroundColor,
               borderRadius: BorderRadius.only(
                 topLeft: enableTopLeftRadius ? radius : Radius.zero,
                 topRight: enableTopRightRadius ? radius : Radius.zero,
@@ -143,6 +150,13 @@ class ScaledVSpace extends StatelessWidget {
 extension MobileToolbarBuildContext on BuildContext {
   double get scale => MediaQuery.of(this).size.width / 375.0;
 }
+
+final _blocksCanContainChildren = [
+  ParagraphBlockKeys.type,
+  BulletedListBlockKeys.type,
+  NumberedListBlockKeys.type,
+  TodoListBlockKeys.type,
+];
 
 extension MobileToolbarEditorState on EditorState {
   bool isBlockTypeSelected(
@@ -208,6 +222,7 @@ extension MobileToolbarEditorState on EditorState {
     Selection? selection,
     Attributes? extraAttributes,
     bool? isSelected,
+    Map? selectionExtraInfo,
   }) async {
     selection = selection ?? this.selection;
     if (selection == null) {
@@ -220,6 +235,20 @@ extension MobileToolbarEditorState on EditorState {
       return;
     }
     final selected = isSelected ?? type == newBlockType;
+
+    // if the new block type can't contain children, we need to move all the children to the parent
+    bool needToDeleteChildren = false;
+    if (!selected &&
+        node.children.isNotEmpty &&
+        !_blocksCanContainChildren.contains(newBlockType)) {
+      final transaction = this.transaction;
+      needToDeleteChildren = true;
+      transaction.insertNodes(
+        selection.end.path.next,
+        node.children.map((e) => e.copyWith()),
+      );
+      await apply(transaction);
+    }
     await formatNode(
       selection,
       (node) {
@@ -231,14 +260,17 @@ extension MobileToolbarEditorState on EditorState {
         return node.copyWith(
           type: selected ? ParagraphBlockKeys.type : newBlockType,
           attributes: attributes,
+          children: needToDeleteChildren ? [] : null,
         );
       },
+      selectionExtraInfo: selectionExtraInfo,
     );
   }
 
   Future<void> alignBlock(
     String alignment, {
     Selection? selection,
+    Map? selectionExtraInfo,
   }) async {
     await updateNode(
       selection,
@@ -248,6 +280,7 @@ extension MobileToolbarEditorState on EditorState {
           blockComponentAlign: alignment,
         },
       ),
+      selectionExtraInfo: selectionExtraInfo,
     );
   }
 

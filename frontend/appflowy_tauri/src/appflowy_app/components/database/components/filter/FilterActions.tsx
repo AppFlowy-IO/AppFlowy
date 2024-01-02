@@ -33,7 +33,7 @@ function FilterActions({ filter }: { filter: Filter }) {
       >
         <MoreSvg />
       </IconButton>
-      <Menu keepMounted={false} open={open} anchorEl={anchorEl} onClose={onClose}>
+      <Menu disableRestoreFocus={true} keepMounted={false} open={open} anchorEl={anchorEl} onClose={onClose}>
         <MenuItem onClick={onDelete}>{t('grid.settings.deleteFilter')}</MenuItem>
       </Menu>
     </>

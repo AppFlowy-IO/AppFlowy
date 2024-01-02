@@ -8,10 +8,16 @@ export interface EditorNode {
   id: string;
   type: EditorNodeType;
   parent?: string | null;
-  data?: unknown;
+  data?: BlockData;
   children?: string;
   externalId?: string;
   externalType?: string;
+}
+
+export interface TextNode extends Element {
+  type: EditorNodeType.Text;
+  textId: string;
+  blockId: string;
 }
 
 export interface PageNode extends Element {
@@ -21,32 +27,38 @@ export interface ParagraphNode extends Element {
   type: EditorNodeType.Paragraph;
 }
 
+export type BlockData = {
+  [key: string]: string | boolean | number | undefined;
+  font_color?: string;
+  bg_color?: string;
+};
+
 export interface HeadingNode extends Element {
   type: EditorNodeType.HeadingBlock;
   data: {
     level: number;
-  };
+  } & BlockData;
 }
 
 export interface GridNode extends Element {
   type: EditorNodeType.GridBlock;
   data: {
     viewId?: string;
-  };
+  } & BlockData;
 }
 
 export interface TodoListNode extends Element {
   type: EditorNodeType.TodoListBlock;
   data: {
     checked: boolean;
-  };
+  } & BlockData;
 }
 
 export interface CodeNode extends Element {
   type: EditorNodeType.CodeBlock;
   data: {
     language: string;
-  };
+  } & BlockData;
 }
 
 export interface QuoteNode extends Element {
@@ -65,7 +77,7 @@ export interface ToggleListNode extends Element {
   type: EditorNodeType.ToggleListBlock;
   data: {
     collapsed: boolean;
-  };
+  } & BlockData;
 }
 
 export interface DividerNode extends Element {
@@ -76,18 +88,19 @@ export interface CalloutNode extends Element {
   type: EditorNodeType.CalloutBlock;
   data: {
     icon: string;
-  };
+  } & BlockData;
 }
 
 export interface MathEquationNode extends Element {
   type: EditorNodeType.EquationBlock;
   data: {
     formula?: string;
-  };
+  } & BlockData;
 }
 
 export interface FormulaNode extends Element {
   type: EditorInlineNodeType.Formula;
+  data: string;
 }
 
 export interface MentionNode extends Element {
@@ -129,6 +142,7 @@ export interface EditorProps {
 }
 
 export enum EditorNodeType {
+  Text = 'text',
   Paragraph = 'paragraph',
   Page = 'page',
   HeadingBlock = 'heading',
@@ -145,8 +159,6 @@ export enum EditorNodeType {
   GridBlock = 'grid',
 }
 
-export const blockTypes: string[] = Object.values(EditorNodeType);
-
 export enum EditorInlineNodeType {
   Mention = 'mention',
   Formula = 'formula',
@@ -161,63 +173,15 @@ export interface EditorElementProps<T = Element> extends HTMLAttributes<HTMLDivE
   node: T;
 }
 
-export interface EditorInlineAttributes {
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  strikethrough?: boolean;
-  font_color?: string;
-  bg_color?: string;
-  href?: string;
-  code?: boolean;
-  formula?: boolean;
-  prism_token?: string;
-  mention?: {
-    type: string;
-    // inline page ref id
-    page?: string;
-    // reminder date ref id
-    date?: string;
-  };
-}
-
 export enum EditorMarkFormat {
   Bold = 'bold',
   Italic = 'italic',
   Underline = 'underline',
   StrikeThrough = 'strikethrough',
   Code = 'code',
-  Formula = 'formula',
-}
-
-export enum EditorStyleFormat {
-  FontColor = 'font_color',
-  BackgroundColor = 'bg_color',
   Href = 'href',
-}
-
-export const markTypes: string[] = [
-  EditorMarkFormat.Bold,
-  EditorMarkFormat.Italic,
-  EditorMarkFormat.Underline,
-  EditorMarkFormat.StrikeThrough,
-  EditorMarkFormat.Code,
-  EditorMarkFormat.Formula,
-  EditorStyleFormat.Href,
-  EditorStyleFormat.FontColor,
-  EditorStyleFormat.BackgroundColor,
-];
-
-export enum EditorTurnFormat {
-  Paragraph = 'paragraph',
-  Heading1 = 'heading1', // 'heading1' is a special format, it's not a slate node type, but a slate node type's data
-  Heading2 = 'heading2',
-  Heading3 = 'heading3',
-  TodoList = 'todo_list',
-  BulletedList = 'bulleted_list',
-  NumberedList = 'numbered_list',
-  Quote = 'quote',
-  ToggleList = 'toggle_list',
+  FontColor = 'font_color',
+  BgColor = 'bg_color',
 }
 
 export enum MentionType {

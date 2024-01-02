@@ -40,7 +40,7 @@ export const TextCell: FC<TextCellProps> = ({ placeholder, cell }) => {
 
   return (
     <>
-      <CellText className={`min-h-[36px] w-full`} ref={cellRef} onClick={handleClick}>
+      <CellText className={`min-h-[36px] w-full cursor-text`} ref={cellRef} onClick={handleClick}>
         {content}
       </CellText>
       <Suspense>

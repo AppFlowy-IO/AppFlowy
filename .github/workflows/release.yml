@@ -6,8 +6,8 @@ on:
       - "*"
 
 env:
-  FLUTTER_VERSION: "3.16.2"
-  RUST_TOOLCHAIN: "1.70"
+  FLUTTER_VERSION: "3.18.0-0.2.pre"
+  RUST_TOOLCHAIN: "1.75"
 
 jobs:
   create-release:
@@ -57,7 +57,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
+          channel: "beta"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Install Rust toolchain
@@ -143,7 +143,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
+          channel: "beta"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Install Rust toolchain
@@ -243,7 +243,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
+          channel: "beta"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Install Rust toolchain
@@ -346,7 +346,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
+          channel: "beta"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Install Rust toolchain

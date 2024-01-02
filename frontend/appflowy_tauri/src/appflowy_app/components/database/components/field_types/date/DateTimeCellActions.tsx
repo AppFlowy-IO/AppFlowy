@@ -75,6 +75,7 @@ function DateTimeCellActions({
 
   return (
     <Popover
+      disableRestoreFocus={true}
       keepMounted={false}
       anchorOrigin={{
         vertical: 'bottom',

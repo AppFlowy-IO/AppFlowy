@@ -28,9 +28,10 @@ import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -55,6 +56,7 @@ class DependencyResolver {
 
 Future<void> _resolveCloudDeps(GetIt getIt) async {
   final env = await AppFlowyCloudSharedEnv.fromEnv();
+  Log.info("cloud setting: \n$env");
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
 
   if (isAppFlowyCloudEnabled) {
@@ -131,7 +133,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
     case AuthenticatorType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
-          AuthTypePB.Local,
+          AuthenticatorPB.Local,
         ),
       );
       break;

@@ -262,6 +262,12 @@ pub enum ErrorCode {
 
   #[error("rocksdb internal error")]
   RocksdbInternal = 87,
+
+  #[error("Local version not support")]
+  LocalVersionNotSupport = 88,
+
+  #[error("AppFlowy data folder import error")]
+  AppFlowyDataFolderImportError = 89,
 }
 
 impl ErrorCode {

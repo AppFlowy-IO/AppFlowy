@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/select/select_option.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -17,7 +17,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Name');
@@ -34,7 +34,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Type');
@@ -56,7 +56,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new grid
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // create a field
       await tester.createField(FieldType.Checklist, 'checklist');
@@ -70,7 +70,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // create a field
       await tester.createField(FieldType.Checkbox, 'New field 1');
@@ -90,7 +90,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // create a field
       await tester.scrollToRight(find.byType(GridPage));
@@ -110,7 +110,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       await tester.scrollToRight(find.byType(GridPage));
 
@@ -133,7 +133,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       await tester.scrollToRight(find.byType(GridPage));
       await tester.tapNewPropertyButton();
@@ -153,7 +153,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       for (final fieldType in [
         FieldType.Checklist,
@@ -185,7 +185,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         layout: ViewLayoutPB.Grid,
       );
 

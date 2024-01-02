@@ -1,13 +1,13 @@
+use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Weak};
 
-use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, MutexDatabase, YrsDocAction};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
-  CollabFuture, CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCollabService,
-  WorkspaceDatabase,
+  CollabDocStateByOid, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_entity::CollabType;
@@ -16,7 +16,7 @@ use lru::LruCache;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
-use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
@@ -95,14 +95,14 @@ impl DatabaseManager {
       cloud_service: self.cloud_service.clone(),
     };
     let config = CollabPersistenceConfig::new().snapshot_per_update(10);
-    let mut collab_raw_data = CollabRawData::default();
+    let mut collab_raw_data = CollabDocState::default();
 
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &database_views_aggregate_id) {
       trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_update(
+        .get_collab_doc_state_db(
           &database_views_aggregate_id,
           CollabType::WorkspaceDatabase,
           &workspace_id,
@@ -170,6 +170,19 @@ impl DatabaseManager {
         .collect();
     }
     RepeatedDatabaseDescriptionPB { items }
+  }
+
+  pub async fn track_database(
+    &self,
+    view_ids_by_database_id: HashMap<String, Vec<String>>,
+  ) -> FlowyResult<()> {
+    let wdb = self.get_workspace_database().await?;
+    view_ids_by_database_id
+      .into_iter()
+      .for_each(|(database_id, view_ids)| {
+        wdb.track_database(&database_id, view_ids);
+      });
+    Ok(())
   }
 
   pub async fn get_database_with_view_id(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
@@ -394,11 +407,11 @@ struct UserDatabaseCollabServiceImpl {
 }
 
 impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
-  fn get_collab_update(
+  fn get_collab_doc_state(
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> CollabFuture<Result<CollabObjectUpdate, DatabaseError>> {
+  ) -> CollabFuture<Result<CollabDocState, DatabaseError>> {
     let workspace_id = self.workspace_id.clone();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
@@ -410,7 +423,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .get_collab_update(&object_id, object_ty, &workspace_id)
+            .get_collab_doc_state_db(&object_id, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -422,18 +435,18 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
-  ) -> CollabFuture<Result<CollabObjectUpdateByOid, DatabaseError>> {
+  ) -> CollabFuture<Result<CollabDocStateByOid, DatabaseError>> {
     let workspace_id = self.workspace_id.clone();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
       match weak_cloud_service.upgrade() {
         None => {
           tracing::warn!("Cloud service is dropped");
-          Ok(CollabObjectUpdateByOid::default())
+          Ok(CollabDocStateByOid::default())
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .batch_get_collab_updates(object_ids, object_ty, &workspace_id)
+            .batch_get_collab_doc_state_db(object_ids, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -447,7 +460,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<RocksCollabDB>,
-    collab_raw_data: CollabRawData,
+    collab_raw_data: CollabDocState,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
     block_on(self.collab_builder.build_with_config(
@@ -457,6 +470,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       collab_db,
       collab_raw_data,
       config,
+      CollabBuilderConfig::default().sync_enable(true),
     ))
     .unwrap()
   }

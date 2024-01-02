@@ -46,6 +46,11 @@ function FormulaEditPopover({
           placeholder={'E = mc^2'}
           onChange={(e) => setText(e.target.value)}
           fullWidth={true}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onDone(text);
+            }
+          }}
         />
         <div className={'ml-2'}>
           <Button size={'small'} variant={'text'} onClick={() => onDone(text)}>

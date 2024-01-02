@@ -5,7 +5,7 @@ import { init, FrequentlyUsed, getEmojiDataFromNative, Store } from 'emoji-mart'
 import { PopoverProps } from '@mui/material/Popover';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { chunkArray } from '$app/utils/tool';
+import chunk from 'lodash-es/chunk';
 
 export const EMOJI_SIZE = 32;
 
@@ -154,7 +154,7 @@ export function getRowsWithCategories(emojiCategories: EmojiCategory[], rowSize:
       id: category.id,
       type: 'category',
     });
-    chunkArray(category.emojis, rowSize).forEach((chunk, index) => {
+    chunk(category.emojis, rowSize).forEach((chunk, index) => {
       rows.push({
         type: 'emojis',
         emojis: chunk,

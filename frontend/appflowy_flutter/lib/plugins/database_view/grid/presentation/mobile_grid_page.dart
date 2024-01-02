@@ -9,7 +9,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/shortcu
 import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -139,7 +139,7 @@ class _GridPageContentState extends State<GridPageContent> {
       listenWhen: (previous, current) =>
           previous.createdRow != current.createdRow,
       listener: (context, state) {
-        if (state.createdRow == null) {
+        if (state.createdRow == null || !state.openRowDetail) {
           return;
         }
         final bloc = context.read<GridBloc>();

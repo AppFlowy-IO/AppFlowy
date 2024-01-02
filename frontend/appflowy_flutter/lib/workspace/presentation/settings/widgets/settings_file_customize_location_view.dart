@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
@@ -207,11 +206,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
             return;
           }
           await context.read<SettingsLocationCubit>().setCustomPath(path);
-          await FlowyRunner.run(
-            FlowyApp(),
-            FlowyRunner.currentMode,
-            isAnon: true,
-          );
+          await runAppFlowy(isAnon: true);
           if (mounted) {
             Navigator.of(context).pop();
           }
@@ -283,11 +278,7 @@ class _RecoverDefaultStorageButtonState
         await context
             .read<SettingsLocationCubit>()
             .resetDataStoragePathToApplicationDefault();
-        await FlowyRunner.run(
-          FlowyApp(),
-          FlowyRunner.currentMode,
-          isAnon: true,
-        );
+        await runAppFlowy(isAnon: true);
         if (mounted) {
           Navigator.of(context).pop();
         }

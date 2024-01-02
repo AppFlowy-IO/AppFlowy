@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -17,14 +18,16 @@ class FontFamilyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = ToolbarColorExtension.of(context);
     final fontFamily = editorState.getDeltaAttributeValueInSelection<String>(
       AppFlowyRichTextKeys.fontFamily,
     );
     final systemFonFamily =
         context.read<DocumentAppearanceCubit>().state.fontFamily;
-    return MobileToolbarItemWrapper(
+    return MobileToolbarMenuItemWrapper(
       size: const Size(144, 52),
       onTap: () async {
+        keepEditorFocusNotifier.increase();
         final selection = editorState.selection;
         final newFont = await context
             .read<GoRouter>()
@@ -35,10 +38,20 @@ class FontFamilyItem extends StatelessWidget {
                 GoogleFonts.getFont(newFont).fontFamily,
           });
         }
+        // wait for the font picker screen to be dismissed.
+        Future.delayed(const Duration(milliseconds: 250), () {
+          // highlight the selected text again.
+          editorState.updateSelectionWithReason(
+            selection,
+            extraInfo: {
+              selectionExtraInfoDisableFloatingToolbar: true,
+            },
+          );
+        });
       },
       text: fontFamily ?? systemFonFamily,
       fontFamily: fontFamily ?? systemFonFamily,
-      backgroundColor: const Color(0xFFF2F2F7),
+      backgroundColor: theme.toolbarMenuItemBackgroundColor,
       isSelected: false,
       enable: editorState.selection?.isCollapsed == false,
       showRightArrow: true,

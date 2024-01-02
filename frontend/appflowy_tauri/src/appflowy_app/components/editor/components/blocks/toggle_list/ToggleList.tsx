@@ -2,7 +2,6 @@ import React, { forwardRef, memo, useCallback, useMemo } from 'react';
 import { EditorElementProps, ToggleListNode } from '$app/application/document/document.types';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { ReactComponent as RightSvg } from '$app/assets/more.svg';
-import Placeholder from '$app/components/editor/components/blocks/_shared/Placeholder';
 import { CustomEditor } from '$app/components/editor/command';
 
 export const ToggleList = memo(
@@ -10,27 +9,26 @@ export const ToggleList = memo(
     const { collapsed } = node.data;
     const editor = useSlateStatic() as ReactEditor;
     const className = useMemo(() => {
-      return `relative ${attributes.className ?? ''}`;
-    }, [attributes.className]);
+      return `pl-6 ${attributes.className ?? ''} ${collapsed ? 'collapsed' : ''}`;
+    }, [attributes.className, collapsed]);
     const toggleToggleList = useCallback(() => {
       CustomEditor.toggleToggleList(editor, node);
     }, [editor, node]);
 
     return (
-      <div {...attributes} ref={ref} className={className}>
+      <>
         <span
+          data-playwright-selected={false}
           contentEditable={false}
           onClick={toggleToggleList}
-          className='absolute left-0 top-0 inline-block cursor-pointer rounded text-xl text-text-title hover:bg-fill-list-hover'
+          className='absolute cursor-pointer select-none pt-[3px] text-xl hover:text-fill-default'
         >
           {collapsed ? <RightSvg /> : <RightSvg className={'rotate-90 transform'} />}
         </span>
-        <span className={'z-1 relative ml-6'}>
-          <Placeholder node={node} />
-
+        <div {...attributes} ref={ref} className={className}>
           {children}
-        </span>
-      </div>
+        </div>
+      </>
     );
   })
 );

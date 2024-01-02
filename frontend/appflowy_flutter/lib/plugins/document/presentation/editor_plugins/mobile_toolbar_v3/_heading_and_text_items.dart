@@ -70,7 +70,7 @@ class _HeadingOrTextItem extends StatelessWidget {
         : const EdgeInsets.symmetric(
             vertical: 16.0,
           );
-    return MobileToolbarItemWrapper(
+    return MobileToolbarMenuItemWrapper(
       size: const Size(76, 52),
       onTap: () async => await _convert(isSelected),
       icon: icon,
@@ -88,6 +88,9 @@ class _HeadingOrTextItem extends StatelessWidget {
               HeadingBlockKeys.level: level!,
             }
           : null,
+      selectionExtraInfo: {
+        selectionExtraInfoDoNotAttachTextService: true,
+      },
     );
   }
 }

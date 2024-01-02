@@ -10,12 +10,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-List<AppFlowyMobileToolbarItem> getMobileToolbarItems() {
-  return [
-    aaToolbarItem,
-  ];
-}
-
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
   required EditorState editorState,

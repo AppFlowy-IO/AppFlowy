@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use event_integration::document_event::assert_document_data_equal;
-use flowy_document2::entities::DocumentSyncStatePB;
+use flowy_document::entities::DocumentSyncStatePB;
 
 use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
 use crate::util::receive_with_timeout;
@@ -14,7 +14,7 @@ async fn supabase_document_edit_sync_test() {
 
     let cloned_test = test.clone();
     let cloned_document_id = document_id.clone();
-    test.inner.dispatcher().spawn(async move {
+    test.appflowy_core.dispatcher().spawn(async move {
       cloned_test
         .insert_document_text(&cloned_document_id, "hello world", 0)
         .await;
@@ -29,7 +29,7 @@ async fn supabase_document_edit_sync_test() {
       .unwrap();
 
     let document_data = test.get_document_data(&document_id).await;
-    let update = test.get_document_update(&document_id).await;
+    let update = test.get_document_doc_state(&document_id).await;
     assert_document_data_equal(&update, &document_id, document_data);
   }
 }
@@ -55,7 +55,7 @@ async fn supabase_document_edit_sync_test2() {
       .unwrap();
 
     let document_data = test.get_document_data(&document_id).await;
-    let update = test.get_document_update(&document_id).await;
+    let update = test.get_document_doc_state(&document_id).await;
     assert_document_data_equal(&update, &document_id, document_data);
   }
 }

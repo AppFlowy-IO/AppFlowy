@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
@@ -215,6 +216,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+
     if (widget.scrollController == null) {
       effectiveScrollController.dispose();
     }
@@ -284,7 +287,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           italicToolbarItem,
           underlineToolbarItem,
           colorToolbarItem,
-          moreToolbarItem,
         ],
         child: Column(
           children: [
@@ -296,11 +298,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
                   return AdaptiveTextSelectionToolbar.editable(
                     clipboardStatus: ClipboardStatus.pasteable,
                     onCopy: () {
-                      copyCommand.execute(editorState);
+                      customCopyCommand.execute(editorState);
                       closeToolbar();
                     },
-                    onCut: () => cutCommand.execute(editorState),
-                    onPaste: () => pasteCommand.execute(editorState),
+                    onCut: () => customCutCommand.execute(editorState),
+                    onPaste: () => customPasteCommand.execute(editorState),
                     onSelectAll: () => selectAllCommand.execute(editorState),
                     onLiveTextInput: null,
                     onLookUp: null,

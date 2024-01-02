@@ -2,10 +2,12 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '@mui/material';
 import ButtonPopoverList from '../../_shared/ButtonPopoverList';
-import { MoreHoriz } from '@mui/icons-material';
-import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
-import { CopySvg } from '$app/components/_shared/svg/CopySvg';
-import { EditSvg } from '$app/components/_shared/svg/EditSvg';
+
+import { ReactComponent as DetailsSvg } from '$app/assets/details.svg';
+import { ReactComponent as EditSvg } from '$app/assets/edit.svg';
+import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
+import { ReactComponent as TrashSvg } from '$app/assets/delete.svg';
+
 import RenameDialog from './RenameDialog';
 import { Page } from '$app_reducers/pages/slice';
 import DeleteDialog from '$app/components/layout/NestedPage/DeleteDialog';
@@ -83,8 +85,8 @@ function MoreButton({
           },
         }}
       >
-        <IconButton className={'h-6 w-6'}>
-          <MoreHoriz />
+        <IconButton size={'small'}>
+          <DetailsSvg />
         </IconButton>
       </ButtonPopoverList>
       <RenameDialog

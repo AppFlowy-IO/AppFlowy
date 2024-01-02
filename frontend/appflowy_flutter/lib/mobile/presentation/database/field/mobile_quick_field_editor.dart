@@ -6,11 +6,13 @@ import 'package:appflowy/mobile/presentation/database/field/mobile_field_bottom_
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_backend_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
 class QuickEditField extends StatefulWidget {
   const QuickEditField({
@@ -35,12 +37,15 @@ class _QuickEditFieldState extends State<QuickEditField> {
   );
 
   late FieldType fieldType;
+  late FieldVisibility fieldVisibility;
 
   @override
   void initState() {
     super.initState();
 
     fieldType = widget.fieldInfo.fieldType;
+    fieldVisibility = widget.fieldInfo.fieldSettings?.visibility ??
+        FieldVisibility.AlwaysShown;
     controller.text = widget.fieldInfo.field.name;
   }
 
@@ -69,10 +74,15 @@ class _QuickEditFieldState extends State<QuickEditField> {
           text: LocaleKeys.grid_field_editProperty.tr(),
           leftIcon: const FlowySvg(FlowySvgs.edit_s),
           onTap: () async {
+            widget.fieldInfo.field.freeze();
+            final field = widget.fieldInfo.field.rebuild((field) {
+              field.name = controller.text;
+              field.fieldType = fieldType;
+            });
             final optionValues = await showEditFieldScreen(
               context,
               widget.viewId,
-              widget.fieldInfo,
+              widget.fieldInfo.copyWith(field: field),
             );
             if (optionValues != null) {
               setState(() {
@@ -85,29 +95,50 @@ class _QuickEditFieldState extends State<QuickEditField> {
         if (!widget.fieldInfo.isPrimary)
           FlowyOptionTile.text(
             showTopBorder: false,
-            text: LocaleKeys.grid_field_hide.tr(),
+            text: fieldVisibility.isVisibleState()
+                ? LocaleKeys.grid_field_hide.tr()
+                : LocaleKeys.grid_field_show.tr(),
             leftIcon: const FlowySvg(FlowySvgs.hide_s),
             onTap: () async {
               context.pop();
-              await service.hide();
+              if (fieldVisibility.isVisibleState()) {
+                await service.hide();
+              } else {
+                await service.hide();
+              }
             },
           ),
-        FlowyOptionTile.text(
-          showTopBorder: false,
-          text: LocaleKeys.grid_field_insertLeft.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.insert_left_s),
-          onTap: () async {
-            context.pop();
-            await service.insertLeft();
-          },
-        ),
+        if (!widget.fieldInfo.isPrimary)
+          FlowyOptionTile.text(
+            showTopBorder: false,
+            text: LocaleKeys.grid_field_insertLeft.tr(),
+            leftIcon: const FlowySvg(FlowySvgs.insert_left_s),
+            onTap: () async {
+              context.pop();
+              showCreateFieldBottomSheet(
+                context,
+                widget.viewId,
+                position: OrderObjectPositionPB(
+                  position: OrderObjectPositionTypePB.Before,
+                  objectId: widget.fieldInfo.id,
+                ),
+              );
+            },
+          ),
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.grid_field_insertRight.tr(),
           leftIcon: const FlowySvg(FlowySvgs.insert_right_s),
           onTap: () async {
             context.pop();
-            await service.insertRight();
+            showCreateFieldBottomSheet(
+              context,
+              widget.viewId,
+              position: OrderObjectPositionPB(
+                position: OrderObjectPositionTypePB.After,
+                objectId: widget.fieldInfo.id,
+              ),
+            );
           },
         ),
         if (!widget.fieldInfo.isPrimary) ...[

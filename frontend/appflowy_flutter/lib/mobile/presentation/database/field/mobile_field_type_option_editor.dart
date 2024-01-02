@@ -55,16 +55,18 @@ class FieldOptionValues {
 
   Future<void> create({
     required String viewId,
+    OrderObjectPositionPB? position,
   }) async {
     await FieldBackendService.createField(
       viewId: viewId,
       fieldType: type,
       fieldName: name,
-      typeOptionData: toTypeOptionBuffer(),
+      typeOptionData: getTypeOptionData(),
+      position: position,
     );
   }
 
-  Uint8List? toTypeOptionBuffer() {
+  Uint8List? getTypeOptionData() {
     switch (type) {
       case FieldType.RichText:
       case FieldType.URL:
@@ -124,6 +126,7 @@ class FieldOptionValues {
 
 enum FieldOptionAction {
   hide,
+  show,
   duplicate,
   delete,
 }
@@ -134,6 +137,7 @@ class FieldOptionEditor extends StatefulWidget {
     required this.mode,
     required this.defaultValues,
     required this.onOptionValuesChanged,
+    this.actions = const [],
     this.onAction,
     this.isPrimary = false,
   });
@@ -143,6 +147,7 @@ class FieldOptionEditor extends StatefulWidget {
   final void Function(FieldOptionValues values) onOptionValuesChanged;
 
   // only used in edit mode
+  final List<FieldOptionAction> actions;
   final void Function(FieldOptionAction action)? onAction;
 
   // the primary field can't be deleted, duplicated, and changed type
@@ -197,8 +202,9 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
                   () {
                     if (widget.mode == FieldOptionMode.add) {
                       controller.text = type.i18n;
+                      _updateOptionValues(name: type.i18n);
                     }
-                    _updateOptionValues(type: type, name: type.i18n);
+                    _updateOptionValues(type: type);
                   },
                 ),
               ),
@@ -273,34 +279,44 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
   }
 
   List<Widget> _buildOptionActions() {
-    return switch (widget.mode) {
-      FieldOptionMode.add => [],
-      FieldOptionMode.edit => [
-          FlowyOptionTile.text(
-            text: LocaleKeys.grid_field_hide.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.hide_s),
-            onTap: () => widget.onAction?.call(FieldOptionAction.hide),
+    if (widget.mode == FieldOptionMode.add || widget.actions.isEmpty) {
+      return [];
+    }
+
+    return [
+      if (widget.actions.contains(FieldOptionAction.hide))
+        FlowyOptionTile.text(
+          text: LocaleKeys.grid_field_hide.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.hide_s),
+          onTap: () => widget.onAction?.call(FieldOptionAction.hide),
+        ),
+      if (widget.actions.contains(FieldOptionAction.show))
+        FlowyOptionTile.text(
+          text: LocaleKeys.grid_field_show.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.show_m, size: Size.square(16)),
+          onTap: () => widget.onAction?.call(FieldOptionAction.show),
+        ),
+      if (widget.actions.contains(FieldOptionAction.duplicate) &&
+          !widget.isPrimary)
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.button_duplicate.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.copy_s),
+          onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
+        ),
+      if (widget.actions.contains(FieldOptionAction.delete) &&
+          !widget.isPrimary)
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.button_delete.tr(),
+          textColor: Theme.of(context).colorScheme.error,
+          leftIcon: FlowySvg(
+            FlowySvgs.delete_s,
+            color: Theme.of(context).colorScheme.error,
           ),
-          if (!widget.isPrimary) ...[
-            FlowyOptionTile.text(
-              showTopBorder: false,
-              text: LocaleKeys.button_duplicate.tr(),
-              leftIcon: const FlowySvg(FlowySvgs.copy_s),
-              onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
-            ),
-            FlowyOptionTile.text(
-              showTopBorder: false,
-              text: LocaleKeys.button_delete.tr(),
-              textColor: Theme.of(context).colorScheme.error,
-              leftIcon: FlowySvg(
-                FlowySvgs.delete_s,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              onTap: () => widget.onAction?.call(FieldOptionAction.delete),
-            ),
-          ],
-        ]
-    };
+          onTap: () => widget.onAction?.call(FieldOptionAction.delete),
+        ),
+    ];
   }
 
   void _updateOptionValues({
@@ -378,7 +394,8 @@ class _PropertyType extends StatelessWidget {
               minChildSize: 0.7,
               builder: (context, controller) => FieldOptions(
                 scrollController: controller,
-                onAddField: (type) {
+                mode: FieldOptionMode.edit,
+                onSelectFieldType: (type) {
                   onSelected(type);
                   context.pop();
                 },

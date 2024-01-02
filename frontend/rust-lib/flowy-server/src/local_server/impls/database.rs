@@ -1,30 +1,29 @@
 use anyhow::Error;
+use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 
-use flowy_database_deps::cloud::{
-  CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
-};
+use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();
 
 impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
-  fn get_collab_update(
+  fn get_collab_doc_state_db(
     &self,
     _object_id: &str,
     _collab_type: CollabType,
     _workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdate, Error> {
+  ) -> FutureResult<CollabDocState, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn batch_get_collab_updates(
+  fn batch_get_collab_doc_state_db(
     &self,
     _object_ids: Vec<String>,
     _object_ty: CollabType,
     _workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdateByOid, Error> {
-    FutureResult::new(async move { Ok(CollabObjectUpdateByOid::default()) })
+  ) -> FutureResult<CollabDocStateByOid, Error> {
+    FutureResult::new(async move { Ok(CollabDocStateByOid::default()) })
   }
 
   fn get_collab_snapshots(

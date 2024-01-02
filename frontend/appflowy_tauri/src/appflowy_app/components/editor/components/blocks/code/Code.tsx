@@ -9,21 +9,22 @@ export const Code = memo(
     const { language, handleChangeLanguage } = useCodeBlock(node);
 
     return (
-      <div
-        {...attributes}
-        ref={ref}
-        className={`${
-          attributes.className ?? ''
-        } my-2 w-full rounded border border-solid border-line-divider bg-content-blue-50 p-6`}
-      >
-        <div contentEditable={false} className={'mb-2 w-full'}>
+      <>
+        <div contentEditable={false} className={'absolute w-full select-none px-7 py-6'}>
           <LanguageSelect language={language} onChangeLanguage={handleChangeLanguage} />
         </div>
-
-        <pre className='code-block-element'>
-          <code>{children}</code>
-        </pre>
-      </div>
+        <div
+          {...attributes}
+          ref={ref}
+          className={`${
+            attributes.className ?? ''
+          } my-2 flex w-full rounded border border-solid border-line-divider bg-content-blue-50 p-6 pt-14`}
+        >
+          <pre>
+            <code>{children}</code>
+          </pre>
+        </div>
+      </>
     );
   })
 );

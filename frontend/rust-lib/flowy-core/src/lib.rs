@@ -7,26 +7,27 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabDataSource};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager;
-use flowy_folder2::manager::FolderManager;
+use flowy_document::manager::DocumentManager;
+use flowy_folder::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user::manager::{UserConfig, UserManager};
+use flowy_user::manager::UserManager;
+use flowy_user::services::entities::UserConfig;
+use flowy_user_deps::cloud::UserCloudServiceProvider;
+
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
-pub use module::*;
 
 use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::collab_backup::RocksdbBackupImpl;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::init_log;
-use crate::integrate::server::{current_server_type, ServerProvider, ServerType};
+use crate::integrate::server::{current_server_type, Server, ServerProvider};
 use crate::integrate::user::UserStatusCallbackImpl;
 
 pub mod config;
@@ -66,6 +67,10 @@ impl AppFlowyCore {
     runtime.block_on(Self::init(config, cloned_runtime))
   }
 
+  pub fn close_db(&self) {
+    self.user_manager.close_db();
+  }
+
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     #[allow(clippy::if_same_then_else)]
@@ -90,7 +95,7 @@ impl AppFlowyCore {
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let server_type = current_server_type(&store_preference);
+    let server_type = current_server_type();
     debug!("🔥runtime:{}, server:{}", runtime, server_type);
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
@@ -113,6 +118,7 @@ impl AppFlowyCore {
         server_provider.clone(),
         config.device_id.clone(),
       ));
+
       let user_manager = init_user_manager(
         &config,
         &store_preference,
@@ -232,12 +238,12 @@ fn init_user_manager(
   )
 }
 
-impl From<ServerType> for CollabDataSource {
-  fn from(server_type: ServerType) -> Self {
+impl From<Server> for CollabPluginProviderType {
+  fn from(server_type: Server) -> Self {
     match server_type {
-      ServerType::Local => CollabDataSource::Local,
-      ServerType::AFCloud => CollabDataSource::AppFlowyCloud,
-      ServerType::Supabase => CollabDataSource::Supabase,
+      Server::Local => CollabPluginProviderType::Local,
+      Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
+      Server::Supabase => CollabPluginProviderType::Supabase,
     }
   }
 }

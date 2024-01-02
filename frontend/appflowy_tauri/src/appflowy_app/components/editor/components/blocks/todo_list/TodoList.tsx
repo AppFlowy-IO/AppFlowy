@@ -3,7 +3,6 @@ import { EditorElementProps, TodoListNode } from '$app/application/document/docu
 import { ReactComponent as CheckboxCheckSvg } from '$app/assets/database/checkbox-check.svg';
 import { ReactComponent as CheckboxUncheckSvg } from '$app/assets/database/checkbox-uncheck.svg';
 import { useSlateStatic } from 'slate-react';
-import Placeholder from '$app/components/editor/components/blocks/_shared/Placeholder';
 import { CustomEditor } from '$app/components/editor/command';
 
 export const TodoList = memo(
@@ -11,28 +10,26 @@ export const TodoList = memo(
     const { checked } = node.data;
     const editor = useSlateStatic();
     const className = useMemo(() => {
-      return `relative ${attributes.className ?? ''}`;
-    }, [attributes.className]);
+      return `flex w-full flex-col pl-6 ${checked ? 'checked' : ''} ${attributes.className ?? ''}`;
+    }, [attributes.className, checked]);
     const toggleTodo = useCallback(() => {
       CustomEditor.toggleTodo(editor, node);
     }, [editor, node]);
 
     return (
-      <div {...attributes} ref={ref} className={className}>
+      <>
         <span
           data-playwright-selected={false}
           contentEditable={false}
           onClick={toggleTodo}
-          className='absolute left-0 top-0 inline-flex cursor-pointer text-xl text-fill-default'
+          className='absolute cursor-pointer select-none pt-[3px] text-xl text-fill-default'
         >
           {checked ? <CheckboxCheckSvg /> : <CheckboxUncheckSvg />}
         </span>
-
-        <span className={`relative ml-6 ${checked ? 'text-text-caption line-through' : ''}`}>
-          <Placeholder node={node} />
+        <div {...attributes} ref={ref} className={className}>
           {children}
-        </span>
-      </div>
+        </div>
+      </>
     );
   })
 );

@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { EditorData, EditorInlineNodeType, EditorNodeType, Mention } from '$app/application/document/document.types';
+import { EditorData, EditorInlineNodeType, Mention } from '$app/application/document/document.types';
 import { Element, Text } from 'slate';
 import { Op } from 'quill-delta';
 
@@ -11,12 +11,12 @@ export function transformToInlineElement(op: Op): Element | null {
   const attributes = op.attributes;
 
   if (!attributes) return null;
-  const isFormula = attributes.formula;
+  const formula = attributes.formula as string;
 
-  if (isFormula) {
+  if (formula) {
     return {
       type: EditorInlineNodeType.Formula,
-      data: true,
+      data: formula,
       children: [
         {
           text: op.insert as string,
@@ -45,57 +45,57 @@ export function transformToInlineElement(op: Op): Element | null {
   return null;
 }
 
+export function getInlinesWithDelta(delta?: Op[]): (Text | Element)[] {
+  return delta && delta.length > 0
+    ? delta.map((op) => {
+        const matchInline = transformToInlineElement(op);
+
+        if (matchInline) {
+          return matchInline;
+        }
+
+        return {
+          text: op.insert as string,
+          ...op.attributes,
+        };
+      })
+    : [
+        {
+          text: '',
+        },
+      ];
+}
+
 export function convertToSlateValue(data: EditorData, includeRoot: boolean): Element[] {
-  const nodes: Element[] = [];
-  const traverse = (id: string, level: number, isHidden?: boolean) => {
+  const traverse = (id: string, isRoot = false) => {
     const node = data.nodeMap[id];
     const delta = data.deltaMap[id];
 
     const slateNode: Element = {
       type: node.type,
       data: node.data,
-      level,
       children: [],
-      isHidden,
       blockId: id,
-      parentId: node.parent || '',
-      textId: node.externalId || '',
     };
 
-    const inlineNodes: (Text | Element)[] = delta
-      ? delta.map((op) => {
-          const matchInline = transformToInlineElement(op);
-
-          if (matchInline) {
-            return matchInline;
+    const textNode: Element | null =
+      !isRoot && node.externalId
+        ? {
+            type: 'text',
+            children: [],
+            textId: node.externalId,
           }
+        : null;
 
-          return {
-            text: op.insert as string,
-            ...op.attributes,
-          };
-        })
-      : [];
+    const inlineNodes = getInlinesWithDelta(delta);
 
-    slateNode.children.push(...inlineNodes);
+    textNode?.children.push(...inlineNodes);
 
-    nodes.push(slateNode);
     const children = data.childrenMap[id];
 
-    if (children) {
-      for (const childId of children) {
-        let isHidden = false;
-
-        if (node.type === EditorNodeType.ToggleListBlock) {
-          const collapsed = (node.data as { collapsed: boolean })?.collapsed;
-
-          if (collapsed) {
-            isHidden = true;
-          }
-        }
-
-        traverse(childId, level + 1, isHidden);
-      }
+    slateNode.children = children.map((childId) => traverse(childId));
+    if (textNode) {
+      slateNode.children.unshift(textNode);
     }
 
     return slateNode;
@@ -103,10 +103,24 @@ export function convertToSlateValue(data: EditorData, includeRoot: boolean): Ele
 
   const rootId = data.rootId;
 
-  traverse(rootId, 0);
+  const root = traverse(rootId, true);
 
-  if (!includeRoot) {
-    nodes.shift();
+  const nodes = root.children as Element[];
+
+  if (includeRoot) {
+    nodes.unshift({
+      ...root,
+      children: [
+        {
+          type: 'text',
+          children: [
+            {
+              text: '',
+            },
+          ],
+        },
+      ],
+    });
   }
 
   return nodes;

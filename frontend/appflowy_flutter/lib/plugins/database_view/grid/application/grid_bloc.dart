@@ -7,7 +7,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -27,15 +27,20 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             _startListening();
             await _openGrid(emit);
           },
-          createRow: () async {
+          createRow: (openRowDetail) async {
             final result = await RowBackendService.createRow(viewId: viewId);
             result.fold(
-              (createdRow) => emit(state.copyWith(createdRow: createdRow)),
+              (createdRow) => emit(
+                state.copyWith(
+                  createdRow: createdRow,
+                  openRowDetail: openRowDetail ?? false,
+                ),
+              ),
               (err) => Log.error(err),
             );
           },
           resetCreatedRow: () {
-            emit(state.copyWith(createdRow: null));
+            emit(state.copyWith(createdRow: null, openRowDetail: false));
           },
           deleteRow: (rowInfo) async {
             await RowBackendService.deleteRow(rowInfo.viewId, rowInfo.rowId);
@@ -151,7 +156,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 @freezed
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
-  const factory GridEvent.createRow() = _CreateRow;
+  const factory GridEvent.createRow({bool? openRowDetail}) = _CreateRow;
   const factory GridEvent.resetCreatedRow() = _ResetCreatedRow;
   const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
   const factory GridEvent.moveRow(int from, int to) = _MoveRow;
@@ -187,6 +192,7 @@ class GridState with _$GridState {
     required ChangedReason reason,
     required List<SortInfo> sorts,
     required List<FilterInfo> filters,
+    required bool openRowDetail,
   }) = _GridState;
 
   factory GridState.initial(String viewId) => GridState(
@@ -201,5 +207,6 @@ class GridState with _$GridState {
         reason: const InitialListState(),
         filters: [],
         sorts: [],
+        openRowDetail: false,
       );
 }

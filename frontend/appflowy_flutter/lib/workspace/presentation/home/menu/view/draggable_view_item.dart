@@ -1,7 +1,7 @@
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,7 +57,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     return DraggableItem<ViewPB>(
       data: widget.view,
       onDragging: widget.onDragging,
-      onWillAccept: (data) => true,
+      onWillAcceptWithDetails: (data) => true,
       onMove: (data) {
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
@@ -70,7 +70,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       onLeave: (_) => _updatePosition(
         DraggableHoverPosition.none,
       ),
-      onAccept: (data) {
+      onAcceptWithDetails: (details) {
+        final data = details.data;
         _move(
           data,
           widget.view,

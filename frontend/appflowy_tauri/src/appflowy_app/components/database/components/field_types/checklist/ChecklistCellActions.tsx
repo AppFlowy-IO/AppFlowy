@@ -16,7 +16,7 @@ function ChecklistCellActions({
   const { percentage, selectedOptions = [], options } = cell.data;
 
   return (
-    <Popover {...props}>
+    <Popover disableRestoreFocus={true} {...props}>
       <LinearProgressWithLabel className={'m-4'} value={percentage || 0} />
       <div className={'p-1'}>
         {options?.map((option) => {

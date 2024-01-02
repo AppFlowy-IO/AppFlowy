@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -28,6 +29,7 @@ class BIUSItems extends StatelessWidget {
             .mapIndexed(
               (index, e) => [
                 _buildBIUSItem(
+                  context,
                   index,
                   e.$1,
                   e.$2,
@@ -43,20 +45,28 @@ class BIUSItems extends StatelessWidget {
   }
 
   Widget _buildBIUSItem(
+    BuildContext context,
     int index,
     FlowySvgData icon,
     String richTextKey,
   ) {
+    final theme = ToolbarColorExtension.of(context);
     return StatefulBuilder(
-      builder: (_, setState) => MobileToolbarItemWrapper(
+      builder: (_, setState) => MobileToolbarMenuItemWrapper(
         size: const Size(62, 52),
         enableTopLeftRadius: index == 0,
         enableBottomLeftRadius: index == 0,
         enableTopRightRadius: index == _bius.length - 1,
         enableBottomRightRadius: index == _bius.length - 1,
-        backgroundColor: const Color(0xFFF2F2F7),
+        backgroundColor: theme.toolbarMenuItemBackgroundColor,
         onTap: () async {
-          await editorState.toggleAttribute(richTextKey);
+          await editorState.toggleAttribute(
+            richTextKey,
+            selectionExtraInfo: {
+              selectionExtraInfoDisableFloatingToolbar: true,
+              selectionExtraInfoDoNotAttachTextService: true,
+            },
+          );
           // refresh the status
           setState(() {});
         },

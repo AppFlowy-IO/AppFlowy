@@ -19,7 +19,7 @@ import {
   FolderEventCreateOrphanView,
   CreateOrphanViewPayloadPB,
   FolderEventGetView,
-} from '@/services/backend/events/flowy-folder2';
+} from '@/services/backend/events/flowy-folder';
 import { Page, PageIcon } from '$app_reducers/pages/slice';
 
 export class PageBackendService {

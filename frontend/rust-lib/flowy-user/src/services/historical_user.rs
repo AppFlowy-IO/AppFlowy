@@ -11,15 +11,22 @@ use crate::services::entities::Session;
 const ANON_USER: &str = "anon_user";
 impl UserManager {
   #[instrument(skip_all)]
-  pub async fn get_migration_user(&self, auth_type: &Authenticator) -> Option<MigrationUser> {
-    // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
-    // auth type is not [AuthType::Local].
+  pub async fn get_migration_user(
+    &self,
+    current_authenticator: &Authenticator,
+  ) -> Option<MigrationUser> {
+    // No need to migrate if the user is already local
+    if current_authenticator.is_local() {
+      return None;
+    }
+
     let session = self.get_session().ok()?;
     let user_profile = self
       .get_user_profile_from_disk(session.user_id)
       .await
       .ok()?;
-    if user_profile.authenticator == Authenticator::Local && !auth_type.is_local() {
+
+    if user_profile.authenticator.is_local() {
       Some(MigrationUser {
         user_profile,
         session,
@@ -31,6 +38,10 @@ impl UserManager {
 
   pub fn set_anon_user(&self, session: Session) {
     let _ = self.store_preferences.set_object(ANON_USER, session);
+  }
+
+  pub fn remove_anon_user(&self) {
+    self.store_preferences.remove(ANON_USER);
   }
 
   pub async fn get_anon_user(&self) -> FlowyResult<UserProfilePB> {

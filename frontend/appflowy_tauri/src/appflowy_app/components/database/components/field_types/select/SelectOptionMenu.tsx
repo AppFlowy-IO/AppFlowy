@@ -79,6 +79,7 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
       }}
       {...menuProps}
       onClose={onClose}
+      disableRestoreFocus={true}
     >
       <ListSubheader className='my-2 leading-tight'>
         <OutlinedInput

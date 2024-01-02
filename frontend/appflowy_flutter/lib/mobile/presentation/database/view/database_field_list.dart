@@ -11,7 +11,7 @@ import 'package:appflowy/plugins/database_view/application/setting/property_bloc
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -110,7 +110,19 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
       )..add(const DatabasePropertyEvent.initial()),
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
         builder: (context, state) {
-          final cells = state.fieldContexts
+          if (state.fieldContexts.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          final fields = [...state.fieldContexts];
+          final firstField = fields.removeAt(0);
+          final firstCell = DatabaseFieldListTile(
+            key: ValueKey(firstField.id),
+            viewId: view.id,
+            fieldController: databaseController.fieldController,
+            fieldInfo: firstField,
+            showTopBorder: true,
+          );
+          final cells = fields
               .mapIndexed(
                 (index, field) => DatabaseFieldListTile(
                   key: ValueKey(field.id),
@@ -118,14 +130,14 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                   fieldController: databaseController.fieldController,
                   fieldInfo: field,
                   index: index,
-                  showTopBorder: index == 0,
+                  showTopBorder: false,
                 ),
               )
               .toList();
 
           return ReorderableListView.builder(
             proxyDecorator: (_, index, anim) {
-              final field = state.fieldContexts[index];
+              final field = fields[index];
               return AnimatedBuilder(
                 animation: anim,
                 builder: (BuildContext context, Widget? child) {
@@ -151,10 +163,13 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
             buildDefaultDragHandles: true,
             shrinkWrap: true,
             onReorder: (from, to) {
+              from++;
+              to++;
               context
                   .read<DatabasePropertyBloc>()
                   .add(DatabasePropertyEvent.moveField(from, to));
             },
+            header: firstCell,
             footer: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -176,14 +191,14 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
 class DatabaseFieldListTile extends StatelessWidget {
   const DatabaseFieldListTile({
     super.key,
-    required this.index,
+    this.index,
     required this.fieldInfo,
     required this.viewId,
     required this.fieldController,
     required this.showTopBorder,
   });
 
-  final int index;
+  final int? index;
   final FieldInfo fieldInfo;
   final String viewId;
   final FieldController fieldController;
@@ -209,6 +224,9 @@ class DatabaseFieldListTile extends StatelessWidget {
           size: const Size.square(20),
         ),
         showTopBorder: showTopBorder,
+        onTap: () {
+          showEditFieldScreen(context, viewId, fieldInfo);
+        },
         onValueChanged: (value) {
           final newVisibility = fieldInfo.visibility!.toggle();
           context.read<DatabasePropertyBloc>().add(

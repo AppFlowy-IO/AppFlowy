@@ -2,9 +2,12 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'edit_database_view_screen.dart';
 
@@ -35,34 +38,49 @@ class _MobileDatabaseViewQuickActionsState
         ? MobileEditDatabaseViewScreen(
             databaseController: widget.databaseController,
           )
-        : Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 38),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _actionButton(context, _Action.edit),
-                _divider(),
-                _actionButton(context, _Action.duplicate),
-                _divider(),
-                _actionButton(context, _Action.delete),
-                _divider(),
-              ],
-            ),
-          );
+        : _quickActions(context, widget.view);
   }
 
-  Widget _actionButton(BuildContext context, _Action action) {
+  Widget _quickActions(BuildContext context, ViewPB view) {
+    final isInline = view.childViews.isNotEmpty;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 38),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _actionButton(context, _Action.edit, () {
+            setState(() => isEditing = true);
+          }),
+          if (!isInline) ...[
+            _divider(),
+            _actionButton(context, _Action.duplicate, () {
+              context.read<ViewBloc>().add(const ViewEvent.duplicate());
+              context.pop();
+            }),
+            _divider(),
+            _actionButton(context, _Action.delete, () {
+              context.read<ViewBloc>().add(const ViewEvent.delete());
+              context.pop();
+            }),
+            _divider(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _actionButton(
+    BuildContext context,
+    _Action action,
+    VoidCallback onTap,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: MobileQuickActionButton(
         icon: action.icon,
         text: action.label,
         color: action.color(context),
-        onTap: () {
-          if (action == _Action.edit) {
-            setState(() => isEditing = true);
-          }
-        },
+        onTap: onTap,
       ),
     );
   }

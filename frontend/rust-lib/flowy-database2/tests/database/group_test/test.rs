@@ -47,7 +47,7 @@ async fn group_move_row_test() {
     AssertRow {
       group_index: 1,
       row_index: 1,
-      row: group.rows.get(0).unwrap().clone(),
+      row: group.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -75,7 +75,7 @@ async fn group_move_row_to_other_group_test() {
     AssertRow {
       group_index: 2,
       row_index: 1,
-      row: group.rows.get(0).unwrap().clone(),
+      row: group.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -104,7 +104,7 @@ async fn group_move_two_row_to_other_group_test() {
     AssertRow {
       group_index: 2,
       row_index: 1,
-      row: group_1.rows.get(0).unwrap().clone(),
+      row: group_1.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -129,7 +129,7 @@ async fn group_move_two_row_to_other_group_test() {
     AssertRow {
       group_index: 2,
       row_index: 1,
-      row: group_1.rows.get(0).unwrap().clone(),
+      row: group_1.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -150,7 +150,7 @@ async fn group_move_row_to_other_group_and_reorder_from_up_to_down_test() {
     AssertRow {
       group_index: 2,
       row_index: 1,
-      row: group_1.rows.get(0).unwrap().clone(),
+      row: group_1.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -165,7 +165,7 @@ async fn group_move_row_to_other_group_and_reorder_from_up_to_down_test() {
     AssertRow {
       group_index: 2,
       row_index: 2,
-      row: group_2.rows.get(0).unwrap().clone(),
+      row: group_2.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;

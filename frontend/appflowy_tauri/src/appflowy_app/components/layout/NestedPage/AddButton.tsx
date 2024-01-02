@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import ButtonPopoverList from '$app/components/_shared/ButtonPopoverList';
 import { IconButton } from '@mui/material';
-import AddSvg from '$app/components/_shared/svg/AddSvg';
+import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { useTranslation } from 'react-i18next';
-import { DocumentSvg } from '$app/components/_shared/svg/DocumentSvg';
-import { GridSvg } from '$app/components/_shared/svg/GridSvg';
-import { BoardSvg } from '$app/components/_shared/svg/BoardSvg';
+import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
+import { ReactComponent as GridSvg } from '$app/assets/grid.svg';
+import { ReactComponent as BoardSvg } from '$app/assets/board.svg';
 import { ViewLayoutPB } from '@/services/backend';
 
 function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (layout: ViewLayoutPB) => void }) {
@@ -67,7 +67,7 @@ function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (l
       popoverOptions={options}
       isVisible={isVisible}
     >
-      <IconButton className={'mr-2 h-6 w-6'}>
+      <IconButton size={'small'}>
         <AddSvg />
       </IconButton>
     </ButtonPopoverList>

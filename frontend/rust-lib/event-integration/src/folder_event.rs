@@ -1,7 +1,7 @@
-use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent;
-use flowy_folder2::event_map::FolderEvent::*;
+use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent;
+use flowy_folder::event_map::FolderEvent::*;
 use flowy_user::entities::{
   AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
   WorkspaceMemberPB,
@@ -73,6 +73,14 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<ViewPB>()
+  }
+
+  pub async fn get_trash(&self) -> RepeatedTrashPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ListTrashItems)
+      .async_send()
+      .await
+      .parse::<RepeatedTrashPB>()
   }
 
   pub async fn delete_view(&self, view_id: &str) {

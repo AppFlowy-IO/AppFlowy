@@ -32,7 +32,7 @@ void main() {
       await tester.tapAt(Offset.zero);
       await tester.tapAt(Offset.zero);
 
-      await tester.createNewPageWithName(name: 'test');
+      await tester.createNewPageWithNameUnderParent(name: 'test');
       await tester.openPage(gettingStarted);
 
       // check the status again

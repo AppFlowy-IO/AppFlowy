@@ -1,14 +1,25 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_supabase_cloud.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'base.dart';
+import 'expectation.dart';
 
 extension AppFlowyAuthTest on WidgetTester {
   Future<void> tapGoogleLoginInButton() async {
     await tapButton(find.byKey(const Key('signInWithGoogleButton')));
+  }
+
+  Future<void> logout() async {
+    await tapButton(find.byType(SettingLogoutButton));
+
+    expectToSeeText(LocaleKeys.button_ok.tr());
+    await tapButtonWithName(LocaleKeys.button_ok.tr());
   }
 
   Future<void> tapSignInAsGuest() async {

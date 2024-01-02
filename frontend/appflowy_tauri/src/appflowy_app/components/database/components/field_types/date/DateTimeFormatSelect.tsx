@@ -23,6 +23,7 @@ function DateTimeFormatSelect({ field }: Props) {
         <MoreSvg className={`transform text-base ${open ? '' : 'rotate-90'}`} />
       </MenuItem>
       <Menu
+        disableRestoreFocus={true}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'right',

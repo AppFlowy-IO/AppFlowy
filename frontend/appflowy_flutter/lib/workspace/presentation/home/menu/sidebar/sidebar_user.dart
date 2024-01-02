@@ -7,7 +7,7 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/notificati
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:easy_localization/easy_localization.dart';
@@ -46,7 +46,7 @@ class SidebarUser extends StatelessWidget {
             Expanded(
               child: _buildUserName(context, state),
             ),
-            _buildSettingsButton(context, state),
+            UserSettingButton(userProfile: state.userProfile),
             const HSpace(4),
             NotificationButton(views: views),
           ],
@@ -64,8 +64,22 @@ class SidebarUser extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsButton(BuildContext context, MenuUserState state) {
-    final userProfile = state.userProfile;
+  /// Return the user name, if the user name is empty, return the default user name.
+  String _userName(UserProfilePB userProfile) {
+    String name = userProfile.name;
+    if (name.isEmpty) {
+      name = LocaleKeys.defaultUsername.tr();
+    }
+    return name;
+  }
+}
+
+class UserSettingButton extends StatelessWidget {
+  final UserProfilePB userProfile;
+  const UserSettingButton({required this.userProfile, super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return FlowyTooltip(
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(
@@ -108,14 +122,5 @@ class SidebarUser extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  /// Return the user name, if the user name is empty, return the default user name.
-  String _userName(UserProfilePB userProfile) {
-    String name = userProfile.name;
-    if (name.isEmpty) {
-      name = LocaleKeys.defaultUsername.tr();
-    }
-    return name;
   }
 }

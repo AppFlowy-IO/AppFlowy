@@ -79,8 +79,7 @@ class _MobileBottomSheetEditLinkWidgetState
     TextEditingController controller,
     String? hintText,
   ) {
-    return Container(
-      color: Colors.white,
+    return SizedBox(
       height: 48.0,
       child: FlowyTextField(
         controller: controller,

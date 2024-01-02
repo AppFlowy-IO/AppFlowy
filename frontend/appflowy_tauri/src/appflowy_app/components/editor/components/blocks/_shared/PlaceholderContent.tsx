@@ -1,28 +1,36 @@
 import React, { CSSProperties, useMemo } from 'react';
-import { useSelected, useSlateStatic } from 'slate-react';
-import { Element } from 'slate';
+import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
+import { Editor, Element, Range } from 'slate';
 import { EditorNodeType, HeadingNode } from '$app/application/document/document.types';
 import { useTranslation } from 'react-i18next';
 
 function PlaceholderContent({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
   const { t } = useTranslation();
-  const selected = useSelected();
   const editor = useSlateStatic();
+  const selected = useSelected() && !!editor.selection && Range.isCollapsed(editor.selection);
 
-  const justOneParagraph = useMemo(() => {
-    const root = editor.children[0] as Element;
+  const block = useMemo(() => {
+    const path = ReactEditor.findPath(editor, node);
+    const match = Editor.above(editor, {
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+      at: path,
+    });
 
-    if (node.type !== EditorNodeType.Paragraph) return false;
+    if (!match) return null;
 
-    if (editor.children.length === 1) return true;
+    return match[0] as Element;
+  }, [editor, node]);
 
-    return root.type === EditorNodeType.Page && editor.children.length === 2;
-  }, [editor, node.type]);
+  const className = useMemo(() => {
+    return `pointer-events-none select-none mx-1 absolute left-0.5 min-h-[26px] top-0 whitespace-nowrap text-text-placeholder ${
+      attributes.className ?? ''
+    }`;
+  }, [attributes.className]);
 
   const unSelectedPlaceholder = useMemo(() => {
-    switch (node.type) {
+    switch (block?.type) {
       case EditorNodeType.Paragraph: {
-        if (justOneParagraph) {
+        if (editor.children.length === 1) {
           return t('editor.slashPlaceHolder');
         }
 
@@ -40,7 +48,7 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
       case EditorNodeType.BulletedListBlock:
         return t('document.plugins.bulletedList');
       case EditorNodeType.HeadingBlock: {
-        const level = (node as HeadingNode).data.level;
+        const level = (block as HeadingNode).data.level;
 
         switch (level) {
           case 1:
@@ -56,27 +64,29 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
 
       case EditorNodeType.Page:
         return t('document.title.placeholder');
+      case EditorNodeType.CalloutBlock:
+      case EditorNodeType.CodeBlock:
+        return t('editor.typeSomething');
       default:
         return '';
     }
-  }, [justOneParagraph, node, t]);
+  }, [block, t, editor.children.length]);
 
   const selectedPlaceholder = useMemo(() => {
-    switch (node.type) {
+    switch (block?.type) {
       case EditorNodeType.HeadingBlock:
         return unSelectedPlaceholder;
       case EditorNodeType.Page:
         return t('document.title.placeholder');
+      case EditorNodeType.GridBlock:
+      case EditorNodeType.EquationBlock:
+      case EditorNodeType.CodeBlock:
+        return '';
+
       default:
         return t('editor.slashPlaceHolder');
     }
-  }, [node.type, t, unSelectedPlaceholder]);
-
-  const className = useMemo(() => {
-    return `pointer-events-none absolute left-0.5 top-0 whitespace-nowrap text-text-placeholder ${
-      attributes.className ?? ''
-    }`;
-  }, [attributes.className]);
+  }, [block?.type, t, unSelectedPlaceholder]);
 
   return (
     <span contentEditable={false} {...attributes} className={className}>
