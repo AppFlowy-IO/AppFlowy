@@ -205,8 +205,8 @@
     "removeFromFavorites": "Retirer des favoris",
     "addToFavorites": "Ajouter aux favoris",
     "rename": "Renommer",
-    "Cancel": "Annuler",
-    "OK": "OK"
+    "cancel": "Annuler",
+    "ok": "OK"
   },
   "label": {
     "welcome": "Bienvenue !",

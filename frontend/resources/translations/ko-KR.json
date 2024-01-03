@@ -176,8 +176,8 @@
     "delete": "삭제",
     "duplicate": "복제하다",
     "putback": "다시 집어 넣어",
-    "Cancel": "취소",
-    "OK": "확인"
+    "cancel": "취소",
+    "ok": "확인"
   },
   "label": {
     "welcome": "환영합니다!",

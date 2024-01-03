@@ -176,8 +176,8 @@
     "delete": "يمسح",
     "duplicate": "ينسخ",
     "putback": "ضعها بالخلف",
-    "Cancel": "إلغاء",
-    "OK": "نعم"
+    "cancel": "إلغاء",
+    "ok": "نعم"
   },
   "label": {
     "welcome": "مرحباً!",

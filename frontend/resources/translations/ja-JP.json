@@ -176,8 +176,8 @@
     "delete": "消去",
     "duplicate": "複製",
     "putback": "戻す",
-    "Cancel": "キャンセル",
-    "OK": "OK"
+    "cancel": "キャンセル",
+    "ok": "OK"
   },
   "label": {
     "welcome": "ようこそ！",

@@ -177,8 +177,8 @@
     "delete": "Eliminare",
     "duplicate": "Duplicare",
     "putback": "Rimettere a posto",
-    "Cancel": "Annulla",
-    "OK": "OK"
+    "cancel": "Annulla",
+    "ok": "OK"
   },
   "label": {
     "welcome": "Benvenuto!",

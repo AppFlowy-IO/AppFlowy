@@ -218,8 +218,8 @@
     "delete": "Borrar",
     "duplicate": "Duplicar",
     "putback": "Volver",
-    "Cancel": "Cancelar",
-    "OK": "OK"
+    "cancel": "Cancelar",
+    "ok": "OK"
   },
   "label": {
     "welcome": "¡Bienvenido!",
