@@ -12,7 +12,7 @@ condition = { env_set = [
 
 [tasks.appflowy-core-dev-ios]
 category = "Build"
-dependencies = ["env_check"]
+dependencies = ["env_check", "set-app-version"]
 run_task = { name = [
   "setup-crate-type",
   "sdk-build-ios",
@@ -21,6 +21,7 @@ run_task = { name = [
 ] }
 
 [tasks.sdk-build-ios]
+dependencies = ["set-app-version"]
 private = true
 script = [
   """
@@ -40,7 +41,7 @@ script_runner = "@shell"
 
 [tasks.appflowy-core-dev-android]
 category = "Build"
-dependencies = ["env_check"]
+dependencies = ["env_check", "set-app-version"]
 run_task = { name = [
   "setup-crate-type",
   "sdk-build-android",
@@ -49,6 +50,7 @@ run_task = { name = [
 ] }
 
 [tasks.sdk-build-android]
+dependencies = ["set-app-version"]
 private = true
 script = [
   """

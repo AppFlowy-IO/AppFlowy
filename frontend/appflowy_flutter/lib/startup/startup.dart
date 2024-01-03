@@ -7,6 +7,7 @@ import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'deps_resolver.dart';
 import 'entry_point.dart';
@@ -82,6 +83,12 @@ class FlowyRunner {
       isAnon: isAnon,
       rustEnvs: rustEnvsBuilder?.call() ?? {},
     );
+
+    if (!mode.isUnitTest) {
+      // Unit test can't use the package_info_plus plugin
+      config.rustEnvs["APP_VERSION"] =
+          await PackageInfo.fromPlatform().then((value) => value.version);
+    }
 
     // Specify the env
     await initGetIt(getIt, mode, f, config);

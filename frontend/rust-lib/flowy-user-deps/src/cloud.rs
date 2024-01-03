@@ -247,6 +247,6 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
 #[derive(Debug)]
 pub struct UserCollabParams {
   pub object_id: String,
-  pub encoded_collab_v1: Vec<u8>,
+  pub encoded_collab: Vec<u8>,
   pub collab_type: CollabType,
 }

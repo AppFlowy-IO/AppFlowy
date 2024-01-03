@@ -3,7 +3,7 @@ use std::sync::Arc;
 use std::sync::Weak;
 
 use collab::core::collab::{CollabDocState, MutexCollab};
-use collab::core::collab_plugin::EncodedCollabV1;
+use collab::core::collab_plugin::EncodedCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
@@ -273,7 +273,7 @@ impl DocumentManager {
 fn doc_state_from_document_data(
   doc_id: &str,
   data: DocumentData,
-) -> Result<EncodedCollabV1, FlowyError> {
+) -> Result<EncodedCollab, FlowyError> {
   let collab = Arc::new(MutexCollab::from_collab(Collab::new_with_origin(
     CollabOrigin::Empty,
     doc_id,

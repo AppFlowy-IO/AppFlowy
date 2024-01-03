@@ -268,6 +268,11 @@ impl UserManager {
       .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
+  #[cfg(debug_assertions)]
+  pub fn get_collab_backup_list(&self, uid: i64) -> Vec<String> {
+    self.database.get_collab_backup_list(uid)
+  }
+
   /// Performs a user sign-in, initializing user awareness and sending relevant notifications.
   ///
   /// This asynchronous function interacts with an external user service to authenticate and sign in a user
@@ -513,15 +518,9 @@ impl UserManager {
     // users opt for cloud storage, the application should automatically create a backup of the user
     // data. This backup should be in the form of a zip file and stored locally on the user's disk
     // for safety and data integrity purposes
-    if self.user_config.is_custom_storage_path() {
-      self
-        .database
-        .backup_or_restore(session.user_id, &session.user_workspace.id);
-    } else {
-      self
-        .database
-        .restore_if_need(session.user_id, &session.user_workspace.id);
-    }
+    self
+      .database
+      .backup_or_restore(session.user_id, &session.user_workspace.id);
   }
 
   /// Fetches the user profile for the given user ID.
