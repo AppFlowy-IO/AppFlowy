@@ -13,7 +13,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
 import 'package:flowy_infra/time/duration.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';

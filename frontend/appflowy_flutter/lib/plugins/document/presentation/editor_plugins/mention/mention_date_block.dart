@@ -65,7 +65,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
       return const SizedBox.shrink();
     }
 
-    final editorState = context.read<EditorState>();
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
 
     return MultiBlocProvider(
@@ -154,10 +153,10 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             );
 
             return GestureDetector(
-              onTapDown: editorState.editable
+              onTapDown: widget.editorState.editable
                   ? (details) => DatePickerMenu(
                         context: context,
-                        editorState: context.read<EditorState>(),
+                        editorState: widget.editorState,
                       ).show(details.globalPosition, options: options)
                   : null,
               child: Padding(
@@ -253,7 +252,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     ReminderPB? reminder, [
     bool includeTime = false,
   ]) {
-    if (parsedDate == null) {
+    final rootContext = widget.editorState.document.root.context;
+    if (parsedDate == null || rootContext == null) {
       return;
     }
 
@@ -266,13 +266,13 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
 
       if (ReminderOption.none == reminderOption && reminder != null) {
         // Delete existing reminder
-        return widget.editorState.document.root.context!
+        return rootContext
             .read<ReminderBloc>()
             .add(ReminderEvent.remove(reminder: reminder));
       }
 
       // Update existing reminder
-      return widget.editorState.document.root.context!.read<ReminderBloc>().add(
+      return rootContext.read<ReminderBloc>().add(
             ReminderEvent.update(
               ReminderUpdate(
                 id: widget.reminderId!,
@@ -291,7 +291,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     );
 
     // Add new reminder
-    final rootContext = widget.editorState.document.root.context!;
     final viewId = rootContext.read<DocumentBloc>().view.id;
     return rootContext.read<ReminderBloc>().add(
           ReminderEvent.add(
