@@ -1,6 +1,7 @@
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_folder::entities::ViewLayoutPB;
+use std::time::Duration;
 
 use crate::util::unzip_history_user_db;
 
@@ -158,6 +159,10 @@ async fn delete_outdated_collab_db_backup_test() {
 
   let uid = test.get_user_profile().await.unwrap().id;
   let backups = test.user_manager.get_collab_backup_list(uid);
+  // saving the backup is a background task, so we need to wait for it to finish
+  // 2 seconds should be enough for the background task to finish
+  tokio::time::sleep(Duration::from_secs(2)).await;
+
   assert_eq!(backups.len(), 10);
   assert_eq!(backups[0], "collab_db_0.4.0_20231202");
   assert_eq!(backups[1], "collab_db_0.4.0_20231203");

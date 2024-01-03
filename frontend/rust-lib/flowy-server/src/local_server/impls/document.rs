@@ -1,9 +1,8 @@
 use anyhow::Error;
 use collab::core::collab::CollabDocState;
-use collab_document::document_data::default_document_collab_data;
 
 use flowy_document_deps::cloud::*;
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDocumentCloudServiceImpl();
@@ -16,11 +15,10 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
   ) -> FutureResult<CollabDocState, FlowyError> {
     let document_id = document_id.to_string();
     FutureResult::new(async move {
-      Ok(
-        default_document_collab_data(&document_id)
-          .doc_state
-          .to_vec(),
-      )
+      Err(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        format!("Document {} not found", document_id),
+      ))
     })
   }
 
