@@ -294,7 +294,7 @@ impl CollabDBZipBackup {
       let path = entry.path();
       if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("zip") {
         if let Some(file_name) = path.file_stem().and_then(|s| s.to_str()) {
-          if let Some(timestamp_str) = file_name.split("_").last() {
+          if let Some(timestamp_str) = file_name.split('_').last() {
             match latest_zip {
               Some((latest_timestamp, _)) if timestamp_str > latest_timestamp.as_str() => {
                 latest_zip = Some((timestamp_str.to_string(), path));
