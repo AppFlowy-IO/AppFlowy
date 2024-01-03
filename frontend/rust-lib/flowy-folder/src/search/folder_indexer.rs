@@ -4,12 +4,14 @@ use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_document::document::DocumentIndexContent;
 use collab_folder::ViewIndexContent;
 use flowy_error::FlowyError;
+use flowy_folder_deps::entities::SearchData;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::async_trait::async_trait;
 use tracing::error;
 
 /// A trait for folder indexing storage.
 pub trait FolderIndexStorage: Send + Sync {
+  fn search(&self, s: &str, limit: Option<i64>) -> Result<Vec<SearchData>, FlowyError>;
   fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError>;
   fn update_view(&self, id: &str, content: &str) -> Result<(), FlowyError>;
   fn remove_view(&self, ids: &[String]) -> Result<(), FlowyError>;
@@ -41,6 +43,10 @@ impl FolderIndexer {
       storage: Arc::new(storage),
       document_index_content_getter: Arc::new(doc_getter),
     }
+  }
+
+  pub fn search(&self, s: &str, limit: Option<i64>) -> Result<Vec<SearchData>, FlowyError> {
+    self.storage.search(s, limit)
   }
 
   pub fn set_index_content_receiver(&self, mut rx: IndexContentReceiver) {

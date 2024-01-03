@@ -342,3 +342,15 @@ pub async fn import_appflowy_data_folder_handler(
     .await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn search_handler(
+  data: AFPluginData<SearchRequestPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedSearchDataPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let data = data.into_inner();
+  let results = folder.search(&data.search, data.limit)?;
+  let repeated_results: RepeatedSearchDataPB = results.into();
+  data_result_ok(repeated_results)
+}

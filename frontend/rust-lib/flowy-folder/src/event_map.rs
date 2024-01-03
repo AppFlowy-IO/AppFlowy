@@ -38,6 +38,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
     .event(FolderEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
+    .event(FolderEvent::Search, search_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -156,4 +157,7 @@ pub enum FolderEvent {
 
   #[event(input = "ImportAppFlowyDataPB")]
   ImportAppFlowyDataFolder = 38,
+
+  #[event(input = "SearchRequestPB")]
+  Search = 39,
 }

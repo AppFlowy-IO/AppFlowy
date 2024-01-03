@@ -23,7 +23,7 @@ use flowy_folder::search::{DocumentIndexContentGetter, FolderIndexStorage};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
-use flowy_folder_deps::entities::ImportData;
+use flowy_folder_deps::entities::{ImportData, SearchData};
 use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
 use flowy_user::manager::UserManager;
 use flowy_user::services::data_import::ImportDataSource;
@@ -487,6 +487,27 @@ pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
 struct FolderIndexStorageImpl(Weak<UserManager>);
 
 impl FolderIndexStorage for FolderIndexStorageImpl {
+  fn search(&self, s: &str, limit: Option<i64>) -> Result<Vec<SearchData>, FlowyError> {
+    let manager = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+
+    let uid = manager.user_id()?;
+    let search_data = manager.search(uid, s, limit)?;
+
+    let results = search_data
+      .into_iter()
+      .map(|d| SearchData {
+        index_type: d.index_type,
+        view_id: d.view_id,
+        id: d.id,
+        data: d.data,
+      })
+      .collect();
+    Ok(results)
+  }
+
   fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
     let manager = self
       .0
