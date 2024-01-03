@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart'
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/mobile_select_option_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/select_option_cell_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
