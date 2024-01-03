@@ -3,6 +3,7 @@ use std::sync::RwLock;
 use chrono::Local;
 use lazy_static::lazy_static;
 use tracing::subscriber::set_global_default;
+use tracing_appender::rolling::Rotation;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_subscriber::fmt::format::Writer;
@@ -25,10 +26,17 @@ pub struct Builder {
 
 impl Builder {
   pub fn new(name: &str, directory: &str) -> Self {
+    let file_appender = RollingFileAppender::builder()
+      .rotation(Rotation::DAILY)
+      .filename_prefix(name)
+      .max_log_files(6)
+      .build(directory)
+      .unwrap_or(tracing_appender::rolling::daily(directory, name));
+
     Builder {
       name: name.to_owned(),
       env_filter: "Info".to_owned(),
-      file_appender: tracing_appender::rolling::daily(directory, name),
+      file_appender,
     }
   }
 

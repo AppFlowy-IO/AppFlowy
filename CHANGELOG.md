@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 0.4.1 - 01/03/2024
+### Bug fixes
+- Fix import AppFlowy data folder
+
 ## Version 0.4.0 - 12/30/2023
 1. Added capability to import data from an AppFlowy data folder. For detailed information, please see [AppFlowy Data Storage Documentation](https://docs.appflowy.io/docs/appflowy/product/data-storage).
 2. Enhanced user interface and fixed various bugs.
