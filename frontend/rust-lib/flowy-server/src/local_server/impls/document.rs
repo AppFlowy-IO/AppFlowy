@@ -16,7 +16,7 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       Err(FlowyError::new(
-        ErrorCode::RecordNotFound,
+        ErrorCode::LocalVersionNotSupport,
         format!("Document {} not found", document_id),
       ))
     })

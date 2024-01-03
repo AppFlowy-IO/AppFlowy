@@ -258,7 +258,9 @@ impl CollabDBZipBackup {
     }
 
     // Clean up old backups
-    self.clean_old_backups()?;
+    if let Err(err) = self.clean_old_backups() {
+      error!("Clean up old backups failed: {:?}", err);
+    }
 
     Ok(())
   }
