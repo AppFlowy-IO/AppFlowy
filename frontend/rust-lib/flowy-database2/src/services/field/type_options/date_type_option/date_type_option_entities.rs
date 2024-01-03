@@ -94,7 +94,8 @@ impl From<&Cell> for DateCellData {
     let is_range = cell.get_bool_value("is_range").unwrap_or_default();
     let reminder_id = cell.get_str_value("reminder_id").unwrap_or_default();
     let reminder_option_raw = cell.get_str_value("reminder_option").unwrap_or_default();
-    let reminder_option = serde_json::from_str(&reminder_option_raw).unwrap();
+    let reminder_option =
+      serde_json::from_str(&reminder_option_raw).unwrap_or(ReminderOptionPB::None);
 
     Self {
       timestamp,
