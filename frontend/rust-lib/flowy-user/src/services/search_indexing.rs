@@ -1,11 +1,18 @@
 use flowy_error::FlowyResult;
 use flowy_sqlite::search::{
-  add, delete_document, delete_view, update_document, update_view, SearchData,
+  add, delete_document, delete_view, search_index, update_document, update_view, SearchData,
 };
 
 use crate::manager::UserManager;
 
 impl UserManager {
+  /// Search and returns a list of documents that match.
+  pub fn search(&self, uid: i64, s: &str, limit: Option<i64>) -> FlowyResult<Vec<SearchData>> {
+    let mut conn = self.db_connection(uid)?;
+    let results = search_index(&mut conn, s, limit)?;
+    Ok(results)
+  }
+
   /// Adds the view to the search index with `doc_id` and `name` for the user with `uid`.
   pub fn add_view_index(&self, uid: i64, doc_id: &str, name: &str) -> FlowyResult<()> {
     let mut conn = self.db_connection(uid)?;

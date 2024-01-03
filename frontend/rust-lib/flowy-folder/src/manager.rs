@@ -23,7 +23,7 @@ use lib_infra::conditional_send_sync_trait;
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, CreateViewParams, CreateWorkspaceParams,
-  DeletedViewPB, FolderSnapshotPB, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB,
+  DeletedViewPB, FolderSnapshotPB, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, SearchDataPB,
   UpdateViewParams, ViewPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
@@ -1107,6 +1107,13 @@ impl FolderManager {
       views.retain(|view| !trash_ids.contains(&view.id));
       views
     })
+  }
+
+  #[tracing::instrument(level = "trace", skip(self), err)]
+  pub fn search(&self, s: &str, limit: Option<i64>) -> FlowyResult<Vec<SearchDataPB>> {
+    let results = self.indexer.search(s, limit)?;
+    let results = results.into_iter().map(SearchDataPB::from).collect();
+    Ok(results)
   }
 }
 

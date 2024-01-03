@@ -1,4 +1,8 @@
-use diesel::{sql_query, sql_types::Text, QueryResult, RunQueryDsl, SqliteConnection};
+use diesel::{
+  sql_query,
+  sql_types::{BigInt, Text},
+  QueryResult, RunQueryDsl, SqliteConnection,
+};
 
 const SEARCH_INDEX_TABLE: &str = "search_index";
 const CREATE_SEARCH_INDEX_TABLE: &str =
@@ -109,10 +113,22 @@ pub fn update_view(conn: &mut SqliteConnection, data: &SearchData) -> QueryResul
 }
 
 /// Search index for matches.
-pub fn search_index(conn: &mut SqliteConnection, s: &str) -> QueryResult<Vec<SearchData>> {
-  sql_query("SELECT index_type, view_id, id, data FROM search_index WHERE search_index MATCH ?")
-    .bind::<Text, _>(s)
-    .load(conn)
+pub fn search_index(
+  conn: &mut SqliteConnection,
+  s: &str,
+  limit: Option<i64>,
+) -> QueryResult<Vec<SearchData>> {
+  let query = "SELECT index_type, view_id, id, data FROM search_index WHERE search_index MATCH ?";
+  match limit {
+    Some(limit) => {
+      let query = format!("{} LIMIT ?", query);
+      sql_query(query)
+        .bind::<Text, _>(s)
+        .bind::<BigInt, _>(limit)
+        .load(conn)
+    },
+    None => sql_query(query).bind::<Text, _>(s).load(conn),
+  }
 }
 
 /// Delete view and data associated with the view.
@@ -193,15 +209,36 @@ mod tests {
     let unrelated = SearchData::new_view("zxcv", "unrelated");
     add(&mut conn, &unrelated).unwrap();
 
-    let results = search_index(&mut conn, "doc").unwrap();
+    let results = search_index(&mut conn, "doc", None).unwrap();
     assert!(results.contains(&first));
     assert!(results.contains(&second));
 
     // remove views
     delete_view(&mut conn, &first.view_id).unwrap();
     delete_view(&mut conn, &second.view_id).unwrap();
-    let results = search_index(&mut conn, "doc").unwrap();
+    let results = search_index(&mut conn, "doc", None).unwrap();
     assert!(results.is_empty());
+
+    Ok(())
+  }
+
+  #[test]
+  fn test_view_search_limit() -> QueryResult<()> {
+    let (_tempdir, database) = setup_db();
+    let mut conn = database.get_connection().unwrap();
+    assert!(table_exists(&mut conn, SEARCH_INDEX_TABLE).unwrap());
+
+    // add views we will try to match
+    let first = SearchData::new_view("asdf", "First doc");
+    let second = SearchData::new_view("qwer", "Second doc");
+    add(&mut conn, &first).unwrap();
+    add(&mut conn, &second).unwrap();
+
+    let results = search_index(&mut conn, "doc", None).unwrap();
+    assert!(results.len() == 2);
+
+    let results = search_index(&mut conn, "doc", Some(1)).unwrap();
+    assert!(results.len() == 1);
 
     Ok(())
   }
@@ -216,7 +253,7 @@ mod tests {
     let view = SearchData::new_view("asdf", "First doc");
     add(&mut conn, &view).unwrap();
 
-    let results = search_index(&mut conn, "doc").unwrap();
+    let results = search_index(&mut conn, "doc", None).unwrap();
     assert!(results.contains(&view));
 
     // update view title
@@ -226,11 +263,11 @@ mod tests {
     };
     update_view(&mut conn, &view).unwrap();
     // prev search
-    let results = search_index(&mut conn, "doc").unwrap();
+    let results = search_index(&mut conn, "doc", None).unwrap();
     assert!(results.is_empty());
 
     // updated search
-    let results = search_index(&mut conn, "new").unwrap();
+    let results = search_index(&mut conn, "new", None).unwrap();
     assert!(results.contains(&view));
 
     Ok(())
@@ -252,7 +289,7 @@ mod tests {
     let unrelated = SearchData::new_document("zxcv", "987", "unrelated");
     add(&mut conn, &unrelated).unwrap();
 
-    let results = search_index(&mut conn, "doc").unwrap();
+    let results = search_index(&mut conn, "doc", None).unwrap();
     assert!(results.contains(&first));
     assert!(results.contains(&second));
 
@@ -260,7 +297,7 @@ mod tests {
     delete_document(&mut conn, &first.id).unwrap();
     // remove doc using view_id
     delete_view(&mut conn, &second.view_id).unwrap();
-    let results = search_index(&mut conn, "doc").unwrap();
+    let results = search_index(&mut conn, "doc", None).unwrap();
     assert!(results.is_empty());
 
     Ok(())
@@ -276,7 +313,7 @@ mod tests {
     let doc = SearchData::new_document("asdf", "123", "First doc");
     add(&mut conn, &doc).unwrap();
 
-    let results = search_index(&mut conn, "doc").unwrap();
+    let results = search_index(&mut conn, "doc", None).unwrap();
     assert!(results.contains(&doc));
 
     // update doc content
@@ -286,11 +323,11 @@ mod tests {
     };
     update_document(&mut conn, &doc).unwrap();
     // prev search
-    let results = search_index(&mut conn, "doc").unwrap();
+    let results = search_index(&mut conn, "doc", None).unwrap();
     assert!(results.is_empty());
 
     // updated search
-    let results = search_index(&mut conn, "new").unwrap();
+    let results = search_index(&mut conn, "new", None).unwrap();
     assert!(results.contains(&doc));
 
     Ok(())
