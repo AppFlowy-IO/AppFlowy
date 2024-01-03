@@ -15,9 +15,10 @@ use crate::services::cell::{
 };
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-  SingleSelectTypeOption, TimestampTypeOption, TypeOption, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, TypeOption,
+  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform, URLTypeOption,
 };
 use crate::services::sort::SortCondition;
 
@@ -484,6 +485,16 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
+      FieldType::Relation => self
+        .field
+        .get_type_option::<RelationTypeOption>(field_type)
+        .map(|type_option| {
+          TypeOptionCellDataHandlerImpl::new_with_boxed(
+            type_option,
+            self.cell_filter_cache.clone(),
+            self.cell_data_cache.clone(),
+          )
+        }),
     }
   }
 }
@@ -561,6 +572,9 @@ fn get_type_option_transform_handler(
     },
     FieldType::Checklist => {
       Box::new(ChecklistTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
+    },
+    FieldType::Relation => {
+      Box::new(RelationTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
   }
 }

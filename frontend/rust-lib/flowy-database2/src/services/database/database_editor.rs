@@ -27,8 +27,8 @@ use crate::services::database_view::{
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb, SelectOptionCellChangeset, SelectOptionIds, TimestampCellData,
-  TypeOptionCellDataHandler, TypeOptionCellExt,
+  type_option_data_from_pb, RelationTypeOption, SelectOptionCellChangeset, SelectOptionIds,
+  StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -1174,6 +1174,61 @@ impl DatabaseEditor {
       .await?;
 
     Ok(())
+  }
+
+  pub async fn get_related_database_id(&self, field_id: &str) -> FlowyResult<String> {
+    let mut field = self
+      .database
+      .lock()
+      .get_fields(Some(vec![field_id.to_string()]));
+    let field = field.pop().ok_or(FlowyError::internal())?;
+
+    let type_option = field
+      .get_type_option::<RelationTypeOption>(FieldType::Relation)
+      .ok_or(FlowyError::record_not_found())?;
+
+    Ok(type_option.database_id)
+  }
+
+  pub async fn get_related_rows(
+    &self,
+    row_ids: Option<&Vec<String>>,
+  ) -> FlowyResult<Vec<RelatedRowDataPB>> {
+    let primary_field = self.database.lock().fields.get_primary_field().unwrap();
+    let handler =
+      TypeOptionCellExt::new_with_cell_data_cache(&primary_field, Some(self.cell_cache.clone()))
+        .get_type_option_cell_data_handler(&FieldType::RichText)
+        .ok_or_else(|| FlowyError::internal())?;
+
+    let row_data = {
+      let database = self.database.lock();
+      let mut rows = database.get_database_rows();
+      if let Some(row_ids) = row_ids {
+        rows.retain(|row| row_ids.contains(&row.id));
+      }
+      rows
+        .iter()
+        .map(|row| {
+          let title = database
+            .get_cell(&primary_field.id, &row.id)
+            .cell
+            .and_then(|cell| {
+              handler
+                .get_cell_data(&cell, &FieldType::RichText, &primary_field)
+                .ok()
+            })
+            .and_then(|cell_data| cell_data.unbox_or_none())
+            .unwrap_or_else(|| StrCellData("".to_string()));
+
+          RelatedRowDataPB {
+            row_id: row.id.to_string(),
+            name: title.0,
+          }
+        })
+        .collect::<Vec<_>>()
+    };
+
+    Ok(row_data)
   }
 
   fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {

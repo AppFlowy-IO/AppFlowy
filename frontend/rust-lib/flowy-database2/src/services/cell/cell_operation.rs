@@ -350,6 +350,9 @@ impl<'a> CellBuilder<'a> {
               cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
             }
           },
+          FieldType::Relation => {
+            cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
+          },
         }
       }
     }

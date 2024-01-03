@@ -551,6 +551,7 @@
       "multiSelectFieldName": "Multiselect",
       "urlFieldName": "URL",
       "checklistFieldName": "Checklist",
+      "relationFieldName": "Relation",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
@@ -646,6 +647,12 @@
       "submitNewTask": "Create",
       "hideComplete": "Hide completed tasks",
       "showComplete": "Show all tasks"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Related Database",
+      "relatedDatabasePlaceholder": "None",
+      "inRelatedDatabase": "In",
+      "emptySearchResult": "No records found"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of"

@@ -67,6 +67,12 @@ impl AsRef<str> for DatabaseIdPB {
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct RepeatedDatabaseIdPB {
+  #[pb(index = 1)]
+  pub value: Vec<DatabaseIdPB>,
+}
+
+#[derive(Clone, ProtoBuf, Default, Debug)]
 pub struct DatabaseViewIdPB {
   #[pb(index = 1)]
   pub value: String,

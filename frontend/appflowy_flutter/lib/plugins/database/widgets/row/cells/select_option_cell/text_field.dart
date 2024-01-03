@@ -75,6 +75,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
   @override
   void dispose() {
     widget.textController.removeListener(_onChanged);
+    focusNode.dispose();
     super.dispose();
   }
 

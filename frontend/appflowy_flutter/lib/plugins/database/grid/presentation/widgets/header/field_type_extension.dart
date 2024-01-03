@@ -24,6 +24,8 @@ extension FieldTypeListExtension on FieldType {
         return FlowySvgs.attach_s;
       case FieldType.Checklist:
         return FlowySvgs.checklist_s;
+      case FieldType.Relation:
+        return FlowySvgs.relation_s;
     }
     throw UnimplementedError;
   }
@@ -50,6 +52,8 @@ extension FieldTypeListExtension on FieldType {
         return LocaleKeys.grid_field_urlFieldName.tr();
       case FieldType.Checklist:
         return LocaleKeys.grid_field_checklistFieldName.tr();
+      case FieldType.Relation:
+        return LocaleKeys.grid_field_relationFieldName.tr();
     }
     throw UnimplementedError;
   }

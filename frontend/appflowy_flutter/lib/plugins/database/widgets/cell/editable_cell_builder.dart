@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/relation.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -105,6 +106,12 @@ class EditableCellBuilder {
           skin: IEditableURLCellSkin.fromStyle(style),
           key: key,
         ),
+      FieldType.Relation => EditableRelationCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableRelationCellSkin.fromStyle(style),
+          key: key,
+        ),
       _ => throw UnimplementedError(),
     };
   }
@@ -182,6 +189,12 @@ class EditableCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
           skin: skinMap.urlSkin!,
+          key: key,
+        ),
+      FieldType.Relation => EditableRelationCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: skinMap.relationSkin!,
           key: key,
         ),
       _ => throw UnimplementedError(),
@@ -357,6 +370,7 @@ class EditableCellSkinMap {
     this.numberSkin,
     this.textSkin,
     this.urlSkin,
+    this.relationSkin,
   });
 
   final IEditableCheckboxCellSkin? checkboxSkin;
@@ -367,6 +381,7 @@ class EditableCellSkinMap {
   final IEditableNumberCellSkin? numberSkin;
   final IEditableTextCellSkin? textSkin;
   final IEditableURLCellSkin? urlSkin;
+  final IEditableRelationCellSkin? relationSkin;
 
   bool has(FieldType fieldType) {
     return switch (fieldType) {

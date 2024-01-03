@@ -123,3 +123,13 @@ class URLCellDataParser implements CellDataParser<URLCellDataPB> {
     return URLCellDataPB.fromBuffer(data);
   }
 }
+
+class RelationCellDataParser implements CellDataParser<RelationCellDataPB> {
+  @override
+  RelationCellDataPB? parserData(List<int> data) {
+    if (data.isEmpty) {
+      return null;
+    }
+    return RelationCellDataPB.fromBuffer(data);
+  }
+}

@@ -142,9 +142,9 @@ class GridCreateFilterBloc
           fieldId: fieldId,
           condition: TextFilterConditionPB.Contains,
         );
+      default:
+        throw UnimplementedError();
     }
-
-    return left(unit);
   }
 
   @override

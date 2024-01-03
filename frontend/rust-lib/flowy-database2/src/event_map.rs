@@ -79,6 +79,11 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
         .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
         .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
+        // Relation
+        .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
+        .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
+        .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
+        .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -329,4 +334,22 @@ pub enum DatabaseEvent {
   /// Updates the field settings for a field in the given view
   #[event(input = "FieldSettingsChangesetPB")]
   UpdateFieldSettings = 162,
+
+  /// Currently unused. Get a list of database ids that this database relates
+  /// to.
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseIdPB")]
+  GetRelatedDatabaseIds = 170,
+
+  /// Updates a relation cell, adding or removing links to rows in another
+  /// database
+  #[event(input = "RelationCellChangesetPB")]
+  UpdateRelationCell = 171,
+
+  /// Get the names of the linked rows in a relation cell.
+  #[event(input = "RepeatedRowIdPB", output = "RepeatedRelatedRowDataPB")]
+  GetRelatedRowDatas = 172,
+
+  /// Get the names of all the rows in a related database.
+  #[event(input = "DatabaseIdPB", output = "RepeatedRelatedRowDataPB")]
+  GetRelatedDatabaseRows = 173,
 }

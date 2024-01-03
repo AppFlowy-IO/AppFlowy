@@ -10,14 +10,14 @@ use flowy_error::FlowyResult;
 
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
-  MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
-  TimestampTypeOptionPB, URLTypeOptionPB,
+  MultiSelectTypeOptionPB, NumberTypeOptionPB, RelationTypeOptionPB, RichTextTypeOptionPB,
+  SingleSelectTypeOptionPB, TimestampTypeOptionPB, URLTypeOptionPB,
 };
 use crate::services::cell::{CellDataDecoder, FromCellChangeset, ToCellChangeset};
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-  SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
 };
 use crate::services::filter::FromFilterString;
 use crate::services::sort::SortCondition;
@@ -206,6 +206,9 @@ pub fn type_option_data_from_pb<T: Into<Bytes>>(
     FieldType::Checklist => {
       ChecklistTypeOptionPB::try_from(bytes).map(|pb| ChecklistTypeOption::from(pb).into())
     },
+    FieldType::Relation => {
+      RelationTypeOptionPB::try_from(bytes).map(|pb| RelationTypeOption::from(pb).into())
+    },
   }
 }
 
@@ -261,6 +264,12 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
+    FieldType::Relation => {
+      let relation_type_option: RelationTypeOption = type_option.into();
+      RelationTypeOptionPB::from(relation_type_option)
+        .try_into()
+        .unwrap()
+    },
   }
 }
 
@@ -280,5 +289,6 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
     FieldType::Checkbox => CheckboxTypeOption::default().into(),
     FieldType::URL => URLTypeOption::default().into(),
     FieldType::Checklist => ChecklistTypeOption.into(),
+    FieldType::Relation => RelationTypeOption::default().into(),
   }
 }

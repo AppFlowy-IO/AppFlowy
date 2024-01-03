@@ -7,7 +7,7 @@ use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{
   CellChangesetPB, CellIdPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
   DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, OrderObjectPositionPB,
-  SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
+  RelationCellChangesetPB, SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
 };
 use lib_infra::util::timestamp;
 
@@ -777,4 +777,100 @@ async fn create_calendar_event_test() {
 
   let events = test.get_all_calendar_events(&calendar_view.id).await;
   assert_eq!(events.len(), 1);
+}
+
+#[tokio::test]
+async fn update_relation_cell_test() {
+  let test = EventIntegrationTest::new_with_guest_user().await;
+  let current_workspace = test.get_current_workspace().await;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let relation_field = test.create_field(&grid_view.id, FieldType::Relation).await;
+  let database = test.get_database(&grid_view.id).await;
+
+  // update the relation cell
+  let changeset = RelationCellChangesetPB {
+    view_id: grid_view.id.clone(),
+    cell_id: CellIdPB {
+      view_id: grid_view.id.clone(),
+      field_id: relation_field.id.clone(),
+      row_id: database.rows[0].id.clone(),
+    },
+    inserted_row_ids: vec![
+      "row1rowid".to_string(),
+      "row2rowid".to_string(),
+      "row3rowid".to_string(),
+    ],
+    ..Default::default()
+  };
+  test.update_relation_cell(changeset).await;
+
+  // get the cell
+  let cell = test
+    .get_relation_cell(&grid_view.id, &relation_field.id, &database.rows[0].id)
+    .await;
+
+  assert_eq!(cell.row_ids.len(), 3);
+}
+
+#[tokio::test]
+async fn get_detailed_relation_cell_data() {
+  let test = EventIntegrationTest::new_with_guest_user().await;
+  let current_workspace = test.get_current_workspace().await;
+
+  let origin_grid_view = test
+    .create_grid(&current_workspace.id, "origin".to_owned(), vec![])
+    .await;
+  let relation_grid_view = test
+    .create_grid(&current_workspace.id, "relation grid".to_owned(), vec![])
+    .await;
+  let relation_field = test
+    .create_field(&relation_grid_view.id, FieldType::Relation)
+    .await;
+
+  let origin_database = test.get_database(&origin_grid_view.id).await;
+  let origin_fields = test.get_all_database_fields(&origin_grid_view.id).await;
+  let linked_row = origin_database.rows[0].clone();
+
+  test
+    .update_cell(CellChangesetPB {
+      view_id: origin_grid_view.id.clone(),
+      row_id: linked_row.id.clone(),
+      field_id: origin_fields.items[0].id.clone(),
+      cell_changeset: "hello world".to_string(),
+    })
+    .await;
+
+  let new_database = test.get_database(&relation_grid_view.id).await;
+
+  // update the relation cell
+  let changeset = RelationCellChangesetPB {
+    view_id: relation_grid_view.id.clone(),
+    cell_id: CellIdPB {
+      view_id: relation_grid_view.id.clone(),
+      field_id: relation_field.id.clone(),
+      row_id: new_database.rows[0].id.clone(),
+    },
+    inserted_row_ids: vec![linked_row.id.clone()],
+    ..Default::default()
+  };
+  test.update_relation_cell(changeset).await;
+
+  // get the cell
+  let cell = test
+    .get_relation_cell(
+      &relation_grid_view.id,
+      &relation_field.id,
+      &new_database.rows[0].id,
+    )
+    .await;
+
+  // using the row ids, get the row data
+  let rows = test
+    .get_related_row_data(origin_database.id.clone(), cell.row_ids)
+    .await;
+
+  assert_eq!(rows.len(), 1);
+  assert_eq!(rows[0].name, "hello world");
 }

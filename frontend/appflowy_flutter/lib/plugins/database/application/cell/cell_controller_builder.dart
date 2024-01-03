@@ -14,6 +14,7 @@ typedef ChecklistCellController = CellController<ChecklistCellDataPB, String>;
 typedef DateCellController = CellController<DateCellDataPB, String>;
 typedef TimestampCellController = CellController<TimestampCellDataPB, String>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
+typedef RelationCellController = CellController<RelationCellDataPB, String>;
 
 CellController makeCellController(
   DatabaseController databaseController,
@@ -115,6 +116,19 @@ CellController makeCellController(
         rowCache: rowCache,
         cellDataLoader: CellDataLoader(
           parser: URLCellDataParser(),
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+
+    case FieldType.Relation:
+      return RelationCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
+          parser: RelationCellDataParser(),
+          reloadOnFieldChange: true,
         ),
         cellDataPersistence: TextCellDataPersistence(),
       );
