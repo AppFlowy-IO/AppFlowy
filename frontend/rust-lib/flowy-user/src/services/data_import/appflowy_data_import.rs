@@ -183,6 +183,9 @@ pub(crate) fn import_appflowy_data_folder(
           collab_write_txn,
         )?;
 
+        document_object_ids
+          .lock()
+          .insert(import_container_view_id.clone());
         let import_container_view =
           ViewBuilder::new(session.user_id, session.user_workspace.id.clone())
             .with_view_id(import_container_view_id)
@@ -190,6 +193,7 @@ pub(crate) fn import_appflowy_data_folder(
             .with_name(name)
             .with_child_views(child_views)
             .build();
+
         Ok(vec![import_container_view])
       },
     }

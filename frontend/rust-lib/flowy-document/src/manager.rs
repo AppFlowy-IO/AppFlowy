@@ -8,7 +8,7 @@ use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
-use collab_document::document_data::{default_document_collab_data, default_document_data};
+use collab_document::document_data::default_document_data;
 use collab_document::YrsDocAction;
 use collab_entity::CollabType;
 use lru::LruCache;
@@ -111,10 +111,12 @@ impl DocumentManager {
         },
         Err(err) => {
           if err.is_record_not_found() {
-            let encoded_collab_v1 =
-              doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?;
+            let doc_state =
+              doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?
+                .doc_state
+                .to_vec();
             let collab = self
-              .collab_for_document(uid, doc_id, encoded_collab_v1.doc_state.to_vec(), false)
+              .collab_for_document(uid, doc_id, doc_state, false)
               .await?;
             collab.lock().flush();
           } else {
@@ -137,29 +139,10 @@ impl DocumentManager {
     let mut doc_state = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      let result: Result<CollabDocState, FlowyError> = self
+      doc_state = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user.workspace_id()?)
-        .await;
-
-      doc_state = match result {
-        Ok(data) => data,
-        Err(err) => {
-          if err.is_record_not_found() {
-            // The document's ID exists in the cloud, but its content does not.
-            // This occurs when user A's document hasn't finished syncing and user B tries to open it.
-            // As a result, a blank document is created for user B.
-            event!(
-              tracing::Level::INFO,
-              "can't find the document in the cloud, doc_id: {}",
-              doc_id
-            );
-            default_document_collab_data(doc_id).doc_state.to_vec()
-          } else {
-            return Err(err);
-          }
-        },
-      }
+        .await?;
     }
 
     let uid = self.user.user_id()?;

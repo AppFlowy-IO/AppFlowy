@@ -46,6 +46,9 @@ async fn import_appflowy_data_folder_into_new_view_test() {
   assert_eq!(views.len(), 2);
   assert_eq!(views[1].name, import_container_name);
 
+  // the 040_local should be an empty document, so try to get the document data
+  let _ = test.get_document_data(&views[1].id).await;
+
   let local_child_views = test.get_view(&views[1].id).await.child_views;
   assert_eq!(local_child_views.len(), 1);
   assert_eq!(local_child_views[0].name, "Document1");

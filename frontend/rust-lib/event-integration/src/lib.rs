@@ -77,27 +77,16 @@ impl EventIntegrationTest {
     }
   }
 
-  pub fn get_appflowy_cloud_server(&self) -> Arc<dyn AppFlowyServer> {
-    self
-      .appflowy_core
-      .server_provider
-      .get_appflowy_cloud_server()
-      .unwrap()
+  pub fn get_server(&self) -> Arc<dyn AppFlowyServer> {
+    self.appflowy_core.server_provider.get_server().unwrap()
   }
 
   pub async fn wait_ws_connected(&self) {
-    if self
-      .get_appflowy_cloud_server()
-      .get_ws_state()
-      .is_connected()
-    {
+    if self.get_server().get_ws_state().is_connected() {
       return;
     }
 
-    let mut ws_state = self
-      .get_appflowy_cloud_server()
-      .subscribe_ws_state()
-      .unwrap();
+    let mut ws_state = self.get_server().subscribe_ws_state().unwrap();
     loop {
       select! {
         _ = sleep(Duration::from_secs(20)) => {
@@ -119,7 +108,7 @@ impl EventIntegrationTest {
     oid: &str,
     collay_type: CollabType,
   ) -> Result<CollabDocState, FlowyError> {
-    let server = self.server_provider.get_appflowy_cloud_server().unwrap();
+    let server = self.server_provider.get_server().unwrap();
     let workspace_id = self.get_current_workspace().await.id;
     let uid = self.get_user_profile().await?.id;
     let doc_state = server
