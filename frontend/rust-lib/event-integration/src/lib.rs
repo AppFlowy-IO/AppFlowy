@@ -53,10 +53,8 @@ impl EventIntegrationTest {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
 
-    let level = "trace";
-    std::env::set_var("RUST_LOG", level);
     let config = AppFlowyCoreConfig::new(path.clone(), path, device_id, name).log_filter(
-      level,
+      "trace",
       vec![
         "flowy_test".to_string(),
         "tokio".to_string(),

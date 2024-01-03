@@ -1,5 +1,6 @@
 use crate::util::unzip_history_user_db;
 use assert_json_diff::assert_json_include;
+use collab_database::rows::database_row_document_id_from_row_id;
 use collab_entity::CollabType;
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::{document_data_from_document_doc_state, EventIntegrationTest};
@@ -60,6 +61,14 @@ async fn import_appflowy_data_folder_into_new_view_test() {
   assert_eq!(document2_child_views.len(), 2);
   assert_eq!(document2_child_views[0].name, "Grid1");
   assert_eq!(document2_child_views[1].name, "Grid2");
+
+  let rows = test.get_database(&document2_child_views[1].id).await.rows;
+  assert_eq!(rows.len(), 3);
+
+  // In the 040_local, only the first row has a document with content
+  let row_document_id = database_row_document_id_from_row_id(&rows[0].id);
+  let row_document_data = test.get_document_data(&row_document_id).await;
+  assert_json_include!(actual: json!(row_document_data), expected: expected_row_doc_json());
 
   drop(cleaner);
 }
@@ -368,5 +377,48 @@ fn expected_doc_2_json() -> Value {
       }
     },
     "page_id": "ZVogdaK9yO"
+  })
+}
+
+fn expected_row_doc_json() -> Value {
+  json!( {
+    "blocks": {
+      "eSBQHZ28e0": {
+        "children": "RbLAaE9UDJ",
+        "data": {},
+        "external_id": null,
+        "external_type": null,
+        "id": "eSBQHZ28e0",
+        "parent": "",
+        "ty": "page"
+      },
+      "eUIL6qjgj3": {
+        "children": "fUnGRcvPEA",
+        "data": {
+          "delta": [
+            {
+              "insert": "document in database row"
+            }
+          ]
+        },
+        "external_id": "-DliEUjHr2",
+        "external_type": "text",
+        "id": "eUIL6qjgj3",
+        "parent": "eSBQHZ28e0",
+        "ty": "paragraph"
+      }
+    },
+    "meta": {
+      "children_map": {
+        "RbLAaE9UDJ": [
+          "eUIL6qjgj3"
+        ],
+        "fUnGRcvPEA": []
+      },
+      "text_map": {
+        "-DliEUjHr2": "[{\"insert\":\"document in database row\"}]"
+      }
+    },
+    "page_id": "eSBQHZ28e0"
   })
 }
