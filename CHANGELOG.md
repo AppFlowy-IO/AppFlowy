@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version 0.4.1 - 12/30/2023
+## Version 0.4.1 - 01/03/2024
 ### Bug fixes
 - Fix import AppFlowy data folder
 
