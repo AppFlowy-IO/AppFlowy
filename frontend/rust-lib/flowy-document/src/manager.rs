@@ -86,13 +86,13 @@ impl DocumentManager {
   ///
   /// if the document already exists, return the existing document.
   /// if the data is None, will create a document with default data.
+  #[instrument(level = "info", skip(self, data))]
   pub async fn create_document(
     &self,
     uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<()> {
-    tracing::trace!("create a document: {:?}", doc_id);
     if self.is_doc_exist(doc_id).unwrap_or(false) {
       Err(FlowyError::new(
         ErrorCode::RecordAlreadyExists,

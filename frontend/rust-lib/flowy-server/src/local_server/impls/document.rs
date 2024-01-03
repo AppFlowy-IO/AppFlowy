@@ -1,5 +1,6 @@
 use anyhow::Error;
 use collab::core::collab::CollabDocState;
+use collab_document::document_data::default_document_collab_data;
 
 use flowy_document_deps::cloud::*;
 use flowy_error::FlowyError;
@@ -10,10 +11,17 @@ pub(crate) struct LocalServerDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
   fn get_document_doc_state(
     &self,
-    _document_id: &str,
+    document_id: &str,
     _workspace_id: &str,
   ) -> FutureResult<CollabDocState, FlowyError> {
-    FutureResult::new(async move { Ok(vec![]) })
+    let document_id = document_id.to_string();
+    FutureResult::new(async move {
+      Ok(
+        default_document_collab_data(&document_id)
+          .doc_state
+          .to_vec(),
+      )
+    })
   }
 
   fn get_document_snapshots(
