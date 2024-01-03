@@ -2,7 +2,7 @@ use anyhow::Error;
 use collab::core::collab::CollabDocState;
 
 use flowy_document_deps::cloud::*;
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDocumentCloudServiceImpl();
@@ -10,16 +10,17 @@ pub(crate) struct LocalServerDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
   fn get_document_doc_state(
     &self,
-    document_id: &str,
+    _document_id: &str,
     _workspace_id: &str,
   ) -> FutureResult<CollabDocState, FlowyError> {
-    let document_id = document_id.to_string();
-    FutureResult::new(async move {
-      Err(FlowyError::new(
-        ErrorCode::LocalVersionNotSupport,
-        format!("Document {} not found", document_id),
-      ))
-    })
+    // let document_id = document_id.to_string();
+    // FutureResult::new(async move {
+    //   Err(FlowyError::new(
+    //     ErrorCode::LocalVersionNotSupport,
+    //     format!("Document {} not found", document_id),
+    //   ))
+    // })
+    FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn get_document_snapshots(

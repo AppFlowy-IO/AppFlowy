@@ -345,6 +345,7 @@ impl CollabDBZipBackup {
     // Remove backups older than 10 days
     let threshold_str = threshold_date.format(zip_time_format()).to_string();
 
+    info!("Current backup: {:?}", backups.len());
     // If there are more than 10 backups, remove the oldest ones
     while backups.len() > 10 {
       if let Some((date_str, path)) = backups.first() {
