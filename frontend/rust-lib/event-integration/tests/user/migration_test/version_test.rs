@@ -141,10 +141,7 @@ async fn collab_db_backup_test() {
   assert_eq!(backups.len(), 1);
   assert_eq!(
     backups[0],
-    format!(
-      "collab_db_{}",
-      chrono::Local::now().format("%Y%m%d")
-    )
+    format!("collab_db_{}", chrono::Local::now().format("%Y%m%d"))
   );
   drop(cleaner);
 }
@@ -179,10 +176,7 @@ async fn delete_outdated_collab_db_backup_test() {
   assert_eq!(backups[8], "collab_db_0.4.0_20231210");
   assert_eq!(
     backups[9],
-    format!(
-      "collab_db_{}",
-      chrono::Local::now().format("%Y%m%d")
-    )
+    format!("collab_db_{}", chrono::Local::now().format("%Y%m%d"))
   );
   drop(cleaner);
 }
