@@ -23,7 +23,7 @@ use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandle
 use flowy_folder::ViewLayout;
 
 use flowy_folder_deps::entities::ImportData;
-use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
+use flowy_folder_deps::folder_builder::{FlattedViews, NestedViewBuilder, ParentChildViews};
 use flowy_user::manager::UserManager;
 use flowy_user::services::data_import::ImportDataSource;
 
@@ -145,7 +145,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
   fn create_workspace_view(
     &self,
     uid: i64,
-    workspace_view_builder: Arc<RwLock<WorkspaceViewBuilder>>,
+    workspace_view_builder: Arc<RwLock<NestedViewBuilder>>,
   ) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     FutureResult::new(async move {
