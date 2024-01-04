@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
@@ -7,8 +10,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 extension _StartWithsSort on List<InlineActionsResult> {
   void sortByStartsWithKeyword(String search) => sort(
@@ -126,7 +127,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     return Focus(
       focusNode: _focusNode,
       onKey: onKey,
-      child: DecoratedBox(
+      child: Container(
+        constraints: BoxConstraints.loose(const Size(200, 300)),
         decoration: BoxDecoration(
           color: widget.style.backgroundColor,
           borderRadius: BorderRadius.circular(6.0),
@@ -147,24 +149,27 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
                     LocaleKeys.inlineActions_noResults.tr(),
                   ),
                 )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: results
-                      .where((g) => g.results.isNotEmpty)
-                      .mapIndexed(
-                        (index, group) => InlineActionsGroup(
-                          result: group,
-                          editorState: widget.editorState,
-                          menuService: widget.menuService,
-                          style: widget.style,
-                          isGroupSelected: _selectedGroup == index,
-                          selectedIndex: _selectedIndex,
-                          onSelected: widget.onDismiss,
-                          startOffset: startOffset - widget.startCharAmount,
-                          endOffset: _search.length + widget.startCharAmount,
-                        ),
-                      )
-                      .toList(),
+              : SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: results
+                        .where((g) => g.results.isNotEmpty)
+                        .mapIndexed(
+                          (index, group) => InlineActionsGroup(
+                            result: group,
+                            editorState: widget.editorState,
+                            menuService: widget.menuService,
+                            style: widget.style,
+                            isGroupSelected: _selectedGroup == index,
+                            selectedIndex: _selectedIndex,
+                            onSelected: widget.onDismiss,
+                            startOffset: startOffset - widget.startCharAmount,
+                            endOffset: _search.length + widget.startCharAmount,
+                          ),
+                        )
+                        .toList(),
+                  ),
                 ),
         ),
       ),
@@ -210,11 +215,18 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       widget.onDismiss();
-      return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
+        if (_canDeleteLastCharacter()) {
+          widget.editorState.deleteBackward();
+        } else {
+          // Workaround for editor regaining focus
+          widget.editorState.apply(
+            widget.editorState.transaction
+              ..afterSelection = widget.editorState.selection,
+          );
+        }
         widget.onDismiss();
-        widget.editorState.deleteBackward();
       } else {
         widget.onSelectionUpdate();
         widget.editorState.deleteBackward();
@@ -333,5 +345,19 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
           startOffset,
           startOffset - 1 + _search.length,
         );
+  }
+
+  bool _canDeleteLastCharacter() {
+    final selection = widget.editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return false;
+    }
+
+    final delta = widget.editorState.getNodeAtPath(selection.start.path)?.delta;
+    if (delta == null) {
+      return false;
+    }
+
+    return delta.isNotEmpty;
   }
 }

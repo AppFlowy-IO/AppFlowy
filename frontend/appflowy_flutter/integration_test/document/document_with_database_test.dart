@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/database_view/board/presentation/board_page.dar
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/link_to_page_widget.dart';
+import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -155,7 +155,7 @@ Future<void> insertReferenceDatabase(
     layout.referencedMenuName,
   );
 
-  final linkToPageMenu = find.byType(LinkToPageMenu);
+  final linkToPageMenu = find.byType(InlineActionsHandler);
   expect(linkToPageMenu, findsOneWidget);
   final referencedDatabase = find.descendant(
     of: linkToPageMenu,

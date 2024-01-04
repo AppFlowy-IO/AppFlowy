@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
@@ -7,13 +9,14 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 
 class InlinePageReferenceService {
   InlinePageReferenceService({
     required this.currentViewId,
+    this.viewLayout,
   }) {
     init();
   }
@@ -21,6 +24,7 @@ class InlinePageReferenceService {
   final Completer _initCompleter = Completer<void>();
 
   final String currentViewId;
+  final ViewLayoutPB? viewLayout;
 
   late final ViewBackendService service;
   List<InlineActionsMenuItem> _items = [];
@@ -29,7 +33,7 @@ class InlinePageReferenceService {
   Future<void> init() async {
     service = ViewBackendService();
 
-    _generatePageItems(currentViewId).then((value) {
+    _generatePageItems(currentViewId, viewLayout).then((value) {
       _items = value;
       _filtered = value;
       _initCompleter.complete();
@@ -68,8 +72,15 @@ class InlinePageReferenceService {
 
   Future<List<InlineActionsMenuItem>> _generatePageItems(
     String currentViewId,
+    ViewLayoutPB? viewLayout,
   ) async {
-    final views = await service.fetchViews();
+    late List<ViewPB> views;
+    if (viewLayout != null) {
+      views = await service.fetchViewsWithLayoutType(viewLayout);
+    } else {
+      views = await service.fetchViews();
+    }
+
     if (views.isEmpty) {
       return [];
     }

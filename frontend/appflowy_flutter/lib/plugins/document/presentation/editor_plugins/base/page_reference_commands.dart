@@ -100,7 +100,7 @@ Future<bool> inlinePageReferenceCommandHandler(
     }
   }
 
-  if (service.context != null) {
+  if (context.mounted) {
     selectionMenuService = InlineActionsMenu(
       context: service.context!,
       editorState: editorState,
