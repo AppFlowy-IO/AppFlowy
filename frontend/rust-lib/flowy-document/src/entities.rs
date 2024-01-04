@@ -75,16 +75,10 @@ pub struct UploadFileParamsPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct GetUploadedFilePB {
+pub struct UploadedFile {
   #[pb(index = 1)]
   pub url: String,
-  pub dest_file_path: String,
-}
-
-#[derive(Default, ProtoBuf)]
-pub struct UploadedFileUrlPB {
-  #[pb(index = 1)]
-  pub url: String,
+  pub local_file_path: String,
 }
 
 #[derive(Default, ProtoBuf)]

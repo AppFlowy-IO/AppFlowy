@@ -11,7 +11,7 @@ use collab_document::blocks::{
 };
 use flowy_storage::{ObjectValue, StorageObject};
 use tokio::io::AsyncWriteExt;
-use tracing::instrument;
+use tracing::{info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -399,7 +399,7 @@ pub(crate) async fn convert_data_to_json_handler(
 pub(crate) async fn upload_file_handler(
   params: AFPluginData<UploadFileParamsPB>,
   manager: AFPluginState<Weak<DocumentManager>>,
-) -> DataResult<UploadedFileUrlPB, FlowyError> {
+) -> DataResult<UploadedFile, FlowyError> {
   let manager = upgrade_document(manager)?;
   let file_service = manager
     .get_file_storage_service()
@@ -414,14 +414,19 @@ pub(crate) async fn upload_file_handler(
       },
     })
     .await?;
-  Ok(AFPluginData(UploadedFileUrlPB { url }))
+
+  let local_file_path = params.local_file_path.to_owned();
+  Ok(AFPluginData(UploadedFile {
+    url,
+    local_file_path,
+  }))
 }
 
-pub(crate) async fn get_uploaded_file_handler(
-  params: AFPluginData<GetUploadedFilePB>,
+pub(crate) async fn download_file_handler(
+  params: AFPluginData<UploadedFile>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let path = params.dest_file_path.clone();
+  let path = params.local_file_path.clone();
 
   // if file already exist in user local disk, return
   if tokio::fs::metadata(&path).await.is_ok() {
@@ -440,16 +445,17 @@ pub(crate) async fn get_uploaded_file_handler(
   let mut file = tokio::fs::OpenOptions::new()
     .create(true)
     .write(true)
-    .open(path)
+    .open(&path)
     .await?;
 
-  file.write(raw.as_ref()).await?;
+  let n = file.write(raw.as_ref()).await?;
+  info!("downloaded {} bytes to file: {}", n, path);
   Ok(())
 }
 
 // Handler for creating a new document
 pub(crate) async fn delete_uploaded_file_handler(
-  params: AFPluginData<UploadedFileUrlPB>,
+  params: AFPluginData<UploadedFile>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
   let manager = upgrade_document(manager)?;
@@ -460,5 +466,7 @@ pub(crate) async fn delete_uploaded_file_handler(
   file_service
     .delete_object_by_url(params.url.clone())
     .await?;
+
+  tokio::fs::remove_file(&params.local_file_path).await?;
   Ok(())
 }
