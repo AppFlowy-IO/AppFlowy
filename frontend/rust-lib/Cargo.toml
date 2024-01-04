@@ -35,7 +35,7 @@ resolver = "2"
 [workspace.dependencies]
 lib-dispatch = { workspace = true, path = "lib-dispatch" }
 lib-log = { workspace = true, path = "lib-log" }
-lib-infra= { workspace = true, path = "lib-infra" }
+lib-infra = { workspace = true, path = "lib-infra" }
 flowy-ast = { workspace = true, path = "build-tool/flowy-ast" }
 flowy-codegen = { workspace = true, path = "build-tool/flowy-codegen" }
 flowy-derive = { workspace = true, path = "build-tool/flowy-derive" }
@@ -75,7 +75,7 @@ futures = "0.3.29"
 tokio = "1.34.0"
 tokio-stream = "0.1.14"
 async-trait = "0.1.74"
-chrono = { version = "0.4.31",  default-features = false, features = ["clock"] }
+chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 lru = "0.12.0"
 
 [profile.dev]
@@ -117,11 +117,11 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "40d
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cd07ab1aea927a75a1b78cfd2519c63a392f2e7b" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cd07ab1aea927a75a1b78cfd2519c63a392f2e7b" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cd07ab1aea927a75a1b78cfd2519c63a392f2e7b" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cd07ab1aea927a75a1b78cfd2519c63a392f2e7b" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cd07ab1aea927a75a1b78cfd2519c63a392f2e7b" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cd07ab1aea927a75a1b78cfd2519c63a392f2e7b" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cd07ab1aea927a75a1b78cfd2519c63a392f2e7b" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cd07ab1aea927a75a1b78cfd2519c63a392f2e7b" }

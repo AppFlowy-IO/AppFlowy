@@ -191,7 +191,7 @@ impl DatabaseEditor {
   /// If the view is inline view, all the reference views will be deleted. So the return value
   /// will be the reference view ids and the inline view id. Otherwise, the return value will
   /// be the view id.
-  pub async fn delete_database_view(&self, view_id: &str) -> FlowyResult<Vec<String>> {
+  pub async fn delete_database_view(&self, view_id: &str) -> FlowyResult<Option<DatabaseView>> {
     Ok(self.database.lock().delete_view(view_id))
   }
 

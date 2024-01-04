@@ -4,6 +4,8 @@ use std::sync::{Arc, Weak};
 
 use bytes::Bytes;
 
+use flowy_database2::services::database;
+use flowy_folder_deps::cloud::gen_view_id;
 use tokio::sync::RwLock;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -11,15 +13,17 @@ use collab_integrate::RocksCollabDB;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
-use flowy_database2::DatabaseManager;
+use flowy_database2::{DatabaseLayout, DatabaseManager};
 use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
-use flowy_folder::entities::ViewLayoutPB;
+use flowy_folder::entities::CreateViewParams;
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
-use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
+use flowy_folder::view_operation::{
+  create_view, FolderOperationHandler, FolderOperationHandlers, View,
+};
 use flowy_folder::ViewLayout;
 
 use flowy_folder_deps::entities::ImportData;
@@ -128,9 +132,9 @@ impl FolderUser for FolderUserImpl {
             document_object_ids: _,
           } => {
             let _uid = self.user_id()?;
-            data_manager
-              .track_database(database_view_ids_by_database_id)
-              .await?;
+            // data_manager
+            //   .track_database(database_view_ids_by_database_id)
+            //   .await?; YAY
             Ok(views)
           },
         }
@@ -183,7 +187,11 @@ impl FolderOperationHandler for DocumentFolderOperation {
     })
   }
 
-  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+  fn delete_view(
+    &self,
+    user_id: i64,
+    view_id: &str,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
@@ -191,7 +199,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
         Ok(_) => tracing::trace!("Delete document: {}", view_id),
         Err(e) => tracing::error!("🔴delete document failed: {}", e),
       }
-      Ok(())
+      Ok(vec![])
     })
   }
 
@@ -205,48 +213,46 @@ impl FolderOperationHandler for DocumentFolderOperation {
     })
   }
 
+  /// Create a document view with passed-in data.
   fn create_view_with_view_data(
     &self,
     user_id: i64,
-    view_id: &str,
-    _name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    _meta: HashMap<String, String>,
-  ) -> FutureResult<(), FlowyError> {
-    debug_assert_eq!(layout, ViewLayout::Document);
-    let view_id = view_id.to_string();
+    params: CreateViewParams,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError> {
+    debug_assert!(params.layout.is_document());
+    let view_id = gen_view_id().to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      let data = DocumentDataPB::try_from(Bytes::from(data))?;
+      let data = DocumentDataPB::try_from(Bytes::from(params.initial_data.clone()))?;
+      let index = params.index.clone();
       manager
         .create_document(user_id, &view_id, Some(data.into()))
         .await?;
-      Ok(())
+      let view = create_view(user_id, view_id, params);
+      Ok(vec![(view, index)])
     })
   }
 
-  /// Create a view with built-in data.
+  /// Create a document view with built-in data.
   fn create_built_in_view(
     &self,
     user_id: i64,
-    view_id: &str,
-    _name: &str,
-    layout: ViewLayout,
-  ) -> FutureResult<(), FlowyError> {
-    debug_assert_eq!(layout, ViewLayout::Document);
-    let view_id = view_id.to_string();
+    params: CreateViewParams,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError> {
+    debug_assert!(params.layout.is_document());
+    let view_id = gen_view_id().to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      match manager.create_document(user_id, &view_id, None).await {
-        Ok(_) => Ok(()),
-        Err(err) => {
-          if err.is_already_exists() {
-            Ok(())
-          } else {
-            Err(err)
-          }
+      let result = manager.create_document(user_id, &view_id, None).await;
+
+      match result {
+        Ok(_) => {
+          let index = params.index.clone();
+          let view = create_view(user_id, view_id, params);
+          Ok(vec![(view, index)])
         },
+        Err(err) if err.is_already_exists() => Ok(vec![]),
+        Err(err) => Err(err),
       }
     })
   }
@@ -292,15 +298,45 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     })
   }
 
-  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+  fn delete_view(
+    &self,
+    user_id: i64,
+    view_id: &str,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
       match database_manager.delete_database_view(&view_id).await {
-        Ok(_) => tracing::trace!("Delete database view: {}", view_id),
-        Err(e) => tracing::error!("🔴delete database failed: {}", e),
+        Ok(did_create_new_view) => {
+          tracing::trace!("Delete database view: {}", view_id);
+          if let Some(view) = did_create_new_view {
+            let inline_view_id = database_manager
+              .get_database_with_view_id(&view.id)
+              .await?
+              .get_mutex_database()
+              .lock()
+              .get_inline_view_id();
+            let params = CreateViewParams {
+              parent_view_id: inline_view_id,
+              name: view.name,
+              layout: view_layout_from_database_layout(view.layout),
+              desc: "".to_string(),
+              initial_data: vec![],
+              meta: Default::default(),
+              set_as_current: true,
+              index: None,
+            };
+            let view = create_view(user_id, view.id, params);
+            Ok(vec![(view, None)])
+          } else {
+            Ok(vec![])
+          }
+        },
+        Err(e) => {
+          tracing::error!("🔴delete database failed: {}", e);
+          Ok(vec![])
+        },
       }
-      Ok(())
     })
   }
 
@@ -313,79 +349,152 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     })
   }
 
-  /// Create a database view with duplicated data.
+  /// Create a database view with passed-in data.
   /// If the ext contains the {"database_id": "xx"}, then it will link
   /// to the existing database.
   fn create_view_with_view_data(
     &self,
-    _user_id: i64,
-    view_id: &str,
-    name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    meta: HashMap<String, String>,
-  ) -> FutureResult<(), FlowyError> {
-    match CreateDatabaseExtParams::from_map(meta) {
-      None => {
-        let database_manager = self.0.clone();
-        let view_id = view_id.to_string();
-        FutureResult::new(async move {
-          database_manager
-            .create_database_with_database_data(&view_id, data)
-            .await?;
-          Ok(())
-        })
-      },
-      Some(params) => {
-        let database_manager = self.0.clone();
-        let layout = layout_type_from_view_layout(layout.into());
-        let name = name.to_string();
-        let database_view_id = view_id.to_string();
+    user_id: i64,
+    params: CreateViewParams,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError> {
+    debug_assert!(params.layout.is_database());
+    let database_manager = self.0.clone();
+    match CreateDatabaseExtParams::from_map(params.meta.clone()) {
+      None => FutureResult::new(async move {
+        let layout = params.layout.clone();
+        let database = database_manager
+          .create_database_with_database_data(params.initial_data.clone())
+          .await?;
 
-        FutureResult::new(async move {
-          database_manager
-            .create_linked_view(name, layout.into(), params.database_id, database_view_id)
-            .await?;
-          Ok(())
-        })
-      },
+        let inline_view_id = database.lock().get_inline_view_id();
+        let mut views = database.lock().views.get_all_views();
+        let inline_view = views.remove(
+          views
+            .iter()
+            .position(|view| view.id == inline_view_id)
+            .unwrap(),
+        );
+        let linked_view = views.pop().unwrap();
+
+        let mut view_builder = NestedViewBuilder::new(params.parent_view_id.clone(), user_id);
+        view_builder
+          .with_view_builder(|builder| async {
+            builder
+              .with_name(params.name.clone())
+              .with_layout(layout.clone())
+              .with_view_id(inline_view_id.clone())
+              .with_child_view_builder(|builder| async {
+                builder
+                  .with_name(params.name.clone())
+                  .with_view_id(linked_view.id.clone())
+                  .with_layout(layout.clone())
+                  .build()
+              })
+              .await
+              .build()
+          })
+          .await;
+        let views = FlattedViews::flatten_views(view_builder.build())
+          .into_iter()
+          .map(|view| {
+            if view.id == inline_view_id {
+              (view, params.index)
+            } else {
+              (view, None)
+            }
+          })
+          .collect();
+
+        Ok(views)
+      }),
+      Some(ext_params) => FutureResult::new(async move {
+        let view_id = database_manager
+          .create_linked_view(
+            params.name.clone(),
+            database_layout_from_view_layout(params.layout.clone()),
+            ext_params.database_id,
+          )
+          .await?;
+
+        let index = params.index.clone();
+        let view = create_view(user_id, view_id, params);
+        Ok(vec![(view, index)])
+      }),
     }
   }
 
-  /// Create a database view with build-in data.
-  /// If the ext contains the {"database_id": "xx"}, then it will link to
-  /// the existing database. The data of the database will be shared within
-  /// these references views.
+  /// Create a database view with built-in data.
   fn create_built_in_view(
     &self,
-    _user_id: i64,
-    view_id: &str,
-    name: &str,
-    layout: ViewLayout,
-  ) -> FutureResult<(), FlowyError> {
-    let name = name.to_string();
+    user_id: i64,
+    params: CreateViewParams,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError> {
+    debug_assert!(params.layout.is_database());
     let database_manager = self.0.clone();
-    let data = match layout {
-      ViewLayout::Grid => make_default_grid(view_id, &name),
-      ViewLayout::Board => make_default_board(view_id, &name),
-      ViewLayout::Calendar => make_default_calendar(view_id, &name),
+    let create_database_params = match params.layout {
+      ViewLayout::Grid => make_default_grid(&params.name),
+      ViewLayout::Board => make_default_board(&params.name),
+      ViewLayout::Calendar => make_default_calendar(&params.name),
       ViewLayout::Document => {
         return FutureResult::new(async move {
-          Err(FlowyError::internal().with_context(format!("Can't handle {:?} layout type", layout)))
+          Err(
+            FlowyError::internal()
+              .with_context(format!("Unexpected layout type {:?}", params.layout)),
+          )
         });
       },
     };
+
+    let index = params.index.clone();
+
     FutureResult::new(async move {
-      let result = database_manager.create_database_with_params(data).await;
+      let result = database_manager
+        .create_database_with_params(create_database_params)
+        .await;
       match result {
-        Ok(_) => Ok(()),
-        Err(err) => {
-          if err.is_already_exists() {
-            Ok(())
-          } else {
-            Err(err)
-          }
+        Ok(database) => {
+          let inline_view_id = database.lock().get_inline_view_id();
+          let mut views = database.lock().views.get_all_views();
+          let _inline_view = views.remove(
+            views
+              .iter()
+              .position(|view| view.id == inline_view_id)
+              .unwrap(),
+          );
+          let linked_view = views.pop().unwrap();
+
+          let mut view_builder = NestedViewBuilder::new(params.parent_view_id.clone(), user_id);
+          view_builder
+            .with_view_builder(|builder| async {
+              builder
+                .with_name(&params.name)
+                .with_layout(params.layout.clone())
+                .with_view_id(inline_view_id.clone())
+                .with_child_view_builder(|builder| async {
+                  builder
+                    .with_name(&params.name)
+                    .with_view_id(linked_view.id.clone())
+                    .with_layout(params.layout.clone())
+                    .build()
+                })
+                .await
+                .build()
+            })
+            .await;
+          let views = FlattedViews::flatten_views(view_builder.build())
+            .into_iter()
+            .map(|view| {
+              if view.id == inline_view_id {
+                (view, index)
+              } else {
+                (view, None)
+              }
+            })
+            .collect();
+          Ok(views)
         },
+        Err(err) if err.is_already_exists() => Ok(vec![]),
+        Err(err) => Err(err),
       }
     })
   }
@@ -470,11 +579,19 @@ impl CreateDatabaseExtParams {
   }
 }
 
-pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
+pub fn database_layout_from_view_layout(layout: ViewLayout) -> DatabaseLayout {
   match layout {
-    ViewLayoutPB::Grid => DatabaseLayoutPB::Grid,
-    ViewLayoutPB::Board => DatabaseLayoutPB::Board,
-    ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
-    ViewLayoutPB::Document => DatabaseLayoutPB::Grid,
+    ViewLayout::Grid => DatabaseLayout::Grid,
+    ViewLayout::Board => DatabaseLayout::Board,
+    ViewLayout::Calendar => DatabaseLayout::Calendar,
+    ViewLayout::Document => DatabaseLayout::Grid,
+  }
+}
+
+pub fn view_layout_from_database_layout(layout: DatabaseLayout) -> ViewLayout {
+  match layout {
+    DatabaseLayout::Grid => ViewLayout::Grid,
+    DatabaseLayout::Board => ViewLayout::Board,
+    DatabaseLayout::Calendar => ViewLayout::Calendar,
   }
 }

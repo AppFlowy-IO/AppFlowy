@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use flowy_folder_deps::cloud::gen_view_id;
+use collab_folder::ViewLayout;
 
-use crate::entities::{CreateViewParams, ViewLayoutPB};
+use crate::entities::CreateViewParams;
 use crate::manager::FolderManager;
 
 #[cfg(feature = "test_helper")]
@@ -14,7 +14,7 @@ impl FolderManager {
     ext: HashMap<String, String>,
   ) -> String {
     self
-      .create_test_view(app_id, name, ViewLayoutPB::Grid, ext)
+      .create_test_view(app_id, name, ViewLayout::Grid, ext)
       .await
   }
 
@@ -25,7 +25,7 @@ impl FolderManager {
     ext: HashMap<String, String>,
   ) -> String {
     self
-      .create_test_view(app_id, name, ViewLayoutPB::Board, ext)
+      .create_test_view(app_id, name, ViewLayout::Board, ext)
       .await
   }
 
@@ -33,22 +33,20 @@ impl FolderManager {
     &self,
     app_id: &str,
     name: &str,
-    layout: ViewLayoutPB,
+    layout: ViewLayout,
     ext: HashMap<String, String>,
   ) -> String {
-    let view_id = gen_view_id().to_string();
     let params = CreateViewParams {
       parent_view_id: app_id.to_string(),
       name: name.to_string(),
       desc: "".to_string(),
       layout,
-      view_id: view_id.clone(),
       initial_data: vec![],
       meta: ext,
       set_as_current: true,
       index: None,
     };
-    self.create_view_with_params(params).await.unwrap();
-    view_id
+    let view = self.create_view_with_params(params).await.unwrap();
+    view.id
   }
 }

@@ -354,38 +354,30 @@ impl FolderManager {
   }
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
-    let view_layout: ViewLayout = params.layout.clone().into();
+    let view_layout: ViewLayout = params.layout.clone();
+    let _workspace_id = self.get_current_workspace_id().await?;
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     let meta = params.meta.clone();
 
-    if meta.is_empty() && params.initial_data.is_empty() {
-      tracing::trace!("Create view with build-in data");
-      handler
-        .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
-        .await?;
+    let mut views_with_indices = if meta.is_empty() && params.initial_data.is_empty() {
+      tracing::trace!("Create view with built-in data");
+      handler.create_built_in_view(user_id, params).await?
     } else {
-      tracing::trace!("Create view with view data");
-      handler
-        .create_view_with_view_data(
-          user_id,
-          &params.view_id,
-          &params.name,
-          params.initial_data.clone(),
-          view_layout.clone(),
-          meta,
-        )
-        .await?;
-    }
+      tracing::trace!("Create view with provided view data");
+      handler.create_view_with_view_data(user_id, params).await?
+    };
 
-    let index = params.index;
-    let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
-        folder.insert_view(view.clone(), index);
+        for (view, index) in views_with_indices.clone().into_iter() {
+          folder.insert_view(view, index);
+        }
       },
     );
+
+    let view = views_with_indices.remove(0).0;
 
     Ok(view)
   }
@@ -401,17 +393,18 @@ impl FolderManager {
     // TODO(nathan): remove orphan view. Just use for create document in row
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
-    handler
-      .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
-      .await?;
 
-    let view = create_view(self.user.user_id()?, params, view_layout);
+    let mut views_with_indices = handler.create_built_in_view(user_id, params).await?;
+
     self.with_folder(
       || (),
       |folder| {
-        folder.insert_view(view.clone(), None);
+        for (view, index) in views_with_indices.clone().into_iter() {
+          folder.insert_view(view, index);
+        }
       },
     );
+    let view = views_with_indices.remove(0).0;
     Ok(view)
   }
 
@@ -660,7 +653,6 @@ impl FolderManager {
       desc: view.desc.clone(),
       layout: view.layout.clone().into(),
       initial_data: view_data.to_vec(),
-      view_id: gen_view_id().to_string(),
       meta: Default::default(),
       set_as_current: true,
       index,
@@ -830,7 +822,11 @@ impl FolderManager {
     );
     if let Some(view) = view {
       if let Ok(handler) = self.get_handler(&view.layout) {
-        handler.delete_view(view_id).await?;
+        let uid = self.user.user_id()?;
+        let new_views = handler.delete_view(uid, view_id).await?;
+        for (view, index) in new_views.into_iter() {
+          self.with_folder(|| (), |folder| folder.insert_view(view, index));
+        }
       }
     }
     Ok(())
@@ -900,13 +896,12 @@ impl FolderManager {
       desc: "".to_string(),
       layout: import_data.view_layout.clone().into(),
       initial_data: vec![],
-      view_id,
       meta: Default::default(),
       set_as_current: false,
       index: None,
     };
 
-    let view = create_view(self.user.user_id()?, params, import_data.view_layout);
+    let view = create_view(self.user.user_id()?, view_id, params);
     self.with_folder(
       || (),
       |folder| {

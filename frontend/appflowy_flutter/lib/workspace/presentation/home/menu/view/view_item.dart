@@ -318,7 +318,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       // title
       Expanded(
         child: FlowyText.regular(
-          widget.view.name,
+          widget.view.id,
           overflow: TextOverflow.ellipsis,
         ),
       ),

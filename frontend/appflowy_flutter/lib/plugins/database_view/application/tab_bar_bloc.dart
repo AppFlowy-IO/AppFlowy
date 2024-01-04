@@ -17,20 +17,23 @@ part 'tab_bar_bloc.freezed.dart';
 
 class DatabaseTabBarBloc
     extends Bloc<DatabaseTabBarEvent, DatabaseTabBarState> {
+  final String inlineViewId;
+
   DatabaseTabBarBloc({
-    bool isInlineView = false,
-    required ViewPB view,
-  }) : super(DatabaseTabBarState.initial(view)) {
+    bool isInlineView = true,
+    required this.inlineViewId,
+  }) : super(DatabaseTabBarState.initial()) {
     on<DatabaseTabBarEvent>(
       (event, emit) async {
         event.when(
-          initial: () {
-            _listenInlineViewChanged();
-            _loadChildView();
+          initial: () async {
+            _startListening();
+            await _loadChildViews();
           },
           didLoadChildViews: (List<ViewPB> childViews) {
             emit(
               state.copyWith(
+                isLoading: false,
                 tabBars: [
                   ...state.tabBars,
                   ...childViews.map(
@@ -55,10 +58,7 @@ class DatabaseTabBarBloc
           },
           deleteView: (String viewId) async {
             final result = await ViewBackendService.delete(viewId: viewId);
-            result.fold(
-              (l) {},
-              (r) => Log.error(r),
-            );
+            result.fold((l) {}, (r) => Log.error(r));
           },
           renameView: (String viewId, String newName) {
             ViewBackendService.updateView(viewId: viewId, name: newName);
@@ -137,8 +137,8 @@ class DatabaseTabBarBloc
     return super.close();
   }
 
-  void _listenInlineViewChanged() {
-    final controller = state.tabBarControllerByViewId[state.parentView.id];
+  void _startListening() {
+    final controller = state.tabBarControllerByViewId[inlineViewId];
     controller?.onViewUpdated = (newView) {
       add(DatabaseTabBarEvent.viewDidUpdate(newView));
     };
@@ -166,14 +166,13 @@ class DatabaseTabBarBloc
   }
 
   Future<void> _createLinkedView(ViewLayoutPB layoutType, String name) async {
-    final viewId = state.parentView.id;
     final databaseIdOrError =
-        await DatabaseViewBackendService(viewId: viewId).getDatabaseId();
+        await DatabaseViewBackendService(viewId: inlineViewId).getDatabaseId();
     databaseIdOrError.fold(
       (databaseId) async {
         final linkedViewOrError =
             await ViewBackendService.createDatabaseLinkedView(
-          parentViewId: viewId,
+          parentViewId: inlineViewId,
           databaseId: databaseId,
           layoutType: layoutType,
           name: name,
@@ -188,17 +187,17 @@ class DatabaseTabBarBloc
     );
   }
 
-  Future<void> _loadChildView() async {
-    ViewBackendService.getChildViews(viewId: state.parentView.id)
-        .then((viewsOrFail) {
-      if (isClosed) {
-        return;
-      }
-      viewsOrFail.fold(
-        (views) => add(DatabaseTabBarEvent.didLoadChildViews(views)),
-        (err) => Log.error(err),
-      );
-    });
+  Future<void> _loadChildViews() async {
+    final viewsOrFail = await ViewBackendService.getChildViews(
+      viewId: inlineViewId,
+    );
+    if (isClosed) {
+      return;
+    }
+    viewsOrFail.fold(
+      (views) => add(DatabaseTabBarEvent.didLoadChildViews(views)),
+      (err) => Log.error(err),
+    );
   }
 }
 
@@ -225,23 +224,18 @@ class DatabaseTabBarEvent with _$DatabaseTabBarEvent {
 @freezed
 class DatabaseTabBarState with _$DatabaseTabBarState {
   const factory DatabaseTabBarState({
-    required ViewPB parentView,
+    required bool isLoading,
     required int selectedIndex,
     required List<DatabaseTabBar> tabBars,
     required Map<String, DatabaseTabBarController> tabBarControllerByViewId,
   }) = _DatabaseTabBarState;
 
-  factory DatabaseTabBarState.initial(ViewPB view) {
-    final tabBar = DatabaseTabBar(view: view);
-    return DatabaseTabBarState(
-      parentView: view,
+  factory DatabaseTabBarState.initial() {
+    return const DatabaseTabBarState(
+      isLoading: true,
       selectedIndex: 0,
-      tabBars: [tabBar],
-      tabBarControllerByViewId: {
-        view.id: DatabaseTabBarController(
-          view: view,
-        ),
-      },
+      tabBars: [],
+      tabBarControllerByViewId: {},
     );
   }
 }

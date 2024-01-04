@@ -1,3 +1,5 @@
+pub use collab_database::views::DatabaseLayout;
+
 pub use manager::*;
 
 pub mod entities;

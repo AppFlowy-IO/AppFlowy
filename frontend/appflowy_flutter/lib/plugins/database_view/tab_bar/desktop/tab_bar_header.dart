@@ -214,7 +214,7 @@ class TabBarItemButton extends StatelessWidget {
               color: color,
             ),
             text: FlowyText(
-              view.name,
+              view.id,
               fontSize: FontSizes.s11,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
