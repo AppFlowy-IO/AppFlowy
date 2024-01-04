@@ -398,6 +398,7 @@ impl FolderManager {
     params: CreateViewParams,
   ) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
+    // TODO(nathan): remove orphan view. Just use for create document in row
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     handler

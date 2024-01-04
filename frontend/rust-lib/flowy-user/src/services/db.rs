@@ -258,7 +258,9 @@ impl CollabDBZipBackup {
     }
 
     // Clean up old backups
-    self.clean_old_backups()?;
+    if let Err(err) = self.clean_old_backups() {
+      error!("Clean up old backups failed: {:?}", err);
+    }
 
     Ok(())
   }
@@ -292,7 +294,7 @@ impl CollabDBZipBackup {
       let path = entry.path();
       if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("zip") {
         if let Some(file_name) = path.file_stem().and_then(|s| s.to_str()) {
-          if let Some(timestamp_str) = file_name.split("_").last() {
+          if let Some(timestamp_str) = file_name.split('_').last() {
             match latest_zip {
               Some((latest_timestamp, _)) if timestamp_str > latest_timestamp.as_str() => {
                 latest_zip = Some((timestamp_str.to_string(), path));
@@ -343,6 +345,7 @@ impl CollabDBZipBackup {
     // Remove backups older than 10 days
     let threshold_str = threshold_date.format(zip_time_format()).to_string();
 
+    info!("Current backup: {:?}", backups.len());
     // If there are more than 10 backups, remove the oldest ones
     while backups.len() > 10 {
       if let Some((date_str, path)) = backups.first() {

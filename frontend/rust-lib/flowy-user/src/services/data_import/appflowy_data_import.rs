@@ -135,7 +135,6 @@ pub(crate) fn import_appflowy_data_folder(
       &mut all_imported_object_ids,
       &imported_collab_by_oid,
       &row_object_ids,
-      &document_object_ids,
     )?;
 
     // the object ids now only contains the document collab object ids
@@ -143,7 +142,7 @@ pub(crate) fn import_appflowy_data_folder(
       if let Some(imported_collab) = imported_collab_by_oid.get(object_id) {
         let new_object_id = old_to_new_id_map.lock().renew_id(object_id);
         document_object_ids.lock().insert(new_object_id.clone());
-        tracing::debug!("import from: {}, to: {}", object_id, new_object_id,);
+        debug!("import from: {}, to: {}", object_id, new_object_id,);
         import_collab_object(
           imported_collab,
           session.user_id,
@@ -184,6 +183,9 @@ pub(crate) fn import_appflowy_data_folder(
           collab_write_txn,
         )?;
 
+        document_object_ids
+          .lock()
+          .insert(import_container_view_id.clone());
         let import_container_view =
           ViewBuilder::new(session.user_id, session.user_workspace.id.clone())
             .with_view_id(import_container_view_id)
@@ -191,6 +193,7 @@ pub(crate) fn import_appflowy_data_folder(
             .with_name(name)
             .with_child_views(child_views)
             .build();
+
         Ok(vec![import_container_view])
       },
     }
@@ -256,7 +259,6 @@ fn migrate_databases<'a, W>(
   imported_object_ids: &mut Vec<String>,
   imported_collab_by_oid: &HashMap<String, Collab>,
   row_object_ids: &Mutex<HashSet<String>>,
-  document_object_ids: &Mutex<HashSet<String>>,
 ) -> Result<(), PersistenceError>
 where
   W: YrsDocAction<'a>,
@@ -265,7 +267,6 @@ where
   // Migrate databases
   let mut database_object_ids = vec![];
   let imported_database_row_object_ids = RwLock::new(HashSet::new());
-  let imported_database_row_document_object_ids = RwLock::new(HashSet::new());
 
   for object_id in &mut *imported_object_ids {
     if let Some(database_collab) = imported_collab_by_oid.get(object_id) {
@@ -298,9 +299,6 @@ where
 
           row_order.id = RowId::from(new_row_id);
           imported_database_row_object_ids.write().insert(old_row_id);
-          imported_database_row_document_object_ids
-            .write()
-            .insert(old_row_document_id);
         });
 
         // collect the ids
@@ -310,13 +308,7 @@ where
           .map(|order| order.id.clone().into_inner())
           .collect::<Vec<String>>();
 
-        let new_row_document_ids = new_row_ids
-          .iter()
-          .map(|id| database_row_document_id_from_row_id(id))
-          .collect::<Vec<String>>();
-
         row_object_ids.lock().extend(new_row_ids);
-        document_object_ids.lock().extend(new_row_document_ids);
       });
 
       let new_object_id = old_to_new_id_map.lock().renew_id(object_id);
@@ -333,22 +325,10 @@ where
     }
   }
   let imported_database_row_object_ids = imported_database_row_object_ids.read();
-  let imported_database_row_document_object_ids = imported_database_row_document_object_ids.read();
-
-  debug!(
-    "imported_database_row_object_ids: {:?}",
-    imported_database_row_object_ids
-  );
-
-  debug!(
-    "imported_database_row_document_object_ids: {:?}",
-    imported_database_row_document_object_ids
-  );
 
   // remove the database object ids from the object ids
   imported_object_ids.retain(|id| !database_object_ids.contains(id));
   imported_object_ids.retain(|id| !imported_database_row_object_ids.contains(id));
-  imported_object_ids.retain(|id| !imported_database_row_document_object_ids.contains(id));
 
   for imported_row_id in &*imported_database_row_object_ids {
     if let Some(imported_collab) = imported_collab_by_oid.get(imported_row_id) {
@@ -369,17 +349,14 @@ where
     }
 
     let imported_row_document_id = database_row_document_id_from_row_id(imported_row_id);
-    if let Some(imported_collab) = imported_collab_by_oid.get(&imported_row_document_id) {
+    if imported_collab_by_oid
+      .get(&imported_row_document_id)
+      .is_some()
+    {
       let new_row_document_id = old_to_new_id_map.lock().renew_id(&imported_row_document_id);
       info!(
-        "import database row document from: {}, to: {}",
+        "map row document from: {}, to: {}",
         imported_row_document_id, new_row_document_id,
-      );
-      import_collab_object(
-        imported_collab,
-        session.user_id,
-        &new_row_document_id,
-        collab_write_txn,
       );
     }
   }
