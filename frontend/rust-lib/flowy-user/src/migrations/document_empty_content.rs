@@ -7,7 +7,7 @@ use collab_document::document_data::default_document_data;
 use collab_folder::{Folder, View};
 use tracing::{event, instrument};
 
-use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_user_deps::entities::Authenticator;
 
@@ -27,7 +27,7 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
   fn run(
     &self,
     session: &Session,
-    collab_db: &Arc<RocksCollabDB>,
+    collab_db: &Arc<CollabKVDB>,
     authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     // - The `empty document` struct has already undergone refactoring prior to the launch of the AppFlowy cloud version.

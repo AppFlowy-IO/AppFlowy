@@ -1,6 +1,6 @@
 use crate::services::data_import::appflowy_data_import::import_appflowy_data_folder;
 use crate::services::entities::Session;
-use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
 use std::collections::HashMap;
 
 use crate::services::data_import::ImportContext;
@@ -21,7 +21,7 @@ pub enum ImportDataSource {
 pub(crate) fn import_data(
   session: &Session,
   context: ImportContext,
-  collab_db: Arc<RocksCollabDB>,
+  collab_db: Arc<CollabKVDB>,
 ) -> anyhow::Result<ImportData> {
   import_appflowy_data_folder(session, &session.user_workspace.id, &collab_db, context)
 }

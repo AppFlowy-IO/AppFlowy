@@ -16,7 +16,7 @@ use collab_database::user::DatabaseViewTrackerList;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
-use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
 use flowy_error::{internal_error, FlowyError};
 use flowy_folder_deps::cloud::gen_view_id;
 use flowy_folder_deps::entities::ImportData;
@@ -32,7 +32,7 @@ use tracing::info;
 
 pub(crate) struct ImportContext {
   pub imported_session: Session,
-  pub imported_collab_db: Arc<RocksCollabDB>,
+  pub imported_collab_db: Arc<CollabKVDB>,
   pub container_name: Option<String>,
 }
 
@@ -55,7 +55,7 @@ pub(crate) fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Res
     ))?;
 
   let collab_db_path = user_paths.collab_db_path(session.user_id);
-  let collab_db = Arc::new(RocksCollabDB::open(collab_db_path)?);
+  let collab_db = Arc::new(CollabKVDB::open(collab_db_path)?);
   Ok(ImportContext {
     imported_session: session,
     imported_collab_db: collab_db,
@@ -72,7 +72,7 @@ pub(crate) fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Res
 pub(crate) fn import_appflowy_data_folder(
   session: &Session,
   workspace_id: &str,
-  collab_db: &Arc<RocksCollabDB>,
+  collab_db: &Arc<CollabKVDB>,
   import_context: ImportContext,
 ) -> anyhow::Result<ImportData> {
   let imported_session = import_context.imported_session;
@@ -521,7 +521,7 @@ impl DerefMut for OldToNewIdMap {
 
 pub async fn upload_imported_data(
   uid: i64,
-  user_collab_db: Arc<RocksCollabDB>,
+  user_collab_db: Arc<CollabKVDB>,
   workspace_id: &str,
   user_authenticator: &Authenticator,
   import_data: &ImportData,

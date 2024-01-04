@@ -22,7 +22,6 @@ pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> Stri
   filters.push(format!("flowy_folder2={}", level));
   filters.push(format!("collab_sync={}", level));
   filters.push(format!("collab_folder={}", level));
-  filters.push(format!("collab_persistence={}", level));
   filters.push(format!("collab_database={}", level));
   filters.push(format!("collab_plugins={}", level));
   filters.push(format!("collab_integrate={}", level));

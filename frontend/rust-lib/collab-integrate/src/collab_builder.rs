@@ -5,14 +5,15 @@ use anyhow::Error;
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::preclude::{CollabBuilder, CollabPlugin};
 use collab_entity::{CollabObject, CollabType};
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
-use collab_plugins::cloud_storage::network_state::{CollabNetworkReachability, CollabNetworkState};
-use collab_plugins::local_storage::rocksdb::{RocksdbBackup, RocksdbDiskPlugin};
+use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
+use collab_plugins::local_storage::rocksdb::rocksdb_plugin::{RocksdbBackup, RocksdbDiskPlugin};
+use collab_plugins::local_storage::rocksdb::snapshot_plugin::CollabSnapshotPlugin;
 use collab_plugins::local_storage::CollabPersistenceConfig;
-use collab_plugins::snapshot::{CollabSnapshotPlugin, SnapshotPersistence};
+use collab_plugins::network_state::{CollabConnectReachability, CollabConnectState};
 use parking_lot::{Mutex, RwLock};
 use tracing::trace;
 
+use crate::CollabKVDB;
 use lib_infra::future::Fut;
 
 #[derive(Clone, Debug)]
@@ -33,7 +34,7 @@ pub enum CollabPluginProviderContext {
     uid: i64,
     collab_object: CollabObject,
     local_collab: Weak<MutexCollab>,
-    local_collab_db: Weak<RocksCollabDB>,
+    local_collab_db: Weak<CollabKVDB>,
   },
 }
 
@@ -83,7 +84,7 @@ where
 }
 
 pub struct AppFlowyCollabBuilder {
-  network_reachability: CollabNetworkReachability,
+  network_reachability: CollabConnectReachability,
   workspace_id: RwLock<Option<String>>,
   plugin_provider: tokio::sync::RwLock<Arc<dyn CollabCloudPluginProvider>>,
   snapshot_persistence: Mutex<Option<Arc<dyn SnapshotPersistence>>>,
@@ -111,7 +112,7 @@ impl CollabBuilderConfig {
 impl AppFlowyCollabBuilder {
   pub fn new<T: CollabCloudPluginProvider>(storage_provider: T, device_id: String) -> Self {
     Self {
-      network_reachability: CollabNetworkReachability::new(),
+      network_reachability: CollabConnectReachability::new(),
       workspace_id: Default::default(),
       plugin_provider: tokio::sync::RwLock::new(Arc::new(storage_provider)),
       snapshot_persistence: Default::default(),
@@ -136,11 +137,11 @@ impl AppFlowyCollabBuilder {
     if reachable {
       self
         .network_reachability
-        .set_state(CollabNetworkState::Connected)
+        .set_state(CollabConnectState::Connected)
     } else {
       self
         .network_reachability
-        .set_state(CollabNetworkState::Disconnected)
+        .set_state(CollabConnectState::Disconnected)
     }
   }
 
@@ -166,7 +167,7 @@ impl AppFlowyCollabBuilder {
   ///
   /// This function will initiate the creation of a [MutexCollab] object if it does not already exist.
   /// To check for the existence of the object prior to creation, you should utilize a transaction
-  /// returned by the [read_txn] method of the [RocksCollabDB]. Then, invoke the [is_exist] method
+  /// returned by the [read_txn] method of the [CollabKVDB]. Then, invoke the [is_exist] method
   /// to confirm the object's presence.
   ///
   /// # Parameters
@@ -174,7 +175,7 @@ impl AppFlowyCollabBuilder {
   /// - `object_id`: A string reference representing the ID of the object.
   /// - `object_type`: The type of the collaboration, defined by the [CollabType] enum.
   /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabDocState] type.
-  /// - `collab_db`: A weak reference to the [RocksCollabDB].
+  /// - `collab_db`: A weak reference to the [CollabKVDB].
   ///
   pub async fn build(
     &self,
@@ -182,7 +183,7 @@ impl AppFlowyCollabBuilder {
     object_id: &str,
     object_type: CollabType,
     collab_doc_state: CollabDocState,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
     let persistence_config = CollabPersistenceConfig::default();
@@ -203,7 +204,7 @@ impl AppFlowyCollabBuilder {
   ///
   /// This function will initiate the creation of a [MutexCollab] object if it does not already exist.
   /// To check for the existence of the object prior to creation, you should utilize a transaction
-  /// returned by the [read_txn] method of the [RocksCollabDB]. Then, invoke the [is_exist] method
+  /// returned by the [read_txn] method of the [CollabKVDB]. Then, invoke the [is_exist] method
   /// to confirm the object's presence.
   ///
   /// # Parameters
@@ -211,7 +212,7 @@ impl AppFlowyCollabBuilder {
   /// - `object_id`: A string reference representing the ID of the object.
   /// - `object_type`: The type of the collaboration, defined by the [CollabType] enum.
   /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabDocState] type.
-  /// - `collab_db`: A weak reference to the [RocksCollabDB].
+  /// - `collab_db`: A weak reference to the [CollabKVDB].
   ///
   #[allow(clippy::too_many_arguments)]
   pub async fn build_with_config(
@@ -219,7 +220,7 @@ impl AppFlowyCollabBuilder {
     uid: i64,
     object_id: &str,
     object_type: CollabType,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     collab_doc_state: CollabDocState,
     persistence_config: &CollabPersistenceConfig,
     build_config: CollabBuilderConfig,

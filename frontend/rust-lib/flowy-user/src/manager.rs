@@ -9,7 +9,7 @@ use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_folder_deps::entities::ImportData;
 use flowy_server_config::AuthenticatorType;
@@ -261,7 +261,7 @@ impl UserManager {
     self.database.get_pool(uid)
   }
 
-  pub fn get_collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
+  pub fn get_collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
       .database
       .get_collab_db(uid)

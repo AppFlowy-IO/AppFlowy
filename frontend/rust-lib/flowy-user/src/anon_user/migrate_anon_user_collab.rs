@@ -15,7 +15,7 @@ use collab_folder::{Folder, UserId};
 use parking_lot::{Mutex, RwLock};
 use tracing::info;
 
-use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::gen_view_id;
 use flowy_user_deps::entities::Authenticator;
@@ -26,9 +26,9 @@ use crate::migrations::MigrationUser;
 /// the user is a local user and try to use AppFlowy cloud service.
 pub fn migration_anon_user_on_sign_up(
   old_user: &MigrationUser,
-  old_collab_db: &Arc<RocksCollabDB>,
+  old_collab_db: &Arc<CollabKVDB>,
   new_user: &MigrationUser,
-  new_collab_db: &Arc<RocksCollabDB>,
+  new_collab_db: &Arc<CollabKVDB>,
   authenticator: &Authenticator,
 ) -> FlowyResult<()> {
   new_collab_db

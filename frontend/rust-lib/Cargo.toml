@@ -117,11 +117,10 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "a45
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7d7f53250f7a8297c69e2cdc72e441f5469eaf11" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7d7f53250f7a8297c69e2cdc72e441f5469eaf11" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7d7f53250f7a8297c69e2cdc72e441f5469eaf11" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7d7f53250f7a8297c69e2cdc72e441f5469eaf11" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7d7f53250f7a8297c69e2cdc72e441f5469eaf11" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7d7f53250f7a8297c69e2cdc72e441f5469eaf11" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7d7f53250f7a8297c69e2cdc72e441f5469eaf11" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7d7f53250f7a8297c69e2cdc72e441f5469eaf11" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "951c53ef95b3e1d1fd73762d069b21a9c482099a" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "951c53ef95b3e1d1fd73762d069b21a9c482099a" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "951c53ef95b3e1d1fd73762d069b21a9c482099a" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "951c53ef95b3e1d1fd73762d069b21a9c482099a" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "951c53ef95b3e1d1fd73762d069b21a9c482099a" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "951c53ef95b3e1d1fd73762d069b21a9c482099a" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "951c53ef95b3e1d1fd73762d069b21a9c482099a" }

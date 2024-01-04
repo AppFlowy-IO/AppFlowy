@@ -3,7 +3,7 @@ use std::sync::Arc;
 use collab_folder::Folder;
 use tracing::instrument;
 
-use collab_integrate::{RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVDB, YrsDocAction};
 use flowy_error::{internal_error, FlowyResult};
 use flowy_user_deps::entities::Authenticator;
 
@@ -23,7 +23,7 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
   fn run(
     &self,
     session: &Session,
-    collab_db: &Arc<RocksCollabDB>,
+    collab_db: &Arc<CollabKVDB>,
     _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     let write_txn = collab_db.write_txn();

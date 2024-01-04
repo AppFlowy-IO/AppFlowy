@@ -13,7 +13,7 @@ use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
 use parking_lot::Mutex;
 
-use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
 use flowy_error::FlowyResult;
 use flowy_user_deps::cloud::UserCloudService;
 
@@ -24,7 +24,7 @@ pub async fn sync_supabase_user_data_to_cloud(
   user_service: Arc<dyn UserCloudService>,
   device_id: &str,
   new_user: &MigrationUser,
-  collab_db: &Arc<RocksCollabDB>,
+  collab_db: &Arc<CollabKVDB>,
 ) -> FlowyResult<()> {
   let workspace_id = new_user.session.user_workspace.id.clone();
   let uid = new_user.session.user_id;
@@ -79,7 +79,7 @@ fn sync_view(
   workspace_id: String,
   device_id: String,
   view: Arc<View>,
-  collab_db: Arc<RocksCollabDB>,
+  collab_db: Arc<CollabKVDB>,
   user_service: Arc<dyn UserCloudService>,
 ) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send + Sync>> {
   Box::pin(async move {
@@ -205,7 +205,7 @@ fn sync_view(
 fn get_collab_doc_state(
   uid: i64,
   collab_object: &CollabObject,
-  collab_db: &Arc<RocksCollabDB>,
+  collab_db: &Arc<CollabKVDB>,
 ) -> Result<Vec<u8>, PersistenceError> {
   let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![]);
   let _ = collab.with_origin_transact_mut(|txn| {
@@ -224,7 +224,7 @@ fn get_collab_doc_state(
 fn get_database_doc_state(
   uid: i64,
   collab_object: &CollabObject,
-  collab_db: &Arc<RocksCollabDB>,
+  collab_db: &Arc<CollabKVDB>,
 ) -> Result<(Vec<u8>, Vec<String>), PersistenceError> {
   let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![]);
   let _ = collab.with_origin_transact_mut(|txn| {
@@ -246,7 +246,7 @@ async fn sync_folder(
   uid: i64,
   workspace_id: &str,
   device_id: &str,
-  collab_db: &Arc<RocksCollabDB>,
+  collab_db: &Arc<CollabKVDB>,
   user_service: Arc<dyn UserCloudService>,
 ) -> Result<MutexFolder, Error> {
   let (folder, update) = {
@@ -295,7 +295,7 @@ async fn sync_database_views(
   workspace_id: &str,
   device_id: &str,
   database_views_aggregate_id: &str,
-  collab_db: &Arc<RocksCollabDB>,
+  collab_db: &Arc<CollabKVDB>,
   user_service: Arc<dyn UserCloudService>,
 ) -> Vec<Arc<DatabaseViewTracker>> {
   let collab_object = CollabObject::new(
