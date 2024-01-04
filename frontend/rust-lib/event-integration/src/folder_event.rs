@@ -64,17 +64,6 @@ impl EventIntegrationTest {
       .items
   }
 
-  pub async fn get_views(&self, parent_view_id: &str) -> ViewPB {
-    EventBuilder::new(self.clone())
-      .event(FolderEvent::GetView)
-      .payload(ViewIdPB {
-        value: parent_view_id.to_string(),
-      })
-      .async_send()
-      .await
-      .parse::<ViewPB>()
-  }
-
   pub async fn get_trash(&self) -> RepeatedTrashPB {
     EventBuilder::new(self.clone())
       .event(FolderEvent::ListTrashItems)

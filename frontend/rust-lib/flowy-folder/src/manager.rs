@@ -398,11 +398,13 @@ impl FolderManager {
     params: CreateViewParams,
   ) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
+    // TODO(nathan): remove orphan view. Just use for create document in row
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     handler
       .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
       .await?;
+
     let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),

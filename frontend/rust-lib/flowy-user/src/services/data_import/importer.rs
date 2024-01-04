@@ -7,6 +7,7 @@ use crate::services::data_import::ImportContext;
 use collab::preclude::Collab;
 use flowy_folder_deps::entities::ImportData;
 use std::sync::Arc;
+use tracing::instrument;
 
 pub enum ImportDataSource {
   AppFlowyDataFolder {
@@ -26,6 +27,7 @@ pub(crate) fn import_data(
   import_appflowy_data_folder(session, &session.user_workspace.id, &collab_db, context)
 }
 
+#[instrument(level = "debug", skip_all)]
 pub fn load_collab_by_oid<'a, R>(
   uid: i64,
   collab_read_txn: &R,
@@ -44,7 +46,7 @@ where
       Ok(_) => {
         collab_by_oid.insert(object_id.clone(), collab);
       },
-      Err(err) => tracing::error!("🔴Initialize migration collab failed: {:?} ", err),
+      Err(err) => tracing::error!("🔴import collab:{} failed: {:?} ", object_id, err),
     }
   }
 

@@ -59,9 +59,10 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
           &encode.state_vector,
         )
         .map_err(internal_error)?;
+
+      write_txn.commit_transaction().map_err(internal_error)?;
     }
 
-    write_txn.commit_transaction().map_err(internal_error)?;
     Ok(())
   }
 }

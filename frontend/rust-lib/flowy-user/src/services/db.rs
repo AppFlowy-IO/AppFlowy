@@ -84,6 +84,17 @@ impl UserDB {
     }
   }
 
+  #[cfg(debug_assertions)]
+  pub fn get_collab_backup_list(&self, uid: i64) -> Vec<String> {
+    let collab_db_path = self.paths.collab_db_path(uid);
+    if let Ok(history_folder) = self.paths.collab_db_history(uid, true) {
+      return CollabDBZipBackup::new(collab_db_path.clone(), history_folder)
+        .get_backup_list()
+        .unwrap_or_default();
+    }
+    vec![]
+  }
+
   #[instrument(level = "debug", skip_all)]
   pub fn restore_if_need(&self, uid: i64, workspace_id: &str) {
     if let Ok(history_folder) = self.paths.collab_db_history(uid, false) {
@@ -224,9 +235,16 @@ impl CollabDBZipBackup {
 
   #[instrument(name = "backup_collab_db", skip_all, err)]
   pub fn backup(&self) -> io::Result<()> {
-    let today_zip_file = self
-      .history_folder
-      .join(format!("collab_db_{}.zip", today_zip_timestamp()));
+    let file_name = match std::env::var("APP_VERSION") {
+      Ok(version_num) => {
+        format!("collab_db_{}_{}.zip", version_num, today_zip_timestamp())
+      },
+      Err(_) => {
+        format!("collab_db_{}.zip", today_zip_timestamp())
+      },
+    };
+
+    let today_zip_file = self.history_folder.join(file_name);
 
     // Remove today's existing zip file if it exists
     if !today_zip_file.exists() {
@@ -240,9 +258,27 @@ impl CollabDBZipBackup {
     }
 
     // Clean up old backups
-    self.clean_old_backups()?;
+    if let Err(err) = self.clean_old_backups() {
+      error!("Clean up old backups failed: {:?}", err);
+    }
 
     Ok(())
+  }
+
+  #[cfg(debug_assertions)]
+  pub fn get_backup_list(&self) -> io::Result<Vec<String>> {
+    let mut backups = Vec::new();
+    for entry in fs::read_dir(&self.history_folder)? {
+      let entry = entry?;
+      let path = entry.path();
+      if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("zip") {
+        if let Some(file_name) = path.file_stem().and_then(|s| s.to_str()) {
+          backups.push(file_name.to_string());
+        }
+      }
+    }
+    backups.sort();
+    Ok(backups)
   }
 
   #[instrument(skip_all, err)]
@@ -258,7 +294,7 @@ impl CollabDBZipBackup {
       let path = entry.path();
       if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("zip") {
         if let Some(file_name) = path.file_stem().and_then(|s| s.to_str()) {
-          if let Some(timestamp_str) = file_name.strip_prefix("collab_db_") {
+          if let Some(timestamp_str) = file_name.split('_').last() {
             match latest_zip {
               Some((latest_timestamp, _)) if timestamp_str > latest_timestamp.as_str() => {
                 latest_zip = Some((timestamp_str.to_string(), path));
@@ -309,6 +345,7 @@ impl CollabDBZipBackup {
     // Remove backups older than 10 days
     let threshold_str = threshold_date.format(zip_time_format()).to_string();
 
+    info!("Current backup: {:?}", backups.len());
     // If there are more than 10 backups, remove the oldest ones
     while backups.len() > 10 {
       if let Some((date_str, path)) = backups.first() {

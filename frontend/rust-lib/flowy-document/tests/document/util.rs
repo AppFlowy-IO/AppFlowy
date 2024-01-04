@@ -21,7 +21,7 @@ use collab_integrate::CollabKVDB;
 use flowy_document::document::MutexDocument;
 use flowy_document::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_storage::{FileStorageService, StorageObject};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::{to_fut, Fut, FutureResult};
@@ -135,10 +135,16 @@ pub struct LocalTestDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
   fn get_document_doc_state(
     &self,
-    _document_id: &str,
+    document_id: &str,
     _workspace_id: &str,
   ) -> FutureResult<CollabDocState, FlowyError> {
-    FutureResult::new(async move { Ok(vec![]) })
+    let document_id = document_id.to_string();
+    FutureResult::new(async move {
+      Err(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        format!("Document {} not found", document_id),
+      ))
+    })
   }
 
   fn get_document_snapshots(
