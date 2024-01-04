@@ -15,7 +15,7 @@ use collab_folder::{Folder, UserId};
 use parking_lot::{Mutex, RwLock};
 use tracing::info;
 
-use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::gen_view_id;
 use flowy_user_deps::entities::Authenticator;
@@ -129,16 +129,19 @@ impl DerefMut for OldToNewIdMap {
   }
 }
 
-fn migrate_database_with_views_object<'a, W>(
+fn migrate_database_with_views_object<'a, 'b, W, R>(
   old_to_new_id_map: &mut OldToNewIdMap,
   old_user: &MigrationUser,
-  old_collab_r_txn: &'a W,
+  old_collab_r_txn: &R,
   new_user: &MigrationUser,
-  new_collab_w_txn: &'a W,
+  new_collab_w_txn: &W,
 ) -> Result<(), PersistenceError>
 where
-  W: YrsDocAction<'a>,
+  'a: 'b,
+  W: CollabKVAction<'a>,
+  R: CollabKVAction<'b>,
   PersistenceError: From<W::Error>,
+  PersistenceError: From<R::Error>,
 {
   let database_with_views_collab = Collab::new(
     old_user.session.user_id,
@@ -180,7 +183,7 @@ where
 
 fn migrate_collab_object<'a, W>(collab: &Collab, new_uid: i64, new_object_id: &str, w_txn: &'a W)
 where
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   let txn = collab.transact();
@@ -189,18 +192,20 @@ where
   }
 }
 
-fn migrate_workspace_folder<'a, 'b, W>(
+fn migrate_workspace_folder<'a, 'b, W, R>(
   old_to_new_id_map: &mut OldToNewIdMap,
   old_user: &MigrationUser,
-  old_collab_r_txn: &'b W,
+  old_collab_r_txn: &R,
   new_user: &MigrationUser,
-  new_collab_w_txn: &'a W,
+  new_collab_w_txn: &W,
   _authenticator: &Authenticator,
 ) -> Result<(), PersistenceError>
 where
   'a: 'b,
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
+  R: CollabKVAction<'b>,
   PersistenceError: From<W::Error>,
+  PersistenceError: From<R::Error>,
 {
   let old_uid = old_user.session.user_id;
   let old_workspace_id = &old_user.session.user_workspace.id;
@@ -334,7 +339,7 @@ fn migrate_databases<'a, W>(
   collab_by_oid: &HashMap<String, Collab>,
 ) -> Result<(), PersistenceError>
 where
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   // Migrate databases
@@ -438,7 +443,7 @@ fn make_collab_by_oid<'a, R>(
   object_ids: &[String],
 ) -> HashMap<String, Collab>
 where
-  R: YrsDocAction<'a>,
+  R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
   let mut collab_by_oid = HashMap::new();

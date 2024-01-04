@@ -16,7 +16,7 @@ use collab_database::user::DatabaseViewTrackerList;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
-use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{internal_error, FlowyError};
 use flowy_folder_deps::cloud::gen_view_id;
 use flowy_folder_deps::entities::ImportData;
@@ -78,7 +78,6 @@ pub(crate) fn import_appflowy_data_folder(
   let imported_session = import_context.imported_session;
   let imported_collab_db = import_context.imported_collab_db;
   let container_name = import_context.container_name;
-  let imported_collab_read_txn = imported_collab_db.read_txn();
 
   let mut database_view_ids_by_database_id: HashMap<String, Vec<String>> = HashMap::new();
   let row_object_ids = Mutex::new(HashSet::new());
@@ -90,6 +89,7 @@ pub(crate) fn import_appflowy_data_folder(
   };
 
   let views = collab_db.with_write_txn(|collab_write_txn| {
+    let imported_collab_read_txn = imported_collab_db.read_txn();
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
     let old_to_new_id_map = Arc::new(Mutex::new(OldToNewIdMap::new()));
     let mut all_imported_object_ids = imported_collab_read_txn
@@ -210,12 +210,12 @@ pub(crate) fn import_appflowy_data_folder(
 fn migrate_database_view_tracker<'a, W>(
   old_to_new_id_map: &mut OldToNewIdMap,
   other_session: &Session,
-  other_collab_read_txn: &'a W,
+  other_collab_read_txn: &W,
   database_view_ids_by_database_id: &mut HashMap<String, Vec<String>>,
   database_object_ids: &Mutex<HashSet<String>>,
 ) -> Result<(), PersistenceError>
 where
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   let database_view_tracker_collab = Collab::new(
@@ -261,7 +261,7 @@ fn migrate_databases<'a, W>(
   row_object_ids: &Mutex<HashSet<String>>,
 ) -> Result<(), PersistenceError>
 where
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   // Migrate databases
@@ -365,7 +365,7 @@ where
 
 fn import_collab_object<'a, W>(collab: &Collab, new_uid: i64, new_object_id: &str, w_txn: &'a W)
 where
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   let txn = collab.transact();
@@ -381,7 +381,7 @@ fn import_collab_object_with_doc_state<'a, W>(
   w_txn: &'a W,
 ) -> Result<(), anyhow::Error>
 where
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   let collab = Collab::new_with_doc_state(CollabOrigin::Empty, new_object_id, doc_state, vec![])?;
@@ -389,15 +389,14 @@ where
   Ok(())
 }
 
-fn import_workspace_views<'a, 'b, W>(
+fn import_workspace_views<'a, W>(
   parent_view_id: &str,
   old_to_new_id_map: &mut OldToNewIdMap,
   other_session: &Session,
   other_collab_read_txn: &W,
 ) -> Result<Vec<ParentChildViews>, PersistenceError>
 where
-  'a: 'b,
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   let other_folder_collab = Collab::new(
@@ -656,7 +655,7 @@ fn load_and_process_collab_data<'a, R>(
   object_ids: &[String],
 ) -> HashMap<String, Vec<u8>>
 where
-  R: YrsDocAction<'a>,
+  R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
   load_collab_by_oid(uid, collab_read, object_ids)

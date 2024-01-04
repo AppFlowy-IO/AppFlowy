@@ -1,6 +1,6 @@
 use crate::services::data_import::appflowy_data_import::import_appflowy_data_folder;
 use crate::services::entities::Session;
-use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use std::collections::HashMap;
 
 use crate::services::data_import::ImportContext;
@@ -34,7 +34,7 @@ pub fn load_collab_by_oid<'a, R>(
   object_ids: &[String],
 ) -> HashMap<String, Collab>
 where
-  R: YrsDocAction<'a>,
+  R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
   let mut collab_by_oid = HashMap::new();

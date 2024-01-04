@@ -3,7 +3,7 @@ use std::sync::Arc;
 use collab_folder::Folder;
 use tracing::instrument;
 
-use collab_integrate::{CollabKVDB, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB};
 use flowy_error::{internal_error, FlowyResult};
 use flowy_user_deps::entities::Authenticator;
 
@@ -35,33 +35,33 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
     if !matches!(authenticator, Authenticator::Local) {
       return Ok(());
     }
-    let write_txn = collab_db.write_txn();
-    if let Ok(collab) = load_collab(session.user_id, &write_txn, &session.user_workspace.id) {
-      let folder = Folder::open(session.user_id, collab, None)?;
-      folder.migrate_workspace_to_view();
+    collab_db
+      .with_write_txn(|write_txn| {
+        if let Ok(collab) = load_collab(session.user_id, write_txn, &session.user_workspace.id) {
+          let folder = Folder::open(session.user_id, collab, None)?;
+          folder.migrate_workspace_to_view();
 
-      let favorite_view_ids = folder
-        .get_favorite_v1()
-        .into_iter()
-        .map(|fav| fav.id)
-        .collect::<Vec<String>>();
+          let favorite_view_ids = folder
+            .get_favorite_v1()
+            .into_iter()
+            .map(|fav| fav.id)
+            .collect::<Vec<String>>();
 
-      if !favorite_view_ids.is_empty() {
-        folder.add_favorites(favorite_view_ids);
-      }
+          if !favorite_view_ids.is_empty() {
+            folder.add_favorites(favorite_view_ids);
+          }
 
-      let encode = folder.encode_collab_v1();
-      write_txn
-        .flush_doc_with(
-          session.user_id,
-          &session.user_workspace.id,
-          &encode.doc_state,
-          &encode.state_vector,
-        )
-        .map_err(internal_error)?;
-
-      write_txn.commit_transaction().map_err(internal_error)?;
-    }
+          let encode = folder.encode_collab_v1();
+          write_txn.flush_doc_with(
+            session.user_id,
+            &session.user_workspace.id,
+            &encode.doc_state,
+            &encode.state_vector,
+          )?;
+        }
+        Ok(())
+      })
+      .map_err(internal_error)?;
 
     Ok(())
   }

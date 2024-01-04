@@ -13,7 +13,7 @@ use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
 use parking_lot::Mutex;
 
-use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::FlowyResult;
 use flowy_user_deps::cloud::UserCloudService;
 

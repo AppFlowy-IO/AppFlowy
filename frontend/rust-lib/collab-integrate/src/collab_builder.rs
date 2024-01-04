@@ -5,11 +5,11 @@ use anyhow::Error;
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::preclude::{CollabBuilder, CollabPlugin};
 use collab_entity::{CollabObject, CollabType};
+use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
 use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
 use collab_plugins::local_storage::rocksdb::rocksdb_plugin::{RocksdbBackup, RocksdbDiskPlugin};
 use collab_plugins::local_storage::rocksdb::snapshot_plugin::CollabSnapshotPlugin;
 use collab_plugins::local_storage::CollabPersistenceConfig;
-use collab_plugins::network_state::{CollabConnectReachability, CollabConnectState};
 use parking_lot::{Mutex, RwLock};
 use tracing::trace;
 

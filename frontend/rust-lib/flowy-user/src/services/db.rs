@@ -5,7 +5,7 @@ use chrono::Local;
 use parking_lot::RwLock;
 use tracing::{error, event, info, instrument};
 
-use collab_integrate::{CollabKVDB, PersistenceError, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::FlowyError;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::ConnectionPool;

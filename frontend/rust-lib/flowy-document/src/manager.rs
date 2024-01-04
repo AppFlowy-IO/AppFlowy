@@ -15,7 +15,7 @@ use parking_lot::Mutex;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::CollabKVDB;
+use collab_integrate::{CollabKVAction, CollabKVDB};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;

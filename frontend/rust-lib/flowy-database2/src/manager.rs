@@ -17,7 +17,7 @@ use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVDB, CollabPersistenceConfig, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
