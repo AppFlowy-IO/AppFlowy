@@ -1,9 +1,9 @@
 use std::{fs::File, io::prelude::*};
 
-use collab_database::database::{gen_database_id, gen_field_id, gen_row_id};
+use collab_database::database::{gen_database_id, gen_database_view_id, gen_field_id, gen_row_id};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
-use collab_database::views::{CreateDatabaseParams, DatabaseLayout};
+use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 
 use flowy_error::{FlowyError, FlowyResult};
 
@@ -99,7 +99,7 @@ fn database_from_fields_and_rows(
 
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
-  let created_rows = rows
+  let rows = rows
     .iter()
     .map(|cells| {
       let mut params = CreateRowParams::new(gen_row_id());
@@ -127,17 +127,18 @@ fn database_from_fields_and_rows(
     .collect::<Vec<CreateRowParams>>();
 
   CreateDatabaseParams {
-    database_id,
-    view_id: view_id.to_string(),
-    view_name: "".to_string(),
-    layout: DatabaseLayout::Grid,
-    layout_settings: Default::default(),
-    filters: vec![],
-    groups: vec![],
-    sorts: vec![],
-    created_rows,
+    database_id: database_id.clone(),
+    inline_view_id: gen_database_view_id(),
+    views: vec![CreateViewParams {
+      database_id,
+      view_id: view_id.to_string(),
+      name: "".to_string(),
+      layout: DatabaseLayout::Grid,
+      field_settings,
+      ..Default::default()
+    }],
+    rows,
     fields,
-    field_settings,
   }
 }
 

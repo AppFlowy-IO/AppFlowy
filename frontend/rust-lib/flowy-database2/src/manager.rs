@@ -1,15 +1,16 @@
-use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, MutexDatabase, YrsDocAction};
+use collab_database::database::{gen_database_view_id, DatabaseData, MutexDatabase, YrsDocAction};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
   CollabDocStateByOid, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
 };
-use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
+use collab_database::views::{
+  CreateDatabaseParams, CreateViewParams, DatabaseLayout, DatabaseView,
+};
 use collab_entity::CollabType;
 use futures::executor::block_on;
 use lru::LruCache;
@@ -161,29 +162,34 @@ impl DatabaseManager {
   }
 
   pub async fn get_all_databases_description(&self) -> RepeatedDatabaseDescriptionPB {
-    let mut items = vec![];
-    if let Ok(wdb) = self.get_workspace_database().await {
-      items = wdb
-        .get_all_databases()
-        .into_iter()
-        .map(DatabaseDescriptionPB::from)
-        .collect();
-    }
+    let items = self
+      .get_workspace_database()
+      .await
+      .ok()
+      .map(|wdb| {
+        wdb
+          .get_all_databases()
+          .into_iter()
+          .map(DatabaseDescriptionPB::from)
+          .collect()
+      })
+      .unwrap_or_else(|| vec![]);
+
     RepeatedDatabaseDescriptionPB { items }
   }
 
-  pub async fn track_database(
-    &self,
-    view_ids_by_database_id: HashMap<String, Vec<String>>,
-  ) -> FlowyResult<()> {
-    let wdb = self.get_workspace_database().await?;
-    view_ids_by_database_id
-      .into_iter()
-      .for_each(|(database_id, view_ids)| {
-        wdb.track_database(&database_id, view_ids);
-      });
-    Ok(())
-  }
+  // pub async fn track_database(
+  //   &self,
+  //   view_ids_by_database_id: HashMap<String, Vec<String>>,
+  // ) -> FlowyResult<()> {
+  //   let wdb = self.get_workspace_database().await?;
+  //   view_ids_by_database_id
+  //     .into_iter()
+  //     .for_each(|(database_id, view_ids)| {
+  //       wdb.track_database(&database_id, view_ids);
+  //     });
+  //   Ok(())
+  // } YAY
 
   pub async fn get_database_with_view_id(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
@@ -241,15 +247,14 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn delete_database_view(&self, view_id: &str) -> FlowyResult<()> {
+  pub async fn delete_database_view(&self, view_id: &str) -> FlowyResult<Option<DatabaseView>> {
     let database = self.get_database_with_view_id(view_id).await?;
-    let _ = database.delete_database_view(view_id).await?;
-    Ok(())
+    database.delete_database_view(view_id).await
   }
 
   pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
     let wdb = self.get_workspace_database().await?;
-    let data = wdb.get_database_duplicated_data(view_id).await?;
+    let data = wdb.get_all_database_data(view_id).await?;
     let json_bytes = data.to_json_bytes()?;
     Ok(json_bytes)
   }
@@ -258,21 +263,22 @@ impl DatabaseManager {
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn create_database_with_database_data(
     &self,
-    view_id: &str,
     data: Vec<u8>,
-  ) -> FlowyResult<()> {
-    let mut database_data = DatabaseData::from_json_bytes(data)?;
-    database_data.view.id = view_id.to_string();
+  ) -> FlowyResult<Arc<MutexDatabase>> {
+    let database_data = DatabaseData::from_json_bytes(data)?;
 
     let wdb = self.get_workspace_database().await?;
-    let _ = wdb.create_database_with_data(database_data)?;
-    Ok(())
+    let database = wdb.create_database(database_data.to_create_database_params(true))?;
+    Ok(database)
   }
 
-  pub async fn create_database_with_params(&self, params: CreateDatabaseParams) -> FlowyResult<()> {
+  pub async fn create_database_with_params(
+    &self,
+    params: CreateDatabaseParams,
+  ) -> FlowyResult<Arc<MutexDatabase>> {
     let wdb = self.get_workspace_database().await?;
-    let _ = wdb.create_database(params)?;
-    Ok(())
+    let database = wdb.create_database(params)?;
+    Ok(database)
   }
 
   /// A linked view is a view that is linked to existing database.
@@ -282,10 +288,10 @@ impl DatabaseManager {
     name: String,
     layout: DatabaseLayout,
     database_id: String,
-    database_view_id: String,
-  ) -> FlowyResult<()> {
+  ) -> FlowyResult<String> {
     let wdb = self.get_workspace_database().await?;
-    let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
+    let view_id = gen_database_view_id().to_string();
+    let mut params = CreateViewParams::new(database_id.clone(), view_id.clone(), name, layout);
     if let Some(database) = wdb.get_database(&database_id).await {
       let (field, layout_setting) = DatabaseLayoutDepsResolver::new(database, layout)
         .resolve_deps_when_create_database_linked_view();
@@ -297,7 +303,7 @@ impl DatabaseManager {
       }
     };
     wdb.create_database_linked_view(params).await?;
-    Ok(())
+    Ok(view_id)
   }
 
   pub async fn import_csv(
@@ -306,14 +312,14 @@ impl DatabaseManager {
     content: String,
     format: CSVFormat,
   ) -> FlowyResult<ImportResult> {
-    let params = tokio::task::spawn_blocking(move || {
-      CSVImporter.import_csv_from_string(view_id, content, format)
-    })
-    .await
-    .map_err(internal_error)??;
+    let id = view_id.clone();
+    let params =
+      tokio::task::spawn_blocking(move || CSVImporter.import_csv_from_string(id, content, format))
+        .await
+        .map_err(internal_error)??;
     let result = ImportResult {
       database_id: params.database_id.clone(),
-      view_id: params.view_id.clone(),
+      view_id,
     };
     self.create_database_with_params(params).await?;
     Ok(result)

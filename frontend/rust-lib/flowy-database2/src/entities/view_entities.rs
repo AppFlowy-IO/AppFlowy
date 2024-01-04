@@ -78,7 +78,7 @@ pub struct DidFetchRowPB {
   pub created_at: i64,
 
   #[pb(index = 5)]
-  pub modified_at: i64,
+  pub last_modified: i64,
 
   #[pb(index = 6)]
   pub meta: RowMetaPB,
@@ -91,7 +91,7 @@ impl From<RowDetail> for DidFetchRowPB {
       height: value.row.height,
       visibility: value.row.visibility,
       created_at: value.row.created_at,
-      modified_at: value.row.modified_at,
+      last_modified: value.row.last_modified,
       meta: RowMetaPB::from(value),
     }
   }

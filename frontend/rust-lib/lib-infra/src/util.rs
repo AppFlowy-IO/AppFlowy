@@ -26,7 +26,6 @@ where
   }
 }
 
-#[allow(dead_code)]
 pub fn timestamp() -> i64 {
   chrono::Utc::now().timestamp()
 }

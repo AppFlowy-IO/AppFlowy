@@ -1,12 +1,11 @@
 use std::sync::{Arc, Weak};
 
-use collab_database::database::gen_row_id;
+use collab_database::database::{gen_row_id, timestamp};
 use collab_database::rows::RowId;
 use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
-use lib_infra::util::timestamp;
 
 use crate::entities::*;
 use crate::manager::DatabaseManager;
@@ -402,13 +401,15 @@ pub(crate) async fn create_row_handler(
     CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
   let view_id = params.view_id;
   let group_id = params.group_id;
+  let timestamp = timestamp();
   let params = collab_database::rows::CreateRowParams {
     id: gen_row_id(),
     cells,
     height: 60,
     visibility: true,
     row_position: params.row_position,
-    timestamp: timestamp(),
+    created_at: timestamp,
+    modified_at: timestamp,
   };
   match database_editor
     .create_row(&view_id, group_id, params)

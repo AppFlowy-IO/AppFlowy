@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
@@ -56,10 +57,19 @@ class DatabaseTabBarView extends StatefulWidget {
 
 class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   PageController? _pageController;
+  late final Future<ViewPB?> view;
 
   @override
   void initState() {
     super.initState();
+    view = Future(
+      () async {
+        final result = await ViewBackendService.getView(
+          widget.view.id,
+        );
+        return result.fold((l) => l, (r) => null);
+      },
+    );
     _pageController = PageController(
       initialPage: 0,
     );
@@ -73,72 +83,86 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<DatabaseTabBarBloc>(
-      create: (context) => DatabaseTabBarBloc(view: widget.view)
-        ..add(
-          const DatabaseTabBarEvent.initial(),
-        ),
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
-            listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
-            listener: (context, state) {
-              _pageController?.jumpToPage(state.selectedIndex);
+    return FutureBuilder<ViewPB?>(
+      future: view,
+      initialData: widget.view,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.data == null) {
+            return const SizedBox.shrink();
+          }
+          return BlocProvider<DatabaseTabBarBloc>(
+            create: (context) {
+              final inlineViewId = snapshot.data!.childViews.isEmpty
+                  ? snapshot.data!.parentViewId
+                  : snapshot.data!.id;
+              return DatabaseTabBarBloc(inlineViewId: inlineViewId)
+                ..add(const DatabaseTabBarEvent.initial());
             },
-          ),
-        ],
-        child: Column(
-          children: [
-            if (PlatformExtension.isMobile) const VSpace(12),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                return ValueListenableBuilder<bool>(
-                  valueListenable: state
-                      .tabBarControllerByViewId[state.parentView.id]!
-                      .controller
-                      .isLoading,
-                  builder: (_, value, ___) {
-                    if (value) {
-                      return const SizedBox.shrink();
-                    }
-
-                    if (PlatformExtension.isDesktop) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: GridSize.leadingHeaderPadding,
-                        ),
-                        child: const TabBarHeader(),
-                      );
-                    } else {
-                      return const Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: MobileTabBarHeader(),
-                      );
-                    }
+            child: MultiBlocListener(
+              listeners: [
+                BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
+                  listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
+                  listener: (context, state) {
+                    _pageController?.jumpToPage(state.selectedIndex);
                   },
-                );
-              },
-            ),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                return pageSettingBarExtensionFromState(state);
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-                builder: (context, state) {
-                  return PageView(
-                    pageSnapping: false,
-                    physics: const NeverScrollableScrollPhysics(),
-                    controller: _pageController,
-                    children: pageContentFromState(state),
-                  );
-                },
+                ),
+              ],
+              child: Column(
+                children: [
+                  if (PlatformExtension.isMobile) const VSpace(12),
+                  BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+                    builder: (context, state) {
+                      if (state.isLoading) {
+                        return const SizedBox.shrink();
+                      }
+
+                      if (PlatformExtension.isDesktop) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: GridSize.leadingHeaderPadding,
+                          ),
+                          child: const TabBarHeader(),
+                        );
+                      } else {
+                        return const Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: MobileTabBarHeader(),
+                        );
+                      }
+                    },
+                  ),
+                  BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+                    builder: (context, state) {
+                      if (state.isLoading) {
+                        return const SizedBox.shrink();
+                      }
+                      return pageSettingBarExtensionFromState(state);
+                    },
+                  ),
+                  Expanded(
+                    child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+                      builder: (context, state) {
+                        if (state.isLoading) {
+                          return const SizedBox.shrink();
+                        }
+                        return PageView(
+                          pageSnapping: false,
+                          physics: const NeverScrollableScrollPhysics(),
+                          controller: _pageController,
+                          children: pageContentFromState(state),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          );
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
     );
   }
 
@@ -197,7 +221,6 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
 
   DatabasePluginWidgetBuilder({
     required this.notifier,
-    Key? key,
   });
 
   @override

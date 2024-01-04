@@ -27,18 +27,18 @@ class ViewBackendService {
     /// Currently, only support create document with initial data.
     List<int>? initialDataBytes,
 
-    /// The [ext] is used to pass through the custom configuration
+    /// The [meta] is used to pass through the custom configuration
     /// to the backend.
     /// Linking the view to the existing database, it needs to pass
     /// the database id. For example: "database_id": "xxx"
     ///
-    Map<String, String> ext = const {},
+    Map<String, String> meta = const {},
 
     /// The [index] is the index of the view in the parent view.
     /// If the index is null, the view will be added to the end of the list.
     int? index,
   }) {
-    final payload = CreateViewPayloadPB.create()
+    final payload = CreateViewPayloadPB()
       ..parentViewId = parentViewId
       ..name = name
       ..desc = desc ?? ""
@@ -46,8 +46,8 @@ class ViewBackendService {
       ..setAsCurrent = openAfterCreate
       ..initialData = initialDataBytes ?? [];
 
-    if (ext.isNotEmpty) {
-      payload.meta.addAll(ext);
+    if (meta.isNotEmpty) {
+      payload.meta.addAll(meta);
     }
 
     if (desc != null) {
@@ -95,7 +95,7 @@ class ViewBackendService {
       parentViewId: parentViewId,
       name: name,
       openAfterCreate: false,
-      ext: {
+      meta: {
         'database_id': databaseId,
       },
     );

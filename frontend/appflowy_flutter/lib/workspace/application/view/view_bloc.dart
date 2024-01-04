@@ -154,7 +154,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             desc: '',
             layoutType: e.layoutType,
             initialDataBytes: null,
-            ext: {},
+            meta: {},
             openAfterCreate: e.openAfterCreated,
           );
 

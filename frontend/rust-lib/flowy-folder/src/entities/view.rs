@@ -7,7 +7,6 @@ use collab_folder::{View, ViewLayout};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_folder_deps::cloud::gen_view_id;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
@@ -108,8 +107,8 @@ impl ViewLayoutPB {
 }
 
 impl std::convert::From<ViewLayout> for ViewLayoutPB {
-  fn from(rev: ViewLayout) -> Self {
-    match rev {
+  fn from(value: ViewLayout) -> Self {
+    match value {
       ViewLayout::Grid => ViewLayoutPB::Grid,
       ViewLayout::Board => ViewLayoutPB::Board,
       ViewLayout::Document => ViewLayoutPB::Document,
@@ -209,8 +208,7 @@ pub struct CreateViewParams {
   pub parent_view_id: String,
   pub name: String,
   pub desc: String,
-  pub layout: ViewLayoutPB,
-  pub view_id: String,
+  pub layout: ViewLayout,
   pub initial_data: Vec<u8>,
   pub meta: HashMap<String, String>,
   // Mark the view as current view after creation.
@@ -226,14 +224,12 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
     let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
-    let view_id = gen_view_id().to_string();
 
     Ok(CreateViewParams {
       parent_view_id,
       name,
       desc: self.desc,
-      layout: self.layout,
-      view_id,
+      layout: self.layout.into(),
       initial_data: self.initial_data,
       meta: self.meta,
       set_as_current: self.set_as_current,
@@ -253,8 +249,7 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       parent_view_id,
       name,
       desc: self.desc,
-      layout: self.layout,
-      view_id: self.view_id,
+      layout: self.layout.into(),
       initial_data: self.initial_data,
       meta: Default::default(),
       set_as_current: false,
