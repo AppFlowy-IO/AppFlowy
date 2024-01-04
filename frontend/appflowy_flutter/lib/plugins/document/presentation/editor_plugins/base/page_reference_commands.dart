@@ -85,6 +85,7 @@ Future<bool> inlinePageReferenceCommandHandler(
     handlers: [
       InlinePageReferenceService(
         currentViewId: currentViewId,
+        limitResults: 10,
       ).inlinePageReferenceDelegate,
     ],
   );

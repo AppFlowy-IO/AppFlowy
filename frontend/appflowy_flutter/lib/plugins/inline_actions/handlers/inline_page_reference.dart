@@ -17,6 +17,7 @@ class InlinePageReferenceService {
   InlinePageReferenceService({
     required this.currentViewId,
     this.viewLayout,
+    this.limitResults = 0,
   }) {
     init();
   }
@@ -25,6 +26,12 @@ class InlinePageReferenceService {
 
   final String currentViewId;
   final ViewLayoutPB? viewLayout;
+
+  /// Defaults to 0 where there are no limits
+  /// Anything above 0 will limit the page reference results
+  /// to [limitResults].
+  ///
+  final int limitResults;
 
   late final ViewBackendService service;
   List<InlineActionsMenuItem> _items = [];
@@ -35,7 +42,13 @@ class InlinePageReferenceService {
 
     _generatePageItems(currentViewId, viewLayout).then((value) {
       _items = value;
-      _filtered = value;
+
+      if (limitResults > 0) {
+        _filtered = value.take(limitResults).toList();
+      } else {
+        _filtered = value;
+      }
+
       _initCompleter.complete();
     });
   }
@@ -44,19 +57,21 @@ class InlinePageReferenceService {
     await _initCompleter.future;
 
     if (search == null || search.isEmpty) {
-      return _items;
+      return limitResults > 0 ? _items.take(limitResults).toList() : _items;
     }
 
-    return _items
-        .where(
-          (item) =>
-              item.keywords != null &&
-              item.keywords!.isNotEmpty &&
-              item.keywords!.any(
-                (keyword) => keyword.contains(search.toLowerCase()),
-              ),
-        )
-        .toList();
+    final items = _items.where(
+      (item) =>
+          item.keywords != null &&
+          item.keywords!.isNotEmpty &&
+          item.keywords!.any(
+            (keyword) => keyword.contains(search.toLowerCase()),
+          ),
+    );
+
+    return limitResults > 0
+        ? items.take(limitResults).toList()
+        : items.toList();
   }
 
   Future<InlineActionsResult> inlinePageReferenceDelegate([

@@ -73,6 +73,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     handlers: [
       InlinePageReferenceService(
         currentViewId: documentBloc.view.id,
+        limitResults: 5,
       ).inlinePageReferenceDelegate,
       DateReferenceService(context).dateReferenceDelegate,
       ReminderReferenceService(context).reminderReferenceDelegate,
