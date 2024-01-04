@@ -4,18 +4,14 @@ import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:flutter/services.dart';
 
 import '../plugin.dart';
-import 'runner.dart';
 
 class PluginSandbox {
   final LinkedHashMap<PluginType, PluginBuilder> _pluginBuilders =
       LinkedHashMap();
   final Map<PluginType, PluginConfig> _pluginConfigs =
       <PluginType, PluginConfig>{};
-  late PluginRunner pluginRunner;
 
-  PluginSandbox() {
-    pluginRunner = PluginRunner();
-  }
+  PluginSandbox();
 
   int indexOf(PluginType pluginType) {
     final index =

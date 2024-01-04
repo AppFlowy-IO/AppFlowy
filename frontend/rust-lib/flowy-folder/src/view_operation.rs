@@ -38,17 +38,20 @@ pub trait FolderOperationHandler {
 
   /// Called when the view is deleted.
   /// This will called after the view is deleted from the trash.
-  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+  fn delete_view(
+    &self,
+    user_id: i64,
+    view_id: &str,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError>;
 
   /// Returns the [ViewData] that can be used to create the same view.
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
-  /// Create a view with the data.
+  /// Create a view with the data. YAY
   ///
   /// # Arguments
   ///
   /// * `user_id`: the user id
-  /// * `view_id`: the view id
   /// * `name`: the name of the view
   /// * `data`: initial data of the view. The data should be parsed by the [FolderOperationHandler]
   /// implementation. For example, the data of the database will be [DatabaseData].
@@ -58,23 +61,16 @@ pub trait FolderOperationHandler {
   fn create_view_with_view_data(
     &self,
     user_id: i64,
-    view_id: &str,
-    name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    meta: HashMap<String, String>,
-  ) -> FutureResult<(), FlowyError>;
+    params: CreateViewParams,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError>;
 
-  /// Create a view with the pre-defined data.
-  /// For example, the initial data of the grid/calendar/kanban board when
-  /// you create a new view.
+  /// Create a view with pre-defined data, such as initial data of a grid,
+  /// kanban or calendar database view. YAY
   fn create_built_in_view(
     &self,
     user_id: i64,
-    view_id: &str,
-    name: &str,
-    layout: ViewLayout,
-  ) -> FutureResult<(), FlowyError>;
+    params: CreateViewParams,
+  ) -> FutureResult<Vec<(View, Option<u32>)>, FlowyError>;
 
   /// Create a view by importing data
   fn import_from_bytes(
@@ -114,18 +110,18 @@ impl From<ViewLayoutPB> for ViewLayout {
   }
 }
 
-pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout) -> View {
-  let time = timestamp();
+pub fn create_view(uid: i64, view_id: String, params: CreateViewParams) -> View {
+  let timestamp = timestamp();
   View {
-    id: params.view_id,
+    id: view_id,
     parent_view_id: params.parent_view_id,
     name: params.name,
     desc: params.desc,
     children: Default::default(),
-    created_at: time,
     is_favorite: false,
-    layout,
+    layout: params.layout,
     icon: None,
+    created_at: timestamp,
     created_by: Some(uid),
     last_edited_time: 0,
     last_edited_by: Some(uid),
