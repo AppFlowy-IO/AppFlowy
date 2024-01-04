@@ -32,6 +32,12 @@ pub fn init(document_manager: Weak<DocumentManager>) -> AFPlugin {
       DocumentEvent::ConvertDataToJSON,
       convert_data_to_json_handler,
     )
+    .event(DocumentEvent::UploadFile, upload_file_handler)
+    .event(DocumentEvent::GetUploadedFile, get_uploaded_file_handler)
+    .event(
+      DocumentEvent::DeleteUploadedFile,
+      delete_uploaded_file_handler,
+    )
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display, ProtoBuf_Enum, Flowy_Event)]
@@ -95,4 +101,7 @@ pub enum DocumentEvent {
     output = "ConvertDataToJsonResponsePB"
   )]
   ConvertDataToJSON = 13,
+  UploadFile = 14,
+  GetUploadedFile = 15,
+  DeleteUploadedFile = 16,
 }

@@ -9,6 +9,8 @@ use std::sync::{Arc, Weak};
 use collab_document::blocks::{
   BlockAction, BlockActionPayload, BlockActionType, BlockEvent, BlockEventPayload, DeltaType,
 };
+use flowy_storage::{ObjectValue, StorageObject};
+use tokio::io::AsyncWriteExt;
 use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -390,4 +392,73 @@ pub(crate) async fn convert_data_to_json_handler(
   };
 
   data_result_ok(ConvertDataToJsonResponsePB { json: result })
+}
+
+// Handler for uploading a file
+// `workspace_id` and `file_name` determines file identity
+pub(crate) async fn upload_file_handler(
+  params: AFPluginData<UploadFileParamsPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> DataResult<UploadedFileUrlPB, FlowyError> {
+  let manager = upgrade_document(manager)?;
+  let file_service = manager
+    .get_file_storage_service()
+    .upgrade()
+    .ok_or(FlowyError::internal().with_context("The file storage service is already dropped"))?;
+  let url = file_service
+    .create_object(StorageObject {
+      workspace_id: params.workspace_id.clone(),
+      file_name: params.file_name.clone(),
+      value: ObjectValue::File {
+        file_path: params.local_file_path.clone(),
+      },
+    })
+    .await?;
+  Ok(AFPluginData(UploadedFileUrlPB { url }))
+}
+
+pub(crate) async fn get_uploaded_file_handler(
+  params: AFPluginData<GetUploadedFilePB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let path = params.dest_file_path.clone();
+
+  // if file already exist in user local disk, return
+  if tokio::fs::metadata(&path).await.is_ok() {
+    return Ok(());
+  }
+
+  let manager = upgrade_document(manager)?;
+  let file_service = manager
+    .get_file_storage_service()
+    .upgrade()
+    .ok_or(FlowyError::internal().with_context("The file storage service is already dropped"))?;
+
+  let raw = file_service.get_object_by_url(params.url.clone()).await?;
+
+  // create file if not exist
+  let mut file = tokio::fs::OpenOptions::new()
+    .create(true)
+    .write(true)
+    .open(path)
+    .await?;
+
+  file.write(raw.as_ref()).await?;
+  Ok(())
+}
+
+// Handler for creating a new document
+pub(crate) async fn delete_uploaded_file_handler(
+  params: AFPluginData<UploadedFileUrlPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
+  let file_service = manager
+    .get_file_storage_service()
+    .upgrade()
+    .ok_or(FlowyError::internal().with_context("The file storage service is already dropped"))?;
+  file_service
+    .delete_object_by_url(params.url.clone())
+    .await?;
+  Ok(())
 }

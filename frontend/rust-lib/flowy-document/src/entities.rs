@@ -63,6 +63,31 @@ pub struct DocumentRedoUndoResponsePB {
 }
 
 #[derive(Default, ProtoBuf)]
+pub struct UploadFileParamsPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub file_name: String,
+
+  #[pb(index = 3)]
+  pub local_file_path: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct GetUploadedFilePB {
+  #[pb(index = 1)]
+  pub url: String,
+  pub dest_file_path: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UploadedFileUrlPB {
+  #[pb(index = 1)]
+  pub url: String,
+}
+
+#[derive(Default, ProtoBuf)]
 pub struct CreateDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
