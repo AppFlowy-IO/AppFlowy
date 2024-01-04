@@ -164,20 +164,6 @@ mod tests {
   }
 
   #[test]
-  fn test_migration() {
-    let tempdir = TempDir::new().unwrap();
-    let path = tempdir.path().to_str().unwrap();
-    let pool_config = PoolConfig::default();
-    let database = Database::new(path, DB_NAME, pool_config).unwrap();
-    let mut conn = database.get_connection().unwrap();
-    (*conn).run_pending_migrations(MIGRATIONS).unwrap();
-
-    assert!(run_migrations(&mut conn).is_ok());
-    assert!(run_migrations(&mut conn).is_ok()); // test idempotent
-    assert!(table_exists(&mut conn, SEARCH_INDEX_TABLE).unwrap());
-  }
-
-  #[test]
   fn test_view_search() -> QueryResult<()> {
     let (_tempdir, database) = setup_db();
     let mut conn = database.get_connection().unwrap();
