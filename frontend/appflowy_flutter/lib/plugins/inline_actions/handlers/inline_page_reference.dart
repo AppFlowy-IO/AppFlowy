@@ -4,20 +4,26 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 
 class InlinePageReferenceService {
   InlinePageReferenceService({
     required this.currentViewId,
     this.viewLayout,
     this.customTitle,
+    this.insertPage = false,
     this.limitResults = 0,
   }) {
     init();
@@ -28,6 +34,12 @@ class InlinePageReferenceService {
   final String currentViewId;
   final ViewLayoutPB? viewLayout;
   final String? customTitle;
+
+  /// Defaults to false, if set to true the Page
+  /// will be inserted as a Reference
+  /// When false, a link to the view will be inserted
+  ///
+  final bool insertPage;
 
   /// Defaults to 0 where there are no limits
   /// Anything above 0 will limit the page reference results
@@ -123,42 +135,78 @@ class InlinePageReferenceService {
                 lineHeight: 1.3,
               )
             : view.defaultIcon(),
-        onSelected: (context, editorState, menuService, replace) async {
-          final selection = editorState.selection;
-          if (selection == null || !selection.isCollapsed) {
-            return;
-          }
-
-          final node = editorState.getNodeAtPath(selection.end.path);
-          final delta = node?.delta;
-          if (node == null || delta == null) {
-            return;
-          }
-
-          // @page name -> $
-          // preload the page infos
-          pageMemorizer[view.id] = view;
-          final transaction = editorState.transaction
-            ..replaceText(
-              node,
-              replace.$1,
-              replace.$2,
-              '\$',
-              attributes: {
-                MentionBlockKeys.mention: {
-                  MentionBlockKeys.type: MentionType.page.name,
-                  MentionBlockKeys.pageId: view.id,
-                },
-              },
-            );
-
-          await editorState.apply(transaction);
-        },
+        onSelected: (context, editorState, menuService, replace) => insertPage
+            ? _onInsertPageRef(view, context, editorState)
+            : _onInsertLinkRef(
+                view,
+                context,
+                editorState,
+                menuService,
+                replace,
+              ),
       );
 
       pages.add(pageSelectionMenuItem);
     }
 
     return pages;
+  }
+
+  Future<void> _onInsertPageRef(
+    ViewPB view,
+    BuildContext context,
+    EditorState editorState,
+  ) async {
+    try {
+      await editorState.insertReferencePage(view, view.layout);
+    } on FlowyError catch (e) {
+      if (context.mounted) {
+        Dialogs.show(
+          context,
+          child: FlowyErrorPage.message(
+            e.msg,
+            howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _onInsertLinkRef(
+    ViewPB view,
+    BuildContext context,
+    EditorState editorState,
+    InlineActionsMenuService menuService,
+    (int, int) replace,
+  ) async {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+
+    // @page name -> $
+    // preload the page infos
+    pageMemorizer[view.id] = view;
+    final transaction = editorState.transaction
+      ..replaceText(
+        node,
+        replace.$1,
+        replace.$2,
+        '\$',
+        attributes: {
+          MentionBlockKeys.mention: {
+            MentionBlockKeys.type: MentionType.page.name,
+            MentionBlockKeys.pageId: view.id,
+          },
+        },
+      );
+
+    await editorState.apply(transaction);
   }
 }

@@ -1,13 +1,13 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 InlineActionsMenuService? actionsMenuService;
 Future<void> showLinkToPageMenu(
@@ -31,6 +31,7 @@ Future<void> showLinkToPageMenu(
         currentViewId: "",
         viewLayout: pageType,
         customTitle: titleFromPageType(pageType),
+        insertPage: true,
       ).inlinePageReferenceDelegate,
     ],
   );
