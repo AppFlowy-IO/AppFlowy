@@ -24,9 +24,6 @@ pub struct DatabasePB {
 
   #[pb(index = 4)]
   pub layout_type: DatabaseLayoutPB,
-
-  #[pb(index = 5)]
-  pub is_linked: bool,
 }
 
 #[derive(ProtoBuf, Default)]

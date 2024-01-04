@@ -626,7 +626,7 @@ impl DatabaseEditor {
         let cell_data = if field_type.is_created_time() {
           TimestampCellData::new(row.created_at)
         } else {
-          TimestampCellData::new(row.modified_at)
+          TimestampCellData::new(row.last_modified)
         };
         Some(Cell::from(cell_data))
       },
@@ -663,7 +663,7 @@ impl DatabaseEditor {
             let data = if field_type.is_created_time() {
               TimestampCellData::new(row.created_at)
             } else {
-              TimestampCellData::new(row.modified_at)
+              TimestampCellData::new(row.last_modified)
             };
             RowCell {
               row_id: row.id,
@@ -1095,7 +1095,7 @@ impl DatabaseEditor {
       .await
       .ok_or_else(FlowyError::record_not_found)?;
     let rows = database_view.v_get_rows().await;
-    let (database_id, fields, is_linked) = {
+    let (database_id, fields) = {
       let database = self.database.lock();
       let database_id = database.get_database_id();
       let fields = database
@@ -1104,8 +1104,7 @@ impl DatabaseEditor {
         .into_iter()
         .map(FieldIdPB::from)
         .collect();
-      let is_linked = database.is_inline_view(view_id);
-      (database_id, fields, is_linked)
+      (database_id, fields)
     };
 
     let rows = rows
@@ -1117,7 +1116,6 @@ impl DatabaseEditor {
       fields,
       rows,
       layout_type: view.layout.into(),
-      is_linked,
     })
   }
 
