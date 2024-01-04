@@ -6,6 +6,7 @@ use collab_folder::ViewIndexContent;
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::async_trait::async_trait;
+use tokio::task::spawn_blocking;
 use tracing::error;
 
 /// A trait for folder indexing storage.
@@ -64,14 +65,49 @@ impl FolderIndexer {
                     },
                   };
 
-                  if let Err(e) = storage.add_view(&view.id, &view.name) {
-                    error!("FolderIndexer error adding view: {:?}", e);
-                    continue;
+                  let add_view_storage = storage.clone();
+                  let add_view_view = view.clone();
+                  let add_view_handle = spawn_blocking(move || {
+                    add_view_storage.add_view(&add_view_view.id, &add_view_view.name)
+                  })
+                  .await;
+
+                  match add_view_handle {
+                    Ok(res) => {
+                      if let Err(e) = res {
+                        error!("FolderIndexer error adding view: {:?}", e);
+                        continue;
+                      }
+                    },
+                    Err(e) => {
+                      error!("FolderIndexer error adding view: {:?}", e);
+                      continue;
+                    },
                   }
 
-                  if let Err(e) = storage.add_document(&view.id, &doc.page_id, &doc.text) {
-                    error!("FolderIndexer error adding document: {:?}", e);
-                    continue;
+                  let add_document_storage = storage.clone();
+                  let add_document_view = view.clone();
+                  let add_document_doc = doc.clone();
+                  let add_document_handle = spawn_blocking(move || {
+                    add_document_storage.add_document(
+                      &add_document_view.id,
+                      &add_document_doc.page_id,
+                      &add_document_doc.text,
+                    )
+                  })
+                  .await;
+
+                  match add_document_handle {
+                    Ok(res) => {
+                      if let Err(e) = res {
+                        error!("FolderIndexer error adding document: {:?}", e);
+                        continue;
+                      }
+                    },
+                    Err(e) => {
+                      error!("FolderIndexer error adding document: {:?}", e);
+                      continue;
+                    },
                   }
                 },
                 Err(err) => error!("FolderIndexer error deserialize: {:?}", err),
@@ -91,14 +127,49 @@ impl FolderIndexer {
                     },
                   };
 
-                  if let Err(e) = storage.update_view(&view.id, &view.name) {
-                    error!("FolderIndexer error updating view: {:?}", e);
-                    continue;
+                  let update_view_storage = storage.clone();
+                  let update_view_view = view.clone();
+                  let update_view_handle = spawn_blocking(move || {
+                    update_view_storage.update_view(&update_view_view.id, &update_view_view.name)
+                  })
+                  .await;
+
+                  match update_view_handle {
+                    Ok(res) => {
+                      if let Err(e) = res {
+                        error!("FolderIndexer error updating view: {:?}", e);
+                        continue;
+                      }
+                    },
+                    Err(e) => {
+                      error!("FolderIndexer error updating view: {:?}", e);
+                      continue;
+                    },
                   }
 
-                  if let Err(e) = storage.update_document(&view.id, &doc.page_id, &doc.text) {
-                    error!("FolderIndexer error updating document: {:?}", e);
-                    continue;
+                  let update_document_storage = storage.clone();
+                  let update_document_view = view.clone();
+                  let update_document_doc = doc.clone();
+                  let update_document_handle = spawn_blocking(move || {
+                    update_document_storage.update_document(
+                      &update_document_view.id,
+                      &update_document_doc.page_id,
+                      &update_document_doc.text,
+                    )
+                  })
+                  .await;
+
+                  match update_document_handle {
+                    Ok(res) => {
+                      if let Err(e) = res {
+                        error!("FolderIndexer error updating document: {:?}", e);
+                        continue;
+                      }
+                    },
+                    Err(e) => {
+                      error!("FolderIndexer error updating document: {:?}", e);
+                      continue;
+                    },
                   }
                 },
                 Err(err) => error!("FolderIndexer error deserialize: {:?}", err),
