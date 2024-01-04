@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
@@ -28,6 +30,7 @@ Future<void> showLinkToPageMenu(
       InlinePageReferenceService(
         currentViewId: "",
         viewLayout: pageType,
+        customTitle: titleFromPageType(pageType),
       ).inlinePageReferenceDelegate,
     ],
   );
@@ -57,3 +60,11 @@ Future<void> showLinkToPageMenu(
     actionsMenuService?.show();
   }
 }
+
+String titleFromPageType(ViewLayoutPB layout) => switch (layout) {
+      ViewLayoutPB.Grid => LocaleKeys.inlineActions_gridReference.tr(),
+      ViewLayoutPB.Document => LocaleKeys.inlineActions_docReference.tr(),
+      ViewLayoutPB.Board => LocaleKeys.inlineActions_boardReference.tr(),
+      ViewLayoutPB.Calendar => LocaleKeys.inlineActions_calReference.tr(),
+      _ => LocaleKeys.inlineActions_pageReference.tr(),
+    };

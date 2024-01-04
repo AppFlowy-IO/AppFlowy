@@ -17,6 +17,7 @@ class InlinePageReferenceService {
   InlinePageReferenceService({
     required this.currentViewId,
     this.viewLayout,
+    this.customTitle,
     this.limitResults = 0,
   }) {
     init();
@@ -26,6 +27,7 @@ class InlinePageReferenceService {
 
   final String currentViewId;
   final ViewLayoutPB? viewLayout;
+  final String? customTitle;
 
   /// Defaults to 0 where there are no limits
   /// Anything above 0 will limit the page reference results
@@ -80,7 +82,9 @@ class InlinePageReferenceService {
     _filtered = await _filterItems(search);
 
     return InlineActionsResult(
-      title: LocaleKeys.inlineActions_pageReference.tr(),
+      title: customTitle != null && customTitle!.isNotEmpty
+          ? customTitle!
+          : LocaleKeys.inlineActions_pageReference.tr(),
       results: _filtered,
     );
   }
