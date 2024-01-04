@@ -113,26 +113,17 @@ class FlowyDynamicPlugin {
             event is File && p.basename(event.path).contains(lightExtension))
         .first as File;
 
-    final lightValue = light.readAsStringSync();
-    print('debug: light ${lightValue.length}');
-
     final dark = src
         .listSync()
         .where((event) =>
             event is File && p.basename(event.path).contains(darkExtension))
         .first as File;
 
-    // print(
-    //     'debug: light ${await light.readAsString().then((value) => print(value))})}');
-    // print('debug: dark ${await dark.readAsString()}');
-    final lightTheme =
-        FlowyColorScheme.fromJson(await jsonDecode(await light.readAsString()));
-    print('debug: lightTheme ${lightTheme.surface}');
-
     final theme = AppTheme(
       themeName: name,
       builtIn: false,
-      lightTheme: lightTheme,
+      lightTheme: FlowyColorScheme.fromJson(
+          await jsonDecode(await light.readAsString())),
       darkTheme: FlowyColorScheme.fromJson(
           await jsonDecode(await dark.readAsString())),
     );

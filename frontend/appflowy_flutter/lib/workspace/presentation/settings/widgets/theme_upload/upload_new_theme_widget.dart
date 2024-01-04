@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/th
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -41,18 +42,15 @@ class UploadNewThemeWidget extends StatelessWidget {
           SizedBox(
             height: ThemeUploadWidget.buttonSize.height,
             child: IntrinsicWidth(
-              child: FlowyButton(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Theme.of(context).colorScheme.onBackground,
+              child: SecondaryButton(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: FlowyText.medium(
+                    fontSize: ThemeUploadWidget.buttonFontSize,
+                    LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
+                  ),
                 ),
-                hoverColor: Theme.of(context).colorScheme.onBackground,
-                text: FlowyText.medium(
-                  fontSize: ThemeUploadWidget.buttonFontSize,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
-                ),
-                onTap: () async {
+                onPressed: () async {
                   final uri = Uri.parse(learnMoreRedirect);
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(uri);
