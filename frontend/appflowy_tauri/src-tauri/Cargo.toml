@@ -67,14 +67,13 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "40d
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b036feb396aa6a1dbbab9589bd032e29db8ab024" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5c425595182ef5a43913484a775fae6f59fe9e52" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5c425595182ef5a43913484a775fae6f59fe9e52" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5c425595182ef5a43913484a775fae6f59fe9e52" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5c425595182ef5a43913484a775fae6f59fe9e52" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5c425595182ef5a43913484a775fae6f59fe9e52" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5c425595182ef5a43913484a775fae6f59fe9e52" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5c425595182ef5a43913484a775fae6f59fe9e52" }
 
 
 

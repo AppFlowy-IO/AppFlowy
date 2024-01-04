@@ -204,7 +204,7 @@ checksum = "16e62a023e7c117e27523144c5d2459f4397fcc3cab0085af8e2224f643a0193"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -215,7 +215,7 @@ checksum = "a66537f1bb974b254c98ed142ff995236e81b9d0fe4db0575f46612cb15eb0f9"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -413,7 +413,7 @@ dependencies = [
  "regex",
  "rustc-hash",
  "shlex",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -736,7 +736,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b036feb396aa6a1dbbab9589bd032e29db8ab024#b036feb396aa6a1dbbab9589bd032e29db8ab024"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -756,15 +756,13 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b036feb396aa6a1dbbab9589bd032e29db8ab024#b036feb396aa6a1dbbab9589bd032e29db8ab024"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
 dependencies = [
  "anyhow",
  "async-trait",
- "base64 0.21.5",
  "chrono",
  "collab",
  "collab-entity",
- "collab-persistence",
  "collab-plugins",
  "lazy_static",
  "lru",
@@ -785,11 +783,10 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b036feb396aa6a1dbbab9589bd032e29db8ab024#b036feb396aa6a1dbbab9589bd032e29db8ab024"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
 dependencies = [
  "anyhow",
  "collab",
- "collab-persistence",
  "nanoid",
  "parking_lot",
  "serde",
@@ -803,7 +800,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b036feb396aa6a1dbbab9589bd032e29db8ab024#b036feb396aa6a1dbbab9589bd032e29db8ab024"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
 dependencies = [
  "anyhow",
  "bytes",
@@ -817,12 +814,11 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b036feb396aa6a1dbbab9589bd032e29db8ab024#b036feb396aa6a1dbbab9589bd032e29db8ab024"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
 dependencies = [
  "anyhow",
  "chrono",
  "collab",
- "collab-persistence",
  "parking_lot",
  "serde",
  "serde_json",
@@ -841,7 +837,6 @@ dependencies = [
  "async-trait",
  "collab",
  "collab-entity",
- "collab-persistence",
  "collab-plugins",
  "lib-infra",
  "parking_lot",
@@ -852,43 +847,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "collab-persistence"
+name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b036feb396aa6a1dbbab9589bd032e29db8ab024#b036feb396aa6a1dbbab9589bd032e29db8ab024"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
 dependencies = [
  "anyhow",
  "async-trait",
  "bincode",
+ "bytes",
  "chrono",
  "collab",
+ "collab-entity",
+ "futures-util",
  "lazy_static",
  "parking_lot",
- "rocksdb",
- "serde",
- "smallvec",
- "thiserror",
- "tokio",
- "tracing",
- "yrs",
-]
-
-[[package]]
-name = "collab-plugins"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b036feb396aa6a1dbbab9589bd032e29db8ab024#b036feb396aa6a1dbbab9589bd032e29db8ab024"
-dependencies = [
- "anyhow",
- "async-trait",
- "bytes",
- "collab",
- "collab-entity",
- "collab-persistence",
- "futures-util",
- "parking_lot",
  "rand 0.8.5",
+ "rocksdb",
  "serde",
  "serde_json",
  "similar 2.2.1",
+ "smallvec",
  "thiserror",
  "tokio",
  "tokio-retry",
@@ -901,7 +879,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b036feb396aa6a1dbbab9589bd032e29db8ab024#b036feb396aa6a1dbbab9589bd032e29db8ab024"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
 dependencies = [
  "anyhow",
  "collab",
@@ -1122,7 +1100,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.11.2",
+ "phf 0.8.0",
  "smallvec",
 ]
 
@@ -1133,7 +1111,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331"
 dependencies = [
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -1367,7 +1345,7 @@ dependencies = [
  "diesel_table_macro_syntax",
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -1387,7 +1365,7 @@ version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc5557efc453706fed5e4fa85006fe9817c224c3f480a34c7e5959fd700921c5"
 dependencies = [
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -1932,7 +1910,7 @@ dependencies = [
  "client-api",
  "collab-database",
  "collab-document",
- "collab-persistence",
+ "collab-plugins",
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
@@ -2303,7 +2281,7 @@ checksum = "53b153fd91e4b0147f4aced87be237c98248656bb01050b96bf3ee89220a8ddb"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -3395,7 +3373,7 @@ checksum = "a948666b637a0f465e8564c73e89d4dde00d72d4d473cc972f390fc3dcee7d9c"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -3575,7 +3553,7 @@ dependencies = [
  "pest_meta",
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -3605,7 +3583,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros 0.8.0",
+ "phf_macros",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -3625,7 +3603,6 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
- "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -3694,19 +3671,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "phf_macros"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
-dependencies = [
- "phf_generator 0.11.2",
- "phf_shared 0.11.2",
- "proc-macro2",
- "quote",
- "syn 2.0.46",
-]
-
-[[package]]
 name = "phf_shared"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3750,7 +3714,7 @@ checksum = "4359fd9c9171ec6e8c62926d6faaf553a8dc3f64e1507e76da7911b4f6a04405"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -3840,7 +3804,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8832c0f9be7e3cae60727e6256cfd2cd3c3e2b6cd5dad4190ecb2fd658c9030b"
 dependencies = [
  "proc-macro2",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -3884,9 +3848,9 @@ checksum = "dc375e1527247fe1a97d8b7156678dfe7c1af2fc075c9a4db3690ecd2a148068"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.74"
+version = "1.0.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2de98502f212cfcea8d0bb305bd0f49d7ebdd75b64ba0a68f937d888f4e0d6db"
+checksum = "907a61bd0f64c2f29cd1cf1dc34d05176426a3f504a78010f08416ddb7b13708"
 dependencies = [
  "unicode-ident",
 ]
@@ -3909,7 +3873,7 @@ checksum = "8bdf592881d821b83d471f8af290226c8d51402259e9bb5be7f9f8bdebbb11ac"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.11.0",
+ "itertools 0.10.5",
  "log",
  "multimap",
  "once_cell",
@@ -3918,7 +3882,7 @@ dependencies = [
  "prost",
  "prost-types",
  "regex",
- "syn 2.0.46",
+ "syn 2.0.47",
  "tempfile",
  "which",
 ]
@@ -3930,10 +3894,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "265baba7fabd416cf5078179f7d2cbeca4ce7a9041111900675ea7c4cb8a4c32"
 dependencies = [
  "anyhow",
- "itertools 0.11.0",
+ "itertools 0.10.5",
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -4841,7 +4805,7 @@ checksum = "43576ca501357b9b071ac53cdc7da8ef0cbd9493d8df094cd821777ea6e894d3"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -4863,7 +4827,7 @@ checksum = "0b2e6b945e9d3df726b65d6ee24060aff8e3533d431f677a9695db04eff9dfdb"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -5265,7 +5229,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustversion",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -5287,9 +5251,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.46"
+version = "2.0.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89456b690ff72fddcecf231caedbe615c59480c93358a93dfae7fc29e3ebbf0e"
+checksum = "1726efe18f42ae774cc644f330953a5e7b3c3003d3edcecf18850fe9d4dd9afb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5400,7 +5364,7 @@ checksum = "49922ecae66cc8a249b77e68d1d0623c1b2c514f0060c27cdc68bd62a1219d35"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -5505,7 +5469,7 @@ checksum = "5b8a1e28f2deaa14e508979454cb3a223b10b938b45af148bc0986de36f1923b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -5739,7 +5703,7 @@ checksum = "34704c8d6ebcbc939824180af020566b01a7c01f80641264eba0999f6c2b6be7"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -6142,7 +6106,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
  "wasm-bindgen-shared",
 ]
 
@@ -6176,7 +6140,7 @@ checksum = "54681b18a46765f095758388f2d0cf16eb8d4169b639ab575a8f5693af210c7b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
@@ -6424,7 +6388,7 @@ checksum = "dd7e48ccf166952882ca8bd778a43502c64f33bf94c12ebe2a7f08e5a0f6689f"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.46",
+ "syn 2.0.47",
 ]
 
 [[package]]

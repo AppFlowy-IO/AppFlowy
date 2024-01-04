@@ -1,7 +1,7 @@
 use std::sync::{Arc, Weak};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::DocumentCloudService;
@@ -54,7 +54,7 @@ impl DocumentUser for DocumentUserImpl {
       .token()
   }
 
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
       .0
       .upgrade()

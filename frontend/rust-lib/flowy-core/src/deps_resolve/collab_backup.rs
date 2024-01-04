@@ -1,7 +1,7 @@
 use std::sync::{Arc, Weak};
 
 use collab::core::collab_plugin::EncodedCollab;
-use collab_plugins::local_storage::rocksdb::RocksdbBackup;
+use collab_plugins::local_storage::rocksdb::rocksdb_plugin::RocksdbBackup;
 use diesel::SqliteConnection;
 
 use flowy_error::FlowyError;
