@@ -48,10 +48,11 @@ tempdir = "0.3.7"
 uuid.workspace = true
 assert-json-diff = "2.0.2"
 tokio-postgres = { version = "0.7.8" }
+chrono = "0.4.31"
 zip = "0.6.6"
 
 [features]
 default = ["supabase_cloud_test"]
 dart = ["flowy-core/dart"]
 supabase_cloud_test = []
-single_thread = ["flowy-core/single_thread"]
+single_thread = ["flowy-core/wasm_build"]

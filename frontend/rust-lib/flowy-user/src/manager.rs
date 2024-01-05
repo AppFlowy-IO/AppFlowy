@@ -9,7 +9,7 @@ use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_folder_deps::entities::ImportData;
 use flowy_server_config::AuthenticatorType;
@@ -261,11 +261,16 @@ impl UserManager {
     self.database.get_pool(uid)
   }
 
-  pub fn get_collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
+  pub fn get_collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
       .database
       .get_collab_db(uid)
       .map(|collab_db| Arc::downgrade(&collab_db))
+  }
+
+  #[cfg(debug_assertions)]
+  pub fn get_collab_backup_list(&self, uid: i64) -> Vec<String> {
+    self.database.get_collab_backup_list(uid)
   }
 
   /// Performs a user sign-in, initializing user awareness and sending relevant notifications.
@@ -282,7 +287,8 @@ impl UserManager {
     params: SignInParams,
     authenticator: Authenticator,
   ) -> Result<UserProfile, FlowyError> {
-    self.update_authenticator(&authenticator).await;
+    self.cloud_services.set_user_authenticator(&authenticator);
+
     let response: AuthResponse = self
       .cloud_services
       .get_user_service()?
@@ -321,10 +327,6 @@ impl UserManager {
     Ok(user_profile)
   }
 
-  pub(crate) async fn update_authenticator(&self, authenticator: &Authenticator) {
-    self.cloud_services.set_authenticator(authenticator.clone());
-  }
-
   /// Manages the user sign-up process, potentially migrating data if necessary.
   ///
   /// This asynchronous function interacts with an external authentication service to register and sign up a user
@@ -341,7 +343,7 @@ impl UserManager {
     // sign out the current user if there is one
     let migration_user = self.get_migration_user(&authenticator).await;
 
-    self.update_authenticator(&authenticator).await;
+    self.cloud_services.set_user_authenticator(&authenticator);
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
     let new_user_profile = UserProfile::from((&response, &authenticator));
@@ -513,15 +515,9 @@ impl UserManager {
     // users opt for cloud storage, the application should automatically create a backup of the user
     // data. This backup should be in the form of a zip file and stored locally on the user's disk
     // for safety and data integrity purposes
-    if self.user_config.is_custom_storage_path() {
-      self
-        .database
-        .backup_or_restore(session.user_id, &session.user_workspace.id);
-    } else {
-      self
-        .database
-        .restore_if_need(session.user_id, &session.user_workspace.id);
-    }
+    self
+      .database
+      .backup_or_restore(session.user_id, &session.user_workspace.id);
   }
 
   /// Fetches the user profile for the given user ID.
@@ -723,7 +719,7 @@ impl UserManager {
     authenticator: &Authenticator,
     email: &str,
   ) -> Result<String, FlowyError> {
-    self.update_authenticator(authenticator).await;
+    self.cloud_services.set_user_authenticator(authenticator);
 
     let auth_service = self.cloud_services.get_user_service()?;
     let url = auth_service
@@ -738,8 +734,8 @@ impl UserManager {
     oauth_provider: &str,
   ) -> Result<String, FlowyError> {
     self
-      .update_authenticator(&Authenticator::AppFlowyCloud)
-      .await;
+      .cloud_services
+      .set_user_authenticator(&Authenticator::AppFlowyCloud);
     let auth_service = self.cloud_services.get_user_service()?;
     let url = auth_service
       .generate_oauth_url_with_provider(oauth_provider)

@@ -17,11 +17,11 @@ use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabCloudPluginProvider, CollabPluginProviderContext,
   CollabPluginProviderType,
 };
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_document::document::MutexDocument;
 use flowy_document::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_storage::{FileStorageService, StorageObject};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::{to_fut, Fut, FutureResult};
@@ -54,7 +54,7 @@ impl Deref for DocumentTest {
 }
 
 pub struct FakeUser {
-  collab_db: Arc<RocksCollabDB>,
+  collab_db: Arc<CollabKVDB>,
 }
 
 impl FakeUser {
@@ -63,7 +63,7 @@ impl FakeUser {
 
     let tempdir = TempDir::new().unwrap();
     let path = tempdir.into_path();
-    let collab_db = Arc::new(RocksCollabDB::open(path).unwrap());
+    let collab_db = Arc::new(CollabKVDB::open(path).unwrap());
 
     Self { collab_db }
   }
@@ -82,7 +82,7 @@ impl DocumentUser for FakeUser {
     Ok(None)
   }
 
-  fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<CollabKVDB>, FlowyError> {
     Ok(Arc::downgrade(&self.collab_db))
   }
 }
@@ -135,10 +135,16 @@ pub struct LocalTestDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
   fn get_document_doc_state(
     &self,
-    _document_id: &str,
+    document_id: &str,
     _workspace_id: &str,
   ) -> FutureResult<CollabDocState, FlowyError> {
-    FutureResult::new(async move { Ok(vec![]) })
+    let document_id = document_id.to_string();
+    FutureResult::new(async move {
+      Err(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        format!("Document {} not found", document_id),
+      ))
+    })
   }
 
   fn get_document_snapshots(

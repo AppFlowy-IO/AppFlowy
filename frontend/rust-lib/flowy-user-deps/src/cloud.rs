@@ -86,16 +86,15 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
 
-  /// Sets the authentication type for a user. The authentication type is the type when user sign in or sign up.
-  fn set_user_authenticator(&self, authenticator: &Authenticator);
-
   /// Sets the authenticator when user sign in or sign up.
   ///
   /// # Arguments
   /// * `authenticator`: An `Authenticator` object.
-  fn set_authenticator(&self, authenticator: Authenticator);
+  fn set_user_authenticator(&self, authenticator: &Authenticator);
 
-  /// Sets the network reachability status.
+  fn get_user_authenticator(&self) -> Authenticator;
+
+  /// Sets the network reachability statset_user_authenticatorus.
   ///
   /// # Arguments
   /// * `reachable`: A boolean indicating whether the network is reachable.
@@ -106,12 +105,6 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   /// # Arguments
   /// * `secret`: A `String` representing the encryption secret.
   fn set_encrypt_secret(&self, secret: String);
-
-  /// Retrieves the current authenticator.
-  ///
-  /// # Returns
-  /// The current `Authenticator` object.
-  fn get_authenticator(&self) -> Authenticator;
 
   /// Retrieves the user-specific cloud service.
   ///
@@ -247,6 +240,6 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
 #[derive(Debug)]
 pub struct UserCollabParams {
   pub object_id: String,
-  pub encoded_collab_v1: Vec<u8>,
+  pub encoded_collab: Vec<u8>,
   pub collab_type: CollabType,
 }

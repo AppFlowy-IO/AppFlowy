@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_content/card_cells/style.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/widgets/card/cells/card_cell.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/select_option_cell_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';

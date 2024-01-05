@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
 import 'package:flutter_test/flutter_test.dart';
 

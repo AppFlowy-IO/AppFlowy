@@ -7,7 +7,7 @@ use bytes::Bytes;
 use tokio::sync::RwLock;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
@@ -99,7 +99,7 @@ impl FolderUser for FolderUserImpl {
       .token()
   }
 
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
       .user_manager
       .upgrade()
@@ -238,8 +238,16 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      manager.create_document(user_id, &view_id, None).await?;
-      Ok(())
+      match manager.create_document(user_id, &view_id, None).await {
+        Ok(_) => Ok(()),
+        Err(err) => {
+          if err.is_already_exists() {
+            Ok(())
+          } else {
+            Err(err)
+          }
+        },
+      }
     })
   }
 
@@ -368,8 +376,17 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       },
     };
     FutureResult::new(async move {
-      database_manager.create_database_with_params(data).await?;
-      Ok(())
+      let result = database_manager.create_database_with_params(data).await;
+      match result {
+        Ok(_) => Ok(()),
+        Err(err) => {
+          if err.is_already_exists() {
+            Ok(())
+          } else {
+            Err(err)
+          }
+        },
+      }
     })
   }
 

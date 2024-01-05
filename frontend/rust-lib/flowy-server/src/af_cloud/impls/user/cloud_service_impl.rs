@@ -264,7 +264,7 @@ where
         .into_iter()
         .map(|object| CollabParams {
           object_id: object.object_id,
-          encoded_collab_v1: object.encoded_collab_v1,
+          encoded_collab_v1: object.encoded_collab,
           collab_type: object.collab_type,
           override_if_exist: false,
         })
