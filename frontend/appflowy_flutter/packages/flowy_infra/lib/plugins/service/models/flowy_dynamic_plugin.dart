@@ -75,12 +75,12 @@ class FlowyDynamicPlugin {
   Future<Directory> encode() async {
     final fs = MemoryFileSystem();
     final directory = fs.directory(_fsPluginName)..createSync();
-    final lightThemeFileName = '$name.$lightExtension';
 
+    final lightThemeFileName = '$name.$lightExtension';
     directory.childFile(lightThemeFileName).createSync();
     directory
         .childFile(lightThemeFileName)
-        .writeAsStringSync(jsonEncode(theme!.darkTheme.toJson()));
+        .writeAsStringSync(jsonEncode(theme!.lightTheme.toJson()));
 
     final darkThemeFileName = '$name.$darkExtension';
     directory.childFile(darkThemeFileName).createSync();
