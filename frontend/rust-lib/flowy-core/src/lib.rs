@@ -54,13 +54,13 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  #[cfg(feature = "single_thread")]
+  #[cfg(feature = "wasm_build")]
   pub async fn new(config: AppFlowyCoreConfig) -> Self {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     Self::init(config, runtime).await
   }
 
-  #[cfg(not(feature = "single_thread"))]
+  #[cfg(not(feature = "wasm_build"))]
   pub fn new(config: AppFlowyCoreConfig) -> Self {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     let cloned_runtime = runtime.clone();
@@ -190,14 +190,15 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
-    let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
+    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
+      runtime,
       make_plugins(
         Arc::downgrade(&folder_manager),
         Arc::downgrade(&database_manager),
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
-      )
-    }));
+      ),
+    ));
 
     Self {
       config,
