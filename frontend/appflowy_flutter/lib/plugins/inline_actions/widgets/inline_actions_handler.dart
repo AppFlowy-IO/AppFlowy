@@ -320,22 +320,25 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   void _moveSelection(LogicalKeyboardKey key) {
     bool didChange = false;
 
-    if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab].contains(key)) {
-      if (_selectedIndex < lengthOfGroup(_selectedGroup) - 1) {
-        _selectedIndex += 1;
-        didChange = true;
-      } else if (_selectedGroup < groupLength - 1) {
-        _selectedGroup += 1;
-        _selectedIndex = 0;
-        didChange = true;
-      }
-    } else if (key == LogicalKeyboardKey.arrowUp) {
+    if (key == LogicalKeyboardKey.arrowUp ||
+        (key == LogicalKeyboardKey.tab &&
+            RawKeyboard.instance.isShiftPressed)) {
       if (_selectedIndex == 0 && _selectedGroup > 0) {
         _selectedGroup -= 1;
         _selectedIndex = lengthOfGroup(_selectedGroup) - 1;
         didChange = true;
       } else if (_selectedIndex > 0) {
         _selectedIndex -= 1;
+        didChange = true;
+      }
+    } else if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab]
+        .contains(key)) {
+      if (_selectedIndex < lengthOfGroup(_selectedGroup) - 1) {
+        _selectedIndex += 1;
+        didChange = true;
+      } else if (_selectedGroup < groupLength - 1) {
+        _selectedGroup += 1;
+        _selectedIndex = 0;
         didChange = true;
       }
     }
