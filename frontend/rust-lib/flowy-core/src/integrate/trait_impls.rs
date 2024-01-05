@@ -7,13 +7,13 @@ use collab::core::collab::CollabDocState;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
+use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{debug, instrument};
 
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use collab_integrate::postgres::SupabaseDBPlugin;
 use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use flowy_document::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};

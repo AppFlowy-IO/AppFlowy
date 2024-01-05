@@ -9,14 +9,13 @@ use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
-use collab_document::YrsDocAction;
 use collab_entity::CollabType;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::RocksCollabDB;
+use collab_integrate::{CollabKVAction, CollabKVDB};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
@@ -29,7 +28,7 @@ pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 
 pub struct DocumentManager {
