@@ -8,15 +8,14 @@ use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
-use collab_document::document_data::{default_document_collab_data, default_document_data};
-use collab_document::YrsDocAction;
+use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::RocksCollabDB;
+use collab_integrate::{CollabKVAction, CollabKVDB};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
@@ -29,7 +28,7 @@ pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 
 pub struct DocumentManager {
@@ -86,25 +85,45 @@ impl DocumentManager {
   ///
   /// if the document already exists, return the existing document.
   /// if the data is None, will create a document with default data.
+  #[instrument(level = "info", skip(self, data))]
   pub async fn create_document(
     &self,
     uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<()> {
-    tracing::trace!("create a document: {:?}", doc_id);
     if self.is_doc_exist(doc_id).unwrap_or(false) {
       Err(FlowyError::new(
         ErrorCode::RecordAlreadyExists,
         format!("document {} already exists", doc_id),
       ))
     } else {
-      let encoded_collab_v1 =
-        doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?;
-      let collab = self
-        .collab_for_document(uid, doc_id, encoded_collab_v1.doc_state.to_vec(), false)
-        .await?;
-      collab.lock().flush();
+      let result: Result<CollabDocState, FlowyError> = self
+        .cloud_service
+        .get_document_doc_state(doc_id, &self.user.workspace_id()?)
+        .await;
+
+      match result {
+        Ok(data) => {
+          let collab = self.collab_for_document(uid, doc_id, data, false).await?;
+          collab.lock().flush();
+        },
+        Err(err) => {
+          if err.is_record_not_found() {
+            let doc_state =
+              doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?
+                .doc_state
+                .to_vec();
+            let collab = self
+              .collab_for_document(uid, doc_id, doc_state, false)
+              .await?;
+            collab.lock().flush();
+          } else {
+            return Err(err);
+          }
+        },
+      }
+
       Ok(())
     }
   }
@@ -119,29 +138,10 @@ impl DocumentManager {
     let mut doc_state = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      let result: Result<CollabDocState, FlowyError> = self
+      doc_state = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user.workspace_id()?)
-        .await;
-
-      doc_state = match result {
-        Ok(data) => data,
-        Err(err) => {
-          if err.is_record_not_found() {
-            // The document's ID exists in the cloud, but its content does not.
-            // This occurs when user A's document hasn't finished syncing and user B tries to open it.
-            // As a result, a blank document is created for user B.
-            event!(
-              tracing::Level::INFO,
-              "can't find the document in the cloud, doc_id: {}",
-              doc_id
-            );
-            default_document_collab_data(doc_id).doc_state.to_vec()
-          } else {
-            return Err(err);
-          }
-        },
-      }
+        .await?;
     }
 
     let uid = self.user.user_id()?;

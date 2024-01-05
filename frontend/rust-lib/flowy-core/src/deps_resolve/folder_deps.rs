@@ -7,7 +7,7 @@ use bytes::Bytes;
 use tokio::sync::RwLock;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
@@ -99,7 +99,7 @@ impl FolderUser for FolderUserImpl {
       .token()
   }
 
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
       .user_manager
       .upgrade()

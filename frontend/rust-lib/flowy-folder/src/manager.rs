@@ -11,7 +11,7 @@ use parking_lot::{Mutex, RwLock};
 use tracing::{error, event, info, instrument, Level};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
+use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_deps::folder_builder::ParentChildViews;
@@ -40,7 +40,7 @@ use crate::view_operation::{create_view, FolderOperationHandler, FolderOperation
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 
   /// Import appflowy data from the given path.
   /// If the container name is not empty, then the data will be imported to the given container.
@@ -136,7 +136,7 @@ impl FolderManager {
     &self,
     uid: i64,
     workspace_id: &str,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     collab_doc_state: CollabDocState,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab = self
@@ -398,6 +398,7 @@ impl FolderManager {
     params: CreateViewParams,
   ) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
+    // TODO(nathan): remove orphan view. Just use for create document in row
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     handler

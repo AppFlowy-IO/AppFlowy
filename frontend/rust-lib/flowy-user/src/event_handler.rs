@@ -43,8 +43,16 @@ pub async fn sign_in_with_email_password_handler(
   let params: SignInParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
 
-  let user_profile: UserProfilePB = manager.sign_in(params, auth_type).await?.into();
-  data_result_ok(user_profile)
+  let old_authenticator = manager.cloud_services.get_user_authenticator();
+  match manager.sign_in(params, auth_type).await {
+    Ok(profile) => data_result_ok(UserProfilePB::from(profile)),
+    Err(err) => {
+      manager
+        .cloud_services
+        .set_user_authenticator(&old_authenticator);
+      return Err(err);
+    },
+  }
 }
 
 #[tracing::instrument(
@@ -63,10 +71,18 @@ pub async fn sign_up(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: SignUpParams = data.into_inner().try_into()?;
-  let auth_type = params.auth_type.clone();
+  let authenticator = params.auth_type.clone();
 
-  let user_profile = manager.sign_up(auth_type, BoxAny::new(params)).await?;
-  data_result_ok(user_profile.into())
+  let old_authenticator = manager.cloud_services.get_user_authenticator();
+  match manager.sign_up(authenticator, BoxAny::new(params)).await {
+    Ok(profile) => data_result_ok(UserProfilePB::from(profile)),
+    Err(err) => {
+      manager
+        .cloud_services
+        .set_user_authenticator(&old_authenticator);
+      return Err(err);
+    },
+  }
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
@@ -135,7 +151,6 @@ pub async fn set_appearance_setting(
   if setting.theme.is_empty() {
     setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
   }
-
   store_preferences.set_object(APPEARANCE_SETTING_CACHE_KEY, setting)?;
   Ok(())
 }
