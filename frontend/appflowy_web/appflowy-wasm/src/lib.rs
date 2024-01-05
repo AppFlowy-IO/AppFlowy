@@ -1,27 +1,39 @@
-
-extern crate wasm_bindgen;
-
-use js_sys::Error;
-use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
-use wasm_bindgen::prelude::*;
 use crate::notification::TSNotificationSender;
+use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
 
-pub mod request;
 pub mod notification;
+pub mod request;
 
-#[wasm_bindgen]
-extern {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
+use lazy_static::lazy_static;
+use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest};
+use lib_dispatch::runtime::AFPluginRuntime;
+use parking_lot::Mutex;
+use std::sync::Arc;
+use tracing::trace;
+use wasm_bindgen::prelude::wasm_bindgen;
 
-    #[wasm_bindgen(js_namespace = window)]
-    fn onFlowyNotify(event_name: &str, payload: JsValue);
+lazy_static! {
+    static ref DISPATCHER: MutexDispatcher = MutexDispatcher::new();
 }
 
 #[wasm_bindgen]
-pub async fn invoke_request(ty: String, payload: Vec<u8>) -> Result<JsValue, Error> {
-    let response = request::invoke_request(ty, payload).await;
-    response.map(|response| serde_wasm_bindgen::to_value(&response).unwrap_or(JsValue::UNDEFINED))
+pub fn init_sdk(data: String) -> i64 {
+    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+    *DISPATCHER.0.lock() = Some(Arc::new(AFPluginDispatcher::new(runtime, vec![])));
+    0
+}
+
+#[wasm_bindgen]
+pub fn init_tracing() {
+    tracing_wasm::set_as_global_default();
+}
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    pub fn log(s: &str);
+    #[wasm_bindgen(js_namespace = window)]
+    fn onFlowyNotify(event_name: &str, payload: JsValue);
 }
 
 #[wasm_bindgen]
