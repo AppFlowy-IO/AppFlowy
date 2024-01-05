@@ -78,6 +78,8 @@ pub struct UploadFileParamsPB {
 pub struct UploadedFile {
   #[pb(index = 1)]
   pub url: String,
+
+  #[pb(index = 2)]
   pub local_file_path: String,
 }
 
