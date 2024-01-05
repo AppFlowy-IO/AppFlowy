@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 

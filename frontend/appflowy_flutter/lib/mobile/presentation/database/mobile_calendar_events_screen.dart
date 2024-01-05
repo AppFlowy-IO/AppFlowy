@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
-import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_card.dart';
+import 'package:appflowy/plugins/database/application/row/row_cache.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database/calendar/presentation/calendar_event_card.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';

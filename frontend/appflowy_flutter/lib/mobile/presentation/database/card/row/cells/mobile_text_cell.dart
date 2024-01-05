@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,6 +1,6 @@
 import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/cloud_env.dart';
-import 'package:appflowy/plugins/database_view/application/defines.dart';
+import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
