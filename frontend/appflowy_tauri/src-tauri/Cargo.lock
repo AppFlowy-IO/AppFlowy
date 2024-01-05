@@ -780,7 +780,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b#56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -800,7 +800,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b#56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -827,7 +827,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b#56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b"
 dependencies = [
  "anyhow",
  "collab",
@@ -844,7 +844,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b#56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b"
 dependencies = [
  "anyhow",
  "bytes",
@@ -858,7 +858,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b#56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b"
 dependencies = [
  "anyhow",
  "chrono",
@@ -893,7 +893,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b#56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -923,7 +923,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b#56ec5e8b1ef0f3e31024c7fb8bccb2d93d74837b"
 dependencies = [
  "anyhow",
  "collab",
@@ -1858,6 +1858,7 @@ dependencies = [
  "bytes",
  "chrono",
  "collab",
+ "collab-document",
  "collab-entity",
  "collab-folder",
  "collab-integrate",
