@@ -67,6 +67,7 @@ pub struct FolderManager {
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
   pub(crate) indexer: FolderIndexer,
+  pub index_storage: Arc<dyn FolderIndexStorage>,
 }
 
 impl FolderManager {
@@ -79,7 +80,8 @@ impl FolderManager {
     document_index_content_getter: impl DocumentIndexContentGetter + 'static,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
-    let indexer = FolderIndexer::new(index_storage, document_index_content_getter);
+    let index_storage = Arc::new(index_storage);
+    let indexer = FolderIndexer::new(index_storage.clone(), document_index_content_getter);
     let manager = Self {
       user,
       mutex_folder,
@@ -88,6 +90,7 @@ impl FolderManager {
       cloud_service,
       workspace_id: Default::default(),
       indexer,
+      index_storage,
     };
 
     Ok(manager)
@@ -141,6 +144,11 @@ impl FolderManager {
       get_workspace_view_pbs(workspace_id, folder)
     });
 
+    Ok(views)
+  }
+
+  pub async fn get_workspace_views_raw(&self) -> FlowyResult<Vec<Arc<View>>> {
+    let views = self.with_folder(Vec::new, |folder| folder.get_workspace_views());
     Ok(views)
   }
 

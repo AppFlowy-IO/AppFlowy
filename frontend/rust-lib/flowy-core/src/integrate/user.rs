@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use collab_entity::CollabType;
+use flowy_document::DocumentIndexContent;
 use tracing::event;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -79,6 +80,36 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       document_manager
         .initialize(user_id, user_workspace.id)
         .await?;
+
+      // get all views and index them
+      let search_indexer = folder_manager.index_storage.clone();
+      let views = folder_manager.get_workspace_views_raw().await?;
+      for v in views {
+        let index_updated_at = search_indexer.get_view_updated_at(&v.id).unwrap_or(None);
+
+        // skip indexing if index is more recent
+        if let Some(index_updated_at) = index_updated_at {
+          if v.last_edited_time <= index_updated_at {
+            continue;
+          }
+        }
+
+        // get and index each document.
+        let doc = document_manager.get_document(&v.id).await?;
+        let doc = DocumentIndexContent::from(&*doc);
+
+        match index_updated_at {
+          Some(_) => {
+            let _ = search_indexer.update_view(&v.id, &v.name);
+            let _ = search_indexer.update_document(&v.id, &doc.page_id, &doc.text);
+          },
+          None => {
+            let _ = search_indexer.add_view(&v.id, &v.name);
+            let _ = search_indexer.add_document(&v.id, &doc.page_id, &doc.text);
+          },
+        }
+      }
+
       Ok(())
     })
   }

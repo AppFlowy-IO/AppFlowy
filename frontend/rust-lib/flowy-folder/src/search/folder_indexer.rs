@@ -11,12 +11,46 @@ use tracing::error;
 
 /// A trait for folder indexing storage.
 pub trait FolderIndexStorage: Send + Sync {
+  fn get_view_updated_at(&self, id: &str) -> Result<Option<i64>, FlowyError>;
   fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError>;
   fn update_view(&self, id: &str, content: &str) -> Result<(), FlowyError>;
   fn remove_view(&self, ids: &[String]) -> Result<(), FlowyError>;
   fn add_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError>;
   fn update_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError>;
   fn remove_document(&self, page_ids: &[String]) -> Result<(), FlowyError>;
+}
+
+impl<T> FolderIndexStorage for Arc<T>
+where
+  T: FolderIndexStorage,
+{
+  fn get_view_updated_at(&self, id: &str) -> Result<Option<i64>, FlowyError> {
+    (**self).get_view_updated_at(id)
+  }
+
+  fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
+    (**self).add_view(id, content)
+  }
+
+  fn update_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
+    (**self).update_view(id, content)
+  }
+
+  fn remove_view(&self, ids: &[String]) -> Result<(), FlowyError> {
+    (**self).remove_view(ids)
+  }
+
+  fn add_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError> {
+    (**self).add_document(view_id, page_id, content)
+  }
+
+  fn update_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError> {
+    (**self).update_document(view_id, page_id, content)
+  }
+
+  fn remove_document(&self, page_ids: &[String]) -> Result<(), FlowyError> {
+    (**self).remove_document(page_ids)
+  }
 }
 
 #[async_trait]

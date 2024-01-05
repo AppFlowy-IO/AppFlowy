@@ -1,7 +1,7 @@
 use diesel::{
   sql_query,
   sql_types::{BigInt, Text},
-  QueryResult, RunQueryDsl, SqliteConnection,
+  OptionalExtension, QueryResult, RunQueryDsl, SqliteConnection,
 };
 
 /// The search content table stores the row content.
@@ -14,6 +14,16 @@ const CREATE_SEARCH_CONTENT_TABLE: &str = r#"CREATE TABLE IF NOT EXISTS search_c
     data TEXT,
     updated_at INTEGER DEFAULT (strftime('%s', 'now'))
 )"#;
+
+const DROP_UPDATED_AT_TRIGGER: &str = "DROP TRIGGER IF EXISTS search_content_updated_at_trigger";
+const CREATE_SEARCH_CONTENT_TABLE_UPDATED_TRIGGER: &str = r#"
+CREATE TRIGGER search_content_updated_at_trigger
+AFTER UPDATE ON search_content
+FOR EACH ROW
+BEGIN
+    UPDATE search_content SET updated_at = (strftime('%s', 'now')) WHERE rowid = NEW.rowid;
+END;
+"#;
 
 /// The search index table stores the full-text index.
 const SEARCH_INDEX_TABLE: &str = "search_index";
@@ -58,6 +68,8 @@ pub fn run_migrations(conn: &mut SqliteConnection) -> QueryResult<usize> {
   }
 
   // drop and create triggers because no create if not exists for triggers.
+  sql_query(DROP_UPDATED_AT_TRIGGER).execute(conn)?;
+  sql_query(CREATE_SEARCH_CONTENT_TABLE_UPDATED_TRIGGER).execute(conn)?;
   sql_query(DROP_INDEX_INSERT_TRIGGER).execute(conn)?;
   sql_query(DROP_INDEX_DELETE_TRIGGER).execute(conn)?;
   sql_query(DROP_INDEX_UPDATE_TRIGGER).execute(conn)?;
@@ -167,6 +179,15 @@ pub fn add(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize>
     .execute(conn)
 }
 
+/// Get view.
+pub fn get_view(conn: &mut SqliteConnection, view_id: &str) -> QueryResult<Option<SearchData>> {
+  sql_query("SELECT index_type, view_id, id, data, updated_at FROM search_content WHERE index_type=? and view_id=?")
+    .bind::<Text, _>(IndexType::View.to_string())
+    .bind::<Text, _>(view_id)
+    .get_result(conn)
+    .optional()
+}
+
 /// Update view name.
 pub fn update_view(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize> {
   sql_query("UPDATE search_content SET data=? WHERE index_type=? and view_id=?")
@@ -232,6 +253,23 @@ mod tests {
     run_migrations(&mut conn).unwrap();
 
     (tempdir, database)
+  }
+
+  #[test]
+  fn test_get_view() -> QueryResult<()> {
+    let (_tempdir, database) = setup_db();
+    let mut conn = database.get_connection().unwrap();
+    assert!(table_exists(&mut conn, SEARCH_INDEX_TABLE).unwrap());
+
+    let first = SearchData::new_view("asdf", "First doc");
+    let second = SearchData::new_view("qwer", "Second doc");
+    add(&mut conn, &first).unwrap();
+    add(&mut conn, &second).unwrap();
+
+    assert_eq!(get_view(&mut conn, &first.view_id), Ok(Some(first)));
+    assert_eq!(get_view(&mut conn, &second.view_id), Ok(Some(second)));
+
+    Ok(())
   }
 
   #[test]
