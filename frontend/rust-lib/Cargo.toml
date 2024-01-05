@@ -29,6 +29,7 @@ members = [
   "build-tool/flowy-ast",
   "build-tool/flowy-codegen",
   "build-tool/flowy-derive",
+  "flowy-wasm",
 ]
 resolver = "2"
 

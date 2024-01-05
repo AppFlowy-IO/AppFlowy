@@ -2185,6 +2185,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-wasm"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "lib-dispatch",
+ "parking_lot",
+ "tracing",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
