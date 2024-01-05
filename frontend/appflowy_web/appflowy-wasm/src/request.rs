@@ -2,8 +2,6 @@ use js_sys::Error;
 use serde::{Serialize, Deserialize};
 // use lib_dispatch::prelude::*;
 use tracing::{error, trace};
-use wasm_bindgen::JsValue;
-use crate::{on_event};
 
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -35,12 +33,6 @@ pub async fn invoke_request(ty: String, payload: Vec<u8>) -> Result<Response, Er
   //   code: response.status_code,
   //   payload: response.payload.to_vec(),
   // })
-
-    let payload = serde_json::json!({
-        "ty": ty,
-        "payload": payload,
-    });
-    on_event("af-notification", serde_wasm_bindgen::to_value(&payload).unwrap_or(JsValue::UNDEFINED));
   Ok(Response {
       code: StatusCode::Ok,
       payload: vec![],

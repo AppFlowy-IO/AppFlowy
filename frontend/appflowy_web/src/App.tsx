@@ -2,16 +2,25 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { invoke_request } from "../appflowy-wasm/pkg/appflowy_wasm";
+import { useEffect } from "react";
+import { initApp } from "./application/init_app.ts";
+import { subscribeNotification } from "./application/notification.ts";
+import { NotifyArgs } from "./@types/global";
 
 function App() {
+  useEffect(() => {
+    initApp();
+    return subscribeNotification((event: NotifyArgs) => {
+      console.log(event);
+    });
+  }, []);
+
   const handleClick = async () => {
-    window.onEvent = (eventName: string, ...args: any[]) => {
-      console.log(eventName, args);
-    };
     const payload = new TextEncoder().encode("someString");
     const res = await invoke_request("add", payload);
     console.log(res);
   };
+
   return (
     <>
       <div>
