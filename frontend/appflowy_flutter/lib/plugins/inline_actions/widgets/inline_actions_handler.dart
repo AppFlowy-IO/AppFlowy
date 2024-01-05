@@ -11,6 +11,14 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 
+/// All heights are in physical pixels
+const double _groupTextHeight = 14; // 12 height + 2 bottom spacing
+const double _groupBottomSpacing = 6;
+const double _itemHeight = 30; // 26 height + 4 vertical spacing (2*2)
+
+const double _menuHeight = 300;
+const double _contentHeight = 260;
+
 extension _StartWithsSort on List<InlineActionsResult> {
   void sortByStartsWithKeyword(String search) => sort(
         (a, b) {
@@ -69,6 +77,7 @@ class InlineActionsHandler extends StatefulWidget {
 
 class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   final _focusNode = FocusNode(debugLabel: 'inline_actions_menu_handler');
+  final _scrollController = ScrollController();
 
   late List<InlineActionsResult> results = widget.results;
   int invalidCounter = 0;
@@ -128,7 +137,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       focusNode: _focusNode,
       onKey: onKey,
       child: Container(
-        constraints: BoxConstraints.loose(const Size(200, 300)),
+        constraints: BoxConstraints.loose(const Size(200, _menuHeight)),
         decoration: BoxDecoration(
           color: widget.style.backgroundColor,
           borderRadius: BorderRadius.circular(6.0),
@@ -150,6 +159,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
                   ),
                 )
               : SingleChildScrollView(
+                  controller: _scrollController,
                   physics: const ClampingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,24 +318,75 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   }
 
   void _moveSelection(LogicalKeyboardKey key) {
+    bool didChange = false;
+
     if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab].contains(key)) {
       if (_selectedIndex < lengthOfGroup(_selectedGroup) - 1) {
         _selectedIndex += 1;
+        didChange = true;
       } else if (_selectedGroup < groupLength - 1) {
         _selectedGroup += 1;
         _selectedIndex = 0;
+        didChange = true;
       }
     } else if (key == LogicalKeyboardKey.arrowUp) {
       if (_selectedIndex == 0 && _selectedGroup > 0) {
         _selectedGroup -= 1;
         _selectedIndex = lengthOfGroup(_selectedGroup) - 1;
+        didChange = true;
       } else if (_selectedIndex > 0) {
         _selectedIndex -= 1;
+        didChange = true;
       }
     }
 
-    if (mounted) {
+    if (mounted && didChange) {
       setState(() {});
+      _scrollToItem();
+    }
+  }
+
+  void _scrollToItem() {
+    final groups = _selectedGroup + 1;
+
+    int items = 0;
+    for (int i = 0; i <= _selectedGroup; i++) {
+      items += lengthOfGroup(i);
+    }
+
+    // Remove the leftover items
+    items -= lengthOfGroup(_selectedGroup) - (_selectedIndex + 1);
+
+    /// The offset is roughly calculated by:
+    /// - Amount of Groups passed
+    /// - Amount of Items passed
+    final double offset =
+        (_groupTextHeight + _groupBottomSpacing) * groups + _itemHeight * items;
+
+    // We have a buffer so that when moving up, we show items above the currently
+    // selected item. The buffer is the height of 2 items
+    if (offset <= _scrollController.offset + _itemHeight * 2) {
+      // We want to show the user some options above the newly
+      // focused one, therefore we take the offset and subtract
+      // the height of three items (current + 2)
+      _scrollController.animateTo(
+        offset - _itemHeight * 3,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeIn,
+      );
+    } else if (offset >
+        _scrollController.offset +
+            _contentHeight -
+            _itemHeight -
+            _groupTextHeight) {
+      // The same here, we want to show the options below the
+      // newly focused item when moving downwards, therefore we add
+      // 2 times the item height to the offset
+      _scrollController.animateTo(
+        offset - _contentHeight + _itemHeight * 2,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeIn,
+      );
     }
   }
 
