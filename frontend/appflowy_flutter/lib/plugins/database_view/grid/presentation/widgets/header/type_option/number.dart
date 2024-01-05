@@ -52,6 +52,7 @@ class NumberTypeOptionEditorFactory implements TypeOptionEditorFactory {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           numFormatTitle,
           AppFlowyPopover(
