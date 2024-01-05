@@ -3,7 +3,7 @@ use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_database2::{DatabaseManager, DatabaseUser};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
@@ -47,7 +47,7 @@ impl DatabaseUser for DatabaseUserImpl {
       .token()
   }
 
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
       .0
       .upgrade()

@@ -9,7 +9,7 @@ use collab_user::core::{MutexUserAwareness, UserAwareness};
 use tracing::{error, trace};
 use uuid::Uuid;
 
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::ReminderPB;
@@ -162,7 +162,7 @@ impl UserManager {
   async fn collab_for_user_awareness(
     &self,
     session: &Session,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     raw_data: CollabDocState,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab_builder = self.collab_builder.upgrade().ok_or(FlowyError::new(

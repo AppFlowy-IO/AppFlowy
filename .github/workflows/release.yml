@@ -263,7 +263,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          sh scripts/flutter_release_build/build_universal_package_for_macos.sh
+          sh scripts/flutter_release_build/build_universal_package_for_macos.sh ${{ github.ref_name }}
 
       - name: Codesign AppFlowy
         run: |

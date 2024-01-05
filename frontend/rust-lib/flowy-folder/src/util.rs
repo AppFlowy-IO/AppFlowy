@@ -1,7 +1,7 @@
 use collab_folder::Folder;
 use std::sync::Arc;
 
-use collab_integrate::YrsDocAction;
+use collab_integrate::CollabKVAction;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::folder_builder::ParentChildViews;
 
