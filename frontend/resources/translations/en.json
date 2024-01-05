@@ -46,8 +46,7 @@
     "LogInWithGoogle": "Log in with Google",
     "LogInWithGithub": "Log in with Github",
     "LogInWithDiscord": "Log in with Discord",
-    "signInWith": "Sign in with:",
-    "loginAsGuestButtonText": "Login as Guest"
+    "signInWith": "Sign in with:"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -234,9 +233,7 @@
     "add": "Add",
     "yes": "Yes",
     "Done": "Done",
-    "Cancel": "Cancel",
-    "OK": "Yes",
-    "tryAGain": "Try again"
+    "Cancel": "Cancel"
   },
   "label": {
     "welcome": "Welcome!",
@@ -303,8 +300,11 @@
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account",
       "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
-      "supabaseSetting": "Supabase setting",
-      "cloudSetting": "Cloud setting"
+      "importAppFlowyData": "Import Data from External AppFlowy Folder",
+      "importAppFlowyDataDescription": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
+      "importSuccess": "Successfully imported the AppFlowy data folder",
+      "importFailed": "Importing the AppFlowy data folder failed",
+      "importGuide": "For further details, please check the referenced document"
     },
     "notifications": {
       "enableNotifications": {
@@ -313,7 +313,7 @@
       }
     },
     "appearance": {
-      "resetSetting": "Reset this setting",
+      "resetSetting": "Reset",
       "fontFamily": {
         "label": "Font Family",
         "search": "Search"
@@ -323,6 +323,18 @@
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
+      },
+      "documentSettings": {
+        "cursorColor": "Document cursor color",
+        "selectionColor": "Document selection color",
+        "hexEmptyError": "Hex color cannot be empty",
+        "hexLengthError": "Hex value must be 6 digits long",
+        "hexInvalidError": "Invalid hex value",
+        "opacityEmptyError": "Opacity cannot be empty",
+        "opacityRangeError": "Opacity must be between 1 and 100",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Apply"
       },
       "layoutDirection": {
         "label": "Layout Direction",
@@ -365,9 +377,7 @@
         "twelveHour": "Twelve hour",
         "twentyFourHour": "Twenty four hour"
       },
-      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
-      "lightLabel": "Light",
-      "darkLabel": "Dark"
+      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
     },
     "files": {
       "copy": "Copy",
@@ -460,7 +470,14 @@
       "typeAValue": "Type a value...",
       "layout": "Layout",
       "databaseLayout": "Layout",
-      "Properties": "Properties"
+      "viewList": "Database Views",
+      "editView": "Edit View",
+      "boardSettings": "Board settings",
+      "calendarSettings": "Calendar settings",
+      "createView": "New view",
+      "duplicateView": "Duplicate view",
+      "deleteView": "Delete view",
+      "numberOfVisibleFields": "{} shown"
     },
     "textFilter": {
       "contains": "Contains",
@@ -483,8 +500,7 @@
       "isChecked": "Checked",
       "isUnchecked": "Unchecked",
       "choicechipPrefix": {
-        "is": "is",
-        "da": "Checkbox Prefix"
+        "is": "is"
       }
     },
     "checklistFilter": {
@@ -580,8 +596,7 @@
       "ascending": "Ascending",
       "descending": "Descending",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add sort",
-      "deleteSort": "Clear sort"
+      "addSort": "Add sort"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -610,16 +625,14 @@
       "aquaColor": "Aqua",
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
-      "colorPanelTitle": "Colors",
+      "colorPanelTitle": "Color",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search or create an option...",
-      "createNew": "Create a new",
+      "createNew": "Create an new",
       "orSelectOne": "Or select an option",
       "typeANewOption": "Type a new option",
-      "tagName": "Tag name",
-      "colorPannelTitle": "Color pannel",
-      "pannelTitle": "Option panel"
+      "tagName": "Tag name"
     },
     "checklist": {
       "taskHint": "Task description",
@@ -738,6 +751,9 @@
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image"
       },
+      "urlPreview": {
+        "copiedToPasteBoard": "The link has been copied to the clipboard"
+      },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
       },
@@ -755,7 +771,14 @@
         "paste": "Paste"
       },
       "action": "Actions",
-      "autoCompletionMenuItemName": "Auto completion menu item"
+      "database": {
+        "selectDataSource": "Select data source",
+        "noDataSource": "No data source",
+        "selectADataSource": "Select a data source",
+        "toContinue": "to continue",
+        "newDatabase": "New Database",
+        "linkToDatabase": "Link to Database"
+      }
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -836,10 +859,6 @@
     "errorBlock": {
       "theBlockIsNotSupported": "The current version does not support this block.",
       "blockContentHasBeenCopied": "The block content has been copied."
-    },
-    "data": {
-      "timeHintTextInTwelveHour": "Twelve hours",
-      "timeHintTextInTwentyFourHour": "Twenty four hours"
     }
   },
   "board": {
@@ -898,8 +917,13 @@
       "showWeekends": "Show weekends",
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
+      "changeLayoutDateField": "Change layout field",
       "noDateTitle": "No Date",
-      "noDateHint": "Unscheduled events will appear here",
+      "noDateHint": {
+        "zero": "Unscheduled events will show up here",
+        "one": "{count} unscheduled event",
+        "other": "{count} unscheduled events"
+      },
       "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar settings"
@@ -983,7 +1007,12 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "Change the date and time format in settings"
+    "dateTimeFormatTooltip": "Change the date and time format in settings",
+    "dateFormat": "Date format",
+    "includeTime": "Include time",
+    "isRange": "End date",
+    "timeFormat": "Time format",
+    "clearDate": "Clear date"
   },
   "relativeDates": {
     "yesterday": "Yesterday",
@@ -1013,8 +1042,7 @@
       "groupByDate": "Group by date",
       "showUnreadsOnly": "Show unreads only",
       "resetToDefault": "Reset to default"
-    },
-    "empty": "Empty"
+    }
   },
   "reminderNotification": {
     "title": "Reminder",
@@ -1148,7 +1176,8 @@
     "rowDuplicate": "Duplicate",
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
-    "slashPlaceHolder": "Type '/' to insert a block, or start typing"
+    "slashPlaceHolder": "Type '/' to insert a block, or start typing",
+    "typeSomething": "Type something..."
   },
   "favorite": {
     "noFavorite": "No favorite page",
