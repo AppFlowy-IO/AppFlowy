@@ -89,7 +89,6 @@ class FlowyRunner {
       config.rustEnvs["APP_VERSION"] =
           await PackageInfo.fromPlatform().then((value) => value.version);
     }
-
     // Specify the env
     await initGetIt(getIt, mode, f, config);
     await didInitGetItCallback?.call();
