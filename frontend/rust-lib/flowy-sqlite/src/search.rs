@@ -110,7 +110,7 @@ pub fn update_view(conn: &mut SqliteConnection, data: &SearchData) -> QueryResul
 
 /// Search index for matches.
 pub fn search_index(conn: &mut SqliteConnection, s: &str) -> QueryResult<Vec<SearchData>> {
-  sql_query("SELECT index_type, view_id, id, data FROM search_index WHERE search_index MATCH ?")
+  sql_query("SELECT index_type, view_id, id, data FROM search_index WHERE data MATCH ?")
     .bind::<Text, _>(s)
     .load(conn)
 }
