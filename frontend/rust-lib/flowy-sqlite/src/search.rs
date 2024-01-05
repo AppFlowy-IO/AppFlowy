@@ -1,16 +1,70 @@
-use diesel::{sql_query, sql_types::Text, QueryResult, RunQueryDsl, SqliteConnection};
+use diesel::{
+  sql_query,
+  sql_types::{BigInt, Text},
+  QueryResult, RunQueryDsl, SqliteConnection,
+};
 
+/// The search content table stores the row content.
+const SEARCH_CONTENT_TABLE: &str = "search_content";
+const CREATE_SEARCH_CONTENT_TABLE: &str = r#"CREATE TABLE IF NOT EXISTS search_content (
+    rowid INTEGER PRIMARY KEY,
+    index_type TEXT,
+    view_id TEXT,
+    id TEXT,
+    data TEXT,
+    updated_at INTEGER DEFAULT (strftime('%s', 'now'))
+)"#;
+
+/// The search index table stores the full-text index.
 const SEARCH_INDEX_TABLE: &str = "search_index";
-const CREATE_SEARCH_INDEX_TABLE: &str =
-  "CREATE VIRTUAL TABLE if not exists search_index USING fts5(index_type, view_id, id, data)";
+const CREATE_SEARCH_INDEX_TABLE: &str = r#"CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5(
+    data,
+    content='search_content',
+    content_rowid='rowid',
+)"#;
+
+const DROP_INDEX_INSERT_TRIGGER: &str = "DROP TRIGGER IF EXISTS search_index_insert";
+const DROP_INDEX_DELETE_TRIGGER: &str = "DROP TRIGGER IF EXISTS search_index_delete";
+const DROP_INDEX_UPDATE_TRIGGER: &str = "DROP TRIGGER IF EXISTS search_index_update";
+
+const CREATE_INDEX_INSERT_TRIGGER: &str = r#"
+CREATE TRIGGER search_index_insert AFTER INSERT ON search_content BEGIN
+  INSERT INTO search_index(rowid, data) VALUES (new.rowid, new.data);
+END;
+"#;
+
+const CREATE_INDEX_DELETE_TRIGGER: &str = r#"
+CREATE TRIGGER search_index_delete AFTER DELETE ON search_content BEGIN
+  INSERT INTO search_index(search_index, rowid, data) VALUES ('delete', old.rowid, old.data);
+END;
+"#;
+
+const CREATE_INDEX_UPDATE_TRIGGER: &str = r#"
+CREATE TRIGGER search_index_update AFTER UPDATE ON search_content BEGIN
+  INSERT INTO search_index(search_index, rowid, data) VALUES ('delete', old.rowid, old.data);
+  INSERT INTO search_index(rowid, data) VALUES (new.rowid, new.data);
+END;
+"#;
 
 /// Runs database migrations for local search using sqlite FTS5.
 ///
 /// FTS5 tables do not have indexes, which is not supported by Diesel.
 pub fn run_migrations(conn: &mut SqliteConnection) -> QueryResult<usize> {
+  if !table_exists(conn, SEARCH_CONTENT_TABLE)? {
+    sql_query(CREATE_SEARCH_CONTENT_TABLE).execute(conn)?;
+  }
   if !table_exists(conn, SEARCH_INDEX_TABLE)? {
     sql_query(CREATE_SEARCH_INDEX_TABLE).execute(conn)?;
   }
+
+  // drop and create triggers because no create if not exists for triggers.
+  sql_query(DROP_INDEX_INSERT_TRIGGER).execute(conn)?;
+  sql_query(DROP_INDEX_DELETE_TRIGGER).execute(conn)?;
+  sql_query(DROP_INDEX_UPDATE_TRIGGER).execute(conn)?;
+  sql_query(CREATE_INDEX_INSERT_TRIGGER).execute(conn)?;
+  sql_query(CREATE_INDEX_DELETE_TRIGGER).execute(conn)?;
+  sql_query(CREATE_INDEX_UPDATE_TRIGGER).execute(conn)?;
+
   Ok(0)
 }
 
@@ -48,7 +102,7 @@ impl ToString for IndexType {
 }
 
 /// SearchData represents the data that is contained by a view and the type of document.
-#[derive(Debug, PartialEq, QueryableByName)]
+#[derive(Debug, QueryableByName)]
 pub struct SearchData {
   /// The type of data that is stored in the search index row.
   #[diesel(sql_type = Text)]
@@ -67,6 +121,18 @@ pub struct SearchData {
   /// The data that is stored in the search index row.
   #[diesel(sql_type = Text)]
   pub data: String,
+
+  #[diesel(sql_type = BigInt)]
+  pub updated_at: i64,
+}
+
+impl PartialEq for SearchData {
+  fn eq(&self, other: &Self) -> bool {
+    self.index_type == other.index_type
+      && self.view_id == other.view_id
+      && self.id == other.id
+      && self.data == other.data
+  }
 }
 
 impl SearchData {
@@ -76,6 +142,7 @@ impl SearchData {
       view_id: view_id.to_owned(),
       id: view_id.to_owned(),
       data: name.to_owned(),
+      updated_at: 0,
     }
   }
 
@@ -85,13 +152,14 @@ impl SearchData {
       view_id: view_id.to_owned(),
       id: page_id.to_owned(),
       data: text.to_owned(),
+      updated_at: 0,
     }
   }
 }
 
 /// Add search data for searching.
 pub fn add(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize> {
-  sql_query("INSERT INTO search_index (index_type, view_id, id, data) VALUES (?,?,?,?)")
+  sql_query("INSERT INTO search_content (index_type, view_id, id, data) VALUES (?,?,?,?)")
     .bind::<Text, _>(&data.index_type)
     .bind::<Text, _>(&data.view_id)
     .bind::<Text, _>(&data.id)
@@ -101,7 +169,7 @@ pub fn add(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize>
 
 /// Update view name.
 pub fn update_view(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize> {
-  sql_query("UPDATE search_index SET data=? WHERE index_type=? and view_id=?")
+  sql_query("UPDATE search_content SET data=? WHERE index_type=? and view_id=?")
     .bind::<Text, _>(&data.data)
     .bind::<Text, _>(IndexType::View.to_string())
     .bind::<Text, _>(&data.view_id)
@@ -110,23 +178,26 @@ pub fn update_view(conn: &mut SqliteConnection, data: &SearchData) -> QueryResul
 
 /// Search index for matches.
 pub fn search_index(conn: &mut SqliteConnection, s: &str) -> QueryResult<Vec<SearchData>> {
-  sql_query("SELECT index_type, view_id, id, data FROM search_index WHERE data MATCH ?")
-    .bind::<Text, _>(s)
-    .load(conn)
+  let query = r#"SELECT
+      search_content.index_type, search_content.view_id, search_content.id, search_content.data, search_content.updated_at
+      FROM search_index
+      INNER JOIN search_content ON search_content.rowid = search_index.rowid
+      WHERE search_index.data MATCH ?"#;
+  sql_query(query).bind::<Text, _>(s).load(conn)
 }
 
 /// Delete view and data associated with the view.
 ///
 /// - Document: delete the row that contains the text.
 pub fn delete_view(conn: &mut SqliteConnection, id: &str) -> QueryResult<usize> {
-  sql_query("DELETE FROM search_index WHERE view_id=?")
+  sql_query("DELETE FROM search_content WHERE view_id=?")
     .bind::<Text, _>(id)
     .execute(conn)
 }
 
 /// Update document text.
 pub fn update_document(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize> {
-  sql_query("UPDATE search_index SET data=? WHERE index_type=? and id=?")
+  sql_query("UPDATE search_content SET data=? WHERE index_type=? and id=?")
     .bind::<Text, _>(&data.data)
     .bind::<Text, _>(IndexType::Document.to_string())
     .bind::<Text, _>(&data.id)
@@ -135,7 +206,7 @@ pub fn update_document(conn: &mut SqliteConnection, data: &SearchData) -> QueryR
 
 /// Delete document data using page_id.
 pub fn delete_document(conn: &mut SqliteConnection, id: &str) -> QueryResult<usize> {
-  sql_query("DELETE FROM search_index WHERE index_type=? and id=?")
+  sql_query("DELETE FROM search_content WHERE index_type=? and id=?")
     .bind::<Text, _>(IndexType::Document.to_string())
     .bind::<Text, _>(id)
     .execute(conn)
