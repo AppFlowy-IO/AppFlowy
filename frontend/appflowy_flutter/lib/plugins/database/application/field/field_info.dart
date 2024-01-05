@@ -1,6 +1,6 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'field_info.freezed.dart';
 
 @freezed

@@ -1,11 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_event_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
@@ -129,7 +128,7 @@ class EventPropertyList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CalendarEventEditorBloc, CalendarEventEditorState>(
       builder: (context, state) {
-        final reorderedList = List<DatabaseCellContext>.from(state.cells)
+        final reorderedList = List<CellContext>.from(state.cells)
           ..retainWhere((cell) => !cell.fieldInfo.isPrimary);
 
         final primaryCellContext =
@@ -176,7 +175,7 @@ class EventPropertyList extends StatelessWidget {
 }
 
 class PropertyCell extends StatefulWidget {
-  final DatabaseCellContext cellContext;
+  final CellContext cellContext;
   final GridCellBuilder cellBuilder;
   const PropertyCell({
     required this.cellContext,

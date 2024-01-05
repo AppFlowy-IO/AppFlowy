@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_cache.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';

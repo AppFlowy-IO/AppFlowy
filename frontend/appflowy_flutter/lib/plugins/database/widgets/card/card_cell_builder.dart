@@ -1,11 +1,12 @@
 import 'package:appflowy/mobile/presentation/database/card/card_content/card_cells/card_cells.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_cache.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/widgets/card/cells/timestamp_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-import '../../application/cell/cell_service.dart';
 import 'cells/card_cell.dart';
 import 'cells/checkbox_card_cell.dart';
 import 'cells/checklist_card_cell.dart';
@@ -24,7 +25,7 @@ class CardCellBuilder<CustomCardData> {
 
   Widget buildCell({
     CustomCardData? cardData,
-    required DatabaseCellContext cellContext,
+    required CellContext cellContext,
     EditableCardNotifier? cellNotifier,
     RowCardRenderHook<CustomCardData>? renderHook,
     required bool hasNotes,
@@ -62,7 +63,7 @@ class CardCellBuilder<CustomCardData> {
 
   Widget _getDesktopCardCellWidget({
     required Key key,
-    required DatabaseCellContext cellContext,
+    required CellContext cellContext,
     required CellControllerBuilder cellControllerBuilder,
     CardCellStyle? style,
     CustomCardData? cardData,
@@ -143,7 +144,7 @@ class CardCellBuilder<CustomCardData> {
 
   Widget _getMobileCardCellWidget({
     required Key key,
-    required DatabaseCellContext cellContext,
+    required CellContext cellContext,
     required CellControllerBuilder cellControllerBuilder,
     CardCellStyle? style,
     CustomCardData? cardData,

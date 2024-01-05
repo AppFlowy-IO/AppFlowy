@@ -4,13 +4,14 @@ import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/tex
 import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/url_cell.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
 import 'package:appflowy/mobile/presentation/database/card/row/cells/mobile_checklist_cell.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_cache.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../application/cell/cell_service.dart';
 import 'accessory/cell_accessory.dart';
 import 'accessory/cell_shortcuts.dart';
 import 'cells/cell_container.dart';
@@ -31,7 +32,7 @@ class GridCellBuilder {
   });
 
   GridCellWidget build(
-    DatabaseCellContext cellContext, {
+    CellContext cellContext, {
     GridCellStyle? style,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
@@ -60,7 +61,7 @@ class GridCellBuilder {
 
   GridCellWidget _getDesktopGridCellWidget(
     ValueKey key,
-    DatabaseCellContext cellContext,
+    CellContext cellContext,
     CellControllerBuilder cellControllerBuilder,
     GridCellStyle? style,
   ) {
@@ -129,7 +130,7 @@ class GridCellBuilder {
 // editable cell/(card's propery value) widget
   GridCellWidget _getMobileCardCellWidget(
     ValueKey key,
-    DatabaseCellContext cellContext,
+    CellContext cellContext,
     CellControllerBuilder cellControllerBuilder,
     GridCellStyle? style,
   ) {
@@ -200,7 +201,7 @@ class MobileRowDetailPageCellBuilder {
   });
 
   GridCellWidget build(
-    DatabaseCellContext cellContext, {
+    CellContext cellContext, {
     GridCellStyle? style,
   }) {
     final cellControllerBuilder = CellControllerBuilder(

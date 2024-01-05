@@ -351,7 +351,7 @@ void showEventDetails({
   required RowCache rowCache,
   required FieldController fieldController,
 }) {
-  final dataController = RowController(
+  final rowController = RowController(
     rowMeta: event.rowMeta,
     viewId: viewId,
     rowCache: rowCache,
@@ -364,7 +364,7 @@ void showEventDetails({
         cellBuilder: GridCellBuilder(
           cellCache: rowCache.cellCache,
         ),
-        rowController: dataController,
+        rowController: rowController,
         fieldController: fieldController,
       );
     },

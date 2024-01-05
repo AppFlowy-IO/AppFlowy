@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
@@ -117,7 +117,7 @@ class EditableRowNotifier {
       : isEditing = ValueNotifier(isEditing);
 
   void bindCell(
-    DatabaseCellContext cellIdentifier,
+    CellContext cellIdentifier,
     EditableCardNotifier notifier,
   ) {
     assert(
@@ -179,8 +179,7 @@ class EditableCellId {
 
   EditableCellId(this.rowId, this.fieldId);
 
-  factory EditableCellId.from(DatabaseCellContext cellIdentifier) =>
-      EditableCellId(
+  factory EditableCellId.from(CellContext cellIdentifier) => EditableCellId(
         cellIdentifier.rowId,
         cellIdentifier.fieldId,
       );

@@ -2,10 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
@@ -340,8 +339,10 @@ class MobileRowDetailPageContentState
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RowDetailBloc>(
-      create: (_) => RowDetailBloc(rowController: rowController)
-        ..add(const RowDetailEvent.initial()),
+      create: (_) => RowDetailBloc(
+        fieldController: fieldController,
+        rowController: rowController,
+      )..add(const RowDetailEvent.initial()),
       child: BlocBuilder<RowDetailBloc, RowDetailState>(
         builder: (context, rowDetailState) {
           return Column(
@@ -365,10 +366,9 @@ class MobileRowDetailPageContentState
                         useRoundedBorder: false,
                       );
 
-                      final cellContext = DatabaseCellContext(
-                        viewId: viewId,
-                        rowMeta: rowController.rowMeta,
-                        fieldInfo: FieldInfo.initial(state.primaryField!),
+                      final cellContext = CellContext(
+                        rowId: rowController.rowId,
+                        fieldId: state.primaryField!.id,
                       );
 
                       return Padding(

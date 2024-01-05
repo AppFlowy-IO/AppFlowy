@@ -310,7 +310,7 @@ class _GridRows extends StatelessWidget {
       viewId: viewId,
       index: index,
       isDraggable: isDraggable,
-      dataController: rowController,
+      rowController: rowController,
       cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
       openDetailPage: (context, cellBuilder) {
         FlowyOverlay.show(

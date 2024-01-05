@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/mobile_cell_container.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -53,7 +52,7 @@ class _MobileGridRowState extends State<MobileGridRow> {
     );
     _rowBloc = RowBloc(
       rowId: widget.rowId,
-      dataController: _rowController,
+      rowController: _rowController,
       viewId: viewId,
     )..add(const RowEvent.initial());
     _cellBuilder = GridCellBuilder(cellCache: rowCache.cellCache);
@@ -64,8 +63,6 @@ class _MobileGridRowState extends State<MobileGridRow> {
     return BlocProvider.value(
       value: _rowBloc,
       child: BlocBuilder<RowBloc, RowState>(
-        // The row need to rebuild when the cell count changes.
-        buildWhen: (p, c) => p.rowSource != c.rowSource,
         builder: (context, state) {
           return Row(
             children: [
@@ -123,8 +120,6 @@ class RowContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (previous, current) =>
-          !listEquals(previous.cells, current.cells),
       builder: (context, state) {
         return SizedBox(
           height: 52,

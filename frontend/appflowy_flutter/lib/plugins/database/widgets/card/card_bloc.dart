@@ -1,4 +1,6 @@
 import 'dart:collection';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/row/row_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -6,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
-import '../../application/cell/cell_service.dart';
 import '../../application/row/row_cache.dart';
 import '../../application/row/row_service.dart';
 
@@ -110,11 +111,11 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   }
 }
 
-List<DatabaseCellContext> _makeCells(
+List<CellContext> _makeCells(
   String? groupFieldId,
   CellContextByFieldId originalCellMap,
 ) {
-  final List<DatabaseCellContext> cells = [];
+  final List<CellContext> cells = [];
   originalCellMap
       .removeWhere((fieldId, cellContext) => !cellContext.isVisible());
   for (final entry in originalCellMap.entries) {
@@ -135,7 +136,7 @@ class RowCardEvent with _$RowCardEvent {
   const factory RowCardEvent.initial() = _InitialRow;
   const factory RowCardEvent.setIsEditing(bool isEditing) = _IsEditing;
   const factory RowCardEvent.didReceiveCells(
-    List<DatabaseCellContext> cells,
+    List<CellContext> cells,
     ChangedReason reason,
   ) = _DidReceiveCells;
   const factory RowCardEvent.didReceiveRowMeta(
@@ -146,13 +147,13 @@ class RowCardEvent with _$RowCardEvent {
 @freezed
 class RowCardState with _$RowCardState {
   const factory RowCardState({
-    required List<DatabaseCellContext> cells,
+    required List<CellContext> cells,
     required bool isEditing,
     ChangedReason? changeReason,
   }) = _RowCardState;
 
   factory RowCardState.initial(
-    List<DatabaseCellContext> cells,
+    List<CellContext> cells,
     bool isEditing,
   ) =>
       RowCardState(

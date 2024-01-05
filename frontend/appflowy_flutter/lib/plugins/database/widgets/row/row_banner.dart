@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cll_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
@@ -169,7 +169,7 @@ class _BannerTitleState extends State<_BannerTitle> {
             autofocus: true,
             cellPadding: EdgeInsets.zero,
           );
-          final cellContext = DatabaseCellContext(
+          final cellContext = CellContext(
             viewId: widget.rowController.viewId,
             rowMeta: widget.rowController.rowMeta,
             fieldInfo: FieldInfo.initial(state.primaryField!),

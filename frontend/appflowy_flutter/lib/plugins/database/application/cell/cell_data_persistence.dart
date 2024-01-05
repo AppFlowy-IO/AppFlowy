@@ -1,4 +1,8 @@
-part of 'cell_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
+import 'package:dartz/dartz.dart';
+
+import 'cell_controller.dart';
+import 'cell_service.dart';
 
 /// Save the cell data to disk
 /// You can extend this class to do custom operations.
@@ -7,16 +11,18 @@ abstract class CellDataPersistence<D> {
 }
 
 class TextCellDataPersistence implements CellDataPersistence<String> {
-  final DatabaseCellContext cellContext;
-  final _cellBackendSvc = CellBackendService();
+  final String viewId;
+  final CellContext cellContext;
 
   TextCellDataPersistence({
+    required this.viewId,
     required this.cellContext,
   });
 
   @override
   Future<Option<FlowyError>> save(String data) async {
-    final fut = _cellBackendSvc.updateCell(
+    final fut = CellBackendService.updateCell(
+      viewId: viewId,
       cellContext: cellContext,
       data: data,
     );

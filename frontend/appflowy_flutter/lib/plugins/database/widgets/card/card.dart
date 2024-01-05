@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
@@ -202,7 +202,7 @@ class _CardContent<CustomCardData> extends StatefulWidget {
 
   final EditableRowNotifier rowNotifier;
   final CardCellBuilder<CustomCardData> cellBuilder;
-  final List<DatabaseCellContext> cells;
+  final List<CellContext> cells;
   final CustomCardData? cardData;
   final RowCardStyleConfiguration styleConfiguration;
   final RowCardRenderHook<CustomCardData>? renderHook;
@@ -251,13 +251,13 @@ class _CardContentState<CustomCardData>
 
   List<Widget> _makeCells(
     BuildContext context,
-    List<DatabaseCellContext> cells,
+    List<CellContext> cells,
   ) {
     final List<Widget> children = [];
     // Remove all the cell listeners.
     widget.rowNotifier.unbind();
 
-    cells.asMap().forEach((int index, DatabaseCellContext cellContext) {
+    cells.asMap().forEach((int index, CellContext cellContext) {
       final isEditing = index == 0 ? widget.rowNotifier.isEditing.value : false;
       final cellNotifier = EditableCardNotifier(isEditing: isEditing);
 
