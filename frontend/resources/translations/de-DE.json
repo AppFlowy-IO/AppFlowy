@@ -9,7 +9,7 @@
   "youCanAlso": "Du kannst auch",
   "and": "und",
   "blockActions": {
-    "addBelowTooltip": "Klicken um etwas unten hinzuzufügen",
+    "addBelowTooltip": "Klicken, um etwas unten hinzuzufügen",
     "addAboveCmd": "Alt+Klick",
     "addAboveMacCmd": "Option+Klick",
     "addAboveTooltip": "oben hinzufügen",
@@ -182,7 +182,7 @@
     "urlCopyAccessory": "Webadresse kopieren."
   },
   "sideBar": {
-    "closeSidebar": "Seitenleiste schließenr",
+    "closeSidebar": "Seitenleiste schließen",
     "openSidebar": "Seitenleiste öffnen",
     "personal": "Persönlich",
     "favorites": "Favoriten",
@@ -548,7 +548,7 @@
       "checklistFieldName": "Checkliste",
       "numberFormat": "Zahlenformat",
       "dateFormat": "Datumsformat",
-      "includeTime": "Zeit einbeziehen",
+      "includeTime": "Zeitangabe",
       "isRange": "Enddatum",
       "dateFormatFriendly": "Monat Tag, Jahr",
       "dateFormatISO": "Jahr-Monat-Tag",
@@ -905,23 +905,31 @@
   "calendar": {
     "menuName": "Kalender",
     "defaultNewCalendarTitle": "Ohne Titel",
+    "newEventButtonTooltip": "Einen neues Ereignis eintragen",
     "navigation": {
       "today": "Heute",
       "jumpToday": "Springe zu Heute",
       "previousMonth": "Vorheriger Monat",
-      "nextMonth": "Nächsten Monat"
+      "nextMonth": "Nächster Monat"
     },
     "settings": {
       "showWeekNumbers": "Wochennummern anzeigen",
       "showWeekends": "Wochenenden anzeigen",
-      "firstDayOfWeek": "Beginnen Sie die Woche am",
+      "firstDayOfWeek": "Wochenstart",
       "layoutDateField": "Layoutkalender von",
+      "changeLayoutDateField": "Layoutfeld ändern",
       "noDateTitle": "Kein Datum",
+      "noDateHint": {
+        "zero": "Ereignisse ohne Datum werden hier angezeigt",
+        "one": "{count} Ereignisse ohne Datum",
+        "other": "{count} Ereignisse ohne Datum"
+      },
+      "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Klicken Sie, um es zum Kalender hinzuzufügen",
-      "name": "Kalenderlayout",
-      "noDateHint": "Außerplanmäßige Ereignisse werden hier angezeigt"
+      "name": "Kalendereinstellungen"
     },
-    "referencedCalendarPrefix": "Sicht von"
+    "referencedCalendarPrefix": "Sicht von",
+    "quickJumpYear": "Spring zu"
   },
   "errorDialog": {
     "title": "AppFlowy-Fehler",
@@ -944,5 +952,254 @@
   "views": {
     "deleteContentTitle": "Möchten Sie den {pageType} wirklich löschen?",
     "deleteContentCaption": "Wenn Sie diesen {pageType} löschen, können Sie ihn aus dem Papierkorb wiederherstellen."
+  },
+  "colors": {
+    "custom": "Individuell",
+    "default": "Standard",
+    "red": "Rot",
+    "orange": "Orange",
+    "yellow": "Gelb",
+    "green": "Grün",
+    "blue": "Blau",
+    "purple": "Lila",
+    "pink": "Pink",
+    "brown": "Braun",
+    "gray": "Grau"
+  },
+  "emoji": {
+    "emojiTab": "Emoji",
+    "search": "Emoji suchen",
+    "noRecent": "Kein neuer Emoji",
+    "noEmojiFound": "Kein Emoji gefunden",
+    "filter": "Filter",
+    "random": "Zufällig",
+    "selectSkinTone": "Hautfarbe auswählen",
+    "remove": "Emoji entfernen",
+    "categories": {
+      "smileys": "Smileys & Emotionen",
+      "people": "Menschen & Körper",
+      "animals": "Tiere & Natur",
+      "food": "Essen & Trinken",
+      "activities": "Aktivitäten",
+      "places": "Reisen & Orte",
+      "objects": "Objekte",
+      "symbols": "Symbole",
+      "flags": "Flaggen",
+      "nature": "Natur",
+      "frequentlyUsed": "Häufig verwendet"
+    },
+    "skinTone": {
+      "default": "Standard",
+      "light": "Hell",
+      "mediumLight": "Mittelhell",
+      "medium": "Mittel",
+      "mediumDark": "Mitteldunkel",
+      "dark": "Dunkel"
+    }
+  },
+  "inlineActions": {
+    "noResults": "Keine Ergebnisse",
+    "pageReference": "Seitenreferenz",
+    "date": "Datum",
+    "reminder": {
+      "groupTitle": "Erinnerung",
+      "shortKeyword": "erinnern"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Das Datums- und Zeitformat in den Einstellungen anpassen",
+    "dateFormat": "Datumsformat",
+    "includeTime": "Inkl. Zeit",
+    "isRange": "Enddatum",
+    "timeFormat": "Zeitformat",
+    "clearDate": "Datum löschen"
+  },
+  "relativeDates": {
+    "yesterday": "Gestern",
+    "today": "Heute",
+    "tomorrow": "Morgen",
+    "oneWeek": "1 Woche"
+  },
+  "notificationHub": {
+    "title": "Benachrichtigungen",
+    "mobile": {
+      "title": "Neuigkeiten"
+    },
+    "emptyTitle": "Leer",
+    "emptyBody": "Keine offenen Benachrichtigungen oder Aktionen. Genießen Sie die Ruhe.",
+    "tabs": {
+      "inbox": "Eingang",
+      "upcoming": "Demnächst"
+    },
+    "actions": {
+      "markAllRead": "Alle als gelesen markieren",
+      "showAll": "Alle",
+      "showUnreads": "Ungelesen"
+    },
+    "filters": {
+      "ascending": "Aufsteigend",
+      "descending": "Absteigend",
+      "groupByDate": "Nach Datum groupieren",
+      "showUnreadsOnly": "Nur ungelesen zeigen",
+      "resetToDefault": "Zurücksetzen"
+    }
+  },
+  "reminderNotification": {
+    "title": "Erinnerung",
+    "message": "Bitte denken Sie daran das hier zu prüfen bevor Sie es vergessen!",
+    "tooltipDelete": "Löschen",
+    "tooltipMarkRead": "Als gelesen markieren",
+    "tooltipMarkUnread": "Als ungelesen markieren"
+  },
+  "findAndReplace": {
+    "find": "Finden",
+    "previousMatch": "Vorheriger Treffer",
+    "nextMatch": "Nächster Treffer",
+    "close": "Schließen",
+    "replace": "Ersetzen",
+    "replaceAll": "Alle ersetzen",
+    "noResult": "Keine Ergebnisse",
+    "caseSensitive": "Groß-/Kleinschreibung beachten"
+  },
+  "error": {
+    "weAreSorry": "Das tut uns leid",
+    "loadingViewError": "Wir haben Schwierigkeiten diese Ansicht zu laden. Bitte prüfen Sie Ihre Internetverbindung, laden die App neu und zögern Sie nicht, das Team zu kontaktieren, falls das Problem weiterhin bestehen sollte."
+  },
+  "editor": {
+    "bold": "Fett",
+    "bulletedList": "Stichpunktliste",
+    "checkbox": "Checkbox",
+    "embedCode": "Eingebetteter Code",
+    "heading1": "Überschrift 1",
+    "heading2": "Überschrift 2",
+    "heading3": "Überschrift 3",
+    "highlight": "Hervorhebung",
+    "color": "Farbe",
+    "image": "Bild",
+    "italic": "Kursiv",
+    "link": "Link",
+    "numberedList": "Nummerierte Liste",
+    "quote": "Zitat",
+    "strikethrough": "Durgestrichen",
+    "text": "Text",
+    "underline": "Unterstrichen",
+    "fontColorDefault": "Standard",
+    "fontColorGray": "Grau",
+    "fontColorBrown": "Braun",
+    "fontColorOrange": "Orange",
+    "fontColorYellow": "Gelb",
+    "fontColorGreen": "Grün",
+    "fontColorBlue": "Blau",
+    "fontColorPurple": "Lila",
+    "fontColorPink": "Pink",
+    "fontColorRed": "Rot",
+    "backgroundColorDefault": "Standardhintergrund",
+    "backgroundColorGray": "Grauer Hintergrund",
+    "backgroundColorBrown": "Brauner Hintergrund",
+    "backgroundColorOrange": "Oranger Hintergrund",
+    "backgroundColorYellow": "Gelber Hintergrund",
+    "backgroundColorGreen": "Grüner Hintergrund",
+    "backgroundColorBlue": "Blauer Hintergrund",
+    "backgroundColorPurple": "Lila Hintergrund",
+    "backgroundColorPink": "Pinker Hintergrund",
+    "backgroundColorRed": "Roter Hintergrund",
+    "done": "Erledigt",
+    "cancel": "Abbrechen",
+    "tint1": "Farbton 1",
+    "tint2": "Farbton 2",
+    "tint3": "Farbton 3",
+    "tint4": "Farbton 4",
+    "tint5": "Farbton 5",
+    "tint6": "Farbton 6",
+    "tint7": "Farbton 7",
+    "tint8": "Farbton 8",
+    "tint9": "Farbton 9",
+    "lightLightTint1": "Lila",
+    "lightLightTint2": "Pink",
+    "lightLightTint3": "Helles Pink",
+    "lightLightTint4": "Orange",
+    "lightLightTint5": "Gelb",
+    "lightLightTint6": "Hellgrün",
+    "lightLightTint7": "Grün",
+    "lightLightTint8": "Aqua",
+    "lightLightTint9": "Blau",
+    "urlHint": "URL",
+    "mobileHeading1": "Überschrift 1",
+    "mobileHeading2": "Überschrift 2",
+    "mobileHeading3": "Überschrift 3",
+    "textColor": "Textfarbe",
+    "backgroundColor": "Hintergrundfarbe",
+    "addYourLink": "Link hinzufügen",
+    "openLink": "Link öffnen",
+    "copyLink": "Link kopieren",
+    "removeLink": "Link entfernen",
+    "editLink": "Link bearbeiten",
+    "linkText": "Text",
+    "linkTextHint": "Bitte Text eingeben",
+    "linkAddressHint": "Bitte URL eingeben",
+    "highlightColor": "Hervorhebungsfarbe",
+    "clearHighlightColor": "Hervorhebungsfarbe löschen",
+    "customColor": "Eigene Farbe",
+    "hexValue": "Hex-Wert",
+    "opacity": "Transparenz",
+    "resetToDefaultColor": "Auf Standardfarben zurücksetzen",
+    "ltr": "LTR (Links nach rechts)",
+    "rtl": "RTL (Rechts nach lins)",
+    "auto": "Auto",
+    "cut": "Ausschneiden",
+    "copy": "Kopieren",
+    "paste": "Einfügen",
+    "find": "Finden",
+    "previousMatch": "Vorheriger Treffer",
+    "nextMatch": "Nächster Treffer",
+    "closeFind": "Schließen",
+    "replace": "Ersetzen",
+    "replaceAll": "Alle ersetzen",
+    "regex": "Regulärer Ausdruck (Regex)",
+    "caseSensitive": "Groß-/Kleinschreibung beachten",
+    "uploadImage": "Bild hochladen",
+    "urlImage": "Bild-URL",
+    "incorrectLink": "Defekter Link",
+    "upload": "Hochladen",
+    "chooseImage": "Bild auswählen",
+    "loading": "Lädt",
+    "imageLoadFailed": "Bild konnte nicht geladen werden",
+    "divider": "Trenner",
+    "table": "Tabelle",
+    "colAddBefore": "Davor einfügen",
+    "rowAddBefore": "Davor einfügen",
+    "colAddAfter": "Danach einfügen",
+    "rowAddAfter": "Danach einfügen",
+    "colRemove": "Enternen",
+    "rowRemove": "Entfernen",
+    "colDuplicate": "Duplikat",
+    "rowDuplicate": "Duplikat",
+    "colClear": "Inhalt löschen",
+    "rowClear": "Inhalt löschen",
+    "slashPlaceHolder": "'/'-Taste, um einen Block einzufügen oder Text eingeben",
+    "typeSomething": "Etwas eingeben..."
+  },
+  "favorite": {
+    "noFavorite": "Keine Favoritenseite",
+    "noFavoriteHintText": "Nach links wischen, um es den Favoriten hinzuzufügen"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "'/'-Taste, um einen Block einzufügen oder Text eingeben"
+  },
+  "blockPlaceholders": {
+    "todoList": "To-do",
+    "bulletList": "Liste",
+    "numberList": "Liste",
+    "quote": "Zitat",
+    "heading": "Überschrift {}"
+  },
+  "titleBar": {
+    "pageIcon": "Seitensymbol",
+    "language": "Sprache",
+    "font": "Schrift",
+    "actions": "Aktionen",
+    "date": "Datum",
+    "addField": "Ein Feld hinzufügen",
+    "userIcon": "Nutzerbild"
   }
 }

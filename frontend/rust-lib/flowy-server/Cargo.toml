@@ -23,7 +23,7 @@ anyhow.workspace = true
 uuid.workspace = true
 chrono = { workspace = true,  default-features = false, features = ["clock", "serde"] }
 collab = { version = "0.1.0" }
-collab-plugins = { version = "0.1.0"}
+collab-plugins = { version = "0.1.0", features = ["postgres_plugin"] }
 collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
 hex = "0.4.3"

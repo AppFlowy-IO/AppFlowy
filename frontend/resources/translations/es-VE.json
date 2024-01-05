@@ -186,7 +186,11 @@
     "closeSidebar": "Cerrar panel lateral",
     "openSidebar": "Abrir panel lateral",
     "personal": "Personal",
-    "favorites": "Favoritos"
+    "favorites": "Favoritos",
+    "clickToHidePersonal": "Haga clic para ocultar la sección personal",
+    "clickToHideFavorites": "Haga clic para ocultar la sección de favoritos",
+    "addAPage": "Añadir una página",
+    "recent": "Reciente"
   },
   "notifications": {
     "export": {
@@ -201,7 +205,9 @@
     "editContact": "Editar Contacto"
   },
   "button": {
+    "ok": "OK",
     "done": "Hecho",
+    "cancel": "Cancelar",
     "signIn": "Ingresar",
     "signOut": "Salir",
     "complete": "Completar",
@@ -213,11 +219,20 @@
     "discard": "Desechar",
     "replace": "Reemplazar",
     "insertBelow": "Insertar a continuación",
+    "insertAbove": "Insertar arriba",
     "upload": "Subir",
     "edit": "Editar",
     "delete": "Borrar",
     "duplicate": "Duplicar",
     "putback": "Volver",
+    "update": "Actualizar",
+    "share": "Compartir",
+    "removeFromFavorites": "Quitar de favoritos",
+    "addToFavorites": "Añadir a favoritos",
+    "rename": "Renombrar",
+    "helpCenter": "Centro de ayuda",
+    "add": "Añadir",
+    "yes": "Si",
     "Done": "Hecho",
     "Cancel": "Cancelar",
     "OK": "OK"
@@ -249,7 +264,10 @@
       "language": "Lenguaje",
       "user": "Usuario",
       "files": "archivos",
+      "notifications": "Notificaciones",
       "open": "Abrir ajustes",
+      "logout": "Cerrar session",
+      "logoutPrompt": "¿Estás seguro de cerrar sesión?",
       "supabaseSetting": "Ajuste de base superior"
     },
     "appearance": {
