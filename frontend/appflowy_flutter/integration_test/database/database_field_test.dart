@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/select/select_option.dart';
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/select/select_option.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
