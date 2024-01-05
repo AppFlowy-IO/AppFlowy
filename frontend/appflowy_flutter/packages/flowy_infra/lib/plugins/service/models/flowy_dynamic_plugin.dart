@@ -119,13 +119,32 @@ class FlowyDynamicPlugin {
             event is File && p.basename(event.path).contains(darkExtension))
         .first as File;
 
+    late final FlowyColorScheme lightTheme;
+    late final FlowyColorScheme darkTheme;
+
+    try {
+      lightTheme = FlowyColorScheme.fromJson(
+          await jsonDecode(await light.readAsString()));
+    } catch (e) {
+      throw PluginCompilationException(
+        'The light theme json file is not valid.',
+      );
+    }
+
+    try {
+      darkTheme = FlowyColorScheme.fromJson(
+          await jsonDecode(await dark.readAsString()));
+    } catch (e) {
+      throw PluginCompilationException(
+        'The dark theme json file is not valid.',
+      );
+    }
+
     final theme = AppTheme(
       themeName: name,
       builtIn: false,
-      lightTheme: FlowyColorScheme.fromJson(
-          await jsonDecode(await light.readAsString())),
-      darkTheme: FlowyColorScheme.fromJson(
-          await jsonDecode(await dark.readAsString())),
+      lightTheme: lightTheme,
+      darkTheme: darkTheme,
     );
 
     return FlowyDynamicPlugin._(
