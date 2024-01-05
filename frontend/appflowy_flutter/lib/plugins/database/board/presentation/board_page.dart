@@ -343,7 +343,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       rowId: rowMeta.id,
     );
 
-    final dataController = RowController(
+    final rowController = RowController(
       rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
@@ -354,8 +354,8 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       context: context,
       builder: (_) => RowDetailPage(
         fieldController: fieldController,
-        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-        rowController: dataController,
+        cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
+        rowController: rowController,
       ),
     );
   }

@@ -1,9 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -28,7 +27,7 @@ class MobileRowPropertyList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
-        final List<DatabaseCellContext> visibleCells = state.visibleCells
+        final List<CellContext> visibleCells = state.visibleCells
             .where((element) => !element.fieldInfo.field.isPrimary)
             .toList();
 
@@ -58,7 +57,7 @@ class _PropertyCell extends StatefulWidget {
     required this.cellBuilder,
   });
 
-  final DatabaseCellContext cellContext;
+  final CellContext cellContext;
   final FieldController fieldController;
   final MobileRowDetailPageCellBuilder cellBuilder;
 

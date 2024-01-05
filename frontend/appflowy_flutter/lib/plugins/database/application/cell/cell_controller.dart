@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/field_listener.dart';
 import 'package:appflowy/plugins/database/application/row/row_meta_listener.dart';
@@ -10,12 +11,25 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../field/type_option/type_option_data_parser.dart';
+import 'cell_cache.dart';
+import 'cell_data_loader.dart';
+import 'cell_data_persistence.dart';
 import 'cell_listener.dart';
-import 'cell_service.dart';
 
-/// IGridCellController is used to manipulate the cell and receive notifications.
+part 'cell_controller.freezed.dart';
+
+@freezed
+class CellContext with _$CellContext {
+  const factory CellContext({
+    required String fieldId,
+    required RowId rowId,
+  }) = _DatabaseCellContext;
+}
+
+/// [CellController] is used to manipulate the cell and receive notifications.
 /// * Read/Write cell data
 /// * Listen on field/cell notifications.
 ///
@@ -24,9 +38,10 @@ import 'cell_service.dart';
 ///
 // ignore: must_be_immutable
 class CellController<T, D> extends Equatable {
-  DatabaseCellContext _cellContext;
+  final String viewId;
+  final CellContext _cellContext;
+  final FieldController _fieldController;
   final CellMemCache _cellCache;
-  final CellCacheKey _cacheKey;
   final CellDataLoader<T> _cellDataLoader;
   final CellDataPersistence<D> _cellDataPersistence;
 
@@ -40,11 +55,9 @@ class CellController<T, D> extends Equatable {
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
 
-  String get viewId => _cellContext.viewId;
-
   RowId get rowId => _cellContext.rowId;
 
-  String get fieldId => _cellContext.fieldInfo.id;
+  String get fieldId => _cellContext.fieldId;
 
   FieldInfo get fieldInfo => _cellContext.fieldInfo;
 
@@ -53,24 +66,23 @@ class CellController<T, D> extends Equatable {
   String? get emoji => _cellContext.emoji;
 
   CellController({
-    required DatabaseCellContext cellContext,
+    required this.viewId,
+    required FieldController fieldController,
+    required CellContext cellContext,
     required CellMemCache cellCache,
     required CellDataLoader<T> cellDataLoader,
     required CellDataPersistence<D> cellDataPersistence,
-  })  : _cellContext = cellContext,
+  })  : _fieldController = fieldController,
+        _cellContext = cellContext,
         _cellCache = cellCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
         _rowMetaListener = RowMetaListener(cellContext.rowId),
-        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
-        _cacheKey = CellCacheKey(
-          rowId: cellContext.rowId,
-          fieldId: cellContext.fieldInfo.id,
-        ) {
-    _cellDataNotifier = CellDataNotifier(value: _cellCache.get(_cacheKey));
+        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId) {
+    _cellDataNotifier = CellDataNotifier(value: _cellCache.get(cellContext));
     _cellListener = CellListener(
       rowId: cellContext.rowId,
-      fieldId: cellContext.fieldInfo.id,
+      fieldId: cellContext.fieldId,
     );
 
     /// 1.Listen on user edit event and load the new cell data if needed.
@@ -93,9 +105,6 @@ class CellController<T, D> extends Equatable {
         /// For example:
         ///   ￥12 -> $12
         if (_cellDataLoader.reloadOnFieldChanged) {
-          _cellContext = _cellContext.copyWith(
-            fieldInfo: _cellContext.fieldInfo.copyWith(field: fieldPB),
-          );
           _loadData();
         }
         _onCellFieldChanged?.call();
@@ -106,7 +115,7 @@ class CellController<T, D> extends Equatable {
     if (_cellContext.fieldInfo.field.isPrimary) {
       _rowMetaListener?.start(
         callback: (newRowMeta) {
-          _cellContext = _cellContext.copyWith(rowMeta: newRowMeta);
+          // YAY callback use the newRowMeta?
           _onRowMetaChanged?.call();
         },
       );
@@ -138,7 +147,7 @@ class CellController<T, D> extends Equatable {
   /// The cell data will be read from the Cache first, and load from disk if it does not exist.
   /// You can set [loadIfNotExist] to false (default is true) to disable loading the cell data.
   T? getCellData({bool loadIfNotExist = true}) {
-    final data = _cellCache.get(_cacheKey);
+    final data = _cellCache.get(_cellContext);
     if (data == null && loadIfNotExist) {
       _loadData();
     }
@@ -182,9 +191,9 @@ class CellController<T, D> extends Equatable {
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       _cellDataLoader.loadData().then((data) {
         if (data != null) {
-          _cellCache.insert(_cacheKey, DatabaseCell(object: data));
+          _cellCache.insert(_cellContext, DatabaseCell(object: data));
         } else {
-          _cellCache.remove(_cacheKey);
+          _cellCache.remove(_cellContext);
         }
         _cellDataNotifier?.value = data;
       });
@@ -210,8 +219,9 @@ class CellController<T, D> extends Equatable {
 
   @override
   List<Object> get props => [
-        _cellCache.get(_cacheKey) ?? "",
-        _cellContext.rowId + _cellContext.fieldInfo.id,
+        _cellCache.get(_cellContext) ?? "",
+        _cellContext.rowId,
+        _cellContext.fieldId,
       ];
 }
 

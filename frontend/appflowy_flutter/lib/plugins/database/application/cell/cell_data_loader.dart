@@ -1,4 +1,10 @@
-part of 'cell_service.dart';
+import 'dart:convert';
+
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+
+import 'cell_controller.dart';
+import 'cell_service.dart';
 
 abstract class IGridCellDataConfig {
   // The cell data will reload if it receives the field's change notification.
@@ -10,20 +16,23 @@ abstract class CellDataParser<T> {
 }
 
 class CellDataLoader<T> {
-  final CellBackendService service = CellBackendService();
-  final DatabaseCellContext cellContext;
+  final String viewId;
+  final CellContext cellContext;
   final CellDataParser<T> parser;
   final bool reloadOnFieldChanged;
 
   CellDataLoader({
+    required this.viewId,
     required this.cellContext,
     required this.parser,
     this.reloadOnFieldChanged = false,
   });
 
   Future<T?> loadData() {
-    final fut = service.getCell(cellContext: cellContext);
-    return fut.then(
+    return CellBackendService.getCell(
+      viewId: viewId,
+      cellContext: cellContext,
+    ).then(
       (result) => result.fold(
         (CellPB cell) {
           try {

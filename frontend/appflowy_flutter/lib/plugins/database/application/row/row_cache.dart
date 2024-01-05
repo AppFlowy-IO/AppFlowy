@@ -1,13 +1,14 @@
 import 'dart:collection';
 
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../cell/cell_service.dart';
+import '../cell/cell_cache.dart';
+import '../cell/cell_controller.dart';
+import '../defines.dart';
 import 'row_list.dart';
 import 'row_service.dart';
 
@@ -57,8 +58,8 @@ class RowCache {
         _changedNotifier = RowChangesetNotifier(),
         _rowLifeCycle = rowLifeCycle,
         _fieldDelegate = fieldsDelegate {
-    // Listen on the changed of the fields. If the fields changed, we need to
-    // clear the cell cache with the given field id.
+    // Listen to field changes. If a field is deleted, we can safely remove the
+    // cells corresponding to that field from our cache.
     fieldsDelegate.onFieldsChanged((fieldInfos) {
       for (final fieldInfo in fieldInfos) {
         _cellMemCache.removeCellWithFieldId(fieldInfo.id);
@@ -142,7 +143,7 @@ class RowCache {
     final List<RowMetaPB> updatedList = [];
     for (final updatedRow in updatedRows) {
       for (final fieldId in updatedRow.fieldIds) {
-        final key = CellCacheKey(
+        final key = CellContext(
           fieldId: fieldId,
           rowId: updatedRow.rowId,
         );
@@ -217,11 +218,7 @@ class RowCache {
   }
 
   Future<void> _loadRow(RowId rowId) async {
-    final payload = RowIdPB.create()
-      ..viewId = viewId
-      ..rowId = rowId;
-
-    final result = await DatabaseEventGetRowMeta(payload).send();
+    final result = await RowBackendService.getRow(viewId: viewId, rowId: rowId);
     result.fold(
       (rowMetaPB) {
         final rowInfo = _rowList.get(rowMetaPB.id);
@@ -242,19 +239,6 @@ class RowCache {
       },
       (err) => Log.error(err),
     );
-  }
-
-  CellContextByFieldId _makeCells(RowMetaPB rowMeta) {
-    // ignore: prefer_collection_literals
-    final cellContextMap = CellContextByFieldId();
-    for (final fieldInfo in _fieldDelegate.fieldInfos) {
-      cellContextMap[fieldInfo.id] = DatabaseCellContext(
-        rowMeta: rowMeta,
-        viewId: viewId,
-        fieldInfo: fieldInfo,
-      );
-    }
-    return cellContextMap;
   }
 
   RowInfo buildGridRow(RowMetaPB rowMetaPB) {

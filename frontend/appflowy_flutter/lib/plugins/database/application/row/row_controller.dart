@@ -1,6 +1,8 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter/material.dart';
-import '../cell/cell_service.dart';
+
+import '../cell/cell_cache.dart';
+import '../defines.dart';
 import 'row_cache.dart';
 
 typedef OnRowChanged = void Function(CellContextByFieldId, ChangedReason);

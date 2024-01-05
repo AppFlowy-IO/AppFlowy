@@ -1,4 +1,6 @@
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/defines.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
@@ -10,16 +12,18 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
+  final FieldController fieldController;
   final RowController rowController;
 
   RowDetailBloc({
+    required this.fieldController,
     required this.rowController,
   }) : super(RowDetailState.initial(rowController.loadData())) {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
-            await _startListening();
+          initial: () {
+            _startListening();
           },
           didReceiveCellDatas: (visibleCells, allCells, numHiddenFields) {
             emit(
@@ -38,36 +42,23 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             result.fold((l) {}, (err) => Log.error(err));
           },
           toggleFieldVisibility: (fieldId) async {
-            final fieldInfo = state.allCells
-                .where((cellContext) => cellContext.fieldId == fieldId)
-                .first
-                .fieldInfo;
-            final fieldVisibility =
-                fieldInfo.visibility == FieldVisibility.AlwaysShown
-                    ? FieldVisibility.AlwaysHidden
-                    : FieldVisibility.AlwaysShown;
-            final result =
-                await FieldSettingsBackendService(viewId: rowController.viewId)
-                    .updateFieldSettings(
-              fieldId: fieldId,
-              fieldVisibility: fieldVisibility,
-            );
-            result.fold(
-              (l) {},
-              (err) => Log.error(err),
-            );
+            await _toggleFieldVisibility(fieldId, emit);
           },
           reorderField: (fromIndex, toIndex) async {
             await _reorderField(fromIndex, toIndex, emit);
           },
           toggleHiddenFieldVisibility: () {
             final showHiddenFields = !state.showHiddenFields;
-            final visibleCells = List<DatabaseCellContext>.from(state.allCells);
-            visibleCells.retainWhere(
-              (cellContext) =>
-                  !cellContext.fieldInfo.isPrimary &&
-                  cellContext.isVisible(showHiddenFields: showHiddenFields),
-            );
+            final visibleCells = List<CellContext>.from(state.allCells);
+            visibleCells.retainWhere((cellContext) {
+              final fieldInfo = fieldController.getField(cellContext.fieldId);
+              if (fieldInfo == null) {
+                return false;
+              }
+              return !fieldInfo.isPrimary &&
+                  (fieldInfo.visibility == FieldVisibility.AlwaysHidden ||
+                      showHiddenFields);
+            });
             emit(
               state.copyWith(
                 showHiddenFields: showHiddenFields,
@@ -86,24 +77,29 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     return super.close();
   }
 
-  Future<void> _startListening() async {
+  void _startListening() {
     rowController.addListener(
       onRowChanged: (cellMap, reason) {
         if (isClosed) {
           return;
         }
-        final allCells = cellMap.values.toList();
+        final allCellContext = cellMap.values.toList();
         int numHiddenFields = 0;
-        final visibleCells = <DatabaseCellContext>[];
-        for (final cell in allCells) {
-          final isPrimary = cell.fieldInfo.isPrimary;
+        final visibleCells = <CellContext>[];
 
-          if (cell.isVisible(showHiddenFields: state.showHiddenFields) &&
-              !isPrimary) {
-            visibleCells.add(cell);
+        for (final cellContext in allCellContext) {
+          final fieldInfo = fieldController.getField(cellContext.fieldId);
+          if (fieldInfo == null) {
+            continue;
+          }
+          final isHidden = fieldInfo.visibility == FieldVisibility.AlwaysHidden;
+          final isPrimary = fieldInfo.isPrimary;
+
+          if (!isHidden || state.showHiddenFields) {
+            visibleCells.add(cellContext);
           }
 
-          if (!cell.isVisible() && !isPrimary) {
+          if (isHidden && !isPrimary) {
             numHiddenFields++;
           }
         }
@@ -111,12 +107,29 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
         add(
           RowDetailEvent.didReceiveCellDatas(
             visibleCells,
-            allCells,
+            allCellContext,
             numHiddenFields,
           ),
         );
       },
     );
+  }
+
+  Future<void> _toggleFieldVisibility(
+    String fieldId,
+    Emitter<RowDetailState> emit,
+  ) async {
+    final fieldInfo = fieldController.getField(fieldId)!;
+    final fieldVisibility = fieldInfo.visibility == FieldVisibility.AlwaysShown
+        ? FieldVisibility.AlwaysHidden
+        : FieldVisibility.AlwaysShown;
+    final result =
+        await FieldSettingsBackendService(viewId: rowController.viewId)
+            .updateFieldSettings(
+      fieldId: fieldId,
+      fieldVisibility: fieldVisibility,
+    );
+    result.fold((l) {}, (err) => Log.error(err));
   }
 
   Future<void> _reorderField(
@@ -130,7 +143,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     final fromId = state.visibleCells[fromIndex].fieldId;
     final toId = state.visibleCells[toIndex].fieldId;
 
-    final cells = List<DatabaseCellContext>.from(state.visibleCells);
+    final cells = List<CellContext>.from(state.visibleCells);
     cells.insert(toIndex, cells.removeAt(fromIndex));
     emit(state.copyWith(visibleCells: cells));
 
@@ -145,36 +158,48 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
+  /// Event to start listeners and load row data
   const factory RowDetailEvent.initial() = _Initial;
+
+  /// Triggered by listeners to update row data
+  const factory RowDetailEvent.didReceiveCellDatas(
+    List<CellContext> visibleCells,
+    List<CellContext> allCells,
+    int numHiddenFields,
+  ) = _DidReceiveCellDatas;
+
+  /// Used to delete a field
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
+
+  /// Used to show/hide a field
   const factory RowDetailEvent.toggleFieldVisibility(String fieldId) =
       _ToggleFieldVisibility;
+
+  /// Used to reorder a field
   const factory RowDetailEvent.reorderField(
     int fromIndex,
     int toIndex,
   ) = _ReorderField;
+
+  /// Used to hide/show the hidden fields in the row detail page
   const factory RowDetailEvent.toggleHiddenFieldVisibility() =
       _ToggleHiddenFieldVisibility;
-  const factory RowDetailEvent.didReceiveCellDatas(
-    List<DatabaseCellContext> visibleCells,
-    List<DatabaseCellContext> allCells,
-    int numHiddenFields,
-  ) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required List<DatabaseCellContext> visibleCells,
-    required List<DatabaseCellContext> allCells,
+    required List<CellContext> visibleCells,
+    required List<CellContext> allCells,
     required bool showHiddenFields,
     required int numHiddenFields,
   }) = _RowDetailState;
 
   factory RowDetailState.initial(CellContextByFieldId cellByFieldId) {
+    // TODO(richard): empty initial state
     final allCells = cellByFieldId.values.toList();
     int numHiddenFields = 0;
-    final visibleCells = <DatabaseCellContext>[];
+    final visibleCells = <CellContext>[];
     for (final cell in allCells) {
       final isVisible = cell.isVisible();
       final isPrimary = cell.fieldInfo.isPrimary;

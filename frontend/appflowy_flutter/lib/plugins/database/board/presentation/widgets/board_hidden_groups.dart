@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
@@ -460,7 +460,7 @@ class HiddenGroupPopupItem extends StatelessWidget {
     required this.renderHook,
   });
 
-  final DatabaseCellContext cellContext;
+  final CellContext cellContext;
   final FieldInfo primaryField;
   final RowController rowController;
   final CardCellBuilder cellBuilder;

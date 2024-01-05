@@ -50,7 +50,6 @@ class DatabaseViewCache {
     _rowCache = RowCache(
       viewId: viewId,
       fieldsDelegate: depsImpl,
-      rowLifeCycle: depsImpl,
     );
 
     _databaseViewListener.start(

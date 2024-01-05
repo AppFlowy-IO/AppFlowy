@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/card/cells/card_cell.dart';
@@ -20,7 +20,7 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
 
   final CardCellBuilder<CustomCardData> cellBuilder;
 
-  final List<DatabaseCellContext> cells;
+  final List<CellContext> cells;
   final RowCardRenderHook<CustomCardData>? renderHook;
   final CustomCardData? cardData;
   final RowCardStyleConfiguration styleConfiguration;
@@ -38,11 +38,11 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
 
   List<Widget> _makeCells(
     BuildContext context,
-    List<DatabaseCellContext> cells,
+    List<CellContext> cells,
   ) {
     final List<Widget> children = [];
 
-    cells.asMap().forEach((int index, DatabaseCellContext cellContext) {
+    cells.asMap().forEach((int index, CellContext cellContext) {
       Widget child;
       if (index == 0) {
         // The title cell UI is different with a normal text cell.
@@ -50,7 +50,6 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
         child = _buildTitleCell(cellContext);
       } else {
         child = Padding(
-          key: cellContext.key(),
           padding: styleConfiguration.cellPadding,
           child: cellBuilder.buildCell(
             cellContext: cellContext,
@@ -67,7 +66,7 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
   }
 
   Widget _buildTitleCell(
-    DatabaseCellContext cellContext,
+    CellContext cellContext,
   ) {
     final renderHook = RowCardRenderHook<String>();
     renderHook.addTextCellHook((cellData, cardData, context) {
@@ -96,7 +95,6 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
     });
 
     return Padding(
-      key: cellContext.key(),
       padding: styleConfiguration.cellPadding,
       child: CardCellBuilder<String>(cellBuilder.cellCache).buildCell(
         cellContext: cellContext,

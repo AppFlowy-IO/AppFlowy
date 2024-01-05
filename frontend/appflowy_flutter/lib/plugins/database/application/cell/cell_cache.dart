@@ -1,22 +1,12 @@
-part of 'cell_service.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy_backend/log.dart';
 
-typedef CellContextByFieldId = LinkedHashMap<String, DatabaseCellContext>;
+import 'cell_controller.dart';
 
 class DatabaseCell {
   dynamic object;
   DatabaseCell({
     required this.object,
-  });
-}
-
-/// Use to index the cell in the grid.
-/// We use [fieldId + rowId] to identify the cell.
-class CellCacheKey {
-  final String fieldId;
-  final RowId rowId;
-  CellCacheKey({
-    required this.fieldId,
-    required this.rowId,
   });
 }
 
@@ -37,29 +27,29 @@ class CellMemCache {
     _cellByFieldId.remove(fieldId);
   }
 
-  void remove(CellCacheKey key) {
-    final map = _cellByFieldId[key.fieldId];
+  void remove(CellContext context) {
+    final map = _cellByFieldId[context.fieldId];
     if (map != null) {
-      map.remove(key.rowId);
+      map.remove(context.rowId);
     }
   }
 
-  void insert<T extends DatabaseCell>(CellCacheKey key, T value) {
-    var map = _cellByFieldId[key.fieldId];
+  void insert<T extends DatabaseCell>(CellContext context, T value) {
+    var map = _cellByFieldId[context.fieldId];
     if (map == null) {
-      _cellByFieldId[key.fieldId] = {};
-      map = _cellByFieldId[key.fieldId];
+      _cellByFieldId[context.fieldId] = {};
+      map = _cellByFieldId[context.fieldId];
     }
 
-    map![key.rowId] = value.object;
+    map![context.rowId] = value.object;
   }
 
-  T? get<T>(CellCacheKey key) {
-    final map = _cellByFieldId[key.fieldId];
+  T? get<T>(CellContext context) {
+    final map = _cellByFieldId[context.fieldId];
     if (map == null) {
       return null;
     } else {
-      final value = map[key.rowId];
+      final value = map[context.rowId];
       if (value is T) {
         return value;
       } else {

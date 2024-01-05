@@ -54,7 +54,7 @@ class GridTestContext {
 
     final rowBloc = RowBloc(
       viewId: rowInfo.viewId,
-      dataController: rowDataController,
+      rowController: rowDataController,
       rowId: rowInfo.rowMeta.id,
     )..add(const RowEvent.initial());
     await gridResponseFuture();

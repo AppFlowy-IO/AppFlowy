@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -82,7 +81,7 @@ class CalendarEventEditorBloc
 class CalendarEventEditorEvent with _$CalendarEventEditorEvent {
   const factory CalendarEventEditorEvent.initial() = _Initial;
   const factory CalendarEventEditorEvent.didReceiveCellDatas(
-    List<DatabaseCellContext> cells,
+    List<CellContext> cells,
   ) = _DidReceiveCellDatas;
   const factory CalendarEventEditorEvent.delete() = _Delete;
 }
@@ -90,7 +89,7 @@ class CalendarEventEditorEvent with _$CalendarEventEditorEvent {
 @freezed
 class CalendarEventEditorState with _$CalendarEventEditorState {
   const factory CalendarEventEditorState({
-    required List<DatabaseCellContext> cells,
+    required List<CellContext> cells,
   }) = _CalendarEventEditorState;
 
   factory CalendarEventEditorState.initial() =>
