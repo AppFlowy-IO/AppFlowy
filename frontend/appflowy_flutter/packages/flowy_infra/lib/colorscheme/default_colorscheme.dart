@@ -85,7 +85,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           shader1: _darkShader1,
           shader2: _darkShader2,
           shader3: _darkShader3,
-          shader4: const Color(0xff7C8CA5),
+          shader4: const Color(0xff505469),
           shader5: _darkShader5,
           shader6: _darkShader6,
           shader7: _white,

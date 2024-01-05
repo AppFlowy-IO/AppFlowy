@@ -30,7 +30,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::UpdateFieldType, switch_to_field_handler)
         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
         .event(DatabaseEvent::MoveField, move_field_handler)
-        .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
         .event(DatabaseEvent::CreateField, create_field_handler)
         // Row
         .event(DatabaseEvent::CreateRow, create_row_handler)
@@ -174,18 +173,9 @@ pub enum DatabaseEvent {
   #[event(input = "MoveFieldPayloadPB")]
   MoveField = 22,
 
-  /// [TypeOptionPathPB] event is used to get the FieldTypeOption data for a specific field type.
-  ///
-  /// Check out the [TypeOptionPB] for more details. If the [FieldTypeOptionData] does exist
-  /// for the target type, the [TypeOptionBuilder] will create the default data for that type.
-  ///
-  /// Return the [TypeOptionPB] if there are no errors.
-  #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
-  GetTypeOption = 23,
-
   /// [CreateField] event is used to create a new field with an optional
   /// TypeOptionData.
-  #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
+  #[event(input = "CreateFieldPayloadPB", output = "FieldPB")]
   CreateField = 24,
 
   #[event(input = "DatabaseViewIdPB", output = "FieldPB")]

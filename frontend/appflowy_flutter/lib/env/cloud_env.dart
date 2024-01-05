@@ -70,23 +70,16 @@ Future<AuthenticatorType> getAuthenticatorType() async {
 /// AppFlowy Cloud or Supabase configuration is valid.
 /// Returns `false` otherwise.
 bool get isAuthEnabled {
-  // Only enable supabase in release and develop mode.
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    final env = getIt<AppFlowyCloudSharedEnv>();
-    if (env.authenticatorType == AuthenticatorType.supabase) {
-      return env.supabaseConfig.isValid;
-    }
-
-    if (env.authenticatorType == AuthenticatorType.appflowyCloud) {
-      return env.appflowyCloudConfig.isValid;
-    }
-
-    return false;
-  } else {
-    return false;
+  final env = getIt<AppFlowyCloudSharedEnv>();
+  if (env.authenticatorType == AuthenticatorType.supabase) {
+    return env.supabaseConfig.isValid;
   }
+
+  if (env.authenticatorType == AuthenticatorType.appflowyCloud) {
+    return env.appflowyCloudConfig.isValid;
+  }
+
+  return false;
 }
 
 /// Checks if Supabase is enabled.
@@ -99,34 +92,12 @@ bool get isAuthEnabled {
 /// if the application is in release or develop mode and the current cloud type
 /// is `CloudType.supabase`. Otherwise, it returns `false`.
 bool get isSupabaseEnabled {
-  // Only enable supabase in release and develop mode.
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    return currentCloudType() == AuthenticatorType.supabase;
-  } else {
-    return false;
-  }
+  return currentCloudType() == AuthenticatorType.supabase;
 }
 
 /// Determines if AppFlowy Cloud is enabled.
-///
-/// This getter assesses if AppFlowy Cloud should be enabled based on the
-/// current integration mode and cloud type setting.
-///
-/// Returns:
-/// A boolean value indicating whether AppFlowy Cloud is enabled. It returns
-/// `true` if the application is in release or develop mode and the current
-/// cloud type is `CloudType.appflowyCloud`. Otherwise, it returns `false`.
 bool get isAppFlowyCloudEnabled {
-  // Only enable appflowy cloud in release and develop mode.
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    return currentCloudType() == AuthenticatorType.appflowyCloud;
-  } else {
-    return false;
-  }
+  return currentCloudType() == AuthenticatorType.appflowyCloud;
 }
 
 enum AuthenticatorType {
@@ -134,7 +105,7 @@ enum AuthenticatorType {
   supabase,
   appflowyCloud;
 
-  bool get isEnabled => this != AuthenticatorType.local;
+  bool get isLocal => this == AuthenticatorType.local;
   int get value {
     switch (this) {
       case AuthenticatorType.local:
@@ -190,8 +161,12 @@ class AppFlowyCloudSharedEnv {
     if (Env.enableCustomCloud) {
       // Use the custom cloud configuration.
       final cloudType = await getAuthenticatorType();
-      final appflowyCloudConfig = await getAppFlowyCloudConfig();
-      final supabaseCloudConfig = await getSupabaseCloudConfig();
+      final appflowyCloudConfig = cloudType.isLocal
+          ? AppFlowyCloudConfiguration.defaultConfig()
+          : await getAppFlowyCloudConfig();
+      final supabaseCloudConfig = cloudType.isLocal
+          ? SupabaseConfiguration.defaultConfig()
+          : await getSupabaseCloudConfig();
 
       return AppFlowyCloudSharedEnv(
         authenticatorType: cloudType,
@@ -212,6 +187,13 @@ class AppFlowyCloudSharedEnv {
         supabaseConfig: SupabaseConfiguration.defaultConfig(),
       );
     }
+  }
+
+  @override
+  String toString() {
+    return 'authenticator: $_authenticatorType\n'
+        'appflowy: ${appflowyCloudConfig.toJson()}\n'
+        'supabase: ${supabaseConfig.toJson()})\n';
   }
 }
 

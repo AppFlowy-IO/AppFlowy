@@ -21,8 +21,8 @@ impl SnapshotPersistence for SnapshotDBImpl {
       Some(user_session) => user_session
         .db_pool(uid)
         .and_then(|pool| Ok(pool.get()?))
-        .and_then(|conn| {
-          CollabSnapshotTableSql::get_all_snapshots(object_id, &conn)
+        .and_then(|mut conn| {
+          CollabSnapshotTableSql::get_all_snapshots(object_id, &mut conn)
             .map(|rows| rows.into_iter().map(|row| row.into()).collect())
         })
         .unwrap_or_else(|_| vec![]),
@@ -43,7 +43,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
         .upgrade()
         .and_then(|user_session| user_session.db_pool(uid).ok())
       {
-        let conn = pool
+        let mut conn = pool
           .get()
           .map_err(|e| PersistenceError::Internal(e.into()))?;
 
@@ -58,7 +58,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
             timestamp: timestamp(),
             data: snapshot_data,
           },
-          &conn,
+          &mut conn,
         )
         .map_err(|e| PersistenceError::Internal(e.into()));
 
@@ -72,8 +72,8 @@ impl SnapshotPersistence for SnapshotDBImpl {
   }
 }
 
-#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
-#[table_name = "collab_snapshot"]
+#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable)]
+#[diesel(table_name = collab_snapshot)]
 struct CollabSnapshotRow {
   id: String,
   object_id: String,
@@ -95,7 +95,7 @@ impl From<CollabSnapshotRow> for CollabSnapshot {
 
 struct CollabSnapshotTableSql;
 impl CollabSnapshotTableSql {
-  fn create(row: CollabSnapshotRow, conn: &SqliteConnection) -> Result<(), FlowyError> {
+  fn create(row: CollabSnapshotRow, conn: &mut SqliteConnection) -> Result<(), FlowyError> {
     // Batch insert: https://diesel.rs/guides/all-about-inserts.html
     let values = (
       dsl::id.eq(row.id),
@@ -114,7 +114,7 @@ impl CollabSnapshotTableSql {
 
   fn get_all_snapshots(
     object_id: &str,
-    conn: &SqliteConnection,
+    conn: &mut SqliteConnection,
   ) -> Result<Vec<CollabSnapshotRow>, FlowyError> {
     let sql = dsl::collab_snapshot
       .filter(dsl::object_id.eq(object_id))
@@ -128,7 +128,10 @@ impl CollabSnapshotTableSql {
   }
 
   #[allow(dead_code)]
-  fn get_latest_snapshot(object_id: &str, conn: &SqliteConnection) -> Option<CollabSnapshotRow> {
+  fn get_latest_snapshot(
+    object_id: &str,
+    conn: &mut SqliteConnection,
+  ) -> Option<CollabSnapshotRow> {
     let sql = dsl::collab_snapshot
       .filter(dsl::object_id.eq(object_id))
       .into_boxed();
@@ -143,7 +146,7 @@ impl CollabSnapshotTableSql {
   fn delete(
     object_id: &str,
     snapshot_ids: Option<Vec<String>>,
-    conn: &SqliteConnection,
+    conn: &mut SqliteConnection,
   ) -> Result<(), FlowyError> {
     let mut sql = diesel::delete(dsl::collab_snapshot).into_boxed();
     sql = sql.filter(dsl::object_id.eq(object_id));

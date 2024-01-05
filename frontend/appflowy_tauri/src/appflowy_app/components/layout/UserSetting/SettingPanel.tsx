@@ -3,7 +3,7 @@ import { MenuItem } from './Menu';
 import AppearanceSetting from './AppearanceSetting';
 import LanguageSetting from './LanguageSetting';
 
-import { UserSetting } from '$app/interfaces';
+import { UserSetting } from '$app/stores/reducers/current-user/slice';
 
 function UserSettingPanel({
   selected,

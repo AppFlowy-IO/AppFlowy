@@ -67,6 +67,9 @@ class MobileBlockActionButtons extends StatelessWidget {
   }
 
   void _showBottomSheet(BuildContext context) {
+    // close the keyboard
+    editorState.updateSelectionWithReason(null, extraInfo: {});
+
     showMobileBottomSheet(
       context,
       showHeader: true,

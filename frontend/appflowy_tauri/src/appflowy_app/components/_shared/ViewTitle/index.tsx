@@ -1,28 +1,23 @@
-import React, { FormEventHandler, useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ViewBanner from '$app/components/_shared/ViewTitle/ViewBanner';
 import { Page, PageIcon } from '$app_reducers/pages/slice';
 import { ViewIconTypePB } from '@/services/backend';
-import { TextareaAutosize } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import ViewTitleInput from '$app/components/_shared/ViewTitle/ViewTitleInput';
 
 interface Props {
   view: Page;
-  onTitleChange: (title: string) => void;
-  onUpdateIcon: (icon: PageIcon) => void;
+  showTitle?: boolean;
+  onTitleChange?: (title: string) => void;
+  onUpdateIcon?: (icon: PageIcon) => void;
 }
 
-function ViewTitle({ view, onTitleChange: onTitleChangeProp, onUpdateIcon: onUpdateIconProp }: Props) {
-  const { t } = useTranslation();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+function ViewTitle({ view, onTitleChange, showTitle = true, onUpdateIcon: onUpdateIconProp }: Props) {
   const [hover, setHover] = useState(false);
   const [icon, setIcon] = useState<PageIcon | undefined>(view.icon);
 
-  const defaultValue = useRef(view.name);
-  const onTitleChange: FormEventHandler<HTMLTextAreaElement> = (e) => {
-    const value = e.currentTarget.value;
-
-    onTitleChangeProp(value);
-  };
+  useEffect(() => {
+    setIcon(view.icon);
+  }, [view.icon]);
 
   const onUpdateIcon = useCallback(
     (icon: string) => {
@@ -32,24 +27,23 @@ function ViewTitle({ view, onTitleChange: onTitleChangeProp, onUpdateIcon: onUpd
       };
 
       setIcon(newIcon);
-      onUpdateIconProp(newIcon);
+      onUpdateIconProp?.(newIcon);
     },
     [onUpdateIconProp]
   );
 
   return (
-    <div className={'flex flex-col'} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div
+      className={'flex flex-col justify-end'}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
       <ViewBanner icon={icon} hover={hover} onUpdateIcon={onUpdateIcon} />
-      <div className='relative'>
-        <TextareaAutosize
-          ref={textareaRef}
-          placeholder={t('document.title.placeholder')}
-          className='min-h-[40px] resize-none text-4xl font-bold caret-text-title'
-          autoCorrect='off'
-          defaultValue={defaultValue.current}
-          onInput={onTitleChange}
-        />
-      </div>
+      {showTitle && (
+        <div className='relative'>
+          <ViewTitleInput value={view.name} onChange={onTitleChange} />
+        </div>
+      )}
     </div>
   );
 }

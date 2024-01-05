@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
-import MenuItem from '@mui/material/MenuItem';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useDrag } from '$app/components/_shared/drag-block';
+import { PageController } from '$app/stores/effects/workspace/page/page_controller';
 
 function TrashButton() {
   const { t } = useTranslation();
@@ -12,21 +13,34 @@ function TrashButton() {
     navigate('/trash');
   };
 
+  const selected = currentPathType === 'trash';
+
+  const onEnd = useCallback((result: { dragId: string; position: 'before' | 'after' | 'inside' }) => {
+    const controller = new PageController(result.dragId);
+
+    void controller.deletePage();
+  }, []);
+
+  const { onDrop, onDragOver, onDragLeave, isDraggingOver } = useDrag({
+    onEnd,
+  });
+
   return (
-    <MenuItem
+    <div
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
       data-page-id={'trash'}
-      selected={currentPathType === 'trash'}
       onClick={navigateToTrash}
-      style={{
-        borderRadius: '8px',
-      }}
-      className={'flex w-[100%] items-center'}
+      className={`mx-1 my-3 flex h-[32px] w-[100%] items-center rounded-lg p-2 hover:bg-fill-list-hover ${
+        selected ? 'bg-fill-list-active' : ''
+      } ${isDraggingOver ? 'bg-fill-list-hover' : ''}`}
     >
       <div className='h-6 w-6'>
         <TrashSvg />
       </div>
       <span className={'ml-2'}>{t('trash.text')}</span>
-    </MenuItem>
+    </div>
   );
 }
 

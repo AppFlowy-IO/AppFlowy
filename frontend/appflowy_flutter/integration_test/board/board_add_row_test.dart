@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/container/card_container.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
+import 'package:appflowy/plugins/database/widgets/card/container/card_container.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       final findFirstCard = find.descendant(
         of: find.byType(AppFlowyGroupCard),
@@ -64,7 +64,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       final findLastCard = find.descendant(
         of: find.byType(AppFlowyGroupCard),

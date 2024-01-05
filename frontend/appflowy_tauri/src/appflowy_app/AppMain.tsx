@@ -4,7 +4,6 @@ import { ProtectedRoutes } from '$app/components/auth/ProtectedRoutes';
 import { AllIcons } from '$app/components/tests/AllIcons';
 import { ColorPalette } from '$app/components/tests/ColorPalette';
 import { TestAPI } from '$app/components/tests/TestAPI';
-import { DocumentPage } from '$app/views/DocumentPage';
 import { BoardPage } from '$app/views/BoardPage';
 import { DatabasePage } from '$app/views/DatabasePage';
 import { LoginPage } from '$app/views/LoginPage';
@@ -15,6 +14,7 @@ import { ThemeProvider } from '@mui/material';
 import { useUserSetting } from '$app/AppMain.hooks';
 import { UserSettingControllerContext } from '$app/components/_shared/app-hooks/useUserSettingControllerContext';
 import TrashPage from '$app/views/TrashPage';
+import DocumentPage from '$app/views/DocumentPage';
 
 function AppMain() {
   const { muiTheme, userSettingController } = useUserSetting();

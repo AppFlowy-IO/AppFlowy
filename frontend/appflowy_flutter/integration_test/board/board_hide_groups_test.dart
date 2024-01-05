@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_hidden_groups.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
+import 'package:appflowy/plugins/database/board/presentation/widgets/board_hidden_groups.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,7 +17,7 @@ void main() {
     testWidgets('expand/collapse hidden groups', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       final collapseFinder = find.byFlowySvg(FlowySvgs.pull_left_outlined_s);
       final expandFinder = find.byFlowySvg(FlowySvgs.hamburger_s_s);
@@ -46,7 +46,7 @@ void main() {
     testWidgets('hide first group, and show it again', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       // Tap the options of the first group
       final optionsFinder = find
@@ -82,7 +82,7 @@ void main() {
   testWidgets('delete a group', (tester) async {
     await tester.initializeAppFlowy();
     await tester.tapGoButton();
-    await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+    await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
     expect(tester.widgetList(find.byType(BoardColumnHeader)).length, 4);
 

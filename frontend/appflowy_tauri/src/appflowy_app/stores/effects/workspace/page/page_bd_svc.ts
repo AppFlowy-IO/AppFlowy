@@ -1,5 +1,4 @@
 import {
-  FolderEventReadView,
   FolderEventCreateView,
   FolderEventUpdateView,
   FolderEventDeleteView,
@@ -19,7 +18,8 @@ import {
   FolderEventUpdateViewIcon,
   FolderEventCreateOrphanView,
   CreateOrphanViewPayloadPB,
-} from '@/services/backend/events/flowy-folder2';
+  FolderEventGetView,
+} from '@/services/backend/events/flowy-folder';
 import { Page, PageIcon } from '$app_reducers/pages/slice';
 
 export class PageBackendService {
@@ -32,7 +32,7 @@ export class PageBackendService {
       value: viewId,
     });
 
-    return FolderEventReadView(payload);
+    return FolderEventGetView(payload);
   };
 
   movePage = async (params: { viewId: string; parentId: string; prevId?: string }) => {

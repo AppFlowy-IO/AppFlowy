@@ -3,7 +3,7 @@ import { FC, useMemo } from 'react';
 import { FieldType } from '@/services/backend';
 import { PropertyTypeText, ProppertyTypeSvg } from '$app/components/database/components/property';
 import { Field } from '$app/components/database/application';
-import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
+import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
 
 const FieldTypeGroup = [
   {
@@ -40,7 +40,7 @@ export const PropertyTypeMenu: FC<
   );
 
   return (
-    <Menu {...props} PopoverClasses={PopoverClasses}>
+    <Menu {...props} disableRestoreFocus={true} PopoverClasses={PopoverClasses}>
       {FieldTypeGroup.map((group, index) => [
         <MenuItem key={group.name} dense disabled>
           {group.name}

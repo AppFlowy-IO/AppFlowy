@@ -6,19 +6,31 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'util.dart';
 
 // const String readme = 'Read me';
 const String gettingStarted = 'Getting started';
 
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
-  void expectToSeeHomePage() {
-    expect(find.byType(HomeStack), findsOneWidget);
-    expect(find.textContaining(gettingStarted), findsWidgets);
+  Future<void> expectToSeeHomePageWithGetStartedPage() async {
+    final finder = find.byType(HomeStack);
+    await pumpUntilFound(finder);
+    expect(finder, findsOneWidget);
+
+    final docFinder = find.textContaining(gettingStarted);
+    await pumpUntilFound(docFinder);
+  }
+
+  Future<void> expectToSeeHomePage() async {
+    final finder = find.byType(HomeStack);
+    await pumpUntilFound(finder);
+    expect(finder, findsOneWidget);
   }
 
   /// Expect to see the page name on the home page.
@@ -202,7 +214,7 @@ extension Expectation on WidgetTester {
     return find.descendant(
       of: find.byWidgetPredicate(
         (widget) =>
-            widget is ViewItem &&
+            widget is InnerViewItem &&
             widget.view.name == parentName &&
             widget.view.layout == parentLayout,
         skipOffstage: false,

@@ -1,6 +1,6 @@
 use collab_folder::ViewLayout;
 
-use flowy_folder2::entities::icon::{ViewIconPB, ViewIconTypePB};
+use flowy_folder::entities::icon::{ViewIconPB, ViewIconTypePB};
 
 use crate::folder::local_test::script::FolderScript::*;
 use crate::folder::local_test::script::FolderTest;

@@ -2,19 +2,17 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
-import 'package:appflowy/startup/tasks/memory_leak_detector.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'deps_resolver.dart';
 import 'entry_point.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
-import 'tasks/appflowy_cloud_task.dart';
 import 'tasks/prelude.dart';
 
 final getIt = GetIt.instance;
@@ -29,14 +27,30 @@ class FlowyRunnerContext {
   FlowyRunnerContext({required this.applicationDataDirectory});
 }
 
-Future<void> runAppFlowy() async {
-  await FlowyRunner.run(
-    FlowyApp(),
-    integrationMode(),
-  );
+Future<void> runAppFlowy({bool isAnon = false}) async {
+  if (kReleaseMode) {
+    await FlowyRunner.run(
+      AppFlowyApplication(),
+      integrationMode(),
+      isAnon: isAnon,
+    );
+  } else {
+    // When running the app in integration test mode, we need to
+    // specify the mode to run the app again.
+    await FlowyRunner.run(
+      AppFlowyApplication(),
+      FlowyRunner.currentMode,
+      didInitGetItCallback: IntegrationTestHelper.didInitGetItCallback,
+      rustEnvsBuilder: IntegrationTestHelper.rustEnvsBuilder,
+      isAnon: isAnon,
+    );
+  }
 }
 
 class FlowyRunner {
+  // This variable specifies the initial mode of the app when it is launched for the first time.
+  // The same mode will be automatically applied in subsequent executions when the runAppFlowy()
+  // method is called.
   static var currentMode = integrationMode();
 
   static Future<FlowyRunnerContext> run(
@@ -55,6 +69,13 @@ class FlowyRunner {
     bool isAnon = false,
   }) async {
     currentMode = mode;
+
+    // Only set the mode when it's not release mode
+    if (!kReleaseMode) {
+      IntegrationTestHelper.didInitGetItCallback = didInitGetItCallback;
+      IntegrationTestHelper.rustEnvsBuilder = rustEnvsBuilder;
+    }
+
     // Clear all the states in case of rebuilding.
     await getIt.reset();
 
@@ -63,6 +84,11 @@ class FlowyRunner {
       rustEnvs: rustEnvsBuilder?.call() ?? {},
     );
 
+    if (!mode.isUnitTest) {
+      // Unit test can't use the package_info_plus plugin
+      config.rustEnvs["APP_VERSION"] =
+          await PackageInfo.fromPlatform().then((value) => value.version);
+    }
     // Specify the env
     await initGetIt(getIt, mode, f, config);
     await didInitGetItCallback?.call();
@@ -82,6 +108,8 @@ class FlowyRunner {
         // this task should be second task, for handling memory leak.
         // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
         MemoryLeakDetectorTask(),
+        const DebugTask(),
+        const DeviceInfoTask(),
         // localization
         const InitLocalizationTask(),
         // init the app window
@@ -117,9 +145,14 @@ Future<void> initGetIt(
   LaunchConfiguration config,
 ) async {
   getIt.registerFactory<EntryPoint>(() => f);
-  getIt.registerLazySingleton<FlowySDK>(() {
-    return FlowySDK();
-  });
+  getIt.registerLazySingleton<FlowySDK>(
+    () {
+      return FlowySDK();
+    },
+    dispose: (sdk) async {
+      await sdk.dispose();
+    },
+  );
   getIt.registerLazySingleton<AppLauncher>(
     () => AppLauncher(
       context: LaunchContext(
@@ -183,7 +216,6 @@ class AppLauncher {
   }
 
   Future<void> dispose() async {
-    Log.info('AppLauncher dispose');
     for (final task in tasks) {
       await task.dispose();
     }
@@ -219,4 +251,10 @@ IntegrationMode integrationMode() {
   }
 
   return IntegrationMode.develop;
+}
+
+/// Only used for integration test
+class IntegrationTestHelper {
+  static Future Function()? didInitGetItCallback;
+  static Map<String, String> Function()? rustEnvsBuilder;
 }

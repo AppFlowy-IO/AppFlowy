@@ -1,4 +1,4 @@
-import { ThemeMode } from '$app/interfaces';
+import { ThemeMode } from '$app/stores/reducers/current-user/slice';
 import { ThemeOptions } from '@mui/material';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -12,6 +12,98 @@ export const getDesignTokens = (mode: ThemeMode): ThemeOptions => {
       fontSize: 12,
       button: {
         textTransform: 'none',
+      },
+    },
+    components: {
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            '&:hover': {
+              backgroundColor: 'var(--fill-list-hover)',
+            },
+            borderRadius: '4px',
+            padding: '2px',
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          contained: {
+            color: 'var(--content-on-fill)',
+          },
+          containedPrimary: {
+            '&:hover': {
+              backgroundColor: 'var(--fill-default)',
+            },
+          },
+        },
+      },
+      MuiButtonBase: {
+        defaultProps: {
+          sx: {
+            '&.Mui-selected:hover': {
+              backgroundColor: 'var(--fill-list-active)',
+            },
+          },
+        },
+        styleOverrides: {
+          root: {
+            '&:hover': {
+              backgroundColor: 'var(--fill-list-hover)',
+            },
+            '&:active': {
+              backgroundColor: 'var(--fill-list-active)',
+            },
+            borderRadius: '4px',
+            padding: '2px',
+            boxShadow: 'none',
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: 'none',
+          },
+        },
+      },
+      MuiDialog: {
+        defaultProps: {
+          sx: {
+            '& .MuiBackdrop-root': {
+              backgroundColor: 'var(--bg-mask)',
+            },
+          },
+        },
+      },
+
+      MuiTooltip: {
+        styleOverrides: {
+          arrow: {
+            color: 'var(--bg-tips)',
+          },
+          tooltip: {
+            backgroundColor: 'var(--bg-tips)',
+            color: 'var(--text-title)',
+            fontSize: '0.85rem',
+            borderRadius: '8px',
+            fontWeight: 400,
+          },
+        },
+      },
+      MuiInputBase: {
+        styleOverrides: {
+          input: {
+            backgroundColor: 'transparent !important',
+          },
+        },
+      },
+      MuiDivider: {
+        styleOverrides: {
+          root: {
+            borderColor: 'var(--line-divider)',
+          },
+        },
       },
     },
     palette: {

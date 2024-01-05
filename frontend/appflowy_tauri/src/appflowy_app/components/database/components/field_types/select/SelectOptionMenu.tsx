@@ -3,7 +3,7 @@ import { t } from 'i18next';
 import { Divider, ListSubheader, MenuItem, MenuList, MenuProps, OutlinedInput } from '@mui/material';
 import { SelectOptionColorPB } from '@/services/backend';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
-import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
+import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
 import { SelectOption } from '../../../application';
 import { SelectOptionColorMap, SelectOptionColorTextMap } from './constants';
 import Button from '@mui/material/Button';
@@ -79,6 +79,7 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
       }}
       {...menuProps}
       onClose={onClose}
+      disableRestoreFocus={true}
     >
       <ListSubheader className='my-2 leading-tight'>
         <OutlinedInput

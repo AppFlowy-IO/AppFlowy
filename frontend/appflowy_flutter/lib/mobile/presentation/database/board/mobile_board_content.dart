@@ -3,11 +3,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/board.dart';
 import 'package:appflowy/mobile/presentation/database/board/widgets/group_card_header.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/plugins/database/widgets/card/card.dart';
+import 'package:appflowy/plugins/database/widgets/card/card_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/card/cells/card_cell.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -56,7 +56,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     final config = AppFlowyBoardConfig(
       groupCornerRadius: 8,
       groupBackgroundColor: Theme.of(context).colorScheme.secondary,
-      groupMargin: const EdgeInsets.fromLTRB(4, 8, 4, 12),
+      groupMargin: const EdgeInsets.fromLTRB(4, 0, 4, 12),
       groupHeaderPadding: const EdgeInsets.all(8),
       groupBodyPadding: const EdgeInsets.all(4),
       groupFooterPadding: const EdgeInsets.all(8),
@@ -88,7 +88,9 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
             config: config,
             leading: showHiddenGroups
-                ? MobileHiddenGroupsColumn(padding: config.groupHeaderPadding)
+                ? MobileHiddenGroupsColumn(
+                    padding: config.groupHeaderPadding,
+                  )
                 : const HSpace(16),
             trailing: showCreateGroupButton
                 ? const MobileBoardTrailing()

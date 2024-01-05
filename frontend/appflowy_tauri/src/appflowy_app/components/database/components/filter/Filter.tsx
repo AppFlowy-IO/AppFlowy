@@ -119,6 +119,7 @@ function Filter({ filter, field }: Props) {
       />
       {condition !== undefined && open && (
         <Popover
+          disableRestoreFocus={true}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'center',

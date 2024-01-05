@@ -4,26 +4,11 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-List<MobileToolbarItem> getMobileToolbarItems() {
-  return [
-    customTextDecorationMobileToolbarItem,
-    buildTextAndBackgroundColorMobileToolbarItem(),
-    mobileAddBlockToolbarItem,
-    mobileConvertBlockToolbarItem,
-    imageMobileToolbarItem,
-    mobileAlignToolbarItem,
-    mobileIndentToolbarItem,
-    mobileOutdentToolbarItem,
-    undoMobileToolbarItem,
-    redoMobileToolbarItem,
-    mobileBlockSettingsToolbarItem,
-  ];
-}
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
@@ -45,6 +30,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
 
   final configuration = BlockComponentConfiguration(
+    // use EdgeInsets.zero to remove the default padding.
     padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
         ? const EdgeInsets.only(left: 26.0)
@@ -184,6 +170,28 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
           top: 12.0,
           bottom: 4.0,
         ),
+      ),
+    ),
+    LinkPreviewBlockKeys.type: LinkPreviewBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+      ),
+      cache: LinkPreviewDataCache(),
+      showMenu: true,
+      menuBuilder: (context, node, state) => Positioned(
+        top: 10,
+        right: 0,
+        child: LinkPreviewMenu(
+          node: node,
+          state: state,
+        ),
+      ),
+      builder: (context, node, url, title, description, imageUrl) =>
+          CustomLinkPreviewWidget(
+        url: url,
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
       ),
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(

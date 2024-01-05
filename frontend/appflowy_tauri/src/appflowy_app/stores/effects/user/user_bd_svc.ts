@@ -22,7 +22,7 @@ import {
   FolderEventCreateWorkspace,
   FolderEventGetCurrentWorkspaceSetting,
   FolderEventReadCurrentWorkspace,
-} from '@/services/backend/events/flowy-folder2';
+} from '@/services/backend/events/flowy-folder';
 
 export class UserBackendService {
   constructor(public readonly userId: number) {}
@@ -98,7 +98,7 @@ export class UserBackendService {
 export class AuthBackendService {
   signIn = (params: { email: string; password: string }) => {
     const payload = SignInPayloadPB.fromObject({ email: params.email, password: params.password });
-    
+
     return UserEventSignInWithEmailPassword(payload);
   };
 

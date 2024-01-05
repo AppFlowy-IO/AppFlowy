@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/defines.dart';
+import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';

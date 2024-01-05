@@ -9,7 +9,7 @@ import 'package:appflowy/workspace/application/notifications/notification_action
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -111,6 +111,10 @@ class _DocumentPageState extends State<DocumentPage> {
 
     return Column(
       children: [
+        // Only show the indicator in integration test mode
+        // if (FlowyRunner.currentMode.isIntegrationTest)
+        //   const DocumentSyncIndicator(),
+
         if (state.isDeleted) _buildBanner(context),
         Expanded(child: appflowyEditorPage),
       ],
@@ -175,5 +179,22 @@ class _DocumentPageState extends State<DocumentPage> {
         );
       }
     }
+  }
+}
+
+class DocumentSyncIndicator extends StatelessWidget {
+  const DocumentSyncIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DocumentBloc, DocumentState>(
+      builder: (context, state) {
+        if (state.isSyncing) {
+          return const SizedBox(height: 1, child: LinearProgressIndicator());
+        } else {
+          return const SizedBox(height: 1);
+        }
+      },
+    );
   }
 }

@@ -1,8 +1,8 @@
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_create_field_screen.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_edit_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_create_field_screen.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_edit_field_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
@@ -21,9 +21,9 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -152,27 +152,28 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
           ),
         ],
       ),
-      StatefulShellBranch(
-        routes: <RouteBase>[
-          GoRoute(
-            path: '/d',
-            builder: (BuildContext context, GoRouterState state) =>
-                const RootPlaceholderScreen(
-              label: 'Search',
-              detailsPath: '/d/details',
-            ),
-            routes: <RouteBase>[
-              GoRoute(
-                path: 'details',
-                builder: (BuildContext context, GoRouterState state) =>
-                    const DetailsPlaceholderScreen(
-                  label: 'Search Page details',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      // Enable search feature after we have a search page.
+      // StatefulShellBranch(
+      //   routes: <RouteBase>[
+      //     GoRoute(
+      //       path: '/d',
+      //       builder: (BuildContext context, GoRouterState state) =>
+      //           const RootPlaceholderScreen(
+      //         label: 'Search',
+      //         detailsPath: '/d/details',
+      //       ),
+      //       routes: <RouteBase>[
+      //         GoRoute(
+      //           path: 'details',
+      //           builder: (BuildContext context, GoRouterState state) =>
+      //               const DetailsPlaceholderScreen(
+      //             label: 'Search Page details',
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ],
+      // ),
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(

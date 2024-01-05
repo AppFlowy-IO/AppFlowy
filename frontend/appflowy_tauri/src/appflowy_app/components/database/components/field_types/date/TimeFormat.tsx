@@ -3,7 +3,7 @@ import { TimeFormatPB } from '@/services/backend';
 import { useTranslation } from 'react-i18next';
 import { Menu, MenuItem } from '@mui/material';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
-import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
+import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
 
 interface Props {
   value: TimeFormatPB;
@@ -37,6 +37,7 @@ function TimeFormat({ value, onChange }: Props) {
         <MoreSvg className={`transform text-base ${open ? '' : 'rotate-90'}`} />
       </MenuItem>
       <Menu
+        disableRestoreFocus={true}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'right',

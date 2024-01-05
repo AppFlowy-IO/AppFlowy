@@ -1,12 +1,14 @@
 use std::sync::Arc;
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
+use collab::core::collab::CollabDocState;
 use collab_entity::CollabObject;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
+use uuid::Uuid;
 
 use flowy_error::FlowyError;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
@@ -39,6 +41,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
       };
       Ok(AuthResponse {
         user_id: uid,
+        user_uuid: Uuid::new_v4(),
         name: user_name,
         latest_workspace: user_workspace.clone(),
         user_workspaces: vec![user_workspace],
@@ -63,6 +66,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
         .unwrap_or_else(make_user_workspace);
       Ok(AuthResponse {
         user_id: uid,
+        user_uuid: Uuid::new_v4(),
         name: params.name,
         latest_workspace: user_workspace.clone(),
         user_workspaces: vec![user_workspace],
@@ -118,7 +122,10 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   fn open_workspace(&self, _workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
     FutureResult::new(async {
-      Err(FlowyError::not_support().with_context("local server doesn't support open workspace"))
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("local server doesn't support open workspace"),
+      )
     })
   }
 
@@ -126,7 +133,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_user_awareness_doc_state(&self, _uid: i64) -> FutureResult<CollabDocState, Error> {
     FutureResult::new(async { Ok(vec![]) })
   }
 
@@ -138,8 +145,17 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     &self,
     _collab_object: &CollabObject,
     _data: Vec<u8>,
-  ) -> FutureResult<(), Error> {
+    _override_if_exist: bool,
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
+  }
+
+  fn batch_create_collab_object(
+    &self,
+    _workspace_id: &str,
+    _objects: Vec<UserCollabParams>,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Err(anyhow!("local server doesn't support create collab object")) })
   }
 }
 
@@ -148,6 +164,6 @@ fn make_user_workspace() -> UserWorkspace {
     id: uuid::Uuid::new_v4().to_string(),
     name: "My Workspace".to_string(),
     created_at: Default::default(),
-    database_views_aggregate_id: uuid::Uuid::new_v4().to_string(),
+    database_view_tracker_id: uuid::Uuid::new_v4().to_string(),
   }
 }

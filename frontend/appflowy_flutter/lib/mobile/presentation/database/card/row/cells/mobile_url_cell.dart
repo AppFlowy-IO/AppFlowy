@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/url_cell/url_cell_bloc.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/url_cell/url_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,6 +55,7 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
             return TextField(
               focusNode: _focusNode,
               keyboardType: TextInputType.url,
+              maxLines: 1,
               decoration: InputDecoration(
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -63,7 +64,6 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 isCollapsed: true,
               ),
-              // close keyboard when tapping outside of the text field
               onTapOutside: (event) =>
                   FocusManager.instance.primaryFocus?.unfocus(),
               onSubmitted: (value) =>
@@ -83,9 +83,11 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
                 final url = shouldAddScheme ? 'http://$content' : content;
                 canLaunchUrlString(url).then((value) => launchUrlString(url));
               },
-              onLongPress: () => showFlowyMobileBottomSheet(
+              onLongPress: () => showMobileBottomSheet(
                 context,
                 title: LocaleKeys.board_mobile_editURL.tr(),
+                showHeader: true,
+                showCloseButton: true,
                 builder: (_) {
                   final controller = TextEditingController(text: content);
                   return TextField(
@@ -99,12 +101,18 @@ class _GridURLCellState extends GridCellState<MobileURLCell> {
                   );
                 },
               ),
-              child: Text(
-                content,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      decoration: TextDecoration.underline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Text(
+                  content,
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        decoration: TextDecoration.underline,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                ),
               ),
             ),
           );

@@ -28,8 +28,15 @@ impl AppFlowyDartConfiguration {
 
   pub fn write_env(&self) {
     self.authenticator_type.write_env();
-    self.appflowy_cloud_config.write_env();
-    self.supabase_config.write_env();
+    match self.authenticator_type {
+      AuthenticatorType::AppFlowyCloud => {
+        self.appflowy_cloud_config.write_env();
+      },
+      AuthenticatorType::Supabase => {
+        self.supabase_config.write_env();
+      },
+      _ => {},
+    }
 
     for (k, v) in self.envs.iter() {
       std::env::set_var(k, v);

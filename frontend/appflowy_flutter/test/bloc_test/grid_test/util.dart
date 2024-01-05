@@ -1,17 +1,16 @@
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
-import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/application/row/row_cache.dart';
+import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/grid/application/row/row_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 
 import '../../util.dart';
@@ -134,16 +133,11 @@ Future<FieldEditorBloc> createFieldEditor({
   );
   await gridResponseFuture();
   return result.fold(
-    (data) {
-      final loader = FieldTypeOptionLoader(
-        viewId: databaseController.viewId,
-        field: data.field_2,
-      );
+    (field) {
       return FieldEditorBloc(
         viewId: databaseController.viewId,
         fieldController: databaseController.fieldController,
-        loader: loader,
-        field: data.field_2,
+        field: field,
       );
     },
     (err) => throw Exception(err),
@@ -162,7 +156,7 @@ class AppFlowyGridTest {
   }
 
   Future<GridTestContext> createTestGrid() async {
-    final app = await unitTest.createTestApp();
+    final app = await unitTest.createWorkspace();
     final context = await ViewBackendService.createView(
       parentViewId: app.id,
       name: "Test Grid",

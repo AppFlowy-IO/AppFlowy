@@ -1,11 +1,12 @@
 import 'dart:math';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
@@ -39,15 +40,17 @@ class EditorStyleCustomizer {
 
   EditorStyle desktop() {
     final theme = Theme.of(context);
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
-    final defaultTextDirection =
-        context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
-    final codeFontSize = max(0.0, fontSize - 2);
+    final appearance = context.read<DocumentAppearanceCubit>().state;
+    final fontSize = appearance.fontSize;
+    final fontFamily = appearance.fontFamily;
+
     return EditorStyle.desktop(
       padding: padding,
-      cursorColor: theme.colorScheme.primary,
-      defaultTextDirection: defaultTextDirection,
+      cursorColor: appearance.cursorColor ??
+          DefaultAppearanceSettings.getDefaultDocumentCursorColor(context),
+      selectionColor: appearance.selectionColor ??
+          DefaultAppearanceSettings.getDefaultDocumentSelectionColor(context),
+      defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
@@ -72,9 +75,8 @@ class EditorStyleCustomizer {
         ),
         code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: codeFontSize,
+            fontSize: fontSize - 2,
             fontWeight: FontWeight.normal,
-            fontStyle: FontStyle.italic,
             color: Colors.red,
             backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
           ),
@@ -127,6 +129,9 @@ class EditorStyleCustomizer {
         ),
       ),
       textSpanDecorator: customizeAttributeDecorator,
+      mobileDragHandleBallSize: const Size.square(12.0),
+      mobileDragHandleWidth: 2.0,
+      magnifierSize: const Size(144, 96),
     );
   }
 
@@ -262,8 +267,8 @@ class EditorStyleCustomizer {
     }
 
     // customize the inline math equation block
-    final formula = attributes[InlineMathEquationKeys.formula] as String?;
-    if (formula != null) {
+    final formula = attributes[InlineMathEquationKeys.formula];
+    if (formula is String) {
       return WidgetSpan(
         alignment: PlaceholderAlignment.middle,
         child: InlineMathEquation(
@@ -283,19 +288,35 @@ class EditorStyleCustomizer {
         text: text.text,
         recognizer: TapGestureRecognizer()
           ..onTap = () {
+            final editorState = context.read<EditorState>();
+            if (editorState.selection == null) {
+              safeLaunchUrl(href);
+              return;
+            }
+
+            editorState.updateSelectionWithReason(
+              editorState.selection,
+              extraInfo: {
+                selectionExtraInfoDisableMobileToolbarKey: true,
+              },
+            );
+
             showEditLinkBottomSheet(
               context,
               text.text,
               href,
               (linkContext, newText, newHref) {
-                _updateTextAndHref(
-                  context,
-                  node,
-                  index,
+                final selection = Selection.single(
+                  path: node.path,
+                  startOffset: index,
+                  endOffset: index + text.text.length,
+                );
+                editorState.updateTextAndHref(
                   text.text,
                   href,
                   newText,
                   newHref,
+                  selection: selection,
                 );
                 linkContext.pop();
               },
@@ -312,38 +333,5 @@ class EditorStyleCustomizer {
       before,
       after,
     );
-  }
-
-  void _updateTextAndHref(
-    BuildContext context,
-    Node node,
-    int index,
-    String prevText,
-    String? prevHref,
-    String text,
-    String href,
-  ) async {
-    final selection = Selection.single(
-      path: node.path,
-      startOffset: index,
-      endOffset: index + prevText.length,
-    );
-    final editorState = context.read<EditorState>();
-    final transaction = editorState.transaction;
-    if (prevText != text) {
-      transaction.replaceText(
-        node,
-        selection.startIndex,
-        selection.length,
-        text,
-      );
-    }
-    // if the text is empty, it means the user wants to remove the text
-    if (text.isNotEmpty && prevHref != href) {
-      transaction.formatText(node, selection.startIndex, text.length, {
-        AppFlowyRichTextKeys.href: href.isEmpty ? null : href,
-      });
-    }
-    await editorState.apply(transaction);
   }
 }

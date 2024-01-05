@@ -12,7 +12,7 @@ collab-entity = { version = "0.1.0" }
 collab-integrate = { workspace = true }
 flowy-database-deps = { workspace = true }
 
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive.workspace = true
 flowy-notification  = { workspace = true }
 parking_lot.workspace = true
 protobuf.workspace = true
@@ -25,7 +25,7 @@ tracing.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 chrono = { workspace = true,  default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"
 rusty-money = {version = "0.4.1", features = ["iso"]}
@@ -50,7 +50,7 @@ lru.workspace = true
 event-integration = { path = "../event-integration", default-features = false }
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}
+flowy-codegen.workspace = true
 
 
 [features]

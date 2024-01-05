@@ -3,7 +3,6 @@ import SideBar from '$app/components/layout/SideBar';
 import TopBar from '$app/components/layout/TopBar';
 import { useAppSelector } from '$app/stores/store';
 import { FooterPanel } from '$app/components/layout/FooterPanel';
-import BlockDragDropContext from '$app/components/_shared/BlockDraggable/BlockDragDropContext';
 
 function Layout({ children }: { children: ReactNode }) {
   const { isCollapsed, width } = useAppSelector((state) => state.sidebar);
@@ -21,7 +20,7 @@ function Layout({ children }: { children: ReactNode }) {
     };
   }, []);
   return (
-    <BlockDragDropContext>
+    <>
       <div className='flex h-screen w-[100%] text-sm text-text-title'>
         <SideBar />
         <div
@@ -43,7 +42,7 @@ function Layout({ children }: { children: ReactNode }) {
           <FooterPanel />
         </div>
       </div>
-    </BlockDragDropContext>
+    </>
   );
 }
 

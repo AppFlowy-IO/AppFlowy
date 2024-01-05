@@ -13,7 +13,7 @@ use lib_dispatch::prelude::af_spawn;
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::manager::UserManager;
 use crate::notification::{send_notification, UserNotification};
-use crate::services::user_workspace_sql::UserWorkspaceTable;
+use crate::services::workspace_sql::UserWorkspaceTable;
 
 impl UserManager {
   #[instrument(skip(self), err)]
@@ -91,19 +91,19 @@ impl UserManager {
   }
 
   pub fn get_user_workspace(&self, uid: i64, workspace_id: &str) -> Option<UserWorkspace> {
-    let conn = self.db_connection(uid).ok()?;
+    let mut conn = self.db_connection(uid).ok()?;
     let row = user_workspace_table::dsl::user_workspace_table
       .filter(user_workspace_table::id.eq(workspace_id))
-      .first::<UserWorkspaceTable>(&*conn)
+      .first::<UserWorkspaceTable>(&mut *conn)
       .ok()?;
     Some(UserWorkspace::from(row))
   }
 
   pub fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
-    let conn = self.db_connection(uid)?;
+    let mut conn = self.db_connection(uid)?;
     let rows = user_workspace_table::dsl::user_workspace_table
       .filter(user_workspace_table::uid.eq(uid))
-      .load::<UserWorkspaceTable>(&*conn)?;
+      .load::<UserWorkspaceTable>(&mut *conn)?;
 
     if let Ok(service) = self.cloud_services.get_user_service() {
       if let Ok(pool) = self.db_pool(uid) {
@@ -150,8 +150,8 @@ pub fn save_user_workspaces(
     .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
     .collect::<Vec<UserWorkspaceTable>>();
 
-  let conn = pool.get()?;
-  conn.immediate_transaction(|| {
+  let mut conn = pool.get()?;
+  conn.immediate_transaction(|conn| {
     for user_workspace in user_workspaces {
       if let Err(err) = diesel::update(
         user_workspace_table::dsl::user_workspace_table
@@ -162,12 +162,12 @@ pub fn save_user_workspaces(
         user_workspace_table::created_at.eq(&user_workspace.created_at),
         user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
       ))
-      .execute(&*conn)
+      .execute(conn)
       .and_then(|rows| {
         if rows == 0 {
           let _ = diesel::insert_into(user_workspace_table::table)
             .values(user_workspace)
-            .execute(&*conn)?;
+            .execute(conn)?;
         }
         Ok(())
       }) {

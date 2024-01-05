@@ -19,16 +19,15 @@ pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> Stri
     .map(|crate_name| format!("{}={}", crate_name, level))
     .collect::<Vec<String>>();
   filters.push(format!("flowy_core={}", level));
-  filters.push(format!("flowy_folder2={}", level));
+  filters.push(format!("flowy_folder={}", level));
   filters.push(format!("collab_sync={}", level));
   filters.push(format!("collab_folder={}", level));
-  filters.push(format!("collab_persistence={}", level));
   filters.push(format!("collab_database={}", level));
   filters.push(format!("collab_plugins={}", level));
   filters.push(format!("collab_integrate={}", level));
   filters.push(format!("collab={}", level));
   filters.push(format!("flowy_user={}", level));
-  filters.push(format!("flowy_document2={}", level));
+  filters.push(format!("flowy_document={}", level));
   filters.push(format!("flowy_database2={}", level));
   filters.push(format!("flowy_server={}", level));
   filters.push(format!("flowy_notification={}", "info"));

@@ -1,4 +1,5 @@
 // ThemeData in mobile
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
@@ -85,6 +86,7 @@ class MobileAppearance extends BaseAppearance {
     return ThemeData(
       // color
       useMaterial3: false,
+
       primaryColor: colorTheme.primary, //primary 100
       primaryColorLight: const Color(0xFF57B5F8), //primary 80
       dividerColor: colorTheme.outline, //caption
@@ -117,8 +119,9 @@ class MobileAppearance extends BaseAppearance {
           fixedSize: MaterialStateProperty.all(const Size.fromHeight(48)),
           elevation: MaterialStateProperty.all(0),
           textStyle: MaterialStateProperty.all(
-            const TextStyle(
+            TextStyle(
               fontSize: 14,
+              fontFamily: fontStyle.fontFamily,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -137,8 +140,9 @@ class MobileAppearance extends BaseAppearance {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
           textStyle: MaterialStateProperty.all(
-            const TextStyle(
+            TextStyle(
               fontSize: 14,
+              fontFamily: fontStyle.fontFamily,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -283,6 +287,7 @@ class MobileAppearance extends BaseAppearance {
             color: theme.hint,
           ),
         ),
+        ToolbarColorExtension.fromBrightness(brightness),
       ],
     );
   }

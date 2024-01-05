@@ -6,7 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embe
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -31,7 +31,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: LocaleKeys.document_plugins_image_addAnImage.tr(),
         layout: ViewLayoutPB.Document,
       );
@@ -79,7 +79,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: LocaleKeys.document_plugins_image_addAnImage.tr(),
         layout: ViewLayoutPB.Document,
       );
@@ -133,7 +133,7 @@ void main() {
         await tester.tapGoButton();
 
         // create a new document
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: LocaleKeys.document_plugins_image_addAnImage.tr(),
           layout: ViewLayoutPB.Document,
         );

@@ -43,3 +43,6 @@ frontend/package
 frontend/*.deb
 
 **/Cargo.toml.bak
+
+# ignore settings.json
+frontend/.vscode/settings.json

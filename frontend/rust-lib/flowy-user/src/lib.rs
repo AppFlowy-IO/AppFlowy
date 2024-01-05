@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate flowy_sqlite;
 
-mod anon_user_upgrade;
+mod anon_user;
 pub mod entities;
 mod event_handler;
 pub mod event_map;

@@ -28,7 +28,6 @@ import {
   TestMoveKanbanBoardColumn,
   TestMoveKanbanBoardRow,
 } from './TestGroup';
-import { TestCreateDocument } from './TestDocument';
 import { TestCreateViews } from '$app/components/tests/TestFolder';
 
 export const TestAPI = () => {
@@ -62,7 +61,6 @@ export const TestAPI = () => {
         <TestMoveKanbanBoardRow></TestMoveKanbanBoardRow>
         <TestMoveKanbanBoardColumn></TestMoveKanbanBoardColumn>
         <TestCreateKanbanBoardColumn></TestCreateKanbanBoardColumn>
-        <TestCreateDocument></TestCreateDocument>
         {/*Folders*/}
         <TestCreateViews></TestCreateViews>
       </ul>

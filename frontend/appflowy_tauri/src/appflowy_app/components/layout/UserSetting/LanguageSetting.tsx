@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Select from '@mui/material/Select';
-import { UserSetting } from '$app/interfaces';
+import { UserSetting } from '$app/stores/reducers/current-user/slice';
 import MenuItem from '@mui/material/MenuItem';
 
 const languages = [

@@ -29,6 +29,11 @@
         "removeFile": true,
         "renameFile": true,
         "exists": true
+      },
+      "clipboard": {
+        "all": true,
+        "writeText": true,
+        "readText": true
       }
     },
     "bundle": {

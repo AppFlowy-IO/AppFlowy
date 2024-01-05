@@ -75,6 +75,7 @@ function GridRowMenu({ rowId, ...props }: Props) {
 
   return (
     <Popover
+      disableRestoreFocus={true}
       keepMounted={false}
       anchorReference={'anchorPosition'}
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}

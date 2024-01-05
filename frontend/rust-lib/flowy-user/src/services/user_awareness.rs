@@ -1,13 +1,15 @@
 use std::sync::{Arc, Weak};
 
 use anyhow::Context;
-use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
+use collab_integrate::collab_builder::CollabBuilderConfig;
 use collab_user::core::{MutexUserAwareness, UserAwareness};
 use tracing::{error, trace};
+use uuid::Uuid;
 
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::ReminderPB;
@@ -139,7 +141,7 @@ impl UserManager {
         let data = self
           .cloud_services
           .get_user_service()?
-          .get_user_awareness_updates(session.user_id)
+          .get_user_awareness_doc_state(session.user_id)
           .await?;
         trace!("Get user awareness collab: {}", data.len());
         let collab = self
@@ -160,20 +162,22 @@ impl UserManager {
   async fn collab_for_user_awareness(
     &self,
     session: &Session,
-    collab_db: Weak<RocksCollabDB>,
-    raw_data: CollabRawData,
+    collab_db: Weak<CollabKVDB>,
+    raw_data: CollabDocState,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab_builder = self.collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;
+    let user_awareness_id = awareness_oid_from_user_uuid(&session.user_uuid);
     let collab = collab_builder
       .build(
         session.user_id,
-        &session.user_id.to_string(),
+        &user_awareness_id.to_string(),
         CollabType::UserAwareness,
         raw_data,
         collab_db,
+        CollabBuilderConfig::default().sync_enable(true),
       )
       .await
       .context("Build collab for user awareness failed")?;
@@ -208,6 +212,10 @@ impl UserManager {
       Some(user_awareness) => f(&user_awareness.lock()),
     }
   }
+}
+
+pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
+  Uuid::new_v5(user_uuid, b"user_awareness")
 }
 
 /// Indicate using which data source to initialize the user awareness

@@ -12,6 +12,8 @@ export function useLoadExpandedPages() {
   const isTrash = useMemo(() => location.pathname.includes('trash'), [location.pathname]);
   const currentPageId = params.id;
   const pageMap = useAppSelector((state) => state.pages.pageMap);
+  const currentPage = currentPageId ? pageMap[currentPageId] : null;
+
   const [pagePath, setPagePath] = useState<
     (
       | Page
@@ -57,6 +59,16 @@ export function useLoadExpandedPages() {
   }, [currentPageId]);
 
   useEffect(() => {
+    setPagePath((prev) => {
+      return prev.map((page, index) => {
+        if (!page) return page;
+        if (index === 0) return page;
+        return 'id' in page && page.id ? pageMap[page.id] : page;
+      });
+    });
+  }, [pageMap]);
+
+  useEffect(() => {
     if (isTrash) {
       setPagePath([
         {
@@ -68,5 +80,6 @@ export function useLoadExpandedPages() {
 
   return {
     pagePath,
+    currentPage,
   };
 }

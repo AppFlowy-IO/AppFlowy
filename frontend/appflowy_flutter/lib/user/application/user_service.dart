@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart';
@@ -71,22 +71,12 @@ class UserBackendService {
     return UserEventInitUser().send();
   }
 
-  static Future<Either<List<HistoricalUserPB>, FlowyError>>
-      loadHistoricalUsers() async {
-    return UserEventGetHistoricalUsers().send().then(
-      (result) {
-        return result.fold(
-          (historicalUsers) => left(historicalUsers.items),
-          (error) => right(error),
-        );
-      },
-    );
+  static Future<Either<UserProfilePB, FlowyError>> getAnonUser() async {
+    return UserEventGetAnonUser().send();
   }
 
-  static Future<Either<Unit, FlowyError>> openHistoricalUser(
-    HistoricalUserPB user,
-  ) async {
-    return UserEventOpenHistoricalUser(user).send();
+  static Future<Either<Unit, FlowyError>> openAnonUser() async {
+    return UserEventOpenAnonUser().send();
   }
 
   Future<Either<List<WorkspacePB>, FlowyError>> getWorkspaces() {

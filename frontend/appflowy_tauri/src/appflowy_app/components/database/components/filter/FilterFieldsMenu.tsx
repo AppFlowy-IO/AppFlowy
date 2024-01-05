@@ -34,7 +34,7 @@ function FilterFieldsMenu({
   );
 
   return (
-    <Popover {...props}>
+    <Popover disableRestoreFocus={true} {...props}>
       <PropertiesList showSearch searchPlaceholder={t('grid.settings.filterBy')} onItemClick={addFilter} />
     </Popover>
   );
