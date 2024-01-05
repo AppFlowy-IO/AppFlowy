@@ -7,15 +7,15 @@ use collab::core::collab::CollabDocState;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
+use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use tokio_stream::wrappers::WatchStream;
-use tracing::instrument;
+use tracing::{debug, instrument};
 
 use collab_integrate::collab_builder::{
-  CollabDataSource, CollabStorageProvider, CollabStorageProviderContext,
+  CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use collab_integrate::postgres::SupabaseDBPlugin;
 use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
-use flowy_document2::deps::DocumentData;
+use flowy_document::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{
@@ -32,7 +32,7 @@ use crate::integrate::server::{Server, ServerProvider};
 
 impl FileStorageService for ServerProvider {
   fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
       storage.create_object(object).await
@@ -40,7 +40,7 @@ impl FileStorageService for ServerProvider {
   }
 
   fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
       storage.delete_object_by_url(object_url).await
@@ -48,7 +48,7 @@ impl FileStorageService for ServerProvider {
   }
 
   fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
       storage.get_object_by_url(object_url).await
@@ -58,26 +58,40 @@ impl FileStorageService for ServerProvider {
 
 impl UserCloudServiceProvider for ServerProvider {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
-    let server = self.get_server(&self.get_server_type())?;
+    let server = self.get_server()?;
     server.set_token(token)?;
     Ok(())
   }
 
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
-    let server = self.get_server(&self.get_server_type()).ok()?;
+    let server = self.get_server().ok()?;
     server.subscribe_token_state()
   }
 
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
-    if let Ok(server) = self.get_server(&self.get_server_type()) {
+    if let Ok(server) = self.get_server() {
       server.set_enable_sync(uid, enable_sync);
-      *self.enable_sync.write() = enable_sync;
+      *self.user_enable_sync.write() = enable_sync;
       *self.uid.write() = Some(uid);
     }
   }
 
+  /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
+  ///
+  /// Each [Authenticator] has a corresponding [Server]. The [Server] is used
+  /// to create a new [AppFlowyServer] if it doesn't exist. Once the [Server] is set,
+  /// it will be used when user open the app again.
+  ///
+  fn set_user_authenticator(&self, authenticator: &Authenticator) {
+    self.set_authenticator(authenticator.clone());
+  }
+
+  fn get_user_authenticator(&self) -> Authenticator {
+    self.get_authenticator()
+  }
+
   fn set_network_reachable(&self, reachable: bool) {
-    if let Ok(server) = self.get_server(&self.get_server_type()) {
+    if let Ok(server) = self.get_server() {
       server.set_network_reachable(reachable);
     }
   }
@@ -87,27 +101,10 @@ impl UserCloudServiceProvider for ServerProvider {
     self.encryption.write().set_secret(secret);
   }
 
-  /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
-  ///
-  /// Each [Authenticator] has a corresponding [Server]. The [Server] is used
-  /// to create a new [AppFlowyServer] if it doesn't exist. Once the [Server] is set,
-  /// it will be used when user open the app again.
-  ///
-  fn set_authenticator(&self, authenticator: Authenticator) {
-    let server_type: Server = authenticator.into();
-    self.set_server_type(server_type.clone());
-  }
-
-  fn get_authenticator(&self) -> Authenticator {
-    let server_type = self.get_server_type();
-    Authenticator::from(server_type)
-  }
-
   /// Returns the [UserCloudService] base on the current [Server].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    let server_type = self.get_server_type();
-    let user_service = self.get_server(&server_type)?.user_service();
+    let user_service = self.get_server()?.user_service();
     Ok(user_service)
   }
 
@@ -126,19 +123,19 @@ impl UserCloudServiceProvider for ServerProvider {
 
 impl FolderCloudService for ServerProvider {
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
 
   fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move { server?.folder_service().open_workspace(&workspace_id).await })
   }
 
   fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move { server?.folder_service().get_all_workspace().await })
   }
 
@@ -148,7 +145,7 @@ impl FolderCloudService for ServerProvider {
     uid: &i64,
   ) -> FutureResult<Option<FolderData>, Error> {
     let uid = *uid;
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       server?
@@ -164,7 +161,7 @@ impl FolderCloudService for ServerProvider {
     limit: usize,
   ) -> FutureResult<Vec<FolderSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .folder_service()
@@ -182,7 +179,7 @@ impl FolderCloudService for ServerProvider {
   ) -> FutureResult<CollabDocState, Error> {
     let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .folder_service()
@@ -191,24 +188,24 @@ impl FolderCloudService for ServerProvider {
     })
   }
 
-  fn batch_create_collab_object(
+  fn batch_create_collab_object_f(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,
   ) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .folder_service()
-        .batch_create_collab_object(&workspace_id, objects)
+        .batch_create_collab_object_f(&workspace_id, objects)
         .await
     })
   }
 
   fn service_name(&self) -> String {
     self
-      .get_server(&self.get_server_type())
+      .get_server()
       .map(|provider| provider.folder_service().service_name())
       .unwrap_or_default()
   }
@@ -222,7 +219,7 @@ impl DatabaseCloudService for ServerProvider {
     workspace_id: &str,
   ) -> FutureResult<CollabDocState, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
@@ -239,7 +236,7 @@ impl DatabaseCloudService for ServerProvider {
     workspace_id: &str,
   ) -> FutureResult<CollabDocStateByOid, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .database_service()
@@ -253,7 +250,7 @@ impl DatabaseCloudService for ServerProvider {
     object_id: &str,
     limit: usize,
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
@@ -272,7 +269,7 @@ impl DocumentCloudService for ServerProvider {
   ) -> FutureResult<CollabDocState, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .document_service()
@@ -288,7 +285,7 @@ impl DocumentCloudService for ServerProvider {
     workspace_id: &str,
   ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
@@ -304,7 +301,7 @@ impl DocumentCloudService for ServerProvider {
     workspace_id: &str,
   ) -> FutureResult<Option<DocumentData>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
@@ -315,23 +312,35 @@ impl DocumentCloudService for ServerProvider {
   }
 }
 
-impl CollabStorageProvider for ServerProvider {
-  fn storage_source(&self) -> CollabDataSource {
+impl CollabCloudPluginProvider for ServerProvider {
+  fn provider_type(&self) -> CollabPluginProviderType {
     self.get_server_type().into()
   }
 
   #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
-  fn get_plugins(&self, context: CollabStorageProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+    // If the user is local, we don't need to create a sync plugin.
+    if self.get_server_type().is_local() {
+      debug!(
+        "User authenticator is local, skip create sync plugin for: {}",
+        context
+      );
+      return to_fut(async move { vec![] });
+    }
+
     match context {
-      CollabStorageProviderContext::Local => to_fut(async move { vec![] }),
-      CollabStorageProviderContext::AppFlowyCloud {
+      CollabPluginProviderContext::Local => to_fut(async move { vec![] }),
+      CollabPluginProviderContext::AppFlowyCloud {
         uid: _,
         collab_object,
         local_collab,
       } => {
-        if let Ok(server) = self.get_server(&Server::AppFlowyCloud) {
+        if let Ok(server) = self.get_server() {
           to_fut(async move {
             let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
+
+            // If the user is local, we don't need to create a sync plugin.
+
             match server.collab_ws_channel(&collab_object.object_id).await {
               Ok(Some((channel, ws_connect_state, is_connected))) => {
                 let origin = CollabOrigin::Client(CollabClient::new(
@@ -369,7 +378,7 @@ impl CollabStorageProvider for ServerProvider {
           to_fut(async move { vec![] })
         }
       },
-      CollabStorageProviderContext::Supabase {
+      CollabPluginProviderContext::Supabase {
         uid,
         collab_object,
         local_collab,
@@ -377,7 +386,7 @@ impl CollabStorageProvider for ServerProvider {
       } => {
         let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
         if let Some(remote_collab_storage) = self
-          .get_server(&Server::Supabase)
+          .get_server()
           .ok()
           .and_then(|provider| provider.collab_storage(&collab_object))
         {
@@ -397,7 +406,7 @@ impl CollabStorageProvider for ServerProvider {
   }
 
   fn is_sync_enabled(&self) -> bool {
-    *self.enable_sync.read()
+    *self.user_enable_sync.read()
   }
 }
 

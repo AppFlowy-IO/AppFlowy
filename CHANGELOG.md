@@ -1,5 +1,28 @@
 # Release Notes
 
+## Version 0.4.1 - 01/03/2024
+### Bug fixes
+- Fix import AppFlowy data folder
+
+## Version 0.4.0 - 12/30/2023
+1. Added capability to import data from an AppFlowy data folder. For detailed information, please see [AppFlowy Data Storage Documentation](https://docs.appflowy.io/docs/appflowy/product/data-storage).
+2. Enhanced user interface and fixed various bugs.
+3. Improved the efficiency of data synchronization in AppFlowy Cloud
+
+## Version 0.3.9.1 - 12/07/2023
+
+### Bug fixes
+- Fix potential blank pages that may occur in an empty document
+
+## Version 0.3.9 - 12/07/2023
+
+### New Features
+- Support inserting a new field to the left or right of an existing one
+
+### Bug fixes
+- Fix some emojis are shown in black/white
+- Fix unable to rename a subpage of subpage
+
 ## Version 0.3.8 - 11/13/2023
 
 ### New Features

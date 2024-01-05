@@ -9,8 +9,8 @@ use collab_entity::CollabType;
 use collab_folder::FolderData;
 
 use event_integration::event_builder::EventBuilder;
-use flowy_folder2::entities::{FolderSnapshotPB, RepeatedFolderSnapshotPB, WorkspaceIdPB};
-use flowy_folder2::event_map::FolderEvent::GetFolderSnapshots;
+use flowy_folder::entities::{FolderSnapshotPB, RepeatedFolderSnapshotPB, WorkspaceIdPB};
+use flowy_folder::event_map::FolderEvent::GetFolderSnapshots;
 
 use crate::util::FlowySupabaseTest;
 

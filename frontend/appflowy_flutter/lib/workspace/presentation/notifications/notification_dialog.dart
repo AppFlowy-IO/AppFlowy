@@ -6,7 +6,7 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/inbox_acti
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_hub_title.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_view.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';

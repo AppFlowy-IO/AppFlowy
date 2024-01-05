@@ -4,9 +4,9 @@ import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
 // Delete the view from trash, which means the view was deleted permanently

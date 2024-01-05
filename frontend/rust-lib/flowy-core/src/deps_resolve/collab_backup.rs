@@ -1,7 +1,7 @@
 use std::sync::{Arc, Weak};
 
-use collab::core::collab_plugin::EncodedCollabV1;
-use collab_plugins::local_storage::rocksdb::RocksdbBackup;
+use collab::core::collab_plugin::EncodedCollab;
+use collab_plugins::local_storage::rocksdb::rocksdb_plugin::RocksdbBackup;
 use diesel::SqliteConnection;
 
 use flowy_error::FlowyError;
@@ -22,12 +22,7 @@ impl RocksdbBackupImpl {
 }
 
 impl RocksdbBackup for RocksdbBackupImpl {
-  fn save_doc(
-    &self,
-    uid: i64,
-    object_id: &str,
-    data: EncodedCollabV1,
-  ) -> Result<(), anyhow::Error> {
+  fn save_doc(&self, uid: i64, object_id: &str, data: EncodedCollab) -> Result<(), anyhow::Error> {
     let row = RocksdbBackupRow {
       object_id: object_id.to_string(),
       timestamp: timestamp(),
@@ -40,7 +35,7 @@ impl RocksdbBackup for RocksdbBackupImpl {
     Ok(())
   }
 
-  fn get_doc(&self, uid: i64, object_id: &str) -> Result<EncodedCollabV1, anyhow::Error> {
+  fn get_doc(&self, uid: i64, object_id: &str) -> Result<EncodedCollab, anyhow::Error> {
     let sql = dsl::rocksdb_backup
       .filter(dsl::object_id.eq(object_id))
       .into_boxed();
@@ -50,7 +45,7 @@ impl RocksdbBackup for RocksdbBackupImpl {
       .get()
       .map(|mut conn| sql.first::<RocksdbBackupRow>(&mut *conn))??;
 
-    Ok(EncodedCollabV1::decode_from_bytes(&row.data)?)
+    Ok(EncodedCollab::decode_from_bytes(&row.data)?)
   }
 }
 

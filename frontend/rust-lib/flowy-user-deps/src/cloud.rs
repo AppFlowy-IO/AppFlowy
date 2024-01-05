@@ -5,13 +5,14 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use collab::core::collab::CollabDocState;
-use collab_entity::CollabObject;
+use collab_entity::{CollabObject, CollabType};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
+
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -85,7 +86,15 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
 
-  /// Sets the network reachability status.
+  /// Sets the authenticator when user sign in or sign up.
+  ///
+  /// # Arguments
+  /// * `authenticator`: An `Authenticator` object.
+  fn set_user_authenticator(&self, authenticator: &Authenticator);
+
+  fn get_user_authenticator(&self) -> Authenticator;
+
+  /// Sets the network reachability statset_user_authenticatorus.
   ///
   /// # Arguments
   /// * `reachable`: A boolean indicating whether the network is reachable.
@@ -96,18 +105,6 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   /// # Arguments
   /// * `secret`: A `String` representing the encryption secret.
   fn set_encrypt_secret(&self, secret: String);
-
-  /// Sets the authenticator used for authentication processes.
-  ///
-  /// # Arguments
-  /// * `authenticator`: An `Authenticator` object.
-  fn set_authenticator(&self, authenticator: Authenticator);
-
-  /// Retrieves the current authenticator.
-  ///
-  /// # Returns
-  /// The current `Authenticator` object.
-  fn get_authenticator(&self) -> Authenticator;
 
   /// Retrieves the user-specific cloud service.
   ///
@@ -213,6 +210,12 @@ pub trait UserCloudService: Send + Sync + 'static {
     data: Vec<u8>,
     override_if_exist: bool,
   ) -> FutureResult<(), FlowyError>;
+
+  fn batch_create_collab_object(
+    &self,
+    workspace_id: &str,
+    objects: Vec<UserCollabParams>,
+  ) -> FutureResult<(), Error>;
 }
 
 pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;
@@ -232,4 +235,11 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
     .as_str();
   let uuid = Uuid::from_str(uuid)?;
   Ok(uuid)
+}
+
+#[derive(Debug)]
+pub struct UserCollabParams {
+  pub object_id: String,
+  pub encoded_collab: Vec<u8>,
+  pub collab_type: CollabType,
 }

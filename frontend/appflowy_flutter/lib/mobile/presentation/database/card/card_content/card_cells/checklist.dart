@@ -1,7 +1,7 @@
 import 'package:appflowy/mobile/presentation/database/card/card_content/card_cells/card_cells.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/widgets/card/cells/card_cell.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_bloc.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -55,6 +55,10 @@ impl FlowyError {
     self.code == ErrorCode::RecordNotFound
   }
 
+  pub fn is_already_exists(&self) -> bool {
+    self.code == ErrorCode::RecordAlreadyExists
+  }
+
   pub fn is_unauthorized(&self) -> bool {
     self.code == ErrorCode::UserUnauthorized || self.code == ErrorCode::RecordNotFound
   }

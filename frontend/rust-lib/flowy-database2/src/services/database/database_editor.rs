@@ -1304,12 +1304,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       if let (Some(database), Some(editor_by_view_id)) =
         (weak_database.upgrade(), weak_editor_by_view_id.upgrade())
       {
-        let view_editors = editor_by_view_id
-          .read()
-          .await
-          .values()
-          .map(|editor| editor.clone())
-          .collect();
+        let view_editors = editor_by_view_id.read().await.values().cloned().collect();
         let _ =
           update_field_type_option_fn(&database, &view_editors, type_option_data, old_field).await;
       }

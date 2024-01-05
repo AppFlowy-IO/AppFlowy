@@ -7,10 +7,10 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabDataSource};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager;
-use flowy_folder2::manager::FolderManager;
+use flowy_document::manager::DocumentManager;
+use flowy_folder::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
@@ -21,7 +21,6 @@ use flowy_user_deps::cloud::UserCloudServiceProvider;
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
-pub use module::*;
 
 use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::collab_backup::RocksdbBackupImpl;
@@ -55,13 +54,13 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  #[cfg(feature = "single_thread")]
+  #[cfg(feature = "wasm_build")]
   pub async fn new(config: AppFlowyCoreConfig) -> Self {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     Self::init(config, runtime).await
   }
 
-  #[cfg(not(feature = "single_thread"))]
+  #[cfg(not(feature = "wasm_build"))]
   pub fn new(config: AppFlowyCoreConfig) -> Self {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     let cloned_runtime = runtime.clone();
@@ -191,14 +190,15 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
-    let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
+    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
+      runtime,
       make_plugins(
         Arc::downgrade(&folder_manager),
         Arc::downgrade(&database_manager),
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
-      )
-    }));
+      ),
+    ));
 
     Self {
       config,
@@ -239,12 +239,12 @@ fn init_user_manager(
   )
 }
 
-impl From<Server> for CollabDataSource {
+impl From<Server> for CollabPluginProviderType {
   fn from(server_type: Server) -> Self {
     match server_type {
-      Server::Local => CollabDataSource::Local,
-      Server::AppFlowyCloud => CollabDataSource::AppFlowyCloud,
-      Server::Supabase => CollabDataSource::Supabase,
+      Server::Local => CollabPluginProviderType::Local,
+      Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
+      Server::Supabase => CollabPluginProviderType::Supabase,
     }
   }
 }

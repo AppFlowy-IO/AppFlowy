@@ -1,39 +1,40 @@
 use crate::services::data_import::appflowy_data_import::import_appflowy_data_folder;
 use crate::services::entities::Session;
-use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use std::collections::HashMap;
 
+use crate::services::data_import::ImportContext;
 use collab::preclude::Collab;
 use flowy_folder_deps::entities::ImportData;
 use std::sync::Arc;
+use tracing::instrument;
 
 pub enum ImportDataSource {
   AppFlowyDataFolder {
     path: String,
-    container_name: String,
+    container_name: Option<String>,
   },
 }
 
+/// Import appflowy data from the given path.
+/// If the container name is not empty, then the data will be imported to the given container.
+/// Otherwise, the data will be imported to the current workspace.
 pub(crate) fn import_data(
   session: &Session,
-  source: ImportDataSource,
-  collab_db: Arc<RocksCollabDB>,
+  context: ImportContext,
+  collab_db: Arc<CollabKVDB>,
 ) -> anyhow::Result<ImportData> {
-  match source {
-    ImportDataSource::AppFlowyDataFolder {
-      path,
-      container_name,
-    } => import_appflowy_data_folder(session, path, container_name, &collab_db),
-  }
+  import_appflowy_data_folder(session, &session.user_workspace.id, &collab_db, context)
 }
 
+#[instrument(level = "debug", skip_all)]
 pub fn load_collab_by_oid<'a, R>(
   uid: i64,
   collab_read_txn: &R,
   object_ids: &[String],
 ) -> HashMap<String, Collab>
 where
-  R: YrsDocAction<'a>,
+  R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
   let mut collab_by_oid = HashMap::new();
@@ -45,7 +46,7 @@ where
       Ok(_) => {
         collab_by_oid.insert(object_id.clone(), collab);
       },
-      Err(err) => tracing::error!("🔴Initialize migration collab failed: {:?} ", err),
+      Err(err) => tracing::error!("🔴import collab:{} failed: {:?} ", object_id, err),
     }
   }
 

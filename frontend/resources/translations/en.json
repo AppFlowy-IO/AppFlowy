@@ -303,7 +303,8 @@
       "importAppFlowyData": "Import Data from External AppFlowy Folder",
       "importAppFlowyDataDescription": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
       "importSuccess": "Successfully imported the AppFlowy data folder",
-      "importFailed": "Importing the AppFlowy data folder failed"
+      "importFailed": "Importing the AppFlowy data folder failed",
+      "importGuide": "For further details, please check the referenced document"
     },
     "notifications": {
       "enableNotifications": {

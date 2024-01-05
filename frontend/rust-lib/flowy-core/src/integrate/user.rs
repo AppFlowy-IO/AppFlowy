@@ -6,9 +6,9 @@ use tracing::event;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager;
+use flowy_document::manager::DocumentManager;
 use flowy_error::FlowyResult;
-use flowy_folder2::manager::{FolderInitDataSource, FolderManager};
+use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user_deps::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_deps::entities::{Authenticator, UserProfile, UserWorkspace};
@@ -28,11 +28,10 @@ pub(crate) struct UserStatusCallbackImpl {
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
-  fn authenticator_did_changed(&self, _auth_type: Authenticator) {}
-
   fn did_init(
     &self,
     user_id: i64,
+    user_authenticator: &Authenticator,
     cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     _device_id: &str,
@@ -43,6 +42,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
+
+    self
+      .server_provider
+      .set_user_authenticator(user_authenticator);
 
     if let Some(cloud_config) = cloud_config {
       self
@@ -131,6 +134,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
     let user_workspace = user_workspace.clone();
     let document_manager = self.document_manager.clone();
+    self
+      .server_provider
+      .set_user_authenticator(&user_profile.authenticator);
     let server_type = self.server_provider.get_server_type();
 
     to_fut(async move {

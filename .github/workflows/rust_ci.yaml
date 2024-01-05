@@ -8,7 +8,6 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
-      - "shared-lib/**"
 
   pull_request:
     branches:
@@ -17,11 +16,10 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
-      - "shared-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_TOOLCHAIN: "1.70"
+  RUST_TOOLCHAIN: "1.75"
 
 jobs:
   test-on-ubuntu:
@@ -101,5 +99,5 @@ jobs:
         working-directory: frontend/rust-lib/
 
       - name: clippy rust-lib
-        run: cargo clippy --all
+        run: cargo clippy --all-targets -- -D warnings
         working-directory: frontend/rust-lib

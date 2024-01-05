@@ -1,7 +1,7 @@
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';

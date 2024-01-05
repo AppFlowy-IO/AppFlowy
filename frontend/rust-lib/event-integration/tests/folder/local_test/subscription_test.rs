@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use event_integration::EventIntegrationTest;
-use flowy_folder2::entities::{ChildViewUpdatePB, RepeatedViewPB, UpdateViewPayloadPB};
-use flowy_folder2::notification::FolderNotification;
+use flowy_folder::entities::{ChildViewUpdatePB, RepeatedViewPB, UpdateViewPayloadPB};
+use flowy_folder::notification::FolderNotification;
 
 use crate::util::receive_with_timeout;
 

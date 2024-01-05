@@ -9,7 +9,7 @@ use collab_entity::CollabObject;
 use parking_lot::RwLock;
 
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_deps::cloud::{UserCloudService, UserUpdate, UserUpdateReceiver};
+use flowy_user_deps::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -248,6 +248,31 @@ where
         },
       );
       client.create_collab(params).await?;
+      Ok(())
+    })
+  }
+
+  fn batch_create_collab_object(
+    &self,
+    workspace_id: &str,
+    objects: Vec<UserCollabParams>,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let params = objects
+        .into_iter()
+        .map(|object| CollabParams {
+          object_id: object.object_id,
+          encoded_collab_v1: object.encoded_collab,
+          collab_type: object.collab_type,
+          override_if_exist: false,
+        })
+        .collect::<Vec<_>>();
+      try_get_client?
+        .batch_create_collab(&workspace_id, params)
+        .await
+        .map_err(FlowyError::from)?;
       Ok(())
     })
   }

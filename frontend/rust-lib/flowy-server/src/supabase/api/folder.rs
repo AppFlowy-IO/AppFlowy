@@ -154,7 +154,7 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn batch_create_collab_object(
+  fn batch_create_collab_object_f(
     &self,
     _workspace_id: &str,
     _objects: Vec<FolderCollabParams>,

@@ -3,8 +3,8 @@ use std::convert::TryFrom;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use flowy_folder2::entities::ImportAppFlowyDataPB;
-use flowy_folder2::event_map::FolderEvent;
+use flowy_folder::entities::ImportAppFlowyDataPB;
+use flowy_folder::event_map::FolderEvent;
 use nanoid::nanoid;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
@@ -190,10 +190,14 @@ impl EventIntegrationTest {
     Ok(user_profile)
   }
 
-  pub async fn import_appflowy_data(&self, path: String, name: &str) -> Result<(), FlowyError> {
+  pub async fn import_appflowy_data(
+    &self,
+    path: String,
+    name: Option<String>,
+  ) -> Result<(), FlowyError> {
     let payload = ImportAppFlowyDataPB {
       path,
-      import_container_name: name.to_string(),
+      import_container_name: name,
     };
     match EventBuilder::new(self.clone())
       .event(FolderEvent::ImportAppFlowyDataFolder)

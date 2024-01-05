@@ -1,8 +1,8 @@
 use collab_document::blocks::json_str_to_hashmap;
 use event_integration::document::document_event::DocumentEventTest;
 use event_integration::document::utils::*;
-use flowy_document2::entities::*;
-use flowy_document2::parser::parser_entities::{
+use flowy_document::entities::*;
+use flowy_document::parser::parser_entities::{
   ConvertDataToJsonPayloadPB, ConvertDocumentPayloadPB, InputType, NestedBlock, ParseTypePB,
 };
 use serde_json::{json, Value};
