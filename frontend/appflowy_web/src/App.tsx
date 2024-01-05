@@ -1,11 +1,19 @@
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { invoke_request } from "../appflowy-wasm/pkg/appflowy_wasm";
+import {async_event, init_sdk, init_tracing} from "../appflowy-wasm/pkg/appflowy_wasm";
 import { useEffect } from "react";
 import { initApp } from "./application/init_app.ts";
 import { subscribeNotification } from "./application/notification.ts";
 import { NotifyArgs } from "./@types/global";
+
+
+async function runWasm() {
+    init_tracing();
+    init_sdk("sdk config"); // Call your exported Wasm function.
+}
+runWasm();
+
 
 function App() {
   useEffect(() => {
@@ -17,7 +25,7 @@ function App() {
 
   const handleClick = async () => {
     const payload = new TextEncoder().encode("someString");
-    const res = await invoke_request("add", payload);
+    const res = await async_event("add", payload);
     console.log(res);
   };
 

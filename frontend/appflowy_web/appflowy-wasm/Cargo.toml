@@ -15,9 +15,10 @@ parking_lot.workspace = true
 tracing.workspace = true
 tracing-core = { version = "0.1.32" }
 tracing-wasm = "0.2.1"
-
+flowy-notification = { workspace = true, features = ["ts"] }
 
 [workspace.dependencies]
 lib-dispatch = { path = "../../rust-lib/lib-dispatch" }
 parking_lot = { version = "0.12.1" }
 tracing = { version = "0.1.22" }
+flowy-notification = { path = "../../rust-lib/flowy-notification" }
