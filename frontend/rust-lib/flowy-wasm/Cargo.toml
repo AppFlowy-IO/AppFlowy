@@ -12,6 +12,8 @@ lib-dispatch = { workspace = true, features = ["wasm_build"] }
 #flowy-core = { workspace = true, features = ["wasm_build"] }
 parking_lot.workspace = true
 tracing.workspace = true
+tracing-core = { version = "0.1.32" }
+tracing-wasm = "0.2.1"
 
 
 [lib]

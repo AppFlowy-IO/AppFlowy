@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
-use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginEventResponse, AFPluginRequest};
+use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest};
 use lib_dispatch::runtime::AFPluginRuntime;
-use parking_lot::{Mutex, RwLock};
+use parking_lot::Mutex;
 use std::sync::Arc;
 use tracing::trace;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -12,10 +12,15 @@ lazy_static! {
 
 #[no_mangle]
 #[wasm_bindgen]
-pub extern "C" fn init_sdk(data: String) -> i64 {
+pub fn init_sdk(data: String) -> i64 {
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   *DISPATCHER.0.lock() = Some(Arc::new(AFPluginDispatcher::new(runtime, vec![])));
   0
+}
+
+#[wasm_bindgen]
+pub fn init_tracing() {
+  tracing_wasm::set_as_global_default();
 }
 
 struct MutexDispatcher(Arc<Mutex<Option<Arc<AFPluginDispatcher>>>>);
@@ -29,21 +34,25 @@ impl MutexDispatcher {
 unsafe impl Sync for MutexDispatcher {}
 unsafe impl Send for MutexDispatcher {}
 
-#[no_mangle]
 #[wasm_bindgen]
-pub extern "C" fn async_event(wasm_event: WasmEvent) {
-  trace!("[WASM]: receives event: {}", &wasm_event.name,);
+pub fn async_event(name: String, payload: Vec<u8>) {
+  trace!("[WASM]: receives event: {}", name);
 
   let dispatcher = DISPATCHER.0.lock().as_ref().unwrap().clone();
   AFPluginDispatcher::boxed_async_send_with_callback(
     dispatcher,
-    wasm_event,
+    WasmEvent { name, payload },
     |_| Box::pin(async {}),
   );
 }
 
 #[wasm_bindgen]
-#[derive(Default)]
+extern "C" {
+  #[wasm_bindgen(js_namespace = console)]
+  pub fn log(s: &str);
+}
+
+#[wasm_bindgen]
 pub struct WasmEvent {
   name: String,
   payload: Vec<u8>,
