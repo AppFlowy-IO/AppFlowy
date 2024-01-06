@@ -15,7 +15,7 @@ use parking_lot::Mutex;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVAction, CollabKVDB};
+use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
@@ -219,7 +219,6 @@ impl DocumentManager {
         snapshot_id: snapshot.snapshot_id,
         snapshot_desc: "".to_string(),
         created_at: snapshot.created_at,
-        data: snapshot.data,
       })
       .collect::<Vec<_>>();
 
@@ -236,12 +235,13 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(
+      .build_with_config(
         uid,
         doc_id,
         CollabType::Document,
-        doc_state,
         db,
+        doc_state,
+        CollabPersistenceConfig::default().snapshot_per_update(100),
         CollabBuilderConfig::default().sync_enable(sync_enable),
       )
       .await?;

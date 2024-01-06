@@ -194,7 +194,7 @@ impl AppFlowyCollabBuilder {
         object_type,
         collab_db,
         collab_doc_state,
-        &persistence_config,
+        persistence_config,
         build_config,
       )
       .await
@@ -222,7 +222,7 @@ impl AppFlowyCollabBuilder {
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: CollabDocState,
-    persistence_config: &CollabPersistenceConfig,
+    persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
     let collab = Arc::new(
@@ -232,7 +232,6 @@ impl AppFlowyCollabBuilder {
           uid,
           collab_db.clone(),
           persistence_config.clone(),
-          self.rocksdb_backup.lock().clone(),
         ))
         .with_device_id(self.device_id.clone())
         .build()?,
