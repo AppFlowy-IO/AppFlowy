@@ -252,6 +252,7 @@ jobs:
         working-directory: AppFlowy-Cloud
         run: |
           docker compose down -v --remove-orphans
+          docker pull appflowyinc/appflowy_cloud:latest
           docker compose up -d
           docker ps -a
 
