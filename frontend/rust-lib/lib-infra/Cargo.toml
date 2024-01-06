@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 chrono = { workspace = true,  default-features = false, features = ["clock"] }
@@ -15,6 +17,8 @@ async-trait.workspace = true
 md5 = "0.7.0"
 anyhow.workspace = true
 walkdir = "2.4.0"
-zip = "0.6.6"
 tempfile = "3.8.1"
 validator = "0.16.0"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+zip = "0.6.6"

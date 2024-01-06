@@ -4,22 +4,20 @@ on:
   push:
     branches:
       - "main"
-      - "develop"
       - "release/*"
     paths:
       - ".github/workflows/flutter_ci.yaml"
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
 
   pull_request:
     branches:
       - "main"
-      - "develop"
       - "release/*"
     paths:
       - ".github/workflows/flutter_ci.yaml"
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
 
 env:
   CARGO_TERM_COLOR: always

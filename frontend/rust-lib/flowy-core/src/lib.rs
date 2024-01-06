@@ -54,13 +54,13 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  #[cfg(feature = "wasm_build")]
+  #[cfg(feature = "single_thread")]
   pub async fn new(config: AppFlowyCoreConfig) -> Self {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     Self::init(config, runtime).await
   }
 
-  #[cfg(not(feature = "wasm_build"))]
+  #[cfg(not(feature = "single_thread"))]
   pub fn new(config: AppFlowyCoreConfig) -> Self {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     let cloned_runtime = runtime.clone();

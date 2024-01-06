@@ -16,7 +16,7 @@ where
   BoxServiceFactory(Box::new(FactoryWrapper(factory)))
 }
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 type Inner<Cfg, Req, Res, Err> = Box<
   dyn AFPluginServiceFactory<
     Req,
@@ -27,7 +27,7 @@ type Inner<Cfg, Req, Res, Err> = Box<
     Future = AFBoxFuture<'static, Result<BoxService<Req, Res, Err>, Err>>,
   >,
 >;
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 type Inner<Cfg, Req, Res, Err> = Box<
   dyn AFPluginServiceFactory<
       Req,
@@ -58,12 +58,12 @@ where
   }
 }
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 pub type BoxService<Req, Res, Err> = Box<
   dyn Service<Req, Response = Res, Error = Err, Future = AFBoxFuture<'static, Result<Res, Err>>>,
 >;
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 pub type BoxService<Req, Res, Err> = Box<
   dyn Service<Req, Response = Res, Error = Err, Future = AFBoxFuture<'static, Result<Res, Err>>>
     + Sync

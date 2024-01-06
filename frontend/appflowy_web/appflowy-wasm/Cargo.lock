@@ -49,6 +49,7 @@ dependencies = [
  "lazy_static",
  "lib-dispatch",
  "parking_lot",
+ "serde",
  "tracing",
  "tracing-core",
  "tracing-wasm",
