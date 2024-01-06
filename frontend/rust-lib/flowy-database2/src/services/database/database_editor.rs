@@ -16,6 +16,7 @@ use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
+use crate::services::calculations::Calculation;
 use crate::services::cell::{
   apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
 };
@@ -224,6 +225,14 @@ impl DatabaseEditor {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     view_editor.v_delete_sort(params).await?;
     Ok(())
+  }
+
+  pub async fn get_all_calculations(&self, view_id: &str) -> RepeatedCalculationsPB {
+    if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
+      view_editor.v_get_all_calculations().await.into()
+    } else {
+      RepeatedCalculationsPB { items: vec![] }
+    }
   }
 
   pub async fn get_all_filters(&self, view_id: &str) -> RepeatedFilterPB {
@@ -1421,6 +1430,16 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 
   fn remove_all_sorts(&self, view_id: &str) {
     self.database.lock().remove_all_sorts(view_id);
+  }
+
+  fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>> {
+    self
+      .database
+      .lock()
+      .get_all_calculations(view_id)
+      .into_iter()
+      .map(Arc::new)
+      .collect()
   }
 
   fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>> {

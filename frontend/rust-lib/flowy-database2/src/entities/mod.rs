@@ -14,6 +14,7 @@ mod share_entities;
 mod sort_entities;
 mod type_option_entities;
 mod view_entities;
+pub mod calculation_entities;
 
 #[macro_use]
 mod macros;
@@ -33,3 +34,4 @@ pub use share_entities::*;
 pub use sort_entities::*;
 pub use type_option_entities::*;
 pub use view_entities::*;
+pub use calculation_entities::*;

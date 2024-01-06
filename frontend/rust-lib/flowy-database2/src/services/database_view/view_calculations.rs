@@ -1,0 +1,53 @@
+use std::sync::Arc;
+
+use collab_database::rows::RowCell;
+use lib_infra::future::Fut;
+
+use crate::services::calculations::{
+  CalculationsController, CalculationsDelegate, CalculationsTaskHandler,
+};
+use crate::services::cell::CellCache;
+use crate::services::database_view::{
+  gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewOperation,
+};
+
+pub async fn make_calculations_controller(
+  view_id: &str,
+  delegate: Arc<dyn DatabaseViewOperation>,
+  notifier: DatabaseViewChangedNotifier,
+  cell_cache: CellCache,
+) -> Arc<CalculationsController> {
+  // let calculations = delegate.get_all_calculations(view_id);
+  let task_scheduler = delegate.get_task_scheduler();
+  let calculations_delegate = DatabaseViewCalculationsDelegateImpl(delegate.clone());
+  let handler_id = gen_handler_id();
+
+  let calculations_controller = CalculationsController::new(
+    view_id,
+    &handler_id,
+    calculations_delegate,
+    // calculations,
+    cell_cache,
+    task_scheduler.clone(),
+    notifier,
+  )
+  .await;
+
+  let calculations_controller = Arc::new(calculations_controller);
+  task_scheduler
+    .write()
+    .await
+    .register_handler(CalculationsTaskHandler::new(
+      handler_id,
+      calculations_controller.clone(),
+    ));
+  calculations_controller
+}
+
+struct DatabaseViewCalculationsDelegateImpl(Arc<dyn DatabaseViewOperation>);
+
+impl CalculationsDelegate for DatabaseViewCalculationsDelegateImpl {
+  fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {
+    self.0.get_cells_for_field(view_id, field_id)
+  }
+}

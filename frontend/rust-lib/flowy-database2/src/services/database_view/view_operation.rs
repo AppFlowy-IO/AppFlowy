@@ -12,6 +12,7 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::{Fut, FutureResult};
 
 use crate::entities::{FieldType, FieldVisibility};
+use crate::services::calculations::Calculation;
 use crate::services::field::TypeOptionCellDataHandler;
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::Filter;
@@ -79,6 +80,8 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
   fn get_all_sorts(&self, view_id: &str) -> Vec<Sort>;
 
   fn remove_all_sorts(&self, view_id: &str);
+
+  fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>>;
 
   fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>>;
 

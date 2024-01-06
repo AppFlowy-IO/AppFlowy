@@ -19,6 +19,7 @@ use crate::entities::{
   SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
+use crate::services::calculations::{Calculation, CalculationsController};
 use crate::services::cell::CellCache;
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
 use crate::services::database_view::view_filter::make_filter_controller;
@@ -40,11 +41,14 @@ use crate::services::group::{GroupChangesets, GroupController, MoveGroupRowConte
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 
+use super::view_calculations::make_calculations_controller;
+
 pub struct DatabaseViewEditor {
   pub view_id: String,
   delegate: Arc<dyn DatabaseViewOperation>,
   group_controller: Arc<RwLock<Option<Box<dyn GroupController>>>>,
   filter_controller: Arc<FilterController>,
+  calculations_controller: Arc<CalculationsController>,
   sort_controller: Arc<RwLock<SortController>>,
   pub notifier: DatabaseViewChangedNotifier,
 }
@@ -83,7 +87,16 @@ impl DatabaseViewEditor {
       delegate.clone(),
       notifier.clone(),
       filter_controller.clone(),
-      cell_cache,
+      cell_cache.clone(),
+    )
+    .await;
+
+    // Calculations
+    let calculations_controller = make_calculations_controller(
+      &view_id,
+      delegate.clone(),
+      notifier.clone(),
+      cell_cache.clone(),
     )
     .await;
 
@@ -93,6 +106,7 @@ impl DatabaseViewEditor {
       group_controller,
       filter_controller,
       sort_controller,
+      calculations_controller,
       notifier,
     })
   }
@@ -506,6 +520,10 @@ impl DatabaseViewEditor {
     notification.delete_sorts = all_sorts.into_iter().map(SortPB::from).collect();
     notify_did_update_sort(notification).await;
     Ok(())
+  }
+
+  pub async fn v_get_all_calculations(&self) -> Vec<Arc<Calculation>> {
+    self.delegate.get_all_calculations(&self.view_id)
   }
 
   pub async fn v_get_all_filters(&self) -> Vec<Arc<Filter>> {

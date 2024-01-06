@@ -42,3 +42,24 @@ macro_rules! impl_into_field_visibility {
     }
   };
 }
+
+#[macro_export]
+macro_rules! impl_into_calculation_type {
+  ($target: ident) => {
+    impl std::convert::From<$target> for CalculationType {
+      fn from(ty: $target) -> Self {
+        match ty {
+          0 => CalculationType::Average,
+          1 => CalculationType::Max,
+          2 => CalculationType::Median,
+          3 => CalculationType::Min,
+          4 => CalculationType::Sum,
+          _ => {
+            tracing::error!("🔴 Can't parse CalculationType from value: {}", ty);
+            CalculationType::Average
+          },
+        }
+      }
+    }
+  };
+}
