@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -59,7 +60,7 @@ CommandShortcutEventHandler _textLeftAlignCommandHandler = (editorState) {
 
   // because the event handler is not async, so we need to use wrap the async function here
   () async {
-    await _textAlignHandler(editorState, 'left');
+    await _textAlignHandler(editorState, leftAlignmentKey);
   }();
 
   return KeyEventResult.handled;
@@ -72,7 +73,7 @@ CommandShortcutEventHandler _textCenterAlignCommandHandler = (editorState) {
 
   // because the event handler is not async, so we need to use wrap the async function here
   () async {
-    await _textAlignHandler(editorState, 'center');
+    await _textAlignHandler(editorState, centerAlignmentKey);
   }();
 
   return KeyEventResult.handled;
@@ -85,7 +86,7 @@ CommandShortcutEventHandler _textRightAlignCommandHandler = (editorState) {
 
   // because the event handler is not async, so we need to use wrap the async function here
   () async {
-    await _textAlignHandler(editorState, 'right');
+    await _textAlignHandler(editorState, rightAlignmentKey);
   }();
 
   return KeyEventResult.handled;

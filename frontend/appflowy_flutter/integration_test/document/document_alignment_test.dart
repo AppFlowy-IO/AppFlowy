@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,7 +67,7 @@ void main() {
         ],
         tester: tester,
       );
-      expect(first.attributes[blockComponentAlign], 'right');
+      expect(first.attributes[blockComponentAlign], rightAlignmentKey);
 
       // expect to see text aligned to the center
       await FlowyTestKeyboard.simulateKeyDownEvent(
@@ -77,7 +78,7 @@ void main() {
         ],
         tester: tester,
       );
-      expect(first.attributes[blockComponentAlign], 'center');
+      expect(first.attributes[blockComponentAlign], centerAlignmentKey);
 
       // expect to see text aligned to the left
       await FlowyTestKeyboard.simulateKeyDownEvent(
@@ -88,7 +89,7 @@ void main() {
         ],
         tester: tester,
       );
-      expect(first.attributes[blockComponentAlign], 'left');
+      expect(first.attributes[blockComponentAlign], leftAlignmentKey);
     });
   });
 }
