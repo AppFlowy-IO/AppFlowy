@@ -245,47 +245,41 @@ impl AppFlowyCollabBuilder {
         let _enter = span.enter();
         match provider_type {
           CollabPluginProviderType::AppFlowyCloud => {
-            #[cfg(feature = "appflowy_cloud_integrate")]
-            {
-              trace!("init appflowy cloud collab plugins");
-              let local_collab = Arc::downgrade(&collab);
-              let plugins = self
-                .plugin_provider
-                .read()
-                .await
-                .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
-                  uid,
-                  collab_object: collab_object.clone(),
-                  local_collab,
-                })
-                .await;
+            trace!("init appflowy cloud collab plugins");
+            let local_collab = Arc::downgrade(&collab);
+            let plugins = self
+              .plugin_provider
+              .read()
+              .await
+              .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
+                uid,
+                collab_object: collab_object.clone(),
+                local_collab,
+              })
+              .await;
 
-              trace!("add appflowy cloud collab plugins: {}", plugins.len());
-              for plugin in plugins {
-                collab.lock().add_plugin(plugin);
-              }
+            trace!("add appflowy cloud collab plugins: {}", plugins.len());
+            for plugin in plugins {
+              collab.lock().add_plugin(plugin);
             }
           },
           CollabPluginProviderType::Supabase => {
-            #[cfg(feature = "supabase_integrate")]
-            {
-              trace!("init supabase collab plugins");
-              let local_collab = Arc::downgrade(&collab);
-              let local_collab_db = collab_db.clone();
-              let plugins = self
-                .plugin_provider
-                .read()
-                .await
-                .get_plugins(CollabPluginProviderContext::Supabase {
-                  uid,
-                  collab_object: collab_object.clone(),
-                  local_collab,
-                  local_collab_db,
-                })
-                .await;
-              for plugin in plugins {
-                collab.lock().add_plugin(plugin);
-              }
+            trace!("init supabase collab plugins");
+            let local_collab = Arc::downgrade(&collab);
+            let local_collab_db = collab_db.clone();
+            let plugins = self
+              .plugin_provider
+              .read()
+              .await
+              .get_plugins(CollabPluginProviderContext::Supabase {
+                uid,
+                collab_object: collab_object.clone(),
+                local_collab,
+                local_collab_db,
+              })
+              .await;
+            for plugin in plugins {
+              collab.lock().add_plugin(plugin);
             }
           },
           CollabPluginProviderType::Local => {},

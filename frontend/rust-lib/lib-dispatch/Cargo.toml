@@ -25,11 +25,13 @@ tracing.workspace = true
 parking_lot = "0.12"
 bincode = { version = "1.3", optional = true}
 protobuf = { workspace = true, optional = true }
-getrandom = { version = "0.2", optional = true }
-wasm-bindgen = { version = "0.2.89", optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 thread-id = "3.3.0"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"]}
+wasm-bindgen = { version = "0.2.89" }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt"] }
@@ -39,7 +41,7 @@ futures-util = "0.3.26"
 default = ["use_protobuf"]
 use_serde = ["bincode", "serde_json", "serde", "serde_repr"]
 use_protobuf= ["protobuf"]
-wasm_build = ["getrandom/js", "wasm-bindgen"]
+single_thread = []
 
 
 [lib]

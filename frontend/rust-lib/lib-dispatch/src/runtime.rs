@@ -8,7 +8,7 @@ use tokio::task::JoinHandle;
 
 pub struct AFPluginRuntime {
   inner: Runtime,
-  #[cfg(feature = "wasm_build")]
+  #[cfg(feature = "single_thread")]
   local: tokio::task::LocalSet,
 }
 
@@ -27,12 +27,12 @@ impl AFPluginRuntime {
     let inner = default_tokio_runtime()?;
     Ok(Self {
       inner,
-      #[cfg(feature = "wasm_build")]
+      #[cfg(feature = "single_thread")]
       local: tokio::task::LocalSet::new(),
     })
   }
 
-  #[cfg(feature = "wasm_build")]
+  #[cfg(feature = "single_thread")]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> JoinHandle<F::Output>
   where
@@ -41,7 +41,7 @@ impl AFPluginRuntime {
     self.local.spawn_local(future)
   }
 
-  #[cfg(not(feature = "wasm_build"))]
+  #[cfg(not(feature = "single_thread"))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> JoinHandle<F::Output>
   where
@@ -51,7 +51,7 @@ impl AFPluginRuntime {
     self.inner.spawn(future)
   }
 
-  #[cfg(feature = "wasm_build")]
+  #[cfg(feature = "single_thread")]
   pub async fn run_until<F>(&self, future: F) -> F::Output
   where
     F: Future,
@@ -59,7 +59,7 @@ impl AFPluginRuntime {
     self.local.run_until(future).await
   }
 
-  #[cfg(not(feature = "wasm_build"))]
+  #[cfg(not(feature = "single_thread"))]
   pub async fn run_until<F>(&self, future: F) -> F::Output
   where
     F: Future,
@@ -67,7 +67,7 @@ impl AFPluginRuntime {
     future.await
   }
 
-  #[cfg(feature = "wasm_build")]
+  #[cfg(feature = "single_thread")]
   #[track_caller]
   pub fn block_on<F>(&self, f: F) -> F::Output
   where
@@ -76,7 +76,7 @@ impl AFPluginRuntime {
     self.local.block_on(&self.inner, f)
   }
 
-  #[cfg(not(feature = "wasm_build"))]
+  #[cfg(not(feature = "single_thread"))]
   #[track_caller]
   pub fn block_on<F>(&self, f: F) -> F::Output
   where
@@ -86,14 +86,14 @@ impl AFPluginRuntime {
   }
 }
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 pub fn default_tokio_runtime() -> io::Result<Runtime> {
   runtime::Builder::new_current_thread()
     .thread_name("dispatch-rt-st")
     .build()
 }
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 pub fn default_tokio_runtime() -> io::Result<Runtime> {
   runtime::Builder::new_multi_thread()
     .thread_name("dispatch-rt-mt")
