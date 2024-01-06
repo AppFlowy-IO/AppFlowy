@@ -4,10 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 lib-infra = { workspace = true }
-tokio = { workspace = true, features = ["sync", "macros", ]}
+tokio = { workspace = true, features = ["sync", "macros"]}
 atomic_refcell = "0.1.9"
 anyhow.workspace = true
 tracing.workspace = true
