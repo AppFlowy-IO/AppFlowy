@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import '../util/keyboard.dart';
 import '../util/util.dart';
 
 void main() {
@@ -40,6 +42,52 @@ void main() {
       // click the align left
       await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_align_right_s);
       await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_align_left_s);
+      expect(first.attributes[blockComponentAlign], 'left');
+    });
+
+    testWidgets('edit alignment using shortcut', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // click the first line of the readme
+      await tester.editor.tapLineOfEditorAt(0);
+
+      await tester.pumpAndSettle();
+
+      final editorState = tester.editor.getCurrentEditorState();
+      final first = editorState.getNodeAtPath([0])!;
+      
+      // expect to see text aligned to the right
+      await FlowyTestKeyboard.simulateKeyDownEvent(
+        [
+          LogicalKeyboardKey.control,
+          LogicalKeyboardKey.shift,
+          LogicalKeyboardKey.keyR,
+        ],
+        tester: tester,
+      );
+      expect(first.attributes[blockComponentAlign], 'right');
+
+      // expect to see text aligned to the center
+      await FlowyTestKeyboard.simulateKeyDownEvent(
+        [
+          LogicalKeyboardKey.control,
+          LogicalKeyboardKey.shift,
+          LogicalKeyboardKey.keyE,
+        ],
+        tester: tester,
+      );
+      expect(first.attributes[blockComponentAlign], 'center');
+
+      // expect to see text aligned to the left
+      await FlowyTestKeyboard.simulateKeyDownEvent(
+        [
+          LogicalKeyboardKey.control,
+          LogicalKeyboardKey.shift,
+          LogicalKeyboardKey.keyL,
+        ],
+        tester: tester,
+      );
       expect(first.attributes[blockComponentAlign], 'left');
     });
   });
