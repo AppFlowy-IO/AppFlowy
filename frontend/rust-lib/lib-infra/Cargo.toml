@@ -21,4 +21,4 @@ tempfile = "3.8.1"
 validator = "0.16.0"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-zip = "0.6.6"
+zip = { version = "0.6.6", features = ["deflate"] }

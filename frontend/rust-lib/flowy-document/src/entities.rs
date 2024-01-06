@@ -398,9 +398,6 @@ pub struct DocumentSnapshotPB {
 
   #[pb(index = 3)]
   pub created_at: i64,
-
-  #[pb(index = 4)]
-  pub data: Vec<u8>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]

@@ -1,8 +1,9 @@
-use std::sync::Weak;
-
-use diesel::SqliteConnection;
-
+use collab_entity::CollabType;
 use collab_integrate::{CollabSnapshot, PersistenceError, SnapshotPersistence};
+use diesel::dsl::count_star;
+use diesel::internal::derives::multiconnection::chrono;
+use diesel::internal::derives::multiconnection::chrono::Local;
+use diesel::SqliteConnection;
 use flowy_error::FlowyError;
 use flowy_sqlite::{
   insert_or_ignore_into,
@@ -11,6 +12,7 @@ use flowy_sqlite::{
 };
 use flowy_user::manager::UserManager;
 use lib_infra::util::timestamp;
+use std::sync::Weak;
 
 pub struct SnapshotDBImpl(pub Weak<UserManager>);
 
@@ -33,9 +35,10 @@ impl SnapshotPersistence for SnapshotDBImpl {
     &self,
     uid: i64,
     object_id: &str,
-    title: String,
-    snapshot_data: Vec<u8>,
+    collab_type: &CollabType,
+    encoded_v1: Vec<u8>,
   ) -> Result<(), PersistenceError> {
+    let collab_type = collab_type.clone();
     let object_id = object_id.to_string();
     let weak_user_session = self.0.clone();
     tokio::task::spawn_blocking(move || {
@@ -49,19 +52,10 @@ impl SnapshotPersistence for SnapshotDBImpl {
 
         // Save the snapshot data to disk
         let result = CollabSnapshotTableSql::create(
-          CollabSnapshotRow {
-            id: uuid::Uuid::new_v4().to_string(),
-            object_id: object_id.clone(),
-            title,
-            desc: "".to_string(),
-            collab_type: "".to_string(),
-            timestamp: timestamp(),
-            data: snapshot_data,
-          },
+          CollabSnapshotRow::new(object_id.clone(), collab_type.to_string(), encoded_v1),
           &mut conn,
         )
         .map_err(|e| PersistenceError::Internal(e.into()));
-
         if let Err(e) = result {
           tracing::warn!("create snapshot error: {:?}", e);
         }
@@ -84,6 +78,20 @@ struct CollabSnapshotRow {
   data: Vec<u8>,
 }
 
+impl CollabSnapshotRow {
+  pub fn new(object_id: String, collab_type: String, data: Vec<u8>) -> Self {
+    Self {
+      id: uuid::Uuid::new_v4().to_string(),
+      object_id,
+      title: "".to_string(),
+      desc: "".to_string(),
+      collab_type,
+      timestamp: timestamp(),
+      data,
+    }
+  }
+}
+
 impl From<CollabSnapshotRow> for CollabSnapshot {
   fn from(table: CollabSnapshotRow) -> Self {
     Self {
@@ -96,7 +104,6 @@ impl From<CollabSnapshotRow> for CollabSnapshot {
 struct CollabSnapshotTableSql;
 impl CollabSnapshotTableSql {
   fn create(row: CollabSnapshotRow, conn: &mut SqliteConnection) -> Result<(), FlowyError> {
-    // Batch insert: https://diesel.rs/guides/all-about-inserts.html
     let values = (
       dsl::id.eq(row.id),
       dsl::object_id.eq(row.object_id),
@@ -109,6 +116,16 @@ impl CollabSnapshotTableSql {
     let _ = insert_or_ignore_into(dsl::collab_snapshot)
       .values(values)
       .execute(conn)?;
+
+    // Count the total number of rows
+    // If there are more than 10 rows, delete snapshots older than 5 days
+    let total_rows: i64 = dsl::collab_snapshot.select(count_star()).first(conn)?;
+    if total_rows > 10 {
+      let five_days_ago = Local::now() - chrono::Duration::days(5);
+      let _ =
+        diesel::delete(dsl::collab_snapshot.filter(dsl::timestamp.lt(five_days_ago.timestamp())))
+          .execute(conn)?;
+    };
     Ok(())
   }
 
