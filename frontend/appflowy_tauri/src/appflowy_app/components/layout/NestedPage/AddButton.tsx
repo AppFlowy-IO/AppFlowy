@@ -5,7 +5,6 @@ import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
 import { ReactComponent as GridSvg } from '$app/assets/grid.svg';
-import { ReactComponent as BoardSvg } from '$app/assets/board.svg';
 import { ViewLayoutPB } from '@/services/backend';
 
 function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (layout: ViewLayoutPB) => void }) {
@@ -34,18 +33,6 @@ function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (l
         ),
         onClick: () => {
           onAddPage(ViewLayoutPB.Grid);
-        },
-      },
-      {
-        key: 'add-board',
-        label: t('board.menuName'),
-        icon: (
-          <div className={'h-5 w-5'}>
-            <BoardSvg />
-          </div>
-        ),
-        onClick: () => {
-          onAddPage(ViewLayoutPB.Board);
         },
       },
     ],

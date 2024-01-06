@@ -130,7 +130,7 @@ function SelectCellActions({
       {shouldCreateOption ? (
         <CreateOption label={newOptionName} onClick={handleNewTagClick} />
       ) : (
-        <div className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
+        <div className={'max-h-[300px] overflow-y-auto overflow-x-hidden px-2'}>
           {filteredOptions.map((option) => (
             <MenuItem className={'px-2'} key={option.id} value={option.id}>
               <SelectOptionItem

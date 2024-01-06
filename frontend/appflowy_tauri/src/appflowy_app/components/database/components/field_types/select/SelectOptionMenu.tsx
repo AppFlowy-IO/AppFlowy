@@ -111,7 +111,7 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
 
       <Divider />
       <MenuItem disabled>{t('grid.selectOption.colorPanelTitle')}</MenuItem>
-      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
+      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden px-2'}>
         {Colors.map((color) => (
           <MenuItem
             onClick={() => {

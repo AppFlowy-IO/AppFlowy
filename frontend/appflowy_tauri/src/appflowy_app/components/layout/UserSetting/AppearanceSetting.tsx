@@ -36,24 +36,6 @@ function AppearanceSetting({
     [t]
   );
 
-  const themeOptions = useMemo(
-    () => [
-      {
-        value: Theme.Default,
-        content: 'Default',
-      },
-      {
-        value: Theme.Dandelion,
-        content: 'Dandelion',
-      },
-      {
-        value: Theme.Lavender,
-        content: 'Lavender',
-      },
-    ],
-    []
-  );
-
   const renderSelect = useCallback(
     (
       items: {
@@ -104,16 +86,6 @@ function AppearanceSetting({
           onChange: (newValue) => {
             onChange({
               themeMode: newValue as ThemeMode,
-            });
-          },
-        },
-        {
-          options: themeOptions,
-          label: t('settings.appearance.theme'),
-          value: theme,
-          onChange: (newValue) => {
-            onChange({
-              theme: newValue as Theme,
             });
           },
         },

@@ -14,6 +14,7 @@ function Option({ option, fieldId }: { option: SelectOption; fieldId: string }) 
   return (
     <>
       <Button
+        size={'small'}
         onClick={() => setExpanded(!expanded)}
         color={'inherit'}
         // startIcon={<DragIcon />}
