@@ -174,12 +174,12 @@
   "signIn": {
     "loginAsGuestButtonText": "Đăng nhập với chế độ khách"
   },
+  "button": {
+    "tryAGain": "Thử lại"
+  },
   "grid": {
     "settings": {
       "Properties": "Thuộc tính"
     }
-  },
-  "button": {
-    "tryAGain": "Thử lại"
   }
 }
