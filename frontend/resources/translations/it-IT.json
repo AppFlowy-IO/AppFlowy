@@ -12,7 +12,9 @@
     "addBelowTooltip": "Fare clic per aggiungere di seguito",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Opzione+clic",
-    "addAboveTooltip": "aggiungere sopra"
+    "addAboveTooltip": "aggiungere sopra",
+    "dragTooltip": "Trascina per spostare",
+    "openMenuTooltip": "Cliccare per aprire il menu"
   },
   "signUp": {
     "buttonText": "Registrati",
@@ -24,11 +26,14 @@
     "alreadyHaveAnAccount": "Hai già un account?",
     "emailHint": "Email",
     "passwordHint": "Password",
-    "repeatPasswordHint": "Ripeti password"
+    "repeatPasswordHint": "Ripeti password",
+    "signUpWith": "Registrati con:"
   },
   "signIn": {
     "loginTitle": "Accedi a @:appName",
     "loginButtonText": "Login",
+    "loginStartWithAnonymous": "Inizia con una sessione anonima",
+    "continueAnonymousUser": "Continua con una sessione anonima",
     "buttonText": "Accedi",
     "forgotPassword": "Password Dimentica?",
     "emailHint": "Email",
@@ -36,18 +41,32 @@
     "dontHaveAnAccount": "Non hai un account?",
     "repeatPasswordEmptyError": "La password ripetuta non può essere vuota",
     "unmatchedPasswordError": "La password ripetuta non è uguale alla password",
+    "syncPromptMessage": "La sincronizzazione dei dati potrebbe richiedere del tempo. Per favore, non chiudere questa pagina",
+    "or": "O",
+    "LogInWithGoogle": "Accedi con Google",
+    "LogInWithGithub": "Accedi con Github",
+    "LogInWithDiscord": "Accedi con Discord",
     "signInWith": "Loggati con:",
     "loginAsGuestButtonText": "Iniziare"
   },
   "workspace": {
+    "chooseWorkspace": "Scegli il tuo spazio di lavoro",
     "create": "Crea spazio di lavoro",
+    "reset": "Ripristina lo spazio di lavoro",
+    "resetWorkspacePrompt": "Il ripristino dello spazio di lavoro eliminerà tutte le pagine e i dati al suo interno. Sei sicuro di voler ripristinare lo spazio di lavoro? In alternativa, puoi contattare il team di supporto per ristabilire lo spazio di lavoro",
     "hint": "spazio di lavoro",
-    "notFoundError": "Spazio di lavoro non trovato"
+    "notFoundError": "Spazio di lavoro non trovato",
+    "failedToLoad": "Qualcosa è andato storto! Impossibile caricare lo spazio di lavoro. Prova a chiudere qualsiasi istanza aperta di AppFlowy e riprova.",
+    "errorActions": {
+      "reportIssue": "Segnala un problema",
+      "reachOut": "Contattaci su Discord"
+    }
   },
   "shareAction": {
     "buttonText": "Condividi",
     "workInProgress": "Prossimamente",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Copia Link"
   },
   "moreAction": {
@@ -69,10 +88,19 @@
     "rename": "Rinomina",
     "delete": "Cancella",
     "duplicate": "Duplica",
-    "openNewTab": "Apri in una nuova scheda"
+    "unfavorite": "Rimuovi dai preferiti",
+    "favorite": "Aggiungi ai preferiti",
+    "openNewTab": "Apri in una nuova scheda",
+    "moveTo": "Sposta in",
+    "addToFavorites": "Aggiungi ai preferiti",
+    "copyLink": "Copia link"
   },
   "blankPageTitle": "Pagina vuota",
   "newPageText": "Nuova pagina",
+  "newDocumentText": "Nuovo documento",
+  "newGridText": "Nuova griglia",
+  "newCalendarText": "Nuovo calendario",
+  "newBoardText": "Nuova lavagna",
   "trash": {
     "text": "Cestino",
     "restoreAll": "Ripristina Tutto",
@@ -89,6 +117,12 @@
     "confirmRestoreAll": {
       "title": "Sei sicuro di ripristinare tutte le pagine nel Cestino?",
       "caption": "Questa azione non può essere annullata."
+    },
+    "mobile": {
+      "empty": "Il cestino è vuoto",
+      "emptyDescription": "Non hai alcun file eliminato",
+      "isDeleted": "è stato cancellato",
+      "isRestored": "è stato ripristinato"
     }
   },
   "deletePagePrompt": {
@@ -110,10 +144,12 @@
     "feedback": "Feedback"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Rimuovi, rinomina e altro...",
     "addPageTooltip": "Aggiungi velocemente una pagina all'interno",
     "defaultNewPageName": "Senza titolo",
     "renameDialog": "Rinomina"
   },
+  "noPagesInside": "Nessuna pagina all'interno",
   "toolbar": {
     "undo": "Undo",
     "redo": "Redo",
@@ -141,11 +177,19 @@
     "dragRow": "Premere a lungo per riordinare la riga",
     "viewDataBase": "Visualizza banca dati",
     "referencePage": "Questo {nome} è referenziato",
-    "addBlockBelow": "Aggiungi un blocco qui sotto"
+    "addBlockBelow": "Aggiungi un blocco qui sotto",
+    "urlLaunchAccessory": "Apri nel browser",
+    "urlCopyAccessory": "Copia l'URL"
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar"
+    "openSidebar": "Open sidebar",
+    "personal": "Personale",
+    "favorites": "Preferiti",
+    "clickToHidePersonal": "Fare clic per nascondere la sezione personale",
+    "clickToHideFavorites": "Fare clic per nascondere la sezione dei preferiti",
+    "addAPage": "Aggiungi una pagina",
+    "recent": "Recente"
   },
   "notifications": {
     "export": {
@@ -160,7 +204,9 @@
     "editContact": "Modifica Contatti"
   },
   "button": {
+    "ok": "OK",
     "done": "Fatto",
+    "cancel": "Annulla",
     "signIn": "Accedi",
     "signOut": "Esci",
     "complete": "Completa",
@@ -172,11 +218,20 @@
     "discard": "Scartare",
     "replace": "Sostituire",
     "insertBelow": "Inserisci sotto",
+    "insertAbove": "Inserisci sopra",
     "upload": "Caricamento",
     "edit": "Modificare",
     "delete": "Eliminare",
     "duplicate": "Duplicare",
     "putback": "Rimettere a posto",
+    "update": "Aggiorna",
+    "share": "Condividi",
+    "removeFromFavorites": "Rimuovi dai preferiti",
+    "addToFavorites": "Aggiungi ai preferiti",
+    "rename": "Rinomina",
+    "helpCenter": "Centro assistenza",
+    "add": "Aggiungi",
+    "yes": "SÌ",
     "Done": "Fatto",
     "Cancel": "Annulla",
     "OK": "OK"
@@ -208,10 +263,57 @@
       "language": "Lingua",
       "user": "Utente",
       "files": "File",
+      "notifications": "Notifiche",
       "open": "Apri le impostazioni",
+      "logout": "Disconnettersi",
+      "logoutPrompt": "Sei sicuro di disconnetterti?",
+      "selfEncryptionLogoutPrompt": "Sei sicuro di volerti disconnettere? Assicurati di aver copiato il segreto di crittografia",
+      "syncSetting": "Impostazioni di sincronizzazione",
+      "cloudSettings": "Impostazioni cloud",
+      "enableSync": "Abilita la sincronizzazione",
+      "enableEncrypt": "Crittografare i dati",
+      "cloudURL": "URL di base",
+      "invalidCloudURLScheme": "Schema non valido",
+      "cloudServerType": "Server cloud",
+      "cloudServerTypeTip": "Tieni presente che dopo aver cambiato il server cloud il tuo account corrente potrebbe disconnettersi",
+      "cloudLocal": "Locale",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "URL di Supabase",
+      "cloudAppFlowy": "AppFlowy Cloud",
+      "clickToCopy": "Fare clic per copiare",
+      "selfHostStart": "Se non disponi di un server, fai riferimento a",
+      "selfHostContent": "documento",
+      "selfHostEnd": "per indicazioni su come fare il self-host del proprio server",
+      "cloudURLHint": "Inserisci l'URL di base del tuo server",
+      "cloudWSURL": "URL del Websocket",
+      "cloudWSURLHint": "Inserisci l'indirizzo websocket del tuo server",
+      "restartApp": "Riavvia",
+      "restartAppTip": "Riavvia l'applicazione affinché le modifiche abbiano effetto. Tieni presente che ciò potrebbe disconnettere il tuo account corrente",
+      "enableEncryptPrompt": "Attiva la crittografia per proteggere i tuoi dati con questo segreto. Conservarlo in modo sicuro; una volta abilitato, non può essere spento. In caso di perdita, i tuoi dati diventano irrecuperabili. Fare clic per copiare",
+      "inputEncryptPrompt": "Inserisci il tuo segreto di crittografia per",
+      "clickToCopySecret": "Fare clic per copiare il segreto",
+      "configServerSetting": "Configura le impostazioni del tuo server",
+      "configServerGuide": "Dopo aver selezionato \"Avvio rapido\", vai a \"Impostazioni\" e quindi a \"Impostazioni cloud\" per configurare il tuo server self-hosted.",
+      "inputTextFieldHint": "Il tuo segreto",
+      "historicalUserList": "Cronologia di accesso dell'utente",
+      "historicalUserListTooltip": "Questo elenco mostra i tuoi account anonimi. È possibile fare clic su un account per visualizzarne i dettagli. Gli account anonimi vengono creati facendo clic sul pulsante \"Inizia\".",
+      "openHistoricalUser": "Fare clic per aprire l'account anonimo",
+      "customPathPrompt": "L'archiviazione della cartella dati di AppFlowy in una cartella sincronizzata sul cloud come Google Drive può comportare rischi. Se si accede o si modifica il database all'interno di questa cartella da più posizioni contemporaneamente, potrebbero verificarsi conflitti di sincronizzazione e potenziale danneggiamento dei dati",
+      "importAppFlowyData": "Importa dati dalla cartella AppFlowy esterna",
+      "importAppFlowyDataDescription": "Copia i dati da una cartella dati AppFlowy esterna e importali nella cartella dati AppFlowy corrente",
+      "importSuccess": "Importazione della cartella dati AppFlowy riuscita",
+      "importFailed": "L'importazione della cartella dati di AppFlowy non è riuscita",
+      "importGuide": "Per ulteriori dettagli si prega di consultare il documento di riferimento",
       "supabaseSetting": "Impostazione Supabase"
     },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Abilita le notifiche",
+        "hint": "Disattiva per impedire la visualizzazione delle notifiche locali."
+      }
+    },
     "appearance": {
+      "resetSetting": "Ripristina",
       "fontFamily": {
         "label": "Famiglia di font",
         "search": "Ricerca"
@@ -221,6 +323,13 @@
         "light": "Modalità Chiara",
         "dark": "Modalità Scura",
         "system": "Segui il sistema"
+      },
+      "documentSettings": {
+        "cursorColor": "Colore del cursore del documento",
+        "selectionColor": "Colore di selezione del documento",
+        "hexEmptyError": "Il colore hex non può essere vuoto",
+        "hexLengthError": "Il valore hex deve essere lungo 6 cifre",
+        "hexInvalidError": "Valore hex non valido"
       },
       "themeUpload": {
         "button": "Caricamento",

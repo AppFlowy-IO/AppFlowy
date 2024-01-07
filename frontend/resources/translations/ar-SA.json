@@ -899,10 +899,10 @@
       "firstDayOfWeek": "اليوم الأول من الأسبوع",
       "layoutDateField": "تقويم التخطيط بواسطة",
       "noDateTitle": "بدون تاريخ",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
-      "name": "تخطيط التقويم"
+      "name": "تخطيط التقويم",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى"
