@@ -149,7 +149,7 @@ impl FolderManager {
         collab_doc_state,
         CollabPersistenceConfig::new()
           .enable_snapshot(true)
-          .snapshot_per_update(20),
+          .snapshot_per_update(50),
         CollabBuilderConfig::default().sync_enable(true),
       )
       .await?;
