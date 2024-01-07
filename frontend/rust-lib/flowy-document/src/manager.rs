@@ -21,39 +21,51 @@ use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
 
 use crate::document::MutexDocument;
-use crate::entities::DocumentSnapshotPB;
+use crate::entities::{
+  DocumentSnapshotData, DocumentSnapshotMeta, DocumentSnapshotMetaPB, DocumentSnapshotPB,
+};
 use crate::reminder::DocumentReminderAction;
 
-pub trait DocumentUser: Send + Sync {
+pub trait DocumentUserService: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 
+pub trait DocumentSnapshotService: Send + Sync {
+  fn get_document_snapshot_metas(
+    &self,
+    document_id: &str,
+  ) -> FlowyResult<Vec<DocumentSnapshotMeta>>;
+  fn get_document_snapshot(&self, snapshot_id: &str) -> FlowyResult<DocumentSnapshotData>;
+}
+
 pub struct DocumentManager {
-  pub user: Arc<dyn DocumentUser>,
+  pub user_service: Arc<dyn DocumentUserService>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   documents: Arc<Mutex<LruCache<String, Arc<MutexDocument>>>>,
-  #[allow(dead_code)]
   cloud_service: Arc<dyn DocumentCloudService>,
   storage_service: Weak<dyn FileStorageService>,
+  snapshot_service: Arc<dyn DocumentSnapshotService>,
 }
 
 impl DocumentManager {
   pub fn new(
-    user: Arc<dyn DocumentUser>,
+    user_service: Arc<dyn DocumentUserService>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
     storage_service: Weak<dyn FileStorageService>,
+    snapshot_service: Arc<dyn DocumentSnapshotService>,
   ) -> Self {
     let documents = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(10).unwrap())));
     Self {
-      user,
+      user_service,
       collab_builder,
       documents,
       cloud_service,
       storage_service,
+      snapshot_service,
     }
   }
 
@@ -100,7 +112,7 @@ impl DocumentManager {
     } else {
       let result: Result<CollabDocState, FlowyError> = self
         .cloud_service
-        .get_document_doc_state(doc_id, &self.user.workspace_id()?)
+        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await;
 
       match result {
@@ -140,11 +152,11 @@ impl DocumentManager {
       // Try to get the document from the cloud service
       doc_state = self
         .cloud_service
-        .get_document_doc_state(doc_id, &self.user.workspace_id()?)
+        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await?;
     }
 
-    let uid = self.user.user_id()?;
+    let uid = self.user_service.user_id()?;
     event!(tracing::Level::DEBUG, "Initialize document: {}", doc_id);
     let collab = self
       .collab_for_document(uid, doc_id, doc_state, true)
@@ -165,10 +177,10 @@ impl DocumentManager {
     if !self.is_doc_exist(doc_id)? {
       updates = self
         .cloud_service
-        .get_document_doc_state(doc_id, &self.user.workspace_id()?)
+        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await?;
     }
-    let uid = self.user.user_id()?;
+    let uid = self.user_service.user_id()?;
     let collab = self
       .collab_for_document(uid, doc_id, updates, false)
       .await?;
@@ -190,8 +202,8 @@ impl DocumentManager {
   }
 
   pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
-    let uid = self.user.user_id()?;
-    if let Some(db) = self.user.collab_db(uid)?.upgrade() {
+    let uid = self.user_service.user_id()?;
+    if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
       let _ = db.with_write_txn(|txn| {
         txn.delete_doc(uid, &doc_id)?;
         Ok(())
@@ -204,25 +216,46 @@ impl DocumentManager {
   }
 
   /// Return the list of snapshots of the document.
-  pub async fn get_document_snapshots(
+  pub async fn get_document_snapshot_meta(
     &self,
     document_id: &str,
-    limit: usize,
-  ) -> FlowyResult<Vec<DocumentSnapshotPB>> {
-    let workspace_id = self.user.workspace_id()?;
-    let snapshots = self
-      .cloud_service
-      .get_document_snapshots(document_id, limit, &workspace_id)
-      .await?
+    _limit: usize,
+  ) -> FlowyResult<Vec<DocumentSnapshotMetaPB>> {
+    let metas = self
+      .snapshot_service
+      .get_document_snapshot_metas(document_id)?
       .into_iter()
-      .map(|snapshot| DocumentSnapshotPB {
-        snapshot_id: snapshot.snapshot_id,
-        snapshot_desc: "".to_string(),
-        created_at: snapshot.created_at,
+      .map(|meta| DocumentSnapshotMetaPB {
+        snapshot_id: meta.snapshot_id,
+        object_id: meta.object_id,
+        created_at: meta.created_at,
       })
       .collect::<Vec<_>>();
 
-    Ok(snapshots)
+    // let snapshots = self
+    //   .cloud_service
+    //   .get_document_snapshots(document_id, limit, &workspace_id)
+    //   .await?
+    //   .into_iter()
+    //   .map(|snapshot| DocumentSnapshotPB {
+    //     snapshot_id: snapshot.snapshot_id,
+    //     snapshot_desc: "".to_string(),
+    //     created_at: snapshot.created_at,
+    //   })
+    //   .collect::<Vec<_>>();
+
+    Ok(metas)
+  }
+
+  pub async fn get_document_snapshot(&self, snapshot_id: &str) -> FlowyResult<DocumentSnapshotPB> {
+    let snapshot = self
+      .snapshot_service
+      .get_document_snapshot(snapshot_id)
+      .map(|snapshot| DocumentSnapshotPB {
+        object_id: snapshot.object_id,
+        encoded_v1: snapshot.encoded_v1,
+      })?;
+    Ok(snapshot)
   }
 
   async fn collab_for_document(
@@ -232,7 +265,7 @@ impl DocumentManager {
     doc_state: CollabDocState,
     sync_enable: bool,
   ) -> FlowyResult<Arc<MutexCollab>> {
-    let db = self.user.collab_db(uid)?;
+    let db = self.user_service.collab_db(uid)?;
     let collab = self
       .collab_builder
       .build_with_config(
@@ -249,8 +282,8 @@ impl DocumentManager {
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
-    let uid = self.user.user_id()?;
-    if let Some(collab_db) = self.user.collab_db(uid)?.upgrade() {
+    let uid = self.user_service.user_id()?;
+    if let Some(collab_db) = self.user_service.collab_db(uid)?.upgrade() {
       let read_txn = collab_db.read_txn();
       Ok(read_txn.is_exist(uid, doc_id))
     } else {

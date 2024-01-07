@@ -1,9 +1,13 @@
+use diesel::RunQueryDsl;
+use flowy_error::FlowyError;
 use std::str::FromStr;
 
-use flowy_sqlite::schema::user_table;
 use flowy_user_deps::cloud::UserUpdate;
 use flowy_user_deps::entities::*;
 
+use flowy_sqlite::schema::user_table;
+
+use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
 /// Check out the [schema.rs] for table schema.
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
@@ -125,4 +129,19 @@ impl From<UserUpdate> for UserTableChangeset {
       ..Default::default()
     }
   }
+}
+
+pub fn select_user_profile(uid: i64, mut conn: DBConnection) -> Result<UserProfile, FlowyError> {
+  let user: UserProfile = user_table::dsl::user_table
+    .filter(user_table::id.eq(&uid.to_string()))
+    .first::<UserTable>(&mut *conn)
+    .map_err(|err| {
+      FlowyError::record_not_found().with_context(format!(
+        "Can't find the user profile for user id: {}, error: {:?}",
+        uid, err
+      ))
+    })?
+    .into();
+
+  Ok(user)
 }

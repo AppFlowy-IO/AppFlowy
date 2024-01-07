@@ -1,36 +1,20 @@
 use collab_entity::CollabType;
 use collab_integrate::{CollabSnapshot, PersistenceError, SnapshotPersistence};
 use diesel::dsl::count_star;
-use diesel::internal::derives::multiconnection::chrono;
-use diesel::internal::derives::multiconnection::chrono::Local;
 use diesel::SqliteConnection;
 use flowy_error::FlowyError;
 use flowy_sqlite::{
-  insert_or_ignore_into,
   prelude::*,
   schema::{collab_snapshot, collab_snapshot::dsl},
 };
 use flowy_user::manager::UserManager;
 use lib_infra::util::timestamp;
 use std::sync::Weak;
+use tracing::debug;
 
 pub struct SnapshotDBImpl(pub Weak<UserManager>);
 
 impl SnapshotPersistence for SnapshotDBImpl {
-  fn get_snapshots(&self, uid: i64, object_id: &str) -> Vec<CollabSnapshot> {
-    match self.0.upgrade() {
-      None => vec![],
-      Some(user_session) => user_session
-        .db_pool(uid)
-        .and_then(|pool| Ok(pool.get()?))
-        .and_then(|mut conn| {
-          CollabSnapshotTableSql::get_all_snapshots(object_id, &mut conn)
-            .map(|rows| rows.into_iter().map(|row| row.into()).collect())
-        })
-        .unwrap_or_else(|_| vec![]),
-    }
-  }
-
   fn create_snapshot(
     &self,
     uid: i64,
@@ -51,7 +35,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
           .map_err(|e| PersistenceError::Internal(e.into()))?;
 
         // Save the snapshot data to disk
-        let result = CollabSnapshotTableSql::create(
+        let result = CollabSnapshotSql::create(
           CollabSnapshotRow::new(object_id.clone(), collab_type.to_string(), encoded_v1),
           &mut conn,
         )
@@ -68,14 +52,14 @@ impl SnapshotPersistence for SnapshotDBImpl {
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable)]
 #[diesel(table_name = collab_snapshot)]
-struct CollabSnapshotRow {
-  id: String,
+pub(crate) struct CollabSnapshotRow {
+  pub(crate) id: String,
   object_id: String,
   title: String,
   desc: String,
   collab_type: String,
-  timestamp: i64,
-  data: Vec<u8>,
+  pub(crate) timestamp: i64,
+  pub(crate) data: Vec<u8>,
 }
 
 impl CollabSnapshotRow {
@@ -101,56 +85,95 @@ impl From<CollabSnapshotRow> for CollabSnapshot {
   }
 }
 
-struct CollabSnapshotTableSql;
-impl CollabSnapshotTableSql {
-  fn create(row: CollabSnapshotRow, conn: &mut SqliteConnection) -> Result<(), FlowyError> {
-    let values = (
-      dsl::id.eq(row.id),
-      dsl::object_id.eq(row.object_id),
-      dsl::title.eq(row.title),
-      dsl::desc.eq(row.desc),
-      dsl::collab_type.eq(row.collab_type),
-      dsl::data.eq(row.data),
-      dsl::timestamp.eq(row.timestamp),
-    );
-    let _ = insert_or_ignore_into(dsl::collab_snapshot)
-      .values(values)
-      .execute(conn)?;
+pub struct CollabSnapshotMeta {
+  pub id: String,
+  pub object_id: String,
+  pub timestamp: i64,
+}
 
-    // Count the total number of rows
-    // If there are more than 10 rows, delete snapshots older than 5 days
-    let total_rows: i64 = dsl::collab_snapshot.select(count_star()).first(conn)?;
-    if total_rows > 10 {
-      let five_days_ago = Local::now() - chrono::Duration::days(5);
-      let _ =
-        diesel::delete(dsl::collab_snapshot.filter(dsl::timestamp.lt(five_days_ago.timestamp())))
-          .execute(conn)?;
-    };
+pub(crate) struct CollabSnapshotSql;
+impl CollabSnapshotSql {
+  pub(crate) fn create(
+    row: CollabSnapshotRow,
+    conn: &mut SqliteConnection,
+  ) -> Result<(), FlowyError> {
+    conn.immediate_transaction::<_, Error, _>(|conn| {
+      // Insert the new snapshot
+      insert_into(dsl::collab_snapshot)
+        .values((
+          dsl::id.eq(row.id),
+          dsl::object_id.eq(&row.object_id),
+          dsl::title.eq(row.title),
+          dsl::desc.eq(row.desc),
+          dsl::collab_type.eq(row.collab_type),
+          dsl::data.eq(row.data),
+          dsl::timestamp.eq(row.timestamp),
+        ))
+        .execute(conn)?;
+
+      // Count the total number of snapshots for the specific object_id
+      let total_snapshots: i64 = dsl::collab_snapshot
+        .filter(dsl::object_id.eq(&row.object_id))
+        .select(count_star())
+        .first(conn)?;
+
+      // If there are more than 5 snapshots, delete the oldest one
+      if total_snapshots > 5 {
+        let ids_to_delete: Vec<String> = dsl::collab_snapshot
+          .filter(dsl::object_id.eq(&row.object_id))
+          .order(dsl::timestamp.asc())
+          .select(dsl::id)
+          .limit(1)
+          .load(conn)?;
+
+        debug!(
+          "Delete {} snapshots for object_id: {}",
+          ids_to_delete.len(),
+          row.object_id
+        );
+        for id in ids_to_delete {
+          delete(dsl::collab_snapshot.filter(dsl::id.eq(id))).execute(conn)?;
+        }
+      }
+
+      Ok(())
+    })?;
     Ok(())
   }
 
-  fn get_all_snapshots(
+  pub(crate) fn get_all_snapshots(
     object_id: &str,
     conn: &mut SqliteConnection,
-  ) -> Result<Vec<CollabSnapshotRow>, FlowyError> {
-    let sql = dsl::collab_snapshot
-      .filter(dsl::object_id.eq(object_id))
-      .into_boxed();
+  ) -> Result<Vec<CollabSnapshotMeta>, FlowyError> {
+    let results = collab_snapshot::table
+      .filter(collab_snapshot::object_id.eq(object_id))
+      .select((
+        collab_snapshot::id,
+        collab_snapshot::object_id,
+        collab_snapshot::timestamp,
+      ))
+      .load::<(String, String, i64)>(conn)
+      .expect("Error loading collab_snapshot");
 
-    let rows = sql
-      .order(dsl::timestamp.asc())
-      .load::<CollabSnapshotRow>(conn)?;
+    // Map the results to CollabSnapshotMeta
+    let snapshots: Vec<CollabSnapshotMeta> = results
+      .into_iter()
+      .map(|(id, object_id, timestamp)| CollabSnapshotMeta {
+        id,
+        object_id,
+        timestamp,
+      })
+      .collect();
 
-    Ok(rows)
+    Ok(snapshots)
   }
 
-  #[allow(dead_code)]
-  fn get_latest_snapshot(
+  pub(crate) fn get_snapshot(
     object_id: &str,
     conn: &mut SqliteConnection,
   ) -> Option<CollabSnapshotRow> {
     let sql = dsl::collab_snapshot
-      .filter(dsl::object_id.eq(object_id))
+      .filter(dsl::id.eq(object_id))
       .into_boxed();
 
     sql
@@ -160,7 +183,7 @@ impl CollabSnapshotTableSql {
   }
 
   #[allow(dead_code)]
-  fn delete(
+  pub(crate) fn delete(
     object_id: &str,
     snapshot_ids: Option<Vec<String>>,
     conn: &mut SqliteConnection,
