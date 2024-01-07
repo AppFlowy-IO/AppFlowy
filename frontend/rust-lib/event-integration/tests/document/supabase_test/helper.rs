@@ -1,8 +1,8 @@
 use std::ops::Deref;
 
 use event_integration::event_builder::EventBuilder;
-use flowy_document::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB};
-use flowy_document::event_map::DocumentEvent::GetDocumentSnapshots;
+use flowy_document::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotMetaPB};
+use flowy_document::event_map::DocumentEvent::GetDocumentSnapshotMeta;
 use flowy_folder::entities::ViewPB;
 
 use crate::util::FlowySupabaseTest;
@@ -28,15 +28,15 @@ impl FlowySupabaseDocumentTest {
   }
 
   #[allow(dead_code)]
-  pub async fn get_document_snapshots(&self, view_id: &str) -> RepeatedDocumentSnapshotPB {
+  pub async fn get_document_snapshots(&self, view_id: &str) -> RepeatedDocumentSnapshotMetaPB {
     EventBuilder::new(self.inner.deref().clone())
-      .event(GetDocumentSnapshots)
+      .event(GetDocumentSnapshotMeta)
       .payload(OpenDocumentPayloadPB {
         document_id: view_id.to_string(),
       })
       .async_send()
       .await
-      .parse::<RepeatedDocumentSnapshotPB>()
+      .parse::<RepeatedDocumentSnapshotMetaPB>()
   }
 }
 

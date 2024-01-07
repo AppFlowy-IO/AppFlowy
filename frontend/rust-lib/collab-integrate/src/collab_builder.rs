@@ -8,7 +8,6 @@ use collab_entity::{CollabObject, CollabType};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
 use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
 use collab_plugins::local_storage::rocksdb::rocksdb_plugin::{RocksdbBackup, RocksdbDiskPlugin};
-use collab_plugins::local_storage::rocksdb::snapshot_plugin::CollabSnapshotPlugin;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use parking_lot::{Mutex, RwLock};
 use tracing::trace;
@@ -230,8 +229,11 @@ impl AppFlowyCollabBuilder {
         .with_doc_state(collab_doc_state)
         .with_plugin(RocksdbDiskPlugin::new_with_config(
           uid,
+          object_id.to_string(),
+          object_type.clone(),
           collab_db.clone(),
           persistence_config.clone(),
+          self.snapshot_persistence.lock().as_ref().map(Arc::clone),
         ))
         .with_device_id(self.device_id.clone())
         .build()?,
@@ -252,7 +254,7 @@ impl AppFlowyCollabBuilder {
               .await
               .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
                 uid,
-                collab_object: collab_object.clone(),
+                collab_object,
                 local_collab,
               })
               .await;
@@ -272,7 +274,7 @@ impl AppFlowyCollabBuilder {
               .await
               .get_plugins(CollabPluginProviderContext::Supabase {
                 uid,
-                collab_object: collab_object.clone(),
+                collab_object,
                 local_collab,
                 local_collab_db,
               })
@@ -282,20 +284,6 @@ impl AppFlowyCollabBuilder {
             }
           },
           CollabPluginProviderType::Local => {},
-        }
-      }
-
-      if let Some(snapshot_persistence) = self.snapshot_persistence.lock().as_ref() {
-        if persistence_config.enable_snapshot {
-          let snapshot_plugin = CollabSnapshotPlugin::new(
-            uid,
-            collab_object,
-            snapshot_persistence.clone(),
-            collab_db,
-            persistence_config.snapshot_per_update,
-          );
-          // tracing::trace!("add snapshot plugin: {}", object_id);
-          collab.lock().add_plugin(Arc::new(snapshot_plugin));
         }
       }
     }

@@ -383,21 +383,30 @@ impl TryInto<ConvertDataParams> for ConvertDataPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedDocumentSnapshotPB {
+pub struct RepeatedDocumentSnapshotMetaPB {
   #[pb(index = 1)]
-  pub items: Vec<DocumentSnapshotPB>,
+  pub items: Vec<DocumentSnapshotMetaPB>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSnapshotMetaPB {
+  #[pb(index = 1)]
+  pub snapshot_id: String,
+
+  #[pb(index = 2)]
+  pub object_id: String,
+
+  #[pb(index = 3)]
+  pub created_at: i64,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct DocumentSnapshotPB {
   #[pb(index = 1)]
-  pub snapshot_id: i64,
+  pub object_id: String,
 
   #[pb(index = 2)]
-  pub snapshot_desc: String,
-
-  #[pb(index = 3)]
-  pub created_at: i64,
+  pub encoded_v1: Vec<u8>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -451,4 +460,15 @@ impl TryInto<TextDeltaParams> for TextDeltaPayloadPB {
       delta,
     })
   }
+}
+
+pub struct DocumentSnapshotMeta {
+  pub snapshot_id: String,
+  pub object_id: String,
+  pub created_at: i64,
+}
+
+pub struct DocumentSnapshotData {
+  pub object_id: String,
+  pub encoded_v1: Vec<u8>,
 }

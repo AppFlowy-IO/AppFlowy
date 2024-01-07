@@ -1,3 +1,4 @@
+use collab::core::collab_plugin::EncodedCollab;
 use std::collections::HashMap;
 
 use serde_json::Value;
@@ -34,6 +35,18 @@ impl DocumentEventTest {
 
   pub fn new_with_core(core: EventIntegrationTest) -> Self {
     Self { event_test: core }
+  }
+
+  pub async fn get_encoded_v1(&self, doc_id: &str) -> EncodedCollab {
+    let doc = self
+      .event_test
+      .appflowy_core
+      .document_manager
+      .get_document(doc_id)
+      .await
+      .unwrap();
+    let guard = doc.lock();
+    guard.get_collab().encode_collab_v1()
   }
 
   pub async fn create_document(&self) -> ViewPB {
@@ -88,7 +101,12 @@ impl DocumentEventTest {
     children_map.get(&children_id).map(|c| c.children.clone())
   }
 
-  pub async fn get_block_text_delta(&self, doc_id: &str, text_id: &str) -> Option<String> {
+  pub async fn get_text_id(&self, doc_id: &str, block_id: &str) -> Option<String> {
+    let block = self.get_block(doc_id, block_id).await?;
+    block.external_id
+  }
+
+  pub async fn get_delta(&self, doc_id: &str, text_id: &str) -> Option<String> {
     let document_data = self.get_document_data(doc_id).await;
     document_data.meta.text_map.get(text_id).cloned()
   }
@@ -197,6 +215,33 @@ impl DocumentEventTest {
         delta: Some(delta),
       })
       .await;
+  }
+
+  pub async fn get_document_snapshot_metas(&self, doc_id: &str) -> Vec<DocumentSnapshotMetaPB> {
+    let core = &self.event_test;
+    let payload = OpenDocumentPayloadPB {
+      document_id: doc_id.to_string(),
+    };
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::GetDocumentSnapshotMeta)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<RepeatedDocumentSnapshotMetaPB>()
+      .items
+  }
+
+  pub async fn get_document_snapshot(
+    &self,
+    snapshot_meta: DocumentSnapshotMetaPB,
+  ) -> DocumentSnapshotPB {
+    let core = &self.event_test;
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::GetDocumentSnapshot)
+      .payload(snapshot_meta)
+      .async_send()
+      .await
+      .parse::<DocumentSnapshotPB>()
   }
 
   /// Insert a new text block at the index of parent's children.

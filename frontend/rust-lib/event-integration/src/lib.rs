@@ -124,10 +124,13 @@ pub fn document_data_from_document_doc_state(
   doc_id: &str,
   doc_state: CollabDocState,
 ) -> DocumentData {
-  Document::from_doc_state(CollabOrigin::Empty, doc_state, doc_id, vec![])
-    .unwrap()
+  document_from_document_doc_state(doc_id, doc_state)
     .get_document_data()
     .unwrap()
+}
+
+pub fn document_from_document_doc_state(doc_id: &str, doc_state: CollabDocState) -> Document {
+  Document::from_doc_state(CollabOrigin::Empty, doc_state, doc_id, vec![]).unwrap()
 }
 
 #[cfg(feature = "single_thread")]
