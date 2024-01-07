@@ -139,11 +139,14 @@ class SelectOptionTagCell extends StatelessWidget {
             child: Align(
               alignment: AlignmentDirectional.centerStart,
               child: Padding(
-                padding: const EdgeInsets.all(5.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5.0,
+                  vertical: 4.0,
+                ),
                 child: SelectOptionTag(
                   option: option,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                      const EdgeInsets.symmetric(horizontal: 8),
                 ),
               ),
             ),
