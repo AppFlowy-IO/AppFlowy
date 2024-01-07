@@ -28,6 +28,7 @@ use crate::anon_user::{
 };
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
+use crate::migrations::database_vacuum::vacuum_database_if_need;
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
@@ -145,7 +146,6 @@ impl UserManager {
 
     if let Ok(session) = self.get_session() {
       let user = self.get_user_profile_from_disk(session.user_id).await?;
-
       // Get the current authenticator from the environment variable
       let current_authenticator = current_authenticator();
 
@@ -215,6 +215,8 @@ impl UserManager {
         },
         _ => error!("Failed to get collab db or sqlite pool"),
       }
+
+      vacuum_database_if_need(session.user_id, &self.database, &self.store_preferences);
 
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       if let Err(e) = user_status_callback

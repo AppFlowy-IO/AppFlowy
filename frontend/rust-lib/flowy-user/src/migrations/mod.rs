@@ -2,6 +2,7 @@ use flowy_user_deps::entities::UserProfile;
 
 use crate::services::entities::Session;
 
+pub mod database_vacuum;
 pub mod document_empty_content;
 pub mod migration;
 pub mod session_migration;

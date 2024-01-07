@@ -1,5 +1,5 @@
-use diesel::RunQueryDsl;
-use flowy_error::FlowyError;
+use diesel::{sql_query, RunQueryDsl};
+use flowy_error::{internal_error, FlowyError};
 use std::str::FromStr;
 
 use flowy_user_deps::cloud::UserUpdate;
@@ -144,4 +144,11 @@ pub fn select_user_profile(uid: i64, mut conn: DBConnection) -> Result<UserProfi
     .into();
 
   Ok(user)
+}
+
+pub(crate) fn vacuum_database(mut conn: DBConnection) -> Result<(), FlowyError> {
+  sql_query("VACUUM")
+    .execute(&mut *conn)
+    .map_err(internal_error)?;
+  Ok(())
 }

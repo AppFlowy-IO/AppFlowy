@@ -274,7 +274,7 @@ impl DocumentManager {
         CollabType::Document,
         db,
         doc_state,
-        CollabPersistenceConfig::default().snapshot_per_update(100),
+        CollabPersistenceConfig::default().snapshot_per_update(1000),
         CollabBuilderConfig::default().sync_enable(sync_enable),
       )
       .await?;

@@ -94,7 +94,7 @@ impl DatabaseManager {
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
     };
-    let config = CollabPersistenceConfig::new().snapshot_per_update(10);
+    let config = CollabPersistenceConfig::new().snapshot_per_update(100);
     let mut collab_raw_data = CollabDocState::default();
 
     // If the workspace database not exist in disk, try to fetch from remote.
