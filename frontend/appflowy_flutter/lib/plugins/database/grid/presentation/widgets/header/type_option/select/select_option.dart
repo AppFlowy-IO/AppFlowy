@@ -4,7 +4,9 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -127,7 +129,13 @@ class _OptionCellState extends State<_OptionCell> {
       constraints: BoxConstraints.loose(const Size(460, 470)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: child,
+        child: FlowyHover(
+          resetHoverOnRebuild: false,
+          style: HoverStyle(
+            hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          ),
+          child: child,
+        ),
       ),
       popupBuilder: (BuildContext popoverContext) {
         return SelectOptionTypeOptionEditor(
