@@ -8,6 +8,5 @@ mod document_deps;
 mod folder_deps;
 mod util;
 
-pub mod collab_backup;
 mod database_deps;
 mod user_deps;

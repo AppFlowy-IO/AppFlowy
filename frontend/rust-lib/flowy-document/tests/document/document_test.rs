@@ -13,7 +13,7 @@ async fn restore_document() {
   // create a document
   let doc_id: String = gen_document_id();
   let data = default_document_data();
-  let uid = test.user.user_id().unwrap();
+  let uid = test.user_service.user_id().unwrap();
   test
     .create_document(uid, &doc_id, Some(data.clone()))
     .await
@@ -51,7 +51,7 @@ async fn restore_document() {
 #[tokio::test]
 async fn document_apply_insert_action() {
   let test = DocumentTest::new();
-  let uid = test.user.user_id().unwrap();
+  let uid = test.user_service.user_id().unwrap();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
 
@@ -105,7 +105,7 @@ async fn document_apply_insert_action() {
 async fn document_apply_update_page_action() {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
-  let uid = test.user.user_id().unwrap();
+  let uid = test.user_service.user_id().unwrap();
   let data = default_document_data();
 
   // create a document
@@ -147,7 +147,7 @@ async fn document_apply_update_page_action() {
 #[tokio::test]
 async fn document_apply_update_action() {
   let test = DocumentTest::new();
-  let uid = test.user.user_id().unwrap();
+  let uid = test.user_service.user_id().unwrap();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
 

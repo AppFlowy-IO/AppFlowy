@@ -137,7 +137,7 @@ AuthenticatorType currentCloudType() {
 
 Future<void> setAppFlowyCloudUrl(Option<String> url) async {
   await url.fold(
-    () => getIt<KeyValueStorage>().remove(KVKeys.kAppflowyCloudBaseURL),
+    () => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, ""),
     (s) => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, s),
   );
 }
@@ -233,7 +233,7 @@ Future<String> getAppFlowyCloudUrl() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppflowyCloudBaseURL);
   return result.fold(
-    () => "",
+    () => "https://beta.appflowy.cloud",
     (url) => url,
   );
 }

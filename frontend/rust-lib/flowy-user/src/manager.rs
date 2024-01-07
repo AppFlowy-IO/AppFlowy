@@ -28,6 +28,7 @@ use crate::anon_user::{
 };
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
+use crate::migrations::database_vacuum::vacuum_database_if_need;
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
@@ -44,7 +45,7 @@ use crate::services::db::UserDB;
 use crate::services::entities::{ResumableSignUp, Session, UserConfig, UserPaths};
 use crate::services::user_awareness::UserAwarenessDataSource;
 use crate::services::user_encryption::validate_encryption_sign;
-use crate::services::user_sql::{UserTable, UserTableChangeset};
+use crate::services::user_sql::{select_user_profile, UserTable, UserTableChangeset};
 use crate::services::user_workspace::save_user_workspaces;
 use crate::{errors::FlowyError, notification::*};
 
@@ -145,7 +146,6 @@ impl UserManager {
 
     if let Ok(session) = self.get_session() {
       let user = self.get_user_profile_from_disk(session.user_id).await?;
-
       // Get the current authenticator from the environment variable
       let current_authenticator = current_authenticator();
 
@@ -211,26 +211,12 @@ impl UserManager {
         self.database.get_pool(session.user_id),
       ) {
         (Ok(collab_db), Ok(sqlite_pool)) => {
-          // ⚠️The order of migrations is crucial. If you're adding a new migration, please ensure
-          // it's appended to the end of the list.
-          let migrations: Vec<Box<dyn UserDataMigration>> = vec![
-            Box::new(HistoricalEmptyDocumentMigration),
-            Box::new(FavoriteV1AndWorkspaceArrayMigration),
-            Box::new(WorkspaceTrashMapToSectionMigration),
-          ];
-          match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
-            .run(migrations, &user.authenticator)
-          {
-            Ok(applied_migrations) => {
-              if !applied_migrations.is_empty() {
-                info!("Did apply migrations: {:?}", applied_migrations);
-              }
-            },
-            Err(e) => error!("User data migration failed: {:?}", e),
-          }
+          run_collab_data_migration(&session, &user, collab_db, sqlite_pool);
         },
         _ => error!("Failed to get collab db or sqlite pool"),
       }
+
+      vacuum_database_if_need(session.user_id, &self.database, &self.store_preferences);
 
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       if let Err(e) = user_status_callback
@@ -522,18 +508,7 @@ impl UserManager {
 
   /// Fetches the user profile for the given user ID.
   pub async fn get_user_profile_from_disk(&self, uid: i64) -> Result<UserProfile, FlowyError> {
-    let user: UserProfile = user_table::dsl::user_table
-      .filter(user_table::id.eq(&uid.to_string()))
-      .first::<UserTable>(&mut *(self.db_connection(uid)?))
-      .map_err(|err| {
-        FlowyError::record_not_found().with_context(format!(
-          "Can't find the user profile for user id: {}, error: {:?}",
-          uid, err
-        ))
-      })?
-      .into();
-
-    Ok(user)
+    select_user_profile(uid, self.db_connection(uid)?)
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]
@@ -906,4 +881,29 @@ fn save_user_token(uid: i64, pool: Arc<ConnectionPool>, token: String) -> FlowyR
   let params = UpdateUserProfileParams::new(uid).with_token(token);
   let changeset = UserTableChangeset::new(params);
   upsert_user_profile_change(uid, pool, changeset)
+}
+
+pub(crate) fn run_collab_data_migration(
+  session: &Session,
+  user: &UserProfile,
+  collab_db: Arc<CollabKVDB>,
+  sqlite_pool: Arc<ConnectionPool>,
+) {
+  // ⚠️The order of migrations is crucial. If you're adding a new migration, please ensure
+  // it's appended to the end of the list.
+  let migrations: Vec<Box<dyn UserDataMigration>> = vec![
+    Box::new(HistoricalEmptyDocumentMigration),
+    Box::new(FavoriteV1AndWorkspaceArrayMigration),
+    Box::new(WorkspaceTrashMapToSectionMigration),
+  ];
+  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
+    .run(migrations, &user.authenticator)
+  {
+    Ok(applied_migrations) => {
+      if !applied_migrations.is_empty() {
+        info!("Did apply migrations: {:?}", applied_migrations);
+      }
+    },
+    Err(e) => error!("User data migration failed: {:?}", e),
+  }
 }
