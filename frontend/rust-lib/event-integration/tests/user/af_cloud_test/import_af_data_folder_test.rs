@@ -10,6 +10,47 @@ use serde_json::{json, Value};
 use std::env::temp_dir;
 
 #[tokio::test]
+async fn import_appflowy_data_need_migration_test() {
+  // In 037, the workspace array will be migrated to view.
+  let import_container_name = "037_local".to_string();
+  let (cleaner, user_db_path) =
+    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  // Getting started
+  //  Document1
+  //  Document2(fav)
+  user_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
+  let _ = test.af_cloud_sign_up().await;
+  test
+    .import_appflowy_data(
+      user_db_path.to_str().unwrap().to_string(),
+      Some(import_container_name.clone()),
+    )
+    .await
+    .unwrap();
+  // after import, the structure is:
+  // workspace:
+  //   view: Getting Started
+  //   view: 037_local
+  //      view: Getting Started
+  //        view: Document1
+  //        view: Document2
+
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views.len(), 2);
+  assert_eq!(views[1].name, import_container_name);
+
+  let child_views = test.get_view(&views[1].id).await.child_views;
+  assert_eq!(child_views.len(), 1);
+
+  let child_views = test.get_view(&child_views[0].id).await.child_views;
+  assert_eq!(child_views.len(), 2);
+  assert_eq!(child_views[0].name, "Document1");
+  assert_eq!(child_views[1].name, "Document2");
+  drop(cleaner);
+}
+
+#[tokio::test]
 async fn import_appflowy_data_folder_into_new_view_test() {
   let import_container_name = "040_local".to_string();
   let (cleaner, user_db_path) =

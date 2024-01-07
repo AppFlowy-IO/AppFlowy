@@ -23,6 +23,16 @@ class SettingAppFlowyCloudView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return CustomAppFlowyCloudView(didResetServerUrl: didResetServerUrl);
+  }
+}
+
+class CustomAppFlowyCloudView extends StatelessWidget {
+  final VoidCallback didResetServerUrl;
+  const CustomAppFlowyCloudView({required this.didResetServerUrl, super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return FutureBuilder<Either<CloudSettingPB, FlowyError>>(
       future: UserEventGetCloudConfig().send(),
       builder: (context, snapshot) {

@@ -211,8 +211,6 @@ impl UserManager {
         self.database.get_pool(session.user_id),
       ) {
         (Ok(collab_db), Ok(sqlite_pool)) => {
-          // ⚠️The order of migrations is crucial. If you're adding a new migration, please ensure
-          // it's appended to the end of the list.
           run_collab_data_migration(&session, &user, collab_db, sqlite_pool);
         },
         _ => error!("Failed to get collab db or sqlite pool"),
@@ -889,6 +887,8 @@ pub(crate) fn run_collab_data_migration(
   collab_db: Arc<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
 ) {
+  // ⚠️The order of migrations is crucial. If you're adding a new migration, please ensure
+  // it's appended to the end of the list.
   let migrations: Vec<Box<dyn UserDataMigration>> = vec![
     Box::new(HistoricalEmptyDocumentMigration),
     Box::new(FavoriteV1AndWorkspaceArrayMigration),
