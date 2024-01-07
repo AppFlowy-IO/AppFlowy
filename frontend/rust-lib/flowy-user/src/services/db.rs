@@ -22,7 +22,7 @@ use crate::services::user_sql::UserTable;
 use crate::services::workspace_sql::UserWorkspaceTable;
 
 pub trait UserDBPath: Send + Sync + 'static {
-  fn user_db_path(&self, uid: i64) -> PathBuf;
+  fn sqlite_db_path(&self, uid: i64) -> PathBuf;
   fn collab_db_path(&self, uid: i64) -> PathBuf;
   fn collab_db_history(&self, uid: i64, create_if_not_exist: bool) -> std::io::Result<PathBuf>;
 }
@@ -134,7 +134,7 @@ impl UserDB {
   }
 
   pub(crate) fn get_pool(&self, user_id: i64) -> Result<Arc<ConnectionPool>, FlowyError> {
-    let pool = self.open_user_db(self.paths.user_db_path(user_id), user_id)?;
+    let pool = self.open_sqlite_db(self.paths.sqlite_db_path(user_id), user_id)?;
     Ok(pool)
   }
 
@@ -143,7 +143,7 @@ impl UserDB {
     Ok(collab_db)
   }
 
-  pub fn open_user_db(
+  pub fn open_sqlite_db(
     &self,
     db_path: impl AsRef<Path>,
     user_id: i64,

@@ -1,17 +1,6 @@
 pub use collab::core::collab::MutexCollab;
 pub use collab::preclude::Snapshot;
-#[cfg(feature = "supabase_integrate")]
-#[cfg(any(
-  feature = "appflowy_cloud_integrate",
-  feature = "supabase_integrate",
-  feature = "rocksdb_plugin"
-))]
 pub use collab_plugins::local_storage::CollabPersistenceConfig;
-#[cfg(any(
-  feature = "appflowy_cloud_integrate",
-  feature = "supabase_integrate",
-  feature = "rocksdb_plugin"
-))]
 pub use collab_plugins::CollabKVDB;
 pub mod collab_builder;
 pub mod config;
