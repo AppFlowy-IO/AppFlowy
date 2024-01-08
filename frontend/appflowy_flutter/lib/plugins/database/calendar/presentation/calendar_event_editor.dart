@@ -6,7 +6,7 @@ import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_event_editor_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
-import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';

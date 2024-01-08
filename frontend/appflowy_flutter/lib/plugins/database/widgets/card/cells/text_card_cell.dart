@@ -9,7 +9,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../row/cell_builder.dart';
+import '../../row/editable_cell_builder.dart';
 import '../define.dart';
 import 'card_cell.dart';
 

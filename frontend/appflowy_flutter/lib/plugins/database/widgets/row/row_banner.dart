@@ -11,7 +11,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'cell_builder.dart';
+import 'editable_cell_builder.dart';
 import 'cells/cells.dart';
 
 class RowBanner extends StatefulWidget {

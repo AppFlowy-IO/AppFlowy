@@ -27,7 +27,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../widgets/card/card.dart';
 import '../../widgets/card/card_cell_builder.dart';
 import '../../widgets/card/cells/card_cell.dart';
-import '../../widgets/row/cell_builder.dart';
+import '../../widgets/row/editable_cell_builder.dart';
 import '../application/board_bloc.dart';
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';
@@ -254,7 +254,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     }
 
     final cellCache = rowCache.cellCache;
-    final databaseController  = boardBloc.databaseController;
+    final databaseController = boardBloc.databaseController;
     final viewId = boardBloc.viewId;
 
     final cellBuilder = CardCellBuilder<String>(cellCache);
@@ -333,7 +333,8 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   }) {
     final rowInfo = RowInfo(
       viewId: databaseController.viewId,
-      fields: UnmodifiableListView(databaseController.fieldController.fieldInfos),
+      fields:
+          UnmodifiableListView(databaseController.fieldController.fieldInfos),
       rowMeta: rowMeta,
       rowId: rowMeta.id,
     );
