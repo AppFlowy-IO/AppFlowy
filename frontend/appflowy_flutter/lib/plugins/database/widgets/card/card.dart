@@ -272,7 +272,7 @@ class _CardContentState<CustomCardData>
       final child = Padding(
         key: cellContext.key(),
         padding: widget.styleConfiguration.cellPadding,
-        child: widget.cellBuilder.buildCell(
+        child: widget.cellBuilder.build(
           cellContext: cellContext,
           cellNotifier: cellNotifier,
           renderHook: widget.renderHook,

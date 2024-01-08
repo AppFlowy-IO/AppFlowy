@@ -17,11 +17,11 @@ class GridCheckboxCellStyle extends GridCellStyle {
 }
 
 class GridCheckboxCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
+  final CheckboxCellController cellController;
   late final GridCheckboxCellStyle cellStyle;
 
   GridCheckboxCell({
-    required this.cellControllerBuilder,
+    required this.cellController,
     GridCellStyle? style,
     super.key,
   }) {
@@ -37,21 +37,15 @@ class GridCheckboxCell extends GridCellWidget {
 }
 
 class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
-  late CheckboxCellBloc _cellBloc;
-
-  @override
-  void initState() {
-    final cellController =
-        widget.cellControllerBuilder.build() as CheckboxCellController;
-    _cellBloc = CheckboxCellBloc(cellController: cellController)
-      ..add(const CheckboxCellEvent.initial());
-    super.initState();
-  }
+  CheckboxCellBloc get cellBloc => context.read<CheckboxCellBloc>();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cellBloc,
+    return BlocProvider(
+      create: (_) {
+        return CheckboxCellBloc(cellController: widget.cellController)
+          ..add(const CheckboxCellEvent.initial());
+      },
       child: BlocBuilder<CheckboxCellBloc, CheckboxCellState>(
         builder: (context, state) {
           final icon = state.isSelected
@@ -67,7 +61,6 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
                 onPressed: () => context
                     .read<CheckboxCellBloc>()
                     .add(const CheckboxCellEvent.select()),
-                iconPadding: EdgeInsets.zero,
                 icon: icon,
                 width: 20,
               ),
@@ -79,19 +72,13 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
   }
 
   @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
-  }
-
-  @override
   void requestBeginFocus() {
-    _cellBloc.add(const CheckboxCellEvent.select());
+    cellBloc.add(const CheckboxCellEvent.select());
   }
 
   @override
   String? onCopy() {
-    if (_cellBloc.state.isSelected) {
+    if (cellBloc.state.isSelected) {
       return "Yes";
     } else {
       return "No";

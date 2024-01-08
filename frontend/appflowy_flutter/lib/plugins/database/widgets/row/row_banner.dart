@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/cell/cll_service.dart';
-import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
@@ -17,7 +16,7 @@ import 'cells/cells.dart';
 
 class RowBanner extends StatefulWidget {
   final RowController rowController;
-  final GridCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
 
   const RowBanner({
     required this.rowController,
@@ -129,7 +128,7 @@ class _BannerAction extends StatelessWidget {
 }
 
 class _BannerTitle extends StatefulWidget {
-  final GridCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
   final PopoverController popoverController;
   final RowController rowController;
 
@@ -170,9 +169,8 @@ class _BannerTitleState extends State<_BannerTitle> {
             cellPadding: EdgeInsets.zero,
           );
           final cellContext = CellContext(
-            viewId: widget.rowController.viewId,
-            rowMeta: widget.rowController.rowMeta,
-            fieldInfo: FieldInfo.initial(state.primaryField!),
+            fieldId: state.primaryField!.id,
+            rowId: widget.rowController.rowId,
           );
           children.add(
             Expanded(

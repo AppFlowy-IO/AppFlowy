@@ -29,7 +29,7 @@ import 'cell_builder.dart';
 class RowPropertyList extends StatelessWidget {
   final String viewId;
   final FieldController fieldController;
-  final GridCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
 
   const RowPropertyList({
     super.key,
@@ -107,7 +107,7 @@ class RowPropertyList extends StatelessWidget {
 
 class _PropertyCell extends StatefulWidget {
   final CellContext cellContext;
-  final GridCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
   final FieldController fieldController;
   final int index;
 

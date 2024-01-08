@@ -5,7 +5,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
@@ -255,7 +254,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     }
 
     final cellCache = rowCache.cellCache;
-    final fieldController = boardBloc.fieldController;
+    final databaseController  = boardBloc.databaseController;
     final viewId = boardBloc.viewId;
 
     final cellBuilder = CardCellBuilder<String>(cellCache);
@@ -280,11 +279,9 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
         renderHook: renderHook,
         openCard: (context) => _openCard(
           context: context,
-          viewId: viewId,
+          databaseController: databaseController,
           groupId: groupData.group.groupId,
-          fieldController: fieldController,
           rowMeta: rowMeta,
-          rowCache: rowCache,
         ),
         styleConfiguration: RowCardStyleConfiguration(
           hoverStyle: HoverStyle(
@@ -330,15 +327,13 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
   void _openCard({
     required BuildContext context,
-    required String viewId,
+    required DatabaseController databaseController,
     required String groupId,
-    required FieldController fieldController,
     required RowMetaPB rowMeta,
-    required RowCache rowCache,
   }) {
     final rowInfo = RowInfo(
-      viewId: viewId,
-      fields: UnmodifiableListView(fieldController.fieldInfos),
+      viewId: databaseController.viewId,
+      fields: UnmodifiableListView(databaseController.fieldController.fieldInfos),
       rowMeta: rowMeta,
       rowId: rowMeta.id,
     );
@@ -346,15 +341,15 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     final rowController = RowController(
       rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
-      rowCache: rowCache,
+      rowCache: databaseController.rowCache,
       groupId: groupId,
     );
 
     FlowyOverlay.show(
       context: context,
       builder: (_) => RowDetailPage(
-        fieldController: fieldController,
-        cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
+        fieldController: databaseController.fieldController,
+        cellBuilder: EditableCellBuilder(cellCache: rowController.cellCache),
         rowController: rowController,
       ),
     );

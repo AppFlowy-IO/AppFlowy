@@ -28,12 +28,12 @@ class SelectOptionCellStyle extends GridCellStyle {
 }
 
 class GridSingleSelectCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
+  final SelectOptionCellController cellController;
   late final SelectOptionCellStyle cellStyle;
 
   GridSingleSelectCell({
     super.key,
-    required this.cellControllerBuilder,
+    required this.cellController,
     GridCellStyle? style,
   }) {
     if (style != null) {
@@ -49,21 +49,16 @@ class GridSingleSelectCell extends GridCellWidget {
 
 class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
   final PopoverController _popoverController = PopoverController();
-  late SelectOptionCellBloc _cellBloc;
 
-  @override
-  void initState() {
-    super.initState();
-    final cellController =
-        widget.cellControllerBuilder.build() as SelectOptionCellController;
-    _cellBloc = SelectOptionCellBloc(cellController: cellController)
-      ..add(const SelectOptionCellEvent.initial());
-  }
+  SelectOptionCellBloc get cellBloc => context.read<SelectOptionCellBloc>();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cellBloc,
+    return BlocProvider(
+      create: (_) {
+        return SelectOptionCellBloc(cellController: widget.cellController)
+          ..add(const SelectOptionCellEvent.initial());
+      },
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
           return SelectOptionWrap(
@@ -72,17 +67,11 @@ class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
             onCellEditing: (isFocus) =>
                 widget.cellContainerNotifier.isFocus = isFocus,
             popoverController: _popoverController,
-            cellControllerBuilder: widget.cellControllerBuilder,
+            cellController: widget.cellController,
           );
         },
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
   }
 
   @override
@@ -91,12 +80,12 @@ class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
 
 //----------------------------------------------------------------
 class GridMultiSelectCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
+  final SelectOptionCellController cellController;
   late final SelectOptionCellStyle cellStyle;
 
   GridMultiSelectCell({
     super.key,
-    required this.cellControllerBuilder,
+    required this.cellController,
     GridCellStyle? style,
   }) {
     if (style != null) {
@@ -112,21 +101,16 @@ class GridMultiSelectCell extends GridCellWidget {
 
 class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
   final PopoverController _popoverController = PopoverController();
-  late SelectOptionCellBloc _cellBloc;
 
-  @override
-  void initState() {
-    super.initState();
-    final cellController =
-        widget.cellControllerBuilder.build() as SelectOptionCellController;
-    _cellBloc = SelectOptionCellBloc(cellController: cellController)
-      ..add(const SelectOptionCellEvent.initial());
-  }
+  SelectOptionCellBloc get cellBloc => context.read<SelectOptionCellBloc>();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cellBloc,
+    return BlocProvider(
+      create: (_) {
+        return SelectOptionCellBloc(cellController: widget.cellController)
+          ..add(const SelectOptionCellEvent.initial());
+      },
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
           return SelectOptionWrap(
@@ -135,17 +119,11 @@ class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
             onCellEditing: (isFocus) =>
                 widget.cellContainerNotifier.isFocus = isFocus,
             popoverController: _popoverController,
-            cellControllerBuilder: widget.cellControllerBuilder,
+            cellController: widget.cellController,
           );
         },
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
   }
 
   @override
@@ -155,14 +133,14 @@ class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
 class SelectOptionWrap extends StatefulWidget {
   final List<SelectOptionPB> selectOptions;
   final SelectOptionCellStyle cellStyle;
-  final CellControllerBuilder cellControllerBuilder;
+  final SelectOptionCellController cellController;
   final PopoverController popoverController;
   final void Function(bool) onCellEditing;
 
   const SelectOptionWrap({
     super.key,
     required this.selectOptions,
-    required this.cellControllerBuilder,
+    required this.cellController,
     required this.onCellEditing,
     required this.popoverController,
     required this.cellStyle,
@@ -178,8 +156,6 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     final constraints = BoxConstraints.loose(
       Size(SelectOptionCellEditor.editorPanelWidth, 300),
     );
-    final cellController =
-        widget.cellControllerBuilder.build() as SelectOptionCellController;
 
     if (PlatformExtension.isDesktopOrWeb) {
       return AppFlowyPopover(
@@ -192,7 +168,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
             widget.onCellEditing(true);
           });
           return SelectOptionCellEditor(
-            cellController: cellController,
+            cellController: widget.cellController,
           );
         },
         onClose: () => widget.onCellEditing(false),
@@ -209,7 +185,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
           padding: EdgeInsets.zero,
           builder: (context) {
             return MobileSelectOptionEditor(
-              cellController: cellController,
+              cellController: widget.cellController,
             );
           },
         ),
@@ -259,7 +235,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
             padding: EdgeInsets.zero,
             builder: (context) {
               return MobileSelectOptionEditor(
-                cellController: cellController,
+                cellController: widget.cellController,
               );
             },
           );

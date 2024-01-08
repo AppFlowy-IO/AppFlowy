@@ -54,7 +54,7 @@ class RowCache {
     required this.viewId,
     required RowFieldsDelegate fieldsDelegate,
     required RowLifeCycle rowLifeCycle,
-  })  : _cellMemCache = CellMemCache(viewId: viewId),
+  })  : _cellMemCache = CellMemCache(),
         _changedNotifier = RowChangesetNotifier(),
         _rowLifeCycle = rowLifeCycle,
         _fieldDelegate = fieldsDelegate {
@@ -80,10 +80,10 @@ class RowCache {
     _changedNotifier.receive(const ChangedReason.setInitialRows());
   }
 
-  Future<void> dispose() async {
+  void dispose() {
     _rowLifeCycle.onRowDisposed();
     _changedNotifier.dispose();
-    await _cellMemCache.dispose();
+    _cellMemCache.dispose();
   }
 
   void applyRowsChanged(RowsChangePB changeset) {

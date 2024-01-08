@@ -1,11 +1,12 @@
 import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'number_cell_bloc.dart';
-import '../../../../grid/presentation/layout/sizes.dart';
-import '../../cell_builder.dart';
 
 class GridNumberCellStyle extends GridCellStyle {
   String? placeholder;
@@ -20,11 +21,11 @@ class GridNumberCellStyle extends GridCellStyle {
 }
 
 class GridNumberCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
+  final NumberCellController cellController;
   late final GridNumberCellStyle cellStyle;
 
   GridNumberCell({
-    required this.cellControllerBuilder,
+    required this.cellController,
     required GridCellStyle? style,
     super.key,
   }) {
@@ -48,12 +49,10 @@ class _NumberCellState extends GridEditableTextCell<GridNumberCell> {
 
   @override
   void initState() {
-    final cellController =
-        widget.cellControllerBuilder.build() as NumberCellController;
-    _cellBloc = NumberCellBloc(cellController: cellController)
+    super.initState();
+    _cellBloc = NumberCellBloc(cellController: widget.cellController)
       ..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.cellContent);
-    super.initState();
   }
 
   @override

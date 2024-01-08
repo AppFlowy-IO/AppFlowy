@@ -287,7 +287,9 @@ class _GridRows extends StatelessWidget {
     required bool isDraggable,
     Animation<double>? animation,
   }) {
-    final rowCache = context.read<GridBloc>().getRowCache(rowId);
+    final databaseController = context.read<GridBloc>().databaseController;
+    final DatabaseController(:viewId, :fieldController, :rowCache) =
+        databaseController;
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
     /// Return placeholder widget if the rowMeta is null.
@@ -295,9 +297,6 @@ class _GridRows extends StatelessWidget {
       Log.warn('RowMeta is null for rowId: $rowId');
       return const SizedBox.shrink();
     }
-
-    final fieldController =
-        context.read<GridBloc>().databaseController.fieldController;
     final rowController = RowController(
       viewId: viewId,
       rowMeta: rowMeta,
@@ -311,7 +310,7 @@ class _GridRows extends StatelessWidget {
       index: index,
       isDraggable: isDraggable,
       rowController: rowController,
-      cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
+      cellBuilder: EditableCellBuilder(databaseController: databaseController),
       openDetailPage: (context, cellBuilder) {
         FlowyOverlay.show(
           context: context,

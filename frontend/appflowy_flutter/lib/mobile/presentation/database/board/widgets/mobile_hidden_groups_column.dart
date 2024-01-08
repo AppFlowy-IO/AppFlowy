@@ -283,7 +283,7 @@ class MobileHiddenGroupItemList extends StatelessWidget {
                     foregroundColor: Theme.of(context).colorScheme.onBackground,
                     visualDensity: VisualDensity.compact,
                   ),
-                  child: CardCellBuilder<String>(rowCache.cellCache).buildCell(
+                  child: CardCellBuilder<String>(rowCache.cellCache).build(
                     cellContext: cellContext,
                     renderHook: renderHook,
                     hasNotes: !cellContext.rowMeta.isDocumentEmpty,

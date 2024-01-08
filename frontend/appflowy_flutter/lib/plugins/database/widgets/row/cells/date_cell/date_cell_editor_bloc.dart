@@ -303,7 +303,7 @@ class DateCellEditorBloc
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((cell) {
         if (!isClosed) {
           add(DateCellEditorEvent.didReceiveCellUpdate(cell));

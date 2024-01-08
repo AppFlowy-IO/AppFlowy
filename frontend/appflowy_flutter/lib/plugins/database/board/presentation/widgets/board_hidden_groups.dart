@@ -422,7 +422,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                         return RowDetailPage(
                           fieldController:
                               context.read<BoardBloc>().fieldController,
-                          cellBuilder: GridCellBuilder(
+                          cellBuilder: EditableCellBuilder(
                             cellCache: rowController.cellCache,
                           ),
                           rowController: rowController,
@@ -473,7 +473,7 @@ class HiddenGroupPopupItem extends StatelessWidget {
       height: 26,
       child: FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-        text: cellBuilder.buildCell(
+        text: cellBuilder.build(
           cellContext: cellContext,
           renderHook: renderHook,
           hasNotes: !cellContext.rowMeta.isDocumentEmpty,

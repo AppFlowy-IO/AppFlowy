@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'checkbox_cell_bloc.freezed.dart';
 
@@ -13,15 +14,15 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
     required this.cellController,
   }) : super(CheckboxCellState.initial(cellController)) {
     on<CheckboxCellEvent>(
-      (event, emit) async {
-        await event.when(
+      (event, emit) {
+        event.when(
           initial: () {
             _startListening();
           },
           didReceiveCellUpdate: (cellData) {
             emit(state.copyWith(isSelected: _isSelected(cellData)));
           },
-          select: () async {
+          select: () {
             cellController.saveCellData(!state.isSelected ? "Yes" : "No");
           },
         );
@@ -41,7 +42,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((cellData) {
         if (!isClosed) {
           add(CheckboxCellEvent.didReceiveCellUpdate(cellData));

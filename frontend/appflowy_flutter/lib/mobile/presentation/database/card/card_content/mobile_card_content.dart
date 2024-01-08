@@ -51,7 +51,7 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
       } else {
         child = Padding(
           padding: styleConfiguration.cellPadding,
-          child: cellBuilder.buildCell(
+          child: cellBuilder.build(
             cellContext: cellContext,
             cardData: cardData,
             renderHook: renderHook,
@@ -96,7 +96,7 @@ class MobileCardContent<CustomCardData> extends StatelessWidget {
 
     return Padding(
       padding: styleConfiguration.cellPadding,
-      child: CardCellBuilder<String>(cellBuilder.cellCache).buildCell(
+      child: CardCellBuilder<String>(cellBuilder.cellCache).build(
         cellContext: cellContext,
         renderHook: renderHook,
         hasNotes: !cellContext.rowMeta.isDocumentEmpty,

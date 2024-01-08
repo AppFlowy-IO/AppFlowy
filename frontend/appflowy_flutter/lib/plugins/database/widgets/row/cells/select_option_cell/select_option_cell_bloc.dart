@@ -43,7 +43,7 @@ class SelectOptionCellBloc
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
           add(

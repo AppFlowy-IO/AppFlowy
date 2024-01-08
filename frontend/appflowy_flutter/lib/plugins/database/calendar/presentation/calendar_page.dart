@@ -361,7 +361,7 @@ void showEventDetails({
     context: context,
     builder: (BuildContext overlayContext) {
       return RowDetailPage(
-        cellBuilder: GridCellBuilder(
+        cellBuilder: EditableCellBuilder(
           cellCache: rowCache.cellCache,
         ),
         rowController: rowController,

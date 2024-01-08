@@ -8,10 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class MobileCheckboxCardCell extends CardCell {
   const MobileCheckboxCardCell({
     super.key,
-    required this.cellControllerBuilder,
+    required this.cellController,
   });
 
-  final CellControllerBuilder cellControllerBuilder;
+  final CheckboxCellController cellController;
 
   @override
   State<MobileCheckboxCardCell> createState() => _CheckboxCellState();
@@ -23,9 +23,7 @@ class _CheckboxCellState extends State<MobileCheckboxCardCell> {
   @override
   void initState() {
     super.initState();
-    final cellController =
-        widget.cellControllerBuilder.build() as CheckboxCellController;
-    _cellBloc = CheckboxCellBloc(cellController: cellController)
+    _cellBloc = CheckboxCellBloc(cellController: widget.cellController)
       ..add(const CheckboxCellEvent.initial());
   }
 

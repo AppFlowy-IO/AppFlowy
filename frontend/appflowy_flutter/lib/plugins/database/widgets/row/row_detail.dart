@@ -15,7 +15,7 @@ import 'row_property.dart';
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   final FieldController fieldController;
   final RowController rowController;
-  final GridCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
 
   const RowDetailPage({
     super.key,
@@ -48,7 +48,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
         providers: [
           BlocProvider(
             create: (context) =>
-                RowDetailBloc(rowController: widget.rowController)
+                RowDetailBloc(fieldController: widget.fieldController, rowController: widget.rowController)
                   ..add(const RowDetailEvent.initial()),
           ),
           BlocProvider.value(

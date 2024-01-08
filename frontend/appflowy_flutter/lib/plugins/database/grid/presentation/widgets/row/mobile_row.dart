@@ -37,7 +37,7 @@ class MobileGridRow extends StatefulWidget {
 class _MobileGridRowState extends State<MobileGridRow> {
   late final RowBloc _rowBloc;
   late final RowController _rowController;
-  late final GridCellBuilder _cellBuilder;
+  late final EditableCellBuilder _cellBuilder;
 
   String get viewId => widget.databaseController.viewId;
   RowCache get rowCache => widget.databaseController.rowCache;
@@ -55,7 +55,7 @@ class _MobileGridRowState extends State<MobileGridRow> {
       rowController: _rowController,
       viewId: viewId,
     )..add(const RowEvent.initial());
-    _cellBuilder = GridCellBuilder(cellCache: rowCache.cellCache);
+    _cellBuilder = EditableCellBuilder(cellCache: rowCache.cellCache);
   }
 
   @override
@@ -110,7 +110,7 @@ class InsertRowButton extends StatelessWidget {
 
 class RowContent extends StatelessWidget {
   final VoidCallback onExpand;
-  final GridCellBuilder builder;
+  final EditableCellBuilder builder;
   const RowContent({
     super.key,
     required this.builder,

@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/database/card/row/cells/mobile_chec
 import 'package:appflowy/plugins/database/application/cell/cell_cache.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -25,100 +26,106 @@ import 'cells/timestamp_cell/timestamp_cell.dart';
 import 'cells/url_cell/url_cell.dart';
 
 /// Build the cell widget in Grid style.
-class GridCellBuilder {
-  final CellMemCache cellCache;
-  GridCellBuilder({
-    required this.cellCache,
+class EditableCellBuilder {
+  final DatabaseController databaseController;
+
+  EditableCellBuilder({
+    required this.databaseController,
   });
 
   GridCellWidget build(
     CellContext cellContext, {
     GridCellStyle? style,
   }) {
-    final cellControllerBuilder = CellControllerBuilder(
-      cellContext: cellContext,
-      cellCache: cellCache,
+    final fieldType = databaseController.fieldController
+        .getField(cellContext.fieldId)!
+        .fieldType;
+    final cellController =
+        makeCellController(databaseController, cellContext, fieldType);
+    final key = ValueKey(
+      "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );
 
-    final key = cellContext.key();
-
-    if (PlatformExtension.isMobile) {
+    if (PlatformExtension.isDesktop) {
+      return _getDesktopGridCellWidget(
+        key,
+        cellContext,
+        cellController,
+        fieldType,
+        style,
+      );
+    } else {
       return _getMobileCardCellWidget(
         key,
         cellContext,
-        cellControllerBuilder,
+        cellController,
+        fieldType,
         style,
       );
     }
-
-    return _getDesktopGridCellWidget(
-      key,
-      cellContext,
-      cellControllerBuilder,
-      style,
-    );
   }
 
   GridCellWidget _getDesktopGridCellWidget(
     ValueKey key,
     CellContext cellContext,
-    CellControllerBuilder cellControllerBuilder,
+    CellController cellController,
+    FieldType fieldType,
     GridCellStyle? style,
   ) {
-    switch (cellContext.fieldType) {
+    switch (fieldType) {
       case FieldType.Checkbox:
         return GridCheckboxCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as CheckboxCellController,
           style: style,
           key: key,
         );
       case FieldType.DateTime:
         return GridDateCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as DateCellController,
           key: key,
           style: style,
         );
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
         return GridTimestampCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as TimestampCellController,
           key: key,
           style: style,
-          fieldType: cellContext.fieldType,
+          fieldType: fieldType,
         );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as SelectOptionCellController,
           style: style,
           key: key,
         );
       case FieldType.MultiSelect:
         return GridMultiSelectCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as SelectOptionCellController,
           style: style,
           key: key,
         );
       case FieldType.Checklist:
         return GridChecklistCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as ChecklistCellController,
           style: style,
           key: key,
         );
       case FieldType.Number:
         return GridNumberCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as NumberCellController,
           style: style,
           key: key,
         );
       case FieldType.RichText:
         return GridTextCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as TextCellController,
           style: style,
           key: key,
         );
       case FieldType.URL:
         return GridURLCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController as URLCellController,
           style: style,
           key: key,
         );
@@ -127,65 +134,66 @@ class GridCellBuilder {
     throw UnimplementedError;
   }
 
-// editable cell/(card's propery value) widget
+  /// editable cell/(card's propery value) widget
   GridCellWidget _getMobileCardCellWidget(
     ValueKey key,
     CellContext cellContext,
-    CellControllerBuilder cellControllerBuilder,
+    CellController cellController,
+    FieldType fieldType,
     GridCellStyle? style,
   ) {
-    switch (cellContext.fieldType) {
+    switch (fieldType) {
       case FieldType.RichText:
         style as GridTextCellStyle?;
         return MobileTextCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellControllerBuilder: cellController,
           style: style,
         );
       case FieldType.Number:
         style as GridNumberCellStyle?;
         return MobileNumberCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellControllerBuilder: cellController,
           hintText: style?.placeholder,
         );
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
         return MobileTimestampCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellControllerBuilder: cellController,
           key: key,
         );
       case FieldType.Checkbox:
         return MobileCheckboxCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellControllerBuilder: cellController,
           key: key,
         );
       case FieldType.DateTime:
         style as DateCellStyle?;
         return GridDateCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController,
           style: style,
         );
       case FieldType.URL:
         style as GridURLCellStyle?;
         return MobileURLCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellControllerBuilder: cellController,
           hintText: style?.placeholder,
           key: key,
         );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController,
           style: style,
           key: key,
         );
       case FieldType.MultiSelect:
         return GridMultiSelectCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellController,
           style: style,
           key: key,
         );
       case FieldType.Checklist:
         return MobileChecklistCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellControllerBuilder: cellController,
           style: style,
           key: key,
         );
@@ -204,30 +212,25 @@ class MobileRowDetailPageCellBuilder {
     CellContext cellContext, {
     GridCellStyle? style,
   }) {
-    final cellControllerBuilder = CellControllerBuilder(
-      cellContext: cellContext,
-      cellCache: cellCache,
-    );
-
-    final key = cellContext.key();
-
     switch (cellContext.fieldType) {
       case FieldType.RichText:
         style as GridTextCellStyle?;
         return RowDetailTextCell(
           cellControllerBuilder: cellControllerBuilder,
           style: style,
+          key: key,
         );
       case FieldType.Number:
         style as GridNumberCellStyle?;
         return RowDetailNumberCell(
           cellControllerBuilder: cellControllerBuilder,
           hintText: style?.placeholder,
+          key: key,
         );
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
         return GridTimestampCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellControllerBuilder,
           fieldType: cellContext.fieldType,
           style: style,
           key: key,
@@ -240,7 +243,7 @@ class MobileRowDetailPageCellBuilder {
       case FieldType.DateTime:
         style as DateCellStyle?;
         return GridDateCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellControllerBuilder,
           style: style,
         );
       case FieldType.URL:
@@ -252,13 +255,13 @@ class MobileRowDetailPageCellBuilder {
         );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellControllerBuilder,
           style: style,
           key: key,
         );
       case FieldType.MultiSelect:
         return GridMultiSelectCell(
-          cellControllerBuilder: cellControllerBuilder,
+          cellController: cellControllerBuilder,
           style: style,
           key: key,
         );
