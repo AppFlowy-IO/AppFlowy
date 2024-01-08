@@ -33,7 +33,7 @@ use parking_lot::{Mutex, RwLock};
 use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
-use tracing::{debug, event, info, instrument};
+use tracing::{debug, error, event, info, instrument};
 
 pub(crate) struct ImportContext {
   pub imported_session: Session,
@@ -639,25 +639,17 @@ pub async fn upload_imported_data(
     );
     for (oid, encoded_collab) in encoded_collab_by_oid {
       let obj_size = encoded_collab.len();
+      // When the limit is exceeded, batch create with the current list of objects
+      // and reset for the next batch.
       if size_counter + obj_size > upload_size_limit && !objects.is_empty() {
-        // When the limit is exceeded, batch create with the current list of objects
-        // and reset for the next batch.
-        info!(
-          "Exceeded maximum payload size. Batch creating collab objects: {}, payload size: {}",
-          objects
-            .iter()
-            .map(|o| o.object_id.clone())
-            .collect::<Vec<_>>()
-            .join(", "),
-          size_counter
-        );
-
-        if let Err(e) = user_cloud_service
-          .batch_create_collab_object(workspace_id, objects)
-          .await
-        {
-          tracing::error!("batch create collab object failed: {:?}", e);
-        }
+        batch_create(
+          uid,
+          workspace_id,
+          &user_cloud_service,
+          &size_counter,
+          objects,
+        )
+        .await;
 
         objects = Vec::new();
         size_counter = 0;
@@ -675,24 +667,48 @@ pub async fn upload_imported_data(
 
   // After the loop, upload any remaining objects.
   if !objects.is_empty() {
-    info!(
-      "Batch create collab objects: {}, payload size: {}",
-      objects
-        .iter()
-        .map(|o| o.object_id.clone())
-        .collect::<Vec<_>>()
-        .join(", "),
-      size_counter
-    );
-
-    if let Err(e) = user_cloud_service
-      .batch_create_collab_object(workspace_id, objects)
-      .await
-    {
-      tracing::error!("batch create collab object failed: {:?}", e);
-    }
+    batch_create(
+      uid,
+      workspace_id,
+      &user_cloud_service,
+      &size_counter,
+      objects,
+    )
+    .await;
   }
   Ok(())
+}
+
+async fn batch_create(
+  uid: i64,
+  workspace_id: &str,
+  user_cloud_service: &Arc<dyn UserCloudService>,
+  size_counter: &usize,
+  objects: Vec<UserCollabParams>,
+) {
+  let ids = objects
+    .iter()
+    .map(|o| o.object_id.clone())
+    .collect::<Vec<_>>()
+    .join(", ");
+
+  match user_cloud_service
+    .batch_create_collab_object(workspace_id, objects)
+    .await
+  {
+    Ok(_) => {
+      info!(
+        "Batch creating collab objects success: {}, payload size: {}",
+        ids, size_counter
+      );
+    },
+    Err(err) => {
+      error!(
+      "Batch creating collab objects fail:{}, payload size: {}, workspace_id:{}, uid: {}, error: {:?}",
+       ids, size_counter, workspace_id, uid,err
+      );
+    },
+  }
 }
 
 #[instrument(level = "debug", skip_all)]
