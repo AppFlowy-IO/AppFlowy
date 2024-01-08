@@ -5,6 +5,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emo
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -241,5 +243,20 @@ extension Expectation on WidgetTester {
       matching: find.text(emoji),
     );
     expect(icon, findsOneWidget);
+  }
+
+  void expectSelectedReminder(ReminderOption option) {
+    final findSelectedText = find.descendant(
+      of: find.byType(ReminderSelector),
+      matching: find.text(option.label),
+    );
+
+    expect(findSelectedText, findsOneWidget);
+  }
+
+  void expectNotificationItems(int amount) {
+    final findItems = find.byType(NotificationItem);
+
+    expect(findItems, findsNWidgets(amount));
   }
 }
