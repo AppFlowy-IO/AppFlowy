@@ -14,6 +14,7 @@ extension InsertDatabase on EditorState {
     if (selection == null || !selection.isCollapsed) {
       return;
     }
+
     final node = getNodeAtPath(selection.end.path);
     if (node == null) {
       return;
@@ -52,19 +53,9 @@ extension InsertDatabase on EditorState {
       );
     }
 
-    late Transaction transaction;
-    if (viewType == ViewLayoutPB.Document) {
-      transaction = await _insertDocumentReference(
-        childView,
-        selection,
-        node,
-      );
-    } else {
-      transaction = await _insertDatabaseReference(
-        childView,
-        selection.end.path,
-      );
-    }
+    final Transaction transaction = viewType == ViewLayoutPB.Document
+        ? await _insertDocumentReference(childView, selection, node)
+        : await _insertDatabaseReference(childView, selection.end.path);
 
     await apply(transaction);
   }

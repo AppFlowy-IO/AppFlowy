@@ -9,21 +9,20 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-InlineActionsMenuService? actionsMenuService;
+InlineActionsMenuService? _actionsMenuService;
 Future<void> showLinkToPageMenu(
   EditorState editorState,
   SelectionMenuService menuService,
   ViewLayoutPB pageType,
 ) async {
   menuService.dismiss();
-  actionsMenuService?.dismiss();
+  _actionsMenuService?.dismiss();
 
   final rootContext = editorState.document.root.context;
   if (rootContext == null) {
     return;
   }
 
-  // ignore: use_build_context_synchronously
   final service = InlineActionsService(
     context: rootContext,
     handlers: [
@@ -31,7 +30,8 @@ Future<void> showLinkToPageMenu(
         currentViewId: "",
         viewLayout: pageType,
         customTitle: titleFromPageType(pageType),
-        insertPage: true,
+        insertPage: pageType != ViewLayoutPB.Document,
+        limitResults: 15,
       ).inlinePageReferenceDelegate,
     ],
   );
@@ -46,7 +46,7 @@ Future<void> showLinkToPageMenu(
   }
 
   if (rootContext.mounted) {
-    actionsMenuService = InlineActionsMenu(
+    _actionsMenuService = InlineActionsMenu(
       context: rootContext,
       editorState: editorState,
       service: service,
@@ -58,7 +58,7 @@ Future<void> showLinkToPageMenu(
       startCharAmount: 0,
     );
 
-    actionsMenuService?.show();
+    _actionsMenuService?.show();
   }
 }
 

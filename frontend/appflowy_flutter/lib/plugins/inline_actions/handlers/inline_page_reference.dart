@@ -47,41 +47,29 @@ class InlinePageReferenceService {
   ///
   final int limitResults;
 
-  late final ViewBackendService service;
+  final ViewBackendService service = ViewBackendService();
   List<InlineActionsMenuItem> _items = [];
   List<InlineActionsMenuItem> _filtered = [];
 
   Future<void> init() async {
-    service = ViewBackendService();
-
-    _generatePageItems(currentViewId, viewLayout).then((value) {
-      _items = value;
-
-      if (limitResults > 0) {
-        _filtered = value.take(limitResults).toList();
-      } else {
-        _filtered = value;
-      }
-
-      _initCompleter.complete();
-    });
+    _items = await _generatePageItems(currentViewId, viewLayout);
+    _filtered = limitResults > 0 ? _items.take(limitResults).toList() : _items;
+    _initCompleter.complete();
   }
 
   Future<List<InlineActionsMenuItem>> _filterItems(String? search) async {
     await _initCompleter.future;
 
-    if (search == null || search.isEmpty) {
-      return limitResults > 0 ? _items.take(limitResults).toList() : _items;
-    }
-
-    final items = _items.where(
-      (item) =>
-          item.keywords != null &&
-          item.keywords!.isNotEmpty &&
-          item.keywords!.any(
-            (keyword) => keyword.contains(search.toLowerCase()),
-          ),
-    );
+    final items = (search == null || search.isEmpty)
+        ? _items
+        : _items.where(
+            (item) =>
+                item.keywords != null &&
+                item.keywords!.isNotEmpty &&
+                item.keywords!.any(
+                  (keyword) => keyword.contains(search.toLowerCase()),
+                ),
+          );
 
     return limitResults > 0
         ? items.take(limitResults).toList()
@@ -94,7 +82,7 @@ class InlinePageReferenceService {
     _filtered = await _filterItems(search);
 
     return InlineActionsResult(
-      title: customTitle != null && customTitle!.isNotEmpty
+      title: customTitle?.isNotEmpty == true
           ? customTitle!
           : LocaleKeys.inlineActions_pageReference.tr(),
       results: _filtered,
@@ -136,7 +124,7 @@ class InlinePageReferenceService {
               )
             : view.defaultIcon(),
         onSelected: (context, editorState, menuService, replace) => insertPage
-            ? _onInsertPageRef(view, context, editorState)
+            ? _onInsertPageRef(view, context, editorState, replace)
             : _onInsertLinkRef(
                 view,
                 context,
@@ -156,7 +144,29 @@ class InlinePageReferenceService {
     ViewPB view,
     BuildContext context,
     EditorState editorState,
+    (int, int) replace,
   ) async {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+
+    final node = editorState.getNodeAtPath(selection.start.path);
+
+    if (node != null) {
+      // Delete search term
+      if (replace.$2 > 0) {
+        final transaction = editorState.transaction
+          ..deleteText(node, replace.$1, replace.$2);
+        await editorState.apply(transaction);
+      }
+
+      // Insert newline before inserting referenced database
+      if (node.delta?.toPlainText().isNotEmpty == true) {
+        await editorState.insertNewLine();
+      }
+    }
+
     try {
       await editorState.insertReferencePage(view, view.layout);
     } on FlowyError catch (e) {
@@ -184,7 +194,7 @@ class InlinePageReferenceService {
       return;
     }
 
-    final node = editorState.getNodeAtPath(selection.end.path);
+    final node = editorState.getNodeAtPath(selection.start.path);
     final delta = node?.delta;
     if (node == null || delta == null) {
       return;
