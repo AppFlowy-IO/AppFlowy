@@ -85,16 +85,15 @@ CellController makeCellController(
       );
     case FieldType.MultiSelect:
     case FieldType.SingleSelect:
-      final cellDataLoader = CellDataLoader(
-        parser: SelectOptionCellDataParser(),
-        reloadOnFieldChange: true,
-      );
       return SelectOptionCellController(
         viewId: viewId,
         fieldController: fieldController,
         cellContext: cellContext,
         rowCache: rowCache,
-        cellDataLoader: cellDataLoader,
+        cellDataLoader: CellDataLoader(
+          parser: SelectOptionCellDataParser(),
+          reloadOnFieldChange: true,
+        ),
         cellDataPersistence: TextCellDataPersistence(),
       );
     case FieldType.Checklist:

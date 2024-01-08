@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'text_cell_bloc.freezed.dart';
 
 class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   final TextCellController cellController;
   void Function()? _onCellChangedFn;
+
   TextCellBloc({
     required this.cellController,
   }) : super(TextCellState.initial(cellController)) {
@@ -19,11 +21,10 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
           },
           updateText: (text) {
             if (state.content != text) {
-              cellController.saveCellData(text);
-              emit(state.copyWith(content: text));
+              cellController.saveCellData(text, debounce: true);
             }
           },
-          didReceiveCellUpdate: (content) {
+          didReceiveCellUpdate: (String content) {
             emit(state.copyWith(content: content));
           },
           didUpdateEmoji: (String emoji) {

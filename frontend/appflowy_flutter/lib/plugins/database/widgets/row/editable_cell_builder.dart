@@ -1,31 +1,30 @@
-import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/checkbox_cell.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/number_cell.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/text_cell.dart';
-import 'package:appflowy/mobile/presentation/database/card/card_detail/cells/url_cell.dart';
-import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
-import 'package:appflowy/mobile/presentation/database/card/row/cells/mobile_checklist_cell.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_cache.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import '../cell/editable_cell_skeleton/checkbox.dart';
+import '../cell/editable_cell_skeleton/checklist.dart';
+import '../cell/editable_cell_skeleton/date.dart';
+import '../cell/editable_cell_skeleton/number.dart';
+import '../cell/editable_cell_skeleton/select_option.dart';
+import '../cell/editable_cell_skeleton/text.dart';
+import '../cell/editable_cell_skeleton/timestamp.dart';
+import '../cell/editable_cell_skeleton/url.dart';
 import 'accessory/cell_accessory.dart';
 import 'accessory/cell_shortcuts.dart';
 import 'cells/cell_container.dart';
-import 'cells/checkbox_cell/checkbox_cell.dart';
-import 'cells/checklist_cell/checklist_cell.dart';
-import 'cells/date_cell/date_cell.dart';
-import 'cells/number_cell/number_cell.dart';
-import 'cells/select_option_cell/select_option_cell.dart';
-import 'cells/text_cell/text_cell.dart';
-import 'cells/timestamp_cell/timestamp_cell.dart';
-import 'cells/url_cell/url_cell.dart';
 
-/// Build the cell widget in Grid style.
+enum EditableCellStyle {
+  desktopGrid,
+  desktopRowDetail,
+  mobileGrid,
+  mobileRowDetail,
+}
+
+/// Build an editable cell widget
 class EditableCellBuilder {
   final DatabaseController databaseController;
 
@@ -33,10 +32,7 @@ class EditableCellBuilder {
     required this.databaseController,
   });
 
-  GridCellWidget build(
-    CellContext cellContext, {
-    GridCellStyle? style,
-  }) {
+  EditableCellWidget build(CellContext cellContext, EditableCellStyle style) {
     final fieldType = databaseController.fieldController
         .getField(cellContext.fieldId)!
         .fieldType;
@@ -45,234 +41,53 @@ class EditableCellBuilder {
     final key = ValueKey(
       "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );
-
-    if (PlatformExtension.isDesktop) {
-      return _getDesktopGridCellWidget(
-        key,
-        cellContext,
-        cellController,
-        fieldType,
-        style,
-      );
-    } else {
-      return _getMobileCardCellWidget(
-        key,
-        cellContext,
-        cellController,
-        fieldType,
-        style,
-      );
-    }
-  }
-
-  GridCellWidget _getDesktopGridCellWidget(
-    ValueKey key,
-    CellContext cellContext,
-    CellController cellController,
-    FieldType fieldType,
-    GridCellStyle? style,
-  ) {
-    switch (fieldType) {
-      case FieldType.Checkbox:
-        return GridCheckboxCell(
+    return switch (fieldType) {
+      FieldType.Checkbox => EditableCheckboxCell(
           cellController: cellController as CheckboxCellController,
-          style: style,
+          skin: IEditableCheckboxSkin.fromStyle(style),
           key: key,
-        );
-      case FieldType.DateTime:
-        return GridDateCell(
-          cellController: cellController as DateCellController,
-          key: key,
-          style: style,
-        );
-      case FieldType.LastEditedTime:
-      case FieldType.CreatedTime:
-        return GridTimestampCell(
-          cellController: cellController as TimestampCellController,
-          key: key,
-          style: style,
-          fieldType: fieldType,
-        );
-      case FieldType.SingleSelect:
-        return GridSingleSelectCell(
-          cellController: cellController as SelectOptionCellController,
-          style: style,
-          key: key,
-        );
-      case FieldType.MultiSelect:
-        return GridMultiSelectCell(
-          cellController: cellController as SelectOptionCellController,
-          style: style,
-          key: key,
-        );
-      case FieldType.Checklist:
-        return GridChecklistCell(
+        ),
+      FieldType.Checklist => EditableChecklistCell(
           cellController: cellController as ChecklistCellController,
-          style: style,
+          skin: IEditableChecklistSkin.fromStyle(style),
           key: key,
-        );
-      case FieldType.Number:
-        return GridNumberCell(
+        ),
+      FieldType.LastEditedTime ||
+      FieldType.CreatedTime =>
+        EditableTimestampCell(
+          cellController: cellController as TimestampCellController,
+          skin: IEditableTimestampCellSkin.fromStyle(style),
+          key: key,
+        ),
+      FieldType.DateTime => EditableDateCell(
+          cellController: cellController as DateCellController,
+          skin: IEditableDateCellSkin.fromStyle(style),
+          key: key,
+        ),
+      FieldType.MultiSelect ||
+      FieldType.SingleSelect =>
+        EditableSelectOptionCell(
+          cellController: cellController as SelectOptionCellController,
+          builder: IEditableSelectOptionCellSkin.fromStyle(style),
+          key: key,
+        ),
+      FieldType.Number => EditableNumberCell(
           cellController: cellController as NumberCellController,
-          style: style,
+          builder: IEditableNumberCellSkin.fromStyle(style),
           key: key,
-        );
-      case FieldType.RichText:
-        return GridTextCell(
+        ),
+      FieldType.RichText => EditableTextCell(
           cellController: cellController as TextCellController,
-          style: style,
+          skin: IEditableTextCellSkin.fromStyle(style),
           key: key,
-        );
-      case FieldType.URL:
-        return GridURLCell(
+        ),
+      FieldType.URL => EditableURLCell(
           cellController: cellController as URLCellController,
-          style: style,
+          skin: IEditableURLCellSkin.fromStyle(style),
           key: key,
-        );
-    }
-
-    throw UnimplementedError;
-  }
-
-  /// editable cell/(card's propery value) widget
-  GridCellWidget _getMobileCardCellWidget(
-    ValueKey key,
-    CellContext cellContext,
-    CellController cellController,
-    FieldType fieldType,
-    GridCellStyle? style,
-  ) {
-    switch (fieldType) {
-      case FieldType.RichText:
-        style as GridTextCellStyle?;
-        return MobileTextCell(
-          cellControllerBuilder: cellController,
-          style: style,
-        );
-      case FieldType.Number:
-        style as GridNumberCellStyle?;
-        return MobileNumberCell(
-          cellControllerBuilder: cellController,
-          hintText: style?.placeholder,
-        );
-      case FieldType.LastEditedTime:
-      case FieldType.CreatedTime:
-        return MobileTimestampCell(
-          cellControllerBuilder: cellController,
-          key: key,
-        );
-      case FieldType.Checkbox:
-        return MobileCheckboxCell(
-          cellControllerBuilder: cellController,
-          key: key,
-        );
-      case FieldType.DateTime:
-        style as DateCellStyle?;
-        return GridDateCell(
-          cellController: cellController,
-          style: style,
-        );
-      case FieldType.URL:
-        style as GridURLCellStyle?;
-        return MobileURLCell(
-          cellControllerBuilder: cellController,
-          hintText: style?.placeholder,
-          key: key,
-        );
-      case FieldType.SingleSelect:
-        return GridSingleSelectCell(
-          cellController: cellController,
-          style: style,
-          key: key,
-        );
-      case FieldType.MultiSelect:
-        return GridMultiSelectCell(
-          cellController: cellController,
-          style: style,
-          key: key,
-        );
-      case FieldType.Checklist:
-        return MobileChecklistCell(
-          cellControllerBuilder: cellController,
-          style: style,
-          key: key,
-        );
-    }
-    throw UnimplementedError;
-  }
-}
-
-class MobileRowDetailPageCellBuilder {
-  final CellMemCache cellCache;
-  MobileRowDetailPageCellBuilder({
-    required this.cellCache,
-  });
-
-  GridCellWidget build(
-    CellContext cellContext, {
-    GridCellStyle? style,
-  }) {
-    switch (cellContext.fieldType) {
-      case FieldType.RichText:
-        style as GridTextCellStyle?;
-        return RowDetailTextCell(
-          cellControllerBuilder: cellControllerBuilder,
-          style: style,
-          key: key,
-        );
-      case FieldType.Number:
-        style as GridNumberCellStyle?;
-        return RowDetailNumberCell(
-          cellControllerBuilder: cellControllerBuilder,
-          hintText: style?.placeholder,
-          key: key,
-        );
-      case FieldType.LastEditedTime:
-      case FieldType.CreatedTime:
-        return GridTimestampCell(
-          cellController: cellControllerBuilder,
-          fieldType: cellContext.fieldType,
-          style: style,
-          key: key,
-        );
-      case FieldType.Checkbox:
-        return RowDetailCheckboxCell(
-          cellControllerBuilder: cellControllerBuilder,
-          key: key,
-        );
-      case FieldType.DateTime:
-        style as DateCellStyle?;
-        return GridDateCell(
-          cellController: cellControllerBuilder,
-          style: style,
-        );
-      case FieldType.URL:
-        style as GridURLCellStyle?;
-        return RowDetailURLCell(
-          cellControllerBuilder: cellControllerBuilder,
-          hintText: style?.placeholder,
-          key: key,
-        );
-      case FieldType.SingleSelect:
-        return GridSingleSelectCell(
-          cellController: cellControllerBuilder,
-          style: style,
-          key: key,
-        );
-      case FieldType.MultiSelect:
-        return GridMultiSelectCell(
-          cellController: cellControllerBuilder,
-          style: style,
-          key: key,
-        );
-      case FieldType.Checklist:
-        return MobileChecklistCell(
-          cellControllerBuilder: cellControllerBuilder,
-          style: style,
-          key: key,
-        );
-    }
-    throw UnimplementedError;
+        ),
+      _ => throw UnimplementedError(),
+    };
   }
 }
 
@@ -306,9 +121,9 @@ abstract class CellAccessory extends Widget {
   AccessoryBuilder? get accessoryBuilder;
 }
 
-abstract class GridCellWidget extends StatefulWidget
+abstract class EditableCellWidget extends StatefulWidget
     implements CellAccessory, CellEditable, CellShortcuts {
-  GridCellWidget({super.key});
+  EditableCellWidget({super.key});
 
   @override
   final CellContainerNotifier cellContainerNotifier = CellContainerNotifier();
@@ -332,7 +147,7 @@ abstract class GridCellWidget extends StatefulWidget
   final Map<CellKeyboardKey, CellKeyboardAction> shortcutHandlers = {};
 }
 
-abstract class GridCellState<T extends GridCellWidget> extends State<T> {
+abstract class GridCellState<T extends EditableCellWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
@@ -362,7 +177,7 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   String? onCopy() => null;
 }
 
-abstract class GridEditableTextCell<T extends GridCellWidget>
+abstract class GridEditableTextCell<T extends EditableCellWidget>
     extends GridCellState<T> {
   SingleListenerFocusNode get focusNode;
 
@@ -422,10 +237,6 @@ class RequestFocusListener extends ChangeNotifier {
   void notify() {
     notifyListeners();
   }
-}
-
-abstract class GridCellStyle {
-  const GridCellStyle();
 }
 
 class SingleListenerFocusNode extends FocusNode {

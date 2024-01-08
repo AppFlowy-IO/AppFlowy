@@ -254,7 +254,7 @@ class RowContent extends StatelessWidget {
   ) {
     return cellByFieldId.values.map(
       (cellId) {
-        final GridCellWidget child = builder.build(cellId);
+        final EditableCellWidget child = builder.build(cellId);
         return CellContainer(
           width: cellId.fieldInfo.fieldSettings!.width.toDouble(),
           isPrimary: cellId.fieldInfo.field.isPrimary,
