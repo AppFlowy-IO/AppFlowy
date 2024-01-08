@@ -41,6 +41,7 @@ collab-folder = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
+rand = { version = "0.8.5", features = [] }
 
 [dev-dependencies]
 dotenv = "0.15.0"
@@ -55,4 +56,4 @@ zip = "0.6.6"
 default = ["supabase_cloud_test"]
 dart = ["flowy-core/dart"]
 supabase_cloud_test = []
-single_thread = ["flowy-core/wasm_build"]
+single_thread = ["flowy-core/single_thread"]

@@ -19,9 +19,10 @@ use collab_integrate::collab_builder::{
 };
 use collab_integrate::CollabKVDB;
 use flowy_document::document::MutexDocument;
-use flowy_document::manager::{DocumentManager, DocumentUser};
+use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
+use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_deps::cloud::*;
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::{FileStorageService, StorageObject};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::{to_fut, Fut, FutureResult};
@@ -35,11 +36,13 @@ impl DocumentTest {
     let user = FakeUser::new();
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
     let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn FileStorageService>;
+    let document_snapshot = Arc::new(DocumentTestSnapshot);
     let manager = DocumentManager::new(
       Arc::new(user),
       default_collab_builder(),
       cloud_service,
       Arc::downgrade(&file_storage),
+      document_snapshot,
     );
     Self { inner: manager }
   }
@@ -69,7 +72,7 @@ impl FakeUser {
   }
 }
 
-impl DocumentUser for FakeUser {
+impl DocumentUserService for FakeUser {
   fn user_id(&self) -> Result<i64, FlowyError> {
     Ok(1)
   }
@@ -110,7 +113,7 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
-  let uid = test.user.user_id().unwrap();
+  let uid = test.user_service.user_id().unwrap();
   // create a document
   test
     .create_document(uid, &doc_id, Some(data.clone()))
@@ -194,5 +197,19 @@ impl CollabCloudPluginProvider for DefaultCollabStorageProvider {
 
   fn is_sync_enabled(&self) -> bool {
     false
+  }
+}
+
+struct DocumentTestSnapshot;
+impl DocumentSnapshotService for DocumentTestSnapshot {
+  fn get_document_snapshot_metas(
+    &self,
+    _document_id: &str,
+  ) -> FlowyResult<Vec<DocumentSnapshotMeta>> {
+    todo!()
+  }
+
+  fn get_document_snapshot(&self, _snapshot_id: &str) -> FlowyResult<DocumentSnapshotData> {
+    todo!()
   }
 }

@@ -19,8 +19,5 @@ tokio = { workspace = true, features = ["sync"]}
 lib-infra = { workspace = true }
 
 [features]
-default = ["rocksdb_plugin"]
-supabase_integrate = ["rocksdb_plugin"]
-appflowy_cloud_integrate = ["rocksdb_plugin"]
-snapshot_plugin = ["rocksdb_plugin"]
-rocksdb_plugin = []
+default = []
+wasm_build = []

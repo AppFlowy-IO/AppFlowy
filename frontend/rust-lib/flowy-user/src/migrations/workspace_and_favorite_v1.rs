@@ -26,15 +26,8 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
     &self,
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
-    authenticator: &Authenticator,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
-    // Note on `favorite` Struct Refactoring and Migration:
-    // - The `favorite` struct has already undergone refactoring prior to the launch of the AppFlowy cloud version.
-    // - Consequently, if a user is utilizing the AppFlowy cloud version, there is no need to perform any migration for the `favorite` struct.
-    // - This migration step is only necessary for users who are transitioning from a local version of AppFlowy to the cloud version.
-    if !matches!(authenticator, Authenticator::Local) {
-      return Ok(());
-    }
     collab_db
       .with_write_txn(|write_txn| {
         if let Ok(collab) = load_collab(session.user_id, write_txn, &session.user_workspace.id) {

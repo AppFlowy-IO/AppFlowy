@@ -1,3 +1,4 @@
+use crate::document::generate_random_string;
 use collab_document::blocks::json_str_to_hashmap;
 use event_integration::document::document_event::DocumentEventTest;
 use event_integration::document::utils::*;
@@ -73,13 +74,32 @@ async fn insert_text_block_test() {
   let view = test.create_document().await;
   let text = "Hello World";
   let block_id = test.insert_index(&view.id, text, 1, None).await;
-  let block = test.get_block(&view.id, &block_id).await;
-  assert!(block.is_some());
-  let block = block.unwrap();
-  assert!(block.external_id.is_some());
-  let external_id = block.external_id.unwrap();
-  let delta = test.get_block_text_delta(&view.id, &external_id).await;
+  let text_id = test.get_text_id(&view.id, &block_id).await.unwrap();
+  let delta = test.get_delta(&view.id, &text_id).await;
   assert_eq!(delta.unwrap(), json!([{ "insert": text }]).to_string());
+}
+#[tokio::test]
+async fn document_size_test() {
+  let test = DocumentEventTest::new().await;
+  let view = test.create_document().await;
+
+  let max_size = 1024 * 1024; // 1mb
+  let total_string_size = 500 * 1024; // 500kb
+  let string_size = 1000;
+  let iter_len = total_string_size / string_size;
+  for _ in 0..iter_len {
+    let s = generate_random_string(string_size);
+    test.insert_index(&view.id, &s, 1, None).await;
+  }
+
+  let encoded_v1 = test.get_encoded_v1(&view.id).await;
+  if encoded_v1.doc_state.len() > max_size {
+    panic!(
+      "The document size is too large. {}",
+      encoded_v1.doc_state.len()
+    );
+  }
+  println!("The document size is {}", encoded_v1.doc_state.len());
 }
 
 #[tokio::test]
@@ -111,16 +131,11 @@ async fn apply_text_delta_test() {
   let view = test.create_document().await;
   let text = "Hello World";
   let block_id = test.insert_index(&view.id, text, 1, None).await;
-  let update_delta = json!([{ "retain": 5 }, { "insert": "!" }]).to_string();
-  test
-    .apply_delta_for_block(&view.id, &block_id, update_delta)
-    .await;
-  let block = test.get_block(&view.id, &block_id).await;
-  let text_id = block.unwrap().external_id.unwrap();
-  let block_delta = test.get_block_text_delta(&view.id, &text_id).await;
+  let text_id = test.get_text_id(&view.id, &block_id).await.unwrap();
+  let delta = test.get_delta(&view.id, &text_id).await;
   assert_eq!(
-    block_delta.unwrap(),
-    json!([{ "insert": "Hello! World" }]).to_string()
+    delta.unwrap(),
+    json!([{ "insert": "Hello World" }]).to_string()
   );
 }
 

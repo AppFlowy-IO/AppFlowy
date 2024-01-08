@@ -94,7 +94,7 @@ impl DatabaseManager {
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
     };
-    let config = CollabPersistenceConfig::new().snapshot_per_update(10);
+    let config = CollabPersistenceConfig::new().snapshot_per_update(100);
     let mut collab_raw_data = CollabDocState::default();
 
     // If the workspace database not exist in disk, try to fetch from remote.
@@ -133,7 +133,7 @@ impl DatabaseManager {
       CollabType::WorkspaceDatabase,
       collab_db.clone(),
       collab_raw_data,
-      &config,
+      config.clone(),
     );
     let workspace_database =
       WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
@@ -461,7 +461,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_raw_data: CollabDocState,
-    config: &CollabPersistenceConfig,
+    persistence_config: CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
     block_on(self.collab_builder.build_with_config(
       uid,
@@ -469,7 +469,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       object_type,
       collab_db,
       collab_raw_data,
-      config,
+      persistence_config,
       CollabBuilderConfig::default().sync_enable(true),
     ))
     .unwrap()

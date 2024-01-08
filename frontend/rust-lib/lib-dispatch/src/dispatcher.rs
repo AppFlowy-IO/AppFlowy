@@ -16,51 +16,51 @@ use crate::{
   service::{AFPluginServiceFactory, Service},
 };
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 pub trait AFConcurrent {}
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 impl<T> AFConcurrent for T where T: ?Sized {}
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 pub trait AFConcurrent: Send + Sync {}
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 impl<T> AFConcurrent for T where T: Send + Sync {}
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 pub type AFBoxFuture<'a, T> = futures_core::future::LocalBoxFuture<'a, T>;
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 pub type AFBoxFuture<'a, T> = futures_core::future::BoxFuture<'a, T>;
 
 pub type AFStateMap = std::sync::Arc<AFPluginStateMap>;
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 pub(crate) fn downcast_owned<T: 'static>(boxed: AFBox) -> Option<T> {
   boxed.downcast().ok().map(|boxed| *boxed)
 }
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 pub(crate) fn downcast_owned<T: 'static + Send + Sync>(boxed: AFBox) -> Option<T> {
   boxed.downcast().ok().map(|boxed| *boxed)
 }
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 pub(crate) type AFBox = Box<dyn Any>;
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 pub(crate) type AFBox = Box<dyn Any + Send + Sync>;
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + 'static>;
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + Send + Sync + 'static>;
 
-#[cfg(feature = "wasm_build")]
+#[cfg(feature = "single_thread")]
 pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
   T: Future + Send + 'static,
@@ -69,7 +69,7 @@ where
   tokio::spawn(future)
 }
 
-#[cfg(not(feature = "wasm_build"))]
+#[cfg(not(feature = "single_thread"))]
 pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
   T: Future + Send + 'static,
@@ -202,7 +202,7 @@ impl AFPluginDispatcher {
     }
   }
 
-  #[cfg(not(feature = "wasm_build"))]
+  #[cfg(not(feature = "single_thread"))]
   pub fn sync_send(
     dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
@@ -214,7 +214,7 @@ impl AFPluginDispatcher {
     ))
   }
 
-  #[cfg(feature = "wasm_build")]
+  #[cfg(feature = "single_thread")]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
@@ -223,7 +223,7 @@ impl AFPluginDispatcher {
     self.runtime.spawn(future)
   }
 
-  #[cfg(not(feature = "wasm_build"))]
+  #[cfg(not(feature = "single_thread"))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
@@ -233,7 +233,7 @@ impl AFPluginDispatcher {
     self.runtime.spawn(future)
   }
 
-  #[cfg(feature = "wasm_build")]
+  #[cfg(feature = "single_thread")]
   pub async fn run_until<F>(&self, future: F) -> F::Output
   where
     F: Future + 'static,
@@ -242,7 +242,7 @@ impl AFPluginDispatcher {
     self.runtime.run_until(handle).await.unwrap()
   }
 
-  #[cfg(not(feature = "wasm_build"))]
+  #[cfg(not(feature = "single_thread"))]
   pub async fn run_until<'a, F>(&self, future: F) -> F::Output
   where
     F: Future + Send + 'a,

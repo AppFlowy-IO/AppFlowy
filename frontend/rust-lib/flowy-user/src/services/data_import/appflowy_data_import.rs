@@ -1,13 +1,18 @@
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 
+use crate::manager::run_collab_data_migration;
+
 use crate::services::data_import::importer::load_collab_by_oid;
 use crate::services::db::UserDBPath;
 use crate::services::entities::{Session, UserPaths};
 use crate::services::user_awareness::awareness_oid_from_user_uuid;
+use crate::services::user_sql::select_user_profile;
 use anyhow::anyhow;
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::core::origin::CollabOrigin;
-use collab::preclude::Collab;
+use collab::core::transaction::DocTransactionExtension;
+use collab::preclude::updates::decoder::Decode;
+use collab::preclude::{Collab, Doc, Transact, Update};
 use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
@@ -28,7 +33,7 @@ use parking_lot::{Mutex, RwLock};
 use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
-use tracing::{debug, event, info, instrument};
+use tracing::{debug, error, event, info, instrument};
 
 pub(crate) struct ImportContext {
   pub imported_session: Session,
@@ -47,18 +52,34 @@ pub(crate) fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Res
   let user_paths = UserPaths::new(path.to_string());
   let other_store_preferences = Arc::new(StorePreferences::new(path)?);
   migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
-  let session = other_store_preferences
+  let imported_session = other_store_preferences
     .get_object::<Session>("appflowy_session_cache")
     .ok_or(anyhow!(
       "Can't find the session cache in the appflowy data folder at path: {}",
       path
     ))?;
 
-  let collab_db_path = user_paths.collab_db_path(session.user_id);
-  let collab_db = Arc::new(CollabKVDB::open(collab_db_path)?);
+  let collab_db_path = user_paths.collab_db_path(imported_session.user_id);
+  let sqlite_db_path = user_paths.sqlite_db_path(imported_session.user_id);
+  let imported_sqlite_db = flowy_sqlite::init(sqlite_db_path).map_err(|e| {
+    FlowyError::internal().with_context(format!("open import sqlite db failed, {:?}", e))
+  })?;
+  let imported_collab_db = Arc::new(CollabKVDB::open(collab_db_path)?);
+  let imported_user = select_user_profile(
+    imported_session.user_id,
+    imported_sqlite_db.get_connection()?,
+  )?;
+
+  run_collab_data_migration(
+    &imported_session,
+    &imported_user,
+    imported_collab_db.clone(),
+    imported_sqlite_db.get_pool(),
+  );
+
   Ok(ImportContext {
-    imported_session: session,
-    imported_collab_db: collab_db,
+    imported_session,
+    imported_collab_db,
     container_name: None,
   })
 }
@@ -368,9 +389,25 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let txn = collab.transact();
-  if let Err(err) = w_txn.create_new_doc(new_uid, &new_object_id, &txn) {
-    tracing::error!("import collab:{} failed: {:?}", new_object_id, err);
+  if let Ok(update) = Update::decode_v1(&collab.encode_collab_v1().doc_state) {
+    let doc = Doc::new();
+    {
+      let mut txn = doc.transact_mut();
+      txn.apply_update(update);
+      drop(txn);
+    }
+
+    let encoded_collab = doc.get_encoded_collab_v1();
+    if let Err(err) = w_txn.flush_doc(
+      new_uid,
+      &new_object_id,
+      encoded_collab.state_vector.to_vec(),
+      encoded_collab.doc_state.to_vec(),
+    ) {
+      tracing::error!("import collab:{} failed: {:?}", new_object_id, err);
+    }
+  } else {
+    event!(tracing::Level::ERROR, "decode v1 failed");
   }
 }
 
@@ -419,6 +456,7 @@ where
     None,
   )
   .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
+
   let other_folder_data = other_folder
     .get_folder_data()
     .ok_or(PersistenceError::Internal(anyhow!(
@@ -601,21 +639,18 @@ pub async fn upload_imported_data(
     );
     for (oid, encoded_collab) in encoded_collab_by_oid {
       let obj_size = encoded_collab.len();
+      // When the limit is exceeded, batch create with the current list of objects
+      // and reset for the next batch.
       if size_counter + obj_size > upload_size_limit && !objects.is_empty() {
-        // When the limit is exceeded, batch create with the current list of objects
-        // and reset for the next batch.
-        info!(
-          "Exceeded maximum payload size. Batch creating collab objects: {}, payload size: {}",
-          objects
-            .iter()
-            .map(|o| o.object_id.clone())
-            .collect::<Vec<_>>()
-            .join(", "),
-          size_counter
-        );
-        user_cloud_service
-          .batch_create_collab_object(workspace_id, objects)
-          .await?;
+        batch_create(
+          uid,
+          workspace_id,
+          &user_cloud_service,
+          &size_counter,
+          objects,
+        )
+        .await;
+
         objects = Vec::new();
         size_counter = 0;
       }
@@ -632,20 +667,48 @@ pub async fn upload_imported_data(
 
   // After the loop, upload any remaining objects.
   if !objects.is_empty() {
-    info!(
-      "Batch create collab objects: {}, payload size: {}",
-      objects
-        .iter()
-        .map(|o| o.object_id.clone())
-        .collect::<Vec<_>>()
-        .join(", "),
-      size_counter
-    );
-    user_cloud_service
-      .batch_create_collab_object(workspace_id, objects)
-      .await?;
+    batch_create(
+      uid,
+      workspace_id,
+      &user_cloud_service,
+      &size_counter,
+      objects,
+    )
+    .await;
   }
   Ok(())
+}
+
+async fn batch_create(
+  uid: i64,
+  workspace_id: &str,
+  user_cloud_service: &Arc<dyn UserCloudService>,
+  size_counter: &usize,
+  objects: Vec<UserCollabParams>,
+) {
+  let ids = objects
+    .iter()
+    .map(|o| o.object_id.clone())
+    .collect::<Vec<_>>()
+    .join(", ");
+
+  match user_cloud_service
+    .batch_create_collab_object(workspace_id, objects)
+    .await
+  {
+    Ok(_) => {
+      info!(
+        "Batch creating collab objects success: {}, payload size: {}",
+        ids, size_counter
+      );
+    },
+    Err(err) => {
+      error!(
+      "Batch creating collab objects fail:{}, payload size: {}, workspace_id:{}, uid: {}, error: {:?}",
+       ids, size_counter, workspace_id, uid,err
+      );
+    },
+  }
 }
 
 #[instrument(level = "debug", skip_all)]

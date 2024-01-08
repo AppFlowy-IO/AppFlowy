@@ -85,6 +85,7 @@ Future<bool> inlinePageReferenceCommandHandler(
     handlers: [
       InlinePageReferenceService(
         currentViewId: currentViewId,
+        limitResults: 10,
       ).inlinePageReferenceDelegate,
     ],
   );
@@ -100,7 +101,7 @@ Future<bool> inlinePageReferenceCommandHandler(
     }
   }
 
-  if (service.context != null) {
+  if (context.mounted) {
     selectionMenuService = InlineActionsMenu(
       context: service.context!,
       editorState: editorState,
