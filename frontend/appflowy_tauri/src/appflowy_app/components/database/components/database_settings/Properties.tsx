@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDatabase } from '$app/components/database';
-import { Field as FieldType, fieldService } from '$app/components/database/application';
+import { Field as FieldType, fieldService } from '$app/application/database';
 import { Property } from '$app/components/database/components/property';
 import { FieldVisibility } from '@/services/backend';
 import { ReactComponent as EyeOpen } from '$app/assets/eye_open.svg';
@@ -41,7 +41,7 @@ function Properties({ onItemClick }: PropertiesProps) {
 
     setState(newProperties);
 
-    await fieldService.moveField(viewId, draggableId, newId ?? "");
+    await fieldService.moveField(viewId, draggableId, newId ?? '');
   };
 
   return (

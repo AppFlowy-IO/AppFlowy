@@ -4,13 +4,13 @@ import { Divider, ListSubheader, MenuItem, MenuList, MenuProps, OutlinedInput } 
 import { SelectOptionColorPB } from '@/services/backend';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
-import { SelectOption } from '../../../application';
+import { SelectOption } from '$app/application/database';
 import { SelectOptionColorMap, SelectOptionColorTextMap } from './constants';
 import Button from '@mui/material/Button';
 import {
   deleteSelectOption,
   insertOrUpdateSelectOption,
-} from '$app/components/database/application/field/select_option/select_option_service';
+} from '$app/application/database/field/select_option/select_option_service';
 import { useViewId } from '$app/hooks';
 import Popover from '@mui/material/Popover';
 

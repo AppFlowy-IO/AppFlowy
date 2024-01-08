@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useViewId } from '$app/hooks/ViewId.hooks';
-import { databaseViewService } from './application';
+import { databaseViewService } from '$app/application/database';
 import { DatabaseTabBar } from './components';
 import { DatabaseLoader } from './DatabaseLoader';
 import { DatabaseView } from './DatabaseView';
 import { DatabaseCollection } from './components/database_settings';
-import { PageController } from '$app/stores/effects/workspace/page/page_controller';
 import SwipeableViews from 'react-swipeable-views';
 import { TabPanel } from '$app/components/database/components/tab_bar/ViewTabs';
 import DatabaseSettings from '$app/components/database/components/database_settings/DatabaseSettings';
 import { Portal } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { ErrorCode } from '@/services/backend';
+import { ErrorCode, FolderNotification } from '@/services/backend';
 import ExpandRecordModal from '$app/components/database/components/edit_record/ExpandRecordModal';
+import { subscribeNotifications } from '$app/application/notification';
 
 interface Props {
   selectedViewId?: string;
@@ -44,15 +44,18 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
 
     onPageChanged();
 
-    const pageController = new PageController(viewId);
+    const unsubscribePromise = subscribeNotifications(
+      {
+        [FolderNotification.DidUpdateView]: () => {
+          onPageChanged();
+        },
+      },
+      {
+        id: viewId,
+      }
+    );
 
-    void pageController.subscribe({
-      onPageChanged,
-    });
-
-    return () => {
-      void pageController.unsubscribe();
-    };
+    return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
   }, [viewId]);
 
   const value = useMemo(() => {

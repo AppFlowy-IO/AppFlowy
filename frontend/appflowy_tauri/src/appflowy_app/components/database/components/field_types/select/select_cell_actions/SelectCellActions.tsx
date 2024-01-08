@@ -3,17 +3,12 @@ import { MenuItem } from '@mui/material';
 import { t } from 'i18next';
 import { CreateOption } from '$app/components/database/components/field_types/select/select_cell_actions/CreateOption';
 import { SelectOptionItem } from '$app/components/database/components/field_types/select/select_cell_actions/SelectOptionItem';
-import {
-  cellService,
-  SelectCell as SelectCellType,
-  SelectField,
-  SelectTypeOption,
-} from '$app/components/database/application';
+import { cellService, SelectCell as SelectCellType, SelectField, SelectTypeOption } from '$app/application/database';
 import { useViewId } from '$app/hooks';
 import {
   createSelectOption,
   insertOrUpdateSelectOption,
-} from '$app/components/database/application/field/select_option/select_option_service';
+} from '$app/application/database/field/select_option/select_option_service';
 import { FieldType } from '@/services/backend';
 import { useTypeOption } from '$app/components/database';
 import SearchInput from './SearchInput';

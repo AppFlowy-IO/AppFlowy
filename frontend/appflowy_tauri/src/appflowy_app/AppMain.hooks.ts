@@ -1,23 +1,16 @@
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { useCallback, useEffect, useMemo } from 'react';
-import { UserSettingController } from '$app/stores/effects/user/user_setting_controller';
 import { currentUserActions } from '$app_reducers/current-user/slice';
 import { Theme as ThemeType, ThemeMode } from '$app/stores/reducers/current-user/slice';
 import { createTheme } from '@mui/material/styles';
 import { getDesignTokens } from '$app/utils/mui';
 import { useTranslation } from 'react-i18next';
 import { ThemeModePB } from '@/services/backend';
+import { UserService } from '$app/application/user/user.service';
 
 export function useUserSetting() {
   const dispatch = useAppDispatch();
   const { i18n } = useTranslation();
-
-  const currentUser = useAppSelector((state) => state.currentUser);
-  const userSettingController = useMemo(() => {
-    if (!currentUser?.id) return;
-
-    return new UserSettingController(currentUser.id);
-  }, [currentUser?.id]);
 
   const handleSystemThemeChange = useCallback(() => {
     const mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? ThemeMode.Dark : ThemeMode.Light;
@@ -26,8 +19,7 @@ export function useUserSetting() {
   }, [dispatch]);
 
   const loadUserSetting = useCallback(async () => {
-    if (!userSettingController) return;
-    const settings = await userSettingController.getAppearanceSetting();
+    const settings = await UserService.getAppearanceSetting();
 
     if (!settings) return;
     dispatch(currentUserActions.setUserSetting(settings));
@@ -41,7 +33,7 @@ export function useUserSetting() {
     }
 
     await i18n.changeLanguage(settings.language);
-  }, [dispatch, handleSystemThemeChange, i18n, userSettingController]);
+  }, [dispatch, handleSystemThemeChange, i18n]);
 
   useEffect(() => {
     void loadUserSetting();
@@ -72,6 +64,5 @@ export function useUserSetting() {
     muiTheme,
     themeMode,
     themeType,
-    userSettingController,
   };
 }

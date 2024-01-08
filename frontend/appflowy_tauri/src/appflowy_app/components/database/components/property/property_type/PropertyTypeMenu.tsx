@@ -2,7 +2,7 @@ import { Divider, Menu, MenuItem, MenuProps } from '@mui/material';
 import { FC, useMemo } from 'react';
 import { FieldType } from '@/services/backend';
 import { PropertyTypeText, ProppertyTypeSvg } from '$app/components/database/components/property';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
 
 const FieldTypeGroup = [

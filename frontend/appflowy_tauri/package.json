@@ -51,7 +51,7 @@
     "quill-delta": "^5.1.0",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
-    "react-calendar": "^4.1.0",
+    "react-big-calendar": "^1.8.5",
     "react-color": "^2.19.3",
     "react-datepicker": "^4.23.0",
     "react-dom": "^18.2.0",

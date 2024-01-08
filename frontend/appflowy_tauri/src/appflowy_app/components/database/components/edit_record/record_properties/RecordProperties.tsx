@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Field, fieldService, RowMeta } from '$app/components/database/application';
+import { Field, fieldService, RowMeta } from '$app/application/database';
 import { useDatabase } from '$app/components/database';
 import { FieldVisibility } from '@/services/backend';
 

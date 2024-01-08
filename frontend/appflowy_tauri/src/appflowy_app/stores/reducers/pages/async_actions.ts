@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
-import { PageController } from '$app/stores/effects/workspace/page/page_controller';
-import { PageIcon, pagesActions } from '$app_reducers/pages/slice';
+import { pagesActions } from '$app_reducers/pages/slice';
+import { movePage, updatePage } from '$app/application/folder/page.service';
 
 export const movePageThunk = createAsyncThunk(
   'pages/movePage',
@@ -51,16 +51,17 @@ export const movePageThunk = createAsyncThunk(
       }
     }
 
-    const controller = new PageController(sourceId);
-
-    await controller.movePage({ parentId, prevId });
+    await movePage({
+      view_id: sourceId,
+      new_parent_id: parentId,
+      prev_view_id: prevId,
+    });
   }
 );
 
 export const updatePageName = createAsyncThunk(
   'pages/updateName',
   async (payload: { id: string; name: string }, thunkAPI) => {
-    const controller = new PageController(payload.id);
     const { dispatch, getState } = thunkAPI;
     const { pageMap } = (getState() as RootState).pages;
     const { id, name } = payload;
@@ -74,15 +75,9 @@ export const updatePageName = createAsyncThunk(
         name,
       })
     );
-    await controller.updatePage({
-      id: payload.id,
-      name: payload.name,
+    await updatePage({
+      id,
+      name,
     });
   }
 );
-
-export const updatePageIcon = createAsyncThunk('pages/updateIcon', async (payload: { id: string; icon?: PageIcon }) => {
-  const controller = new PageController(payload.id);
-
-  await controller.updatePageIcon(payload.icon);
-});

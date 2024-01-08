@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect } from 'react';
-import SideBar from '$app/components/layout/SideBar';
-import TopBar from '$app/components/layout/TopBar';
+import SideBar from '$app/components/layout/side_bar/SideBar';
+import TopBar from '$app/components/layout/top_bar/TopBar';
 import { useAppSelector } from '$app/stores/store';
 import { FooterPanel } from '$app/components/layout/FooterPanel';
 

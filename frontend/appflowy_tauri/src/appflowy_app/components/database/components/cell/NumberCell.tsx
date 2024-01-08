@@ -1,5 +1,5 @@
 import React, { Suspense, useCallback, useMemo, useRef } from 'react';
-import { Field, NumberCell as NumberCellType } from '$app/components/database/application';
+import { Field, NumberCell as NumberCellType } from '$app/application/database';
 import { CellText } from '$app/components/database/_shared';
 import EditNumberCellInput from '$app/components/database/components/field_types/number/EditNumberCellInput';
 import { useInputCell } from '$app/components/database/components/cell/Cell.hooks';
