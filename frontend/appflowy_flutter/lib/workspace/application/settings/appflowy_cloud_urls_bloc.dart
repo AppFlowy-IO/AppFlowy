@@ -30,13 +30,13 @@ class AppFlowyCloudURLsBloc
             await setAppFlowyCloudUrl(none());
           } else {
             validateUrl(state.updatedServerUrl).fold(
-              (error) => emit(state.copyWith(urlError: Some(error))),
-              (_) async {
+              (url) async {
                 if (state.config.base_url != state.updatedServerUrl) {
                   await setAppFlowyCloudUrl(Some(state.updatedServerUrl));
                 }
                 add(const AppFlowyCloudURLsEvent.didSaveConfig());
               },
+              (err) => emit(state.copyWith(urlError: Some(err))),
             );
           }
         },
@@ -80,16 +80,16 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
       );
 }
 
-Either<String, ()> validateUrl(String url) {
+Either<String, String> validateUrl(String url) {
   try {
     // Use Uri.parse to validate the url.
     final uri = Uri.parse(url);
     if (uri.isScheme('HTTP') || uri.isScheme('HTTPS')) {
-      return right(());
+      return left(uri.toString());
     } else {
-      return left(LocaleKeys.settings_menu_invalidCloudURLScheme.tr());
+      return right(LocaleKeys.settings_menu_invalidCloudURLScheme.tr());
     }
   } catch (e) {
-    return left(e.toString());
+    return right(e.toString());
   }
 }

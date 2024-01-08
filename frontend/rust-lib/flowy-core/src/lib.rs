@@ -23,7 +23,6 @@ use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
 
 use crate::config::AppFlowyCoreConfig;
-use crate::deps_resolve::collab_backup::RocksdbBackupImpl;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::init_log;
@@ -129,8 +128,6 @@ impl AppFlowyCore {
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_manager))));
 
-      collab_builder.set_rocksdb_backup(Arc::new(RocksdbBackupImpl(Arc::downgrade(&user_manager))));
-
       let database_manager = DatabaseDepsResolver::resolve(
         Arc::downgrade(&user_manager),
         task_dispatcher.clone(),
@@ -190,14 +187,15 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
-    let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
+    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
+      runtime,
       make_plugins(
         Arc::downgrade(&folder_manager),
         Arc::downgrade(&database_manager),
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
-      )
-    }));
+      ),
+    ));
 
     Self {
       config,

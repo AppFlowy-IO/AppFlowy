@@ -8,7 +8,6 @@ use collab_entity::{CollabObject, CollabType};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
 use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
 use collab_plugins::local_storage::rocksdb::rocksdb_plugin::{RocksdbBackup, RocksdbDiskPlugin};
-use collab_plugins::local_storage::rocksdb::snapshot_plugin::CollabSnapshotPlugin;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use parking_lot::{Mutex, RwLock};
 use tracing::trace;
@@ -194,7 +193,7 @@ impl AppFlowyCollabBuilder {
         object_type,
         collab_db,
         collab_doc_state,
-        &persistence_config,
+        persistence_config,
         build_config,
       )
       .await
@@ -222,7 +221,7 @@ impl AppFlowyCollabBuilder {
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: CollabDocState,
-    persistence_config: &CollabPersistenceConfig,
+    persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
     let collab = Arc::new(
@@ -230,9 +229,11 @@ impl AppFlowyCollabBuilder {
         .with_doc_state(collab_doc_state)
         .with_plugin(RocksdbDiskPlugin::new_with_config(
           uid,
+          object_id.to_string(),
+          object_type.clone(),
           collab_db.clone(),
           persistence_config.clone(),
-          self.rocksdb_backup.lock().clone(),
+          self.snapshot_persistence.lock().as_ref().map(Arc::clone),
         ))
         .with_device_id(self.device_id.clone())
         .build()?,
@@ -245,64 +246,44 @@ impl AppFlowyCollabBuilder {
         let _enter = span.enter();
         match provider_type {
           CollabPluginProviderType::AppFlowyCloud => {
-            #[cfg(feature = "appflowy_cloud_integrate")]
-            {
-              trace!("init appflowy cloud collab plugins");
-              let local_collab = Arc::downgrade(&collab);
-              let plugins = self
-                .plugin_provider
-                .read()
-                .await
-                .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
-                  uid,
-                  collab_object: collab_object.clone(),
-                  local_collab,
-                })
-                .await;
+            trace!("init appflowy cloud collab plugins");
+            let local_collab = Arc::downgrade(&collab);
+            let plugins = self
+              .plugin_provider
+              .read()
+              .await
+              .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
+                uid,
+                collab_object,
+                local_collab,
+              })
+              .await;
 
-              trace!("add appflowy cloud collab plugins: {}", plugins.len());
-              for plugin in plugins {
-                collab.lock().add_plugin(plugin);
-              }
+            trace!("add appflowy cloud collab plugins: {}", plugins.len());
+            for plugin in plugins {
+              collab.lock().add_plugin(plugin);
             }
           },
           CollabPluginProviderType::Supabase => {
-            #[cfg(feature = "supabase_integrate")]
-            {
-              trace!("init supabase collab plugins");
-              let local_collab = Arc::downgrade(&collab);
-              let local_collab_db = collab_db.clone();
-              let plugins = self
-                .plugin_provider
-                .read()
-                .await
-                .get_plugins(CollabPluginProviderContext::Supabase {
-                  uid,
-                  collab_object: collab_object.clone(),
-                  local_collab,
-                  local_collab_db,
-                })
-                .await;
-              for plugin in plugins {
-                collab.lock().add_plugin(plugin);
-              }
+            trace!("init supabase collab plugins");
+            let local_collab = Arc::downgrade(&collab);
+            let local_collab_db = collab_db.clone();
+            let plugins = self
+              .plugin_provider
+              .read()
+              .await
+              .get_plugins(CollabPluginProviderContext::Supabase {
+                uid,
+                collab_object,
+                local_collab,
+                local_collab_db,
+              })
+              .await;
+            for plugin in plugins {
+              collab.lock().add_plugin(plugin);
             }
           },
           CollabPluginProviderType::Local => {},
-        }
-      }
-
-      if let Some(snapshot_persistence) = self.snapshot_persistence.lock().as_ref() {
-        if persistence_config.enable_snapshot {
-          let snapshot_plugin = CollabSnapshotPlugin::new(
-            uid,
-            collab_object,
-            snapshot_persistence.clone(),
-            collab_db,
-            persistence_config.snapshot_per_update,
-          );
-          // tracing::trace!("add snapshot plugin: {}", object_id);
-          collab.lock().add_plugin(Arc::new(snapshot_plugin));
         }
       }
     }

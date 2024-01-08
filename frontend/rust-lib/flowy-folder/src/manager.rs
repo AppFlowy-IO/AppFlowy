@@ -147,7 +147,9 @@ impl FolderManager {
         CollabType::Folder,
         collab_db,
         collab_doc_state,
-        &CollabPersistenceConfig::new().enable_snapshot(true),
+        CollabPersistenceConfig::new()
+          .enable_snapshot(true)
+          .snapshot_per_update(50),
         CollabBuilderConfig::default().sync_enable(true),
       )
       .await?;

@@ -196,7 +196,7 @@ impl UserPaths {
 }
 
 impl UserDBPath for UserPaths {
-  fn user_db_path(&self, uid: i64) -> PathBuf {
+  fn sqlite_db_path(&self, uid: i64) -> PathBuf {
     PathBuf::from(self.user_data_dir(uid))
   }
 

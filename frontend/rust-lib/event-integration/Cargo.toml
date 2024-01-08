@@ -41,6 +41,7 @@ collab-folder = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
+rand = { version = "0.8.5", features = [] }
 
 [dev-dependencies]
 dotenv = "0.15.0"

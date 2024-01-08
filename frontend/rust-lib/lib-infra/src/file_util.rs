@@ -79,7 +79,7 @@ pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()
 
   let file = File::create(dest_path)?;
   let mut zip = ZipWriter::new(file);
-  let options = FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+  let options = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
   for entry in WalkDir::new(&src_path) {
     let entry = entry?;

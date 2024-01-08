@@ -686,7 +686,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fe8f08fcc99ea56c78bfb746ccb0cd308126141d#fe8f08fcc99ea56c78bfb746ccb0cd308126141d"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -706,7 +706,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fe8f08fcc99ea56c78bfb746ccb0cd308126141d#fe8f08fcc99ea56c78bfb746ccb0cd308126141d"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -733,10 +733,11 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fe8f08fcc99ea56c78bfb746ccb0cd308126141d#fe8f08fcc99ea56c78bfb746ccb0cd308126141d"
 dependencies = [
  "anyhow",
  "collab",
+ "collab-entity",
  "nanoid",
  "parking_lot",
  "serde",
@@ -750,7 +751,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fe8f08fcc99ea56c78bfb746ccb0cd308126141d#fe8f08fcc99ea56c78bfb746ccb0cd308126141d"
 dependencies = [
  "anyhow",
  "bytes",
@@ -764,11 +765,12 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fe8f08fcc99ea56c78bfb746ccb0cd308126141d#fe8f08fcc99ea56c78bfb746ccb0cd308126141d"
 dependencies = [
  "anyhow",
  "chrono",
  "collab",
+ "collab-entity",
  "parking_lot",
  "serde",
  "serde_json",
@@ -799,7 +801,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fe8f08fcc99ea56c78bfb746ccb0cd308126141d#fe8f08fcc99ea56c78bfb746ccb0cd308126141d"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -829,7 +831,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c425595182ef5a43913484a775fae6f59fe9e52#5c425595182ef5a43913484a775fae6f59fe9e52"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fe8f08fcc99ea56c78bfb746ccb0cd308126141d#fe8f08fcc99ea56c78bfb746ccb0cd308126141d"
 dependencies = [
  "anyhow",
  "collab",
@@ -1025,7 +1027,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1426,6 +1428,7 @@ dependencies = [
  "nanoid",
  "parking_lot",
  "protobuf",
+ "rand 0.8.5",
  "serde",
  "serde_json",
  "tempdir",
@@ -1737,6 +1740,7 @@ dependencies = [
  "flowy-notification",
  "flowy-storage",
  "futures",
+ "getrandom 0.2.10",
  "indexmap 2.1.0",
  "lib-dispatch",
  "lib-infra",
@@ -2247,8 +2251,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be4136b2a15dd319360be1c07d9933517ccf0be8f16bf62a3bee4f0d618df427"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -2767,6 +2773,7 @@ dependencies = [
  "futures-channel",
  "futures-core",
  "futures-util",
+ "getrandom 0.2.10",
  "nanoid",
  "parking_lot",
  "pin-project",
@@ -2778,6 +2785,7 @@ dependencies = [
  "tokio",
  "tracing",
  "validator",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -3374,7 +3382,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros",
+ "phf_macros 0.8.0",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -3394,6 +3402,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -3459,6 +3468,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -4491,18 +4513,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.193"
+version = "1.0.194"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25dd9975e68d0cb5aa1120c288333fc98731bd1dd12f561e468ea4728c042b89"
+checksum = "0b114498256798c94a0689e1a15fec6005dee8ac1f41de56404b67afc2a4b773"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.193"
+version = "1.0.194"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43576ca501357b9b071ac53cdc7da8ef0cbd9493d8df094cd821777ea6e894d3"
+checksum = "a3385e45322e8f9931410f01b3031ec534c3947d0e94c18049af4d9f9907d4e0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5669,9 +5691,9 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 
 [[package]]
 name = "wasm-bindgen"
-version = "0.2.87"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7706a72ab36d8cb1f80ffbf0e071533974a60d0a308d01a5d0375bf60499a342"
+checksum = "0ed0d4f68a3015cc185aff4db9506a015f4b96f95303897bfa23f846db54064e"
 dependencies = [
  "cfg-if",
  "wasm-bindgen-macro",
@@ -5679,9 +5701,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-backend"
-version = "0.2.87"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ef2b6d3c510e9625e5fe6f509ab07d66a760f0885d858736483c32ed7809abd"
+checksum = "1b56f625e64f3a1084ded111c4d5f477df9f8c92df113852fa5a374dbda78826"
 dependencies = [
  "bumpalo",
  "log",
@@ -5706,9 +5728,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro"
-version = "0.2.87"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dee495e55982a3bd48105a7b947fd2a9b4a8ae3010041b9e0faab3f9cd028f1d"
+checksum = "0162dbf37223cd2afce98f3d0785506dcb8d266223983e4b5b525859e6e182b2"
 dependencies = [
  "quote",
  "wasm-bindgen-macro-support",
@@ -5716,9 +5738,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
-version = "0.2.87"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54681b18a46765f095758388f2d0cf16eb8d4169b639ab575a8f5693af210c7b"
+checksum = "f0eb82fcb7930ae6219a7ecfd55b217f5f0893484b7a13022ebb2b2bf20b5283"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5729,9 +5751,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-shared"
-version = "0.2.87"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca6ad05a4870b2bf5fe995117d3728437bd27d7cd5f06f13c17443ef369775a1"
+checksum = "7ab9b36309365056cd639da3134bf87fa8f3d86008abf99e612384a6eecd459f"
 
 [[package]]
 name = "wasm-streams"
