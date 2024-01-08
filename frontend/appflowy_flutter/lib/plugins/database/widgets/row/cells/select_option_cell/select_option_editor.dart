@@ -25,7 +25,6 @@ const double _padding = 12.0;
 
 class SelectOptionCellEditor extends StatefulWidget {
   final SelectOptionCellController cellController;
-  static double editorPanelWidth = 300;
 
   const SelectOptionCellEditor({super.key, required this.cellController});
 

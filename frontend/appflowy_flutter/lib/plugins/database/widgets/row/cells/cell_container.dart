@@ -9,7 +9,7 @@ import '../accessory/cell_shortcuts.dart';
 import '../editable_cell_builder.dart';
 
 class CellContainer extends StatelessWidget {
-  final GridCellWidget child;
+  final EditableCellWidget child;
   final AccessoryBuilder? accessoryBuilder;
   final double width;
   final bool isPrimary;

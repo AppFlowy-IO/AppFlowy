@@ -6,7 +6,7 @@ import '../editable_cell_builder.dart';
 import 'cell_container.dart';
 
 class MobileCellContainer extends StatelessWidget {
-  final GridCellWidget child;
+  final EditableCellWidget child;
   final bool isPrimary;
   final VoidCallback? onPrimaryFieldCellTap;
 
