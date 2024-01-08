@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'accessory/cell_accessory.dart';
-import 'cell_builder.dart';
+import 'editable_cell_builder.dart';
 
 /// Display the row properties in a list. Only use this widget in the
 /// [RowDetailPage].

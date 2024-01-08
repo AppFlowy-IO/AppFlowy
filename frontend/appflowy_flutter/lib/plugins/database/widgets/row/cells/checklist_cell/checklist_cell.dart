@@ -10,7 +10,7 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../cell_builder.dart';
+import '../../editable_cell_builder.dart';
 import 'checklist_cell_bloc.dart';
 import 'checklist_cell_editor.dart';
 import 'checklist_progress_bar.dart';

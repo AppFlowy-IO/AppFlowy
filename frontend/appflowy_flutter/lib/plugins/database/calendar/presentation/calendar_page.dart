@@ -25,7 +25,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
-import '../../widgets/row/cell_builder.dart';
+import '../../widgets/row/editable_cell_builder.dart';
 import '../../widgets/row/row_detail.dart';
 import 'calendar_day.dart';
 import 'layout/sizes.dart';

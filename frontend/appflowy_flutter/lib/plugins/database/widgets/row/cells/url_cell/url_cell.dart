@@ -13,7 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../accessory/cell_accessory.dart';
-import '../../cell_builder.dart';
+import '../../editable_cell_builder.dart';
 import 'url_cell_bloc.dart';
 
 class GridURLCellStyle extends GridCellStyle {

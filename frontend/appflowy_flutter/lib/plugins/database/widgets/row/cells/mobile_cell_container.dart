@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../accessory/cell_shortcuts.dart';
-import '../cell_builder.dart';
+import '../editable_cell_builder.dart';
 import 'cell_container.dart';
 
 class MobileCellContainer extends StatelessWidget {

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
-import '../../cell_builder.dart';
+import '../../editable_cell_builder.dart';
 import 'date_cell_bloc.dart';
 import 'date_editor.dart';
 
