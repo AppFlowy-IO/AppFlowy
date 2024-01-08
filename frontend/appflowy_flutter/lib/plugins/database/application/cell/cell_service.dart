@@ -34,5 +34,3 @@ class CellBackendService {
     return DatabaseEventGetCell(payload).send();
   }
 }
-
-/// We can locate the cell by using database + rowId + field.id.

@@ -1,11 +1,11 @@
 import 'package:appflowy/mobile/presentation/database/card/card_content/card_cells/card_cells.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_cache.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/card/cells/timestamp_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'cells/card_cell.dart';
 import 'cells/checkbox_card_cell.dart';
@@ -18,12 +18,12 @@ import 'cells/url_card_cell.dart';
 
 // T represents as the Generic card data
 class CardCellBuilder<CustomCardData> {
-  final CellMemCache cellCache;
+  final DatabaseController databaseController;
   final Map<FieldType, CardCellStyle>? styles;
 
-  CardCellBuilder(this.cellCache, {this.styles});
+  CardCellBuilder({required this.databaseController, this.styles});
 
-  Widget buildCell({
+  Widget build({
     CustomCardData? cardData,
     required CellContext cellContext,
     EditableCardNotifier? cellNotifier,
@@ -31,11 +31,11 @@ class CardCellBuilder<CustomCardData> {
     required bool hasNotes,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
+      databaseController: databaseController,
       cellContext: cellContext,
-      cellCache: cellCache,
     );
 
-    final key = cellContext.key();
+    final key = ValueKey("${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}");
     final style = styles?[cellContext.fieldType];
 
     return PlatformExtension.isMobile

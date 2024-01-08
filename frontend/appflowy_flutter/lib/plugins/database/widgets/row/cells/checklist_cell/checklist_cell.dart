@@ -30,12 +30,13 @@ class ChecklistCellStyle extends GridCellStyle {
 }
 
 class GridChecklistCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
+  final ChecklistCellController cellController;
   late final ChecklistCellStyle cellStyle;
+
   GridChecklistCell({
-    required this.cellControllerBuilder,
-    GridCellStyle? style,
     super.key,
+    required this.cellController,
+    GridCellStyle? style,
   }) {
     if (style != null) {
       cellStyle = (style as ChecklistCellStyle);
@@ -49,24 +50,18 @@ class GridChecklistCell extends GridCellWidget {
 }
 
 class GridChecklistCellState extends GridCellState<GridChecklistCell> {
-  late ChecklistCellBloc _cellBloc;
-  late final PopoverController _popover;
+  final PopoverController _popover = PopoverController();
   bool showIncompleteOnly = false;
 
-  @override
-  void initState() {
-    _popover = PopoverController();
-    final cellController =
-        widget.cellControllerBuilder.build() as ChecklistCellController;
-    _cellBloc = ChecklistCellBloc(cellController: cellController)
-      ..add(const ChecklistCellEvent.initial());
-    super.initState();
-  }
+  ChecklistCellBloc get cellBloc => context.read<ChecklistCellBloc>();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cellBloc,
+    return BlocProvider(
+      create: (_) {
+        return ChecklistCellBloc(cellController: widget.cellController)
+          ..add(const ChecklistCellEvent.initial());
+      },
       child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
         builder: (context, state) {
           if (widget.cellStyle.showTasksInline) {
@@ -151,8 +146,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                 widget.cellContainerNotifier.isFocus = true;
               });
               return GridChecklistCellEditor(
-                cellController: widget.cellControllerBuilder.build()
-                    as ChecklistCellController,
+                cellController: widget.cellController,
               );
             },
             onClose: () => widget.cellContainerNotifier.isFocus = false,

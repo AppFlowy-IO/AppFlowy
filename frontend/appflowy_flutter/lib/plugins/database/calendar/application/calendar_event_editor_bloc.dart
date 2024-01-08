@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -31,9 +32,7 @@ class CalendarEventEditorBloc
               )
               .toList();
           if (!isClosed) {
-            add(
-              CalendarEventEditorEvent.didReceiveCellDatas(cells),
-            );
+            add(CalendarEventEditorEvent.didReceiveCellDatas(cells));
           }
         },
         didReceiveCellDatas: (cells) {

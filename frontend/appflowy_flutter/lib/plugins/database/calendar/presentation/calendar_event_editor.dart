@@ -21,7 +21,7 @@ class CalendarEventEditor extends StatelessWidget {
   final RowController rowController;
   final FieldController fieldController;
   final CalendarLayoutSettingPB layoutSettings;
-  final GridCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
 
   CalendarEventEditor({
     super.key,
@@ -35,7 +35,7 @@ class CalendarEventEditor extends StatelessWidget {
           viewId: viewId,
           rowCache: rowCache,
         ),
-        cellBuilder = GridCellBuilder(cellCache: rowCache.cellCache);
+        cellBuilder = EditableCellBuilder(cellCache: rowCache.cellCache);
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class EventEditorControls extends StatelessWidget {
                 builder: (BuildContext context) {
                   return RowDetailPage(
                     fieldController: fieldController,
-                    cellBuilder: GridCellBuilder(
+                    cellBuilder: EditableCellBuilder(
                       cellCache: rowController.cellCache,
                     ),
                     rowController: rowController,
@@ -117,7 +117,7 @@ class EventEditorControls extends StatelessWidget {
 
 class EventPropertyList extends StatelessWidget {
   final String dateFieldId;
-  final GridCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
   const EventPropertyList({
     super.key,
     required this.dateFieldId,
@@ -176,7 +176,7 @@ class EventPropertyList extends StatelessWidget {
 
 class PropertyCell extends StatefulWidget {
   final CellContext cellContext;
-  final GridCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
   const PropertyCell({
     required this.cellContext,
     required this.cellBuilder,

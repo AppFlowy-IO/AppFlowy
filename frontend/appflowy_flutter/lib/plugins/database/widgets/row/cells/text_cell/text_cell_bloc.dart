@@ -48,7 +48,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
           add(TextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
@@ -56,7 +56,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
       }),
       onRowMetaChanged: () {
         if (!isClosed) {
-          add(TextCellEvent.didUpdateEmoji(cellController.emoji ?? ""));
+          add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));
         }
       },
     );
@@ -83,7 +83,7 @@ class TextCellState with _$TextCellState {
 
   factory TextCellState.initial(TextCellController context) => TextCellState(
         content: context.getCellData() ?? "",
-        emoji: context.emoji ?? "",
+        emoji: context.icon ?? "",
         enableEdit: false,
       );
 }

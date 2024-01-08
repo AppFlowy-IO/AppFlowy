@@ -16,19 +16,20 @@ abstract class CellDataParser<T> {
 }
 
 class CellDataLoader<T> {
-  final String viewId;
-  final CellContext cellContext;
   final CellDataParser<T> parser;
-  final bool reloadOnFieldChanged;
+
+  /// Reload the cell data if the field is changed.
+  final bool reloadOnFieldChange;
 
   CellDataLoader({
-    required this.viewId,
-    required this.cellContext,
     required this.parser,
-    this.reloadOnFieldChanged = false,
+    this.reloadOnFieldChange = false,
   });
 
-  Future<T?> loadData() {
+  Future<T?> loadData({
+    required String viewId,
+    required CellContext cellContext,
+  }) {
     return CellBackendService.getCell(
       viewId: viewId,
       cellContext: cellContext,
@@ -36,7 +37,7 @@ class CellDataLoader<T> {
       (result) => result.fold(
         (CellPB cell) {
           try {
-            // Return null the data of the cell is empty.
+            // Return null if the data of the cell is empty.
             if (cell.data.isEmpty) {
               return null;
             } else {

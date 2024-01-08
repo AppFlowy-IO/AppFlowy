@@ -22,8 +22,8 @@ class GridRow extends StatefulWidget {
   final RowId viewId;
   final RowId rowId;
   final RowController rowController;
-  final GridCellBuilder cellBuilder;
-  final void Function(BuildContext, GridCellBuilder) openDetailPage;
+  final EditableCellBuilder cellBuilder;
+  final void Function(BuildContext, EditableCellBuilder) openDetailPage;
 
   final int? index;
   final bool isDraggable;
@@ -224,7 +224,7 @@ class _RowMenuButtonState extends State<RowMenuButton> {
 
 class RowContent extends StatelessWidget {
   final VoidCallback onExpand;
-  final GridCellBuilder builder;
+  final EditableCellBuilder builder;
   const RowContent({
     required this.builder,
     required this.onExpand,

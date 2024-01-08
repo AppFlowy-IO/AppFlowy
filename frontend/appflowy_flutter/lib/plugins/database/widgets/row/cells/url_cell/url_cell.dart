@@ -41,7 +41,7 @@ typedef URLCellDataNotifier = CellDataNotifier<String>;
 class GridURLCell extends GridCellWidget {
   GridURLCell({
     super.key,
-    required this.cellControllerBuilder,
+    required this.cellController,
     GridCellStyle? style,
   }) : _cellDataNotifier = CellDataNotifier(value: '') {
     if (style != null) {
@@ -53,7 +53,7 @@ class GridURLCell extends GridCellWidget {
 
   /// Use
   final URLCellDataNotifier _cellDataNotifier;
-  final CellControllerBuilder cellControllerBuilder;
+  final URLCellController cellController;
   late final GridURLCellStyle cellStyle;
 
   @override
@@ -116,10 +116,7 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
   @override
   void initState() {
     super.initState();
-
-    final cellController =
-        widget.cellControllerBuilder.build() as URLCellController;
-    _cellBloc = URLCellBloc(cellController: cellController)
+    _cellBloc = URLCellBloc(cellController: widget.cellController)
       ..add(const URLCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
   }

@@ -7,20 +7,22 @@ import 'cell_service.dart';
 /// Save the cell data to disk
 /// You can extend this class to do custom operations.
 abstract class CellDataPersistence<D> {
-  Future<Option<FlowyError>> save(D data);
+  Future<Option<FlowyError>> save({
+    required String viewId,
+    required CellContext cellContext,
+    required D data,
+  });
 }
 
 class TextCellDataPersistence implements CellDataPersistence<String> {
-  final String viewId;
-  final CellContext cellContext;
-
-  TextCellDataPersistence({
-    required this.viewId,
-    required this.cellContext,
-  });
+  TextCellDataPersistence();
 
   @override
-  Future<Option<FlowyError>> save(String data) async {
+  Future<Option<FlowyError>> save({
+    required String viewId,
+    required CellContext cellContext,
+    required String data,
+  }) async {
     final fut = CellBackendService.updateCell(
       viewId: viewId,
       cellContext: cellContext,

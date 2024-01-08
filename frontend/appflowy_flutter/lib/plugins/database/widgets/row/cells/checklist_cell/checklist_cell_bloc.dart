@@ -84,7 +84,7 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: (data) {
         if (!isClosed) {
           add(ChecklistCellEvent.didReceiveOptions(data));

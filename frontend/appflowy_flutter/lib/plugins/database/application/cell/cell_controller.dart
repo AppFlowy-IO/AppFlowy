@@ -3,17 +3,17 @@ import 'dart:async';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/field_listener.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_meta_listener.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../field/type_option/type_option_data_parser.dart';
 import 'cell_cache.dart';
 import 'cell_data_loader.dart';
 import 'cell_data_persistence.dart';
@@ -33,15 +33,13 @@ class CellContext with _$CellContext {
 /// * Read/Write cell data
 /// * Listen on field/cell notifications.
 ///
-/// Generic T represents the type of the cell data.
-/// Generic D represents the type of data that will be saved to the disk
-///
-// ignore: must_be_immutable
-class CellController<T, D> extends Equatable {
+/// T represents the type of the cell data.
+/// D represents the type of data that will be saved to the disk.
+class CellController<T, D> {
   final String viewId;
   final CellContext _cellContext;
   final FieldController _fieldController;
-  final CellMemCache _cellCache;
+  final RowCache _rowCache;
   final CellDataLoader<T> _cellDataLoader;
   final CellDataPersistence<D> _cellDataPersistence;
 
@@ -56,36 +54,39 @@ class CellController<T, D> extends Equatable {
   Timer? _saveDataOperation;
 
   RowId get rowId => _cellContext.rowId;
-
   String get fieldId => _cellContext.fieldId;
+  FieldInfo get fieldInfo => _fieldController.getField(_cellContext.fieldId)!;
+  FieldType get fieldType =>
+      _fieldController.getField(_cellContext.fieldId)!.fieldType;
+  RowMetaPB? get rowMeta => _rowCache.getRow(rowId)?.rowMeta;
+  String? get icon => rowMeta?.icon;
 
-  FieldInfo get fieldInfo => _cellContext.fieldInfo;
-
-  FieldType get fieldType => _cellContext.fieldInfo.fieldType;
-
-  String? get emoji => _cellContext.emoji;
+  CellMemCache get _cellCache => _rowCache.cellCache;
 
   CellController({
     required this.viewId,
     required FieldController fieldController,
     required CellContext cellContext,
-    required CellMemCache cellCache,
+    required RowCache rowCache,
     required CellDataLoader<T> cellDataLoader,
     required CellDataPersistence<D> cellDataPersistence,
   })  : _fieldController = fieldController,
         _cellContext = cellContext,
-        _cellCache = cellCache,
+        _rowCache = rowCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
-        _rowMetaListener = RowMetaListener(cellContext.rowId),
-        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId) {
-    _cellDataNotifier = CellDataNotifier(value: _cellCache.get(cellContext));
+        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
+        _cellDataNotifier =
+            CellDataNotifier(value: rowCache.cellCache.get(cellContext));
+
+  /// Start listening to backend changes
+  void startListening() {
     _cellListener = CellListener(
-      rowId: cellContext.rowId,
-      fieldId: cellContext.fieldId,
+      rowId: _cellContext.rowId,
+      fieldId: _cellContext.fieldId,
     );
 
-    /// 1.Listen on user edit event and load the new cell data if needed.
+    /// 1. Listen on user edit event and load the new cell data if needed.
     /// For example:
     ///  user input: 12
     ///  cell display: $12
@@ -98,21 +99,22 @@ class CellController<T, D> extends Equatable {
       },
     );
 
-    /// 2.Listen on the field event and load the cell data if needed.
+    /// 2. Listen on the field event and load the cell data if needed.
     _fieldListener?.start(
       onFieldChanged: (fieldPB) {
         /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
         /// For example:
         ///   ￥12 -> $12
-        if (_cellDataLoader.reloadOnFieldChanged) {
+        if (_cellDataLoader.reloadOnFieldChange) {
           _loadData();
         }
         _onCellFieldChanged?.call();
       },
     );
 
-    // Only the primary can listen on the row meta changes.
-    if (_cellContext.fieldInfo.field.isPrimary) {
+    // 3. If the field is primary listen to row meta changes.
+    if (fieldInfo.field.isPrimary) {
+      _rowMetaListener = RowMetaListener(_cellContext.rowId);
       _rowMetaListener?.start(
         callback: (newRowMeta) {
           // YAY callback use the newRowMeta?
@@ -122,11 +124,11 @@ class CellController<T, D> extends Equatable {
     }
   }
 
-  /// Listen on the cell content or field changes
-  VoidCallback? startListening({
+  /// Add a new listener
+  VoidCallback? addListener({
     required void Function(T?) onCellChanged,
-    VoidCallback? onRowMetaChanged,
     VoidCallback? onCellFieldChanged,
+    VoidCallback? onRowMetaChanged,
   }) {
     _onCellFieldChanged = onCellFieldChanged;
     _onRowMetaChanged = onRowMetaChanged;
@@ -143,9 +145,9 @@ class CellController<T, D> extends Equatable {
     _cellDataNotifier?.removeListener(fn);
   }
 
-  /// Return the cell data.
-  /// The cell data will be read from the Cache first, and load from disk if it does not exist.
-  /// You can set [loadIfNotExist] to false (default is true) to disable loading the cell data.
+  /// Get the cell data. The cell data will be read from the cache first,
+  /// and load from disk if it doesn't exist. You can set [loadIfNotExist] to
+  /// false to disable this behavior.
   T? getCellData({bool loadIfNotExist = true}) {
     final data = _cellCache.get(_cellContext);
     if (data == null && loadIfNotExist) {
@@ -156,30 +158,34 @@ class CellController<T, D> extends Equatable {
 
   /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
-  PD getTypeOption<PD, P extends TypeOptionParser>(
-    P parser,
-  ) {
-    return parser.fromBuffer(_cellContext.fieldInfo.field.typeOptionData);
+  PD getTypeOption<PD, P extends TypeOptionParser>(P parser) {
+    return parser.fromBuffer(fieldInfo.field.typeOptionData);
   }
 
-  /// Save the cell data to disk
-  /// You can set [deduplicate] to true (default is false) to reduce the save operation.
-  /// It's useful when you call this method when user editing the [TextField].
-  /// The default debounce interval is 300 milliseconds.
+  /// Saves the cell data to disk. You can set [debounce] to reduce the amount
+  /// of save operations, which is useful when editing a [TextField].
   Future<void> saveCellData(
     D data, {
-    bool deduplicate = false,
+    bool debounce = false,
     void Function(Option<FlowyError>)? onFinish,
   }) async {
     _loadDataOperation?.cancel();
-    if (deduplicate) {
+    if (debounce) {
       _saveDataOperation?.cancel();
       _saveDataOperation = Timer(const Duration(milliseconds: 300), () async {
-        final result = await _cellDataPersistence.save(data);
+        final result = await _cellDataPersistence.save(
+          viewId: viewId,
+          cellContext: _cellContext,
+          data: data,
+        );
         onFinish?.call(result);
       });
     } else {
-      final result = await _cellDataPersistence.save(data);
+      final result = await _cellDataPersistence.save(
+        viewId: viewId,
+        cellContext: _cellContext,
+        data: data,
+      );
       onFinish?.call(result);
     }
   }
@@ -189,7 +195,9 @@ class CellController<T, D> extends Equatable {
     _loadDataOperation?.cancel();
 
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
-      _cellDataLoader.loadData().then((data) {
+      _cellDataLoader
+          .loadData(viewId: viewId, cellContext: _cellContext)
+          .then((data) {
         if (data != null) {
           _cellCache.insert(_cellContext, DatabaseCell(object: data));
         } else {
@@ -216,13 +224,6 @@ class CellController<T, D> extends Equatable {
     _cellDataNotifier = null;
     _onRowMetaChanged = null;
   }
-
-  @override
-  List<Object> get props => [
-        _cellCache.get(_cellContext) ?? "",
-        _cellContext.rowId,
-        _cellContext.fieldId,
-      ];
 }
 
 class CellDataNotifier<T> extends ChangeNotifier {

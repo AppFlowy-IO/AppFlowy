@@ -26,16 +26,11 @@ class SelectOptionCellBackendService {
       (result) {
         return result.fold(
           (option) {
-            final payload = RepeatedSelectOptionPayload.create()
+            final payload = RepeatedSelectOptionPayload()
               ..viewId = viewId
               ..fieldId = fieldId
-              ..rowId = rowId;
+              ..rowId = rowId..items.add(option);
 
-            if (isSelected) {
-              payload.items.add(option);
-            } else {
-              payload.items.add(option);
-            }
             return DatabaseEventInsertOrUpdateSelectOption(payload).send();
           },
           (r) => right(r),
@@ -47,18 +42,19 @@ class SelectOptionCellBackendService {
   Future<Either<Unit, FlowyError>> update({
     required SelectOptionPB option,
   }) {
-    final payload = RepeatedSelectOptionPayload.create()
+    final payload = RepeatedSelectOptionPayload()
       ..items.add(option)
       ..viewId = viewId
       ..fieldId = fieldId
       ..rowId = rowId;
+      
     return DatabaseEventInsertOrUpdateSelectOption(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> delete({
     required Iterable<SelectOptionPB> options,
   }) {
-    final payload = RepeatedSelectOptionPayload.create()
+    final payload = RepeatedSelectOptionPayload()
       ..items.addAll(options)
       ..viewId = viewId
       ..fieldId = fieldId
@@ -68,7 +64,7 @@ class SelectOptionCellBackendService {
   }
 
   Future<Either<SelectOptionCellDataPB, FlowyError>> getCellData() {
-    final payload = CellIdPB.create()
+    final payload = CellIdPB()
       ..viewId = viewId
       ..fieldId = fieldId
       ..rowId = rowId;
@@ -79,23 +75,25 @@ class SelectOptionCellBackendService {
   Future<Either<void, FlowyError>> select({
     required Iterable<String> optionIds,
   }) {
-    final payload = SelectOptionCellChangesetPB.create()
+    final payload = SelectOptionCellChangesetPB()
       ..cellIdentifier = _cellIdentifier()
       ..insertOptionIds.addAll(optionIds);
+
     return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
   Future<Either<void, FlowyError>> unSelect({
     required Iterable<String> optionIds,
   }) {
-    final payload = SelectOptionCellChangesetPB.create()
+    final payload = SelectOptionCellChangesetPB()
       ..cellIdentifier = _cellIdentifier()
       ..deleteOptionIds.addAll(optionIds);
+
     return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
   CellIdPB _cellIdentifier() {
-    return CellIdPB.create()
+    return CellIdPB()
       ..viewId = viewId
       ..fieldId = fieldId
       ..rowId = rowId;

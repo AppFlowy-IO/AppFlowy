@@ -27,14 +27,14 @@ class GridTimestampCell extends GridCellWidget {
   /// The [GridTimestampCell] is used by both [FieldType.CreatedTime]
   /// and [FieldType.LastEditedTime]. So it needs to know the field type.
   final FieldType fieldType;
-  final CellControllerBuilder cellControllerBuilder;
+  final TimestampCellController cellController;
   late final TimestampCellStyle? cellStyle;
 
   GridTimestampCell({
     super.key,
     GridCellStyle? style,
     required this.fieldType,
-    required this.cellControllerBuilder,
+    required this.cellController,
   }) {
     if (style != null) {
       cellStyle = (style as TimestampCellStyle);
@@ -48,16 +48,7 @@ class GridTimestampCell extends GridCellWidget {
 }
 
 class _TimestampCellState extends GridCellState<GridTimestampCell> {
-  late TimestampCellBloc _cellBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    final cellController =
-        widget.cellControllerBuilder.build() as TimestampCellController;
-    _cellBloc = TimestampCellBloc(cellController: cellController)
-      ..add(const TimestampCellEvent.initial());
-  }
+  TimestampCellBloc get cellBloc => context.read<TimestampCellBloc>();
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +56,11 @@ class _TimestampCellState extends GridCellState<GridTimestampCell> {
     final placeholder = widget.cellStyle?.placeholder ?? "";
     final padding = widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets;
 
-    return BlocProvider.value(
-      value: _cellBloc,
+    return BlocProvider(
+      create: (_) {
+        return TimestampCellBloc(cellController: widget.cellController)
+          ..add(const TimestampCellEvent.initial());
+      },
       child: BlocBuilder<TimestampCellBloc, TimestampCellState>(
         builder: (context, state) {
           final isEmpty = state.dateStr.isEmpty;
@@ -118,12 +112,12 @@ class _TimestampCellState extends GridCellState<GridTimestampCell> {
 
   @override
   Future<void> dispose() async {
-    _cellBloc.close();
+    cellBloc.close();
     super.dispose();
   }
 
   @override
-  String? onCopy() => _cellBloc.state.dateStr;
+  String? onCopy() => cellBloc.state.dateStr;
 
   @override
   void requestBeginFocus() {
