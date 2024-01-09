@@ -13,7 +13,7 @@ use collab_document::blocks::{
   BlockAction, BlockActionPayload, BlockActionType, BlockEvent, BlockEventPayload, DeltaType,
 };
 use flowy_storage::{ObjectValue, StorageObject};
-use tokio::io::{self, AsyncWrite, AsyncWriteExt};
+use tokio::io::{self, AsyncWrite, AsyncWriteExt, AsyncReadExt};
 use tracing::{info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -419,29 +419,24 @@ pub(crate) async fn upload_file_handler(
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The file storage service is already dropped"))?;
 
-  let hashed_u64 = {
     let mut file = tokio::fs::File::open(&params.local_file_path).await?;
-    let mut buffered_reader = tokio::io::BufReader::new(&mut file);
-    let mut hasher = fxhash::FxHasher::default();
-    let mut hasher_writer = HasherWriter {
-      hasher: &mut hasher,
-    };
-    let n = tokio::io::copy(&mut buffered_reader, &mut hasher_writer).await?;
+    let mut content = Vec::new();
+    let n = file.read_to_end(& mut content).await?;
     info!(
-      "hasher consumed {} bytes from file: {}",
+      "read {} bytes from file: {}",
       n, &params.local_file_path
     );
-    hasher.finish()
-  };
 
+  let hash = fxhash::hash(&content);
+  let mime: String = mime_guess::from_path(&params.local_file_path).first_or_octet_stream().to_string();
   let url = file_service
     .create_object(StorageObject {
       workspace_id: params.workspace_id.clone(),
-      file_name: hashed_u64.to_string(),
-      value: ObjectValue::File {
-        file_path: params.local_file_path.clone(),
-      },
-    })
+      file_name: hash.to_string(),
+      value: ObjectValue::Bytes {
+          bytes: content.into(),
+          mime: mime.into(),
+    }})
     .await?;
 
   let local_file_path = params.local_file_path.to_owned();
