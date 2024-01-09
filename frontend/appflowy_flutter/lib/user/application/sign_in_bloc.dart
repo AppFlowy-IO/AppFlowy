@@ -2,13 +2,13 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sign_in_bloc.freezed.dart';
 
@@ -104,6 +104,16 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
                 );
               }
           }
+        },
+        cancel: (value) {
+          emit(
+            state.copyWith(
+              isSubmitting: false,
+              emailError: none(),
+              passwordError: none(),
+              successOrFail: none(),
+            ),
+          );
         },
       );
     });
@@ -245,6 +255,7 @@ class SignInEvent with _$SignInEvent {
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
   const factory SignInEvent.deepLinkStateChange(DeepLinkResult result) =
       _DeepLinkStateChange;
+  const factory SignInEvent.cancel() = _Cancel;
 }
 
 @freezed
