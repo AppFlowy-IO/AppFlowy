@@ -139,7 +139,7 @@ checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -147,6 +147,7 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "thiserror",
+ "tokio",
  "url",
  "uuid",
 ]
@@ -407,9 +408,9 @@ dependencies = [
 
 [[package]]
 name = "brotli"
-version = "3.3.4"
+version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1a0b1dbcc8ae29329621f8d4f0d835787c1c38bb1401979b49d13b0b305ff68"
+checksum = "516074a47ef4bce09577a3b379392300159ce5b1ba2e501ff1c819950066100f"
 dependencies = [
  "alloc-no-stdlib",
  "alloc-stdlib",
@@ -418,9 +419,9 @@ dependencies = [
 
 [[package]]
 name = "brotli-decompressor"
-version = "2.3.4"
+version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b6561fd3f895a11e8f72af2cb7d22e08366bebc2b6b57f7744c4bda27034744"
+checksum = "4e2e4afe60d7dd600fdd3de8d0f08c2b7ec039712e3b6137ff98b7004e82de4f"
 dependencies = [
  "alloc-no-stdlib",
  "alloc-stdlib",
@@ -683,12 +684,13 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "app-error",
  "async-trait",
  "bincode",
+ "brotli",
  "bytes",
  "collab",
  "collab-entity",
@@ -1147,7 +1149,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.11.2",
+ "phf 0.8.0",
  "smallvec",
 ]
 
@@ -1258,7 +1260,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "app-error",
@@ -2505,7 +2507,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2521,7 +2523,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "app-error",
@@ -2930,7 +2932,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -3935,7 +3937,6 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
- "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -4025,19 +4026,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "phf_macros"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
-dependencies = [
- "phf_generator 0.11.2",
- "phf_shared 0.11.2",
- "proc-macro2",
- "quote",
- "syn 2.0.47",
 ]
 
 [[package]]
@@ -4587,7 +4575,7 @@ dependencies = [
 [[package]]
 name = "realtime-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "bincode",
@@ -4609,7 +4597,7 @@ dependencies = [
 [[package]]
 name = "realtime-protocol"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "bincode",
@@ -5256,7 +5244,7 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "app-error",
@@ -7039,7 +7027,7 @@ dependencies = [
 [[package]]
 name = "workspace-template"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=2159c68688a69af83e1c8d07cf17c40f0c315566#2159c68688a69af83e1c8d07cf17c40f0c315566"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=55a1f146f4681d1f5dfbc690d2415e95a54353da#55a1f146f4681d1f5dfbc690d2415e95a54353da"
 dependencies = [
  "anyhow",
  "async-trait",
