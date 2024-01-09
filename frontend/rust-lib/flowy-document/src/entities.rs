@@ -68,9 +68,6 @@ pub struct UploadFileParamsPB {
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  pub file_name: String,
-
-  #[pb(index = 3)]
   pub local_file_path: String,
 }
 

@@ -4,13 +4,16 @@
  * which you can think of as a higher-level interface to interact with documents.
  */
 
+use std::hash::Hasher;
+use std::pin::Pin;
 use std::sync::{Arc, Weak};
+use std::task::{Context, Poll};
 
 use collab_document::blocks::{
   BlockAction, BlockActionPayload, BlockActionType, BlockEvent, BlockEventPayload, DeltaType,
 };
 use flowy_storage::{ObjectValue, StorageObject};
-use tokio::io::AsyncWriteExt;
+use tokio::io::{self, AsyncWrite, AsyncWriteExt};
 use tracing::{info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -415,10 +418,26 @@ pub(crate) async fn upload_file_handler(
     .get_file_storage_service()
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The file storage service is already dropped"))?;
+
+  let hashed_u64 = {
+    let mut file = tokio::fs::File::open(&params.local_file_path).await?;
+    let mut buffered_reader = tokio::io::BufReader::new(&mut file);
+    let mut hasher = fxhash::FxHasher::default();
+    let mut hasher_writer = HasherWriter {
+      hasher: &mut hasher,
+    };
+    let n = tokio::io::copy(&mut buffered_reader, &mut hasher_writer).await?;
+    info!(
+      "hasher consumed {} bytes from file: {}",
+      n, &params.local_file_path
+    );
+    hasher.finish()
+  };
+
   let url = file_service
     .create_object(StorageObject {
       workspace_id: params.workspace_id.clone(),
-      file_name: params.file_name.clone(),
+      file_name: hashed_u64.to_string(),
       value: ObjectValue::File {
         file_path: params.local_file_path.clone(),
       },
@@ -479,4 +498,28 @@ pub(crate) async fn delete_uploaded_file_handler(
 
   tokio::fs::remove_file(&params.local_file_path).await?;
   Ok(())
+}
+
+// Wrapper around FxHasher to implement AsyncWrite
+struct HasherWriter<F: Hasher> {
+  hasher: F,
+}
+
+impl<F: Hasher + Unpin> AsyncWrite for HasherWriter<F> {
+  fn poll_write(
+    mut self: Pin<&mut Self>,
+    _: &mut Context<'_>,
+    buf: &[u8],
+  ) -> Poll<io::Result<usize>> {
+    self.hasher.write(buf);
+    Poll::Ready(Ok(buf.len()))
+  }
+
+  fn poll_flush(self: Pin<&mut Self>, _: &mut Context<'_>) -> Poll<io::Result<()>> {
+    Poll::Ready(Ok(()))
+  }
+
+  fn poll_shutdown(self: Pin<&mut Self>, _: &mut Context<'_>) -> Poll<io::Result<()>> {
+    Poll::Ready(Ok(()))
+  }
 }
