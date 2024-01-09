@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_bloc.dart';
-import 'package:appflowy/plugins/database/widgets/row/editable_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -64,7 +64,7 @@ class _GridRowState extends State<GridRow> {
         builder: (context, state) {
           final content = Expanded(
             child: RowContent(
-              builder: widget.cellBuilder,
+              cellBuilder: widget.cellBuilder,
               onExpand: () => widget.openDetailPage(
                 context,
                 widget.cellBuilder,
@@ -224,9 +224,9 @@ class _RowMenuButtonState extends State<RowMenuButton> {
 
 class RowContent extends StatelessWidget {
   final VoidCallback onExpand;
-  final EditableCellBuilder builder;
+  final EditableCellBuilder cellBuilder;
   const RowContent({
-    required this.builder,
+    required this.cellBuilder,
     required this.onExpand,
     super.key,
   });
@@ -254,7 +254,10 @@ class RowContent extends StatelessWidget {
   ) {
     return cellByFieldId.values.map(
       (cellId) {
-        final EditableCellWidget child = builder.build(cellId);
+        final EditableCellWidget child = cellBuilder.build(
+          cellId,
+          EditableCellStyle.desktopGrid,
+        );
         return CellContainer(
           width: cellId.fieldInfo.fieldSettings!.width.toDouble(),
           isPrimary: cellId.fieldInfo.field.isPrimary,

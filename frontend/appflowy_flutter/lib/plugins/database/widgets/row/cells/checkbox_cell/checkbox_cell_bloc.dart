@@ -23,7 +23,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
             emit(state.copyWith(isSelected: _isSelected(cellData)));
           },
           select: () {
-            cellController.saveCellData(!state.isSelected ? "Yes" : "No");
+            cellController.saveCellData(state.isSelected ? "No" : "Yes");
           },
         );
       },

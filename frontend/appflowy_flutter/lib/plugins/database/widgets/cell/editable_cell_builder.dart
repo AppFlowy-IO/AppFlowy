@@ -5,17 +5,17 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../cell/editable_cell_skeleton/checkbox.dart';
-import '../cell/editable_cell_skeleton/checklist.dart';
-import '../cell/editable_cell_skeleton/date.dart';
-import '../cell/editable_cell_skeleton/number.dart';
-import '../cell/editable_cell_skeleton/select_option.dart';
-import '../cell/editable_cell_skeleton/text.dart';
-import '../cell/editable_cell_skeleton/timestamp.dart';
-import '../cell/editable_cell_skeleton/url.dart';
-import 'accessory/cell_accessory.dart';
-import 'accessory/cell_shortcuts.dart';
-import 'cells/cell_container.dart';
+import 'editable_cell_skeleton/checkbox.dart';
+import 'editable_cell_skeleton/checklist.dart';
+import 'editable_cell_skeleton/date.dart';
+import 'editable_cell_skeleton/number.dart';
+import 'editable_cell_skeleton/select_option.dart';
+import 'editable_cell_skeleton/text.dart';
+import 'editable_cell_skeleton/timestamp.dart';
+import 'editable_cell_skeleton/url.dart';
+import '../row/accessory/cell_accessory.dart';
+import '../row/accessory/cell_shortcuts.dart';
+import '../row/cells/cell_container.dart';
 
 enum EditableCellStyle {
   desktopGrid,
@@ -43,46 +43,46 @@ class EditableCellBuilder {
     );
     return switch (fieldType) {
       FieldType.Checkbox => EditableCheckboxCell(
-          cellController: cellController as CheckboxCellController,
+          cellController: cellController.as(),
           skin: IEditableCheckboxSkin.fromStyle(style),
           key: key,
         ),
       FieldType.Checklist => EditableChecklistCell(
-          cellController: cellController as ChecklistCellController,
+          cellController: cellController.as(),
           skin: IEditableChecklistSkin.fromStyle(style),
           key: key,
         ),
       FieldType.LastEditedTime ||
       FieldType.CreatedTime =>
         EditableTimestampCell(
-          cellController: cellController as TimestampCellController,
+          cellController: cellController.as(),
           skin: IEditableTimestampCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.DateTime => EditableDateCell(
-          cellController: cellController as DateCellController,
+          cellController: cellController.as(),
           skin: IEditableDateCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.MultiSelect ||
       FieldType.SingleSelect =>
         EditableSelectOptionCell(
-          cellController: cellController as SelectOptionCellController,
+          cellController: cellController.as(),
           builder: IEditableSelectOptionCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.Number => EditableNumberCell(
-          cellController: cellController as NumberCellController,
+          cellController: cellController.as(),
           builder: IEditableNumberCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.RichText => EditableTextCell(
-          cellController: cellController as TextCellController,
+          cellController: cellController.as(),
           skin: IEditableTextCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.URL => EditableURLCell(
-          cellController: cellController as URLCellController,
+          cellController: cellController.as(),
           skin: IEditableURLCellSkin.fromStyle(style),
           key: key,
         ),

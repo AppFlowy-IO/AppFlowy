@@ -145,8 +145,7 @@ class SelectOptionTagCell extends StatelessWidget {
                 ),
                 child: SelectOptionTag(
                   option: option,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                 ),
               ),
             ),

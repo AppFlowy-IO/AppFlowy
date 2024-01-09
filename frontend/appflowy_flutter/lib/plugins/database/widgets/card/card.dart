@@ -13,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'card_bloc.dart';
-import 'card_cell_builder.dart';
-import 'cells/card_cell.dart';
+import '../cell/card_cell_builder.dart';
+import '../cell/card_cell_skeleton/card_cell.dart';
 import 'container/accessory.dart';
 import 'container/card_container.dart';
 

@@ -1,19 +1,11 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
-import 'package:appflowy/plugins/database/widgets/card/card_cell_builder.dart';
-import 'package:appflowy/plugins/database/widgets/card/cells/card_cell.dart';
-import 'package:appflowy/plugins/database/widgets/card/cells/number_card_cell.dart';
-import 'package:appflowy/plugins/database/widgets/card/cells/url_card_cell.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -74,15 +66,10 @@ class _EventCardState extends State<EventCard> {
     if (rowInfo == null) {
       return const SizedBox.shrink();
     }
-    final styles = <FieldType, CardCellStyle>{
-      FieldType.Number: NumberCardCellStyle(10),
-      FieldType.URL: URLCardCellStyle(10),
-    };
-    final cellBuilder = CardCellBuilder<CalendarDayEvent>(
-      rowCache.cellCache,
-      styles: styles,
+
+    final cellBuilder = CardCellBuilder(
+      databaseController: widget.databaseController,
     );
-    final renderHook = _calendarEventCardRenderHook(context);
 
     Widget card = RowCard<CalendarDayEvent>(
       // Add the key here to make sure the card is rebuilt when the cells
@@ -119,7 +106,6 @@ class _EventCardState extends State<EventCard> {
           foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
         ),
       ),
-      renderHook: renderHook,
       onStartEditing: () {},
       onEndEditing: () {},
     );
@@ -207,118 +193,5 @@ class _EventCardState extends State<EventCard> {
     }
 
     return card;
-  }
-
-  RowCardRenderHook<CalendarDayEvent> _calendarEventCardRenderHook(
-    BuildContext context,
-  ) {
-    final renderHook = RowCardRenderHook<CalendarDayEvent>();
-    renderHook.addTextCellHook((cellData, eventData, _) {
-      return BlocBuilder<TextCellBloc, TextCellState>(
-        builder: (context, state) {
-          final isTitle =
-              context.read<TextCellBloc>().cellController.fieldInfo.isPrimary;
-          final text = isTitle && cellData.isEmpty
-              ? LocaleKeys.grid_row_titlePlaceholder.tr()
-              : cellData;
-
-          if (text.isEmpty) {
-            return const SizedBox.shrink();
-          }
-
-          return Align(
-            alignment: Alignment.centerLeft,
-            child: FlowyText.medium(
-              text,
-              textAlign: TextAlign.left,
-              fontSize: isTitle ? 11 : 10,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          );
-        },
-      );
-    });
-
-    renderHook.addDateCellHook((cellData, cardData, _) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                flex: 3,
-                child: FlowyText.regular(
-                  cellData.date,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (cellData.includeTime)
-                Flexible(
-                  child: FlowyText.regular(
-                    cellData.time,
-                    fontSize: 10,
-                    color: Theme.of(context).hintColor,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    });
-
-    renderHook.addTimestampCellHook((cellData, cardData, _) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                flex: 3,
-                child: FlowyText.regular(
-                  cellData.dateTime,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-
-    renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
-      if (selectedOptions.isEmpty) {
-        return const SizedBox.shrink();
-      }
-      final children = selectedOptions.map(
-        (option) {
-          return SelectOptionTag(
-            option: option,
-            fontSize: 9,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-          );
-        },
-      ).toList();
-
-      return IntrinsicHeight(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: SizedBox.expand(
-            child: Wrap(spacing: 4, runSpacing: 4, children: children),
-          ),
-        ),
-      );
-    });
-
-    return renderHook;
   }
 }
