@@ -56,19 +56,16 @@ KeyEventResult _textAlignHandler(EditorState editorState, String align) {
   if (selection == null) {
     return KeyEventResult.ignored;
   }
-
-  // because the event handler is not async, so we need to use wrap the async function here
-  () async {
-    await editorState.updateNode(
-      selection,
-      (node) => node.copyWith(
-        attributes: {
-          ...node.attributes,
-          blockComponentAlign: align,
-        },
-      ),
-    );
-  }();
+  
+  editorState.updateNode(
+    selection,
+    (node) => node.copyWith(
+      attributes: {
+        ...node.attributes,
+        blockComponentAlign: align,
+      },
+    ),
+  );
 
   return KeyEventResult.handled;
 }
