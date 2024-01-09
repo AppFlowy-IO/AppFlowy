@@ -445,10 +445,12 @@
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
       "userAgreement": "User Agreement",
+      "termsAndConditions": "Terms and Conditions",
       "userprofileError": "Failed to load user profile",
       "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
       "selectLayout": "Select layout",
-      "selectStartingDay": "Select starting day"
+      "selectStartingDay": "Select starting day",
+      "version": "Version"
     }
   },
   "grid": {
