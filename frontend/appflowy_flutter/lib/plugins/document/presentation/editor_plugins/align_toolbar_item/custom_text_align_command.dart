@@ -9,7 +9,7 @@ final List<CommandShortcutEvent> customTextAlignCommands = [
 ];
 
 /// Windows / Linux : ctrl + shift + l
-/// macOs           : ctrl + shift + l
+/// macOS           : ctrl + shift + l
 /// Allows the user to align text to the left
 ///
 /// - support
@@ -23,7 +23,7 @@ final CommandShortcutEvent customTextLeftAlignCommand = CommandShortcutEvent(
 );
 
 /// Windows / Linux : ctrl + shift + e
-/// macOs           : ctrl + shift + e
+/// macOS           : ctrl + shift + e
 /// Allows the user to align text to the center
 ///
 /// - support
@@ -37,7 +37,7 @@ final CommandShortcutEvent customTextCenterAlignCommand = CommandShortcutEvent(
 );
 
 /// Windows / Linux : ctrl + shift + r
-/// macOs           : ctrl + shift + r
+/// macOS           : ctrl + shift + r
 /// Allows the user to align text to the right
 ///
 /// - support
