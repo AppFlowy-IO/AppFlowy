@@ -60,7 +60,6 @@ class CellController<T, D> {
       _fieldController.getField(_cellContext.fieldId)!.fieldType;
   RowMetaPB? get rowMeta => _rowCache.getRow(rowId)?.rowMeta;
   String? get icon => rowMeta?.icon;
-
   CellMemCache get _cellCache => _rowCache.cellCache;
 
   CellController({
@@ -78,6 +77,8 @@ class CellController<T, D> {
         _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
         _cellDataNotifier =
             CellDataNotifier(value: rowCache.cellCache.get(cellContext));
+
+  CellController<A, B> as<A, B>() => this as CellController<A, B>;
 
   /// Start listening to backend changes
   void startListening() {

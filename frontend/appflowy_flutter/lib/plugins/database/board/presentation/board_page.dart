@@ -25,9 +25,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../widgets/card/card.dart';
-import '../../widgets/card/card_cell_builder.dart';
-import '../../widgets/card/cells/card_cell.dart';
-import '../../widgets/row/editable_cell_builder.dart';
+import '../../widgets/cell/card_cell_builder.dart';
+import '../../widgets/cell/card_cell_skeleton/card_cell.dart';
+import '../../widgets/cell/editable_cell_builder.dart';
 import '../application/board_bloc.dart';
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';

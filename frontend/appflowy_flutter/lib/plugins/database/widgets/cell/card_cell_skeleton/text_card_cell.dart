@@ -3,58 +3,56 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../row/editable_cell_builder.dart';
-import '../define.dart';
+import '../editable_cell_builder.dart';
 import 'card_cell.dart';
 
 class TextCardCellStyle extends CardCellStyle {
-  final double fontSize;
+  final TextStyle textStyle;
+  final TextStyle titleTextStyle;
+  final int? maxLines;
 
-  TextCardCellStyle(this.fontSize);
+  TextCardCellStyle({
+    required super.padding,
+    required this.textStyle,
+    required this.titleTextStyle,
+    this.maxLines = 1,
+  });
 }
 
-class TextCardCell<CustomCardData>
-    extends CardCell<CustomCardData, TextCardCellStyle> with EditableCell {
+class TextCardCell extends CardCell<TextCardCellStyle> with EditableCell {
+  final TextCellController cellController;
+  final bool showNotes;
+
   const TextCardCell({
     super.key,
-    super.cardData,
-    super.style,
-    required this.cellControllerBuilder,
+    required super.style,
+    required this.cellController,
     this.editableNotifier,
-    this.renderHook,
     this.showNotes = false,
   });
 
   @override
   final EditableCardNotifier? editableNotifier;
 
-  final CellControllerBuilder cellControllerBuilder;
-  final CellRenderHook<String, CustomCardData>? renderHook;
-  final bool showNotes;
-
   @override
   State<TextCardCell> createState() => _TextCellState();
 }
 
 class _TextCellState extends State<TextCardCell> {
-  late TextCellBloc _cellBloc;
-  late TextEditingController _controller;
+  late TextEditingController _textEditingController;
   bool focusWhenInit = false;
   final focusNode = SingleListenerFocusNode();
 
+  TextCellBloc get cellBloc => context.read<TextCellBloc>();
+
   @override
   void initState() {
-    final cellController =
-        widget.cellControllerBuilder.build() as TextCellController;
-    _cellBloc = TextCellBloc(cellController: cellController)
-      ..add(const TextCellEvent.initial());
-    _controller = TextEditingController(text: _cellBloc.state.content);
+    super.initState();
     focusWhenInit = widget.editableNotifier?.isCellEditing.value ?? false;
     if (focusWhenInit) {
       focusNode.requestFocus();
@@ -67,11 +65,10 @@ class _TextCellState extends State<TextCardCell> {
       if (!focusNode.hasFocus) {
         focusWhenInit = false;
         widget.editableNotifier?.isCellEditing.value = false;
-        _cellBloc.add(const TextCellEvent.enableEdit(false));
+        cellBloc.add(const TextCellEvent.enableEdit(false));
       }
     });
     _bindEditableNotifier();
-    super.initState();
   }
 
   void _bindEditableNotifier() {
@@ -84,7 +81,7 @@ class _TextCellState extends State<TextCardCell> {
           focusNode.requestFocus();
         });
       }
-      _cellBloc.add(TextCellEvent.enableEdit(isEditing));
+      cellBloc.add(TextCellEvent.enableEdit(isEditing));
     });
   }
 
@@ -96,18 +93,21 @@ class _TextCellState extends State<TextCardCell> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cellBloc,
+    return BlocProvider(
+      create: (context) {
+        return TextCellBloc(cellController: widget.cellController)
+          ..add(const TextCellEvent.initial());
+      },
       child: BlocListener<TextCellBloc, TextCellState>(
         listener: (context, state) {
-          if (_controller.text != state.content) {
-            _controller.text = state.content;
+          if (_textEditingController.text != state.content) {
+            _textEditingController.text = state.content;
           }
         },
         child: BlocBuilder<TextCellBloc, TextCellState>(
           buildWhen: (previous, current) {
             if (previous.content != current.content &&
-                _controller.text == current.content &&
+                _textEditingController.text == current.content &&
                 current.enableEdit) {
               return false;
             }
@@ -115,18 +115,7 @@ class _TextCellState extends State<TextCardCell> {
             return previous != current;
           },
           builder: (context, state) {
-            // Returns a custom render widget
-            final Widget? custom = widget.renderHook?.call(
-              state.content,
-              widget.cardData,
-              context,
-            );
-            if (custom != null) {
-              return custom;
-            }
-
-            final isTitle =
-                context.read<TextCellBloc>().cellController.fieldInfo.isPrimary;
+            final isTitle = cellBloc.cellController.fieldInfo.isPrimary;
             if (state.content.isEmpty &&
                 state.enableEdit == false &&
                 focusWhenInit == false &&
@@ -138,24 +127,21 @@ class _TextCellState extends State<TextCardCell> {
                 ? _buildTextField()
                 : _buildText(state, isTitle);
 
-            return Padding(
-              padding: CardSizes.cardCellPadding,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.showNotes) ...[
-                    FlowyTooltip(
-                      message: LocaleKeys.board_notesTooltip.tr(),
-                      child: FlowySvg(
-                        FlowySvgs.notes_s,
-                        color: Theme.of(context).hintColor,
-                      ),
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (widget.showNotes) ...[
+                  FlowyTooltip(
+                    message: LocaleKeys.board_notesTooltip.tr(),
+                    child: FlowySvg(
+                      FlowySvgs.notes_s,
+                      color: Theme.of(context).hintColor,
                     ),
-                    const HSpace(4),
-                  ],
-                  Expanded(child: child),
+                  ),
+                  const HSpace(4),
                 ],
-              ),
+                Expanded(child: child),
+              ],
             );
           },
         ),
@@ -164,13 +150,12 @@ class _TextCellState extends State<TextCardCell> {
   }
 
   Future<void> focusChanged() async {
-    _cellBloc.add(TextCellEvent.updateText(_controller.text));
+    cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
   }
 
   @override
   Future<void> dispose() async {
-    _cellBloc.close();
-    _controller.dispose();
+    _textEditingController.dispose();
     focusNode.dispose();
     super.dispose();
   }
@@ -180,37 +165,28 @@ class _TextCellState extends State<TextCardCell> {
         ? LocaleKeys.grid_row_titlePlaceholder.tr()
         : state.content;
     final color = state.content.isEmpty ? Theme.of(context).hintColor : null;
-    return FlowyText(
-      text,
-      fontSize: _fontSize(isTitle),
-      fontWeight: _fontWeight(isTitle),
-      color: color,
-      maxLines: null, // Enable multiple lines
+    final textStyle =
+        isTitle ? widget.style.titleTextStyle : widget.style.textStyle;
+    return Padding(
+      padding: widget.style.padding,
+      child: Text(
+        text,
+        style: textStyle.copyWith(color: color),
+        maxLines: widget.style.maxLines,
+      ),
     );
-  }
-
-  double _fontSize(bool isTitle) {
-    return widget.style?.fontSize ?? (isTitle ? 12 : 11);
-  }
-
-  FontWeight _fontWeight(bool isTitle) {
-    return isTitle ? FontWeight.w500 : FontWeight.w400;
   }
 
   Widget _buildTextField() {
     return TextField(
-      controller: _controller,
+      controller: _textEditingController,
       focusNode: focusNode,
       onChanged: (value) => focusChanged(),
       onEditingComplete: () => focusNode.unfocus(),
       maxLines: null,
-      style: Theme.of(context)
-          .textTheme
-          .bodyMedium!
-          .copyWith(fontSize: _fontSize(true)),
+      style: widget.style.titleTextStyle,
       decoration: InputDecoration(
-        contentPadding:
-            EdgeInsets.symmetric(vertical: CardSizes.cardCellPadding.top),
+        contentPadding: widget.style.padding,
         border: InputBorder.none,
         isDense: true,
         isCollapsed: true,
