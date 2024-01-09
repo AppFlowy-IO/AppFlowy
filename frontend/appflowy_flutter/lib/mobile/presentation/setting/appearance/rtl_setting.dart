@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
-import 'package:appflowy/util/theme_mode_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -10,22 +9,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../setting.dart';
 
-class ThemeSetting extends StatelessWidget {
-  const ThemeSetting({
+class RTLSetting extends StatelessWidget {
+  const RTLSetting({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final themeMode = context.watch<AppearanceSettingsCubit>().state.themeMode;
+    final layoutDirection =
+        context.watch<AppearanceSettingsCubit>().state.layoutDirection;
     return MobileSettingItem(
-      name: LocaleKeys.settings_appearance_themeMode_label.tr(),
+      name: LocaleKeys.settings_appearance_textDirection_label.tr(),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           FlowyText(
-            themeMode.labelText,
+            _textDirectionLabelText(layoutDirection),
             color: theme.colorScheme.onSurface,
           ),
           const Icon(Icons.chevron_right),
@@ -38,37 +38,29 @@ class ThemeSetting extends StatelessWidget {
           showDragHandle: true,
           showDivider: false,
           showCloseButton: false,
-          title: LocaleKeys.settings_appearance_themeMode_label.tr(),
+          title: LocaleKeys.settings_appearance_textDirection_label.tr(),
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 48),
           builder: (context) {
-            final themeMode =
-                context.read<AppearanceSettingsCubit>().state.themeMode;
+            final layoutDirection =
+                context.watch<AppearanceSettingsCubit>().state.layoutDirection;
             return Padding(
               padding: const EdgeInsets.only(top: 10),
               child: Column(
                 children: [
                   FlowyOptionTile.checkbox(
-                    text: LocaleKeys.settings_appearance_themeMode_system.tr(),
-                    isSelected: themeMode == ThemeMode.system,
+                    text: LocaleKeys.settings_appearance_textDirection_ltr.tr(),
+                    isSelected: layoutDirection == LayoutDirection.ltrLayout,
                     onTap: () => context
                         .read<AppearanceSettingsCubit>()
-                        .setThemeMode(ThemeMode.system),
+                        .setLayoutDirection(LayoutDirection.ltrLayout),
                   ),
                   FlowyOptionTile.checkbox(
                     showTopBorder: false,
-                    text: LocaleKeys.settings_appearance_themeMode_light.tr(),
-                    isSelected: themeMode == ThemeMode.light,
+                    text: LocaleKeys.settings_appearance_textDirection_rtl.tr(),
+                    isSelected: layoutDirection == LayoutDirection.rtlLayout,
                     onTap: () => context
                         .read<AppearanceSettingsCubit>()
-                        .setThemeMode(ThemeMode.light),
-                  ),
-                  FlowyOptionTile.checkbox(
-                    showTopBorder: false,
-                    text: LocaleKeys.settings_appearance_themeMode_dark.tr(),
-                    isSelected: themeMode == ThemeMode.dark,
-                    onTap: () => context
-                        .read<AppearanceSettingsCubit>()
-                        .setThemeMode(ThemeMode.dark),
+                        .setLayoutDirection(LayoutDirection.rtlLayout),
                   ),
                 ],
               ),
@@ -77,5 +69,15 @@ class ThemeSetting extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _textDirectionLabelText(LayoutDirection? textDirection) {
+    switch (textDirection) {
+      case LayoutDirection.rtlLayout:
+        return LocaleKeys.settings_appearance_textDirection_rtl.tr();
+      case LayoutDirection.ltrLayout:
+      default:
+        return LocaleKeys.settings_appearance_textDirection_ltr.tr();
+    }
   }
 }

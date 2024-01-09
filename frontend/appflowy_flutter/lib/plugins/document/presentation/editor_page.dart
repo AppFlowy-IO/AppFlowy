@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
@@ -31,6 +32,7 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customCopyCommand,
   customPasteCommand,
   customCutCommand,
+  ...customTextAlignCommands,
   ...standardCommandShortcutEvents,
 ];
 
@@ -73,6 +75,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     handlers: [
       InlinePageReferenceService(
         currentViewId: documentBloc.view.id,
+        limitResults: 5,
       ).inlinePageReferenceDelegate,
       DateReferenceService(context).dateReferenceDelegate,
       ReminderReferenceService(context).reminderReferenceDelegate,
@@ -85,6 +88,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customCopyCommand,
     customPasteCommand,
     customCutCommand,
+    ...customTextAlignCommands,
     ...standardCommandShortcutEvents,
     ..._buildFindAndReplaceCommands(),
   ];
