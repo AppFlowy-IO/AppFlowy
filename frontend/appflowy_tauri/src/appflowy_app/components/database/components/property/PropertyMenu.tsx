@@ -1,7 +1,7 @@
 import { Divider, MenuList } from '@mui/material';
 import { FC, useCallback } from 'react';
 import { useViewId } from '$app/hooks';
-import { Field, fieldService } from '../../application';
+import { Field, fieldService } from '$app/application/database';
 import PropertyTypeMenuExtension from '$app/components/database/components/property/property_type/PropertyTypeMenuExtension';
 import PropertyTypeSelect from '$app/components/database/components/property/property_type/PropertyTypeSelect';
 import { FieldType } from '@/services/backend';

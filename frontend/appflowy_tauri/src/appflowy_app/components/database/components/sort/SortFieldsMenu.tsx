@@ -1,7 +1,7 @@
 import React, { FC, MouseEvent, useCallback } from 'react';
 import { MenuProps } from '@mui/material';
 import PropertiesList from '$app/components/database/components/property/PropertiesList';
-import { Field, sortService } from '$app/components/database/application';
+import { Field, sortService } from '$app/application/database';
 import { SortConditionPB } from '@/services/backend';
 import { useTranslation } from 'react-i18next';
 import { useViewId } from '$app/hooks';

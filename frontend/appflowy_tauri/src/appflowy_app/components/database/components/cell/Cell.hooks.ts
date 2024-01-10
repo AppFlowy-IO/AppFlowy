@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DatabaseNotification } from '@/services/backend';
 import { useNotification, useViewId } from '$app/hooks';
-import { cellService, Cell, Field } from '../../application';
+import { cellService, Cell, Field } from '$app/application/database';
 import { useDispatchCell, useSelectorCell } from '$app/components/database';
 
 export const useCell = (rowId: string, field: Field) => {

@@ -1,57 +1,44 @@
-import { currentUserActions } from '../../stores/reducers/current-user/slice';
-import { useAppDispatch, useAppSelector } from '../../stores/store';
-import { UserProfilePB } from '../../../services/backend/events/flowy-user';
-import { AuthBackendService, UserBackendService } from '../../stores/effects/user/user_bd_svc';
-import { WorkspaceSettingPB } from '../../../services/backend/models/flowy-folder/workspace';
-import { Log } from '../../utils/log';
-import { FolderEventGetCurrentWorkspaceSetting } from '@/services/backend/events/flowy-folder';
+import { currentUserActions } from '$app_reducers/current-user/slice';
+import { UserProfilePB } from '@/services/backend/events/flowy-user';
+import { UserService } from '$app/application/user/user.service';
+import { AuthService } from '$app/application/user/auth.service';
+import { useAppSelector, useAppDispatch } from '$app/stores/store';
+import { getCurrentWorkspaceSetting } from '$app/application/folder/workspace.service';
+import { useCallback } from 'react';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.currentUser);
-  const authBackendService = new AuthBackendService();
 
-  async function checkUser() {
-    const result = await UserBackendService.getUserProfile();
+  const checkUser = useCallback(async () => {
+    const userProfile = await UserService.getUserProfile();
 
-    if (result.ok) {
-      const userProfile = result.val;
+    if (!userProfile) return;
+    const workspaceSetting = await getCurrentWorkspaceSetting();
 
-      const workspaceSetting = await _openWorkspace().then((r) => {
-        if (r.ok) {
-          return r.val;
-        } else {
-          return undefined;
-        }
-      });
+    dispatch(
+      currentUserActions.checkUser({
+        id: userProfile.id,
+        token: userProfile.token,
+        email: userProfile.email,
+        displayName: userProfile.name,
+        isAuthenticated: true,
+        workspaceSetting: workspaceSetting,
+      })
+    );
 
-      dispatch(
-        currentUserActions.checkUser({
-          id: userProfile.id,
-          token: userProfile.token,
-          email: userProfile.email,
-          displayName: userProfile.name,
-          isAuthenticated: true,
-          workspaceSetting: workspaceSetting,
-        })
-      );
-    }
+    return userProfile;
+  }, [dispatch]);
 
-    return result;
-  }
+  const register = useCallback(
+    async (email: string, password: string, name: string): Promise<UserProfilePB> => {
+      const userProfile = await AuthService.signUp({ email, password, name });
 
-  async function register(email: string, password: string, name: string): Promise<UserProfilePB> {
-    const authResult = await authBackendService.signUp({ email, password, name });
-
-    if (authResult.ok) {
-      const userProfile = authResult.val;
       // Get the workspace setting after user registered. The workspace setting
       // contains the latest visiting page and the current workspace data.
-      const openWorkspaceResult = await _openWorkspace();
+      const workspaceSetting = await getCurrentWorkspaceSetting();
 
-      if (openWorkspaceResult.ok) {
-        const workspaceSetting: WorkspaceSettingPB = openWorkspaceResult.val;
-
+      if (workspaceSetting) {
         dispatch(
           currentUserActions.updateUser({
             id: userProfile.id,
@@ -64,18 +51,15 @@ export const useAuth = () => {
         );
       }
 
-      return authResult.val;
-    } else {
-      Log.error(authResult.val.msg);
-      throw new Error(authResult.val.msg);
-    }
-  }
+      return userProfile;
+    },
+    [dispatch]
+  );
 
-  async function login(email: string, password: string): Promise<UserProfilePB> {
-    const result = await authBackendService.signIn({ email, password });
-
-    if (result.ok) {
-      const { id, token, name } = result.val;
+  const login = useCallback(
+    async (email: string, password: string): Promise<UserProfilePB> => {
+      const user = await AuthService.signIn({ email, password });
+      const { id, token, name } = user;
 
       dispatch(
         currentUserActions.updateUser({
@@ -86,21 +70,15 @@ export const useAuth = () => {
           isAuthenticated: true,
         })
       );
-      return result.val;
-    } else {
-      Log.error(result.val.msg);
-      throw new Error(result.val.msg);
-    }
-  }
+      return user;
+    },
+    [dispatch]
+  );
 
-  async function logout() {
-    await authBackendService.signOut();
+  const logout = useCallback(async () => {
+    await AuthService.signOut();
     dispatch(currentUserActions.logout());
-  }
-
-  async function _openWorkspace() {
-    return FolderEventGetCurrentWorkspaceSetting();
-  }
+  }, [dispatch]);
 
   return { currentUser, checkUser, register, login, logout };
 };

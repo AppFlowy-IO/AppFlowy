@@ -15,6 +15,7 @@ export const ViewTab = styled((props: TabProps) => <Tab disableRipple {...props}
   fontSize: '12px',
   lineHeight: '16px',
   minWidth: 'unset',
+  margin: '4px 0',
 
   '&.Mui-selected': {
     color: 'inherit',

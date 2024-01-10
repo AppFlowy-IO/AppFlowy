@@ -1,4 +1,4 @@
-import React, { CSSProperties, useMemo } from 'react';
+import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
 import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
 import { Editor, Element, Range } from 'slate';
 import { EditorNodeType, HeadingNode } from '$app/application/document/document.types';
@@ -8,7 +8,7 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const selected = useSelected() && !!editor.selection && Range.isCollapsed(editor.selection);
-
+  const [isComposing, setIsComposing] = useState(false);
   const block = useMemo(() => {
     const path = ReactEditor.findPath(editor, node);
     const match = Editor.above(editor, {
@@ -87,6 +87,31 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
         return t('editor.slashPlaceHolder');
     }
   }, [block?.type, t, unSelectedPlaceholder]);
+
+  useEffect(() => {
+    if (!selected) return;
+
+    const handleCompositionStart = () => {
+      setIsComposing(true);
+    };
+
+    const handleCompositionEnd = () => {
+      setIsComposing(false);
+    };
+
+    const editorDom = ReactEditor.toDOMNode(editor, editor);
+
+    editorDom.addEventListener('compositionstart', handleCompositionStart);
+    editorDom.addEventListener('compositionend', handleCompositionEnd);
+    return () => {
+      editorDom.removeEventListener('compositionstart', handleCompositionStart);
+      editorDom.removeEventListener('compositionend', handleCompositionEnd);
+    };
+  }, [editor, selected]);
+
+  if (isComposing) {
+    return null;
+  }
 
   return (
     <span contentEditable={false} {...attributes} className={className}>
