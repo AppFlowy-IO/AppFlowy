@@ -137,7 +137,8 @@ class _ImportAppFlowyDataButtonState extends State<ImportAppFlowyDataButton> {
                   }
 
                   context.read<SettingFileImportBloc>().add(
-                      SettingFileImportEvent.importAppFlowyDataFolder(path));
+                        SettingFileImportEvent.importAppFlowyDataFolder(path),
+                      );
                 },
               ),
             ),
