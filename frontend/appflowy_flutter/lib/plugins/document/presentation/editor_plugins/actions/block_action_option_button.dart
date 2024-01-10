@@ -34,6 +34,8 @@ class BlockOptionButton extends StatelessWidget {
           return ColorOptionAction(editorState: editorState);
         case OptionAction.align:
           return AlignOptionAction(editorState: editorState);
+        case OptionAction.depth:
+          return DepthOptionAction(editorState: editorState);
         default:
           return OptionActionWrapper(e);
       }
@@ -136,6 +138,7 @@ class BlockOptionButton extends StatelessWidget {
       case OptionAction.align:
       case OptionAction.color:
       case OptionAction.divider:
+      case OptionAction.depth:
         throw UnimplementedError();
     }
     editorState.apply(transaction);

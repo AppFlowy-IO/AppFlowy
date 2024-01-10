@@ -19,6 +19,9 @@ enum OptionAction {
   moveUp,
   moveDown,
 
+  /// controls outline block tree depth
+  depth,
+
   /// callout background color
   color,
   divider,
@@ -42,6 +45,8 @@ enum OptionAction {
         return const FlowySvgData('editor/divider');
       case OptionAction.align:
         return FlowySvgs.align_center_s;
+      case OptionAction.depth:
+        throw UnimplementedError();
     }
   }
 
@@ -63,6 +68,8 @@ enum OptionAction {
         return LocaleKeys.document_plugins_optionAction_align.tr();
       case OptionAction.divider:
         throw UnsupportedError('Divider does not have description');
+      case OptionAction.depth:
+        return LocaleKeys.document_plugins_optionAction_depth.tr();
     }
   }
 }
@@ -104,6 +111,47 @@ enum OptionAlignType {
         return LocaleKeys.document_plugins_optionAction_center.tr();
       case OptionAlignType.right:
         return LocaleKeys.document_plugins_optionAction_right.tr();
+    }
+  }
+}
+
+enum OptionDepthType {
+  h1,
+  h2,
+  h3;
+
+  String get description {
+    switch (this) {
+      case OptionDepthType.h1:
+        return 'H1';
+      case OptionDepthType.h2:
+        return 'H2';
+      case OptionDepthType.h3:
+        return 'H3';
+    }
+  }
+
+  int get level {
+    switch (this) {
+      case OptionDepthType.h1:
+        return 1;
+      case OptionDepthType.h2:
+        return 2;
+      case OptionDepthType.h3:
+        return 3;
+    }
+  }
+
+  static OptionDepthType fromLevel(int? level) {
+    switch (level) {
+      case 1:
+        return OptionDepthType.h1;
+      case 2:
+        return OptionDepthType.h2;
+      case 3:
+        return OptionDepthType.h3;
+      default:
+        return OptionDepthType.h3;
     }
   }
 }
@@ -283,6 +331,80 @@ class ColorOptionAction extends PopoverActionCell {
           },
         );
       };
+}
+
+class DepthOptionAction extends PopoverActionCell {
+  DepthOptionAction({required this.editorState});
+
+  final EditorState editorState;
+
+  @override
+  String get name => LocaleKeys.document_plugins_optionAction_depth.tr();
+
+  @override
+  PopoverActionCellBuilder get builder =>
+      (context, parentController, controller) {
+        final children = buildDepthOptions(context, (depth) async {
+          await onDepthChanged(depth);
+          controller.close();
+          parentController.close();
+        });
+
+        return IntrinsicHeight(
+          child: IntrinsicWidth(
+            child: Column(
+              children: children,
+            ),
+          ),
+        );
+      };
+
+  List<Widget> buildDepthOptions(
+    BuildContext context,
+    void Function(OptionDepthType) onTap,
+  ) {
+    return OptionDepthType.values.map((e) => OptionDepthWrapper(e)).map((e) {
+      return HoverButton(
+        onTap: () => onTap(e.inner),
+        itemHeight: ActionListSizes.itemHeight,
+        leftIcon: null,
+        name: e.name,
+        rightIcon: null,
+      );
+    }).toList();
+  }
+
+  OptionDepthType depth(Node node) {
+    final level = node.attributes['depth'];
+    return OptionDepthType.fromLevel(level);
+  }
+
+  Future<void> onDepthChanged(OptionDepthType depth) async {
+    final selection = editorState.selection;
+    if (selection == null) return;
+
+    final node = editorState.getNodeAtPath(selection.start.path);
+    if (node == null) return;
+
+    if (depth == this.depth(node)) return;
+
+    final transaction = editorState.transaction;
+    transaction.updateNode(
+      node,
+      {'depth': depth.level},
+    );
+
+    await editorState.apply(transaction);
+  }
+}
+
+class OptionDepthWrapper extends ActionCell {
+  OptionDepthWrapper(this.inner);
+
+  final OptionDepthType inner;
+
+  @override
+  String get name => inner.description;
 }
 
 class OptionActionWrapper extends ActionCell {
