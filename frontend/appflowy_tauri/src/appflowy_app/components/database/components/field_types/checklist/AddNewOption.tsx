@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { updateChecklistCell } from '$app/components/database/application/cell/cell_service';
+import { updateChecklistCell } from '$app/application/database/cell/cell_service';
 import { useViewId } from '$app/hooks';
 import { ReactComponent as AddIcon } from '$app/assets/add.svg';
 import { IconButton } from '@mui/material';

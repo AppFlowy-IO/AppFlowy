@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { ProppertyTypeSvg } from '$app/components/database/components/property/property_type/ProppertyTypeSvg';
 import { MenuItem } from '@mui/material';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 import { PropertyTypeMenu } from '$app/components/database/components/property/property_type/PropertyTypeMenu';
 import { FieldType } from '@/services/backend';

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { SelectOption } from '$app/components/database/application';
+import { SelectOption } from '$app/application/database';
 import { Checkbox, IconButton } from '@mui/material';
-import { updateChecklistCell } from '$app/components/database/application/cell/cell_service';
+import { updateChecklistCell } from '$app/application/database/cell/cell_service';
 import { useViewId } from '$app/hooks';
 import { ReactComponent as DeleteIcon } from '$app/assets/delete.svg';
 import { ReactComponent as CheckboxCheckSvg } from '$app/assets/database/checkbox-check.svg';

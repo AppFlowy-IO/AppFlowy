@@ -2,7 +2,7 @@ import React from 'react';
 import Popover, { PopoverProps } from '@mui/material/Popover';
 import { LinearProgressWithLabel } from '$app/components/database/components/field_types/checklist/LinearProgressWithLabel';
 import { Divider } from '@mui/material';
-import { ChecklistCell as ChecklistCellType } from '$app/components/database/application';
+import { ChecklistCell as ChecklistCellType } from '$app/application/database';
 import ChecklistItem from '$app/components/database/components/field_types/checklist/ChecklistItem';
 import AddNewOption from '$app/components/database/components/field_types/checklist/AddNewOption';
 

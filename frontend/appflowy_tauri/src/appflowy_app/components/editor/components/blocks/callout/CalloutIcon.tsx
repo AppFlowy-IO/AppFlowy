@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { IconButton } from '@mui/material';
 import { CalloutNode } from '$app/application/document/document.types';
-import EmojiPicker from '$app/components/_shared/EmojiPicker';
+import EmojiPicker from '$app/components/_shared/emoji_picker/EmojiPicker';
 import Popover from '@mui/material/Popover';
 import { PopoverCommonProps } from '$app/components/editor/components/tools/popover';
 import { useSlateStatic } from 'slate-react';
