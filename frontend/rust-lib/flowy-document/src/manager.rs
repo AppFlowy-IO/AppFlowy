@@ -110,32 +110,14 @@ impl DocumentManager {
         format!("document {} already exists", doc_id),
       ))
     } else {
-      let result: Result<CollabDocState, FlowyError> = self
-        .cloud_service
-        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-        .await;
-
-      match result {
-        Ok(data) => {
-          let collab = self.collab_for_document(uid, doc_id, data, false).await?;
-          collab.lock().flush();
-        },
-        Err(err) => {
-          if err.is_record_not_found() {
-            let doc_state =
-              doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?
-                .doc_state
-                .to_vec();
-            let collab = self
-              .collab_for_document(uid, doc_id, doc_state, false)
-              .await?;
-            collab.lock().flush();
-          } else {
-            return Err(err);
-          }
-        },
-      }
-
+      let doc_state =
+        doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?
+          .doc_state
+          .to_vec();
+      let collab = self
+        .collab_for_document(uid, doc_id, doc_state, false)
+        .await?;
+      collab.lock().flush();
       Ok(())
     }
   }
