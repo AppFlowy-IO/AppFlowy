@@ -111,9 +111,11 @@ async fn import_appflowy_data_folder_into_new_view_test() {
 
   // In the 040_local, only the first row has a document with content
   let row_document_id = database_row_document_id_from_row_id(&rows[0].id);
+  let row_document_view = test.get_view(&row_document_id).await;
+  assert_eq!(row_document_view.id, row_document_view.parent_view_id);
+
   let row_document_data = test.get_document_data(&row_document_id).await;
   assert_json_include!(actual: json!(row_document_data), expected: expected_row_doc_json());
-
   drop(cleaner);
 }
 
