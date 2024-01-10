@@ -162,7 +162,9 @@ class _TextCellState extends State<TextCardCell> {
 
   Widget _buildText(TextCellState state, bool isTitle) {
     final text = state.content.isEmpty
-        ? LocaleKeys.grid_row_titlePlaceholder.tr()
+        ? isTitle
+            ? LocaleKeys.grid_row_titlePlaceholder.tr()
+            : LocaleKeys.grid_row_textPlaceholder.tr()
         : state.content;
     final color = state.content.isEmpty ? Theme.of(context).hintColor : null;
     final textStyle =

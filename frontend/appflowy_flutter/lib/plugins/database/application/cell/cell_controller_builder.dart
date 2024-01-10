@@ -18,11 +18,10 @@ typedef URLCellController = CellController<URLCellDataPB, String>;
 CellController makeCellController(
   DatabaseController databaseController,
   CellContext cellContext,
-  FieldType fieldType,
 ) {
   final DatabaseController(:viewId, :rowCache, :fieldController) =
       databaseController;
-
+  final fieldType = fieldController.getField(cellContext.fieldId)!.fieldType;
   switch (fieldType) {
     case FieldType.Checkbox:
       return TextCellController(

@@ -47,7 +47,8 @@ class EditableTextCell extends EditableCellWidget {
 
 class _TextCellState extends GridEditableTextCell<EditableTextCell> {
   late final TextEditingController _textEditingController;
-  TextCellBloc get cellBloc => context.read<TextCellBloc>();
+  late final cellBloc = TextCellBloc(cellController: widget.cellController)
+    ..add(const TextCellEvent.initial());
 
   @override
   void initState() {
@@ -58,16 +59,14 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
   @override
   Future<void> dispose() async {
     _textEditingController.dispose();
+    cellBloc.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        return TextCellBloc(cellController: widget.cellController)
-          ..add(const TextCellEvent.initial());
-      },
+    return BlocProvider.value(
+      value: cellBloc,
       child: BlocListener<TextCellBloc, TextCellState>(
         listener: (context, state) {
           _textEditingController.text = state.content;

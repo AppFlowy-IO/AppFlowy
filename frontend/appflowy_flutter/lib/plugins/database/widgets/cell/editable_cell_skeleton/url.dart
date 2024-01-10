@@ -23,10 +23,12 @@ abstract class IEditableURLCellSkin {
     URLCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
+    URLCellDataNotifier cellDataNotifier,
   );
 
   List<GridCellAccessoryBuilder> accessoryBuilder(
-    GridCellAccessoryBuildContext buildContext,
+    GridCellAccessoryBuildContext context,
+    URLCellDataNotifier cellDataNotifier,
   );
 
   factory IEditableURLCellSkin.fromStyle(EditableCellStyle style) {
@@ -37,11 +39,6 @@ abstract class IEditableURLCellSkin {
       EditableCellStyle.mobileRowDetail => MobileRowDetailURLCellSkin(),
     };
   }
-}
-
-enum GridURLCellAccessoryType {
-  copyURL,
-  visitURL,
 }
 
 typedef URLCellDataNotifier = CellDataNotifier<String>;
@@ -60,7 +57,9 @@ class EditableURLCell extends EditableCellWidget {
   @override
   List<GridCellAccessoryBuilder> Function(
     GridCellAccessoryBuildContext buildContext,
-  ) get accessoryBuilder => skin.accessoryBuilder;
+  ) get accessoryBuilder => (context) {
+        return skin.accessoryBuilder(context, _cellDataNotifier);
+      };
 
   @override
   GridCellState<EditableURLCell> createState() => _GridURLCellState();
@@ -84,6 +83,7 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
   @override
   void dispose() {
     _textEditingController.dispose();
+    cellBloc.close();
     super.dispose();
   }
 
@@ -106,6 +106,7 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
           cellBloc,
           focusNode,
           _textEditingController,
+          widget._cellDataNotifier,
         ),
       ),
     );

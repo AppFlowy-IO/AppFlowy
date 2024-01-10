@@ -45,15 +45,19 @@ class EditableTimestampCell extends EditableCellWidget {
 }
 
 class _TimestampCellState extends GridCellState<EditableTimestampCell> {
-  TimestampCellBloc get cellBloc => context.read<TimestampCellBloc>();
+  late final cellBloc = TimestampCellBloc(cellController: widget.cellController)
+    ..add(const TimestampCellEvent.initial());
+
+  @override
+  void dispose() {
+    cellBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        return TimestampCellBloc(cellController: widget.cellController)
-          ..add(const TimestampCellEvent.initial());
-      },
+    return BlocProvider.value(
+      value: cellBloc,
       child: BlocBuilder<TimestampCellBloc, TimestampCellState>(
         builder: (context, state) {
           return widget.skin.build(

@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -40,7 +40,7 @@ void main() {
           Position(path: [1]),
         ),
       );
-      final gridTextCell = find.byType(GridTextCell).first;
+      final gridTextCell = find.byType(EditableTextCell).first;
       await tester.tapButton(gridTextCell);
 
       expect(tester.editor.getCurrentEditorState().selection, isNull);

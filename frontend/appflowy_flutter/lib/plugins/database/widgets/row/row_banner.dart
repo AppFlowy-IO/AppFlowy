@@ -3,6 +3,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -10,9 +14,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../cell/editable_cell_builder.dart';
-import 'cells/cells.dart';
 
 class RowBanner extends StatefulWidget {
   final RowController rowController;
@@ -161,20 +162,16 @@ class _BannerTitleState extends State<_BannerTitle> {
         children.add(const HSpace(4));
 
         if (state.primaryField != null) {
-          final style = GridTextCellStyle(
-            placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
-            textStyle: Theme.of(context).textTheme.titleLarge,
-            showEmoji: false,
-            autofocus: true,
-            cellPadding: EdgeInsets.zero,
-          );
           final cellContext = CellContext(
             fieldId: state.primaryField!.id,
             rowId: widget.rowController.rowId,
           );
           children.add(
             Expanded(
-              child: widget.cellBuilder.build(cellContext, style: style),
+              child: widget.cellBuilder.buildCustom(
+                cellContext,
+                skinMap: EditableCellSkinMap(textSkin: _TitleSkin()),
+              ),
             ),
           );
         }
@@ -302,6 +299,35 @@ class RowActionButton extends StatelessWidget {
         height: 20,
         icon: const FlowySvg(FlowySvgs.details_horizontal_s),
         iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+      ),
+    );
+  }
+}
+
+class _TitleSkin extends IEditableTextCellSkin {
+  @override
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    TextCellBloc bloc,
+    FocusNode focusNode,
+    TextEditingController textEditingController,
+  ) {
+    return TextField(
+      controller: textEditingController,
+      focusNode: focusNode,
+      maxLines: null,
+      style: Theme.of(context).textTheme.titleLarge,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.zero,
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+        isDense: true,
+        isCollapsed: true,
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:appflowy/plugins/database/application/defines.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_bloc.dart';
@@ -19,6 +20,7 @@ import '../../layout/sizes.dart';
 import 'action.dart';
 
 class GridRow extends StatefulWidget {
+  final FieldController fieldController;
   final RowId viewId;
   final RowId rowId;
   final RowController rowController;
@@ -30,6 +32,7 @@ class GridRow extends StatefulWidget {
 
   const GridRow({
     super.key,
+    required this.fieldController,
     required this.viewId,
     required this.rowId,
     required this.rowController,
@@ -50,6 +53,7 @@ class _GridRowState extends State<GridRow> {
   void initState() {
     super.initState();
     _rowBloc = RowBloc(
+      fieldController: widget.fieldController,
       rowId: widget.rowId,
       rowController: widget.rowController,
       viewId: widget.viewId,
@@ -64,6 +68,7 @@ class _GridRowState extends State<GridRow> {
         builder: (context, state) {
           final content = Expanded(
             child: RowContent(
+              fieldController: widget.fieldController,
               cellBuilder: widget.cellBuilder,
               onExpand: () => widget.openDetailPage(
                 context,
@@ -223,12 +228,15 @@ class _RowMenuButtonState extends State<RowMenuButton> {
 }
 
 class RowContent extends StatelessWidget {
+  final FieldController fieldController;
   final VoidCallback onExpand;
   final EditableCellBuilder cellBuilder;
+
   const RowContent({
+    super.key,
+    required this.fieldController,
     required this.cellBuilder,
     required this.onExpand,
-    super.key,
   });
 
   @override
@@ -253,23 +261,24 @@ class RowContent extends StatelessWidget {
     CellContextByFieldId cellByFieldId,
   ) {
     return cellByFieldId.values.map(
-      (cellId) {
-        final EditableCellWidget child = cellBuilder.build(
-          cellId,
+      (cellContext) {
+        final fieldInfo = fieldController.getField(cellContext.fieldId)!;
+        final EditableCellWidget child = cellBuilder.buildStyled(
+          cellContext,
           EditableCellStyle.desktopGrid,
         );
         return CellContainer(
-          width: cellId.fieldInfo.fieldSettings!.width.toDouble(),
-          isPrimary: cellId.fieldInfo.field.isPrimary,
+          width: fieldInfo.fieldSettings!.width.toDouble(),
+          isPrimary: fieldInfo.field.isPrimary,
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
             final List<GridCellAccessoryBuilder> accessories = [];
-            if (cellId.fieldInfo.field.isPrimary) {
+            if (fieldInfo.field.isPrimary) {
               accessories.add(
                 GridCellAccessoryBuilder(
                   builder: (key) => PrimaryCellAccessory(
                     key: key,
-                    onTapCallback: onExpand,
+                    onTap: onExpand,
                     isCellEditing: buildContext.isCellEditing,
                   ),
                 ),
@@ -320,7 +329,7 @@ class RegionStateNotifier extends ChangeNotifier {
 
 class _RowEnterRegion extends StatefulWidget {
   final Widget child;
-  const _RowEnterRegion({required this.child, super.key});
+  const _RowEnterRegion({required this.child});
 
   @override
   State<_RowEnterRegion> createState() => _RowEnterRegionState();

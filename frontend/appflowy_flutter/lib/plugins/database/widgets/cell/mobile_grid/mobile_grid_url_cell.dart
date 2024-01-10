@@ -19,6 +19,7 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
     URLCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
+    URLCellDataNotifier cellDataNotifier,
   ) {
     return BlocSelector<URLCellBloc, URLCellState, String>(
       selector: (state) => state.content,
@@ -93,7 +94,8 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
 
   @override
   List<GridCellAccessoryBuilder<State<StatefulWidget>>> accessoryBuilder(
-    GridCellAccessoryBuildContext buildContext,
+    GridCellAccessoryBuildContext context,
+    URLCellDataNotifier cellDataNotifier,
   ) =>
       const [];
 }

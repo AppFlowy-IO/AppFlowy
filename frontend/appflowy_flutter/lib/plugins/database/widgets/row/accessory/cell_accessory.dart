@@ -52,10 +52,10 @@ abstract mixin class GridCellAccessoryState {
 }
 
 class PrimaryCellAccessory extends StatefulWidget {
-  final VoidCallback onTapCallback;
+  final VoidCallback onTap;
   final bool isCellEditing;
   const PrimaryCellAccessory({
-    required this.onTapCallback,
+    required this.onTap,
     required this.isCellEditing,
     super.key,
   });
@@ -85,7 +85,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
   }
 
   @override
-  void onTap() => widget.onTapCallback();
+  void onTap() => widget.onTap();
 
   @override
   bool enable() => !widget.isCellEditing;

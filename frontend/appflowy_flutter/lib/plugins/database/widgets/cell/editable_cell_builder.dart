@@ -32,24 +32,23 @@ class EditableCellBuilder {
     required this.databaseController,
   });
 
-  EditableCellWidget build(CellContext cellContext, EditableCellStyle style) {
-    final fieldType = databaseController.fieldController
-        .getField(cellContext.fieldId)!
-        .fieldType;
-    final cellController =
-        makeCellController(databaseController, cellContext, fieldType);
+  EditableCellWidget buildStyled(
+    CellContext cellContext,
+    EditableCellStyle style,
+  ) {
+    final cellController = makeCellController(databaseController, cellContext);
     final key = ValueKey(
       "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );
-    return switch (fieldType) {
+    return switch (cellController.fieldType) {
       FieldType.Checkbox => EditableCheckboxCell(
           cellController: cellController.as(),
-          skin: IEditableCheckboxSkin.fromStyle(style),
+          skin: IEditableCheckboxCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.Checklist => EditableChecklistCell(
           cellController: cellController.as(),
-          skin: IEditableChecklistSkin.fromStyle(style),
+          skin: IEditableChecklistCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.LastEditedTime ||
@@ -68,12 +67,12 @@ class EditableCellBuilder {
       FieldType.SingleSelect =>
         EditableSelectOptionCell(
           cellController: cellController.as(),
-          builder: IEditableSelectOptionCellSkin.fromStyle(style),
+          skin: IEditableSelectOptionCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.Number => EditableNumberCell(
           cellController: cellController.as(),
-          builder: IEditableNumberCellSkin.fromStyle(style),
+          skin: IEditableNumberCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.RichText => EditableTextCell(
@@ -89,14 +88,64 @@ class EditableCellBuilder {
       _ => throw UnimplementedError(),
     };
   }
-}
 
-class BlankCell extends StatelessWidget {
-  const BlankCell({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
+  EditableCellWidget buildCustom(
+    CellContext cellContext, {
+    required EditableCellSkinMap skinMap,
+  }) {
+    final cellController = makeCellController(databaseController, cellContext);
+    final key = ValueKey(
+      "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
+    );
+    final fieldType = cellController.fieldType;
+    assert(skinMap.has(fieldType));
+    return switch (fieldType) {
+      FieldType.Checkbox => EditableCheckboxCell(
+          cellController: cellController.as(),
+          skin: skinMap.checkboxSkin!,
+          key: key,
+        ),
+      FieldType.Checklist => EditableChecklistCell(
+          cellController: cellController.as(),
+          skin: skinMap.checklistSkin!,
+          key: key,
+        ),
+      FieldType.LastEditedTime ||
+      FieldType.CreatedTime =>
+        EditableTimestampCell(
+          cellController: cellController.as(),
+          skin: skinMap.timestampSkin!,
+          key: key,
+        ),
+      FieldType.DateTime => EditableDateCell(
+          cellController: cellController.as(),
+          skin: skinMap.dateSkin!,
+          key: key,
+        ),
+      FieldType.MultiSelect ||
+      FieldType.SingleSelect =>
+        EditableSelectOptionCell(
+          cellController: cellController.as(),
+          skin: skinMap.selectOptionSkin!,
+          key: key,
+        ),
+      FieldType.Number => EditableNumberCell(
+          cellController: cellController.as(),
+          skin: skinMap.numberSkin!,
+          key: key,
+        ),
+      FieldType.RichText => EditableTextCell(
+          cellController: cellController.as(),
+          skin: skinMap.textSkin!,
+          key: key,
+        ),
+      FieldType.URL => EditableURLCell(
+          cellController: cellController.as(),
+          skin: skinMap.urlSkin!,
+          key: key,
+        ),
+      _ => throw UnimplementedError(),
+    };
   }
 }
 
@@ -255,5 +304,45 @@ class SingleListenerFocusNode extends FocusNode {
     if (_listener != null) {
       removeListener(_listener!);
     }
+  }
+}
+
+class EditableCellSkinMap {
+  EditableCellSkinMap({
+    this.checkboxSkin,
+    this.checklistSkin,
+    this.timestampSkin,
+    this.dateSkin,
+    this.selectOptionSkin,
+    this.numberSkin,
+    this.textSkin,
+    this.urlSkin,
+  });
+
+  final IEditableCheckboxCellSkin? checkboxSkin;
+  final IEditableChecklistCellSkin? checklistSkin;
+  final IEditableTimestampCellSkin? timestampSkin;
+  final IEditableDateCellSkin? dateSkin;
+  final IEditableSelectOptionCellSkin? selectOptionSkin;
+  final IEditableNumberCellSkin? numberSkin;
+  final IEditableTextCellSkin? textSkin;
+  final IEditableURLCellSkin? urlSkin;
+
+  bool has(FieldType fieldType) {
+    return switch (fieldType) {
+      FieldType.Checkbox => checkboxSkin != null,
+      FieldType.Checklist => checklistSkin != null,
+      FieldType.CreatedTime ||
+      FieldType.LastEditedTime =>
+        throw timestampSkin != null,
+      FieldType.DateTime => dateSkin != null,
+      FieldType.MultiSelect ||
+      FieldType.SingleSelect =>
+        selectOptionSkin != null,
+      FieldType.Number => numberSkin != null,
+      FieldType.RichText => textSkin != null,
+      FieldType.URL => urlSkin != null,
+      _ => throw UnimplementedError(),
+    };
   }
 }

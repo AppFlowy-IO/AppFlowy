@@ -26,8 +26,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
-import '../../widgets/cell/card_cell_skeleton/card_cell.dart';
-import '../../widgets/cell/editable_cell_builder.dart';
 import '../application/board_bloc.dart';
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';
@@ -122,7 +120,6 @@ class DesktopBoardContent extends StatefulWidget {
 }
 
 class _DesktopBoardContentState extends State<DesktopBoardContent> {
-  final renderHook = RowCardRenderHook<String>();
   final ScrollController scrollController = ScrollController();
   final AppFlowyBoardScrollController scrollManager =
       AppFlowyBoardScrollController();
@@ -135,23 +132,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     cardMargin: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
     stretchGroupHeight: false,
   );
-
-  @override
-  void initState() {
-    super.initState();
-
-    renderHook.addSelectOptionHook((options, groupId, _) {
-      // The cell should hide if the option id is equal to the groupId.
-      final isInGroup =
-          options.where((element) => element.id == groupId).isNotEmpty;
-
-      if (isInGroup || options.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      return null;
-    });
-  }
 
   @override
   void dispose() {
@@ -253,11 +233,10 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       return SizedBox.shrink(key: ObjectKey(groupItem));
     }
 
-    final cellCache = rowCache.cellCache;
     final databaseController = boardBloc.databaseController;
     final viewId = boardBloc.viewId;
 
-    final cellBuilder = CardCellBuilder<String>(cellCache);
+    final cellBuilder = CardCellBuilder(databaseController: databaseController);
     final isEditing = boardBloc.state.isEditingRow &&
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
@@ -268,15 +247,14 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       key: ValueKey(groupItemId),
       margin: config.cardMargin,
       decoration: _makeBoxDecoration(context),
-      child: RowCard<String>(
+      child: RowCard(
+        fieldController: databaseController.fieldController,
         rowMeta: rowMeta,
         viewId: viewId,
         rowCache: rowCache,
-        cardData: groupData.group.groupId,
         groupingFieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
-        renderHook: renderHook,
         openCard: (context) => _openCard(
           context: context,
           databaseController: databaseController,
@@ -349,8 +327,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     FlowyOverlay.show(
       context: context,
       builder: (_) => RowDetailPage(
-        fieldController: databaseController.fieldController,
-        cellBuilder: EditableCellBuilder(cellCache: rowController.cellCache),
+        databaseController: databaseController,
         rowController: rowController,
       ),
     );

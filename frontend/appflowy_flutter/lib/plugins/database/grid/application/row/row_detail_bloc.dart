@@ -1,9 +1,9 @@
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,12 +18,34 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   RowDetailBloc({
     required this.fieldController,
     required this.rowController,
-  }) : super(RowDetailState.initial(rowController.loadData())) {
+  }) : super(RowDetailState.initial()) {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.when(
           initial: () {
             _startListening();
+            final allCells = rowController.loadData().values.toList();
+            int numHiddenFields = 0;
+            final visibleCells = <CellContext>[];
+            for (final cell in allCells) {
+              final fieldInfo = fieldController.getField(cell.fieldId)!;
+              final isVisible = fieldInfo.visibility!.isVisibleState();
+              final isPrimary = fieldInfo.isPrimary;
+              if (isVisible && !isPrimary) {
+                visibleCells.add(cell);
+              }
+              if (!isVisible && !isPrimary) {
+                numHiddenFields++;
+              }
+            }
+            emit(
+              RowDetailState(
+                visibleCells: visibleCells,
+                allCells: allCells,
+                showHiddenFields: false,
+                numHiddenFields: numHiddenFields,
+              ),
+            );
           },
           didReceiveCellDatas: (visibleCells, allCells, numHiddenFields) {
             emit(
@@ -195,29 +217,10 @@ class RowDetailState with _$RowDetailState {
     required int numHiddenFields,
   }) = _RowDetailState;
 
-  factory RowDetailState.initial(CellContextByFieldId cellByFieldId) {
-    // TODO(richard): empty initial state
-    final allCells = cellByFieldId.values.toList();
-    int numHiddenFields = 0;
-    final visibleCells = <CellContext>[];
-    for (final cell in allCells) {
-      final isVisible = cell.isVisible();
-      final isPrimary = cell.fieldInfo.isPrimary;
-
-      if (isVisible && !isPrimary) {
-        visibleCells.add(cell);
-      }
-
-      if (!isVisible && !isPrimary) {
-        numHiddenFields++;
-      }
-    }
-
-    return RowDetailState(
-      visibleCells: visibleCells,
-      allCells: allCells,
-      showHiddenFields: false,
-      numHiddenFields: numHiddenFields,
-    );
-  }
+  factory RowDetailState.initial() => const RowDetailState(
+        visibleCells: [],
+        allCells: [],
+        showHiddenFields: false,
+        numHiddenFields: 0,
+      );
 }

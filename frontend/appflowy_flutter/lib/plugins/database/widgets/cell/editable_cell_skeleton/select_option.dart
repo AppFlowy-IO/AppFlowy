@@ -36,12 +36,12 @@ abstract class IEditableSelectOptionCellSkin {
 
 class EditableSelectOptionCell extends EditableCellWidget {
   final SelectOptionCellController cellController;
-  final IEditableSelectOptionCellSkin builder;
+  final IEditableSelectOptionCellSkin skin;
 
   EditableSelectOptionCell({
     super.key,
     required this.cellController,
-    required this.builder,
+    required this.skin,
   });
 
   @override
@@ -52,18 +52,23 @@ class EditableSelectOptionCell extends EditableCellWidget {
 class _SelectOptionCellState extends GridCellState<EditableSelectOptionCell> {
   final PopoverController _popover = PopoverController();
 
-  SelectOptionCellBloc get cellBloc => context.read<SelectOptionCellBloc>();
+  late final cellBloc =
+      SelectOptionCellBloc(cellController: widget.cellController)
+        ..add(const SelectOptionCellEvent.initial());
+
+  @override
+  void dispose() {
+    cellBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        return SelectOptionCellBloc(cellController: widget.cellController)
-          ..add(const SelectOptionCellEvent.initial());
-      },
+    return BlocProvider.value(
+      value: cellBloc,
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
-          return widget.builder.build(
+          return widget.skin.build(
             context,
             widget.cellContainerNotifier,
             cellBloc,

@@ -7,8 +7,7 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
-import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/card_cell.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/text_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -107,15 +106,16 @@ class MobileHiddenGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<BoardBloc>();
     return BlocBuilder<BoardBloc, BoardState>(
       builder: (_, state) => ReorderableListView.builder(
         itemCount: state.hiddenGroups.length,
-        itemBuilder: (_, index) => MobileHiddenGroup(
-          key: ValueKey(state.hiddenGroups[index].groupId),
-          group: state.hiddenGroups[index],
-          index: index,
-          bloc: bloc,
+        itemBuilder: (_, index) => BlocProvider.value(
+          value: context.read<BoardBloc>(),
+          child: MobileHiddenGroup(
+            key: ValueKey(state.hiddenGroups[index].groupId),
+            group: state.hiddenGroups[index],
+            index: index,
+          ),
         ),
         physics: const ClampingScrollPhysics(),
         onReorder: (oldIndex, newIndex) {
@@ -124,7 +124,9 @@ class MobileHiddenGroupList extends StatelessWidget {
           }
           final fromGroupId = state.hiddenGroups[oldIndex].groupId;
           final toGroupId = state.hiddenGroups[newIndex].groupId;
-          bloc.add(BoardEvent.reorderGroup(fromGroupId, toGroupId));
+          context
+              .read<BoardBloc>()
+              .add(BoardEvent.reorderGroup(fromGroupId, toGroupId));
         },
       ),
     );
@@ -136,86 +138,79 @@ class MobileHiddenGroup extends StatelessWidget {
     super.key,
     required this.group,
     required this.index,
-    required this.bloc,
   });
 
   final GroupPB group;
-  final BoardBloc bloc;
   final int index;
 
   @override
   Widget build(BuildContext context) {
-    final databaseController = bloc.databaseController;
+    final databaseController = context.read<BoardBloc>().databaseController;
     final primaryField = databaseController.fieldController.fieldInfos
         .firstWhereOrNull((element) => element.isPrimary)!;
 
-    return BlocProvider<BoardBloc>.value(
-      value: bloc,
-      child: BlocBuilder<BoardBloc, BoardState>(
-        builder: (context, state) {
-          final group = state.hiddenGroups.firstWhereOrNull(
-            (g) => g.groupId == this.group.groupId,
-          );
-          if (group == null) {
-            return const SizedBox.shrink();
-          }
+    return BlocBuilder<BoardBloc, BoardState>(
+      builder: (context, state) {
+        final group = state.hiddenGroups.firstWhereOrNull(
+          (g) => g.groupId == this.group.groupId,
+        );
+        if (group == null) {
+          return const SizedBox.shrink();
+        }
 
-          return ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            childrenPadding: EdgeInsets.zero,
-            title: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    group.groupName,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                GestureDetector(
-                  child: const Padding(
-                    padding: EdgeInsets.all(4),
-                    child: FlowySvg(
-                      FlowySvgs.hide_m,
-                      size: Size.square(20),
-                    ),
-                  ),
-                  onTap: () => showFlowyMobileConfirmDialog(
-                    context,
-                    title: LocaleKeys.board_mobile_unhideGroup.tr(),
-                    content: LocaleKeys.board_mobile_unhideGroupContent.tr(),
-                    actionButtonTitle: LocaleKeys.button_yes.tr(),
-                    actionButtonColor: Theme.of(context).colorScheme.primary,
-                    onActionButtonPressed: () => context.read<BoardBloc>().add(
-                          BoardEvent.toggleGroupVisibility(
-                            group,
-                            true,
-                          ),
-                        ),
-                  ),
-                ),
-              ],
-            ),
+        return ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          childrenPadding: EdgeInsets.zero,
+          title: Row(
             children: [
-              MobileHiddenGroupItemList(
-                bloc: bloc,
-                viewId: databaseController.viewId,
-                groupId: group.groupId,
-                primaryField: primaryField,
-                rowCache: databaseController.rowCache,
+              Expanded(
+                child: Text(
+                  group.groupName,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              GestureDetector(
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: FlowySvg(
+                    FlowySvgs.hide_m,
+                    size: Size.square(20),
+                  ),
+                ),
+                onTap: () => showFlowyMobileConfirmDialog(
+                  context,
+                  title: LocaleKeys.board_mobile_unhideGroup.tr(),
+                  content: LocaleKeys.board_mobile_unhideGroupContent.tr(),
+                  actionButtonTitle: LocaleKeys.button_yes.tr(),
+                  actionButtonColor: Theme.of(context).colorScheme.primary,
+                  onActionButtonPressed: () => context.read<BoardBloc>().add(
+                        BoardEvent.toggleGroupVisibility(
+                          group,
+                          true,
+                        ),
+                      ),
+                ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+          children: [
+            MobileHiddenGroupItemList(
+              viewId: databaseController.viewId,
+              groupId: group.groupId,
+              primaryField: primaryField,
+              rowCache: databaseController.rowCache,
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 class MobileHiddenGroupItemList extends StatelessWidget {
   const MobileHiddenGroupItemList({
-    required this.bloc,
     required this.groupId,
     required this.viewId,
     required this.primaryField,
@@ -223,7 +218,6 @@ class MobileHiddenGroupItemList extends StatelessWidget {
     super.key,
   });
 
-  final BoardBloc bloc;
   final String groupId;
   final String viewId;
   final FieldInfo primaryField;
@@ -231,86 +225,66 @@ class MobileHiddenGroupItemList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: bloc,
-      child: BlocBuilder<BoardBloc, BoardState>(
-        builder: (context, state) {
-          final group = state.hiddenGroups.firstWhereOrNull(
-            (g) => g.groupId == groupId,
-          );
-          if (group == null) {
-            return const SizedBox.shrink();
-          }
+    return BlocBuilder<BoardBloc, BoardState>(
+      builder: (context, state) {
+        final group = state.hiddenGroups.firstWhereOrNull(
+          (g) => g.groupId == groupId,
+        );
+        if (group == null) {
+          return const SizedBox.shrink();
+        }
 
-          final cells = <Widget>[
-            ...group.rows.map(
-              (item) {
-                final cellContext = rowCache.loadCells(item)[primaryField.id]!;
-                final renderHook = RowCardRenderHook<String>();
-                renderHook.addTextCellHook((cellData, _, __) {
-                  return BlocBuilder<TextCellBloc, TextCellState>(
-                    builder: (context, state) {
-                      final text = cellData.isEmpty
-                          ? LocaleKeys.grid_row_titlePlaceholder.tr()
-                          : cellData;
+        final cells = group.rows.map(
+          (item) {
+            final cellContext = rowCache.loadCells(item)[primaryField.id]!;
 
-                      if (text.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
-
-                      return Row(
-                        children: [
-                          if (!cellContext.rowMeta.isDocumentEmpty) ...[
-                            const FlowySvg(FlowySvgs.notes_s),
-                            const HSpace(4),
-                          ],
-                          Expanded(
-                            child: Text(
-                              text,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                });
-
-                return TextButton(
-                  style: TextButton.styleFrom(
-                    textStyle: Theme.of(context).textTheme.bodyMedium,
-                    foregroundColor: Theme.of(context).colorScheme.onBackground,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  child: CardCellBuilder<String>(rowCache.cellCache).build(
-                    cellContext: cellContext,
-                    renderHook: renderHook,
-                    hasNotes: !cellContext.rowMeta.isDocumentEmpty,
-                  ),
-                  onPressed: () {
-                    context.push(
-                      MobileRowDetailPage.routeName,
-                      extra: {
-                        MobileRowDetailPage.argRowId: item.id,
-                        MobileRowDetailPage.argDatabaseController:
-                            context.read<BoardBloc>().databaseController,
-                      },
-                    );
+            return TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.bodyMedium,
+                foregroundColor: Theme.of(context).colorScheme.onBackground,
+                visualDensity: VisualDensity.compact,
+              ),
+              child: CardCellBuilder(
+                databaseController:
+                    context.read<BoardBloc>().databaseController,
+              ).build(
+                cellContext: cellContext,
+                styleMap: {FieldType.RichText: _titleCellStyle(context)},
+                hasNotes: !item.isDocumentEmpty,
+              ),
+              onPressed: () {
+                context.push(
+                  MobileRowDetailPage.routeName,
+                  extra: {
+                    MobileRowDetailPage.argRowId: item.id,
+                    MobileRowDetailPage.argDatabaseController:
+                        context.read<BoardBloc>().databaseController,
                   },
                 );
               },
-            ),
-          ];
+            );
+          },
+        ).toList();
 
-          return ListView.builder(
-            itemBuilder: (context, index) => cells[index],
-            itemCount: cells.length,
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
-          );
-        },
-      ),
+        return ListView.builder(
+          itemBuilder: (context, index) => cells[index],
+          itemCount: cells.length,
+          shrinkWrap: true,
+          physics: const ClampingScrollPhysics(),
+        );
+      },
+    );
+  }
+
+  TextCardCellStyle _titleCellStyle(BuildContext context) {
+    return TextCardCellStyle(
+      padding: EdgeInsets.zero,
+      textStyle: Theme.of(context).textTheme.bodyMedium!,
+      maxLines: 2,
+      titleTextStyle: Theme.of(context)
+          .textTheme
+          .bodyMedium!
+          .copyWith(fontSize: 11, overflow: TextOverflow.ellipsis),
     );
   }
 }

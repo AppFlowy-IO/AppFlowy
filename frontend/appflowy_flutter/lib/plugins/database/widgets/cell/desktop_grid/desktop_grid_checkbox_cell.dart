@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/checkbox.dart';
 
-class DesktopGridCheckboxCellSkin extends IEditableCheckboxSkin {
+class DesktopGridCheckboxCellSkin extends IEditableCheckboxCellSkin {
   @override
   Widget build(
     BuildContext context,

@@ -1,5 +1,5 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_editor.dart';
@@ -10,11 +10,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../generated/flowy_svgs.g.dart';
 import '../editable_cell_skeleton/checklist.dart';
 
-class DesktopRowDetailChecklistCellSkin extends IEditableChecklistSkin {
+class DesktopRowDetailChecklistCellSkin extends IEditableChecklistCellSkin {
   @override
   Widget build(
     BuildContext context,
@@ -23,7 +23,42 @@ class DesktopRowDetailChecklistCellSkin extends IEditableChecklistSkin {
     ChecklistCellState state,
     PopoverController popoverController,
   ) {
-    final tasks = List.from(state.tasks);
+    return ChecklistItems(
+      context: context,
+      cellContainerNotifier: cellContainerNotifier,
+      bloc: bloc,
+      state: state,
+      popoverController: popoverController,
+    );
+  }
+}
+
+class ChecklistItems extends StatefulWidget {
+  const ChecklistItems({
+    super.key,
+    required this.context,
+    required this.cellContainerNotifier,
+    required this.bloc,
+    required this.state,
+    required this.popoverController,
+  });
+
+  final BuildContext context;
+  final CellContainerNotifier cellContainerNotifier;
+  final ChecklistCellBloc bloc;
+  final ChecklistCellState state;
+  final PopoverController popoverController;
+
+  @override
+  State<ChecklistItems> createState() => _ChecklistItemsState();
+}
+
+class _ChecklistItemsState extends State<ChecklistItems> {
+  bool showIncompleteOnly = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final tasks = [...widget.state.tasks];
     if (showIncompleteOnly) {
       tasks.removeWhere((task) => task.isSelected);
     }
@@ -31,58 +66,56 @@ class DesktopRowDetailChecklistCellSkin extends IEditableChecklistSkin {
         .mapIndexed(
           (index, task) => ChecklistItem(
             task: task,
-            autofocus: state.newTask && index == tasks.length - 1,
+            autofocus: widget.state.newTask && index == tasks.length - 1,
             onSubmitted: () {
               if (index == tasks.length - 1) {
-                bloc.add(const ChecklistCellEvent.createNewTask(""));
+                widget.bloc.add(const ChecklistCellEvent.createNewTask(""));
               }
             },
           ),
         )
         .toList();
-    return Align(
+    return Container(
       alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: widget.cellStyle.cellPadding ?? GridSize.cellContentInsets,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: ChecklistProgressBar(
-                      tasks: state.tasks,
-                      percent: state.percent,
-                    ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: ChecklistProgressBar(
+                    tasks: widget.state.tasks,
+                    percent: widget.state.percent,
                   ),
-                  const HSpace(6.0),
-                  FlowyIconButton(
-                    tooltipText: showIncompleteOnly
-                        ? LocaleKeys.grid_checklist_showComplete.tr()
-                        : LocaleKeys.grid_checklist_hideComplete.tr(),
-                    width: 32,
-                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-                    icon: FlowySvg(
-                      showIncompleteOnly ? FlowySvgs.show_m : FlowySvgs.hide_m,
-                      size: const Size.square(16),
-                    ),
-                    onPressed: () {
-                      setState(
-                        () => showIncompleteOnly = !showIncompleteOnly,
-                      );
-                    },
+                ),
+                const HSpace(6.0),
+                FlowyIconButton(
+                  tooltipText: showIncompleteOnly
+                      ? LocaleKeys.grid_checklist_showComplete.tr()
+                      : LocaleKeys.grid_checklist_hideComplete.tr(),
+                  width: 32,
+                  iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+                  icon: FlowySvg(
+                    showIncompleteOnly ? FlowySvgs.show_m : FlowySvgs.hide_m,
+                    size: const Size.square(16),
                   ),
-                ],
-              ),
+                  onPressed: () {
+                    setState(
+                      () => showIncompleteOnly = !showIncompleteOnly,
+                    );
+                  },
+                ),
+              ],
             ),
-            const VSpace(4),
-            ...children,
-            const ChecklistItemControl(),
-          ],
-        ),
+          ),
+          const VSpace(4),
+          ...children,
+          const ChecklistItemControl(),
+        ],
       ),
     );
   }

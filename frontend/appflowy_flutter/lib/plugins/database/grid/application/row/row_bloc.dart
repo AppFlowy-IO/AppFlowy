@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/defines.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -12,12 +16,14 @@ import '../../../application/row/row_service.dart';
 part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
+  final FieldController fieldController;
   final RowBackendService _rowBackendSvc;
   final RowController _rowController;
   final String viewId;
   final String rowId;
 
   RowBloc({
+    required this.fieldController,
     required this.rowId,
     required this.viewId,
     required RowController rowController,
@@ -26,16 +32,20 @@ class RowBloc extends Bloc<RowEvent, RowState> {
         super(RowState.initial()) {
     on<RowEvent>(
       (event, emit) async {
-        await event.when(
+        event.when(
           initial: () {
             _startListening();
           },
           createRow: () {
             _rowBackendSvc.createRowAfter(rowId);
           },
-          didReceiveCells: (cellByFieldId, reason) async {
+          didReceiveCells: (CellContextByFieldId cellByFieldId, reason) {
             cellByFieldId.removeWhere(
-              (_, cellContext) => !cellContext.isVisible(),
+              (_, cellContext) => !fieldController
+                  .getField(cellContext.fieldId)!
+                  .fieldSettings!
+                  .visibility
+                  .isVisibleState(),
             );
             emit(
               state.copyWith(

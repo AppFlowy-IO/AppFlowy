@@ -67,8 +67,9 @@ void main() {
     final multiSelectField = context.fieldContexts.last.field;
 
     // Create options
-    final cellController = await context.makeCellController(multiSelectField.id)
-        as SelectOptionCellController;
+    final cellController =
+        await context.makeCellControllerFromFieldId(multiSelectField.id)
+            as SelectOptionCellController;
 
     final multiSelectOptionBloc =
         SelectOptionCellEditorBloc(cellController: cellController);

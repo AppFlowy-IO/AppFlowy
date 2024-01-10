@@ -19,6 +19,7 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
     URLCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
+    URLCellDataNotifier cellDataNotifier,
   ) {
     return BlocSelector<URLCellBloc, URLCellState, String>(
       selector: (state) => state.content,
@@ -50,7 +51,9 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               child: Text(
-                content.isEmpty ? widget.hintText ?? "" : content,
+                content.isEmpty
+                    ? LocaleKeys.grid_row_textPlaceholder.tr()
+                    : content,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 16,
                       decoration:
@@ -69,7 +72,8 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
 
   @override
   List<GridCellAccessoryBuilder<State<StatefulWidget>>> accessoryBuilder(
-    GridCellAccessoryBuildContext buildContext,
+    GridCellAccessoryBuildContext context,
+    URLCellDataNotifier cellDataNotifier,
   ) =>
       const [];
 

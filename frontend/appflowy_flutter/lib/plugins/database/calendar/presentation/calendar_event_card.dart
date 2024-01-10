@@ -1,6 +1,5 @@
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
@@ -39,17 +38,14 @@ class EventCard extends StatefulWidget {
 }
 
 class _EventCardState extends State<EventCard> {
-  late final PopoverController _popoverController;
+  final PopoverController _popoverController = PopoverController();
 
   String get viewId => widget.databaseController.viewId;
   RowCache get rowCache => widget.databaseController.rowCache;
-  FieldController get fieldController =>
-      widget.databaseController.fieldController;
 
   @override
   void initState() {
     super.initState();
-    _popoverController = PopoverController();
     if (widget.autoEdit) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _popoverController.show();
@@ -71,14 +67,14 @@ class _EventCardState extends State<EventCard> {
       databaseController: widget.databaseController,
     );
 
-    Widget card = RowCard<CalendarDayEvent>(
+    Widget card = RowCard(
       // Add the key here to make sure the card is rebuilt when the cells
       // in this row are updated.
       key: ValueKey(widget.event.eventId),
+      fieldController: widget.databaseController.fieldController,
       rowMeta: rowInfo.rowMeta,
       viewId: viewId,
       rowCache: rowCache,
-      cardData: widget.event,
       isEditing: false,
       cellBuilder: cellBuilder,
       openCard: (context) {
@@ -157,10 +153,8 @@ class _EventCardState extends State<EventCard> {
           return const SizedBox.shrink();
         }
         return CalendarEventEditor(
-          fieldController: fieldController,
-          rowCache: rowCache,
+          databaseController: widget.databaseController,
           rowMeta: widget.event.event.rowMeta,
-          viewId: viewId,
           layoutSettings: settings,
         );
       },

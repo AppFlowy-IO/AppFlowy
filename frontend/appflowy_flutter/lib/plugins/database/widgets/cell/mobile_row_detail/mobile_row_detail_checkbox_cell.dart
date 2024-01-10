@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/checkbox.dart';
 
-class MobileRowDetailCheckboxCellSkin extends IEditableCheckboxSkin {
+class MobileRowDetailCheckboxCellSkin extends IEditableCheckboxCellSkin {
   @override
   Widget build(
     BuildContext context,
@@ -27,17 +27,13 @@ class MobileRowDetailCheckboxCellSkin extends IEditableCheckboxSkin {
           ),
           borderRadius: const BorderRadius.all(Radius.circular(14)),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: FlowySvg(
-              state.isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
-              color: Theme.of(context).colorScheme.onBackground,
-              blendMode: BlendMode.dst,
-              size: const Size.square(24),
-            ),
-          ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        alignment: AlignmentDirectional.centerStart,
+        child: FlowySvg(
+          state.isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
+          color: Theme.of(context).colorScheme.onBackground,
+          blendMode: BlendMode.dst,
+          size: const Size.square(24),
         ),
       ),
     );

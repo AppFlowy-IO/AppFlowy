@@ -11,8 +11,8 @@ import '../desktop_row_detail/desktop_row_detail_checklist_cell.dart';
 import '../mobile_grid/mobile_grid_checklist_cell.dart';
 import '../mobile_row_detail/mobile_row_detail_checklist_cell.dart';
 
-abstract class IEditableChecklistSkin {
-  const IEditableChecklistSkin();
+abstract class IEditableChecklistCellSkin {
+  const IEditableChecklistCellSkin();
 
   Widget build(
     BuildContext context,
@@ -22,7 +22,7 @@ abstract class IEditableChecklistSkin {
     PopoverController popoverController,
   );
 
-  factory IEditableChecklistSkin.fromStyle(EditableCellStyle style) {
+  factory IEditableChecklistCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridChecklistCellSkin(),
       EditableCellStyle.desktopRowDetail => DesktopRowDetailChecklistCellSkin(),
@@ -34,7 +34,7 @@ abstract class IEditableChecklistSkin {
 
 class EditableChecklistCell extends EditableCellWidget {
   final ChecklistCellController cellController;
-  final IEditableChecklistSkin skin;
+  final IEditableChecklistCellSkin skin;
 
   EditableChecklistCell({
     super.key,
@@ -49,17 +49,20 @@ class EditableChecklistCell extends EditableCellWidget {
 
 class GridChecklistCellState extends GridCellState<EditableChecklistCell> {
   final PopoverController _popover = PopoverController();
-  bool showIncompleteOnly = false;
 
-  ChecklistCellBloc get cellBloc => context.read<ChecklistCellBloc>();
+  late final cellBloc = ChecklistCellBloc(cellController: widget.cellController)
+    ..add(const ChecklistCellEvent.initial());
+
+  @override
+  void dispose() {
+    cellBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        return ChecklistCellBloc(cellController: widget.cellController)
-          ..add(const ChecklistCellEvent.initial());
-      },
+    return BlocProvider.value(
+      value: cellBloc,
       child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
         builder: (context, state) {
           return widget.skin.build(

@@ -35,11 +35,11 @@ abstract class IEditableNumberCellSkin {
 
 class EditableNumberCell extends EditableCellWidget {
   final NumberCellController cellController;
-  final IEditableNumberCellSkin builder;
+  final IEditableNumberCellSkin skin;
 
   EditableNumberCell({
     required this.cellController,
-    required this.builder,
+    required this.skin,
     super.key,
   });
 
@@ -49,7 +49,8 @@ class EditableNumberCell extends EditableCellWidget {
 
 class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   late final TextEditingController _textEditingController;
-  NumberCellBloc get cellBloc => context.read<NumberCellBloc>();
+  late final cellBloc = NumberCellBloc(cellController: widget.cellController)
+    ..add(const NumberCellEvent.initial());
 
   @override
   void initState() {
@@ -60,16 +61,14 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   @override
   Future<void> dispose() async {
     _textEditingController.dispose();
+    cellBloc.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        return NumberCellBloc(cellController: widget.cellController)
-          ..add(const NumberCellEvent.initial());
-      },
+    return BlocProvider.value(
+      value: cellBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<NumberCellBloc, NumberCellState>(
@@ -78,7 +77,7 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
                 _textEditingController.text = state.cellContent,
           ),
         ],
-        child: widget.builder.build(
+        child: widget.skin.build(
           context,
           widget.cellContainerNotifier,
           cellBloc,
@@ -94,7 +93,7 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
 
   @override
   void requestBeginFocus() {
-    focusNode.requestFocus(); //TODO YAY
+    focusNode.requestFocus(); //TODO YAY for other styles
   }
 
   @override
