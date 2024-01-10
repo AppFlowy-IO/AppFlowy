@@ -1,10 +1,10 @@
-import 'package:appflowy/util/int64_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
@@ -85,6 +85,8 @@ class _DateCellEditor extends State<DateCellEditor> {
             onIncludeTimeChanged: (value) =>
                 bloc.add(DateCellEditorEvent.setIncludeTime(!value)),
             isRange: state.isRange,
+            startDay: state.isRange ? state.startDay : null,
+            endDay: state.isRange ? state.endDay : null,
             onIsRangeChanged: (value) =>
                 bloc.add(DateCellEditorEvent.setIsRange(!value)),
             dateFormat: state.dateTypeOptionPB.dateFormat,

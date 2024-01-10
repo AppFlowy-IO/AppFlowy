@@ -1098,6 +1098,7 @@
     "highlight": "Highlight",
     "color": "Color",
     "image": "Image",
+    "date": "Date",
     "italic": "Italic",
     "link": "Link",
     "numberedList": "Numbered List",

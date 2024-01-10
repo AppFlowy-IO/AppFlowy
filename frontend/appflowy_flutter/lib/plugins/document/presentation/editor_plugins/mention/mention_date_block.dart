@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/mobile_date_editor.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -153,12 +155,21 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             );
 
             return GestureDetector(
-              onTapDown: widget.editorState.editable
-                  ? (details) => DatePickerMenu(
-                        context: context,
-                        editorState: widget.editorState,
-                      ).show(details.globalPosition, options: options)
-                  : null,
+              onTapDown: (details) {
+                if (widget.editorState.editable) {
+                  if (PlatformExtension.isMobile) {
+                    showMobileBottomSheet(
+                      context,
+                      builder: (_) => const MobileDatePicker(),
+                    );
+                  } else {
+                    DatePickerMenu(
+                      context: context,
+                      editorState: widget.editorState,
+                    ).show(details.globalPosition, options: options);
+                  }
+                }
+              },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: MouseRegion(

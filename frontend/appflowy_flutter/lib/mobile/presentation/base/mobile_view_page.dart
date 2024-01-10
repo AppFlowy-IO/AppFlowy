@@ -1,9 +1,13 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -13,7 +17,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:dartz/dartz.dart' hide State;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -40,67 +43,69 @@ class _MobileViewPageState extends State<MobileViewPage> {
   @override
   void initState() {
     super.initState();
-
     future = ViewBackendService.getView(widget.id);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: future,
-      builder: (context, state) {
-        Widget body;
-        ViewPB? viewPB;
-        final actions = <Widget>[];
-        if (state.connectionState != ConnectionState.done) {
-          body = const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (!state.hasData) {
-          body = FlowyMobileStateContainer.error(
-            emoji: '😔',
-            title: LocaleKeys.error_weAreSorry.tr(),
-            description: LocaleKeys.error_loadingViewError.tr(),
-            errorMsg: state.error.toString(),
-          );
-        } else {
-          body = state.data!.fold((view) {
-            viewPB = view;
-            actions.add(_buildAppBarMoreButton(view));
-            return view.plugin().widgetBuilder.buildWidget(shrinkWrap: false);
-          }, (error) {
-            return FlowyMobileStateContainer.error(
+    return BlocProvider<ReminderBloc>.value(
+      value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
+      child: FutureBuilder(
+        future: future,
+        builder: (context, state) {
+          Widget body;
+          ViewPB? viewPB;
+          final actions = <Widget>[];
+          if (state.connectionState != ConnectionState.done) {
+            body = const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (!state.hasData) {
+            body = FlowyMobileStateContainer.error(
               emoji: '😔',
               title: LocaleKeys.error_weAreSorry.tr(),
               description: LocaleKeys.error_loadingViewError.tr(),
-              errorMsg: error.toString(),
+              errorMsg: state.error.toString(),
             );
-          });
-        }
+          } else {
+            body = state.data!.fold((view) {
+              viewPB = view;
+              actions.add(_buildAppBarMoreButton(view));
+              return view.plugin().widgetBuilder.buildWidget(shrinkWrap: false);
+            }, (error) {
+              return FlowyMobileStateContainer.error(
+                emoji: '😔',
+                title: LocaleKeys.error_weAreSorry.tr(),
+                description: LocaleKeys.error_loadingViewError.tr(),
+                errorMsg: error.toString(),
+              );
+            });
+          }
 
-        if (viewPB != null) {
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (_) =>
-                    FavoriteBloc()..add(const FavoriteEvent.initial()),
+          if (viewPB != null) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) =>
+                      FavoriteBloc()..add(const FavoriteEvent.initial()),
+                ),
+                BlocProvider(
+                  create: (_) =>
+                      ViewBloc(view: viewPB!)..add(const ViewEvent.initial()),
+                ),
+              ],
+              child: Builder(
+                builder: (context) {
+                  final view = context.watch<ViewBloc>().state.view;
+                  return _buildApp(view, actions, body);
+                },
               ),
-              BlocProvider(
-                create: (_) =>
-                    ViewBloc(view: viewPB!)..add(const ViewEvent.initial()),
-              ),
-            ],
-            child: Builder(
-              builder: (context) {
-                final view = context.watch<ViewBloc>().state.view;
-                return _buildApp(view, actions, body);
-              },
-            ),
-          );
-        } else {
-          return _buildApp(null, [], body);
-        }
-      },
+            );
+          } else {
+            return _buildApp(null, [], body);
+          }
+        },
+      ),
     );
   }
 

@@ -1,3 +1,6 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -9,8 +12,6 @@ import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/mobile_dat
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -178,12 +179,10 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
         final use24hFormat =
             state.dateTypeOptionPB.timeFormat == TimeFormatPB.TwentyFourHour;
         if (startDay == null || startDay.isEmpty) {
-          return const Divider(
-            height: 1,
-          );
+          return const Divider(height: 1);
         }
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -195,10 +194,7 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
                 startDay,
                 state.timeStr,
               ),
-              VSpace(
-                8.0,
-                color: Theme.of(context).colorScheme.surface,
-              ),
+              VSpace(8.0, color: Theme.of(context).colorScheme.surface),
               _buildTime(
                 context,
                 includeTime,
@@ -231,68 +227,47 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
     if (!isIncludeTime) {
       children.addAll([
         const HSpace(12.0),
-        FlowyText(
-          dateStr,
-        ),
+        FlowyText(dateStr),
       ]);
     } else {
       children.addAll([
-        Expanded(
-          child: FlowyText(
-            dateStr,
-            textAlign: TextAlign.center,
-          ),
-        ),
-        Container(
-          width: 1,
-          height: 16,
-          color: Colors.grey,
-        ),
-        Expanded(
-          child: FlowyText(
-            timeStr ?? '',
-            textAlign: TextAlign.center,
-          ),
-        ),
+        Expanded(child: FlowyText(dateStr, textAlign: TextAlign.center)),
+        Container(width: 1, height: 16, color: Colors.grey),
+        Expanded(child: FlowyText(timeStr ?? '', textAlign: TextAlign.center)),
       ]);
     }
 
     return GestureDetector(
-      onTap: () async {
-        final bloc = context.read<DateCellEditorBloc>();
-        await showMobileBottomSheet(
-          context,
-          builder: (context) {
-            return ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxHeight: 300,
-              ),
-              child: CupertinoDatePicker(
-                showDayOfWeek: false,
-                mode: CupertinoDatePickerMode.time,
-                use24hFormat: use24hFormat,
-                onDateTimeChanged: (dateTime) {
-                  _selectedTime = use24hFormat
-                      ? DateFormat('HH:mm').format(dateTime)
-                      : DateFormat('hh:mm a').format(dateTime);
-                },
-              ),
-            );
-          },
-        );
+      onTap: !isIncludeTime
+          ? null
+          : () async {
+              final bloc = context.read<DateCellEditorBloc>();
+              await showMobileBottomSheet(
+                context,
+                builder: (context) => ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 300),
+                  child: CupertinoDatePicker(
+                    showDayOfWeek: false,
+                    mode: CupertinoDatePickerMode.time,
+                    use24hFormat: use24hFormat,
+                    onDateTimeChanged: (dateTime) => _selectedTime =
+                        use24hFormat
+                            ? DateFormat('HH:mm').format(dateTime)
+                            : DateFormat('hh:mm a').format(dateTime),
+                  ),
+                ),
+              );
 
-        if (_selectedTime != null) {
-          bloc.add(
-            isStartDay
-                ? DateCellEditorEvent.setTime(_selectedTime!)
-                : DateCellEditorEvent.setEndTime(_selectedTime!),
-          );
-        }
-      },
+              if (_selectedTime != null) {
+                bloc.add(
+                  isStartDay
+                      ? DateCellEditorEvent.setTime(_selectedTime!)
+                      : DateCellEditorEvent.setEndTime(_selectedTime!),
+                );
+              }
+            },
       child: Container(
-        constraints: const BoxConstraints(
-          minHeight: 36,
-        ),
+        constraints: const BoxConstraints(minHeight: 36),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
           color: Theme.of(context).colorScheme.secondaryContainer,
@@ -301,9 +276,7 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
             width: 1,
           ),
         ),
-        child: Row(
-          children: children,
-        ),
+        child: Row(children: children),
       ),
     );
   }
@@ -316,17 +289,13 @@ class _EndDateSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<DateCellEditorBloc, DateCellEditorState, bool>(
       selector: (state) => state.isRange,
-      builder: (context, isRange) {
-        return FlowyOptionTile.toggle(
-          text: LocaleKeys.grid_field_isRange.tr(),
-          isSelected: isRange,
-          onValueChanged: (value) {
-            context
-                .read<DateCellEditorBloc>()
-                .add(DateCellEditorEvent.setIsRange(value));
-          },
-        );
-      },
+      builder: (context, isRange) => FlowyOptionTile.toggle(
+        text: LocaleKeys.grid_field_isRange.tr(),
+        isSelected: isRange,
+        onValueChanged: (value) => context
+            .read<DateCellEditorBloc>()
+            .add(DateCellEditorEvent.setIsRange(value)),
+      ),
     );
   }
 }
@@ -338,18 +307,14 @@ class _IncludeTimeSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<DateCellEditorBloc, DateCellEditorState, bool>(
       selector: (state) => state.includeTime,
-      builder: (context, includeTime) {
-        return FlowyOptionTile.toggle(
-          showTopBorder: false,
-          text: LocaleKeys.grid_field_includeTime.tr(),
-          isSelected: includeTime,
-          onValueChanged: (value) {
-            context
-                .read<DateCellEditorBloc>()
-                .add(DateCellEditorEvent.setIncludeTime(value));
-          },
-        );
-      },
+      builder: (context, includeTime) => FlowyOptionTile.toggle(
+        showTopBorder: false,
+        text: LocaleKeys.grid_field_includeTime.tr(),
+        isSelected: includeTime,
+        onValueChanged: (value) => context
+            .read<DateCellEditorBloc>()
+            .add(DateCellEditorEvent.setIncludeTime(value)),
+      ),
     );
   }
 }
@@ -372,39 +337,32 @@ class _TimeTextFieldState extends State<_TimeTextField> {
       TextEditingController(text: widget.timeStr);
 
   @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<DateCellEditorBloc, DateCellEditorState>(
-      listener: (context, state) {
-        _textController.text =
-            widget.isEndTime ? state.endTimeStr ?? "" : state.timeStr ?? "";
-      },
-      builder: (context, state) {
-        return TextFormField(
-          controller: _textController,
-          textAlign: TextAlign.end,
-          decoration: InputDecoration(
-            hintText: state.timeHintText,
-            errorText: widget.isEndTime
-                ? state.parseEndTimeError
-                : state.parseTimeError,
-          ),
-          keyboardType: TextInputType.datetime,
-          onFieldSubmitted: (timeStr) {
-            context.read<DateCellEditorBloc>().add(
-                  widget.isEndTime
-                      ? DateCellEditorEvent.setEndTime(timeStr)
-                      : DateCellEditorEvent.setTime(timeStr),
-                );
-          },
-        );
-      },
-    );
-  }
-
-  @override
   void dispose() {
     _textController.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<DateCellEditorBloc, DateCellEditorState>(
+      listener: (context, state) => _textController.text =
+          widget.isEndTime ? state.endTimeStr ?? "" : state.timeStr ?? "",
+      builder: (context, state) => TextFormField(
+        controller: _textController,
+        textAlign: TextAlign.end,
+        decoration: InputDecoration(
+          hintText: state.timeHintText,
+          errorText:
+              widget.isEndTime ? state.parseEndTimeError : state.parseTimeError,
+        ),
+        keyboardType: TextInputType.datetime,
+        onFieldSubmitted: (timeStr) => context.read<DateCellEditorBloc>().add(
+              widget.isEndTime
+                  ? DateCellEditorEvent.setEndTime(timeStr)
+                  : DateCellEditorEvent.setTime(timeStr),
+            ),
+      ),
+    );
   }
 }
 

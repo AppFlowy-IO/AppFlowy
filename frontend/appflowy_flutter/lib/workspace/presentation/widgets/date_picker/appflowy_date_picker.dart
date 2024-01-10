@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/start_text_field.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
@@ -37,6 +38,8 @@ class AppFlowyDatePicker extends StatefulWidget {
     this.focusedDay,
     this.firstDay,
     this.lastDay,
+    this.startDay,
+    this.endDay,
     this.timeStr,
     this.endTimeStr,
     this.timeHintText,
@@ -50,6 +53,12 @@ class AppFlowyDatePicker extends StatefulWidget {
     this.onRangeSelected,
     this.onReminderSelected,
     this.options,
+    this.allowFormatChanges = false,
+    this.onDateFormatChanged,
+    this.onTimeFormatChanged,
+    this.onClearDate,
+    this.onCalendarCreated,
+    this.onPageChanged,
   });
 
   final bool includeTime;
@@ -68,6 +77,13 @@ class AppFlowyDatePicker extends StatefulWidget {
   final DateTime? focusedDay;
   final DateTime? firstDay;
   final DateTime? lastDay;
+
+  /// Start date in selected range
+  final DateTime? startDay;
+
+  /// End date in selected range
+  final DateTime? endDay;
+
   final String? timeStr;
   final String? endTimeStr;
   final String? timeHintText;
@@ -80,13 +96,36 @@ class AppFlowyDatePicker extends StatefulWidget {
   final TimeChangedCallback? onEndTimeSubmitted;
   final DaySelectedCallback? onDaySelected;
   final RangeSelectedCallback? onRangeSelected;
-
   final OnReminderSelected? onReminderSelected;
 
   /// A list of [OptionGroup] that will be rendered with proper
   /// separators, each group can contain multiple options.
   ///
+  /// __Supported on Desktop & Web__
+  ///
   final List<OptionGroup>? options;
+
+  /// If this value is true, then [onTimeFormatChanged] and [onDateFormatChanged]
+  /// cannot be null
+  ///
+  final bool allowFormatChanges;
+
+  /// If [allowFormatChanges] is true, this must be provided
+  ///
+  final Function(DateFormatPB)? onDateFormatChanged;
+
+  /// If [allowFormatChanges] is true, this must be provided
+  ///
+  final Function(TimeFormatPB)? onTimeFormatChanged;
+
+  /// If provided, the ClearDate button will be shown
+  /// Otherwise it will be hidden
+  ///
+  final VoidCallback? onClearDate;
+
+  final void Function(PageController pageController)? onCalendarCreated;
+
+  final void Function(DateTime focusedDay)? onPageChanged;
 
   @override
   State<AppFlowyDatePicker> createState() => _AppFlowyDatePickerState();
@@ -97,7 +136,32 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
   late ReminderOption _selectedReminderOption = widget.selectedReminderOption;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      PlatformExtension.isMobile ? buildMobilePicker() : buildDesktopPicker();
+
+  Widget buildMobilePicker() {
+    return DatePicker(
+      isRange: widget.isRange,
+      onDaySelected: (selectedDay, focusedDay) {
+        widget.onDaySelected?.call(selectedDay, focusedDay);
+
+        if (widget.rebuildOnDaySelected) {
+          setState(() => _selectedDay = selectedDay);
+        }
+      },
+      onRangeSelected: widget.onRangeSelected,
+      selectedDay:
+          widget.rebuildOnDaySelected ? _selectedDay : widget.selectedDay,
+      firstDay: widget.firstDay,
+      lastDay: widget.lastDay,
+      startDay: widget.startDay,
+      endDay: widget.endDay,
+      onCalendarCreated: widget.onCalendarCreated,
+      onPageChanged: widget.onPageChanged,
+    );
+  }
+
+  Widget buildDesktopPicker() {
     return Padding(
       padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
       child: Column(
@@ -134,6 +198,10 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
             selectedDay: _selectedDay,
             firstDay: widget.firstDay,
             lastDay: widget.lastDay,
+            startDay: widget.startDay,
+            endDay: widget.endDay,
+            onCalendarCreated: widget.onCalendarCreated,
+            onPageChanged: widget.onPageChanged,
           ),
           const TypeOptionSeparator(spacing: 12.0),
           if (widget.enableRanges && widget.onIsRangeChanged != null) ...[

@@ -72,20 +72,20 @@ class DateCellEditorBloc
               ),
             );
           },
-          selectDay: (date) {
+          selectDay: (date) async {
             if (!state.isRange) {
-              _updateDateData(date: date);
+              await _updateDateData(date: date);
             }
           },
           setIncludeTime: (includeTime) async =>
               await _updateDateData(includeTime: includeTime),
           setIsRange: (isRange) async =>
               await _updateDateData(isRange: isRange),
-          setTime: (timeStr) {
+          setTime: (timeStr) async {
             emit(state.copyWith(timeStr: timeStr));
-            _updateDateData(timeStr: timeStr);
+            await _updateDateData(timeStr: timeStr);
           },
-          selectDateRange: (DateTime? start, DateTime? end) {
+          selectDateRange: (DateTime? start, DateTime? end) async {
             if (end == null && state.startDay != null && state.endDay == null) {
               final (newStart, newEnd) = state.startDay!.isBefore(start!)
                   ? (state.startDay!, start)
@@ -93,21 +93,22 @@ class DateCellEditorBloc
 
               emit(state.copyWith(startDay: null, endDay: null));
 
-              _updateDateData(date: newStart.date, endDate: newEnd.date);
+              await _updateDateData(date: newStart.date, endDate: newEnd.date);
             } else if (end == null) {
               emit(state.copyWith(startDay: start, endDay: null));
             } else {
-              _updateDateData(date: start!.date, endDate: end.date);
+              await _updateDateData(date: start!.date, endDate: end.date);
             }
           },
-          setStartDay: (DateTime startDay) {
+          setStartDay: (DateTime startDay) async {
             if (state.endDay == null) {
               emit(state.copyWith(startDay: startDay));
             } else if (startDay.isAfter(state.endDay!)) {
               emit(state.copyWith(startDay: startDay, endDay: null));
             } else {
               emit(state.copyWith(startDay: startDay));
-              _updateDateData(date: startDay.date, endDate: state.endDay!.date);
+              await _updateDateData(
+                  date: startDay.date, endDate: state.endDay!.date);
             }
           },
           setEndDay: (DateTime endDay) {
@@ -120,18 +121,18 @@ class DateCellEditorBloc
               _updateDateData(date: state.startDay!.date, endDate: endDay.date);
             }
           },
-          setEndTime: (String? endTime) {
+          setEndTime: (String? endTime) async {
             emit(state.copyWith(endTimeStr: endTime));
-            _updateDateData(endTimeStr: endTime);
+            await _updateDateData(endTimeStr: endTime);
           },
           setDateFormat: (DateFormatPB dateFormat) async =>
               await _updateTypeOption(emit, dateFormat: dateFormat),
           setTimeFormat: (TimeFormatPB timeFormat) async =>
               await _updateTypeOption(emit, timeFormat: timeFormat),
           clearDate: () async => await _clearDate(),
-          setReminder: (String reminderId) {
+          setReminder: (String reminderId) async {
             emit(state.copyWith(reminderId: reminderId));
-            _updateDateData(reminderId: reminderId);
+            await _updateDateData(reminderId: reminderId);
           },
           // Empty String signifies no reminder
           removeReminder: () async => await _updateDateData(reminderId: ""),
@@ -447,10 +448,12 @@ _DateCellData _dateDataFromCellData(
 
   String? endDateStr;
   if (cellData.hasTimestamp()) {
-    dateTime = cellData.timestamp.toDateTime();
+    final timestamp = cellData.timestamp * 1000;
+    dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
     timeStr = cellData.time;
     if (cellData.hasEndTimestamp()) {
-      endDateTime = cellData.timestamp.toDateTime();
+      final endTimestamp = cellData.endTimestamp * 1000;
+      endDateTime = DateTime.fromMillisecondsSinceEpoch(endTimestamp.toInt());
       endTimeStr = cellData.endTime;
     }
   }

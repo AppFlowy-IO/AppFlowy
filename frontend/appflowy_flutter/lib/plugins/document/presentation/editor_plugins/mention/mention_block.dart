@@ -18,6 +18,24 @@ enum MentionType {
       };
 }
 
+Node dateMentionNode() {
+  return paragraphNode(
+    delta: Delta(
+      operations: [
+        TextInsert(
+          '\$',
+          attributes: {
+            MentionBlockKeys.mention: {
+              MentionBlockKeys.type: MentionType.date.name,
+              MentionBlockKeys.date: DateTime.now().toIso8601String(),
+            },
+          },
+        ),
+      ],
+    ),
+  );
+}
+
 class MentionBlockKeys {
   const MentionBlockKeys._();
 

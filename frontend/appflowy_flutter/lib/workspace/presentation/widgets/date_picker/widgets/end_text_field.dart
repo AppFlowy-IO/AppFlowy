@@ -32,7 +32,7 @@ class EndTextField extends StatelessWidget {
               child: TimeTextField(
                 isEndTime: true,
                 timeFormat: timeFormat,
-                timeStr: endTimeStr,
+                endTimeStr: endTimeStr,
                 popoverMutex: popoverMutex,
                 onSubmitted: onSubmitted,
               ),
