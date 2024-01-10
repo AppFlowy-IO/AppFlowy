@@ -157,7 +157,8 @@ class ColorSchemeUploadPopover extends StatelessWidget {
               },
             ),
           ),
-          if (!isBuiltin)
+          // when the custom theme is not the current theme, show the remove button
+          if (!isBuiltin && currentTheme != theme)
             FlowyIconButton(
               icon: const FlowySvg(
                 FlowySvgs.close_s,
