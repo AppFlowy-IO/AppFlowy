@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
@@ -15,7 +18,6 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'reminder_bloc.freezed.dart';
@@ -151,9 +153,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             continue;
           }
 
-          final scheduledAt = DateTime.fromMillisecondsSinceEpoch(
-            reminder.scheduledAt.toInt() * 1000,
-          );
+          final scheduledAt = reminder.scheduledAt.toDateTime();
 
           if (scheduledAt.isBefore(now)) {
             final notificationSettings =

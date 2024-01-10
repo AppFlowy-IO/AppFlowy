@@ -6,7 +6,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/application/cell/date_cell_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
@@ -14,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
 import 'package:flowy_infra/time/duration.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -57,12 +58,13 @@ class DateCellEditorBloc
                 dateStr: dateCellData.dateStr,
                 endDateStr: dateCellData.endDateStr,
                 reminderId: dateCellData.reminderId,
-                reminderOption: dateCellData.reminderOption,
               ),
             );
           },
-          didReceiveTimeFormatError:
-              (String? parseTimeError, String? parseEndTimeError) {
+          didReceiveTimeFormatError: (
+            String? parseTimeError,
+            String? parseEndTimeError,
+          ) {
             emit(
               state.copyWith(
                 parseTimeError: parseTimeError,
@@ -70,125 +72,69 @@ class DateCellEditorBloc
               ),
             );
           },
-          selectDay: (date) async {
-            if (state.isRange) {
-              return;
+          selectDay: (date) {
+            if (!state.isRange) {
+              _updateDateData(date: date);
             }
-            await _updateDateData(date: date);
           },
-          setIncludeTime: (includeTime) async {
-            await _updateDateData(includeTime: includeTime);
-          },
-          setIsRange: (isRange) async {
-            await _updateDateData(isRange: isRange);
-          },
-          setTime: (timeStr) async {
+          setIncludeTime: (includeTime) async =>
+              await _updateDateData(includeTime: includeTime),
+          setIsRange: (isRange) async =>
+              await _updateDateData(isRange: isRange),
+          setTime: (timeStr) {
             emit(state.copyWith(timeStr: timeStr));
-            await _updateDateData(timeStr: timeStr);
+            _updateDateData(timeStr: timeStr);
           },
-          selectDateRange: (DateTime? start, DateTime? end) async {
+          selectDateRange: (DateTime? start, DateTime? end) {
             if (end == null && state.startDay != null && state.endDay == null) {
               final (newStart, newEnd) = state.startDay!.isBefore(start!)
                   ? (state.startDay!, start)
                   : (start, state.startDay!);
-              emit(
-                state.copyWith(
-                  startDay: null,
-                  endDay: null,
-                ),
-              );
-              await _updateDateData(
-                date: newStart.date,
-                endDate: newEnd.date,
-              );
+
+              emit(state.copyWith(startDay: null, endDay: null));
+
+              _updateDateData(date: newStart.date, endDate: newEnd.date);
             } else if (end == null) {
-              emit(
-                state.copyWith(
-                  startDay: start,
-                  endDay: null,
-                ),
-              );
+              emit(state.copyWith(startDay: start, endDay: null));
             } else {
-              await _updateDateData(
-                date: start!.date,
-                endDate: end.date,
-              );
+              _updateDateData(date: start!.date, endDate: end.date);
             }
           },
-          setStartDay: (DateTime startDay) async {
+          setStartDay: (DateTime startDay) {
             if (state.endDay == null) {
-              emit(
-                state.copyWith(
-                  startDay: startDay,
-                ),
-              );
+              emit(state.copyWith(startDay: startDay));
             } else if (startDay.isAfter(state.endDay!)) {
-              emit(
-                state.copyWith(
-                  startDay: startDay,
-                  endDay: null,
-                ),
-              );
+              emit(state.copyWith(startDay: startDay, endDay: null));
             } else {
-              emit(
-                state.copyWith(
-                  startDay: startDay,
-                ),
-              );
+              emit(state.copyWith(startDay: startDay));
               _updateDateData(date: startDay.date, endDate: state.endDay!.date);
             }
           },
-          setEndDay: (DateTime endDay) async {
+          setEndDay: (DateTime endDay) {
             if (state.startDay == null) {
-              emit(
-                state.copyWith(
-                  endDay: endDay,
-                ),
-              );
+              emit(state.copyWith(endDay: endDay));
             } else if (endDay.isBefore(state.startDay!)) {
-              emit(
-                state.copyWith(
-                  startDay: null,
-                  endDay: endDay,
-                ),
-              );
+              emit(state.copyWith(startDay: null, endDay: endDay));
             } else {
-              emit(
-                state.copyWith(
-                  endDay: endDay,
-                ),
-              );
+              emit(state.copyWith(endDay: endDay));
               _updateDateData(date: state.startDay!.date, endDate: endDay.date);
             }
           },
-          setEndTime: (String endTime) async {
+          setEndTime: (String? endTime) {
             emit(state.copyWith(endTimeStr: endTime));
-            await _updateDateData(endTimeStr: endTime);
+            _updateDateData(endTimeStr: endTime);
           },
-          setDateFormat: (dateFormat) async {
-            await _updateTypeOption(emit, dateFormat: dateFormat);
+          setDateFormat: (DateFormatPB dateFormat) async =>
+              await _updateTypeOption(emit, dateFormat: dateFormat),
+          setTimeFormat: (TimeFormatPB timeFormat) async =>
+              await _updateTypeOption(emit, timeFormat: timeFormat),
+          clearDate: () async => await _clearDate(),
+          setReminder: (String reminderId) {
+            emit(state.copyWith(reminderId: reminderId));
+            _updateDateData(reminderId: reminderId);
           },
-          setTimeFormat: (timeFormat) async {
-            await _updateTypeOption(emit, timeFormat: timeFormat);
-          },
-          clearDate: () async {
-            await _clearDate();
-          },
-          setReminder: (option, reminderId) async {
-            final reminderOption = option.toDataObject();
-
-            emit(
-              state.copyWith(
-                reminderOption: reminderOption,
-                reminderId: reminderId,
-              ),
-            );
-
-            await _dateCellBackendService.updateReminder(
-              option: reminderOption,
-              reminderId: reminderId,
-            );
-          },
+          // Empty String signifies no reminder
+          removeReminder: () async => await _updateDateData(reminderId: ""),
         );
       },
     );
@@ -202,7 +148,6 @@ class DateCellEditorBloc
     bool? includeTime,
     bool? isRange,
     String? reminderId,
-    ReminderOptionPB? option,
   }) async {
     // make sure that not both date and time are updated at the same time
     assert(
@@ -212,21 +157,15 @@ class DateCellEditorBloc
 
     // if not updating the time, use the old time in the state
     final String? newTime = timeStr ?? state.timeStr;
-    DateTime? newDate;
-    if (timeStr != null && timeStr.isNotEmpty) {
-      newDate = state.dateTime ?? DateTime.now();
-    } else {
-      newDate = _utcToLocalAndAddCurrentTime(date);
-    }
+    final DateTime? newDate = timeStr != null && timeStr.isNotEmpty
+        ? state.dateTime ?? DateTime.now()
+        : _utcToLocalAndAddCurrentTime(date);
 
     // if not updating the time, use the old time in the state
     final String? newEndTime = endTimeStr ?? state.endTimeStr;
-    DateTime? newEndDate;
-    if (endTimeStr != null && endTimeStr.isNotEmpty) {
-      newEndDate = state.endDateTime ?? DateTime.now();
-    } else {
-      newEndDate = _utcToLocalAndAddCurrentTime(endDate);
-    }
+    final DateTime? newEndDate = endTimeStr != null && endTimeStr.isNotEmpty
+        ? state.endDateTime ?? DateTime.now()
+        : _utcToLocalAndAddCurrentTime(endDate);
 
     final result = await _dateCellBackendService.update(
       date: newDate,
@@ -236,16 +175,13 @@ class DateCellEditorBloc
       includeTime: includeTime ?? state.includeTime,
       isRange: isRange ?? state.isRange,
       reminderId: reminderId ?? state.reminderId,
-      reminderOption: option ?? state.reminderOption,
     );
 
     result.fold(
       (_) {
         if (!isClosed &&
             (state.parseEndTimeError != null || state.parseTimeError != null)) {
-          add(
-            const DateCellEditorEvent.didReceiveTimeFormatError(null, null),
-          );
+          add(const DateCellEditorEvent.didReceiveTimeFormatError(null, null));
         }
       },
       (err) {
@@ -254,10 +190,12 @@ class DateCellEditorBloc
             if (isClosed) {
               return;
             }
+
             // to determine which textfield should show error
             final (startError, endError) = newDate != null
                 ? (timeFormatPrompt(err), null)
                 : (null, timeFormatPrompt(err));
+
             add(
               DateCellEditorEvent.didReceiveTimeFormatError(
                 startError,
@@ -276,13 +214,9 @@ class DateCellEditorBloc
     final result = await _dateCellBackendService.clear();
     result.fold(
       (_) {
-        if (isClosed) {
-          return;
+        if (!isClosed) {
+          add(const DateCellEditorEvent.didReceiveTimeFormatError(null, null));
         }
-
-        add(
-          const DateCellEditorEvent.didReceiveTimeFormatError(null, null),
-        );
       },
       (err) => Log.error(err),
     );
@@ -358,7 +292,7 @@ class DateCellEditorBloc
     );
 
     result.fold(
-      (l) => emit(
+      (_) => emit(
         state.copyWith(
           dateTypeOptionPB: newDateTypeOption,
           timeHintText: _timeHintText(newDateTypeOption),
@@ -378,6 +312,7 @@ class DateCellEditorEvent with _$DateCellEditorEvent {
   const factory DateCellEditorEvent.didReceiveCellUpdate(
     DateCellDataPB? data,
   ) = _DidReceiveCellUpdate;
+
   const factory DateCellEditorEvent.didReceiveTimeFormatError(
     String? parseTimeError,
     String? parseEndTimeError,
@@ -385,29 +320,38 @@ class DateCellEditorEvent with _$DateCellEditorEvent {
 
   // date cell data is modified
   const factory DateCellEditorEvent.selectDay(DateTime day) = _SelectDay;
+
   const factory DateCellEditorEvent.selectDateRange(
     DateTime? start,
     DateTime? end,
   ) = _SelectDateRange;
+
   const factory DateCellEditorEvent.setStartDay(
     DateTime startDay,
   ) = _SetStartDay;
+
   const factory DateCellEditorEvent.setEndDay(
     DateTime endDay,
   ) = _SetEndDay;
+
   const factory DateCellEditorEvent.setTime(String time) = _SetTime;
+
   const factory DateCellEditorEvent.setEndTime(String endTime) = _SetEndTime;
+
   const factory DateCellEditorEvent.setIncludeTime(bool includeTime) =
       _IncludeTime;
+
   const factory DateCellEditorEvent.setIsRange(bool isRange) = _SetIsRange;
-  const factory DateCellEditorEvent.setReminder({
-    required ReminderOption option,
-    String? reminderId,
-  }) = _SetReminder;
+
+  const factory DateCellEditorEvent.setReminder({required String reminderId}) =
+      _SetReminder;
+
+  const factory DateCellEditorEvent.removeReminder() = _RemoveReminder;
 
   // date field type options are modified
   const factory DateCellEditorEvent.setTimeFormat(TimeFormatPB timeFormat) =
       _SetTimeFormat;
+
   const factory DateCellEditorEvent.setDateFormat(DateFormatPB dateFormat) =
       _SetDateFormat;
 
@@ -434,7 +378,6 @@ class DateCellEditorState with _$DateCellEditorState {
     required String? dateStr,
     required String? endDateStr,
     required String? reminderId,
-    required ReminderOptionPB? reminderOption,
 
     // error and hint text
     required String? parseTimeError,
@@ -463,7 +406,6 @@ class DateCellEditorState with _$DateCellEditorState {
       parseEndTimeError: null,
       timeHintText: _timeHintText(typeOption),
       reminderId: dateCellData.reminderId,
-      reminderOption: dateCellData.reminderOption,
     );
   }
 }
@@ -495,7 +437,6 @@ _DateCellData _dateDataFromCellData(
       dateStr: null,
       endDateStr: null,
       reminderId: null,
-      reminderOption: ReminderOptionPB.None,
     );
   }
 
@@ -506,21 +447,21 @@ _DateCellData _dateDataFromCellData(
 
   String? endDateStr;
   if (cellData.hasTimestamp()) {
-    final timestamp = cellData.timestamp * 1000;
-    dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
+    dateTime = cellData.timestamp.toDateTime();
     timeStr = cellData.time;
     if (cellData.hasEndTimestamp()) {
-      final endTimestamp = cellData.endTimestamp * 1000;
-      endDateTime = DateTime.fromMillisecondsSinceEpoch(endTimestamp.toInt());
+      endDateTime = cellData.timestamp.toDateTime();
       endTimeStr = cellData.endTime;
     }
   }
+
   final bool includeTime = cellData.includeTime;
   final bool isRange = cellData.isRange;
 
   if (cellData.isRange) {
     endDateStr = cellData.endDate;
   }
+
   final String dateStr = cellData.date;
 
   return _DateCellData(
@@ -533,7 +474,6 @@ _DateCellData _dateDataFromCellData(
     dateStr: dateStr,
     endDateStr: endDateStr,
     reminderId: cellData.reminderId,
-    reminderOption: cellData.reminderOption,
   );
 }
 
@@ -547,7 +487,6 @@ class _DateCellData {
   final String? dateStr;
   final String? endDateStr;
   final String? reminderId;
-  final ReminderOptionPB reminderOption;
 
   _DateCellData({
     required this.dateTime,
@@ -559,6 +498,5 @@ class _DateCellData {
     required this.dateStr,
     required this.endDateStr,
     required this.reminderId,
-    required this.reminderOption,
   });
 }

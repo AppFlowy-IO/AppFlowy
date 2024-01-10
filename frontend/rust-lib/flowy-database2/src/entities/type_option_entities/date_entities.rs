@@ -1,6 +1,5 @@
 #![allow(clippy::upper_case_acronyms)]
 
-use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -36,9 +35,6 @@ pub struct DateCellDataPB {
 
   #[pb(index = 9)]
   pub reminder_id: String,
-
-  #[pb(index = 10)]
-  pub reminder_option: ReminderOptionPB,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -69,9 +65,6 @@ pub struct DateChangesetPB {
 
   #[pb(index = 9, one_of)]
   pub reminder_id: Option<String>,
-
-  #[pb(index = 10, one_of)]
-  pub reminder_option: Option<ReminderOptionPB>,
 }
 
 // Date
@@ -105,22 +98,6 @@ impl From<DateTypeOptionPB> for DateTypeOption {
       timezone_id: data.timezone_id,
     }
   }
-}
-
-#[derive(Clone, Debug, Copy, ProtoBuf_Enum, Default, Serialize, Deserialize)]
-pub enum ReminderOptionPB {
-  #[default]
-  None = 0,
-  AtTimeOfEvent = 1,
-  FiveMinsBefore = 2,
-  TenMinsBefore = 3,
-  FifteenMinsBefore = 4,
-  ThirtyMinsBefore = 5,
-  OneHourBefore = 6,
-  TwoHoursBefore = 7,
-  OneDayBefore = 8,
-  TwoDaysBefore = 9,
-  Custom = 10,
 }
 
 #[derive(Clone, Debug, Copy, ProtoBuf_Enum, Default)]

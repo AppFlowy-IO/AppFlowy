@@ -1,3 +1,4 @@
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -35,6 +36,7 @@ class DateCellEditor extends StatefulWidget {
 
 class _DateCellEditor extends State<DateCellEditor> {
   final PopoverMutex popoverMutex = PopoverMutex();
+  ReminderOption _reminderOption = ReminderOption.none;
 
   @override
   void dispose() {
@@ -55,7 +57,6 @@ class _DateCellEditor extends State<DateCellEditor> {
       ],
       child: BlocConsumer<DateCellEditorBloc, DateCellEditorState>(
         listenWhen: (prev, curr) =>
-            prev.dateTime != curr.dateTime &&
             curr.reminderId != null &&
             curr.reminderId!.isNotEmpty &&
             curr.dateTime != null,
@@ -66,6 +67,19 @@ class _DateCellEditor extends State<DateCellEditor> {
         ),
         builder: (context, state) {
           final bloc = context.read<DateCellEditorBloc>();
+          final reminder = context
+              .read<ReminderBloc>()
+              .state
+              .reminders
+              .firstWhereOrNull((r) => r.id == state.reminderId);
+
+          _reminderOption = reminder != null && state.dateTime != null
+              ? ReminderOption.fromDateDifference(
+                  state.dateTime!,
+                  reminder.scheduledAt.toDateTime(),
+                )
+              : ReminderOption.none;
+
           return AppFlowyDatePicker(
             includeTime: state.includeTime,
             onIncludeTimeChanged: (value) =>
@@ -84,12 +98,10 @@ class _DateCellEditor extends State<DateCellEditor> {
             popoverMutex: popoverMutex,
             onReminderSelected: (newOption) => _updateReminderOption(
               newOption,
-              state.reminderOption.toDomain(),
               cellBloc: bloc,
               reminderBloc: context.read<ReminderBloc>(),
             ),
-            selectedReminderOption:
-                state.reminderOption?.toDomain() ?? ReminderOption.none,
+            selectedReminderOption: _reminderOption,
             options: [
               OptionGroup(
                 options: [
@@ -154,20 +166,18 @@ class _DateCellEditor extends State<DateCellEditor> {
     ReminderBloc bloc,
     String reminderId,
     DateTime scheduledAt,
-  ) {
-    bloc.add(
-      ReminderEvent.update(
-        ReminderUpdate(
-          id: reminderId,
-          scheduledAt: scheduledAt,
+  ) =>
+      bloc.add(
+        ReminderEvent.update(
+          ReminderUpdate(
+            id: reminderId,
+            scheduledAt: scheduledAt.subtract(_reminderOption.time),
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   void _updateReminderOption(
-    ReminderOption newOption,
-    ReminderOption oldOption, {
+    ReminderOption newOption, {
     required DateCellEditorBloc cellBloc,
     required ReminderBloc reminderBloc,
   }) {
@@ -176,26 +186,20 @@ class _DateCellEditor extends State<DateCellEditor> {
       return;
     }
 
-    if (newOption == ReminderOption.none && oldOption != ReminderOption.none) {
+    final reminderId = cellBloc.state.reminderId;
+    if ((reminderId != null || (reminderId?.isEmpty ?? false)) &&
+        newOption == ReminderOption.none) {
       // Remove reminder if there is a reminder
-      final reminderId = cellBloc.state.reminderId;
-      if (reminderId != null) {
-        final reminder = reminderBloc.state.reminders
-            .firstWhereOrNull((r) => r.id == reminderId);
+      final reminder = reminderBloc.state.reminders
+          .firstWhereOrNull((r) => r.id == reminderId);
 
-        if (reminder != null) {
-          reminderBloc.add(ReminderEvent.remove(reminder: reminder));
-        }
+      if (reminder != null) {
+        reminderBloc.add(ReminderEvent.remove(reminder: reminder));
       }
 
-      // Update option in database
-      return cellBloc.add(
-        DateCellEditorEvent.setReminder(
-          option: newOption,
-          reminderId: "",
-        ),
-      );
-    } else if (oldOption == ReminderOption.none &&
+      // Remove reminderId in database
+      return cellBloc.add(const DateCellEditorEvent.removeReminder());
+    } else if ((reminderId == null || reminderId.isEmpty) &&
         newOption != ReminderOption.none) {
       // Add reminder
       final reminderId = nanoid();
@@ -213,16 +217,12 @@ class _DateCellEditor extends State<DateCellEditor> {
         ),
       );
 
-      // Update option in database
+      // Update reminderId in database
       return cellBloc.add(
-        DateCellEditorEvent.setReminder(
-          option: newOption,
-          reminderId: reminderId,
-        ),
+        DateCellEditorEvent.setReminder(reminderId: reminderId),
       );
     }
 
-    final reminderId = cellBloc.state.reminderId;
     if (reminderId != null) {
       // Update reminder
       reminderBloc.add(
@@ -231,14 +231,6 @@ class _DateCellEditor extends State<DateCellEditor> {
             id: reminderId,
             scheduledAt: dateOfEvent.subtract(newOption.time),
           ),
-        ),
-      );
-
-      // Update option in database
-      return cellBloc.add(
-        DateCellEditorEvent.setReminder(
-          option: newOption,
-          reminderId: reminderId,
         ),
       );
     }

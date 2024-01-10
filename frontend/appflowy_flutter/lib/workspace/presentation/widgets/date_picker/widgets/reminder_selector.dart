@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/layout.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -82,23 +81,6 @@ class ReminderSelector extends StatelessWidget {
   }
 }
 
-extension DomainUtil on ReminderOptionPB? {
-  ReminderOption toDomain() => switch (this) {
-        ReminderOptionPB.None => ReminderOption.none,
-        ReminderOptionPB.AtTimeOfEvent => ReminderOption.atTimeOfEvent,
-        ReminderOptionPB.FiveMinsBefore => ReminderOption.fiveMinsBefore,
-        ReminderOptionPB.TenMinsBefore => ReminderOption.tenMinsBefore,
-        ReminderOptionPB.FifteenMinsBefore => ReminderOption.fifteenMinsBefore,
-        ReminderOptionPB.ThirtyMinsBefore => ReminderOption.thirtyMinsBefore,
-        ReminderOptionPB.OneHourBefore => ReminderOption.oneHourBefore,
-        ReminderOptionPB.TwoHoursBefore => ReminderOption.twoHoursBefore,
-        ReminderOptionPB.OneDayBefore => ReminderOption.oneDayBefore,
-        ReminderOptionPB.TwoDaysBefore => ReminderOption.twoDaysBefore,
-        ReminderOptionPB.Custom => ReminderOption.custom,
-        _ => ReminderOption.none,
-      };
-}
-
 enum ReminderOption {
   none(time: Duration()),
   atTimeOfEvent(time: Duration()),
@@ -140,17 +122,22 @@ enum ReminderOption {
           LocaleKeys.datePicker_reminderOptions_custom.tr(),
       };
 
-  ReminderOptionPB toDataObject() => switch (this) {
-        ReminderOption.none => ReminderOptionPB.None,
-        ReminderOption.atTimeOfEvent => ReminderOptionPB.AtTimeOfEvent,
-        ReminderOption.fiveMinsBefore => ReminderOptionPB.FiveMinsBefore,
-        ReminderOption.tenMinsBefore => ReminderOptionPB.TenMinsBefore,
-        ReminderOption.fifteenMinsBefore => ReminderOptionPB.FifteenMinsBefore,
-        ReminderOption.thirtyMinsBefore => ReminderOptionPB.ThirtyMinsBefore,
-        ReminderOption.oneHourBefore => ReminderOptionPB.OneHourBefore,
-        ReminderOption.twoHoursBefore => ReminderOptionPB.TwoHoursBefore,
-        ReminderOption.oneDayBefore => ReminderOptionPB.OneDayBefore,
-        ReminderOption.twoDaysBefore => ReminderOptionPB.TwoDaysBefore,
-        ReminderOption.custom => ReminderOptionPB.Custom,
+  static ReminderOption fromDateDifference(
+    DateTime eventDate,
+    DateTime reminderDate,
+  ) =>
+      fromMinutes(eventDate.difference(reminderDate).inMinutes);
+
+  static ReminderOption fromMinutes(int minutes) => switch (minutes) {
+        0 => ReminderOption.atTimeOfEvent,
+        5 => ReminderOption.fiveMinsBefore,
+        10 => ReminderOption.tenMinsBefore,
+        15 => ReminderOption.fifteenMinsBefore,
+        30 => ReminderOption.thirtyMinsBefore,
+        60 => ReminderOption.oneHourBefore,
+        120 => ReminderOption.twoHoursBefore,
+        1440 => ReminderOption.oneDayBefore,
+        2880 => ReminderOption.twoDaysBefore,
+        _ => ReminderOption.custom,
       };
 }

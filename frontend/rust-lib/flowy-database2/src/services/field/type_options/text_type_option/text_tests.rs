@@ -2,7 +2,7 @@
 mod tests {
   use collab_database::rows::Cell;
 
-  use crate::entities::{FieldType, ReminderOptionPB};
+  use crate::entities::FieldType;
   use crate::services::cell::stringify_cell_data;
   use crate::services::field::FieldBuilder;
   use crate::services::field::*;
@@ -30,7 +30,6 @@ mod tests {
       include_time: true,
       is_range: false,
       reminder_id: String::new(),
-      reminder_option: ReminderOptionPB::None,
     };
 
     assert_eq!(
@@ -44,7 +43,6 @@ mod tests {
       include_time: true,
       is_range: false,
       reminder_id: String::new(),
-      reminder_option: ReminderOptionPB::None,
     };
 
     assert_eq!(
@@ -58,7 +56,6 @@ mod tests {
       include_time: true,
       is_range: true,
       reminder_id: String::new(),
-      reminder_option: ReminderOptionPB::None,
     };
 
     assert_eq!(

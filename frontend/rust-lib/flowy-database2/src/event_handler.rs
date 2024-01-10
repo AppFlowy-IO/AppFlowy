@@ -587,7 +587,6 @@ pub(crate) async fn update_date_cell_handler(
     is_range: data.is_range,
     clear_flag: data.clear_flag,
     reminder_id: data.reminder_id,
-    reminder_option: data.reminder_option,
   };
 
   let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
