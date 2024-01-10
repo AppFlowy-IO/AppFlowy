@@ -40,7 +40,7 @@ where
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      client.delete_blob(&  url).await?;
+      client.delete_blob(&url).await?;
       Ok(())
     })
   }

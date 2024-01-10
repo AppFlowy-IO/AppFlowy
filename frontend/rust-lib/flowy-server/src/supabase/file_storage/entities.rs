@@ -91,7 +91,12 @@ pub enum RequestBody {
 }
 
 impl From<(FileOptions, ObjectValueSupabase)> for RequestBody {
-  fn from(params: (supabase::file_storage::entities::FileOptions, ObjectValueSupabase)) -> Self {
+  fn from(
+    params: (
+      supabase::file_storage::entities::FileOptions,
+      ObjectValueSupabase,
+    ),
+  ) -> Self {
     let (options, value) = params;
     match value {
       ObjectValueSupabase::File { file_path } => RequestBody::MultiPartFile { file_path, options },

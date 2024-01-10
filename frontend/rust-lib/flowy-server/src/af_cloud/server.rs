@@ -45,7 +45,12 @@ pub struct AppFlowyCloudServer {
 
 impl AppFlowyCloudServer {
   pub fn new(config: AFCloudConfiguration, enable_sync: bool, device_id: String) -> Self {
-    let api_client = AFCloudClient::new(&config.base_url, &config.ws_base_url, &config.gotrue_url, ClientConfiguration::default());
+    let api_client = AFCloudClient::new(
+      &config.base_url,
+      &config.ws_base_url,
+      &config.gotrue_url,
+      ClientConfiguration::default(),
+    );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
     let network_reachable = Arc::new(AtomicBool::new(true));

@@ -13,7 +13,6 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use url::Url;
 
-
 use crate::supabase::file_storage::{DeleteObjects, FileOptions, NewBucket, RequestBody};
 
 pub struct StorageRequestBuilder {
