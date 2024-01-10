@@ -398,13 +398,18 @@ where
     }
 
     let encoded_collab = doc.get_encoded_collab_v1();
+    info!(
+      "import collab:{} with len: {}",
+      new_object_id,
+      encoded_collab.doc_state.len()
+    );
     if let Err(err) = w_txn.flush_doc(
       new_uid,
       &new_object_id,
       encoded_collab.state_vector.to_vec(),
       encoded_collab.doc_state.to_vec(),
     ) {
-      tracing::error!("import collab:{} failed: {:?}", new_object_id, err);
+      error!("import collab:{} failed: {:?}", new_object_id, err);
     }
   } else {
     event!(tracing::Level::ERROR, "decode v1 failed");
@@ -630,7 +635,7 @@ pub async fn upload_imported_data(
   // Upload
   let mut size_counter = 0;
   let mut objects: Vec<UserCollabParams> = vec![];
-  let upload_size_limit = 2 * 1024 * 1024;
+  let upload_size_limit = 4 * 1024 * 1024;
   for (collab_type, encoded_collab_by_oid) in object_by_collab_type {
     info!(
       "Batch import collab:{} ids: {:?}",
@@ -686,6 +691,14 @@ async fn batch_create(
   size_counter: &usize,
   objects: Vec<UserCollabParams>,
 ) {
+  if objects.len() == 1 && size_counter > &(4 * 1024 * 1024) {
+    info!(
+      "Skip upload collab object: {}, payload size: {}",
+      objects[0].object_id, size_counter
+    );
+    return;
+  }
+
   let ids = objects
     .iter()
     .map(|o| o.object_id.clone())

@@ -8,7 +8,7 @@ use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
-use client_api::Client;
+use client_api::{Client, ClientConfiguration};
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{error, event, info};
@@ -45,7 +45,14 @@ pub struct AppFlowyCloudServer {
 
 impl AppFlowyCloudServer {
   pub fn new(config: AFCloudConfiguration, enable_sync: bool, device_id: String) -> Self {
-    let api_client = AFCloudClient::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
+    let api_client = AFCloudClient::new(
+      &config.base_url,
+      &config.ws_base_url,
+      &config.gotrue_url,
+      ClientConfiguration::default()
+        .with_compression_buffer_size(10240)
+        .with_compression_quality(8),
+    );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
     let network_reachable = Arc::new(AtomicBool::new(true));

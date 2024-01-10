@@ -154,6 +154,12 @@ impl DocumentManager {
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await?;
+      event!(
+        tracing::Level::DEBUG,
+        "get document from cloud service: {}, size:{}",
+        doc_id,
+        doc_state.len()
+      );
     }
 
     let uid = self.user_service.user_id()?;
