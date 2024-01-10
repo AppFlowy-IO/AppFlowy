@@ -1,5 +1,13 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checklist.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/number.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/select_option.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/timestamp.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/url.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,7 +48,6 @@ import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_add_button.dar
 import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_header.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/date_editor.dart';
@@ -138,7 +145,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
   }
 
-  ///
   Finder cellFinder(int rowIndex, FieldType fieldType, {int cellIndex = 0}) {
     final findRow = find.byType(GridRow, skipOffstage: false);
     final findCell = finderForFieldType(fieldType);
@@ -170,10 +176,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     required bool isSelected,
   }) async {
     final cell = cellFinder(rowIndex, FieldType.Checkbox);
-    var finder = find.byType(CheckboxCellUncheck);
-    if (isSelected) {
-      finder = find.byType(CheckboxCellCheck);
-    }
+    final finder = isSelected
+        ? find.byWidgetPredicate(
+            (widget) =>
+                widget is FlowySvg && widget.svg == FlowySvgs.check_filled_s,
+          )
+        : find.byWidgetPredicate(
+            (widget) => widget is FlowySvg && widget.svg == FlowySvgs.uncheck_s,
+          );
 
     expect(
       find.descendant(
@@ -290,7 +300,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final findRow = find.byType(GridRow, skipOffstage: false);
     final findCell = find.descendant(
       of: findRow.at(rowIndex),
-      matching: find.byType(GridDateCell),
+      matching: find.byType(EditableDateCell),
       skipOffstage: false,
     );
 
@@ -604,7 +614,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> editTitleInRowDetailPage(String title) async {
-    final titleField = find.byType(GridTextCell);
+    final titleField = find.byType(EditableTextCell);
     await enterText(titleField, title);
     await pumpAndSettle();
   }
@@ -626,7 +636,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapDateCellInRowDetailPage() async {
-    final findDateCell = find.byType(GridDateCell);
+    final findDateCell = find.byType(EditableDateCell);
     await tapButton(findDateCell);
   }
 
@@ -1636,24 +1646,24 @@ Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) {
 Finder finderForFieldType(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
-      return find.byType(GridCheckboxCell, skipOffstage: false);
+      return find.byType(EditableCheckboxCell, skipOffstage: false);
     case FieldType.DateTime:
-      return find.byType(GridDateCell, skipOffstage: false);
+      return find.byType(EditableDateCell, skipOffstage: false);
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
-      return find.byType(GridTimestampCell, skipOffstage: false);
+      return find.byType(EditableTimestampCell, skipOffstage: false);
     case FieldType.SingleSelect:
-      return find.byType(GridSingleSelectCell, skipOffstage: false);
+      return find.byType(EditableSelectOptionCell, skipOffstage: false);
     case FieldType.MultiSelect:
-      return find.byType(GridMultiSelectCell, skipOffstage: false);
+      return find.byType(EditableSelectOptionCell, skipOffstage: false);
     case FieldType.Checklist:
-      return find.byType(GridChecklistCell, skipOffstage: false);
+      return find.byType(EditableChecklistCell, skipOffstage: false);
     case FieldType.Number:
-      return find.byType(GridNumberCell, skipOffstage: false);
+      return find.byType(EditableNumberCell, skipOffstage: false);
     case FieldType.RichText:
-      return find.byType(GridTextCell, skipOffstage: false);
+      return find.byType(EditableTextCell, skipOffstage: false);
     case FieldType.URL:
-      return find.byType(GridURLCell, skipOffstage: false);
+      return find.byType(EditableURLCell, skipOffstage: false);
     default:
       throw Exception('Unknown field type: $fieldType');
   }

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
@@ -19,20 +20,18 @@ import 'container/accessory.dart';
 import 'container/card_container.dart';
 
 /// Edit a database row with card style widget
-class RowCard<CustomCardData> extends StatefulWidget {
+class RowCard extends StatefulWidget {
+  final FieldController fieldController;
   final RowMetaPB rowMeta;
   final String viewId;
   final String? groupingFieldId;
   final String? groupId;
 
-  /// Allows passing a custom card data object to the card. The card will be
-  /// returned in the [CardCellBuilder] and can be used to build the card.
-  final CustomCardData? cardData;
   final bool isEditing;
   final RowCache rowCache;
 
   /// The [CardCellBuilder] is used to build the card cells.
-  final CardCellBuilder<CustomCardData> cellBuilder;
+  final CardCellBuilder cellBuilder;
 
   /// Called when the user taps on the card.
   final void Function(BuildContext) openCard;
@@ -43,14 +42,11 @@ class RowCard<CustomCardData> extends StatefulWidget {
   /// Called when the user ends editing the card.
   final VoidCallback onEndEditing;
 
-  /// The [RowCardRenderHook] is used to render the card's cell. Other than
-  /// using the default cell builder. For example the [SelectOptionCardCell]
-  final RowCardRenderHook<CustomCardData>? renderHook;
-
   final RowCardStyleConfiguration styleConfiguration;
 
   const RowCard({
     super.key,
+    required this.fieldController,
     required this.rowMeta,
     required this.viewId,
     required this.isEditing,
@@ -61,19 +57,16 @@ class RowCard<CustomCardData> extends StatefulWidget {
     required this.onEndEditing,
     this.groupingFieldId,
     this.groupId,
-    this.cardData,
     this.styleConfiguration = const RowCardStyleConfiguration(
       showAccessory: true,
     ),
-    this.renderHook,
   });
 
   @override
-  State<RowCard<CustomCardData>> createState() =>
-      _RowCardState<CustomCardData>();
+  State<RowCard> createState() => _RowCardState();
 }
 
-class _RowCardState<T> extends State<RowCard<T>> {
+class _RowCardState extends State<RowCard> {
   final popoverController = PopoverController();
   late final CardBloc _cardBloc;
   late final EditableRowNotifier rowNotifier;
@@ -84,16 +77,17 @@ class _RowCardState<T> extends State<RowCard<T>> {
     super.initState();
     rowNotifier = EditableRowNotifier(isEditing: widget.isEditing);
     _cardBloc = CardBloc(
+      fieldController: widget.fieldController,
       viewId: widget.viewId,
       groupFieldId: widget.groupingFieldId,
       isEditing: widget.isEditing,
       rowMeta: widget.rowMeta,
       rowCache: widget.rowCache,
-    )..add(const RowCardEvent.initial());
+    )..add(const CardEvent.initial());
 
     rowNotifier.isEditing.addListener(() {
       if (!mounted) return;
-      _cardBloc.add(RowCardEvent.setIsEditing(rowNotifier.isEditing.value));
+      _cardBloc.add(CardEvent.setIsEditing(rowNotifier.isEditing.value));
 
       if (rowNotifier.isEditing.value) {
         widget.onStartEditing();
@@ -107,7 +101,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cardBloc,
-      child: BlocBuilder<CardBloc, RowCardState>(
+      child: BlocBuilder<CardBloc, CardState>(
         buildWhen: (previous, current) {
           // Rebuild when:
           // 1. If the length of the cells is not the same or isEditing changed
@@ -122,12 +116,11 @@ class _RowCardState<T> extends State<RowCard<T>> {
         builder: (context, state) {
           if (PlatformExtension.isMobile) {
             return GestureDetector(
-              child: MobileCardContent<T>(
+              child: MobileCardContent(
+                rowMeta: state.rowMeta,
                 cellBuilder: widget.cellBuilder,
                 styleConfiguration: widget.styleConfiguration,
                 cells: state.cells,
-                renderHook: widget.renderHook,
-                cardData: widget.cardData,
               ),
               onTap: () => widget.openCard(context),
             );
@@ -141,7 +134,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
             popupBuilder: (_) {
               return RowActionMenu.board(
                 viewId: _cardBloc.viewId,
-                rowId: _cardBloc.rowMeta.id,
+                rowId: _cardBloc.rowId,
                 groupId: widget.groupId,
               );
             },
@@ -155,13 +148,12 @@ class _RowCardState<T> extends State<RowCard<T>> {
               ],
               openAccessory: _handleOpenAccessory,
               openCard: (context) => widget.openCard(context),
-              child: _CardContent<T>(
+              child: _CardContent(
+                rowMeta: state.rowMeta,
                 rowNotifier: rowNotifier,
                 cellBuilder: widget.cellBuilder,
                 styleConfiguration: widget.styleConfiguration,
                 cells: state.cells,
-                renderHook: widget.renderHook,
-                cardData: widget.cardData,
               ),
             ),
           );
@@ -189,31 +181,26 @@ class _RowCardState<T> extends State<RowCard<T>> {
   }
 }
 
-class _CardContent<CustomCardData> extends StatefulWidget {
+class _CardContent extends StatefulWidget {
   const _CardContent({
-    super.key,
+    required this.rowMeta,
     required this.rowNotifier,
     required this.cellBuilder,
     required this.cells,
-    required this.cardData,
     required this.styleConfiguration,
-    this.renderHook,
   });
 
+  final RowMetaPB rowMeta;
   final EditableRowNotifier rowNotifier;
-  final CardCellBuilder<CustomCardData> cellBuilder;
+  final CardCellBuilder cellBuilder;
   final List<CellContext> cells;
-  final CustomCardData? cardData;
   final RowCardStyleConfiguration styleConfiguration;
-  final RowCardRenderHook<CustomCardData>? renderHook;
 
   @override
-  State<_CardContent<CustomCardData>> createState() =>
-      _CardContentState<CustomCardData>();
+  State<_CardContent> createState() => _CardContentState();
 }
 
-class _CardContentState<CustomCardData>
-    extends State<_CardContent<CustomCardData>> {
+class _CardContentState extends State<_CardContent> {
   final List<EditableCardNotifier> _notifiers = [];
 
   @override
@@ -235,7 +222,7 @@ class _CardContentState<CustomCardData>
           padding: widget.styleConfiguration.cardPadding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: _makeCells(context, widget.cells),
+            children: _makeCells(context, widget.rowMeta, widget.cells),
           ),
         ),
       );
@@ -244,13 +231,14 @@ class _CardContentState<CustomCardData>
       padding: widget.styleConfiguration.cardPadding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: _makeCells(context, widget.cells),
+        children: _makeCells(context, widget.rowMeta, widget.cells),
       ),
     );
   }
 
   List<Widget> _makeCells(
     BuildContext context,
+    RowMetaPB rowMeta,
     List<CellContext> cells,
   ) {
     final List<Widget> children = [];
@@ -270,14 +258,11 @@ class _CardContentState<CustomCardData>
       }
 
       final child = Padding(
-        key: cellContext.key(),
         padding: widget.styleConfiguration.cellPadding,
         child: widget.cellBuilder.build(
           cellContext: cellContext,
           cellNotifier: cellNotifier,
-          renderHook: widget.renderHook,
-          cardData: widget.cardData,
-          hasNotes: !cellContext.rowMeta.isDocumentEmpty,
+          hasNotes: !rowMeta.isDocumentEmpty,
         ),
       );
 

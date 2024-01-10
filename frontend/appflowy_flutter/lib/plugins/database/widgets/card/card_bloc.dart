@@ -1,22 +1,22 @@
-import 'dart:collection';
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/defines.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_listener.dart';
+import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
-
-import '../../application/row/row_cache.dart';
-import '../../application/row/row_service.dart';
 
 part 'card_bloc.freezed.dart';
 
-class CardBloc extends Bloc<RowCardEvent, RowCardState> {
-  final RowMetaPB rowMeta;
+class CardBloc extends Bloc<CardEvent, CardState> {
+  final FieldController fieldController;
+  final String rowId;
   final String? groupFieldId;
-  final RowBackendService _rowBackendSvc;
   final RowCache _rowCache;
   final String viewId;
   final RowListener _rowListener;
@@ -24,21 +24,27 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   VoidCallback? _rowCallback;
 
   CardBloc({
-    required this.rowMeta,
+    required this.fieldController,
     required this.groupFieldId,
     required this.viewId,
+    required RowMetaPB rowMeta,
     required RowCache rowCache,
     required bool isEditing,
-  })  : _rowBackendSvc = RowBackendService(viewId: viewId),
+  })  : rowId = rowMeta.id,
         _rowListener = RowListener(rowMeta.id),
         _rowCache = rowCache,
         super(
-          RowCardState.initial(
-            _makeCells(groupFieldId, rowCache.loadCells(rowMeta)),
+          CardState.initial(
+            rowMeta,
+            _makeCells(
+              fieldController,
+              groupFieldId,
+              rowCache.loadCells(rowMeta),
+            ),
             isEditing,
           ),
         ) {
-    on<RowCardEvent>(
+    on<CardEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
@@ -55,15 +61,8 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
           setIsEditing: (bool isEditing) {
             emit(state.copyWith(isEditing: isEditing));
           },
-          didReceiveRowMeta: (rowMeta) {
-            final cells = state.cells
-                .map(
-                  (cell) => cell.rowMeta.id == rowMeta.id
-                      ? cell.copyWith(rowMeta: rowMeta)
-                      : cell,
-                )
-                .toList();
-            emit(state.copyWith(cells: cells));
+          didUpdateRowMeta: (rowMeta) {
+            emit(state.copyWith(rowMeta: rowMeta));
           },
         );
       },
@@ -79,85 +78,71 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
     return super.close();
   }
 
-  RowInfo rowInfo() {
-    return RowInfo(
-      viewId: _rowBackendSvc.viewId,
-      fields: UnmodifiableListView(
-        state.cells.map((cell) => cell.fieldInfo).toList(),
-      ),
-      rowId: rowMeta.id,
-      rowMeta: rowMeta,
-    );
-  }
-
   Future<void> _startListening() async {
     _rowCallback = _rowCache.addListener(
-      rowId: rowMeta.id,
+      rowId: rowId,
       onRowChanged: (cellMap, reason) {
         if (!isClosed) {
-          final cells = _makeCells(groupFieldId, cellMap);
-          add(RowCardEvent.didReceiveCells(cells, reason));
+          final cells = _makeCells(fieldController, groupFieldId, cellMap);
+          add(CardEvent.didReceiveCells(cells, reason));
         }
       },
     );
 
     _rowListener.start(
-      onMetaChanged: (meta) {
-        if (!isClosed) {
-          add(RowCardEvent.didReceiveRowMeta(meta));
-        }
+      onMetaChanged: (rowMeta) {
+        add(CardEvent.didUpdateRowMeta(rowMeta));
       },
     );
   }
 }
 
 List<CellContext> _makeCells(
+  FieldController fieldController,
   String? groupFieldId,
-  CellContextByFieldId originalCellMap,
+  CellContextByFieldId cellMap,
 ) {
-  final List<CellContext> cells = [];
-  originalCellMap
-      .removeWhere((fieldId, cellContext) => !cellContext.isVisible());
-  for (final entry in originalCellMap.entries) {
-    // Filter out the cell if it's fieldId equal to the groupFieldId
-    if (groupFieldId != null) {
-      if (entry.value.fieldId == groupFieldId) {
-        continue;
-      }
-    }
-
-    cells.add(entry.value);
-  }
-  return cells;
+  cellMap.removeWhere(
+    (_, cellContext) =>
+        !fieldController
+            .getField(cellContext.fieldId)!
+            .fieldSettings!
+            .visibility
+            .isVisibleState() ||
+        (groupFieldId != null && cellContext.fieldId == groupFieldId),
+  );
+  return cellMap.values.toList();
 }
 
 @freezed
-class RowCardEvent with _$RowCardEvent {
-  const factory RowCardEvent.initial() = _InitialRow;
-  const factory RowCardEvent.setIsEditing(bool isEditing) = _IsEditing;
-  const factory RowCardEvent.didReceiveCells(
+class CardEvent with _$CardEvent {
+  const factory CardEvent.initial() = _InitialRow;
+  const factory CardEvent.setIsEditing(bool isEditing) = _IsEditing;
+  const factory CardEvent.didReceiveCells(
     List<CellContext> cells,
     ChangedReason reason,
   ) = _DidReceiveCells;
-  const factory RowCardEvent.didReceiveRowMeta(
-    RowMetaPB meta,
-  ) = _DidReceiveRowMeta;
+  const factory CardEvent.didUpdateRowMeta(RowMetaPB rowMeta) =
+      _DidUpdateRowMeta;
 }
 
 @freezed
-class RowCardState with _$RowCardState {
-  const factory RowCardState({
+class CardState with _$CardState {
+  const factory CardState({
     required List<CellContext> cells,
+    required RowMetaPB rowMeta,
     required bool isEditing,
     ChangedReason? changeReason,
   }) = _RowCardState;
 
-  factory RowCardState.initial(
+  factory CardState.initial(
+    RowMetaPB rowMeta,
     List<CellContext> cells,
     bool isEditing,
   ) =>
-      RowCardState(
+      CardState(
         cells: cells,
+        rowMeta: rowMeta,
         isEditing: isEditing,
       );
 }

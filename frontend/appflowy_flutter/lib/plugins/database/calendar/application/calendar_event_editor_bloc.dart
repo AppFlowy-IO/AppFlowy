@@ -1,6 +1,8 @@
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:bloc/bloc.dart';
@@ -10,10 +12,12 @@ part 'calendar_event_editor_bloc.freezed.dart';
 
 class CalendarEventEditorBloc
     extends Bloc<CalendarEventEditorEvent, CalendarEventEditorState> {
+  final FieldController fieldController;
   final RowController rowController;
   final CalendarLayoutSettingPB layoutSettings;
 
   CalendarEventEditorBloc({
+    required this.fieldController,
     required this.rowController,
     required this.layoutSettings,
   }) : super(CalendarEventEditorState.initial()) {
@@ -21,19 +25,18 @@ class CalendarEventEditorBloc
       await event.when(
         initial: () {
           _startListening();
+          final primaryFieldId = fieldController.fieldInfos
+              .firstWhere((fieldInfo) => fieldInfo.isPrimary)
+              .id;
           final cells = rowController
               .loadData()
               .values
               .where(
                 (cellContext) =>
-                    cellContext.isVisible() ||
-                    cellContext.fieldId == layoutSettings.fieldId ||
-                    cellContext.fieldInfo.isPrimary,
+                    _filterCellContext(cellContext, primaryFieldId),
               )
               .toList();
-          if (!isClosed) {
-            add(CalendarEventEditorEvent.didReceiveCellDatas(cells));
-          }
+          add(CalendarEventEditorEvent.didReceiveCellDatas(cells));
         },
         didReceiveCellDatas: (cells) {
           emit(state.copyWith(cells: cells));
@@ -52,21 +55,30 @@ class CalendarEventEditorBloc
   void _startListening() {
     rowController.addListener(
       onRowChanged: (cells, reason) {
-        if (!isClosed) {
-          final cellData = cells.values
-              .where(
-                (cellContext) =>
-                    cellContext.isVisible() ||
-                    cellContext.fieldId == layoutSettings.fieldId ||
-                    cellContext.fieldInfo.isPrimary,
-              )
-              .toList();
-          add(
-            CalendarEventEditorEvent.didReceiveCellDatas(cellData),
-          );
+        if (isClosed) {
+          return;
         }
+        final primaryFieldId = fieldController.fieldInfos
+            .firstWhere((fieldInfo) => fieldInfo.isPrimary)
+            .id;
+        final cellData = cells.values
+            .where(
+              (cellContext) => _filterCellContext(cellContext, primaryFieldId),
+            )
+            .toList();
+        add(CalendarEventEditorEvent.didReceiveCellDatas(cellData));
       },
     );
+  }
+
+  bool _filterCellContext(CellContext cellContext, String primaryFieldId) {
+    return fieldController
+            .getField(cellContext.fieldId)!
+            .fieldSettings!
+            .visibility
+            .isVisibleState() ||
+        cellContext.fieldId == layoutSettings.fieldId ||
+        cellContext.fieldId == primaryFieldId;
   }
 
   @override
@@ -92,5 +104,5 @@ class CalendarEventEditorState with _$CalendarEventEditorState {
   }) = _CalendarEventEditorState;
 
   factory CalendarEventEditorState.initial() =>
-      CalendarEventEditorState(cells: List.empty());
+      const CalendarEventEditorState(cells: []);
 }

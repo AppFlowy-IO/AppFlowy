@@ -12,7 +12,9 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/mobile_row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -315,7 +317,7 @@ class MobileRowDetailPageContent extends StatefulWidget {
 class MobileRowDetailPageContentState
     extends State<MobileRowDetailPageContent> {
   late final RowController rowController;
-  late final MobileRowDetailPageCellBuilder cellBuilder;
+  late final EditableCellBuilder cellBuilder;
 
   String get viewId => widget.databaseController.viewId;
   RowCache get rowCache => widget.databaseController.rowCache;
@@ -331,8 +333,8 @@ class MobileRowDetailPageContentState
       viewId: viewId,
       rowCache: rowCache,
     );
-    cellBuilder = MobileRowDetailPageCellBuilder(
-      cellCache: rowCache.cellCache,
+    cellBuilder = EditableCellBuilder(
+      databaseController: widget.databaseController,
     );
   }
 
@@ -355,27 +357,17 @@ class MobileRowDetailPageContentState
                 child: BlocBuilder<RowBannerBloc, RowBannerState>(
                   builder: (context, state) {
                     if (state.primaryField != null) {
-                      final cellStyle = GridTextCellStyle(
-                        placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
-                        textStyle:
-                            Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                        cellPadding: const EdgeInsets.symmetric(vertical: 9),
-                        useRoundedBorder: false,
-                      );
-
                       final cellContext = CellContext(
                         rowId: rowController.rowId,
                         fieldId: state.primaryField!.id,
                       );
-
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: cellBuilder.build(
+                        child: cellBuilder.buildCustom(
                           cellContext,
-                          style: cellStyle,
+                          skinMap: EditableCellSkinMap(
+                            textSkin: _TitleSkin(),
+                          ),
                         ),
                       );
                     }
@@ -390,9 +382,8 @@ class MobileRowDetailPageContentState
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: MobileRowPropertyList(
+                        databaseController: widget.databaseController,
                         cellBuilder: cellBuilder,
-                        viewId: viewId,
-                        fieldController: fieldController,
                       ),
                     ),
                     Padding(
@@ -416,6 +407,38 @@ class MobileRowDetailPageContentState
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _TitleSkin extends IEditableTextCellSkin {
+  @override
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    TextCellBloc bloc,
+    FocusNode focusNode,
+    TextEditingController textEditingController,
+  ) {
+    return TextField(
+      controller: textEditingController,
+      focusNode: focusNode,
+      maxLines: null,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontSize: 23,
+            fontWeight: FontWeight.w500,
+          ),
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(vertical: 9),
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+        isDense: true,
+        isCollapsed: true,
       ),
     );
   }

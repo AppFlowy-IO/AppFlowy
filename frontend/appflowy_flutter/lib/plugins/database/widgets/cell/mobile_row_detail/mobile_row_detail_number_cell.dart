@@ -30,7 +30,7 @@ class MobileRowDetailNumberCellSkin extends IEditableNumberCellSkin {
             _getInputBorder(color: Theme.of(context).colorScheme.primary),
         hintText: LocaleKeys.grid_row_textPlaceholder.tr(),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
         isCollapsed: true,
         isDense: true,
         constraints: const BoxConstraints(),

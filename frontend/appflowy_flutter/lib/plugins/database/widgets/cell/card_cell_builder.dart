@@ -14,12 +14,6 @@ import 'card_cell_skeleton/select_option_card_cell.dart';
 import 'card_cell_skeleton/text_card_cell.dart';
 import 'card_cell_skeleton/url_card_cell.dart';
 
-// enum CardCellStyle {
-//   desktopBoard,
-//   desktopCalendar,
-//   mobileBoard,
-// }
-
 typedef CardCellStyleMap = Map<FieldType, CardCellStyle>;
 
 class CardCellBuilder {
@@ -36,8 +30,7 @@ class CardCellBuilder {
     final fieldType = databaseController.fieldController
         .getField(cellContext.fieldId)!
         .fieldType;
-    final cellController =
-        makeCellController(databaseController, cellContext, fieldType);
+    final cellController = makeCellController(databaseController, cellContext);
     final key = ValueKey(
       "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );

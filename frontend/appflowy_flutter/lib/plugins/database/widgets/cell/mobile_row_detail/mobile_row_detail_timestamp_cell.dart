@@ -26,16 +26,14 @@ class MobileRowDetailTimestampCellSkin extends IEditableTimestampCellSkin {
         ),
         borderRadius: const BorderRadius.all(Radius.circular(14)),
       ),
-      child: Padding(
-        padding: padding, //TODO YAY
-        child: FlowyText.medium(
-          state.dateStr.isEmpty
-              ? LocaleKeys.grid_row_textPlaceholder.tr()
-              : state.dateStr,
-          fontSize: 16,
-          color: state.dateStr.isEmpty ? Theme.of(context).hintColor : null,
-          maxLines: null,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+      child: FlowyText.medium(
+        state.dateStr.isEmpty
+            ? LocaleKeys.grid_row_textPlaceholder.tr()
+            : state.dateStr,
+        fontSize: 16,
+        color: state.dateStr.isEmpty ? Theme.of(context).hintColor : null,
+        maxLines: null,
       ),
     );
   }

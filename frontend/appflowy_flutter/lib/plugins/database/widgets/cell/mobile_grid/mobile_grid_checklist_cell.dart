@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/checklist.dart';
 
-class MobileGridChecklistCellSkin extends IEditableChecklistSkin {
+class MobileGridChecklistCellSkin extends IEditableChecklistCellSkin {
   @override
   Widget build(
     BuildContext context,
@@ -30,7 +30,10 @@ class MobileGridChecklistCellSkin extends IEditableChecklistSkin {
             : ChecklistProgressBar(
                 tasks: state.tasks,
                 percent: state.percent,
-                fontSize: 15,
+                textStyle: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontSize: 15),
               ),
       ),
       onTap: () => showMobileBottomSheet(

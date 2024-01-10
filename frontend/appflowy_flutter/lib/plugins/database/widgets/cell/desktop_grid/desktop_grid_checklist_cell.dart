@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/checklist.dart';
 
-class DesktopGridChecklistCellSkin extends IEditableChecklistSkin {
+class DesktopGridChecklistCellSkin extends IEditableChecklistCellSkin {
   @override
   Widget build(
     BuildContext context,

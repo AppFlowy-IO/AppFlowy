@@ -48,16 +48,19 @@ class EditableDateCell extends EditableCellWidget {
 
 class _DateCellState extends GridCellState<EditableDateCell> {
   final PopoverController _popover = PopoverController();
+  late final cellBloc = DateCellBloc(cellController: widget.cellController)
+    ..add(const DateCellEvent.initial());
 
-  DateCellBloc get cellBloc => context.read<DateCellBloc>();
+  @override
+  void dispose() {
+    cellBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        return DateCellBloc(cellController: widget.cellController)
-          ..add(const DateCellEvent.initial());
-      },
+    return BlocProvider.value(
+      value: cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
         builder: (context, state) {
           return widget.skin.build(

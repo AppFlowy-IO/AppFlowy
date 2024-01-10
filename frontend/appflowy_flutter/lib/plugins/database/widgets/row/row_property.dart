@@ -4,11 +4,11 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_editor.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -43,7 +43,12 @@ class RowPropertyList extends StatelessWidget {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
         final children = state.visibleCells
-            .where((element) => !element.fieldInfo.field.isPrimary)
+            .where(
+              (cellContext) => !fieldController
+                  .getField(cellContext.fieldId)!
+                  .field
+                  .isPrimary,
+            )
             .mapIndexed(
               (index, cell) => _PropertyCell(
                 key: ValueKey('row_detail_${cell.fieldId}'),
@@ -129,10 +134,15 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   final ValueNotifier<bool> _isFieldHover = ValueNotifier(false);
 
+  FieldInfo get fieldInfo =>
+      widget.fieldController.getField(widget.cellContext.fieldId)!;
+
   @override
   Widget build(BuildContext context) {
-    final style = customCellStyle(widget.cellContext.fieldType);
-    final cell = widget.cellBuilder.build(widget.cellContext, style: style);
+    final cell = widget.cellBuilder.buildStyled(
+      widget.cellContext,
+      EditableCellStyle.desktopRowDetail,
+    );
 
     final dragThumb = MouseRegion(
       cursor: Platform.isWindows
@@ -169,7 +179,7 @@ class _PropertyCellState extends State<_PropertyCell> {
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
       child: AccessoryHover(
-        fieldType: widget.cellContext.fieldType,
+        fieldType: fieldInfo.fieldType,
         child: cell,
       ),
     );
@@ -209,9 +219,9 @@ class _PropertyCellState extends State<_PropertyCell> {
                   waitDuration: const Duration(seconds: 1),
                   preferBelow: false,
                   verticalOffset: 15,
-                  message: widget.cellContext.fieldInfo.field.name,
+                  message: fieldInfo.name,
                   child: FieldCellButton(
-                    field: widget.cellContext.fieldInfo.field,
+                    field: fieldInfo.field,
                     onTap: () => _popoverController.show(),
                     radius: BorderRadius.circular(6),
                     margin:
@@ -230,72 +240,71 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   Widget buildFieldEditor() {
     return FieldEditor(
-      viewId: widget.cellContext.viewId,
-      field: widget.cellContext.fieldInfo.field,
+      viewId: widget.fieldController.viewId,
+      field: fieldInfo.field,
       fieldController: widget.fieldController,
     );
   }
 }
 
-GridCellStyle? customCellStyle(FieldType fieldType) {
-  switch (fieldType) {
-    case FieldType.Checkbox:
-      return GridCheckboxCellStyle(
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      );
-    case FieldType.DateTime:
-      return DateCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        alignment: Alignment.centerLeft,
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      );
-    case FieldType.LastEditedTime:
-    case FieldType.CreatedTime:
-      return TimestampCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        alignment: Alignment.centerLeft,
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      );
-    case FieldType.MultiSelect:
-      return SelectOptionCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      );
-    case FieldType.Checklist:
-      return ChecklistCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: EdgeInsets.zero,
-        showTasksInline: true,
-      );
-    case FieldType.Number:
-      return GridNumberCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      );
-    case FieldType.RichText:
-      return GridTextCellStyle(
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        showEmoji: false,
-      );
-    case FieldType.SingleSelect:
-      return SelectOptionCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      );
-
-    case FieldType.URL:
-      return GridURLCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        accessoryTypes: [
-          GridURLCellAccessoryType.copyURL,
-          GridURLCellAccessoryType.visitURL,
-        ],
-      );
-  }
-  throw UnimplementedError;
-}
+// GridCellStyle? customCellStyle(FieldType fieldType) {
+//   switch (fieldType) {
+//     case FieldType.Checkbox:
+//       return GridCheckboxCellStyle(
+//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+//       );
+//     case FieldType.DateTime:
+//       return DateCellStyle(
+//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+//         alignment: Alignment.centerLeft,
+//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+//       );
+//     case FieldType.LastEditedTime:
+//     case FieldType.CreatedTime:
+//       return TimestampCellStyle(
+//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+//         alignment: Alignment.centerLeft,
+//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+//       );
+//     case FieldType.MultiSelect:
+//       return SelectOptionCellStyle(
+//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+//       );
+//     case FieldType.Checklist:
+//       return ChecklistCellStyle(
+//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+//         cellPadding: EdgeInsets.zero,
+//         showTasksInline: true,
+//       );
+//     case FieldType.Number:
+//       return GridNumberCellStyle(
+//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+//       );
+//     case FieldType.RichText:
+//       return GridTextCellStyle(
+//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+//         showEmoji: false,
+//       );
+//     case FieldType.SingleSelect:
+//       return SelectOptionCellStyle(
+//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+//       );
+//     case FieldType.URL:
+//       return GridURLCellStyle(
+//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+//         accessoryTypes: [
+//           GridURLCellAccessoryType.copyURL,
+//           GridURLCellAccessoryType.visitURL,
+//         ],
+//       );
+//   }
+//   throw UnimplementedError;
+// }
 
 class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
   const ToggleHiddenFieldsVisibilityButton({super.key});

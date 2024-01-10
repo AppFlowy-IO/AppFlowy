@@ -10,8 +10,8 @@ import '../desktop_row_detail/desktop_row_detail_checkbox_cell.dart';
 import '../mobile_grid/mobile_grid_checkbox_cell.dart';
 import '../mobile_row_detail/mobile_row_detail_checkbox_cell.dart';
 
-abstract class IEditableCheckboxSkin {
-  const IEditableCheckboxSkin();
+abstract class IEditableCheckboxCellSkin {
+  const IEditableCheckboxCellSkin();
 
   Widget build(
     BuildContext context,
@@ -20,7 +20,7 @@ abstract class IEditableCheckboxSkin {
     CheckboxCellState state,
   );
 
-  factory IEditableCheckboxSkin.fromStyle(EditableCellStyle style) {
+  factory IEditableCheckboxCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridCheckboxCellSkin(),
       EditableCellStyle.desktopRowDetail => DesktopRowDetailCheckboxCellSkin(),
@@ -32,7 +32,7 @@ abstract class IEditableCheckboxSkin {
 
 class EditableCheckboxCell extends EditableCellWidget {
   final CheckboxCellController cellController;
-  final IEditableCheckboxSkin skin;
+  final IEditableCheckboxCellSkin skin;
 
   EditableCheckboxCell({
     required this.cellController,
@@ -45,15 +45,19 @@ class EditableCheckboxCell extends EditableCellWidget {
 }
 
 class _CheckboxCellState extends GridCellState<EditableCheckboxCell> {
-  CheckboxCellBloc get cellBloc => context.read<CheckboxCellBloc>();
+  late final cellBloc = CheckboxCellBloc(cellController: widget.cellController)
+    ..add(const CheckboxCellEvent.initial());
+
+  @override
+  void dispose() {
+    cellBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        return CheckboxCellBloc(cellController: widget.cellController)
-          ..add(const CheckboxCellEvent.initial());
-      },
+    return BlocProvider.value(
+      value: cellBloc,
       child: BlocBuilder<CheckboxCellBloc, CheckboxCellState>(
         builder: (context, state) {
           return widget.skin.build(

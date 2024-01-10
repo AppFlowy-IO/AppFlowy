@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
@@ -23,9 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
-import '../../widgets/cell/editable_cell_builder.dart';
 import '../../widgets/row/row_detail.dart';
 import 'calendar_day.dart';
 import 'layout/sizes.dart';
@@ -346,26 +343,21 @@ class _CalendarPageState extends State<CalendarPage> {
 
 void showEventDetails({
   required BuildContext context,
+  required DatabaseController databaseController,
   required CalendarEventPB event,
-  required String viewId,
-  required RowCache rowCache,
-  required FieldController fieldController,
 }) {
   final rowController = RowController(
     rowMeta: event.rowMeta,
-    viewId: viewId,
-    rowCache: rowCache,
+    viewId: databaseController.viewId,
+    rowCache: databaseController.rowCache,
   );
 
   FlowyOverlay.show(
     context: context,
     builder: (BuildContext overlayContext) {
       return RowDetailPage(
-        cellBuilder: EditableCellBuilder(
-          cellCache: rowCache.cellCache,
-        ),
         rowController: rowController,
-        fieldController: fieldController,
+        databaseController: databaseController,
       );
     },
   );
@@ -505,9 +497,7 @@ class UnscheduleEventsList extends StatelessWidget {
               showEventDetails(
                 context: context,
                 event: event,
-                viewId: databaseController.viewId,
-                rowCache: databaseController.rowCache,
-                fieldController: databaseController.fieldController,
+                databaseController: databaseController,
               );
               PopoverContainer.of(context).close();
             }

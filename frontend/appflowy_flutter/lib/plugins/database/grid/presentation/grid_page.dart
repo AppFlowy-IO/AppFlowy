@@ -288,8 +288,7 @@ class _GridRows extends StatelessWidget {
     Animation<double>? animation,
   }) {
     final databaseController = context.read<GridBloc>().databaseController;
-    final DatabaseController(:viewId, :fieldController, :rowCache) =
-        databaseController;
+    final DatabaseController(:viewId, :rowCache) = databaseController;
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
     /// Return placeholder widget if the rowMeta is null.
@@ -305,6 +304,7 @@ class _GridRows extends StatelessWidget {
 
     final child = GridRow(
       key: ValueKey(rowMeta.id),
+      fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,
       index: index,
@@ -316,9 +316,8 @@ class _GridRows extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return RowDetailPage(
-              cellBuilder: cellBuilder,
               rowController: rowController,
-              fieldController: fieldController,
+              databaseController: databaseController,
             );
           },
         );

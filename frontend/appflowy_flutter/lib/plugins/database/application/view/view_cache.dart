@@ -50,6 +50,7 @@ class DatabaseViewCache {
     _rowCache = RowCache(
       viewId: viewId,
       fieldsDelegate: depsImpl,
+      rowLifeCycle: depsImpl,
     );
 
     _databaseViewListener.start(
@@ -122,7 +123,7 @@ class DatabaseViewCache {
 
   Future<void> dispose() async {
     await _databaseViewListener.stop();
-    await _rowCache.dispose();
+    _rowCache.dispose();
     _callbacks.clear();
   }
 

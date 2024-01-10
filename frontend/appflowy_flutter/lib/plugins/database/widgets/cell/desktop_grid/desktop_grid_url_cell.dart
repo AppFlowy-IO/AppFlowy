@@ -3,14 +3,13 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/url_cell/url_cell_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../editable_cell_skeleton/url.dart';
@@ -23,17 +22,16 @@ class DesktopGridURLSkin extends IEditableURLCellSkin {
     URLCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
+    URLCellDataNotifier cellDataNotifier,
   ) {
     return TextField(
       controller: textEditingController,
       focusNode: focusNode,
       maxLines: null,
-      style: (widget.cellStyle.textStyle ??
-              Theme.of(context).textTheme.bodyMedium!)
-          .copyWith(
-        color: Theme.of(context).colorScheme.primary,
-        decoration: TextDecoration.underline,
-      ),
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            decoration: TextDecoration.underline,
+          ),
       autofocus: false,
       decoration: InputDecoration(
         contentPadding: GridSize.cellContentInsets,
@@ -42,10 +40,10 @@ class DesktopGridURLSkin extends IEditableURLCellSkin {
         enabledBorder: InputBorder.none,
         errorBorder: InputBorder.none,
         disabledBorder: InputBorder.none,
-        hintText: widget.cellStyle.placeholder,
-        hintStyle: (widget.cellStyle.textStyle ??
-                Theme.of(context).textTheme.bodyMedium!)
-            .copyWith(color: Theme.of(context).hintColor),
+        hintStyle: Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(color: Theme.of(context).hintColor),
         isDense: true,
       ),
       onTapOutside: (_) => focusNode.unfocus(),
@@ -53,49 +51,42 @@ class DesktopGridURLSkin extends IEditableURLCellSkin {
   }
 
   @override
-  List<GridCellAccessoryBuilder<State<StatefulWidget>>> accessoryBuilder(
-    GridCellAccessoryBuildContext buildContext,
+  List<GridCellAccessoryBuilder> accessoryBuilder(
+    GridCellAccessoryBuildContext context,
+    URLCellDataNotifier cellDataNotifier,
   ) {
-    final List<GridCellAccessoryBuilder> accessories = [];
-    accessories.addAll(
-      cellStyle.accessoryTypes.map((ty) {
-        return _accessoryFromType(ty, context);
-      }),
-    );
+    return [
+      accessoryFromType(
+        GridURLCellAccessoryType.visitURL,
+        cellDataNotifier,
+      ),
+      accessoryFromType(
+        GridURLCellAccessoryType.copyURL,
+        cellDataNotifier,
+      ),
+    ];
+  }
+}
 
-    // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.visitURL
-    if (accessories.isEmpty) {
-      accessories.add(
-        _accessoryFromType(
-          GridURLCellAccessoryType.visitURL,
-          context,
+GridCellAccessoryBuilder accessoryFromType(
+  GridURLCellAccessoryType ty,
+  URLCellDataNotifier cellDataNotifier,
+) {
+  switch (ty) {
+    case GridURLCellAccessoryType.visitURL:
+      return VisitURLCellAccessoryBuilder(
+        builder: (Key key) => _VisitURLAccessory(
+          key: key,
+          cellDataNotifier: cellDataNotifier,
         ),
       );
-    }
-
-    return accessories;
-  }
-
-  GridCellAccessoryBuilder _accessoryFromType(
-    GridURLCellAccessoryType ty,
-    GridCellAccessoryBuildContext buildContext,
-  ) {
-    switch (ty) {
-      case GridURLCellAccessoryType.visitURL:
-        return VisitURLCellAccessoryBuilder(
-          builder: (Key key) => _VisitURLAccessory(
-            key: key,
-            cellDataNotifier: _cellDataNotifier,
-          ),
-        );
-      case GridURLCellAccessoryType.copyURL:
-        return CopyURLCellAccessoryBuilder(
-          builder: (Key key) => _CopyURLAccessory(
-            key: key,
-            cellDataNotifier: _cellDataNotifier,
-          ),
-        );
-    }
+    case GridURLCellAccessoryType.copyURL:
+      return CopyURLCellAccessoryBuilder(
+        builder: (Key key) => _CopyURLAccessory(
+          key: key,
+          cellDataNotifier: cellDataNotifier,
+        ),
+      );
   }
 }
 

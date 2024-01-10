@@ -241,6 +241,18 @@ class RowCache {
     );
   }
 
+  CellContextByFieldId _makeCells(RowMetaPB rowMeta) {
+    // TODO(RS): no need to use HashMap
+    final cellContextMap = CellContextByFieldId();
+    for (final fieldInfo in _fieldDelegate.fieldInfos) {
+      cellContextMap[fieldInfo.id] = CellContext(
+        rowId: rowMeta.id,
+        fieldId: fieldInfo.id,
+      );
+    }
+    return cellContextMap;
+  }
+
   RowInfo buildGridRow(RowMetaPB rowMetaPB) {
     return RowInfo(
       viewId: viewId,
