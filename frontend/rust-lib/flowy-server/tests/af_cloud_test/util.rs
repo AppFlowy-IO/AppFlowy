@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use client_api::ClientConfiguration;
 use uuid::Uuid;
 
 use flowy_server::af_cloud::AppFlowyCloudServer;
@@ -29,11 +30,11 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer>
 }
 
 pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguration) -> String {
-  let client = client_api::Client::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
+  let client = client_api::Client::new(&config.base_url, &config.ws_base_url, &config.gotrue_url, ClientConfiguration::default());
   let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
   let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
   let admin_client =
-    client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url());
+    client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url(), ClientConfiguration::default());
   admin_client
     .sign_in_password(&admin_email, &admin_password)
     .await

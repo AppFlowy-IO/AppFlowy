@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 
 use anyhow::Error;
+use flowy_storage::StorageObject;
 use hyper::header::CONTENT_TYPE;
 use reqwest::header::IntoHeaderName;
 use reqwest::multipart::{Form, Part};
@@ -12,7 +13,6 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use url::Url;
 
-use flowy_storage::StorageObject;
 
 use crate::supabase::file_storage::{DeleteObjects, FileOptions, NewBucket, RequestBody};
 

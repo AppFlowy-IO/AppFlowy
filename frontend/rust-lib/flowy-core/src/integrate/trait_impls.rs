@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::Error;
-use bytes::Bytes;
 use client_api::collab_sync::{SinkConfig, SinkStrategy, SyncObject, SyncPlugin};
 use collab::core::collab::CollabDocState;
 use collab::core::origin::{CollabClient, CollabOrigin};
@@ -23,35 +22,43 @@ use flowy_folder_deps::cloud::{
 };
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_storage::{FileStorageService, StorageObject};
+use flowy_storage::{ObjectIdentity, ObjectStorageService, ObjectValue};
 use flowy_user_deps::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_deps::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::integrate::server::{Server, ServerProvider};
 
-impl FileStorageService for ServerProvider {
-  fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
+impl ObjectStorageService for ServerProvider {
+  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
     let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.create_object(object).await
+      storage.get_object_url(object_id).await
     })
   }
 
-  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError> {
+  fn put_object(&self, url: String, val: ObjectValue) -> FutureResult<(), FlowyError> {
     let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.delete_object_by_url(object_url).await
+      storage.put_object(url, val).await
     })
   }
 
-  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError> {
+  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError> {
     let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.get_object_by_url(object_url).await
+      storage.delete_object(url).await
+    })
+  }
+
+  fn get_object(&self, url: String) -> FutureResult<flowy_storage::ObjectValue, FlowyError> {
+    let server = self.get_server();
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage.get_object(url).await
     })
   }
 }

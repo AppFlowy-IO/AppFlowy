@@ -11,7 +11,7 @@ use tokio_stream::wrappers::WatchStream;
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_storage::FileStorageService;
+use flowy_storage::ObjectStorageService;
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::UserTokenState;
 use lib_infra::future::FutureResult;
@@ -131,7 +131,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     FutureResult::new(async { Ok(None) })
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>>;
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>>;
 }
 
 pub struct EncryptionImpl {

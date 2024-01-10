@@ -8,7 +8,7 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_storage::FileStorageService;
+use flowy_storage::ObjectStorageService;
 use flowy_user::manager::UserManager;
 
 pub struct DocumentDepsResolver();
@@ -18,7 +18,7 @@ impl DocumentDepsResolver {
     _database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
-    storage_service: Weak<dyn FileStorageService>,
+    storage_service: Weak<dyn ObjectStorageService>,
   ) -> Arc<DocumentManager> {
     let user_service: Arc<dyn DocumentUserService> =
       Arc::new(DocumentUserImpl(user_manager.clone()));

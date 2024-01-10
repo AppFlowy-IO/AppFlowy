@@ -18,7 +18,7 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfi
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_storage::FileStorageService;
+use flowy_storage::ObjectStorageService;
 
 use crate::document::MutexDocument;
 use crate::entities::{
@@ -46,7 +46,7 @@ pub struct DocumentManager {
   collab_builder: Arc<AppFlowyCollabBuilder>,
   documents: Arc<Mutex<LruCache<String, Arc<MutexDocument>>>>,
   cloud_service: Arc<dyn DocumentCloudService>,
-  storage_service: Weak<dyn FileStorageService>,
+  storage_service: Weak<dyn ObjectStorageService>,
   snapshot_service: Arc<dyn DocumentSnapshotService>,
 }
 
@@ -55,7 +55,7 @@ impl DocumentManager {
     user_service: Arc<dyn DocumentUserService>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
-    storage_service: Weak<dyn FileStorageService>,
+    storage_service: Weak<dyn ObjectStorageService>,
     snapshot_service: Arc<dyn DocumentSnapshotService>,
   ) -> Self {
     let documents = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(10).unwrap())));
@@ -298,7 +298,7 @@ impl DocumentManager {
   }
   /// Only expose this method for testing
   #[cfg(debug_assertions)]
-  pub fn get_file_storage_service(&self) -> &Weak<dyn FileStorageService> {
+  pub fn get_file_storage_service(&self) -> &Weak<dyn ObjectStorageService> {
     &self.storage_service
   }
 }

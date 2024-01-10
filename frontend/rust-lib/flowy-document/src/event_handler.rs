@@ -12,8 +12,8 @@ use std::task::{Context, Poll};
 use collab_document::blocks::{
   BlockAction, BlockActionPayload, BlockActionType, BlockEvent, BlockEventPayload, DeltaType,
 };
-use flowy_storage::{ObjectValue, StorageObject};
-use tokio::io::{self, AsyncWrite, AsyncWriteExt, AsyncReadExt};
+use flowy_storage::{ObjectIdentity, ObjectValue};
+use tokio::io::{self, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tracing::{info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -419,25 +419,37 @@ pub(crate) async fn upload_file_handler(
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The file storage service is already dropped"))?;
 
-    let mut file = tokio::fs::File::open(&params.local_file_path).await?;
-    let mut content = Vec::new();
-    let n = file.read_to_end(& mut content).await?;
-    info!(
-      "read {} bytes from file: {}",
-      n, &params.local_file_path
-    );
+  let mut file = tokio::fs::File::open(&params.local_file_path).await?;
+  let mut content = Vec::new();
+  let n = file.read_to_end(&mut content).await?;
+  info!("read {} bytes from file: {}", n, &params.local_file_path);
 
   let hash = fxhash::hash(&content);
-  let mime: String = mime_guess::from_path(&params.local_file_path).first_or_octet_stream().to_string();
+  let mime = mime_guess::from_path(&params.local_file_path).first_or_octet_stream();
+
   let url = file_service
-    .create_object(StorageObject {
-      workspace_id: params.workspace_id.clone(),
-      file_name: hash.to_string(),
-      value: ObjectValue::Bytes {
-          bytes: content.into(),
-          mime: mime.into(),
-    }})
+    .get_object_url(ObjectIdentity {
+      workspace_id: params.workspace_id.to_owned(),
+      file_id: hash.to_string(),
+    })
     .await?;
+
+  // let the upload happen in the background
+  let url_clone = url.clone();
+  tokio::spawn(async move {
+    if let Err(e) = file_service
+      .put_object(
+        url_clone,
+        ObjectValue {
+          raw: content.into(),
+          mime,
+        },
+      )
+      .await
+    {
+      tracing::error!("upload file failed: {}", e);
+    }
+  });
 
   let local_file_path = params.local_file_path.to_owned();
   Ok(AFPluginData(UploadedFilePB {
@@ -463,7 +475,7 @@ pub(crate) async fn download_file_handler(
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The file storage service is already dropped"))?;
 
-  let raw = file_service.get_object_by_url(params.url.clone()).await?;
+  let object_value = file_service.get_object(params.url.clone()).await?;
 
   // create file if not exist
   let mut file = tokio::fs::OpenOptions::new()
@@ -472,7 +484,7 @@ pub(crate) async fn download_file_handler(
     .open(&path)
     .await?;
 
-  let n = file.write(raw.as_ref()).await?;
+  let n = file.write(&object_value.raw).await?;
   info!("downloaded {} bytes to file: {}", n, path);
   Ok(())
 }
@@ -487,9 +499,7 @@ pub(crate) async fn delete_uploaded_file_handler(
     .get_file_storage_service()
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The file storage service is already dropped"))?;
-  file_service
-    .delete_object_by_url(params.url.clone())
-    .await?;
+  file_service.delete_object(params.url.clone()).await?;
 
   tokio::fs::remove_file(&params.local_file_path).await?;
   Ok(())

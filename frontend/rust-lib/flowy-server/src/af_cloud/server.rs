@@ -8,7 +8,7 @@ use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
-use client_api::Client;
+use client_api::{Client, ClientConfiguration};
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{error, event, info};
@@ -18,7 +18,7 @@ use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_storage::FileStorageService;
+use flowy_storage::ObjectStorageService;
 use flowy_user_deps::cloud::{UserCloudService, UserUpdate};
 use flowy_user_deps::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
@@ -45,7 +45,7 @@ pub struct AppFlowyCloudServer {
 
 impl AppFlowyCloudServer {
   pub fn new(config: AFCloudConfiguration, enable_sync: bool, device_id: String) -> Self {
-    let api_client = AFCloudClient::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
+    let api_client = AFCloudClient::new(&config.base_url, &config.ws_base_url, &config.gotrue_url, ClientConfiguration::default());
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
     let network_reachable = Arc::new(AtomicBool::new(true));
@@ -206,7 +206,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     }
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
     let client = AFServerImpl {
       client: self.get_client(),
     };

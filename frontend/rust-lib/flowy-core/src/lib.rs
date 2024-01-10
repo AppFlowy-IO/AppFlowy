@@ -12,7 +12,7 @@ use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_folder::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_storage::FileStorageService;
+use flowy_storage::ObjectStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::manager::UserManager;
 use flowy_user::services::entities::UserConfig;
@@ -141,7 +141,7 @@ impl AppFlowyCore {
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&(server_provider.clone() as Arc<dyn FileStorageService>)),
+        Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
       let folder_manager = FolderDepsResolver::resolve(
