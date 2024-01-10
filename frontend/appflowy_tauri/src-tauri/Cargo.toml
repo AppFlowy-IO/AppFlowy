@@ -14,7 +14,7 @@ rust-version = "1.57"
 tauri-build = { version = "1.5", features = [] }
 
 [workspace.dependencies]
-anyhow = "1.0.75"
+anyhow = "1.0"
 tracing = "0.1.40"
 bytes = "1.5.0"
 serde = "1.0.108"
@@ -35,7 +35,7 @@ lru = "0.12.0"
 serde_json.workspace = true
 serde.workspace = true
 tauri = { version = "1.5", features = ["clipboard-all", "fs-all", "shell-open"] }
-tauri-utils = "1.5"
+tauri-utils = "1.5.2"
 bytes.workspace = true
 tracing.workspace = true
 lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }
@@ -57,7 +57,7 @@ custom-protocol = ["tauri/custom-protocol"]
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "2d5c49e96d4b9d9d198acf5dcb1d4780206728e6" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "97d1bb532c2242bcc29f5a0e162000e3becbedb" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
