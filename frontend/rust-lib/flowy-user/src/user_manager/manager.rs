@@ -737,16 +737,10 @@ impl UserManager {
       .authenticate_user
       .database
       .get_collab_db(new_user.session.user_id)?;
-    migration_anon_user_on_sign_up(
-      old_user,
-      &old_collab_db,
-      new_user,
-      &new_collab_db,
-      authenticator,
-    )?;
 
     match authenticator {
       Authenticator::Supabase => {
+        migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
         if let Err(err) = sync_supabase_user_data_to_cloud(
           self.cloud_services.get_user_service()?,
           &self.authenticate_user.user_config.device_id,
@@ -759,6 +753,7 @@ impl UserManager {
         }
       },
       Authenticator::AppFlowyCloud => {
+        migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
         if let Err(err) = sync_af_user_data_to_cloud(
           self.cloud_services.get_user_service()?,
           &self.authenticate_user.user_config.device_id,

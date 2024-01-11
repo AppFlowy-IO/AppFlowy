@@ -18,7 +18,6 @@ use tracing::info;
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::gen_view_id;
-use flowy_user_pub::entities::Authenticator;
 
 use crate::migrations::MigrationUser;
 
@@ -29,7 +28,6 @@ pub fn migration_anon_user_on_sign_up(
   old_collab_db: &Arc<CollabKVDB>,
   new_user: &MigrationUser,
   new_collab_db: &Arc<CollabKVDB>,
-  authenticator: &Authenticator,
 ) -> FlowyResult<()> {
   new_collab_db
     .with_write_txn(|new_collab_w_txn| {
@@ -75,7 +73,6 @@ pub fn migration_anon_user_on_sign_up(
         &old_collab_r_txn,
         new_user,
         new_collab_w_txn,
-        authenticator,
       )?;
 
       // Migrate other collab objects
@@ -198,7 +195,6 @@ fn migrate_workspace_folder<'a, 'b, W, R>(
   old_collab_r_txn: &R,
   new_user: &MigrationUser,
   new_collab_w_txn: &W,
-  _authenticator: &Authenticator,
 ) -> Result<(), PersistenceError>
 where
   'a: 'b,
