@@ -14,7 +14,7 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, Database, ExpressionMethods,
 };
-use flowy_user_deps::entities::{UserProfile, UserWorkspace};
+use flowy_user_pub::entities::{UserProfile, UserWorkspace};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
 

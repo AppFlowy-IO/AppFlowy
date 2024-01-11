@@ -14,7 +14,7 @@ use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_server_config::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::AppFlowyCoreConfig;
 

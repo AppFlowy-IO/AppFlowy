@@ -22,7 +22,7 @@ collab-document = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-user = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
-flowy-user-deps = { workspace = true }
+flowy-user-pub = { workspace = true }
 anyhow.workspace = true
 tracing.workspace = true
 bytes.workspace = true

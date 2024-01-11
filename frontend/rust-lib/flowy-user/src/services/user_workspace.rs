@@ -7,7 +7,7 @@ use tracing::{error, instrument};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
-use flowy_user_deps::entities::{Role, UserWorkspace, WorkspaceMember};
+use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};

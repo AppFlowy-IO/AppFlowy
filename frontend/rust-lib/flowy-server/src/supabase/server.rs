@@ -5,12 +5,12 @@ use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{RemoteCollabStorage, RemoteUpdateSender};
 use parking_lot::RwLock;
 
-use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_storage::FileStorageService;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_pub::cloud::UserCloudService;
 
 use crate::supabase::api::{
   RESTfulPostgresServer, RealtimeCollabUpdateHandler, RealtimeEventHandler, RealtimeUserHandler,

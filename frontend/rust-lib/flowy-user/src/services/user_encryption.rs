@@ -1,7 +1,7 @@
 use crate::entities::{AuthStateChangedPB, AuthStatePB};
 use flowy_encrypt::{decrypt_text, encrypt_text};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_deps::entities::{
+use flowy_user_pub::entities::{
   EncryptionType, UpdateUserProfileParams, UserCredentials, UserProfile,
 };
 

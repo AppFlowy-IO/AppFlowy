@@ -5,7 +5,7 @@ use collab::core::origin::CollabOrigin;
 use collab_document::document::Document;
 use collab_entity::CollabType;
 
-use flowy_document_deps::cloud::*;
+use flowy_document_pub::cloud::*;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 

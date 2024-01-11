@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use flowy_encrypt::{encrypt_text, generate_encryption_secret};
 use flowy_error::FlowyError;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{

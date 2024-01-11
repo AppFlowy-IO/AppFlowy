@@ -9,7 +9,7 @@ use tracing::{event, instrument};
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_user_deps::entities::Authenticator;
+use flowy_user_pub::entities::Authenticator;
 
 use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;

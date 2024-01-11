@@ -6,7 +6,7 @@ use collab_integrate::CollabKVDB;
 use flowy_database2::DatabaseManager;
 use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
-use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
 use flowy_user::manager::UserManager;

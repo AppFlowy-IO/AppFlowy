@@ -17,8 +17,8 @@ use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
-use flowy_user_deps::cloud::{UserCloudServiceProvider, UserUpdate};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::{UserCloudServiceProvider, UserUpdate};
+use flowy_user_pub::entities::*;
 
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;

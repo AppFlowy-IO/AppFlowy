@@ -1,5 +1,5 @@
 [package]
-name = "flowy-document-deps"
+name = "flowy-database-pub"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 lib-infra = { workspace = true }
-flowy-error  = { workspace = true }
-collab-document = { version = "0.1.0" }
-anyhow.workspace = true
+collab-entity = { version = "0.1.0" }
 collab = { version = "0.1.0" }
+anyhow.workspace = true

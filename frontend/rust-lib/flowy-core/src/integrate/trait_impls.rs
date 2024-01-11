@@ -14,9 +14,9 @@ use tracing::{debug, instrument};
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use flowy_document::deps::DocumentData;
-use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
+use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
@@ -24,8 +24,8 @@ use flowy_folder_pub::cloud::{
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStorageService, StorageObject};
-use flowy_user_deps::cloud::{UserCloudService, UserCloudServiceProvider};
-use flowy_user_deps::entities::{Authenticator, UserTokenState};
+use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
+use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::integrate::server::{Server, ServerProvider};

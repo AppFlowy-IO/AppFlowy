@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use flowy_user_deps::entities::{AuthResponse, UserProfile, UserWorkspace};
-use flowy_user_deps::entities::{Authenticator, UserAuthResponse};
+use flowy_user_pub::entities::{AuthResponse, UserProfile, UserWorkspace};
+use flowy_user_pub::entities::{Authenticator, UserAuthResponse};
 
 use crate::entities::AuthenticatorPB;
 use crate::migrations::MigrationUser;

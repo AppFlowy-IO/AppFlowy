@@ -18,9 +18,9 @@ use uuid::Uuid;
 
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{Folder, FolderData, Workspace};
-use flowy_user_deps::cloud::*;
-use flowy_user_deps::entities::*;
-use flowy_user_deps::DEFAULT_USER_NAME;
+use flowy_user_pub::cloud::*;
+use flowy_user_pub::entities::*;
+use flowy_user_pub::DEFAULT_USER_NAME;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;

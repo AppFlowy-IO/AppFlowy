@@ -1447,10 +1447,10 @@ dependencies = [
  "collab-plugins",
  "dotenv",
  "flowy-core",
- "flowy-database-deps",
+ "flowy-database-pub",
  "flowy-database2",
  "flowy-document",
- "flowy-document-deps",
+ "flowy-document-pub",
  "flowy-encrypt",
  "flowy-folder",
  "flowy-folder-pub",
@@ -1459,7 +1459,7 @@ dependencies = [
  "flowy-server-config",
  "flowy-storage",
  "flowy-user",
- "flowy-user-deps",
+ "flowy-user-pub",
  "futures-util",
  "lib-dispatch",
  "lib-infra",
@@ -1640,11 +1640,11 @@ dependencies = [
  "console-subscriber",
  "diesel",
  "flowy-config",
- "flowy-database-deps",
+ "flowy-database-pub",
  "flowy-database2",
  "flowy-date",
  "flowy-document",
- "flowy-document-deps",
+ "flowy-document-pub",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-pub",
@@ -1654,7 +1654,7 @@ dependencies = [
  "flowy-storage",
  "flowy-task",
  "flowy-user",
- "flowy-user-deps",
+ "flowy-user-pub",
  "futures",
  "futures-core",
  "lib-dispatch",
@@ -1672,7 +1672,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-database-deps"
+name = "flowy-database-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1700,7 +1700,7 @@ dependencies = [
  "event-integration",
  "fancy-regex 0.11.0",
  "flowy-codegen",
- "flowy-database-deps",
+ "flowy-database-pub",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
@@ -1773,7 +1773,7 @@ dependencies = [
  "collab-integrate",
  "flowy-codegen",
  "flowy-derive",
- "flowy-document-deps",
+ "flowy-document-pub",
  "flowy-error",
  "flowy-notification",
  "flowy-storage",
@@ -1800,7 +1800,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document-deps"
+name = "flowy-document-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1923,14 +1923,14 @@ dependencies = [
  "collab-entity",
  "collab-plugins",
  "dotenv",
- "flowy-database-deps",
- "flowy-document-deps",
+ "flowy-database-pub",
+ "flowy-document-pub",
  "flowy-encrypt",
  "flowy-error",
  "flowy-folder-pub",
  "flowy-server-config",
  "flowy-storage",
- "flowy-user-deps",
+ "flowy-user-pub",
  "futures",
  "futures-util",
  "hex",
@@ -2041,7 +2041,7 @@ dependencies = [
  "flowy-notification",
  "flowy-server-config",
  "flowy-sqlite",
- "flowy-user-deps",
+ "flowy-user-pub",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -2067,7 +2067,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-user-deps"
+name = "flowy-user-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",

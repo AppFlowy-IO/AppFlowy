@@ -2,7 +2,7 @@ use tracing::instrument;
 
 use crate::entities::UserProfilePB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_deps::entities::Authenticator;
+use flowy_user_pub::entities::Authenticator;
 
 use crate::manager::UserManager;
 use crate::migrations::MigrationUser;

@@ -6,7 +6,7 @@ use yrs::types::ToJson;
 use yrs::updates::decoder::Decode;
 use yrs::{merge_updates_v1, Array, Doc, Map, MapPrelim, ReadTxn, StateVector, Transact, Update};
 
-use flowy_user_deps::entities::AuthResponse;
+use flowy_user_pub::entities::AuthResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{

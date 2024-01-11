@@ -6,7 +6,7 @@ use collab::core::origin::CollabOrigin;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use uuid::Uuid;
 
-use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{Folder, FolderCloudService};
 use flowy_server::supabase::api::{
@@ -18,7 +18,7 @@ use flowy_server::supabase::file_storage::core::SupabaseFileStorage;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStoragePlan, FileStorageService, StorageObject};
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_pub::cloud::UserCloudService;
 use lib_infra::future::FutureResult;
 
 use crate::setup_log;

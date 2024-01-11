@@ -16,7 +16,7 @@ use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::manager::UserManager;
 use flowy_user::services::entities::UserConfig;
-use flowy_user_deps::cloud::UserCloudServiceProvider;
+use flowy_user_pub::cloud::UserCloudServiceProvider;
 
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
