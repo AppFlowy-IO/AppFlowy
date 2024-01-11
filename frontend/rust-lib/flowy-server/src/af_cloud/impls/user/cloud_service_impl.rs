@@ -273,7 +273,7 @@ where
         })
         .collect::<Vec<_>>();
       try_get_client?
-        .batch_create_collab(&workspace_id, params)
+        .create_collab_list(&workspace_id, params)
         .await
         .map_err(FlowyError::from)?;
       Ok(())
