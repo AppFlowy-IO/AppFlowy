@@ -3,6 +3,8 @@ use bytes::Bytes;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 use mime::Mime;
+use tokio::io::AsyncReadExt;
+use tracing::info;
 
 pub struct ObjectIdentity {
   pub workspace_id: String,
@@ -13,6 +15,21 @@ pub struct ObjectIdentity {
 pub struct ObjectValue {
   pub raw: Bytes,
   pub mime: Mime,
+}
+
+impl ObjectValue {
+  pub async fn from_file(local_file_path: &str) -> Result<Self, FlowyError> {
+    let mut file = tokio::fs::File::open(local_file_path).await?;
+    let mut content = Vec::new();
+    let n = file.read_to_end(&mut content).await?;
+    info!("read {} bytes from file: {}", n, local_file_path);
+    let mime = mime_guess::from_path(local_file_path).first_or_octet_stream();
+
+    Ok(ObjectValue {
+      raw: content.into(),
+      mime,
+    })
+  }
 }
 
 /// Provides a service for object storage.

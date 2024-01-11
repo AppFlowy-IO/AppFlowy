@@ -30,7 +30,6 @@ where
     let file = file.clone();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let url = url;
       client.put_blob(&url, file.raw, &file.mime).await?;
       Ok(())
     })

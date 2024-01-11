@@ -2,7 +2,6 @@ use client_api::ClientConfiguration;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use client_api::ClientConfiguration;
 use uuid::Uuid;
 
 use flowy_server::af_cloud::AppFlowyCloudServer;
