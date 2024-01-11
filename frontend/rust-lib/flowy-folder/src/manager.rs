@@ -39,7 +39,6 @@ use crate::view_operation::{create_view, FolderOperationHandler, FolderOperation
 #[async_trait]
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 
   /// Import appflowy data from the given path.

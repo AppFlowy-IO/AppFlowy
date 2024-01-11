@@ -1,7 +1,7 @@
 #![allow(unused_doc_comments)]
 
 use std::sync::Arc;
-use std::sync::Weak;
+
 use std::time::Duration;
 
 use tokio::sync::RwLock;
@@ -13,9 +13,9 @@ use flowy_document::manager::DocumentManager;
 use flowy_folder::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
+use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
 use flowy_user::user_manager::UserManager;
-use flowy_user_pub::cloud::UserCloudServiceProvider;
 
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
@@ -118,18 +118,30 @@ impl AppFlowyCore {
         config.device_id.clone(),
       ));
 
-      let user_manager = init_user_manager(
-        &config,
-        &store_preference,
+      let user_config = UserConfig::new(
+        &config.name,
+        &config.storage_path,
+        &config.application_path,
+        &config.device_id,
+      );
+
+      let authenticate_user = Arc::new(AuthenticateUser::new(
+        user_config.clone(),
+        store_preference.clone(),
+      ));
+
+      let user_manager = UserManager::new(
         server_provider.clone(),
+        store_preference.clone(),
         Arc::downgrade(&collab_builder),
+        authenticate_user.clone(),
       );
 
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_manager))));
 
       let database_manager = DatabaseDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         task_dispatcher.clone(),
         collab_builder.clone(),
         server_provider.clone(),
@@ -137,7 +149,7 @@ impl AppFlowyCore {
       .await;
 
       let document_manager = DocumentDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
@@ -145,7 +157,7 @@ impl AppFlowyCore {
       );
 
       let folder_manager = FolderDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         &document_manager,
         &database_manager,
         collab_builder.clone(),
@@ -214,26 +226,6 @@ impl AppFlowyCore {
   pub fn dispatcher(&self) -> Arc<AFPluginDispatcher> {
     self.event_dispatcher.clone()
   }
-}
-
-fn init_user_manager(
-  config: &AppFlowyCoreConfig,
-  storage_preference: &Arc<StorePreferences>,
-  user_cloud_service_provider: Arc<dyn UserCloudServiceProvider>,
-  collab_builder: Weak<AppFlowyCollabBuilder>,
-) -> Arc<UserManager> {
-  let user_config = UserConfig::new(
-    &config.name,
-    &config.storage_path,
-    &config.application_path,
-    &config.device_id,
-  );
-  UserManager::new(
-    user_config,
-    user_cloud_service_provider,
-    storage_preference.clone(),
-    collab_builder,
-  )
 }
 
 impl From<Server> for CollabPluginProviderType {

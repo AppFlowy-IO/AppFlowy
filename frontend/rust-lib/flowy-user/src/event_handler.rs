@@ -163,16 +163,13 @@ pub async fn get_appearance_setting(
   match store_preferences.get_str(APPEARANCE_SETTING_CACHE_KEY) {
     None => data_result_ok(AppearanceSettingsPB::default()),
     Some(s) => {
-      let setting = match serde_json::from_str(&s) {
-        Ok(setting) => setting,
-        Err(e) => {
-          tracing::error!(
-            "Deserialize AppearanceSettings failed: {:?}, fallback to default",
-            e
-          );
-          AppearanceSettingsPB::default()
-        },
-      };
+      let setting = serde_json::from_str(&s).unwrap_or_else(|err| {
+        tracing::error!(
+          "Deserialize AppearanceSettings failed: {:?}, fallback to default",
+          err
+        );
+        AppearanceSettingsPB::default()
+      });
       data_result_ok(setting)
     },
   }

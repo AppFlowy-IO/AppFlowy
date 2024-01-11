@@ -129,7 +129,7 @@ impl UserManager {
       reset.workspace_id.clone(),
       CollabType::Folder,
       reset.workspace_id.clone(),
-      self.user_config.device_id.clone(),
+      self.authenticate_user.user_config.device_id.clone(),
     );
     self
       .cloud_services

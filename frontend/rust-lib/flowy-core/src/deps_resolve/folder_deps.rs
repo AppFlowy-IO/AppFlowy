@@ -1,11 +1,4 @@
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::sync::{Arc, Weak};
-
 use bytes::Bytes;
-
-use tokio::sync::RwLock;
-
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_database2::entities::DatabaseLayoutPB;
@@ -21,11 +14,13 @@ use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
+use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 
-use flowy_folder_pub::entities::ImportData;
 use flowy_folder_pub::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
-use flowy_user::services::data_import::ImportDataSource;
-use flowy_user::user_manager::UserManager;
+use flowy_user::services::authenticate_user::AuthenticateUser;
 
 use crate::integrate::server::ServerProvider;
 use lib_dispatch::prelude::ToBytes;
@@ -35,14 +30,14 @@ use lib_infra::future::FutureResult;
 pub struct FolderDepsResolver();
 impl FolderDepsResolver {
   pub async fn resolve(
-    user_manager: Weak<UserManager>,
+    authenticate_user: Weak<AuthenticateUser>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
-      user_manager: user_manager.clone(),
+      authenticate_user: authenticate_user.clone(),
       database_manager: Arc::downgrade(database_manager),
     });
 
@@ -77,7 +72,7 @@ fn folder_operation_handlers(
 }
 
 struct FolderUserImpl {
-  user_manager: Weak<UserManager>,
+  authenticate_user: Weak<AuthenticateUser>,
   database_manager: Weak<DatabaseManager>,
 }
 
@@ -85,23 +80,15 @@ struct FolderUserImpl {
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
-      .user_manager
+      .authenticate_user
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
   }
 
-  fn token(&self) -> Result<Option<String>, FlowyError> {
-    self
-      .user_manager
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .token()
-  }
-
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
-      .user_manager
+      .authenticate_user
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
@@ -109,34 +96,35 @@ impl FolderUser for FolderUserImpl {
 
   async fn import_appflowy_data_folder(
     &self,
-    path: &str,
-    container_name: Option<String>,
+    _path: &str,
+    _container_name: Option<String>,
   ) -> Result<Vec<ParentChildViews>, FlowyError> {
-    match (self.user_manager.upgrade(), self.database_manager.upgrade()) {
-      (Some(user_manager), Some(data_manager)) => {
-        let source = ImportDataSource::AppFlowyDataFolder {
-          path: path.to_string(),
-          container_name,
-        };
-        let import_data = user_manager.import_data_from_source(source).await?;
-        match import_data {
-          ImportData::AppFlowyDataFolder {
-            views,
-            database_view_ids_by_database_id,
-            row_object_ids: _,
-            database_object_ids: _,
-            document_object_ids: _,
-          } => {
-            let _uid = self.user_id()?;
-            data_manager
-              .track_database(database_view_ids_by_database_id)
-              .await?;
-            Ok(views)
-          },
-        }
-      },
-      _ => Err(FlowyError::internal().with_context("Unexpected error: UserSession is None")),
-    }
+    todo!()
+    // match (self.authenticate_user.upgrade(), self.database_manager.upgrade()) {
+    //   (Some(authenticate_user), Some(data_manager)) => {
+    //     let source = ImportDataSource::AppFlowyDataFolder {
+    //       path: path.to_string(),
+    //       container_name,
+    //     };
+    //     let import_data = authenticate_user.import_data_from_source(source).await?;
+    //     match import_data {
+    //       ImportData::AppFlowyDataFolder {
+    //         views,
+    //         database_view_ids_by_database_id,
+    //         row_object_ids: _,
+    //         database_object_ids: _,
+    //         document_object_ids: _,
+    //       } => {
+    //         let _uid = self.user_id()?;
+    //         data_manager
+    //           .track_database(database_view_ids_by_database_id)
+    //           .await?;
+    //         Ok(views)
+    //       },
+    //     }
+    //   },
+    //   _ => Err(FlowyError::internal().with_context("Unexpected error: UserSession is None")),
+    // }
   }
 }
 
