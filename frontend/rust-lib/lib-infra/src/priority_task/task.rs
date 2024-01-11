@@ -1,4 +1,4 @@
-use crate::TaskHandlerId;
+use crate::priority_task::TaskHandlerId;
 use std::cmp::Ordering;
 use tokio::sync::oneshot::{Receiver, Sender};
 

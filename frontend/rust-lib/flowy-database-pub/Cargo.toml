@@ -1,5 +1,5 @@
 [package]
-name = "flowy-database-deps"
+name = "flowy-database-pub"
 version = "0.1.0"
 edition = "2021"
 

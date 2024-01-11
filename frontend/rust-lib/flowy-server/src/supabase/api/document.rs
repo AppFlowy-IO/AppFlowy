@@ -6,7 +6,7 @@ use collab_document::document::Document;
 use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
-use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
+use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;

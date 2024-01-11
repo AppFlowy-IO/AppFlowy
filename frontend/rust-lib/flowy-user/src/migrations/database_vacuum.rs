@@ -1,5 +1,5 @@
 use crate::services::db::UserDB;
-use crate::services::user_sql::vacuum_database;
+use crate::services::sqlite_sql::user_sql::vacuum_database;
 use flowy_sqlite::kv::StorePreferences;
 use std::sync::Arc;
 use tracing::{error, info};

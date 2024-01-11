@@ -1,4 +1,4 @@
-use flowy_user_deps::entities::UserProfile;
+use flowy_user_pub::entities::UserProfile;
 
 use crate::services::entities::Session;
 

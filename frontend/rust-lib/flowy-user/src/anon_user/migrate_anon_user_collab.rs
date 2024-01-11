@@ -17,8 +17,8 @@ use tracing::info;
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_deps::cloud::gen_view_id;
-use flowy_user_deps::entities::Authenticator;
+use flowy_folder_pub::cloud::gen_view_id;
+use flowy_user_pub::entities::Authenticator;
 
 use crate::migrations::MigrationUser;
 

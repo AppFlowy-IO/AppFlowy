@@ -7,7 +7,7 @@ use collab_integrate::CollabKVDB;
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::user_data_migration_records;
 use flowy_sqlite::ConnectionPool;
-use flowy_user_deps::entities::Authenticator;
+use flowy_user_pub::entities::Authenticator;
 
 use crate::services::entities::Session;
 

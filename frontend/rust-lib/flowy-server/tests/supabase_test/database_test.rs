@@ -1,7 +1,7 @@
 use collab_entity::{CollabObject, CollabType};
 use uuid::Uuid;
 
-use flowy_user_deps::entities::AuthResponse;
+use flowy_user_pub::entities::AuthResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{

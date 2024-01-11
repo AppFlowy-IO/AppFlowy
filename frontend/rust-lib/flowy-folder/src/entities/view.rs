@@ -7,7 +7,7 @@ use collab_folder::{View, ViewLayout};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_folder_deps::cloud::gen_view_id;
+use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};

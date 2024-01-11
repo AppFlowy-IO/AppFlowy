@@ -1,7 +1,7 @@
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::entities::{Role, WorkspaceMember};
+use flowy_user_pub::entities::{Role, WorkspaceMember};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]

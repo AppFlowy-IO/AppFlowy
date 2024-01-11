@@ -22,10 +22,10 @@ use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
 
-use flowy_folder_deps::entities::ImportData;
-use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
-use flowy_user::manager::UserManager;
+use flowy_folder_pub::entities::ImportData;
+use flowy_folder_pub::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
 use flowy_user::services::data_import::ImportDataSource;
+use flowy_user::user_manager::UserManager;
 
 use crate::integrate::server::ServerProvider;
 use lib_dispatch::prelude::ToBytes;

@@ -1,19 +1,17 @@
 [package]
-name = "flowy-task"
+name = "flowy-folder-pub"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[lib]
-crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 lib-infra = { workspace = true }
-tokio = { workspace = true, features = ["sync", "macros"]}
-atomic_refcell = "0.1.9"
+collab-folder = { version = "0.1.0" }
+collab = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
+uuid.workspace = true
 anyhow.workspace = true
-tracing.workspace = true
 
 [dev-dependencies]
-rand = "0.8.5"
-futures.workspace = true
+tokio.workspace = true

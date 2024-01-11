@@ -21,7 +21,7 @@ use collab_integrate::CollabKVDB;
 use flowy_document::document::MutexDocument;
 use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
-use flowy_document_deps::cloud::*;
+use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::{FileStorageService, StorageObject};
 use lib_infra::async_trait::async_trait;
