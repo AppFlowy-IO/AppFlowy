@@ -154,6 +154,7 @@ class EnableEncrypt extends StatelessWidget {
         final indicator = state.loadingState.when(
           loading: () => const CircularProgressIndicator.adaptive(),
           finish: (successOrFail) => const SizedBox.shrink(),
+          idle: () => const SizedBox.shrink(),
         );
 
         return Column(
