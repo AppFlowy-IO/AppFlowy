@@ -225,6 +225,7 @@ script = ['''
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
     echo ${BUILD_ARCHS}
+    echo ${BUILD_VERSION}
     ''']
 script_runner = "@shell"
 
