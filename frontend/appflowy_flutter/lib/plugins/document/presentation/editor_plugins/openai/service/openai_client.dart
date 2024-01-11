@@ -138,7 +138,6 @@ class HttpOpenAIRepository implements OpenAIRepository {
     bool useAction = false,
   }) async {
     final parameters = {
-      'model': 'text-davinci-003',
       'prompt': prompt,
       'suffix': suffix,
       'max_tokens': maxTokens,
@@ -213,7 +212,6 @@ class HttpOpenAIRepository implements OpenAIRepository {
     int n = 1,
   }) async {
     final parameters = {
-      'model': 'text-davinci-edit-001',
       'input': input,
       'instruction': instruction,
       'temperature': temperature,
