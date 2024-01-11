@@ -103,6 +103,7 @@ class BoardPage extends StatelessWidget {
                     howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
                   ),
           ),
+          idle: (_) => const SizedBox.shrink(),
         ),
       ),
     );

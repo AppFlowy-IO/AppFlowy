@@ -70,6 +70,7 @@ class WorkspaceErrorScreen extends StatelessWidget {
                       },
                     );
                   },
+                  idle: () {},
                 );
               },
             ),
