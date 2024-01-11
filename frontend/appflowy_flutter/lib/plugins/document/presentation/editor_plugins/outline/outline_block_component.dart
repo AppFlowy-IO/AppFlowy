@@ -14,6 +14,7 @@ class OutlineBlockKeys {
 
   static const String type = 'outline';
   static const String backgroundColor = blockComponentBackgroundColor;
+  static const String depth = 'depth';
 }
 
 // defining the callout block menu item for selection
@@ -172,7 +173,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
       return children.where(
         (element) =>
             element.type == HeadingBlockKeys.type &&
-            element.attributes['level'] <= level &&
+            element.attributes[HeadingBlockKeys.level] <= level &&
             element.delta?.isNotEmpty == true,
       );
     }

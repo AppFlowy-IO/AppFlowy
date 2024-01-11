@@ -350,11 +350,11 @@ class DepthOptionAction extends PopoverActionCell {
           parentController.close();
         });
 
-        return IntrinsicHeight(
-          child: IntrinsicWidth(
-            child: Column(
-              children: children,
-            ),
+        return SizedBox(
+          width: 60,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: children,
           ),
         );
       };
@@ -391,7 +391,7 @@ class DepthOptionAction extends PopoverActionCell {
     final transaction = editorState.transaction;
     transaction.updateNode(
       node,
-      {'depth': depth.level},
+      {OutlineBlockKeys.depth: depth.level},
     );
 
     await editorState.apply(transaction);
