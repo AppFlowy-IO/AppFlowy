@@ -11,9 +11,9 @@ use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
-use crate::manager::UserManager;
 use crate::notification::{send_notification, UserNotification};
-use crate::services::workspace_sql::UserWorkspaceTable;
+use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
+use crate::user_manager::UserManager;
 
 impl UserManager {
   #[instrument(skip(self), err)]

@@ -3,7 +3,7 @@ use std::sync::Weak;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager as DocumentManager2;
 use flowy_folder::manager::FolderManager;
-use flowy_user::manager::UserManager;
+use flowy_user::user_manager::UserManager;
 use lib_dispatch::prelude::AFPlugin;
 
 pub fn make_plugins(

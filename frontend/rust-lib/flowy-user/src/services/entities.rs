@@ -11,11 +11,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use flowy_user_pub::entities::{AuthResponse, UserProfile, UserWorkspace};
+use flowy_user_pub::entities::UserWorkspace;
 use flowy_user_pub::entities::{Authenticator, UserAuthResponse};
 
 use crate::entities::AuthenticatorPB;
-use crate::migrations::MigrationUser;
+
 use crate::services::db::UserDBPath;
 
 #[derive(Debug, Clone, Serialize)]
@@ -136,14 +136,6 @@ impl From<Authenticator> for AuthenticatorPB {
       Authenticator::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
     }
   }
-}
-
-#[derive(Clone)]
-pub(crate) struct ResumableSignUp {
-  pub user_profile: UserProfile,
-  pub response: AuthResponse,
-  pub authenticator: Authenticator,
-  pub migration_user: Option<MigrationUser>,
 }
 
 pub const URL_SAFE_ENGINE: GeneralPurpose = GeneralPurpose::new(&URL_SAFE, PAD);

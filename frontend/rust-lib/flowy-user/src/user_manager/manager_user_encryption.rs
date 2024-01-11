@@ -1,11 +1,11 @@
 use crate::entities::{AuthStateChangedPB, AuthStatePB};
+use crate::user_manager::UserManager;
 use flowy_encrypt::{decrypt_text, encrypt_text};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::entities::{
   EncryptionType, UpdateUserProfileParams, UserCredentials, UserProfile,
 };
 
-use crate::manager::UserManager;
 use crate::notification::send_auth_state_notification;
 use crate::services::cloud_config::get_encrypt_secret;
 

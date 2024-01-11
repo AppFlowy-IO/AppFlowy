@@ -1,10 +1,10 @@
-use crate::manager::run_collab_data_migration;
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::data_import::importer::load_collab_by_oid;
 use crate::services::db::UserDBPath;
 use crate::services::entities::{Session, UserPaths};
-use crate::services::user_awareness::awareness_oid_from_user_uuid;
-use crate::services::user_sql::select_user_profile;
+use crate::services::sqlite_sql::user_sql::select_user_profile;
+use crate::user_manager::manager_user_awareness::awareness_oid_from_user_uuid;
+use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::core::origin::CollabOrigin;

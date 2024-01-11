@@ -13,8 +13,8 @@ use flowy_document::manager::DocumentManager;
 use flowy_folder::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
-use flowy_user::manager::UserManager;
 use flowy_user::services::entities::UserConfig;
+use flowy_user::user_manager::UserManager;
 use flowy_user_pub::cloud::UserCloudServiceProvider;
 
 use lib_dispatch::prelude::*;

@@ -1,10 +1,10 @@
 use tracing::instrument;
 
 use crate::entities::UserProfilePB;
+use crate::user_manager::UserManager;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::entities::Authenticator;
 
-use crate::manager::UserManager;
 use crate::migrations::MigrationUser;
 use crate::services::entities::Session;
 

@@ -9,7 +9,7 @@ use flowy_document::manager::{DocumentManager, DocumentSnapshotService, Document
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
-use flowy_user::manager::UserManager;
+use flowy_user::user_manager::UserManager;
 
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {

@@ -42,11 +42,12 @@ use crate::services::data_import::{
   get_appflowy_data_folder_import_context, upload_imported_data, ImportContext,
 };
 use crate::services::db::UserDB;
-use crate::services::entities::{ResumableSignUp, Session, UserConfig, UserPaths};
-use crate::services::user_awareness::UserAwarenessDataSource;
-use crate::services::user_encryption::validate_encryption_sign;
-use crate::services::user_sql::{select_user_profile, UserTable, UserTableChangeset};
-use crate::services::user_workspace::save_user_workspaces;
+use crate::services::entities::{Session, UserConfig, UserPaths};
+use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
+use crate::user_manager::manager_user_awareness::UserAwarenessDataSource;
+use crate::user_manager::manager_user_encryption::validate_encryption_sign;
+use crate::user_manager::manager_user_workspace::save_user_workspaces;
+use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 
 pub struct UserManager {
@@ -59,7 +60,7 @@ pub struct UserManager {
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
-  resumable_sign_up: Mutex<Option<ResumableSignUp>>,
+  auth_process: Mutex<Option<UserAuthProcess>>,
   current_session: Arc<parking_lot::RwLock<Option<Session>>>,
   refresh_user_profile_since: AtomicI64,
 }
@@ -91,7 +92,7 @@ impl UserManager {
       user_status_callback,
       collab_builder,
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
-      resumable_sign_up: Default::default(),
+      auth_process: Default::default(),
       current_session,
       refresh_user_profile_since,
     });
@@ -334,16 +335,12 @@ impl UserManager {
     let response: AuthResponse = auth_service.sign_up(params).await?;
     let new_user_profile = UserProfile::from((&response, &authenticator));
     if new_user_profile.encryption_type.require_encrypt_secret() {
-      self
-        .resumable_sign_up
-        .lock()
-        .await
-        .replace(ResumableSignUp {
-          user_profile: new_user_profile.clone(),
-          migration_user,
-          response,
-          authenticator,
-        });
+      self.auth_process.lock().await.replace(UserAuthProcess {
+        user_profile: new_user_profile.clone(),
+        migration_user,
+        response,
+        authenticator,
+      });
     } else {
       self
         .continue_sign_up(&new_user_profile, migration_user, response, &authenticator)
@@ -354,13 +351,13 @@ impl UserManager {
 
   #[tracing::instrument(level = "info", skip(self))]
   pub async fn resume_sign_up(&self) -> Result<(), FlowyError> {
-    let ResumableSignUp {
+    let UserAuthProcess {
       user_profile,
       migration_user,
       response,
       authenticator,
     } = self
-      .resumable_sign_up
+      .auth_process
       .lock()
       .await
       .clone()

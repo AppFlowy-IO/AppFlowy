@@ -24,8 +24,8 @@ use flowy_folder::ViewLayout;
 
 use flowy_folder_pub::entities::ImportData;
 use flowy_folder_pub::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
-use flowy_user::manager::UserManager;
 use flowy_user::services::data_import::ImportDataSource;
+use flowy_user::user_manager::UserManager;
 
 use crate::integrate::server::ServerProvider;
 use lib_dispatch::prelude::ToBytes;

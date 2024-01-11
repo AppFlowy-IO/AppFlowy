@@ -10,7 +10,7 @@ use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::event_handler::*;
-use crate::manager::UserManager;
+use crate::user_manager::UserManager;
 
 #[rustfmt::skip]
 pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
