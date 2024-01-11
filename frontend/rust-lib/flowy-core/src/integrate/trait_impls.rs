@@ -21,8 +21,8 @@ use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};

@@ -17,7 +17,7 @@ members = [
   "flowy-database2",
   "flowy-database-pub",
   "flowy-server",
-  "flowy-server-config",
+  "flowy-server-pub",
   "flowy-config",
   "flowy-encrypt",
   "flowy-storage",
@@ -52,7 +52,7 @@ flowy-error = { workspace = true, path = "flowy-error" }
 flowy-database2 = { workspace = true, path = "flowy-database2" }
 flowy-database-pub = { workspace = true, path = "flowy-database-pub" }
 flowy-server = { workspace = true, path = "flowy-server" }
-flowy-server-config = { workspace = true, path = "flowy-server-config" }
+flowy-server-pub = { workspace = true, path = "flowy-server-pub" }
 flowy-config = { workspace = true, path = "flowy-config" }
 flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
 flowy-storage = { workspace = true, path = "flowy-storage" }

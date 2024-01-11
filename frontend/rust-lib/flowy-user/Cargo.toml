@@ -13,7 +13,7 @@ flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dis
 flowy-folder-pub = { workspace = true }
 lib-infra = { workspace = true }
 flowy-notification  = { workspace = true }
-flowy-server-config = { workspace = true }
+flowy-server-pub = { workspace = true }
 lib-dispatch = { workspace = true }
 collab-integrate = { workspace = true }
 collab = { version = "0.1.0" }

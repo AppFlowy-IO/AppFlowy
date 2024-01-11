@@ -1,5 +1,5 @@
 [package]
-name = "flowy-server-config"
+name = "flowy-server-pub"
 version = "0.1.0"
 edition = "2021"
 

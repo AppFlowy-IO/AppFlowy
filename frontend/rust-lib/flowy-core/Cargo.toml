@@ -19,7 +19,7 @@ flowy-document = { workspace = true }
 flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true }
 flowy-server = { workspace = true }
-flowy-server-config = { workspace = true }
+flowy-server-pub = { workspace = true }
 flowy-config = { workspace = true }
 flowy-date = { workspace = true }
 collab-integrate = { workspace = true }

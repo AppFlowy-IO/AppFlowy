@@ -1659,7 +1659,7 @@ dependencies = [
  "flowy-folder",
  "flowy-folder-pub",
  "flowy-server",
- "flowy-server-config",
+ "flowy-server-pub",
  "flowy-sqlite",
  "flowy-storage",
  "flowy-user",
@@ -1928,7 +1928,7 @@ dependencies = [
  "flowy-encrypt",
  "flowy-error",
  "flowy-folder-pub",
- "flowy-server-config",
+ "flowy-server-pub",
  "flowy-storage",
  "flowy-user-pub",
  "futures",
@@ -1956,7 +1956,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-server-config"
+name = "flowy-server-pub"
 version = "0.1.0"
 dependencies = [
  "flowy-error",
@@ -2021,7 +2021,7 @@ dependencies = [
  "flowy-error",
  "flowy-folder-pub",
  "flowy-notification",
- "flowy-server-config",
+ "flowy-server-pub",
  "flowy-sqlite",
  "flowy-user-pub",
  "lazy_static",
@@ -3129,6 +3129,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "atomic_refcell",
  "bytes",
  "chrono",
  "futures-core",
@@ -3136,6 +3137,7 @@ dependencies = [
  "pin-project",
  "tempfile",
  "tokio",
+ "tracing",
  "validator",
  "walkdir",
  "zip",

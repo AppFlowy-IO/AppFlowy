@@ -17,7 +17,7 @@ use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::FolderCloudService;
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_storage::FileStorageService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;

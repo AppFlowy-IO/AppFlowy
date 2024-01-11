@@ -8,7 +8,7 @@ use parking_lot::RwLock;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage::FileStorageService;
 use flowy_user_pub::cloud::UserCloudService;
 

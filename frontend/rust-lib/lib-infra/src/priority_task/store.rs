@@ -1,4 +1,4 @@
-use crate::{Task, TaskId, TaskState};
+use crate::priority_task::{Task, TaskId, TaskState};
 use std::collections::HashMap;
 use std::mem;
 use std::sync::atomic::AtomicU32;

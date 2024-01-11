@@ -22,7 +22,7 @@ use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_folder_pub::cloud::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB};
 use flowy_user::errors::FlowyError;
 

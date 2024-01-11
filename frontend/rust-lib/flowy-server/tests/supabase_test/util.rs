@@ -16,7 +16,7 @@ use flowy_server::supabase::api::{
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
 use flowy_server::supabase::file_storage::core::SupabaseFileStorage;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStoragePlan, FileStorageService, StorageObject};
 use flowy_user_pub::cloud::UserCloudService;
 use lib_infra::future::FutureResult;
