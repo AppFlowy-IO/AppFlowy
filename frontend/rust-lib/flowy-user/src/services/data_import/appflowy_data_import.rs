@@ -22,7 +22,7 @@ use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{internal_error, FlowyError};
 use flowy_folder_pub::cloud::gen_view_id;
-use flowy_folder_pub::entities::ImportData;
+use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_folder_pub::folder_builder::{ParentChildViews, ViewBuilder};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
@@ -234,11 +234,15 @@ pub(crate) fn import_appflowy_data_folder(
     }
   })?;
   Ok(ImportData::AppFlowyDataFolder {
-    views,
-    database_view_ids_by_database_id,
-    row_object_ids: row_object_ids.into_inner().into_iter().collect(),
-    database_object_ids: database_object_ids.into_inner().into_iter().collect(),
-    document_object_ids: document_object_ids.into_inner().into_iter().collect(),
+    folder: AppFlowyData::Folder {
+      views,
+      database_view_ids_by_database_id,
+    },
+    object_ids: AppFlowyData::CollabObject {
+      row_object_ids: row_object_ids.into_inner().into_iter().collect(),
+      database_object_ids: database_object_ids.into_inner().into_iter().collect(),
+      document_object_ids: document_object_ids.into_inner().into_iter().collect(),
+    },
   })
 }
 
@@ -604,12 +608,12 @@ impl DerefMut for OldToNewIdMap {
 }
 
 #[instrument(level = "debug", skip_all)]
-pub async fn upload_imported_data(
+pub async fn upload_collab_objects_data(
   uid: i64,
   user_collab_db: Arc<CollabKVDB>,
   workspace_id: &str,
   user_authenticator: &Authenticator,
-  import_data: &ImportData,
+  appflowy_data: AppFlowyData,
   user_cloud_service: Arc<dyn UserCloudService>,
 ) -> Result<(), FlowyError> {
   // Only support uploading the collab data when the current server is AppFlowy Cloud server
@@ -617,19 +621,14 @@ pub async fn upload_imported_data(
     return Ok(());
   }
 
-  let (row_object_ids, document_object_ids, database_object_ids) = match import_data {
-    ImportData::AppFlowyDataFolder {
-      views: _,
-      database_view_ids_by_database_id: _,
+  match appflowy_data {
+    AppFlowyData::Folder { .. } => {},
+    AppFlowyData::CollabObject {
       row_object_ids,
       document_object_ids,
       database_object_ids,
-    } => (
-      row_object_ids.clone(),
-      document_object_ids.clone(),
-      database_object_ids.clone(),
-    ),
-  };
+    } => {},
+  }
 
   let object_by_collab_type = tokio::task::spawn_blocking(move || {
     let collab_read = user_collab_db.read_txn();

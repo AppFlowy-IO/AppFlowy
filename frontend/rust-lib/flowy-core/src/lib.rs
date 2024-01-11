@@ -130,15 +130,8 @@ impl AppFlowyCore {
         store_preference.clone(),
       ));
 
-      let user_manager = UserManager::new(
-        server_provider.clone(),
-        store_preference.clone(),
-        Arc::downgrade(&collab_builder),
-        authenticate_user.clone(),
-      );
-
       collab_builder
-        .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_manager))));
+        .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
       let database_manager = DatabaseDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
@@ -162,6 +155,16 @@ impl AppFlowyCore {
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
+      )
+      .await;
+
+      let user_manager = UserDepsResolver::resolve(
+        authenticate_user,
+        collab_builder.clone(),
+        server_provider.clone(),
+        store_preference.clone(),
+        database_manager.clone(),
+        folder_manager.clone(),
       )
       .await;
 

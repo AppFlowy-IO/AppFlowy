@@ -9,7 +9,7 @@ use flowy_folder_pub::entities::ImportData;
 use std::sync::Arc;
 use tracing::instrument;
 
-pub enum ImportDataSource {
+pub enum ImportSource {
   AppFlowyDataFolder {
     path: String,
     container_name: Option<String>,

@@ -19,7 +19,7 @@ use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 
-use flowy_folder_pub::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
+use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 
 use crate::integrate::server::ServerProvider;
@@ -92,39 +92,6 @@ impl FolderUser for FolderUserImpl {
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
-  }
-
-  async fn import_appflowy_data_folder(
-    &self,
-    _path: &str,
-    _container_name: Option<String>,
-  ) -> Result<Vec<ParentChildViews>, FlowyError> {
-    todo!()
-    // match (self.authenticate_user.upgrade(), self.database_manager.upgrade()) {
-    //   (Some(authenticate_user), Some(data_manager)) => {
-    //     let source = ImportDataSource::AppFlowyDataFolder {
-    //       path: path.to_string(),
-    //       container_name,
-    //     };
-    //     let import_data = authenticate_user.import_data_from_source(source).await?;
-    //     match import_data {
-    //       ImportData::AppFlowyDataFolder {
-    //         views,
-    //         database_view_ids_by_database_id,
-    //         row_object_ids: _,
-    //         database_object_ids: _,
-    //         document_object_ids: _,
-    //       } => {
-    //         let _uid = self.user_id()?;
-    //         data_manager
-    //           .track_database(database_view_ids_by_database_id)
-    //           .await?;
-    //         Ok(views)
-    //       },
-    //     }
-    //   },
-    //   _ => Err(FlowyError::internal().with_context("Unexpected error: UserSession is None")),
-    // }
   }
 }
 

@@ -67,7 +67,7 @@ impl AuthenticateUser {
       .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
-  pub fn sqlite_connection(&self, uid: i64) -> FlowyResult<DBConnection> {
+  pub fn get_sqlite_connection(&self, uid: i64) -> FlowyResult<DBConnection> {
     self.database.get_connection(uid)
   }
 

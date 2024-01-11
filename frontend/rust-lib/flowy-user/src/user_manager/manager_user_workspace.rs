@@ -5,6 +5,7 @@ use collab_entity::{CollabObject, CollabType};
 use tracing::{error, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_folder_pub::entities::ImportData;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
 use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
@@ -12,10 +13,43 @@ use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::notification::{send_notification, UserNotification};
+use crate::services::data_import::ImportSource;
 use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
 use crate::user_manager::UserManager;
 
 impl UserManager {
+  /// Import appflowy data from the given path.
+  /// If the container name is not empty, then the data will be imported to the given container.
+  /// Otherwise, the data will be imported to the current workspace.
+  pub async fn import_appflowy_data_folder(
+    &self,
+    path: String,
+    container_name: Option<String>,
+  ) -> FlowyResult<()> {
+    let import_data = self
+      .import_data_from_source(ImportSource::AppFlowyDataFolder {
+        path,
+        container_name,
+      })
+      .await?;
+    match import_data {
+      ImportData::AppFlowyDataFolder {
+        views,
+        database_view_ids_by_database_id,
+        row_object_ids: _,
+        database_object_ids: _,
+        document_object_ids: _,
+      } => {
+        self
+          .user_workspace_service
+          .did_import_database_views(database_view_ids_by_database_id)
+          .await?;
+        self.user_workspace_service.did_import_views(views).await?;
+      },
+    }
+    Ok(())
+  }
+
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     let uid = self.user_id()?;

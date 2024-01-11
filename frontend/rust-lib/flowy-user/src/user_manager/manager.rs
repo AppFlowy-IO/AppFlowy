@@ -11,7 +11,7 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use flowy_folder_pub::entities::ImportData;
+use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
@@ -19,6 +19,7 @@ use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_pub::entities::*;
+use flowy_user_pub::workspace_service::UserWorkspaceService;
 
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
@@ -36,9 +37,9 @@ use crate::migrations::MigrationUser;
 use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
-use crate::services::data_import::importer::{import_data, ImportDataSource};
+use crate::services::data_import::importer::{import_data, ImportSource};
 use crate::services::data_import::{
-  get_appflowy_data_folder_import_context, upload_imported_data, ImportContext,
+  get_appflowy_data_folder_import_context, upload_collab_objects_data, ImportContext,
 };
 
 use crate::services::entities::Session;
@@ -56,6 +57,7 @@ pub struct UserManager {
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
+  pub(crate) user_workspace_service: Arc<dyn UserWorkspaceService>,
   auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
   refresh_user_profile_since: AtomicI64,
@@ -67,6 +69,7 @@ impl UserManager {
     store_preferences: Arc<StorePreferences>,
     collab_builder: Weak<AppFlowyCollabBuilder>,
     authenticate_user: Arc<AuthenticateUser>,
+    user_workspace_service: Arc<dyn UserWorkspaceService>,
   ) -> Arc<Self> {
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
@@ -82,6 +85,7 @@ impl UserManager {
       auth_process: Default::default(),
       authenticate_user,
       refresh_user_profile_since,
+      user_workspace_service,
     });
 
     let weak_user_manager = Arc::downgrade(&user_manager);
@@ -625,10 +629,10 @@ impl UserManager {
 
   pub async fn import_data_from_source(
     &self,
-    source: ImportDataSource,
-  ) -> Result<ImportData, FlowyError> {
+    source: ImportSource,
+  ) -> Result<AppFlowyData, FlowyError> {
     match source {
-      ImportDataSource::AppFlowyDataFolder {
+      ImportSource::AppFlowyDataFolder {
         path,
         container_name,
       } => {
@@ -781,7 +785,7 @@ impl UserManager {
     Ok(())
   }
 
-  async fn import_appflowy_data(&self, context: ImportContext) -> Result<ImportData, FlowyError> {
+  async fn import_appflowy_data(&self, context: ImportContext) -> Result<AppFlowyData, FlowyError> {
     let session = self.get_session()?;
     let uid = session.user_id;
     let user_collab_db = self
@@ -797,17 +801,20 @@ impl UserManager {
     .map_err(internal_error)??;
     let user = self.get_user_profile_from_disk(uid).await?;
 
-    upload_imported_data(
-      uid,
-      user_collab_db,
-      &user.workspace_id,
-      &user.authenticator,
-      &import_data,
-      self.cloud_services.get_user_service()?,
-    )
-    .await?;
-
-    Ok(import_data)
+    match import_data {
+      ImportData::AppFlowyDataFolder { folder, object_ids } => {
+        upload_collab_objects_data(
+          uid,
+          user_collab_db,
+          &user.workspace_id,
+          &user.authenticator,
+          object_ids,
+          self.cloud_services.get_user_service()?,
+        )
+        .await?;
+        Ok(folder)
+      },
+    }
   }
 }
 

@@ -2052,6 +2052,7 @@ dependencies = [
  "collab",
  "collab-entity",
  "flowy-error",
+ "flowy-folder-pub",
  "lib-infra",
  "serde",
  "serde_json",

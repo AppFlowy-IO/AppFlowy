@@ -4,7 +4,7 @@ use std::{convert::TryInto, sync::Arc};
 use serde_json::Value;
 use tracing::event;
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_pub::cloud::UserCloudConfig;
 use flowy_user_pub::entities::*;
@@ -236,19 +236,36 @@ pub async fn get_notification_settings(
   match store_preferences.get_str(NOTIFICATION_SETTINGS_CACHE_KEY) {
     None => data_result_ok(NotificationSettingsPB::default()),
     Some(s) => {
-      let setting = match serde_json::from_str(&s) {
-        Ok(setting) => setting,
-        Err(e) => {
-          tracing::error!(
-            "Deserialize NotificationSettings failed: {:?}, fallback to default",
-            e
-          );
-          NotificationSettingsPB::default()
-        },
-      };
+      let setting = serde_json::from_str(&s).unwrap_or_else(|e| {
+        tracing::error!(
+          "Deserialize NotificationSettings failed: {:?}, fallback to default",
+          e
+        );
+        NotificationSettingsPB::default()
+      });
       data_result_ok(setting)
     },
   }
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn import_appflowy_data_folder_handler(
+  data: AFPluginData<ImportAppFlowyDataPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.try_into_inner()?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  af_spawn(async move {
+    let manager = upgrade_manager(manager)?;
+    let result = manager
+      .import_appflowy_data_folder(data.path, data.import_container_name)
+      .await?;
+    let _ = tx.send(result);
+    Ok::<(), FlowyError>(())
+  });
+
+  rx.await.map_err(internal_error)?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

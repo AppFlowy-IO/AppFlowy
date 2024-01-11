@@ -51,7 +51,7 @@ impl DocumentSnapshotService for DocumentSnapshotImpl {
   ) -> FlowyResult<Vec<DocumentSnapshotMeta>> {
     let authenticate_user = self.get_authenticate_user()?;
     let uid = authenticate_user.user_id()?;
-    let mut db = authenticate_user.sqlite_connection(uid)?;
+    let mut db = authenticate_user.get_sqlite_connection(uid)?;
     CollabSnapshotSql::get_all_snapshots(document_id, &mut db).map(|rows| {
       rows
         .into_iter()
@@ -67,7 +67,7 @@ impl DocumentSnapshotService for DocumentSnapshotImpl {
   fn get_document_snapshot(&self, snapshot_id: &str) -> FlowyResult<DocumentSnapshotData> {
     let authenticate_user = self.get_authenticate_user()?;
     let uid = authenticate_user.user_id()?;
-    let mut db = authenticate_user.sqlite_connection(uid)?;
+    let mut db = authenticate_user.get_sqlite_connection(uid)?;
     CollabSnapshotSql::get_snapshot(snapshot_id, &mut db)
       .map(|row| DocumentSnapshotData {
         object_id: row.id,
