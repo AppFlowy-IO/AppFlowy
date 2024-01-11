@@ -1,5 +1,5 @@
 import React from 'react';
-import { SelectOption } from '$app/components/database/application';
+import { SelectOption } from '$app/application/database';
 import Option from './Option';
 
 interface Props {

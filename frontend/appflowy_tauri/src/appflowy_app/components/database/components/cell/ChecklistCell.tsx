@@ -1,5 +1,5 @@
 import React, { useState, Suspense, useMemo } from 'react';
-import { ChecklistCell as ChecklistCellType, ChecklistField } from '$app/components/database/application';
+import { ChecklistCell as ChecklistCellType, ChecklistField } from '$app/application/database';
 import Typography from '@mui/material/Typography';
 import ChecklistCellActions from '$app/components/database/components/field_types/checklist/ChecklistCellActions';
 

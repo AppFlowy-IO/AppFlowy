@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Property } from '$app/components/database/components/property';
-import { Field as FieldType } from '$app/components/database/application';
+import { Field as FieldType } from '$app/application/database';
 
 interface Props {
   field: FieldType;

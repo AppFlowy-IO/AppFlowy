@@ -49,7 +49,9 @@ impl AppFlowyCloudServer {
       &config.base_url,
       &config.ws_base_url,
       &config.gotrue_url,
-      ClientConfiguration::default(),
+      ClientConfiguration::default()
+        .with_compression_buffer_size(10240)
+        .with_compression_quality(8),
     );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));

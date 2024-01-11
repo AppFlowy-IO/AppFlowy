@@ -7,10 +7,12 @@ import { EditorIdProvider } from '$app/components/editor/Editor.hooks';
 
 export function Editor(props: EditorProps) {
   return (
-    <EditorIdProvider value={props.id}>
-      <CollaborativeEditor {...props} />
-      <Toaster />
-    </EditorIdProvider>
+    <div className={'appflowy-editor relative'}>
+      <EditorIdProvider value={props.id}>
+        <CollaborativeEditor {...props} />
+        <Toaster />
+      </EditorIdProvider>
+    </div>
   );
 }
 

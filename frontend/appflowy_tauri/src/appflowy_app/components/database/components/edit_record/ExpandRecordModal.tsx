@@ -34,7 +34,7 @@ function ExpandRecordModal({ open, onClose, rowId }: Props) {
         >
           <DetailsIcon />
         </IconButton>
-        <DialogContent className={'p-0'}>
+        <DialogContent className={'relative p-0'}>
           <EditRecord rowId={rowId} />
         </DialogContent>
       </Dialog>

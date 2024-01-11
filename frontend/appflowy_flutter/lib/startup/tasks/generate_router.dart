@@ -47,7 +47,6 @@ GoRouter generateRouter(Widget child) {
       if (PlatformExtension.isMobile) ...[
         // settings
         _mobileHomeSettingPageRoute(),
-        _mobileSettingPrivacyPolicyPageRoute(),
         _mobileSettingUserAgreementPageRoute(),
         _mobileCloudSettingAppFlowyCloudPageRoute(),
 
@@ -192,16 +191,6 @@ GoRoute _mobileHomeSettingPageRoute() {
     path: MobileHomeSettingPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialPage(child: MobileHomeSettingPage());
-    },
-  );
-}
-
-GoRoute _mobileSettingPrivacyPolicyPageRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: PrivacyPolicyPage.routeName,
-    pageBuilder: (context, state) {
-      return const MaterialPage(child: PrivacyPolicyPage());
     },
   );
 }

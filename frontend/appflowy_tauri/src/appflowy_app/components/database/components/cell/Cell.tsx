@@ -1,7 +1,7 @@
 import React, { FC, HTMLAttributes } from 'react';
 import { FieldType } from '@/services/backend';
 
-import { Cell as CellType, Field } from '../../application';
+import { Cell as CellType, Field } from '$app/application/database';
 import { useCell } from './Cell.hooks';
 import { TextCell } from './TextCell';
 import { SelectCell } from './SelectCell';

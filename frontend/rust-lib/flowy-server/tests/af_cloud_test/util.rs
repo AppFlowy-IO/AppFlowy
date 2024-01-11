@@ -1,3 +1,4 @@
+use client_api::ClientConfiguration;
 use std::collections::HashMap;
 use std::sync::Arc;
 
