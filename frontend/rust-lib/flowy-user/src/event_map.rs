@@ -4,13 +4,13 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::UserCloudConfig;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserCloudConfig;
+use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::event_handler::*;
-use crate::manager::UserManager;
+use crate::user_manager::UserManager;
 
 #[rustfmt::skip]
 pub fn init(user_session: Weak<UserManager>) -> AFPlugin {

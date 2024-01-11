@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use collab_integrate::CollabKVAction;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_deps::folder_builder::ParentChildViews;
+use flowy_folder_pub::folder_builder::ParentChildViews;
 
 use crate::entities::UserFolderPB;
 use crate::manager::FolderUser;

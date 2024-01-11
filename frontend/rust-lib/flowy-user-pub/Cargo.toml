@@ -1,5 +1,5 @@
 [package]
-name = "flowy-user-deps"
+name = "flowy-user-pub"
 version = "0.1.0"
 edition = "2021"
 
@@ -18,4 +18,4 @@ chrono = { workspace = true,  default-features = false, features = ["clock", "se
 anyhow.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 tokio-stream = "0.1.14"
-flowy-folder-deps.workspace = true
+flowy-folder-pub.workspace = true

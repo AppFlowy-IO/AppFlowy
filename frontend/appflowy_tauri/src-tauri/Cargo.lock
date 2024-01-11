@@ -1150,7 +1150,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1651,21 +1651,20 @@ dependencies = [
  "collab-plugins",
  "diesel",
  "flowy-config",
- "flowy-database-deps",
+ "flowy-database-pub",
  "flowy-database2",
  "flowy-date",
  "flowy-document",
- "flowy-document-deps",
+ "flowy-document-pub",
  "flowy-error",
  "flowy-folder",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "flowy-server",
- "flowy-server-config",
+ "flowy-server-pub",
  "flowy-sqlite",
  "flowy-storage",
- "flowy-task",
  "flowy-user",
- "flowy-user-deps",
+ "flowy-user-pub",
  "futures",
  "futures-core",
  "lib-dispatch",
@@ -1683,7 +1682,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-database-deps"
+name = "flowy-database-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1710,11 +1709,10 @@ dependencies = [
  "dashmap",
  "fancy-regex 0.11.0",
  "flowy-codegen",
- "flowy-database-deps",
+ "flowy-database-pub",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
- "flowy-task",
  "futures",
  "indexmap 2.1.0",
  "lazy_static",
@@ -1781,7 +1779,7 @@ dependencies = [
  "collab-integrate",
  "flowy-codegen",
  "flowy-derive",
- "flowy-document-deps",
+ "flowy-document-pub",
  "flowy-error",
  "flowy-notification",
  "flowy-storage",
@@ -1806,7 +1804,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document-deps"
+name = "flowy-document-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1870,7 +1868,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "flowy-notification",
  "lazy_static",
  "lib-dispatch",
@@ -1889,7 +1887,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-folder-deps"
+name = "flowy-folder-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1926,14 +1924,14 @@ dependencies = [
  "collab-document",
  "collab-entity",
  "collab-plugins",
- "flowy-database-deps",
- "flowy-document-deps",
+ "flowy-database-pub",
+ "flowy-document-pub",
  "flowy-encrypt",
  "flowy-error",
- "flowy-folder-deps",
- "flowy-server-config",
+ "flowy-folder-pub",
+ "flowy-server-pub",
  "flowy-storage",
- "flowy-user-deps",
+ "flowy-user-pub",
  "futures",
  "futures-util",
  "hex",
@@ -1959,7 +1957,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-server-config"
+name = "flowy-server-pub"
 version = "0.1.0"
 dependencies = [
  "flowy-error",
@@ -2001,17 +1999,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-task"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "atomic_refcell",
- "lib-infra",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "flowy-user"
 version = "0.1.0"
 dependencies = [
@@ -2033,11 +2020,11 @@ dependencies = [
  "flowy-derive",
  "flowy-encrypt",
  "flowy-error",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "flowy-notification",
- "flowy-server-config",
+ "flowy-server-pub",
  "flowy-sqlite",
- "flowy-user-deps",
+ "flowy-user-pub",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -2058,7 +2045,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-user-deps"
+name = "flowy-user-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2066,7 +2053,7 @@ dependencies = [
  "collab",
  "collab-entity",
  "flowy-error",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "lib-infra",
  "serde",
  "serde_json",
@@ -2124,9 +2111,9 @@ dependencies = [
 
 [[package]]
 name = "futures"
-version = "0.3.29"
+version = "0.3.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da0290714b38af9b4a7b094b8a37086d1b4e61f2df9122c3cad2577669145335"
+checksum = "645c6916888f6cb6350d2550b80fb63e734897a8498abe35cfb732b6487804b0"
 dependencies = [
  "futures-channel",
  "futures-core",
@@ -2155,9 +2142,9 @@ checksum = "dfc6580bb841c5a68e9ef15c77ccc837b40a7504914d52e47b8b0e9bbda25a1d"
 
 [[package]]
 name = "futures-executor"
-version = "0.3.29"
+version = "0.3.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f4fb8693db0cf099eadcca0efe2a5a22e4550f98ed16aba6c48700da29597bc"
+checksum = "a576fc72ae164fca6b9db127eaa9a9dda0d61316034f33a0a0d4eda41f02b01d"
 dependencies = [
  "futures-core",
  "futures-task",
@@ -3154,6 +3141,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "atomic_refcell",
  "bytes",
  "chrono",
  "futures-core",
@@ -3161,6 +3149,7 @@ dependencies = [
  "pin-project",
  "tempfile",
  "tokio",
+ "tracing",
  "validator",
  "walkdir",
  "zip",
@@ -3949,6 +3938,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -4038,6 +4028,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
 ]
 
 [[package]]

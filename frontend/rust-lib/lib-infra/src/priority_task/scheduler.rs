@@ -2,15 +2,13 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 
+use crate::future::BoxResultFuture;
+use crate::priority_task::queue::TaskQueue;
+use crate::priority_task::store::TaskStore;
+use crate::priority_task::{Task, TaskContent, TaskId, TaskState};
 use anyhow::Error;
 use tokio::sync::{watch, RwLock};
 use tokio::time::interval;
-
-use lib_infra::future::BoxResultFuture;
-
-use crate::queue::TaskQueue;
-use crate::store::TaskStore;
-use crate::{Task, TaskContent, TaskId, TaskState};
 
 pub struct TaskDispatcher {
   queue: TaskQueue,

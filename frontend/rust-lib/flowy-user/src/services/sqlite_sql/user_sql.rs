@@ -2,8 +2,8 @@ use diesel::{sql_query, RunQueryDsl};
 use flowy_error::{internal_error, FlowyError};
 use std::str::FromStr;
 
-use flowy_user_deps::cloud::UserUpdate;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserUpdate;
+use flowy_user_pub::entities::*;
 
 use flowy_sqlite::schema::user_table;
 

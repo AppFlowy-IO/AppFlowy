@@ -1,4 +1,4 @@
-use crate::{PendingTask, Task};
+use crate::priority_task::{PendingTask, Task};
 use atomic_refcell::AtomicRefCell;
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;

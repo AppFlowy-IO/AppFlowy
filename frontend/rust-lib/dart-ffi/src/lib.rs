@@ -10,7 +10,7 @@ use tracing::{error, trace};
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::*;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
-use flowy_server_config::AuthenticatorType;
+use flowy_server_pub::AuthenticatorType;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 

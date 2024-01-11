@@ -1,11 +1,11 @@
 use anyhow::Error;
-use flowy_task::{
-  Task, TaskContent, TaskDispatcher, TaskHandler, TaskId, TaskResult, TaskRunner, TaskState,
-};
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::BoxResultFuture;
+use lib_infra::priority_task::{
+  Task, TaskContent, TaskDispatcher, TaskHandler, TaskId, TaskResult, TaskRunner, TaskState,
+};
 use lib_infra::ref_map::RefCountValue;
 use rand::Rng;
 use std::sync::Arc;

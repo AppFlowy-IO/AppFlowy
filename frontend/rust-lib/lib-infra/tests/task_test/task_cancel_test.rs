@@ -1,6 +1,6 @@
 use crate::task_test::script::SearchScript::*;
 use crate::task_test::script::{make_text_background_task, make_timeout_task, SearchTest};
-use flowy_task::{QualityOfService, Task, TaskContent, TaskState};
+use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskState};
 
 #[tokio::test]
 async fn task_cancel_background_task_test() {

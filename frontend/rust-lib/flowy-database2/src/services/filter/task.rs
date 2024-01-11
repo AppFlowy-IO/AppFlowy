@@ -1,6 +1,6 @@
 use crate::services::filter::FilterController;
-use flowy_task::{TaskContent, TaskHandler};
 use lib_infra::future::BoxResultFuture;
+use lib_infra::priority_task::{TaskContent, TaskHandler};
 use std::collections::HashMap;
 use std::sync::Arc;
 

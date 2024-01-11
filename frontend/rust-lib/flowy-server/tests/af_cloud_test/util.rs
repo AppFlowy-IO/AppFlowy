@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 
 use crate::setup_log;
 
