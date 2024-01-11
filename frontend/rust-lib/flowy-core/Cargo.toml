@@ -18,7 +18,6 @@ flowy-sqlite = { workspace = true }
 flowy-document = { workspace = true }
 flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true }
-flowy-task = { workspace = true }
 flowy-server = { workspace = true }
 flowy-server-config = { workspace = true }
 flowy-config = { workspace = true }

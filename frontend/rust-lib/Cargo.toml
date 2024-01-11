@@ -16,7 +16,6 @@ members = [
   "flowy-error",
   "flowy-database2",
   "flowy-database-pub",
-  "flowy-task",
   "flowy-server",
   "flowy-server-config",
   "flowy-config",
@@ -52,7 +51,6 @@ flowy-document-pub = { workspace = true, path = "flowy-document-pub" }
 flowy-error = { workspace = true, path = "flowy-error" }
 flowy-database2 = { workspace = true, path = "flowy-database2" }
 flowy-database-pub = { workspace = true, path = "flowy-database-pub" }
-flowy-task = { workspace = true, path = "flowy-task" }
 flowy-server = { workspace = true, path = "flowy-server" }
 flowy-server-config = { workspace = true, path = "flowy-server-config" }
 flowy-config = { workspace = true, path = "flowy-config" }

@@ -10,9 +10,9 @@ use tokio::sync::{broadcast, RwLock};
 use tracing::{event, warn};
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_task::TaskDispatcher;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::{to_fut, Fut, FutureResult};
+use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
