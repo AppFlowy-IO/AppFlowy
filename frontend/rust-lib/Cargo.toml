@@ -9,7 +9,7 @@ members = [
   "event-integration",
   "flowy-sqlite",
   "flowy-folder",
-  "flowy-folder-deps",
+  "flowy-folder-pub",
   "flowy-notification",
   "flowy-document",
   "flowy-document-deps",
@@ -45,7 +45,7 @@ flowy-user = { workspace = true, path = "flowy-user" }
 flowy-user-deps = { workspace = true, path = "flowy-user-deps" }
 flowy-sqlite = { workspace = true, path = "flowy-sqlite" }
 flowy-folder = { workspace = true, path = "flowy-folder" }
-flowy-folder-deps = { workspace = true, path = "flowy-folder-deps" }
+flowy-folder-pub = { workspace = true, path = "flowy-folder-pub" }
 flowy-notification = { workspace = true, path = "flowy-notification" }
 flowy-document = { workspace = true, path = "flowy-document" }
 flowy-document-deps = { workspace = true, path = "flowy-document-deps" }

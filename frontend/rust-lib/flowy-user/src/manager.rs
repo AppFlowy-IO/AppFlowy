@@ -11,7 +11,7 @@ use tracing::{debug, error, event, info, instrument};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use flowy_folder_deps::entities::ImportData;
+use flowy_folder_pub::entities::ImportData;
 use flowy_server_config::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;

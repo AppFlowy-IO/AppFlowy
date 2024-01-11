@@ -11,7 +11,7 @@ lib-log = { workspace = true }
 flowy-user = { workspace = true }
 flowy-user-deps = { workspace = true }
 flowy-folder = { workspace = true }
-flowy-folder-deps = { workspace = true }
+flowy-folder-pub = { workspace = true }
 flowy-database2 = { workspace = true }
 flowy-database-deps = { workspace = true }
 flowy-sqlite = { workspace = true }

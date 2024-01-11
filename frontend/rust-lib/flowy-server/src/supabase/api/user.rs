@@ -17,7 +17,7 @@ use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{Folder, FolderData, Workspace};
+use flowy_folder_pub::cloud::{Folder, FolderData, Workspace};
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;

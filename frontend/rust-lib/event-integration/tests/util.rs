@@ -19,7 +19,7 @@ use event_integration::event_builder::EventBuilder;
 use event_integration::Cleaner;
 use event_integration::EventIntegrationTest;
 use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_folder_deps::cloud::{FolderCloudService, FolderSnapshot};
+use flowy_folder_pub::cloud::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;

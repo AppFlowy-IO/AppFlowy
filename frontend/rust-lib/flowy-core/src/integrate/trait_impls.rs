@@ -18,7 +18,7 @@ use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, Data
 use flowy_document::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{
+use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;

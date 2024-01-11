@@ -1,5 +1,5 @@
 [package]
-name = "flowy-folder-deps"
+name = "flowy-folder-pub"
 version = "0.1.0"
 edition = "2021"
 

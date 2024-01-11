@@ -6,7 +6,7 @@ use tokio::sync::mpsc;
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_storage::FileStorageService;
 // use flowy_user::services::database::{
 //   get_user_profile, get_user_workspace, open_collab_db, open_user_db,

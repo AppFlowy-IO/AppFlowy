@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{Folder, FolderCloudService};
+use flowy_folder_pub::cloud::{Folder, FolderCloudService};
 use flowy_server::supabase::api::{
   RESTfulPostgresServer, SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl,
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,

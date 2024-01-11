@@ -30,7 +30,7 @@ hex = "0.4.3"
 postgrest = "1.0"
 lib-infra = { workspace = true }
 flowy-user-deps = { workspace = true }
-flowy-folder-deps  = { workspace = true }
+flowy-folder-pub = { workspace = true }
 flowy-database-deps = { workspace = true }
 flowy-document-deps = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_postgres", "impl_from_serde", "impl_from_reqwest", "impl_from_url", "impl_from_appflowy_cloud"] }

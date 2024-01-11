@@ -10,7 +10,7 @@ flowy-derive.workspace = true
 flowy-sqlite = { workspace = true, optional = true }
 flowy-encrypt = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error"] }
-flowy-folder-deps = { workspace = true }
+flowy-folder-pub = { workspace = true }
 lib-infra = { workspace = true }
 flowy-notification  = { workspace = true }
 flowy-server-config = { workspace = true }

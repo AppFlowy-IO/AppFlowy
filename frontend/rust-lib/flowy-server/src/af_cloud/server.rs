@@ -16,7 +16,7 @@ use tracing::{error, event, info};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::{UserCloudService, UserUpdate};

@@ -1453,7 +1453,7 @@ dependencies = [
  "flowy-document-deps",
  "flowy-encrypt",
  "flowy-folder",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "flowy-notification",
  "flowy-server",
  "flowy-server-config",
@@ -1647,7 +1647,7 @@ dependencies = [
  "flowy-document-deps",
  "flowy-error",
  "flowy-folder",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "flowy-server",
  "flowy-server-config",
  "flowy-sqlite",
@@ -1864,7 +1864,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "flowy-notification",
  "lazy_static",
  "lib-dispatch",
@@ -1883,7 +1883,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-folder-deps"
+name = "flowy-folder-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1927,7 +1927,7 @@ dependencies = [
  "flowy-document-deps",
  "flowy-encrypt",
  "flowy-error",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "flowy-server-config",
  "flowy-storage",
  "flowy-user-deps",
@@ -2037,7 +2037,7 @@ dependencies = [
  "flowy-derive",
  "flowy-encrypt",
  "flowy-error",
- "flowy-folder-deps",
+ "flowy-folder-pub",
  "flowy-notification",
  "flowy-server-config",
  "flowy-sqlite",
