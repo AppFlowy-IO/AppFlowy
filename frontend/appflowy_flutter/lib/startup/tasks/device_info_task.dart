@@ -14,17 +14,20 @@ class DeviceOrApplicationInfoTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    // Can't get the device info from test environment
+    if (!context.env.isTest) {
+      final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
-    if (Platform.isAndroid) {
-      final androidInfo = await deviceInfoPlugin.androidInfo;
-      androidSDKVersion = androidInfo.version.sdkInt;
-    }
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfoPlugin.androidInfo;
+        androidSDKVersion = androidInfo.version.sdkInt;
+      }
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      applicationVersion = packageInfo.version;
-      buildNumber = packageInfo.buildNumber;
+      if (Platform.isAndroid || Platform.isIOS) {
+        applicationVersion = packageInfo.version;
+        buildNumber = packageInfo.buildNumber;
+      }
     }
   }
 
