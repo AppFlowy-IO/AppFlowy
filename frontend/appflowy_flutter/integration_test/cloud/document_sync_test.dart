@@ -31,7 +31,7 @@ void main() {
   group('appflowy cloud document', () {
     testWidgets('sync local docuemnt to server', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
         email: email,
       );
       await tester.tapGoogleLoginInButton();
@@ -58,7 +58,7 @@ void main() {
 
     testWidgets('sync doc from server', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
         email: email,
       );
       await tester.tapGoogleLoginInButton();

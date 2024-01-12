@@ -1,3 +1,4 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
@@ -7,7 +8,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
-import 'package:dartz/dartz.dart' show Either;
+import 'package:dartz/dartz.dart' show Either, Some;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -18,18 +19,62 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppFlowyCloudViewSetting extends StatelessWidget {
-  final VoidCallback didResetServerUrl;
-  const AppFlowyCloudViewSetting({required this.didResetServerUrl, super.key});
+  final VoidCallback restartAppFlowy;
+  const AppFlowyCloudViewSetting({required this.restartAppFlowy, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return CustomAppFlowyCloudView(didResetServerUrl: didResetServerUrl);
+    return FutureBuilder<Either<CloudSettingPB, FlowyError>>(
+      future: UserEventGetCloudConfig().send(),
+      builder: (context, snapshot) {
+        if (snapshot.data != null &&
+            snapshot.connectionState == ConnectionState.done) {
+          return snapshot.data!.fold(
+            (setting) => _renderContent(context, setting),
+            (err) => FlowyErrorPage.message(err.toString(), howToFix: ""),
+          );
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    );
+  }
+
+  BlocProvider<AppFlowyCloudSettingBloc> _renderContent(
+    BuildContext context,
+    CloudSettingPB setting,
+  ) {
+    return BlocProvider(
+      create: (context) => AppFlowyCloudSettingBloc(setting)
+        ..add(const AppFlowyCloudSettingEvent.initial()),
+      child: Column(
+        children: [
+          const AppFlowyCloudEnableSync(),
+          const VSpace(40),
+          RestartButton(
+            onClick: () async {
+              NavigatorAlertDialog(
+                title: LocaleKeys.settings_menu_restartAppTip.tr(),
+                confirm: () async {
+                  await setAppFlowyCloudUrl(
+                    const Some("https://beta.appflowy.cloud"),
+                  );
+                  restartAppFlowy();
+                },
+              ).show(context);
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
 
 class CustomAppFlowyCloudView extends StatelessWidget {
-  final VoidCallback didResetServerUrl;
-  const CustomAppFlowyCloudView({required this.didResetServerUrl, super.key});
+  final VoidCallback restartAppFlowy;
+  const CustomAppFlowyCloudView({required this.restartAppFlowy, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +108,7 @@ class CustomAppFlowyCloudView extends StatelessWidget {
     // If the enableCustomCloud flag is true, then the user can dynamically configure cloud settings. Otherwise, the user cannot dynamically configure cloud settings.
     if (Env.enableCustomCloud) {
       children.add(
-        AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
+        AppFlowyCloudURLs(restartAppFlowy: () => restartAppFlowy()),
       );
     } else {
       children.add(
@@ -87,9 +132,9 @@ class CustomAppFlowyCloudView extends StatelessWidget {
 }
 
 class AppFlowyCloudURLs extends StatelessWidget {
-  final VoidCallback didUpdateUrls;
+  final VoidCallback restartAppFlowy;
   const AppFlowyCloudURLs({
-    required this.didUpdateUrls,
+    required this.restartAppFlowy,
     super.key,
   });
 
@@ -101,7 +146,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
       child: BlocListener<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
         listener: (context, state) {
           if (state.restartApp) {
-            didUpdateUrls();
+            restartAppFlowy();
           }
         },
         child: BlocBuilder<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
@@ -122,17 +167,8 @@ class AppFlowyCloudURLs extends StatelessWidget {
                   },
                 ),
                 const VSpace(20),
-                FlowyButton(
-                  isSelected: true,
-                  useIntrinsicWidth: true,
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 10,
-                  ),
-                  text: FlowyText(
-                    LocaleKeys.settings_menu_restartApp.tr(),
-                  ),
-                  onTap: () {
+                RestartButton(
+                  onClick: () {
                     NavigatorAlertDialog(
                       title: LocaleKeys.settings_menu_restartAppTip.tr(),
                       confirm: () => context.read<AppFlowyCloudURLsBloc>().add(
@@ -283,6 +319,27 @@ class AppFlowyCloudEnableSync extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class RestartButton extends StatelessWidget {
+  final VoidCallback onClick;
+  const RestartButton({required this.onClick, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      isSelected: true,
+      useIntrinsicWidth: true,
+      margin: const EdgeInsets.symmetric(
+        horizontal: 30,
+        vertical: 10,
+      ),
+      text: FlowyText(
+        LocaleKeys.settings_menu_restartApp.tr(),
+      ),
+      onTap: onClick,
     );
   }
 }

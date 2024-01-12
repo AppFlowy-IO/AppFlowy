@@ -80,7 +80,11 @@ class SettingCloud extends StatelessWidget {
         );
       case AuthenticatorType.appflowyCloud:
         return AppFlowyCloudViewSetting(
-          didResetServerUrl: didResetServerUrl,
+          restartAppFlowy: didResetServerUrl,
+        );
+      case AuthenticatorType.appflowyCloudSelfHost:
+        return CustomAppFlowyCloudView(
+          restartAppFlowy: didResetServerUrl,
         );
     }
   }
@@ -165,5 +169,7 @@ String titleFromCloudType(AuthenticatorType cloudType) {
       return LocaleKeys.settings_menu_cloudSupabase.tr();
     case AuthenticatorType.appflowyCloud:
       return LocaleKeys.settings_menu_cloudAppFlowy.tr();
+    case AuthenticatorType.appflowyCloudSelfHost:
+      return LocaleKeys.settings_menu_cloudAppFlowySelfHost.tr();
   }
 }
