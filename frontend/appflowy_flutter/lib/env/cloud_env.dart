@@ -50,12 +50,12 @@ const String kAppflowyCloudUrl = "https://beta.appflowy.cloud";
 ///
 Future<AuthenticatorType> getAuthenticatorType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
-  if (value.isNone()) {
+  if (value.isNone() && integrationMode().isRelease) {
     await setAuthenticatorType(AuthenticatorType.appflowyCloud);
     return AuthenticatorType.appflowyCloud;
   }
 
-  switch (value.getOrElse(() => "2")) {
+  switch (value.getOrElse(() => "0")) {
     case "0":
       return AuthenticatorType.local;
     case "1":
@@ -241,7 +241,7 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
     return AppFlowyCloudConfiguration(
       base_url: "$baseUrl:8000",
       ws_base_url: "ws://${baseUri.host}:8000/ws",
-      gotrue_url: "$baseUrl:9998",
+      gotrue_url: "$baseUrl:9999",
     );
   } else {
     return AppFlowyCloudConfiguration(
