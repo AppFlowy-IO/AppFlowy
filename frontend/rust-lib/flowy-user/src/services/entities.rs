@@ -139,6 +139,7 @@ impl From<Authenticator> for AuthenticatorPB {
 }
 
 pub const URL_SAFE_ENGINE: GeneralPurpose = GeneralPurpose::new(&URL_SAFE, PAD);
+#[derive(Clone)]
 pub struct UserConfig {
   /// Used to store the user data
   pub storage_path: String,

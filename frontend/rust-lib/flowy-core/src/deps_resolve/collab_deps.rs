@@ -7,12 +7,13 @@ use flowy_sqlite::{
   prelude::*,
   schema::{collab_snapshot, collab_snapshot::dsl},
 };
-use flowy_user::user_manager::UserManager;
+use flowy_user::services::authenticate_user::AuthenticateUser;
+
 use lib_infra::util::timestamp;
 use std::sync::Weak;
 use tracing::debug;
 
-pub struct SnapshotDBImpl(pub Weak<UserManager>);
+pub struct SnapshotDBImpl(pub Weak<AuthenticateUser>);
 
 impl SnapshotPersistence for SnapshotDBImpl {
   fn create_snapshot(
@@ -24,16 +25,12 @@ impl SnapshotPersistence for SnapshotDBImpl {
   ) -> Result<(), PersistenceError> {
     let collab_type = collab_type.clone();
     let object_id = object_id.to_string();
-    let weak_user_session = self.0.clone();
+    let weak_user = self.0.clone();
     tokio::task::spawn_blocking(move || {
-      if let Some(pool) = weak_user_session
+      if let Some(mut conn) = weak_user
         .upgrade()
-        .and_then(|user_session| user_session.db_pool(uid).ok())
+        .and_then(|authenticate_user| authenticate_user.get_sqlite_connection(uid).ok())
       {
-        let mut conn = pool
-          .get()
-          .map_err(|e| PersistenceError::Internal(e.into()))?;
-
         // Save the snapshot data to disk
         let result = CollabSnapshotSql::create(
           CollabSnapshotRow::new(object_id.clone(), collab_type.to_string(), encoded_v1),

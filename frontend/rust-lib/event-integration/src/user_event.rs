@@ -3,8 +3,7 @@ use std::convert::TryFrom;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use flowy_folder::entities::ImportAppFlowyDataPB;
-use flowy_folder::event_map::FolderEvent;
+
 use nanoid::nanoid;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
@@ -17,10 +16,12 @@ use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
-  AuthenticatorPB, CloudSettingPB, OauthSignInPB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB,
-  UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB,
+  AuthenticatorPB, CloudSettingPB, ImportAppFlowyDataPB, OauthSignInPB, SignInUrlPB,
+  SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB, UpdateUserProfilePayloadPB,
+  UserProfilePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
+use flowy_user::event_map::UserEvent;
 use flowy_user::event_map::UserEvent::*;
 use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher, AFPluginRequest, ToBytes};
 
@@ -200,7 +201,7 @@ impl EventIntegrationTest {
       import_container_name: name,
     };
     match EventBuilder::new(self.clone())
-      .event(FolderEvent::ImportAppFlowyDataFolder)
+      .event(UserEvent::ImportAppFlowyDataFolder)
       .payload(payload)
       .async_send()
       .await
