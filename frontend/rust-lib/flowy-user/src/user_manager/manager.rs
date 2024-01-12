@@ -1,17 +1,8 @@
-use std::string::ToString;
-use std::sync::atomic::{AtomicI64, Ordering};
-use std::sync::{Arc, Weak};
-
-use collab_user::core::MutexUserAwareness;
-use serde_json::Value;
-use tokio::sync::{Mutex, RwLock};
-use tokio_stream::StreamExt;
-use tracing::{debug, error, event, info, instrument};
-
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
+use collab_user::core::MutexUserAwareness;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use flowy_folder_pub::entities::{AppFlowyData, ImportData};
+use flowy_folder_pub::entities::ImportData;
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
@@ -20,27 +11,30 @@ use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::workspace_service::UserWorkspaceService;
+use serde_json::Value;
+use std::string::ToString;
+use std::sync::atomic::{AtomicI64, Ordering};
+use std::sync::{Arc, Weak};
+use tokio::sync::{Mutex, RwLock};
+use tokio_stream::StreamExt;
+use tracing::{debug, error, event, info, instrument};
 
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
-use crate::anon_user::{
-  migration_anon_user_on_sign_up, sync_af_user_data_to_cloud, sync_supabase_user_data_to_cloud,
-};
+use crate::anon_user::{migration_anon_user_on_sign_up, sync_supabase_user_data_to_cloud};
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
 use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
-use crate::migrations::MigrationUser;
+use crate::migrations::AnonUser;
 use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
-use crate::services::data_import::importer::{import_data, ImportSource};
-use crate::services::data_import::{
-  get_appflowy_data_folder_import_context, upload_collab_objects_data, ImportContext,
-};
+use crate::services::data_import::importer::import_data;
+use crate::services::data_import::ImportContext;
 
 use crate::services::entities::Session;
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
@@ -369,7 +363,7 @@ impl UserManager {
   async fn continue_sign_up(
     &self,
     new_user_profile: &UserProfile,
-    migration_user: Option<MigrationUser>,
+    migration_user: Option<AnonUser>,
     response: AuthResponse,
     authenticator: &Authenticator,
   ) -> FlowyResult<()> {
@@ -384,43 +378,6 @@ impl UserManager {
     self
       .save_auth_data(&response, authenticator, &new_session)
       .await?;
-
-    if response.is_new_user {
-      if let Some(old_user) = migration_user {
-        event!(
-          tracing::Level::INFO,
-          "Migrate anon user data from {:?} to {:?}",
-          old_user.user_profile.uid,
-          new_user_profile.uid
-        );
-        self
-          .migrate_anon_user_data_to_cloud(
-            &old_user,
-            &MigrationUser {
-              user_profile: new_user_profile.clone(),
-              session: new_session.clone(),
-            },
-            authenticator,
-          )
-          .await?;
-
-        // let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
-        // self
-        //   .import_appflowy_data_with_context(ImportContext {
-        //     imported_session: old_user.session.clone(),
-        //     imported_collab_db: old_collab_db,
-        //     container_name: None,
-        //   })
-        //   .await?;
-
-        self.remove_anon_user();
-        let _ = self
-          .authenticate_user
-          .database
-          .close(old_user.session.user_id);
-      }
-    }
-
     self
       .user_status_callback
       .read()
@@ -436,6 +393,25 @@ impl UserManager {
     self
       .initialize_user_awareness(&new_session, user_awareness_source)
       .await;
+
+    if response.is_new_user {
+      if let Some(old_user) = migration_user {
+        event!(
+          tracing::Level::INFO,
+          "Migrate anon user data from {:?} to {:?}",
+          old_user.session.user_id,
+          new_user_profile.uid
+        );
+        self
+          .migrate_anon_user_data_to_cloud(&old_user, &new_session, authenticator)
+          .await?;
+        self.remove_anon_user();
+        let _ = self
+          .authenticate_user
+          .database
+          .close(old_user.session.user_id);
+      }
+    }
 
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
@@ -627,25 +603,6 @@ impl UserManager {
     }
   }
 
-  pub async fn import_data_from_source(
-    &self,
-    source: ImportSource,
-  ) -> Result<AppFlowyData, FlowyError> {
-    match source {
-      ImportSource::AppFlowyDataFolder {
-        path,
-        container_name,
-      } => {
-        let context = get_appflowy_data_folder_import_context(&path)
-          .map_err(|err| {
-            FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string())
-          })?
-          .with_container_name(container_name);
-        self.import_appflowy_data(context).await
-      },
-    }
-  }
-
   pub(crate) async fn generate_sign_in_url_with_email(
     &self,
     authenticator: &Authenticator,
@@ -725,8 +682,8 @@ impl UserManager {
 
   async fn migrate_anon_user_data_to_cloud(
     &self,
-    old_user: &MigrationUser,
-    new_user: &MigrationUser,
+    old_user: &AnonUser,
+    new_user_session: &Session,
     authenticator: &Authenticator,
   ) -> Result<(), FlowyError> {
     let old_collab_db = self
@@ -736,15 +693,15 @@ impl UserManager {
     let new_collab_db = self
       .authenticate_user
       .database
-      .get_collab_db(new_user.session.user_id)?;
+      .get_collab_db(new_user_session.user_id)?;
 
     match authenticator {
       Authenticator::Supabase => {
-        migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
+        migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user_session, &new_collab_db)?;
         if let Err(err) = sync_supabase_user_data_to_cloud(
           self.cloud_services.get_user_service()?,
           &self.authenticate_user.user_config.device_id,
-          new_user,
+          new_user_session,
           &new_collab_db,
         )
         .await
@@ -753,17 +710,9 @@ impl UserManager {
         }
       },
       Authenticator::AppFlowyCloud => {
-        migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
-        if let Err(err) = sync_af_user_data_to_cloud(
-          self.cloud_services.get_user_service()?,
-          &self.authenticate_user.user_config.device_id,
-          new_user,
-          &new_collab_db,
-        )
-        .await
-        {
-          error!("Sync user data to cloud failed: {:?}", err);
-        }
+        self
+          .migration_anon_user_on_appflowy_cloud_sign_up(old_user, &old_collab_db)
+          .await?;
       },
       _ => {},
     }
@@ -780,36 +729,22 @@ impl UserManager {
     Ok(())
   }
 
-  async fn import_appflowy_data(&self, context: ImportContext) -> Result<AppFlowyData, FlowyError> {
+  pub(crate) async fn import_appflowy_data(
+    &self,
+    context: ImportContext,
+  ) -> Result<ImportData, FlowyError> {
     let session = self.get_session()?;
-    let uid = session.user_id;
     let user_collab_db = self
       .authenticate_user
       .database
       .get_collab_db(session.user_id)?;
-    let cloned_collab_db = user_collab_db.clone();
     let import_data = tokio::task::spawn_blocking(move || {
-      import_data(&session, context, cloned_collab_db)
+      import_data(&session, context, user_collab_db)
         .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))
     })
     .await
     .map_err(internal_error)??;
-    let user = self.get_user_profile_from_disk(uid).await?;
-
-    match import_data {
-      ImportData::AppFlowyDataFolder { folder, object_ids } => {
-        upload_collab_objects_data(
-          uid,
-          user_collab_db,
-          &user.workspace_id,
-          &user.authenticator,
-          object_ids,
-          self.cloud_services.get_user_service()?,
-        )
-        .await?;
-        Ok(folder)
-      },
-    }
+    Ok(import_data)
   }
 }
 

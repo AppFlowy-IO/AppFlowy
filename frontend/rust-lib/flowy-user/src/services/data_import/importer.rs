@@ -9,13 +9,6 @@ use flowy_folder_pub::entities::ImportData;
 use std::sync::Arc;
 use tracing::instrument;
 
-pub enum ImportSource {
-  AppFlowyDataFolder {
-    path: String,
-    container_name: Option<String>,
-  },
-}
-
 /// Import appflowy data from the given path.
 /// If the container name is not empty, then the data will be imported to the given container.
 /// Otherwise, the data will be imported to the current workspace.

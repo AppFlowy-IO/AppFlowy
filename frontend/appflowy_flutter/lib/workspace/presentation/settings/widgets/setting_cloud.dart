@@ -79,7 +79,7 @@ class SettingCloud extends StatelessWidget {
           didResetServerUrl: didResetServerUrl,
         );
       case AuthenticatorType.appflowyCloud:
-        return SettingAppFlowyCloudView(
+        return AppFlowyCloudViewSetting(
           didResetServerUrl: didResetServerUrl,
         );
     }

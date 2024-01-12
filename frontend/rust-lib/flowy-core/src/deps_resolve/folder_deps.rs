@@ -38,7 +38,6 @@ impl FolderDepsResolver {
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
-      database_manager: Arc::downgrade(database_manager),
     });
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
@@ -73,7 +72,6 @@ fn folder_operation_handlers(
 
 struct FolderUserImpl {
   authenticate_user: Weak<AuthenticateUser>,
-  database_manager: Weak<DatabaseManager>,
 }
 
 #[async_trait]

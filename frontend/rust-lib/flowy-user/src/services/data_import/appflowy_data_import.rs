@@ -30,6 +30,7 @@ use flowy_user_pub::entities::Authenticator;
 use parking_lot::{Mutex, RwLock};
 use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
+use std::path::Path;
 use std::sync::Arc;
 use tracing::{debug, error, event, info, instrument};
 
@@ -47,6 +48,9 @@ impl ImportContext {
 }
 
 pub(crate) fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Result<ImportContext> {
+  if !Path::new(path).exists() {
+    return Err(anyhow!("The path: {} is not exist", path));
+  }
   let user_paths = UserPaths::new(path.to_string());
   let other_store_preferences = Arc::new(StorePreferences::new(path)?);
   migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
@@ -59,10 +63,12 @@ pub(crate) fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Res
 
   let collab_db_path = user_paths.collab_db_path(imported_session.user_id);
   let sqlite_db_path = user_paths.sqlite_db_path(imported_session.user_id);
-  let imported_sqlite_db = flowy_sqlite::init(sqlite_db_path).map_err(|e| {
-    FlowyError::internal().with_context(format!("open import sqlite db failed, {:?}", e))
-  })?;
-  let imported_collab_db = Arc::new(CollabKVDB::open(collab_db_path)?);
+  let imported_sqlite_db = flowy_sqlite::init(sqlite_db_path)
+    .map_err(|err| anyhow!("open import collab db failed: {:?}", err))?;
+  let imported_collab_db = Arc::new(
+    CollabKVDB::open(collab_db_path)
+      .map_err(|err| anyhow!("open import collab db failed: {:?}", err))?,
+  );
   let imported_user = select_user_profile(
     imported_session.user_id,
     imported_sqlite_db.get_connection()?,
@@ -234,15 +240,17 @@ pub(crate) fn import_appflowy_data_folder(
     }
   })?;
   Ok(ImportData::AppFlowyDataFolder {
-    folder: AppFlowyData::Folder {
-      views,
-      database_view_ids_by_database_id,
-    },
-    object_ids: AppFlowyData::CollabObject {
-      row_object_ids: row_object_ids.into_inner().into_iter().collect(),
-      database_object_ids: database_object_ids.into_inner().into_iter().collect(),
-      document_object_ids: document_object_ids.into_inner().into_iter().collect(),
-    },
+    items: vec![
+      AppFlowyData::Folder {
+        views,
+        database_view_ids_by_database_id,
+      },
+      AppFlowyData::CollabObject {
+        row_object_ids: row_object_ids.into_inner().into_iter().collect(),
+        database_object_ids: database_object_ids.into_inner().into_iter().collect(),
+        document_object_ids: document_object_ids.into_inner().into_iter().collect(),
+      },
+    ],
   })
 }
 
@@ -627,62 +635,63 @@ pub async fn upload_collab_objects_data(
       row_object_ids,
       document_object_ids,
       database_object_ids,
-    } => {},
+    } => {
+      let object_by_collab_type = tokio::task::spawn_blocking(move || {
+        let collab_read = user_collab_db.read_txn();
+        let mut object_by_collab_type = HashMap::new();
+
+        event!(tracing::Level::DEBUG, "upload database collab data");
+        object_by_collab_type.insert(
+          CollabType::Database,
+          load_and_process_collab_data(uid, &collab_read, &database_object_ids),
+        );
+
+        event!(tracing::Level::DEBUG, "upload document collab data");
+        object_by_collab_type.insert(
+          CollabType::Document,
+          load_and_process_collab_data(uid, &collab_read, &document_object_ids),
+        );
+
+        event!(tracing::Level::DEBUG, "upload database row collab data");
+        object_by_collab_type.insert(
+          CollabType::DatabaseRow,
+          load_and_process_collab_data(uid, &collab_read, &row_object_ids),
+        );
+
+        object_by_collab_type
+      })
+      .await
+      .map_err(internal_error)?;
+
+      // Upload
+      let mut size_counter = 0;
+      let mut objects: Vec<UserCollabParams> = vec![];
+      for (collab_type, encoded_collab_by_oid) in object_by_collab_type {
+        for (oid, encoded_collab) in encoded_collab_by_oid {
+          let obj_size = encoded_collab.len();
+          // Add the current object to the batch.
+          objects.push(UserCollabParams {
+            object_id: oid,
+            encoded_collab,
+            collab_type: collab_type.clone(),
+          });
+          size_counter += obj_size;
+        }
+      }
+
+      if !objects.is_empty() {
+        batch_create(
+          uid,
+          workspace_id,
+          &user_cloud_service,
+          &size_counter,
+          objects,
+        )
+        .await;
+      }
+    },
   }
 
-  let object_by_collab_type = tokio::task::spawn_blocking(move || {
-    let collab_read = user_collab_db.read_txn();
-    let mut object_by_collab_type = HashMap::new();
-
-    event!(tracing::Level::DEBUG, "upload database collab data");
-    object_by_collab_type.insert(
-      CollabType::Database,
-      load_and_process_collab_data(uid, &collab_read, &database_object_ids),
-    );
-
-    event!(tracing::Level::DEBUG, "upload document collab data");
-    object_by_collab_type.insert(
-      CollabType::Document,
-      load_and_process_collab_data(uid, &collab_read, &document_object_ids),
-    );
-
-    event!(tracing::Level::DEBUG, "upload database row collab data");
-    object_by_collab_type.insert(
-      CollabType::DatabaseRow,
-      load_and_process_collab_data(uid, &collab_read, &row_object_ids),
-    );
-
-    object_by_collab_type
-  })
-  .await
-  .map_err(internal_error)?;
-
-  // Upload
-  let mut size_counter = 0;
-  let mut objects: Vec<UserCollabParams> = vec![];
-  for (collab_type, encoded_collab_by_oid) in object_by_collab_type {
-    for (oid, encoded_collab) in encoded_collab_by_oid {
-      let obj_size = encoded_collab.len();
-      // Add the current object to the batch.
-      objects.push(UserCollabParams {
-        object_id: oid,
-        encoded_collab,
-        collab_type: collab_type.clone(),
-      });
-      size_counter += obj_size;
-    }
-  }
-
-  if !objects.is_empty() {
-    batch_create(
-      uid,
-      workspace_id,
-      &user_cloud_service,
-      &size_counter,
-      objects,
-    )
-    .await;
-  }
   Ok(())
 }
 

@@ -2,10 +2,7 @@ use crate::folder_builder::ParentChildViews;
 use std::collections::HashMap;
 
 pub enum ImportData {
-  AppFlowyDataFolder {
-    folder: AppFlowyData,
-    object_ids: AppFlowyData,
-  },
+  AppFlowyDataFolder { items: Vec<AppFlowyData> },
 }
 
 pub enum AppFlowyData {

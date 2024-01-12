@@ -2,18 +2,20 @@ use std::convert::TryFrom;
 use std::sync::Arc;
 
 use collab_entity::{CollabObject, CollabType};
+use collab_integrate::CollabKVDB;
 use tracing::{error, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_pub::entities::ImportData;
+use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
 use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
+use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
-use crate::services::data_import::ImportSource;
+use crate::services::data_import::{upload_collab_objects_data, ImportContext};
 use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
 use crate::user_manager::UserManager;
 
@@ -21,32 +23,79 @@ impl UserManager {
   /// Import appflowy data from the given path.
   /// If the container name is not empty, then the data will be imported to the given container.
   /// Otherwise, the data will be imported to the current workspace.
-  pub async fn import_appflowy_data_folder(
+  #[instrument(skip_all, err)]
+  pub(crate) async fn import_appflowy_data_folder(
     &self,
-    path: String,
-    container_name: Option<String>,
+    context: ImportContext,
   ) -> FlowyResult<()> {
-    let import_data = self
-      .import_data_from_source(ImportSource::AppFlowyDataFolder {
-        path,
-        container_name,
-      })
-      .await?;
+    let session = self.get_session()?;
+    let import_data = self.import_appflowy_data(context).await?;
     match import_data {
-      ImportData::AppFlowyDataFolder {
-        views,
-        database_view_ids_by_database_id,
-        row_object_ids: _,
-        database_object_ids: _,
-        document_object_ids: _,
-      } => {
-        self
-          .user_workspace_service
-          .did_import_database_views(database_view_ids_by_database_id)
-          .await?;
-        self.user_workspace_service.did_import_views(views).await?;
+      ImportData::AppFlowyDataFolder { items } => {
+        for item in items {
+          match item {
+            AppFlowyData::Folder {
+              views,
+              database_view_ids_by_database_id,
+            } => {
+              let (tx, rx) = tokio::sync::oneshot::channel();
+              let cloned_workspace_service = self.user_workspace_service.clone();
+              tokio::spawn(async move {
+                let result = async {
+                  cloned_workspace_service
+                    .did_import_database_views(database_view_ids_by_database_id)
+                    .await?;
+                  cloned_workspace_service.did_import_views(views).await?;
+                  Ok::<(), FlowyError>(())
+                }
+                .await;
+                let _ = tx.send(result);
+              })
+              .await?;
+              rx.await??;
+            },
+            AppFlowyData::CollabObject {
+              row_object_ids,
+              document_object_ids,
+              database_object_ids,
+            } => {
+              let user = self.get_user_profile_from_disk(session.user_id).await?;
+              let user_collab_db = self
+                .get_collab_db(session.user_id)?
+                .upgrade()
+                .ok_or_else(|| FlowyError::internal().with_context("Collab db not found"))?;
+              upload_collab_objects_data(
+                session.user_id,
+                user_collab_db,
+                &user.workspace_id,
+                &user.authenticator,
+                AppFlowyData::CollabObject {
+                  row_object_ids,
+                  document_object_ids,
+                  database_object_ids,
+                },
+                self.cloud_services.get_user_service()?,
+              )
+              .await?;
+            },
+          }
+        }
       },
     }
+    Ok(())
+  }
+
+  pub async fn migration_anon_user_on_appflowy_cloud_sign_up(
+    &self,
+    old_user: &AnonUser,
+    old_collab_db: &Arc<CollabKVDB>,
+  ) -> FlowyResult<()> {
+    let import_context = ImportContext {
+      imported_session: old_user.session.clone(),
+      imported_collab_db: old_collab_db.clone(),
+      container_name: None,
+    };
+    self.import_appflowy_data_folder(import_context).await?;
     Ok(())
   }
 

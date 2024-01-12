@@ -1,21 +1,20 @@
-use std::sync::Weak;
-use std::{convert::TryInto, sync::Arc};
-
-use serde_json::Value;
-use tracing::event;
-
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_pub::cloud::UserCloudConfig;
 use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
+use serde_json::Value;
+use std::sync::Weak;
+use std::{convert::TryInto, sync::Arc};
+use tracing::event;
 
 use crate::entities::*;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::cloud_config::{
   get_cloud_config, get_or_create_cloud_config, save_cloud_config,
 };
+use crate::services::data_import::get_appflowy_data_folder_import_context;
 use crate::user_manager::UserManager;
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
@@ -256,15 +255,18 @@ pub async fn import_appflowy_data_folder_handler(
   let data = data.try_into_inner()?;
   let (tx, rx) = tokio::sync::oneshot::channel();
   af_spawn(async move {
-    let manager = upgrade_manager(manager)?;
-    let result = manager
-      .import_appflowy_data_folder(data.path, data.import_container_name)
-      .await?;
+    let result = async {
+      let manager = upgrade_manager(manager)?;
+      let context = get_appflowy_data_folder_import_context(&data.path)
+        .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))?
+        .with_container_name(data.import_container_name);
+      manager.import_appflowy_data_folder(context).await?;
+      Ok::<(), FlowyError>(())
+    }
+    .await;
     let _ = tx.send(result);
-    Ok::<(), FlowyError>(())
   });
-
-  rx.await.map_err(internal_error)?;
+  rx.await??;
   Ok(())
 }
 
