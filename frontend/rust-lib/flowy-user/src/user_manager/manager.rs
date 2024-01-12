@@ -423,6 +423,7 @@ impl UserManager {
   #[tracing::instrument(level = "info", skip(self))]
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     if let Ok(session) = self.get_session() {
+      let _ = remove_user_token(session.user_id, self.db_pool(session.user_id)?);
       self.authenticate_user.database.close(session.user_id)?;
       self.authenticate_user.set_session(None)?;
 
@@ -783,6 +784,15 @@ fn save_user_token(uid: i64, pool: Arc<ConnectionPool>, token: String) -> FlowyR
   let params = UpdateUserProfileParams::new(uid).with_token(token);
   let changeset = UserTableChangeset::new(params);
   upsert_user_profile_change(uid, pool, changeset)
+}
+
+#[instrument(level = "info", skip_all, err)]
+fn remove_user_token(uid: i64, pool: Arc<ConnectionPool>) -> FlowyResult<()> {
+  let mut conn = pool.get()?;
+  diesel::update(user_table::dsl::user_table.filter(user_table::id.eq(&uid.to_string())))
+    .set(user_table::token.eq(""))
+    .execute(&mut *conn)?;
+  Ok(())
 }
 
 pub(crate) fn run_collab_data_migration(
