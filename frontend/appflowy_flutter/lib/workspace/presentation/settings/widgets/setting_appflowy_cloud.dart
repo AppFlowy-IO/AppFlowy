@@ -61,6 +61,8 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
                   await setAppFlowyCloudUrl(
                     const Some("https://beta.appflowy.cloud"),
                   );
+
+                  await setAuthenticatorType(AuthenticatorType.appflowyCloud);
                   restartAppFlowy();
                 },
               ).show(context);
@@ -144,8 +146,9 @@ class AppFlowyCloudURLs extends StatelessWidget {
       create: (context) =>
           AppFlowyCloudURLsBloc()..add(const AppFlowyCloudURLsEvent.initial()),
       child: BlocListener<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.restartApp) {
+            await setAuthenticatorType(AuthenticatorType.appflowyCloudSelfHost);
             restartAppFlowy();
           }
         },
@@ -168,12 +171,14 @@ class AppFlowyCloudURLs extends StatelessWidget {
                 ),
                 const VSpace(20),
                 RestartButton(
-                  onClick: () {
+                  onClick: () async {
                     NavigatorAlertDialog(
                       title: LocaleKeys.settings_menu_restartAppTip.tr(),
-                      confirm: () => context.read<AppFlowyCloudURLsBloc>().add(
-                            const AppFlowyCloudURLsEvent.confirmUpdate(),
-                          ),
+                      confirm: () {
+                        context.read<AppFlowyCloudURLsBloc>().add(
+                              const AppFlowyCloudURLsEvent.confirmUpdate(),
+                            );
+                      },
                     ).show(context);
                   },
                 ),
