@@ -39,6 +39,7 @@ class OptionActionList extends StatelessWidget {
     }).toList();
 
     return PopoverActionList<PopoverAction>(
+      actionsMutex: PopoverMutex(),
       direction: PopoverDirection.leftWithCenterAligned,
       actions: popoverActions,
       onPopupBuilder: () => blockComponentState.alwaysShowActions = true,

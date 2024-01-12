@@ -42,6 +42,7 @@ class BlockOptionButton extends StatelessWidget {
     }).toList();
 
     return PopoverActionList<PopoverAction>(
+      actionsMutex: PopoverMutex(),
       direction:
           context.read<AppearanceSettingsCubit>().state.layoutDirection ==
                   LayoutDirection.rtlLayout

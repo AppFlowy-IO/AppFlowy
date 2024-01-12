@@ -11,6 +11,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
     required this.buildChild,
     required this.onSelected,
     this.mutex,
+    this.actionsMutex,
     this.onClosed,
     this.onPopupBuilder,
     this.direction = PopoverDirection.rightWithTopAligned,
@@ -24,15 +25,16 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   });
 
   final List<T> actions;
-  final Widget Function(PopoverController) buildChild;
-  final Function(T, PopoverController) onSelected;
   final PopoverMutex? mutex;
-  final VoidCallback? onClosed;
-  final VoidCallback? onPopupBuilder;
+  final PopoverMutex? actionsMutex;
+  final Function(T, PopoverController) onSelected;
+  final BoxConstraints constraints;
   final PopoverDirection direction;
+  final Widget Function(PopoverController) buildChild;
+  final VoidCallback? onPopupBuilder;
+  final VoidCallback? onClosed;
   final bool asBarrier;
   final Offset offset;
-  final BoxConstraints constraints;
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -74,6 +76,7 @@ class _PopoverActionListState<T extends PopoverAction>
             );
           } else if (action is PopoverActionCell) {
             return PopoverActionCellWidget<T>(
+              mutex: widget.actionsMutex,
               popoverController: popoverController,
               action: action,
               itemHeight: ActionListSizes.itemHeight,
@@ -167,11 +170,13 @@ class PopoverActionCellWidget<T extends PopoverAction> extends StatefulWidget {
     required this.popoverController,
     required this.action,
     required this.itemHeight,
+    this.mutex,
   });
 
   final T action;
   final double itemHeight;
 
+  final PopoverMutex? mutex;
   final PopoverController popoverController;
 
   @override
@@ -190,6 +195,7 @@ class _PopoverActionCellWidgetState<T extends PopoverAction>
     final rightIcon =
         actionCell.rightIcon(Theme.of(context).colorScheme.onSurface);
     return AppFlowyPopover(
+      mutex: widget.mutex,
       controller: popoverController,
       asBarrier: true,
       popupBuilder: (context) => actionCell.builder(

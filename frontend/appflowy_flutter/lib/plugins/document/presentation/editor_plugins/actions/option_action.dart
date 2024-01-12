@@ -339,6 +339,14 @@ class DepthOptionAction extends PopoverActionCell {
   final EditorState editorState;
 
   @override
+  Widget? leftIcon(Color iconColor) {
+    return const FlowySvg(
+      FlowySvgs.m_aa_bulleted_list_s,
+      size: Size.square(12),
+    ).padding(all: 2.0);
+  }
+
+  @override
   String get name => LocaleKeys.document_plugins_optionAction_depth.tr();
 
   @override
