@@ -59,7 +59,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
                 title: LocaleKeys.settings_menu_restartAppTip.tr(),
                 confirm: () async {
                   await setAppFlowyCloudUrl(
-                    const Some("https://beta.appflowy.cloud"),
+                    const Some(kAppflowyCloudUrl),
                   );
 
                   await setAuthenticatorType(AuthenticatorType.appflowyCloud);

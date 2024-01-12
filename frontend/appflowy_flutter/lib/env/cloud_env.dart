@@ -20,19 +20,22 @@ import 'package:dartz/dartz.dart';
 Future<void> setAuthenticatorType(AuthenticatorType ty) async {
   switch (ty) {
     case AuthenticatorType.local:
-      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
       break;
     case AuthenticatorType.supabase:
-      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 1.toString());
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 1.toString());
       break;
     case AuthenticatorType.appflowyCloud:
-      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
+      await setAppFlowyCloudUrl(const Some(kAppflowyCloudUrl));
       break;
     case AuthenticatorType.appflowyCloudSelfHost:
-      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 3.toString());
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 3.toString());
       break;
   }
 }
+
+const String kAppflowyCloudUrl = "https://beta.appflowy.cloud";
 
 /// Retrieves the currently set cloud type.
 ///
@@ -47,20 +50,24 @@ Future<void> setAuthenticatorType(AuthenticatorType ty) async {
 ///
 Future<AuthenticatorType> getAuthenticatorType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
-  return value.fold(() => AuthenticatorType.local, (s) {
-    switch (s) {
-      case "0":
-        return AuthenticatorType.local;
-      case "1":
-        return AuthenticatorType.supabase;
-      case "2":
-        return AuthenticatorType.appflowyCloud;
-      case "3":
-        return AuthenticatorType.appflowyCloudSelfHost;
-      default:
-        return AuthenticatorType.local;
-    }
-  });
+  if (value.isNone() && integrationMode().isRelease) {
+    await setAuthenticatorType(AuthenticatorType.appflowyCloud);
+    return AuthenticatorType.appflowyCloud;
+  }
+
+  switch (value.getOrElse(() => "0")) {
+    case "0":
+      return AuthenticatorType.local;
+    case "1":
+      return AuthenticatorType.supabase;
+    case "2":
+      return AuthenticatorType.appflowyCloud;
+    case "3":
+      return AuthenticatorType.appflowyCloudSelfHost;
+    default:
+      await setAuthenticatorType(AuthenticatorType.appflowyCloud);
+      return AuthenticatorType.appflowyCloud;
+  }
 }
 
 /// Determines whether authentication is enabled.
