@@ -2,16 +2,37 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'date_cell_editor_bloc.dart';
 
 class MobileDatePicker extends StatefulWidget {
   const MobileDatePicker({
     super.key,
+    this.selectedDay,
+    required this.isRange,
+    this.onDaySelected,
+    this.rebuildOnDaySelected = false,
+    this.onRangeSelected,
+    this.firstDay,
+    this.lastDay,
+    this.startDay,
+    this.endDay,
   });
+
+  final DateTime? selectedDay;
+
+  final bool isRange;
+
+  final DaySelectedCallback? onDaySelected;
+
+  final bool rebuildOnDaySelected;
+  final RangeSelectedCallback? onRangeSelected;
+
+  final DateTime? firstDay;
+  final DateTime? lastDay;
+  final DateTime? startDay;
+  final DateTime? endDay;
 
   @override
   State<MobileDatePicker> createState() => _MobileDatePickerState();
@@ -20,6 +41,8 @@ class MobileDatePicker extends StatefulWidget {
 class _MobileDatePickerState extends State<MobileDatePicker> {
   DateTime _focusedDay = DateTime.now();
   PageController? _pageController;
+
+  late DateTime? _selectedDay = widget.selectedDay;
 
   @override
   Widget build(BuildContext context) {
@@ -35,40 +58,24 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
   }
 
   Widget _buildCalendar(BuildContext context) {
-    return BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
-      builder: (context, state) {
-        return AppFlowyDatePicker(
-          includeTime: state.includeTime,
-          rebuildOnDaySelected: false,
-          dateFormat: state.dateTypeOptionPB.dateFormat,
-          timeFormat: state.dateTypeOptionPB.timeFormat,
-          selectedDay: state.dateTime,
-          startDay: state.isRange ? state.startDay : null,
-          endDay: state.isRange ? state.endDay : null,
-          timeStr: state.timeStr,
-          endTimeStr: state.endTimeStr,
-          timeHintText: state.timeHintText,
-          parseEndTimeError: state.parseEndTimeError,
-          parseTimeError: state.parseTimeError,
-          onIncludeTimeChanged: (value) => context
-              .read<DateCellEditorBloc>()
-              .add(DateCellEditorEvent.setIncludeTime(!value)),
-          isRange: state.isRange,
-          onIsRangeChanged: (value) => context
-              .read<DateCellEditorBloc>()
-              .add(DateCellEditorEvent.setIsRange(!value)),
-          onCalendarCreated: (pageController) =>
-              _pageController = pageController,
-          onDaySelected: (selectedDay, focusedDay) => context
-              .read<DateCellEditorBloc>()
-              .add(DateCellEditorEvent.selectDay(selectedDay)),
-          onRangeSelected: (start, end, focusedDay) => context
-              .read<DateCellEditorBloc>()
-              .add(DateCellEditorEvent.selectDateRange(start, end)),
-          onPageChanged: (focusedDay) =>
-              setState(() => _focusedDay = focusedDay),
-        );
+    return DatePicker(
+      isRange: widget.isRange,
+      onDaySelected: (selectedDay, focusedDay) {
+        widget.onDaySelected?.call(selectedDay, focusedDay);
+
+        if (widget.rebuildOnDaySelected) {
+          setState(() => _selectedDay = selectedDay);
+        }
       },
+      onRangeSelected: widget.onRangeSelected,
+      selectedDay:
+          widget.rebuildOnDaySelected ? _selectedDay : widget.selectedDay,
+      firstDay: widget.firstDay,
+      lastDay: widget.lastDay,
+      startDay: widget.startDay,
+      endDay: widget.endDay,
+      onCalendarCreated: (pageController) => _pageController = pageController,
+      onPageChanged: (focusedDay) => setState(() => _focusedDay = focusedDay),
     );
   }
 

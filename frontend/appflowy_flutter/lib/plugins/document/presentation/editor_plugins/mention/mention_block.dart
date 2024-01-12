@@ -9,11 +9,14 @@ import 'package:provider/provider.dart';
 
 enum MentionType {
   page,
+  reminder,
   date;
 
   static MentionType fromString(String value) => switch (value) {
         'page' => page,
         'date' => date,
+        // Backwards compatibility
+        'reminder' => date,
         _ => throw UnimplementedError(),
       };
 }

@@ -1,9 +1,10 @@
+import 'package:appflowy/plugins/base/drag_handler.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/mobile_date_editor.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -11,6 +12,7 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
@@ -160,7 +162,52 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   if (PlatformExtension.isMobile) {
                     showMobileBottomSheet(
                       context,
-                      builder: (_) => const MobileDatePicker(),
+                      builder: (_) => DraggableScrollableSheet(
+                        expand: false,
+                        snap: true,
+                        initialChildSize: 0.7,
+                        minChildSize: 0.4,
+                        snapSizes: const [0.4, 0.7, 1.0],
+                        builder: (_, controller) => Material(
+                          color:
+                              Theme.of(context).colorScheme.secondaryContainer,
+                          child: ListView(
+                            controller: controller,
+                            children: [
+                              ColoredBox(
+                                color: Theme.of(context).colorScheme.surface,
+                                child: const Center(child: DragHandler()),
+                              ),
+                              const MobileDateHeader(),
+                              MobileAppFlowyDatePicker(
+                                selectedDay: parsedDate,
+                                timeStr: timeStr,
+                                dateStr: parsedDate != null
+                                    ? options.dateFormat
+                                        .formatDate(parsedDate!, _includeTime)
+                                    : null,
+                                includeTime: options.includeTime,
+                                use24hFormat: options.timeFormat ==
+                                    UserTimeFormatPB.TwentyFourHour,
+                                rebuildOnDaySelected: true,
+                                rebuildOnTimeChanged: true,
+                                onDaySelected: options.onDaySelected,
+                                onStartTimeChanged: (time) => options
+                                    .onStartTimeChanged
+                                    ?.call(time ?? ""),
+                                onIncludeTimeChanged:
+                                    options.onIncludeTimeChanged,
+                                liveDateFormatter: (selected) =>
+                                    appearance.dateFormat.formatDate(
+                                  selected,
+                                  false,
+                                  appearance.timeFormat,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     );
                   } else {
                     DatePickerMenu(
