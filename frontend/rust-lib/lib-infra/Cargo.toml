@@ -19,6 +19,12 @@ anyhow.workspace = true
 walkdir = "2.4.0"
 tempfile = "3.8.1"
 validator = "0.16.0"
+tracing.workspace = true
+atomic_refcell = "0.1"
+
+[dev-dependencies]
+rand = "0.8.5"
+futures = "0.3.30"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 zip = { version = "0.6.6", features = ["deflate"] }

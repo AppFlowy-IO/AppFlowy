@@ -353,12 +353,12 @@
         "button": "Caricamento",
         "uploadTheme": "Carica tema",
         "description": "Carica il tuo tema AppFlowy utilizzando il pulsante in basso.",
-        "failure": "Il tema che è stato caricato aveva un formato non valido.",
         "loading": "Attendi mentre convalidiamo e carichiamo il tuo tema...",
         "uploadSuccess": "Il tuo tema è stato caricato correttamente",
         "deletionFailure": "Impossibile eliminare il tema. Prova a eliminarlo manualmente.",
         "filePickerDialogTitle": "Scegli un file .flowy_plugin",
-        "urlUploadFailure": "Impossibile aprire l'URL: {}"
+        "urlUploadFailure": "Impossibile aprire l'URL: {}",
+        "failure": "Il tema che è stato caricato aveva un formato non valido."
       },
       "theme": "Tema",
       "builtInsLabel": "Temi incorporati",
@@ -911,10 +911,10 @@
       "firstDayOfWeek": "Inizia la settimana",
       "layoutDateField": "Layout calendario per",
       "noDateTitle": "Nessuna data",
-      "noDateHint": "Gli eventi non programmati verranno visualizzati qui",
       "unscheduledEventsTitle": "Eventi non programmati",
       "clickToAdd": "Fare clic per aggiungere al calendario",
-      "name": "Disposizione del calendario"
+      "name": "Disposizione del calendario",
+      "noDateHint": "Gli eventi non programmati verranno visualizzati qui"
     },
     "referencedCalendarPrefix": "Vista di",
     "quickJumpYear": "Salta a"

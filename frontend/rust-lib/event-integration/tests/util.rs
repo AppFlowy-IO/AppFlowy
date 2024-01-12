@@ -18,17 +18,17 @@ use zip::ZipArchive;
 use event_integration::event_builder::EventBuilder;
 use event_integration::Cleaner;
 use event_integration::EventIntegrationTest;
-use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_folder_deps::cloud::{FolderCloudService, FolderSnapshot};
+use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_folder_pub::cloud::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB};
 use flowy_user::errors::FlowyError;
 
 use flowy_user::event_map::UserEvent::*;
-use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::Authenticator;
+use flowy_user_pub::cloud::UserCloudService;
+use flowy_user_pub::entities::Authenticator;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   dotenv::from_path(".env.ci").ok()?;

@@ -311,12 +311,12 @@
         "button": "Yükle",
         "uploadTheme": "Tema yükle",
         "description": "Aşağıdaki düğmeyi kullanarak kendi AppFlowy temanızı yükleyin.",
-        "failure": "Yüklenen temanın biçimi geçersiz.",
         "loading": "Temanız doğrulanıp yüklenirken lütfen bekleyin...",
         "uploadSuccess": "Temanız yüklendi",
         "deletionFailure": "Tema silinemedi. El ile silmeyi deneyin.",
         "filePickerDialogTitle": "Bir .flowy_plugin dosyası seçin",
-        "urlUploadFailure": "Adres açılamadı: {}"
+        "urlUploadFailure": "Adres açılamadı: {}",
+        "failure": "Yüklenen temanın biçimi geçersiz."
       },
       "theme": "Tema",
       "builtInsLabel": "Hazır temalar",

@@ -224,12 +224,12 @@
       "themeUpload": {
         "button": "Carrega",
         "description": "Carregueu el vostre propi tema AppFlowy amb el botó següent.",
-        "failure": "El tema que s'ha penjat tenia un format no vàlid.",
         "loading": "Si us plau, espereu mentre validem i carreguem el vostre tema...",
         "uploadSuccess": "El teu tema s'ha penjat correctament",
         "deletionFailure": "No s'ha pogut suprimir el tema. Intenta esborrar-lo manualment.",
         "filePickerDialogTitle": "Trieu un fitxer .flowy_plugin",
-        "urlUploadFailure": "No s'ha pogut obrir l'URL: {}"
+        "urlUploadFailure": "No s'ha pogut obrir l'URL: {}",
+        "failure": "El tema que s'ha penjat tenia un format no vàlid."
       },
       "theme": "Tema",
       "builtInsLabel": "Temes integrats",

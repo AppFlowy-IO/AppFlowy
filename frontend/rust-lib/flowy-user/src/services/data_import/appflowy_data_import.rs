@@ -1,10 +1,10 @@
-use crate::manager::run_collab_data_migration;
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::data_import::importer::load_collab_by_oid;
 use crate::services::db::UserDBPath;
 use crate::services::entities::{Session, UserPaths};
-use crate::services::user_awareness::awareness_oid_from_user_uuid;
-use crate::services::user_sql::select_user_profile;
+use crate::services::sqlite_sql::user_sql::select_user_profile;
+use crate::user_manager::manager_user_awareness::awareness_oid_from_user_uuid;
+use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::core::origin::CollabOrigin;
@@ -21,12 +21,12 @@ use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{internal_error, FlowyError};
-use flowy_folder_deps::cloud::gen_view_id;
-use flowy_folder_deps::entities::ImportData;
-use flowy_folder_deps::folder_builder::{ParentChildViews, ViewBuilder};
+use flowy_folder_pub::cloud::gen_view_id;
+use flowy_folder_pub::entities::ImportData;
+use flowy_folder_pub::folder_builder::{ParentChildViews, ViewBuilder};
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user_deps::cloud::{UserCloudService, UserCollabParams};
-use flowy_user_deps::entities::Authenticator;
+use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
+use flowy_user_pub::entities::Authenticator;
 use parking_lot::{Mutex, RwLock};
 use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
@@ -172,7 +172,7 @@ pub(crate) fn import_appflowy_data_folder(
         let new_object_id = old_to_new_id_map.lock().renew_id(object_id);
         document_object_ids.lock().insert(new_object_id.clone());
         debug!("import from: {}, to: {}", object_id, new_object_id,);
-        import_collab_object(
+        write_collab_object(
           imported_collab,
           session.user_id,
           &new_object_id,
@@ -353,7 +353,7 @@ where
         "migrate database from: {}, to: {}",
         object_id, new_object_id,
       );
-      import_collab_object(
+      write_collab_object(
         database_collab,
         session.user_id,
         &new_object_id,
@@ -377,7 +377,7 @@ where
       mut_row_with_collab(imported_collab, |row_update| {
         row_update.set_row_id(RowId::from(new_row_id.clone()));
       });
-      import_collab_object(
+      write_collab_object(
         imported_collab,
         session.user_id,
         &new_row_id,
@@ -400,7 +400,7 @@ where
   Ok(())
 }
 
-fn import_collab_object<'a, W>(collab: &Collab, new_uid: i64, new_object_id: &str, w_txn: &'a W)
+fn write_collab_object<'a, W>(collab: &Collab, new_uid: i64, new_object_id: &str, w_txn: &'a W)
 where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
@@ -443,7 +443,7 @@ where
   PersistenceError: From<W::Error>,
 {
   let collab = Collab::new_with_doc_state(CollabOrigin::Empty, new_object_id, doc_state, vec![])?;
-  import_collab_object(&collab, new_uid, new_object_id, w_txn);
+  write_collab_object(&collab, new_uid, new_object_id, w_txn);
   Ok(())
 }
 
@@ -661,31 +661,9 @@ pub async fn upload_imported_data(
   // Upload
   let mut size_counter = 0;
   let mut objects: Vec<UserCollabParams> = vec![];
-  let upload_size_limit = 4 * 1024 * 1024;
   for (collab_type, encoded_collab_by_oid) in object_by_collab_type {
-    info!(
-      "Batch import collab:{} ids: {:?}",
-      collab_type,
-      encoded_collab_by_oid.keys(),
-    );
     for (oid, encoded_collab) in encoded_collab_by_oid {
       let obj_size = encoded_collab.len();
-      // When the limit is exceeded, batch create with the current list of objects
-      // and reset for the next batch.
-      if size_counter + obj_size > upload_size_limit && !objects.is_empty() {
-        batch_create(
-          uid,
-          workspace_id,
-          &user_cloud_service,
-          &size_counter,
-          objects,
-        )
-        .await;
-
-        objects = Vec::new();
-        size_counter = 0;
-      }
-
       // Add the current object to the batch.
       objects.push(UserCollabParams {
         object_id: oid,
@@ -696,7 +674,6 @@ pub async fn upload_imported_data(
     }
   }
 
-  // After the loop, upload any remaining objects.
   if !objects.is_empty() {
     batch_create(
       uid,
@@ -717,14 +694,6 @@ async fn batch_create(
   size_counter: &usize,
   objects: Vec<UserCollabParams>,
 ) {
-  if objects.len() == 1 && size_counter > &(4 * 1024 * 1024) {
-    info!(
-      "Skip upload collab object: {}, payload size: {}",
-      objects[0].object_id, size_counter
-    );
-    return;
-  }
-
   let ids = objects
     .iter()
     .map(|o| o.object_id.clone())

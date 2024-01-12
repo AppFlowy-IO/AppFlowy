@@ -250,7 +250,7 @@ script_runner = "@shell"
 script = ["""
   cd appflowy_flutter/
   flutter pub get
-  flutter build ipa --verbose
+  flutter build ipa --build-version ${BUILD_VERSION} --split-debug-info=./ --obfuscate --verbose
   """]
 script_runner = "@shell"
 
@@ -258,7 +258,7 @@ script_runner = "@shell"
 script = ["""
   cd appflowy_flutter/
   flutter pub get
-  flutter build apk --split-per-abi --verbose
+  flutter build apk --split-per-abi --split-debug-info=./ --obfuscate --verbose
   """]
 script_runner = "@shell"
 

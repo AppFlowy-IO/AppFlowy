@@ -7,7 +7,7 @@ use flowy_sqlite::{
   prelude::*,
   schema::{collab_snapshot, collab_snapshot::dsl},
 };
-use flowy_user::manager::UserManager;
+use flowy_user::user_manager::UserManager;
 use lib_infra::util::timestamp;
 use std::sync::Weak;
 use tracing::debug;

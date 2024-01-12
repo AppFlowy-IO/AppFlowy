@@ -11,9 +11,7 @@ import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 const List<NodeParser> _customParsers = [
-  DividerNodeParser(),
   MathEquationNodeParser(),
-  CodeBlockNodeParser(),
   CalloutNodeParser(),
   ToggleListNodeParser(),
   CustomImageNodeParser(),

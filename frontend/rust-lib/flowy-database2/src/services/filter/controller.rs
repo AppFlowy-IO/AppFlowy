@@ -9,8 +9,8 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyResult;
-use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
+use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};

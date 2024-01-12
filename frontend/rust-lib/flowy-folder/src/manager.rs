@@ -13,8 +13,8 @@ use tracing::{error, event, info, instrument, Level};
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
-use flowy_folder_deps::folder_builder::ParentChildViews;
+use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
+use flowy_folder_pub::folder_builder::ParentChildViews;
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::icon::UpdateViewIconParams;
