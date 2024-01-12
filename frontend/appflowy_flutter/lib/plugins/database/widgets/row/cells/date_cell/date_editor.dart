@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
@@ -102,6 +103,7 @@ class _DateCellEditor extends State<DateCellEditor> {
               newOption,
               cellBloc: bloc,
               reminderBloc: context.read<ReminderBloc>(),
+              rowId: widget.cellController.rowId,
             ),
             selectedReminderOption: _reminderOption,
             options: [
@@ -182,6 +184,7 @@ class _DateCellEditor extends State<DateCellEditor> {
     ReminderOption newOption, {
     required DateCellEditorBloc cellBloc,
     required ReminderBloc reminderBloc,
+    required String rowId,
   }) {
     final dateOfEvent = cellBloc.state.dateTime;
     if (dateOfEvent == null) {
@@ -215,6 +218,7 @@ class _DateCellEditor extends State<DateCellEditor> {
             message: LocaleKeys.reminderNotification_message.tr(),
             scheduledAt: Int64(scheduledAtDate.millisecondsSinceEpoch ~/ 1000),
             isAck: dateOfEvent.isBefore(DateTime.now()),
+            meta: {ReminderMetaKeys.rowId: rowId},
           ),
         ),
       );

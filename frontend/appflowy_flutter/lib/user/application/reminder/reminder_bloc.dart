@@ -126,15 +126,30 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             ),
           );
 
+          String? rowId;
+          if (view?.layout != ViewLayoutPB.Document) {
+            rowId = reminder.meta[ReminderMetaKeys.rowId];
+          }
+
+          final action = NotificationAction(
+            objectId: reminder.objectId,
+            arguments: {
+              ActionArgumentKeys.view: view,
+              ActionArgumentKeys.nodePath: path,
+              ActionArgumentKeys.rowId: rowId,
+            },
+          );
+
           actionBloc.add(
             NotificationActionEvent.performAction(
-              action: NotificationAction(
-                objectId: reminder.objectId,
-                arguments: {
-                  ActionArgumentKeys.nodePath.name: path,
-                  ActionArgumentKeys.view.name: view,
-                },
-              ),
+              action: action,
+              nextActions: [
+                action.copyWith(
+                  type: rowId != null
+                      ? ActionType.openRow
+                      : ActionType.jumpToBlock,
+                ),
+              ],
             ),
           );
         },
@@ -232,7 +247,7 @@ class ReminderUpdate {
 
     final meta = a.meta;
     if (includeTime != a.includeTime) {
-      meta[ReminderMetaKeys.includeTime.name] = includeTime.toString();
+      meta[ReminderMetaKeys.includeTime] = includeTime.toString();
     }
 
     return ReminderPB(

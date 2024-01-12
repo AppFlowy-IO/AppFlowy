@@ -216,8 +216,8 @@ class ReminderReferenceService {
       title: LocaleKeys.reminderNotification_title.tr(),
       message: LocaleKeys.reminderNotification_message.tr(),
       meta: {
-        ReminderMetaKeys.includeTime.name: false.toString(),
-        ReminderMetaKeys.blockId.name: node.id,
+        ReminderMetaKeys.includeTime: false.toString(),
+        ReminderMetaKeys.blockId: node.id,
       },
       scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
       isAck: date.isBefore(DateTime.now()),

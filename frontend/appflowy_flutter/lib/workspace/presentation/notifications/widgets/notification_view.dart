@@ -63,8 +63,7 @@ class NotificationsView extends StatelessWidget {
               children: [
                 ...shownReminders.map(
                   (ReminderPB reminder) {
-                    final blockId =
-                        reminder.meta[ReminderMetaKeys.blockId.name];
+                    final blockId = reminder.meta[ReminderMetaKeys.blockId];
 
                     final documentService = DocumentService();
                     final documentFuture = documentService.openDocument(

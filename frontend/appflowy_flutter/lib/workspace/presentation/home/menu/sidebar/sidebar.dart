@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
@@ -14,8 +16,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -63,6 +65,7 @@ class HomeSideBar extends StatelessWidget {
                 ),
           ),
           BlocListener<NotificationActionBloc, NotificationActionState>(
+            listenWhen: (_, curr) => curr.action != null,
             listener: _onNotificationAction,
           ),
         ],
@@ -147,17 +150,21 @@ class HomeSideBar extends StatelessWidget {
             context.read<MenuBloc>().state.views.findView(action.objectId);
 
         if (view != null) {
-          context.read<TabsBloc>().openPlugin(view);
+          final Map<String, dynamic> arguments = {};
 
-          final nodePath =
-              action.arguments?[ActionArgumentKeys.nodePath.name] as int?;
+          final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
           if (nodePath != null) {
-            context.read<NotificationActionBloc>().add(
-                  NotificationActionEvent.performAction(
-                    action: action.copyWith(type: ActionType.jumpToBlock),
-                  ),
-                );
+            arguments[PluginArgumentKeys.selection] = Selection.collapsed(
+              Position(path: [nodePath]),
+            );
           }
+
+          final rowId = action.arguments?[ActionArgumentKeys.rowId];
+          if (rowId != null) {
+            arguments[PluginArgumentKeys.rowId] = rowId;
+          }
+
+          context.read<TabsBloc>().openPlugin(view, arguments: arguments);
         }
       }
     }

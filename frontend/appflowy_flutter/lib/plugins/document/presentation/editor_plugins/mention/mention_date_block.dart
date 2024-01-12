@@ -311,8 +311,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               title: LocaleKeys.reminderNotification_title.tr(),
               message: LocaleKeys.reminderNotification_message.tr(),
               meta: {
-                ReminderMetaKeys.includeTime.name: false.toString(),
-                ReminderMetaKeys.blockId.name: widget.node.id,
+                ReminderMetaKeys.includeTime: false.toString(),
+                ReminderMetaKeys.blockId: widget.node.id,
               },
               scheduledAt: Int64(parsedDate!.millisecondsSinceEpoch ~/ 1000),
               isAck: parsedDate!.isBefore(DateTime.now()),

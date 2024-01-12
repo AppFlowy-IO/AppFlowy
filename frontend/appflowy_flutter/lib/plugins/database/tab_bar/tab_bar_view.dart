@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
@@ -10,7 +12,6 @@ import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'desktop/tab_bar_header.dart';
@@ -26,6 +27,7 @@ abstract class DatabaseTabBarItemBuilder {
     ViewPB view,
     DatabaseController controller,
     bool shrinkWrap,
+    String? initialRowId,
   );
 
   /// Returns the setting bar of the tab bar item. The setting bar is shown on the
@@ -44,10 +46,16 @@ abstract class DatabaseTabBarItemBuilder {
 class DatabaseTabBarView extends StatefulWidget {
   final ViewPB view;
   final bool shrinkWrap;
+
+  /// Used to open a Row on plugin load
+  ///
+  final String? initialRowId;
+
   const DatabaseTabBarView({
+    super.key,
     required this.view,
     required this.shrinkWrap,
-    super.key,
+    this.initialRowId,
   });
 
   @override
@@ -55,19 +63,11 @@ class DatabaseTabBarView extends StatefulWidget {
 }
 
 class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
-  PageController? _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(
-      initialPage: 0,
-    );
-  }
+  final PageController _pageController = PageController(initialPage: 0);
 
   @override
   void dispose() {
-    _pageController?.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -75,16 +75,13 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   Widget build(BuildContext context) {
     return BlocProvider<DatabaseTabBarBloc>(
       create: (context) => DatabaseTabBarBloc(view: widget.view)
-        ..add(
-          const DatabaseTabBarEvent.initial(),
-        ),
+        ..add(const DatabaseTabBarEvent.initial()),
       child: MultiBlocListener(
         listeners: [
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
-            listener: (context, state) {
-              _pageController?.jumpToPage(state.selectedIndex);
-            },
+            listener: (context, state) =>
+                _pageController.jumpToPage(state.selectedIndex),
           ),
         ],
         child: Column(
@@ -120,20 +117,17 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
               },
             ),
             BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                return pageSettingBarExtensionFromState(state);
-              },
+              builder: (context, state) =>
+                  pageSettingBarExtensionFromState(state),
             ),
             Expanded(
               child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-                builder: (context, state) {
-                  return PageView(
-                    pageSnapping: false,
-                    physics: const NeverScrollableScrollPhysics(),
-                    controller: _pageController,
-                    children: pageContentFromState(state),
-                  );
-                },
+                builder: (context, state) => PageView(
+                  pageSnapping: false,
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: _pageController,
+                  children: pageContentFromState(state),
+                ),
               ),
             ),
           ],
@@ -151,6 +145,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         tabBar.view,
         controller,
         widget.shrinkWrap,
+        widget.initialRowId,
       );
     }).toList();
   }
@@ -174,15 +169,21 @@ class DatabaseTabBarViewPlugin extends Plugin {
   final ViewPluginNotifier notifier;
   final PluginType _pluginType;
 
+  /// Used to open a Row on plugin load
+  ///
+  final String? initialRowId;
+
   DatabaseTabBarViewPlugin({
     required ViewPB view,
     required PluginType pluginType,
+    this.initialRowId,
   })  : _pluginType = pluginType,
         notifier = ViewPluginNotifier(view: view);
 
   @override
   PluginWidgetBuilder get widgetBuilder => DatabasePluginWidgetBuilder(
         notifier: notifier,
+        initialRowId: initialRowId,
       );
 
   @override
@@ -195,9 +196,14 @@ class DatabaseTabBarViewPlugin extends Plugin {
 class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   final ViewPluginNotifier notifier;
 
+  /// Used to open a Row on plugin load
+  ///
+  final String? initialRowId;
+
   DatabasePluginWidgetBuilder({
-    required this.notifier,
     Key? key,
+    required this.notifier,
+    this.initialRowId,
   });
 
   @override
@@ -219,6 +225,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
       key: ValueKey(notifier.view.id),
       view: notifier.view,
       shrinkWrap: shrinkWrap,
+      initialRowId: initialRowId,
     );
   }
 

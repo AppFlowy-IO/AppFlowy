@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/cell/date_cell_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
-import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
@@ -14,7 +12,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
 import 'package:flowy_infra/time/duration.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -108,7 +105,9 @@ class DateCellEditorBloc
             } else {
               emit(state.copyWith(startDay: startDay));
               await _updateDateData(
-                  date: startDay.date, endDate: state.endDay!.date);
+                date: startDay.date,
+                endDate: state.endDay!.date,
+              );
             }
           },
           setEndDay: (DateTime endDay) {
