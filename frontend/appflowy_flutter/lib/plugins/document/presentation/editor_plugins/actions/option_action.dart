@@ -375,7 +375,7 @@ class DepthOptionAction extends PopoverActionCell {
   }
 
   OptionDepthType depth(Node node) {
-    final level = node.attributes['depth'];
+    final level = node.attributes[OutlineBlockKeys.depth];
     return OptionDepthType.fromLevel(level);
   }
 

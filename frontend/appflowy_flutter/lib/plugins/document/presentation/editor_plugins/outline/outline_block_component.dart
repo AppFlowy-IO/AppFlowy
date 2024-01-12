@@ -168,8 +168,8 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   Iterable<Node> getHeadingNodes() {
     final children = editorState.document.root.children;
 
-    if (node.attributes.containsKey('depth')) {
-      final int level = node.attributes['depth'];
+    if (node.attributes.containsKey(OutlineBlockKeys.depth)) {
+      final int level = node.attributes[OutlineBlockKeys.depth];
       return children.where(
         (element) =>
             element.type == HeadingBlockKeys.type &&
