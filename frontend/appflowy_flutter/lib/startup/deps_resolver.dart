@@ -56,7 +56,7 @@ class DependencyResolver {
 
 Future<void> _resolveCloudDeps(GetIt getIt) async {
   final env = await AppFlowyCloudSharedEnv.fromEnv();
-  Log.info("cloud setting: \n$env");
+  Log.info("cloud setting: $env");
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
 
   if (isAppFlowyCloudEnabled) {
@@ -141,6 +141,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
       getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       break;
     case AuthenticatorType.appflowyCloud:
+    case AuthenticatorType.appflowyCloudSelfHost:
       getIt.registerFactory<AuthService>(() => AppFlowyCloudAuthService());
       break;
   }

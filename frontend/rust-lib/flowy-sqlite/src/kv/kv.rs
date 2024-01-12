@@ -13,6 +13,7 @@ const DB_NAME: &str = "cache.db";
 
 /// [StorePreferences] uses a sqlite database to store key value pairs.
 /// Most of the time, it used to storage AppFlowy configuration.
+#[derive(Clone)]
 pub struct StorePreferences {
   database: Option<Database>,
 }

@@ -1,3 +1,4 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_urls_bloc.dart';
@@ -84,8 +85,9 @@ class SupabaseCloudURLs extends StatelessWidget {
     return BlocProvider(
       create: (context) => SupabaseCloudURLsBloc(),
       child: BlocListener<SupabaseCloudURLsBloc, SupabaseCloudURLsState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.restartApp) {
+            await setAuthenticatorType(AuthenticatorType.supabase);
             didUpdateUrls();
           }
         },

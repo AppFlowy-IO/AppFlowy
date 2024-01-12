@@ -9,20 +9,20 @@ use flowy_document::manager::{DocumentManager, DocumentSnapshotService, Document
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
-use flowy_user::user_manager::UserManager;
+use flowy_user::services::authenticate_user::AuthenticateUser;
 
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
   pub fn resolve(
-    user_manager: Weak<UserManager>,
+    authenticate_user: Weak<AuthenticateUser>,
     _database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
     storage_service: Weak<dyn FileStorageService>,
   ) -> Arc<DocumentManager> {
     let user_service: Arc<dyn DocumentUserService> =
-      Arc::new(DocumentUserImpl(user_manager.clone()));
-    let snapshot_service = Arc::new(DocumentSnapshotImpl(user_manager));
+      Arc::new(DocumentUserImpl(authenticate_user.clone()));
+    let snapshot_service = Arc::new(DocumentSnapshotImpl(authenticate_user));
     Arc::new(DocumentManager::new(
       user_service.clone(),
       collab_builder,
@@ -33,10 +33,10 @@ impl DocumentDepsResolver {
   }
 }
 
-struct DocumentSnapshotImpl(Weak<UserManager>);
+struct DocumentSnapshotImpl(Weak<AuthenticateUser>);
 
 impl DocumentSnapshotImpl {
-  pub fn get_user_manager(&self) -> FlowyResult<Arc<UserManager>> {
+  pub fn get_authenticate_user(&self) -> FlowyResult<Arc<AuthenticateUser>> {
     self
       .0
       .upgrade()
@@ -49,9 +49,9 @@ impl DocumentSnapshotService for DocumentSnapshotImpl {
     &self,
     document_id: &str,
   ) -> FlowyResult<Vec<DocumentSnapshotMeta>> {
-    let user_manager = self.get_user_manager()?;
-    let uid = user_manager.user_id()?;
-    let mut db = user_manager.db_connection(uid)?;
+    let authenticate_user = self.get_authenticate_user()?;
+    let uid = authenticate_user.user_id()?;
+    let mut db = authenticate_user.get_sqlite_connection(uid)?;
     CollabSnapshotSql::get_all_snapshots(document_id, &mut db).map(|rows| {
       rows
         .into_iter()
@@ -65,9 +65,9 @@ impl DocumentSnapshotService for DocumentSnapshotImpl {
   }
 
   fn get_document_snapshot(&self, snapshot_id: &str) -> FlowyResult<DocumentSnapshotData> {
-    let user_manager = self.get_user_manager()?;
-    let uid = user_manager.user_id()?;
-    let mut db = user_manager.db_connection(uid)?;
+    let authenticate_user = self.get_authenticate_user()?;
+    let uid = authenticate_user.user_id()?;
+    let mut db = authenticate_user.get_sqlite_connection(uid)?;
     CollabSnapshotSql::get_snapshot(snapshot_id, &mut db)
       .map(|row| DocumentSnapshotData {
         object_id: row.id,
@@ -79,7 +79,7 @@ impl DocumentSnapshotService for DocumentSnapshotImpl {
   }
 }
 
-struct DocumentUserImpl(Weak<UserManager>);
+struct DocumentUserImpl(Weak<AuthenticateUser>);
 impl DocumentUserService for DocumentUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
@@ -95,14 +95,6 @@ impl DocumentUserService for DocumentUserImpl {
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .workspace_id()
-  }
-
-  fn token(&self) -> Result<Option<String>, FlowyError> {
-    self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .token()
   }
 
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {

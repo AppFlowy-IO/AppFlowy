@@ -52,7 +52,8 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
     .event(UserEvent::SetNotificationSettings, set_notification_settings)
-    .event(UserEvent::GetNotificationSettings, get_notification_settings) 
+    .event(UserEvent::GetNotificationSettings, get_notification_settings)
+    .event(UserEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
       // Workspace member
     .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
@@ -187,6 +188,9 @@ pub enum UserEvent {
 
   #[event(output = "QueryWorkspacePB")]
   GetWorkspaceMember = 40,
+
+  #[event(input = "ImportAppFlowyDataPB")]
+  ImportAppFlowyDataFolder = 41,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
