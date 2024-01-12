@@ -13,23 +13,27 @@ const _center = 'center';
 const _right = 'right';
 
 class AlignItems extends StatelessWidget {
-  const AlignItems({
+  AlignItems({
     super.key,
     required this.editorState,
   });
 
   final EditorState editorState;
+  final List<(String, FlowySvgData)> _alignMenuItems = [
+    (_left, FlowySvgs.m_aa_align_left_s),
+    (_center, FlowySvgs.m_aa_align_center_s),
+    (_right, FlowySvgs.m_aa_align_right_s),
+  ];
 
   @override
   Widget build(BuildContext context) {
     final currentAlignItem = _getCurrentAlignItem();
-    final alignMenuItems = _getAlignMenuItems();
     final theme = ToolbarColorExtension.of(context);
     return PopupMenu(
-      itemLength: alignMenuItems.length,
+      itemLength: _alignMenuItems.length,
       onSelected: (index) {
         editorState.alignBlock(
-          alignMenuItems[index].$1,
+          _alignMenuItems[index].$1,
           selectionExtraInfo: {
             selectionExtraInfoDoNotAttachTextService: true,
             selectionExtraInfoDisableFloatingToolbar: true,
@@ -37,7 +41,7 @@ class AlignItems extends StatelessWidget {
         );
       },
       menuBuilder: (context, keys, currentIndex) {
-        final children = alignMenuItems
+        final children = _alignMenuItems
             .mapIndexed(
               (index, e) => [
                 PopupMenuItemWrapper(
@@ -45,7 +49,7 @@ class AlignItems extends StatelessWidget {
                   isSelected: currentIndex == index,
                   icon: e.$2,
                 ),
-                if (index != 0 && index != alignMenuItems.length - 1)
+                if (index != 0 && index != _alignMenuItems.length - 1)
                   const HSpace(12),
               ],
             )
@@ -84,36 +88,12 @@ class AlignItems extends StatelessWidget {
   (String, FlowySvgData) _getCurrentAlignItem() {
     final align = _getCurrentBlockAlign();
     if (align == _center) {
-      return (_center, FlowySvgs.m_aa_align_center_s);
-    } else if (align == _right) {
       return (_right, FlowySvgs.m_aa_align_right_s);
+    } else if (align == _right) {
+      return (_left, FlowySvgs.m_aa_align_left_s);
+    } else {
+      return (_center, FlowySvgs.m_aa_align_center_s);
     }
-    return (_left, FlowySvgs.m_aa_align_left_s);
-  }
-
-  List<(String, FlowySvgData)> _getAlignMenuItems() {
-    return [
-      (_left, FlowySvgs.m_aa_align_left_s),
-      (_center, FlowySvgs.m_aa_align_center_s),
-      (_right, FlowySvgs.m_aa_align_right_s),
-    ];
-    // final align = _getCurrentBlockAlign();
-
-    // if (align == _center) {
-    //   return [
-    //     (_left, FlowySvgs.m_aa_align_left_s),
-    //     (_right, FlowySvgs.m_aa_align_right_s),
-    //   ];
-    // } else if (align == _right) {
-    //   return [
-    //     (_left, FlowySvgs.m_aa_align_left_s),
-    //     (_center, FlowySvgs.m_aa_align_center_s),
-    //   ];
-    // }
-    // return [
-    //   (_center, FlowySvgs.m_aa_align_center_s),
-    //   (_right, FlowySvgs.m_aa_align_right_s),
-    // ];
   }
 
   String _getCurrentBlockAlign() {

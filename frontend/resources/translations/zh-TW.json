@@ -224,12 +224,12 @@
       "themeUpload": {
         "button": "上傳",
         "description": "使用下方的按鈕上傳您自己的 AppFlowy 主題。",
-        "failure": "上傳的主題格式無效。",
         "loading": "我們正在驗證並上傳您的主題，請稍候...",
         "uploadSuccess": "您的主題已成功上傳",
         "deletionFailure": "刪除主題失敗。嘗試手動刪除它。",
         "filePickerDialogTitle": "選擇 .flowy_plugin 文件",
-        "urlUploadFailure": "無法開啟網址：{}"
+        "urlUploadFailure": "無法開啟網址：{}",
+        "failure": "上傳的主題格式無效。"
       },
       "theme": "主題",
       "builtInsLabel": "內建主題",

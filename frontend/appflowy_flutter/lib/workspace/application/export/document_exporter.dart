@@ -12,7 +12,6 @@ import 'package:easy_localization/easy_localization.dart';
 
 const List<NodeParser> _customParsers = [
   MathEquationNodeParser(),
-  CodeBlockNodeParser(),
   CalloutNodeParser(),
   ToggleListNodeParser(),
   CustomImageNodeParser(),
