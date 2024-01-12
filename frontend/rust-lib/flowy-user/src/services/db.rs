@@ -14,12 +14,12 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, Database, ExpressionMethods,
 };
-use flowy_user_deps::entities::{UserProfile, UserWorkspace};
+use flowy_user_pub::entities::{UserProfile, UserWorkspace};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
 
-use crate::services::user_sql::UserTable;
-use crate::services::workspace_sql::UserWorkspaceTable;
+use crate::services::sqlite_sql::user_sql::UserTable;
+use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
 
 pub trait UserDBPath: Send + Sync + 'static {
   fn sqlite_db_path(&self, uid: i64) -> PathBuf;

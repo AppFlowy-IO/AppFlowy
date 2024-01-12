@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import RecordTitle from '$app/components/database/components/edit_record/RecordTitle';
 import RecordProperties from '$app/components/database/components/edit_record/record_properties/RecordProperties';
 import { Divider } from '@mui/material';
-import { RowMeta } from '$app/components/database/application';
+import { RowMeta } from '$app/application/database';
 import { Page } from '$app_reducers/pages/slice';
 
 interface Props {

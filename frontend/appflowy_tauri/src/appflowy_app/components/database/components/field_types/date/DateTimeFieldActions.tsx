@@ -1,5 +1,5 @@
 import React from 'react';
-import { UndeterminedDateField } from '$app/components/database/application';
+import { UndeterminedDateField } from '$app/application/database';
 import DateTimeFormat from '$app/components/database/components/field_types/date/DateTimeFormat';
 import { Divider } from '@mui/material';
 

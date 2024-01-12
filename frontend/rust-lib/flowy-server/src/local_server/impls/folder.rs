@@ -4,7 +4,7 @@ use anyhow::{anyhow, Error};
 use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 
-use flowy_folder_deps::cloud::{
+use flowy_folder_pub::cloud::{
   gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
   WorkspaceRecord,
 };

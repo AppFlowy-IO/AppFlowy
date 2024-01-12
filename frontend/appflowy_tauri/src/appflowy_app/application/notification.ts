@@ -15,6 +15,13 @@ import {
   RowsChangePB,
   RowsVisibilityChangePB,
   SortChangesetNotificationPB,
+  UserNotification,
+  UserProfilePB,
+  FolderNotification,
+  RepeatedViewPB,
+  ViewPB,
+  RepeatedTrashPB,
+  ChildViewUpdatePB,
 } from '@/services/backend';
 
 const Notification = {
@@ -32,6 +39,11 @@ const Notification = {
   [DatabaseNotification.DidUpdateFieldSettings]: FieldSettingsPB,
   [DatabaseNotification.DidUpdateFilter]: FilterChangesetNotificationPB,
   [DocumentNotification.DidReceiveUpdate]: DocEventPB,
+  [UserNotification.DidUpdateUserProfile]: UserProfilePB,
+  [FolderNotification.DidUpdateWorkspaceViews]: RepeatedViewPB,
+  [FolderNotification.DidUpdateView]: ViewPB,
+  [FolderNotification.DidUpdateChildViews]: ChildViewUpdatePB,
+  [FolderNotification.DidUpdateTrash]: RepeatedTrashPB,
 };
 
 type NotificationMap = typeof Notification;

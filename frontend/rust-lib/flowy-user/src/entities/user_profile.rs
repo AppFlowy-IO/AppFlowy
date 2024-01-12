@@ -2,7 +2,7 @@ use std::convert::TryInto;
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
 use crate::entities::AuthenticatorPB;

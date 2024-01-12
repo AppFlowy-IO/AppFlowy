@@ -47,6 +47,15 @@ export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViewIds, 
     }
   }, [selectedViewId, setSelectedViewId, views]);
 
+  const openMenu = (view: Page) => {
+    return (e: React.MouseEvent<HTMLElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setContextMenuView(view);
+      setContextMenuAnchorEl(e.currentTarget);
+    };
+  };
+
   return (
     <div className='-mb-px flex items-center px-16'>
       <div className='flex flex-1 items-center border-b border-line-divider'>
@@ -56,12 +65,8 @@ export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViewIds, 
 
             return (
               <ViewTab
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setContextMenuView(view);
-                  setContextMenuAnchorEl(e.currentTarget);
-                }}
+                onContextMenu={openMenu(view)}
+                onDoubleClick={openMenu(view)}
                 key={view.id}
                 icon={<Icon />}
                 iconPosition='start'

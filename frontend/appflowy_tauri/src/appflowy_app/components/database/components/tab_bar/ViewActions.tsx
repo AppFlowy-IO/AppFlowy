@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as EditSvg } from '$app/assets/edit.svg';
-import { deleteView, updateView } from '$app/components/database/application/database_view/database_view_service';
+import { deleteView, updateView } from '$app/application/database/database_view/database_view_service';
 import { MenuItem, MenuProps, Menu } from '@mui/material';
-import RenameDialog from '$app/components/layout/NestedPage/RenameDialog';
+import RenameDialog from '$app/components/layout/nested_page/RenameDialog';
 import { Page } from '$app_reducers/pages/slice';
 
 enum ViewAction {

@@ -4,7 +4,7 @@ import {
   SelectFilter as SelectFilterType,
   SelectFilterData,
   SelectTypeOption,
-} from '$app/components/database/application';
+} from '$app/application/database';
 import { MenuItem, MenuList } from '@mui/material';
 import { Tag } from '$app/components/database/components/field_types/select/Tag';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';

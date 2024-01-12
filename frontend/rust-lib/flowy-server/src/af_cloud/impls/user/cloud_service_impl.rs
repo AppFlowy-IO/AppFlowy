@@ -10,8 +10,8 @@ use collab_entity::CollabObject;
 use parking_lot::RwLock;
 
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_deps::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
+use flowy_user_pub::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -273,7 +273,7 @@ where
         })
         .collect::<Vec<_>>();
       try_get_client?
-        .batch_create_collab(&workspace_id, params)
+        .create_collab_list(&workspace_id, params)
         .await
         .map_err(FlowyError::from)?;
       Ok(())

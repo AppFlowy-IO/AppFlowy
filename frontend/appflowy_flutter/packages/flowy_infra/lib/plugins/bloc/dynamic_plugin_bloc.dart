@@ -37,8 +37,9 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
         return;
       }
       await FlowyPluginService.instance.addPlugin(plugin);
-    } on PluginCompilationException {
-      return emit(const DynamicPluginState.compilationFailure());
+    } on PluginCompilationException catch (exception) {
+      return emit(DynamicPluginState.compilationFailure(
+          errorMessage: exception.message));
     }
 
     emit(const DynamicPluginState.compilationSuccess());

@@ -7,7 +7,7 @@ use collab::core::collab_plugin::EncodedCollab;
 use collab_entity::CollabType;
 use tracing::error;
 
-use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;

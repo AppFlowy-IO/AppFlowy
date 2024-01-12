@@ -5,10 +5,10 @@ use tokio::sync::RwLock;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_database2::{DatabaseManager, DatabaseUser};
-use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
-use flowy_task::TaskDispatcher;
-use flowy_user::manager::UserManager;
+use flowy_user::user_manager::UserManager;
+use lib_infra::priority_task::TaskDispatcher;
 
 pub struct DatabaseDepsResolver();
 

@@ -9,7 +9,7 @@ use serde_json::Value;
 use tokio::sync::oneshot::channel;
 use yrs::merge_updates_v1;
 
-use flowy_folder_deps::cloud::{
+use flowy_folder_pub::cloud::{
   gen_workspace_id, Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
   Workspace, WorkspaceRecord,
 };

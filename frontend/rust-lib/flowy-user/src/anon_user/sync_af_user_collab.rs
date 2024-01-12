@@ -15,7 +15,7 @@ use parking_lot::Mutex;
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_pub::cloud::UserCloudService;
 
 use crate::migrations::MigrationUser;
 

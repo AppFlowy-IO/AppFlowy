@@ -34,6 +34,7 @@ typedef OnError = void Function(FlowyError);
 
 @freezed
 class LoadingState with _$LoadingState {
+  const factory LoadingState.idle() = _Idle;
   const factory LoadingState.loading() = _Loading;
   const factory LoadingState.finish(
     Either<Unit, FlowyError> successOrFail,

@@ -1,5 +1,5 @@
 import React from 'react';
-import KatexMath from '$app/components/_shared/KatexMath';
+import KatexMath from '$app/components/_shared/katex_math/KatexMath';
 
 function FormulaLeaf({ formula, children }: { formula: string; children: React.ReactNode }) {
   return (

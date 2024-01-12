@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextFilter as TextFilterType, TextFilterData } from '$app/components/database/application';
+import { TextFilter as TextFilterType, TextFilterData } from '$app/application/database';
 import { TextField } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TextFilterConditionPB } from '@/services/backend';

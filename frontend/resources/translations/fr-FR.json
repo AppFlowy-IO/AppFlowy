@@ -264,12 +264,12 @@
       "themeUpload": {
         "button": "Télécharger",
         "description": "Téléchargez votre propre thème AppFlowy en utilisant le bouton ci-dessous.",
-        "failure": "Le thème qui a été téléchargé avait un format non valide.",
         "loading": "Veuillez patienter pendant que nous validons et téléchargeons votre thème...",
         "uploadSuccess": "Votre thème a été téléchargé avec succès",
         "deletionFailure": "Échec de la suppression du thème. Essayez de le supprimer manuellement.",
         "filePickerDialogTitle": "Choisissez un fichier .flowy_plugin",
-        "urlUploadFailure": "Échec de l'ouverture de l'URL : {}"
+        "urlUploadFailure": "Échec de l'ouverture de l'URL : {}",
+        "failure": "Le thème qui a été téléchargé avait un format non valide."
       },
       "theme": "Thème",
       "builtInsLabel": "Thèmes intégrés",

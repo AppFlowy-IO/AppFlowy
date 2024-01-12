@@ -69,6 +69,7 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
                       child: CircularProgressIndicator.adaptive(),
                     ),
                     finish: (result) => const SizedBox.shrink(),
+                    idle: () => const SizedBox.shrink(),
                   ) ??
                   const SizedBox.shrink();
               return Center(

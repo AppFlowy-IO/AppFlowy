@@ -99,6 +99,7 @@ class _MobileGridPageState extends State<MobileGridPage> {
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
               ),
             ),
+            idle: (_) => const SizedBox.shrink(),
           );
         },
       ),

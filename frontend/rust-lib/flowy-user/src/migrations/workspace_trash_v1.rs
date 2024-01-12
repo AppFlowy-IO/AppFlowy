@@ -5,7 +5,7 @@ use tracing::instrument;
 
 use collab_integrate::{CollabKVAction, CollabKVDB};
 use flowy_error::{internal_error, FlowyResult};
-use flowy_user_deps::entities::Authenticator;
+use flowy_user_pub::entities::Authenticator;
 
 use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::convert::TryInto;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::entities::parser::*;
 use crate::errors::ErrorCode;
