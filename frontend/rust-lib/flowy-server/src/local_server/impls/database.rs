@@ -2,7 +2,7 @@ use anyhow::Error;
 use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 
-use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();

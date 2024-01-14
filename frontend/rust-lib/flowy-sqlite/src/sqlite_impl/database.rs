@@ -7,6 +7,7 @@ use crate::sqlite_impl::{
   pool::{ConnectionManager, ConnectionPool, PoolConfig},
 };
 
+#[derive(Clone)]
 pub struct Database {
   uri: String,
   pool: Arc<ConnectionPool>,

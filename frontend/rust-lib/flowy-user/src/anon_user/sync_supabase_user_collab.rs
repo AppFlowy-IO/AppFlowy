@@ -15,19 +15,19 @@ use parking_lot::Mutex;
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_pub::cloud::UserCloudService;
 
-use crate::migrations::MigrationUser;
+use crate::services::entities::Session;
 
 #[tracing::instrument(level = "info", skip_all, err)]
 pub async fn sync_supabase_user_data_to_cloud(
   user_service: Arc<dyn UserCloudService>,
   device_id: &str,
-  new_user: &MigrationUser,
+  new_user_session: &Session,
   collab_db: &Arc<CollabKVDB>,
 ) -> FlowyResult<()> {
-  let workspace_id = new_user.session.user_workspace.id.clone();
-  let uid = new_user.session.user_id;
+  let workspace_id = new_user_session.user_workspace.id.clone();
+  let uid = new_user_session.user_id;
   let folder = Arc::new(
     sync_folder(
       uid,
@@ -43,7 +43,7 @@ pub async fn sync_supabase_user_data_to_cloud(
     uid,
     &workspace_id,
     device_id,
-    &new_user.session.user_workspace.database_view_tracker_id,
+    &new_user_session.user_workspace.database_view_tracker_id,
     collab_db,
     user_service.clone(),
   )

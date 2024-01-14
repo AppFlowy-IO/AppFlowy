@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 use protobuf::ProtobufError;
 use thiserror::Error;
+use tokio::task::JoinError;
 use validator::{ValidationError, ValidationErrors};
 
 use flowy_derive::ProtoBuf;
@@ -167,6 +168,12 @@ impl From<anyhow::Error> for FlowyError {
 
 impl From<fancy_regex::Error> for FlowyError {
   fn from(e: fancy_regex::Error) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<JoinError> for FlowyError {
+  fn from(e: JoinError) -> Self {
     FlowyError::internal().with_context(e)
   }
 }

@@ -26,7 +26,7 @@ void main() {
   group('appflowy cloud', () {
     testWidgets('anon user and then sign in', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
 
       tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());

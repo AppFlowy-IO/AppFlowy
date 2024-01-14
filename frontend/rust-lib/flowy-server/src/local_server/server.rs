@@ -3,16 +3,16 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
-use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_storage::FileStorageService;
 // use flowy_user::services::database::{
 //   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 // };
-use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserCloudService;
+use flowy_user_pub::entities::*;
 
 use crate::local_server::impls::{
   LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,

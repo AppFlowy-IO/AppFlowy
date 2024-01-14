@@ -5,7 +5,7 @@ use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{
+use flowy_folder_pub::cloud::{
   Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
   WorkspaceRecord,
 };
@@ -134,7 +134,7 @@ where
         })
         .collect::<Vec<_>>();
       try_get_client?
-        .batch_create_collab(&workspace_id, params)
+        .create_collab_list(&workspace_id, params)
         .await
         .map_err(FlowyError::from)?;
       Ok(())

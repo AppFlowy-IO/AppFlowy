@@ -21,7 +21,7 @@ use collab_integrate::CollabKVDB;
 use flowy_document::document::MutexDocument;
 use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
-use flowy_document_deps::cloud::*;
+use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::{FileStorageService, StorageObject};
 use lib_infra::async_trait::async_trait;
@@ -79,10 +79,6 @@ impl DocumentUserService for FakeUser {
 
   fn workspace_id(&self) -> Result<String, FlowyError> {
     Ok(Uuid::new_v4().to_string())
-  }
-
-  fn token(&self) -> Result<Option<String>, FlowyError> {
-    Ok(None)
   }
 
   fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<CollabKVDB>, FlowyError> {

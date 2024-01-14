@@ -8,7 +8,7 @@ use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
 
-use flowy_folder_deps::folder_builder::WorkspaceViewBuilder;
+use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 

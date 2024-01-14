@@ -63,6 +63,10 @@ extension AppFlowyTestBase on WidgetTester {
               rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
               rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
               break;
+            case AuthenticatorType.appflowyCloudSelfHost:
+              rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
+              rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
+              break;
           }
         }
         return rustEnvs;
@@ -83,6 +87,13 @@ extension AppFlowyTestBase on WidgetTester {
                   );
                   break;
                 case AuthenticatorType.appflowyCloud:
+                  await useAppFlowyCloud();
+                  getIt.unregister<AuthService>();
+                  getIt.registerFactory<AuthService>(
+                    () => AppFlowyCloudMockAuthService(email: email),
+                  );
+                  break;
+                case AuthenticatorType.appflowyCloudSelfHost:
                   await useAppFlowyCloud();
                   getIt.unregister<AuthService>();
                   getIt.registerFactory<AuthService>(
@@ -258,7 +269,7 @@ Future<void> useSupabaseCloud() async {
 }
 
 Future<void> useAppFlowyCloud() async {
-  await setAuthenticatorType(AuthenticatorType.appflowyCloud);
+  await setAuthenticatorType(AuthenticatorType.appflowyCloudSelfHost);
   await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
 }
 

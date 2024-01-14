@@ -31,7 +31,7 @@ lib-dispatch = { workspace = true }
 flowy-core = { workspace = true }
 flowy-notification = { workspace = true }
 flowy-server = { workspace = true }
-flowy-server-config = { workspace = true}
+flowy-server-pub = { workspace = true}
 collab-integrate = { workspace = true }
 flowy-derive.workspace = true
 serde_yaml = "0.9.27"
