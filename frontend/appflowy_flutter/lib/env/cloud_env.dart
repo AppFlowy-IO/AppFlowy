@@ -27,10 +27,12 @@ Future<void> setAuthenticatorType(AuthenticatorType ty) async {
       break;
     case AuthenticatorType.appflowyCloud:
       await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
-      await setAppFlowyCloudUrl(const Some(kAppflowyCloudUrl));
       break;
     case AuthenticatorType.appflowyCloudSelfHost:
       await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 3.toString());
+      break;
+    case AuthenticatorType.appflowyCloudDevelop:
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 4.toString());
       break;
   }
 }
@@ -64,6 +66,8 @@ Future<AuthenticatorType> getAuthenticatorType() async {
       return AuthenticatorType.appflowyCloud;
     case "3":
       return AuthenticatorType.appflowyCloudSelfHost;
+    case "4":
+      return AuthenticatorType.appflowyCloudDevelop;
     default:
       await setAuthenticatorType(AuthenticatorType.appflowyCloud);
       return AuthenticatorType.appflowyCloud;
@@ -87,8 +91,7 @@ bool get isAuthEnabled {
     return env.supabaseConfig.isValid;
   }
 
-  if (env.authenticatorType == AuthenticatorType.appflowyCloudSelfHost ||
-      env.authenticatorType == AuthenticatorType.appflowyCloud) {
+  if (env.authenticatorType.isAppFlowyCloudEnabled) {
     return env.appflowyCloudConfig.isValid;
   }
 
@@ -117,12 +120,15 @@ enum AuthenticatorType {
   local,
   supabase,
   appflowyCloud,
-  appflowyCloudSelfHost;
+  appflowyCloudSelfHost,
+  // The 'appflowyCloudDevelop' type is used for develop purposes only.
+  appflowyCloudDevelop;
 
   bool get isLocal => this == AuthenticatorType.local;
 
   bool get isAppFlowyCloudEnabled =>
       this == AuthenticatorType.appflowyCloudSelfHost ||
+      this == AuthenticatorType.appflowyCloudDevelop ||
       this == AuthenticatorType.appflowyCloud;
 
   bool get isSupabaseEnabled => this == AuthenticatorType.supabase;
@@ -137,6 +143,8 @@ enum AuthenticatorType {
         return 2;
       case AuthenticatorType.appflowyCloudSelfHost:
         return 3;
+      case AuthenticatorType.appflowyCloudDevelop:
+        return 4;
     }
   }
 
@@ -150,6 +158,8 @@ enum AuthenticatorType {
         return AuthenticatorType.appflowyCloud;
       case 3:
         return AuthenticatorType.appflowyCloudSelfHost;
+      case 4:
+        return AuthenticatorType.appflowyCloudDevelop;
       default:
         return AuthenticatorType.local;
     }
@@ -185,26 +195,25 @@ class AppFlowyCloudSharedEnv {
     // If [Env.enableCustomCloud] is true, then use the custom cloud configuration.
     if (Env.enableCustomCloud) {
       // Use the custom cloud configuration.
-      var cloudType = await getAuthenticatorType();
+      var authenticatorType = await getAuthenticatorType();
+
+      final appflowyCloudConfig = authenticatorType.isLocal
+          ? AppFlowyCloudConfiguration.defaultConfig()
+          : await getAppFlowyCloudConfig(authenticatorType);
+      final supabaseCloudConfig = authenticatorType.isLocal
+          ? SupabaseConfiguration.defaultConfig()
+          : await getSupabaseCloudConfig();
 
       // In the backend, the value '2' represents the use of AppFlowy Cloud. However, in the frontend,
       // we distinguish between [AuthenticatorType.appflowyCloudSelfHost] and [AuthenticatorType.appflowyCloud].
       // When the cloud type is [AuthenticatorType.appflowyCloudSelfHost] in the frontend, it should be
       // converted to [AuthenticatorType.appflowyCloud] to align with the backend representation,
       // where both types are indicated by the value '2'.
-      if (cloudType == AuthenticatorType.appflowyCloudSelfHost) {
-        cloudType = AuthenticatorType.appflowyCloud;
+      if (authenticatorType.isAppFlowyCloudEnabled) {
+        authenticatorType = AuthenticatorType.appflowyCloud;
       }
-
-      final appflowyCloudConfig = cloudType.isLocal
-          ? AppFlowyCloudConfiguration.defaultConfig()
-          : await getAppFlowyCloudConfig();
-      final supabaseCloudConfig = cloudType.isLocal
-          ? SupabaseConfiguration.defaultConfig()
-          : await getSupabaseCloudConfig();
-
       return AppFlowyCloudSharedEnv(
-        authenticatorType: cloudType,
+        authenticatorType: authenticatorType,
         appflowyCloudConfig: appflowyCloudConfig,
         supabaseConfig: supabaseCloudConfig,
       );
@@ -235,9 +244,9 @@ class AppFlowyCloudSharedEnv {
 Future<AppFlowyCloudConfiguration> configurationFromUri(
   Uri baseUri,
   String baseUrl,
+  AuthenticatorType authenticatorType,
 ) async {
-// When the host is set to 'localhost', the application will utilize the local configuration. This setup assumes that 'localhost' does not employ a reverse proxy, therefore default port settings are used.
-  if (baseUri.host == "localhost") {
+  if (authenticatorType == AuthenticatorType.appflowyCloudDevelop) {
     return AppFlowyCloudConfiguration(
       base_url: "$baseUrl:8000",
       ws_base_url: "ws://${baseUri.host}:8000/ws",
@@ -252,12 +261,14 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
   }
 }
 
-Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig() async {
+Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig(
+  AuthenticatorType authenticatorType,
+) async {
   final baseURL = await getAppFlowyCloudUrl();
 
   try {
     final uri = Uri.parse(baseURL);
-    return await configurationFromUri(uri, baseURL);
+    return await configurationFromUri(uri, baseURL, authenticatorType);
   } catch (e) {
     Log.error("Failed to parse AppFlowy Cloud URL: $e");
     return AppFlowyCloudConfiguration.defaultConfig();

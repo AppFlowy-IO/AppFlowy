@@ -67,6 +67,10 @@ extension AppFlowyTestBase on WidgetTester {
               rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
               rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
               break;
+            case AuthenticatorType.appflowyCloudDevelop:
+              rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
+              rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
+              break;
           }
         }
         return rustEnvs;
@@ -94,6 +98,7 @@ extension AppFlowyTestBase on WidgetTester {
                   );
                   break;
                 case AuthenticatorType.appflowyCloudSelfHost:
+                case AuthenticatorType.appflowyCloudDevelop:
                   await useAppFlowyCloud();
                   getIt.unregister<AuthService>();
                   getIt.registerFactory<AuthService>(

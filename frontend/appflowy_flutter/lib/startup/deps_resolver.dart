@@ -142,6 +142,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
       break;
     case AuthenticatorType.appflowyCloud:
     case AuthenticatorType.appflowyCloudSelfHost:
+    case AuthenticatorType.appflowyCloudDevelop:
       getIt.registerFactory<AuthService>(() => AppFlowyCloudAuthService());
       break;
   }

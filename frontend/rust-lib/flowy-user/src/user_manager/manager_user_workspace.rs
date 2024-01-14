@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use collab_entity::{CollabObject, CollabType};
 use collab_integrate::CollabKVDB;
-use tracing::{error, instrument};
+use tracing::{error, info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
@@ -16,6 +16,7 @@ use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{upload_collab_objects_data, ImportContext};
+use crate::services::entities::Session;
 use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
 use crate::user_manager::UserManager;
 
@@ -33,52 +34,81 @@ impl UserManager {
     match import_data {
       ImportData::AppFlowyDataFolder { items } => {
         for item in items {
-          match item {
-            AppFlowyData::Folder {
-              views,
-              database_view_ids_by_database_id,
-            } => {
-              let (tx, rx) = tokio::sync::oneshot::channel();
-              let cloned_workspace_service = self.user_workspace_service.clone();
-              tokio::spawn(async move {
-                let result = async {
-                  cloned_workspace_service
-                    .did_import_database_views(database_view_ids_by_database_id)
-                    .await?;
-                  cloned_workspace_service.did_import_views(views).await?;
-                  Ok::<(), FlowyError>(())
-                }
-                .await;
-                let _ = tx.send(result);
-              })
+          self.upload_appflowy_data_item(&session, item).await?;
+        }
+      },
+    }
+    Ok(())
+  }
+
+  async fn upload_appflowy_data_item(
+    &self,
+    session: &Session,
+    item: AppFlowyData,
+  ) -> Result<(), FlowyError> {
+    match item {
+      AppFlowyData::Folder {
+        views,
+        database_view_ids_by_database_id,
+      } => {
+        // Since `async_trait` does not implement `Sync`, and the handler requires `Sync`, we use a
+        // channel to synchronize the operation. This approach allows asynchronous trait methods to be compatible
+        // with synchronous handler requirements."
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        let cloned_workspace_service = self.user_workspace_service.clone();
+        tokio::spawn(async move {
+          let result = async {
+            cloned_workspace_service
+              .did_import_database_views(database_view_ids_by_database_id)
               .await?;
-              rx.await??;
-            },
-            AppFlowyData::CollabObject {
-              row_object_ids,
-              document_object_ids,
-              database_object_ids,
-            } => {
-              let user = self.get_user_profile_from_disk(session.user_id).await?;
-              let user_collab_db = self
-                .get_collab_db(session.user_id)?
-                .upgrade()
-                .ok_or_else(|| FlowyError::internal().with_context("Collab db not found"))?;
-              upload_collab_objects_data(
-                session.user_id,
-                user_collab_db,
-                &user.workspace_id,
-                &user.authenticator,
-                AppFlowyData::CollabObject {
-                  row_object_ids,
-                  document_object_ids,
-                  database_object_ids,
-                },
-                self.cloud_services.get_user_service()?,
-              )
-              .await?;
-            },
+            cloned_workspace_service.did_import_views(views).await?;
+            Ok::<(), FlowyError>(())
           }
+          .await;
+          let _ = tx.send(result);
+        })
+        .await?;
+        rx.await??;
+      },
+      AppFlowyData::CollabObject {
+        row_object_ids,
+        document_object_ids,
+        database_object_ids,
+      } => {
+        let user = self.get_user_profile_from_disk(session.user_id).await?;
+        let user_collab_db = self
+          .get_collab_db(session.user_id)?
+          .upgrade()
+          .ok_or_else(|| FlowyError::internal().with_context("Collab db not found"))?;
+
+        let user_id = session.user_id;
+        let weak_user_collab_db = Arc::downgrade(&user_collab_db);
+        let weak_user_cloud_service = self.cloud_services.get_user_service()?;
+        match upload_collab_objects_data(
+          user_id,
+          weak_user_collab_db,
+          &user.workspace_id,
+          &user.authenticator,
+          AppFlowyData::CollabObject {
+            row_object_ids,
+            document_object_ids,
+            database_object_ids,
+          },
+          weak_user_cloud_service,
+        )
+        .await
+        {
+          Ok(_) => info!(
+            "Successfully uploaded collab objects data for user:{}",
+            user_id
+          ),
+          Err(err) => {
+            error!(
+              "Failed to upload collab objects data: {:?} for user:{}",
+              err, user_id
+            );
+            // TODO(nathan): retry uploading the collab objects data.
+          },
         }
       },
     }
