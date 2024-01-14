@@ -241,7 +241,7 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
     return AppFlowyCloudConfiguration(
       base_url: "$baseUrl:8000",
       ws_base_url: "ws://${baseUri.host}:8000/ws",
-      gotrue_url: "$baseUrl:9998",
+      gotrue_url: "$baseUrl:9999",
     );
   } else {
     return AppFlowyCloudConfiguration(
