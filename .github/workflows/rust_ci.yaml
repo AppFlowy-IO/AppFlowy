@@ -92,7 +92,14 @@ jobs:
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
-        run: RUST_LOG=info RUST_BACKTRACE=1 cargo test --no-default-features --features="rev-sqlite"
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: cargo test --no-default-features --features="rev-sqlite" -- --nocapture
+
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check

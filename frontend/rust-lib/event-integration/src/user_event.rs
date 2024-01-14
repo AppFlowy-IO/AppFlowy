@@ -326,10 +326,16 @@ pub struct SignUpContext {
 
 pub async fn user_localhost_af_cloud() {
   AuthenticatorType::AppFlowyCloud.write_env();
+  let base_url =
+    std::env::var("af_cloud_test_base_url").unwrap_or("http://localhost:8000".to_string());
+  let ws_base_url =
+    std::env::var("af_cloud_test_ws_url").unwrap_or("ws://localhost:8000/ws".to_string());
+  let gotrue_url =
+    std::env::var("af_cloud_test_gotrue_url").unwrap_or("http://localhost:9999".to_string());
   AFCloudConfiguration {
-    base_url: "http://localhost:8000".to_string(),
-    ws_base_url: "ws://localhost:8000/ws".to_string(),
-    gotrue_url: "http://localhost:9998".to_string(),
+    base_url,
+    ws_base_url,
+    gotrue_url,
   }
   .write_env();
   std::env::set_var("GOTRUE_ADMIN_EMAIL", "admin@example.com");

@@ -5,7 +5,6 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/cloud_env_test.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
@@ -59,18 +58,12 @@ extension AppFlowyTestBase on WidgetTester {
               break;
             case AuthenticatorType.supabase:
               break;
-            case AuthenticatorType.appflowyCloud:
-              rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
-              rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
-              break;
             case AuthenticatorType.appflowyCloudSelfHost:
               rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
               rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
               break;
-            case AuthenticatorType.appflowyCloudDevelop:
-              rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
-              rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
-              break;
+            default:
+              throw Exception("not supported");
           }
         }
         return rustEnvs;
@@ -90,21 +83,9 @@ extension AppFlowyTestBase on WidgetTester {
                     () => SupabaseMockAuthService(),
                   );
                   break;
-                case AuthenticatorType.appflowyCloud:
-                  await useAppFlowyCloud();
-                  getIt.unregister<AuthService>();
-                  getIt.registerFactory<AuthService>(
-                    () => AppFlowyCloudMockAuthService(email: email),
-                  );
-                  break;
                 case AuthenticatorType.appflowyCloudSelfHost:
-                case AuthenticatorType.appflowyCloudDevelop:
-                  await useAppFlowyCloud();
-                  getIt.unregister<AuthService>();
-                  getIt.registerFactory<AuthService>(
-                    () => AppFlowyCloudMockAuthService(email: email),
-                  );
-                  break;
+                default:
+                  throw Exception("not supported");
               }
             }
           },
