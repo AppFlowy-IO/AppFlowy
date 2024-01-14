@@ -341,3 +341,11 @@ pub async fn user_localhost_af_cloud() {
   std::env::set_var("GOTRUE_ADMIN_EMAIL", "admin@example.com");
   std::env::set_var("GOTRUE_ADMIN_PASSWORD", "password");
 }
+
+#[allow(dead_code)]
+pub async fn user_localhost_af_cloud_with_nginx() {
+  std::env::set_var("af_cloud_test_base_url", "http://localhost");
+  std::env::set_var("af_cloud_test_ws_url", "ws://localhost/ws");
+  std::env::set_var("af_cloud_test_gotrue_url", "http://localhost/gotrue");
+  user_localhost_af_cloud().await
+}

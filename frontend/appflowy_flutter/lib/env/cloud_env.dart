@@ -246,6 +246,9 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
   String baseUrl,
   AuthenticatorType authenticatorType,
 ) async {
+  // In development mode, the app is configured to access the AppFlowy cloud server directly through specific ports.
+  // This setup bypasses the need for Nginx, meaning that the AppFlowy cloud should be running without an Nginx server
+  // in the development environment.
   if (authenticatorType == AuthenticatorType.appflowyCloudDevelop) {
     return AppFlowyCloudConfiguration(
       base_url: "$baseUrl:8000",
