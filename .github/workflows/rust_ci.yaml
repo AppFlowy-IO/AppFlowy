@@ -84,6 +84,7 @@ jobs:
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         run: |
+          docker pull appflowyinc/appflowy_cloud:latest
           docker compose up -d
 
       - name: Run rust-lib tests
