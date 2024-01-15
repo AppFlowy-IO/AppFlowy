@@ -1,22 +1,21 @@
-use std::sync::Weak;
-use std::{convert::TryInto, sync::Arc};
-
-use serde_json::Value;
-use tracing::event;
-
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user_deps::cloud::UserCloudConfig;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserCloudConfig;
+use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
+use serde_json::Value;
+use std::sync::Weak;
+use std::{convert::TryInto, sync::Arc};
+use tracing::event;
 
 use crate::entities::*;
-use crate::manager::UserManager;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::cloud_config::{
   get_cloud_config, get_or_create_cloud_config, save_cloud_config,
 };
+use crate::services::data_import::get_appflowy_data_folder_import_context;
+use crate::user_manager::UserManager;
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
   let manager = manager
@@ -163,16 +162,13 @@ pub async fn get_appearance_setting(
   match store_preferences.get_str(APPEARANCE_SETTING_CACHE_KEY) {
     None => data_result_ok(AppearanceSettingsPB::default()),
     Some(s) => {
-      let setting = match serde_json::from_str(&s) {
-        Ok(setting) => setting,
-        Err(e) => {
-          tracing::error!(
-            "Deserialize AppearanceSettings failed: {:?}, fallback to default",
-            e
-          );
-          AppearanceSettingsPB::default()
-        },
-      };
+      let setting = serde_json::from_str(&s).unwrap_or_else(|err| {
+        tracing::error!(
+          "Deserialize AppearanceSettings failed: {:?}, fallback to default",
+          err
+        );
+        AppearanceSettingsPB::default()
+      });
       data_result_ok(setting)
     },
   }
@@ -239,19 +235,39 @@ pub async fn get_notification_settings(
   match store_preferences.get_str(NOTIFICATION_SETTINGS_CACHE_KEY) {
     None => data_result_ok(NotificationSettingsPB::default()),
     Some(s) => {
-      let setting = match serde_json::from_str(&s) {
-        Ok(setting) => setting,
-        Err(e) => {
-          tracing::error!(
-            "Deserialize NotificationSettings failed: {:?}, fallback to default",
-            e
-          );
-          NotificationSettingsPB::default()
-        },
-      };
+      let setting = serde_json::from_str(&s).unwrap_or_else(|e| {
+        tracing::error!(
+          "Deserialize NotificationSettings failed: {:?}, fallback to default",
+          e
+        );
+        NotificationSettingsPB::default()
+      });
       data_result_ok(setting)
     },
   }
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn import_appflowy_data_folder_handler(
+  data: AFPluginData<ImportAppFlowyDataPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.try_into_inner()?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  af_spawn(async move {
+    let result = async {
+      let manager = upgrade_manager(manager)?;
+      let context = get_appflowy_data_folder_import_context(&data.path)
+        .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))?
+        .with_container_name(data.import_container_name);
+      manager.import_appflowy_data_folder(context).await?;
+      Ok::<(), FlowyError>(())
+    }
+    .await;
+    let _ = tx.send(result);
+  });
+  rx.await??;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

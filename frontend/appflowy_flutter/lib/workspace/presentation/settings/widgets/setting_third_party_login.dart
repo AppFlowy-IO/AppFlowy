@@ -30,7 +30,7 @@ class SettingThirdPartyLogin extends StatelessWidget {
         },
         builder: (_, state) {
           final indicator = state.isSubmitting
-              ? const CircularProgressIndicator.adaptive()
+              ? const LinearProgressIndicator(minHeight: 1)
               : const SizedBox.shrink();
 
           final promptMessage = state.isSubmitting
@@ -50,11 +50,12 @@ class SettingThirdPartyLogin extends StatelessWidget {
                     fontSize: 16,
                   ),
                   const HSpace(6),
-                  indicator,
                 ],
               ),
               const VSpace(6),
               promptMessage,
+              const VSpace(6),
+              indicator,
               const VSpace(6),
               if (isAuthEnabled) const ThirdPartySignInButtons(),
               const VSpace(6),

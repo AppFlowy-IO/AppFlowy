@@ -341,12 +341,12 @@
         "button": "上传",
         "uploadTheme": "上传主题",
         "description": "使用下方的按钮上传您自己的 AppFlowy 主题。",
-        "failure": "上传的主题格式无效。",
         "loading": "我们正在验证并上传您的主题，请稍候...",
         "uploadSuccess": "您的主题已成功上传",
         "deletionFailure": "删除主题失败。尝试手动删除它。",
         "filePickerDialogTitle": "选择 .flowy_plugin 文件",
-        "urlUploadFailure": "无法打开网址：{}"
+        "urlUploadFailure": "无法打开网址：{}",
+        "failure": "上传的主题格式无效。"
       },
       "theme": "主题",
       "builtInsLabel": "内置主题",

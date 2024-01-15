@@ -4,8 +4,8 @@ use std::path::Path;
 use base64::Engine;
 use tracing::{error, info};
 
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_user::services::entities::URL_SAFE_ENGINE;
 use lib_infra::file_util::copy_dir_recursive;
 

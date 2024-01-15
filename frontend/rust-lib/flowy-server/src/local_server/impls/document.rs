@@ -1,7 +1,7 @@
 use anyhow::Error;
 use collab::core::collab::CollabDocState;
 
-use flowy_document_deps::cloud::*;
+use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::future::FutureResult;
 

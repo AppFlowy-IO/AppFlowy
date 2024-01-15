@@ -30,8 +30,8 @@ class _ImportAppFlowyDataState extends State<ImportAppFlowyData> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SettingFileImporterBloc(),
-      child: BlocListener<SettingFileImporterBloc, SettingFileImportState>(
+      create: (context) => SettingFileImportBloc(),
+      child: BlocListener<SettingFileImportBloc, SettingFileImportState>(
         listener: (context, state) {
           state.successOrFail.fold(
             () {},
@@ -47,7 +47,7 @@ class _ImportAppFlowyDataState extends State<ImportAppFlowyData> {
             },
           );
         },
-        child: BlocBuilder<SettingFileImporterBloc, SettingFileImportState>(
+        child: BlocBuilder<SettingFileImportBloc, SettingFileImportState>(
           builder: (context, state) {
             return const Column(
               children: [
@@ -120,24 +120,33 @@ class ImportAppFlowyDataButton extends StatefulWidget {
 class _ImportAppFlowyDataButtonState extends State<ImportAppFlowyDataButton> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      child: FlowyButton(
-        text: FlowyText(LocaleKeys.settings_menu_importAppFlowyData.tr()),
-        onTap: () async {
-          final path = await getIt<FilePickerService>().getDirectoryPath();
-          if (path == null) {
-            return;
-          }
-          if (!mounted) {
-            return;
-          }
+    return BlocBuilder<SettingFileImportBloc, SettingFileImportState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            SizedBox(
+              height: 40,
+              child: FlowyButton(
+                text:
+                    FlowyText(LocaleKeys.settings_menu_importAppFlowyData.tr()),
+                onTap: () async {
+                  final path =
+                      await getIt<FilePickerService>().getDirectoryPath();
+                  if (path == null || !mounted) {
+                    return;
+                  }
 
-          context
-              .read<SettingFileImporterBloc>()
-              .add(SettingFileImportEvent.importAppFlowyDataFolder(path));
-        },
-      ),
+                  context.read<SettingFileImportBloc>().add(
+                        SettingFileImportEvent.importAppFlowyDataFolder(path),
+                      );
+                },
+              ),
+            ),
+            if (state.loadingState.isLoading())
+              const LinearProgressIndicator(minHeight: 1),
+          ],
+        );
+      },
     );
   }
 }

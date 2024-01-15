@@ -309,12 +309,12 @@
         "button": "Mengunggah",
         "uploadTheme": "Unggah tema",
         "description": "Unggah tema AppFlowy Anda sendiri menggunakan tombol di bawah ini.",
-        "failure": "Tema yang diunggah memiliki format yang tidak valid.",
         "loading": "Harap tunggu sementara kami memvalidasi dan mengunggah tema Anda...",
         "uploadSuccess": "Tema Anda berhasil diunggah",
         "deletionFailure": "Gagal menghapus tema. Cobalah untuk menghapusnya secara manual.",
         "filePickerDialogTitle": "Pilih file .flowy_plugin",
-        "urlUploadFailure": "Gagal membuka url: {}"
+        "urlUploadFailure": "Gagal membuka url: {}",
+        "failure": "Tema yang diunggah memiliki format yang tidak valid."
       },
       "theme": "Tema",
       "builtInsLabel": "Tema Bawaan",

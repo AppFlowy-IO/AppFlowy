@@ -9,18 +9,18 @@ use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::{Client, ClientConfiguration};
+use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{error, event, info};
 
-use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_storage::ObjectStorageService;
-use flowy_user_deps::cloud::{UserCloudService, UserUpdate};
-use flowy_user_deps::entities::UserTokenState;
+use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
+use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 

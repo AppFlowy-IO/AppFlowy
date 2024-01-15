@@ -5,16 +5,9 @@ use std::collections::HashMap;
 
 use crate::services::data_import::ImportContext;
 use collab::preclude::Collab;
-use flowy_folder_deps::entities::ImportData;
+use flowy_folder_pub::entities::ImportData;
 use std::sync::Arc;
 use tracing::instrument;
-
-pub enum ImportDataSource {
-  AppFlowyDataFolder {
-    path: String,
-    container_name: Option<String>,
-  },
-}
 
 /// Import appflowy data from the given path.
 /// If the container name is not empty, then the data will be imported to the given container.

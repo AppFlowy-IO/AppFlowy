@@ -9,7 +9,7 @@ use url::Url;
 
 use flowy_encrypt::{decrypt_data, encrypt_data};
 use flowy_error::FlowyError;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage::{FileStoragePlan, ObjectStorageService};
 use lib_infra::future::FutureResult;
 

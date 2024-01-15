@@ -18,10 +18,10 @@ use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
-use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_task::TaskDispatcher;
 use lib_dispatch::prelude::af_spawn;
+use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::{
   DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
@@ -35,7 +35,6 @@ use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 

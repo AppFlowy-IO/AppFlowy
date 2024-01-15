@@ -15,7 +15,7 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, Condition, RetryIf};
 use yrs::merge_updates_v1;
 
-use flowy_database_deps::cloud::CollabDocStateByOid;
+use flowy_database_pub::cloud::CollabDocStateByOid;
 use lib_infra::util::md5;
 
 use crate::response::ExtendedResponse;
