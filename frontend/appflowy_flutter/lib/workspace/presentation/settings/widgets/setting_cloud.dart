@@ -2,6 +2,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_local_cloud.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -86,6 +87,12 @@ class SettingCloud extends StatelessWidget {
         return CustomAppFlowyCloudView(
           restartAppFlowy: didResetServerUrl,
         );
+      case AuthenticatorType.appflowyCloudDevelop:
+        return AppFlowyCloudViewSetting(
+          serverURL: "http://localhost",
+          authenticatorType: AuthenticatorType.appflowyCloudDevelop,
+          restartAppFlowy: didResetServerUrl,
+        );
     }
   }
 }
@@ -111,16 +118,26 @@ class CloudTypeSwitcher extends StatelessWidget {
         onPressed: () {},
       ),
       popupBuilder: (BuildContext context) {
+        final isDevelopMode = integrationMode().isDevelop;
+        // Only show the appflowyCloudDevelop in develop mode
+        final values = AuthenticatorType.values
+            .where(
+              (element) =>
+                  isDevelopMode ||
+                  element != AuthenticatorType.appflowyCloudDevelop,
+            )
+            .toList();
+
         return ListView.builder(
           shrinkWrap: true,
           itemBuilder: (context, index) {
             return CloudTypeItem(
-              cloudType: AuthenticatorType.values[index],
+              cloudType: values[index],
               currentCloudtype: cloudType,
               onSelected: onSelected,
             );
           },
-          itemCount: AuthenticatorType.values.length,
+          itemCount: values.length,
         );
       },
     );
@@ -171,5 +188,7 @@ String titleFromCloudType(AuthenticatorType cloudType) {
       return LocaleKeys.settings_menu_cloudAppFlowy.tr();
     case AuthenticatorType.appflowyCloudSelfHost:
       return LocaleKeys.settings_menu_cloudAppFlowySelfHost.tr();
+    case AuthenticatorType.appflowyCloudDevelop:
+      return "AppFlowyCloud Develop";
   }
 }

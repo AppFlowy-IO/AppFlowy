@@ -19,8 +19,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppFlowyCloudViewSetting extends StatelessWidget {
+  final String serverURL;
+  final AuthenticatorType authenticatorType;
   final VoidCallback restartAppFlowy;
-  const AppFlowyCloudViewSetting({required this.restartAppFlowy, super.key});
+  const AppFlowyCloudViewSetting({
+    required this.restartAppFlowy,
+    super.key,
+    this.serverURL = kAppflowyCloudUrl,
+    this.authenticatorType = AuthenticatorType.appflowyCloud,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,11 +65,8 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
               NavigatorAlertDialog(
                 title: LocaleKeys.settings_menu_restartAppTip.tr(),
                 confirm: () async {
-                  await setAppFlowyCloudUrl(
-                    const Some(kAppflowyCloudUrl),
-                  );
-
-                  await setAuthenticatorType(AuthenticatorType.appflowyCloud);
+                  await setAppFlowyCloudUrl(Some(serverURL));
+                  await setAuthenticatorType(authenticatorType);
                   restartAppFlowy();
                 },
               ).show(context);

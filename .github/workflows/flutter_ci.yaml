@@ -238,14 +238,11 @@ jobs:
       - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
         run: |
+          # log level
           cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_USER }}/' .env
-          sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_PASS }}/' .env
-          sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
           sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
-          cat .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
@@ -253,7 +250,6 @@ jobs:
           docker compose down -v --remove-orphans
           docker pull appflowyinc/appflowy_cloud:latest
           docker compose up -d
-          docker ps -a
 
       - name: Checkout source code
         uses: actions/checkout@v2
