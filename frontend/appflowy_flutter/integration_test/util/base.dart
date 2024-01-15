@@ -5,6 +5,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/cloud_env_test.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
@@ -84,6 +85,11 @@ extension AppFlowyTestBase on WidgetTester {
                   );
                   break;
                 case AuthenticatorType.appflowyCloudSelfHost:
+                  await useAppFlowyCloud();
+                  getIt.unregister<AuthService>();
+                  getIt.registerFactory<AuthService>(
+                    () => AppFlowyCloudMockAuthService(email: email),
+                  );
                 default:
                   throw Exception("not supported");
               }

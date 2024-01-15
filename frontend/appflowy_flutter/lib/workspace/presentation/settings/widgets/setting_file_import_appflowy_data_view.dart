@@ -132,6 +132,7 @@ class _ImportAppFlowyDataButtonState extends State<ImportAppFlowyDataButton> {
             SizedBox(
               height: 40,
               child: FlowyButton(
+                disable: state.loadingState.isLoading(),
                 text:
                     FlowyText(LocaleKeys.settings_menu_importAppFlowyData.tr()),
                 onTap: () async {
