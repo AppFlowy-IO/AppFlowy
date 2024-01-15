@@ -257,7 +257,7 @@ impl DocumentManager {
     workspace_id: String,
     local_file_path: &str,
   ) -> FlowyResult<String> {
-    let object_value = ObjectValue::from_file(&local_file_path).await?;
+    let object_value = ObjectValue::from_file(local_file_path).await?;
 
     let storage_service = self.storage_service_upgrade()?;
     let url = {
