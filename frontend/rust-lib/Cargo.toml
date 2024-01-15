@@ -34,7 +34,7 @@ resolver = "2"
 [workspace.dependencies]
 lib-dispatch = { workspace = true, path = "lib-dispatch" }
 lib-log = { workspace = true, path = "lib-log" }
-lib-infra= { workspace = true, path = "lib-infra" }
+lib-infra = { workspace = true, path = "lib-infra" }
 flowy-ast = { workspace = true, path = "build-tool/flowy-ast" }
 flowy-codegen = { workspace = true, path = "build-tool/flowy-codegen" }
 flowy-derive = { workspace = true, path = "build-tool/flowy-derive" }
@@ -73,7 +73,7 @@ futures = "0.3.29"
 tokio = "1.34.0"
 tokio-stream = "0.1.14"
 async-trait = "0.1.74"
-chrono = { version = "0.4.31",  default-features = false, features = ["clock"] }
+chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 lru = "0.12.0"
 
 [profile.dev]
@@ -105,7 +105,7 @@ incremental = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "79702b1ced7b4497afef4e7d42e9fed1084e33e5" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5a353856afbcb29ee357c4f2bda183a94d4f811d" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #

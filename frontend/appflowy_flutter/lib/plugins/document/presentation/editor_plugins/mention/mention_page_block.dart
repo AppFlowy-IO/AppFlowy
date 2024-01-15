@@ -70,7 +70,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         if (view == null) {
           return const SizedBox.shrink();
         }
-        updateSelection();
+        // updateSelection();
         final iconSize = widget.textStyle?.fontSize ?? 16.0;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),

@@ -37,21 +37,26 @@ class SecondaryTextButton extends StatelessWidget {
     this.label, {
     super.key,
     this.onPressed,
+    this.textColor,
+    this.outlineColor,
     this.mode = TextButtonMode.normal,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final TextButtonMode mode;
+  final Color? textColor;
+  final Color? outlineColor;
 
   @override
   Widget build(BuildContext context) {
     return SecondaryButton(
       mode: mode,
       onPressed: onPressed,
+      outlineColor: outlineColor,
       child: FlowyText.regular(
         label,
-        color: Theme.of(context).colorScheme.primary,
+        color: textColor ?? Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -62,12 +67,14 @@ class SecondaryButton extends StatelessWidget {
     super.key,
     required this.child,
     this.onPressed,
+    this.outlineColor,
     this.mode = TextButtonMode.normal,
   });
 
   final Widget child;
   final VoidCallback? onPressed;
   final TextButtonMode mode;
+  final Color? outlineColor;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +84,7 @@ class SecondaryButton extends StatelessWidget {
       minHeight: size.height,
       contentPadding: EdgeInsets.zero,
       bgColor: Colors.transparent,
-      outlineColor: Theme.of(context).colorScheme.onBackground,
+      outlineColor: outlineColor ?? Theme.of(context).colorScheme.primary,
       borderRadius: mode.borderRadius,
       onPressed: onPressed,
       child: child,
