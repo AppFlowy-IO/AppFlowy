@@ -10,7 +10,8 @@ abstract class Env {
   static bool get enableCustomCloud {
     return Env.authenticatorType ==
             AuthenticatorType.appflowyCloudSelfHost.value ||
-        Env.authenticatorType == AuthenticatorType.appflowyCloud.value &&
+        Env.authenticatorType == AuthenticatorType.appflowyCloud.value ||
+        Env.authenticatorType == AuthenticatorType.appflowyCloudDevelop.value &&
             _Env.afCloudUrl.isEmpty;
   }
 
