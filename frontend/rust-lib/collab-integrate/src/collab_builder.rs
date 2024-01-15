@@ -233,7 +233,7 @@ impl AppFlowyCollabBuilder {
           object_type.clone(),
           collab_db.clone(),
           persistence_config.clone(),
-          self.snapshot_persistence.lock().as_ref().map(Arc::clone),
+          None,
         ))
         .with_device_id(self.device_id.clone())
         .build()?,

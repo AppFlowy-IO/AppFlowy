@@ -2,7 +2,7 @@ import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/import.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/import_data.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +25,7 @@ class SettingFileImportBloc
             emit(
               state.copyWith(loadingState: const LoadingState.loading()),
             );
-            FolderEventImportAppFlowyDataFolder(payload).send().then((result) {
+            UserEventImportAppFlowyDataFolder(payload).send().then((result) {
               if (!isClosed) {
                 add(SettingFileImportEvent.finishImport(result));
               }

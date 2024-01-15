@@ -81,10 +81,6 @@ impl DocumentUserService for FakeUser {
     Ok(Uuid::new_v4().to_string())
   }
 
-  fn token(&self) -> Result<Option<String>, FlowyError> {
-    Ok(None)
-  }
-
   fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<CollabKVDB>, FlowyError> {
     Ok(Arc::downgrade(&self.collab_db))
   }

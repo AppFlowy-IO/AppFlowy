@@ -5,7 +5,7 @@ use crate::user_manager::UserManager;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::entities::Authenticator;
 
-use crate::migrations::MigrationUser;
+use crate::migrations::AnonUser;
 use crate::services::entities::Session;
 
 const ANON_USER: &str = "anon_user";
@@ -14,7 +14,7 @@ impl UserManager {
   pub async fn get_migration_user(
     &self,
     current_authenticator: &Authenticator,
-  ) -> Option<MigrationUser> {
+  ) -> Option<AnonUser> {
     // No need to migrate if the user is already local
     if current_authenticator.is_local() {
       return None;
@@ -27,10 +27,7 @@ impl UserManager {
       .ok()?;
 
     if user_profile.authenticator.is_local() {
-      Some(MigrationUser {
-        user_profile,
-        session,
-      })
+      Some(AnonUser { session })
     } else {
       None
     }
@@ -71,7 +68,7 @@ impl UserManager {
         ErrorCode::RecordNotFound,
         "Anon user not found",
       ))?;
-    self.set_session(Some(anon_session))?;
+    self.authenticate_user.set_session(Some(anon_session))?;
     Ok(())
   }
 }

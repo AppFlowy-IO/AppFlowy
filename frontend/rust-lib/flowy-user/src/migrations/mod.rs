@@ -1,8 +1,5 @@
-use flowy_user_pub::entities::UserProfile;
-
 use crate::services::entities::Session;
 
-pub mod database_vacuum;
 pub mod document_empty_content;
 pub mod migration;
 pub mod session_migration;
@@ -11,7 +8,6 @@ pub mod workspace_and_favorite_v1;
 pub mod workspace_trash_v1;
 
 #[derive(Clone, Debug)]
-pub struct MigrationUser {
-  pub user_profile: UserProfile,
+pub struct AnonUser {
   pub session: Session,
 }

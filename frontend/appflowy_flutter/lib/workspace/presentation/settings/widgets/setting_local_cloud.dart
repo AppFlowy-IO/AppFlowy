@@ -1,3 +1,4 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -29,7 +30,12 @@ class SettingLocalCloud extends StatelessWidget {
           onTap: () {
             NavigatorAlertDialog(
               title: LocaleKeys.settings_menu_restartAppTip.tr(),
-              confirm: didResetServerUrl,
+              confirm: () async {
+                await setAuthenticatorType(
+                  AuthenticatorType.local,
+                );
+                didResetServerUrl();
+              },
             ).show(context);
           },
         ),

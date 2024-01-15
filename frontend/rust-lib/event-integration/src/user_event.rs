@@ -3,8 +3,7 @@ use std::convert::TryFrom;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use flowy_folder::entities::ImportAppFlowyDataPB;
-use flowy_folder::event_map::FolderEvent;
+
 use nanoid::nanoid;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
@@ -17,10 +16,12 @@ use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
-  AuthenticatorPB, CloudSettingPB, OauthSignInPB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB,
-  UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB,
+  AuthenticatorPB, CloudSettingPB, ImportAppFlowyDataPB, OauthSignInPB, SignInUrlPB,
+  SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB, UpdateUserProfilePayloadPB,
+  UserProfilePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
+use flowy_user::event_map::UserEvent;
 use flowy_user::event_map::UserEvent::*;
 use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher, AFPluginRequest, ToBytes};
 
@@ -200,7 +201,7 @@ impl EventIntegrationTest {
       import_container_name: name,
     };
     match EventBuilder::new(self.clone())
-      .event(FolderEvent::ImportAppFlowyDataFolder)
+      .event(UserEvent::ImportAppFlowyDataFolder)
       .payload(payload)
       .async_send()
       .await
@@ -325,12 +326,26 @@ pub struct SignUpContext {
 
 pub async fn user_localhost_af_cloud() {
   AuthenticatorType::AppFlowyCloud.write_env();
+  let base_url =
+    std::env::var("af_cloud_test_base_url").unwrap_or("http://localhost:8000".to_string());
+  let ws_base_url =
+    std::env::var("af_cloud_test_ws_url").unwrap_or("ws://localhost:8000/ws".to_string());
+  let gotrue_url =
+    std::env::var("af_cloud_test_gotrue_url").unwrap_or("http://localhost:9999".to_string());
   AFCloudConfiguration {
-    base_url: "http://localhost:8000".to_string(),
-    ws_base_url: "ws://localhost:8000/ws".to_string(),
-    gotrue_url: "http://localhost:9998".to_string(),
+    base_url,
+    ws_base_url,
+    gotrue_url,
   }
   .write_env();
   std::env::set_var("GOTRUE_ADMIN_EMAIL", "admin@example.com");
   std::env::set_var("GOTRUE_ADMIN_PASSWORD", "password");
+}
+
+#[allow(dead_code)]
+pub async fn user_localhost_af_cloud_with_nginx() {
+  std::env::set_var("af_cloud_test_base_url", "http://localhost");
+  std::env::set_var("af_cloud_test_ws_url", "ws://localhost/ws");
+  std::env::set_var("af_cloud_test_gotrue_url", "http://localhost/gotrue");
+  user_localhost_af_cloud().await
 }

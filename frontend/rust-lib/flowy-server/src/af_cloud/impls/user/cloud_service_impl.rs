@@ -61,8 +61,9 @@ where
   }
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
-    let try_get_client = self.server.try_get_client();
-    FutureResult::new(async move { Ok(try_get_client?.sign_out().await?) })
+    // Calling the sign_out method that will revoke all connected devices' refresh tokens.
+    // So do nothing here.
+    FutureResult::new(async move { Ok(()) })
   }
 
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError> {
@@ -273,7 +274,7 @@ where
         })
         .collect::<Vec<_>>();
       try_get_client?
-        .batch_create_collab(&workspace_id, params)
+        .create_collab_list(&workspace_id, params)
         .await
         .map_err(FlowyError::from)?;
       Ok(())

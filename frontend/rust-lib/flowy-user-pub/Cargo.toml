@@ -18,3 +18,4 @@ chrono = { workspace = true,  default-features = false, features = ["clock", "se
 anyhow.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 tokio-stream = "0.1.14"
+flowy-folder-pub.workspace = true
