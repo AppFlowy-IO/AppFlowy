@@ -77,7 +77,7 @@ jobs:
         working-directory: AppFlowy-Cloud
         run: |
           # log level
-          cp dev.env .env
+          cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_USER }}/' .env
           sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_PASS }}/' .env
