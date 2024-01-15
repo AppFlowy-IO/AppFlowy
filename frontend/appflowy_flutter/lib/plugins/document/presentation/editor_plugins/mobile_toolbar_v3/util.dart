@@ -81,7 +81,7 @@ class MobileToolbarMenuItemWrapper extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
+      onTap: enable == false ? null : onTap,
       child: Stack(
         children: [
           Container(
