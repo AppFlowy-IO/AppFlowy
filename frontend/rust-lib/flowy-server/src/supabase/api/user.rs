@@ -329,8 +329,8 @@ where
 
   fn batch_create_collab_object(
     &self,
-    workspace_id: &str,
-    objects: Vec<UserCollabParams>,
+    _workspace_id: &str,
+    _objects: Vec<UserCollabParams>,
   ) -> FutureResult<(), Error> {
     FutureResult::new(async {
       Err(anyhow!(

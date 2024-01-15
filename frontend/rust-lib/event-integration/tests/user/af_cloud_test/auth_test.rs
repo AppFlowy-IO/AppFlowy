@@ -1,4 +1,4 @@
-use event_integration::user_event::{user_localhost_af_cloud, user_localhost_af_cloud_with_nginx};
+use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
 use flowy_user::entities::UpdateUserProfilePayloadPB;
 
