@@ -1,10 +1,10 @@
-import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -14,11 +14,12 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:collection/collection.dart';
@@ -256,11 +257,16 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     final twelveHourFormat = DateFormat('HH:mm a');
     final twentyFourHourFormat = DateFormat('HH:mm');
 
-    if (timeFormat == TimeFormatPB.TwelveHour) {
-      return twelveHourFormat.parse(timeStr);
-    }
+    try {
+      if (timeFormat == TimeFormatPB.TwelveHour) {
+        return twelveHourFormat.parse(timeStr);
+      }
 
-    return twentyFourHourFormat.parse(timeStr);
+      return twentyFourHourFormat.parse(timeStr);
+    } on FormatException {
+      Log.error("failed to parse time string ($timeStr)");
+      return DateTime.now();
+    }
   }
 
   String _timeFromDate(DateTime date, UserTimeFormatPB timeFormat) {

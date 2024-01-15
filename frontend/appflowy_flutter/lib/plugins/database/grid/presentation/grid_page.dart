@@ -111,17 +111,7 @@ class GridPage extends StatefulWidget {
 }
 
 class _GridPageState extends State<GridPage> {
-  late final GridBloc _gridBloc;
   bool _didOpenInitialRow = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _gridBloc = GridBloc(
-      view: widget.view,
-      databaseController: widget.databaseController,
-    )..add(const GridEvent.initial());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +120,12 @@ class _GridPageState extends State<GridPage> {
         BlocProvider<NotificationActionBloc>.value(
           value: getIt<NotificationActionBloc>(),
         ),
-        BlocProvider<GridBloc>.value(value: _gridBloc),
+        BlocProvider<GridBloc>(
+          create: (context) => GridBloc(
+            view: widget.view,
+            databaseController: widget.databaseController,
+          )..add(const GridEvent.initial()),
+        ),
       ],
       child: BlocListener<NotificationActionBloc, NotificationActionState>(
         listener: (context, state) {
@@ -139,7 +134,7 @@ class _GridPageState extends State<GridPage> {
               action?.objectId == widget.view.id) {
             final rowId = action!.arguments?[ActionArgumentKeys.rowId];
             if (rowId != null) {
-              _openRow(rowId);
+              _openRow(context, rowId);
             }
           }
         },
@@ -151,7 +146,7 @@ class _GridPageState extends State<GridPage> {
               finish: (result) => result.successOrFail.fold(
                 (_) {
                   // Open initial row if any
-                  _openRow(widget.initialRowId, true);
+                  _openRow(context, widget.initialRowId, true);
                   return GridShortcuts(
                     child: GridPageContent(view: widget.view),
                   );
@@ -169,19 +164,24 @@ class _GridPageState extends State<GridPage> {
     );
   }
 
-  void _openRow(String? rowId, [bool initialRow = false]) {
+  void _openRow(
+    BuildContext context,
+    String? rowId, [
+    bool initialRow = false,
+  ]) {
     if (rowId != null && (!initialRow || (initialRow && !_didOpenInitialRow))) {
       _didOpenInitialRow = initialRow;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final rowCache = _gridBloc.getRowCache(rowId);
+        final gridBloc = context.read<GridBloc>();
+        final rowCache = gridBloc.getRowCache(rowId);
         final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
         if (rowMeta == null) {
           return;
         }
 
-        final fieldController = _gridBloc.databaseController.fieldController;
+        final fieldController = gridBloc.databaseController.fieldController;
         final rowController = RowController(
           viewId: widget.view.id,
           rowMeta: rowMeta,

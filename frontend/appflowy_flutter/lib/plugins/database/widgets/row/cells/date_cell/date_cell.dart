@@ -1,14 +1,20 @@
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../cell_builder.dart';
+
 import 'date_cell_bloc.dart';
 import 'date_editor.dart';
 
@@ -85,22 +91,32 @@ class _DateCellState extends GridCellState<GridDateCell> {
               child: Container(
                 alignment: alignment,
                 padding: padding,
-                child: FlowyText.medium(
-                  text,
-                  color: color,
-                  overflow: TextOverflow.ellipsis,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: FlowyText.medium(
+                        text,
+                        color: color,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (state.data?.reminderId.isNotEmpty == true) ...[
+                      const HSpace(5),
+                      FlowyTooltip(
+                        message:
+                            LocaleKeys.grid_field_reminderOnDateTooltip.tr(),
+                        child: const FlowySvg(FlowySvgs.clock_alarm_s),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              popupBuilder: (BuildContext popoverContent) {
-                return DateCellEditor(
-                  cellController: _cellController,
-                  onDismissed: () =>
-                      widget.cellContainerNotifier.isFocus = false,
-                );
-              },
-              onClose: () {
-                widget.cellContainerNotifier.isFocus = false;
-              },
+              popupBuilder: (_) => DateCellEditor(
+                cellController: _cellController,
+                onDismissed: () => widget.cellContainerNotifier.isFocus = false,
+              ),
+              onClose: () => widget.cellContainerNotifier.isFocus = false,
             );
           } else if (widget.cellStyle.useRoundedBorder) {
             return InkWell(
@@ -108,12 +124,10 @@ class _DateCellState extends GridCellState<GridDateCell> {
               onTap: () => showMobileBottomSheet(
                 context,
                 padding: EdgeInsets.zero,
-                builder: (context) {
-                  return MobileDateCellEditScreen(
-                    controller: _cellController,
-                    showAsFullScreen: false,
-                  );
-                },
+                builder: (_) => MobileDateCellEditScreen(
+                  controller: _cellController,
+                  showAsFullScreen: false,
+                ),
               ),
               child: Container(
                 constraints: const BoxConstraints(
@@ -154,20 +168,16 @@ class _DateCellState extends GridCellState<GridDateCell> {
                   ),
                 ),
               ),
-              onTap: () {
-                showMobileBottomSheet(
-                  context,
-                  padding: EdgeInsets.zero,
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
-                  builder: (context) {
-                    return MobileDateCellEditScreen(
-                      controller: _cellController,
-                      showAsFullScreen: false,
-                    );
-                  },
-                );
-              },
+              onTap: () => showMobileBottomSheet(
+                context,
+                padding: EdgeInsets.zero,
+                backgroundColor:
+                    Theme.of(context).colorScheme.secondaryContainer,
+                builder: (_) => MobileDateCellEditScreen(
+                  controller: _cellController,
+                  showAsFullScreen: false,
+                ),
+              ),
             );
           }
         },

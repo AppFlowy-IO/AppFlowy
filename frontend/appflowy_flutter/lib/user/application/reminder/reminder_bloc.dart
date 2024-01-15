@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
@@ -140,18 +138,20 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
 
-          actionBloc.add(
-            NotificationActionEvent.performAction(
-              action: action,
-              nextActions: [
-                action.copyWith(
-                  type: rowId != null
-                      ? ActionType.openRow
-                      : ActionType.jumpToBlock,
-                ),
-              ],
-            ),
-          );
+          if (!isClosed) {
+            actionBloc.add(
+              NotificationActionEvent.performAction(
+                action: action,
+                nextActions: [
+                  action.copyWith(
+                    type: rowId != null
+                        ? ActionType.openRow
+                        : ActionType.jumpToBlock,
+                  ),
+                ],
+              ),
+            );
+          }
         },
       );
     });

@@ -579,7 +579,8 @@
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "newColumn": "New Column",
-      "format": "Format"
+      "format": "Format",
+      "reminderOnDateTooltip": "This cell has a scheduled reminder"
     },
     "rowPage": {
       "newField": "Add a new field",
