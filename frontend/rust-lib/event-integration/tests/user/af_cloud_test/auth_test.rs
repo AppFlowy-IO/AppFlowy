@@ -6,6 +6,7 @@ use crate::util::generate_test_email;
 
 #[tokio::test]
 async fn af_cloud_sign_up_test() {
+  // user_localhost_af_cloud_with_nginx().await;
   user_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let email = generate_test_email();

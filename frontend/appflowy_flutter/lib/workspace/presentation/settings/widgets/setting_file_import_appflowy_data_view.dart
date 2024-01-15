@@ -49,13 +49,18 @@ class _ImportAppFlowyDataState extends State<ImportAppFlowyData> {
         },
         child: BlocBuilder<SettingFileImportBloc, SettingFileImportState>(
           builder: (context, state) {
-            return const Column(
-              children: [
-                ImportAppFlowyDataButton(),
-                VSpace(6),
-                AppFlowyDataImportTip(),
-              ],
-            );
+            final List<Widget> children = [
+              const ImportAppFlowyDataButton(),
+              const VSpace(6),
+            ];
+
+            if (state.loadingState.isLoading()) {
+              children.add(const AppFlowyDataImportingTip());
+            } else {
+              children.add(const AppFlowyDataImportTip());
+            }
+
+            return Column(children: children);
           },
         ),
       ),
@@ -127,6 +132,7 @@ class _ImportAppFlowyDataButtonState extends State<ImportAppFlowyDataButton> {
             SizedBox(
               height: 40,
               child: FlowyButton(
+                disable: state.loadingState.isLoading(),
                 text:
                     FlowyText(LocaleKeys.settings_menu_importAppFlowyData.tr()),
                 onTap: () async {
@@ -147,6 +153,27 @@ class _ImportAppFlowyDataButtonState extends State<ImportAppFlowyDataButton> {
           ],
         );
       },
+    );
+  }
+}
+
+class AppFlowyDataImportingTip extends StatelessWidget {
+  const AppFlowyDataImportingTip({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: 0.6,
+      child: RichText(
+        text: TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+              text: LocaleKeys.settings_menu_importingAppFlowyDataTip.tr(),
+              style: Theme.of(context).textTheme.bodySmall!,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

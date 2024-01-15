@@ -110,7 +110,8 @@ impl DocumentManager {
       ))
     } else {
       let doc_state =
-        doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?
+        doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))
+          .await?
           .doc_state
           .to_vec();
       let collab = self
@@ -290,15 +291,21 @@ impl DocumentManager {
   }
 }
 
-fn doc_state_from_document_data(
+async fn doc_state_from_document_data(
   doc_id: &str,
   data: DocumentData,
 ) -> Result<EncodedCollab, FlowyError> {
-  let collab = Arc::new(MutexCollab::from_collab(Collab::new_with_origin(
-    CollabOrigin::Empty,
-    doc_id,
-    vec![],
-  )));
-  let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
-  Ok(collab.encode_collab_v1())
+  let doc_id = doc_id.to_string();
+  // spawn_blocking is used to avoid blocking the tokio thread pool if the document is large.
+  let encoded_collab = tokio::task::spawn_blocking(move || {
+    let collab = Arc::new(MutexCollab::from_collab(Collab::new_with_origin(
+      CollabOrigin::Empty,
+      doc_id,
+      vec![],
+    )));
+    let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
+    Ok::<_, FlowyError>(collab.encode_collab_v1())
+  })
+  .await??;
+  Ok(encoded_collab)
 }
