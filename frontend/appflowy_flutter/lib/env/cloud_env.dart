@@ -236,20 +236,26 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
   Uri baseUri,
   String baseUrl,
 ) async {
-// When the host is set to 'localhost', the application will utilize the local configuration. This setup assumes that 'localhost' does not employ a reverse proxy, therefore default port settings are used.
-  if (baseUri.host == "localhost") {
-    return AppFlowyCloudConfiguration(
-      base_url: "$baseUrl:8000",
-      ws_base_url: "ws://${baseUri.host}:8000/ws",
-      gotrue_url: "$baseUrl:9998",
-    );
-  } else {
-    return AppFlowyCloudConfiguration(
-      base_url: baseUrl,
-      ws_base_url: await _getAppFlowyCloudWSUrl(baseUrl),
-      gotrue_url: await _getAppFlowyCloudGotrueUrl(baseUrl),
-    );
-  }
+  // When the host is set to 'localhost', the application will utilize the local configuration. This setup assumes that 'localhost' does not employ a reverse proxy, therefore default port settings are used.
+  // if (baseUri.host == "localhost") {
+  //   return AppFlowyCloudConfiguration(
+  //     base_url: "$baseUrl:8000",
+  //     ws_base_url: "ws://${baseUri.host}:8000/ws",
+  //     gotrue_url: "$baseUrl:9998",
+  //   );
+  // } else {
+  //   return AppFlowyCloudConfiguration(
+  //     base_url: baseUrl,
+  //     ws_base_url: await _getAppFlowyCloudWSUrl(baseUrl),
+  //     gotrue_url: await _getAppFlowyCloudGotrueUrl(baseUrl),
+  //   );
+  // }
+
+  return AppFlowyCloudConfiguration(
+    base_url: baseUrl,
+    ws_base_url: await _getAppFlowyCloudWSUrl(baseUrl),
+    gotrue_url: await _getAppFlowyCloudGotrueUrl(baseUrl),
+  );
 }
 
 Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig() async {
