@@ -152,8 +152,8 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   fn batch_create_collab_object(
     &self,
-    _workspace_id: &str,
-    _objects: Vec<UserCollabParams>,
+    workspace_id: &str,
+    objects: Vec<UserCollabParams>,
   ) -> FutureResult<(), Error> {
     FutureResult::new(async { Err(anyhow!("local server doesn't support create collab object")) })
   }

@@ -712,20 +712,19 @@ async fn batch_create(
     .map(|o| o.object_id.clone())
     .collect::<Vec<_>>()
     .join(", ");
-
   match user_cloud_service
     .batch_create_collab_object(workspace_id, objects)
     .await
   {
     Ok(_) => {
       info!(
-        "Batch creating collab objects success: {}, payload size: {}",
-        ids, size_counter
+        "Batch creating collab objects success, origin payload size: {}",
+        size_counter
       );
     },
     Err(err) => {
       error!(
-      "Batch creating collab objects fail:{}, payload size: {}, workspace_id:{}, uid: {}, error: {:?}",
+      "Batch creating collab objects fail:{}, origin payload size: {}, workspace_id:{}, uid: {}, error: {:?}",
        ids, size_counter, workspace_id, uid,err
       );
     },
