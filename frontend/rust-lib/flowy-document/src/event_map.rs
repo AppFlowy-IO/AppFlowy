@@ -43,7 +43,7 @@ pub fn init(document_manager: Weak<DocumentManager>) -> AFPlugin {
     .event(DocumentEvent::GetUploadedFile, download_file_handler)
     .event(
       DocumentEvent::DeleteUploadedFile,
-      delete_uploaded_file_handler,
+      delete_file_handler,
     )
 }
 
