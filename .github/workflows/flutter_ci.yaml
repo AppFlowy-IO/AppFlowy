@@ -247,11 +247,10 @@ jobs:
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         run: |
-          docker rm -f $(docker ps -a -q) || true
-          docker volume rm -f $(docker volume ls -q) || true
+          docker compose down -v --remove-orphans
           docker compose pull
           docker compose up -d
-          docker system prune -f
+          sleep 10
 
       - name: Checkout source code
         uses: actions/checkout@v2
