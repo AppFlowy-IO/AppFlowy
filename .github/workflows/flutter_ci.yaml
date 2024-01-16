@@ -247,6 +247,7 @@ jobs:
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         run: |
+          docker compose version
           docker compose down -v --remove-orphans
           docker compose pull
           docker compose up -d
