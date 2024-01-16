@@ -5,6 +5,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
+import 'package:appflowy_backend/log.dart';
 
 class DocumentStarButton extends StatefulWidget {
   const DocumentStarButton({
@@ -20,6 +22,7 @@ class DocumentStarButton extends StatefulWidget {
 
 class DocumentStarButtonState extends State<DocumentStarButton> {
   bool isStarred = false;
+  final FavoriteService favoriteService = FavoriteService();
 
   @override
   void initState() {
@@ -33,11 +36,21 @@ class DocumentStarButtonState extends State<DocumentStarButton> {
       message: LocaleKeys.moreAction_moreOptions.tr(),
       child: FlowyHover(
         child: GestureDetector(
-          onTap: () {
-            setState(() {
-              print("favorte button clicked");
-              // add the logic to toggle the favorite
-            });
+          onTap: () async {
+            final toggleFav = await favoriteService.toggleFavorite(
+              widget.view.id,
+              !isStarred,
+            );
+            toggleFav.fold(
+              (_) {
+                setState(() {
+                  isStarred = !isStarred;
+                });
+              },
+              (error) {
+                Log.error(error);
+              },
+            );
           },
           child: Padding(
             padding: const EdgeInsets.all(6),
