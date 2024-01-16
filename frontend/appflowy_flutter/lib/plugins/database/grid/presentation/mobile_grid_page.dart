@@ -9,6 +9,8 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/shortcuts.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -40,6 +42,7 @@ class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
+      initialRowId: initialRowId,
     );
   }
 
@@ -60,26 +63,33 @@ class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 }
 
 class MobileGridPage extends StatefulWidget {
-  final DatabaseController databaseController;
   const MobileGridPage({
+    super.key,
     required this.view,
     required this.databaseController,
     this.onDeleted,
-    super.key,
+    this.initialRowId,
   });
 
   final ViewPB view;
+  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
+  final String? initialRowId;
 
   @override
   State<MobileGridPage> createState() => _MobileGridPageState();
 }
 
 class _MobileGridPageState extends State<MobileGridPage> {
+  bool _didOpenInitialRow = false;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<NotificationActionBloc>.value(
+          value: getIt<NotificationActionBloc>(),
+        ),
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
             view: widget.view,
@@ -92,18 +102,42 @@ class _MobileGridPageState extends State<MobileGridPage> {
           return state.loadingState.map(
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
-            finish: (result) => result.successOrFail.fold(
-              (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
-              (err) => FlowyErrorPage.message(
-                err.toString(),
-                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-              ),
-            ),
+            finish: (result) {
+              _openRow(context, widget.initialRowId, true);
+              return result.successOrFail.fold(
+                (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
+                (err) => FlowyErrorPage.message(
+                  err.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                ),
+              );
+            },
             idle: (_) => const SizedBox.shrink(),
           );
         },
       ),
     );
+  }
+
+  void _openRow(
+    BuildContext context,
+    String? rowId, [
+    bool initialRow = false,
+  ]) {
+    if (rowId != null && (!initialRow || (initialRow && !_didOpenInitialRow))) {
+      _didOpenInitialRow = initialRow;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.push(
+          MobileRowDetailPage.routeName,
+          extra: {
+            MobileRowDetailPage.argRowId: rowId,
+            MobileRowDetailPage.argDatabaseController:
+                widget.databaseController,
+          },
+        );
+      });
+    }
   }
 }
 

@@ -6,7 +6,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/util/int64_extension.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
@@ -213,7 +212,7 @@ class _DateCellEditor extends State<DateCellEditor> {
         ReminderEvent.add(
           reminder: ReminderPB(
             id: reminderId,
-            objectId: getIt<MenuSharedState>().latestOpenView?.id,
+            objectId: widget.cellController.viewId,
             title: LocaleKeys.reminderNotification_title.tr(),
             message: LocaleKeys.reminderNotification_message.tr(),
             scheduledAt: Int64(scheduledAtDate.millisecondsSinceEpoch ~/ 1000),

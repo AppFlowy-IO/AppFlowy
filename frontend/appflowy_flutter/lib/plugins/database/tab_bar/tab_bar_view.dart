@@ -140,6 +140,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
     return state.tabBars.map((tabBar) {
       final controller =
           state.tabBarControllerByViewId[tabBar.viewId]!.controller;
+
       return tabBar.builder.content(
         context,
         tabBar.view,

@@ -160,11 +160,23 @@ class _DateCellState extends GridCellState<GridDateCell> {
                   scrollDirection: Axis.horizontal,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  child: FlowyText(
-                    text,
-                    color: color,
-                    fontSize: 15,
-                    maxLines: 1,
+                  child: Row(
+                    children: [
+                      if (state.data?.reminderId.isNotEmpty == true) ...[
+                        FlowyTooltip(
+                          message:
+                              LocaleKeys.grid_field_reminderOnDateTooltip.tr(),
+                          child: const FlowySvg(FlowySvgs.clock_alarm_s),
+                        ),
+                        const HSpace(5),
+                      ],
+                      FlowyText(
+                        text,
+                        color: color,
+                        fontSize: 15,
+                        maxLines: 1,
+                      ),
+                    ],
                   ),
                 ),
               ),

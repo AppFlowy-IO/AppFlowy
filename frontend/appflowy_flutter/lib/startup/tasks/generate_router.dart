@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
@@ -477,10 +479,13 @@ GoRoute _mobileGridScreenRoute() {
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileGridScreen.viewId]!;
       final title = state.uri.queryParameters[MobileGridScreen.viewTitle];
+      final arguments = state.uri.queryParameters[MobileGridScreen.viewArgs];
+
       return MaterialPage(
         child: MobileGridScreen(
           id: id,
           title: title,
+          arguments: arguments != null ? jsonDecode(arguments) : null,
         ),
       );
     },

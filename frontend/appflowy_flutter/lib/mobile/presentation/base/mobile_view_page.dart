@@ -24,14 +24,16 @@ class MobileViewPage extends StatefulWidget {
   const MobileViewPage({
     super.key,
     required this.id,
-    this.title,
     required this.viewLayout,
+    this.title,
+    this.arguments,
   });
 
   /// view id
   final String id;
-  final String? title;
   final ViewLayoutPB viewLayout;
+  final String? title;
+  final Map<String, dynamic>? arguments;
 
   @override
   State<MobileViewPage> createState() => _MobileViewPageState();
@@ -48,64 +50,68 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ReminderBloc>.value(
-      value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
-      child: FutureBuilder(
-        future: future,
-        builder: (context, state) {
-          Widget body;
-          ViewPB? viewPB;
-          final actions = <Widget>[];
-          if (state.connectionState != ConnectionState.done) {
-            body = const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (!state.hasData) {
-            body = FlowyMobileStateContainer.error(
+    return FutureBuilder(
+      future: future,
+      builder: (context, state) {
+        Widget body;
+        ViewPB? viewPB;
+        final actions = <Widget>[];
+        if (state.connectionState != ConnectionState.done) {
+          body = const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (!state.hasData) {
+          body = FlowyMobileStateContainer.error(
+            emoji: '😔',
+            title: LocaleKeys.error_weAreSorry.tr(),
+            description: LocaleKeys.error_loadingViewError.tr(),
+            errorMsg: state.error.toString(),
+          );
+        } else {
+          body = state.data!.fold((view) {
+            viewPB = view;
+            actions.add(_buildAppBarMoreButton(view));
+            return view
+                .plugin(arguments: widget.arguments ?? const {})
+                .widgetBuilder
+                .buildWidget(shrinkWrap: false);
+          }, (error) {
+            return FlowyMobileStateContainer.error(
               emoji: '😔',
               title: LocaleKeys.error_weAreSorry.tr(),
               description: LocaleKeys.error_loadingViewError.tr(),
-              errorMsg: state.error.toString(),
+              errorMsg: error.toString(),
             );
-          } else {
-            body = state.data!.fold((view) {
-              viewPB = view;
-              actions.add(_buildAppBarMoreButton(view));
-              return view.plugin().widgetBuilder.buildWidget(shrinkWrap: false);
-            }, (error) {
-              return FlowyMobileStateContainer.error(
-                emoji: '😔',
-                title: LocaleKeys.error_weAreSorry.tr(),
-                description: LocaleKeys.error_loadingViewError.tr(),
-                errorMsg: error.toString(),
-              );
-            });
-          }
+          });
+        }
 
-          if (viewPB != null) {
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (_) =>
-                      FavoriteBloc()..add(const FavoriteEvent.initial()),
-                ),
-                BlocProvider(
-                  create: (_) =>
-                      ViewBloc(view: viewPB!)..add(const ViewEvent.initial()),
-                ),
-              ],
-              child: Builder(
-                builder: (context) {
-                  final view = context.watch<ViewBloc>().state.view;
-                  return _buildApp(view, actions, body);
-                },
+        if (viewPB != null) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) =>
+                    FavoriteBloc()..add(const FavoriteEvent.initial()),
               ),
-            );
-          } else {
-            return _buildApp(null, [], body);
-          }
-        },
-      ),
+              BlocProvider(
+                create: (_) =>
+                    ViewBloc(view: viewPB!)..add(const ViewEvent.initial()),
+              ),
+              BlocProvider.value(
+                value: getIt<ReminderBloc>()
+                  ..add(const ReminderEvent.started()),
+              ),
+            ],
+            child: Builder(
+              builder: (context) {
+                final view = context.watch<ViewBloc>().state.view;
+                return _buildApp(view, actions, body);
+              },
+            ),
+          );
+        } else {
+          return _buildApp(null, [], body);
+        }
+      },
     );
   }
 
@@ -136,9 +142,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
         leading: const AppBarBackButton(),
         actions: actions,
       ),
-      body: SafeArea(
-        child: child,
-      ),
+      body: SafeArea(child: child),
     );
   }
 
