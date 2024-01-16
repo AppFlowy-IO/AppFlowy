@@ -1777,6 +1777,7 @@ dependencies = [
  "flowy-notification",
  "flowy-storage",
  "futures",
+ "fxhash",
  "getrandom 0.2.10",
  "indexmap 2.1.0",
  "lib-dispatch",
@@ -1993,10 +1994,13 @@ dependencies = [
  "bytes",
  "flowy-error",
  "lib-infra",
+ "mime",
  "mime_guess",
  "reqwest",
  "serde",
  "serde_json",
+ "tokio",
+ "tracing",
  "url",
 ]
 
