@@ -16,9 +16,6 @@ pub mod database;
 #[cfg(feature = "impl_from_collab")]
 pub mod collab;
 
-#[cfg(feature = "impl_from_postgres")]
-mod postgres;
-
 #[cfg(feature = "impl_from_appflowy_cloud")]
 mod cloud;
 #[cfg(feature = "impl_from_url")]

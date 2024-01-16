@@ -10,6 +10,7 @@ extend = [
   { path = "scripts/makefile/flutter.toml" },
   { path = "scripts/makefile/tool.toml" },
   { path = "scripts/makefile/tauri.toml" },
+  { path = "scripts/makefile/web.toml" },
 ]
 
 [config]

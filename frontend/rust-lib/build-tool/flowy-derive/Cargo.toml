@@ -23,7 +23,3 @@ dashmap = "5"
 flowy-codegen.workspace = true
 serde_json.workspace = true
 walkdir = "2.3.2"
-
-[dev-dependencies]
-tokio = { workspace = true, features = ["full"] }
-trybuild = "1.0.77"
