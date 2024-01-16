@@ -929,10 +929,10 @@
       "layoutDateField": "Calendário de layout por",
       "changeLayoutDateField": "Alterar campo de layout",
       "noDateTitle": "sem data",
-      "noDateHint": "Eventos não agendados aparecerão aqui",
       "unscheduledEventsTitle": "Eventos não agendados",
       "clickToAdd": "Clique para adicionar ao calendário",
-      "name": "Layout do calendário"
+      "name": "Layout do calendário",
+      "noDateHint": "Eventos não agendados aparecerão aqui"
     },
     "referencedCalendarPrefix": "Vista de",
     "quickJumpYear": "Ir para"
