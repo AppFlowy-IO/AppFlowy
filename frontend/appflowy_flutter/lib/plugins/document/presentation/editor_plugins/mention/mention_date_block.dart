@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -16,6 +15,7 @@ import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appfl
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
@@ -163,6 +163,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   if (PlatformExtension.isMobile) {
                     showMobileBottomSheet(
                       context,
+                      resizeToAvoidBottomInset: false,
                       builder: (_) => DraggableScrollableSheet(
                         expand: false,
                         snap: true,
@@ -192,6 +193,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                                     UserTimeFormatPB.TwentyFourHour,
                                 rebuildOnDaySelected: true,
                                 rebuildOnTimeChanged: true,
+                                selectedReminderOption: widget.reminderOption,
                                 onDaySelected: options.onDaySelected,
                                 onStartTimeChanged: (time) => options
                                     .onStartTimeChanged
@@ -204,6 +206,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                                   false,
                                   appearance.timeFormat,
                                 ),
+                                onReminderSelected: (option) =>
+                                    _updateReminder(option, reminder),
                               ),
                             ],
                           ),

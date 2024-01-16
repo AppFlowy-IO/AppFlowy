@@ -4,6 +4,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/date_cell_editor_bloc.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
@@ -70,10 +72,16 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
     );
   }
 
-  Widget _buildDatePicker() => BlocProvider(
-        create: (context) =>
-            DateCellEditorBloc(cellController: widget.controller)
+  Widget _buildDatePicker() => MultiBlocProvider(
+        providers: [
+          BlocProvider<DateCellEditorBloc>(
+            create: (_) => DateCellEditorBloc(cellController: widget.controller)
               ..add(const DateCellEditorEvent.initial()),
+          ),
+          BlocProvider<ReminderBloc>(
+            create: (_) => getIt<ReminderBloc>(),
+          ),
+        ],
         child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
           builder: (context, state) => MobileAppFlowyDatePicker(
             selectedDay: state.dateTime,
@@ -117,6 +125,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
             onClearDate: () => context
                 .read<DateCellEditorBloc>()
                 .add(const DateCellEditorEvent.clearDate()),
+            onReminderSelected: (option) => debugPrint("Selected: $option"),
           ),
         ),
       );

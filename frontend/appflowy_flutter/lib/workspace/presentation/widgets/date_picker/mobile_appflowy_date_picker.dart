@@ -1,15 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_option_decorate_box.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_editor.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:go_router/go_router.dart';
 
 class MobileAppFlowyDatePicker extends StatefulWidget {
   const MobileAppFlowyDatePicker({
@@ -27,6 +31,7 @@ class MobileAppFlowyDatePicker extends StatefulWidget {
     this.rebuildOnTimeChanged = false,
     required this.includeTime,
     required this.use24hFormat,
+    this.selectedReminderOption,
     required this.onStartTimeChanged,
     this.onEndTimeChanged,
     required this.onIncludeTimeChanged,
@@ -35,6 +40,7 @@ class MobileAppFlowyDatePicker extends StatefulWidget {
     this.onRangeSelected,
     this.onClearDate,
     this.liveDateFormatter,
+    this.onReminderSelected,
   });
 
   final DateTime? selectedDay;
@@ -51,8 +57,9 @@ class MobileAppFlowyDatePicker extends StatefulWidget {
   final bool includeTime;
   final bool rebuildOnDaySelected;
   final bool rebuildOnTimeChanged;
-
   final bool use24hFormat;
+
+  final ReminderOption? selectedReminderOption;
 
   final Function(String? time) onStartTimeChanged;
   final Function(String? time)? onEndTimeChanged;
@@ -62,6 +69,7 @@ class MobileAppFlowyDatePicker extends StatefulWidget {
   final DaySelectedCallback? onDaySelected;
   final RangeSelectedCallback? onRangeSelected;
   final VoidCallback? onClearDate;
+  final OnReminderSelected? onReminderSelected;
 
   final String Function(DateTime)? liveDateFormatter;
 
@@ -73,6 +81,8 @@ class MobileAppFlowyDatePicker extends StatefulWidget {
 class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
   late bool _includeTime = widget.includeTime;
   late String? _dateStr = widget.dateStr;
+  late ReminderOption _reminderOption =
+      widget.selectedReminderOption ?? ReminderOption.none;
 
   @override
   Widget build(BuildContext context) {
@@ -118,12 +128,23 @@ class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
             onRangeChanged: widget.onRangeChanged!,
           ),
         _IncludeTimeSwitch(
+          showTopBorder: !widget.enableRanges || widget.onRangeChanged == null,
           includeTime: _includeTime,
           onIncludeTimeChanged: (includeTime) {
             widget.onIncludeTimeChanged(includeTime);
             setState(() => _includeTime = includeTime);
           },
         ),
+        if (widget.onReminderSelected != null) ...[
+          const _Divider(),
+          _ReminderSelector(
+            selectedReminderOption: _reminderOption,
+            onReminderSelected: (option) {
+              widget.onReminderSelected!.call(option);
+              setState(() => _reminderOption = option);
+            },
+          ),
+        ],
         if (widget.onClearDate != null) ...[
           const _Divider(),
           _ClearDateButton(onClearDate: widget.onClearDate!),
@@ -139,6 +160,109 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const VSpace(20.0);
+}
+
+class _ReminderSelector extends StatelessWidget {
+  const _ReminderSelector({
+    this.selectedReminderOption,
+    required this.onReminderSelected,
+  });
+
+  final ReminderOption? selectedReminderOption;
+  final OnReminderSelected onReminderSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final option = selectedReminderOption ?? ReminderOption.none;
+
+    final availableOptions = [...ReminderOption.values];
+    if (option != ReminderOption.custom) {
+      availableOptions.remove(ReminderOption.custom);
+    }
+
+    return FlowyOptionTile.text(
+      text: 'Reminder',
+      trailing: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const HSpace(6.0),
+          FlowyText(
+            option.label,
+            color: Theme.of(context).hintColor,
+          ),
+          const HSpace(4.0),
+          FlowySvg(
+            FlowySvgs.arrow_right_s,
+            color: Theme.of(context).hintColor,
+            size: const Size.square(18.0),
+          ),
+        ],
+      ),
+      onTap: () => showMobileBottomSheet(
+        context,
+        padding: EdgeInsets.zero,
+        builder: (context) {
+          return DraggableScrollableSheet(
+            expand: false,
+            snap: true,
+            initialChildSize: 0.7,
+            minChildSize: 0.7,
+            builder: (context, controller) => Column(
+              children: [
+                const _ReminderSelectHeader(),
+                const VSpace(12.0),
+                Flexible(
+                  child: SingleChildScrollView(
+                    controller: controller,
+                    child: Column(
+                      children: availableOptions
+                          .map(
+                            (o) => FlowyOptionTile.text(
+                              text: o.label,
+                              showTopBorder: o == ReminderOption.none,
+                              onTap: () {
+                                onReminderSelected(o);
+                                context.pop();
+                              },
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ReminderSelectHeader extends StatelessWidget {
+  const _ReminderSelectHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 56,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            width: 120,
+            child: AppBarCancelButton(onTap: context.pop),
+          ),
+          const FlowyText.medium(
+            'Select reminder',
+            fontSize: 17.0,
+          ),
+          const HSpace(120),
+        ],
+      ),
+    );
+  }
 }
 
 class _IncludeTimePicker extends StatefulWidget {
@@ -309,17 +433,19 @@ class _EndDateSwitch extends StatelessWidget {
 
 class _IncludeTimeSwitch extends StatelessWidget {
   const _IncludeTimeSwitch({
+    this.showTopBorder = true,
     required this.includeTime,
     required this.onIncludeTimeChanged,
   });
 
+  final bool showTopBorder;
   final bool includeTime;
   final Function(bool) onIncludeTimeChanged;
 
   @override
   Widget build(BuildContext context) {
     return FlowyOptionTile.toggle(
-      showTopBorder: false,
+      showTopBorder: showTopBorder,
       text: LocaleKeys.grid_field_includeTime.tr(),
       isSelected: includeTime,
       onValueChanged: onIncludeTimeChanged,
