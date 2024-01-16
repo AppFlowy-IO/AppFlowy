@@ -115,13 +115,13 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   Widget? get rightBarItem {
     return Row(
       children: [
-        DocumentStarButton(
-          key: ValueKey('starButton_${view.id}'),
+        DocumentShareButton(
+          key: ValueKey(view.id),
           view: view,
         ),
         const HSpace(4),
-        DocumentShareButton(
-          key: ValueKey(view.id),
+        DocumentStarButton(
+          key: ValueKey('star_button_${view.id}'),
           view: view,
         ),
         const HSpace(4),

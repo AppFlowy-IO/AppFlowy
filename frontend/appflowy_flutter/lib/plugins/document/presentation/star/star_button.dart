@@ -33,7 +33,9 @@ class DocumentStarButtonState extends State<DocumentStarButton> {
   @override
   Widget build(BuildContext context) {
     return FlowyTooltip(
-      message: LocaleKeys.moreAction_moreOptions.tr(),
+      message: isStarred
+          ? LocaleKeys.button_removeFromFavorites.tr()
+          : LocaleKeys.button_addToFavorites.tr(),
       child: FlowyHover(
         child: GestureDetector(
           onTap: () async {
