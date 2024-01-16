@@ -6,9 +6,10 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
-import 'package:appflowy_backend/log.dart';
+import 'package:appflowy/plugins/document/presentation/favorite/favorite_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DocumentFavoriteButton extends StatefulWidget {
+class DocumentFavoriteButton extends StatelessWidget {
   const DocumentFavoriteButton({
     super.key,
     required this.view,
@@ -17,52 +18,31 @@ class DocumentFavoriteButton extends StatefulWidget {
   final ViewPB view;
 
   @override
-  DocumentFavoriteButtonState createState() => DocumentFavoriteButtonState();
-}
-
-class DocumentFavoriteButtonState extends State<DocumentFavoriteButton> {
-  bool isFavorite = false;
-  final FavoriteService favoriteService = FavoriteService();
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorite = widget.view.isFavorite;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: isFavorite
-          ? LocaleKeys.button_removeFromFavorites.tr()
-          : LocaleKeys.button_addToFavorites.tr(),
-      child: FlowyHover(
-        child: GestureDetector(
-          onTap: () async {
-            final toggleFav = await favoriteService.toggleFavorite(
-              widget.view.id,
-              !isFavorite,
-            );
-            toggleFav.fold(
-              (_) {
-                setState(() {
-                  isFavorite = !isFavorite;
-                });
-              },
-              (error) {
-                Log.error(error);
-              },
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: FlowySvg(
-              isFavorite ? FlowySvgs.favorite_s : FlowySvgs.unfavorite_s,
-              size: const Size(18, 18),
-              color: Theme.of(context).iconTheme.color,
+    return BlocProvider(
+      create: (context) =>
+          FavoriteCubit(FavoriteService(), view.id, view.isFavorite),
+      child: BlocBuilder<FavoriteCubit, bool>(
+        builder: (context, isFavorite) {
+          return FlowyTooltip(
+            message: isFavorite
+                ? LocaleKeys.button_removeFromFavorites.tr()
+                : LocaleKeys.button_addToFavorites.tr(),
+            child: FlowyHover(
+              child: GestureDetector(
+                onTap: () => context.read<FavoriteCubit>().toggleFavorite(),
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: FlowySvg(
+                    isFavorite ? FlowySvgs.favorite_s : FlowySvgs.unfavorite_s,
+                    size: const Size(18, 18),
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
