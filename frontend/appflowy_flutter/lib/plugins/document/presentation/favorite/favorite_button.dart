@@ -8,8 +8,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy_backend/log.dart';
 
-class DocumentStarButton extends StatefulWidget {
-  const DocumentStarButton({
+class DocumentFavoriteButton extends StatefulWidget {
+  const DocumentFavoriteButton({
     super.key,
     required this.view,
   });
@@ -17,23 +17,23 @@ class DocumentStarButton extends StatefulWidget {
   final ViewPB view;
 
   @override
-  DocumentStarButtonState createState() => DocumentStarButtonState();
+  DocumentFavoriteButtonState createState() => DocumentFavoriteButtonState();
 }
 
-class DocumentStarButtonState extends State<DocumentStarButton> {
-  bool isStarred = false;
+class DocumentFavoriteButtonState extends State<DocumentFavoriteButton> {
+  bool isFavorite = false;
   final FavoriteService favoriteService = FavoriteService();
 
   @override
   void initState() {
     super.initState();
-    isStarred = widget.view.isFavorite;
+    isFavorite = widget.view.isFavorite;
   }
 
   @override
   Widget build(BuildContext context) {
     return FlowyTooltip(
-      message: isStarred
+      message: isFavorite
           ? LocaleKeys.button_removeFromFavorites.tr()
           : LocaleKeys.button_addToFavorites.tr(),
       child: FlowyHover(
@@ -41,12 +41,12 @@ class DocumentStarButtonState extends State<DocumentStarButton> {
           onTap: () async {
             final toggleFav = await favoriteService.toggleFavorite(
               widget.view.id,
-              !isStarred,
+              !isFavorite,
             );
             toggleFav.fold(
               (_) {
                 setState(() {
-                  isStarred = !isStarred;
+                  isFavorite = !isFavorite;
                 });
               },
               (error) {
@@ -57,7 +57,7 @@ class DocumentStarButtonState extends State<DocumentStarButton> {
           child: Padding(
             padding: const EdgeInsets.all(6),
             child: FlowySvg(
-              isStarred ? FlowySvgs.favorite_s : FlowySvgs.unfavorite_s,
+              isFavorite ? FlowySvgs.favorite_s : FlowySvgs.unfavorite_s,
               size: const Size(18, 18),
               color: Theme.of(context).iconTheme.color,
             ),
