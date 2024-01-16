@@ -247,9 +247,10 @@ jobs:
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         run: |
-          docker compose down -v --remove-orphans
-          docker pull appflowyinc/appflowy_cloud:latest
+          # docker compose down -v --remove-orphans
+          # docker pull appflowyinc/appflowy_cloud:latest
           docker compose up -d
+          docker compose logs appflowy_cloud
 
       - name: Checkout source code
         uses: actions/checkout@v2
