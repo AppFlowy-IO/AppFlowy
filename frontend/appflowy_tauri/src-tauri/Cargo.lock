@@ -1790,8 +1790,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "lru",
- "mime",
- "mime_guess",
  "nanoid",
  "parking_lot",
  "protobuf",
@@ -1999,6 +1997,8 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "tokio",
+ "tracing",
  "url",
 ]
 
@@ -4012,20 +4012,6 @@ checksum = "7f6fde18ff429ffc8fe78e2bf7f8b7a5a5a6e2a8b58bc5a9ac69198bbda9189c"
 dependencies = [
  "phf_generator 0.8.0",
  "phf_shared 0.8.0",
- "proc-macro-hack",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "phf_macros"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58fdf3184dd560f160dd73922bea2d5cd6e8f064bf4b13110abd81b03697b4e0"
-dependencies = [
- "phf_generator 0.10.0",
- "phf_shared 0.10.0",
  "proc-macro-hack",
  "proc-macro2",
  "quote",
