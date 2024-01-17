@@ -11,6 +11,7 @@ use collab_database::user::{
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_entity::CollabType;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use futures::executor::block_on;
 use lru::LruCache;
 use tokio::sync::{Mutex, RwLock};

@@ -1701,6 +1701,7 @@ dependencies = [
  "collab-database",
  "collab-entity",
  "collab-integrate",
+ "collab-plugins",
  "csv",
  "dashmap",
  "fancy-regex 0.11.0",

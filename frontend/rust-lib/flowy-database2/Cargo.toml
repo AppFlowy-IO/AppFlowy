@@ -9,6 +9,7 @@ edition = "2021"
 collab = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
+collab-plugins = { version = "0.1.0" }
 collab-integrate = { workspace = true }
 flowy-database-pub = { workspace = true }
 

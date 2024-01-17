@@ -1689,6 +1689,7 @@ dependencies = [
  "collab-database",
  "collab-entity",
  "collab-integrate",
+ "collab-plugins",
  "csv",
  "dashmap",
  "event-integration",
