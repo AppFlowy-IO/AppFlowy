@@ -9,14 +9,14 @@ import {
   CheckboxFilterData,
   ChecklistFilterData,
   DateFilterData,
-} from '$app/components/database/application';
+} from '$app/application/database';
 import { Chip, Popover } from '@mui/material';
 import { Property } from '$app/components/database/components/property';
 import { ReactComponent as DropDownSvg } from '$app/assets/dropdown.svg';
 import TextFilter from './text_filter/TextFilter';
 import { FieldType } from '@/services/backend';
 import FilterActions from '$app/components/database/components/filter/FilterActions';
-import { updateFilter } from '$app/components/database/application/filter/filter_service';
+import { updateFilter } from '$app/application/database/filter/filter_service';
 import { useViewId } from '$app/hooks';
 import SelectFilter from './select_filter/SelectFilter';
 
@@ -119,6 +119,7 @@ function Filter({ filter, field }: Props) {
       />
       {condition !== undefined && open && (
         <Popover
+          disableRestoreFocus={true}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'center',

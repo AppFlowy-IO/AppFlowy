@@ -1,6 +1,6 @@
 use collab_database::error::DatabaseError;
 use collab_document::error::DocumentError;
-use collab_persistence::PersistenceError;
+use collab_plugins::local_storage::kv::PersistenceError;
 
 use crate::{ErrorCode, FlowyError};
 

@@ -32,14 +32,14 @@ RUN yay -S --noconfirm curl base-devel openssl clang cmake ninja pkg-config xdg-
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source ~/.cargo/env && \
-    rustup toolchain install 1.70 && \
-    rustup default 1.70
+    rustup toolchain install 1.75 && \
+    rustup default 1.75
 
 # Install Flutter
 RUN sudo pacman -S --noconfirm git tar gtk3
 RUN curl -sSfL \
       --output flutter.tar.xz \
-      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.16.2-stable.tar.xz && \
+      https://storage.googleapis.com/flutter_infra_release/releases/beta/linux/flutter_linux_3.18.0-0.2.pre-beta.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop

@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
@@ -22,6 +23,7 @@ import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
@@ -30,6 +32,7 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customCopyCommand,
   customPasteCommand,
   customCutCommand,
+  ...customTextAlignCommands,
   ...standardCommandShortcutEvents,
 ];
 
@@ -72,6 +75,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     handlers: [
       InlinePageReferenceService(
         currentViewId: documentBloc.view.id,
+        limitResults: 5,
       ).inlinePageReferenceDelegate,
       DateReferenceService(context).dateReferenceDelegate,
       ReminderReferenceService(context).reminderReferenceDelegate,
@@ -84,6 +88,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customCopyCommand,
     customPasteCommand,
     customCutCommand,
+    ...customTextAlignCommands,
     ...standardCommandShortcutEvents,
     ..._buildFindAndReplaceCommands(),
   ];
@@ -215,6 +220,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+
     if (widget.scrollController == null) {
       effectiveScrollController.dispose();
     }
@@ -271,16 +278,20 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     _setInitialSelection(editorScrollController);
 
     if (PlatformExtension.isMobile) {
-      final theme = Theme.of(context);
-      return MobileToolbarV2(
-        toolbarHeight: 48.0,
-        backgroundColor: theme.colorScheme.background,
-        foregroundColor: theme.colorScheme.onSurface,
-        iconColor: theme.iconTheme.color ?? theme.colorScheme.onSurface,
-        tabBarSelectedBackgroundColor: theme.colorScheme.onSurfaceVariant,
-        tabBarSelectedForegroundColor: theme.colorScheme.onPrimary,
+      return AppFlowyMobileToolbar(
+        toolbarHeight: 46.0,
         editorState: editorState,
-        toolbarItems: getMobileToolbarItems(),
+        toolbarItems: [
+          undoToolbarItem,
+          redoToolbarItem,
+          addBlockToolbarItem,
+          todoListToolbarItem,
+          aaToolbarItem,
+          boldToolbarItem,
+          italicToolbarItem,
+          underlineToolbarItem,
+          colorToolbarItem,
+        ],
         child: Column(
           children: [
             Expanded(
@@ -291,11 +302,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
                   return AdaptiveTextSelectionToolbar.editable(
                     clipboardStatus: ClipboardStatus.pasteable,
                     onCopy: () {
-                      copyCommand.execute(editorState);
+                      customCopyCommand.execute(editorState);
                       closeToolbar();
                     },
-                    onCut: () => cutCommand.execute(editorState),
-                    onPaste: () => pasteCommand.execute(editorState),
+                    onCut: () => customCutCommand.execute(editorState),
+                    onPaste: () => customPasteCommand.execute(editorState),
                     onSelectAll: () => selectAllCommand.execute(editorState),
                     onLiveTextInput: null,
                     onLookUp: null,

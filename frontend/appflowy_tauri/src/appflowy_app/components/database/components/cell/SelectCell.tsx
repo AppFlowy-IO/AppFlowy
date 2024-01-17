@@ -1,6 +1,6 @@
 import { FC, useCallback, useMemo, useState, Suspense, lazy } from 'react';
 import { MenuProps, Menu } from '@mui/material';
-import { SelectField, SelectCell as SelectCellType, SelectTypeOption } from '../../application';
+import { SelectField, SelectCell as SelectCellType, SelectTypeOption } from '$app/application/database';
 import { Tag } from '../field_types/select/Tag';
 import { useTypeOption } from '$app/components/database';
 
@@ -61,6 +61,7 @@ export const SelectCell: FC<{
         {open ? (
           <Menu
             keepMounted={false}
+            disableRestoreFocus={true}
             className='h-full w-full'
             open={open}
             anchorEl={anchorEl}

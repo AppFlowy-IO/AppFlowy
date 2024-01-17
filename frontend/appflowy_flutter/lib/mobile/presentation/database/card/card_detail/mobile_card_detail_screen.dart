@@ -1,19 +1,20 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_banner_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
-import 'package:appflowy/plugins/database_view/grid/application/row/mobile_row_detail_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
+import 'package:appflowy/plugins/database/application/row/row_cache.dart';
+import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/grid/application/row/mobile_row_detail_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -141,13 +142,13 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
     showMobileBottomSheet(
       context,
       backgroundColor: Theme.of(context).colorScheme.background,
-      padding: const EdgeInsets.only(top: 4, bottom: 32),
+      padding: const EdgeInsets.only(top: 8, bottom: 38),
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: _CardActionButton(
+            child: MobileQuickActionButton(
               onTap: () {
                 final rowId = _bloc.state.currentRowId;
                 if (rowId == null) {
@@ -169,7 +170,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
           const Divider(height: 9),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: _CardActionButton(
+            child: MobileQuickActionButton(
               onTap: () {
                 final rowId = _bloc.state.currentRowId;
                 if (rowId == null) {
@@ -191,39 +192,6 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
           ),
           const Divider(height: 9),
         ],
-      ),
-    );
-  }
-}
-
-class _CardActionButton extends StatelessWidget {
-  const _CardActionButton({
-    required this.onTap,
-    required this.icon,
-    required this.text,
-    this.color,
-  });
-
-  final VoidCallback onTap;
-  final FlowySvgData icon;
-  final String text;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          children: [
-            FlowySvg(icon, size: const Size.square(20), color: color),
-            const HSpace(8),
-            FlowyText(text, fontSize: 15, color: color),
-          ],
-        ),
       ),
     );
   }
@@ -434,7 +402,6 @@ class MobileRowDetailPageContentState
                         children: [
                           if (rowDetailState.numHiddenFields != 0) ...[
                             const ToggleHiddenFieldsVisibilityButton(),
-                            const VSpace(12),
                           ],
                           MobileRowDetailCreateFieldButton(
                             viewId: viewId,

@@ -1,7 +1,7 @@
 import { Menu, MenuProps } from '@mui/material';
 import { FC, MouseEventHandler, useCallback, useState } from 'react';
 import { useViewId } from '$app/hooks';
-import { sortService } from '../../application';
+import { sortService } from '$app/application/database';
 import { useDatabase } from '../../Database.hooks';
 import { SortItem } from './SortItem';
 
@@ -30,6 +30,7 @@ export const SortMenu: FC<MenuProps> = (props) => {
   return (
     <>
       <Menu
+        disableRestoreFocus={true}
         keepMounted={false}
         MenuListProps={{
           className: 'py-1',

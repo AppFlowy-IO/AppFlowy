@@ -1,5 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -14,7 +14,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Create board view
       await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);
@@ -35,7 +35,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Create board view
       await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);
@@ -60,7 +60,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Create board view
       await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Board);

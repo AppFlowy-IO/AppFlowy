@@ -7,7 +7,7 @@ edition = "2018"
 [lib]
 name = "dart_ffi"
 # this value will change depending on the target os
-# default staticlib
+# default static library
 crate-type = ["staticlib"]
 
 
@@ -31,9 +31,9 @@ lib-dispatch = { workspace = true }
 flowy-core = { workspace = true }
 flowy-notification = { workspace = true }
 flowy-server = { workspace = true }
-flowy-server-config = { workspace = true}
+flowy-server-pub = { workspace = true}
 collab-integrate = { workspace = true }
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive.workspace = true
 serde_yaml = "0.9.27"
 
 [features]
@@ -44,4 +44,4 @@ http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
 openssl_vendored = ["flowy-core/openssl_vendored"]
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen", features = ["dart"] }
+flowy-codegen = { workspace = true, features = ["dart"] }

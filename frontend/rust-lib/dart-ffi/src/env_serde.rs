@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use serde::Deserialize;
 
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_server_config::AuthenticatorType;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::AuthenticatorType;
 
 #[derive(Deserialize, Debug)]
 pub struct AppFlowyDartConfiguration {

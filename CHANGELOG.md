@@ -1,4 +1,46 @@
 # Release Notes
+## Version 0.4.3 - 01/16/2024
+### Bug Fixes
+- Fixed file name too long issue
+
+## Version 0.4.2 - 01/15/2024
+AppFlowy for Android is available to download on GitHub.
+If you’ve been using our desktop app, it’s important to read [this guide](https://docs.appflowy.io/docs/guides/sync-desktop-and-mobile) before logging into the mobile app.
+### New Features
+- Enhanced RTL (Right-to-Left) support for mobile platforms.
+- Optimized selection gesture system on mobile.
+- Optimized the mobile toolbar menu.
+- Improved reference menu (‘@’ menu).
+- Updated privacy policy.
+- Improved the data import process for AppFlowy by implementing a progress indicator and compressing the data to enhance efficiency.
+- Enhanced the utilization of local disk space to optimize storage consumption.
+### Bug Fixes
+- Fixed sign-in cancellation issue on mobile.
+- Resolved keyboard close bug on Android.
+
+
+## Version 0.4.1 - 01/03/2024
+### Bug fixes
+- Fix import AppFlowy data folder
+
+## Version 0.4.0 - 12/30/2023
+1. Added capability to import data from an AppFlowy data folder. For detailed information, please see [AppFlowy Data Storage Documentation](https://docs.appflowy.io/docs/appflowy/product/data-storage).
+2. Enhanced user interface and fixed various bugs.
+3. Improved the efficiency of data synchronization in AppFlowy Cloud
+
+## Version 0.3.9.1 - 12/07/2023
+
+### Bug fixes
+- Fix potential blank pages that may occur in an empty document
+
+## Version 0.3.9 - 12/07/2023
+
+### New Features
+- Support inserting a new field to the left or right of an existing one
+
+### Bug fixes
+- Fix some emojis are shown in black/white
+- Fix unable to rename a subpage of subpage
 
 ## Version 0.3.8 - 11/13/2023
 

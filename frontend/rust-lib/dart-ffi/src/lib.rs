@@ -10,7 +10,7 @@ use tracing::{error, trace};
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::*;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
-use flowy_server_config::AuthenticatorType;
+use flowy_server_pub::AuthenticatorType;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 
@@ -70,6 +70,13 @@ pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
     DEFAULT_NAME.to_string(),
   )
   .log_filter("info", log_crates);
+
+  // Ensure that the database is closed before initialization. Also, verify that the init_sdk function can be called
+  // multiple times (is reentrant). Currently, only the database resource is exclusive.
+  if let Some(core) = &*APPFLOWY_CORE.0.lock() {
+    core.close_db();
+  }
+
   *APPFLOWY_CORE.0.lock() = Some(AppFlowyCore::new(config));
   0
 }

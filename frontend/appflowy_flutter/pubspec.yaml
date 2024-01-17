@@ -15,10 +15,10 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.3.9+1
+version: 0.4.3
 
 environment:
-  flutter: ">=3.16.0"
+  flutter: ">=3.18.0-0.2.pre"
   sdk: ">=3.1.5 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
@@ -43,7 +43,7 @@ dependencies:
   appflowy_board:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 93a1b70
+      ref: 15a3a50
   appflowy_editor:
   appflowy_editor_plugins:
     git:
@@ -107,7 +107,7 @@ dependencies:
   url_protocol:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  super_clipboard: ^0.7.0
+  super_clipboard: 0.8.1
   go_router: ^12.1.1
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
@@ -126,9 +126,12 @@ dependencies:
   image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
   leak_tracker: ^9.0.6
+  keyboard_height_plugin: ^0.0.5
+  scrollable_positioned_list: ^0.3.8
 
 dev_dependencies:
   flutter_lints: ^3.0.1
+  analyzer: ^6.3.0
 
   flutter_test:
     sdk: flutter
@@ -161,7 +164,12 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "e6b1336"
+      ref: "31a18c5"
+
+  file: ^7.0.0
+
+  logger: ^2.0.0
+  uuid: ^4.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

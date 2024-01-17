@@ -6,7 +6,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show EditorState, SelectionUpdateReason;
 import 'package:collection/collection.dart';
@@ -70,7 +70,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         if (view == null) {
           return const SizedBox.shrink();
         }
-        updateSelection();
+        // updateSelection();
         final iconSize = widget.textStyle?.fontSize ?? 16.0;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),

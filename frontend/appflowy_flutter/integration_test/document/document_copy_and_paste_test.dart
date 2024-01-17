@@ -307,7 +307,7 @@ extension on WidgetTester {
     await tapGoButton();
 
     // create a new document
-    await createNewPageWithName();
+    await createNewPageWithNameUnderParent();
 
     await beforeTest?.call(editor.getCurrentEditorState());
 

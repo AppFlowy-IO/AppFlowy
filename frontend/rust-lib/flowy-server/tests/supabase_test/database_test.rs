@@ -1,7 +1,7 @@
 use collab_entity::{CollabObject, CollabType};
 use uuid::Uuid;
 
-use flowy_user_deps::entities::AuthResponse;
+use flowy_user_pub::entities::AuthResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
@@ -45,7 +45,7 @@ async fn supabase_create_database_test() {
   }
 
   let updates_by_oid = database_service
-    .batch_get_collab_updates(row_ids, CollabType::DatabaseRow, "fake_workspace_id")
+    .batch_get_collab_doc_state_db(row_ids, CollabType::DatabaseRow, "fake_workspace_id")
     .await
     .unwrap();
 

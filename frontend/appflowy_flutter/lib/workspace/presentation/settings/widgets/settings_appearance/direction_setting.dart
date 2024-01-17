@@ -20,11 +20,11 @@ class LayoutDirectionSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_layoutDirection_label.tr(),
       hint: LocaleKeys.settings_appearance_layoutDirection_hint.tr(),
       trailing: [
-        ThemeValueDropDown(
+        FlowySettingValueDropDown(
           key: const ValueKey('layout_direction_option_button'),
           currentValue: _layoutDirectionLabelText(currentLayoutDirection),
           popupBuilder: (context) => Column(
@@ -83,11 +83,11 @@ class TextDirectionSetting extends StatelessWidget {
   final AppFlowyTextDirection? currentTextDirection;
 
   @override
-  Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
+  Widget build(BuildContext context) => FlowySettingListTile(
         label: LocaleKeys.settings_appearance_textDirection_label.tr(),
         hint: LocaleKeys.settings_appearance_textDirection_hint.tr(),
         trailing: [
-          ThemeValueDropDown(
+          FlowySettingValueDropDown(
             currentValue: _textDirectionLabelText(currentTextDirection),
             popupBuilder: (context) => Column(
               mainAxisSize: MainAxisSize.min,

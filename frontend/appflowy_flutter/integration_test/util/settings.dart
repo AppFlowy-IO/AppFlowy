@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -13,7 +14,7 @@ import 'base.dart';
 extension AppFlowySettings on WidgetTester {
   /// Open settings page
   Future<void> openSettings() async {
-    final settingsButton = find.byTooltip(LocaleKeys.settings_menu_open.tr());
+    final settingsButton = find.byType(UserSettingButton);
     expect(settingsButton, findsOneWidget);
     await tapButton(settingsButton);
     final settingsDialog = find.byType(SettingsDialog);

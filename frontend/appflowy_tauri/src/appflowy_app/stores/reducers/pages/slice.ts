@@ -1,6 +1,13 @@
 import { ViewIconTypePB, ViewLayoutPB, ViewPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import isEqual from 'lodash-es/isEqual';
 
+export const pageTypeMap = {
+  [ViewLayoutPB.Document]: 'document',
+  [ViewLayoutPB.Board]: 'board',
+  [ViewLayoutPB.Grid]: 'grid',
+  [ViewLayoutPB.Calendar]: 'calendar',
+};
 export interface Page {
   id: string;
   parentId: string;
@@ -77,7 +84,9 @@ export const pagesSlice = createSlice({
     onPageChanged(state, action: PayloadAction<Page>) {
       const page = action.payload;
 
-      state.pageMap[page.id] = page;
+      if (!isEqual(state.pageMap[page.id], page)) {
+        state.pageMap[page.id] = page;
+      }
     },
 
     removeChildPages(state, action: PayloadAction<string>) {
@@ -90,7 +99,7 @@ export const pagesSlice = createSlice({
       const id = action.payload;
 
       state.expandedIdMap[id] = true;
-      const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+      const ids = Object.keys(state.expandedIdMap).filter((id) => state.expandedIdMap[id]);
 
       storeExpandedPageIds(ids);
     },
@@ -99,7 +108,7 @@ export const pagesSlice = createSlice({
       const id = action.payload;
 
       state.expandedIdMap[id] = false;
-      const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+      const ids = Object.keys(state.expandedIdMap).filter((id) => state.expandedIdMap[id]);
 
       storeExpandedPageIds(ids);
     },

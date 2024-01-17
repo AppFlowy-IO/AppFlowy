@@ -1,9 +1,10 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/link_to_page_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/services.dart';
+
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -30,7 +31,7 @@ void main() {
 
       // Select result
       final optionFinder = find.descendant(
-        of: find.byType(LinkToPageMenu),
+        of: find.byType(InlineActionsHandler),
         matching: find.text(name),
       );
 
@@ -86,7 +87,7 @@ void main() {
 Future<String> createDocumentToReference(WidgetTester tester) async {
   final name = 'document_${uuid()}';
 
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: name,
     layout: ViewLayoutPB.Document,
     openAfterCreated: false,

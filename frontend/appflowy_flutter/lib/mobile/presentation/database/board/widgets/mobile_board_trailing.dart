@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +25,7 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
     final style = Theme.of(context);
 
     return Container(
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
       child: SizedBox(
         width: screenSize.width * 0.7,
         child: isEditing
@@ -118,6 +118,9 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
                 icon: const Icon(Icons.add),
                 label: Text(
                   LocaleKeys.board_column_newGroup.tr(),
+                  style: style.textTheme.bodyMedium!.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onPressed: () => setState(
                   () => isEditing = true,

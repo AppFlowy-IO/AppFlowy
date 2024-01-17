@@ -1,32 +1,32 @@
 #![allow(unused_doc_comments)]
 
+use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
-use std::sync::Weak;
+
 use std::time::Duration;
 
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabDataSource};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager;
-use flowy_folder2::manager::FolderManager;
+use flowy_document::manager::DocumentManager;
+use flowy_folder::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_storage::FileStorageService;
-use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user::manager::{UserConfig, UserManager};
+use flowy_user::services::authenticate_user::AuthenticateUser;
+use flowy_user::services::entities::UserConfig;
+use flowy_user::user_manager::UserManager;
+
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
+use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
 use module::make_plugins;
-pub use module::*;
 
 use crate::config::AppFlowyCoreConfig;
-use crate::deps_resolve::collab_backup::RocksdbBackupImpl;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::init_log;
-use crate::integrate::server::{current_server_type, ServerProvider, ServerType};
+use crate::integrate::server::{current_server_type, Server, ServerProvider};
 use crate::integrate::user::UserStatusCallbackImpl;
 
 pub mod config;
@@ -66,6 +66,10 @@ impl AppFlowyCore {
     runtime.block_on(Self::init(config, cloned_runtime))
   }
 
+  pub fn close_db(&self) {
+    self.user_manager.close_db();
+  }
+
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     #[allow(clippy::if_same_then_else)]
@@ -90,7 +94,7 @@ impl AppFlowyCore {
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let server_type = current_server_type(&store_preference);
+    let server_type = current_server_type();
     debug!("🔥runtime:{}, server:{}", runtime, server_type);
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
@@ -113,20 +117,24 @@ impl AppFlowyCore {
         server_provider.clone(),
         config.device_id.clone(),
       ));
-      let user_manager = init_user_manager(
-        &config,
-        &store_preference,
-        server_provider.clone(),
-        Arc::downgrade(&collab_builder),
+
+      let user_config = UserConfig::new(
+        &config.name,
+        &config.storage_path,
+        &config.application_path,
+        &config.device_id,
       );
 
-      collab_builder
-        .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_manager))));
+      let authenticate_user = Arc::new(AuthenticateUser::new(
+        user_config.clone(),
+        store_preference.clone(),
+      ));
 
-      collab_builder.set_rocksdb_backup(Arc::new(RocksdbBackupImpl(Arc::downgrade(&user_manager))));
+      collab_builder
+        .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
       let database_manager = DatabaseDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         task_dispatcher.clone(),
         collab_builder.clone(),
         server_provider.clone(),
@@ -134,19 +142,29 @@ impl AppFlowyCore {
       .await;
 
       let document_manager = DocumentDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&(server_provider.clone() as Arc<dyn FileStorageService>)),
+        Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
       let folder_manager = FolderDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         &document_manager,
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
+      )
+      .await;
+
+      let user_manager = UserDepsResolver::resolve(
+        authenticate_user,
+        collab_builder.clone(),
+        server_provider.clone(),
+        store_preference.clone(),
+        database_manager.clone(),
+        folder_manager.clone(),
       )
       .await;
 
@@ -184,14 +202,15 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
-    let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
+    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
+      runtime,
       make_plugins(
         Arc::downgrade(&folder_manager),
         Arc::downgrade(&database_manager),
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
-      )
-    }));
+      ),
+    ));
 
     Self {
       config,
@@ -212,32 +231,12 @@ impl AppFlowyCore {
   }
 }
 
-fn init_user_manager(
-  config: &AppFlowyCoreConfig,
-  storage_preference: &Arc<StorePreferences>,
-  user_cloud_service_provider: Arc<dyn UserCloudServiceProvider>,
-  collab_builder: Weak<AppFlowyCollabBuilder>,
-) -> Arc<UserManager> {
-  let user_config = UserConfig::new(
-    &config.name,
-    &config.storage_path,
-    &config.application_path,
-    &config.device_id,
-  );
-  UserManager::new(
-    user_config,
-    user_cloud_service_provider,
-    storage_preference.clone(),
-    collab_builder,
-  )
-}
-
-impl From<ServerType> for CollabDataSource {
-  fn from(server_type: ServerType) -> Self {
+impl From<Server> for CollabPluginProviderType {
+  fn from(server_type: Server) -> Self {
     match server_type {
-      ServerType::Local => CollabDataSource::Local,
-      ServerType::AFCloud => CollabDataSource::AppFlowyCloud,
-      ServerType::Supabase => CollabDataSource::Supabase,
+      Server::Local => CollabPluginProviderType::Local,
+      Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
+      Server::Supabase => CollabPluginProviderType::Supabase,
     }
   }
 }

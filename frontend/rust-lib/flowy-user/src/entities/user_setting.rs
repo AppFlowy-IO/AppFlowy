@@ -64,6 +64,10 @@ pub struct AppearanceSettingsPB {
   #[pb(index = 11)]
   #[serde(default)]
   pub text_direction: TextDirectionPB,
+
+  #[pb(index = 12)]
+  #[serde(default)]
+  pub document_setting: DocumentSettingsPB,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -110,6 +114,15 @@ impl std::default::Default for LocaleSettingsPB {
   }
 }
 
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone, Default)]
+pub struct DocumentSettingsPB {
+  #[pb(index = 1, one_of)]
+  pub cursor_color: Option<String>,
+
+  #[pb(index = 2, one_of)]
+  pub selection_color: Option<String>,
+}
+
 pub const APPEARANCE_DEFAULT_THEME: &str = "Default";
 pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
 pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
@@ -131,6 +144,7 @@ impl std::default::Default for AppearanceSettingsPB {
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
       layout_direction: LayoutDirectionPB::default(),
       text_direction: TextDirectionPB::default(),
+      document_setting: DocumentSettingsPB::default(),
     }
   }
 }

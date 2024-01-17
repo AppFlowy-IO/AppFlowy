@@ -18,7 +18,7 @@ enum OpenAIRequestType {
       case OpenAIRequestType.textCompletion:
         return Uri.parse('https://api.openai.com/v1/completions');
       case OpenAIRequestType.textEdit:
-        return Uri.parse('https://api.openai.com/v1/edits');
+        return Uri.parse('https://api.openai.com/v1/v1/chat/completions');
       case OpenAIRequestType.imageGenerations:
         return Uri.parse('https://api.openai.com/v1/images/generations');
     }
@@ -98,7 +98,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
     double temperature = 0.3,
   }) async {
     final parameters = {
-      'model': 'text-davinci-003',
+      'model': 'gpt-3.5-turbo-instruct',
       'prompt': prompt,
       'suffix': suffix,
       'max_tokens': maxTokens,
@@ -138,7 +138,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
     bool useAction = false,
   }) async {
     final parameters = {
-      'model': 'text-davinci-003',
+      'model': 'gpt-3.5-turbo-instruct',
       'prompt': prompt,
       'suffix': suffix,
       'max_tokens': maxTokens,
@@ -213,7 +213,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
     int n = 1,
   }) async {
     final parameters = {
-      'model': 'text-davinci-edit-001',
+      'model': 'gpt-4',
       'input': input,
       'instruction': instruction,
       'temperature': temperature,

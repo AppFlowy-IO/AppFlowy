@@ -1,48 +1,55 @@
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::sync::{Arc, Weak};
-
 use bytes::Bytes;
-use tokio::sync::RwLock;
-
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager;
-use flowy_document2::entities::DocumentDataPB;
-use flowy_document2::manager::DocumentManager;
-use flowy_document2::parser::json::parser::JsonToDocumentParser;
+use flowy_document::entities::DocumentDataPB;
+use flowy_document::manager::DocumentManager;
+use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
-use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::{FolderManager, FolderUser};
-use flowy_folder2::share::ImportType;
-use flowy_folder2::view_operation::{
-  FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
-};
-use flowy_folder2::ViewLayout;
-use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_user::manager::UserManager;
+use flowy_folder::entities::ViewLayoutPB;
+use flowy_folder::manager::{FolderManager, FolderUser};
+use flowy_folder::share::ImportType;
+use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
+use flowy_folder::ViewLayout;
+use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
+
+use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
+use flowy_user::services::authenticate_user::AuthenticateUser;
+
+use crate::integrate::server::ServerProvider;
 use lib_dispatch::prelude::ToBytes;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 pub struct FolderDepsResolver();
 impl FolderDepsResolver {
   pub async fn resolve(
-    user_manager: Weak<UserManager>,
+    authenticate_user: Weak<AuthenticateUser>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
-    folder_cloud: Arc<dyn FolderCloudService>,
+    server_provider: Arc<ServerProvider>,
   ) -> Arc<FolderManager> {
-    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_manager.clone()));
+    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
+      authenticate_user: authenticate_user.clone(),
+    });
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
-      FolderManager::new(user.clone(), collab_builder, handlers, folder_cloud)
-        .await
-        .unwrap(),
+      FolderManager::new(
+        user.clone(),
+        collab_builder,
+        handlers,
+        server_provider.clone(),
+      )
+      .await
+      .unwrap(),
     )
   }
 }
@@ -63,27 +70,23 @@ fn folder_operation_handlers(
   Arc::new(map)
 }
 
-struct FolderUserImpl(Weak<UserManager>);
+struct FolderUserImpl {
+  authenticate_user: Weak<AuthenticateUser>,
+}
+
+#[async_trait]
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
-      .0
+      .authenticate_user
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
   }
 
-  fn token(&self) -> Result<Option<String>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .token()
-  }
-
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
-    self
-      .0
+      .authenticate_user
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
@@ -188,8 +191,16 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      manager.create_document(user_id, &view_id, None).await?;
-      Ok(())
+      match manager.create_document(user_id, &view_id, None).await {
+        Ok(_) => Ok(()),
+        Err(err) => {
+          if err.is_already_exists() {
+            Ok(())
+          } else {
+            Err(err)
+          }
+        },
+      }
     })
   }
 
@@ -318,8 +329,17 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       },
     };
     FutureResult::new(async move {
-      database_manager.create_database_with_params(data).await?;
-      Ok(())
+      let result = database_manager.create_database_with_params(data).await;
+      match result {
+        Ok(_) => Ok(()),
+        Err(err) => {
+          if err.is_already_exists() {
+            Ok(())
+          } else {
+            Err(err)
+          }
+        },
+      }
     })
   }
 

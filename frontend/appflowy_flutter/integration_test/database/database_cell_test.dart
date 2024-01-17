@@ -1,5 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/intl.dart';
@@ -15,7 +15,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       await tester.editCell(
         rowIndex: 0,
@@ -37,7 +37,7 @@ void main() {
     testWidgets('multiple text cells', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: 'my grid',
         layout: ViewLayoutPB.Grid,
       );
@@ -77,7 +77,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.Number;
 
@@ -135,7 +135,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       await tester.assertCheckboxCell(rowIndex: 0, isSelected: false);
       await tester.tapCheckboxCellInGrid(rowIndex: 0);
@@ -153,7 +153,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.CreatedTime;
       // Create a create time field
@@ -171,7 +171,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.LastEditedTime;
       // Create a last time field
@@ -189,7 +189,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.DateTime;
       await tester.createField(fieldType, fieldType.name);
@@ -282,7 +282,7 @@ void main() {
       const fieldType = FieldType.SingleSelect;
 
       // When create a grid, it will create a single select field by default
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Tap the cell to invoke the selection option editor
       await tester.tapSelectOptionCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -358,7 +358,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.MultiSelect;
       await tester.createField(fieldType, fieldType.name);
@@ -441,7 +441,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.Checklist;
       await tester.createField(fieldType, fieldType.name);

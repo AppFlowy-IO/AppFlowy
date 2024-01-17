@@ -7,7 +7,7 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -76,14 +76,10 @@ class MobileViewItem extends StatelessWidget {
             p.lastCreatedView?.id != c.lastCreatedView!.id,
         listener: (context, state) => context.pushView(state.lastCreatedView!),
         builder: (context, state) {
-          // don't remove this code. it's related to the backend service.
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
           return InnerMobileViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.childViews,
+            childViews: state.view.childViews,
             categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
@@ -163,7 +159,7 @@ class InnerMobileViewItem extends StatelessWidget {
       if (childViews.isNotEmpty) {
         final children = childViews.map((childView) {
           return MobileViewItem(
-            key: ValueKey('${categoryType.name} ${childView.hashCode}'),
+            key: ValueKey('${categoryType.name} ${childView.id}'),
             parentView: view,
             categoryType: categoryType,
             isFirstChild: childView.id == childViews.first.id,

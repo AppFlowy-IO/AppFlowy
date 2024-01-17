@@ -1,11 +1,11 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_cell.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/mobile_checklist_cell_editor.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/mobile_checklist_cell_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -77,32 +77,17 @@ class _MobileChecklistCellState extends GridCellState<MobileChecklistCell> {
                   padding: widget.cellStyle.cellPadding ?? EdgeInsets.zero,
                   child: Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: state.tasks.isEmpty
-                              ? FlowyText(
-                                  widget.cellStyle.placeholder,
-                                  fontSize: 15,
-                                  color: Theme.of(context).hintColor,
-                                )
-                              : ChecklistProgressBar(
-                                  tasks: state.tasks,
-                                  percent: state.percent,
-                                  fontSize: 15,
-                                ),
-                        ),
-                        const HSpace(6),
-                        RotatedBox(
-                          quarterTurns: 3,
-                          child: Icon(
-                            Icons.chevron_left,
+                    child: state.tasks.isEmpty
+                        ? FlowyText(
+                            widget.cellStyle.placeholder,
+                            fontSize: 15,
                             color: Theme.of(context).hintColor,
+                          )
+                        : ChecklistProgressBar(
+                            tasks: state.tasks,
+                            percent: state.percent,
+                            fontSize: 15,
                           ),
-                        ),
-                        const HSpace(2),
-                      ],
-                    ),
                   ),
                 ),
               ),

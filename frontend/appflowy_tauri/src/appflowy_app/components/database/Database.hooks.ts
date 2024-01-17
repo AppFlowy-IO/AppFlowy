@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { proxy, useSnapshot } from 'valtio';
 
 import { DatabaseLayoutPB, DatabaseNotification, FieldVisibility } from '@/services/backend';
-import { subscribeNotifications } from '$app/hooks';
+import { subscribeNotifications } from '$app/application/notification';
 import {
   Cell,
   Database,
@@ -13,7 +13,7 @@ import {
   rowListeners,
   sortListeners,
   filterListeners,
-} from './application';
+} from '$app/application/database';
 
 export function useSelectDatabaseView({ viewId }: { viewId?: string }) {
   const key = 'v';

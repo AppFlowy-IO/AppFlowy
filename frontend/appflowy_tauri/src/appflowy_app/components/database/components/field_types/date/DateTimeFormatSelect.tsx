@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { DateTimeField } from '$app/components/database/application';
+import { DateTimeField } from '$app/application/database';
 import DateTimeFormat from '$app/components/database/components/field_types/date/DateTimeFormat';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 
@@ -23,6 +23,7 @@ function DateTimeFormatSelect({ field }: Props) {
         <MoreSvg className={`transform text-base ${open ? '' : 'rotate-90'}`} />
       </MenuItem>
       <Menu
+        disableRestoreFocus={true}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'right',

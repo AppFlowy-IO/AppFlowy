@@ -5,7 +5,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -164,12 +164,14 @@ class _ViewTitleState extends State<_ViewTitle> {
     _resetTextEditingController();
     viewListener.start(
       onViewUpdated: (view) {
+        if (name != view.name || icon != view.icon.value) {
+          widget.onUpdated();
+        }
         setState(() {
           name = view.name;
           icon = view.icon.value;
           _resetTextEditingController();
         });
-        widget.onUpdated();
       },
     );
   }

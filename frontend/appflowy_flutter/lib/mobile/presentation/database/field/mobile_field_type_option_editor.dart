@@ -7,10 +7,10 @@ import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -55,16 +55,18 @@ class FieldOptionValues {
 
   Future<void> create({
     required String viewId,
+    OrderObjectPositionPB? position,
   }) async {
     await FieldBackendService.createField(
       viewId: viewId,
       fieldType: type,
       fieldName: name,
-      typeOptionData: toTypeOptionBuffer(),
+      typeOptionData: getTypeOptionData(),
+      position: position,
     );
   }
 
-  Uint8List? toTypeOptionBuffer() {
+  Uint8List? getTypeOptionData() {
     switch (type) {
       case FieldType.RichText:
       case FieldType.URL:
@@ -94,45 +96,37 @@ class FieldOptionValues {
     }
   }
 
-  static Future<FieldOptionValues?> get({
-    required String viewId,
-    required String fieldId,
-    required FieldType fieldType,
-  }) async {
-    final service = FieldBackendService(viewId: viewId, fieldId: fieldId);
-    final result = await service.getFieldTypeOptionData(fieldType: fieldType);
-    return result.fold(
-      (option) {
-        final type = option.field_2.fieldType;
-        final buffer = option.typeOptionData;
-        return FieldOptionValues(
-          type: type,
-          name: option.field_2.name,
-          numberFormat: type == FieldType.Number
-              ? NumberTypeOptionPB.fromBuffer(buffer).format
-              : null,
-          dateFormate: type == FieldType.DateTime
-              ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
-              : null,
-          timeFormat: type == FieldType.DateTime
-              ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
-              : null,
-          selectOption: switch (type) {
-            FieldType.SingleSelect =>
-              SingleSelectTypeOptionPB.fromBuffer(buffer).options,
-            FieldType.MultiSelect =>
-              MultiSelectTypeOptionPB.fromBuffer(buffer).options,
-            _ => [],
-          },
-        );
+  factory FieldOptionValues.fromField({
+    required FieldPB field,
+  }) {
+    final fieldType = field.fieldType;
+    final buffer = field.typeOptionData;
+    return FieldOptionValues(
+      type: fieldType,
+      name: field.name,
+      numberFormat: fieldType == FieldType.Number
+          ? NumberTypeOptionPB.fromBuffer(buffer).format
+          : null,
+      dateFormate: fieldType == FieldType.DateTime
+          ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
+          : null,
+      timeFormat: fieldType == FieldType.DateTime
+          ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
+          : null,
+      selectOption: switch (fieldType) {
+        FieldType.SingleSelect =>
+          SingleSelectTypeOptionPB.fromBuffer(buffer).options,
+        FieldType.MultiSelect =>
+          MultiSelectTypeOptionPB.fromBuffer(buffer).options,
+        _ => [],
       },
-      (error) => null,
     );
   }
 }
 
 enum FieldOptionAction {
   hide,
+  show,
   duplicate,
   delete,
 }
@@ -143,6 +137,7 @@ class FieldOptionEditor extends StatefulWidget {
     required this.mode,
     required this.defaultValues,
     required this.onOptionValuesChanged,
+    this.actions = const [],
     this.onAction,
     this.isPrimary = false,
   });
@@ -152,6 +147,7 @@ class FieldOptionEditor extends StatefulWidget {
   final void Function(FieldOptionValues values) onOptionValuesChanged;
 
   // only used in edit mode
+  final List<FieldOptionAction> actions;
   final void Function(FieldOptionAction action)? onAction;
 
   // the primary field can't be deleted, duplicated, and changed type
@@ -206,8 +202,9 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
                   () {
                     if (widget.mode == FieldOptionMode.add) {
                       controller.text = type.i18n;
+                      _updateOptionValues(name: type.i18n);
                     }
-                    _updateOptionValues(type: type, name: type.i18n);
+                    _updateOptionValues(type: type);
                   },
                 ),
               ),
@@ -282,34 +279,44 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
   }
 
   List<Widget> _buildOptionActions() {
-    return switch (widget.mode) {
-      FieldOptionMode.add => [],
-      FieldOptionMode.edit => [
-          FlowyOptionTile.text(
-            text: LocaleKeys.grid_field_hide.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.hide_s),
-            onTap: () => widget.onAction?.call(FieldOptionAction.hide),
+    if (widget.mode == FieldOptionMode.add || widget.actions.isEmpty) {
+      return [];
+    }
+
+    return [
+      if (widget.actions.contains(FieldOptionAction.hide))
+        FlowyOptionTile.text(
+          text: LocaleKeys.grid_field_hide.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.hide_s),
+          onTap: () => widget.onAction?.call(FieldOptionAction.hide),
+        ),
+      if (widget.actions.contains(FieldOptionAction.show))
+        FlowyOptionTile.text(
+          text: LocaleKeys.grid_field_show.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.show_m, size: Size.square(16)),
+          onTap: () => widget.onAction?.call(FieldOptionAction.show),
+        ),
+      if (widget.actions.contains(FieldOptionAction.duplicate) &&
+          !widget.isPrimary)
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.button_duplicate.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.copy_s),
+          onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
+        ),
+      if (widget.actions.contains(FieldOptionAction.delete) &&
+          !widget.isPrimary)
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.button_delete.tr(),
+          textColor: Theme.of(context).colorScheme.error,
+          leftIcon: FlowySvg(
+            FlowySvgs.delete_s,
+            color: Theme.of(context).colorScheme.error,
           ),
-          if (!widget.isPrimary) ...[
-            FlowyOptionTile.text(
-              showTopBorder: false,
-              text: LocaleKeys.button_duplicate.tr(),
-              leftIcon: const FlowySvg(FlowySvgs.copy_s),
-              onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
-            ),
-            FlowyOptionTile.text(
-              showTopBorder: false,
-              text: LocaleKeys.button_delete.tr(),
-              textColor: Theme.of(context).colorScheme.error,
-              leftIcon: FlowySvg(
-                FlowySvgs.delete_s,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              onTap: () => widget.onAction?.call(FieldOptionAction.delete),
-            ),
-          ],
-        ]
-    };
+          onTap: () => widget.onAction?.call(FieldOptionAction.delete),
+        ),
+    ];
   }
 
   void _updateOptionValues({
@@ -387,7 +394,8 @@ class _PropertyType extends StatelessWidget {
               minChildSize: 0.7,
               builder: (context, controller) => FieldOptions(
                 scrollController: controller,
-                onAddField: (type) {
+                mode: FieldOptionMode.edit,
+                onSelectFieldType: (type) {
                   onSelected(type);
                   context.pop();
                 },
@@ -440,12 +448,10 @@ class _DateOptionState extends State<_DateOption> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 6.0,
-            horizontal: 16.0,
-          ),
+          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 4.0),
           child: FlowyText(
-            LocaleKeys.grid_field_dateFormat.tr(),
+            LocaleKeys.grid_field_dateFormat.tr().toUpperCase(),
+            fontSize: 13,
             color: Theme.of(context).hintColor,
           ),
         ),
@@ -496,12 +502,10 @@ class _TimeOptionState extends State<_TimeOption> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 6.0,
-            horizontal: 16.0,
-          ),
+          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 4.0),
           child: FlowyText(
-            LocaleKeys.grid_field_timeFormat.tr(),
+            LocaleKeys.grid_field_timeFormat.tr().toUpperCase(),
+            fontSize: 13,
             color: Theme.of(context).hintColor,
           ),
         ),
@@ -629,12 +633,10 @@ class _SelectOption extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 6.0,
-            horizontal: 16.0,
-          ),
+          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 4.0),
           child: FlowyText(
-            LocaleKeys.grid_field_optionTitle.tr(),
+            LocaleKeys.grid_field_optionTitle.tr().toUpperCase(),
+            fontSize: 13,
             color: Theme.of(context).hintColor,
           ),
         ),
@@ -770,7 +772,10 @@ class __SelectOptionTileState extends State<_SelectOptionTile> {
       textFieldHintText: LocaleKeys.grid_field_typeANewOption.tr(),
       showTopBorder: widget.showTopBorder,
       showBottomBorder: widget.showBottomBorder,
-      textFieldPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+      textFieldPadding: const EdgeInsets.symmetric(
+        horizontal: 0.0,
+        vertical: 16.0,
+      ),
       trailing: _SelectOptionColor(
         color: option.color,
         onChanged: (color) {

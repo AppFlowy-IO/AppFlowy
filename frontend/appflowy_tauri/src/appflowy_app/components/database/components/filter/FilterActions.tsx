@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import { ReactComponent as MoreSvg } from '$app/assets/details.svg';
-import { Filter } from '$app/components/database/application';
+import { Filter } from '$app/application/database';
 import { useTranslation } from 'react-i18next';
-import { deleteFilter } from '$app/components/database/application/filter/filter_service';
+import { deleteFilter } from '$app/application/database/filter/filter_service';
 import { useViewId } from '$app/hooks';
 
 function FilterActions({ filter }: { filter: Filter }) {
@@ -33,7 +33,7 @@ function FilterActions({ filter }: { filter: Filter }) {
       >
         <MoreSvg />
       </IconButton>
-      <Menu keepMounted={false} open={open} anchorEl={anchorEl} onClose={onClose}>
+      <Menu disableRestoreFocus={true} keepMounted={false} open={open} anchorEl={anchorEl} onClose={onClose}>
         <MenuItem onClick={onDelete}>{t('grid.settings.deleteFilter')}</MenuItem>
       </Menu>
     </>

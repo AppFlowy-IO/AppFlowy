@@ -20,16 +20,24 @@ import 'package:dartz/dartz.dart';
 Future<void> setAuthenticatorType(AuthenticatorType ty) async {
   switch (ty) {
     case AuthenticatorType.local:
-      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
       break;
     case AuthenticatorType.supabase:
-      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 1.toString());
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 1.toString());
       break;
     case AuthenticatorType.appflowyCloud:
-      getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
+      break;
+    case AuthenticatorType.appflowyCloudSelfHost:
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 3.toString());
+      break;
+    case AuthenticatorType.appflowyCloudDevelop:
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 4.toString());
       break;
   }
 }
+
+const String kAppflowyCloudUrl = "https://beta.appflowy.cloud";
 
 /// Retrieves the currently set cloud type.
 ///
@@ -44,18 +52,26 @@ Future<void> setAuthenticatorType(AuthenticatorType ty) async {
 ///
 Future<AuthenticatorType> getAuthenticatorType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
-  return value.fold(() => AuthenticatorType.local, (s) {
-    switch (s) {
-      case "0":
-        return AuthenticatorType.local;
-      case "1":
-        return AuthenticatorType.supabase;
-      case "2":
-        return AuthenticatorType.appflowyCloud;
-      default:
-        return AuthenticatorType.local;
-    }
-  });
+  if (value.isNone() && integrationMode().isRelease) {
+    await setAuthenticatorType(AuthenticatorType.appflowyCloud);
+    return AuthenticatorType.appflowyCloud;
+  }
+
+  switch (value.getOrElse(() => "0")) {
+    case "0":
+      return AuthenticatorType.local;
+    case "1":
+      return AuthenticatorType.supabase;
+    case "2":
+      return AuthenticatorType.appflowyCloud;
+    case "3":
+      return AuthenticatorType.appflowyCloudSelfHost;
+    case "4":
+      return AuthenticatorType.appflowyCloudDevelop;
+    default:
+      await setAuthenticatorType(AuthenticatorType.appflowyCloud);
+      return AuthenticatorType.appflowyCloud;
+  }
 }
 
 /// Determines whether authentication is enabled.
@@ -70,23 +86,16 @@ Future<AuthenticatorType> getAuthenticatorType() async {
 /// AppFlowy Cloud or Supabase configuration is valid.
 /// Returns `false` otherwise.
 bool get isAuthEnabled {
-  // Only enable supabase in release and develop mode.
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    final env = getIt<AppFlowyCloudSharedEnv>();
-    if (env.authenticatorType == AuthenticatorType.supabase) {
-      return env.supabaseConfig.isValid;
-    }
-
-    if (env.authenticatorType == AuthenticatorType.appflowyCloud) {
-      return env.appflowyCloudConfig.isValid;
-    }
-
-    return false;
-  } else {
-    return false;
+  final env = getIt<AppFlowyCloudSharedEnv>();
+  if (env.authenticatorType == AuthenticatorType.supabase) {
+    return env.supabaseConfig.isValid;
   }
+
+  if (env.authenticatorType.isAppFlowyCloudEnabled) {
+    return env.appflowyCloudConfig.isValid;
+  }
+
+  return false;
 }
 
 /// Checks if Supabase is enabled.
@@ -99,42 +108,31 @@ bool get isAuthEnabled {
 /// if the application is in release or develop mode and the current cloud type
 /// is `CloudType.supabase`. Otherwise, it returns `false`.
 bool get isSupabaseEnabled {
-  // Only enable supabase in release and develop mode.
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    return currentCloudType() == AuthenticatorType.supabase;
-  } else {
-    return false;
-  }
+  return currentCloudType().isSupabaseEnabled;
 }
 
 /// Determines if AppFlowy Cloud is enabled.
-///
-/// This getter assesses if AppFlowy Cloud should be enabled based on the
-/// current integration mode and cloud type setting.
-///
-/// Returns:
-/// A boolean value indicating whether AppFlowy Cloud is enabled. It returns
-/// `true` if the application is in release or develop mode and the current
-/// cloud type is `CloudType.appflowyCloud`. Otherwise, it returns `false`.
 bool get isAppFlowyCloudEnabled {
-  // Only enable appflowy cloud in release and develop mode.
-  if (integrationMode().isRelease ||
-      integrationMode().isDevelop ||
-      integrationMode().isIntegrationTest) {
-    return currentCloudType() == AuthenticatorType.appflowyCloud;
-  } else {
-    return false;
-  }
+  return currentCloudType().isAppFlowyCloudEnabled;
 }
 
 enum AuthenticatorType {
   local,
   supabase,
-  appflowyCloud;
+  appflowyCloud,
+  appflowyCloudSelfHost,
+  // The 'appflowyCloudDevelop' type is used for develop purposes only.
+  appflowyCloudDevelop;
 
-  bool get isEnabled => this != AuthenticatorType.local;
+  bool get isLocal => this == AuthenticatorType.local;
+
+  bool get isAppFlowyCloudEnabled =>
+      this == AuthenticatorType.appflowyCloudSelfHost ||
+      this == AuthenticatorType.appflowyCloudDevelop ||
+      this == AuthenticatorType.appflowyCloud;
+
+  bool get isSupabaseEnabled => this == AuthenticatorType.supabase;
+
   int get value {
     switch (this) {
       case AuthenticatorType.local:
@@ -143,6 +141,10 @@ enum AuthenticatorType {
         return 1;
       case AuthenticatorType.appflowyCloud:
         return 2;
+      case AuthenticatorType.appflowyCloudSelfHost:
+        return 3;
+      case AuthenticatorType.appflowyCloudDevelop:
+        return 4;
     }
   }
 
@@ -154,6 +156,10 @@ enum AuthenticatorType {
         return AuthenticatorType.supabase;
       case 2:
         return AuthenticatorType.appflowyCloud;
+      case 3:
+        return AuthenticatorType.appflowyCloudSelfHost;
+      case 4:
+        return AuthenticatorType.appflowyCloudDevelop;
       default:
         return AuthenticatorType.local;
     }
@@ -166,7 +172,7 @@ AuthenticatorType currentCloudType() {
 
 Future<void> setAppFlowyCloudUrl(Option<String> url) async {
   await url.fold(
-    () => getIt<KeyValueStorage>().remove(KVKeys.kAppflowyCloudBaseURL),
+    () => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, ""),
     (s) => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, s),
   );
 }
@@ -189,12 +195,25 @@ class AppFlowyCloudSharedEnv {
     // If [Env.enableCustomCloud] is true, then use the custom cloud configuration.
     if (Env.enableCustomCloud) {
       // Use the custom cloud configuration.
-      final cloudType = await getAuthenticatorType();
-      final appflowyCloudConfig = await getAppFlowyCloudConfig();
-      final supabaseCloudConfig = await getSupabaseCloudConfig();
+      var authenticatorType = await getAuthenticatorType();
 
+      final appflowyCloudConfig = authenticatorType.isLocal
+          ? AppFlowyCloudConfiguration.defaultConfig()
+          : await getAppFlowyCloudConfig(authenticatorType);
+      final supabaseCloudConfig = authenticatorType.isLocal
+          ? SupabaseConfiguration.defaultConfig()
+          : await getSupabaseCloudConfig();
+
+      // In the backend, the value '2' represents the use of AppFlowy Cloud. However, in the frontend,
+      // we distinguish between [AuthenticatorType.appflowyCloudSelfHost] and [AuthenticatorType.appflowyCloud].
+      // When the cloud type is [AuthenticatorType.appflowyCloudSelfHost] in the frontend, it should be
+      // converted to [AuthenticatorType.appflowyCloud] to align with the backend representation,
+      // where both types are indicated by the value '2'.
+      if (authenticatorType.isAppFlowyCloudEnabled) {
+        authenticatorType = AuthenticatorType.appflowyCloud;
+      }
       return AppFlowyCloudSharedEnv(
-        authenticatorType: cloudType,
+        authenticatorType: authenticatorType,
         appflowyCloudConfig: appflowyCloudConfig,
         supabaseConfig: supabaseCloudConfig,
       );
@@ -213,18 +232,28 @@ class AppFlowyCloudSharedEnv {
       );
     }
   }
+
+  @override
+  String toString() {
+    return 'authenticator: $_authenticatorType\n'
+        'appflowy: ${appflowyCloudConfig.toJson()}\n'
+        'supabase: ${supabaseConfig.toJson()})\n';
+  }
 }
 
 Future<AppFlowyCloudConfiguration> configurationFromUri(
   Uri baseUri,
   String baseUrl,
+  AuthenticatorType authenticatorType,
 ) async {
-// When the host is set to 'localhost', the application will utilize the local configuration. This setup assumes that 'localhost' does not employ a reverse proxy, therefore default port settings are used.
-  if (baseUri.host == "localhost") {
+  // In development mode, the app is configured to access the AppFlowy cloud server directly through specific ports.
+  // This setup bypasses the need for Nginx, meaning that the AppFlowy cloud should be running without an Nginx server
+  // in the development environment.
+  if (authenticatorType == AuthenticatorType.appflowyCloudDevelop) {
     return AppFlowyCloudConfiguration(
       base_url: "$baseUrl:8000",
       ws_base_url: "ws://${baseUri.host}:8000/ws",
-      gotrue_url: "$baseUrl:9998",
+      gotrue_url: "$baseUrl:9999",
     );
   } else {
     return AppFlowyCloudConfiguration(
@@ -235,12 +264,14 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
   }
 }
 
-Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig() async {
+Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig(
+  AuthenticatorType authenticatorType,
+) async {
   final baseURL = await getAppFlowyCloudUrl();
 
   try {
     final uri = Uri.parse(baseURL);
-    return await configurationFromUri(uri, baseURL);
+    return await configurationFromUri(uri, baseURL, authenticatorType);
   } catch (e) {
     Log.error("Failed to parse AppFlowy Cloud URL: $e");
     return AppFlowyCloudConfiguration.defaultConfig();
@@ -251,7 +282,7 @@ Future<String> getAppFlowyCloudUrl() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppflowyCloudBaseURL);
   return result.fold(
-    () => "",
+    () => "https://beta.appflowy.cloud",
     (url) => url,
   );
 }

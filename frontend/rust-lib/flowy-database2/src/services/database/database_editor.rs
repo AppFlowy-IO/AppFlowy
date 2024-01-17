@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use bytes::Bytes;
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
@@ -11,9 +10,9 @@ use tokio::sync::{broadcast, RwLock};
 use tracing::{event, warn};
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_task::TaskDispatcher;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::{to_fut, Fut, FutureResult};
+use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
@@ -28,8 +27,8 @@ use crate::services::database_view::{
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
-  SelectOptionIds, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  type_option_data_from_pb, SelectOptionCellChangeset, SelectOptionIds, TimestampCellData,
+  TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -318,13 +317,12 @@ impl DatabaseEditor {
   /// Do nothing if the [TypeOptionData] is empty.
   pub async fn update_field_type_option(
     &self,
-    view_id: &str,
     _field_id: &str,
     type_option_data: TypeOptionData,
     old_field: Field,
   ) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(view_id).await?;
-    update_field_type_option_fn(&self.database, &view_editor, type_option_data, old_field).await?;
+    let view_editors = self.database_views.editors().await;
+    update_field_type_option_fn(&self.database, &view_editors, type_option_data, old_field).await?;
 
     Ok(())
   }
@@ -469,28 +467,20 @@ impl DatabaseEditor {
     Ok(None)
   }
 
-  pub async fn get_field_type_option_data(&self, field_id: &str) -> Option<(Field, Bytes)> {
-    let field = self.database.lock().fields.get_field(field_id);
-    field.map(|field| {
-      let field_type = FieldType::from(field.field_type);
-      let type_option = field
-        .get_any_type_option(field_type)
-        .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
-      (field, type_option_to_pb(type_option, &field_type))
-    })
-  }
-
-  pub async fn create_field_with_type_option(&self, params: &CreateFieldParams) -> (Field, Bytes) {
+  pub async fn create_field_with_type_option(
+    &self,
+    params: CreateFieldParams,
+  ) -> FlowyResult<FieldPB> {
     let name = params
       .field_name
       .clone()
       .unwrap_or_else(|| params.field_type.default_name());
-    let type_option_data = match &params.type_option_data {
-      None => default_type_option_data_from_type(&params.field_type),
-      Some(type_option_data) => {
-        type_option_data_from_pb_or_default(type_option_data.clone(), &params.field_type)
-      },
-    };
+
+    let type_option_data = params
+      .type_option_data
+      .and_then(|data| type_option_data_from_pb(data, &params.field_type).ok())
+      .unwrap_or(default_type_option_data_from_type(&params.field_type));
+
     let (index, field) = self.database.lock().create_field_with_mut(
       &params.view_id,
       name,
@@ -499,7 +489,7 @@ impl DatabaseEditor {
       |field| {
         field
           .type_options
-          .insert(params.field_type.to_string(), type_option_data.clone());
+          .insert(params.field_type.to_string(), type_option_data);
       },
       default_field_settings_by_layout_map(),
     );
@@ -508,10 +498,7 @@ impl DatabaseEditor {
       .notify_did_insert_database_field(field.clone(), index)
       .await;
 
-    (
-      field,
-      type_option_to_pb(type_option_data, &params.field_type),
-    )
+    Ok(FieldPB::new(field))
   }
 
   pub async fn move_field(&self, params: MoveFieldParams) -> FlowyResult<()> {
@@ -539,7 +526,10 @@ impl DatabaseEditor {
 
     if let Some(index) = new_index {
       let delete_field = FieldIdPB::from(params.from_field_id);
-      let insert_field = IndexFieldPB::from_field(field, index);
+      let insert_field = IndexFieldPB {
+        field: FieldPB::new(field),
+        index: index as i32,
+      };
       let notified_changeset = DatabaseFieldChangesetPB {
         view_id: params.view_id,
         inserted_fields: vec![insert_field],
@@ -817,9 +807,15 @@ impl DatabaseEditor {
       .for_each(|option| type_option.insert_option(option.into()));
 
     // Update the field's type option
-    self
-      .update_field_type_option(view_id, field_id, type_option.to_type_option_data(), field)
-      .await?;
+    let view_editors = self.database_views.editors().await;
+    update_field_type_option_fn(
+      &self.database,
+      &view_editors,
+      type_option.to_type_option_data(),
+      field.clone(),
+    )
+    .await?;
+
     // Insert the options into the cell
     self
       .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
@@ -851,14 +847,14 @@ impl DatabaseEditor {
       type_option.delete_option(&option.id);
     }
 
-    notify_did_update_database_field(&self.database, field_id)?;
-    self
-      .database
-      .lock()
-      .fields
-      .update_field(field_id, |update| {
-        update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
-      });
+    let view_editors = self.database_views.editors().await;
+    update_field_type_option_fn(
+      &self.database,
+      &view_editors,
+      type_option.to_type_option_data(),
+      field.clone(),
+    )
+    .await?;
 
     self
       .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
@@ -1058,7 +1054,10 @@ impl DatabaseEditor {
   #[tracing::instrument(level = "trace", skip_all, err)]
   async fn notify_did_insert_database_field(&self, field: Field, index: usize) -> FlowyResult<()> {
     let database_id = self.database.lock().get_database_id();
-    let index_field = IndexFieldPB::from_field(field, index);
+    let index_field = IndexFieldPB {
+      field: FieldPB::new(field),
+      index: index as i32,
+    };
     let notified_changeset = DatabaseFieldChangesetPB::insert(&database_id, vec![index_field]);
     let _ = self.notify_did_update_database(notified_changeset).await;
     Ok(())
@@ -1068,7 +1067,7 @@ impl DatabaseEditor {
     &self,
     changeset: DatabaseFieldChangesetPB,
   ) -> FlowyResult<()> {
-    let views = self.database.lock().get_all_views_description();
+    let views = self.database.lock().get_all_database_views_meta();
     for view in views {
       send_notification(&view.id, DatabaseNotification::DidUpdateFields)
         .payload(changeset.clone())
@@ -1296,22 +1295,18 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 
   fn update_field(
     &self,
-    view_id: &str,
     type_option_data: TypeOptionData,
     old_field: Field,
   ) -> FutureResult<(), FlowyError> {
-    let view_id = view_id.to_string();
     let weak_editor_by_view_id = Arc::downgrade(&self.editor_by_view_id);
     let weak_database = Arc::downgrade(&self.database);
     FutureResult::new(async move {
       if let (Some(database), Some(editor_by_view_id)) =
         (weak_database.upgrade(), weak_editor_by_view_id.upgrade())
       {
-        let view_editor = editor_by_view_id.read().await.get(&view_id).cloned();
-        if let Some(view_editor) = view_editor {
-          let _ =
-            update_field_type_option_fn(&database, &view_editor, type_option_data, old_field).await;
-        }
+        let view_editors = editor_by_view_id.read().await.values().cloned().collect();
+        let _ =
+          update_field_type_option_fn(&database, &view_editors, type_option_data, old_field).await;
       }
       Ok(())
     })
@@ -1579,7 +1574,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub async fn update_field_type_option_fn(
   database: &Arc<MutexDatabase>,
-  view_editor: &Arc<DatabaseViewEditor>,
+  view_editors: &Vec<Arc<DatabaseViewEditor>>,
   type_option_data: TypeOptionData,
   old_field: Field,
 ) -> FlowyResult<()> {
@@ -1607,9 +1602,12 @@ pub async fn update_field_type_option_fn(
     });
 
   let _ = notify_did_update_database_field(database, &old_field.id);
-  view_editor
-    .v_did_update_field_type_option(&old_field)
-    .await?;
+  for view_editor in view_editors {
+    view_editor
+      .v_did_update_field_type_option(&old_field)
+      .await?;
+  }
+
   Ok(())
 }
 
@@ -1624,12 +1622,12 @@ fn notify_did_update_database_field(
       .ok_or(FlowyError::internal().with_context("fail to acquire the lock of database"))?;
     let database_id = database.get_database_id();
     let field = database.fields.get_field(field_id);
-    let views = database.get_all_views_description();
+    let views = database.get_all_database_views_meta();
     (database_id, field, views)
   };
 
   if let Some(field) = field {
-    let updated_field = FieldPB::from(field);
+    let updated_field = FieldPB::new(field);
     let notified_changeset =
       DatabaseFieldChangesetPB::update(&database_id, vec![updated_field.clone()]);
 

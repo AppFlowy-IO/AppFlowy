@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import Popover, { PopoverProps } from '@mui/material/Popover';
-import { DateTimeCell, DateTimeField, DateTimeTypeOption } from '$app/components/database/application';
+import { DateTimeCell, DateTimeField, DateTimeTypeOption } from '$app/application/database';
 import { useViewId } from '$app/hooks';
 import { useTranslation } from 'react-i18next';
-import { updateDateCell } from '$app/components/database/application/cell/cell_service';
+import { updateDateCell } from '$app/application/database/cell/cell_service';
 import { Divider, MenuItem, MenuList } from '@mui/material';
 import dayjs from 'dayjs';
 import RangeSwitch from '$app/components/database/components/field_types/date/RangeSwitch';
@@ -75,6 +75,7 @@ function DateTimeCellActions({
 
   return (
     <Popover
+      disableRestoreFocus={true}
       keepMounted={false}
       anchorOrigin={{
         vertical: 'bottom',

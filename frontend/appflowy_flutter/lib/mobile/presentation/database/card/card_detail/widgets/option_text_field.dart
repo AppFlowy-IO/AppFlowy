@@ -20,15 +20,13 @@ class OptionTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
       controller: controller,
+      autofocus: true,
       textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
       onTextChanged: onTextChanged,
-      leftIcon: Padding(
-        padding: const EdgeInsets.only(left: 16.0),
-        child: FlowySvg(
-          type.svgData,
-          size: const Size.square(36.0),
-          blendMode: null,
-        ),
+      leftIcon: FlowySvg(
+        type.svgData,
+        size: const Size.square(36.0),
+        blendMode: null,
       ),
     );
   }

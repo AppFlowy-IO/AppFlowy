@@ -3,14 +3,14 @@ import { t } from 'i18next';
 import { Divider, ListSubheader, MenuItem, MenuList, MenuProps, OutlinedInput } from '@mui/material';
 import { SelectOptionColorPB } from '@/services/backend';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
-import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
-import { SelectOption } from '../../../application';
+import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
+import { SelectOption } from '$app/application/database';
 import { SelectOptionColorMap, SelectOptionColorTextMap } from './constants';
 import Button from '@mui/material/Button';
 import {
   deleteSelectOption,
   insertOrUpdateSelectOption,
-} from '$app/components/database/application/field/select_option/select_option_service';
+} from '$app/application/database/field/select_option/select_option_service';
 import { useViewId } from '$app/hooks';
 import Popover from '@mui/material/Popover';
 
@@ -79,6 +79,7 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
       }}
       {...menuProps}
       onClose={onClose}
+      disableRestoreFocus={true}
     >
       <ListSubheader className='my-2 leading-tight'>
         <OutlinedInput
@@ -110,7 +111,7 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
 
       <Divider />
       <MenuItem disabled>{t('grid.selectOption.colorPanelTitle')}</MenuItem>
-      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
+      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden px-2'}>
         {Colors.map((color) => (
           <MenuItem
             onClick={() => {

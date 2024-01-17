@@ -27,7 +27,7 @@ class ColorSchemeSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_theme.tr(),
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [
@@ -157,7 +157,8 @@ class ColorSchemeUploadPopover extends StatelessWidget {
               },
             ),
           ),
-          if (!isBuiltin)
+          // when the custom theme is not the current theme, show the remove button
+          if (!isBuiltin && currentTheme != theme)
             FlowyIconButton(
               icon: const FlowySvg(
                 FlowySvgs.close_s,

@@ -8,8 +8,8 @@ use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
-use flowy_task::TaskDispatcher;
 use lib_infra::future::{Fut, FutureResult};
+use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::{FieldType, FieldVisibility};
 use crate::services::field::TypeOptionCellDataHandler;
@@ -41,7 +41,6 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   fn update_field(
     &self,
-    view_id: &str,
     type_option_data: TypeOptionData,
     old_field: Field,
   ) -> FutureResult<(), FlowyError>;

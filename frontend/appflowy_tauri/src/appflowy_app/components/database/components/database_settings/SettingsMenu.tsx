@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Menu, MenuItem, MenuProps, Popover } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Properties from '$app/components/database/components/database_settings/Properties';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import { FieldVisibility } from '@/services/backend';
-import { updateFieldSetting } from '$app/components/database/application/field/field_service';
+import { updateFieldSetting } from '$app/application/database/field/field_service';
 import { useViewId } from '$app/hooks';
 
 type SettingsMenuProps = MenuProps;
@@ -38,7 +38,7 @@ function SettingsMenu(props: SettingsMenuProps) {
 
   return (
     <>
-      <Menu {...props}>
+      <Menu {...props} disableRestoreFocus={true}>
         <MenuItem
           onClick={(event) => {
             const rect = event.currentTarget.getBoundingClientRect();
@@ -54,6 +54,7 @@ function SettingsMenu(props: SettingsMenuProps) {
         </MenuItem>
       </Menu>
       <Popover
+        disableRestoreFocus={true}
         open={openProperties}
         onClose={() => {
           setPropertiesAnchorElPosition(undefined);

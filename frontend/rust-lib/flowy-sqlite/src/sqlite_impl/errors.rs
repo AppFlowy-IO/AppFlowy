@@ -1,19 +1,15 @@
-use error_chain::{
-  error_chain, error_chain_processing, impl_error_chain_kind, impl_error_chain_processed,
-  impl_extract_backtrace,
-};
-
-error_chain! {
-    errors {
-        UnknownMigrationExists(v: String) {
-             display("unknown migration version: '{}'", v),
-        }
-    }
-    foreign_links {
-        R2D2(::r2d2::Error);
-        Migrations(::diesel_migrations::RunMigrationsError);
-        Diesel(::diesel::result::Error);
-        Connection(::diesel::ConnectionError);
-        Io(::std::io::Error);
-    }
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+  #[error("Migration error: {0}")]
+  Migration(#[from] diesel_migrations::MigrationError),
+  #[error("r2d2 error: {0}")]
+  R2D2(#[from] r2d2::Error),
+  #[error("diesel error: {0}")]
+  Diesel(#[from] diesel::result::Error),
+  #[error("diesel connect error: {0}")]
+  Connect(#[from] diesel::ConnectionError),
+  #[error("internal error: {0}")]
+  Internal(#[from] anyhow::Error),
 }
+
+pub type Result<T> = std::result::Result<T, Error>;

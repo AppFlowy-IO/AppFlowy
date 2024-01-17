@@ -1,6 +1,6 @@
 use event_integration::user_event::{login_password, unique_email};
 use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
-use flowy_user::entities::{AuthTypePB, SignInPayloadPB, SignUpPayloadPB};
+use flowy_user::entities::{AuthenticatorPB, SignInPayloadPB, SignUpPayloadPB};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;
 
@@ -14,7 +14,7 @@ async fn sign_up_with_invalid_email() {
       email: email.to_string(),
       name: valid_name(),
       password: login_password(),
-      auth_type: AuthTypePB::Local,
+      auth_type: AuthenticatorPB::Local,
       device_id: "".to_string(),
     };
 
@@ -38,7 +38,7 @@ async fn sign_up_with_long_password() {
     email: unique_email(),
     name: valid_name(),
     password: "1234".repeat(100).as_str().to_string(),
-    auth_type: AuthTypePB::Local,
+    auth_type: AuthenticatorPB::Local,
     device_id: "".to_string(),
   };
 
@@ -63,7 +63,7 @@ async fn sign_in_with_invalid_email() {
       email: email.to_string(),
       password: login_password(),
       name: "".to_string(),
-      auth_type: AuthTypePB::Local,
+      auth_type: AuthenticatorPB::Local,
       device_id: "".to_string(),
     };
 
@@ -90,7 +90,7 @@ async fn sign_in_with_invalid_password() {
       email: unique_email(),
       password,
       name: "".to_string(),
-      auth_type: AuthTypePB::Local,
+      auth_type: AuthenticatorPB::Local,
       device_id: "".to_string(),
     };
 

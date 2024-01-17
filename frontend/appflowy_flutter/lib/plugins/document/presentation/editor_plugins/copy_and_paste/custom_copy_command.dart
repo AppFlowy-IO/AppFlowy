@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 ///   - mobile
 ///
 final CommandShortcutEvent customCopyCommand = CommandShortcutEvent(
-  key: 'copy the selected content',
+  key: 'copy the selected content (with formatting)',
   command: 'ctrl+c',
   macOSCommand: 'cmd+c',
   handler: _copyCommandHandler,

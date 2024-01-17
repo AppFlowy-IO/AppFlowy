@@ -1,19 +1,16 @@
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 
-use collab_database::database::WatchStream;
-use collab_folder::FolderData;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::{UserCloudConfig, UserCloudService};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserCloudConfig;
+use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
-use crate::errors::FlowyError;
 use crate::event_handler::*;
-use crate::manager::UserManager;
+use crate::user_manager::UserManager;
 
 #[rustfmt::skip]
 pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
@@ -44,8 +41,8 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
-    .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
-    .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
+    .event(UserEvent::OpenAnonUser, open_anon_user_handler)
+    .event(UserEvent::GetAnonUser, get_anon_user_handler)
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
@@ -55,7 +52,8 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
     .event(UserEvent::SetNotificationSettings, set_notification_settings)
-    .event(UserEvent::GetNotificationSettings, get_notification_settings) 
+    .event(UserEvent::GetNotificationSettings, get_notification_settings)
+    .event(UserEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
       // Workspace member
     .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
@@ -138,11 +136,11 @@ pub enum UserEvent {
   #[event(input = "NetworkStatePB")]
   UpdateNetworkState = 24,
 
-  #[event(output = "RepeatedHistoricalUserPB")]
-  GetHistoricalUsers = 25,
+  #[event(output = "UserProfilePB")]
+  GetAnonUser = 25,
 
-  #[event(input = "HistoricalUserPB")]
-  OpenHistoricalUser = 26,
+  #[event()]
+  OpenAnonUser = 26,
 
   /// Push a realtime event to the user. Currently, the realtime event
   /// is only used when the auth type is: [Authenticator::Supabase].
@@ -190,14 +188,9 @@ pub enum UserEvent {
 
   #[event(output = "QueryWorkspacePB")]
   GetWorkspaceMember = 40,
-}
 
-pub struct SignUpContext {
-  /// Indicate whether the user is new or not.
-  pub is_new: bool,
-  /// If the user is sign in as guest, and the is_new is true, then the folder data will be not
-  /// None.
-  pub local_folder: Option<FolderData>,
+  #[event(input = "ImportAppFlowyDataPB")]
+  ImportAppFlowyDataFolder = 41,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
@@ -209,6 +202,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_init(
     &self,
     user_id: i64,
+    user_authenticator: &Authenticator,
     cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     device_id: &str,
@@ -234,79 +228,13 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_update_network(&self, _reachable: bool) {}
 }
 
-/// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
-/// including token management, synchronization settings, network reachability, and authentication.
-///
-/// This trait is intended for implementation by providers that offer cloud-based services for users.
-/// It includes methods for handling authentication tokens, enabling/disabling synchronization,
-/// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
-pub trait UserCloudServiceProvider: Send + Sync + 'static {
-  /// Sets the authentication token for the cloud service.
-  ///
-  /// # Arguments
-  /// * `token`: A string slice representing the authentication token.
-  ///
-  /// # Returns
-  /// A `Result` which is `Ok` if the token is successfully set, or a `FlowyError` otherwise.
-  fn set_token(&self, token: &str) -> Result<(), FlowyError>;
-
-  /// Subscribes to the state of the authentication token.
-  ///
-  /// # Returns
-  /// An `Option` containing a `WatchStream<UserTokenState>` if available, or `None` otherwise.
-  /// The stream allows the caller to watch for changes in the token state.
-  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>>;
-
-  /// Sets the synchronization state for a user.
-  ///
-  /// # Arguments
-  /// * `uid`: An i64 representing the user ID.
-  /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
-  fn set_enable_sync(&self, uid: i64, enable_sync: bool);
-
-  /// Sets the network reachability status.
-  ///
-  /// # Arguments
-  /// * `reachable`: A boolean indicating whether the network is reachable.
-  fn set_network_reachable(&self, reachable: bool);
-
-  /// Sets the encryption secret for secure communication.
-  ///
-  /// # Arguments
-  /// * `secret`: A `String` representing the encryption secret.
-  fn set_encrypt_secret(&self, secret: String);
-
-  /// Sets the authenticator used for authentication processes.
-  ///
-  /// # Arguments
-  /// * `authenticator`: An `Authenticator` object.
-  fn set_authenticator(&self, authenticator: Authenticator);
-
-  /// Retrieves the current authenticator.
-  ///
-  /// # Returns
-  /// The current `Authenticator` object.
-  fn get_authenticator(&self) -> Authenticator;
-
-  /// Retrieves the user-specific cloud service.
-  ///
-  /// # Returns
-  /// A `Result` containing an `Arc<dyn UserCloudService>` if successful, or a `FlowyError` otherwise.
-  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
-
-  /// Retrieves the service URL.
-  ///
-  /// # Returns
-  /// A `String` representing the service URL.
-  fn service_url(&self) -> String;
-}
-
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
 pub(crate) struct DefaultUserStatusCallback;
 impl UserStatusCallback for DefaultUserStatusCallback {
   fn did_init(
     &self,
     _user_id: i64,
+    _authenticator: &Authenticator,
     _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,

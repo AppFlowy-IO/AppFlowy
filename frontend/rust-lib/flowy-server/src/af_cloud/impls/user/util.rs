@@ -1,6 +1,6 @@
 use client_api::entity::AFUserProfile;
 
-use flowy_user_deps::entities::EncryptionType;
+use flowy_user_pub::entities::EncryptionType;
 
 pub fn encryption_type_from_profile(profile: &AFUserProfile) -> EncryptionType {
   match &profile.encryption_sign {

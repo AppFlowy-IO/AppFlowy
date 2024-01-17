@@ -2,7 +2,7 @@ import React from 'react';
 import { NumberFormatPB } from '@/services/backend';
 import { Menu, MenuItem, MenuProps } from '@mui/material';
 import { formats } from '$app/components/database/components/field_types/number/const';
-import { ReactComponent as SelectCheckSvg } from '$app/assets/database/select-check.svg';
+import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
 
 function NumberFormatMenu({
   value,
@@ -13,7 +13,7 @@ function NumberFormatMenu({
   onChangeFormat: (value: NumberFormatPB) => void;
 }) {
   return (
-    <Menu {...props}>
+    <Menu {...props} disableRestoreFocus={true}>
       {formats.map((format) => (
         <MenuItem
           onClick={() => {

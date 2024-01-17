@@ -3,16 +3,16 @@ use std::sync::Arc;
 use collab::core::collab::MutexCollab;
 use collab::preclude::Collab;
 
-use collab_integrate::{PersistenceError, YrsDocAction};
+use collab_integrate::{CollabKVAction, PersistenceError};
 use flowy_error::FlowyResult;
 
-pub fn load_collab<'a, R>(
+pub(crate) fn load_collab<'a, R>(
   uid: i64,
   collab_r_txn: &R,
   object_id: &str,
 ) -> FlowyResult<Arc<MutexCollab>>
 where
-  R: YrsDocAction<'a>,
+  R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
   let collab = Collab::new(uid, object_id, "phantom", vec![]);

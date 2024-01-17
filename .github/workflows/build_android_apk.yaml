@@ -3,8 +3,8 @@ name: Build AppFlowy Release APK
 on: workflow_dispatch
 
 env:
-  FLUTTER_VERSION: "3.16.2"
-  RUST_TOOLCHAIN: "1.70"
+  FLUTTER_VERSION: "3.18.0-0.2.pre"
+  RUST_TOOLCHAIN: "1.75"
 
 jobs:
   build:
@@ -43,7 +43,7 @@ jobs:
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
+          channel: "beta"
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
@@ -96,4 +96,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: app-arm64-v8a-release.apk
-          path: frontend/appflowy_flutter/build/app/outputs/flutter-apk/
+          path: frontend/appflowy_flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk

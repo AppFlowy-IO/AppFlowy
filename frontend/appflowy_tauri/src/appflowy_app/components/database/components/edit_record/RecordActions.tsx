@@ -3,7 +3,7 @@ import { Icon, Menu, MenuProps } from '@mui/material';
 import { ReactComponent as DelSvg } from '$app/assets/delete.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
 import { useTranslation } from 'react-i18next';
-import { rowService } from '$app/components/database/application';
+import { rowService } from '$app/application/database';
 import { useViewId } from '$app/hooks';
 import MenuItem from '@mui/material/MenuItem';
 
@@ -39,7 +39,7 @@ function RecordActions({ anchorEl, open, onClose, rowId }: Props) {
   ];
 
   return (
-    <Menu anchorEl={anchorEl} open={open} onClose={onClose}>
+    <Menu anchorEl={anchorEl} disableRestoreFocus={true} open={open} onClose={onClose}>
       {menuOptions.map((option) => (
         <MenuItem
           key={option.label}

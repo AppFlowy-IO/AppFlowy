@@ -1,6 +1,6 @@
 import { MenuItem, Select, SelectChangeEvent, SelectProps } from '@mui/material';
 import { FC, useCallback } from 'react';
-import { Field as FieldType } from '../../application';
+import { Field as FieldType } from '$app/application/database';
 import { useDatabase } from '../../Database.hooks';
 import { Property } from './Property';
 

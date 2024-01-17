@@ -1,7 +1,7 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/import.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/import.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:dartz/dartz.dart';
 
 class ImportBackendService {
