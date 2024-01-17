@@ -134,31 +134,37 @@ class _GridPageState extends State<GridPage> {
               action?.objectId == widget.view.id) {
             final rowId = action!.arguments?[ActionArgumentKeys.rowId];
             if (rowId != null) {
+              // If Reminder in existing database is pressed
+              // then open the row
               _openRow(context, rowId);
             }
           }
         },
-        child: BlocBuilder<GridBloc, GridState>(
-          builder: (context, state) {
-            return state.loadingState.map(
-              loading: (_) =>
-                  const Center(child: CircularProgressIndicator.adaptive()),
-              finish: (result) => result.successOrFail.fold(
-                (_) {
-                  // Open initial row if any
-                  _openRow(context, widget.initialRowId, true);
-                  return GridShortcuts(
-                    child: GridPageContent(view: widget.view),
-                  );
-                },
-                (err) => FlowyErrorPage.message(
-                  err.toString(),
-                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-                ),
+        child: BlocConsumer<GridBloc, GridState>(
+          listener: (context, state) => state.loadingState.whenOrNull(
+            // If initial row id is defined, open row details overlay
+            finish: (_) {
+              if (widget.initialRowId != null && !_didOpenInitialRow) {
+                _didOpenInitialRow = true;
+
+                _openRow(context, widget.initialRowId!);
+              }
+
+              return;
+            },
+          ),
+          builder: (context, state) => state.loadingState.map(
+            loading: (_) =>
+                const Center(child: CircularProgressIndicator.adaptive()),
+            finish: (result) => result.successOrFail.fold(
+              (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
+              (err) => FlowyErrorPage.message(
+                err.toString(),
+                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
               ),
-              idle: (_) => const SizedBox.shrink(),
-            );
-          },
+            ),
+            idle: (_) => const SizedBox.shrink(),
+          ),
         ),
       ),
     );
@@ -166,38 +172,32 @@ class _GridPageState extends State<GridPage> {
 
   void _openRow(
     BuildContext context,
-    String? rowId, [
-    bool initialRow = false,
-  ]) {
-    if (rowId != null && (!initialRow || (initialRow && !_didOpenInitialRow))) {
-      _didOpenInitialRow = initialRow;
+    String rowId,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final gridBloc = context.read<GridBloc>();
+      final rowCache = gridBloc.getRowCache(rowId);
+      final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+      if (rowMeta == null) {
+        return;
+      }
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final gridBloc = context.read<GridBloc>();
-        final rowCache = gridBloc.getRowCache(rowId);
-        final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+      final fieldController = gridBloc.databaseController.fieldController;
+      final rowController = RowController(
+        viewId: widget.view.id,
+        rowMeta: rowMeta,
+        rowCache: rowCache,
+      );
 
-        if (rowMeta == null) {
-          return;
-        }
-
-        final fieldController = gridBloc.databaseController.fieldController;
-        final rowController = RowController(
-          viewId: widget.view.id,
-          rowMeta: rowMeta,
-          rowCache: rowCache,
-        );
-
-        FlowyOverlay.show(
-          context: context,
-          builder: (BuildContext context) => RowDetailPage(
-            cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
-            rowController: rowController,
-            fieldController: fieldController,
-          ),
-        );
-      });
-    }
+      FlowyOverlay.show(
+        context: context,
+        builder: (_) => RowDetailPage(
+          cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
+          rowController: rowController,
+          fieldController: fieldController,
+        ),
+      );
+    });
   }
 }
 

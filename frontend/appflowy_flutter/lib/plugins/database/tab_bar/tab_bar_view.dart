@@ -64,6 +64,7 @@ class DatabaseTabBarView extends StatefulWidget {
 
 class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   final PageController _pageController = PageController(initialPage: 0);
+  late String? _initialRowId = widget.initialRowId;
 
   @override
   void dispose() {
@@ -80,8 +81,10 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         listeners: [
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
-            listener: (context, state) =>
-                _pageController.jumpToPage(state.selectedIndex),
+            listener: (context, state) {
+              _initialRowId = null;
+              _pageController.jumpToPage(state.selectedIndex);
+            },
           ),
         ],
         child: Column(
@@ -146,7 +149,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         tabBar.view,
         controller,
         widget.shrinkWrap,
-        widget.initialRowId,
+        _initialRowId,
       );
     }).toList();
   }
