@@ -10,8 +10,7 @@ use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
-use flowy_storage::ObjectIdentity;
-use flowy_storage::ObjectValue;
+use flowy_storage::object_from_disk;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
@@ -257,18 +256,9 @@ impl DocumentManager {
     workspace_id: String,
     local_file_path: &str,
   ) -> FlowyResult<String> {
-    let object_value = ObjectValue::from_file(local_file_path).await?;
-
+    let (object_identity, object_value) = object_from_disk(&workspace_id, local_file_path).await?;
     let storage_service = self.storage_service_upgrade()?;
-    let url = {
-      let hash = fxhash::hash(object_value.raw.as_ref());
-      storage_service
-        .get_object_url(ObjectIdentity {
-          workspace_id: workspace_id.to_owned(),
-          file_id: hash.to_string(),
-        })
-        .await?
-    };
+    let url = storage_service.get_object_url(object_identity).await?;
 
     // let the upload happen in the background
     let clone_url = url.clone();
