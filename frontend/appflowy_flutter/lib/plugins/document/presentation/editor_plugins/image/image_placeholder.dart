@@ -1,8 +1,12 @@
 import 'dart:io';
 
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_cache_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
@@ -35,6 +39,7 @@ class ImagePlaceholder extends StatefulWidget {
 
 class ImagePlaceholderState extends State<ImagePlaceholder> {
   final controller = PopoverController();
+  final documentService = DocumentService();
   late final editorState = context.read<EditorState>();
 
   @override
@@ -158,33 +163,35 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       controller.close();
       return;
     }
-    final path = await getIt<ApplicationDataStorage>().getPath();
-    final imagePath = p.join(
-      path,
-      'images',
-    );
-    try {
-      // create the directory if not exists
-      final directory = Directory(imagePath);
-      if (!directory.existsSync()) {
-        await directory.create(recursive: true);
-      }
-      final copyToPath = p.join(
-        imagePath,
-        '${uuid()}${p.extension(url)}',
-      );
-      await File(url).copy(
-        copyToPath,
-      );
 
-      final transaction = editorState.transaction;
-      transaction.updateNode(widget.node, {
-        ImageBlockKeys.url: copyToPath,
-      });
-      await editorState.apply(transaction);
-    } catch (e) {
-      Log.error('cannot copy image file', e);
+    final transaction = editorState.transaction;
+    final type = await getAuthenticatorType();
+    String? path;
+    CustomImageType imageType = CustomImageType.local;
+
+    // if the user is using local authenticator, we need to save the image to local storage
+    if (type == AuthenticatorType.local) {
+      path = await _saveImageToLocalStorage(url);
+    } else {
+      // else we should save the image to cloud storage
+      path = await _saveImageToCloudStorage(url);
+      imageType = CustomImageType.internal;
     }
+
+    if (path == null && context.mounted) {
+      showSnackBarMessage(
+        context,
+        LocaleKeys.document_imageBlock_error_invalidImage.tr(),
+      );
+      return;
+    }
+
+    transaction.updateNode(widget.node, {
+      CustomImageBlockKeys.url: path,
+      CustomImageBlockKeys.imageType: imageType.toIntValue(),
+    });
+
+    await editorState.apply(transaction);
   }
 
   Future<void> insertAIImage(String url) async {
@@ -242,5 +249,47 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       ImageBlockKeys.url: url,
     });
     await editorState.apply(transaction);
+  }
+
+  Future<String?> _saveImageToLocalStorage(String localImagePath) async {
+    final path = await getIt<ApplicationDataStorage>().getPath();
+    final imagePath = p.join(
+      path,
+      'images',
+    );
+    try {
+      // create the directory if not exists
+      final directory = Directory(imagePath);
+      if (!directory.existsSync()) {
+        await directory.create(recursive: true);
+      }
+      final copyToPath = p.join(
+        imagePath,
+        '${uuid()}${p.extension(localImagePath)}',
+      );
+      await File(localImagePath).copy(
+        copyToPath,
+      );
+      return copyToPath;
+    } catch (e) {
+      Log.error('cannot save image file', e);
+      return null;
+    }
+  }
+
+  Future<String?> _saveImageToCloudStorage(String localImagePath) async {
+    final result = await documentService.uploadFile(
+      localFilePath: localImagePath,
+    );
+    return result.fold(
+      (l) => null,
+      (r) async {
+        await CustomImageCacheManager().putFile(
+          r.url,
+          File(localImagePath).readAsBytesSync(),
+        );
+        return r.url;
+      },
+    );
   }
 }

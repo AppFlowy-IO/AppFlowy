@@ -24,6 +24,7 @@ import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:sized_context/sized_context.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -63,72 +64,77 @@ class DesktopHomeScreen extends StatelessWidget {
           return const WorkspaceFailedScreen();
         }
 
-        return MultiBlocProvider(
-          key: ValueKey(userProfile.id),
-          providers: [
-            BlocProvider<ReminderBloc>.value(
-              value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
-            ),
-            BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
-            BlocProvider<HomeBloc>(
-              create: (context) {
-                return HomeBloc(userProfile, workspaceSetting)
-                  ..add(const HomeEvent.initial());
-              },
-            ),
-            BlocProvider<HomeSettingBloc>(
-              create: (_) {
-                return HomeSettingBloc(
-                  userProfile,
-                  workspaceSetting,
-                  context.read<AppearanceSettingsCubit>(),
-                  context.widthPx,
-                )..add(const HomeSettingEvent.initial());
-              },
-            ),
-          ],
-          child: HomeHotKeys(
-            child: Scaffold(
-              body: MultiBlocListener(
-                listeners: [
-                  BlocListener<HomeBloc, HomeState>(
-                    listenWhen: (p, c) => p.latestView != c.latestView,
-                    listener: (context, state) {
-                      final view = state.latestView;
-                      if (view != null) {
-                        // Only open the last opened view if the [TabsState.currentPageManager] current opened plugin is blank and the last opened view is not null.
-                        // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
-                        final currentPageManager =
-                            context.read<TabsBloc>().state.currentPageManager;
+        return Provider.value(
+          value: userProfile,
+          child: MultiBlocProvider(
+            key: ValueKey(userProfile.id),
+            providers: [
+              BlocProvider<ReminderBloc>.value(
+                value: getIt<ReminderBloc>()
+                  ..add(const ReminderEvent.started()),
+              ),
+              BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
+              BlocProvider<HomeBloc>(
+                create: (context) {
+                  return HomeBloc(userProfile, workspaceSetting)
+                    ..add(const HomeEvent.initial());
+                },
+              ),
+              BlocProvider<HomeSettingBloc>(
+                create: (_) {
+                  return HomeSettingBloc(
+                    userProfile,
+                    workspaceSetting,
+                    context.read<AppearanceSettingsCubit>(),
+                    context.widthPx,
+                  )..add(const HomeSettingEvent.initial());
+                },
+              ),
+            ],
+            child: HomeHotKeys(
+              child: Scaffold(
+                body: MultiBlocListener(
+                  listeners: [
+                    BlocListener<HomeBloc, HomeState>(
+                      listenWhen: (p, c) => p.latestView != c.latestView,
+                      listener: (context, state) {
+                        final view = state.latestView;
+                        if (view != null) {
+                          // Only open the last opened view if the [TabsState.currentPageManager] current opened plugin is blank and the last opened view is not null.
+                          // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
+                          final currentPageManager =
+                              context.read<TabsBloc>().state.currentPageManager;
 
-                        if (currentPageManager.plugin.pluginType ==
-                            PluginType.blank) {
-                          getIt<TabsBloc>().add(
-                            TabsEvent.openPlugin(
-                              plugin: view.plugin(listenOnViewChanged: true),
-                            ),
-                          );
+                          if (currentPageManager.plugin.pluginType ==
+                              PluginType.blank) {
+                            getIt<TabsBloc>().add(
+                              TabsEvent.openPlugin(
+                                plugin: view.plugin(listenOnViewChanged: true),
+                              ),
+                            );
+                          }
                         }
-                      }
+                      },
+                    ),
+                  ],
+                  child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
+                    buildWhen: (previous, current) => previous != current,
+                    builder: (context, state) {
+                      return FlowyContainer(
+                        Theme.of(context).colorScheme.surface,
+                        child:
+                            _buildBody(context, userProfile, workspaceSetting),
+                      );
                     },
                   ),
-                ],
-                child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
-                  buildWhen: (previous, current) => previous != current,
-                  builder: (context, state) {
-                    return FlowyContainer(
-                      Theme.of(context).colorScheme.surface,
-                      child: _buildBody(context, userProfile, workspaceSetting),
-                    );
-                  },
                 ),
+                floatingActionButton: enableMemoryLeakDetect
+                    ? FloatingActionButton(
+                        onPressed: () async => dumpMemoryLeak(),
+                        child: const Icon(Icons.memory),
+                      )
+                    : null,
               ),
-              floatingActionButton: enableMemoryLeakDetect
-                  ? FloatingActionButton(
-                      onPressed: () async => dumpMemoryLeak(),
-                      child: const Icon(Icons.memory),
-                    )
-                  : null,
             ),
           ),
         );
