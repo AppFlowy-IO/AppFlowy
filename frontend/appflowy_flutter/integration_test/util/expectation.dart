@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -11,6 +12,7 @@ import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -258,5 +260,15 @@ extension Expectation on WidgetTester {
     final findItems = find.byType(NotificationItem);
 
     expect(findItems, findsNWidgets(amount));
+  }
+
+  void expectToSeeRowDetailsPageDialog() {
+    expect(
+      find.descendant(
+        of: find.byType(RowDetailPage),
+        matching: find.byType(SimpleDialog),
+      ),
+      findsOneWidget,
+    );
   }
 }
