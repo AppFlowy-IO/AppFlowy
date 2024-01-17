@@ -66,7 +66,7 @@ class _DateCellEditor extends State<DateCellEditor> {
           state.dateTime!,
         ),
         builder: (context, state) {
-          final bloc = context.read<DateCellEditorBloc>();
+          final dateCellBloc = context.read<DateCellEditorBloc>();
           final reminder = context
               .read<ReminderBloc>()
               .state
@@ -83,12 +83,12 @@ class _DateCellEditor extends State<DateCellEditor> {
           return AppFlowyDatePicker(
             includeTime: state.includeTime,
             onIncludeTimeChanged: (value) =>
-                bloc.add(DateCellEditorEvent.setIncludeTime(!value)),
+                dateCellBloc.add(DateCellEditorEvent.setIncludeTime(!value)),
             isRange: state.isRange,
             startDay: state.isRange ? state.startDay : null,
             endDay: state.isRange ? state.endDay : null,
             onIsRangeChanged: (value) =>
-                bloc.add(DateCellEditorEvent.setIsRange(!value)),
+                dateCellBloc.add(DateCellEditorEvent.setIsRange(!value)),
             dateFormat: state.dateTypeOptionPB.dateFormat,
             timeFormat: state.dateTypeOptionPB.timeFormat,
             selectedDay: state.dateTime,
@@ -100,7 +100,7 @@ class _DateCellEditor extends State<DateCellEditor> {
             popoverMutex: popoverMutex,
             onReminderSelected: (newOption) => _updateReminderOption(
               newOption,
-              cellBloc: bloc,
+              cellBloc: dateCellBloc,
               reminderBloc: context.read<ReminderBloc>(),
               rowId: widget.cellController.rowId,
             ),
@@ -112,19 +112,15 @@ class _DateCellEditor extends State<DateCellEditor> {
                     popoverMutex: popoverMutex,
                     dateFormat: state.dateTypeOptionPB.dateFormat,
                     timeFormat: state.dateTypeOptionPB.timeFormat,
-                    onDateFormatChanged: (format) => context
-                        .read<DateCellEditorBloc>()
+                    onDateFormatChanged: (format) => dateCellBloc
                         .add(DateCellEditorEvent.setDateFormat(format)),
-                    onTimeFormatChanged: (format) => context
-                        .read<DateCellEditorBloc>()
+                    onTimeFormatChanged: (format) => dateCellBloc
                         .add(DateCellEditorEvent.setTimeFormat(format)),
                   ),
                   ClearDateButton(
                     onClearDate: () {
                       // Clear in Database
-                      context
-                          .read<DateCellEditorBloc>()
-                          .add(const DateCellEditorEvent.clearDate());
+                      dateCellBloc.add(const DateCellEditorEvent.clearDate());
 
                       // Remove reminder if neccessary
                       _removeReminder(
@@ -136,17 +132,13 @@ class _DateCellEditor extends State<DateCellEditor> {
                 ],
               ),
             ],
-            onStartTimeSubmitted: (timeStr) => context
-                .read<DateCellEditorBloc>()
-                .add(DateCellEditorEvent.setTime(timeStr)),
-            onEndTimeSubmitted: (timeStr) => context
-                .read<DateCellEditorBloc>()
-                .add(DateCellEditorEvent.setEndTime(timeStr)),
-            onDaySelected: (selectedDay, _) => context
-                .read<DateCellEditorBloc>()
-                .add(DateCellEditorEvent.selectDay(selectedDay)),
-            onRangeSelected: (start, end, _) => context
-                .read<DateCellEditorBloc>()
+            onStartTimeSubmitted: (timeStr) =>
+                dateCellBloc.add(DateCellEditorEvent.setTime(timeStr)),
+            onEndTimeSubmitted: (timeStr) =>
+                dateCellBloc.add(DateCellEditorEvent.setEndTime(timeStr)),
+            onDaySelected: (selectedDay, _) =>
+                dateCellBloc.add(DateCellEditorEvent.selectDay(selectedDay)),
+            onRangeSelected: (start, end, _) => dateCellBloc
                 .add(DateCellEditorEvent.selectDateRange(start, end)),
           );
         },

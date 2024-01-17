@@ -18,8 +18,8 @@ final class DateCellBackendService {
           ..rowId = rowId;
 
   Future<Either<Unit, FlowyError>> update({
-    required includeTime,
-    required isRange,
+    required bool includeTime,
+    required bool isRange,
     DateTime? date,
     String? time,
     DateTime? endDate,
