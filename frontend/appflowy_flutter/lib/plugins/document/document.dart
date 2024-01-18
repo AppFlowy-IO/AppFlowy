@@ -122,7 +122,8 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
         ),
         const HSpace(4),
         BlocProvider(
-          create: (context) => FavoriteBloc(),
+          create: (context) =>
+              FavoriteBloc()..add(const FavoriteEvent.initial()),
           child: DocumentFavoriteButton(
             key: ValueKey('favorite_button_${view.id}'),
             view: view,
