@@ -36,40 +36,6 @@ impl std::convert::From<&Calculation> for CalculationPB {
   }
 }
 
-// impl CalculationPB {
-//   pub fn new(calculation: Calculation) -> Self {
-//     let calculation_type = calculation.calculation_type.into();
-//     Self {
-//       id: calculation.id,
-//       field_id: calculation.field_id,
-//       calculation_type,
-//       value: calculation.value,
-//     }
-//   }
-// }
-
-// impl std::convert::From<Calculation> for CalculationPB {
-//   fn from(calculation: Calculation) -> Self {
-//     Self {
-//       id: calculation.id.clone(),
-//       field_id: calculation.field_id.clone(),
-//       calculation_type: calculation.calculation_type.into(),
-//       value: calculation.value,
-//     }
-//   }
-// }
-
-// impl std::convert::From<&Calculation> for CalculationPB {
-//   fn from(calculation: &Calculation) -> Self {
-//     Self {
-//       id: calculation.id.clone(),
-//       field_id: calculation.field_id.clone(),
-//       calculation_type: calculation.calculation_type.into(),
-//       value: calculation.value,
-//     }
-//   }
-// }
-
 #[derive(
   Default, Debug, Copy, Clone, PartialEq, Hash, Eq, ProtoBuf_Enum, Serialize_repr, Deserialize_repr,
 )]

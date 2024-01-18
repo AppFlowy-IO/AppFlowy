@@ -14,10 +14,11 @@ use lib_infra::future::Fut;
 
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
-use crate::services::cell::{AnyTypeCache, CellCache, CellFilterCache};
+use crate::services::cell::{CellCache, CellFilterCache};
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
 use crate::services::filter::{Filter, FilterChangeset, FilterResult, FilterResultNotification};
+use crate::utils::cache::AnyTypeCache;
 
 pub trait FilterDelegate: Send + Sync + 'static {
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>>;

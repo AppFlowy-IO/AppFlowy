@@ -114,6 +114,7 @@ impl DatabaseViewEditor {
   pub async fn close(&self) {
     self.sort_controller.write().await.close().await;
     self.filter_controller.close().await;
+    self.calculations_controller.close().await;
   }
 
   pub async fn v_get_view(&self) -> Option<DatabaseView> {

@@ -17,9 +17,7 @@ use lib_infra::future::{to_fut, Fut, FutureResult};
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::Calculation;
-use crate::services::cell::{
-  apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
-};
+use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache, ToCellChangeset};
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
 use crate::services::database_view::{
@@ -38,6 +36,7 @@ use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupChangesets, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
+use crate::utils::cache::AnyTypeCache;
 
 #[derive(Clone)]
 pub struct DatabaseEditor {

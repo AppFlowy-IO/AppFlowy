@@ -10,17 +10,6 @@ pub struct Calculation {
   pub value: String,
 }
 
-// impl Calculation {
-//   pub fn new(id: String, field_id: String, calculation_type: i64, value: String) -> Self {
-//     Self {
-//       id,
-//       field_id,
-//       calculation_type,
-//       value,
-//     }
-//   }
-// }
-
 const CALCULATION_ID: &str = "id";
 const FIELD_ID: &str = "field_id";
 const CALCULATION_TYPE: &str = "ty";

@@ -2,7 +2,6 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_database::rows::RowCell;
-use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -10,7 +9,7 @@ use tokio::sync::RwLock;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
 
-use crate::services::cell::CellCache;
+use crate::services::calculations::CalculationsCache;
 use crate::services::database_view::DatabaseViewChangedNotifier;
 
 pub trait CalculationsDelegate: Send + Sync + 'static {
@@ -21,8 +20,7 @@ pub struct CalculationsController {
   view_id: String,
   handler_id: String,
   delegate: Box<dyn CalculationsDelegate>,
-  result_by_field_id: DashMap<String, String>,
-  cell_cache: CellCache,
+  calculations_cache: CalculationsCache,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   notifier: DatabaseViewChangedNotifier,
 }
@@ -39,7 +37,7 @@ impl CalculationsController {
     handler_id: &str,
     delegate: T,
     // calculations: Vec<Arc<Calculation>>,
-    cell_cache: CellCache,
+    calculations_cache: CalculationsCache,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
@@ -50,8 +48,7 @@ impl CalculationsController {
       view_id: view_id.to_string(),
       handler_id: handler_id.to_string(),
       delegate: Box::new(delegate),
-      result_by_field_id: DashMap::default(),
-      cell_cache,
+      calculations_cache,
       task_scheduler,
       notifier,
     };
