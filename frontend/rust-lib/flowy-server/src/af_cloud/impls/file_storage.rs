@@ -1,7 +1,5 @@
-use bytes::Bytes;
-
 use flowy_error::FlowyError;
-use flowy_storage::{FileStorageService, StorageObject};
+use flowy_storage::{ObjectIdentity, ObjectStorageService, ObjectValue};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;
@@ -14,19 +12,47 @@ impl<T> AFCloudFileStorageServiceImpl<T> {
   }
 }
 
-impl<T> FileStorageService for AFCloudFileStorageServiceImpl<T>
+impl<T> ObjectStorageService for AFCloudFileStorageServiceImpl<T>
 where
   T: AFServer,
 {
-  fn create_object(&self, _object: StorageObject) -> FutureResult<String, FlowyError> {
-    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let url = client.get_blob_url(&object_id.workspace_id, &object_id.file_id);
+      Ok(url)
+    })
   }
 
-  fn delete_object_by_url(&self, _object_url: String) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  fn put_object(&self, url: String, file: ObjectValue) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.0.try_get_client();
+    let file = file.clone();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.put_blob(&url, file.raw, &file.mime).await?;
+      Ok(())
+    })
   }
 
-  fn get_object_by_url(&self, _object_url: String) -> FutureResult<Bytes, FlowyError> {
-    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.delete_blob(&url).await?;
+      Ok(())
+    })
+  }
+
+  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError> {
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let (mime, raw) = client.get_blob(&url).await?;
+      Ok(ObjectValue {
+        raw: raw.into(),
+        mime,
+      })
+    })
   }
 }

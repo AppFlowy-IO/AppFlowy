@@ -1,3 +1,4 @@
+use flowy_storage::ObjectStorageService;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -17,7 +18,7 @@ use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
 use flowy_server::supabase::file_storage::core::SupabaseFileStorage;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
-use flowy_storage::{FileStoragePlan, FileStorageService, StorageObject};
+use flowy_storage::{FileStoragePlan, StorageObject};
 use flowy_user_pub::cloud::UserCloudService;
 use lib_infra::future::FutureResult;
 
@@ -60,7 +61,8 @@ pub fn folder_service() -> Arc<dyn FolderCloudService> {
   Arc::new(SupabaseFolderServiceImpl::new(server))
 }
 
-pub fn file_storage_service() -> Arc<dyn FileStorageService> {
+#[allow(dead_code)]
+pub fn file_storage_service() -> Arc<dyn ObjectStorageService> {
   let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(EncryptionImpl::new(None));
   let config = SupabaseConfiguration::from_env().unwrap();
   Arc::new(
