@@ -15,20 +15,18 @@ class DesktopGridCheckboxCellSkin extends IEditableCheckboxCellSkin {
     CheckboxCellBloc bloc,
     CheckboxCellState state,
   ) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: GridSize.cellContentInsets,
-        child: FlowyIconButton(
-          hoverColor: Colors.transparent,
-          onPressed: () => bloc.add(const CheckboxCellEvent.select()),
-          icon: FlowySvg(
-            state.isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
-            blendMode: BlendMode.dst,
-            size: const Size.square(20),
-          ),
-          width: 20,
+    return Container(
+      alignment: AlignmentDirectional.centerStart,
+      padding: GridSize.cellContentInsets,
+      child: FlowyIconButton(
+        hoverColor: Colors.transparent,
+        onPressed: () => bloc.add(const CheckboxCellEvent.select()),
+        icon: FlowySvg(
+          state.isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
+          blendMode: BlendMode.dst,
+          size: const Size.square(20),
         ),
+        width: 20,
       ),
     );
   }

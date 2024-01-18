@@ -16,14 +16,14 @@ class SelectOptionCellBloc
   }) : super(SelectOptionCellState.initial(cellController)) {
     on<SelectOptionCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialCell value) async {
+        await event.when(
+          initial: () async {
             _startListening();
           },
-          didReceiveOptions: (_DidReceiveOptions value) {
+          didReceiveOptions: (List<SelectOptionPB> selectedOptions) {
             emit(
               state.copyWith(
-                selectedOptions: value.selectedOptions,
+                selectedOptions: selectedOptions,
               ),
             );
           },
@@ -44,15 +44,15 @@ class SelectOptionCellBloc
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: ((selectOptionContext) {
+      onCellChanged: (selectOptionCellData) {
         if (!isClosed) {
           add(
             SelectOptionCellEvent.didReceiveOptions(
-              selectOptionContext?.selectOptions ?? [],
+              selectOptionCellData?.selectOptions ?? [],
             ),
           );
         }
-      }),
+      },
     );
   }
 }
@@ -71,8 +71,10 @@ class SelectOptionCellState with _$SelectOptionCellState {
     required List<SelectOptionPB> selectedOptions,
   }) = _SelectOptionCellState;
 
-  factory SelectOptionCellState.initial(SelectOptionCellController context) {
-    final data = context.getCellData();
+  factory SelectOptionCellState.initial(
+    SelectOptionCellController cellController,
+  ) {
+    final data = cellController.getCellData();
 
     return SelectOptionCellState(
       selectedOptions: data?.selectOptions ?? [],

@@ -14,14 +14,12 @@ class DesktopGridTimestampCellSkin extends IEditableTimestampCellSkin {
     TimestampCellBloc bloc,
     TimestampCellState state,
   ) {
-    return Align(
+    return Container(
       alignment: AlignmentDirectional.centerStart,
-      child: Padding(
-        padding: GridSize.cellContentInsets,
-        child: FlowyText.medium(
-          state.dateStr,
-          maxLines: null,
-        ),
+      padding: GridSize.cellContentInsets,
+      child: FlowyText.medium(
+        state.dateStr,
+        maxLines: null,
       ),
     );
   }

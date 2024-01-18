@@ -501,7 +501,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   void assertChecklistEditorVisible({required bool visible}) {
-    final editor = find.byType(GridChecklistCellEditor);
+    final editor = find.byType(ChecklistCellEditor);
     if (visible) {
       expect(editor, findsOneWidget);
     } else {

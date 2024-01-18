@@ -1,9 +1,8 @@
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_skeleton/text.dart';
 
@@ -16,50 +15,24 @@ class DesktopRowDetailTextCellSkin extends IEditableTextCellSkin {
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
-    return Row(
-      children: [
-        BlocBuilder<TextCellBloc, TextCellState>(
-          buildWhen: (p, c) => p.emoji != c.emoji,
-          builder: (context, state) => Center(
-            child: FlowyText(
-              state.emoji,
-              fontSize: 16,
+    return TextField(
+      controller: textEditingController,
+      focusNode: focusNode,
+      maxLines: null,
+      style: Theme.of(context).textTheme.bodyMedium,
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        hintText: LocaleKeys.grid_row_textPlaceholder.tr(),
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).hintColor,
             ),
-          ),
-        ),
-        const HSpace(6),
-        Expanded(
-          child: TextField(
-            controller: textEditingController,
-            focusNode: focusNode,
-            maxLines: null,
-            decoration: InputDecoration(
-              contentPadding: GridSize.cellContentInsets, //TODO YAY
-              border: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              errorBorder: InputBorder.none,
-              disabledBorder: InputBorder.none,
-              isDense: true,
-              isCollapsed: true,
-            ),
-          ),
-        ),
-      ],
+        isDense: true,
+      ),
     );
   }
 }
-
-
-// FlowyTextField(
-//   controller: _controller,
-//   textStyle: widget.cellStyle.textStyle ??
-//       Theme.of(context).textTheme.bodyMedium,
-//   focusNode: focusNode,
-//   autoFocus: widget.cellStyle.autofocus,
-//   hintText: widget.cellStyle.placeholder,
-//   onChanged: (text) => _cellBloc.add(
-//     TextCellEvent.updateText(text),
-//   ),
-//   debounceDuration: const Duration(milliseconds: 300),
-// )

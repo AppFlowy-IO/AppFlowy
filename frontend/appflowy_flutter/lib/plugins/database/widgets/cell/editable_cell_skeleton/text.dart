@@ -53,7 +53,8 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController();
+    _textEditingController =
+        TextEditingController(text: cellBloc.state.content);
   }
 
   @override
@@ -95,10 +96,11 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
 
   @override
   Future<void> focusChanged() {
-    if (mounted && !cellBloc.isClosed) {
-      cellBloc.add(
-        TextCellEvent.updateText(_textEditingController.text),
-      );
+    if (mounted &&
+        !cellBloc.isClosed &&
+        cellBloc.state.content != _textEditingController.text.trim()) {
+      cellBloc
+          .add(TextCellEvent.updateText(_textEditingController.text.trim()));
     }
     return super.focusChanged();
   }

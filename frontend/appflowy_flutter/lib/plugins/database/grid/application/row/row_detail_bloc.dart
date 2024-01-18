@@ -78,8 +78,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
                 return false;
               }
               return !fieldInfo.isPrimary &&
-                  (fieldInfo.visibility == FieldVisibility.AlwaysHidden ||
-                      showHiddenFields);
+                  (fieldInfo.visibility!.isVisibleState() || showHiddenFields);
             });
             emit(
               state.copyWith(

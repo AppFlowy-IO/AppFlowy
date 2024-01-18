@@ -16,50 +16,49 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
-    return Row(
-      children: [
-        BlocBuilder<TextCellBloc, TextCellState>(
-          buildWhen: (p, c) => p.emoji != c.emoji,
-          builder: (context, state) => Center(
-            child: FlowyText(
-              state.emoji,
-              fontSize: 16,
+    return Padding(
+      padding: GridSize.cellContentInsets,
+      child: Row(
+        children: [
+          BlocBuilder<TextCellBloc, TextCellState>(
+            buildWhen: (p, c) => p.emoji != c.emoji,
+            builder: (context, state) {
+              if (state.emoji.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FlowyText(
+                      state.emoji,
+                      fontSize: 16,
+                    ),
+                    const HSpace(6),
+                  ],
+                ),
+              );
+            },
+          ),
+          Expanded(
+            child: TextField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              maxLines: null,
+              style: Theme.of(context).textTheme.bodyMedium,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                isDense: true,
+                isCollapsed: true,
+              ),
             ),
           ),
-        ),
-        const HSpace(6),
-        Expanded(
-          child: TextField(
-            controller: textEditingController,
-            focusNode: focusNode,
-            maxLines: null,
-            decoration: InputDecoration(
-              contentPadding: GridSize.cellContentInsets,
-              border: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              errorBorder: InputBorder.none,
-              disabledBorder: InputBorder.none,
-              isDense: true,
-              isCollapsed: true,
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
-
-
-// FlowyTextField(
-//   controller: _controller,
-//   textStyle: widget.cellStyle.textStyle ??
-//       Theme.of(context).textTheme.bodyMedium,
-//   focusNode: focusNode,
-//   autoFocus: widget.cellStyle.autofocus,
-//   hintText: widget.cellStyle.placeholder,
-//   onChanged: (text) => _cellBloc.add(
-//     TextCellEvent.updateText(text),
-//   ),
-//   debounceDuration: const Duration(milliseconds: 300),
-// )

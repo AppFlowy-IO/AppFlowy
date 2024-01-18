@@ -102,12 +102,6 @@ class SelectOptionCellEditorBloc
     );
   }
 
-  @override
-  Future<void> close() async {
-    await cellController.dispose();
-    return super.close();
-  }
-
   Future<void> _createOption(String name) async {
     final result = await _selectOptionService.create(name: name);
     result.fold((l) => {}, (err) => Log.error(err));

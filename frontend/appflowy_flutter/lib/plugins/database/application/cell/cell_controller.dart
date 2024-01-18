@@ -30,7 +30,9 @@ class CellContext with _$CellContext {
 }
 
 /// [CellController] is used to manipulate the cell and receive notifications.
-/// * Read/Write cell data
+/// The cell data is stored in the [RowCache]'s [CellMemCache].
+///
+/// * Read/write cell data
 /// * Listen on field/cell notifications.
 ///
 /// T represents the type of the cell data.
@@ -76,12 +78,15 @@ class CellController<T, D> {
         _cellDataPersistence = cellDataPersistence,
         _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
         _cellDataNotifier =
-            CellDataNotifier(value: rowCache.cellCache.get(cellContext));
+            CellDataNotifier(value: rowCache.cellCache.get(cellContext)) {
+    _startListening();
+  }
 
+  /// casting method for painless type coersion
   CellController<A, B> as<A, B>() => this as CellController<A, B>;
 
   /// Start listening to backend changes
-  void startListening() {
+  void _startListening() {
     _cellListener = CellListener(
       rowId: _cellContext.rowId,
       fieldId: _cellContext.fieldId,
@@ -118,7 +123,6 @@ class CellController<T, D> {
       _rowMetaListener = RowMetaListener(_cellContext.rowId);
       _rowMetaListener?.start(
         callback: (newRowMeta) {
-          // YAY callback use the newRowMeta?
           _onRowMetaChanged?.call();
         },
       );

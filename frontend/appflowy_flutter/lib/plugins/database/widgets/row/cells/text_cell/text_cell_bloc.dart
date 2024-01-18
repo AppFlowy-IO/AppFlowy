@@ -19,16 +19,16 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
           initial: () {
             _startListening();
           },
-          updateText: (text) {
-            if (state.content != text) {
-              cellController.saveCellData(text, debounce: true);
-            }
-          },
           didReceiveCellUpdate: (String content) {
             emit(state.copyWith(content: content));
           },
           didUpdateEmoji: (String emoji) {
             emit(state.copyWith(emoji: emoji));
+          },
+          updateText: (String text) {
+            if (state.content != text) {
+              cellController.saveCellData(text, debounce: true);
+            }
           },
           enableEdit: (bool enabled) {
             emit(state.copyWith(enableEdit: enabled));
@@ -56,7 +56,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
         }
       }),
       onRowMetaChanged: () {
-        if (!isClosed) {
+        if (!isClosed && cellController.fieldInfo.isPrimary) {
           add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));
         }
       },
@@ -82,9 +82,11 @@ class TextCellState with _$TextCellState {
     required bool enableEdit,
   }) = _TextCellState;
 
-  factory TextCellState.initial(TextCellController context) => TextCellState(
-        content: context.getCellData() ?? "",
-        emoji: context.icon ?? "",
+  factory TextCellState.initial(TextCellController cellController) =>
+      TextCellState(
+        content: cellController.getCellData() ?? "",
+        emoji:
+            cellController.fieldInfo.isPrimary ? cellController.icon ?? "" : "",
         enableEdit: false,
       );
 }

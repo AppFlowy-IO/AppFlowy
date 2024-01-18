@@ -1,6 +1,7 @@
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/number_cell/number_cell_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/number.dart';
@@ -22,15 +23,18 @@ class DesktopRowDetailNumberCellSkin extends IEditableNumberCellSkin {
       style: Theme.of(context).textTheme.bodyMedium,
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(
-        contentPadding: GridSize.cellContentInsets, // TODO YAY
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
         enabledBorder: InputBorder.none,
         errorBorder: InputBorder.none,
         disabledBorder: InputBorder.none,
+        hintText: LocaleKeys.grid_row_textPlaceholder.tr(),
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).hintColor,
+            ),
         isDense: true,
       ),
-      onTapOutside: (_) => focusNode.unfocus(),
     );
   }
 }

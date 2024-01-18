@@ -21,7 +21,6 @@ import 'select_option_editor_bloc.dart';
 import 'text_field.dart';
 
 const double _editorPanelWidth = 300;
-const double _padding = 12.0;
 
 class SelectOptionCellEditor extends StatefulWidget {
   final SelectOptionCellController cellController;
@@ -111,7 +110,7 @@ class _OptionList extends StatelessWidget {
               VSpace(GridSize.typeOptionSeparatorHeight),
           physics: StyledScrollPhysics(),
           itemBuilder: (_, int index) => cells[index],
-          padding: const EdgeInsets.only(top: 6.0, bottom: 12.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
         );
       },
     );
@@ -148,7 +147,7 @@ class _TextField extends StatelessWidget {
         );
 
         return Padding(
-          padding: const EdgeInsets.all(_padding),
+          padding: const EdgeInsets.all(12.0),
           child: SelectOptionTextField(
             options: state.options,
             selectedOptionMap: optionMap,
@@ -198,7 +197,7 @@ class _Title extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: Row(
@@ -240,7 +239,7 @@ class _CreateOptionCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: SizedBox(
         height: 28,
         child: FlowyButton(
@@ -341,7 +340,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       mutex: widget.popoverMutex,
       clickHandler: PopoverClickHandler.gestureDetector,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: FlowyHover(
           resetHoverOnRebuild: false,
           style: HoverStyle(
