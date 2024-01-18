@@ -23,6 +23,8 @@ CardCellStyleMap mobileBoardCardCellStyleMap(BuildContext context) {
     FieldType.Checkbox: CheckboxCardCellStyle(
       padding: padding,
       iconSize: const Size.square(24),
+      showFieldName: true,
+      textStyle: textStyle,
     ),
     FieldType.Checklist: ChecklistCardCellStyle(
       padding: padding,

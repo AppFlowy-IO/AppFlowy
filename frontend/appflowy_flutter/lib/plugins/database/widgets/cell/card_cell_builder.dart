@@ -23,7 +23,7 @@ class CardCellBuilder {
 
   Widget build({
     required CellContext cellContext,
-    CardCellStyleMap? styleMap,
+    required CardCellStyleMap styleMap,
     EditableCardNotifier? cellNotifier,
     required bool hasNotes,
   }) {
@@ -34,7 +34,7 @@ class CardCellBuilder {
     final key = ValueKey(
       "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );
-    final style = styleMap?[fieldType];
+    final style = styleMap[fieldType];
     return switch (fieldType) {
       FieldType.Checkbox => CheckboxCardCell(
           key: key,

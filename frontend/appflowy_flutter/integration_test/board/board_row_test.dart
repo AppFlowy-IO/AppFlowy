@@ -24,7 +24,7 @@ void main() {
       await tester.hoverOnWidget(
         card1,
         onHover: () async {
-          final moreOption = find.byType(CardMoreOption);
+          final moreOption = find.byType(MoreCardOptionsAccessory);
           await tester.tapButton(moreOption);
         },
       );
@@ -42,7 +42,7 @@ void main() {
       await tester.hoverOnWidget(
         card1,
         onHover: () async {
-          final moreOption = find.byType(CardMoreOption);
+          final moreOption = find.byType(MoreCardOptionsAccessory);
           await tester.tapButton(moreOption);
         },
       );

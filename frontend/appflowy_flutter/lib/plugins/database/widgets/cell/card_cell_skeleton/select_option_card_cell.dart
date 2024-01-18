@@ -59,7 +59,7 @@ class _SelectOptionCellState extends State<SelectOptionCardCell> {
             alignment: AlignmentDirectional.topStart,
             padding: widget.style.padding,
             child: widget.style.wrap
-                ? Wrap(spacing: 4, runSpacing: 2, children: children)
+                ? Wrap(spacing: 4, runSpacing: 4, children: children)
                 : SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(

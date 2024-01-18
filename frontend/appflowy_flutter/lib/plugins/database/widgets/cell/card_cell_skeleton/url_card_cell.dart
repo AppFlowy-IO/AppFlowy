@@ -41,17 +41,12 @@ class _URLCellState extends State<URLCardCell> {
           if (state.content.isEmpty) {
             return const SizedBox();
           }
-          return Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: widget.style.padding,
-              child: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  text: state.content,
-                  style: widget.style.textStyle,
-                ),
-              ),
+          return Container(
+            alignment: AlignmentDirectional.centerStart,
+            padding: widget.style.padding,
+            child: Text(
+              state.content,
+              style: widget.style.textStyle,
             ),
           );
         },

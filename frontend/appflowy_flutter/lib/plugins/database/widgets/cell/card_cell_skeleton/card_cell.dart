@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:flutter/material.dart';
 
 abstract class CardCell<T extends CardCellStyle> extends StatefulWidget {
@@ -34,7 +33,7 @@ class EditableCardNotifier {
 }
 
 class EditableRowNotifier {
-  final Map<EditableCellId, EditableCardNotifier> _cells = {};
+  final Map<CellContext, EditableCardNotifier> _cells = {};
   final ValueNotifier<bool> isEditing;
 
   EditableRowNotifier({required bool isEditing})
@@ -48,14 +47,13 @@ class EditableRowNotifier {
       _cells.values.isEmpty,
       'Only one cell can receive the notification',
     );
-    final id = EditableCellId.from(cellIdentifier);
-    _cells[id]?.dispose();
+    _cells[cellIdentifier]?.dispose();
 
     notifier.isCellEditing.addListener(() {
       isEditing.value = notifier.isCellEditing.value;
     });
 
-    _cells[EditableCellId.from(cellIdentifier)] = notifier;
+    _cells[cellIdentifier] = notifier;
   }
 
   void becomeFirstResponder() {
@@ -95,16 +93,4 @@ abstract mixin class EditableCell {
   // cell or end editing the cell.
   //
   EditableCardNotifier? get editableNotifier;
-}
-
-class EditableCellId {
-  String fieldId;
-  RowId rowId;
-
-  EditableCellId(this.rowId, this.fieldId);
-
-  factory EditableCellId.from(CellContext cellIdentifier) => EditableCellId(
-        cellIdentifier.rowId,
-        cellIdentifier.fieldId,
-      );
 }

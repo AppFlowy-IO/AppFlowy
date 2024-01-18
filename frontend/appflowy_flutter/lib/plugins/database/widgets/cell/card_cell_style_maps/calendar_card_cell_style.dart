@@ -11,7 +11,7 @@ import '../card_cell_skeleton/text_card_cell.dart';
 import '../card_cell_skeleton/timestamp_card_cell.dart';
 import '../card_cell_skeleton/url_card_cell.dart';
 
-CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
+CardCellStyleMap desktopCalendarCardCellStyleMap(BuildContext context) {
   const EdgeInsetsGeometry padding = EdgeInsets.symmetric(vertical: 2);
   final TextStyle textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
         fontSize: 10,
@@ -23,6 +23,8 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
     FieldType.Checkbox: CheckboxCardCellStyle(
       padding: padding,
       iconSize: const Size.square(16),
+      showFieldName: true,
+      textStyle: textStyle,
     ),
     FieldType.Checklist: ChecklistCardCellStyle(
       padding: padding,

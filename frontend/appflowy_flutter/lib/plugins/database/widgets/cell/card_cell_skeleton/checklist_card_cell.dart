@@ -46,6 +46,7 @@ class _ChecklistCellState extends State<ChecklistCardCell> {
             child: ChecklistProgressBar(
               tasks: state.tasks,
               percent: state.percent,
+              textStyle: widget.style.textStyle,
             ),
           );
         },
