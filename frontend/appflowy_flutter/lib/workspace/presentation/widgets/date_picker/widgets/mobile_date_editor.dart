@@ -39,9 +39,9 @@ class MobileDatePicker extends StatefulWidget {
 }
 
 class _MobileDatePickerState extends State<MobileDatePicker> {
-  DateTime _focusedDay = DateTime.now();
   PageController? _pageController;
 
+  late DateTime _focusedDay = widget.selectedDay ?? DateTime.now();
   late DateTime? _selectedDay = widget.selectedDay;
 
   @override

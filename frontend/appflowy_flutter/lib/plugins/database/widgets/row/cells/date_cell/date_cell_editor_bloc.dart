@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/cell/date_cell_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/log.dart';
@@ -53,6 +52,40 @@ class DateCellEditorBloc
                 dateCellData.isRange == state.isRange && dateCellData.isRange
                     ? dateCellData.endDateTime
                     : null;
+
+            if (state.reminderId?.isEmpty ??
+                true &&
+                    (dateCellData.reminderId?.isNotEmpty ?? false) &&
+                    state.reminderOption != ReminderOption.none) {
+              // Add Reminder
+              _reminderBloc.add(
+                ReminderEvent.addById(
+                  reminderId: dateCellData.reminderId!,
+                  objectId: cellController.viewId,
+                  meta: {ReminderMetaKeys.rowId: cellController.rowId},
+                  scheduledAt: Int64(
+                    state.dateTime!
+                            .subtract(state.reminderOption.time)
+                            .millisecondsSinceEpoch ~/
+                        1000,
+                  ),
+                ),
+              );
+            }
+            if ((dateCellData.reminderId?.isNotEmpty ?? false) &&
+                dateCellData.dateTime != null) {
+              // Update Reminder
+              _reminderBloc.add(
+                ReminderEvent.update(
+                  ReminderUpdate(
+                    id: state.reminderId!,
+                    scheduledAt: dateCellData.dateTime!
+                        .subtract(state.reminderOption.time),
+                  ),
+                ),
+              );
+            }
+
             emit(
               state.copyWith(
                 dateTime: dateCellData.dateTime,
@@ -155,28 +188,16 @@ class DateCellEditorBloc
                     option != ReminderOption.none) {
               // New Reminder
               final reminderId = nanoid();
-              _reminderBloc.add(
-                ReminderEvent.addById(
-                  reminderId: reminderId,
-                  objectId: cellController.viewId,
-                  scheduledAt: Int64(
-                    state.dateTime!
-                            .subtract(option.time)
-                            .millisecondsSinceEpoch ~/
-                        1000,
-                  ),
-                ),
-              );
-
               await _updateDateData(reminderId: reminderId);
-              emit(state.copyWith(reminderId: reminderId));
+
+              emit(state.copyWith(reminderOption: option));
             } else if (option == ReminderOption.none &&
                 (state.reminderId?.isNotEmpty ?? false)) {
               // Remove reminder
               _reminderBloc
                   .add(ReminderEvent.remove(reminderId: state.reminderId!));
-              emit(state.copyWith(reminderId: ""));
               await _updateDateData(reminderId: "");
+              emit(state.copyWith(reminderOption: option));
             } else if (state.dateTime != null) {
               // Update reminder
               _reminderBloc.add(
@@ -222,19 +243,6 @@ class DateCellEditorBloc
     final DateTime? newEndDate = endTimeStr != null && endTimeStr.isNotEmpty
         ? state.endDateTime ?? DateTime.now()
         : _utcToLocalAndAddCurrentTime(endDate);
-
-    if ((state.reminderId?.isNotEmpty ?? false) &&
-        (reminderId?.isEmpty ?? true) &&
-        newDate != null) {
-      _reminderBloc.add(
-        ReminderEvent.update(
-          ReminderUpdate(
-            id: state.reminderId!,
-            scheduledAt: newDate.subtract(state.reminderOption.time),
-          ),
-        ),
-      );
-    }
 
     final result = await _dateCellBackendService.update(
       date: newDate,

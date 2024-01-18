@@ -60,7 +60,7 @@ class DatePicker extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePicker> {
-  DateTime _focusedDay = DateTime.now();
+  late DateTime _focusedDay = widget.selectedDay ?? DateTime.now();
   late CalendarFormat _calendarFormat = widget.calendarFormat;
 
   @override
