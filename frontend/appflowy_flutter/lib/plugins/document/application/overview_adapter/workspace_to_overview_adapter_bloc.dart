@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/application/overview_adapter/overview_service.dart';
+import 'package:appflowy/plugins/document/application/overview_adapter/overview_adapter_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
