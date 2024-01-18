@@ -249,6 +249,13 @@ class ViewBackendService {
     return FolderEventGetView(payload).send();
   }
 
+  static Future<Either<ViewPB, FlowyError>> getAllLevelOfViews(
+    String viewID,
+  ) async {
+    final payload = ViewIdPB.create()..value = viewID;
+    return FolderEventGetAllLevelOfViews(payload).send();
+  }
+
   Future<Either<ViewPB, FlowyError>> getChildView({
     required String parentViewId,
     required String childViewId,

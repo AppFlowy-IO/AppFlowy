@@ -37,6 +37,8 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
+    .event(FolderEvent::GetAllLevelOfViews, read_all_level_of_views_handler)
+    .event(FolderEvent::RegisterOverviewListenerId, register_overview_listerner_id_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -152,4 +154,14 @@ pub enum FolderEvent {
   // used for add or remove recent views, like history
   #[event(input = "UpdateRecentViewPayloadPB")]
   UpdateRecentViews = 37,
+
+  /// Returns information about the view and its entire hierarchy of child views.
+  #[event(input = "ViewIdPB", output = "ViewPB")]
+  GetAllLevelOfViews = 38,
+
+  /// Registers an overview block listener ID, allowing us to receive
+  /// notifications of `DidUpdateChildViews` from all levels of child views
+  /// to the specified parent view ID listener.
+  #[event(input = "ViewIdPB")]
+  RegisterOverviewListenerId = 39,
 }

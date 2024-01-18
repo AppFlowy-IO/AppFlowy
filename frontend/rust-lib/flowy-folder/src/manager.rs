@@ -49,6 +49,7 @@ pub struct FolderManager {
   pub(crate) user: Arc<dyn FolderUser>,
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
+  pub(crate) workspace_overview_id_manager: Arc<WorkspaceOverviewListenerIdManager>,
 }
 
 impl FolderManager {
@@ -59,6 +60,7 @@ impl FolderManager {
     cloud_service: Arc<dyn FolderCloudService>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
+    let workspace_overview_id_manager = WorkspaceOverviewListenerIdManager::new();
     let manager = Self {
       user,
       mutex_folder,
@@ -66,6 +68,7 @@ impl FolderManager {
       operation_handlers,
       cloud_service,
       workspace_id: Default::default(),
+      workspace_overview_id_manager: Arc::new(workspace_overview_id_manager),
     };
 
     Ok(manager)
@@ -464,6 +467,83 @@ impl FolderManager {
         Ok(view_pb)
       },
     }
+  }
+
+  /// Returns information about the view and its entire hierarchy of child views.
+  #[tracing::instrument(level = "debug", skip(self, view_id), err)]
+  pub async fn get_all_level_of_views_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
+    let view_id = view_id.to_string();
+    let folder = self.mutex_folder.lock();
+    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
+    let trash_ids = folder
+      .get_all_trash()
+      .into_iter()
+      .map(|trash| trash.id)
+      .collect::<Vec<String>>();
+
+    if trash_ids.contains(&view_id) {
+      return Err(FlowyError::record_not_found());
+    }
+
+    let root_view = folder.views.get_view(&view_id);
+    if let None = root_view {
+      return Err(FlowyError::record_not_found());
+    }
+
+    let root_view = root_view.unwrap();
+    let first_level_child_views = folder
+      .views
+      .get_views_belong_to(&root_view.id)
+      .into_iter()
+      .filter(|view| !trash_ids.contains(&view.id))
+      .collect::<Vec<_>>();
+
+    let mut view_pb = view_pb_without_child_views(root_view);
+
+    for child in &first_level_child_views {
+      let child_view = self.get_child_views_recursive(&child.id, &folder, &trash_ids);
+      if let Ok(view) = child_view {
+        view_pb.child_views.push(view);
+      } else {
+        return Err(FlowyError::record_not_found());
+      }
+    }
+
+    Ok(view_pb)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self, view_id, folder, trash_ids), err)]
+  pub fn get_child_views_recursive(
+    &self,
+    view_id: &str,
+    folder: &Folder,
+    trash_ids: &Vec<String>,
+  ) -> FlowyResult<ViewPB> {
+    let root_view = folder.views.get_view(&view_id);
+    if let None = root_view {
+      return Err(FlowyError::record_not_found());
+    }
+
+    let root_view = root_view.unwrap();
+    let first_level_child_views = folder
+      .views
+      .get_views_belong_to(&root_view.id)
+      .into_iter()
+      .filter(|view| !trash_ids.contains(&view.id))
+      .collect::<Vec<_>>();
+
+    let mut view_pb = view_pb_without_child_views(root_view);
+
+    for child in &first_level_child_views {
+      let child_view = self.get_child_views_recursive(&child.id, &folder, &trash_ids);
+      if let Ok(view) = child_view {
+        view_pb.child_views.push(view);
+      } else {
+        return Err(FlowyError::record_not_found());
+      }
+    }
+
+    Ok(view_pb)
   }
 
   /// Move the view to trash. If the view is the current view, then set the current view to empty.
@@ -1030,6 +1110,12 @@ impl FolderManager {
       views
     })
   }
+
+  pub fn register_overview_listerner_id(&self, view_id: &str) -> Result<(), FlowyError> {
+    self
+      .workspace_overview_id_manager
+      .add_listerner_view_id(view_id)
+  }
 }
 
 /// Return the views that belong to the workspace. The views are filtered by the trash.
@@ -1084,6 +1170,35 @@ impl Display for FolderInitDataSource {
       FolderInitDataSource::LocalDisk { .. } => f.write_fmt(format_args!("LocalDisk")),
       FolderInitDataSource::Cloud(_) => f.write_fmt(format_args!("Cloud")),
       FolderInitDataSource::FolderData(_) => f.write_fmt(format_args!("Custom FolderData")),
+    }
+  }
+}
+
+/// This struct stores overview block listener IDs to notify them about updates
+/// in its child views from all levels.
+pub struct WorkspaceOverviewListenerIdManager {
+  pub(crate) view_ids: RwLock<Vec<String>>,
+}
+
+impl WorkspaceOverviewListenerIdManager {
+  pub fn new() -> WorkspaceOverviewListenerIdManager {
+    Self {
+      view_ids: RwLock::new(Vec::new()),
+    }
+  }
+
+  pub fn add_listerner_view_id(&self, view_id: &str) -> Result<(), FlowyError> {
+    let mut view_ids = self.view_ids.write();
+
+    view_ids.push(view_id.to_string().clone());
+    Ok(())
+  }
+}
+
+impl Clone for WorkspaceOverviewListenerIdManager {
+  fn clone(&self) -> Self {
+    Self {
+      view_ids: RwLock::new(self.view_ids.write().clone()),
     }
   }
 }

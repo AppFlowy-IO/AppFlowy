@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/workspace_overview/overview_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -172,6 +173,16 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         ),
       ),
     ),
+    OverviewBlockKeys.type: OverviewBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        placeholderTextStyle: (_) =>
+            styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+        padding: (_) => const EdgeInsets.only(
+          top: 12.0,
+          bottom: 4.0,
+        ),
+      ),
+    ),
     LinkPreviewBlockKeys.type: LinkPreviewBlockComponentBuilder(
       configuration: configuration.copyWith(
         padding: (_) => const EdgeInsets.symmetric(vertical: 10),
@@ -222,6 +233,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         TodoListBlockKeys.type,
         CalloutBlockKeys.type,
         OutlineBlockKeys.type,
+        OverviewBlockKeys.type,
         ToggleListBlockKeys.type,
       ];
 
