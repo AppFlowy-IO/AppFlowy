@@ -68,7 +68,7 @@ void main() {
 
     // Create options
     final cellController =
-        await context.makeCellControllerFromFieldId(multiSelectField.id)
+        context.makeCellControllerFromFieldId(multiSelectField.id)
             as SelectOptionCellController;
 
     final multiSelectOptionBloc =
