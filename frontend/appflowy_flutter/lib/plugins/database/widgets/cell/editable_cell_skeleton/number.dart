@@ -55,7 +55,8 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController();
+    _textEditingController =
+        TextEditingController(text: cellBloc.state.content);
   }
 
   @override
@@ -69,14 +70,9 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: cellBloc,
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<NumberCellBloc, NumberCellState>(
-            listenWhen: (p, c) => p.cellContent != c.cellContent,
-            listener: (context, state) =>
-                _textEditingController.text = state.cellContent,
-          ),
-        ],
+      child: BlocListener<NumberCellBloc, NumberCellState>(
+        listener: (context, state) =>
+            _textEditingController.text = state.content,
         child: widget.skin.build(
           context,
           widget.cellContainerNotifier,
@@ -97,12 +93,16 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   }
 
   @override
-  String? onCopy() => cellBloc.state.cellContent;
+  String? onCopy() => cellBloc.state.content;
 
   @override
   Future<void> focusChanged() async {
-    if (mounted && !cellBloc.isClosed) {
-      cellBloc.add(NumberCellEvent.updateCell(_textEditingController.text));
+    if (mounted &&
+        !cellBloc.isClosed &&
+        cellBloc.state.content != _textEditingController.text.trim()) {
+      cellBloc
+          .add(NumberCellEvent.updateCell(_textEditingController.text.trim()));
     }
+    return super.focusChanged();
   }
 }

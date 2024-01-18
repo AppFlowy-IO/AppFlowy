@@ -58,14 +58,12 @@ class _MobileGridRowState extends State<MobileGridRow> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        return RowBloc(
-          fieldController: widget.databaseController.fieldController,
-          rowId: widget.rowId,
-          rowController: _rowController,
-          viewId: viewId,
-        )..add(const RowEvent.initial());
-      },
+      create: (context) => RowBloc(
+        fieldController: widget.databaseController.fieldController,
+        rowId: widget.rowId,
+        rowController: _rowController,
+        viewId: viewId,
+      ),
       child: BlocBuilder<RowBloc, RowState>(
         builder: (context, state) {
           return Row(

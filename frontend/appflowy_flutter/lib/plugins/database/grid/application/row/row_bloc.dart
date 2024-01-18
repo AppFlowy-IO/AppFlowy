@@ -30,12 +30,21 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _rowController = rowController,
         super(RowState.initial()) {
+    _dispatch();
+    _startListening();
+    _init();
+  }
+
+  @override
+  Future<void> close() async {
+    _rowController.dispose();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<RowEvent>(
       (event, emit) async {
         event.when(
-          initial: () {
-            _startListening();
-          },
           createRow: () {
             _rowBackendSvc.createRowAfter(rowId);
           },
@@ -59,12 +68,6 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     );
   }
 
-  @override
-  Future<void> close() async {
-    _rowController.dispose();
-    return super.close();
-  }
-
   void _startListening() {
     _rowController.addListener(
       onRowChanged: (cells, reason) {
@@ -74,11 +77,19 @@ class RowBloc extends Bloc<RowEvent, RowState> {
       },
     );
   }
+
+  void _init() {
+    add(
+      RowEvent.didReceiveCells(
+        _rowController.loadData(),
+        const ChangedReason.setInitialRows(),
+      ),
+    );
+  }
 }
 
 @freezed
 class RowEvent with _$RowEvent {
-  const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
     CellContextByFieldId cellsByFieldId,

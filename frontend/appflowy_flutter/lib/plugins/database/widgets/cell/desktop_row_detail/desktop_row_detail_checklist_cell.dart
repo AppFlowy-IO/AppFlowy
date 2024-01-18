@@ -75,9 +75,8 @@ class _ChecklistItemsState extends State<ChecklistItems> {
           ),
         )
         .toList();
-    return Container(
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

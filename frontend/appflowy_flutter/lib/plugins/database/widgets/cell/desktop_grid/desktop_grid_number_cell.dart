@@ -31,7 +31,6 @@ class DesktopGridNumberCellSkin extends IEditableNumberCellSkin {
         disabledBorder: InputBorder.none,
         isDense: true,
       ),
-      onTapOutside: (_) => focusNode.unfocus(),
     );
   }
 }

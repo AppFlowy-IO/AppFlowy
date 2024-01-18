@@ -47,56 +47,36 @@ class GridRow extends StatefulWidget {
 }
 
 class _GridRowState extends State<GridRow> {
-  late final RowBloc _rowBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    _rowBloc = RowBloc(
-      fieldController: widget.fieldController,
-      rowId: widget.rowId,
-      rowController: widget.rowController,
-      viewId: widget.viewId,
-    )..add(const RowEvent.initial());
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _rowBloc,
-      child: BlocBuilder<RowBloc, RowState>(
-        builder: (context, state) {
-          final content = Expanded(
-            child: RowContent(
-              fieldController: widget.fieldController,
-              cellBuilder: widget.cellBuilder,
-              onExpand: () => widget.openDetailPage(
-                context,
-                widget.cellBuilder,
+    return BlocProvider(
+      create: (_) => RowBloc(
+        fieldController: widget.fieldController,
+        rowId: widget.rowId,
+        rowController: widget.rowController,
+        viewId: widget.viewId,
+      ),
+      child: _RowEnterRegion(
+        child: Row(
+          children: [
+            _RowLeading(
+              index: widget.index,
+              isDraggable: widget.isDraggable,
+            ),
+            Expanded(
+              child: RowContent(
+                fieldController: widget.fieldController,
+                cellBuilder: widget.cellBuilder,
+                onExpand: () => widget.openDetailPage(
+                  context,
+                  widget.cellBuilder,
+                ),
               ),
             ),
-          );
-
-          return _RowEnterRegion(
-            child: Row(
-              children: [
-                _RowLeading(
-                  index: widget.index,
-                  isDraggable: widget.isDraggable,
-                ),
-                content,
-              ],
-            ),
-          );
-        },
+          ],
+        ),
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _rowBloc.close();
-    super.dispose();
   }
 }
 

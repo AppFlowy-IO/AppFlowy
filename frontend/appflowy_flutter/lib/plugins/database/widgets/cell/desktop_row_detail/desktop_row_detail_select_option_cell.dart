@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/select_option_cell_bloc.dart';
@@ -36,8 +35,11 @@ class DesktopRowDetailSelectOptionCellSkin
         );
       },
       onClose: () => cellContainerNotifier.isFocus = false,
-      child: Padding(
-        padding: GridSize.cellContentInsets,
+      child: Container(
+        alignment: AlignmentDirectional.centerStart,
+        padding: state.selectedOptions.isEmpty
+            ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0)
+            : const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
         child: state.selectedOptions.isEmpty
             ? _buildPlaceholder(context)
             : _buildOptions(context, state.selectedOptions),
@@ -46,36 +48,27 @@ class DesktopRowDetailSelectOptionCellSkin
   }
 
   Widget _buildPlaceholder(BuildContext context) {
-    return Container(
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(vertical: 1),
-      child: FlowyText(
-        LocaleKeys.grid_row_textPlaceholder.tr(),
-        color: Theme.of(context).hintColor,
-      ),
+    return FlowyText(
+      LocaleKeys.grid_row_textPlaceholder.tr(),
+      color: Theme.of(context).hintColor,
     );
   }
 
   Widget _buildOptions(BuildContext context, List<SelectOptionPB> options) {
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: Wrap(
-        runSpacing: 4,
-        children: options.map(
-          (option) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: SelectOptionTag(
-                option: option,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 1,
-                  horizontal: 8,
-                ),
-              ),
-            );
-          },
-        ).toList(),
-      ),
+    return Wrap(
+      runSpacing: 4,
+      spacing: 4,
+      children: options.map(
+        (option) {
+          return SelectOptionTag(
+            option: option,
+            padding: const EdgeInsets.symmetric(
+              vertical: 1,
+              horizontal: 8,
+            ),
+          );
+        },
+      ).toList(),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/cell/desktop_grid/desktop_grid_url_cell.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
@@ -22,14 +21,13 @@ class DesktopRowDetailURLSkin extends IEditableURLCellSkin {
     return TextField(
       controller: textEditingController,
       focusNode: focusNode,
-      maxLines: null,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             decoration: TextDecoration.underline,
           ),
       autofocus: false,
       decoration: InputDecoration(
-        contentPadding: GridSize.cellContentInsets, // TODO YAY
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
         enabledBorder: InputBorder.none,
@@ -41,7 +39,6 @@ class DesktopRowDetailURLSkin extends IEditableURLCellSkin {
             ),
         isDense: true,
       ),
-      onTapOutside: (_) => focusNode.unfocus(),
     );
   }
 

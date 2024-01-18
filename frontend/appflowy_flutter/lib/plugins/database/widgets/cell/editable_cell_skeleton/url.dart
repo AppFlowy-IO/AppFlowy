@@ -67,8 +67,8 @@ class EditableURLCell extends EditableCellWidget {
 
 class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
   late final TextEditingController _textEditingController;
-
-  URLCellBloc get cellBloc => context.read<URLCellBloc>();
+  late final cellBloc = URLCellBloc(cellController: widget.cellController)
+    ..add(const URLCellEvent.initial());
 
   @override
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();
@@ -89,11 +89,8 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        return URLCellBloc(cellController: widget.cellController)
-          ..add(const URLCellEvent.initial());
-      },
+    return BlocProvider.value(
+      value: cellBloc,
       child: BlocListener<URLCellBloc, URLCellState>(
         listenWhen: (previous, current) => previous.content != current.content,
         listener: (context, state) {
@@ -114,7 +111,11 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
 
   @override
   Future<void> focusChanged() async {
-    cellBloc.add(URLCellEvent.updateURL(_textEditingController.text.trim()));
+    if (mounted &&
+        !cellBloc.isClosed &&
+        cellBloc.state.content != _textEditingController.text.trim()) {
+      cellBloc.add(URLCellEvent.updateURL(_textEditingController.text.trim()));
+    }
     return super.focusChanged();
   }
 

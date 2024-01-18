@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/timestamp_cell/timestamp_cell_bloc.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -14,14 +13,12 @@ class DesktopRowDetailTimestampCellSkin extends IEditableTimestampCellSkin {
     TimestampCellBloc bloc,
     TimestampCellState state,
   ) {
-    return Align(
+    return Container(
       alignment: AlignmentDirectional.centerStart,
-      child: Padding(
-        padding: GridSize.cellContentInsets, //TODO YAY
-        child: FlowyText.medium(
-          state.dateStr,
-          maxLines: null,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6.0),
+      child: FlowyText.medium(
+        state.dateStr,
+        maxLines: null,
       ),
     );
   }

@@ -36,17 +36,16 @@ class _NumberCellState extends State<NumberCardCell> {
           ..add(const NumberCellEvent.initial());
       },
       child: BlocBuilder<NumberCellBloc, NumberCellState>(
-        buildWhen: (previous, current) =>
-            previous.cellContent != current.cellContent,
+        buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
-          if (state.cellContent.isEmpty) {
+          if (state.content.isEmpty) {
             return const SizedBox.shrink();
           }
 
           return Container(
             alignment: AlignmentDirectional.centerStart,
             padding: widget.style.padding,
-            child: Text(state.cellContent, style: widget.style.textStyle),
+            child: Text(state.content, style: widget.style.textStyle),
           );
         },
       ),

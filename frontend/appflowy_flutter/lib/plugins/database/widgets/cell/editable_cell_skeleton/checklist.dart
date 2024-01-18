@@ -49,7 +49,6 @@ class EditableChecklistCell extends EditableCellWidget {
 
 class GridChecklistCellState extends GridCellState<EditableChecklistCell> {
   final PopoverController _popover = PopoverController();
-
   late final cellBloc = ChecklistCellBloc(cellController: widget.cellController)
     ..add(const ChecklistCellEvent.initial());
 

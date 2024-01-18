@@ -63,11 +63,9 @@ class RowPropertyList extends StatelessWidget {
         return ReorderableListView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          onReorder: (from, to) {
-            context
-                .read<RowDetailBloc>()
-                .add(RowDetailEvent.reorderField(from, to));
-          },
+          onReorder: (from, to) => context
+              .read<RowDetailBloc>()
+              .add(RowDetailEvent.reorderField(from, to)),
           buildDefaultDragHandles: false,
           proxyDecorator: (child, index, animation) => Material(
             color: Colors.transparent,
@@ -139,11 +137,6 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   @override
   Widget build(BuildContext context) {
-    final cell = widget.cellBuilder.buildStyled(
-      widget.cellContext,
-      EditableCellStyle.desktopRowDetail,
-    );
-
     final dragThumb = MouseRegion(
       cursor: Platform.isWindows
           ? SystemMouseCursors.click
@@ -157,12 +150,16 @@ class _PropertyCellState extends State<_PropertyCell> {
           margin: EdgeInsets.zero,
           triggerActions: PopoverTriggerFlags.none,
           direction: PopoverDirection.bottomWithLeftAligned,
-          popupBuilder: (popoverContext) => buildFieldEditor(),
+          popupBuilder: (popoverContext) => FieldEditor(
+            viewId: widget.fieldController.viewId,
+            field: fieldInfo.field,
+            fieldController: widget.fieldController,
+          ),
           child: ValueListenableBuilder(
             valueListenable: _isFieldHover,
-            builder: ((context, value, child) {
+            builder: (context, value, child) {
               return value ? child! : const SizedBox.shrink();
-            }),
+            },
             child: BlockActionButton(
               onTap: () => _fieldPopoverController.show(),
               svg: FlowySvgs.drag_element_s,
@@ -173,6 +170,11 @@ class _PropertyCellState extends State<_PropertyCell> {
           ),
         ),
       ),
+    );
+
+    final cell = widget.cellBuilder.buildStyled(
+      widget.cellContext,
+      EditableCellStyle.desktopRowDetail,
     );
 
     final gesture = GestureDetector(
@@ -211,7 +213,11 @@ class _PropertyCellState extends State<_PropertyCell> {
               margin: EdgeInsets.zero,
               triggerActions: PopoverTriggerFlags.none,
               direction: PopoverDirection.bottomWithLeftAligned,
-              popupBuilder: (popoverContext) => buildFieldEditor(),
+              popupBuilder: (popoverContext) => FieldEditor(
+                viewId: widget.fieldController.viewId,
+                field: fieldInfo.field,
+                fieldController: widget.fieldController,
+              ),
               child: SizedBox(
                 width: 160,
                 height: 30,
@@ -224,8 +230,10 @@ class _PropertyCellState extends State<_PropertyCell> {
                     field: fieldInfo.field,
                     onTap: () => _popoverController.show(),
                     radius: BorderRadius.circular(6),
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 6,
+                    ),
                   ),
                 ),
               ),
@@ -237,74 +245,7 @@ class _PropertyCellState extends State<_PropertyCell> {
       ),
     );
   }
-
-  Widget buildFieldEditor() {
-    return FieldEditor(
-      viewId: widget.fieldController.viewId,
-      field: fieldInfo.field,
-      fieldController: widget.fieldController,
-    );
-  }
 }
-
-// GridCellStyle? customCellStyle(FieldType fieldType) {
-//   switch (fieldType) {
-//     case FieldType.Checkbox:
-//       return GridCheckboxCellStyle(
-//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-//       );
-//     case FieldType.DateTime:
-//       return DateCellStyle(
-//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-//         alignment: Alignment.centerLeft,
-//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-//       );
-//     case FieldType.LastEditedTime:
-//     case FieldType.CreatedTime:
-//       return TimestampCellStyle(
-//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-//         alignment: Alignment.centerLeft,
-//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-//       );
-//     case FieldType.MultiSelect:
-//       return SelectOptionCellStyle(
-//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-//       );
-//     case FieldType.Checklist:
-//       return ChecklistCellStyle(
-//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-//         cellPadding: EdgeInsets.zero,
-//         showTasksInline: true,
-//       );
-//     case FieldType.Number:
-//       return GridNumberCellStyle(
-//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-//       );
-//     case FieldType.RichText:
-//       return GridTextCellStyle(
-//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-//         showEmoji: false,
-//       );
-//     case FieldType.SingleSelect:
-//       return SelectOptionCellStyle(
-//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-//       );
-//     case FieldType.URL:
-//       return GridURLCellStyle(
-//         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-//         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-//         accessoryTypes: [
-//           GridURLCellAccessoryType.copyURL,
-//           GridURLCellAccessoryType.visitURL,
-//         ],
-//       );
-//   }
-//   throw UnimplementedError;
-// }
 
 class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
   const ToggleHiddenFieldsVisibilityButton({super.key});
@@ -313,75 +254,80 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
-        final text = switch (state.showHiddenFields) {
-          false => LocaleKeys.grid_rowPage_showHiddenFields.plural(
-              state.numHiddenFields,
-              namedArgs: {'count': '${state.numHiddenFields}'},
-            ),
-          true => LocaleKeys.grid_rowPage_hideHiddenFields.plural(
-              state.numHiddenFields,
-              namedArgs: {'count': '${state.numHiddenFields}'},
-            ),
-        };
-
-        if (PlatformExtension.isDesktop) {
-          return SizedBox(
-            height: 30,
-            child: FlowyButton(
-              text: FlowyText.medium(text, color: Theme.of(context).hintColor),
-              hoverColor: AFThemeExtension.of(context).lightGreyHover,
-              leftIcon: RotatedBox(
-                quarterTurns: state.showHiddenFields ? 1 : 3,
-                child: FlowySvg(
-                  FlowySvgs.arrow_left_s,
-                  color: Theme.of(context).hintColor,
-                ),
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              onTap: () => context.read<RowDetailBloc>().add(
-                    const RowDetailEvent.toggleHiddenFieldVisibility(),
-                  ),
-            ),
-          );
-        } else {
-          return ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: double.infinity),
-            child: TextButton.icon(
-              style: Theme.of(context).textButtonTheme.style?.copyWith(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        side: BorderSide.none,
-                      ),
-                    ),
-                    overlayColor: MaterialStateProperty.all<Color>(
-                      Theme.of(context).hoverColor,
-                    ),
-                    alignment: AlignmentDirectional.centerStart,
-                    splashFactory: NoSplash.splashFactory,
-                    padding: const MaterialStatePropertyAll(
-                      EdgeInsets.symmetric(vertical: 14, horizontal: 6),
-                    ),
-                  ),
-              label: FlowyText.medium(
-                text,
-                fontSize: 15,
-                color: Theme.of(context).hintColor,
-              ),
-              onPressed: () => context
-                  .read<RowDetailBloc>()
-                  .add(const RowDetailEvent.toggleHiddenFieldVisibility()),
-              icon: RotatedBox(
-                quarterTurns: state.showHiddenFields ? 1 : 3,
-                child: FlowySvg(
-                  FlowySvgs.arrow_left_s,
-                  color: Theme.of(context).hintColor,
-                ),
-              ),
-            ),
-          );
-        }
+        final text = state.showHiddenFields
+            ? LocaleKeys.grid_rowPage_hideHiddenFields.plural(
+                state.numHiddenFields,
+                namedArgs: {'count': '${state.numHiddenFields}'},
+              )
+            : LocaleKeys.grid_rowPage_showHiddenFields.plural(
+                state.numHiddenFields,
+                namedArgs: {'count': '${state.numHiddenFields}'},
+              );
+        final quarterTurns = state.showHiddenFields ? 1 : 3;
+        return PlatformExtension.isDesktopOrWeb
+            ? _desktop(context, text, quarterTurns)
+            : _mobile(context, text, quarterTurns);
       },
+    );
+  }
+
+  Widget _desktop(BuildContext context, String text, int quarterTurns) {
+    return SizedBox(
+      height: 30,
+      child: FlowyButton(
+        text: FlowyText.medium(text, color: Theme.of(context).hintColor),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        leftIcon: RotatedBox(
+          quarterTurns: quarterTurns,
+          child: FlowySvg(
+            FlowySvgs.arrow_left_s,
+            color: Theme.of(context).hintColor,
+          ),
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        onTap: () => context.read<RowDetailBloc>().add(
+              const RowDetailEvent.toggleHiddenFieldVisibility(),
+            ),
+      ),
+    );
+  }
+
+  Widget _mobile(BuildContext context, String text, int quarterTurns) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: double.infinity),
+      child: TextButton.icon(
+        style: Theme.of(context).textButtonTheme.style?.copyWith(
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  side: BorderSide.none,
+                ),
+              ),
+              overlayColor: MaterialStateProperty.all<Color>(
+                Theme.of(context).hoverColor,
+              ),
+              alignment: AlignmentDirectional.centerStart,
+              splashFactory: NoSplash.splashFactory,
+              padding: const MaterialStatePropertyAll(
+                EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+              ),
+            ),
+        label: FlowyText.medium(
+          text,
+          fontSize: 15,
+          color: Theme.of(context).hintColor,
+        ),
+        onPressed: () => context
+            .read<RowDetailBloc>()
+            .add(const RowDetailEvent.toggleHiddenFieldVisibility()),
+        icon: RotatedBox(
+          quarterTurns: quarterTurns,
+          child: FlowySvg(
+            FlowySvgs.arrow_left_s,
+            color: Theme.of(context).hintColor,
+          ),
+        ),
+      ),
     );
   }
 }

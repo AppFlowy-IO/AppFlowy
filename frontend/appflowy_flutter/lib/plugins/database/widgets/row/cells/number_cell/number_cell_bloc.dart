@@ -5,7 +5,6 @@ import 'dart:async';
 
 part 'number_cell_bloc.freezed.dart';
 
-//
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final NumberCellController cellController;
   void Function()? _onCellChangedFn;
@@ -19,12 +18,12 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
           initial: () {
             _startListening();
           },
-          didReceiveCellUpdate: (cellContent) {
-            emit(state.copyWith(cellContent: cellContent ?? ""));
+          didReceiveCellUpdate: (cellData) {
+            emit(state.copyWith(content: cellData ?? ""));
           },
           updateCell: (text) async {
-            if (state.cellContent != text) {
-              emit(state.copyWith(cellContent: text));
+            if (state.content != text) {
+              emit(state.copyWith(content: text));
               await cellController.saveCellData(text);
 
               // If the input content is "abc" that can't parsered as number then the data stored in the backend will be an empty string.
@@ -74,12 +73,12 @@ class NumberCellEvent with _$NumberCellEvent {
 @freezed
 class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
-    required String cellContent,
+    required String content,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(TextCellController context) {
+  factory NumberCellState.initial(TextCellController cellController) {
     return NumberCellState(
-      cellContent: context.getCellData() ?? "",
+      content: cellController.getCellData() ?? "",
     );
   }
 }

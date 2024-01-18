@@ -33,7 +33,8 @@ class DesktopGridSelectOptionCellSkin extends IEditableSelectOptionCellSkin {
         );
       },
       onClose: () => cellContainerNotifier.isFocus = false,
-      child: Padding(
+      child: Container(
+        alignment: AlignmentDirectional.centerStart,
         padding: GridSize.cellContentInsets,
         child: state.selectedOptions.isEmpty
             ? const SizedBox.shrink()
@@ -43,25 +44,22 @@ class DesktopGridSelectOptionCellSkin extends IEditableSelectOptionCellSkin {
   }
 
   Widget _buildOptions(context, List<SelectOptionPB> options) {
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: Wrap(
-        runSpacing: 4,
-        children: options.map(
-          (option) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: SelectOptionTag(
-                option: option,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 1,
-                  horizontal: 8,
-                ),
+    return Wrap(
+      runSpacing: 4,
+      children: options.map(
+        (option) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: SelectOptionTag(
+              option: option,
+              padding: const EdgeInsets.symmetric(
+                vertical: 1,
+                horizontal: 8,
               ),
-            );
-          },
-        ).toList(),
-      ),
+            ),
+          );
+        },
+      ).toList(),
     );
   }
 }

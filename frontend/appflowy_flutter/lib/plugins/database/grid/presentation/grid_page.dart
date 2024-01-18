@@ -108,15 +108,11 @@ class _GridPageState extends State<GridPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<GridBloc>(
-          create: (context) => GridBloc(
-            view: widget.view,
-            databaseController: widget.databaseController,
-          )..add(const GridEvent.initial()),
-        ),
-      ],
+    return BlocProvider<GridBloc>(
+      create: (context) => GridBloc(
+        view: widget.view,
+        databaseController: widget.databaseController,
+      )..add(const GridEvent.initial()),
       child: BlocBuilder<GridBloc, GridState>(
         builder: (context, state) {
           return state.loadingState.map(
@@ -225,7 +221,7 @@ class _GridRows extends StatelessWidget {
                 reorderSingleRow: (reorderRow, rowInfo) => true,
                 delete: (item) => true,
                 insert: (item) => true,
-                orElse: () => false,
+                orElse: () => true,
               ),
               builder: (context, state) {
                 final rowInfos = state.rowInfos;
@@ -249,15 +245,17 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
-    final children = rowInfos.mapIndexed((index, rowInfo) {
-      return _renderRow(
-        context,
-        rowInfo.rowId,
-        isDraggable: state.reorderable,
-        index: index,
-      );
-    }).toList()
-      ..add(const GridRowBottomBar(key: Key('gridFooter')));
+    final children = [
+      ...rowInfos.mapIndexed((index, rowInfo) {
+        return _renderRow(
+          context,
+          rowInfo.rowId,
+          isDraggable: state.reorderable,
+          index: index,
+        );
+      }),
+      const GridRowBottomBar(key: Key('gridFooter')),
+    ];
     return ReorderableListView.builder(
       ///  This is a workaround related to
       ///  https://github.com/flutter/flutter/issues/25652
@@ -270,12 +268,11 @@ class _GridRows extends StatelessWidget {
       ),
       onReorder: (fromIndex, newIndex) {
         final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-        if (fromIndex == toIndex) {
-          return;
+        if (fromIndex != toIndex) {
+          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
         }
-        context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
       },
-      itemCount: rowInfos.length + 1, // the extra item is the footer
+      itemCount: children.length,
       itemBuilder: (context, index) => children[index],
     );
   }

@@ -254,60 +254,6 @@ class _PropertyCellState extends State<PropertyCell> {
       ),
     );
   }
-
-  // GridCellStyle? _customCellStyle(FieldType fieldType) {
-  //   switch (fieldType) {
-  //     case FieldType.Checkbox:
-  //       return GridCheckboxCellStyle(
-  //         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-  //       );
-  //     case FieldType.DateTime:
-  //       return DateCellStyle(
-  //         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-  //         alignment: Alignment.centerLeft,
-  //         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-  //       );
-  //     case FieldType.LastEditedTime:
-  //     case FieldType.CreatedTime:
-  //       return TimestampCellStyle(
-  //         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-  //         alignment: Alignment.centerLeft,
-  //         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-  //       );
-  //     case FieldType.MultiSelect:
-  //       return SelectOptionCellStyle(
-  //         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-  //         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-  //       );
-  //     case FieldType.Checklist:
-  //       return ChecklistCellStyle(
-  //         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-  //         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-  //       );
-  //     case FieldType.Number:
-  //       return GridNumberCellStyle(
-  //         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-  //       );
-  //     case FieldType.RichText:
-  //       return GridTextCellStyle(
-  //         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-  //       );
-  //     case FieldType.SingleSelect:
-  //       return SelectOptionCellStyle(
-  //         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-  //         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-  //       );
-  //     case FieldType.URL:
-  //       return GridURLCellStyle(
-  //         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-  //         accessoryTypes: [
-  //           GridURLCellAccessoryType.copyURL,
-  //           GridURLCellAccessoryType.visitURL,
-  //         ],
-  //       );
-  //   }
-  //   throw UnimplementedError;
-  // }
 }
 
 class _TitleTextCellSkin extends IEditableTextCellSkin {
@@ -324,9 +270,7 @@ class _TitleTextCellSkin extends IEditableTextCellSkin {
       textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
       focusNode: focusNode,
       hintText: LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
-      onChanged: (text) => bloc.add(
-        TextCellEvent.updateText(text),
-      ),
+      onChanged: (text) => bloc.add(TextCellEvent.updateText(text)),
     );
   }
 }
