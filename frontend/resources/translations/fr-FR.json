@@ -270,6 +270,7 @@
       "cloudSettings": "Paramètres cloud",
       "enableSync": "Activer la synchronisation",
       "enableEncrypt": "Chiffrer les données",
+      "cloudURL": "URL de base",
       "invalidCloudURLScheme": "Schéma invalide",
       "cloudServerType": "Serveur cloud",
       "cloudLocal": "Locale",
@@ -748,9 +749,14 @@
     "gray": "Gris"
   },
   "emoji": {
+    "emojiTab": "Émoji",
+    "search": "Chercher émoji",
     "noRecent": "Aucun emoji récent",
     "noEmojiFound": "Aucun emoji trouvé",
+    "filter": "Filtrer",
     "random": "Aléatoire",
+    "selectSkinTone": "Choisir la teinte de la peau",
+    "remove": "Supprimer émoticône",
     "categories": {
       "animals": "Animaux & Nature",
       "food": "Nourriture & Boisson",
@@ -761,10 +767,36 @@
       "flags": "Drapeaux",
       "nature": "Nature",
       "frequentlyUsed": "Fréquemment utilisé"
+    },
+    "skinTone": {
+      "default": "Défaut",
+      "light": "Claire",
+      "mediumLight": "Moyennement claire",
+      "medium": "Moyen",
+      "mediumDark": "Moyennement foncé",
+      "dark": "Foncé"
     }
   },
   "inlineActions": {
-    "noResults": "Aucun résultat"
+    "noResults": "Aucun résultat",
+    "pageReference": "Référence de page",
+    "docReference": "Référence de document",
+    "boardReference": "Référence du tableau",
+    "calReference": "Référence du calendrier",
+    "gridReference": "Référence de grille",
+    "date": "Date",
+    "reminder": {
+      "groupTitle": "Rappel",
+      "shortKeyword": "rappeler"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Modifier le format de la date et de l'heure dans les paramètres",
+    "dateFormat": "Format de date",
+    "includeTime": "Inclure le temps",
+    "isRange": "Date de fin",
+    "timeFormat": "Format du temps",
+    "clearDate": "Effacer la date"
   },
   "relativeDates": {
     "yesterday": "Hier",
@@ -774,20 +806,29 @@
   },
   "notificationHub": {
     "title": "Notifications",
+    "mobile": {
+      "title": "Mises à jour"
+    },
     "emptyTitle": "Vous êtes à jour !",
     "tabs": {
       "inbox": "Boîte de réception",
       "upcoming": "A venir"
     },
     "actions": {
+      "markAllRead": "Tout marquer comme lu",
+      "showAll": "Tous",
       "showUnreads": "Non lu"
     },
     "filters": {
       "ascending": "Ascendant",
-      "descending": "Descendant"
+      "descending": "Descendant",
+      "groupByDate": "Regrouper par date",
+      "showUnreadsOnly": "Afficher uniquement les éléments non lus",
+      "resetToDefault": "Réinitialiser aux valeurs par défaut"
     }
   },
   "reminderNotification": {
+    "title": "Rappel",
     "tooltipDelete": "Supprimer",
     "tooltipMarkRead": "Marquer comme lu",
     "tooltipMarkUnread": "Marquer comme non lu"
@@ -807,17 +848,22 @@
   },
   "editor": {
     "bold": "Gras",
+    "checkbox": "Case à cocher",
+    "embedCode": "Code intégré",
     "heading1": "H1",
     "heading2": "H2",
     "heading3": "H3",
+    "highlight": "Surligner",
     "color": "Couleur",
     "image": "Image",
     "italic": "Italique",
     "link": "Lien",
     "numberedList": "Liste numérotée",
     "quote": "Citation",
+    "strikethrough": "Barré",
     "text": "Texte",
     "underline": "Souligner",
+    "fontColorDefault": "Défaut",
     "fontColorGray": "Gris",
     "fontColorBrown": "Marron",
     "fontColorOrange": "Orange",
@@ -837,6 +883,7 @@
     "backgroundColorPurple": "Fond violet",
     "backgroundColorPink": "Fond rose",
     "backgroundColorRed": "Fond rouge",
+    "done": "Fait",
     "cancel": "Annuler",
     "tint1": "Teinte 1",
     "tint2": "Teinte 2",
@@ -854,6 +901,7 @@
     "lightLightTint5": "Jaune",
     "lightLightTint6": "Lime",
     "lightLightTint7": "Vert",
+    "lightLightTint8": "Aqua",
     "lightLightTint9": "Bleu",
     "urlHint": "URL",
     "mobileHeading1": "Titre 1",
@@ -861,6 +909,7 @@
     "mobileHeading3": "Titre 3",
     "textColor": "Couleur du texte",
     "backgroundColor": "Couleur du fond",
+    "addYourLink": "Ajoutez votre lien",
     "openLink": "Ouvrir le lien",
     "copyLink": "Copier le lien",
     "removeLink": "Supprimer le lien",
@@ -868,6 +917,8 @@
     "linkText": "Texte",
     "linkTextHint": "Veuillez saisir du texte",
     "linkAddressHint": "Veuillez entrer l'URL",
+    "highlightColor": "Couleur de surlignage",
+    "clearHighlightColor": "Couleur de surlignage",
     "customColor": "Couleur personnalisée",
     "hexValue": "Valeur hexadécimale",
     "opacity": "Opacité",
@@ -887,6 +938,8 @@
     "chooseImage": "Choisissez une image",
     "loading": "Chargement",
     "imageLoadFailed": "Impossible de charger l'image",
+    "divider": "Diviseur",
+    "table": "Tableau",
     "colAddBefore": "Ajouter avant",
     "rowAddBefore": "Ajouter avant",
     "colAddAfter": "Ajouter après",
@@ -894,6 +947,31 @@
     "colRemove": "Retirer",
     "rowRemove": "Retirer",
     "colDuplicate": "Dupliquer",
-    "rowDuplicate": "Dupliquer"
+    "rowDuplicate": "Dupliquer",
+    "colClear": "Effacer le contenu",
+    "rowClear": "Effacer le contenu",
+    "slashPlaceHolder": "Tapez '/' pour insérer un bloc ou commencez à écrire",
+    "typeSomething": "Écrivez quelque chose..."
+  },
+  "favorite": {
+    "noFavorite": "Aucune page favorite"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Entrez un / pour insérer un bloc ou commencez à taper"
+  },
+  "blockPlaceholders": {
+    "todoList": "À faire",
+    "bulletList": "Liste",
+    "numberList": "Liste",
+    "quote": "Citation"
+  },
+  "titleBar": {
+    "pageIcon": "Icône de page",
+    "language": "Langue",
+    "font": "Police ",
+    "actions": "Actions",
+    "date": "Date",
+    "addField": "Ajouter un champ",
+    "userIcon": "Icône utilisateur"
   }
 }
