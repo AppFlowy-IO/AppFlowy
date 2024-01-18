@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/desktop_board_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -262,6 +263,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
           rowMeta: rowMeta,
         ),
         styleConfiguration: RowCardStyleConfiguration(
+          cellStyleMap: desktopBoardCardCellStyleMap(context),
           hoverStyle: HoverStyle(
             hoverColor: Theme.of(context).brightness == Brightness.light
                 ? const Color(0x0F1F2329)

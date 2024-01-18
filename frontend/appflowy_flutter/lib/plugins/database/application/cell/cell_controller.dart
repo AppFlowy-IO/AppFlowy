@@ -50,7 +50,7 @@ class CellController<T, D> {
   SingleFieldListener? _fieldListener;
   CellDataNotifier<T?>? _cellDataNotifier;
 
-  VoidCallback? _onCellFieldChanged;
+  void Function(FieldPB field)? _onCellFieldChanged;
   VoidCallback? _onRowMetaChanged;
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
@@ -92,10 +92,10 @@ class CellController<T, D> {
       fieldId: _cellContext.fieldId,
     );
 
-    /// 1. Listen on user edit event and load the new cell data if needed.
-    /// For example:
-    ///  user input: 12
-    ///  cell display: $12
+    // 1. Listen on user edit event and load the new cell data if needed.
+    // For example:
+    //  user input: 12
+    //  cell display: $12
     _cellListener?.start(
       onCellChanged: (result) {
         result.fold(
@@ -105,16 +105,17 @@ class CellController<T, D> {
       },
     );
 
-    /// 2. Listen on the field event and load the cell data if needed.
+    // 2. Listen on the field event and load the cell data if needed.
     _fieldListener?.start(
       onFieldChanged: (fieldPB) {
-        /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
-        /// For example:
-        ///   ￥12 -> $12
+        // reloadOnFieldChanged should be true if you want to reload the cell
+        // data when the corresponding field is changed.
+        // For example:
+        //   ￥12 -> $12
         if (_cellDataLoader.reloadOnFieldChange) {
           _loadData();
         }
-        _onCellFieldChanged?.call();
+        _onCellFieldChanged?.call(fieldPB);
       },
     );
 
@@ -132,7 +133,7 @@ class CellController<T, D> {
   /// Add a new listener
   VoidCallback? addListener({
     required void Function(T?) onCellChanged,
-    VoidCallback? onCellFieldChanged,
+    void Function(FieldPB field)? onCellFieldChanged,
     VoidCallback? onRowMetaChanged,
   }) {
     _onCellFieldChanged = onCellFieldChanged;

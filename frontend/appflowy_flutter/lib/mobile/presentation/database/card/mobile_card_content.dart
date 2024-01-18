@@ -27,13 +27,10 @@ class MobileCardContent extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: cells.map(
           (cellContext) {
-            return Padding(
-              padding: styleConfiguration.cellPadding,
-              child: cellBuilder.build(
-                cellContext: cellContext,
-                styleMap: mobileBoardCardCellStyleMap(context),
-                hasNotes: !rowMeta.isDocumentEmpty,
-              ),
+            return cellBuilder.build(
+              cellContext: cellContext,
+              styleMap: mobileBoardCardCellStyleMap(context),
+              hasNotes: !rowMeta.isDocumentEmpty,
             );
           },
         ).toList(),

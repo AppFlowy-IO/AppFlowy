@@ -239,7 +239,7 @@ class SelectOptionCellEditorBloc
       onCellChanged: ((selectOptionContext) {
         _loadOptions();
       }),
-      onCellFieldChanged: () {
+      onCellFieldChanged: (field) {
         _loadOptions();
       },
     );

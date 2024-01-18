@@ -23,6 +23,8 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
     FieldType.Checkbox: CheckboxCardCellStyle(
       padding: padding,
       iconSize: const Size.square(16),
+      showFieldName: true,
+      textStyle: textStyle,
     ),
     FieldType.Checklist: ChecklistCardCellStyle(
       padding: padding,
@@ -53,6 +55,7 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
     FieldType.RichText: TextCardCellStyle(
       padding: padding,
       textStyle: textStyle,
+      maxLines: null,
       titleTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
             overflow: TextOverflow.ellipsis,
           ),

@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobile_board_card_cell_style.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -178,11 +179,9 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
         onEndEditing: () =>
             boardBloc.add(BoardEvent.endEditingRow(groupItem.row.id)),
-        styleConfiguration: const RowCardStyleConfiguration(
+        styleConfiguration: RowCardStyleConfiguration(
+          cellStyleMap: mobileBoardCardCellStyleMap(context),
           showAccessory: false,
-          hoverStyle: null,
-          cardPadding: EdgeInsets.all(8),
-          cellPadding: EdgeInsets.zero,
         ),
       ),
     );

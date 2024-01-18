@@ -44,11 +44,13 @@ class TextCardCell extends CardCell<TextCardCellStyle> with EditableCell {
 }
 
 class _TextCellState extends State<TextCardCell> {
-  late TextEditingController _textEditingController;
-  bool focusWhenInit = false;
+  late final cellBloc = TextCellBloc(cellController: widget.cellController)
+    ..add(const TextCellEvent.initial());
+  late final TextEditingController _textEditingController =
+      TextEditingController(text: cellBloc.state.content);
   final focusNode = SingleListenerFocusNode();
 
-  TextCellBloc get cellBloc => context.read<TextCellBloc>();
+  bool focusWhenInit = false;
 
   @override
   void initState() {
@@ -93,70 +95,62 @@ class _TextCellState extends State<TextCardCell> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        return TextCellBloc(cellController: widget.cellController)
-          ..add(const TextCellEvent.initial());
-      },
-      child: BlocListener<TextCellBloc, TextCellState>(
+    return BlocProvider.value(
+      value: cellBloc,
+      child: BlocConsumer<TextCellBloc, TextCellState>(
         listener: (context, state) {
           if (_textEditingController.text != state.content) {
             _textEditingController.text = state.content;
           }
         },
-        child: BlocBuilder<TextCellBloc, TextCellState>(
-          buildWhen: (previous, current) {
-            if (previous.content != current.content &&
-                _textEditingController.text == current.content &&
-                current.enableEdit) {
-              return false;
-            }
+        buildWhen: (previous, current) {
+          if (previous.content != current.content &&
+              _textEditingController.text == current.content &&
+              current.enableEdit) {
+            return false;
+          }
 
-            return previous != current;
-          },
-          builder: (context, state) {
-            final isTitle = cellBloc.cellController.fieldInfo.isPrimary;
-            if (state.content.isEmpty &&
-                state.enableEdit == false &&
-                focusWhenInit == false &&
-                !isTitle) {
-              return const SizedBox.shrink();
-            }
+          return previous != current;
+        },
+        builder: (context, state) {
+          final isTitle = cellBloc.cellController.fieldInfo.isPrimary;
+          if (state.content.isEmpty &&
+              state.enableEdit == false &&
+              focusWhenInit == false &&
+              !isTitle) {
+            return const SizedBox.shrink();
+          }
 
-            final child = state.enableEdit || focusWhenInit
-                ? _buildTextField()
-                : _buildText(state, isTitle);
+          final child = state.enableEdit || focusWhenInit
+              ? _buildTextField()
+              : _buildText(state, isTitle);
 
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.showNotes) ...[
-                  FlowyTooltip(
-                    message: LocaleKeys.board_notesTooltip.tr(),
-                    child: FlowySvg(
-                      FlowySvgs.notes_s,
-                      color: Theme.of(context).hintColor,
-                    ),
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.showNotes) ...[
+                FlowyTooltip(
+                  message: LocaleKeys.board_notesTooltip.tr(),
+                  child: FlowySvg(
+                    FlowySvgs.notes_s,
+                    color: Theme.of(context).hintColor,
                   ),
-                  const HSpace(4),
-                ],
-                Expanded(child: child),
+                ),
+                const HSpace(4),
               ],
-            );
-          },
-        ),
+              Expanded(child: child),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Future<void> focusChanged() async {
-    cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
-  }
-
   @override
-  Future<void> dispose() async {
+  void dispose() {
     _textEditingController.dispose();
     focusNode.dispose();
+    cellBloc.close();
     super.dispose();
   }
 
@@ -169,6 +163,7 @@ class _TextCellState extends State<TextCardCell> {
     final color = state.content.isEmpty ? Theme.of(context).hintColor : null;
     final textStyle =
         isTitle ? widget.style.titleTextStyle : widget.style.textStyle;
+
     return Padding(
       padding: widget.style.padding,
       child: Text(
@@ -180,15 +175,18 @@ class _TextCellState extends State<TextCardCell> {
   }
 
   Widget _buildTextField() {
+    final padding =
+        widget.style.padding.add(const EdgeInsets.symmetric(vertical: 4.0));
     return TextField(
       controller: _textEditingController,
       focusNode: focusNode,
-      onChanged: (value) => focusChanged(),
+      onChanged: (_) =>
+          cellBloc.add(TextCellEvent.updateText(_textEditingController.text)),
       onEditingComplete: () => focusNode.unfocus(),
       maxLines: null,
       style: widget.style.titleTextStyle,
       decoration: InputDecoration(
-        contentPadding: widget.style.padding,
+        contentPadding: padding,
         border: InputBorder.none,
         isDense: true,
         isCollapsed: true,
