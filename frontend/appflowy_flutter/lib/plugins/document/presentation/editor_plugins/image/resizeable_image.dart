@@ -5,12 +5,11 @@ import 'dart:math';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_cache_manager.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
 class ResizableImage extends StatefulWidget {
@@ -40,8 +39,6 @@ class ResizableImage extends StatefulWidget {
 
 const _kImageBlockComponentMinWidth = 30.0;
 
-String? _token;
-
 class _ResizableImageState extends State<ResizableImage> {
   late double imageWidth;
 
@@ -55,22 +52,20 @@ class _ResizableImageState extends State<ResizableImage> {
 
   final documentService = DocumentService();
 
+  String? _accessToken;
+
   @override
   void initState() {
     super.initState();
 
     imageWidth = widget.width;
-    if (widget.type == CustomImageType.internal && _token == null) {
-      getIt<AuthService>().getUser().then((value) {
-        value.fold((l) {}, (r) {
-          if (_token == null) {
-            setState(() {
-              _token ??= jsonDecode(r.token)['access_token'];
-            });
-          }
-          assert(_token?.isNotEmpty == true);
-        });
-      });
+
+    if (widget.type == CustomImageType.internal && _accessToken == null) {
+      final token = context.read<DocumentBloc>().state.userProfilePB?.token;
+      if (token != null) {
+        _accessToken = jsonDecode(token)['access_token'];
+      }
+      assert(_accessToken?.isNotEmpty == true);
     }
   }
 
@@ -100,7 +95,7 @@ class _ResizableImageState extends State<ResizableImage> {
     if (isURL(src)) {
       // load network image
       if (widget.type == CustomImageType.internal &&
-          (_token == null || _token!.isEmpty)) {
+          (_accessToken == null || _accessToken!.isEmpty)) {
         return _buildLoading(context);
       }
 
@@ -109,7 +104,7 @@ class _ResizableImageState extends State<ResizableImage> {
         imageUrl: widget.src,
         width: widget.width,
         httpHeaders: widget.type == CustomImageType.internal
-            ? {'Authorization': 'Bearer $_token'}
+            ? {'Authorization': 'Bearer $_accessToken'}
             : null,
         errorWidget: (context, url, error) => _buildError(context, error),
         progressIndicatorBuilder: (context, url, progress) =>

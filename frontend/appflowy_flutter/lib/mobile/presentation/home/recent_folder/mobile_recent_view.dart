@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_cache_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -162,6 +163,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
           case CoverType.file:
             if (isURL(cover)) {
               return CachedNetworkImage(
+                cacheManager: CustomImageCacheManager(),
                 imageUrl: cover,
                 fit: BoxFit.cover,
               );

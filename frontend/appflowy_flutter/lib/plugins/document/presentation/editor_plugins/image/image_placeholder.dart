@@ -6,7 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_cache_manager.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
@@ -171,10 +171,10 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
     // if the user is using local authenticator, we need to save the image to local storage
     if (type == AuthenticatorType.local) {
-      path = await _saveImageToLocalStorage(url);
+      path = await saveImageToLocalStorage(url);
     } else {
       // else we should save the image to cloud storage
-      path = await _saveImageToCloudStorage(url);
+      path = await saveImageToCloudStorage(url);
       imageType = CustomImageType.internal;
     }
 
@@ -249,47 +249,5 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       ImageBlockKeys.url: url,
     });
     await editorState.apply(transaction);
-  }
-
-  Future<String?> _saveImageToLocalStorage(String localImagePath) async {
-    final path = await getIt<ApplicationDataStorage>().getPath();
-    final imagePath = p.join(
-      path,
-      'images',
-    );
-    try {
-      // create the directory if not exists
-      final directory = Directory(imagePath);
-      if (!directory.existsSync()) {
-        await directory.create(recursive: true);
-      }
-      final copyToPath = p.join(
-        imagePath,
-        '${uuid()}${p.extension(localImagePath)}',
-      );
-      await File(localImagePath).copy(
-        copyToPath,
-      );
-      return copyToPath;
-    } catch (e) {
-      Log.error('cannot save image file', e);
-      return null;
-    }
-  }
-
-  Future<String?> _saveImageToCloudStorage(String localImagePath) async {
-    final result = await documentService.uploadFile(
-      localFilePath: localImagePath,
-    );
-    return result.fold(
-      (l) => null,
-      (r) async {
-        await CustomImageCacheManager().putFile(
-          r.url,
-          File(localImagePath).readAsBytesSync(),
-        );
-        return r.url;
-      },
-    );
   }
 }
