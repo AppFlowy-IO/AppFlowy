@@ -205,7 +205,7 @@ class CellController<T, D> {
           .loadData(viewId: viewId, cellContext: _cellContext)
           .then((data) {
         if (data != null) {
-          _cellCache.insert(_cellContext, DatabaseCell(object: data));
+          _cellCache.insert(_cellContext, data);
         } else {
           _cellCache.remove(_cellContext);
         }

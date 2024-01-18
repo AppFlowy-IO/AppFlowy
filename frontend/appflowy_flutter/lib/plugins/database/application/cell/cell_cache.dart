@@ -3,20 +3,12 @@ import 'package:appflowy_backend/log.dart';
 
 import 'cell_controller.dart';
 
-class DatabaseCell {
-  final dynamic object;
-
-  const DatabaseCell({
-    required this.object,
-  });
-}
-
 /// CellMemCache is used to cache cell data of each block.
 /// We use CellContext to index the cell in the cache.
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid
 /// for more information
 class CellMemCache {
-  /// fieldId: {rowId: GridCell}
+  /// fieldId: {rowId: cellData}
   final Map<String, Map<RowId, dynamic>> _cellByFieldId = {};
 
   CellMemCache();
@@ -31,9 +23,9 @@ class CellMemCache {
     }
   }
 
-  void insert<T extends DatabaseCell>(CellContext context, T value) {
+  void insert<T>(CellContext context, T data) {
     _cellByFieldId.putIfAbsent(context.fieldId, () => {});
-    _cellByFieldId[context.fieldId]!.putIfAbsent(context.rowId, () => value.object);
+    _cellByFieldId[context.fieldId]![context.rowId] = data;
   }
 
   T? get<T>(CellContext context) {
@@ -44,8 +36,10 @@ class CellMemCache {
     if (value == null) {
       return null;
     }
-    if (value !is T) {
-      Log.error("Expected value of type: $T, but received type $value");
+    if (value is! T) {
+      Log.error(
+        "Expected value of type: $T, but received type ${value.runtimeType}",
+      );
       return null;
     }
     return value;
