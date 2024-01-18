@@ -159,7 +159,7 @@ class _NotificationScreenContent extends StatelessWidget {
       );
 
   void _onDelete(ReminderPB reminder) =>
-      reminderBloc.add(ReminderEvent.remove(reminder: reminder));
+      reminderBloc.add(ReminderEvent.remove(reminderId: reminder.id));
 
   void _onReadChanged(ReminderPB reminder, bool isRead) => reminderBloc.add(
         ReminderEvent.update(ReminderUpdate(id: reminder.id, isRead: isRead)),

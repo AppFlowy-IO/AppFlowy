@@ -336,7 +336,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
         // Delete existing reminder
         return rootContext
             .read<ReminderBloc>()
-            .add(ReminderEvent.remove(reminder: reminder));
+            .add(ReminderEvent.remove(reminderId: reminder.id));
       }
 
       // Update existing reminder

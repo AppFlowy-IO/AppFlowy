@@ -1,19 +1,27 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/cell/date_cell_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/util/int64_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
+import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:nanoid/non_secure.dart';
 import 'package:protobuf/protobuf.dart';
 
 part 'date_cell_editor_bloc.freezed.dart';
@@ -22,16 +30,19 @@ class DateCellEditorBloc
     extends Bloc<DateCellEditorEvent, DateCellEditorState> {
   final DateCellBackendService _dateCellBackendService;
   final DateCellController cellController;
+  final ReminderBloc _reminderBloc;
   void Function()? _onCellChangedFn;
 
   DateCellEditorBloc({
     required this.cellController,
-  })  : _dateCellBackendService = DateCellBackendService(
+    required ReminderBloc reminderBloc,
+  })  : _reminderBloc = reminderBloc,
+        _dateCellBackendService = DateCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,
         ),
-        super(DateCellEditorState.initial(cellController)) {
+        super(DateCellEditorState.initial(cellController, reminderBloc)) {
     on<DateCellEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -128,10 +139,55 @@ class DateCellEditorBloc
               await _updateTypeOption(emit, dateFormat: dateFormat),
           setTimeFormat: (TimeFormatPB timeFormat) async =>
               await _updateTypeOption(emit, timeFormat: timeFormat),
-          clearDate: () async => await _clearDate(),
-          setReminder: (String reminderId) async {
-            emit(state.copyWith(reminderId: reminderId));
-            await _updateDateData(reminderId: reminderId);
+          clearDate: () async {
+            // Remove reminder if neccessary
+            if (state.reminderId != null) {
+              _reminderBloc
+                  .add(ReminderEvent.remove(reminderId: state.reminderId!));
+            }
+
+            await _clearDate();
+          },
+          setReminderOption: (ReminderOption option) async {
+            if (state.reminderId?.isEmpty ??
+                true &&
+                    state.dateTime != null &&
+                    option != ReminderOption.none) {
+              // New Reminder
+              final reminderId = nanoid();
+              _reminderBloc.add(
+                ReminderEvent.addById(
+                  reminderId: reminderId,
+                  objectId: cellController.viewId,
+                  scheduledAt: Int64(
+                    state.dateTime!
+                            .subtract(option.time)
+                            .millisecondsSinceEpoch ~/
+                        1000,
+                  ),
+                ),
+              );
+
+              await _updateDateData(reminderId: reminderId);
+              emit(state.copyWith(reminderId: reminderId));
+            } else if (option == ReminderOption.none &&
+                (state.reminderId?.isNotEmpty ?? false)) {
+              // Remove reminder
+              _reminderBloc
+                  .add(ReminderEvent.remove(reminderId: state.reminderId!));
+              emit(state.copyWith(reminderId: ""));
+              await _updateDateData(reminderId: "");
+            } else if (state.dateTime != null) {
+              // Update reminder
+              _reminderBloc.add(
+                ReminderEvent.update(
+                  ReminderUpdate(
+                    id: state.reminderId!,
+                    scheduledAt: state.dateTime!.subtract(option.time),
+                  ),
+                ),
+              );
+            }
           },
           // Empty String signifies no reminder
           removeReminder: () async => await _updateDateData(reminderId: ""),
@@ -166,6 +222,19 @@ class DateCellEditorBloc
     final DateTime? newEndDate = endTimeStr != null && endTimeStr.isNotEmpty
         ? state.endDateTime ?? DateTime.now()
         : _utcToLocalAndAddCurrentTime(endDate);
+
+    if ((state.reminderId?.isNotEmpty ?? false) &&
+        (reminderId?.isEmpty ?? true) &&
+        newDate != null) {
+      _reminderBloc.add(
+        ReminderEvent.update(
+          ReminderUpdate(
+            id: state.reminderId!,
+            scheduledAt: newDate.subtract(state.reminderOption.time),
+          ),
+        ),
+      );
+    }
 
     final result = await _dateCellBackendService.update(
       date: newDate,
@@ -343,8 +412,9 @@ class DateCellEditorEvent with _$DateCellEditorEvent {
 
   const factory DateCellEditorEvent.setIsRange(bool isRange) = _SetIsRange;
 
-  const factory DateCellEditorEvent.setReminder({required String reminderId}) =
-      _SetReminder;
+  const factory DateCellEditorEvent.setReminderOption({
+    required ReminderOption option,
+  }) = _SetReminderOption;
 
   const factory DateCellEditorEvent.removeReminder() = _RemoveReminder;
 
@@ -383,12 +453,28 @@ class DateCellEditorState with _$DateCellEditorState {
     required String? parseTimeError,
     required String? parseEndTimeError,
     required String timeHintText,
+    @Default(ReminderOption.none) ReminderOption reminderOption,
   }) = _DateCellEditorState;
 
-  factory DateCellEditorState.initial(DateCellController controller) {
+  factory DateCellEditorState.initial(
+    DateCellController controller,
+    ReminderBloc reminderBloc,
+  ) {
     final typeOption = controller.getTypeOption(DateTypeOptionDataParser());
     final cellData = controller.getCellData();
     final dateCellData = _dateDataFromCellData(cellData);
+
+    ReminderOption reminderOption = ReminderOption.none;
+    if (dateCellData.reminderId != null && dateCellData.dateTime != null) {
+      final reminder = reminderBloc.state.reminders
+          .firstWhereOrNull((r) => r.id == dateCellData.reminderId);
+      if (reminder != null) {
+        reminderOption = ReminderOption.fromDateDifference(
+          dateCellData.dateTime!,
+          reminder.scheduledAt.toDateTime(),
+        );
+      }
+    }
 
     return DateCellEditorState(
       dateTypeOptionPB: typeOption,
@@ -406,6 +492,7 @@ class DateCellEditorState with _$DateCellEditorState {
       parseEndTimeError: null,
       timeHintText: _timeHintText(typeOption),
       reminderId: dateCellData.reminderId,
+      reminderOption: reminderOption,
     );
   }
 }
