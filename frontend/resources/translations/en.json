@@ -2,6 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "Me",
   "welcomeText": "Welcome to @:appName",
+  "welcomeTo": "Welcome to",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "Subscribe to Newsletter",
   "letsGoButtonText": "Quick Start",
@@ -35,6 +36,7 @@
     "loginStartWithAnonymous": "Start with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
     "buttonText": "Sign In",
+    "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
     "passwordHint": "Password",
@@ -280,7 +282,8 @@
       "cloudSupabaseUrl": "Supabase URL",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty if the supabase url is not empty",
-      "cloudAppFlowy": "AppFlowy Cloud",
+      "cloudAppFlowy": "AppFlowy Cloud Beta",
+      "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted",
       "clickToCopy": "Click to copy",
       "selfHostStart": "If you don't have a server, please refer to the",
       "selfHostContent": "document",
@@ -301,6 +304,7 @@
       "openHistoricalUser": "Click to open the anonymous account",
       "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
       "importAppFlowyData": "Import Data from External AppFlowy Folder",
+      "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
       "importAppFlowyDataDescription": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
       "importSuccess": "Successfully imported the AppFlowy data folder",
       "importFailed": "Importing the AppFlowy data folder failed",
@@ -343,7 +347,7 @@
         "rtl": "RTL"
       },
       "textDirection": {
-        "label": "Default text direction",
+        "label": "Default Text Direction",
         "hint": "Specify whether text should start from left or right as the default.",
         "ltr": "LTR",
         "rtl": "RTL",
@@ -354,7 +358,6 @@
         "button": "Upload",
         "uploadTheme": "Upload theme",
         "description": "Upload your own AppFlowy theme using the button below.",
-        "failure": "The theme that was uploaded had an invalid format.",
         "loading": "Please wait while we validate and upload your theme...",
         "uploadSuccess": "Your theme was uploaded successfully",
         "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
@@ -445,10 +448,12 @@
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
       "userAgreement": "User Agreement",
+      "termsAndConditions": "Terms and Conditions",
       "userprofileError": "Failed to load user profile",
       "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
       "selectLayout": "Select layout",
-      "selectStartingDay": "Select starting day"
+      "selectStartingDay": "Select starting day",
+      "version": "Version"
     }
   },
   "grid": {
@@ -1000,6 +1005,10 @@
   "inlineActions": {
     "noResults": "No results",
     "pageReference": "Page reference",
+    "docReference": "Document reference",
+    "boardReference": "Board reference",
+    "calReference": "Calendar reference",
+    "gridReference": "Grid reference",
     "date": "Date",
     "reminder": {
       "groupTitle": "Reminder",

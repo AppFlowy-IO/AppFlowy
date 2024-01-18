@@ -12,7 +12,7 @@ collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
 collab-integrate = { workspace = true }
-flowy-document-deps = { workspace = true }
+flowy-document-pub = { workspace = true }
 flowy-storage = { workspace = true }
 flowy-derive.workspace = true
 flowy-notification  = { workspace = true }
@@ -36,6 +36,7 @@ futures.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
 scraper = "0.18.0"
 lru.workspace = true
+fxhash = "0.2.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2", features = ["js"]}

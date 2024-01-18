@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use flowy_folder_deps::cloud::gen_view_id;
+use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::entities::{CreateViewParams, ViewLayoutPB};
 use crate::manager::FolderManager;

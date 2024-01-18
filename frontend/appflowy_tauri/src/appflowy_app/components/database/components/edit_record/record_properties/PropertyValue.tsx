@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Cell } from '$app/components/database/components';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import { useTranslation } from 'react-i18next';
 
 function PropertyValue(props: { rowId: string; field: Field }) {

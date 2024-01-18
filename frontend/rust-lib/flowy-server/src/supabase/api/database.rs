@@ -3,7 +3,7 @@ use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
-use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 

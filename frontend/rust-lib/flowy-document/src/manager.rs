@@ -10,15 +10,21 @@ use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
+use flowy_storage::ObjectIdentity;
+use flowy_storage::ObjectValue;
 use lru::LruCache;
 use parking_lot::Mutex;
+use tokio::io::AsyncWriteExt;
+use tracing::error;
+use tracing::info;
+use tracing::warn;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
-use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_storage::FileStorageService;
+use flowy_storage::ObjectStorageService;
 
 use crate::document::MutexDocument;
 use crate::entities::{
@@ -29,7 +35,6 @@ use crate::reminder::DocumentReminderAction;
 pub trait DocumentUserService: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 
@@ -46,7 +51,7 @@ pub struct DocumentManager {
   collab_builder: Arc<AppFlowyCollabBuilder>,
   documents: Arc<Mutex<LruCache<String, Arc<MutexDocument>>>>,
   cloud_service: Arc<dyn DocumentCloudService>,
-  storage_service: Weak<dyn FileStorageService>,
+  storage_service: Weak<dyn ObjectStorageService>,
   snapshot_service: Arc<dyn DocumentSnapshotService>,
 }
 
@@ -55,7 +60,7 @@ impl DocumentManager {
     user_service: Arc<dyn DocumentUserService>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
-    storage_service: Weak<dyn FileStorageService>,
+    storage_service: Weak<dyn ObjectStorageService>,
     snapshot_service: Arc<dyn DocumentSnapshotService>,
   ) -> Self {
     let documents = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(10).unwrap())));
@@ -110,32 +115,15 @@ impl DocumentManager {
         format!("document {} already exists", doc_id),
       ))
     } else {
-      let result: Result<CollabDocState, FlowyError> = self
-        .cloud_service
-        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-        .await;
-
-      match result {
-        Ok(data) => {
-          let collab = self.collab_for_document(uid, doc_id, data, false).await?;
-          collab.lock().flush();
-        },
-        Err(err) => {
-          if err.is_record_not_found() {
-            let doc_state =
-              doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))?
-                .doc_state
-                .to_vec();
-            let collab = self
-              .collab_for_document(uid, doc_id, doc_state, false)
-              .await?;
-            collab.lock().flush();
-          } else {
-            return Err(err);
-          }
-        },
-      }
-
+      let doc_state =
+        doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))
+          .await?
+          .doc_state
+          .to_vec();
+      let collab = self
+        .collab_for_document(uid, doc_id, doc_state, false)
+        .await?;
+      collab.lock().flush();
       Ok(())
     }
   }
@@ -154,6 +142,12 @@ impl DocumentManager {
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await?;
+      event!(
+        tracing::Level::DEBUG,
+        "get document from cloud service: {}, size:{}",
+        doc_id,
+        doc_state.len()
+      );
     }
 
     let uid = self.user_service.user_id()?;
@@ -258,6 +252,73 @@ impl DocumentManager {
     Ok(snapshot)
   }
 
+  pub async fn upload_file(
+    &self,
+    workspace_id: String,
+    local_file_path: &str,
+  ) -> FlowyResult<String> {
+    let object_value = ObjectValue::from_file(local_file_path).await?;
+
+    let storage_service = self.storage_service_upgrade()?;
+    let url = {
+      let hash = fxhash::hash(object_value.raw.as_ref());
+      storage_service
+        .get_object_url(ObjectIdentity {
+          workspace_id: workspace_id.to_owned(),
+          file_id: hash.to_string(),
+        })
+        .await?
+    };
+
+    // let the upload happen in the background
+    let clone_url = url.clone();
+    tokio::spawn(async move {
+      if let Err(e) = storage_service.put_object(clone_url, object_value).await {
+        error!("upload file failed: {}", e);
+      }
+    });
+    Ok(url)
+  }
+
+  pub async fn download_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+    if tokio::fs::metadata(&local_file_path).await.is_ok() {
+      warn!("file already exist in user local disk: {}", local_file_path);
+      return Ok(());
+    }
+
+    let storage_service = self.storage_service_upgrade()?;
+    let object_value = storage_service.get_object(url).await?;
+
+    // create file if not exist
+    let mut file = tokio::fs::OpenOptions::new()
+      .create(true)
+      .write(true)
+      .open(&local_file_path)
+      .await?;
+
+    let n = file.write(&object_value.raw).await?;
+    info!("downloaded {} bytes to file: {}", n, local_file_path);
+
+    Ok(())
+  }
+
+  pub async fn delete_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+    // delete file from local
+    tokio::fs::remove_file(local_file_path).await?;
+
+    // delete from cloud
+    let storage_service = self.storage_service_upgrade()?;
+    tokio::spawn(async move {
+      if let Err(e) = storage_service.delete_object(url).await {
+        // TODO: add WAL to log the delete operation.
+        // keep a list of files to be deleted, and retry later
+        error!("delete file failed: {}", e);
+      }
+    });
+
+    Ok(())
+  }
+
   async fn collab_for_document(
     &self,
     uid: i64,
@@ -291,6 +352,13 @@ impl DocumentManager {
     }
   }
 
+  fn storage_service_upgrade(&self) -> FlowyResult<Arc<dyn ObjectStorageService>> {
+    let storage_service = self.storage_service.upgrade().ok_or_else(|| {
+      FlowyError::internal().with_context("The file storage service is already dropped")
+    })?;
+    Ok(storage_service)
+  }
+
   /// Only expose this method for testing
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn DocumentCloudService> {
@@ -298,20 +366,26 @@ impl DocumentManager {
   }
   /// Only expose this method for testing
   #[cfg(debug_assertions)]
-  pub fn get_file_storage_service(&self) -> &Weak<dyn FileStorageService> {
+  pub fn get_file_storage_service(&self) -> &Weak<dyn ObjectStorageService> {
     &self.storage_service
   }
 }
 
-fn doc_state_from_document_data(
+async fn doc_state_from_document_data(
   doc_id: &str,
   data: DocumentData,
 ) -> Result<EncodedCollab, FlowyError> {
-  let collab = Arc::new(MutexCollab::from_collab(Collab::new_with_origin(
-    CollabOrigin::Empty,
-    doc_id,
-    vec![],
-  )));
-  let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
-  Ok(collab.encode_collab_v1())
+  let doc_id = doc_id.to_string();
+  // spawn_blocking is used to avoid blocking the tokio thread pool if the document is large.
+  let encoded_collab = tokio::task::spawn_blocking(move || {
+    let collab = Arc::new(MutexCollab::from_collab(Collab::new_with_origin(
+      CollabOrigin::Empty,
+      doc_id,
+      vec![],
+    )));
+    let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
+    Ok::<_, FlowyError>(collab.encode_collab_v1())
+  })
+  .await??;
+  Ok(encoded_collab)
 }

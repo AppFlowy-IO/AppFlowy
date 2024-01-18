@@ -131,6 +131,7 @@ class _GridPageState extends State<GridPage> {
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
               ),
             ),
+            idle: (_) => const SizedBox.shrink(),
           );
         },
       ),

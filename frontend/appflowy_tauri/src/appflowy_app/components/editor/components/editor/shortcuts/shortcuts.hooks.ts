@@ -1,6 +1,6 @@
 import { ReactEditor } from 'slate-react';
 import { useCallback, KeyboardEvent } from 'react';
-import { EditorMarkFormat, EditorNodeType } from '$app/application/document/document.types';
+import { EditorMarkFormat, EditorNodeType, TodoListNode } from '$app/application/document/document.types';
 import isHotkey from 'is-hotkey';
 
 import { getBlock } from '$app/components/editor/plugins/utils';
@@ -93,6 +93,12 @@ export function useShortcuts(editor: ReactEditor) {
           editor.insertText('\n');
         }
 
+        return;
+      }
+
+      if (isHotkey('mod+Enter', e) && node && node.type === EditorNodeType.TodoListBlock) {
+        e.preventDefault();
+        CustomEditor.toggleTodo(editor, node as TodoListNode);
         return;
       }
     },

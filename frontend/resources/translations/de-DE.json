@@ -354,12 +354,12 @@
         "button": "Hochladen",
         "uploadTheme": "Theme hochladen",
         "description": "Laden Sie Ihr eigenes AppFlowy-Theme über die Schaltfläche unten hoch.",
-        "failure": "Das hochgeladene Theme hatte ein ungültiges Format.",
         "loading": "Bitte warten Sie, während wir Ihr Theme validieren und hochladen ...",
         "uploadSuccess": "Ihr Theme wurde erfolgreich hochgeladen",
         "deletionFailure": "Das Thema konnte nicht gelöscht werden. Versuchen Sie, es manuell zu löschen.",
         "filePickerDialogTitle": "Wählen Sie eine .flowy_plugin-Datei",
-        "urlUploadFailure": "URL konnte nicht geöffnet werden: {}"
+        "urlUploadFailure": "URL konnte nicht geöffnet werden: {}",
+        "failure": "Das hochgeladene Theme hatte ein ungültiges Format."
       },
       "theme": "Theme",
       "builtInsLabel": "Integrierte Themes",

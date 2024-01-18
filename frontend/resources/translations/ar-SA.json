@@ -342,12 +342,12 @@
         "button": "رفع",
         "uploadTheme": "تحميل الموضوع",
         "description": "قم بتحميل قالب AppFlowy الخاص بك باستخدام الزر أدناه.",
-        "failure": "النسق الذي تم تحميله به تنسيق غير صالح.",
         "loading": "يرجى الانتظار بينما نقوم بالتحقق من صحة السمة الخاصة بك وتحميلها ...",
         "uploadSuccess": "تم تحميل موضوعك بنجاح",
         "deletionFailure": "فشل حذف الموضوع. حاول حذفه يدويًا.",
         "filePickerDialogTitle": "اختر ملف .flowy_plugin",
-        "urlUploadFailure": "فشل فتح عنوان url: {}"
+        "urlUploadFailure": "فشل فتح عنوان url: {}",
+        "failure": "النسق الذي تم تحميله به تنسيق غير صالح."
       },
       "theme": "سمة",
       "builtInsLabel": "ثيمات مدمجة",
@@ -899,10 +899,10 @@
       "firstDayOfWeek": "اليوم الأول من الأسبوع",
       "layoutDateField": "تقويم التخطيط بواسطة",
       "noDateTitle": "بدون تاريخ",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
-      "name": "تخطيط التقويم"
+      "name": "تخطيط التقويم",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى"

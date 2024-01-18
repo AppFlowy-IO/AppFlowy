@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useState, useMemo } from 'react';
-import { DateTimeCell as DateTimeCellType, DateTimeField } from '$app/components/database/application';
+import { DateTimeCell as DateTimeCellType, DateTimeField } from '$app/application/database';
 import DateTimeCellActions from '$app/components/database/components/field_types/date/DateTimeCellActions';
 
 interface Props {

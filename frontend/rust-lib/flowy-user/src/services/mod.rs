@@ -1,11 +1,7 @@
+pub mod authenticate_user;
 pub mod cloud_config;
 pub mod collab_interact;
 pub mod data_import;
 pub mod db;
 pub mod entities;
-pub(crate) mod historical_user;
-pub(crate) mod user_awareness;
-pub(crate) mod user_encryption;
-pub(crate) mod user_sql;
-pub(crate) mod user_workspace;
-pub(crate) mod workspace_sql;
+pub mod sqlite_sql;

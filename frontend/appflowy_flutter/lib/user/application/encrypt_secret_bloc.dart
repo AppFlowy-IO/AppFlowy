@@ -75,7 +75,11 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
   bool isLoading() {
     final loadingState = state.loadingState;
     if (loadingState != null) {
-      return loadingState.when(loading: () => true, finish: (_) => false);
+      return loadingState.when(
+        loading: () => true,
+        finish: (_) => false,
+        idle: () => false,
+      );
     }
     return false;
   }
