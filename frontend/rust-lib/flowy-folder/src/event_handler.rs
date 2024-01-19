@@ -150,13 +150,11 @@ pub(crate) async fn delete_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: RepeatedViewIdPB = data.into_inner();
-  let weak_workspace_overview_listener_id_manager = Arc::downgrade(&folder.workspace_overview_id_manager);
+  let weak_workspace_overview_listener_id_manager =
+    Arc::downgrade(&folder.workspace_overview_id_manager);
   for view_id in &params.items {
     let _ = folder
-      .move_view_to_trash(
-        view_id,
-        &weak_workspace_overview_listener_id_manager,
-      )
+      .move_view_to_trash(view_id, &weak_workspace_overview_listener_id_manager)
       .await;
   }
   Ok(())

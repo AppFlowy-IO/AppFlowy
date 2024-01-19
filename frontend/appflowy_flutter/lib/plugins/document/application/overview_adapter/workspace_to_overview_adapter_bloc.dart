@@ -57,9 +57,8 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
     ChildViewUpdatePB updatedView,
   ) async {
     if (updatedView.createChildViews.isNotEmpty) {
-      assert(updatedView.parentViewId == this.view.id);
       final view = await ViewBackendService.getAllLevelOfViews(
-        this.view.id,
+        state.view.id,
       );
       return view.fold((l) => l, (r) => null);
     }
@@ -76,12 +75,14 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
     }
 
     if (updatedView.updateChildViews.isNotEmpty) {
-      final updatedView = await ViewBackendService.getAllLevelOfViews(
-        view.id,
-      );
-      final childViews = updatedView.fold((l) => l.childViews, (r) => <ViewPB>[]);
-      if (_isRebuildRequired(childViews, view.childViews)) {
-        return updatedView.fold((l) => l, (r) => null);
+      final view = _getView(updatedView.parentViewId, state.view);
+      final childViews = view != null ? view.childViews : <ViewPB>[];
+
+      if (_isRebuildRequired(childViews, updatedView.updateChildViews)) {
+        final view = await ViewBackendService.getAllLevelOfViews(
+          state.view.id,
+        );
+        return view.fold((l) => l, (r) => null);
       }
     }
 
@@ -102,16 +103,28 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
           childViews[i].icon != updatedChildViews[i].icon) {
         return true;
       }
-
-      if (_isRebuildRequired(
-        childViews[i].childViews,
-        updatedChildViews[i].childViews,
-      )) {
-        return true;
-      }
     }
 
     return false;
+  }
+
+  ViewPB? _getView(String viewId, ViewPB view) {
+    if (viewId == view.id) {
+      return view;
+    }
+
+    for (final ViewPB child in view.childViews) {
+      if (child.id == viewId) {
+        return child;
+      }
+
+      final result = _getView(viewId, child);
+      if (result != null) {
+        return result;
+      }
+    }
+
+    return null;
   }
 
   @override

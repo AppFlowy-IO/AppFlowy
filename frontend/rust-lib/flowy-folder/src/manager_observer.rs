@@ -245,27 +245,27 @@ pub(crate) fn notify_child_views_changed(
   }
 
   send_notification(&parent_view_id, FolderNotification::DidUpdateChildViews)
-    .payload(payload)
+    .payload(payload.clone())
     .send();
 
   notifiy_overview_listeners(
     view_pb,
-    reason,
     workspace_overview_listener_id_manager,
     folder,
+    payload,
   );
 }
 
 /// Notifies all overview listener IDs about updates in child views.
 pub fn notifiy_overview_listeners(
   view_pb: ViewPB,
-  reason: ChildViewChangeReason,
   workspace_overview_listener_id_manager: Arc<WorkspaceOverviewListenerIdManager>,
   folder: &Folder,
+  payload: ChildViewUpdatePB,
 ) {
   let workspace_overview_listener_id_manager = workspace_overview_listener_id_manager.clone();
   let mut listeners_ids: Vec<String> = Vec::new();
-  let _ = contains_child_view_id_in_overview_listener(
+  contains_child_view_id_in_overview_listener(
     &view_pb,
     &workspace_overview_listener_id_manager.view_ids.write()[..],
     folder,
@@ -273,32 +273,16 @@ pub fn notifiy_overview_listeners(
   );
 
   for id in &listeners_ids {
-    let mut payload = ChildViewUpdatePB {
-      parent_view_id: id.clone(),
-      ..Default::default()
-    };
+    tracing::trace!("Did receive workspace overview change: {:?}", id);
 
-    match reason {
-      ChildViewChangeReason::Create => {
-        payload.create_child_views.push(view_pb.clone());
-      },
-      ChildViewChangeReason::Delete => {
-        payload.delete_child_views.push(view_pb.id.clone());
-      },
-      ChildViewChangeReason::Update => {
-        payload.update_child_views.push(view_pb.clone());
-      },
-    }
-
-    tracing::trace!(
-      "Did receive workspace overview change: {:?}",
-      &payload.delete_child_views
-    );
+    // We still need the parent view ID of the updated child views.
+    // This allows us to check the updated child views in the frontend and
+    // build the overview block only once.
     send_notification(
       &id,
       FolderNotification::DidUpdateWorkspaceOverviewChildViews,
     )
-    .payload(payload)
+    .payload(payload.clone())
     .send();
   }
 }
