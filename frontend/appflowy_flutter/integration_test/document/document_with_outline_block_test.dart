@@ -97,3 +97,13 @@ Future<void> insertOutlineInDocument(WidgetTester tester) async {
   );
   await tester.pumpAndSettle();
 }
+
+/// Inserts an workspace overview block in the document
+Future<void> insertWorkspaceOverviewInDocument(WidgetTester tester) async {
+  // open the actions menu and insert the outline block
+  await tester.editor.showSlashMenu();
+  await tester.editor.tapSlashMenuItemWithName(
+    LocaleKeys.document_selectionMenu_overview.tr(),
+  );
+  await tester.pumpAndSettle();
+}
