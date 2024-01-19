@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_cache_manager.dart';
+import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,7 +51,7 @@ class _ResizableImageState extends State<ResizableImage> {
 
   final documentService = DocumentService();
 
-  String? _accessToken;
+  UserProfilePB? _userProfilePB;
 
   @override
   void initState() {
@@ -60,12 +59,8 @@ class _ResizableImageState extends State<ResizableImage> {
 
     imageWidth = widget.width;
 
-    if (widget.type == CustomImageType.internal && _accessToken == null) {
-      final token = context.read<DocumentBloc>().state.userProfilePB?.token;
-      if (token != null) {
-        _accessToken = jsonDecode(token)['access_token'];
-      }
-      assert(_accessToken?.isNotEmpty == true);
+    if (widget.type == CustomImageType.internal) {
+      _userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
     }
   }
 
@@ -94,19 +89,16 @@ class _ResizableImageState extends State<ResizableImage> {
     final src = widget.src;
     if (isURL(src)) {
       // load network image
-      if (widget.type == CustomImageType.internal &&
-          (_accessToken == null || _accessToken!.isEmpty)) {
+      if (widget.type == CustomImageType.internal && _userProfilePB == null) {
         return _buildLoading(context);
       }
 
-      _cacheImage ??= CachedNetworkImage(
-        cacheManager: CustomImageCacheManager(),
-        imageUrl: widget.src,
+      _cacheImage ??= FlowyNetworkImage(
+        url: widget.src,
         width: widget.width,
-        httpHeaders: widget.type == CustomImageType.internal
-            ? {'Authorization': 'Bearer $_accessToken'}
-            : null,
-        errorWidget: (context, url, error) => _buildError(context, error),
+        userProfilePB: _userProfilePB,
+        errorWidgetBuilder: (context, url, error) =>
+            _buildError(context, error),
         progressIndicatorBuilder: (context, url, progress) =>
             _buildLoading(context),
       );

@@ -1,5 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_cache_manager.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -41,12 +40,10 @@ class CustomLinkPreviewWidget extends StatelessWidget {
                   topLeft: Radius.circular(6.0),
                   bottomLeft: Radius.circular(6.0),
                 ),
-                child: CachedNetworkImage(
-                  cacheManager: CustomImageCacheManager(),
-                  imageUrl: imageUrl!,
+                child: FlowyNetworkImage(
+                  url: imageUrl!,
                   width: 180,
                   height: 120,
-                  fit: BoxFit.cover,
                 ),
               ),
             Expanded(

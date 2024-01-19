@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_cache_manager.dart';
+import 'package:appflowy/shared/custom_image_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy_backend/log.dart';

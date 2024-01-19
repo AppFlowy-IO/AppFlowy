@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
@@ -9,15 +8,14 @@ import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_cache_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
@@ -508,17 +506,13 @@ class DocumentCoverState extends State<DocumentCover> {
     switch (widget.coverType) {
       case CoverType.file:
         if (isURL(detail)) {
-          final token = context.read<DocumentBloc>().state.userProfilePB?.token;
-          final accessToken =
-              token == null ? null : jsonDecode(token)['access_token'];
-          return CachedNetworkImage(
-            cacheManager: CustomImageCacheManager(),
-            httpHeaders: accessToken != null
-                ? {'Authorization': 'Bearer $accessToken'}
-                : null,
-            imageUrl: detail,
-            fit: BoxFit.cover,
-            errorWidget: (context, url, error) => const SizedBox.shrink(),
+          final userProfilePB =
+              context.read<DocumentBloc>().state.userProfilePB;
+          return FlowyNetworkImage(
+            url: detail,
+            userProfilePB: userProfilePB,
+            errorWidgetBuilder: (context, url, error) =>
+                const SizedBox.shrink(),
           );
         }
         final imageFile = File(detail);
