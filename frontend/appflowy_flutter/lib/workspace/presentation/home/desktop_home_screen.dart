@@ -87,7 +87,7 @@ class DesktopHomeScreen extends StatelessWidget {
                 )..add(const HomeSettingEvent.initial());
               },
             ),
-            BlocProvider(
+            BlocProvider<FavoriteBloc>(
               create: (context) =>
                   FavoriteBloc()..add(const FavoriteEvent.initial()),
             ),
