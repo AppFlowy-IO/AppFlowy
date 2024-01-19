@@ -78,7 +78,7 @@ if command apt-get &>/dev/null; then
 elif command dnf &>/dev/null; then
     sudo dnf install libnotify-dev
 else
-    echo 'Your system is not supported, please install keybinder3 manually.'
+    echo 'Your system is not supported, please install libnotify manually.'
 fi
 
 # Add the githooks directory to your git configuration
