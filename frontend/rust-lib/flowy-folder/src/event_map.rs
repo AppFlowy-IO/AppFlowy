@@ -160,7 +160,7 @@ pub enum FolderEvent {
   GetAllLevelOfViews = 38,
 
   /// Registers an overview block listener ID, allowing us to receive
-  /// notifications of `DidUpdateChildViews` from all levels of child views
+  /// notifications of `DidUpdateWorkspaceOverviewChildViews` from all levels of child views
   /// to the specified parent view ID listener.
   #[event(input = "ViewIdPB")]
   RegisterOverviewListenerId = 39,

@@ -225,7 +225,7 @@ pub(crate) fn notify_child_views_changed(
   reason: ChildViewChangeReason,
   workspace_overview_listener_id_manager: Arc<WorkspaceOverviewListenerIdManager>,
   folder: &Folder,
-) -> Option<()> {
+) {
   let parent_view_id = view_pb.parent_view_id.clone();
   let mut payload = ChildViewUpdatePB {
     parent_view_id: view_pb.parent_view_id.clone(),
@@ -248,13 +248,31 @@ pub(crate) fn notify_child_views_changed(
     .payload(payload)
     .send();
 
+  notifiy_overview_listeners(
+    view_pb,
+    reason,
+    workspace_overview_listener_id_manager,
+    folder,
+  );
+}
+
+/// Notifies all overview listener IDs about updates in child views.
+pub fn notifiy_overview_listeners(
+  view_pb: ViewPB,
+  reason: ChildViewChangeReason,
+  workspace_overview_listener_id_manager: Arc<WorkspaceOverviewListenerIdManager>,
+  folder: &Folder,
+) {
   let workspace_overview_listener_id_manager = workspace_overview_listener_id_manager.clone();
-  //let workspace_id = folder.get_workspace_id();
-  if let Some(id) = contains_child_view_id_in_overview_listener(
+  let mut listeners_ids: Vec<String> = Vec::new();
+  let _ = contains_child_view_id_in_overview_listener(
     &view_pb,
     &workspace_overview_listener_id_manager.view_ids.write()[..],
     folder,
-  ) {
+    &mut listeners_ids,
+  );
+
+  for id in &listeners_ids {
     let mut payload = ChildViewUpdatePB {
       parent_view_id: id.clone(),
       ..Default::default()
@@ -283,26 +301,25 @@ pub(crate) fn notify_child_views_changed(
     .payload(payload)
     .send();
   }
-
-  Some(())
 }
 
 pub fn contains_child_view_id_in_overview_listener(
   view_pb: &ViewPB,
   view_ids: &[String],
   folder: &Folder,
-) -> Option<String> {
-  if &view_pb.parent_view_id == &folder.get_workspace_id()
-    || &view_pb.id == &folder.get_workspace_id()
+  listeners_ids: &mut Vec<String>,
+) -> Option<()> {
+  if &view_pb.parent_view_id != &folder.get_workspace_id()
+    || &view_pb.id != &folder.get_workspace_id()
   {
-    return None;
+    if view_ids.contains(&view_pb.parent_view_id) {
+      listeners_ids.push(view_pb.parent_view_id.clone());
+    }
+
+    let view = folder.views.get_view(&view_pb.parent_view_id)?;
+    let view_pb = view_pb_without_child_views(view);
+    return contains_child_view_id_in_overview_listener(&view_pb, view_ids, folder, listeners_ids);
   }
 
-  if view_ids.contains(&view_pb.parent_view_id) {
-    return Some(view_pb.parent_view_id.clone());
-  }
-
-  let view = folder.views.get_view(&view_pb.parent_view_id)?;
-  let view_pb = view_pb_without_child_views(view);
-  contains_child_view_id_in_overview_listener(&view_pb, view_ids, folder)
+  return None;
 }

@@ -76,12 +76,12 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
     }
 
     if (updatedView.updateChildViews.isNotEmpty) {
-      final view = await ViewBackendService.getAllLevelOfViews(
-        this.view.id,
+      final updatedView = await ViewBackendService.getAllLevelOfViews(
+        view.id,
       );
-      final childViews = view.fold((l) => l.childViews, (r) => <ViewPB>[]);
-      if (_isRebuildRequired(childViews, updatedView.updateChildViews)) {
-        return view.fold((l) => l, (r) => null);
+      final childViews = updatedView.fold((l) => l.childViews, (r) => <ViewPB>[]);
+      if (_isRebuildRequired(childViews, view.childViews)) {
+        return updatedView.fold((l) => l, (r) => null);
       }
     }
 
