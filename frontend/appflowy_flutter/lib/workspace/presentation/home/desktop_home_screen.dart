@@ -39,106 +39,105 @@ class DesktopHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => FavoriteBloc()..add(const FavoriteEvent.initial()),
-      child: FutureBuilder(
-        future: Future.wait([
-          FolderEventGetCurrentWorkspaceSetting().send(),
-          getIt<AuthService>().getUser(),
-        ]),
-        builder: (context, snapshots) {
-          if (!snapshots.hasData) {
-            return _buildLoading();
-          }
+    return FutureBuilder(
+      future: Future.wait([
+        FolderEventGetCurrentWorkspaceSetting().send(),
+        getIt<AuthService>().getUser(),
+      ]),
+      builder: (context, snapshots) {
+        if (!snapshots.hasData) {
+          return _buildLoading();
+        }
 
-          final workspaceSetting = snapshots.data?[0].fold(
-            (workspaceSettingPB) => workspaceSettingPB as WorkspaceSettingPB,
-            (error) => null,
-          );
-          final userProfile = snapshots.data?[1].fold(
-            (error) => null,
-            (userProfilePB) => userProfilePB as UserProfilePB,
-          );
+        final workspaceSetting = snapshots.data?[0].fold(
+          (workspaceSettingPB) => workspaceSettingPB as WorkspaceSettingPB,
+          (error) => null,
+        );
+        final userProfile = snapshots.data?[1].fold(
+          (error) => null,
+          (userProfilePB) => userProfilePB as UserProfilePB,
+        );
 
-          // In the unlikely case either of the above is null, eg.
-          // when a workspace is already open this can happen.
-          if (workspaceSetting == null || userProfile == null) {
-            return const WorkspaceFailedScreen();
-          }
+        // In the unlikely case either of the above is null, eg.
+        // when a workspace is already open this can happen.
+        if (workspaceSetting == null || userProfile == null) {
+          return const WorkspaceFailedScreen();
+        }
 
-          return MultiBlocProvider(
-            key: ValueKey(userProfile.id),
-            providers: [
-              BlocProvider<ReminderBloc>.value(
-                value: getIt<ReminderBloc>()
-                  ..add(const ReminderEvent.started()),
-              ),
-              BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
-              BlocProvider<HomeBloc>(
-                create: (context) {
-                  return HomeBloc(userProfile, workspaceSetting)
-                    ..add(const HomeEvent.initial());
-                },
-              ),
-              BlocProvider<HomeSettingBloc>(
-                create: (_) {
-                  return HomeSettingBloc(
-                    userProfile,
-                    workspaceSetting,
-                    context.read<AppearanceSettingsCubit>(),
-                    context.widthPx,
-                  )..add(const HomeSettingEvent.initial());
-                },
-              ),
-            ],
-            child: HomeHotKeys(
-              child: Scaffold(
-                body: MultiBlocListener(
-                  listeners: [
-                    BlocListener<HomeBloc, HomeState>(
-                      listenWhen: (p, c) => p.latestView != c.latestView,
-                      listener: (context, state) {
-                        final view = state.latestView;
-                        if (view != null) {
-                          // Only open the last opened view if the [TabsState.currentPageManager] current opened plugin is blank and the last opened view is not null.
-                          // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
-                          final currentPageManager =
-                              context.read<TabsBloc>().state.currentPageManager;
+        return MultiBlocProvider(
+          key: ValueKey(userProfile.id),
+          providers: [
+            BlocProvider<ReminderBloc>.value(
+              value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
+            ),
+            BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
+            BlocProvider<HomeBloc>(
+              create: (context) {
+                return HomeBloc(userProfile, workspaceSetting)
+                  ..add(const HomeEvent.initial());
+              },
+            ),
+            BlocProvider<HomeSettingBloc>(
+              create: (_) {
+                return HomeSettingBloc(
+                  userProfile,
+                  workspaceSetting,
+                  context.read<AppearanceSettingsCubit>(),
+                  context.widthPx,
+                )..add(const HomeSettingEvent.initial());
+              },
+            ),
+            BlocProvider(
+              create: (context) =>
+                  FavoriteBloc()..add(const FavoriteEvent.initial()),
+            ),
+          ],
+          child: HomeHotKeys(
+            child: Scaffold(
+              body: MultiBlocListener(
+                listeners: [
+                  BlocListener<HomeBloc, HomeState>(
+                    listenWhen: (p, c) => p.latestView != c.latestView,
+                    listener: (context, state) {
+                      final view = state.latestView;
+                      if (view != null) {
+                        // Only open the last opened view if the [TabsState.currentPageManager] current opened plugin is blank and the last opened view is not null.
+                        // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
+                        final currentPageManager =
+                            context.read<TabsBloc>().state.currentPageManager;
 
-                          if (currentPageManager.plugin.pluginType ==
-                              PluginType.blank) {
-                            getIt<TabsBloc>().add(
-                              TabsEvent.openPlugin(
-                                plugin: view.plugin(listenOnViewChanged: true),
-                              ),
-                            );
-                          }
+                        if (currentPageManager.plugin.pluginType ==
+                            PluginType.blank) {
+                          getIt<TabsBloc>().add(
+                            TabsEvent.openPlugin(
+                              plugin: view.plugin(listenOnViewChanged: true),
+                            ),
+                          );
                         }
-                      },
-                    ),
-                  ],
-                  child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
-                    buildWhen: (previous, current) => previous != current,
-                    builder: (context, state) {
-                      return FlowyContainer(
-                        Theme.of(context).colorScheme.surface,
-                        child:
-                            _buildBody(context, userProfile, workspaceSetting),
-                      );
+                      }
                     },
                   ),
+                ],
+                child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
+                  buildWhen: (previous, current) => previous != current,
+                  builder: (context, state) {
+                    return FlowyContainer(
+                      Theme.of(context).colorScheme.surface,
+                      child: _buildBody(context, userProfile, workspaceSetting),
+                    );
+                  },
                 ),
-                floatingActionButton: enableMemoryLeakDetect
-                    ? FloatingActionButton(
-                        onPressed: () async => dumpMemoryLeak(),
-                        child: const Icon(Icons.memory),
-                      )
-                    : null,
               ),
+              floatingActionButton: enableMemoryLeakDetect
+                  ? FloatingActionButton(
+                      onPressed: () async => dumpMemoryLeak(),
+                      child: const Icon(Icons.memory),
+                    )
+                  : null,
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
