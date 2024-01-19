@@ -112,8 +112,6 @@ void main() {
 
       await tester.hoverOnPageName(firstLevelParentViewName);
       await tester.renamePage('View 1');
-
-      await Future.delayed(const Duration(seconds: 7));
     });
   });
 }

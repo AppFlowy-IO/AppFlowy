@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/application/overview_adapter/overview_adapter_service.dart';
+import 'package:appflowy/plugins/document/application/workspace_overview/overview_adapter_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -6,22 +6,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 
-part 'workspace_to_overview_adapter_bloc.freezed.dart';
+part 'workspace_overview_bloc.freezed.dart';
 
-class WorkspaceToOverviewAdapterBloc extends Bloc<
-    WorkspaceToOverviewAdapterEvent, WorkspaceToOverviewAdapterState> {
+class WorkspaceOverviewBloc
+    extends Bloc<WorkspaceOverviewEvent, WorkspaceOverviewState> {
   final ViewPB view;
 
   final ViewListener _listener;
 
-  WorkspaceToOverviewAdapterBloc({
+  WorkspaceOverviewBloc({
     required this.view,
   })  : _listener = ViewListener(viewId: view.id),
-        super(WorkspaceToOverviewAdapterState.initial(view)) {
-    on<WorkspaceToOverviewAdapterEvent>((event, emit) async {
+        super(WorkspaceOverviewState.initial(view)) {
+    on<WorkspaceOverviewEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
-          await OverviewAdapterBackendService.addListenerId(view.id);
           await OverviewAdapterBackendService.addListenerId(view.id);
           _listener.start(
             onViewUpdated: _onViewUpdated,
@@ -29,7 +28,7 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
               final updatedView = await _onChildViewsUpdated(updatedChildViews);
               if (!isClosed && updatedView != null) {
                 add(
-                  WorkspaceToOverviewAdapterEvent.viewUpdateChildViews(
+                  WorkspaceOverviewEvent.viewUpdateChildViews(
                     updatedView,
                   ),
                 );
@@ -47,42 +46,56 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
     });
   }
 
-  void _onViewUpdated(UpdateViewNotifiedValue updatedView) {
-    state.view.name = updatedView.name;
-    state.view.icon = updatedView.icon;
-    add(WorkspaceToOverviewAdapterEvent.viewDidUpdate(view));
+  void _onViewUpdated(UpdateViewNotifiedValue update) {
+    state.view.name = update.name;
+    state.view.icon = update.icon;
+    add(WorkspaceOverviewEvent.viewDidUpdate(view));
   }
 
   Future<ViewPB?> _onChildViewsUpdated(
-    ChildViewUpdatePB updatedView,
+    ChildViewUpdatePB update,
   ) async {
-    if (updatedView.createChildViews.isNotEmpty) {
+    if (update.createChildViews.isNotEmpty) {
       final view = await ViewBackendService.getAllLevelOfViews(
         state.view.id,
       );
       return view.fold((l) => l, (r) => null);
     }
 
-    final childViews = [...view.childViews];
-    if (updatedView.deleteChildViews.isNotEmpty) {
-      childViews.removeWhere(
-        (v) => updatedView.deleteChildViews.contains(v.id),
-      );
-      return view.rebuild((p0) {
-        p0.childViews.clear();
-        p0.childViews.addAll(childViews);
-      });
+    if (update.deleteChildViews.isNotEmpty) {
+      final view = _getView(update.parentViewId, state.view);
+
+      if (view != null) {
+        ViewPB? parentView;
+        if (view.hasParentViewId()) {
+          parentView = _getView(view.parentViewId, state.view);
+        }
+
+        final childViews = [...view.childViews];
+        childViews.removeWhere(
+          (v) => update.deleteChildViews.contains(v.id),
+        );
+
+        final updatedView = view.rebuild((p0) {
+          p0.childViews.clear();
+          p0.childViews.addAll(childViews);
+        });
+
+        if (parentView != null) parentView.childViews.add(updatedView);
+
+        return parentView ?? updatedView;
+      }
     }
 
-    if (updatedView.updateChildViews.isNotEmpty) {
-      final view = _getView(updatedView.parentViewId, state.view);
+    if (update.updateChildViews.isNotEmpty) {
+      final view = _getView(update.parentViewId, state.view);
       final childViews = view != null ? view.childViews : <ViewPB>[];
 
-      if (_isRebuildRequired(childViews, updatedView.updateChildViews)) {
-        final view = await ViewBackendService.getAllLevelOfViews(
+      if (_isRebuildRequired(childViews, update.updateChildViews)) {
+        final updatedView = await ViewBackendService.getAllLevelOfViews(
           state.view.id,
         );
-        return view.fold((l) => l, (r) => null);
+        return updatedView.fold((l) => l, (r) => null);
       }
     }
 
@@ -135,24 +148,23 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
 }
 
 @freezed
-class WorkspaceToOverviewAdapterEvent with _$WorkspaceToOverviewAdapterEvent {
-  const factory WorkspaceToOverviewAdapterEvent.initial() = Initial;
-  const factory WorkspaceToOverviewAdapterEvent.viewDidUpdate(
+class WorkspaceOverviewEvent with _$WorkspaceOverviewEvent {
+  const factory WorkspaceOverviewEvent.initial() = Initial;
+  const factory WorkspaceOverviewEvent.viewDidUpdate(
     ViewPB view,
   ) = ViewDidUpdate;
-  const factory WorkspaceToOverviewAdapterEvent.viewUpdateChildViews(
+  const factory WorkspaceOverviewEvent.viewUpdateChildViews(
     ViewPB view,
   ) = ViewUpdateChildViews;
 }
 
 @freezed
-class WorkspaceToOverviewAdapterState with _$WorkspaceToOverviewAdapterState {
-  const factory WorkspaceToOverviewAdapterState({
+class WorkspaceOverviewState with _$WorkspaceOverviewState {
+  const factory WorkspaceOverviewState({
     required ViewPB view,
-  }) = _WorkspaceToOverviewAdapterState;
+  }) = _WorkspaceOverviewState;
 
-  factory WorkspaceToOverviewAdapterState.initial(ViewPB view) =>
-      WorkspaceToOverviewAdapterState(
+  factory WorkspaceOverviewState.initial(ViewPB view) => WorkspaceOverviewState(
         view: view,
       );
 }

@@ -166,7 +166,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     OutlineBlockKeys.type: OutlineBlockComponentBuilder(
       configuration: configuration.copyWith(
         placeholderTextStyle: (_) =>
-            styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+            styleCustomizer.workspaceOverviewBlockPlaceholderStyleBuilder(),
         padding: (_) => const EdgeInsets.only(
           top: 12.0,
           bottom: 4.0,

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
-import 'package:appflowy/plugins/document/application/overview_adapter/workspace_to_overview_adapter_bloc.dart';
+import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/application/workspace_overview/workspace_overview_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -35,11 +36,7 @@ SelectionMenuItem overviewItem = SelectionMenuItem.node(
   replace: (editorState, node) => node.delta?.isEmpty ?? false,
 );
 
-Node overviewBlockNode() {
-  return Node(
-    type: OverviewBlockKeys.type,
-  );
-}
+Node overviewBlockNode() => Node(type: OverviewBlockKeys.type);
 
 class OverviewBlockComponentBuilder extends BlockComponentBuilder {
   OverviewBlockComponentBuilder({
@@ -93,23 +90,28 @@ class _OverviewBlockWidgetState extends State<OverviewBlockWidget>
   @override
   Node get node => widget.node;
 
-  final double leftIndentIncrementValue = 20.0;
+  static const double leftIndentIncrementValue = 20.0;
 
   @override
   Widget build(BuildContext context) {
-    final viewId = editorState.document.id!;
+    final viewId = context.read<DocumentBloc>().view.id;
     return FutureBuilder<Either<ViewPB, FlowyError>>(
       future: ViewBackendService.getAllLevelOfViews(viewId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData &&
             snapshot.data != null) {
-          final view = snapshot.data!.getLeftOrNull();
-          return BlocProvider<WorkspaceToOverviewAdapterBloc>(
-            create: (context) => WorkspaceToOverviewAdapterBloc(view: view)
-              ..add(const WorkspaceToOverviewAdapterEvent.initial()),
-            child: BlocBuilder<WorkspaceToOverviewAdapterBloc,
-                WorkspaceToOverviewAdapterState>(
+          final view = snapshot.data!.getLeftOrNull<ViewPB>();
+
+          if (view == null) {
+            Log.error('Record not found for the viewId: $viewId');
+            return const SizedBox.shrink();
+          }
+
+          return BlocProvider<WorkspaceOverviewBloc>(
+            create: (context) => WorkspaceOverviewBloc(view: view)
+              ..add(const WorkspaceOverviewEvent.initial()),
+            child: BlocBuilder<WorkspaceOverviewBloc, WorkspaceOverviewState>(
               builder: (context, state) {
                 return _buildOverviewBlock(
                   state.view,
@@ -156,7 +158,7 @@ class _OverviewBlockWidgetState extends State<OverviewBlockWidget>
                 textDirection: textDirection,
                 children: [
                   Text(
-                    'Workspace Overview',
+                    LocaleKeys.document_workspaceOverviewBlock_placeholder.tr(),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const VSpace(10.0),
@@ -245,15 +247,10 @@ class OverviewItemWidget extends StatelessWidget {
   });
 
   final String id;
-
   final String text;
-
   final ViewIconPB? icon;
-
   final Widget defaultIcon;
-
   final TextDirection textDirection;
-
   final double leftIndent;
 
   @override
@@ -266,20 +263,14 @@ class OverviewItemWidget extends StatelessWidget {
       builder: (context, onHover) {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: () => _openPage(),
+          onTap: _openPage,
           child: Row(
             textDirection: textDirection,
             children: [
               HSpace(leftIndent),
-              (icon != null && icon!.value.isNotEmpty)
-                  ? EmojiText(
-                      emoji: icon!.value,
-                      fontSize: 18.0,
-                    )
-                  : SizedBox.square(
-                      dimension: 20.0,
-                      child: defaultIcon,
-                    ),
+              icon?.value.isNotEmpty ?? false
+                  ? EmojiText(emoji: icon!.value, fontSize: 18.0)
+                  : SizedBox.square(dimension: 20.0, child: defaultIcon),
               const HSpace(8.0),
               Text(
                 text,

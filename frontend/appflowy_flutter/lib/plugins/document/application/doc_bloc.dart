@@ -159,7 +159,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<EditorState?> _initAppFlowyEditorState(DocumentDataPB data, String viewId) async {
-    final document = data.toDocument(viewId: viewId);
+    final document = data.toDocument();
     if (document == null) {
       assert(false, 'document is null');
       return null;
