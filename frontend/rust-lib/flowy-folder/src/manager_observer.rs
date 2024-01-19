@@ -16,44 +16,61 @@ use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
   FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, ViewPB,
 };
-use crate::manager::{get_workspace_view_pbs, MutexFolder};
+use crate::manager::{get_workspace_view_pbs, MutexFolder, WorkspaceOverviewListenerIdManager};
 use crate::notification::{send_notification, FolderNotification};
 
 /// Listen on the [ViewChange] after create/delete/update events happened
 pub(crate) fn subscribe_folder_view_changed(
   mut rx: ViewChangeReceiver,
   weak_mutex_folder: &Weak<MutexFolder>,
+  weak_workspace_overview_listener_id_manager: &Weak<WorkspaceOverviewListenerIdManager>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
+  let workspace_overview_listener_id_manager = weak_workspace_overview_listener_id_manager.clone();
   af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(folder) = weak_mutex_folder.upgrade() {
         tracing::trace!("Did receive view change: {:?}", value);
-        match value {
-          ViewChange::DidCreateView { view } => {
-            notify_child_views_changed(
-              view_pb_without_child_views(Arc::new(view.clone())),
-              ChildViewChangeReason::Create,
-            );
-            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
-          },
-          ViewChange::DidDeleteView { views } => {
-            for view in views {
-              notify_child_views_changed(
-                view_pb_without_child_views(view),
-                ChildViewChangeReason::Delete,
-              );
-            }
-          },
-          ViewChange::DidUpdate { view } => {
-            notify_view_did_change(view.clone());
-            notify_child_views_changed(
-              view_pb_without_child_views(Arc::new(view.clone())),
-              ChildViewChangeReason::Update,
-            );
-            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id.clone()]);
-          },
-        };
+        let ffolder = folder.lock();
+        if let Some(folder) = ffolder.as_ref() {
+          match value {
+            ViewChange::DidCreateView { view } => {
+              if let Some(manager) = workspace_overview_listener_id_manager.upgrade() {
+                notify_child_views_changed(
+                  view_pb_without_child_views(Arc::new(view.clone())),
+                  ChildViewChangeReason::Create,
+                  manager,
+                  folder,
+                );
+              }
+              notify_parent_view_did_change(folder, vec![view.parent_view_id]);
+            },
+            ViewChange::DidDeleteView { views } => {
+              for view in views {
+                if let Some(manager) = workspace_overview_listener_id_manager.upgrade() {
+                  notify_child_views_changed(
+                    view_pb_without_child_views(view.clone()),
+                    ChildViewChangeReason::Delete,
+                    manager,
+                    folder,
+                  );
+                }
+              }
+            },
+            ViewChange::DidUpdate { view } => {
+              notify_view_did_change(view.clone());
+              if let Some(manager) = workspace_overview_listener_id_manager.upgrade() {
+                notify_child_views_changed(
+                  view_pb_without_child_views(Arc::new(view.clone())),
+                  ChildViewChangeReason::Update,
+                  manager,
+                  folder,
+                );
+              }
+              notify_parent_view_did_change(folder, vec![view.parent_view_id.clone()]);
+            },
+          };
+        }
       }
     }
   });
@@ -129,10 +146,10 @@ pub(crate) fn subscribe_folder_trash_changed(
               send_notification("trash", FolderNotification::DidUpdateTrash)
                 .payload(repeated_trash)
                 .send();
-            }
 
-            let parent_view_ids = unique_ids.into_iter().collect();
-            notify_parent_view_did_change(folder.clone(), parent_view_ids);
+              let parent_view_ids = unique_ids.into_iter().collect();
+              notify_parent_view_did_change(folder, parent_view_ids);
+            }
           },
         }
       }
@@ -143,11 +160,9 @@ pub(crate) fn subscribe_folder_trash_changed(
 /// Notify the the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
-  folder: Arc<MutexFolder>,
+  folder: &Folder,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
-  let folder = folder.lock();
-  let folder = folder.as_ref()?;
   let workspace_id = folder.get_workspace_id();
   let trash_ids = folder
     .get_all_trash()
@@ -205,7 +220,12 @@ pub enum ChildViewChangeReason {
 
 /// Notify the the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip_all)]
-pub(crate) fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChangeReason) {
+pub(crate) fn notify_child_views_changed(
+  view_pb: ViewPB,
+  reason: ChildViewChangeReason,
+  workspace_overview_listener_id_manager: Arc<WorkspaceOverviewListenerIdManager>,
+  folder: &Folder,
+) -> Option<()> {
   let parent_view_id = view_pb.parent_view_id.clone();
   let mut payload = ChildViewUpdatePB {
     parent_view_id: view_pb.parent_view_id.clone(),
@@ -214,17 +234,75 @@ pub(crate) fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChang
 
   match reason {
     ChildViewChangeReason::Create => {
-      payload.create_child_views.push(view_pb);
+      payload.create_child_views.push(view_pb.clone());
     },
     ChildViewChangeReason::Delete => {
-      payload.delete_child_views.push(view_pb.id);
+      payload.delete_child_views.push(view_pb.id.clone());
     },
     ChildViewChangeReason::Update => {
-      payload.update_child_views.push(view_pb);
+      payload.update_child_views.push(view_pb.clone());
     },
   }
 
   send_notification(&parent_view_id, FolderNotification::DidUpdateChildViews)
     .payload(payload)
     .send();
+
+  let workspace_overview_listener_id_manager = workspace_overview_listener_id_manager.clone();
+  //let workspace_id = folder.get_workspace_id();
+  if let Some(id) = contains_child_view_id_in_overview_listener(
+    &view_pb,
+    &workspace_overview_listener_id_manager.view_ids.write()[..],
+    folder,
+  ) {
+    let mut payload = ChildViewUpdatePB {
+      parent_view_id: id.clone(),
+      ..Default::default()
+    };
+
+    match reason {
+      ChildViewChangeReason::Create => {
+        payload.create_child_views.push(view_pb.clone());
+      },
+      ChildViewChangeReason::Delete => {
+        payload.delete_child_views.push(view_pb.id.clone());
+      },
+      ChildViewChangeReason::Update => {
+        payload.update_child_views.push(view_pb.clone());
+      },
+    }
+
+    tracing::trace!(
+      "Did receive workspace overview change: {:?}",
+      &payload.delete_child_views
+    );
+    send_notification(
+      &id,
+      FolderNotification::DidUpdateWorkspaceOverviewChildViews,
+    )
+    .payload(payload)
+    .send();
+  }
+
+  Some(())
+}
+
+pub fn contains_child_view_id_in_overview_listener(
+  view_pb: &ViewPB,
+  view_ids: &[String],
+  folder: &Folder,
+) -> Option<String> {
+  if &view_pb.parent_view_id == &folder.get_workspace_id()
+    || &view_pb.id == &folder.get_workspace_id()
+  {
+    return None;
+  }
+
+  if view_ids.contains(&view_pb.parent_view_id) {
+    return Some(view_pb.parent_view_id.clone());
+  }
+
+  let view = folder.views.get_view(&view_pb.parent_view_id)?;
+  let view_pb = view_pb_without_child_views(view);
+  contains_child_view_id_in_overview_listener(&view_pb, view_ids, folder)
 }

@@ -550,7 +550,11 @@ impl FolderManager {
   /// When the view is moved to trash, all the child views will be moved to trash as well.
   /// All the favorite views being trashed will be unfavorited first to remove it from favorites list as well. The process of unfavoriting concerned view is handled by `unfavorite_view_and_decendants()`
   #[tracing::instrument(level = "debug", skip(self), err)]
-  pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
+  pub async fn move_view_to_trash(
+    &self,
+    view_id: &str,
+    weak_workspace_overview_listener_id_manager: &Weak<WorkspaceOverviewListenerIdManager>,
+  ) -> FlowyResult<()> {
     self.with_folder(
       || (),
       |folder| {
@@ -565,10 +569,16 @@ impl FolderManager {
             })
             .send();
 
-          notify_child_views_changed(
-            view_pb_without_child_views(view),
-            ChildViewChangeReason::Delete,
-          );
+          let workspace_overview_listener_id_manager =
+            weak_workspace_overview_listener_id_manager.clone();
+          if let Some(manager) = workspace_overview_listener_id_manager.upgrade() {
+            notify_child_views_changed(
+              view_pb_without_child_views(view),
+              ChildViewChangeReason::Create,
+              manager,
+              folder,
+            );
+          }
         }
       },
     );
@@ -633,10 +643,14 @@ impl FolderManager {
         folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
       },
     );
-    notify_parent_view_did_change(
-      self.mutex_folder.clone(),
-      vec![new_parent_id, old_parent_id],
-    );
+
+    let mutex_folder = self.mutex_folder.clone();
+    let mutex_folder = mutex_folder.lock();
+    let mutex_folder = mutex_folder.as_ref();
+    if let Some(folder) = mutex_folder {
+      notify_parent_view_did_change(folder, vec![new_parent_id, old_parent_id]);
+    }
+
     Ok(())
   }
 
@@ -682,7 +696,13 @@ impl FolderManager {
               folder.move_view(view_id, actual_from_index as u32, actual_to_index as u32);
             },
           );
-          notify_parent_view_did_change(self.mutex_folder.clone(), vec![parent_view_id]);
+
+          let mutex_folder = self.mutex_folder.clone();
+          let mutex_folder = mutex_folder.lock();
+          let mutex_folder = mutex_folder.as_ref();
+          if let Some(folder) = mutex_folder {
+            notify_parent_view_did_change(folder, vec![parent_view_id]);
+          }
         }
       }
     }
@@ -973,7 +993,13 @@ impl FolderManager {
         folder.insert_view(view.clone(), None);
       },
     );
-    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
+
+    let mutex_folder = self.mutex_folder.clone();
+    let mutex_folder = mutex_folder.lock();
+    let mutex_folder = mutex_folder.as_ref();
+    if let Some(folder) = mutex_folder {
+      notify_parent_view_did_change(folder, vec![view.parent_view_id.clone()]);
+    }
     Ok(view)
   }
 

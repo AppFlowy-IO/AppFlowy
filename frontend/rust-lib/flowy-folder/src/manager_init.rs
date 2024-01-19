@@ -97,10 +97,16 @@ impl FolderManager {
     *self.mutex_folder.lock() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
+    let workspace_overview_listener_id_manager =
+      Arc::downgrade(&self.workspace_overview_id_manager);
     subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
     subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
     subscribe_folder_trash_changed(section_change_rx, &weak_mutex_folder);
-    subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
+    subscribe_folder_view_changed(
+      view_rx,
+      &weak_mutex_folder,
+      &workspace_overview_listener_id_manager,
+    );
     Ok(())
   }
 
