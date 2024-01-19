@@ -22,9 +22,10 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
       await event.map(
         initial: (e) async {
           await OverviewAdapterBackendService.addListenerId(view.id);
+          await OverviewAdapterBackendService.addListenerId(view.id);
           _listener.start(
             onViewUpdated: _onViewUpdated,
-            onViewChildViewsUpdated: (updatedChildViews) async {
+            onWorkspaceOverviewChildViewsUpdated: (updatedChildViews) async {
               final updatedView = await _onChildViewsUpdated(updatedChildViews);
               if (!isClosed && updatedView != null) {
                 add(
@@ -34,8 +35,6 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
                 );
               }
             },
-            onViewMoveToTrash: _onDeleted,
-            onViewRestored: _onViewRestored,
           );
         },
         viewDidUpdate: (e) async {
@@ -49,8 +48,8 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
   }
 
   void _onViewUpdated(UpdateViewNotifiedValue updatedView) {
-    view.name = updatedView.name;
-    view.icon = updatedView.icon;
+    state.view.name = updatedView.name;
+    state.view.icon = updatedView.icon;
     add(WorkspaceToOverviewAdapterEvent.viewDidUpdate(view));
   }
 
@@ -114,10 +113,6 @@ class WorkspaceToOverviewAdapterBloc extends Bloc<
 
     return false;
   }
-
-  void _onViewRestored(RestoreViewNotifiedValue restoredView) {}
-
-  void _onDeleted(MoveToTrashNotifiedValue trashedView) {}
 
   @override
   Future<void> close() async {

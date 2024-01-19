@@ -2,12 +2,17 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/application/overview_adapter/workspace_to_overview_adapter_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
+import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/icon.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart' hide State;
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -136,7 +141,9 @@ class _OverviewBlockWidgetState extends State<OverviewBlockWidget>
       padding: padding,
       child: children.isEmpty
           ? const SizedBox.shrink()
-          : DecoratedBox(
+          : Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(8.0)),
                 color: backgroundColor,
@@ -147,7 +154,14 @@ class _OverviewBlockWidgetState extends State<OverviewBlockWidget>
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 textDirection: textDirection,
-                children: children,
+                children: [
+                  Text(
+                    'Workspace Overview',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const VSpace(10.0),
+                  ...children,
+                ],
               ),
             ),
     );
@@ -252,7 +266,7 @@ class OverviewItemWidget extends StatelessWidget {
       builder: (context, onHover) {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: () {},
+          onTap: () => _openPage(),
           child: Row(
             textDirection: textDirection,
             children: [
@@ -280,5 +294,42 @@ class OverviewItemWidget extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _openPage() async {
+    final view = await _fetchView(id);
+    if (view == null) {
+      Log.error('Page($id) not found');
+      return;
+    }
+
+    getIt<TabsBloc>().add(
+      TabsEvent.openPlugin(
+        plugin: view.plugin(),
+        view: view,
+      ),
+    );
+  }
+
+  Future<ViewPB?> _fetchView(String pageId) async {
+    final view = await ViewBackendService.getView(pageId).then(
+      (value) => value.swap().toOption().toNullable(),
+    );
+
+    if (view == null) {
+      // try to fetch from trash
+      final trashViews = await TrashService().readTrash();
+      final trash = trashViews.fold(
+        (l) => l.items.firstWhereOrNull((element) => element.id == pageId),
+        (r) => null,
+      );
+      if (trash != null) {
+        return ViewPB()
+          ..id = trash.id
+          ..name = trash.name;
+      }
+    }
+
+    return view;
   }
 }

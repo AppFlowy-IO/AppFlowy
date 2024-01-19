@@ -75,13 +75,13 @@ extension DocumentDataPBFromTo on DocumentDataPB {
     );
   }
 
-  Document? toDocument() {
+  Document? toDocument({String? viewId}) {
     final rootId = pageId;
     try {
       final root = buildNode(rootId);
 
       if (root != null) {
-        return Document(root: root);
+        return Document(root: root, id: viewId);
       }
 
       return null;
