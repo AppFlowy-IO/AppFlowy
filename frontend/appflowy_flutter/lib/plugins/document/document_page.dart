@@ -53,9 +53,6 @@ class _DocumentPageState extends State<DocumentPage> {
   @override
   void initState() {
     super.initState();
-
-    // The appflowy editor use Intl as localization, set the default language as fallback.
-    Intl.defaultLocale = 'en_US';
   }
 
   @override
