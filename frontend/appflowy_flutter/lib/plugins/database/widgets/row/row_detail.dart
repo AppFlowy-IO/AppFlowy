@@ -78,7 +78,6 @@ class _RowDetailPageState extends State<RowDetailPage> {
             RowDocument(
               viewId: widget.rowController.viewId,
               rowId: widget.rowController.rowId,
-              scrollController: scrollController,
             ),
           ],
         ),
