@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/application/workspace_overview/overview_adapter_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -27,11 +28,7 @@ class WorkspaceOverviewBloc
             onWorkspaceOverviewChildViewsUpdated: (updatedChildViews) async {
               final updatedView = await _onChildViewsUpdated(updatedChildViews);
               if (!isClosed && updatedView != null) {
-                add(
-                  WorkspaceOverviewEvent.viewUpdateChildViews(
-                    updatedView,
-                  ),
-                );
+                add(WorkspaceOverviewEvent.viewUpdateChildViews(updatedView));
               }
             },
           );
@@ -47,9 +44,21 @@ class WorkspaceOverviewBloc
   }
 
   void _onViewUpdated(UpdateViewNotifiedValue update) {
-    state.view.name = update.name;
-    state.view.icon = update.icon;
-    add(WorkspaceOverviewEvent.viewDidUpdate(view));
+    bool isRebuildRequired = false;
+
+    if (state.view.name != update.name) {
+      state.view.name = update.name;
+      isRebuildRequired = true;
+    }
+
+    if (state.view.icon != update.icon) {
+      state.view.icon = update.icon;
+      isRebuildRequired = true;
+    }
+
+    if (isRebuildRequired) {
+      add(WorkspaceOverviewEvent.viewDidUpdate(state.view));
+    }
   }
 
   Future<ViewPB?> _onChildViewsUpdated(
@@ -87,6 +96,9 @@ class WorkspaceOverviewBloc
       }
     }
 
+    // The update view payload mirrors `FolderNotification.DidUpdateChildViews`.
+    // Retrieve the view specified in `update.parentViewId` from the cached views 
+    // stored in this state to determine if a rebuild is necessary.
     if (update.updateChildViews.isNotEmpty) {
       final view = _getView(update.parentViewId, state.view);
       final childViews = view != null ? view.childViews : <ViewPB>[];
@@ -95,7 +107,10 @@ class WorkspaceOverviewBloc
         final updatedView = await ViewBackendService.getAllLevelOfViews(
           state.view.id,
         );
-        return updatedView.fold((l) => l, (r) => null);
+        return updatedView.fold((l) => l, (r) {
+          Log.error("Record not found for the viewId: ${state.view.id}");
+          return;
+        });
       }
     }
 

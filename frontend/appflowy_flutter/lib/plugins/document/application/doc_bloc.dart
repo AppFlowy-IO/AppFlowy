@@ -154,11 +154,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final result = await _documentService.openDocument(viewId: view.id);
     return result.fold(
       (l) => left(l),
-      (r) async => right(await _initAppFlowyEditorState(r, view.id)),
+      (r) async => right(await _initAppFlowyEditorState(r)),
     );
   }
 
-  Future<EditorState?> _initAppFlowyEditorState(DocumentDataPB data, String viewId) async {
+  Future<EditorState?> _initAppFlowyEditorState(DocumentDataPB data) async {
     final document = data.toDocument();
     if (document == null) {
       assert(false, 'document is null');

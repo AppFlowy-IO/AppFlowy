@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
@@ -51,10 +53,7 @@ class OverviewBlockComponentBuilder extends BlockComponentBuilder {
       node: node,
       configuration: configuration,
       showActions: showActions(node),
-      actionBuilder: (context, state) => actionBuilder(
-        blockComponentContext,
-        state,
-      ),
+      actionBuilder: (_, state) => actionBuilder(blockComponentContext, state),
     );
   }
 
@@ -104,8 +103,7 @@ class _OverviewBlockWidgetState extends State<OverviewBlockWidget>
           final view = snapshot.data!.getLeftOrNull<ViewPB>();
 
           if (view == null) {
-            Log.error('Record not found for the viewId: $viewId');
-            return const SizedBox.shrink();
+            return _buildErrorWidget(viewId);
           }
 
           return BlocProvider<WorkspaceOverviewBloc>(
@@ -121,9 +119,14 @@ class _OverviewBlockWidgetState extends State<OverviewBlockWidget>
           );
         }
 
-        return const SizedBox.shrink();
+        return _buildErrorWidget(viewId);
       },
     );
+  }
+
+  Widget _buildErrorWidget(String id) {
+    Log.error('Record not found for the viewId: $id');
+    return const SizedBox.shrink();
   }
 
   Widget _buildOverviewBlock(ViewPB view) {
@@ -272,12 +275,14 @@ class OverviewItemWidget extends StatelessWidget {
                   ? EmojiText(emoji: icon!.value, fontSize: 18.0)
                   : SizedBox.square(dimension: 20.0, child: defaultIcon),
               const HSpace(8.0),
-              Text(
-                text,
-                style: style.copyWith(
-                  color: onHover
-                      ? Theme.of(context).colorScheme.onSecondary
-                      : null,
+              Flexible(
+                child: Text(
+                  text,
+                  style: style.copyWith(
+                    color: onHover
+                        ? Theme.of(context).colorScheme.onSecondary
+                        : null,
+                  ),
                 ),
               ),
             ],
@@ -287,7 +292,7 @@ class OverviewItemWidget extends StatelessWidget {
     );
   }
 
-  void _openPage() async {
+  Future<void> _openPage() async {
     final view = await _fetchView(id);
     if (view == null) {
       Log.error('Page($id) not found');
@@ -302,8 +307,8 @@ class OverviewItemWidget extends StatelessWidget {
     );
   }
 
-  Future<ViewPB?> _fetchView(String pageId) async {
-    final view = await ViewBackendService.getView(pageId).then(
+  Future<ViewPB?> _fetchView(String id) async {
+    final view = await ViewBackendService.getView(id).then(
       (value) => value.swap().toOption().toNullable(),
     );
 
@@ -311,7 +316,7 @@ class OverviewItemWidget extends StatelessWidget {
       // try to fetch from trash
       final trashViews = await TrashService().readTrash();
       final trash = trashViews.fold(
-        (l) => l.items.firstWhereOrNull((element) => element.id == pageId),
+        (l) => l.items.firstWhereOrNull((element) => element.id == id),
         (r) => null,
       );
       if (trash != null) {

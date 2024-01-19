@@ -118,7 +118,7 @@ void main() {
 
 /// Inserts an workspace overview block in the document
 Future<void> insertWorkspaceOverviewInDocument(WidgetTester tester) async {
-  // open the actions menu and insert the outline block
+  // open the actions menu and insert the overview block
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
     LocaleKeys.document_selectionMenu_overview.tr(),
