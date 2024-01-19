@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/more/more_button.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/favorite/favorite_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -121,13 +120,9 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           view: view,
         ),
         const HSpace(4),
-        BlocProvider(
-          create: (context) =>
-              FavoriteBloc()..add(const FavoriteEvent.initial()),
-          child: DocumentFavoriteButton(
-            key: ValueKey('favorite_button_${view.id}'),
-            view: view,
-          ),
+        DocumentFavoriteButton(
+          key: ValueKey('favorite_button_${view.id}'),
+          view: view,
         ),
         const HSpace(4),
         const DocumentMoreButton(),
