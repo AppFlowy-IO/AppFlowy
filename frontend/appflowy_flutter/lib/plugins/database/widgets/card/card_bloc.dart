@@ -75,6 +75,7 @@ class CardBloc extends Bloc<CardEvent, CardState> {
       _rowCache.removeRowListener(_rowCallback!);
       _rowCallback = null;
     }
+    await _rowListener.stop();
     return super.close();
   }
 
@@ -91,7 +92,9 @@ class CardBloc extends Bloc<CardEvent, CardState> {
 
     _rowListener.start(
       onMetaChanged: (rowMeta) {
-        add(CardEvent.didUpdateRowMeta(rowMeta));
+        if (!isClosed) {
+          add(CardEvent.didUpdateRowMeta(rowMeta));
+        }
       },
     );
   }

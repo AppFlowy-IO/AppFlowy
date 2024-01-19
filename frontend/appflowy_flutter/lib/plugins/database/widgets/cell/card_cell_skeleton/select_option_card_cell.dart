@@ -45,6 +45,10 @@ class _SelectOptionCellState extends State<SelectOptionCardCell> {
           return previous.selectedOptions != current.selectedOptions;
         },
         builder: (context, state) {
+          if (state.selectedOptions.isEmpty) {
+            return const SizedBox.shrink();
+          }
+
           final children = state.selectedOptions
               .map(
                 (option) => SelectOptionTag(

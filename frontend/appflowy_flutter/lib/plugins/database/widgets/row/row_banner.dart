@@ -15,6 +15,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+typedef OnSubmittedEmoji = void Function(String emoji);
+const _kBannerActionHeight = 40.0;
+
 class RowBanner extends StatefulWidget {
   final RowController rowController;
   final EditableCellBuilder cellBuilder;
@@ -32,6 +35,12 @@ class RowBanner extends StatefulWidget {
 class _RowBannerState extends State<RowBanner> {
   final _isHovering = ValueNotifier(false);
   final popoverController = PopoverController();
+
+  @override
+  void dispose() {
+    _isHovering.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +66,7 @@ class _RowBannerState extends State<RowBanner> {
                       popoverController: popoverController,
                     ),
                   ),
-                  const HSpace(4),
+                  const VSpace(4),
                   _BannerTitle(
                     cellBuilder: widget.cellBuilder,
                     popoverController: popoverController,
@@ -81,6 +90,7 @@ class _RowBannerState extends State<RowBanner> {
 class _BannerAction extends StatelessWidget {
   final ValueNotifier<bool> isHovering;
   final PopoverController popoverController;
+
   const _BannerAction({
     required this.isHovering,
     required this.popoverController,
@@ -88,47 +98,42 @@ class _BannerAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: isHovering,
-      builder: (BuildContext context, bool value, Widget? child) {
-        if (!value) {
-          return const SizedBox(height: _kBannerActionHeight);
-        }
+    return SizedBox(
+      height: _kBannerActionHeight,
+      child: ValueListenableBuilder(
+        valueListenable: isHovering,
+        builder: (BuildContext context, bool isHovering, Widget? child) {
+          if (!isHovering) {
+            return const SizedBox.shrink();
+          }
 
-        return BlocBuilder<RowBannerBloc, RowBannerState>(
-          builder: (context, state) {
-            final children = <Widget>[];
-            final rowMeta = state.rowMeta;
-            if (rowMeta.icon.isEmpty) {
-              children.add(
-                EmojiPickerButton(
-                  showEmojiPicker: () => popoverController.show(),
-                ),
+          return BlocBuilder<RowBannerBloc, RowBannerState>(
+            builder: (context, state) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (state.rowMeta.icon.isEmpty)
+                    AddEmojiButton(
+                      onTap: () => popoverController.show(),
+                    )
+                  else
+                    RemoveEmojiButton(
+                      onTap: () => context
+                          .read<RowBannerBloc>()
+                          .add(const RowBannerEvent.setIcon('')),
+                    ),
+                ],
               );
-            } else {
-              children.add(
-                RemoveEmojiButton(
-                  onRemoved: () {
-                    context
-                        .read<RowBannerBloc>()
-                        .add(const RowBannerEvent.setIcon(''));
-                  },
-                ),
-              );
-            }
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: children,
-            );
-          },
-        );
-      },
+            },
+          );
+        },
+      ),
     );
   }
 }
 
-class _BannerTitle extends StatefulWidget {
+class _BannerTitle extends StatelessWidget {
   final EditableCellBuilder cellBuilder;
   final PopoverController popoverController;
   final RowController rowController;
@@ -140,60 +145,46 @@ class _BannerTitle extends StatefulWidget {
   });
 
   @override
-  State<_BannerTitle> createState() => _BannerTitleState();
-}
-
-class _BannerTitleState extends State<_BannerTitle> {
-  @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBannerBloc, RowBannerState>(
       builder: (context, state) {
-        final children = <Widget>[];
-
-        if (state.rowMeta.icon.isNotEmpty) {
-          children.add(
+        final children = <Widget>[
+          if (state.rowMeta.icon.isNotEmpty)
             EmojiButton(
               emoji: state.rowMeta.icon,
-              showEmojiPicker: () => widget.popoverController.show(),
+              showEmojiPicker: () => popoverController.show(),
             ),
-          );
-        }
-
-        children.add(const HSpace(4));
-
-        if (state.primaryField != null) {
-          final cellContext = CellContext(
-            fieldId: state.primaryField!.id,
-            rowId: widget.rowController.rowId,
-          );
-          children.add(
+          const HSpace(4),
+          if (state.primaryField != null)
             Expanded(
-              child: widget.cellBuilder.buildCustom(
-                cellContext,
+              child: cellBuilder.buildCustom(
+                CellContext(
+                  fieldId: state.primaryField!.id,
+                  rowId: rowController.rowId,
+                ),
                 skinMap: EditableCellSkinMap(textSkin: _TitleSkin()),
               ),
             ),
-          );
-        }
+        ];
 
         return AppFlowyPopover(
-          controller: widget.popoverController,
+          controller: popoverController,
           triggerActions: PopoverTriggerFlags.none,
           direction: PopoverDirection.bottomWithLeftAligned,
           constraints: const BoxConstraints(maxWidth: 380, maxHeight: 300),
-          popupBuilder: (popoverContext) => _buildEmojiPicker((emoji) {
-            context.read<RowBannerBloc>().add(RowBannerEvent.setIcon(emoji));
-            widget.popoverController.close();
-          }),
+          popupBuilder: (popoverContext) => EmojiSelectionMenu(
+            onSubmitted: (emoji) {
+              popoverController.close();
+              context.read<RowBannerBloc>().add(RowBannerEvent.setIcon(emoji));
+            },
+            onExit: () {},
+          ),
           child: Row(children: children),
         );
       },
     );
   }
 }
-
-typedef OnSubmittedEmoji = void Function(String emoji);
-const _kBannerActionHeight = 40.0;
 
 class EmojiButton extends StatelessWidget {
   final String emoji;
@@ -208,7 +199,6 @@ class EmojiButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _kBannerActionHeight,
       width: _kBannerActionHeight,
       child: FlowyButton(
         margin: EdgeInsets.zero,
@@ -223,18 +213,13 @@ class EmojiButton extends StatelessWidget {
   }
 }
 
-class EmojiPickerButton extends StatefulWidget {
-  final VoidCallback showEmojiPicker;
-  const EmojiPickerButton({
+class AddEmojiButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const AddEmojiButton({
     super.key,
-    required this.showEmojiPicker,
+    required this.onTap,
   });
 
-  @override
-  State<EmojiPickerButton> createState() => _EmojiPickerButtonState();
-}
-
-class _EmojiPickerButtonState extends State<EmojiPickerButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -245,7 +230,7 @@ class _EmojiPickerButtonState extends State<EmojiPickerButton> {
           LocaleKeys.document_plugins_cover_addIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),
-        onTap: widget.showEmojiPicker,
+        onTap: onTap,
         margin: const EdgeInsets.all(4),
       ),
     );
@@ -253,13 +238,11 @@ class _EmojiPickerButtonState extends State<EmojiPickerButton> {
 }
 
 class RemoveEmojiButton extends StatelessWidget {
-  final VoidCallback onRemoved;
-  RemoveEmojiButton({
+  final VoidCallback onTap;
+  const RemoveEmojiButton({
     super.key,
-    required this.onRemoved,
+    required this.onTap,
   });
-
-  final popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -271,18 +254,11 @@ class RemoveEmojiButton extends StatelessWidget {
           LocaleKeys.document_plugins_cover_removeIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),
-        onTap: onRemoved,
+        onTap: onTap,
         margin: const EdgeInsets.all(4),
       ),
     );
   }
-}
-
-Widget _buildEmojiPicker(OnSubmittedEmoji onSubmitted) {
-  return EmojiSelectionMenu(
-    onSubmitted: onSubmitted,
-    onExit: () {},
-  );
 }
 
 class RowActionButton extends StatelessWidget {
@@ -317,7 +293,8 @@ class _TitleSkin extends IEditableTextCellSkin {
       controller: textEditingController,
       focusNode: focusNode,
       maxLines: null,
-      style: Theme.of(context).textTheme.titleLarge,
+      autofocus: true,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 28),
       decoration: InputDecoration(
         contentPadding: EdgeInsets.zero,
         border: InputBorder.none,

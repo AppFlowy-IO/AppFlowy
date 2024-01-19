@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -126,9 +125,9 @@ class _TextCellState extends State<TextCardCell> {
               : _buildText(state, isTitle);
 
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (widget.showNotes) ...[
+              if (isTitle && widget.showNotes)
                 FlowyTooltip(
                   message: LocaleKeys.board_notesTooltip.tr(),
                   child: FlowySvg(
@@ -136,8 +135,6 @@ class _TextCellState extends State<TextCardCell> {
                     color: Theme.of(context).hintColor,
                   ),
                 ),
-                const HSpace(4),
-              ],
               Expanded(child: child),
             ],
           );
