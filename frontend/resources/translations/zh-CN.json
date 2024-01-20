@@ -484,7 +484,7 @@
       "editView": "编辑视图",
       "boardSettings": "看板设置",
       "calendarSettings": "日历设置",
-      "createView": "新视图",
+      "createView": "新建视图",
       "duplicateView": "复制视图",
       "deleteView": "删除视图"
     },
@@ -557,7 +557,7 @@
       "checklistFieldName": "清单",
       "numberFormat": "数字格式",
       "dateFormat": "日期格式",
-      "includeTime": "包含时间",
+      "includeTime": "包含时/分",
       "isRange": "结束日期",
       "dateFormatFriendly": "月 日, 年",
       "dateFormatISO": "年-月-日",
@@ -926,6 +926,7 @@
       "showWeekends": "显示周末",
       "firstDayOfWeek": "一周开始于",
       "layoutDateField": "以……为日历布局",
+      "changeLayoutDateField": "更改布局字段",
       "noDateTitle": "没有日期",
       "noDateHint": {
         "zero": "未计划的事件将显示在这里",
