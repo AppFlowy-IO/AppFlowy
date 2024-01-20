@@ -47,7 +47,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
             create: (context) => RowDetailBloc(
               fieldController: widget.databaseController.fieldController,
               rowController: widget.rowController,
-            )..add(const RowDetailEvent.initial()),
+            ),
           ),
           BlocProvider.value(
             value: getIt<ReminderBloc>(),

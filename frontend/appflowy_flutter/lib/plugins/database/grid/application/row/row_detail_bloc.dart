@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
@@ -15,46 +16,37 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   final FieldController fieldController;
   final RowController rowController;
 
+  final List<CellContext> allCells = [];
+
   RowDetailBloc({
     required this.fieldController,
     required this.rowController,
   }) : super(RowDetailState.initial()) {
+    _dispatch();
+    _startListening();
+    _init();
+  }
+
+  @override
+  Future<void> close() async {
+    rowController.dispose();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.when(
-          initial: () {
-            _startListening();
-            final allCells = rowController.loadData().values.toList();
-            int numHiddenFields = 0;
-            final visibleCells = <CellContext>[];
-            for (final cell in allCells) {
-              final fieldInfo = fieldController.getField(cell.fieldId)!;
-              final isVisible = fieldInfo.visibility!.isVisibleState();
-              final isPrimary = fieldInfo.isPrimary;
-              if (isVisible && !isPrimary) {
-                visibleCells.add(cell);
-              }
-              if (!isVisible && !isPrimary) {
-                numHiddenFields++;
-              }
-            }
+          didReceiveCellDatas: (visibleCells, numHiddenFields) {
             emit(
-              RowDetailState(
+              state.copyWith(
                 visibleCells: visibleCells,
-                allCells: allCells,
-                showHiddenFields: false,
                 numHiddenFields: numHiddenFields,
               ),
             );
           },
-          didReceiveCellDatas: (visibleCells, allCells, numHiddenFields) {
-            emit(
-              state.copyWith(
-                visibleCells: visibleCells,
-                allCells: allCells,
-                numHiddenFields: numHiddenFields,
-              ),
-            );
+          didUpdateFields: (fields) {
+            emit(state.copyWith(fields: fields));
           },
           deleteField: (fieldId) async {
             final result = await FieldBackendService.deleteField(
@@ -71,14 +63,13 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           },
           toggleHiddenFieldVisibility: () {
             final showHiddenFields = !state.showHiddenFields;
-            final visibleCells = List<CellContext>.from(state.allCells);
+            final visibleCells = List<CellContext>.from(allCells);
             visibleCells.retainWhere((cellContext) {
               final fieldInfo = fieldController.getField(cellContext.fieldId);
-              if (fieldInfo == null) {
+              if (fieldInfo == null || fieldInfo.isPrimary) {
                 return false;
               }
-              return !fieldInfo.isPrimary &&
-                  (fieldInfo.visibility!.isVisibleState() || showHiddenFields);
+              return fieldInfo.visibility!.isVisibleState() || showHiddenFields;
             });
             emit(
               state.copyWith(
@@ -92,35 +83,27 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     );
   }
 
-  @override
-  Future<void> close() async {
-    rowController.dispose();
-    return super.close();
-  }
-
   void _startListening() {
     rowController.addListener(
       onRowChanged: (cellMap, reason) {
         if (isClosed) {
           return;
         }
-        final allCellContext = cellMap.values.toList();
+        allCells.clear();
+        allCells.addAll(cellMap.values);
         int numHiddenFields = 0;
         final visibleCells = <CellContext>[];
 
-        for (final cellContext in allCellContext) {
+        for (final cellContext in allCells) {
           final fieldInfo = fieldController.getField(cellContext.fieldId);
-          if (fieldInfo == null) {
+          if (fieldInfo == null || fieldInfo.isPrimary) {
             continue;
           }
-          final isHidden = fieldInfo.visibility == FieldVisibility.AlwaysHidden;
-          final isPrimary = fieldInfo.isPrimary;
-
+          final isHidden = !fieldInfo.visibility!.isVisibleState();
           if (!isHidden || state.showHiddenFields) {
             visibleCells.add(cellContext);
           }
-
-          if (isHidden && !isPrimary) {
+          if (isHidden) {
             numHiddenFields++;
           }
         }
@@ -128,12 +111,40 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
         add(
           RowDetailEvent.didReceiveCellDatas(
             visibleCells,
-            allCellContext,
             numHiddenFields,
           ),
         );
       },
     );
+    fieldController.addListener(
+      onReceiveFields: (fields) => add(RowDetailEvent.didUpdateFields(fields)),
+      listenWhen: () => !isClosed,
+    );
+  }
+
+  void _init() {
+    allCells.addAll(rowController.loadData().values);
+    int numHiddenFields = 0;
+    final visibleCells = <CellContext>[];
+    for (final cell in allCells) {
+      final fieldInfo = fieldController.getField(cell.fieldId);
+      if (fieldInfo == null || fieldInfo.isPrimary) {
+        continue;
+      }
+      final isHidden = !fieldInfo.visibility!.isVisibleState();
+      if (!isHidden) {
+        visibleCells.add(cell);
+      } else {
+        numHiddenFields++;
+      }
+    }
+    add(
+      RowDetailEvent.didReceiveCellDatas(
+        visibleCells,
+        numHiddenFields,
+      ),
+    );
+    add(RowDetailEvent.didUpdateFields(fieldController.fieldInfos));
   }
 
   Future<void> _toggleFieldVisibility(
@@ -179,13 +190,12 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
-  /// Event to start listeners and load row data
-  const factory RowDetailEvent.initial() = _Initial;
+  const factory RowDetailEvent.didUpdateFields(List<FieldInfo> fields) =
+      _DidUpdateFields;
 
   /// Triggered by listeners to update row data
   const factory RowDetailEvent.didReceiveCellDatas(
     List<CellContext> visibleCells,
-    List<CellContext> allCells,
     int numHiddenFields,
   ) = _DidReceiveCellDatas;
 
@@ -210,15 +220,15 @@ class RowDetailEvent with _$RowDetailEvent {
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
+    required List<FieldInfo> fields,
     required List<CellContext> visibleCells,
-    required List<CellContext> allCells,
     required bool showHiddenFields,
     required int numHiddenFields,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => const RowDetailState(
+        fields: [],
         visibleCells: [],
-        allCells: [],
         showHiddenFields: false,
         numHiddenFields: 0,
       );

@@ -306,6 +306,7 @@ class _TitleSkin extends IEditableTextCellSkin {
         isDense: true,
         isCollapsed: true,
       ),
+      onChanged: (text) => bloc.add(TextCellEvent.updateText(text.trim())),
     );
   }
 }
