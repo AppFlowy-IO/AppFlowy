@@ -20,7 +20,7 @@ void main() {
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
-      final card1 = find.findTextInFlowyText(name);
+      final card1 = find.text(name);
       await tester.hoverOnWidget(
         card1,
         onHover: () async {
@@ -29,7 +29,7 @@ void main() {
         },
       );
       await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
-      expect(find.findTextInFlowyText(name), findsNothing);
+      expect(find.text(name), findsNothing);
     });
 
     testWidgets('duplicate item in ToDo card', (tester) async {
@@ -38,7 +38,7 @@ void main() {
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
-      final card1 = find.findTextInFlowyText(name);
+      final card1 = find.text(name);
       await tester.hoverOnWidget(
         card1,
         onHover: () async {

@@ -63,12 +63,11 @@ class EditableCellBuilder {
           skin: IEditableDateCellSkin.fromStyle(style),
           key: key,
         ),
-      FieldType.MultiSelect ||
-      FieldType.SingleSelect =>
-        EditableSelectOptionCell(
+      FieldType.MultiSelect => EditableSelectOptionCell(
           cellController: cellController.as(),
           skin: IEditableSelectOptionCellSkin.fromStyle(style),
           key: key,
+          fieldType: FieldType.MultiSelect,
         ),
       FieldType.Number => EditableNumberCell(
           cellController: cellController.as(),
@@ -79,6 +78,12 @@ class EditableCellBuilder {
           cellController: cellController.as(),
           skin: IEditableTextCellSkin.fromStyle(style),
           key: key,
+        ),
+      FieldType.SingleSelect => EditableSelectOptionCell(
+          cellController: cellController.as(),
+          skin: IEditableSelectOptionCellSkin.fromStyle(style),
+          key: key,
+          fieldType: FieldType.SingleSelect,
         ),
       FieldType.URL => EditableURLCell(
           cellController: cellController.as(),
@@ -122,12 +127,11 @@ class EditableCellBuilder {
           skin: skinMap.dateSkin!,
           key: key,
         ),
-      FieldType.MultiSelect ||
-      FieldType.SingleSelect =>
-        EditableSelectOptionCell(
+      FieldType.MultiSelect => EditableSelectOptionCell(
           cellController: cellController.as(),
           skin: skinMap.selectOptionSkin!,
           key: key,
+          fieldType: FieldType.MultiSelect,
         ),
       FieldType.Number => EditableNumberCell(
           cellController: cellController.as(),
@@ -138,6 +142,12 @@ class EditableCellBuilder {
           cellController: cellController.as(),
           skin: skinMap.textSkin!,
           key: key,
+        ),
+      FieldType.SingleSelect => EditableSelectOptionCell(
+          cellController: cellController.as(),
+          skin: skinMap.selectOptionSkin!,
+          key: key,
+          fieldType: FieldType.SingleSelect,
         ),
       FieldType.URL => EditableURLCell(
           cellController: cellController.as(),

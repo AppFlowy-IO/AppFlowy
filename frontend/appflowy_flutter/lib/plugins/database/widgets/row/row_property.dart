@@ -206,11 +206,14 @@ class _PropertyCellState extends State<_PropertyCell> {
               },
             ),
             const HSpace(4),
-            BlocSelector<RowDetailBloc, RowDetailState, FieldInfo>(
-              selector: (state) => state.fields.firstWhere(
+            BlocSelector<RowDetailBloc, RowDetailState, FieldInfo?>(
+              selector: (state) => state.fields.firstWhereOrNull(
                 (fieldInfo) => fieldInfo.field.id == widget.cellContext.fieldId,
               ),
               builder: (context, fieldInfo) {
+                if (fieldInfo == null) {
+                  return const SizedBox.shrink();
+                }
                 return AppFlowyPopover(
                   controller: _popoverController,
                   constraints: BoxConstraints.loose(const Size(240, 600)),

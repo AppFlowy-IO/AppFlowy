@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database/board/presentation/widgets/board_colum
 import 'package:appflowy/plugins/database/widgets/card/container/card_container.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -25,11 +24,11 @@ void main() {
 
       final findFirstCard = find.descendant(
         of: find.byType(AppFlowyGroupCard),
-        matching: find.byType(FlowyText),
+        matching: find.byType(Text),
       );
 
-      FlowyText firstCardText = tester.firstWidget(findFirstCard);
-      expect(firstCardText.text, defaultFirstCardName);
+      Text firstCardText = tester.firstWidget(findFirstCard);
+      expect(firstCardText.data, defaultFirstCardName);
 
       await tester.tap(
         find
@@ -51,13 +50,13 @@ void main() {
         ),
         newCardName,
       );
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       await tester.tap(find.byType(AppFlowyBoard));
       await tester.pumpAndSettle();
 
       firstCardText = tester.firstWidget(findFirstCard);
-      expect(firstCardText.text, newCardName);
+      expect(firstCardText.data, newCardName);
     });
 
     testWidgets('from footer', (tester) async {
@@ -68,12 +67,11 @@ void main() {
 
       final findLastCard = find.descendant(
         of: find.byType(AppFlowyGroupCard),
-        matching: find.byType(FlowyText),
+        matching: find.byType(Text),
       );
 
-      FlowyText? lastCardText =
-          tester.widgetList(findLastCard).last as FlowyText;
-      expect(lastCardText.text, defaultLastCardName);
+      Text? lastCardText = tester.widgetList(findLastCard).last as Text;
+      expect(lastCardText.data, defaultLastCardName);
 
       await tester.tap(
         find
@@ -93,13 +91,13 @@ void main() {
         ),
         newCardName,
       );
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       await tester.tap(find.byType(AppFlowyBoard));
       await tester.pumpAndSettle();
 
-      lastCardText = tester.widgetList(findLastCard).last as FlowyText;
-      expect(lastCardText.text, newCardName);
+      lastCardText = tester.widgetList(findLastCard).last as Text;
+      expect(lastCardText.data, newCardName);
     });
   });
 }
