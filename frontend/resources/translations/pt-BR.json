@@ -682,9 +682,9 @@
       "codeBlock": "Bloco de código"
     },
     "plugins": {
-      "referencedBoard": "Quadro vinculado",
-      "referencedGrid": "Grade vinculado",
-      "referencedCalendar": "calendário referenciado",
+      "referencedBoard": "Quadro referenciado",
+      "referencedGrid": "Grade referenciada",
+      "referencedCalendar": "Calendário referenciado",
       "referencedDocument": "Referenciar um documento",
       "autoGeneratorMenuItemName": "Gerar nome automaticamente",
       "autoGeneratorTitleName": "Gerar por IA",
@@ -712,6 +712,8 @@
       "bulletedList": "Lista com marcadores",
       "todoList": "Lista de afazeres",
       "callout": "Destacar",
+      "insertDate": "Inserir data",
+      "emoji": "Emoji",
       "cover": {
         "changeCover": "Mudar capa",
         "colors": "cores",

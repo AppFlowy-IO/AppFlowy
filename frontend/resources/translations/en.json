@@ -707,6 +707,8 @@
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
       "fonts": "Fonts",
+      "insertDate": "Insert date",
+      "emoji": "Emoji",
       "toggleList": "Toggle list",
       "quoteList": "Quote list",
       "numberedList": "Numbered list",
