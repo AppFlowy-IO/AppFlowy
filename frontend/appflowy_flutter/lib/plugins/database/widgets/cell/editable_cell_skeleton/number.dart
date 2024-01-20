@@ -89,7 +89,7 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
 
   @override
   void requestBeginFocus() {
-    focusNode.requestFocus(); //TODO YAY for other styles
+    focusNode.requestFocus();
   }
 
   @override

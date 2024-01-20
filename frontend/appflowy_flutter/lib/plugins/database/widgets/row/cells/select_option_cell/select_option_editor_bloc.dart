@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,6 +16,8 @@ class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionCellBackendService _selectOptionService;
   final SelectOptionCellController cellController;
+
+  VoidCallback? _onCellChangedFn;
 
   SelectOptionCellEditorBloc({
     required this.cellController,
@@ -100,6 +103,15 @@ class SelectOptionCellEditorBloc
         );
       },
     );
+  }
+
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    return super.close();
   }
 
   Future<void> _createOption(String name) async {
@@ -235,7 +247,7 @@ class SelectOptionCellEditorBloc
   }
 
   void _startListening() {
-    cellController.addListener(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((selectOptionContext) {
         _loadOptions();
       }),

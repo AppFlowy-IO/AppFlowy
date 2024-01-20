@@ -1653,9 +1653,19 @@ Finder finderForFieldType(FieldType fieldType) {
     case FieldType.CreatedTime:
       return find.byType(EditableTimestampCell, skipOffstage: false);
     case FieldType.SingleSelect:
-      return find.byType(EditableSelectOptionCell, skipOffstage: false);
+      return find.byWidgetPredicate(
+        (widget) =>
+            widget is EditableSelectOptionCell &&
+            widget.fieldType == FieldType.SingleSelect,
+        skipOffstage: false,
+      );
     case FieldType.MultiSelect:
-      return find.byType(EditableSelectOptionCell, skipOffstage: false);
+      return find.byWidgetPredicate(
+        (widget) =>
+            widget is EditableSelectOptionCell &&
+            widget.fieldType == FieldType.MultiSelect,
+        skipOffstage: false,
+      );
     case FieldType.Checklist:
       return find.byType(EditableChecklistCell, skipOffstage: false);
     case FieldType.Number:

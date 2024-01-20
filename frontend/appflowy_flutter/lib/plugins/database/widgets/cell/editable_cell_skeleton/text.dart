@@ -88,7 +88,7 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
 
   @override
   void requestBeginFocus() {
-    focusNode.requestFocus(); //TODO YAY
+    focusNode.requestFocus();
   }
 
   @override

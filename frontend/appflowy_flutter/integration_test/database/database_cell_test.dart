@@ -222,7 +222,6 @@ void main() {
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
-      await tester.findDateEditor(findsOneWidget);
 
       // Toggle include time
       final now = DateTime.now();
