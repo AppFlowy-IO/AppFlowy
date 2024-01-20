@@ -159,28 +159,24 @@ class _EventCardState extends State<EventCard> {
           layoutSettings: settings,
         );
       },
-      child: Padding(
+      child: Container(
         padding: widget.padding,
-        child: DecoratedBox(
-          decoration: decoration,
-          child: card,
-        ),
+        decoration: decoration,
+        child: card,
       ),
     );
 
     if (widget.isDraggable) {
       return Draggable<CalendarDayEvent>(
         data: widget.event,
-        feedback: ConstrainedBox(
+        feedback: Container(
           constraints: BoxConstraints(
             maxWidth: widget.constraints.maxWidth - 8.0,
           ),
+          decoration: decoration,
           child: Opacity(
             opacity: 0.6,
-            child: DecoratedBox(
-              decoration: decoration,
-              child: card,
-            ),
+            child: card,
           ),
         ),
         child: card,
