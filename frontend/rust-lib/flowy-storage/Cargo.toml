@@ -18,3 +18,4 @@ flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
 mime = "0.3.17"
 tokio.workspace = true
 tracing.workspace = true
+fxhash = "0.2.1"

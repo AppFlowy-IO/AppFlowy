@@ -14,6 +14,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
@@ -51,9 +52,12 @@ class MobileHomeScreen extends StatelessWidget {
 
         return Scaffold(
           body: SafeArea(
-            child: MobileHomePage(
-              userProfile: userProfile,
-              workspaceSetting: workspaceSetting,
+            child: Provider.value(
+              value: userProfile,
+              child: MobileHomePage(
+                userProfile: userProfile,
+                workspaceSetting: workspaceSetting,
+              ),
             ),
           ),
         );

@@ -36,7 +36,6 @@ futures.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
 scraper = "0.18.0"
 lru.workspace = true
-fxhash = "0.2.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2", features = ["js"]}

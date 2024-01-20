@@ -19,8 +19,9 @@ where
   fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
+      let file_name = format!("{}.{}", object_id.file_id, object_id.ext);
       let client = try_get_client?;
-      let url = client.get_blob_url(&object_id.workspace_id, &object_id.file_id);
+      let url = client.get_blob_url(&object_id.workspace_id, &file_name);
       Ok(url)
     })
   }

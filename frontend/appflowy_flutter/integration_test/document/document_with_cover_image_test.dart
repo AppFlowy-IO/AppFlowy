@@ -43,8 +43,6 @@ void main() {
       await tester.editor.hoverOnCover();
       await tester.editor.tapOnChangeCover();
       await tester.editor.addNetworkImageCover(imageUrl);
-      await tester.editor.switchNetworkImageCover(imageUrl);
-      await tester.editor.dismissCoverPicker();
       tester.expectToSeeDocumentCover(CoverType.file);
 
       // Remove the cover
