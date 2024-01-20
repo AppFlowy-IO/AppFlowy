@@ -48,17 +48,3 @@ class MobileGridTextCellSkin extends IEditableTextCellSkin {
     );
   }
 }
-
-
-// FlowyTextField(
-//   controller: _controller,
-//   textStyle: widget.cellStyle.textStyle ??
-//       Theme.of(context).textTheme.bodyMedium,
-//   focusNode: focusNode,
-//   autoFocus: widget.cellStyle.autofocus,
-//   hintText: widget.cellStyle.placeholder,
-//   onChanged: (text) => _cellBloc.add(
-//     TextCellEvent.updateText(text),
-//   ),
-//   debounceDuration: const Duration(milliseconds: 300),
-// )

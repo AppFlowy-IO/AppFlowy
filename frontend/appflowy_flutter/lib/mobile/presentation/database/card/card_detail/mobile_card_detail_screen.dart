@@ -344,7 +344,7 @@ class MobileRowDetailPageContentState
       create: (_) => RowDetailBloc(
         fieldController: fieldController,
         rowController: rowController,
-      )..add(const RowDetailEvent.initial()),
+      ),
       child: BlocBuilder<RowDetailBloc, RowDetailState>(
         builder: (context, rowDetailState) {
           return Column(
