@@ -341,7 +341,8 @@
         "opacityEmptyError": "不透明度不能为空",
         "opacityRangeError": "不透明度必须介于 1 到 100 之间",
         "app": "应用程序",
-        "apply": "申请"
+        "flowy": "Flowy",
+        "apply": "提交"
       },
       "layoutDirection": {
         "label": "布局方向",
@@ -1020,6 +1021,7 @@
   "datePicker": {
     "dateTimeFormatTooltip": "在设置中更改日期和时间格式",
     "dateFormat": "日期格式",
+    "includeTime": "精确到时/分",
     "isRange": "结束日期",
     "timeFormat": "时间格式",
     "clearDate": "清除日期"
@@ -1186,7 +1188,8 @@
     "rowDuplicate": "复制行",
     "colClear": "清空本列内容",
     "rowClear": "清空本行内容",
-    "slashPlaceHolder": "输入 '/' 以插入块，或开始键入"
+    "slashPlaceHolder": "输入 '/' 以插入块，或开始键入",
+    "typeSomething": "输入点东西..."
   },
   "favorite": {
     "noFavorite": "没有收藏页面",
