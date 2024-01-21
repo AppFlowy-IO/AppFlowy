@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/date_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -33,12 +35,14 @@ abstract class IEditableDateCellSkin {
 }
 
 class EditableDateCell extends EditableCellWidget {
-  final DateCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
   final IEditableDateCellSkin skin;
 
   EditableDateCell({
     super.key,
-    required this.cellController,
+    required this.databaseController,
+    required this.cellContext,
     required this.skin,
   });
 
@@ -48,8 +52,12 @@ class EditableDateCell extends EditableCellWidget {
 
 class _DateCellState extends GridCellState<EditableDateCell> {
   final PopoverController _popover = PopoverController();
-  late final cellBloc = DateCellBloc(cellController: widget.cellController)
-    ..add(const DateCellEvent.initial());
+  late final cellBloc = DateCellBloc(
+    cellController: makeCellController(
+      widget.databaseController,
+      widget.cellContext,
+    ).as(),
+  )..add(const DateCellEvent.initial());
 
   @override
   void dispose() {

@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/number_cell/number_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -34,13 +36,15 @@ abstract class IEditableNumberCellSkin {
 }
 
 class EditableNumberCell extends EditableCellWidget {
-  final NumberCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
   final IEditableNumberCellSkin skin;
 
   EditableNumberCell({
-    required this.cellController,
-    required this.skin,
     super.key,
+    required this.databaseController,
+    required this.cellContext,
+    required this.skin,
   });
 
   @override
@@ -49,8 +53,12 @@ class EditableNumberCell extends EditableCellWidget {
 
 class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   late final TextEditingController _textEditingController;
-  late final cellBloc = NumberCellBloc(cellController: widget.cellController)
-    ..add(const NumberCellEvent.initial());
+  late final cellBloc = NumberCellBloc(
+    cellController: makeCellController(
+      widget.databaseController,
+      widget.cellContext,
+    ).as(),
+  )..add(const NumberCellEvent.initial());
 
   @override
   void initState() {

@@ -36,57 +36,68 @@ class EditableCellBuilder {
     CellContext cellContext,
     EditableCellStyle style,
   ) {
-    final cellController = makeCellController(databaseController, cellContext);
+    final fieldType = databaseController.fieldController
+        .getField(cellContext.fieldId)!
+        .fieldType;
     final key = ValueKey(
       "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );
-    return switch (cellController.fieldType) {
+    return switch (fieldType) {
       FieldType.Checkbox => EditableCheckboxCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableCheckboxCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.Checklist => EditableChecklistCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableChecklistCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.LastEditedTime ||
       FieldType.CreatedTime =>
         EditableTimestampCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableTimestampCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.DateTime => EditableDateCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableDateCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.MultiSelect => EditableSelectOptionCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableSelectOptionCellSkin.fromStyle(style),
           key: key,
           fieldType: FieldType.MultiSelect,
         ),
       FieldType.Number => EditableNumberCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableNumberCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.RichText => EditableTextCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableTextCellSkin.fromStyle(style),
           key: key,
         ),
       FieldType.SingleSelect => EditableSelectOptionCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableSelectOptionCellSkin.fromStyle(style),
           key: key,
           fieldType: FieldType.SingleSelect,
         ),
       FieldType.URL => EditableURLCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: IEditableURLCellSkin.fromStyle(style),
           key: key,
         ),
@@ -106,51 +117,60 @@ class EditableCellBuilder {
     assert(skinMap.has(fieldType));
     return switch (fieldType) {
       FieldType.Checkbox => EditableCheckboxCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.checkboxSkin!,
           key: key,
         ),
       FieldType.Checklist => EditableChecklistCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.checklistSkin!,
           key: key,
         ),
       FieldType.LastEditedTime ||
       FieldType.CreatedTime =>
         EditableTimestampCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.timestampSkin!,
           key: key,
         ),
       FieldType.DateTime => EditableDateCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.dateSkin!,
           key: key,
         ),
       FieldType.MultiSelect => EditableSelectOptionCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.selectOptionSkin!,
           key: key,
           fieldType: FieldType.MultiSelect,
         ),
       FieldType.Number => EditableNumberCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.numberSkin!,
           key: key,
         ),
       FieldType.RichText => EditableTextCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.textSkin!,
           key: key,
         ),
       FieldType.SingleSelect => EditableSelectOptionCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.selectOptionSkin!,
           key: key,
           fieldType: FieldType.SingleSelect,
         ),
       FieldType.URL => EditableURLCell(
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           skin: skinMap.urlSkin!,
           key: key,
         ),

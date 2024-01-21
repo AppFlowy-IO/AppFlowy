@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/url_cell/url_cell_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,12 +17,14 @@ class URLCardCellStyle extends CardCellStyle {
 }
 
 class URLCardCell extends CardCell<URLCardCellStyle> {
-  final URLCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   const URLCardCell({
-    required this.cellController,
-    required super.style,
     super.key,
+    required super.style,
+    required this.databaseController,
+    required this.cellContext,
   });
 
   @override
@@ -32,8 +36,12 @@ class _URLCellState extends State<URLCardCell> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return URLCellBloc(cellController: widget.cellController)
-          ..add(const URLCellEvent.initial());
+        return URLCellBloc(
+          cellController: makeCellController(
+            widget.databaseController,
+            widget.cellContext,
+          ).as(),
+        )..add(const URLCellEvent.initial());
       },
       child: BlocBuilder<URLCellBloc, URLCellState>(
         buildWhen: (previous, current) => previous.content != current.content,

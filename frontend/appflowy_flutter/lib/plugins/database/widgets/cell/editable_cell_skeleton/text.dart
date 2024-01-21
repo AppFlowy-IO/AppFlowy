@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -32,13 +34,15 @@ abstract class IEditableTextCellSkin {
 }
 
 class EditableTextCell extends EditableCellWidget {
-  final TextCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
   final IEditableTextCellSkin skin;
 
   EditableTextCell({
-    required this.cellController,
-    required this.skin,
     super.key,
+    required this.databaseController,
+    required this.cellContext,
+    required this.skin,
   });
 
   @override
@@ -47,8 +51,12 @@ class EditableTextCell extends EditableCellWidget {
 
 class _TextCellState extends GridEditableTextCell<EditableTextCell> {
   late final TextEditingController _textEditingController;
-  late final cellBloc = TextCellBloc(cellController: widget.cellController)
-    ..add(const TextCellEvent.initial());
+  late final cellBloc = TextCellBloc(
+    cellController: makeCellController(
+      widget.databaseController,
+      widget.cellContext,
+    ).as(),
+  )..add(const TextCellEvent.initial());
 
   @override
   void initState() {

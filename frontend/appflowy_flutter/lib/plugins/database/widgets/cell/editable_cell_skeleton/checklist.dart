@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -33,12 +35,14 @@ abstract class IEditableChecklistCellSkin {
 }
 
 class EditableChecklistCell extends EditableCellWidget {
-  final ChecklistCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
   final IEditableChecklistCellSkin skin;
 
   EditableChecklistCell({
     super.key,
-    required this.cellController,
+    required this.databaseController,
+    required this.cellContext,
     required this.skin,
   });
 
@@ -49,8 +53,12 @@ class EditableChecklistCell extends EditableCellWidget {
 
 class GridChecklistCellState extends GridCellState<EditableChecklistCell> {
   final PopoverController _popover = PopoverController();
-  late final cellBloc = ChecklistCellBloc(cellController: widget.cellController)
-    ..add(const ChecklistCellEvent.initial());
+  late final cellBloc = ChecklistCellBloc(
+    cellController: makeCellController(
+      widget.databaseController,
+      widget.cellContext,
+    ).as(),
+  )..add(const ChecklistCellEvent.initial());
 
   @override
   void dispose() {
