@@ -17,10 +17,10 @@ flowy-document-pub = { workspace = true }
 flowy-storage = { workspace = true }
 flowy-derive.workspace = true
 flowy-notification  = { workspace = true }
-flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_dispatch_error", "impl_from_collab"] }
+flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_dispatch_error", "impl_from_collab_document"] }
 lib-dispatch = { workspace = true }
 lib-infra = { workspace = true }
-validator = "0.16.0"
+validator = { version = "0.16.0", features = ["derive"] }
 protobuf.workspace = true
 bytes.workspace = true
 nanoid = "0.4.0"
@@ -52,4 +52,14 @@ flowy-codegen.workspace = true
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+wasm_build = [
+    "flowy-codegen/ts",
+    "flowy-notification/ts",
+    "collab-plugins/wasm_build",
+    "collab/wasm_build",
+    "lib-dispatch/wasm_build",
+    "collab-document/wasm_build",
+    "flowy-error/wasm_build",
+    "flowy-notification/wasm_build"
+]
 

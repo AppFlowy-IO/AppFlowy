@@ -115,10 +115,10 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "480
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5430c6c8f825cdc84e38a57e1c76c41d82a66e3d" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5430c6c8f825cdc84e38a57e1c76c41d82a66e3d" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5430c6c8f825cdc84e38a57e1c76c41d82a66e3d" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5430c6c8f825cdc84e38a57e1c76c41d82a66e3d" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5430c6c8f825cdc84e38a57e1c76c41d82a66e3d" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5430c6c8f825cdc84e38a57e1c76c41d82a66e3d" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5430c6c8f825cdc84e38a57e1c76c41d82a66e3d" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9f60cf9fc03c8be23d2e066e808a038aea316d6b" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9f60cf9fc03c8be23d2e066e808a038aea316d6b" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9f60cf9fc03c8be23d2e066e808a038aea316d6b" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9f60cf9fc03c8be23d2e066e808a038aea316d6b" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9f60cf9fc03c8be23d2e066e808a038aea316d6b" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9f60cf9fc03c8be23d2e066e808a038aea316d6b" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9f60cf9fc03c8be23d2e066e808a038aea316d6b" }

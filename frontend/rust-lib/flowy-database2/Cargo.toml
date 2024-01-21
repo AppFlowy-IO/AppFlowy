@@ -17,7 +17,7 @@ flowy-derive.workspace = true
 flowy-notification  = { workspace = true }
 parking_lot.workspace = true
 protobuf.workspace = true
-flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_collab"]}
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_collab_database"]}
 lib-dispatch = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 bytes.workspace = true
@@ -56,3 +56,4 @@ flowy-codegen.workspace = true
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+wasm_build = ["collab-plugins/wasm_build"]

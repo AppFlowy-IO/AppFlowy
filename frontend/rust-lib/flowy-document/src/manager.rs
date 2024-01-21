@@ -10,12 +10,14 @@ use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
+use collab_plugins::CollabKVDB;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
+use collab_integrate::{CollabKVAction, CollabPersistenceConfig};
+#[cfg(not(target_arch = "wasm32"))]
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -104,7 +106,7 @@ impl DocumentManager {
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<()> {
-    if self.is_doc_exist(doc_id).unwrap_or(false) {
+    if self.is_doc_exist(doc_id).await.unwrap_or(false) {
       Err(FlowyError::new(
         ErrorCode::RecordAlreadyExists,
         format!("document {} already exists", doc_id),
@@ -131,7 +133,7 @@ impl DocumentManager {
     }
 
     let mut doc_state = vec![];
-    if !self.is_doc_exist(doc_id)? {
+    if !self.is_doc_exist(doc_id).await? {
       // Try to get the document from the cloud service
       doc_state = self
         .cloud_service
@@ -163,7 +165,7 @@ impl DocumentManager {
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
     let mut updates = vec![];
-    if !self.is_doc_exist(doc_id)? {
+    if !self.is_doc_exist(doc_id).await? {
       updates = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
@@ -190,13 +192,10 @@ impl DocumentManager {
     Ok(())
   }
 
-  pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
+  pub async fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user_service.user_id()?;
     if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
-      let _ = db.with_write_txn(|txn| {
-        txn.delete_doc(uid, &doc_id)?;
-        Ok(())
-      });
+      db.delete_doc(uid, &doc_id).await?;
 
       // When deleting a document, we need to remove it from the cache.
       self.documents.lock().pop(doc_id);
@@ -270,11 +269,11 @@ impl DocumentManager {
     Ok(collab)
   }
 
-  fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
+  async fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user_service.user_id()?;
     if let Some(collab_db) = self.user_service.collab_db(uid)?.upgrade() {
-      let read_txn = collab_db.read_txn();
-      Ok(read_txn.is_exist(uid, doc_id))
+      let is_exist = collab_db.is_exist(uid, doc_id).await?;
+      Ok(is_exist)
     } else {
       Ok(false)
     }

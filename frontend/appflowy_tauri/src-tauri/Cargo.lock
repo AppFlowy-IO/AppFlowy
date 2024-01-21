@@ -3,6 +3,18 @@
 version = 3
 
 [[package]]
+name = "accessory"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "850bb534b9dc04744fbbb71d30ad6d25a7e4cf6dc33e223c81ef3a92ebab4e0b"
+dependencies = [
+ "macroific",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -785,12 +797,13 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5430c6c8f825cdc84e38a57e1c76c41d82a66e3d#5430c6c8f825cdc84e38a57e1c76c41d82a66e3d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f60cf9fc03c8be23d2e066e808a038aea316d6b#9f60cf9fc03c8be23d2e066e808a038aea316d6b"
 dependencies = [
  "anyhow",
  "async-trait",
  "bincode",
  "bytes",
+ "js-sys",
  "parking_lot",
  "serde",
  "serde_json",
@@ -799,13 +812,14 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tracing",
+ "web-sys",
  "yrs",
 ]
 
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5430c6c8f825cdc84e38a57e1c76c41d82a66e3d#5430c6c8f825cdc84e38a57e1c76c41d82a66e3d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f60cf9fc03c8be23d2e066e808a038aea316d6b#9f60cf9fc03c8be23d2e066e808a038aea316d6b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -813,6 +827,7 @@ dependencies = [
  "collab",
  "collab-entity",
  "collab-plugins",
+ "js-sys",
  "lazy_static",
  "lru",
  "nanoid",
@@ -832,7 +847,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5430c6c8f825cdc84e38a57e1c76c41d82a66e3d#5430c6c8f825cdc84e38a57e1c76c41d82a66e3d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f60cf9fc03c8be23d2e066e808a038aea316d6b#9f60cf9fc03c8be23d2e066e808a038aea316d6b"
 dependencies = [
  "anyhow",
  "collab",
@@ -850,7 +865,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5430c6c8f825cdc84e38a57e1c76c41d82a66e3d#5430c6c8f825cdc84e38a57e1c76c41d82a66e3d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f60cf9fc03c8be23d2e066e808a038aea316d6b#9f60cf9fc03c8be23d2e066e808a038aea316d6b"
 dependencies = [
  "anyhow",
  "bytes",
@@ -864,7 +879,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5430c6c8f825cdc84e38a57e1c76c41d82a66e3d#5430c6c8f825cdc84e38a57e1c76c41d82a66e3d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f60cf9fc03c8be23d2e066e808a038aea316d6b#9f60cf9fc03c8be23d2e066e808a038aea316d6b"
 dependencies = [
  "anyhow",
  "chrono",
@@ -900,16 +915,20 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5430c6c8f825cdc84e38a57e1c76c41d82a66e3d#5430c6c8f825cdc84e38a57e1c76c41d82a66e3d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f60cf9fc03c8be23d2e066e808a038aea316d6b#9f60cf9fc03c8be23d2e066e808a038aea316d6b"
 dependencies = [
  "anyhow",
+ "async-stream",
  "async-trait",
  "bincode",
  "bytes",
  "chrono",
  "collab",
  "collab-entity",
+ "futures",
  "futures-util",
+ "indexed_db_futures",
+ "js-sys",
  "lazy_static",
  "parking_lot",
  "rand 0.8.5",
@@ -923,14 +942,18 @@ dependencies = [
  "tokio-retry",
  "tokio-stream",
  "tracing",
+ "tracing-wasm",
  "uuid",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
  "yrs",
 ]
 
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5430c6c8f825cdc84e38a57e1c76c41d82a66e3d#5430c6c8f825cdc84e38a57e1c76c41d82a66e3d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f60cf9fc03c8be23d2e066e808a038aea316d6b#9f60cf9fc03c8be23d2e066e808a038aea316d6b"
 dependencies = [
  "anyhow",
  "collab",
@@ -1290,6 +1313,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "delegate-display"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "98a85201f233142ac819bbf6226e36d0b5e129a47bd325084674261c82d4cd66"
+dependencies = [
+ "macroific",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
+]
+
+[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1531,6 +1566,18 @@ checksum = "b95f7c0680e4142284cf8b22c14a476e87d61b004a3a0861872b32ef7ead40a2"
 dependencies = [
  "bit-set",
  "regex",
+]
+
+[[package]]
+name = "fancy_constructor"
+version = "1.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f71f317e4af73b2f8f608fac190c52eac4b1879d2145df1db2fe48881ca69435"
+dependencies = [
+ "macroific",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -2897,6 +2944,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "indexed_db_futures"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6cc2083760572ee02385ab8b7c02c20925d2dd1f97a1a25a8737a238608f1152"
+dependencies = [
+ "accessory",
+ "cfg-if",
+ "delegate-display",
+ "fancy_constructor",
+ "js-sys",
+ "uuid",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
 name = "indexmap"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3288,6 +3352,53 @@ name = "mac"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
+
+[[package]]
+name = "macroific"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f05c00ac596022625d01047c421a0d97d7f09a18e429187b341c201cb631b9dd"
+dependencies = [
+ "macroific_attr_parse",
+ "macroific_core",
+ "macroific_macro",
+]
+
+[[package]]
+name = "macroific_attr_parse"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd94d5da95b30ae6e10621ad02340909346ad91661f3f8c0f2b62345e46a2f67"
+dependencies = [
+ "cfg-if",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
+]
+
+[[package]]
+name = "macroific_core"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13198c120864097a565ccb3ff947672d969932b7975ebd4085732c9f09435e55"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
+]
+
+[[package]]
+name = "macroific_macro"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0c9853143cbed7f1e41dc39fee95f9b361bec65c8dc2a01bf609be01b61f5ae"
+dependencies = [
+ "macroific_attr_parse",
+ "macroific_core",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
+]
 
 [[package]]
 name = "malloc_buf"
@@ -6214,6 +6325,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tracing-wasm"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4575c663a174420fa2d78f4108ff68f65bf2fbb7dd89f33749b6e826b3626e07"
+dependencies = [
+ "tracing",
+ "tracing-subscriber",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "treediff"
 version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6404,6 +6526,7 @@ dependencies = [
  "getrandom 0.2.10",
  "serde",
  "sha1_smol",
+ "wasm-bindgen",
 ]
 
 [[package]]

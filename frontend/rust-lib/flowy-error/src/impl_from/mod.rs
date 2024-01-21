@@ -13,7 +13,7 @@ pub mod reqwest;
 #[cfg(feature = "impl_from_sqlite")]
 pub mod database;
 
-#[cfg(feature = "impl_from_collab")]
+#[cfg(feature = "impl_from_collab_document")]
 pub mod collab;
 
 #[cfg(feature = "impl_from_appflowy_cloud")]
