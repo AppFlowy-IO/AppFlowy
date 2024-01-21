@@ -53,10 +53,10 @@ class DateCellEditorBloc
                     ? dateCellData.endDateTime
                     : null;
 
-            if (state.reminderId?.isEmpty ??
-                true &&
-                    (dateCellData.reminderId?.isNotEmpty ?? false) &&
-                    state.reminderOption != ReminderOption.none) {
+            if (dateCellData.dateTime != null &&
+                (state.reminderId?.isEmpty ?? true) &&
+                (dateCellData.reminderId?.isNotEmpty ?? false) &&
+                state.reminderOption != ReminderOption.none) {
               // Add Reminder
               _reminderBloc.add(
                 ReminderEvent.addById(
@@ -64,7 +64,7 @@ class DateCellEditorBloc
                   objectId: cellController.viewId,
                   meta: {ReminderMetaKeys.rowId: cellController.rowId},
                   scheduledAt: Int64(
-                    state.dateTime!
+                    dateCellData.dateTime!
                             .subtract(state.reminderOption.time)
                             .millisecondsSinceEpoch ~/
                         1000,
@@ -72,6 +72,7 @@ class DateCellEditorBloc
                 ),
               );
             }
+
             if ((dateCellData.reminderId?.isNotEmpty ?? false) &&
                 dateCellData.dateTime != null) {
               // Update Reminder
@@ -198,7 +199,8 @@ class DateCellEditorBloc
                   .add(ReminderEvent.remove(reminderId: state.reminderId!));
               await _updateDateData(reminderId: "");
               emit(state.copyWith(reminderOption: option));
-            } else if (state.dateTime != null) {
+            } else if (state.dateTime != null &&
+                (state.reminderId?.isNotEmpty ?? false)) {
               // Update reminder
               _reminderBloc.add(
                 ReminderEvent.update(
@@ -473,7 +475,8 @@ class DateCellEditorState with _$DateCellEditorState {
     final dateCellData = _dateDataFromCellData(cellData);
 
     ReminderOption reminderOption = ReminderOption.none;
-    if (dateCellData.reminderId != null && dateCellData.dateTime != null) {
+    if ((dateCellData.reminderId?.isNotEmpty ?? false) &&
+        dateCellData.dateTime != null) {
       final reminder = reminderBloc.state.reminders
           .firstWhereOrNull((r) => r.id == dateCellData.reminderId);
       if (reminder != null) {
