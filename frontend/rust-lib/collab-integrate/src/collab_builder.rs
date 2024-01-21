@@ -231,7 +231,7 @@ impl AppFlowyCollabBuilder {
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: CollabDocState,
-    #[allow(dead_code)] persistence_config: CollabPersistenceConfig,
+    #[allow(unused_variables)] persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
     let mut builder = CollabBuilder::new(uid, object_id)

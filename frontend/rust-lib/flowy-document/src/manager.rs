@@ -21,9 +21,7 @@ use tracing::warn;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVAction, CollabPersistenceConfig};
-#[cfg(not(target_arch = "wasm32"))]
-use collab_plugins::local_storage::kv::KVTransactionDB;
+use collab_integrate::CollabPersistenceConfig;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::ObjectStorageService;
@@ -271,28 +269,32 @@ impl DocumentManager {
   }
 
   pub async fn download_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
-    if tokio::fs::metadata(&local_file_path).await.is_ok() {
-      warn!("file already exist in user local disk: {}", local_file_path);
-      return Ok(());
+    // TODO(nathan): save file when the current target is wasm
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+      if tokio::fs::metadata(&local_file_path).await.is_ok() {
+        warn!("file already exist in user local disk: {}", local_file_path);
+        return Ok(());
+      }
+
+      let storage_service = self.storage_service_upgrade()?;
+      let object_value = storage_service.get_object(url).await?;
+      // create file if not exist
+      let mut file = tokio::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(&local_file_path)
+        .await?;
+
+      let n = file.write(&object_value.raw).await?;
+      info!("downloaded {} bytes to file: {}", n, local_file_path);
     }
-
-    let storage_service = self.storage_service_upgrade()?;
-    let object_value = storage_service.get_object(url).await?;
-
-    // create file if not exist
-    let mut file = tokio::fs::OpenOptions::new()
-      .create(true)
-      .write(true)
-      .open(&local_file_path)
-      .await?;
-
-    let n = file.write(&object_value.raw).await?;
-    info!("downloaded {} bytes to file: {}", n, local_file_path);
-
     Ok(())
   }
 
   pub async fn delete_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+    // TODO(nathan): delete file when the current target is wasm
+    #[cfg(not(target_arch = "wasm32"))]
     // delete file from local
     tokio::fs::remove_file(local_file_path).await?;
 
