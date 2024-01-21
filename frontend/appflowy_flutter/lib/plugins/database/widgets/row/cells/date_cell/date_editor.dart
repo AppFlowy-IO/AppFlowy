@@ -50,6 +50,7 @@ class _DateCellEditor extends State<DateCellEditor> {
           final dateCellBloc = context.read<DateCellEditorBloc>();
           return AppFlowyDatePicker(
             includeTime: state.includeTime,
+            rebuildOnDaySelected: false,
             onIncludeTimeChanged: (value) =>
                 dateCellBloc.add(DateCellEditorEvent.setIncludeTime(!value)),
             isRange: state.isRange,

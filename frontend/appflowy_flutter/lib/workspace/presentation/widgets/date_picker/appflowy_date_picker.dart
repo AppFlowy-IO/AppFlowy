@@ -195,7 +195,8 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
               }
             },
             onRangeSelected: widget.onRangeSelected,
-            selectedDay: _selectedDay,
+            selectedDay:
+                widget.rebuildOnDaySelected ? _selectedDay : widget.selectedDay,
             firstDay: widget.firstDay,
             lastDay: widget.lastDay,
             startDay: widget.startDay,
