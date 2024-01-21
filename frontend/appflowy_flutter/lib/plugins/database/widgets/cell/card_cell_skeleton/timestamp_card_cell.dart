@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/timestamp_cell/timestamp_cell_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,12 +17,14 @@ class TimestampCardCellStyle extends CardCellStyle {
 }
 
 class TimestampCardCell extends CardCell<TimestampCardCellStyle> {
-  final TimestampCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   const TimestampCardCell({
     super.key,
     required super.style,
-    required this.cellController,
+    required this.databaseController,
+    required this.cellContext,
   });
 
   @override
@@ -32,8 +36,12 @@ class _TimestampCellState extends State<TimestampCardCell> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) {
-        return TimestampCellBloc(cellController: widget.cellController)
-          ..add(const TimestampCellEvent.initial());
+        return TimestampCellBloc(
+          cellController: makeCellController(
+            widget.databaseController,
+            widget.cellContext,
+          ).as(),
+        )..add(const TimestampCellEvent.initial());
       },
       child: BlocBuilder<TimestampCellBloc, TimestampCellState>(
         buildWhen: (previous, current) => previous.dateStr != current.dateStr,

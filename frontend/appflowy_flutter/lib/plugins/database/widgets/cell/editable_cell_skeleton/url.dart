@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/url_cell/url_cell_bloc.dart';
@@ -44,13 +45,15 @@ abstract class IEditableURLCellSkin {
 typedef URLCellDataNotifier = CellDataNotifier<String>;
 
 class EditableURLCell extends EditableCellWidget {
-  final URLCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
   final IEditableURLCellSkin skin;
   final URLCellDataNotifier _cellDataNotifier;
 
   EditableURLCell({
     super.key,
-    required this.cellController,
+    required this.databaseController,
+    required this.cellContext,
     required this.skin,
   }) : _cellDataNotifier = CellDataNotifier(value: '');
 
@@ -67,8 +70,12 @@ class EditableURLCell extends EditableCellWidget {
 
 class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
   late final TextEditingController _textEditingController;
-  late final cellBloc = URLCellBloc(cellController: widget.cellController)
-    ..add(const URLCellEvent.initial());
+  late final cellBloc = URLCellBloc(
+    cellController: makeCellController(
+      widget.databaseController,
+      widget.cellContext,
+    ).as(),
+  )..add(const URLCellEvent.initial());
 
   @override
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();

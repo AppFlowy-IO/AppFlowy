@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/select_option_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -36,14 +38,16 @@ abstract class IEditableSelectOptionCellSkin {
 }
 
 class EditableSelectOptionCell extends EditableCellWidget {
-  final SelectOptionCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
   final IEditableSelectOptionCellSkin skin;
 
   final FieldType fieldType;
 
   EditableSelectOptionCell({
     super.key,
-    required this.cellController,
+    required this.databaseController,
+    required this.cellContext,
     required this.skin,
     required this.fieldType,
   });
@@ -56,9 +60,12 @@ class EditableSelectOptionCell extends EditableCellWidget {
 class _SelectOptionCellState extends GridCellState<EditableSelectOptionCell> {
   final PopoverController _popover = PopoverController();
 
-  late final cellBloc =
-      SelectOptionCellBloc(cellController: widget.cellController)
-        ..add(const SelectOptionCellEvent.initial());
+  late final cellBloc = SelectOptionCellBloc(
+    cellController: makeCellController(
+      widget.databaseController,
+      widget.cellContext,
+    ).as(),
+  )..add(const SelectOptionCellEvent.initial());
 
   @override
   void dispose() {

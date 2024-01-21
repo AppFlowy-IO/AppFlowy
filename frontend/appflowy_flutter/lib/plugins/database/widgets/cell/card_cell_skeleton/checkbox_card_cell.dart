@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checkbox_cell/checkbox_cell_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -22,12 +24,14 @@ class CheckboxCardCellStyle extends CardCellStyle {
 }
 
 class CheckboxCardCell extends CardCell<CheckboxCardCellStyle> {
-  final CheckboxCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   const CheckboxCardCell({
     super.key,
     required super.style,
-    required this.cellController,
+    required this.databaseController,
+    required this.cellContext,
   });
 
   @override
@@ -39,8 +43,12 @@ class _CheckboxCellState extends State<CheckboxCardCell> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) {
-        return CheckboxCellBloc(cellController: widget.cellController)
-          ..add(const CheckboxCellEvent.initial());
+        return CheckboxCellBloc(
+          cellController: makeCellController(
+            widget.databaseController,
+            widget.cellContext,
+          ).as(),
+        )..add(const CheckboxCellEvent.initial());
       },
       child: BlocBuilder<CheckboxCellBloc, CheckboxCellState>(
         builder: (context, state) {

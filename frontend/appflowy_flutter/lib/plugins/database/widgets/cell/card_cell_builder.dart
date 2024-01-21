@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/timestamp_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -30,7 +29,6 @@ class CardCellBuilder {
     final fieldType = databaseController.fieldController
         .getField(cellContext.fieldId)!
         .fieldType;
-    final cellController = makeCellController(databaseController, cellContext);
     final key = ValueKey(
       "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );
@@ -39,44 +37,52 @@ class CardCellBuilder {
       FieldType.Checkbox => CheckboxCardCell(
           key: key,
           style: isStyleOrNull(style),
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
         ),
       FieldType.Checklist => ChecklistCardCell(
           key: key,
           style: isStyleOrNull(style),
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
         ),
       FieldType.DateTime => DateCardCell(
           key: key,
           style: isStyleOrNull(style),
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
         ),
       FieldType.LastEditedTime || FieldType.CreatedTime => TimestampCardCell(
           key: key,
           style: isStyleOrNull(style),
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
         ),
       FieldType.SingleSelect || FieldType.MultiSelect => SelectOptionCardCell(
           key: key,
           style: isStyleOrNull(style),
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
         ),
       FieldType.Number => NumberCardCell(
           style: isStyleOrNull(style),
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           key: key,
         ),
       FieldType.RichText => TextCardCell(
           key: key,
           style: isStyleOrNull(style),
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
           editableNotifier: cellNotifier,
           showNotes: hasNotes,
         ),
       FieldType.URL => URLCardCell(
           key: key,
           style: isStyleOrNull(style),
-          cellController: cellController.as(),
+          databaseController: databaseController,
+          cellContext: cellContext,
         ),
       _ => throw UnimplementedError,
     };

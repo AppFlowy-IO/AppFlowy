@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/date_cell_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,12 +17,14 @@ class DateCardCellStyle extends CardCellStyle {
 }
 
 class DateCardCell extends CardCell<DateCardCellStyle> {
-  final DateCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   const DateCardCell({
     super.key,
     required super.style,
-    required this.cellController,
+    required this.databaseController,
+    required this.cellContext,
   });
 
   @override
@@ -32,8 +36,12 @@ class _DateCellState extends State<DateCardCell> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return DateCellBloc(cellController: widget.cellController)
-          ..add(const DateCellEvent.initial());
+        return DateCellBloc(
+          cellController: makeCellController(
+            widget.databaseController,
+            widget.cellContext,
+          ).as(),
+        )..add(const DateCellEvent.initial());
       },
       child: BlocBuilder<DateCellBloc, DateCellState>(
         buildWhen: (previous, current) => previous.dateStr != current.dateStr,

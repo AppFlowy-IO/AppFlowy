@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checkbox_cell/checkbox_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -31,13 +33,15 @@ abstract class IEditableCheckboxCellSkin {
 }
 
 class EditableCheckboxCell extends EditableCellWidget {
-  final CheckboxCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
   final IEditableCheckboxCellSkin skin;
 
   EditableCheckboxCell({
-    required this.cellController,
-    required this.skin,
     super.key,
+    required this.databaseController,
+    required this.cellContext,
+    required this.skin,
   });
 
   @override
@@ -45,8 +49,12 @@ class EditableCheckboxCell extends EditableCellWidget {
 }
 
 class _CheckboxCellState extends GridCellState<EditableCheckboxCell> {
-  late final cellBloc = CheckboxCellBloc(cellController: widget.cellController)
-    ..add(const CheckboxCellEvent.initial());
+  late final cellBloc = CheckboxCellBloc(
+    cellController: makeCellController(
+      widget.databaseController,
+      widget.cellContext,
+    ).as(),
+  )..add(const CheckboxCellEvent.initial());
 
   @override
   void dispose() {

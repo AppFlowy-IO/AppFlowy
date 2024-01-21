@@ -1,4 +1,6 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/timestamp_cell/timestamp_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -31,12 +33,14 @@ abstract class IEditableTimestampCellSkin {
 }
 
 class EditableTimestampCell extends EditableCellWidget {
-  final TimestampCellController cellController;
+  final DatabaseController databaseController;
+  final CellContext cellContext;
   final IEditableTimestampCellSkin skin;
 
   EditableTimestampCell({
     super.key,
-    required this.cellController,
+    required this.databaseController,
+    required this.cellContext,
     required this.skin,
   });
 
@@ -45,8 +49,12 @@ class EditableTimestampCell extends EditableCellWidget {
 }
 
 class _TimestampCellState extends GridCellState<EditableTimestampCell> {
-  late final cellBloc = TimestampCellBloc(cellController: widget.cellController)
-    ..add(const TimestampCellEvent.initial());
+  late final cellBloc = TimestampCellBloc(
+    cellController: makeCellController(
+      widget.databaseController,
+      widget.cellContext,
+    ).as(),
+  )..add(const TimestampCellEvent.initial());
 
   @override
   void dispose() {
