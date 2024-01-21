@@ -9,6 +9,7 @@ use client_api::{Client, ClientConfiguration};
 use client_api::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
+use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{error, event, info};
@@ -18,7 +19,6 @@ use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_storage::FileStorageService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
@@ -213,7 +213,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     }
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
     let client = AFServerImpl {
       client: self.get_client(),
     };

@@ -2036,11 +2036,15 @@ dependencies = [
  "async-trait",
  "bytes",
  "flowy-error",
+ "fxhash",
  "lib-infra",
+ "mime",
  "mime_guess",
  "reqwest",
  "serde",
  "serde_json",
+ "tokio",
+ "tracing",
  "url",
 ]
 

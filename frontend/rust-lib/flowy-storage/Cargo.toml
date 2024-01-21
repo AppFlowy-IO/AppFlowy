@@ -15,3 +15,7 @@ mime_guess = "2.0"
 lib-infra = { workspace = true }
 url = "2.2.2"
 flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
+mime = "0.3.17"
+tokio.workspace = true
+tracing.workspace = true
+fxhash = "0.2.1"

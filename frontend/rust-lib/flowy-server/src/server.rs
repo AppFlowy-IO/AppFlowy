@@ -1,3 +1,4 @@
+use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -11,7 +12,6 @@ use tokio_stream::wrappers::WatchStream;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
-use flowy_storage::FileStorageService;
 use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::UserTokenState;
 use lib_infra::future::FutureResult;
@@ -131,7 +131,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     FutureResult::new(async { Ok(None) })
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>>;
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>>;
 }
 
 pub struct EncryptionImpl {

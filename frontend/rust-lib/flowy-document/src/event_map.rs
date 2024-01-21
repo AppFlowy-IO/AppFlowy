@@ -39,6 +39,9 @@ pub fn init(document_manager: Weak<DocumentManager>) -> AFPlugin {
       DocumentEvent::ConvertDataToJSON,
       convert_data_to_json_handler,
     )
+    .event(DocumentEvent::UploadFile, upload_file_handler)
+    .event(DocumentEvent::DownloadFile, download_file_handler)
+    .event(DocumentEvent::DeleteFile, delete_file_handler)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display, ProtoBuf_Enum, Flowy_Event)]
@@ -108,4 +111,11 @@ pub enum DocumentEvent {
 
   #[event(input = "DocumentSnapshotMetaPB", output = "DocumentSnapshotPB")]
   GetDocumentSnapshot = 14,
+
+  #[event(input = "UploadFileParamsPB", output = "UploadedFilePB")]
+  UploadFile = 15,
+  #[event(input = "UploadedFilePB")]
+  DownloadFile = 16,
+  #[event(input = "UploadedFilePB")]
+  DeleteFile = 17,
 }
