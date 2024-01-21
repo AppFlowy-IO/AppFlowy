@@ -40,6 +40,7 @@ bytes.workspace = true
 tracing.workspace = true
 lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }
 flowy-core = { path = "../../rust-lib/flowy-core", features = ["rev-sqlite", "ts"] }
+flowy-error = { path = "../../rust-lib/flowy-error", features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde"] }
 flowy-notification = { path = "../../rust-lib/flowy-notification", features = ["ts"] }
 uuid = "1.5.0"
 
