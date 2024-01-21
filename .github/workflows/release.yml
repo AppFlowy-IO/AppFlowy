@@ -101,6 +101,17 @@ jobs:
         run: |
           iscc /F${{ env.WINDOWS_INSTALLER_NAME }} inno_setup_config.iss /DAppVersion=${{ github.ref_name }}
 
+      - name: Upload Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
+          asset_name: ${{ env.WINDOWS_ZIP_NAME }}
+          asset_content_type: application/octet-stream
+
       - name: Upload Installer Asset
         id: upload-installer-asset
         uses: actions/upload-release-asset@v1
@@ -187,6 +198,16 @@ jobs:
       - name: Archive Asset
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
         run: zip --symlinks -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
+
+      - name: Upload Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_X86_ZIP_NAME }}
+          asset_name: ${{ env.MACOS_X86_ZIP_NAME }}
+          asset_content_type: application/octet-stream
 
       - name: Upload DMG Asset
         uses: actions/upload-release-asset@v1
@@ -276,6 +297,16 @@ jobs:
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
         run: zip --symlinks -qr ${{ env.MACOS_AARCH64_ZIP_NAME }} AppFlowy.app
 
+      - name: Upload Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_AARCH64_ZIP_NAME }}
+          asset_name: ${{ env.MACOS_AARCH64_ZIP_NAME }}
+          asset_content_type: application/octet-stream
+
       - name: Upload DMG Asset
         uses: actions/upload-release-asset@v1
         env:
@@ -292,7 +323,7 @@ jobs:
     needs: create-release
     env:
       LINUX_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/linux/Release
-      LINUX_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.tar.gz
+      LINUX_ZIP_NAME: AppFlowy-${{ matrix.job.target }}-x86_64.tar.gz
       LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.deb
       LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.rpm
       LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.x86_64.rpm
