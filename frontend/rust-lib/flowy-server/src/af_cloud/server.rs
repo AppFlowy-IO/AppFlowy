@@ -247,7 +247,7 @@ fn spawn_ws_conn(
             // Try to reconnect if the connection is timed out.
             if let Some(api_client) = weak_api_client.upgrade() {
               if enable_sync.load(Ordering::SeqCst) {
-                match api_client.ws_url(&cloned_device_id) {
+                match api_client.ws_url(&cloned_device_id).await {
                   Ok(ws_addr) => {
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
                     let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
@@ -280,7 +280,7 @@ fn spawn_ws_conn(
           if let (Some(api_client), Some(ws_client)) =
             (weak_api_client.upgrade(), weak_ws_client.upgrade())
           {
-            match api_client.ws_url(&device_id) {
+            match api_client.ws_url(&device_id).await {
               Ok(ws_addr) => {
                 info!("🟢token state: {:?}, reconnecting websocket", token_state);
                 let _ = ws_client.connect(ws_addr, &device_id).await;
