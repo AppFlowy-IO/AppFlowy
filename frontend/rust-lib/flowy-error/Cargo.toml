@@ -14,7 +14,7 @@ bytes.workspace = true
 anyhow.workspace = true
 thiserror = "1.0"
 validator = "0.16.0"
-tokio = { workspace = true, features = ["sync"]}
+tokio = { workspace = true, features = ["sync", "rt"]}
 
 fancy-regex = { version = "0.11.0" }
 lib-dispatch = { workspace = true, optional = true }

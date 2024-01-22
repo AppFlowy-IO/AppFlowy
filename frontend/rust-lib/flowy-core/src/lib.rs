@@ -12,6 +12,8 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProvid
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_folder::manager::FolderManager;
+
+use flowy_search::SearchIndexer;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
@@ -50,6 +52,7 @@ pub struct AppFlowyCore {
   pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<StorePreferences>,
+  pub search_indexer: Arc<SearchIndexer>,
 }
 
 impl AppFlowyCore {
@@ -110,6 +113,7 @@ impl AppFlowyCore {
       database_manager,
       document_manager,
       collab_builder,
+      search_indexer,
     ) = async {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
@@ -129,6 +133,8 @@ impl AppFlowyCore {
         user_config.clone(),
         store_preference.clone(),
       ));
+
+      let search_indexer = SearchDepsResolver::resolve(Arc::downgrade(&authenticate_user)).await;
 
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
@@ -155,6 +161,7 @@ impl AppFlowyCore {
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
+        Arc::downgrade(&search_indexer),
       )
       .await;
 
@@ -175,6 +182,7 @@ impl AppFlowyCore {
         database_manager,
         document_manager,
         collab_builder,
+        search_indexer,
       )
     }
     .await;
@@ -222,6 +230,7 @@ impl AppFlowyCore {
       server_provider,
       task_dispatcher,
       store_preference,
+      search_indexer,
     }
   }
 

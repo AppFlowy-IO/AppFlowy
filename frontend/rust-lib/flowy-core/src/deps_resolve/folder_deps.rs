@@ -23,6 +23,7 @@ use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 
 use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
+use flowy_search::SearchIndexer;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 
 use crate::integrate::server::ServerProvider;
@@ -38,13 +39,16 @@ impl FolderDepsResolver {
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
+    weak_indexer: Weak<SearchIndexer>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
     });
 
-    let index_storage = FolderIndexStorageImpl(authenticate_user.clone());
-    let document_index_content_getter = DocumentIndexContentGetterImpl(document_manager.clone());
+    let index_storage = FolderIndexStorageImpl {
+      indexer: weak_indexer,
+      auth_user: authenticate_user.clone(),
+    };
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
       FolderManager::new(
@@ -53,7 +57,6 @@ impl FolderDepsResolver {
         handlers,
         server_provider.clone(),
         index_storage,
-        document_index_content_getter,
       )
       .await
       .unwrap(),
@@ -439,95 +442,59 @@ pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
   }
 }
 
-struct FolderIndexStorageImpl(Weak<AuthenticateUser>);
+struct FolderIndexStorageImpl {
+  auth_user: Weak<AuthenticateUser>,
+  indexer: Weak<SearchIndexer>,
+}
 
 impl FolderIndexStorageImpl {
-  fn get_auth_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
+  fn get_indexer(&self) -> Result<Arc<SearchIndexer>, FlowyError> {
     self
-      .0
+      .indexer
       .upgrade()
-      .ok_or(FlowyError::internal().with_context("The user session is already drop"))
+      .ok_or(FlowyError::internal().with_context("The indexer is not available"))
+  }
+
+  fn get_uid(&self) -> Result<i64, FlowyError> {
+    self
+      .auth_user
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user is not available"))?
+      .user_id()
   }
 }
 
 impl FolderIndexStorage for FolderIndexStorageImpl {
   fn search(&self, s: &str, limit: Option<i64>) -> Result<Vec<SearchData>, FlowyError> {
-    // let auth_user = self.get_auth_user()?;
-    // let uid = auth_user.user_id()?;
-    // let search_data = auth_user.search(uid, s, limit)?;
-    //
-    // let results = search_data
-    //   .into_iter()
-    //   .map(|d| SearchData {
-    //     index_type: d.index_type,
-    //     view_id: d.view_id,
-    //     id: d.id,
-    //     data: d.data,
-    //   })
-    //   .collect();
-    // Ok(results)
-    Ok(vec![])
+    let uid = self.get_uid()?;
+    let search_data = self.get_indexer()?.search(uid, s, limit)?;
+    let results = search_data
+      .into_iter()
+      .map(|d| SearchData {
+        index_type: d.index_type,
+        view_id: d.view_id,
+        id: d.id,
+        data: d.data,
+      })
+      .collect();
+    Ok(results)
   }
 
   fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
-    let auth_user = self.get_auth_user()?;
-    let uid = auth_user.user_id()?;
-    // TODO(nathan): add view index
-    // auth_user.add_view_index(uid, id, content)?;
+    let uid = self.get_uid()?;
+    self.get_indexer()?.add_view_index(uid, id, content)?;
     Ok(())
   }
 
   fn update_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
-    let auth_user = self.get_auth_user()?;
-
-    // TODO(nathan): add view index
-    // let uid = manager.user_id()?;
-    // manager.update_view_index(uid, id, content)?;
+    let uid = self.get_uid()?;
+    self.get_indexer()?.update_view_index(uid, id, content)?;
     Ok(())
   }
 
   fn remove_view(&self, ids: &[String]) -> Result<(), FlowyError> {
-    // let manager = self
-    //   .0
-    //   .upgrade()
-    //   .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-    //
-    // let uid = manager.user_id()?;
-    // manager.delete_view_index(uid, ids)?;
-    // TODO(nathan): remove view index
-    Ok(())
-  }
-
-  fn add_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError> {
-    // let manager = self
-    //   .0
-    //   .upgrade()
-    //   .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-    //
-    // let uid = manager.user_id()?;
-    // manager.add_document_index(uid, view_id, page_id, content)?;
-    Ok(())
-  }
-
-  fn update_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError> {
-    // let manager = self
-    //   .0
-    //   .upgrade()
-    //   .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-    //
-    // let uid = manager.user_id()?;
-    // manager.update_document_index(uid, view_id, page_id, content)?;
-    Ok(())
-  }
-
-  fn remove_document(&self, page_ids: &[String]) -> Result<(), FlowyError> {
-    // let manager = self
-    //   .0
-    //   .upgrade()
-    //   .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-    //
-    // let uid = manager.user_id()?;
-    // manager.delete_view_index(uid, page_ids)?;
+    let uid = self.get_uid()?;
+    self.get_indexer()?.delete_view_index(uid, ids)?;
     Ok(())
   }
 }
