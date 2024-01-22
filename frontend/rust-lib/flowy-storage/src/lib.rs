@@ -20,6 +20,15 @@ pub struct ObjectValue {
   pub mime: Mime,
 }
 
+#[cfg(target_arch = "wasm32")]
+pub async fn object_from_disk(
+  workspace_id: &str,
+  local_file_path: &str,
+) -> Result<(ObjectIdentity, ObjectValue), FlowyError> {
+  todo!("object_from_disk is not implemented for wasm32")
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 pub async fn object_from_disk(
   workspace_id: &str,
   local_file_path: &str,
