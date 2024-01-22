@@ -1,9 +1,4 @@
-<<<<<<<< HEAD:frontend/rust-lib/flowy-user/src/services/search_indexing.rs
-use flowy_error::FlowyResult;
-use flowy_sqlite::search::{
-========
 use crate::native::sqlite_search::{
->>>>>>>> e7f399b2b (refactor: search index):frontend/rust-lib/flowy-search/src/native/indexer.rs
   add, delete_document, delete_view, search_index, update_document, update_view, SearchData,
 };
 use flowy_error::{FlowyError, FlowyResult};
@@ -23,12 +18,6 @@ impl SqliteSearchIndexer {
     Self { db }
   }
 
-<<<<<<<< HEAD:frontend/rust-lib/flowy-user/src/services/search_indexing.rs
-use crate::manager::UserManager;
-
-impl UserManager {
-========
->>>>>>>> e7f399b2b (refactor: search index):frontend/rust-lib/flowy-search/src/native/indexer.rs
   /// Search and returns a list of documents that match.
   pub fn search(&self, uid: i64, s: &str, limit: Option<i64>) -> FlowyResult<Vec<SearchData>> {
     let mut conn = self.db.get_conn(uid)?;

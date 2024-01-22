@@ -28,6 +28,7 @@ members = [
   "build-tool/flowy-ast",
   "build-tool/flowy-codegen",
   "build-tool/flowy-derive",
+  "flowy-search",
 ]
 resolver = "2"
 
@@ -56,6 +57,7 @@ flowy-server-pub = { workspace = true, path = "flowy-server-pub" }
 flowy-config = { workspace = true, path = "flowy-config" }
 flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
 flowy-storage = { workspace = true, path = "flowy-storage" }
+flowy-search = { workspace = true, path = "flowy-search" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-ai = { workspace = true, path = "flowy-ai" }
 flowy-date = { workspace = true, path = "flowy-date" }

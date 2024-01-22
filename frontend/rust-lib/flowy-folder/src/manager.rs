@@ -32,7 +32,7 @@ use crate::manager_observer::{
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
 };
-use crate::search::{DocumentIndexContentGetter, FolderIndexStorage, FolderIndexer};
+use crate::search::{FolderIndexStorage, FolderIndexer};
 use crate::share::ImportParams;
 use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
@@ -67,10 +67,9 @@ impl FolderManager {
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
     index_storage: impl FolderIndexStorage + 'static,
-    document_index_content_getter: impl DocumentIndexContentGetter + 'static,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
-    let indexer = FolderIndexer::new(index_storage, document_index_content_getter);
+    let indexer = FolderIndexer::new(index_storage);
     let manager = Self {
       user,
       mutex_folder,
