@@ -134,6 +134,18 @@ impl EventIntegrationTest {
       .await
       .parse::<ViewPB>()
   }
+
+  pub async fn search(&self, query: &str, limit: Option<i64>) -> RepeatedSearchDataPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::Search)
+      .payload(SearchRequestPB {
+        search: query.to_string(),
+        limit,
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedSearchDataPB>()
+  }
 }
 
 pub struct ViewTest {

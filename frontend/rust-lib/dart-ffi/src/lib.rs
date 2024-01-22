@@ -65,15 +65,13 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     let _ = save_appflowy_cloud_config(&configuration.root, &configuration.appflowy_cloud_config);
   }
 
-  let log_crates = vec!["flowy-ffi".to_string()];
   let config = AppFlowyCoreConfig::new(
     configuration.app_version,
     configuration.custom_app_path,
     configuration.origin_app_path,
     configuration.device_id,
     DEFAULT_NAME.to_string(),
-  )
-  .log_filter("info", log_crates);
+  );
 
   // Ensure that the database is closed before initialization. Also, verify that the init_sdk function can be called
   // multiple times (is reentrant). Currently, only the database resource is exclusive.

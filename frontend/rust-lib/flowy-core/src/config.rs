@@ -102,8 +102,8 @@ impl AppFlowyCoreConfig {
     }
   }
 
-  pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
-    self.log_filter = create_log_filter(level.to_owned(), with_crates);
+  pub fn log_filter(mut self, log_filter: String) -> Self {
+    self.log_filter = log_filter;
     self
   }
 }

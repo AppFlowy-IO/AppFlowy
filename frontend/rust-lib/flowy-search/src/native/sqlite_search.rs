@@ -4,6 +4,7 @@ use diesel::{
   QueryResult, RunQueryDsl, SqliteConnection,
 };
 use diesel_derives::QueryableByName;
+use tracing::{info, instrument};
 
 #[derive(Debug, QueryableByName)]
 struct ShowTablesRow {
@@ -53,12 +54,12 @@ pub struct SearchData {
 }
 
 impl SearchData {
-  pub fn new_view(view_id: &str, name: &str) -> Self {
+  pub fn new_view(view_id: &str, content: &str) -> Self {
     Self {
       index_type: IndexType::View.to_string(),
       view_id: view_id.to_owned(),
       id: view_id.to_owned(),
-      data: name.to_owned(),
+      data: content.to_owned(),
     }
   }
 
@@ -73,7 +74,9 @@ impl SearchData {
 }
 
 /// Add search data for searching.
-pub fn add(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize> {
+#[instrument(level = "debug", skip_all, err)]
+pub fn create_index(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize> {
+  info!("create index: {:?}", data);
   sql_query("INSERT INTO search_index (index_type, view_id, id, data) VALUES (?,?,?,?)")
     .bind::<Text, _>(&data.index_type)
     .bind::<Text, _>(&data.view_id)
@@ -83,7 +86,9 @@ pub fn add(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize>
 }
 
 /// Update view name.
-pub fn update_view(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize> {
+#[instrument(level = "debug", skip_all, err)]
+pub fn update_index(conn: &mut SqliteConnection, data: &SearchData) -> QueryResult<usize> {
+  info!("update index: {:?}", data);
   sql_query("UPDATE search_index SET data=? WHERE index_type=? and view_id=?")
     .bind::<Text, _>(&data.data)
     .bind::<Text, _>(IndexType::View.to_string())
@@ -92,6 +97,7 @@ pub fn update_view(conn: &mut SqliteConnection, data: &SearchData) -> QueryResul
 }
 
 /// Search index for matches.
+#[instrument(level = "debug", skip_all, err)]
 pub fn search_index(
   conn: &mut SqliteConnection,
   s: &str,

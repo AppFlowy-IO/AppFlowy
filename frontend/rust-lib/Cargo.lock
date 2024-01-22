@@ -1104,7 +1104,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1341,6 +1341,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d95203a6a50906215a502507c0f879a0ce7ff205a6111e2db2a5ef8e4bb92e43"
 
 [[package]]
+name = "deunicode"
+version = "1.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6e854126756c496b8c81dec88f9a706b15b875c5849d4097a3854476b9fdf94"
+
+[[package]]
 name = "diesel"
 version = "2.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1547,12 +1553,12 @@ dependencies = [
 
 [[package]]
 name = "fake"
-version = "2.8.0"
+version = "2.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9af7b0c58ac9d03169e27f080616ce9f64004edca3d2ef4147a811c21b23b319"
+checksum = "1c25829bde82205da46e1823b2259db6273379f626fc211f126f65654a2669be"
 dependencies = [
+ "deunicode 1.4.3",
  "rand 0.8.5",
- "unidecode",
 ]
 
 [[package]]
@@ -1981,6 +1987,7 @@ dependencies = [
  "flowy-error",
  "flowy-sqlite",
  "tempfile",
+ "tracing",
 ]
 
 [[package]]
@@ -3645,7 +3652,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros",
+ "phf_macros 0.8.0",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -3665,6 +3672,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -3730,6 +3738,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -5002,7 +5023,7 @@ version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b3bc762e6a4b6c6fcaade73e77f9ebc6991b676f88bb2358bddb56560f073373"
 dependencies = [
- "deunicode",
+ "deunicode 0.4.4",
 ]
 
 [[package]]
@@ -5848,12 +5869,6 @@ name = "unicode-width"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
-
-[[package]]
-name = "unidecode"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "402bb19d8e03f1d1a7450e2bd613980869438e0666331be3e073089124aa1adc"
 
 [[package]]
 name = "universal-hash"

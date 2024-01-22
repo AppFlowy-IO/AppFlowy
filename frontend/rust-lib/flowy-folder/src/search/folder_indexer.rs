@@ -12,8 +12,8 @@ use tracing::error;
 /// A trait for folder indexing storage.
 pub trait FolderIndexStorage: Send + Sync {
   fn search(&self, s: &str, limit: Option<i64>) -> Result<Vec<SearchData>, FlowyError>;
-  fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError>;
-  fn update_view(&self, id: &str, content: &str) -> Result<(), FlowyError>;
+  fn add_view(&self, id: &str, name: &str) -> Result<(), FlowyError>;
+  fn update_view(&self, id: &str, name: &str) -> Result<(), FlowyError>;
   fn remove_view(&self, ids: &[String]) -> Result<(), FlowyError>;
 }
 
