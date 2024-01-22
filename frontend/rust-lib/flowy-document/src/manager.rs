@@ -198,7 +198,7 @@ impl DocumentManager {
   pub async fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user_service.user_id()?;
     if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
-      db.delete_doc(uid, &doc_id).await?;
+      db.delete_doc(uid, doc_id).await?;
 
       // When deleting a document, we need to remove it from the cache.
       self.documents.lock().pop(doc_id);
