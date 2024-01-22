@@ -10,11 +10,11 @@ use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_server_config::AuthenticatorType;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::AppFlowyCoreConfig;
 

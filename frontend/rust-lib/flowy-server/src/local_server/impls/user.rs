@@ -8,9 +8,9 @@ use parking_lot::Mutex;
 use uuid::Uuid;
 
 use flowy_error::FlowyError;
-use flowy_user_deps::cloud::{UserCloudService, UserCollabParams};
-use flowy_user_deps::entities::*;
-use flowy_user_deps::DEFAULT_USER_NAME;
+use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
+use flowy_user_pub::entities::*;
+use flowy_user_pub::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;

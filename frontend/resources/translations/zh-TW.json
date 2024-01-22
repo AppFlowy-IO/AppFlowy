@@ -9,10 +9,10 @@
   "youCanAlso": "你也可以",
   "and": "和",
   "blockActions": {
-    "addBelowTooltip": "點擊下方添加",
-    "addAboveCmd": "Alt+單擊",
-    "addAboveMacCmd": "選項+單擊",
-    "addAboveTooltip": "添加上面"
+    "addBelowTooltip": "點選下方新增",
+    "addAboveCmd": "Alt+點選",
+    "addAboveMacCmd": "選項+點選",
+    "addAboveTooltip": "新增上方"
   },
   "signUp": {
     "buttonText": "註冊",
@@ -53,27 +53,27 @@
     "small": "小",
     "medium": "中",
     "large": "大",
-    "fontSize": "字體大小",
+    "fontSize": "字型大小",
     "import": "匯入",
-    "moreOptions": "更多的選擇"
+    "moreOptions": "更多選項"
   },
   "importPanel": {
-    "textAndMarkdown": "文本和降價",
-    "documentFromV010": "v0.1.0 的文檔",
-    "databaseFromV010": "v0.1.0 版本的數據庫",
+    "textAndMarkdown": "文字和 Markdown",
+    "documentFromV010": "v0.1.0 的文件",
+    "databaseFromV010": "v0.1.0 版本的資料庫",
     "csv": "CSV",
-    "database": "數據庫"
+    "database": "資料庫"
   },
   "disclosureAction": {
     "rename": "重新命名",
     "delete": "刪除",
     "duplicate": "複製",
-    "openNewTab": "在新選項卡中打開"
+    "openNewTab": "在新選項卡中開啟"
   },
   "blankPageTitle": "空白頁面",
   "newPageText": "新增頁面",
   "trash": {
-    "text": "垃圾筒",
+    "text": "垃圾桶",
     "restoreAll": "全部復原",
     "deleteAll": "全部刪除",
     "pageHeader": {
@@ -82,16 +82,16 @@
       "created": "建立時間"
     },
     "confirmDeleteAll": {
-      "title": "您確定要刪除回收站中的所有頁面嗎？",
-      "caption": "此操作無法撤消。"
+      "title": "您確定要刪除垃圾桶中的所有頁面嗎？",
+      "caption": "此操作無法復原。"
     },
     "confirmRestoreAll": {
-      "title": "您確定要恢復回收站中的所有頁面嗎？",
-      "caption": "此操作無法撤消。"
+      "title": "您確定要復原垃圾桶中的所有頁面嗎？",
+      "caption": "此操作無法復原。"
     }
   },
   "deletePagePrompt": {
-    "text": "此頁面在垃圾筒中",
+    "text": "此頁面在垃圾桶中",
     "restore": "復原頁面",
     "deletePermanent": "永久刪除"
   },
@@ -106,7 +106,7 @@
       "success": "已將除錯資訊複製至剪貼簿！",
       "fail": "無法將除錯資訊複製至剪貼簿"
     },
-    "feedback": "反饋"
+    "feedback": "意見回饋"
   },
   "menuAppHeader": {
     "addPageTooltip": "快速在此新增頁面",
@@ -128,19 +128,19 @@
     "header": "標題",
     "highlight": "反白",
     "color": "顏色",
-    "addLink": "添加鏈接",
+    "addLink": "新增連結",
     "link": "關聯"
   },
   "tooltip": {
     "lightMode": "切換至亮色模式",
-    "darkMode": "切換至暗色模式",
-    "openAsPage": "以頁面開啓",
+    "darkMode": "切換至深色模式",
+    "openAsPage": "以頁面開啟",
     "addNewRow": "新增列",
-    "openMenu": "點擊以開啟選單",
+    "openMenu": "點選以開啟選單",
     "dragRow": "長按可重新排序行",
-    "viewDataBase": "查看資料庫",
+    "viewDataBase": "檢視資料庫",
     "referencePage": "這個 {name} 已被引用",
-    "addBlockBelow": "在下面添加一個塊"
+    "addBlockBelow": "在下面新增一個區塊"
   },
   "sideBar": {
     "closeSidebar": "關閉側欄",
@@ -166,7 +166,7 @@
     "save": "儲存",
     "generate": "生成",
     "esc": "ESC",
-    "keep": "保存",
+    "keep": "儲存",
     "tryAgain": "再試一次",
     "discard": "放棄變更",
     "replace": "取代",
@@ -195,9 +195,9 @@
     "google": {
       "title": "GOOGLE 登入",
       "instruction1": "若要匯入您的 Google 聯絡人，您必須透過瀏覽器授權此應用程式。",
-      "instruction2": "點擊圖標或選取文字以複製代碼：",
-      "instruction3": "前往下列網址，並輸入上述代碼：",
-      "instruction4": "完成註冊後，請點擊下方按鈕："
+      "instruction2": "點選圖示或選取文字以複製程式碼：",
+      "instruction3": "前往下列網址，並輸入上述程式碼：",
+      "instruction4": "完成註冊後，請點選下方按鈕："
     }
   },
   "settings": {
@@ -208,12 +208,12 @@
       "user": "使用者",
       "files": "檔案",
       "open": "開啟設定",
-      "supabaseSetting": "Supabase 設置"
+      "supabaseSetting": "Supabase 設定"
     },
     "appearance": {
       "fontFamily": {
-        "label": "字體系列",
-        "search": "搜索"
+        "label": "字型系列",
+        "search": "搜尋"
       },
       "themeMode": {
         "label": "主題模式",
@@ -223,23 +223,23 @@
       },
       "themeUpload": {
         "button": "上傳",
-        "description": "使用下面的按鈕上傳您自己的 AppFlowy 主題。",
-        "failure": "上傳的主題格式無效。",
+        "description": "使用下方的按鈕上傳您自己的 AppFlowy 主題。",
         "loading": "我們正在驗證並上傳您的主題，請稍候...",
         "uploadSuccess": "您的主題已成功上傳",
         "deletionFailure": "刪除主題失敗。嘗試手動刪除它。",
         "filePickerDialogTitle": "選擇 .flowy_plugin 文件",
-        "urlUploadFailure": "無法打開網址：{}"
+        "urlUploadFailure": "無法開啟網址：{}",
+        "failure": "上傳的主題格式無效。"
       },
       "theme": "主題",
-      "builtInsLabel": "內置主題",
-      "pluginsLabel": "插件"
+      "builtInsLabel": "內建主題",
+      "pluginsLabel": "外掛"
     },
     "files": {
       "copy": "複製",
       "defaultLocation": "AppFlowy 資料儲存位置",
-      "exportData": "導出您的數據",
-      "doubleTapToCopy": "雙擊以複製路徑",
+      "exportData": "匯出您的資料",
+      "doubleTapToCopy": "點選兩下以複製路徑",
       "restoreLocation": "恢復為 AppFlowy 預設路徑",
       "customizeLocation": "開啟其他資料夾",
       "restartApp": "請重新啟動應用程式以使更動生效。",
@@ -249,7 +249,7 @@
       "deselectAll": "取消全選",
       "createNewFolder": "建立新資料夾",
       "createNewFolderDesc": "選擇您想儲存資料的位置",
-      "defineWhereYourDataIsStored": "定義數據的存儲位置",
+      "defineWhereYourDataIsStored": "定義資料的儲存位置",
       "open": "開啟",
       "openFolder": "開啟一個已經存在的資料夾",
       "openFolderDesc": "讀寫至已存在的 AppFlowy 資料夾",
@@ -260,39 +260,39 @@
       "create": "建立",
       "set": "放",
       "folderPath": "儲存資料夾的路徑",
-      "locationCannotBeEmpty": "路徑不能爲空",
+      "locationCannotBeEmpty": "路徑不能為空",
       "pathCopiedSnackbar": "儲存檔案的路徑已被複製到剪貼簿！",
-      "changeLocationTooltips": "更改數據目錄",
+      "changeLocationTooltips": "更改資料目錄",
       "change": "改變",
-      "openLocationTooltips": "打開另一個數據目錄",
-      "openCurrentDataFolder": "打開當前數據目錄",
-      "recoverLocationTooltips": "重置為 AppFlowy 的默認數據目錄",
-      "exportFileSuccess": "導出文件成功！",
-      "exportFileFail": "導出文件失敗！",
+      "openLocationTooltips": "開啟另一個資料目錄",
+      "openCurrentDataFolder": "開啟目前資料目錄",
+      "recoverLocationTooltips": "重設為 AppFlowy 的預設資料目錄",
+      "exportFileSuccess": "匯出文件成功！",
+      "exportFileFail": "匯出文件失敗！",
       "export": "出口"
     },
     "user": {
       "name": "名稱",
-      "selectAnIcon": "選擇圖標",
-      "pleaseInputYourOpenAIKey": "請輸入你的 OpenAI 密鑰"
+      "selectAnIcon": "選擇圖示",
+      "pleaseInputYourOpenAIKey": "請輸入你的 OpenAI 金鑰"
     }
   },
   "grid": {
-    "deleteView": "您確定要刪除該視圖嗎？",
+    "deleteView": "您確定要刪除該檢視嗎？",
     "createView": "新的",
     "settings": {
       "filter": "篩選",
       "sort": "排序",
       "sortBy": "排序方式",
-      "properties": "特性",
-      "reorderPropertiesTooltip": "拖動以重新排序屬性",
+      "properties": "屬性",
+      "reorderPropertiesTooltip": "拖曳以重新排序屬性",
       "group": "群組",
       "addFilter": "新增篩選器",
       "deleteFilter": "刪除篩選器",
       "filterBy": "以……篩選",
       "typeAValue": "輸入一個值……",
-      "layout": "佈局",
-      "databaseLayout": "佈局",
+      "layout": "配置",
+      "databaseLayout": "配置",
       "Properties": "屬性"
     },
     "textFilter": {
@@ -345,7 +345,7 @@
       "checkboxFieldName": "核取方塊",
       "dateFieldName": "日期",
       "updatedAtFieldName": "最後修改時間",
-      "createdAtFieldName": "創建時間",
+      "createdAtFieldName": "建立時間",
       "numberFieldName": "數字",
       "singleSelectFieldName": "單選",
       "multiSelectFieldName": "多選",
@@ -405,7 +405,7 @@
       "addNew": "新增物件"
     },
     "menuName": "網格",
-    "referencedGridPrefix": "視圖"
+    "referencedGridPrefix": "檢視"
   },
   "document": {
     "menuName": "檔案",
@@ -423,8 +423,8 @@
         "createANewGrid": "建立新網格"
       },
       "calendar": {
-        "selectACalendarToLinkTo": "選擇要鏈接到的日曆",
-        "createANewCalendar": "創建新日曆"
+        "selectACalendarToLinkTo": "選擇要連結到的日曆",
+        "createANewCalendar": "建立新日曆"
       }
     },
     "selectionMenu": {
@@ -439,7 +439,7 @@
       "autoGeneratorLearnMore": "瞭解更多",
       "autoGeneratorGenerate": "生成",
       "autoGeneratorHintText": "問 OpenAI……",
-      "autoGeneratorCantGetOpenAIKey": "無法取得 OpenAI 密鑰",
+      "autoGeneratorCantGetOpenAIKey": "無法取得 OpenAI 金鑰",
       "autoGeneratorRewrite": "改寫",
       "smartEdit": "AI 助理",
       "openAI": "OpenAI",
@@ -449,10 +449,10 @@
       "smartEditImproveWriting": "提高寫作水平",
       "smartEditMakeLonger": "做得更長",
       "smartEditCouldNotFetchResult": "無法取得 OpenAI 的結果",
-      "smartEditCouldNotFetchKey": "無法取得 OpenAI 密鑰",
+      "smartEditCouldNotFetchKey": "無法取得 OpenAI 金鑰",
       "smartEditDisabled": "在設定連結 OpenAI ",
       "discardResponse": "確定捨棄 AI 的回覆？",
-      "createInlineMathEquation": "創建公式",
+      "createInlineMathEquation": "建立公式",
       "toggleList": "切換列表",
       "cover": {
         "changeCover": "更換封面",
@@ -463,28 +463,28 @@
         "addCover": "新增封面",
         "addLocalImage": "新增本機圖片",
         "invalidImageUrl": "無效的圖片網址",
-        "failedToAddImageToGallery": "無法新增圖片到圖庫",
+        "failedToAddImageToGallery": "無法新增圖片到相簿",
         "enterImageUrl": "輸入圖片網址",
         "add": "新增",
         "back": "返回",
-        "saveToGallery": "儲存到圖庫",
-        "removeIcon": "移除圖標",
+        "saveToGallery": "儲存到相簿",
+        "removeIcon": "移除圖示",
         "pasteImageUrl": "貼上圖片網址",
         "or": "或",
         "pickFromFiles": "從檔案中挑選",
         "couldNotFetchImage": "無法抓取圖片",
         "imageSavingFailed": "圖片儲存失敗",
-        "addIcon": "新增圖標",
+        "addIcon": "新增圖示",
         "coverRemoveAlert": "刪除後將從封面中刪除。",
         "alertDialogConfirmation": "你確定你要繼續嗎？"
       },
       "mathEquation": {
-        "addMathEquation": "添加數學方程",
+        "addMathEquation": "新增數學方程",
         "editMathEquation": "編輯數學方程"
       },
       "optionAction": {
-        "click": "點擊",
-        "toOpenMenu": " 打開菜單",
+        "click": "點選",
+        "toOpenMenu": " 開啟選單",
         "delete": "刪除",
         "duplicate": "複製",
         "turnInto": "變成",
@@ -495,13 +495,13 @@
         "left": "左邊",
         "center": "中心",
         "right": "正確的",
-        "defaultColor": "默認"
+        "defaultColor": "預設"
       },
       "image": {
-        "copiedToPasteBoard": "圖片鏈接已復製到剪貼板"
+        "copiedToPasteBoard": "圖片連結已復製到剪貼簿"
       },
       "outline": {
-        "addHeadingToCreateOutline": "添加標題以創建目錄。"
+        "addHeadingToCreateOutline": "新增標題以建立目錄。"
       }
     },
     "textBlock": {
@@ -511,20 +511,20 @@
       "placeholder": "無標題"
     },
     "imageBlock": {
-      "placeholder": "點擊添加圖片",
+      "placeholder": "點選新增圖片",
       "upload": {
         "label": "上傳",
-        "placeholder": "點擊上傳圖片"
+        "placeholder": "點選上傳圖片"
       },
       "url": {
         "label": "圖片網址",
         "placeholder": "輸入圖片網址"
       },
-      "support": "圖片大小限制為 5MB。支持的格式：JPEG、PNG、GIF、SVG",
+      "support": "圖片大小限制為 5MB。支援的格式：JPEG、PNG、GIF、SVG",
       "error": {
         "invalidImage": "圖片無效",
         "invalidImageSize": "圖片大小必須小於 5MB",
-        "invalidImageFormat": "不支持圖像格式。支持的格式：JPEG、PNG、GIF、SVG",
+        "invalidImageFormat": "不支援影象格式。支援的格式：JPEG、PNG、GIF、SVG",
         "invalidImageUrl": "圖片網址無效"
       }
     },
@@ -535,14 +535,14 @@
       }
     },
     "inlineLink": {
-      "placeholder": "粘貼或輸入鏈接",
+      "placeholder": "貼上或輸入連結",
       "url": {
-        "label": "鏈接網址",
-        "placeholder": "輸入鏈接網址"
+        "label": "連結網址",
+        "placeholder": "輸入連結網址"
       },
       "title": {
-        "label": "鏈接標題",
-        "placeholder": "輸入鏈接標題"
+        "label": "連結標題",
+        "placeholder": "輸入連結標題"
       }
     }
   },
@@ -551,7 +551,7 @@
       "createNewCard": "建立"
     },
     "menuName": "看板",
-    "referencedBoardPrefix": "視圖"
+    "referencedBoardPrefix": "檢視"
   },
   "calendar": {
     "menuName": "月曆",
@@ -568,21 +568,21 @@
       "firstDayOfWeek": "一週的第一天",
       "layoutDateField": "排列方式",
       "noDateTitle": "未註明日期的",
-      "clickToAdd": "點擊添加到日曆",
-      "name": "日曆佈局",
+      "clickToAdd": "點選新增到日曆",
+      "name": "日曆配置",
       "noDateHint": "未安排的事件將顯示在這裡"
     },
-    "referencedCalendarPrefix": "視圖"
+    "referencedCalendarPrefix": "檢視"
   },
   "errorDialog": {
     "title": "AppFlowy錯誤",
     "howToFixFallback": "對於給您帶來的不便，我們深表歉意！在我們的 GitHub 頁面上提交描述您的錯誤的問題。",
-    "github": "在 GitHub 上查看"
+    "github": "在 GitHub 上檢視"
   },
   "search": {
-    "label": "搜索",
+    "label": "搜尋",
     "placeholder": {
-      "actions": "搜索操作..."
+      "actions": "搜尋操作..."
     }
   },
   "message": {
@@ -591,9 +591,9 @@
       "fail": "無法複製"
     }
   },
-  "unSupportBlock": "當前版本不支持該塊。",
+  "unSupportBlock": "目前版本不支援該區塊。",
   "views": {
     "deleteContentTitle": "您確定要刪除 {pageType} 嗎？",
-    "deleteContentCaption": "如果您刪除此{pageType}，您可以從回收站中將其恢復。"
+    "deleteContentCaption": "如果您刪除此 {pageType}，您可以從垃圾桶中將其復原。"
   }
 }

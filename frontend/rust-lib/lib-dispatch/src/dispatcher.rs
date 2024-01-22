@@ -84,11 +84,7 @@ pub struct AFPluginDispatcher {
 }
 
 impl AFPluginDispatcher {
-  pub fn construct<F>(runtime: Arc<AFPluginRuntime>, module_factory: F) -> AFPluginDispatcher
-  where
-    F: FnOnce() -> Vec<AFPlugin>,
-  {
-    let plugins = module_factory();
+  pub fn new(runtime: Arc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
     tracing::trace!("{}", plugin_info(&plugins));
     AFPluginDispatcher {
       plugins: as_plugin_map(plugins),

@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
-import 'package:appflowy/plugins/database_view/grid/application/filter/filter_menu_bloc.dart';
+import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 

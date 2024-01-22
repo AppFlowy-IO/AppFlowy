@@ -30,13 +30,13 @@ class AppFlowyCloudURLsBloc
             await setAppFlowyCloudUrl(none());
           } else {
             validateUrl(state.updatedServerUrl).fold(
-              (error) => emit(state.copyWith(urlError: Some(error))),
-              (_) async {
-                if (state.config.base_url != state.updatedServerUrl) {
-                  await setAppFlowyCloudUrl(Some(state.updatedServerUrl));
+              (url) async {
+                if (state.config.base_url != url) {
+                  await setAppFlowyCloudUrl(Some(url));
                 }
                 add(const AppFlowyCloudURLsEvent.didSaveConfig());
               },
+              (err) => emit(state.copyWith(urlError: Some(err))),
             );
           }
         },
@@ -80,16 +80,23 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
       );
 }
 
-Either<String, ()> validateUrl(String url) {
+Either<String, String> validateUrl(String url) {
   try {
     // Use Uri.parse to validate the url.
-    final uri = Uri.parse(url);
+    final uri = Uri.parse(removeTrailingSlash(url));
     if (uri.isScheme('HTTP') || uri.isScheme('HTTPS')) {
-      return right(());
+      return left(uri.toString());
     } else {
-      return left(LocaleKeys.settings_menu_invalidCloudURLScheme.tr());
+      return right(LocaleKeys.settings_menu_invalidCloudURLScheme.tr());
     }
   } catch (e) {
-    return left(e.toString());
+    return right(e.toString());
   }
+}
+
+String removeTrailingSlash(String input) {
+  if (input.endsWith('/')) {
+    return input.substring(0, input.length - 1);
+  }
+  return input;
 }

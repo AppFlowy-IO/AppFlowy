@@ -1,7 +1,8 @@
 #![allow(unused_doc_comments)]
 
+use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
-use std::sync::Weak;
+
 use std::time::Duration;
 
 use tokio::sync::RwLock;
@@ -12,18 +13,16 @@ use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_folder::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_storage::FileStorageService;
-use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::manager::UserManager;
+use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
-use flowy_user_deps::cloud::UserCloudServiceProvider;
+use flowy_user::user_manager::UserManager;
 
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
+use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
 use module::make_plugins;
 
 use crate::config::AppFlowyCoreConfig;
-use crate::deps_resolve::collab_backup::RocksdbBackupImpl;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::init_log;
@@ -119,20 +118,23 @@ impl AppFlowyCore {
         config.device_id.clone(),
       ));
 
-      let user_manager = init_user_manager(
-        &config,
-        &store_preference,
-        server_provider.clone(),
-        Arc::downgrade(&collab_builder),
+      let user_config = UserConfig::new(
+        &config.name,
+        &config.storage_path,
+        &config.application_path,
+        &config.device_id,
       );
 
-      collab_builder
-        .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_manager))));
+      let authenticate_user = Arc::new(AuthenticateUser::new(
+        user_config.clone(),
+        store_preference.clone(),
+      ));
 
-      collab_builder.set_rocksdb_backup(Arc::new(RocksdbBackupImpl(Arc::downgrade(&user_manager))));
+      collab_builder
+        .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
       let database_manager = DatabaseDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         task_dispatcher.clone(),
         collab_builder.clone(),
         server_provider.clone(),
@@ -140,19 +142,29 @@ impl AppFlowyCore {
       .await;
 
       let document_manager = DocumentDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&(server_provider.clone() as Arc<dyn FileStorageService>)),
+        Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
       let folder_manager = FolderDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         &document_manager,
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
+      )
+      .await;
+
+      let user_manager = UserDepsResolver::resolve(
+        authenticate_user,
+        collab_builder.clone(),
+        server_provider.clone(),
+        store_preference.clone(),
+        database_manager.clone(),
+        folder_manager.clone(),
       )
       .await;
 
@@ -190,14 +202,15 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
-    let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
+    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
+      runtime,
       make_plugins(
         Arc::downgrade(&folder_manager),
         Arc::downgrade(&database_manager),
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
-      )
-    }));
+      ),
+    ));
 
     Self {
       config,
@@ -216,26 +229,6 @@ impl AppFlowyCore {
   pub fn dispatcher(&self) -> Arc<AFPluginDispatcher> {
     self.event_dispatcher.clone()
   }
-}
-
-fn init_user_manager(
-  config: &AppFlowyCoreConfig,
-  storage_preference: &Arc<StorePreferences>,
-  user_cloud_service_provider: Arc<dyn UserCloudServiceProvider>,
-  collab_builder: Weak<AppFlowyCollabBuilder>,
-) -> Arc<UserManager> {
-  let user_config = UserConfig::new(
-    &config.name,
-    &config.storage_path,
-    &config.application_path,
-    &config.device_id,
-  );
-  UserManager::new(
-    user_config,
-    user_cloud_service_provider,
-    storage_preference.clone(),
-    collab_builder,
-  )
 }
 
 impl From<Server> for CollabPluginProviderType {

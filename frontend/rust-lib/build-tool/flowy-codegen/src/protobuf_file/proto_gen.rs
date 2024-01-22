@@ -138,7 +138,7 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
         mod_file_content.push_str("// Auto-generated, do not edit\n");
         walk_dir(
           context.protobuf_crate.proto_output_path(),
-          |e| !e.file_type().is_dir(),
+          |e| !e.file_type().is_dir() && !e.file_name().to_string_lossy().starts_with('.'),
           |_, name| {
             let c = format!("\nmod {};\npub use {}::*;\n", &name, &name);
             mod_file_content.push_str(c.as_ref());

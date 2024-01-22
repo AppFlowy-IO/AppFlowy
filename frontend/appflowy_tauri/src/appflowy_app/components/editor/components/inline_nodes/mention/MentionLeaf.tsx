@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Mention, MentionPage } from '$app/application/document/document.types';
-import { PageController } from '$app/stores/effects/workspace/page/page_controller';
 import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { pageTypeMap } from '$app_reducers/pages/slice';
+import { getPage } from '$app/application/folder/page.service';
 
 export function MentionLeaf({ children, mention }: { mention: Mention; children: React.ReactNode }) {
   const { t } = useTranslation();
@@ -12,7 +12,7 @@ export function MentionLeaf({ children, mention }: { mention: Mention; children:
   const navigate = useNavigate();
   const loadPage = useCallback(async () => {
     if (!mention.page) return;
-    const page = await new PageController(mention.page).getPage();
+    const page = await getPage(mention.page);
 
     setPage(page);
   }, [mention.page]);

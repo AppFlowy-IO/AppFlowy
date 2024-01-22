@@ -3,7 +3,6 @@ use crate::entities::ViewLayoutPB;
 use crate::share::{ImportParams, ImportType};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use validator::Validate;
 
 #[derive(Clone, Debug, ProtoBuf_Enum)]
 pub enum ImportTypePB {
@@ -83,14 +82,4 @@ impl TryInto<ImportParams> for ImportPB {
       import_type: self.import_type.into(),
     })
   }
-}
-
-#[derive(ProtoBuf, Validate, Default)]
-pub struct ImportAppFlowyDataPB {
-  #[pb(index = 1)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
-  pub path: String,
-
-  #[pb(index = 2, one_of)]
-  pub import_container_name: Option<String>,
 }

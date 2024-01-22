@@ -11,10 +11,10 @@ use parking_lot::{Mutex, RwLock};
 use tracing::{error, event, info, instrument, Level};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
-use flowy_folder_deps::folder_builder::ParentChildViews;
+use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
+use flowy_folder_pub::folder_builder::ParentChildViews;
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::icon::UpdateViewIconParams;
@@ -40,17 +40,7 @@ use crate::view_operation::{create_view, FolderOperationHandler, FolderOperation
 #[async_trait]
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
-
-  /// Import appflowy data from the given path.
-  /// If the container name is not empty, then the data will be imported to the given container.
-  /// Otherwise, the data will be imported to the current workspace.
-  async fn import_appflowy_data_folder(
-    &self,
-    path: &str,
-    container_name: Option<String>,
-  ) -> Result<Vec<ParentChildViews>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 
 pub struct FolderManager {
@@ -148,7 +138,7 @@ impl FolderManager {
     &self,
     uid: i64,
     workspace_id: &str,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     collab_doc_state: CollabDocState,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab = self
@@ -159,7 +149,9 @@ impl FolderManager {
         CollabType::Folder,
         collab_db,
         collab_doc_state,
-        &CollabPersistenceConfig::new().enable_snapshot(true),
+        CollabPersistenceConfig::new()
+          .enable_snapshot(true)
+          .snapshot_per_update(50),
         CollabBuilderConfig::default().sync_enable(true),
       )
       .await?;
@@ -297,6 +289,23 @@ impl FolderManager {
       workspace_id,
       latest_view,
     })
+  }
+
+  pub async fn insert_parent_child_views(
+    &self,
+    views: Vec<ParentChildViews>,
+  ) -> Result<(), FlowyError> {
+    self.with_folder(
+      || Err(FlowyError::internal().with_context("The folder is not initialized")),
+      |folder| {
+        for view in views {
+          insert_parent_child_views(folder, view);
+        }
+        Ok(())
+      },
+    )?;
+
+    Ok(())
   }
 
   pub async fn get_workspace_pb(&self) -> FlowyResult<WorkspacePB> {
@@ -845,35 +854,6 @@ impl FolderManager {
         handler.delete_view(view_id).await?;
       }
     }
-    Ok(())
-  }
-
-  pub async fn import_appflowy_data(
-    &self,
-    path: String,
-    name: Option<String>,
-  ) -> Result<(), FlowyError> {
-    let (tx, rx) = tokio::sync::oneshot::channel();
-    let folder = self.mutex_folder.clone();
-    let user = self.user.clone();
-
-    tokio::spawn(async move {
-      match user.import_appflowy_data_folder(&path, name).await {
-        Ok(views) => {
-          if let Some(folder) = &*folder.lock() {
-            for view in views {
-              insert_parent_child_views(folder, view);
-            }
-          }
-          let _ = tx.send(Ok(()));
-        },
-        Err(err) => {
-          let _ = tx.send(Err(err));
-        },
-      }
-    });
-
-    rx.await.map_err(internal_error)??;
     Ok(())
   }
 

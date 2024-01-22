@@ -3,24 +3,24 @@ use std::sync::Arc;
 use chrono::NaiveDateTime;
 use diesel::{RunQueryDsl, SqliteConnection};
 
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::user_data_migration_records;
 use flowy_sqlite::ConnectionPool;
-use flowy_user_deps::entities::Authenticator;
+use flowy_user_pub::entities::Authenticator;
 
 use crate::services::entities::Session;
 
 pub struct UserLocalDataMigration {
   session: Session,
-  collab_db: Arc<RocksCollabDB>,
+  collab_db: Arc<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
 }
 
 impl UserLocalDataMigration {
   pub fn new(
     session: Session,
-    collab_db: Arc<RocksCollabDB>,
+    collab_db: Arc<CollabKVDB>,
     sqlite_pool: Arc<ConnectionPool>,
   ) -> Self {
     Self {
@@ -78,7 +78,7 @@ pub trait UserDataMigration {
   fn run(
     &self,
     user: &Session,
-    collab_db: &Arc<RocksCollabDB>,
+    collab_db: &Arc<CollabKVDB>,
     authenticator: &Authenticator,
   ) -> FlowyResult<()>;
 }

@@ -1,9 +1,10 @@
 use collab_folder::Folder;
-use std::sync::Arc;
-
-use collab_integrate::YrsDocAction;
+use collab_integrate::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_deps::folder_builder::ParentChildViews;
+use flowy_folder_pub::folder_builder::ParentChildViews;
+use std::sync::Arc;
+use tracing::{event, instrument};
 
 use crate::entities::UserFolderPB;
 use crate::manager::FolderUser;
@@ -32,7 +33,14 @@ pub(crate) fn workspace_data_not_sync_error(uid: i64, workspace_id: &str) -> Flo
   })
 }
 
+#[instrument(level = "debug", skip(folder, view))]
 pub(crate) fn insert_parent_child_views(folder: &Folder, view: ParentChildViews) {
+  event!(
+    tracing::Level::DEBUG,
+    "Inserting view: {}, view children: {}",
+    view.parent_view.id,
+    view.child_views.len()
+  );
   folder.insert_view(view.parent_view, None);
   for child_view in view.child_views {
     insert_parent_child_views(folder, child_view);

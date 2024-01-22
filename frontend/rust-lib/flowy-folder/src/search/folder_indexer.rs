@@ -4,7 +4,7 @@ use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_document::document::DocumentIndexContent;
 use collab_folder::ViewIndexContent;
 use flowy_error::FlowyError;
-use flowy_folder_deps::entities::SearchData;
+use flowy_folder_pub::entities::SearchData;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::async_trait::async_trait;
 use tracing::error;

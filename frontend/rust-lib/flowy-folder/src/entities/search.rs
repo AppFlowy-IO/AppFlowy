@@ -1,7 +1,7 @@
 use std::ops::{Deref, DerefMut};
 
 use flowy_derive::ProtoBuf;
-use flowy_folder_deps::entities::SearchData;
+use flowy_folder_pub::entities::SearchData;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct SearchRequestPB {

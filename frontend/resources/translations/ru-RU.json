@@ -3,8 +3,8 @@
   "defaultUsername": "Я",
   "welcomeText": "Добро пожаловать в @:appName",
   "githubStarText": "Поставить звезду на GitHub",
-  "subscribeNewsletterText": "Подписаться на рассылку",
-  "letsGoButtonText": "Начнём",
+  "subscribeNewsletterText": "Подписаться на новостную рассылку",
+  "letsGoButtonText": "Быстрый старт",
   "title": "Заголовок",
   "youCanAlso": "Вы также можете",
   "and": "и",
@@ -12,7 +12,7 @@
     "addBelowTooltip": "Нажмите, чтобы добавить ниже",
     "addAboveCmd": "Alt+клик",
     "addAboveMacCmd": "Option+клик",
-    "addAboveTooltip": "добавить выше",
+    "addAboveTooltip": "чтобы добавить выше",
     "dragTooltip": "Перетащите для перемещения",
     "openMenuTooltip": "Нажмите, чтобы открыть меню"
   },
@@ -32,8 +32,8 @@
   "signIn": {
     "loginTitle": "Войти в @:appName",
     "loginButtonText": "Войти",
-    "loginStartWithAnonymous": "Начать анонимный сеанс",
-    "continueAnonymousUser": "Продолжить анонимный сеанс",
+    "loginStartWithAnonymous": "Начать анонимную сессию",
+    "continueAnonymousUser": "Продолжить анонимную сессию",
     "buttonText": "Авторизация",
     "forgotPassword": "Забыли пароль?",
     "emailHint": "Электронная почта",
@@ -53,13 +53,13 @@
     "chooseWorkspace": "Выберите рабочее пространство",
     "create": "Создать рабочее пространство",
     "reset": "Сбросить рабочее пространство",
-    "resetWorkspacePrompt": "Сброс рабочей области приведет к удалению всех страниц и данных в ней. Вы уверены, что хотите сбросить рабочую область? Также, вы можете обратиться в службу поддержки для восстановления рабочей области.",
+    "resetWorkspacePrompt": "Сброс рабочего пространства приведет к удалению всех страниц и данных внутри него. Вы уверены, что хотите сбросить рабочее пространство? В качестве альтернативы вы можете обратиться в службу поддержки для восстановления рабочего пространства",
     "hint": "рабочее пространство",
     "notFoundError": "Рабочее пространство не найдено",
-    "failedToLoad": "Что-то пошло не так! Не удалось загрузить рабочее пространство. Попробуйте закрыть открытый сеанс AppFlowy и повторите попытку.",
+    "failedToLoad": "Что-то пошло не так! Не удалось загрузить рабочее пространство. Попробуйте закрыть все открытые экземпляры AppFlowy и повторите попытку.",
     "errorActions": {
       "reportIssue": "Сообщить о проблеме",
-      "reachOut": "Обратитесь в Discord"
+      "reachOut": "Обратиться в Discord"
     }
   },
   "shareAction": {
@@ -74,8 +74,8 @@
     "medium": "средний",
     "large": "большой",
     "fontSize": "Размер шрифта",
-    "import": "Импортировать",
-    "moreOptions": "Больше вариантов"
+    "import": "Импорт",
+    "moreOptions": "Дополнительные опции"
   },
   "importPanel": {
     "textAndMarkdown": "Текст и Markdown",
@@ -98,13 +98,13 @@
   "blankPageTitle": "Пустая страница",
   "newPageText": "Новая страница",
   "newDocumentText": "Новый документ",
-  "newGridText": "Новая сетка",
+  "newGridText": "Новая таблица",
   "newCalendarText": "Новый календарь",
   "newBoardText": "Новая доска",
   "trash": {
     "text": "Корзина",
     "restoreAll": "Восстановить всё",
-    "deleteAll": "Очистить",
+    "deleteAll": "Удалить всё",
     "pageHeader": {
       "fileName": "Имя файла",
       "lastModified": "Последнее изменение",
@@ -127,27 +127,27 @@
     }
   },
   "deletePagePrompt": {
-    "text": "Эта страница в корзине",
+    "text": "Эта страница находится в корзине",
     "restore": "Восстановить страницу",
     "deletePermanent": "Удалить навсегда"
   },
-  "dialogCreatePageNameHint": "Имя страницы",
+  "dialogCreatePageNameHint": "Название страницы",
   "questionBubble": {
-    "shortcuts": "Комбинации клавиш",
+    "shortcuts": "Горячие клавиши",
     "whatsNew": "Что нового?",
-    "help": "Помощь",
+    "help": "Помощь и поддержка",
     "markdown": "Markdown",
     "debug": {
       "name": "Отладочная информация",
-      "success": "Скопировано в буфер обмена!",
-      "fail": "Не получилось скопировать отладочную информацию в буфер обмена"
+      "success": "Отладочная информация скопирована в буфер обмена!",
+      "fail": "Не удалось скопировать отладочную информацию в буфер обмена"
     },
     "feedback": "Обратная связь"
   },
   "menuAppHeader": {
-    "moreButtonToolTip": "Удалить, переименовать и многое другое...",
+    "moreButtonToolTip": "Удалить, переименовать и другие действия...",
     "addPageTooltip": "Быстрое добавление новой страницы",
-    "defaultNewPageName": "Без заголовка",
+    "defaultNewPageName": "Без названия",
     "renameDialog": "Переименовать"
   },
   "noPagesInside": "Внутри нет страниц",
@@ -176,7 +176,7 @@
     "addNewRow": "Добавить новую строку",
     "openMenu": "Нажмите, чтобы открыть меню",
     "dragRow": "Перетащите для изменения порядка строк",
-    "viewDataBase": "Открыть базу данных",
+    "viewDataBase": "Просмотр базы данных",
     "referencePage": "Ссылки на {name}",
     "addBlockBelow": "Добавьте блок ниже",
     "urlLaunchAccessory": "Открыть в браузере",
@@ -251,7 +251,7 @@
     "google": {
       "title": "Вход через Google",
       "instruction1": "Чтобы импортировать ваши Google Контакты, вам нужно будет авторизоваться через браузер.",
-      "instruction2": "Скопируйте этот код в буфер обмена (нажав на иконку или выделив текст):",
+      "instruction2": "Скопируйте этот код в буфер обмена, нажав на иконку или выбрав текст:",
       "instruction3": "Перейдите по ссылке и введите приведённый выше код:",
       "instruction4": "Нажмите кнопку ниже после завершения регистрации:"
     }
@@ -268,42 +268,50 @@
       "logout": "Выйти",
       "logoutPrompt": "Вы уверены, что хотите выйти?",
       "selfEncryptionLogoutPrompt": "Вы действительно хотите выйти? Убедитесь, что вы скопировали секрет шифрования",
-      "syncSetting": "Настройка синхронизации",
-      "cloudSettings": "Облачные настройки",
+      "syncSetting": "Настройки синхронизации",
+      "cloudSettings": "Настройки облачного сервера",
       "enableSync": "Включить синхронизацию",
       "enableEncrypt": "Включить шифрование данных",
       "cloudURL": "Базовый URL",
-      "invalidCloudURLScheme": "Некорректная схема URL",
-      "cloudServerType": "Облачный сервер",
-      "cloudServerTypeTip": "Вас может разлогинить после смены облачного сервера",
+      "invalidCloudURLScheme": "Неверный формат URL",
+      "cloudServerType": "Тип облачного сервера",
+      "cloudServerTypeTip": "Обратите внимание, что после смены облачного сервера может произойти выход из текущего аккаунта",
       "cloudLocal": "Локально",
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL",
       "cloudSupabaseAnonKey": "Анонимный ключ Supabase",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Анонимный ключ не может быть пуст",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "Анонимный ключ не может быть пустым, если URL Supabase не пуст",
       "cloudAppFlowy": "AppFlowy Cloud",
       "clickToCopy": "Нажмите, чтобы скопировать",
-      "selfHostStart": "Если у вас нет сервера, обратитесь к",
-      "selfHostContent": "документу",
-      "selfHostEnd": "с инструкцией по настройке своего сервера",
+      "selfHostStart": "Если у вас нет сервера, пожалуйста, обратитесь к",
+      "selfHostContent": "документации",
+      "selfHostEnd": "для получения инструкций по самостоятельному размещению собственного сервера",
       "cloudURLHint": "Введите базовый URL вашего сервера",
-      "cloudWSURL": "Websocket URL",
-      "cloudWSURLHint": "Введите websocket адрес вашего сервера",
+      "cloudWSURL": "URL вебсокета",
+      "cloudWSURLHint": "Введите адрес вебсокета вашего сервера",
       "restartApp": "Перезапуск",
-      "restartAppTip": "Перезапустите приложения, чтобы изменить настройки. Это может вас разлогинить",
+      "restartAppTip": "Перезапустите приложение, чтобы изменения вступили в силу. Обратите внимание, что это может привести к выходу из текущего аккаунта",
       "enableEncryptPrompt": "Активируйте шифрование для защиты ваших данных с этим секретом. Храните его безопасно; после включения, он не может быть отключён. В случае потери секрета ваши данные будут также потеряны. Нажмите, чтобы скопировать",
       "inputEncryptPrompt": "Пожалуйста, введите ваш секрет шифрования для",
       "clickToCopySecret": "Нажмите, чтобы скопировать секрет",
+      "configServerSetting": "Настройте параметры вашего сервера",
+      "configServerGuide": "После выбора «Быстрый старт» перейдите в «Настройки», а затем «Настройки облачного сервера», чтобы настроить параметры вашего самостоятельно размещенного сервера.",
       "inputTextFieldHint": "Ваш секрет",
       "historicalUserList": "История входа пользователя",
       "historicalUserListTooltip": "В этом списке отображаются ваши анонимные аккаунты. Вы можете нажать на аккаунт, чтобы посмотреть данные. Анонимный аккаунт создаётся нажатием кнопки «Начать».",
       "openHistoricalUser": "Нажмите, чтобы открыть анонимный аккаунт",
+      "customPathPrompt": "Хранение папки данных AppFlowy в папке с облачной синхронизацией, например на Google Диске, может представлять риск. Если база данных в этой папке будет доступна или изменена с нескольких мест одновременно, это может привести к конфликтам синхронизации и потенциальному повреждению данных",
+      "importAppFlowyData": "Импортировать данные из внешней папки AppFlowy",
+      "importAppFlowyDataDescription": "Скопируйте данные из внешней папки данных AppFlowy и импортируйте их в текущую папку данных AppFlowy.",
+      "importSuccess": "Папка данных AppFlowy успешно импортирована",
+      "importFailed": "Не удалось импортировать папку данных AppFlowy",
+      "importGuide": "Для получения более подробной информации, пожалуйста, проверьте указанный документ.",
       "supabaseSetting": "Настройка Supabase"
     },
     "notifications": {
       "enableNotifications": {
         "label": "Включить уведомления",
-        "hint": "Выключите, чтобы локальные уведомления не появлялись."
+        "hint": "Отключите, чтобы прекратить появление локальных уведомлений."
       }
     },
     "appearance": {
@@ -320,13 +328,13 @@
       },
       "documentSettings": {
         "cursorColor": "Цвет курсора в документе",
-        "selectionColor": "Цвет выделения",
-        "hexEmptyError": "Код цвета не может быть пустым",
-        "hexLengthError": "Код цвета должен быть шестизначным",
-        "hexInvalidError": "Некорректное значение",
+        "selectionColor": "Цвет выделения в документе",
+        "hexEmptyError": "HEX-код цвета не может быть пустым",
+        "hexLengthError": "HEX-код цвета должен быть шестизначным",
+        "hexInvalidError": "Неверный HEX-код",
         "opacityEmptyError": "Прозрачность не может быть пустой",
-        "opacityRangeError": "Прозрачность должна находиться между 1 и 100",
-        "app": "App",
+        "opacityRangeError": "Прозрачность должна быть от 1 до 100",
+        "app": "Приложение",
         "flowy": "Flowy",
         "apply": "Применить"
       },
@@ -348,12 +356,12 @@
         "button": "Загрузить",
         "uploadTheme": "Загрузить тему",
         "description": "Загрузите собственную тему AppFlowy, используя кнопку ниже.",
-        "failure": "Загруженная тема имеет недопустимый формат.",
         "loading": "Подождите, пока мы проверим и загрузим вашу тему...",
         "uploadSuccess": "Ваша тема была успешно загружена",
         "deletionFailure": "Не удалось удалить тему. Попробуйте удалить её вручную.",
         "filePickerDialogTitle": "Выберите файл .flowy_plugin",
-        "urlUploadFailure": "Не удалось открыть URL: {}"
+        "urlUploadFailure": "Не удалось открыть URL: {}",
+        "failure": "Загруженная тема имеет недопустимый формат."
       },
       "theme": "Тема",
       "builtInsLabel": "Встроенные темы",
@@ -411,23 +419,23 @@
     },
     "user": {
       "name": "Имя",
-      "email": "Email",
-      "tooltipSelectIcon": "Выбрать иконку",
-      "selectAnIcon": "Выберите иконку",
+      "email": "Электронная почта",
+      "tooltipSelectIcon": "Выберите иконку",
+      "selectAnIcon": "Выбрать иконку",
       "pleaseInputYourOpenAIKey": "Пожалуйста, введите токен OpenAI",
       "pleaseInputYourStabilityAIKey": "Пожалуйста, введите свой токен Stability AI",
       "clickToLogout": "Нажмите, чтобы выйти из текущего аккаунта"
     },
     "shortcuts": {
-      "shortcutsLabel": "Ярлыки",
+      "shortcutsLabel": "Горячие клавиши",
       "command": "Команда",
       "keyBinding": "Привязка клавиш",
       "addNewCommand": "Добавить новую команду",
       "updateShortcutStep": "Нажмите нужную комбинацию клавиш и нажмите Enter.",
-      "shortcutIsAlreadyUsed": "Этот ярлык уже используется для: {conflict}",
-      "resetToDefault": "Сбросить сочетания клавиш по умолчанию",
-      "couldNotLoadErrorMsg": "Не удалось загрузить ярлыки. Попробуйте ещё раз",
-      "couldNotSaveErrorMsg": "Не удалось сохранить ярлыки. Попробуйте ещё раз"
+      "shortcutIsAlreadyUsed": "Это сочетание клавиш уже используется для: {conflict}",
+      "resetToDefault": "Сбросить к стандартным сочетаниям клавиш",
+      "couldNotLoadErrorMsg": "Не удалось загрузить горячие клавиши, попробуйте снова",
+      "couldNotSaveErrorMsg": "Не удалось сохранить горячие клавиши, попробуйте снова"
     },
     "mobile": {
       "personalInfo": "Личная информация",
@@ -471,7 +479,7 @@
       "createView": "Новое представление",
       "duplicateView": "Дублировать представление",
       "deleteView": "Удалить представление",
-      "numberOfVisibleFields": "{} shown"
+      "numberOfVisibleFields": "{} показано"
     },
     "textFilter": {
       "contains": "Содержит",
@@ -1170,7 +1178,8 @@
     "rowDuplicate": "Дублировать",
     "colClear": "Очистить контент",
     "rowClear": "Очистить содержимое строки",
-    "slashPlaceHolder": "Введите '/' чтобы вставить блок, или начните писать."
+    "slashPlaceHolder": "Введите '/' чтобы вставить блок, или начните писать.",
+    "typeSomething": "Введите что-либо..."
   },
   "favorite": {
     "noFavorite": "Нет избранной страницы",

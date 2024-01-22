@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { OutlinedInput, MenuItem, MenuList } from '@mui/material';
 import { Property } from '$app/components/database/components/property/Property';
-import { Field as FieldType } from '../../application';
+import { Field as FieldType } from '$app/application/database';
 import { useDatabase } from '$app/components/database';
 
 interface FieldListProps {
@@ -42,7 +42,7 @@ function PropertiesList({ showSearch, onItemClick, searchPlaceholder }: FieldLis
     <div className={'pt-2'}>
       {searchInput}
       {emptyList}
-      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
+      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden px-2'}>
         {fieldsResult.map((field) => (
           <MenuItem
             className={'overflow-hidden text-ellipsis px-1'}

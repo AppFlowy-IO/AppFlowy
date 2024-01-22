@@ -3,7 +3,7 @@ use std::sync::{Arc, Weak};
 use collab_folder::{Folder, FolderNotify, UserId};
 use tracing::{event, Level};
 
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::manager::{FolderInitDataSource, FolderManager};
@@ -110,7 +110,7 @@ impl FolderManager {
     &self,
     uid: i64,
     workspace_id: &str,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     folder_notifier: FolderNotify,
   ) -> Result<Folder, FlowyError> {
     event!(
@@ -135,7 +135,7 @@ impl FolderManager {
     &self,
     uid: i64,
     workspace_id: &str,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     folder_notifier: FolderNotify,
   ) -> Result<Folder, FlowyError> {
     event!(Level::INFO, "Init folder from local disk");

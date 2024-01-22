@@ -6,7 +6,7 @@ import { OutlinedInput } from '@mui/material';
 import {
   createSelectOption,
   insertOrUpdateSelectOption,
-} from '$app/components/database/application/field/select_option/select_option_service';
+} from '$app/application/database/field/select_option/select_option_service';
 import { useViewId } from '$app/hooks';
 
 function AddAnOption({ fieldId }: { fieldId: string }) {

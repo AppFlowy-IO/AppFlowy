@@ -80,7 +80,7 @@ class _HeadingOrTextItem extends StatelessWidget {
   }
 
   Future<void> _convert(bool isSelected) async {
-    editorState.convertBlockType(
+    await editorState.convertBlockType(
       blockType,
       isSelected: isSelected,
       extraAttributes: level != null
@@ -89,6 +89,14 @@ class _HeadingOrTextItem extends StatelessWidget {
             }
           : null,
       selectionExtraInfo: {
+        selectionExtraInfoDoNotAttachTextService: true,
+        selectionExtraInfoDisableFloatingToolbar: true,
+      },
+    );
+    await editorState.updateSelectionWithReason(
+      editorState.selection,
+      extraInfo: {
+        selectionExtraInfoDisableFloatingToolbar: true,
         selectionExtraInfoDoNotAttachTextService: true,
       },
     );

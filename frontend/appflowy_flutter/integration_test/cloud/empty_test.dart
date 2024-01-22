@@ -11,7 +11,7 @@ void main() {
   group('Empty', () {
     testWidgets('set appflowy cloud', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
     });
   });

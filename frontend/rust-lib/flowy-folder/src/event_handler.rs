@@ -330,19 +330,6 @@ pub(crate) async fn get_folder_snapshots_handler(
   data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn import_appflowy_data_folder_handler(
-  data: AFPluginData<ImportAppFlowyDataPB>,
-  folder: AFPluginState<Weak<FolderManager>>,
-) -> Result<(), FlowyError> {
-  let folder = upgrade_folder(folder)?;
-  let data = data.try_into_inner()?;
-  folder
-    .import_appflowy_data(data.path, data.import_container_name)
-    .await?;
-  Ok(())
-}
-
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn search_handler(
   data: AFPluginData<SearchRequestPB>,

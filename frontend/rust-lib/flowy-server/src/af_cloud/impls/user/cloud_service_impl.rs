@@ -4,13 +4,14 @@ use std::sync::Arc;
 use anyhow::{anyhow, Error};
 use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
 use client_api::entity::{AFRole, AFWorkspace, AuthProvider, CollabParams, CreateCollabParams};
+use client_api::ClientConfiguration;
 use collab::core::collab::CollabDocState;
 use collab_entity::CollabObject;
 use parking_lot::RwLock;
 
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_deps::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
+use flowy_user_pub::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -60,8 +61,9 @@ where
   }
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
-    let try_get_client = self.server.try_get_client();
-    FutureResult::new(async move { Ok(try_get_client?.sign_out().await?) })
+    // Calling the sign_out method that will revoke all connected devices' refresh tokens.
+    // So do nothing here.
+    FutureResult::new(async move { Ok(()) })
   }
 
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError> {
@@ -79,8 +81,12 @@ where
           "GOTRUE_ADMIN_PASSWORD is not set. Please set it to the admin password for the test server"
         )
       })?;
-      let admin_client =
-        client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url());
+      let admin_client = client_api::Client::new(
+        client.base_url(),
+        client.ws_addr(),
+        client.gotrue_url(),
+        ClientConfiguration::default(),
+      );
       admin_client
         .sign_in_password(&admin_email, &admin_password)
         .await?;
@@ -238,15 +244,13 @@ where
     let collab_object = collab_object.clone();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let params = CreateCollabParams::new(
-        collab_object.workspace_id.clone(),
-        CollabParams {
-          object_id: collab_object.object_id.clone(),
-          encoded_collab_v1: data,
-          collab_type: collab_object.collab_type.clone(),
-          override_if_exist,
-        },
-      );
+      let params = CreateCollabParams {
+        workspace_id: collab_object.workspace_id.clone(),
+        object_id: collab_object.object_id.clone(),
+        encoded_collab_v1: data,
+        collab_type: collab_object.collab_type.clone(),
+        override_if_exist,
+      };
       client.create_collab(params).await?;
       Ok(())
     })
@@ -270,7 +274,7 @@ where
         })
         .collect::<Vec<_>>();
       try_get_client?
-        .batch_create_collab(&workspace_id, params)
+        .create_collab_list(&workspace_id, params)
         .await
         .map_err(FlowyError::from)?;
       Ok(())

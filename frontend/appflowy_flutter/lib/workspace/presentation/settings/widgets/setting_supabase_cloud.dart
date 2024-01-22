@@ -1,7 +1,9 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -84,8 +86,9 @@ class SupabaseCloudURLs extends StatelessWidget {
     return BlocProvider(
       create: (context) => SupabaseCloudURLsBloc(),
       child: BlocListener<SupabaseCloudURLsBloc, SupabaseCloudURLsState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.restartApp) {
+            await setAuthenticatorType(AuthenticatorType.supabase);
             didUpdateUrls();
           }
         },
@@ -116,24 +119,8 @@ class SupabaseCloudURLs extends StatelessWidget {
                   error: state.anonKeyError.fold(() => null, (a) => a),
                 ),
                 const VSpace(20),
-                FlowyButton(
-                  isSelected: true,
-                  useIntrinsicWidth: true,
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 10,
-                  ),
-                  text: FlowyText(
-                    LocaleKeys.settings_menu_restartApp.tr(),
-                  ),
-                  onTap: () {
-                    NavigatorAlertDialog(
-                      title: LocaleKeys.settings_menu_restartAppTip.tr(),
-                      confirm: () => context
-                          .read<SupabaseCloudURLsBloc>()
-                          .add(const SupabaseCloudURLsEvent.confirmUpdate()),
-                    ).show(context);
-                  },
+                RestartButton(
+                  onClick: () => _restartApp,
                 ),
               ],
             );
@@ -141,6 +128,15 @@ class SupabaseCloudURLs extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _restartApp(BuildContext context) {
+    NavigatorAlertDialog(
+      title: LocaleKeys.settings_menu_restartAppTip.tr(),
+      confirm: () => context
+          .read<SupabaseCloudURLsBloc>()
+          .add(const SupabaseCloudURLsEvent.confirmUpdate()),
+    ).show(context);
   }
 }
 
@@ -154,6 +150,7 @@ class EnableEncrypt extends StatelessWidget {
         final indicator = state.loadingState.when(
           loading: () => const CircularProgressIndicator.adaptive(),
           finish: (successOrFail) => const SizedBox.shrink(),
+          idle: () => const SizedBox.shrink(),
         );
 
         return Column(
@@ -164,7 +161,8 @@ class EnableEncrypt extends StatelessWidget {
                 const Spacer(),
                 indicator,
                 const HSpace(3),
-                Switch(
+                Switch.adaptive(
+                  activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: state.setting.enableEncrypt
                       ? null
                       : (bool value) {
@@ -232,7 +230,8 @@ class SupabaseEnableSync extends StatelessWidget {
           children: [
             FlowyText.medium(LocaleKeys.settings_menu_enableSync.tr()),
             const Spacer(),
-            Switch(
+            Switch.adaptive(
+              activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) {
                 context.read<SupabaseCloudSettingBloc>().add(
                       SupabaseCloudSettingEvent.enableSync(value),

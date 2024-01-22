@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { ReactComponent as MoreIcon } from '$app/assets/more.svg';
-import { SelectOption } from '$app/components/database/application';
+import { SelectOption } from '$app/application/database';
 // import { ReactComponent as DragIcon } from '$app/assets/drag.svg';
 
 import { SelectOptionMenu } from '$app/components/database/components/field_types/select/SelectOptionMenu';
@@ -14,6 +14,7 @@ function Option({ option, fieldId }: { option: SelectOption; fieldId: string }) 
   return (
     <>
       <Button
+        size={'small'}
         onClick={() => setExpanded(!expanded)}
         color={'inherit'}
         // startIcon={<DragIcon />}

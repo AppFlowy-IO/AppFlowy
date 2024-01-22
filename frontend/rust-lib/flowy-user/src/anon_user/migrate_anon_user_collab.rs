@@ -12,36 +12,40 @@ use collab_database::database::{
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
 use collab_database::user::DatabaseViewTrackerList;
 use collab_folder::{Folder, UserId};
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use parking_lot::{Mutex, RwLock};
 use tracing::info;
 
-use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_deps::cloud::gen_view_id;
-use flowy_user_deps::entities::Authenticator;
+use flowy_folder_pub::cloud::gen_view_id;
 
-use crate::migrations::MigrationUser;
+use crate::migrations::AnonUser;
+use crate::services::entities::Session;
 
 /// Migration the collab objects of the old user to new user. Currently, it only happens when
 /// the user is a local user and try to use AppFlowy cloud service.
 pub fn migration_anon_user_on_sign_up(
-  old_user: &MigrationUser,
-  old_collab_db: &Arc<RocksCollabDB>,
-  new_user: &MigrationUser,
-  new_collab_db: &Arc<RocksCollabDB>,
-  authenticator: &Authenticator,
+  old_user: &AnonUser,
+  old_collab_db: &Arc<CollabKVDB>,
+  new_user_session: &Session,
+  new_collab_db: &Arc<CollabKVDB>,
 ) -> FlowyResult<()> {
   new_collab_db
     .with_write_txn(|new_collab_w_txn| {
       let old_collab_r_txn = old_collab_db.read_txn();
       let old_to_new_id_map = Arc::new(Mutex::new(OldToNewIdMap::new()));
-      migrate_user_awareness(old_to_new_id_map.lock().deref_mut(), old_user, new_user)?;
+      migrate_user_awareness(
+        old_to_new_id_map.lock().deref_mut(),
+        old_user,
+        new_user_session,
+      )?;
 
       migrate_database_with_views_object(
         &mut old_to_new_id_map.lock(),
         old_user,
         &old_collab_r_txn,
-        new_user,
+        new_user_session,
         new_collab_w_txn,
       )?;
 
@@ -60,7 +64,7 @@ pub fn migration_anon_user_on_sign_up(
       let collab_by_oid = make_collab_by_oid(old_user, &old_collab_r_txn, &object_ids);
       migrate_databases(
         &old_to_new_id_map,
-        new_user,
+        new_user_session,
         new_collab_w_txn,
         &mut object_ids,
         &collab_by_oid,
@@ -73,9 +77,8 @@ pub fn migration_anon_user_on_sign_up(
         &mut old_to_new_id_map.lock(),
         old_user,
         &old_collab_r_txn,
-        new_user,
+        new_user_session,
         new_collab_w_txn,
-        authenticator,
       )?;
 
       // Migrate other collab objects
@@ -85,7 +88,7 @@ pub fn migration_anon_user_on_sign_up(
           tracing::debug!("migrate from: {}, to: {}", object_id, new_object_id,);
           migrate_collab_object(
             collab,
-            new_user.session.user_id,
+            new_user_session.user_id,
             &new_object_id,
             new_collab_w_txn,
           );
@@ -129,16 +132,19 @@ impl DerefMut for OldToNewIdMap {
   }
 }
 
-fn migrate_database_with_views_object<'a, W>(
+fn migrate_database_with_views_object<'a, 'b, W, R>(
   old_to_new_id_map: &mut OldToNewIdMap,
-  old_user: &MigrationUser,
-  old_collab_r_txn: &'a W,
-  new_user: &MigrationUser,
-  new_collab_w_txn: &'a W,
+  old_user: &AnonUser,
+  old_collab_r_txn: &R,
+  new_user_session: &Session,
+  new_collab_w_txn: &W,
 ) -> Result<(), PersistenceError>
 where
-  W: YrsDocAction<'a>,
+  'a: 'b,
+  W: CollabKVAction<'a>,
+  R: CollabKVAction<'b>,
   PersistenceError: From<W::Error>,
+  PersistenceError: From<R::Error>,
 {
   let database_with_views_collab = Collab::new(
     old_user.session.user_id,
@@ -154,8 +160,8 @@ where
     )
   })?;
 
-  let new_uid = new_user.session.user_id;
-  let new_object_id = &new_user.session.user_workspace.database_view_tracker_id;
+  let new_uid = new_user_session.user_id;
+  let new_object_id = &new_user_session.user_workspace.database_view_tracker_id;
 
   let array = DatabaseViewTrackerList::from_collab(&database_with_views_collab);
   for database_view_tracker in array.get_all_database_tracker() {
@@ -180,7 +186,7 @@ where
 
 fn migrate_collab_object<'a, W>(collab: &Collab, new_uid: i64, new_object_id: &str, w_txn: &'a W)
 where
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   let txn = collab.transact();
@@ -189,23 +195,24 @@ where
   }
 }
 
-fn migrate_workspace_folder<'a, 'b, W>(
+fn migrate_workspace_folder<'a, 'b, W, R>(
   old_to_new_id_map: &mut OldToNewIdMap,
-  old_user: &MigrationUser,
-  old_collab_r_txn: &'b W,
-  new_user: &MigrationUser,
-  new_collab_w_txn: &'a W,
-  _authenticator: &Authenticator,
+  old_user: &AnonUser,
+  old_collab_r_txn: &R,
+  new_user_session: &Session,
+  new_collab_w_txn: &W,
 ) -> Result<(), PersistenceError>
 where
   'a: 'b,
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
+  R: CollabKVAction<'b>,
   PersistenceError: From<W::Error>,
+  PersistenceError: From<R::Error>,
 {
   let old_uid = old_user.session.user_id;
   let old_workspace_id = &old_user.session.user_workspace.id;
-  let new_uid = new_user.session.user_id;
-  let new_workspace_id = &new_user.session.user_workspace.id;
+  let new_uid = new_user_session.user_id;
+  let new_workspace_id = &new_user_session.user_workspace.id;
 
   let old_folder_collab = Collab::new(old_uid, old_workspace_id, "phantom", vec![]);
   old_folder_collab.with_origin_transact_mut(|txn| {
@@ -316,11 +323,11 @@ where
 
 fn migrate_user_awareness(
   old_to_new_id_map: &mut OldToNewIdMap,
-  old_user: &MigrationUser,
-  new_user: &MigrationUser,
+  old_user: &AnonUser,
+  new_user_session: &Session,
 ) -> Result<(), PersistenceError> {
   let old_uid = old_user.session.user_id;
-  let new_uid = new_user.session.user_id;
+  let new_uid = new_user_session.user_id;
   tracing::debug!("migrate user awareness from: {}, to: {}", old_uid, new_uid);
   old_to_new_id_map.insert(old_uid.to_string(), new_uid.to_string());
   Ok(())
@@ -328,13 +335,13 @@ fn migrate_user_awareness(
 
 fn migrate_databases<'a, W>(
   old_to_new_id_map: &Arc<Mutex<OldToNewIdMap>>,
-  new_user: &MigrationUser,
+  new_user_session: &Session,
   new_collab_w_txn: &'a W,
   object_ids: &mut Vec<String>,
   collab_by_oid: &HashMap<String, Collab>,
 ) -> Result<(), PersistenceError>
 where
-  W: YrsDocAction<'a>,
+  W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   // Migrate databases
@@ -399,7 +406,7 @@ where
       );
       migrate_collab_object(
         collab,
-        new_user.session.user_id,
+        new_user_session.user_id,
         &new_object_id,
         new_collab_w_txn,
       );
@@ -421,7 +428,7 @@ where
       });
       migrate_collab_object(
         collab,
-        new_user.session.user_id,
+        new_user_session.user_id,
         &new_object_id,
         new_collab_w_txn,
       );
@@ -433,12 +440,12 @@ where
 }
 
 fn make_collab_by_oid<'a, R>(
-  old_user: &MigrationUser,
+  old_user: &AnonUser,
   old_collab_r_txn: &R,
   object_ids: &[String],
 ) -> HashMap<String, Collab>
 where
-  R: YrsDocAction<'a>,
+  R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
   let mut collab_by_oid = HashMap::new();

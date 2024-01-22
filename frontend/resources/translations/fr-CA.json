@@ -2,7 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "Moi",
   "welcomeText": "Bienvenue sur @:appName",
-  "githubStarText": "Favoriser sur GitHub",
+  "githubStarText": "Étoiler sur GitHub",
   "subscribeNewsletterText": "Abonnez-vous à notre courriel",
   "letsGoButtonText": "Allons-y",
   "title": "Titre",
@@ -224,12 +224,12 @@
       "themeUpload": {
         "button": "Télécharger",
         "description": "Téléchargez votre propre thème AppFlowy en utilisant le bouton ci-dessous.",
-        "failure": "Le thème qui a été téléchargé avait un format non valide.",
         "loading": "Veuillez patienter pendant que nous validons et téléchargeons votre thème...",
         "uploadSuccess": "Votre thème a été téléchargé avec succès",
         "deletionFailure": "Échec de la suppression du thème. Essayez de le supprimer manuellement.",
         "filePickerDialogTitle": "Choisissez un fichier .flowy_plugin",
-        "urlUploadFailure": "Échec de l'ouverture de l'URL : {}"
+        "urlUploadFailure": "Échec de l'ouverture de l'URL : {}",
+        "failure": "Le thème qui a été téléchargé avait un format non valide."
       },
       "theme": "Thème",
       "builtInsLabel": "Thèmes intégrés",
@@ -258,7 +258,7 @@
       "locationDesc": "Choisissez un nom pour votre dossier de données AppFlowy",
       "browser": "Parcourir",
       "create": "Créer",
-      "set": "Ensemble",
+      "set": "Définir",
       "folderPath": "Chemin pour stocker votre dossier",
       "locationCannotBeEmpty": "Le chemin ne peut pas être vide",
       "pathCopiedSnackbar": "Chemin de stockage des fichiers copié dans le presse-papier !",

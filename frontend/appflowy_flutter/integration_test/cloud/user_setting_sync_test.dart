@@ -32,7 +32,7 @@ void main() {
   group('appflowy cloud setting', () {
     testWidgets('sync user name and icon to server', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
         email: email,
       );
       await tester.tapGoogleLoginInButton();
@@ -70,7 +70,7 @@ void main() {
 
   testWidgets('get user icon and name from server', (tester) async {
     await tester.initializeAppFlowy(
-      cloudType: AuthenticatorType.appflowyCloud,
+      cloudType: AuthenticatorType.appflowyCloudSelfHost,
       email: email,
     );
     await tester.tapGoogleLoginInButton();

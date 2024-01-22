@@ -4,24 +4,25 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, MutexDatabase, YrsDocAction};
+use collab_database::database::{DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
   CollabDocStateByOid, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_entity::CollabType;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use futures::executor::block_on;
 use lru::LruCache;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
-use flowy_database_deps::cloud::DatabaseCloudService;
+use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
+use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_task::TaskDispatcher;
 use lib_dispatch::prelude::af_spawn;
+use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::{
   DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
@@ -35,8 +36,7 @@ use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 
 pub struct DatabaseManager {
@@ -66,7 +66,7 @@ impl DatabaseManager {
     }
   }
 
-  fn is_collab_exist(&self, uid: i64, collab_db: &Weak<RocksCollabDB>, object_id: &str) -> bool {
+  fn is_collab_exist(&self, uid: i64, collab_db: &Weak<CollabKVDB>, object_id: &str) -> bool {
     match collab_db.upgrade() {
       None => false,
       Some(collab_db) => {
@@ -94,7 +94,7 @@ impl DatabaseManager {
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
     };
-    let config = CollabPersistenceConfig::new().snapshot_per_update(10);
+    let config = CollabPersistenceConfig::new().snapshot_per_update(100);
     let mut collab_raw_data = CollabDocState::default();
 
     // If the workspace database not exist in disk, try to fetch from remote.
@@ -133,7 +133,7 @@ impl DatabaseManager {
       CollabType::WorkspaceDatabase,
       collab_db.clone(),
       collab_raw_data,
-      &config,
+      config.clone(),
     );
     let workspace_database =
       WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
@@ -459,9 +459,9 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     uid: i64,
     object_id: &str,
     object_type: CollabType,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     collab_raw_data: CollabDocState,
-    config: &CollabPersistenceConfig,
+    persistence_config: CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
     block_on(self.collab_builder.build_with_config(
       uid,
@@ -469,7 +469,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       object_type,
       collab_db,
       collab_raw_data,
-      config,
+      persistence_config,
       CollabBuilderConfig::default().sync_enable(true),
     ))
     .unwrap()

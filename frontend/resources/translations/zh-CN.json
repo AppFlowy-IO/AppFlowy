@@ -2,6 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "我",
   "welcomeText": "欢迎使用 @:appName",
+  "welcomeTo": "欢迎来到",
   "githubStarText": "在 GitHub 上 Star",
   "subscribeNewsletterText": "消息订阅",
   "letsGoButtonText": "快速开始",
@@ -35,6 +36,7 @@
     "loginStartWithAnonymous": "从匿名会话开始",
     "continueAnonymousUser": "继续匿名会话",
     "buttonText": "登录",
+    "signingInText": "登录中...",
     "forgotPassword": "忘记密码?",
     "emailHint": "邮箱",
     "passwordHint": "密码",
@@ -283,6 +285,7 @@
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "如果 Supabase url 不为空，则 Anon key 不能为空",
       "cloudAppFlowy": "AppFlowy云",
+      "cloudAppFlowySelfHost": "AppFlowy 云自行托管",
       "clickToCopy": "点击复制",
       "selfHostStart": "如果您没有服务器，请参阅",
       "selfHostContent": "文档",
@@ -302,6 +305,12 @@
       "historicalUserListTooltip": "此列表显示您的匿名帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建匿名帐户",
       "openHistoricalUser": "点击开设匿名账户",
       "customPathPrompt": "将 AppFlowy 数据文件夹存储在云同步文件夹（例如 Google Drive）中可能会带来风险。如果同时从多个位置访问或修改此文件夹中的数据库，可能会导致同步冲突和潜在的数据损坏",
+      "importAppFlowyData": "由外部 AppFlowy 文件夹导入数据",
+      "importingAppFlowyDataTip": "数据导入正在进行中。请不要关闭此程序",
+      "importAppFlowyDataDescription": "从外部 AppFlowy 数据文件夹复制数据并将其导入到当前 AppFlowy 数据文件夹中",
+      "importSuccess": "成功导入AppFlowy数据文件夹",
+      "importFailed": "导入AppFlowy",
+      "importGuide": "欲了解更多详情，请查看参考文档",
       "supabaseSetting": "Supabase 设置",
       "cloudSetting": "云设置"
     },
@@ -323,6 +332,18 @@
         "dark": "暗色模式",
         "system": "系统自适应"
       },
+      "documentSettings": {
+        "cursorColor": "文档光标颜色",
+        "selectionColor": "文档选择颜色",
+        "hexEmptyError": "十六进制颜色不能为空",
+        "hexLengthError": "十六进制值的长度必须为 6 位",
+        "hexInvalidError": "无效的十六进制值",
+        "opacityEmptyError": "不透明度不能为空",
+        "opacityRangeError": "不透明度必须介于 1 到 100 之间",
+        "app": "应用程序",
+        "flowy": "Flowy",
+        "apply": "提交"
+      },
       "layoutDirection": {
         "label": "布局方向",
         "hint": "控制屏幕上内容的方向，从左到右或从右到左。",
@@ -341,12 +362,12 @@
         "button": "上传",
         "uploadTheme": "上传主题",
         "description": "使用下方的按钮上传您自己的 AppFlowy 主题。",
-        "failure": "上传的主题格式无效。",
         "loading": "我们正在验证并上传您的主题，请稍候...",
         "uploadSuccess": "您的主题已成功上传",
         "deletionFailure": "删除主题失败。尝试手动删除它。",
         "filePickerDialogTitle": "选择 .flowy_plugin 文件",
-        "urlUploadFailure": "无法打开网址：{}"
+        "urlUploadFailure": "无法打开网址：{}",
+        "failure": "上传的主题格式无效。"
       },
       "theme": "主题",
       "builtInsLabel": "内置主题",
@@ -432,10 +453,12 @@
       "joinDiscord": "在 Discord 中加入我们",
       "privacyPolicy": "隐私政策",
       "userAgreement": "用户协议",
+      "termsAndConditions": "条款与细则",
       "userprofileError": "无法加载用户配置文件",
       "userprofileErrorDescription": "请尝试注销并重新登录以检查问题是否仍然存在。",
       "selectLayout": "选择布局",
-      "selectStartingDay": "选择开始日期"
+      "selectStartingDay": "选择开始日期",
+      "version": "版本"
     }
   },
   "grid": {
@@ -456,7 +479,14 @@
       "filterBy": "筛选方式",
       "typeAValue": "输入一个值...",
       "layout": "布局",
-      "databaseLayout": "布局"
+      "databaseLayout": "布局",
+      "viewList": "数据库视图",
+      "editView": "编辑视图",
+      "boardSettings": "看板设置",
+      "calendarSettings": "日历设置",
+      "createView": "新建视图",
+      "duplicateView": "复制视图",
+      "deleteView": "删除视图"
     },
     "textFilter": {
       "contains": "包含",
@@ -527,7 +557,7 @@
       "checklistFieldName": "清单",
       "numberFormat": "数字格式",
       "dateFormat": "日期格式",
-      "includeTime": "包含时间",
+      "includeTime": "包含时/分",
       "isRange": "结束日期",
       "dateFormatFriendly": "月 日, 年",
       "dateFormatISO": "年-月-日",
@@ -749,7 +779,15 @@
         "cut": "剪切",
         "paste": "粘贴"
       },
-      "action": "操作"
+      "action": "操作",
+      "database": {
+        "selectDataSource": "选择数据源",
+        "noDataSource": "无数据源",
+        "selectADataSource": "选择数据源",
+        "toContinue": "以继续",
+        "newDatabase": "新数据库",
+        "linkToDatabase": "链接到数据库"
+      }
     },
     "textBlock": {
       "placeholder": "输入 “/” 作为命令"
@@ -789,6 +827,7 @@
       "unsplash": {
         "label": "Unspalsh"
       },
+      "searchForAnImage": "搜索图像",
       "pleaseInputYourOpenAIKey": "请在设置页面输入您的 OpenAI 密钥",
       "pleaseInputYourStabilityAIKey": "请在设置页面输入您的 Stability AI 密钥",
       "saveImageToGallery": "保存图片",
@@ -887,6 +926,7 @@
       "showWeekends": "显示周末",
       "firstDayOfWeek": "一周开始于",
       "layoutDateField": "以……为日历布局",
+      "changeLayoutDateField": "更改布局字段",
       "noDateTitle": "没有日期",
       "noDateHint": {
         "zero": "未计划的事件将显示在这里",
@@ -969,6 +1009,10 @@
   "inlineActions": {
     "noResults": "没有结果",
     "pageReference": "页面引用",
+    "docReference": "文档引用",
+    "boardReference": "看板参考",
+    "calReference": "日历参考",
+    "gridReference": "网格参考",
     "date": "日期",
     "reminder": {
       "groupTitle": "提醒",
@@ -976,7 +1020,12 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "在设置中更改日期和时间格式"
+    "dateTimeFormatTooltip": "在设置中更改日期和时间格式",
+    "dateFormat": "日期格式",
+    "includeTime": "精确到时/分",
+    "isRange": "结束日期",
+    "timeFormat": "时间格式",
+    "clearDate": "清除日期"
   },
   "relativeDates": {
     "yesterday": "昨天",
@@ -1140,7 +1189,8 @@
     "rowDuplicate": "复制行",
     "colClear": "清空本列内容",
     "rowClear": "清空本行内容",
-    "slashPlaceHolder": "输入 '/' 以插入块，或开始键入"
+    "slashPlaceHolder": "输入 '/' 以插入块，或开始键入",
+    "typeSomething": "输入点东西..."
   },
   "favorite": {
     "noFavorite": "没有收藏页面",

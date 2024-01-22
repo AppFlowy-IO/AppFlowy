@@ -42,7 +42,7 @@ export const getDesignTokens = (mode: ThemeMode): ThemeOptions => {
         defaultProps: {
           sx: {
             '&.Mui-selected:hover': {
-              backgroundColor: 'var(--fill-list-active)',
+              backgroundColor: 'var(--fill-list-hover)',
             },
           },
         },
@@ -52,7 +52,7 @@ export const getDesignTokens = (mode: ThemeMode): ThemeOptions => {
               backgroundColor: 'var(--fill-list-hover)',
             },
             '&:active': {
-              backgroundColor: 'var(--fill-list-active)',
+              backgroundColor: 'var(--fill-list-hover)',
             },
             borderRadius: '4px',
             padding: '2px',

@@ -31,10 +31,11 @@ lib-dispatch = { workspace = true }
 flowy-core = { workspace = true }
 flowy-notification = { workspace = true }
 flowy-server = { workspace = true }
-flowy-server-config = { workspace = true}
+flowy-server-pub = { workspace = true}
 collab-integrate = { workspace = true }
 flowy-derive.workspace = true
 serde_yaml = "0.9.27"
+flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde"] }
 
 [features]
 default = ["dart", "rev-sqlite"]

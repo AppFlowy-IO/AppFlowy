@@ -10,6 +10,7 @@ extend = [
   { path = "scripts/makefile/flutter.toml" },
   { path = "scripts/makefile/tool.toml" },
   { path = "scripts/makefile/tauri.toml" },
+  { path = "scripts/makefile/web.toml" },
 ]
 
 [config]
@@ -25,7 +26,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-APPFLOWY_VERSION = "0.4.1"
+APPFLOWY_VERSION = "0.4.3"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
 MACOSX_DEPLOYMENT_TARGET = "11.0"
@@ -225,6 +226,7 @@ script = ['''
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
     echo ${BUILD_ARCHS}
+    echo ${BUILD_VERSION}
     ''']
 script_runner = "@shell"
 

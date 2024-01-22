@@ -8,8 +8,9 @@ typedef KeyboardHeightCallback = void Function(double height);
 class KeyboardHeightObserver {
   KeyboardHeightObserver._() {
     _keyboardHeightPlugin.onKeyboardHeightChanged((height) {
-      currentKeyboardHeight = height;
       notify(height);
+
+      currentKeyboardHeight = height;
     });
   }
 
@@ -34,7 +35,7 @@ class KeyboardHeightObserver {
 
   void notify(double height) {
     // the keyboard height will notify twice with the same value on Android 14
-    if (DeviceInfoTask.androidSDKVersion == 34) {
+    if (DeviceOrApplicationInfoTask.androidSDKVersion == 34) {
       if (height == 0 && currentKeyboardHeight == 0) {
         return;
       }

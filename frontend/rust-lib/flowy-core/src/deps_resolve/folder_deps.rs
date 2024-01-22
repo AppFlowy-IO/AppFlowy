@@ -1,14 +1,6 @@
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::sync::{Arc, Weak};
-
 use bytes::Bytes;
-
-use flowy_document::DocumentIndexContent;
-use tokio::sync::RwLock;
-
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::RocksCollabDB;
+use collab_integrate::CollabKVDB;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
@@ -16,6 +8,7 @@ use flowy_database2::DatabaseManager;
 use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
+use flowy_document::DocumentIndexContent;
 use flowy_error::FlowyError;
 use flowy_folder::entities::ViewLayoutPB;
 use flowy_folder::manager::{FolderManager, FolderUser};
@@ -23,10 +16,14 @@ use flowy_folder::search::{DocumentIndexContentGetter, FolderIndexStorage};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
-use flowy_folder_deps::entities::{ImportData, SearchData};
-use flowy_folder_deps::folder_builder::{ParentChildViews, WorkspaceViewBuilder};
-use flowy_user::manager::UserManager;
-use flowy_user::services::data_import::ImportDataSource;
+use flowy_folder_pub::entities::SearchData;
+use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
+
+use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
+use flowy_user::services::authenticate_user::AuthenticateUser;
 
 use crate::integrate::server::ServerProvider;
 use lib_dispatch::prelude::ToBytes;
@@ -36,18 +33,17 @@ use lib_infra::future::FutureResult;
 pub struct FolderDepsResolver();
 impl FolderDepsResolver {
   pub async fn resolve(
-    user_manager: Weak<UserManager>,
+    authenticate_user: Weak<AuthenticateUser>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
-      user_manager: user_manager.clone(),
-      database_manager: Arc::downgrade(database_manager),
+      authenticate_user: authenticate_user.clone(),
     });
 
-    let index_storage = FolderIndexStorageImpl(user_manager.clone());
+    let index_storage = FolderIndexStorageImpl(authenticate_user.clone());
     let document_index_content_getter = DocumentIndexContentGetterImpl(document_manager.clone());
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
@@ -82,66 +78,25 @@ fn folder_operation_handlers(
 }
 
 struct FolderUserImpl {
-  user_manager: Weak<UserManager>,
-  database_manager: Weak<DatabaseManager>,
+  authenticate_user: Weak<AuthenticateUser>,
 }
 
 #[async_trait]
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
-      .user_manager
+      .authenticate_user
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
   }
 
-  fn token(&self) -> Result<Option<String>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self
-      .user_manager
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .token()
-  }
-
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
-    self
-      .user_manager
+      .authenticate_user
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
-  }
-
-  async fn import_appflowy_data_folder(
-    &self,
-    path: &str,
-    container_name: Option<String>,
-  ) -> Result<Vec<ParentChildViews>, FlowyError> {
-    match (self.user_manager.upgrade(), self.database_manager.upgrade()) {
-      (Some(user_manager), Some(data_manager)) => {
-        let source = ImportDataSource::AppFlowyDataFolder {
-          path: path.to_string(),
-          container_name,
-        };
-        let import_data = user_manager.import_data_from_source(source).await?;
-        match import_data {
-          ImportData::AppFlowyDataFolder {
-            views,
-            database_view_ids_by_database_id,
-            row_object_ids: _,
-            database_object_ids: _,
-            document_object_ids: _,
-          } => {
-            let _uid = self.user_id()?;
-            data_manager
-              .track_database(database_view_ids_by_database_id)
-              .await?;
-            Ok(views)
-          },
-        }
-      },
-      _ => Err(FlowyError::internal().with_context("Unexpected error: UserSession is None")),
-    }
   }
 }
 
@@ -192,7 +147,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      match manager.delete_document(&view_id) {
+      match manager.delete_document(&view_id).await {
         Ok(_) => tracing::trace!("Delete document: {}", view_id),
         Err(e) => tracing::error!("🔴delete document failed: {}", e),
       }
@@ -484,93 +439,95 @@ pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
   }
 }
 
-struct FolderIndexStorageImpl(Weak<UserManager>);
+struct FolderIndexStorageImpl(Weak<AuthenticateUser>);
+
+impl FolderIndexStorageImpl {
+  fn get_auth_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
+    self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("The user session is already drop"))
+  }
+}
 
 impl FolderIndexStorage for FolderIndexStorageImpl {
   fn search(&self, s: &str, limit: Option<i64>) -> Result<Vec<SearchData>, FlowyError> {
-    let manager = self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-
-    let uid = manager.user_id()?;
-    let search_data = manager.search(uid, s, limit)?;
-
-    let results = search_data
-      .into_iter()
-      .map(|d| SearchData {
-        index_type: d.index_type,
-        view_id: d.view_id,
-        id: d.id,
-        data: d.data,
-      })
-      .collect();
-    Ok(results)
+    // let auth_user = self.get_auth_user()?;
+    // let uid = auth_user.user_id()?;
+    // let search_data = auth_user.search(uid, s, limit)?;
+    //
+    // let results = search_data
+    //   .into_iter()
+    //   .map(|d| SearchData {
+    //     index_type: d.index_type,
+    //     view_id: d.view_id,
+    //     id: d.id,
+    //     data: d.data,
+    //   })
+    //   .collect();
+    // Ok(results)
+    Ok(vec![])
   }
 
   fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
-    let manager = self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-
-    let uid = manager.user_id()?;
-    manager.add_view_index(uid, id, content)?;
+    let auth_user = self.get_auth_user()?;
+    let uid = auth_user.user_id()?;
+    // TODO(nathan): add view index
+    // auth_user.add_view_index(uid, id, content)?;
     Ok(())
   }
 
   fn update_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
-    let manager = self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+    let auth_user = self.get_auth_user()?;
 
-    let uid = manager.user_id()?;
-    manager.update_view_index(uid, id, content)?;
+    // TODO(nathan): add view index
+    // let uid = manager.user_id()?;
+    // manager.update_view_index(uid, id, content)?;
     Ok(())
   }
 
   fn remove_view(&self, ids: &[String]) -> Result<(), FlowyError> {
-    let manager = self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-
-    let uid = manager.user_id()?;
-    manager.delete_view_index(uid, ids)?;
+    // let manager = self
+    //   .0
+    //   .upgrade()
+    //   .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+    //
+    // let uid = manager.user_id()?;
+    // manager.delete_view_index(uid, ids)?;
+    // TODO(nathan): remove view index
     Ok(())
   }
 
   fn add_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError> {
-    let manager = self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-
-    let uid = manager.user_id()?;
-    manager.add_document_index(uid, view_id, page_id, content)?;
+    // let manager = self
+    //   .0
+    //   .upgrade()
+    //   .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+    //
+    // let uid = manager.user_id()?;
+    // manager.add_document_index(uid, view_id, page_id, content)?;
     Ok(())
   }
 
   fn update_document(&self, view_id: &str, page_id: &str, content: &str) -> Result<(), FlowyError> {
-    let manager = self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-
-    let uid = manager.user_id()?;
-    manager.update_document_index(uid, view_id, page_id, content)?;
+    // let manager = self
+    //   .0
+    //   .upgrade()
+    //   .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+    //
+    // let uid = manager.user_id()?;
+    // manager.update_document_index(uid, view_id, page_id, content)?;
     Ok(())
   }
 
   fn remove_document(&self, page_ids: &[String]) -> Result<(), FlowyError> {
-    let manager = self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
-
-    let uid = manager.user_id()?;
-    manager.delete_view_index(uid, page_ids)?;
+    // let manager = self
+    //   .0
+    //   .upgrade()
+    //   .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
+    //
+    // let uid = manager.user_id()?;
+    // manager.delete_view_index(uid, page_ids)?;
     Ok(())
   }
 }

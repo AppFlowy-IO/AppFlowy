@@ -4,21 +4,23 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
-collab-integrate = { workspace = true, features = ["rocksdb_plugin", "snapshot_plugin"] }
-flowy-document-deps = { workspace = true }
+collab-plugins = { version = "0.1.0" }
+collab-integrate = { workspace = true }
+flowy-document-pub = { workspace = true }
 flowy-storage = { workspace = true }
-
 flowy-derive.workspace = true
 flowy-notification  = { workspace = true }
-flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_sqlite", "impl_from_dispatch_error", "impl_from_collab"] }
+flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_dispatch_error", "impl_from_collab_document"] }
 lib-dispatch = { workspace = true }
 lib-infra = { workspace = true }
-validator = "0.16.0"
+validator = { version = "0.16.0", features = ["derive"] }
 protobuf.workspace = true
 bytes.workspace = true
 nanoid = "0.4.0"
@@ -27,7 +29,7 @@ strum_macros = "0.21"
 serde.workspace = true
 serde_json.workspace = true
 tracing.workspace = true
-tokio = { workspace = true, features = ["full"] }
+tokio = { workspace = true, features = ["rt"] }
 anyhow.workspace = true
 indexmap = {version = "2.1.0", features = ["serde"]}
 uuid.workspace = true
@@ -35,6 +37,9 @@ futures.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
 scraper = "0.18.0"
 lru.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"]}
 
 [dev-dependencies]
 tempfile = "3.4.0"
@@ -47,4 +52,14 @@ flowy-codegen.workspace = true
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+wasm_build = [
+    "flowy-codegen/ts",
+    "flowy-notification/ts",
+    "collab-plugins/wasm_build",
+    "collab/wasm_build",
+    "lib-dispatch/wasm_build",
+    "collab-document/wasm_build",
+    "flowy-error/wasm_build",
+    "flowy-notification/wasm_build"
+]
 

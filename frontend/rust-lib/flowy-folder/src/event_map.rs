@@ -37,7 +37,6 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
-    .event(FolderEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
     .event(FolderEvent::Search, search_handler)
 }
 
@@ -154,9 +153,6 @@ pub enum FolderEvent {
   // used for add or remove recent views, like history
   #[event(input = "UpdateRecentViewPayloadPB")]
   UpdateRecentViews = 37,
-
-  #[event(input = "ImportAppFlowyDataPB")]
-  ImportAppFlowyDataFolder = 38,
 
   #[event(input = "SearchRequestPB")]
   Search = 39,

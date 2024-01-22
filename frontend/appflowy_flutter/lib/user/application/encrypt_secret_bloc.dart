@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/defines.dart';
+import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -75,7 +75,11 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
   bool isLoading() {
     final loadingState = state.loadingState;
     if (loadingState != null) {
-      return loadingState.when(loading: () => true, finish: (_) => false);
+      return loadingState.when(
+        loading: () => true,
+        finish: (_) => false,
+        idle: () => false,
+      );
     }
     return false;
   }

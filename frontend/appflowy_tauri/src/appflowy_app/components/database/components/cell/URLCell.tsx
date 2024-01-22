@@ -1,6 +1,6 @@
 import React, { FormEventHandler, lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInputCell } from '$app/components/database/components/cell/Cell.hooks';
-import { Field, UrlCell as URLCellType } from '$app/components/database/application';
+import { Field, UrlCell as URLCellType } from '$app/application/database';
 import { CellText } from '$app/components/database/_shared';
 
 const EditTextCellInput = lazy(() => import('$app/components/database/components/field_types/text/EditTextCellInput'));

@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/field/field_cell_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -89,7 +89,6 @@ class FlowyRunner {
       config.rustEnvs["APP_VERSION"] =
           await PackageInfo.fromPlatform().then((value) => value.version);
     }
-
     // Specify the env
     await initGetIt(getIt, mode, f, config);
     await didInitGetItCallback?.call();
@@ -110,7 +109,7 @@ class FlowyRunner {
         // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
         MemoryLeakDetectorTask(),
         const DebugTask(),
-        const DeviceInfoTask(),
+
         // localization
         const InitLocalizationTask(),
         // init the app window
@@ -123,6 +122,9 @@ class FlowyRunner {
         // init the app widget
         // ignore in test mode
         if (!mode.isUnitTest) ...[
+          // The DeviceOrApplicationInfoTask should be placed before the AppWidgetTask to fetch the app information.
+          // It is unable to get the device information from the test environment.
+          const DeviceOrApplicationInfoTask(),
           const HotKeyTask(),
           if (isSupabaseEnabled) InitSupabaseTask(),
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),

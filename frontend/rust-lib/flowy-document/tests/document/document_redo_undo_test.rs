@@ -14,7 +14,11 @@ async fn undo_redo_test() {
 
   // create a document
   _ = test
-    .create_document(test.user.user_id().unwrap(), &doc_id, Some(data.clone()))
+    .create_document(
+      test.user_service.user_id().unwrap(),
+      &doc_id,
+      Some(data.clone()),
+    )
     .await;
 
   // open a document

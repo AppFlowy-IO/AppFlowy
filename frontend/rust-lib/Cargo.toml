@@ -5,20 +5,19 @@ members = [
   "flowy-core",
   "dart-ffi",
   "flowy-user",
-  "flowy-user-deps",
+  "flowy-user-pub",
   "event-integration",
   "flowy-sqlite",
   "flowy-folder",
-  "flowy-folder-deps",
+  "flowy-folder-pub",
   "flowy-notification",
   "flowy-document",
-  "flowy-document-deps",
+  "flowy-document-pub",
   "flowy-error",
   "flowy-database2",
-  "flowy-database-deps",
-  "flowy-task",
+  "flowy-database-pub",
   "flowy-server",
-  "flowy-server-config",
+  "flowy-server-pub",
   "flowy-config",
   "flowy-encrypt",
   "flowy-storage",
@@ -42,30 +41,29 @@ flowy-derive = { workspace = true, path = "build-tool/flowy-derive" }
 flowy-core = { workspace = true, path = "flowy-core" }
 dart-ffi = { workspace = true, path = "dart-ffi" }
 flowy-user = { workspace = true, path = "flowy-user" }
-flowy-user-deps = { workspace = true, path = "flowy-user-deps" }
+flowy-user-pub = { workspace = true, path = "flowy-user-pub" }
 flowy-sqlite = { workspace = true, path = "flowy-sqlite" }
 flowy-folder = { workspace = true, path = "flowy-folder" }
-flowy-folder-deps = { workspace = true, path = "flowy-folder-deps" }
+flowy-folder-pub = { workspace = true, path = "flowy-folder-pub" }
 flowy-notification = { workspace = true, path = "flowy-notification" }
 flowy-document = { workspace = true, path = "flowy-document" }
-flowy-document-deps = { workspace = true, path = "flowy-document-deps" }
+flowy-document-pub = { workspace = true, path = "flowy-document-pub" }
 flowy-error = { workspace = true, path = "flowy-error" }
 flowy-database2 = { workspace = true, path = "flowy-database2" }
-flowy-database-deps = { workspace = true, path = "flowy-database-deps" }
-flowy-task = { workspace = true, path = "flowy-task" }
+flowy-database-pub = { workspace = true, path = "flowy-database-pub" }
 flowy-server = { workspace = true, path = "flowy-server" }
-flowy-server-config = { workspace = true, path = "flowy-server-config" }
+flowy-server-pub = { workspace = true, path = "flowy-server-pub" }
 flowy-config = { workspace = true, path = "flowy-config" }
 flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
 flowy-storage = { workspace = true, path = "flowy-storage" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-ai = { workspace = true, path = "flowy-ai" }
 flowy-date = { workspace = true, path = "flowy-date" }
-anyhow = "1.0.75"
+anyhow = "1.0"
 tracing = "0.1.40"
 bytes = "1.5.0"
 serde_json = "1.0.108"
-serde = "1.0.108"
+serde = "1.0.194"
 protobuf = { version = "2.28.0" }
 diesel = { version = "2.1.0", features = ["sqlite", "chrono", "r2d2"] }
 uuid = { version = "1.5.0", features = ["serde", "v4"] }
@@ -107,7 +105,7 @@ incremental = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "40daff472d026d155fc703aacce899b1c5ab98ea" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ee3abdb27a2d056e7399b486354d26e802720c00" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -117,11 +115,10 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "40d
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "021053704a5886574bc9f4c5ce4d02f4057c68e6" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "021053704a5886574bc9f4c5ce4d02f4057c68e6" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "021053704a5886574bc9f4c5ce4d02f4057c68e6" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "021053704a5886574bc9f4c5ce4d02f4057c68e6" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "021053704a5886574bc9f4c5ce4d02f4057c68e6" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "021053704a5886574bc9f4c5ce4d02f4057c68e6" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "021053704a5886574bc9f4c5ce4d02f4057c68e6" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "021053704a5886574bc9f4c5ce4d02f4057c68e6" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }

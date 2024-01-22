@@ -13,7 +13,7 @@ import {
   rowListeners,
   sortListeners,
   filterListeners,
-} from './application';
+} from '$app/application/database';
 
 export function useSelectDatabaseView({ viewId }: { viewId?: string }) {
   const key = 'v';

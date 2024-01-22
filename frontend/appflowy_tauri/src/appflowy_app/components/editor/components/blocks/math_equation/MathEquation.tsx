@@ -1,6 +1,6 @@
 import { forwardRef, memo, useState } from 'react';
 import { EditorElementProps, MathEquationNode } from '$app/application/document/document.types';
-import KatexMath from '$app/components/_shared/KatexMath';
+import KatexMath from '$app/components/_shared/katex_math/KatexMath';
 import { useTranslation } from 'react-i18next';
 import { FunctionsOutlined } from '@mui/icons-material';
 import EditPopover from '$app/components/editor/components/blocks/math_equation/EditPopover';

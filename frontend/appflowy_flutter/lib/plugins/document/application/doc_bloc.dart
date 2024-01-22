@@ -4,6 +4,8 @@ import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -73,21 +75,26 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         final editorState = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
-        editorState.fold(
-          (l) => emit(
+        await editorState.fold(
+          (l) async => emit(
             state.copyWith(
               error: l,
               editorState: null,
               isLoading: false,
             ),
           ),
-          (r) => emit(
-            state.copyWith(
-              error: null,
-              editorState: r,
-              isLoading: false,
-            ),
-          ),
+          (r) async {
+            final result = await getIt<AuthService>().getUser();
+            final userProfilePB = result.fold((l) => null, (r) => r);
+            emit(
+              state.copyWith(
+                error: null,
+                editorState: r,
+                isLoading: false,
+                userProfilePB: userProfilePB,
+              ),
+            );
+          },
         );
       },
       moveToTrash: () async {
