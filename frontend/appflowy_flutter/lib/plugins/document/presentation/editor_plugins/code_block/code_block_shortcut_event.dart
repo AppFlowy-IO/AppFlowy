@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 final List<CharacterShortcutEvent> codeBlockCharacterEvents = [
   enterInCodeBlock,
   ...ignoreKeysInCodeBlock,
+  insertCodeBlock,
 ];
 
 final List<CommandShortcutEvent> codeBlockCommands = [
@@ -109,6 +110,82 @@ final CommandShortcutEvent pasteInCodeblock = CommandShortcutEvent(
   macOSCommand: 'cmd+v',
   handler: _pasteInCodeBlock,
 );
+
+/// ``` inserts code block below
+///
+/// - support
+///   - desktop
+///   - web
+final CharacterShortcutEvent insertCodeBlock = CharacterShortcutEvent(
+  key: 'insert codeblock',
+  character: '`',
+  handler: _insertCodeBlockHandler,
+);
+
+CharacterShortcutEventHandler _insertCodeBlockHandler = (editorState) async {
+  final selection = editorState.selection;
+  if (selection == null || !selection.isCollapsed) {
+    return false;
+  }
+
+  final node = editorState.getNodeAtPath(selection.end.path);
+  // Can't insert codeblock if inside a code block
+  if (node == null || node.type == CodeBlockKeys.type) {
+    return false;
+  }
+
+  // If the node is clean and only contains code block material
+  if (node.delta?.length == 2 && node.delta?.toPlainText() == '``') {
+    final transaction = editorState.transaction
+      ..replaceText(node, 0, 2, '')
+      ..insertNode(selection.end.path, codeBlockNode())
+      ..deleteNode(node);
+    await editorState.apply(transaction);
+
+    return true;
+  }
+
+  final plain = node.delta?.toPlainText();
+  if (plain != null && plain.length > 2) {
+    final previous = [
+      plain[selection.end.offset - 1],
+      plain[selection.end.offset - 2],
+    ];
+
+    if (previous.every((e) => e == '`')) {
+      final after = plain.substring(selection.end.offset);
+      if (after.isNotEmpty) {
+        final afterSelection = Selection.collapsed(
+          Position(path: node.path, offset: plain.length - after.length - 2),
+        );
+
+        final transaction = editorState.transaction
+          ..deleteText(
+            node,
+            selection.end.offset - 2,
+            after.length,
+          )
+          ..afterSelection = afterSelection;
+
+        editorState
+          ..apply(transaction)
+          ..insertNewLine(
+            nodeBuilder: (_) => paragraphNode(text: after),
+          )
+          ..insertNewLine(
+            position: afterSelection.end,
+            nodeBuilder: (_) => codeBlockNode(),
+          );
+      } else {
+        await editorState.insertNewLine(nodeBuilder: (_) => codeBlockNode());
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+};
 
 CharacterShortcutEventHandler _enterInCodeBlockCommandHandler =
     (editorState) async {
