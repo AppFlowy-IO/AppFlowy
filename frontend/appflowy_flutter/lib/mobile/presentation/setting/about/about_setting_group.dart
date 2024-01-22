@@ -39,7 +39,7 @@ class AboutSettingGroup extends StatelessWidget {
           ),
         ),
       ],
-      showDivider: false,
+      showDivider: true,
     );
   }
 }
