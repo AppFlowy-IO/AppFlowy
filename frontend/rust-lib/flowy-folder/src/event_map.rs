@@ -154,6 +154,6 @@ pub enum FolderEvent {
   #[event(input = "UpdateRecentViewPayloadPB")]
   UpdateRecentViews = 37,
 
-  #[event(input = "SearchRequestPB")]
+  #[event(input = "SearchRequestPB", output = "RepeatedSearchDataPB")]
   Search = 39,
 }

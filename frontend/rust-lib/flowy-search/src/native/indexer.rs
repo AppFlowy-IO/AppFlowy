@@ -1,5 +1,6 @@
 use crate::native::sqlite_search::{
-  add, delete_document, delete_view, search_index, update_document, update_view, SearchData,
+  create_index, delete_document, delete_view, search_index, update_document, update_index,
+  SearchData,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -29,7 +30,7 @@ impl SqliteSearchIndexer {
   pub fn add_view_index(&self, uid: i64, doc_id: &str, name: &str) -> FlowyResult<()> {
     let mut conn = self.db.get_conn(uid)?;
     let view = SearchData::new_view(doc_id, name);
-    add(&mut conn, &view)?;
+    create_index(&mut conn, &view)?;
     Ok(())
   }
 
@@ -37,7 +38,7 @@ impl SqliteSearchIndexer {
   pub fn update_view_index(&self, uid: i64, doc_id: &str, name: &str) -> FlowyResult<()> {
     let mut conn = self.db.get_conn(uid)?;
     let view = SearchData::new_view(doc_id, name);
-    update_view(&mut conn, &view)?;
+    update_index(&mut conn, &view)?;
     Ok(())
   }
 
@@ -60,7 +61,7 @@ impl SqliteSearchIndexer {
   ) -> FlowyResult<()> {
     let mut conn = self.db.get_conn(uid)?;
     let doc = SearchData::new_document(view_id, page_id, text);
-    add(&mut conn, &doc)?;
+    create_index(&mut conn, &doc)?;
     Ok(())
   }
 
