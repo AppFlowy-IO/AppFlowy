@@ -1428,16 +1428,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "env_logger"
-version = "0.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
-dependencies = [
- "log",
- "regex",
-]
-
-[[package]]
 name = "equivalent"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1520,16 +1510,6 @@ dependencies = [
  "bitflags 1.3.2",
  "libc",
  "winapi",
-]
-
-[[package]]
-name = "fake"
-version = "2.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9af7b0c58ac9d03169e27f080616ce9f64004edca3d2ef4147a811c21b23b319"
-dependencies = [
- "rand 0.8.5",
- "unidecode",
 ]
 
 [[package]]
@@ -1954,6 +1934,7 @@ dependencies = [
  "flowy-error",
  "flowy-sqlite",
  "tempfile",
+ "tracing",
 ]
 
 [[package]]
@@ -2070,7 +2051,6 @@ dependencies = [
  "collab-user",
  "diesel",
  "diesel_derives",
- "fake",
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
@@ -2084,14 +2064,9 @@ dependencies = [
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
- "nanoid",
  "once_cell",
  "parking_lot",
  "protobuf",
- "quickcheck",
- "quickcheck_macros",
- "rand 0.8.5",
- "rand_core 0.6.4",
  "serde",
  "serde_json",
  "serde_repr",
@@ -4004,28 +3979,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "quickcheck"
-version = "1.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "588f6378e4dd99458b60ec275b4477add41ce4fa9f64dcba6f15adccb19b50d6"
-dependencies = [
- "env_logger",
- "log",
- "rand 0.8.5",
-]
-
-[[package]]
-name = "quickcheck_macros"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b22a693222d716a9587786f37ac3f6b4faedb5b80c23914e7303ff5a1d8016e9"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
 name = "quote"
 version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5708,12 +5661,6 @@ name = "unicode-width"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
-
-[[package]]
-name = "unidecode"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "402bb19d8e03f1d1a7450e2bd613980869438e0666331be3e073089124aa1adc"
 
 [[package]]
 name = "universal-hash"

@@ -1,7 +1,8 @@
 use diesel::QueryResult;
 use diesel_migrations::MigrationHarness;
 use flowy_search::native::sqlite_search::{
-  add, delete_document, delete_view, search_index, update_document, update_view, SearchData,
+  create_index, delete_document, delete_view, search_index, update_document, update_index,
+  SearchData,
 };
 use flowy_sqlite::{Database, PoolConfig, DB_NAME, MIGRATIONS};
 use tempfile::TempDir;
@@ -18,16 +19,6 @@ fn setup_db() -> (TempDir, Database) {
 }
 
 #[test]
-fn test_migration() {
-  let tempdir = TempDir::new().unwrap();
-  let path = tempdir.path().to_str().unwrap();
-  let pool_config = PoolConfig::default();
-  let database = Database::new(path, DB_NAME, pool_config).unwrap();
-  let mut conn = database.get_connection().unwrap();
-  (*conn).run_pending_migrations(MIGRATIONS).unwrap();
-}
-
-#[test]
 fn test_view_search() -> QueryResult<()> {
   let (_tempdir, database) = setup_db();
   let mut conn = database.get_connection().unwrap();
@@ -35,12 +26,12 @@ fn test_view_search() -> QueryResult<()> {
   // add views we will try to match
   let first = SearchData::new_view("asdf", "First doc");
   let second = SearchData::new_view("qwer", "Second doc");
-  add(&mut conn, &first).unwrap();
-  add(&mut conn, &second).unwrap();
+  create_index(&mut conn, &first).unwrap();
+  create_index(&mut conn, &second).unwrap();
 
   // add views that should not match
   let unrelated = SearchData::new_view("zxcv", "unrelated");
-  add(&mut conn, &unrelated).unwrap();
+  create_index(&mut conn, &unrelated).unwrap();
 
   let results = search_index(&mut conn, "doc", None).unwrap();
   assert!(results.contains(&first));
@@ -63,8 +54,8 @@ fn test_view_search_limit() -> QueryResult<()> {
   // add views we will try to match
   let first = SearchData::new_view("asdf", "First doc");
   let second = SearchData::new_view("qwer", "Second doc");
-  add(&mut conn, &first).unwrap();
-  add(&mut conn, &second).unwrap();
+  create_index(&mut conn, &first).unwrap();
+  create_index(&mut conn, &second).unwrap();
 
   let results = search_index(&mut conn, "doc", None).unwrap();
   assert!(results.len() == 2);
@@ -82,7 +73,7 @@ fn test_view_update() -> QueryResult<()> {
 
   // add views we will try to match
   let view = SearchData::new_view("asdf", "First doc");
-  add(&mut conn, &view).unwrap();
+  create_index(&mut conn, &view).unwrap();
 
   let results = search_index(&mut conn, "doc", None).unwrap();
   assert!(results.contains(&view));
@@ -92,7 +83,7 @@ fn test_view_update() -> QueryResult<()> {
     data: "new title".to_owned(),
     ..view
   };
-  update_view(&mut conn, &view).unwrap();
+  update_index(&mut conn, &view).unwrap();
   // prev search
   let results = search_index(&mut conn, "doc", None).unwrap();
   assert!(results.is_empty());
@@ -112,12 +103,12 @@ fn test_doc_search() -> QueryResult<()> {
   // add docs we will try to match
   let first = SearchData::new_document("asdf", "123", "First doc");
   let second = SearchData::new_document("qwer", "456", "Second doc");
-  add(&mut conn, &first).unwrap();
-  add(&mut conn, &second).unwrap();
+  create_index(&mut conn, &first).unwrap();
+  create_index(&mut conn, &second).unwrap();
 
   // add docs that should not match
   let unrelated = SearchData::new_document("zxcv", "987", "unrelated");
-  add(&mut conn, &unrelated).unwrap();
+  create_index(&mut conn, &unrelated).unwrap();
 
   let results = search_index(&mut conn, "doc", None).unwrap();
   assert!(results.contains(&first));
@@ -140,7 +131,7 @@ fn test_doc_update() -> QueryResult<()> {
 
   // add docs we will try to match
   let doc = SearchData::new_document("asdf", "123", "First doc");
-  add(&mut conn, &doc).unwrap();
+  create_index(&mut conn, &doc).unwrap();
 
   let results = search_index(&mut conn, "doc", None).unwrap();
   assert!(results.contains(&doc));

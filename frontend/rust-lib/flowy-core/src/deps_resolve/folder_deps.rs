@@ -480,15 +480,15 @@ impl FolderIndexStorage for FolderIndexStorageImpl {
     Ok(results)
   }
 
-  fn add_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
+  fn add_view(&self, id: &str, name: &str) -> Result<(), FlowyError> {
     let uid = self.get_uid()?;
-    self.get_indexer()?.add_view_index(uid, id, content)?;
+    self.get_indexer()?.add_view_index(uid, id, name)?;
     Ok(())
   }
 
-  fn update_view(&self, id: &str, content: &str) -> Result<(), FlowyError> {
+  fn update_view(&self, id: &str, name: &str) -> Result<(), FlowyError> {
     let uid = self.get_uid()?;
-    self.get_indexer()?.update_view_index(uid, id, content)?;
+    self.get_indexer()?.update_view_index(uid, id, name)?;
     Ok(())
   }
 

@@ -33,7 +33,7 @@ use crate::integrate::user::UserStatusCallbackImpl;
 
 pub mod config;
 mod deps_resolve;
-mod integrate;
+pub mod integrate;
 pub mod module;
 
 /// This name will be used as to identify the current [AppFlowyCore] instance.
