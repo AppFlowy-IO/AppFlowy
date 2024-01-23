@@ -61,10 +61,10 @@ class AuthRouter {
     );
   }
 
-  Future<void> pushEncryptionScreen(
+  void pushEncryptionScreen(
     BuildContext context,
     UserProfilePB userProfile,
-  ) async {
+  ) {
     // After log in,push EncryptionScreen on the top SignInScreen
     context.push(
       EncryptSecretScreen.routeName,
@@ -104,12 +104,11 @@ class SplashRouter {
       },
     );
 
-    FolderEventGetCurrentWorkspaceSetting().send().then((result) {
-      result.fold(
-        (workspaceSettingPB) => pushHomeScreen(context),
-        (r) => null,
-      );
-    });
+    final result = await FolderEventGetCurrentWorkspaceSetting().send();
+    result.fold(
+      (workspaceSettingPB) => pushHomeScreen(context),
+      (r) => null,
+    );
   }
 
   void pushHomeScreen(

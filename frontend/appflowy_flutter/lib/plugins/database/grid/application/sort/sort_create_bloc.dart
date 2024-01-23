@@ -31,7 +31,7 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
     on<CreateSortEvent>(
       (event, emit) async {
         event.when(
-          initial: () async {
+          initial: () {
             _startListening();
           },
           didReceiveFields: (List<FieldInfo> fields) {

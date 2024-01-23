@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -23,13 +25,15 @@ final addBlockToolbarItem = AppFlowyMobileToolbarItem(
 
         // delay to wait the keyboard closed.
         Future.delayed(const Duration(milliseconds: 100), () async {
-          editorState.updateSelectionWithReason(
-            selection,
-            extraInfo: {
-              selectionExtraInfoDisableMobileToolbarKey: true,
-              selectionExtraInfoDisableFloatingToolbar: true,
-              selectionExtraInfoDoNotAttachTextService: true,
-            },
+          unawaited(
+            editorState.updateSelectionWithReason(
+              selection,
+              extraInfo: {
+                selectionExtraInfoDisableMobileToolbarKey: true,
+                selectionExtraInfoDisableFloatingToolbar: true,
+                selectionExtraInfoDoNotAttachTextService: true,
+              },
+            ),
           );
           keepEditorFocusNotifier.increase();
           final didAddBlock = await showAddBlockMenu(
@@ -38,8 +42,10 @@ final addBlockToolbarItem = AppFlowyMobileToolbarItem(
             selection: selection!,
           );
           if (didAddBlock != true) {
-            editorState.updateSelectionWithReason(
-              selection,
+            unawaited(
+              editorState.updateSelectionWithReason(
+                selection,
+              ),
             );
           }
         });

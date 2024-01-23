@@ -228,7 +228,7 @@ Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
         user.email ?? user.newEmail ?? '',
       );
       // Only cancel the subscription if the Event is signedIn.
-      subscription.cancel();
+      await subscription.cancel();
       completer.complete(response);
     }
   });

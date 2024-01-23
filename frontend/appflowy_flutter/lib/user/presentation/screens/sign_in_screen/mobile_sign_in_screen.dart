@@ -102,7 +102,7 @@ class MobileSignInScreen extends StatelessWidget {
         fontWeight: FontWeight.w500,
         decoration: TextDecoration.underline,
       ),
-      onTap: () async {
+      onTap: () {
         context.push(MobileLaunchSettingsPage.routeName);
       },
     );

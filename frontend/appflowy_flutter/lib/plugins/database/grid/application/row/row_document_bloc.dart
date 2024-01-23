@@ -31,7 +31,7 @@ class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
     on<RowDocumentEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
+          initial: () {
             _getRowDocumentView();
           },
           didReceiveRowDocument: (view) {

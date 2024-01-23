@@ -97,7 +97,7 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
     editBloc.close();
     super.dispose();
   }
