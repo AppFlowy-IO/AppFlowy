@@ -59,6 +59,9 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
+      // Workspace
+    .event(UserEvent::AddWorkspace, add_workspace_handler)
+    .event(UserEvent::DeleteWorkspace, delete_workspace_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -191,6 +194,12 @@ pub enum UserEvent {
 
   #[event(input = "ImportAppFlowyDataPB")]
   ImportAppFlowyDataFolder = 41,
+
+  #[event(output = "AddWorkspacePB")]
+  AddWorkspace = 42,
+
+  #[event(input = "DeleteWorkspacePB")]
+  DeleteWorkspace = 43,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

@@ -652,3 +652,23 @@ pub async fn update_workspace_member_handler(
     .await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn add_workspace_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<UserWorkspacePB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let new_workspace = manager.add_workspace().await?;
+  data_result_ok(new_workspace.into())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn delete_workspace_handler(
+  delete_workspace_param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let workspace_id = delete_workspace_param.try_into_inner()?.workspace_id;
+  let manager = upgrade_manager(manager)?;
+  manager.delete_workspace(&workspace_id).await?;
+  Ok(())
+}
