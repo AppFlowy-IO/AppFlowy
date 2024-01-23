@@ -175,7 +175,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       await _transactionAdapter.apply(event.$2, editorState);
 
       // check if the document is empty.
-      applyRules();
+      await applyRules();
 
       if (!isClosed) {
         // ignore: invalid_use_of_visible_for_testing_member
@@ -196,8 +196,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> applyRules() async {
-    ensureAtLeastOneParagraphExists();
-    ensureLastNodeIsEditable();
+    await Future.wait([
+      ensureAtLeastOneParagraphExists(),
+      ensureLastNodeIsEditable(),
+    ]);
   }
 
   Future<void> ensureLastNodeIsEditable() async {

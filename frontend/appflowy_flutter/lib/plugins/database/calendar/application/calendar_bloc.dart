@@ -215,18 +215,17 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     });
   }
 
-  Future<void> _loadAllEvents() async {
+  void _loadAllEvents() async {
     final payload = CalendarEventRequestPB.create()..viewId = viewId;
-    DatabaseEventGetAllCalendarEvents(payload).send().then((result) {
-      result.fold(
-        (events) {
-          if (!isClosed) {
-            add(CalendarEvent.didLoadAllEvents(events.items));
-          }
-        },
-        (r) => Log.error(r),
-      );
-    });
+    final result = await DatabaseEventGetAllCalendarEvents(payload).send();
+    result.fold(
+      (events) {
+        if (!isClosed) {
+          add(CalendarEvent.didLoadAllEvents(events.items));
+        }
+      },
+      (r) => Log.error(r),
+    );
   }
 
   List<CalendarEventData<CalendarDayEvent>> _calendarEventDataFromEventPBs(

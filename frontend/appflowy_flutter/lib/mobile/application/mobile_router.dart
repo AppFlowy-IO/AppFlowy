@@ -9,7 +9,7 @@ import 'package:go_router/go_router.dart';
 
 extension MobileRouter on BuildContext {
   Future<void> pushView(ViewPB view) async {
-    push(
+    await push(
       Uri(
         path: view.routeName,
         queryParameters: view.queryParameters,

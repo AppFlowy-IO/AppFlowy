@@ -36,11 +36,12 @@ linter:
     - prefer_final_locals
 
     - sized_box_for_whitespace
+    - use_decorated_box
     - avoid_unnecessary_containers
 
     - always_declare_return_types
     - unnecessary_raw_strings
-    - use_decorated_box
+    - unawaited_futures
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

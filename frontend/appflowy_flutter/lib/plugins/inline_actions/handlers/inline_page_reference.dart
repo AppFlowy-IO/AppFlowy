@@ -171,7 +171,7 @@ class InlinePageReferenceService {
       await editorState.insertReferencePage(view, view.layout);
     } on FlowyError catch (e) {
       if (context.mounted) {
-        Dialogs.show(
+        return Dialogs.show(
           context,
           child: FlowyErrorPage.message(
             e.msg,

@@ -50,7 +50,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   Future<void> close() async {
     await _userListener.stop();
     await _userWorkspaceListener.stop();
-    super.close();
+    return super.close();
   }
 
   Future<void> _initUser() async {

@@ -171,7 +171,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
       final editorState = context.read<DocumentBloc>().state.editorState;
       if (editorState != null && widget.view.id == state.action?.objectId) {
-        editorState.updateSelectionWithReason(
+        await editorState.updateSelectionWithReason(
           Selection.collapsed(
             Position(path: [path]),
           ),

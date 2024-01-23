@@ -50,11 +50,8 @@ class NetworkListener {
       }
     }();
     final state = NetworkStatePB.create()..ty = networkType;
-    UserEventUpdateNetworkState(state).send().then((result) {
-      result.fold(
-        (l) {},
-        (e) => Log.error(e),
-      );
+    return UserEventUpdateNetworkState(state).send().then((result) {
+      result.fold((l) {}, (e) => Log.error(e));
     });
   }
 }

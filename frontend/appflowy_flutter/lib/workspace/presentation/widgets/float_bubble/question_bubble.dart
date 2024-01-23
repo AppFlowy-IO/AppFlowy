@@ -129,10 +129,10 @@ class _BubbleActionListState extends State<BubbleActionList> {
 
 class _DebugToast {
   void show() async {
-    var debugInfo = "";
+    String debugInfo = "";
     debugInfo += await _getDeviceInfo();
     debugInfo += await _getDocumentPath();
-    Clipboard.setData(ClipboardData(text: debugInfo));
+    await Clipboard.setData(ClipboardData(text: debugInfo));
 
     showMessageToast(LocaleKeys.questionBubble_debug_success.tr());
   }

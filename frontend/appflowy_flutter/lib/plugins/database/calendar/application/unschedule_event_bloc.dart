@@ -87,18 +87,17 @@ class UnscheduleEventsBloc
         );
   }
 
-  Future<void> _loadAllEvents() async {
+  void _loadAllEvents() async {
     final payload = CalendarEventRequestPB.create()..viewId = viewId;
-    DatabaseEventGetAllCalendarEvents(payload).send().then((result) {
-      result.fold(
-        (events) {
-          if (!isClosed) {
-            add(UnscheduleEventsEvent.didLoadAllEvents(events.items));
-          }
-        },
-        (r) => Log.error(r),
-      );
-    });
+    final result = await DatabaseEventGetAllCalendarEvents(payload).send();
+    result.fold(
+      (events) {
+        if (!isClosed) {
+          add(UnscheduleEventsEvent.didLoadAllEvents(events.items));
+        }
+      },
+      (r) => Log.error(r),
+    );
   }
 
   void _startListening() {

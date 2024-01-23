@@ -99,7 +99,7 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
 
   @override
   Future<void> dispose() async {
-    editBloc.close();
+    await editBloc.close();
     super.dispose();
   }
 

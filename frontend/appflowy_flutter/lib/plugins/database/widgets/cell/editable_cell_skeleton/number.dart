@@ -70,7 +70,7 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   @override
   Future<void> dispose() async {
     _textEditingController.dispose();
-    cellBloc.close();
+    await cellBloc.close();
     super.dispose();
   }
 

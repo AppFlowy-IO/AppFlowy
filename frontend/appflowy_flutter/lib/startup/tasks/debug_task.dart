@@ -11,7 +11,7 @@ class DebugTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     // the hotkey manager is not supported on mobile
     if (PlatformExtension.isMobile && kDebugMode) {
-      SystemChannels.textInput.invokeMethod('TextInput.hide');
+      await SystemChannels.textInput.invokeMethod('TextInput.hide');
     }
   }
 

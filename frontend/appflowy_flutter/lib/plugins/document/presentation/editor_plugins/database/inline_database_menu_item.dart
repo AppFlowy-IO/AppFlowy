@@ -20,16 +20,13 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
       handler: (editorState, menuService, context) async {
         // create the view inside current page
         final parentViewId = documentBloc.view.id;
-        ViewBackendService.createView(
+        final value = await ViewBackendService.createView(
           parentViewId: parentViewId,
           openAfterCreate: false,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Grid,
-        ).then(
-          (value) => value
-              .swap()
-              .map((r) => editorState.insertInlinePage(parentViewId, r)),
         );
+        value.swap().map((r) => editorState.insertInlinePage(parentViewId, r));
       },
     );
 
@@ -45,15 +42,12 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
       handler: (editorState, menuService, context) async {
         // create the view inside current page
         final parentViewId = documentBloc.view.id;
-        ViewBackendService.createView(
+        final value = await ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Board,
-        ).then(
-          (value) => value
-              .swap()
-              .map((r) => editorState.insertInlinePage(parentViewId, r)),
         );
+        value.swap().map((r) => editorState.insertInlinePage(parentViewId, r));
       },
     );
 
@@ -69,14 +63,11 @@ SelectionMenuItem inlineCalendarMenuItem(DocumentBloc documentBloc) =>
       handler: (editorState, menuService, context) async {
         // create the view inside current page
         final parentViewId = documentBloc.view.id;
-        ViewBackendService.createView(
+        final value = await ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Calendar,
-        ).then(
-          (value) => value
-              .swap()
-              .map((r) => editorState.insertInlinePage(parentViewId, r)),
         );
+        value.swap().map((r) => editorState.insertInlinePage(parentViewId, r));
       },
     );

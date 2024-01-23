@@ -62,7 +62,7 @@ void main() {
     await gridResponseFuture();
 
     final textField = context.textFieldContext();
-    service.insertTextFilter(
+    await service.insertTextFilter(
       fieldId: textField.id,
       condition: TextFilterConditionPB.TextIsEmpty,
       content: "",
@@ -94,11 +94,11 @@ void main() {
     await gridResponseFuture();
 
     final controller = context.makeTextCellController(0);
-    controller.saveCellData("edit text cell content");
+    await controller.saveCellData("edit text cell content");
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.length == 2);
 
-    controller.saveCellData("");
+    await controller.saveCellData("");
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.length == 3);
   });

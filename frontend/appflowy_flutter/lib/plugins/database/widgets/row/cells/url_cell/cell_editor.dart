@@ -65,7 +65,7 @@ class _URLCellEditorState extends State<URLCellEditor> {
 
   @override
   Future<void> dispose() async {
-    _cellBloc.close();
+    await _cellBloc.close();
     super.dispose();
   }
 

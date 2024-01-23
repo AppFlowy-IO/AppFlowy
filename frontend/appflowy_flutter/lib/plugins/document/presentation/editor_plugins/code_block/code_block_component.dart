@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_item_list_menu.dart';
@@ -315,7 +317,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
               MobileCodeLanguagePickerScreen.routeName,
             );
             if (language != null) {
-              updateLanguage(language);
+              unawaited(updateLanguage(language));
             }
           }
         },

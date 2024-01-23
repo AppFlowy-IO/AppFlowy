@@ -116,7 +116,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       File(path).writeAsStringSync(str);
     }
     // mock get files
-    await mockPickFilePaths(
+    mockPickFilePaths(
       paths: paths,
     );
     await tapDatabaseRawDataButton();
@@ -265,10 +265,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// null percent means no progress bar should be found
-  Future<void> assertChecklistCellInGrid({
+  void assertChecklistCellInGrid({
     required int rowIndex,
     required double? percent,
-  }) async {
+  }) {
     final findCell = cellFinder(rowIndex, FieldType.Checklist);
 
     if (percent == null) {
@@ -896,14 +896,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(widget.field.fieldType, fieldType);
   }
 
-  Future<void> findFieldWithName(String name) async {
+  void findFieldWithName(String name) {
     final field = find.byWidgetPredicate(
       (widget) => widget is FieldCellButton && widget.field.name == name,
     );
     expect(field, findsOneWidget);
   }
 
-  Future<void> noFieldWithName(String name) async {
+  void noFieldWithName(String name) {
     final field = find.byWidgetPredicate(
       (widget) => widget is FieldCellButton && widget.field.name == name,
     );
@@ -1575,7 +1575,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(okButton);
   }
 
-  Future<void> assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) async {
+  void assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) {
     switch (layout) {
       case DatabaseLayoutPB.Board:
         expect(find.byType(BoardPage), findsOneWidget);

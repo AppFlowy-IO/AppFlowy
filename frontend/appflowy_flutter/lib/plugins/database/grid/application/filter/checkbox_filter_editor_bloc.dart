@@ -24,7 +24,7 @@ class CheckboxFilterEditorBloc
         super(CheckboxFilterEditorState.initial(filterInfo)) {
     on<CheckboxFilterEditorEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () async {
             _startListening();
           },

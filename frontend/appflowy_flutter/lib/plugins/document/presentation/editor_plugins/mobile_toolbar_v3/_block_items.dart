@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_menu_item.dart';
@@ -140,13 +142,15 @@ class BlockItems extends StatelessWidget {
       _closeKeyboard(selection);
 
       // keep the selection
-      editorState.updateSelectionWithReason(
-        selection,
-        extraInfo: {
-          selectionExtraInfoDisableMobileToolbarKey: true,
-          selectionExtraInfoDoNotAttachTextService: true,
-          selectionExtraInfoDisableFloatingToolbar: true,
-        },
+      unawaited(
+        editorState.updateSelectionWithReason(
+          selection,
+          extraInfo: {
+            selectionExtraInfoDisableMobileToolbarKey: true,
+            selectionExtraInfoDoNotAttachTextService: true,
+            selectionExtraInfoDisableFloatingToolbar: true,
+          },
+        ),
       );
       keepEditorFocusNotifier.increase();
 
@@ -175,7 +179,7 @@ class BlockItems extends StatelessWidget {
         },
       );
       // re-open the keyboard again
-      editorState.updateSelectionWithReason(
+      await editorState.updateSelectionWithReason(
         selection,
         extraInfo: {},
       );

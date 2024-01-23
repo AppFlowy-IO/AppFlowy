@@ -123,7 +123,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               (error) => state.copyWith(successOrFailure: right(error)),
             ),
           );
-          RecentService().updateRecentViews([view.id], false);
+          await RecentService().updateRecentViews([view.id], false);
         },
         duplicate: (e) async {
           final result = await ViewBackendService.duplicate(view: view);

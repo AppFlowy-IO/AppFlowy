@@ -28,14 +28,10 @@ class WorkspaceErrorBloc
           final payload = ResetWorkspacePB.create()
             ..workspaceId = userFolder.workspaceId
             ..uid = userFolder.uid;
-          UserEventResetWorkspace(payload).send().then(
-            (result) {
-              if (isClosed) {
-                return;
-              }
-              add(WorkspaceErrorEvent.didResetWorkspace(result));
-            },
-          );
+          final result = await UserEventResetWorkspace(payload).send();
+          if (!isClosed) {
+            add(WorkspaceErrorEvent.didResetWorkspace(result));
+          }
         },
         didResetWorkspace: (result) {
           result.fold(

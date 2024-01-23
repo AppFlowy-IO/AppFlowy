@@ -98,7 +98,7 @@ class _RowCardState extends State<RowCard> {
   @override
   Future<void> dispose() async {
     rowNotifier.dispose();
-    _cardBloc.close();
+    await _cardBloc.close();
     super.dispose();
   }
 

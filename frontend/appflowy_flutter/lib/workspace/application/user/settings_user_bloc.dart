@@ -85,7 +85,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
   @override
   Future<void> close() async {
     await _userListener.stop();
-    super.close();
+    return super.close();
   }
 
   void _loadUserProfile() {

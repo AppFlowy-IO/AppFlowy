@@ -14,7 +14,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   }) : super(NumberCellState.initial(cellController)) {
     on<NumberCellEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () {
             _startListening();
           },

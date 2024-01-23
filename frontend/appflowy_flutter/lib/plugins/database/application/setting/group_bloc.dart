@@ -31,7 +31,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
         ) {
     on<DatabaseGroupEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () {
             _startListening();
           },

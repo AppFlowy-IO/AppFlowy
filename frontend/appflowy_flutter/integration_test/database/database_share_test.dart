@@ -135,7 +135,7 @@ void main() {
         null,
       ];
       for (final (index, percent) in checklistCells.indexed) {
-        await tester.assertChecklistCellInGrid(
+        tester.assertChecklistCellInGrid(
           rowIndex: index,
           percent: percent,
         );

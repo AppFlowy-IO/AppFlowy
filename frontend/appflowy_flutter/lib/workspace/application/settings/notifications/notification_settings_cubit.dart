@@ -38,20 +38,18 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
       ),
     );
 
-    _saveNotificationSettings();
+    await _saveNotificationSettings();
   }
 
   Future<void> _saveNotificationSettings() async {
     await _initCompleter.future;
 
-    UserSettingsBackendService()
-        .setNotificationSettings(_notificationSettings)
-        .then((result) {
-      result.fold(
-        (error) => Log.error(error),
-        (r) => null,
-      );
-    });
+    final result = await UserSettingsBackendService()
+        .setNotificationSettings(_notificationSettings);
+    result.fold(
+      (error) => Log.error(error),
+      (r) => null,
+    );
   }
 }
 

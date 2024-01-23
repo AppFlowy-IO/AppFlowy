@@ -70,7 +70,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   /// with the AppTheme named [themeName].
   Future<void> setTheme(String themeName) async {
     _appearanceSettings.theme = themeName;
-    _saveAppearanceSettings();
+    unawaited(_saveAppearanceSettings());
     emit(state.copyWith(appTheme: await AppTheme.fromName(themeName)));
   }
 
@@ -238,25 +238,21 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   Future<void> _saveDateTimeSettings() async {
-    UserSettingsBackendService()
-        .setDateTimeSettings(_dateTimeSettings)
-        .then((result) {
-      result.fold(
-        (error) => Log.error(error),
-        (_) => null,
-      );
-    });
+    final result = await UserSettingsBackendService()
+        .setDateTimeSettings(_dateTimeSettings);
+    result.fold(
+      (error) => Log.error(error),
+      (_) => null,
+    );
   }
 
   Future<void> _saveAppearanceSettings() async {
-    UserSettingsBackendService()
-        .setAppearanceSetting(_appearanceSettings)
-        .then((result) {
-      result.fold(
-        (l) => null,
-        (error) => Log.error(error),
-      );
-    });
+    final result = await UserSettingsBackendService()
+        .setAppearanceSetting(_appearanceSettings);
+    result.fold(
+      (l) => null,
+      (error) => Log.error(error),
+    );
   }
 }
 

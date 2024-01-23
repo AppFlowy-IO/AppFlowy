@@ -25,8 +25,8 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
         super(SortEditorState.initial(sortInfos, fieldController.fieldInfos)) {
     on<SortEditorEvent>(
       (event, emit) async {
-        event.when(
-          initial: () async {
+        await event.when(
+          initial: () {
             _startListening();
           },
           didReceiveFields: (List<FieldInfo> fields) {

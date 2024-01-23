@@ -44,7 +44,7 @@ class SettingsDialogBloc
   @override
   Future<void> close() async {
     await _userListener.stop();
-    super.close();
+    await super.close();
   }
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {

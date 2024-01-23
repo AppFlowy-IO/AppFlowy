@@ -254,7 +254,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  Future<void> _reorderGroup(
+  void _reorderGroup(
     String fromGroupId,
     String toGroupId,
     Emitter<BoardState> emit,
@@ -274,7 +274,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   @override
   Future<void> close() async {
     for (final controller in groupControllers.values) {
-      controller.dispose();
+      await controller.dispose();
     }
     return super.close();
   }

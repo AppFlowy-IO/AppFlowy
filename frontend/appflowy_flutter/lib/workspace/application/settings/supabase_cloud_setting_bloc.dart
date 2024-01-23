@@ -37,7 +37,7 @@ class SupabaseCloudSettingBloc
             },
           );
         },
-        enableSync: (bool enable) async {
+        enableSync: (bool enable) {
           final update = UpdateCloudConfigPB.create()..enableSync = enable;
           updateCloudConfig(update);
         },
@@ -64,7 +64,7 @@ class SupabaseCloudSettingBloc
 
   @override
   Future<void> close() async {
-    _listener.stop();
+    await _listener.stop();
     return super.close();
   }
 }

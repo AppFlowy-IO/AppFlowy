@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
@@ -96,102 +98,84 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
 
   Future<void> syncFontSize(double fontSize) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble(KVKeys.kDocumentAppearanceFontSize, fontSize);
+    await prefs.setDouble(KVKeys.kDocumentAppearanceFontSize, fontSize);
 
-    if (isClosed) {
-      return;
+    if (!isClosed) {
+      emit(state.copyWith(fontSize: fontSize));
     }
-
-    emit(
-      state.copyWith(
-        fontSize: fontSize,
-      ),
-    );
   }
 
   Future<void> syncFontFamily(String fontFamily) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(KVKeys.kDocumentAppearanceFontFamily, fontFamily);
+    await prefs.setString(KVKeys.kDocumentAppearanceFontFamily, fontFamily);
 
-    if (isClosed) {
-      return;
+    if (!isClosed) {
+      emit(state.copyWith(fontFamily: fontFamily));
     }
-
-    emit(
-      state.copyWith(
-        fontFamily: fontFamily,
-      ),
-    );
   }
 
   Future<void> syncDefaultTextDirection(String? direction) async {
     final prefs = await SharedPreferences.getInstance();
     if (direction == null) {
-      prefs.remove(KVKeys.kDocumentAppearanceDefaultTextDirection);
+      await prefs.remove(KVKeys.kDocumentAppearanceDefaultTextDirection);
     } else {
-      prefs.setString(
+      await prefs.setString(
         KVKeys.kDocumentAppearanceDefaultTextDirection,
         direction,
       );
     }
 
-    if (isClosed) {
-      return;
+    if (!isClosed) {
+      emit(
+        state.copyWith(
+          defaultTextDirection: direction,
+          textDirectionIsNull: direction == null,
+        ),
+      );
     }
-
-    emit(
-      state.copyWith(
-        defaultTextDirection: direction,
-        textDirectionIsNull: direction == null,
-      ),
-    );
   }
 
   Future<void> syncCursorColor(Color? cursorColor) async {
     final prefs = await SharedPreferences.getInstance();
 
     if (cursorColor == null) {
-      prefs.remove(KVKeys.kDocumentAppearanceCursorColor);
+      await prefs.remove(KVKeys.kDocumentAppearanceCursorColor);
     } else {
-      prefs.setString(
+      await prefs.setString(
         KVKeys.kDocumentAppearanceCursorColor,
         cursorColor.toHexString(),
       );
     }
 
-    if (isClosed) {
-      return;
+    if (!isClosed) {
+      emit(
+        state.copyWith(
+          cursorColor: cursorColor,
+          cursorColorIsNull: cursorColor == null,
+        ),
+      );
     }
-
-    emit(
-      state.copyWith(
-        cursorColor: cursorColor,
-        cursorColorIsNull: cursorColor == null,
-      ),
-    );
   }
 
   Future<void> syncSelectionColor(Color? selectionColor) async {
     final prefs = await SharedPreferences.getInstance();
 
     if (selectionColor == null) {
-      prefs.remove(KVKeys.kDocumentAppearanceSelectionColor);
+      await prefs.remove(KVKeys.kDocumentAppearanceSelectionColor);
     } else {
-      prefs.setString(
+      await prefs.setString(
         KVKeys.kDocumentAppearanceSelectionColor,
         selectionColor.toHexString(),
       );
     }
 
-    if (isClosed) {
-      return;
+    if (!isClosed) {
+      emit(
+        state.copyWith(
+          selectionColor: selectionColor,
+          selectionColorIsNull: selectionColor == null,
+        ),
+      );
     }
-
-    emit(
-      state.copyWith(
-        selectionColor: selectionColor,
-        selectionColorIsNull: selectionColor == null,
-      ),
-    );
   }
 }

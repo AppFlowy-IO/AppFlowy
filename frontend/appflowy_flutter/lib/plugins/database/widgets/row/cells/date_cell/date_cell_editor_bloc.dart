@@ -131,7 +131,10 @@ class DateCellEditorBloc
                   startDay: startDay,
                 ),
               );
-              _updateDateData(date: startDay.date, endDate: state.endDay!.date);
+              await _updateDateData(
+                date: startDay.date,
+                endDate: state.endDay!.date,
+              );
             }
           },
           setEndDay: (DateTime endDay) async {
@@ -154,7 +157,10 @@ class DateCellEditorBloc
                   endDay: endDay,
                 ),
               );
-              _updateDateData(date: state.startDay!.date, endDate: endDay.date);
+              await _updateDateData(
+                date: state.startDay!.date,
+                endDate: endDay.date,
+              );
             }
           },
           setEndTime: (String endTime) async {

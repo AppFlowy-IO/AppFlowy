@@ -540,7 +540,7 @@ class SettingLogoutButton extends StatelessWidget {
             fontSize: 13,
             textAlign: TextAlign.center,
           ),
-          onTap: () async {
+          onTap: () {
             NavigatorAlertDialog(
               title: logoutPromptMessage(),
               confirm: () async {

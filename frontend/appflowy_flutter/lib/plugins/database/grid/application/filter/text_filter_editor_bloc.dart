@@ -25,7 +25,7 @@ class TextFilterEditorBloc
     on<TextFilterEditorEvent>(
       (event, emit) async {
         event.when(
-          initial: () async {
+          initial: () {
             _startListening();
           },
           updateCondition: (TextFilterConditionPB condition) {

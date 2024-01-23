@@ -202,7 +202,7 @@ class EditorOperations {
   /// Update the editor's selection
   Future<void> updateSelection(Selection selection) async {
     final editorState = getCurrentEditorState();
-    editorState.updateSelectionWithReason(
+    await editorState.updateSelectionWithReason(
       selection,
       reason: SelectionUpdateReason.uiEvent,
     );
