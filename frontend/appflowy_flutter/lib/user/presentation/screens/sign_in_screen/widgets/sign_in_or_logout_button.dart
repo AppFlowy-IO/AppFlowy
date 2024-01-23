@@ -51,9 +51,10 @@ class MobileSignInOrLogoutButton extends StatelessWidget {
               ),
               const HSpace(8),
             ],
-            Text(
+            FlowyText(
               labelText,
-              style: Theme.of(context).textTheme.titleSmall,
+              fontSize: 14.0,
+              fontWeight: FontWeight.w500,
             ),
           ],
         ),
