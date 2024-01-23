@@ -29,7 +29,8 @@ class SelectOptionCellBackendService {
             final payload = RepeatedSelectOptionPayload()
               ..viewId = viewId
               ..fieldId = fieldId
-              ..rowId = rowId..items.add(option);
+              ..rowId = rowId
+              ..items.add(option);
 
             return DatabaseEventInsertOrUpdateSelectOption(payload).send();
           },
@@ -47,7 +48,7 @@ class SelectOptionCellBackendService {
       ..viewId = viewId
       ..fieldId = fieldId
       ..rowId = rowId;
-      
+
     return DatabaseEventInsertOrUpdateSelectOption(payload).send();
   }
 
