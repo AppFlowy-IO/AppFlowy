@@ -12,6 +12,7 @@ import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
+import 'package:appflowy/mobile/presentation/setting/launch_settings_page.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
@@ -49,6 +50,7 @@ GoRouter generateRouter(Widget child) {
         _mobileHomeSettingPageRoute(),
         _mobileSettingUserAgreementPageRoute(),
         _mobileCloudSettingAppFlowyCloudPageRoute(),
+        _mobileLaunchSettingsPageRoute(),
 
         // view page
         _mobileEditorScreenRoute(),
@@ -211,6 +213,16 @@ GoRoute _mobileSettingUserAgreementPageRoute() {
     path: UserAgreementPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialPage(child: UserAgreementPage());
+    },
+  );
+}
+
+GoRoute _mobileLaunchSettingsPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileLaunchSettingsPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileLaunchSettingsPage());
     },
   );
 }

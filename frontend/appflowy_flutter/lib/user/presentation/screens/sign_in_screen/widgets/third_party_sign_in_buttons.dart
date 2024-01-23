@@ -23,7 +23,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
     // When user changes themeMode, it changes the state in AppearanceSettingsCubit, but the themeMode for the MaterialApp won't change, it only got updated(get value from AppearanceSettingsCubit) when user open the app again. Thus, we should get themeMode from AppearanceSettingsCubit rather than MediaQuery.
 
     final themeModeFromCubit =
-        context.read<AppearanceSettingsCubit>().state.themeMode;
+        context.watch<AppearanceSettingsCubit>().state.themeMode;
 
     final isDarkMode = themeModeFromCubit == ThemeMode.system
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
