@@ -440,8 +440,8 @@
     },
     "mobile": {
       "personalInfo": "Personal Information",
-      "username": "Username",
-      "usernameEmptyError": "Username cannot be empty",
+      "username": "User Name",
+      "usernameEmptyError": "User name cannot be empty",
       "about": "About",
       "pushNotifications": "Push Notifications",
       "support": "Support",

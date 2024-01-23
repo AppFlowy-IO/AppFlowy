@@ -3,6 +3,7 @@ import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -59,7 +60,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
       child: Column(
         children: [
           const AppFlowyCloudEnableSync(),
-          const VSpace(40),
+          const VSpace(12),
           RestartButton(
             onClick: () async {
               NavigatorAlertDialog(
@@ -173,7 +174,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
                         );
                   },
                 ),
-                const VSpace(20),
+                const VSpace(8),
                 RestartButton(
                   onClick: () async {
                     NavigatorAlertDialog(
@@ -317,38 +318,18 @@ class AppFlowyCloudEnableSync extends StatelessWidget {
           children: [
             FlowyText.medium(LocaleKeys.settings_menu_enableSync.tr()),
             const Spacer(),
-            Switch(
+            Switch.adaptive(
               onChanged: (bool value) {
                 context.read<AppFlowyCloudSettingBloc>().add(
                       AppFlowyCloudSettingEvent.enableSync(value),
                     );
               },
+              activeColor: Theme.of(context).colorScheme.primary,
               value: state.setting.enableSync,
             ),
           ],
         );
       },
-    );
-  }
-}
-
-class RestartButton extends StatelessWidget {
-  final VoidCallback onClick;
-  const RestartButton({required this.onClick, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyButton(
-      isSelected: true,
-      useIntrinsicWidth: true,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 30,
-        vertical: 10,
-      ),
-      text: FlowyText(
-        LocaleKeys.settings_menu_restartApp.tr(),
-      ),
-      onTap: onClick,
     );
   }
 }

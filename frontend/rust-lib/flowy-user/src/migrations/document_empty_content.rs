@@ -5,6 +5,7 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_folder::{Folder, View};
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use tracing::{event, instrument};
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
