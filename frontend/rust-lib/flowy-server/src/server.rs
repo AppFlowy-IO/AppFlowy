@@ -1,6 +1,6 @@
-use client_api::ws::WebSocketChannel;
 use client_api::ws::ConnectState;
 use client_api::ws::WSConnectStateReceiver;
+use client_api::ws::WebSocketChannel;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
