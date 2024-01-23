@@ -234,6 +234,18 @@ impl DatabaseEditor {
     }
   }
 
+  pub async fn update_calculation(&self, update: UpdateCalculationChangesetPB) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&update.view_id).await?;
+    view_editor.v_update_calculations(update).await?;
+    Ok(())
+  }
+
+  pub async fn remove_calculation(&self, remove: RemoveCalculationChangesetPB) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&remove.view_id).await?;
+    view_editor.v_remove_calculation(remove).await?;
+    Ok(())
+  }
+
   pub async fn get_all_filters(&self, view_id: &str) -> RepeatedFilterPB {
     if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
       view_editor.v_get_all_filters().await.into()
@@ -1586,6 +1598,17 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
       .payload(FieldSettingsPB::from(new_field_settings))
       .send()
+  }
+
+  fn update_calculation(&self, view_id: &str, calculation: Calculation) {
+    self
+      .database
+      .lock()
+      .update_calculation(view_id, calculation)
+  }
+
+  fn remove_calculation(&self, view_id: &str, field_id: &str) {
+    self.database.lock().remove_calculation(view_id, field_id)
   }
 }
 

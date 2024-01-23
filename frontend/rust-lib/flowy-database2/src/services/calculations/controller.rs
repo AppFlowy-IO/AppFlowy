@@ -1,26 +1,32 @@
 use std::str::FromStr;
 use std::sync::Arc;
 
-use collab_database::rows::RowCell;
+use collab_database::rows::{RowCell, RowDetail, RowId};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
-use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
+use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
-use crate::services::calculations::CalculationsCache;
+use crate::entities::{CalculationChangesetNotificationPB, CalculationPB, CalculationType};
+use crate::services::calculations::CalculationsByFieldIdCache;
 use crate::services::database_view::DatabaseViewChangedNotifier;
+use crate::utils::cache::AnyTypeCache;
+
+use super::{Calculation, CalculationChangeset};
 
 pub trait CalculationsDelegate: Send + Sync + 'static {
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
+
+  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
 }
 
 pub struct CalculationsController {
   view_id: String,
   handler_id: String,
   delegate: Box<dyn CalculationsDelegate>,
-  calculations_cache: CalculationsCache,
+  calculations_by_field_cache: CalculationsByFieldIdCache,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   notifier: DatabaseViewChangedNotifier,
 }
@@ -36,8 +42,7 @@ impl CalculationsController {
     view_id: &str,
     handler_id: &str,
     delegate: T,
-    // calculations: Vec<Arc<Calculation>>,
-    calculations_cache: CalculationsCache,
+    calculations: Vec<Arc<Calculation>>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
@@ -48,10 +53,11 @@ impl CalculationsController {
       view_id: view_id.to_string(),
       handler_id: handler_id.to_string(),
       delegate: Box::new(delegate),
-      calculations_cache,
+      calculations_by_field_cache: AnyTypeCache::<String>::new(),
       task_scheduler,
       notifier,
     };
+    this.update_cache(calculations).await;
     this
   }
 
@@ -59,7 +65,7 @@ impl CalculationsController {
     if let Ok(mut task_scheduler) = self.task_scheduler.try_write() {
       task_scheduler.unregister_handler(&self.handler_id).await;
     } else {
-      tracing::error!("Try to get the lock of task_scheduler failed");
+      tracing::error!("Attempt to get the lock of task_scheduler failed");
     }
   }
 
@@ -85,19 +91,80 @@ impl CalculationsController {
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = CalculationEvent::from_str(predicate).unwrap();
     match event_type {
-      CalculationEvent::CellDidChange => self.update_calculations().await?,
+      CalculationEvent::RowDeleted(row_id) => self.update_calculation(row_id).await?,
     }
     Ok(())
   }
 
-  async fn update_calculations(&self) -> FlowyResult<()> {
-    todo!("Update Calculations");
+  pub async fn did_receive_row_changed(&self, _row_id: RowId) {
+    todo!("RowDeleted / CellChanged")
+    // let row = self.delegate.get_row(&self.view_id, &row_id.clone()).await;
+
+    // self
+    //   .gen_task(
+    //     CalculationEvent::RowDeleted(row_id.into_inner()),
+    //     QualityOfService::UserInteractive,
+    //   )
+    //   .await
+  }
+
+  pub async fn did_receive_changes(
+    &self,
+    changeset: CalculationChangeset,
+  ) -> Option<CalculationChangesetNotificationPB> {
+    let mut notification: Option<CalculationChangesetNotificationPB> = None;
+
+    if let Some(insert) = &changeset.insert_calculation {
+      let row_cells: Vec<Arc<RowCell>> = self
+        .delegate
+        .get_cells_for_field(&self.view_id, &insert.field_id)
+        .await;
+
+      let value = insert.calculate(row_cells);
+      notification = Some(CalculationChangesetNotificationPB::from_insert(
+        &self.view_id,
+        vec![CalculationPB {
+          id: insert.id.clone(),
+          field_id: insert.field_id.clone(),
+          calculation_type: CalculationType::from(insert.calculation_type),
+          value,
+        }],
+      ))
+    }
+
+    if let Some(delete) = &changeset.delete_calculation {
+      notification = Some(CalculationChangesetNotificationPB::from_delete(
+        &self.view_id,
+        vec![CalculationPB {
+          id: delete.id.clone(),
+          field_id: delete.field_id.clone(),
+          calculation_type: CalculationType::from(delete.calculation_type),
+          value: delete.value.clone(),
+        }],
+      ))
+    }
+
+    notification
+  }
+
+  async fn update_cache(&self, calculations: Vec<Arc<Calculation>>) {
+    for calculation in calculations {
+      let field_id = &calculation.field_id;
+      self
+        .calculations_by_field_cache
+        .write()
+        .insert(field_id, calculation.clone());
+    }
+  }
+
+  async fn update_calculation(&self, _row_id: String) -> FlowyResult<()> {
+    todo!("update_calculation");
   }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum CalculationEvent {
-  CellDidChange,
+  RowDeleted(String),
 }
 
 impl ToString for CalculationEvent {

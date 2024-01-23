@@ -3,4 +3,4 @@ use std::sync::Arc;
 
 use crate::utils::cache::AnyTypeCache;
 
-pub type CalculationsCache = Arc<RwLock<AnyTypeCache<u64>>>;
+pub type CalculationsByFieldIdCache = Arc<RwLock<AnyTypeCache<String>>>;

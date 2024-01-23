@@ -1,32 +1,35 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+
+import '../../application/database_controller.dart';
 import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
-import '../application/grid_bloc.dart';
-import '../../application/database_controller.dart';
-import 'grid_scroll.dart';
 import '../../tab_bar/tab_bar_view.dart';
+import '../../widgets/row/row_detail.dart';
+import '../application/grid_bloc.dart';
+
+import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
-import 'widgets/row/row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
-import '../../widgets/row/row_detail.dart';
+import 'widgets/row/row.dart';
 import 'widgets/shortcuts.dart';
 
 class ToggleExtensionNotifier extends ChangeNotifier {
@@ -85,15 +88,15 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 }
 
 class GridPage extends StatefulWidget {
-  final DatabaseController databaseController;
   const GridPage({
+    super.key,
     required this.view,
     required this.databaseController,
     this.onDeleted,
-    super.key,
   });
 
   final ViewPB view;
+  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
 
   @override
@@ -101,11 +104,6 @@ class GridPage extends StatefulWidget {
 }
 
 class _GridPageState extends State<GridPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -123,9 +121,7 @@ class _GridPageState extends State<GridPage> {
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => GridShortcuts(
-                child: GridPageContent(view: widget.view),
-              ),
+              (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
               (err) => FlowyErrorPage.message(
                 err.toString(),
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
@@ -140,11 +136,12 @@ class _GridPageState extends State<GridPage> {
 }
 
 class GridPageContent extends StatefulWidget {
-  final ViewPB view;
   const GridPageContent({
-    required this.view,
     super.key,
+    required this.view,
   });
+
+  final ViewPB view;
 
   @override
   State<GridPageContent> createState() => _GridPageContentState();
@@ -185,8 +182,9 @@ class _GridPageContentState extends State<GridPageContent> {
 }
 
 class _GridHeader extends StatelessWidget {
-  final ScrollController headerScrollController;
   const _GridHeader({required this.headerScrollController});
+
+  final ScrollController headerScrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +255,14 @@ class _GridRows extends StatelessWidget {
         index: index,
       );
     }).toList()
-      ..add(const GridRowBottomBar(key: Key('gridFooter')));
+      ..add(const GridRowBottomBar(key: Key('grid_footer')))
+      ..add(
+        GridCalculationsRow(
+          key: const Key('grid_calculations'),
+          viewId: viewId,
+        ),
+      );
+
     return ReorderableListView.builder(
       ///  This is a workaround related to
       ///  https://github.com/flutter/flutter/issues/25652
@@ -275,7 +280,7 @@ class _GridRows extends StatelessWidget {
         }
         context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
       },
-      itemCount: rowInfos.length + 1, // the extra item is the footer
+      itemCount: children.length,
       itemBuilder: (context, index) => children[index],
     );
   }
@@ -381,9 +386,10 @@ class _GridFooter extends StatelessWidget {
           child: RichText(
             text: TextSpan(
               text: rowCountString(),
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).hintColor,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: Theme.of(context).hintColor),
               children: [
                 TextSpan(
                   text: ' $rowCount',

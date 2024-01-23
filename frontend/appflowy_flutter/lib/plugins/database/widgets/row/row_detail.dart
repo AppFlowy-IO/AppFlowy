@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
@@ -5,7 +7,6 @@ import 'package:appflowy/plugins/database/widgets/row/row_document.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'cell_builder.dart';
@@ -51,9 +52,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
                 RowDetailBloc(rowController: widget.rowController)
                   ..add(const RowDetailEvent.initial()),
           ),
-          BlocProvider.value(
-            value: getIt<ReminderBloc>(),
-          ),
+          BlocProvider.value(value: getIt<ReminderBloc>()),
         ],
         child: ListView(
           controller: scrollController,

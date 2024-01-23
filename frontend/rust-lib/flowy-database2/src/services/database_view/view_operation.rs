@@ -83,6 +83,10 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>>;
 
+  fn update_calculation(&self, view_id: &str, calculation: Calculation);
+
+  fn remove_calculation(&self, view_id: &str, calculation_id: &str);
+
   fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>>;
 
   fn delete_filter(&self, view_id: &str, filter_id: &str);
