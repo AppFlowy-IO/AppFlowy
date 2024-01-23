@@ -280,6 +280,25 @@ where
       Ok(())
     })
   }
+
+  fn add_workspace(&self) -> FutureResult<UserWorkspace, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let new_workspace = client.add_workspace().await?;
+      Ok(to_user_workspace(new_workspace))
+    })
+  }
+
+  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id_owned = workspace_id.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.delete_workspace(&workspace_id_owned).await?;
+      Ok(())
+    })
+  }
 }
 
 pub async fn user_sign_up_request(

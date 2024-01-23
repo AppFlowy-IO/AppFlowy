@@ -1,3 +1,8 @@
+use client_api::ws::ConnectState;
+use client_api::ws::WSClient;
+use client_api::ws::WSClientConfig;
+use client_api::ws::WSConnectStateReceiver;
+use client_api::ws::WebSocketChannel;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
@@ -6,9 +11,6 @@ use client_api::collab_sync::collab_msg::CollabMessage;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::{Client, ClientConfiguration};
-use client_api::{
-  ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
-};
 use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;

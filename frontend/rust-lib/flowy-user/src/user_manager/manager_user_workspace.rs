@@ -151,6 +151,24 @@ impl UserManager {
     Ok(())
   }
 
+  pub async fn add_workspace(&self) -> FlowyResult<UserWorkspace> {
+    let new_workspace = self
+      .cloud_services
+      .get_user_service()?
+      .add_workspace()
+      .await?;
+    Ok(new_workspace)
+  }
+
+  pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .delete_workspace(workspace_id)
+      .await?;
+    Ok(())
+  }
+
   pub async fn add_workspace_member(
     &self,
     user_email: String,

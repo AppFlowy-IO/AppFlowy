@@ -159,8 +159,15 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError>;
 
-  /// Return the all the workspaces of the user  
+  /// Return the all the workspaces of the user
   fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError>;
+
+  /// Creates a new workspace for the user.
+  /// Returns the new workspace if successful
+  fn add_workspace(&self) -> FutureResult<UserWorkspace, FlowyError>;
+
+  /// Deletes a workspace owned by the user.
+  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError>;
 
   fn add_workspace_member(
     &self,
