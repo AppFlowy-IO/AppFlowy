@@ -1,4 +1,5 @@
 use flowy_core::config::AppFlowyCoreConfig;
+use flowy_core::integrate::log::create_log_filter;
 use flowy_core::{AppFlowyCore, DEFAULT_NAME};
 use lib_dispatch::runtime::AFPluginRuntime;
 use std::sync::Arc;
