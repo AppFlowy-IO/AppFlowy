@@ -4,8 +4,8 @@ use std::time::Duration;
 
 #[tokio::test]
 async fn create_parent_view_test() {
-  let mut test = FolderTest::new().await;
-  let view = create_view(
+  let test = FolderTest::new().await;
+  let _view = create_view(
     &test.sdk,
     &test.workspace.id,
     "hello",

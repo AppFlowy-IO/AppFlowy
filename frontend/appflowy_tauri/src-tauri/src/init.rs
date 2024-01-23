@@ -1,4 +1,5 @@
 use flowy_core::config::AppFlowyCoreConfig;
+use flowy_core::integrate::log::create_log_filter;
 use flowy_core::{AppFlowyCore, DEFAULT_NAME};
 
 pub fn init_flowy_core() -> AppFlowyCore {
@@ -23,6 +24,9 @@ pub fn init_flowy_core() -> AppFlowyCore {
     device_id,
     DEFAULT_NAME.to_string(),
   )
-  .log_filter("trace", vec!["appflowy_tauri".to_string()]);
+  .log_filter(create_log_filter(
+    "info".to_string(),
+    vec!["appflowy_tauri".to_string()],
+  ));
   AppFlowyCore::new(config)
 }
