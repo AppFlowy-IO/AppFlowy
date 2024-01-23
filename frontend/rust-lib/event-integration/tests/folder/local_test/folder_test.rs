@@ -68,7 +68,7 @@ async fn update_parent_view_test() {
 }
 
 #[tokio::test]
-async fn app_create_with_view() {
+async fn create_sub_views_test() {
   let mut test = FolderTest::new().await;
   let mut app = test.parent_view.clone();
   test

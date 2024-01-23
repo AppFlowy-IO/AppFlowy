@@ -88,7 +88,7 @@ where
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_collab_doc_state_f(
+  fn get_folder_doc_state(
     &self,
     workspace_id: &str,
     _uid: i64,
@@ -116,7 +116,7 @@ where
     })
   }
 
-  fn batch_create_collab_object_f(
+  fn batch_create_folder_collab_objects(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,

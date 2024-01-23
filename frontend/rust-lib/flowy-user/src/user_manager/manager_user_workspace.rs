@@ -1,24 +1,21 @@
-use std::convert::TryFrom;
-use std::sync::Arc;
-
-use collab_entity::{CollabObject, CollabType};
-use collab_integrate::CollabKVDB;
-use tracing::{error, info, instrument};
-
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_pub::entities::{AppFlowyData, ImportData};
-use flowy_sqlite::schema::user_workspace_table;
-use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
-use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
-use lib_dispatch::prelude::af_spawn;
-
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{upload_collab_objects_data, ImportContext};
 use crate::services::entities::Session;
-use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
+use crate::services::sqlite_sql::workspace_sql::{
+  get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op,
+  save_user_workspaces_op,
+};
 use crate::user_manager::UserManager;
+use collab_entity::{CollabObject, CollabType};
+use collab_integrate::CollabKVDB;
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_folder_pub::entities::{AppFlowyData, ImportData};
+use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
+use lib_dispatch::prelude::af_spawn;
+use std::sync::Arc;
+use tracing::{error, info, instrument};
 
 impl UserManager {
   /// Import appflowy data from the given path.
@@ -157,6 +154,11 @@ impl UserManager {
       .get_user_service()?
       .add_workspace()
       .await?;
+
+    // save the workspace to sqlite db
+    let uid = self.user_id()?;
+    let mut conn = self.db_connection(uid)?;
+    insert_new_workspaces_op(uid, &vec![new_workspace.clone()], &mut *conn)?;
     Ok(new_workspace)
   }
 
@@ -222,25 +224,19 @@ impl UserManager {
   }
 
   pub fn get_user_workspace(&self, uid: i64, workspace_id: &str) -> Option<UserWorkspace> {
-    let mut conn = self.db_connection(uid).ok()?;
-    let row = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::id.eq(workspace_id))
-      .first::<UserWorkspaceTable>(&mut *conn)
-      .ok()?;
-    Some(UserWorkspace::from(row))
+    let conn = self.db_connection(uid).ok()?;
+    get_user_workspace_op(workspace_id, conn)
   }
 
   pub fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
-    let mut conn = self.db_connection(uid)?;
-    let rows = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::uid.eq(uid))
-      .load::<UserWorkspaceTable>(&mut *conn)?;
+    let conn = self.db_connection(uid)?;
+    let workspaces = get_all_user_workspace_op(uid, conn)?;
 
     if let Ok(service) = self.cloud_services.get_user_service() {
-      if let Ok(pool) = self.db_pool(uid) {
+      if let Ok(conn) = self.db_connection(uid) {
         af_spawn(async move {
           if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
-            let _ = save_user_workspaces(uid, pool, &new_user_workspaces);
+            let _ = save_user_workspaces_op(uid, conn, &new_user_workspaces);
             let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
             send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
               .payload(repeated_workspace_pbs)
@@ -249,7 +245,7 @@ impl UserManager {
         });
       }
     }
-    Ok(rows.into_iter().map(UserWorkspace::from).collect())
+    Ok(workspaces)
   }
 
   /// Reset the remote workspace using local workspace data. This is useful when a user wishes to
@@ -269,42 +265,4 @@ impl UserManager {
       .await?;
     Ok(())
   }
-}
-
-pub fn save_user_workspaces(
-  uid: i64,
-  pool: Arc<ConnectionPool>,
-  user_workspaces: &[UserWorkspace],
-) -> FlowyResult<()> {
-  let user_workspaces = user_workspaces
-    .iter()
-    .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-    .collect::<Vec<UserWorkspaceTable>>();
-
-  let mut conn = pool.get()?;
-  conn.immediate_transaction(|conn| {
-    for user_workspace in user_workspaces {
-      if let Err(err) = diesel::update(
-        user_workspace_table::dsl::user_workspace_table
-          .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
-      )
-      .set((
-        user_workspace_table::name.eq(&user_workspace.name),
-        user_workspace_table::created_at.eq(&user_workspace.created_at),
-        user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
-      ))
-      .execute(conn)
-      .and_then(|rows| {
-        if rows == 0 {
-          let _ = diesel::insert_into(user_workspace_table::table)
-            .values(user_workspace)
-            .execute(conn)?;
-        }
-        Ok(())
-      }) {
-        tracing::error!("Error saving user workspace: {:?}", err);
-      }
-    }
-    Ok::<(), FlowyError>(())
-  })
 }

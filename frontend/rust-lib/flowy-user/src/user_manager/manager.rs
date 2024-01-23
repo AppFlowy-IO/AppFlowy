@@ -38,9 +38,9 @@ use crate::services::data_import::ImportContext;
 
 use crate::services::entities::Session;
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
+use crate::services::sqlite_sql::workspace_sql::save_user_workspaces_op;
 use crate::user_manager::manager_user_awareness::UserAwarenessDataSource;
 use crate::user_manager::manager_user_encryption::validate_encryption_sign;
-use crate::user_manager::manager_user_workspace::save_user_workspaces;
 use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 
@@ -647,7 +647,7 @@ impl UserManager {
       self.set_anon_user(session.clone());
     }
 
-    save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
+    save_user_workspaces_op(uid, self.db_connection(uid)?, response.user_workspaces())?;
     event!(tracing::Level::INFO, "Save new user profile to disk");
     self.authenticate_user.set_session(Some(session.clone()))?;
     self
@@ -717,16 +717,6 @@ impl UserManager {
       },
       _ => {},
     }
-
-    // Save the old user workspace setting.
-    save_user_workspaces(
-      old_user.session.user_id,
-      self
-        .authenticate_user
-        .database
-        .get_pool(old_user.session.user_id)?,
-      &[old_user.session.user_workspace.clone()],
-    )?;
     Ok(())
   }
 
