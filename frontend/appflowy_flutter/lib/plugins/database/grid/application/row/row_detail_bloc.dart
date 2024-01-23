@@ -63,14 +63,16 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           },
           toggleHiddenFieldVisibility: () {
             final showHiddenFields = !state.showHiddenFields;
-            final visibleCells = List<CellContext>.from(allCells);
-            visibleCells.retainWhere((cellContext) {
-              final fieldInfo = fieldController.getField(cellContext.fieldId);
-              if (fieldInfo == null || fieldInfo.isPrimary) {
-                return false;
-              }
-              return fieldInfo.visibility!.isVisibleState() || showHiddenFields;
-            });
+            final visibleCells = List<CellContext>.from(
+              allCells.where((cellContext) {
+                final fieldInfo = fieldController.getField(cellContext.fieldId);
+                return fieldInfo != null &&
+                    !fieldInfo.isPrimary &&
+                    (fieldInfo.visibility!.isVisibleState() ||
+                        showHiddenFields);
+              }),
+            );
+
             emit(
               state.copyWith(
                 showHiddenFields: showHiddenFields,

@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
-import 'package:appflowy_backend/log.dart';
 
 import 'cell_controller.dart';
 
@@ -18,9 +17,7 @@ class CellMemCache {
   }
 
   void remove(CellContext context) {
-    if (_cellByFieldId.containsKey(context.fieldId)) {
-      _cellByFieldId[context.fieldId]!.remove(context.rowId);
-    }
+    _cellByFieldId[context.fieldId]?.remove(context.rowId);
   }
 
   void insert<T>(CellContext context, T data) {
@@ -29,20 +26,8 @@ class CellMemCache {
   }
 
   T? get<T>(CellContext context) {
-    if (!_cellByFieldId.containsKey(context.fieldId)) {
-      return null;
-    }
-    final value = _cellByFieldId[context.fieldId]![context.rowId];
-    if (value == null) {
-      return null;
-    }
-    if (value is! T) {
-      Log.error(
-        "Expected value of type: $T, but received type ${value.runtimeType}",
-      );
-      return null;
-    }
-    return value;
+    final value = _cellByFieldId[context.fieldId]?[context.rowId];
+    return value is T ? value : null;
   }
 
   void dispose() {
