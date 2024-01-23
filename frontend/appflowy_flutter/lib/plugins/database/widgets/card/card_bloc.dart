@@ -105,15 +105,13 @@ List<CellContext> _makeCells(
   String? groupFieldId,
   CellContextByFieldId cellMap,
 ) {
-  cellMap.removeWhere(
-    (_, cellContext) =>
-        !fieldController
-            .getField(cellContext.fieldId)!
-            .fieldSettings!
-            .visibility
-            .isVisibleState() ||
-        (groupFieldId != null && cellContext.fieldId == groupFieldId),
-  );
+  // Only show the non-hidden cells and cells that aren't of the grouping field
+  cellMap.removeWhere((_, cellContext) {
+    final fieldInfo = fieldController.getField(cellContext.fieldId);
+    return fieldInfo == null ||
+        !fieldInfo.fieldSettings!.visibility.isVisibleState() ||
+        (groupFieldId != null && cellContext.fieldId == groupFieldId);
+  });
   return cellMap.values.toList();
 }
 
