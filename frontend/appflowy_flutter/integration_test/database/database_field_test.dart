@@ -215,7 +215,7 @@ void main() {
       }
     });
 
-    testWidgets('Number field format', (tester) async {
+    testWidgets('number field type option', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -288,110 +288,110 @@ void main() {
       // check the result
       tester.expectToSeeText(text);
     });
-  });
 
-  testWidgets('DateTime field date and time format', (tester) async {
-    await tester.initializeAppFlowy();
-    await tester.tapGoButton();
+    testWidgets('date time field type options', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
 
-    await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-    await tester.scrollToRight(find.byType(GridPage));
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      await tester.scrollToRight(find.byType(GridPage));
 
-    // create a date field
-    await tester.tapNewPropertyButton();
-    await tester.renameField(FieldType.DateTime.i18n);
-    await tester.tapSwitchFieldTypeButton();
-    await tester.selectFieldType(FieldType.DateTime);
-    await tester.dismissFieldEditor();
+      // create a date field
+      await tester.tapNewPropertyButton();
+      await tester.renameField(FieldType.DateTime.i18n);
+      await tester.tapSwitchFieldTypeButton();
+      await tester.selectFieldType(FieldType.DateTime);
+      await tester.dismissFieldEditor();
 
-    // edit the first date cell
-    await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
-    final now = DateTime.now();
-    await tester.toggleIncludeTime();
-    await tester.selectDay(content: now.day);
+      // edit the first date cell
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
+      await tester.toggleIncludeTime();
+      final now = DateTime.now();
+      await tester.selectDay(content: now.day);
 
-    await tester.dismissCellEditor();
+      await tester.dismissCellEditor();
 
-    tester.assertCellContent(
-      rowIndex: 0,
-      fieldType: FieldType.DateTime,
-      content: DateFormat('MMM dd, y HH:mm').format(now),
-    );
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.DateTime,
+        content: DateFormat('MMM dd, y HH:mm').format(now),
+      );
 
-    // open editor and change date & time format
-    await tester.tapGridFieldWithName(FieldType.DateTime.i18n);
-    await tester.tapEditFieldButton();
-    await tester.changeDateFormat();
-    await tester.changeTimeFormat();
-    await tester.dismissFieldEditor();
+      // open editor and change date & time format
+      await tester.tapGridFieldWithName(FieldType.DateTime.i18n);
+      await tester.tapEditFieldButton();
+      await tester.changeDateFormat();
+      await tester.changeTimeFormat();
+      await tester.dismissFieldEditor();
 
-    // assert date format has been changed
-    tester.assertCellContent(
-      rowIndex: 0,
-      fieldType: FieldType.DateTime,
-      content: DateFormat('dd/MM/y hh:mm a').format(now),
-    );
-  });
+      // assert date format has been changed
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.DateTime,
+        content: DateFormat('dd/MM/y hh:mm a').format(now),
+      );
+    });
 
-  testWidgets('LastModified and CreatedAt field date and time format',
-      (tester) async {
-    await tester.initializeAppFlowy();
-    await tester.tapGoButton();
+    testWidgets('last modified and created at field type options',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
 
-    await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-    final created = DateTime.now();
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      final created = DateTime.now();
 
-    // create a created at field
-    await tester.tapNewPropertyButton();
-    await tester.renameField(FieldType.CreatedTime.i18n);
-    await tester.tapSwitchFieldTypeButton();
-    await tester.selectFieldType(FieldType.CreatedTime);
-    await tester.dismissFieldEditor();
+      // create a created at field
+      await tester.tapNewPropertyButton();
+      await tester.renameField(FieldType.CreatedTime.i18n);
+      await tester.tapSwitchFieldTypeButton();
+      await tester.selectFieldType(FieldType.CreatedTime);
+      await tester.dismissFieldEditor();
 
-    // create a last modified field
-    await tester.tapNewPropertyButton();
-    await tester.renameField(FieldType.LastEditedTime.i18n);
-    await tester.tapSwitchFieldTypeButton();
-    await tester.selectFieldType(FieldType.LastEditedTime);
-    await tester.dismissFieldEditor();
+      // create a last modified field
+      await tester.tapNewPropertyButton();
+      await tester.renameField(FieldType.LastEditedTime.i18n);
+      await tester.tapSwitchFieldTypeButton();
+      await tester.selectFieldType(FieldType.LastEditedTime);
+      await tester.dismissFieldEditor();
 
-    final modified = DateTime.now();
+      final modified = DateTime.now();
 
-    tester.assertCellContent(
-      rowIndex: 0,
-      fieldType: FieldType.CreatedTime,
-      content: DateFormat('MMM dd, y HH:mm').format(created),
-    );
-    tester.assertCellContent(
-      rowIndex: 0,
-      fieldType: FieldType.LastEditedTime,
-      content: DateFormat('MMM dd, y HH:mm').format(modified),
-    );
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.CreatedTime,
+        content: DateFormat('MMM dd, y HH:mm').format(created),
+      );
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.LastEditedTime,
+        content: DateFormat('MMM dd, y HH:mm').format(modified),
+      );
 
-    // open field editor and change date & time format
-    await tester.tapGridFieldWithName(FieldType.LastEditedTime.i18n);
-    await tester.tapEditFieldButton();
-    await tester.changeDateFormat();
-    await tester.changeTimeFormat();
-    await tester.dismissFieldEditor();
+      // open field editor and change date & time format
+      await tester.tapGridFieldWithName(FieldType.LastEditedTime.i18n);
+      await tester.tapEditFieldButton();
+      await tester.changeDateFormat();
+      await tester.changeTimeFormat();
+      await tester.dismissFieldEditor();
 
-    // open field editor and change date & time format
-    await tester.tapGridFieldWithName(FieldType.CreatedTime.i18n);
-    await tester.tapEditFieldButton();
-    await tester.changeDateFormat();
-    await tester.changeTimeFormat();
-    await tester.dismissFieldEditor();
+      // open field editor and change date & time format
+      await tester.tapGridFieldWithName(FieldType.CreatedTime.i18n);
+      await tester.tapEditFieldButton();
+      await tester.changeDateFormat();
+      await tester.changeTimeFormat();
+      await tester.dismissFieldEditor();
 
-    // assert format has been changed
-    tester.assertCellContent(
-      rowIndex: 0,
-      fieldType: FieldType.CreatedTime,
-      content: DateFormat('dd/MM/y hh:mm a').format(created),
-    );
-    tester.assertCellContent(
-      rowIndex: 0,
-      fieldType: FieldType.LastEditedTime,
-      content: DateFormat('dd/MM/y hh:mm a').format(modified),
-    );
+      // assert format has been changed
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.CreatedTime,
+        content: DateFormat('dd/MM/y hh:mm a').format(created),
+      );
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.LastEditedTime,
+        content: DateFormat('dd/MM/y hh:mm a').format(modified),
+      );
+    });
   });
 }

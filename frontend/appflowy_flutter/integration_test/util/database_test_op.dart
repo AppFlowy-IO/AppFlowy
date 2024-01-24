@@ -679,7 +679,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> scrollToRight(Finder find) async {
     final size = getSize(find);
-    await drag(find, Offset(-size.width, 0));
+    await drag(find, Offset(-size.width, 0), warnIfMissed: false);
     await pumpAndSettle(const Duration(milliseconds: 500));
   }
 
