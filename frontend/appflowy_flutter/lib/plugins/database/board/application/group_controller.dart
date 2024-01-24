@@ -26,7 +26,6 @@ class GroupController {
   final void Function(GroupPB group) onGroupChanged;
 
   GroupController({
-    required String viewId,
     required this.group,
     required this.delegate,
     required this.onGroupChanged,

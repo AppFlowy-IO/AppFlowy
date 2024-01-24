@@ -205,7 +205,6 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   final String? initialRowId;
 
   DatabasePluginWidgetBuilder({
-    Key? key,
     required this.notifier,
     this.initialRowId,
   });

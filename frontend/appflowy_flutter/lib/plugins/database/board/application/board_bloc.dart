@@ -465,7 +465,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
 
     final controller = GroupController(
-      viewId: state.viewId,
       group: group,
       delegate: delegate,
       onGroupChanged: (newGroup) {

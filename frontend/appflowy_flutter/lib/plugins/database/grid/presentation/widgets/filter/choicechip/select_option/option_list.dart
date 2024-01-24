@@ -29,16 +29,12 @@ class SelectOptionFilterList extends StatelessWidget {
         late SelectOptionFilterListBloc bloc;
         if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
           bloc = SelectOptionFilterListBloc(
-            viewId: filterInfo.viewId,
-            fieldPB: filterInfo.fieldInfo.field,
             selectedOptionIds: selectedOptionIds,
             delegate:
                 SingleSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
           );
         } else {
           bloc = SelectOptionFilterListBloc(
-            viewId: filterInfo.viewId,
-            fieldPB: filterInfo.fieldInfo.field,
             selectedOptionIds: selectedOptionIds,
             delegate:
                 MultiSelectOptionFilterDelegateImpl(filterInfo: filterInfo),

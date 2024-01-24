@@ -26,6 +26,13 @@ const defaultUserAvatar = '1F600';
 const _iconSize = Size(60, 60);
 
 class SettingsUserView extends StatelessWidget {
+  SettingsUserView(
+    this.user, {
+    required this.didLogin,
+    required this.didLogout,
+    required this.didOpenUser,
+  }) : super(key: ValueKey(user.id));
+
   // Called when the user login in the setting dialog
   final VoidCallback didLogin;
   // Called when the user logout in the setting dialog
@@ -33,14 +40,6 @@ class SettingsUserView extends StatelessWidget {
   // Called when the user open a historical user in the setting dialog
   final VoidCallback didOpenUser;
   final UserProfilePB user;
-
-  SettingsUserView(
-    this.user, {
-    required this.didLogin,
-    required this.didLogout,
-    required this.didOpenUser,
-    Key? key,
-  }) : super(key: ValueKey(user.id));
 
   @override
   Widget build(BuildContext context) {

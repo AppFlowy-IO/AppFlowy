@@ -18,8 +18,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 
   MenuUserBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
-        _userWorkspaceListener =
-            UserWorkspaceListener(userProfile: userProfile),
+        _userWorkspaceListener = UserWorkspaceListener(),
         _userService = UserBackendService(userId: userProfile.id),
         super(MenuUserState.initial(userProfile)) {
     on<MenuUserEvent>((event, emit) async {

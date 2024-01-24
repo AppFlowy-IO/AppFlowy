@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:dartz/dartz.dart';
@@ -29,7 +28,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   CellMemCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
-  CalendarBloc({required ViewPB view, required this.databaseController})
+  CalendarBloc({required this.databaseController})
       : super(CalendarState.initial()) {
     on<CalendarEvent>(
       (event, emit) async {

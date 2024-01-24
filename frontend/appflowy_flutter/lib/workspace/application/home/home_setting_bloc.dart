@@ -3,7 +3,6 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/edit_panel/edit_context.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -17,11 +16,10 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
   final AppearanceSettingsCubit _appearanceSettingsCubit;
 
   HomeSettingBloc(
-    UserProfilePB user,
     WorkspaceSettingPB workspaceSetting,
     AppearanceSettingsCubit appearanceSettingsCubit,
     double screenWidthPx,
-  )   : _listener = UserWorkspaceListener(userProfile: user),
+  )   : _listener = UserWorkspaceListener(),
         _appearanceSettingsCubit = appearanceSettingsCubit,
         super(
           HomeSettingState.initial(

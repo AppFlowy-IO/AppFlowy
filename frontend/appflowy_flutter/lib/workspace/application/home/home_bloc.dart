@@ -4,7 +4,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'home_bloc.freezed.dart';
@@ -12,10 +11,8 @@ part 'home_bloc.freezed.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final UserWorkspaceListener _workspaceListener;
 
-  HomeBloc(
-    UserProfilePB userProfile,
-    WorkspaceSettingPB workspaceSetting,
-  )   : _workspaceListener = UserWorkspaceListener(userProfile: userProfile),
+  HomeBloc(WorkspaceSettingPB workspaceSetting)
+      : _workspaceListener = UserWorkspaceListener(),
         super(HomeState.initial(workspaceSetting)) {
     on<HomeEvent>(
       (event, emit) async {

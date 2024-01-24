@@ -93,7 +93,6 @@ class _CalendarPageState extends State<CalendarPage> {
   void initState() {
     _calendarState = GlobalKey<MonthViewState>();
     _calendarBloc = CalendarBloc(
-      view: widget.view,
       databaseController: widget.databaseController,
     )..add(const CalendarEvent.initial());
 

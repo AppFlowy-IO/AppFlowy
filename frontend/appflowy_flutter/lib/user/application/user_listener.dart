@@ -75,9 +75,7 @@ class UserWorkspaceListener {
 
   FolderNotificationListener? _listener;
 
-  UserWorkspaceListener({
-    required UserProfilePB userProfile,
-  });
+  UserWorkspaceListener();
 
   void start({
     void Function(WorkspaceSettingNotifyValue)? onSettingUpdated,

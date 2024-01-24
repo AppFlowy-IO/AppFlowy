@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -10,8 +9,6 @@ class SelectOptionFilterListBloc<T>
     extends Bloc<SelectOptionFilterListEvent, SelectOptionFilterListState> {
   final SelectOptionFilterDelegate delegate;
   SelectOptionFilterListBloc({
-    required String viewId,
-    required FieldPB fieldPB,
     required this.delegate,
     required List<String> selectedOptionIds,
   }) : super(SelectOptionFilterListState.initial(selectedOptionIds)) {
