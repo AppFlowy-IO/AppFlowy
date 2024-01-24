@@ -91,7 +91,7 @@ impl DatabaseViewEditor {
       delegate.clone(),
       notifier.clone(),
       filter_controller.clone(),
-      cell_cache.clone(),
+      cell_cache,
     )
     .await;
 
@@ -550,8 +550,8 @@ impl DatabaseViewEditor {
       value: "".to_owned(), // Empty for non-calculated
     };
 
-    let calculations_controller = self.calculations_controller.clone();
-    let changeset = calculations_controller
+    let changeset = self
+      .calculations_controller
       .did_receive_changes(CalculationChangeset::from_insert(calculation.clone()))
       .await;
 
@@ -568,8 +568,6 @@ impl DatabaseViewEditor {
       notify_did_update_calculation(changeset).await;
     }
 
-    drop(calculations_controller);
-
     Ok(())
   }
 
@@ -581,19 +579,12 @@ impl DatabaseViewEditor {
       .delegate
       .remove_calculation(&params.view_id, &params.calculation_id);
 
-    let calculation = Calculation {
-      id: params.calculation_id.clone(),
-      field_id: params.field_id.clone(),
-      calculation_type: 0,
-      value: "".to_owned(),
-    };
+    let calculation = Calculation::none(params.calculation_id, params.field_id);
 
-    let calculations_controller = self.calculations_controller.clone();
-    let changeset = calculations_controller
+    let changeset = self
+      .calculations_controller
       .did_receive_changes(CalculationChangeset::from_delete(calculation.clone()))
       .await;
-
-    drop(calculations_controller);
 
     if let Some(changeset) = changeset {
       notify_did_update_calculation(changeset).await;
