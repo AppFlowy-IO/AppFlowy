@@ -32,7 +32,6 @@ class DesktopGridURLSkin extends IEditableURLCellSkin {
             color: Theme.of(context).colorScheme.primary,
             decoration: TextDecoration.underline,
           ),
-      autofocus: false,
       decoration: InputDecoration(
         contentPadding: GridSize.cellContentInsets,
         border: InputBorder.none,

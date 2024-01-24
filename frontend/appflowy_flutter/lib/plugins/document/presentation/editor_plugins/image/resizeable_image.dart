@@ -168,7 +168,7 @@ class _ResizableImageState extends State<ResizableImage> {
       padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-        border: Border.all(width: 1, color: Colors.black),
+        border: Border.all(),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -232,7 +232,7 @@ class _ResizableImageState extends State<ResizableImage> {
                       borderRadius: const BorderRadius.all(
                         Radius.circular(5.0),
                       ),
-                      border: Border.all(width: 1, color: Colors.white),
+                      border: Border.all(color: Colors.white),
                     ),
                   ),
                 )

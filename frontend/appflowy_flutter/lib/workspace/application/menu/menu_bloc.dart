@@ -124,6 +124,5 @@ class MenuState with _$MenuState {
   factory MenuState.initial() => MenuState(
         views: [],
         successOrFailure: left(unit),
-        lastCreatedView: null,
       );
 }

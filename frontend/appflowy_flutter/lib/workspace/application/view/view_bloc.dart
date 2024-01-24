@@ -153,7 +153,6 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             name: e.name,
             desc: '',
             layoutType: e.layoutType,
-            initialDataBytes: null,
             ext: {},
             openAfterCreate: e.openAfterCreated,
           );
@@ -355,7 +354,5 @@ class ViewState with _$ViewState {
         isExpanded: false,
         isEditing: false,
         successOrFailure: left(unit),
-        lastCreatedView: null,
-        isLoading: true,
       );
 }

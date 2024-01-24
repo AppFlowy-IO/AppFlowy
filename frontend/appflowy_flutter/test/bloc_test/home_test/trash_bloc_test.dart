@@ -64,7 +64,7 @@ void main() {
       final context = TrashTestContext(unitTest);
       await context.initialize();
       final trashBloc = TrashBloc()..add(const TrashEvent.initial());
-      await blocResponseFuture(millisecond: 200);
+      await blocResponseFuture();
 
       // delete a view
       final deletedView = context.viewBloc.state.view.childViews[0];

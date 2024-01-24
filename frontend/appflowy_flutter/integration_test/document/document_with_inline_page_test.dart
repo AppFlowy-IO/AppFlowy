@@ -114,7 +114,6 @@ Future<String> insertInlinePage(
   // create a new document
   await tester.createNewPageWithNameUnderParent(
     name: 'insert_a_inline_page_${layout.name}',
-    layout: ViewLayoutPB.Document,
   );
 
   // tap the first line of the document

@@ -209,7 +209,6 @@ class _ChecklistItemState extends State<ChecklistItem> {
           borderRadius: Corners.s6Border,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FlowyIconButton(
               width: 32,
@@ -224,7 +223,6 @@ class _ChecklistItemState extends State<ChecklistItem> {
                 controller: _textController,
                 focusNode: _focusNode,
                 style: Theme.of(context).textTheme.bodyMedium,
-                maxLines: 1,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,
@@ -305,7 +303,6 @@ class _NewTaskItemState extends State<NewTaskItem> {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       constraints: BoxConstraints(minHeight: GridSize.popoverItemHeight),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const HSpace(8),
           Expanded(
@@ -313,7 +310,6 @@ class _NewTaskItemState extends State<NewTaskItem> {
               focusNode: widget.focusNode,
               controller: _textEditingController,
               style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 1,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 isCollapsed: true,

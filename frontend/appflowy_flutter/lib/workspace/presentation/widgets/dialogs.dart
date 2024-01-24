@@ -61,7 +61,6 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
           ),
           VSpace(Insets.m),
           FlowyFormTextInput(
-            textAlign: TextAlign.center,
             hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
             controller: controller,
             textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(

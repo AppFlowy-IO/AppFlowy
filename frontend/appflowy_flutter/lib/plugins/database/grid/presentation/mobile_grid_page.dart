@@ -400,7 +400,6 @@ class _AddRowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderSide = BorderSide(
       color: Theme.of(context).dividerColor,
-      width: 1.0,
     );
     const radius = BorderRadius.only(
       bottomLeft: Radius.circular(24),

@@ -84,7 +84,6 @@ class _SaveButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
       child: Align(
-        alignment: Alignment.center,
         child: GestureDetector(
           onTap: onSave,
           child: FlowyText.medium(

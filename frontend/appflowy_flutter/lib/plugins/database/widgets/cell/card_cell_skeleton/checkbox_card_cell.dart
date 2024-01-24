@@ -58,7 +58,6 @@ class _CheckboxCellState extends State<CheckboxCardCell> {
             child: Row(
               children: [
                 FlowyIconButton(
-                  iconPadding: EdgeInsets.zero,
                   icon: FlowySvg(
                     state.isSelected
                         ? FlowySvgs.check_filled_s

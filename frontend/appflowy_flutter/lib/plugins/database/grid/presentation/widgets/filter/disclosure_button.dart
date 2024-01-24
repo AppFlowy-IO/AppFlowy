@@ -27,7 +27,6 @@ class _DisclosureButtonState extends State<DisclosureButton> {
     return PopoverActionList<FilterDisclosureActionWrapper>(
       asBarrier: true,
       mutex: widget.popoverMutex,
-      direction: PopoverDirection.rightWithTopAligned,
       actions: FilterDisclosureAction.values
           .map((action) => FilterDisclosureActionWrapper(action))
           .toList(),

@@ -24,7 +24,6 @@ class DocumentBanner extends StatelessWidget {
         width: double.infinity,
         color: colorScheme.surfaceVariant,
         child: FittedBox(
-          alignment: Alignment.center,
           fit: BoxFit.scaleDown,
           child: Row(
             children: [

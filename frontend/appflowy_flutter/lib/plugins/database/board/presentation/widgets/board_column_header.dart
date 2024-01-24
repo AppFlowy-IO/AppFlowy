@@ -151,7 +151,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
           controller: _controller,
           focusNode: _focusNode,
           onEditingComplete: _saveEdit,
-          maxLines: 1,
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14),
           decoration: InputDecoration(
             filled: true,

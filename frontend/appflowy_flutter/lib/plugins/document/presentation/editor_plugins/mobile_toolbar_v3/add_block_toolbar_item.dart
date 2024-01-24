@@ -347,7 +347,7 @@ extension on EditorState {
       node,
     );
     transaction.afterSelection = Selection.collapsed(
-      Position(path: path, offset: 0),
+      Position(path: path),
     );
     transaction.selectionExtraInfo = {};
     await apply(transaction);

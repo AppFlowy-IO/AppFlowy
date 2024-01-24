@@ -77,13 +77,11 @@ class CardAccessoryContainer extends StatelessWidget {
           color: Theme.of(context).brightness == Brightness.light
               ? const Color(0xFF1F2329).withOpacity(0.12)
               : const Color(0xff59647a),
-          width: 1.0,
         ),
       ),
       boxShadow: [
         BoxShadow(
           blurRadius: 4,
-          spreadRadius: 0,
           color: const Color(0xFF1F2329).withOpacity(0.02),
         ),
         BoxShadow(

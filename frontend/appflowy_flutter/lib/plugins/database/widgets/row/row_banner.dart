@@ -111,7 +111,6 @@ class _BannerAction extends StatelessWidget {
             builder: (context, state) {
               return Row(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (state.rowMeta.icon.isEmpty)
                     AddEmojiButton(

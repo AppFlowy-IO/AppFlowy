@@ -221,7 +221,6 @@ class _PropertyCellState extends State<PropertyCell> {
       constraints: const BoxConstraints(minHeight: 28),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           SizedBox(
             width: 88,

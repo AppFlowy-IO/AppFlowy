@@ -119,7 +119,6 @@ class CoverImagePickerBloc
   Future<String?> _pickImages() async {
     final result = await getIt<FilePickerService>().pickFiles(
       dialogTitle: LocaleKeys.document_plugins_cover_addLocalImage.tr(),
-      allowMultiple: false,
       type: FileType.image,
       allowedExtensions: allowedExtensions,
     );

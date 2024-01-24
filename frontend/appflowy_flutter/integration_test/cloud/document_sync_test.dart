@@ -38,9 +38,7 @@ void main() {
       await tester.expectToSeeHomePageWithGetStartedPage();
 
       // create a new document called Sample
-      await tester.createNewPage(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPage();
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);

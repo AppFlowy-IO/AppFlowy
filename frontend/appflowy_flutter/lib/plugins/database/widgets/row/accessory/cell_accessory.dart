@@ -144,7 +144,6 @@ class _AccessoryHoverState extends State<AccessoryHover> {
       onEnter: (p) => setState(() => _isHover = true),
       onExit: (p) => setState(() => _isHover = false),
       child: Stack(
-        fit: StackFit.loose,
         alignment: AlignmentDirectional.center,
         children: children,
       ),

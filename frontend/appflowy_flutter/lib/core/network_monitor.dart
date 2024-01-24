@@ -21,7 +21,7 @@ class NetworkListener {
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      Log.error('Couldn\'t check connectivity status. $e');
+      Log.error("Couldn't check connectivity status. $e");
       return;
     }
     return _updateConnectionStatus(result);

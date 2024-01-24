@@ -176,7 +176,6 @@ class EnableEncrypt extends StatelessWidget {
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IntrinsicHeight(
                   child: Opacity(

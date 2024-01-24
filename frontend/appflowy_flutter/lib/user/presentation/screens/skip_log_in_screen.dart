@@ -47,7 +47,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     final size = MediaQuery.of(context).size;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Spacer(),
         FlowyLogoTitle(

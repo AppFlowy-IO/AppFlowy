@@ -137,7 +137,6 @@ class _GridHeaderCellContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderSide = BorderSide(
       color: Theme.of(context).dividerColor,
-      width: 1.0,
     );
     final decoration = BoxDecoration(
       border: Border(

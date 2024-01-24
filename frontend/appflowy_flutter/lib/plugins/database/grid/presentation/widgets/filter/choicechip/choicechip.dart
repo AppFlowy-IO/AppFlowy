@@ -25,7 +25,6 @@ class ChoiceChipButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderSide = BorderSide(
       color: AFThemeExtension.of(context).toggleOffFill,
-      width: 1.0,
     );
 
     final decoration = BoxDecoration(

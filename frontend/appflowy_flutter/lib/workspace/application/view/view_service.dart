@@ -94,7 +94,6 @@ class ViewBackendService {
       layoutType: layoutType,
       parentViewId: parentViewId,
       name: name,
-      openAfterCreate: false,
       ext: {
         'database_id': databaseId,
       },

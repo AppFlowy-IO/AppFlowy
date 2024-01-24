@@ -93,7 +93,6 @@ class WorkspaceErrorScreen extends StatelessWidget {
                   width: 500,
                   child: IntrinsicHeight(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: children,
                     ),
                   ),
@@ -129,7 +128,6 @@ class WorkspaceErrorDescription extends StatelessWidget {
             FlowyText.medium(
               "Error code: ${state.initialError.code.value.toString()}",
               fontSize: 12,
-              maxLines: 1,
             ),
           ],
         );

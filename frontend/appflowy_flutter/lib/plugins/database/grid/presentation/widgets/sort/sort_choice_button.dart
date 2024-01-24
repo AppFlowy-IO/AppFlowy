@@ -29,7 +29,6 @@ class SortChoiceButton extends StatelessWidget {
         border: Border.fromBorderSide(
           BorderSide(
             color: AFThemeExtension.of(context).toggleOffFill,
-            width: 1.0,
           ),
         ),
         borderRadius: const BorderRadius.all(Radius.circular(14)),

@@ -107,7 +107,6 @@ class RowState with _$RowState {
   factory RowState.initial() {
     return RowState(
       cellByFieldId: CellContextByFieldId(),
-      changeReason: null,
     );
   }
 }

@@ -34,7 +34,6 @@ class BottomSheetHeader extends StatelessWidget {
           ),
         if (title != null)
           Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               title!,
               fontSize: 16,

@@ -93,7 +93,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       child: SizedBox(
         height: viewPB.pluginType == PluginType.calendar ? 700 : 400,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildMenu(context, viewPB),

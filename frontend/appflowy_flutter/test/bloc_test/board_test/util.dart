@@ -51,7 +51,7 @@ class AppFlowyBoardTest {
 }
 
 Future<void> boardResponseFuture() {
-  return Future.delayed(boardResponseDuration(milliseconds: 200));
+  return Future.delayed(boardResponseDuration());
 }
 
 Duration boardResponseDuration({int milliseconds = 200}) {

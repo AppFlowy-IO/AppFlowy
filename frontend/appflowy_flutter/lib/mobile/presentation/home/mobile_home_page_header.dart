@@ -34,7 +34,6 @@ class MobileHomePageHeader extends StatelessWidget {
                 const HSpace(12),
                 Expanded(
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const FlowyText.medium('AppFlowy', fontSize: 18),

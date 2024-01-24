@@ -100,6 +100,5 @@ class HomeState with _$HomeState {
   factory HomeState.initial(WorkspaceSettingPB workspaceSetting) => HomeState(
         isLoading: false,
         workspaceSetting: workspaceSetting,
-        latestView: null,
       );
 }

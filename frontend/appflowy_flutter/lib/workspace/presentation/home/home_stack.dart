@@ -41,7 +41,6 @@ class HomeStack extends StatelessWidget {
       child: BlocBuilder<TabsBloc, TabsState>(
         builder: (context, state) {
           return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
                 padding: EdgeInsets.only(left: layout.menuSpacing),
@@ -275,7 +274,6 @@ class HomeTopBar extends StatelessWidget {
           horizontal: HomeInsets.topBarTitlePadding,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             HSpace(layout.menuSpacing),
             const FlowyNavigation(),

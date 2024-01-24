@@ -134,7 +134,6 @@ class _TextCellState extends State<TextCardCell> {
               : _buildText(state, isTitle);
 
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (isTitle && widget.showNotes)
                 FlowyTooltip(

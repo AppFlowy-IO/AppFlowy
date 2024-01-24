@@ -118,7 +118,6 @@ class GridCreateFilterBloc
         return _filterBackendSvc.insertNumberFilter(
           fieldId: fieldId,
           condition: NumberFilterConditionPB.Equal,
-          content: "",
         );
       case FieldType.RichText:
         return _filterBackendSvc.insertTextFilter(

@@ -174,7 +174,6 @@ class FlowyVersionDescription extends CustomActionCell {
           return SizedBox(
             height: 30,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Divider(

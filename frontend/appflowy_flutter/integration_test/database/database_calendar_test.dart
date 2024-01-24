@@ -158,7 +158,7 @@ void main() {
 
       // Create a new event on the first of this month
       final today = DateTime.now();
-      final firstOfThisMonth = DateTime(today.year, today.month, 1);
+      final firstOfThisMonth = DateTime(today.year, today.month);
       await tester.doubleClickCalendarCell(firstOfThisMonth);
       await tester.dismissEventEditor();
 

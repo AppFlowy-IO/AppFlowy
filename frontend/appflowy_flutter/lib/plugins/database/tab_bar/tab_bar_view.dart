@@ -63,7 +63,7 @@ class DatabaseTabBarView extends StatefulWidget {
 }
 
 class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
-  final PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController();
   late String? _initialRowId = widget.initialRowId;
 
   @override

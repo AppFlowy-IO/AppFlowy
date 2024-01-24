@@ -6,8 +6,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-final kFirstDay = DateTime.utc(1970, 1, 1);
-final kLastDay = DateTime.utc(2100, 1, 1);
+final kFirstDay = DateTime.utc(1970);
+final kLastDay = DateTime.utc(2100);
 
 class DatePicker extends StatefulWidget {
   const DatePicker({
@@ -218,7 +218,6 @@ class _CalendarStyle {
             FlowySvgs.arrow_right_s,
             color: iconColor,
           ),
-          headerMargin: EdgeInsets.zero,
           headerPadding: const EdgeInsets.only(bottom: 8.0),
         ),
         availableGestures = AvailableGestures.all;

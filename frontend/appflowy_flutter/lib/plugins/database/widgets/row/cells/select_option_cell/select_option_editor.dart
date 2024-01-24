@@ -201,7 +201,6 @@ class _Title extends StatelessWidget {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Flexible(
               child: FlowyText.medium(
@@ -319,7 +318,6 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
               ),
             ),
           FlowyIconButton(
-            width: 30,
             onPressed: () => _popoverController.show(),
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
             hoverColor: Colors.transparent,

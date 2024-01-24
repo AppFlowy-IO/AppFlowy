@@ -50,7 +50,6 @@ class _URLCellEditorState extends State<URLCellEditor> {
           controller: _controller,
           onSubmitted: (value) => focusChanged(),
           onEditingComplete: () => focusChanged(),
-          maxLines: 1,
           style: Theme.of(context).textTheme.bodyMedium,
           decoration: const InputDecoration(
             contentPadding: EdgeInsets.zero,

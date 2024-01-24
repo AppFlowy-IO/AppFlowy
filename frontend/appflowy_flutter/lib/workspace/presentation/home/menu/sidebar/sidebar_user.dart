@@ -36,7 +36,6 @@ class SidebarUser extends StatelessWidget {
         ),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             UserAvatar(
               iconUrl: state.userProfile.iconUrl,

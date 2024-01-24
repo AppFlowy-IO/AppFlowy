@@ -93,13 +93,11 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
                 focusNode.requestFocus();
               }
             },
-            maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outline,
-                  width: 1.0,
                 ),
                 borderRadius: Corners.s10Border,
               ),
@@ -115,7 +113,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
-                  width: 1.0,
                 ),
                 borderRadius: Corners.s10Border,
               ),

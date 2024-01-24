@@ -152,7 +152,7 @@ class _CellTrailing extends StatelessWidget {
       width: GridSize.trailHeaderPadding,
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1.0),
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
         ),
       ),
       padding: GridSize.headerContentInsets,

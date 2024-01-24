@@ -217,7 +217,6 @@ class _CalendarPageState extends State<CalendarPage> {
     return SizedBox(
       height: 24,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
             onTap: PlatformExtension.isMobile

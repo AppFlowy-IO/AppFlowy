@@ -59,7 +59,7 @@ void main() {
 
       editorState.service.selectionService.updateSelection(
         Selection(
-          start: Position(path: [1], offset: 0),
+          start: Position(path: [1]),
           end: Position(path: [1], offset: 5),
         ),
       );
@@ -80,8 +80,8 @@ void main() {
       expect(
         editorState.service.selectionService.currentSelection.value,
         Selection(
-          start: Position(path: [2], offset: 0),
-          end: Position(path: [3], offset: 0),
+          start: Position(path: [2]),
+          end: Position(path: [3]),
         ),
       );
     });

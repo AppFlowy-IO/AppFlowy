@@ -193,7 +193,6 @@ class _PropertyCellState extends State<_PropertyCell> {
         onExit: (event) => _isFieldHover.value = false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ValueListenableBuilder(
               valueListenable: _isFieldHover,
@@ -312,7 +311,6 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  side: BorderSide.none,
                 ),
               ),
               overlayColor: MaterialStateProperty.all<Color>(

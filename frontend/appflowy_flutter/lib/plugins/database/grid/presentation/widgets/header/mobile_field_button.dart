@@ -65,7 +65,6 @@ class MobileFieldButton extends StatelessWidget {
   BoxDecoration? _getDecoration(BuildContext context) {
     final borderSide = BorderSide(
       color: Theme.of(context).dividerColor,
-      width: 1.0,
     );
 
     if (index == null) {

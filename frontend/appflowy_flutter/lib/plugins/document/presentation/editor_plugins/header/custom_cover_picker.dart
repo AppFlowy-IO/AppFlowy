@@ -133,7 +133,6 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
           width: 5,
         ),
         Expanded(
-          flex: 1,
           child: RoundedTextButton(
             onPressed: () {
               urlController.text.isNotEmpty
@@ -208,7 +207,6 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
         border: Border.fromBorderSide(
           BorderSide(
             color: Theme.of(context).colorScheme.primary,
-            width: 1,
           ),
         ),
       ),

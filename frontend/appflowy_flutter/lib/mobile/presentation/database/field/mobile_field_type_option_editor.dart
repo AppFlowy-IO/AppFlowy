@@ -365,7 +365,6 @@ class _PropertyType extends StatelessWidget {
     return FlowyOptionTile.text(
       text: LocaleKeys.grid_field_propertyType.tr(),
       trailing: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FlowySvg(
             type.smallSvgData,
@@ -542,7 +541,6 @@ class _NumberOption extends StatelessWidget {
     return FlowyOptionTile.text(
       text: LocaleKeys.grid_field_numberFormat.tr(),
       trailing: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FlowyText(
             selectedFormat.title(),
@@ -773,10 +771,6 @@ class __SelectOptionTileState extends State<_SelectOptionTile> {
       textFieldHintText: LocaleKeys.grid_field_typeANewOption.tr(),
       showTopBorder: widget.showTopBorder,
       showBottomBorder: widget.showBottomBorder,
-      textFieldPadding: const EdgeInsets.symmetric(
-        horizontal: 0.0,
-        vertical: 16.0,
-      ),
       trailing: _SelectOptionColor(
         color: option.color,
         onChanged: (color) {

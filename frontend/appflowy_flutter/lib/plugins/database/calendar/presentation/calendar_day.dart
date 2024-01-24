@@ -95,7 +95,6 @@ class CalendarDayCard extends StatelessWidget {
                   ),
                 ),
                 DragTarget<CalendarDayEvent>(
-                  hitTestBehavior: HitTestBehavior.translucent,
                   builder: (context, candidate, __) {
                     return Stack(
                       children: [
@@ -238,7 +237,6 @@ class NewEventButton extends StatelessWidget {
           padding: const EdgeInsets.all(4.0),
           child: FlowyIconButton(
             onPressed: onCreate,
-            iconPadding: EdgeInsets.zero,
             icon: const FlowySvg(FlowySvgs.add_s),
             fillColor: Theme.of(context).colorScheme.background,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
@@ -261,7 +259,6 @@ class NewEventButton extends StatelessWidget {
                   blurRadius: 2,
                 ),
                 BoxShadow(
-                  spreadRadius: 0,
                   color: const Color(0xFF1F2329).withOpacity(0.02),
                   blurRadius: 4,
                 ),
@@ -314,7 +311,6 @@ class _DayBadge extends StatelessWidget {
         mainAxisAlignment: PlatformExtension.isMobile
             ? MainAxisAlignment.center
             : MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (date.day == 1 && !PlatformExtension.isMobile)
             FlowyText.medium(
