@@ -52,7 +52,8 @@ const String kAppflowyCloudUrl = "https://beta.appflowy.cloud";
 ///
 Future<AuthenticatorType> getAuthenticatorType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
-  if (value.isNone() && integrationMode().isRelease) {
+  if (value.isNone() && !integrationMode().isUnitTest) {
+    // if the cloud type is not set, then set it to AppFlowy Cloud as default.
     await setAuthenticatorType(AuthenticatorType.appflowyCloud);
     return AuthenticatorType.appflowyCloud;
   }

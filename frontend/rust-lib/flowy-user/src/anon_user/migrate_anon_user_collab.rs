@@ -12,6 +12,7 @@ use collab_database::database::{
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
 use collab_database::user::DatabaseViewTrackerList;
 use collab_folder::{Folder, UserId};
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use parking_lot::{Mutex, RwLock};
 use tracing::info;
 

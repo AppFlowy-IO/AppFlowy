@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pin-project = "1.0"
@@ -42,7 +44,6 @@ default = ["use_protobuf"]
 use_serde = ["bincode", "serde_json", "serde", "serde_repr"]
 use_protobuf= ["protobuf"]
 single_thread = []
+wasm_build = ["single_thread"]
 
 
-[lib]
-crate-type = ["cdylib", "rlib"]

@@ -10,6 +10,7 @@ use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
+use collab_plugins::CollabKVDB;
 use flowy_storage::object_from_disk;
 use lru::LruCache;
 use parking_lot::Mutex;
@@ -20,7 +21,7 @@ use tracing::warn;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
+use collab_integrate::CollabPersistenceConfig;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::ObjectStorageService;
@@ -108,7 +109,7 @@ impl DocumentManager {
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<()> {
-    if self.is_doc_exist(doc_id).unwrap_or(false) {
+    if self.is_doc_exist(doc_id).await.unwrap_or(false) {
       Err(FlowyError::new(
         ErrorCode::RecordAlreadyExists,
         format!("document {} already exists", doc_id),
@@ -135,7 +136,7 @@ impl DocumentManager {
     }
 
     let mut doc_state = vec![];
-    if !self.is_doc_exist(doc_id)? {
+    if !self.is_doc_exist(doc_id).await? {
       // Try to get the document from the cloud service
       doc_state = self
         .cloud_service
@@ -167,7 +168,7 @@ impl DocumentManager {
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
     let mut updates = vec![];
-    if !self.is_doc_exist(doc_id)? {
+    if !self.is_doc_exist(doc_id).await? {
       updates = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
@@ -194,13 +195,10 @@ impl DocumentManager {
     Ok(())
   }
 
-  pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
+  pub async fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user_service.user_id()?;
     if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
-      let _ = db.with_write_txn(|txn| {
-        txn.delete_doc(uid, &doc_id)?;
-        Ok(())
-      });
+      db.delete_doc(uid, doc_id).await?;
 
       // When deleting a document, we need to remove it from the cache.
       self.documents.lock().pop(doc_id);
@@ -271,28 +269,32 @@ impl DocumentManager {
   }
 
   pub async fn download_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
-    if tokio::fs::metadata(&local_file_path).await.is_ok() {
-      warn!("file already exist in user local disk: {}", local_file_path);
-      return Ok(());
+    // TODO(nathan): save file when the current target is wasm
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+      if tokio::fs::metadata(&local_file_path).await.is_ok() {
+        warn!("file already exist in user local disk: {}", local_file_path);
+        return Ok(());
+      }
+
+      let storage_service = self.storage_service_upgrade()?;
+      let object_value = storage_service.get_object(url).await?;
+      // create file if not exist
+      let mut file = tokio::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(&local_file_path)
+        .await?;
+
+      let n = file.write(&object_value.raw).await?;
+      info!("downloaded {} bytes to file: {}", n, local_file_path);
     }
-
-    let storage_service = self.storage_service_upgrade()?;
-    let object_value = storage_service.get_object(url).await?;
-
-    // create file if not exist
-    let mut file = tokio::fs::OpenOptions::new()
-      .create(true)
-      .write(true)
-      .open(&local_file_path)
-      .await?;
-
-    let n = file.write(&object_value.raw).await?;
-    info!("downloaded {} bytes to file: {}", n, local_file_path);
-
     Ok(())
   }
 
   pub async fn delete_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+    // TODO(nathan): delete file when the current target is wasm
+    #[cfg(not(target_arch = "wasm32"))]
     // delete file from local
     tokio::fs::remove_file(local_file_path).await?;
 
@@ -332,11 +334,11 @@ impl DocumentManager {
     Ok(collab)
   }
 
-  fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
+  async fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user_service.user_id()?;
     if let Some(collab_db) = self.user_service.collab_db(uid)?.upgrade() {
-      let read_txn = collab_db.read_txn();
-      Ok(read_txn.is_exist(uid, doc_id))
+      let is_exist = collab_db.is_exist(uid, doc_id).await?;
+      Ok(is_exist)
     } else {
       Ok(false)
     }

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use collab_folder::Folder;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use tracing::instrument;
 
 use collab_integrate::{CollabKVAction, CollabKVDB};
