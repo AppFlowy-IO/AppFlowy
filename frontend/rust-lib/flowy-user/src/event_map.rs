@@ -13,14 +13,14 @@ use crate::event_handler::*;
 use crate::user_manager::UserManager;
 
 #[rustfmt::skip]
-pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
-  let store_preferences = user_session
+pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
+  let store_preferences = user_manager
     .upgrade()
     .map(|session| session.get_store_preferences())
     .unwrap();
   AFPlugin::new()
     .name("Flowy-User")
-    .state(user_session)
+    .state(user_manager)
     .state(store_preferences)
     .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
     .event(UserEvent::SignUp, sign_up)
