@@ -1,18 +1,22 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -140,30 +144,33 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
         BlocProvider.value(value: getIt<NotificationActionBloc>()),
+        BlocProvider.value(
+          value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
+        ),
       ],
       child: BlocListener<NotificationActionBloc, NotificationActionState>(
+        listenWhen: (_, curr) => curr.action != null,
         listener: (context, state) {
-          if (state.action?.type == ActionType.openView) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final view =
-                  state.action!.arguments?[ActionArgumentKeys.view.name];
+          final action = state.action;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (action?.type == ActionType.openView &&
+                PlatformExtension.isDesktop) {
+              final view = action!.arguments?[ActionArgumentKeys.view];
               if (view != null) {
                 AppGlobals.rootNavKey.currentContext?.pushView(view);
-
-                final nodePath = state.action!
-                    .arguments?[ActionArgumentKeys.nodePath.name] as int?;
-
-                if (nodePath != null) {
-                  context.read<NotificationActionBloc>().add(
-                        NotificationActionEvent.performAction(
-                          action: state.action!
-                              .copyWith(type: ActionType.jumpToBlock),
-                        ),
-                      );
-                }
               }
-            });
-          }
+            } else if (action?.type == ActionType.openRow &&
+                PlatformExtension.isMobile) {
+              final view = action!.arguments?[ActionArgumentKeys.view];
+              if (view != null) {
+                final view = action.arguments?[ActionArgumentKeys.view];
+                final rowId = action.arguments?[ActionArgumentKeys.rowId];
+                AppGlobals.rootNavKey.currentContext?.pushView(view, {
+                  PluginArgumentKeys.rowId: rowId,
+                });
+              }
+            }
+          });
         },
         child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
           builder: (context, state) => MaterialApp.router(

@@ -1,5 +1,7 @@
 library document_plugin;
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
@@ -12,9 +14,9 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPluginBuilder extends PluginBuilder {
@@ -22,9 +24,9 @@ class DocumentPluginBuilder extends PluginBuilder {
   Plugin build(dynamic data) {
     if (data is ViewPB) {
       return DocumentPlugin(pluginType: pluginType, view: data);
-    } else {
-      throw FlowyPluginException.invalidData;
     }
+
+    throw FlowyPluginException.invalidData;
   }
 
   @override
@@ -41,26 +43,28 @@ class DocumentPluginBuilder extends PluginBuilder {
 }
 
 class DocumentPlugin extends Plugin<int> {
+  DocumentPlugin({
+    Key? key,
+    required ViewPB view,
+    required PluginType pluginType,
+    bool listenOnViewChanged = false,
+    this.initialSelection,
+  }) : notifier = ViewPluginNotifier(view: view) {
+    _pluginType = pluginType;
+  }
+
   late PluginType _pluginType;
 
   @override
   final ViewPluginNotifier notifier;
 
-  DocumentPlugin({
-    required PluginType pluginType,
-    required ViewPB view,
-    bool listenOnViewChanged = false,
-    Key? key,
-  }) : notifier = ViewPluginNotifier(view: view) {
-    _pluginType = pluginType;
-  }
+  final Selection? initialSelection;
 
   @override
-  PluginWidgetBuilder get widgetBuilder {
-    return DocumentPluginWidgetBuilder(
-      notifier: notifier,
-    );
-  }
+  PluginWidgetBuilder get widgetBuilder => DocumentPluginWidgetBuilder(
+        notifier: notifier,
+        initialSelection: initialSelection,
+      );
 
   @override
   PluginType get pluginType => _pluginType;
@@ -71,14 +75,16 @@ class DocumentPlugin extends Plugin<int> {
 
 class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
     with NavigationItem {
+  DocumentPluginWidgetBuilder({
+    Key? key,
+    required this.notifier,
+    this.initialSelection,
+  });
+
   final ViewPluginNotifier notifier;
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
-
-  DocumentPluginWidgetBuilder({
-    required this.notifier,
-    Key? key,
-  });
+  final Selection? initialSelection;
 
   @override
   EdgeInsets get contentPadding => EdgeInsets.zero;
@@ -86,21 +92,23 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   @override
   Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
     notifier.isDeleted.addListener(() {
-      notifier.isDeleted.value.fold(() => null, (deletedView) {
-        if (deletedView.hasIndex()) {
-          deletedViewIndex = deletedView.index;
-        }
-      });
+      notifier.isDeleted.value.fold(
+        () => null,
+        (deletedView) {
+          if (deletedView.hasIndex()) {
+            deletedViewIndex = deletedView.index;
+          }
+        },
+      );
     });
 
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
-      builder: (_, state) {
-        return DocumentPage(
-          view: view,
-          onDeleted: () => context?.onDeleted(view, deletedViewIndex),
-          key: ValueKey(view.id),
-        );
-      },
+      builder: (_, state) => DocumentPage(
+        key: ValueKey(view.id),
+        view: view,
+        onDeleted: () => context?.onDeleted(view, deletedViewIndex),
+        initialSelection: initialSelection,
+      ),
     );
   }
 
@@ -114,10 +122,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   Widget? get rightBarItem {
     return Row(
       children: [
-        DocumentShareButton(
-          key: ValueKey(view.id),
-          view: view,
-        ),
+        DocumentShareButton(key: ValueKey(view.id), view: view),
         const HSpace(4),
         const DocumentMoreButton(),
       ],

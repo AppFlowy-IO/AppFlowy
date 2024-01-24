@@ -1,7 +1,12 @@
-import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
+
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'date_cell_editor_bloc.dart';
@@ -31,20 +36,28 @@ class _DateCellEditor extends State<DateCellEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => DateCellEditorBloc(
-        cellController: widget.cellController,
-      )..add(const DateCellEditorEvent.initial()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<DateCellEditorBloc>(
+          create: (context) => DateCellEditorBloc(
+            reminderBloc: getIt<ReminderBloc>(),
+            cellController: widget.cellController,
+          )..add(const DateCellEditorEvent.initial()),
+        ),
+      ],
       child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
         builder: (context, state) {
-          final bloc = context.read<DateCellEditorBloc>();
+          final dateCellBloc = context.read<DateCellEditorBloc>();
           return AppFlowyDatePicker(
             includeTime: state.includeTime,
+            rebuildOnDaySelected: false,
             onIncludeTimeChanged: (value) =>
-                bloc.add(DateCellEditorEvent.setIncludeTime(!value)),
+                dateCellBloc.add(DateCellEditorEvent.setIncludeTime(!value)),
             isRange: state.isRange,
+            startDay: state.isRange ? state.startDay : null,
+            endDay: state.isRange ? state.endDay : null,
             onIsRangeChanged: (value) =>
-                bloc.add(DateCellEditorEvent.setIsRange(!value)),
+                dateCellBloc.add(DateCellEditorEvent.setIsRange(!value)),
             dateFormat: state.dateTypeOptionPB.dateFormat,
             timeFormat: state.dateTypeOptionPB.timeFormat,
             selectedDay: state.dateTime,
@@ -54,28 +67,36 @@ class _DateCellEditor extends State<DateCellEditor> {
             parseEndTimeError: state.parseEndTimeError,
             parseTimeError: state.parseTimeError,
             popoverMutex: popoverMutex,
-            onStartTimeSubmitted: (timeStr) {
-              bloc.add(DateCellEditorEvent.setTime(timeStr));
-            },
-            onEndTimeSubmitted: (timeStr) {
-              bloc.add(DateCellEditorEvent.setEndTime(timeStr));
-            },
-            onDaySelected: (selectedDay, _) {
-              bloc.add(DateCellEditorEvent.selectDay(selectedDay));
-            },
-            onRangeSelected: (start, end, _) {
-              bloc.add(DateCellEditorEvent.selectDateRange(start, end));
-            },
-            allowFormatChanges: true,
-            onDateFormatChanged: (format) {
-              bloc.add(DateCellEditorEvent.setDateFormat(format));
-            },
-            onTimeFormatChanged: (format) {
-              bloc.add(DateCellEditorEvent.setTimeFormat(format));
-            },
-            onClearDate: () {
-              bloc.add(const DateCellEditorEvent.clearDate());
-            },
+            onReminderSelected: (option) => dateCellBloc
+                .add(DateCellEditorEvent.setReminderOption(option: option)),
+            selectedReminderOption: state.reminderOption,
+            options: [
+              OptionGroup(
+                options: [
+                  DateTypeOptionButton(
+                    popoverMutex: popoverMutex,
+                    dateFormat: state.dateTypeOptionPB.dateFormat,
+                    timeFormat: state.dateTypeOptionPB.timeFormat,
+                    onDateFormatChanged: (format) => dateCellBloc
+                        .add(DateCellEditorEvent.setDateFormat(format)),
+                    onTimeFormatChanged: (format) => dateCellBloc
+                        .add(DateCellEditorEvent.setTimeFormat(format)),
+                  ),
+                  ClearDateButton(
+                    onClearDate: () =>
+                        dateCellBloc.add(const DateCellEditorEvent.clearDate()),
+                  ),
+                ],
+              ),
+            ],
+            onStartTimeSubmitted: (timeStr) =>
+                dateCellBloc.add(DateCellEditorEvent.setTime(timeStr)),
+            onEndTimeSubmitted: (timeStr) =>
+                dateCellBloc.add(DateCellEditorEvent.setEndTime(timeStr)),
+            onDaySelected: (selectedDay, _) =>
+                dateCellBloc.add(DateCellEditorEvent.selectDay(selectedDay)),
+            onRangeSelected: (start, end, _) => dateCellBloc
+                .add(DateCellEditorEvent.selectDateRange(start, end)),
           );
         },
       ),

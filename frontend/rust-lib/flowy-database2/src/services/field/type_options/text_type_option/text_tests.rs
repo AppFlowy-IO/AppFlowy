@@ -29,6 +29,7 @@ mod tests {
       end_timestamp: None,
       include_time: true,
       is_range: false,
+      reminder_id: String::new(),
     };
 
     assert_eq!(
@@ -41,6 +42,7 @@ mod tests {
       end_timestamp: Some(1648533809),
       include_time: true,
       is_range: false,
+      reminder_id: String::new(),
     };
 
     assert_eq!(
@@ -53,6 +55,7 @@ mod tests {
       end_timestamp: Some(1648533809),
       include_time: true,
       is_range: true,
+      reminder_id: String::new(),
     };
 
     assert_eq!(

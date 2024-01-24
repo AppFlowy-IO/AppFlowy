@@ -5,6 +5,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
@@ -15,19 +16,18 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
-  late final NotificationActionBloc actionBloc;
-  late final ReminderService reminderService;
+  late final NotificationActionBloc _actionBloc;
+  late final ReminderService _reminderService;
   late final Timer timer;
 
   ReminderBloc() : super(ReminderState()) {
-    actionBloc = getIt<NotificationActionBloc>();
-    reminderService = const ReminderService();
+    _actionBloc = getIt<NotificationActionBloc>();
+    _reminderService = const ReminderService();
     timer = _periodicCheck();
 
     on<ReminderEvent>((event, emit) async {
@@ -42,7 +42,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             reminders.remove(reminder);
 
             reminder.isRead = true;
-            await reminderService.updateReminder(reminder: reminder);
+            await _reminderService.updateReminder(reminder: reminder);
 
             updatedReminders.add(reminder);
           }
@@ -51,29 +51,29 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           emit(state.copyWith(reminders: reminders));
         },
         started: () async {
-          final remindersOrFailure = await reminderService.fetchReminders();
+          final remindersOrFailure = await _reminderService.fetchReminders();
 
           remindersOrFailure.fold(
             (error) => Log.error(error),
             (reminders) => emit(state.copyWith(reminders: reminders)),
           );
         },
-        remove: (reminder) async {
+        remove: (reminderId) async {
           final unitOrFailure =
-              await reminderService.removeReminder(reminderId: reminder.id);
+              await _reminderService.removeReminder(reminderId: reminderId);
 
           unitOrFailure.fold(
             (error) => Log.error(error),
             (_) {
               final reminders = [...state.reminders];
-              reminders.removeWhere((e) => e.id == reminder.id);
+              reminders.removeWhere((e) => e.id == reminderId);
               emit(state.copyWith(reminders: reminders));
             },
           );
         },
         add: (reminder) async {
           final unitOrFailure =
-              await reminderService.addReminder(reminder: reminder);
+              await _reminderService.addReminder(reminder: reminder);
 
           return unitOrFailure.fold(
             (error) => Log.error(error),
@@ -83,6 +83,19 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
         },
+        addById: (reminderId, objectId, scheduledAt, meta) async => add(
+          ReminderEvent.add(
+            reminder: ReminderPB(
+              id: reminderId,
+              objectId: objectId,
+              title: LocaleKeys.reminderNotification_title.tr(),
+              message: LocaleKeys.reminderNotification_message.tr(),
+              scheduledAt: scheduledAt,
+              isAck: scheduledAt.toDateTime().isBefore(DateTime.now()),
+              meta: meta,
+            ),
+          ),
+        ),
         update: (updateObject) async {
           final reminder =
               state.reminders.firstWhereOrNull((r) => r.id == updateObject.id);
@@ -92,7 +105,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           }
 
           final newReminder = updateObject.merge(a: reminder);
-          final failureOrUnit = await reminderService.updateReminder(
+          final failureOrUnit = await _reminderService.updateReminder(
             reminder: updateObject.merge(a: reminder),
           );
 
@@ -124,17 +137,34 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             ),
           );
 
-          actionBloc.add(
-            NotificationActionEvent.performAction(
-              action: NotificationAction(
-                objectId: reminder.objectId,
-                arguments: {
-                  ActionArgumentKeys.nodePath.name: path,
-                  ActionArgumentKeys.view.name: view,
-                },
-              ),
-            ),
+          String? rowId;
+          if (view?.layout != ViewLayoutPB.Document) {
+            rowId = reminder.meta[ReminderMetaKeys.rowId];
+          }
+
+          final action = NotificationAction(
+            objectId: reminder.objectId,
+            arguments: {
+              ActionArgumentKeys.view: view,
+              ActionArgumentKeys.nodePath: path,
+              ActionArgumentKeys.rowId: rowId,
+            },
           );
+
+          if (!isClosed) {
+            _actionBloc.add(
+              NotificationActionEvent.performAction(
+                action: action,
+                nextActions: [
+                  action.copyWith(
+                    type: rowId != null
+                        ? ActionType.openRow
+                        : ActionType.jumpToBlock,
+                  ),
+                ],
+              ),
+            );
+          }
         },
       );
     });
@@ -151,9 +181,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             continue;
           }
 
-          final scheduledAt = DateTime.fromMillisecondsSinceEpoch(
-            reminder.scheduledAt.toInt() * 1000,
-          );
+          final scheduledAt = reminder.scheduledAt.toDateTime();
 
           if (scheduledAt.isBefore(now)) {
             final notificationSettings =
@@ -163,7 +191,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
                 identifier: reminder.id,
                 title: LocaleKeys.reminderNotification_title.tr(),
                 body: LocaleKeys.reminderNotification_message.tr(),
-                onClick: () => actionBloc.add(
+                onClick: () => _actionBloc.add(
                   NotificationActionEvent.performAction(
                     action: NotificationAction(objectId: reminder.objectId),
                   ),
@@ -189,10 +217,18 @@ class ReminderEvent with _$ReminderEvent {
   const factory ReminderEvent.started() = _Started;
 
   // Remove a reminder
-  const factory ReminderEvent.remove({required ReminderPB reminder}) = _Remove;
+  const factory ReminderEvent.remove({required String reminderId}) = _Remove;
 
   // Add a reminder
   const factory ReminderEvent.add({required ReminderPB reminder}) = _Add;
+
+  // Add a reminder
+  const factory ReminderEvent.addById({
+    required String reminderId,
+    required String objectId,
+    required Int64 scheduledAt,
+    @Default(null) Map<String, String>? meta,
+  }) = _AddById;
 
   // Update a reminder (eg. isAck, isRead, etc.)
   const factory ReminderEvent.update(ReminderUpdate update) = _Update;
@@ -232,7 +268,7 @@ class ReminderUpdate {
 
     final meta = a.meta;
     if (includeTime != a.includeTime) {
-      meta[ReminderMetaKeys.includeTime.name] = includeTime.toString();
+      meta[ReminderMetaKeys.includeTime] = includeTime.toString();
     }
 
     return ReminderPB(

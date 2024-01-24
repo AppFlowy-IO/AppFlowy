@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -6,7 +8,6 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'tabs_event.dart';
@@ -67,6 +68,14 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
       add(TabsEvent.openTab(plugin: view.plugin(), view: view));
 
   /// Adds a [TabsEvent.openPlugin] event for the provided [ViewPB]
-  void openPlugin(ViewPB view) =>
-      add(TabsEvent.openPlugin(plugin: view.plugin(), view: view));
+  void openPlugin(
+    ViewPB view, {
+    Map<String, dynamic> arguments = const {},
+  }) =>
+      add(
+        TabsEvent.openPlugin(
+          plugin: view.plugin(arguments: arguments),
+          view: view,
+        ),
+      );
 }
