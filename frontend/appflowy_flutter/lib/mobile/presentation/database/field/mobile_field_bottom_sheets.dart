@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'mobile_create_field_screen.dart';

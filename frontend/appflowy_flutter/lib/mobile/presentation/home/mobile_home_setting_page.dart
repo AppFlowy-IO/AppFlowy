@@ -75,7 +75,8 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
             PersonalInfoSettingGroup(
               userProfile: userProfile,
             ),
-            const NotificationsSettingGroup(),
+            // TODO: Enable and implement along with Push Notifications
+            // const NotificationsSettingGroup(),
             const AppearanceSettingGroup(),
             const LanguageSettingGroup(),
             if (Env.enableCustomCloud) const CloudSettingGroup(),
