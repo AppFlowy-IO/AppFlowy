@@ -1,3 +1,4 @@
+workspace = { members = ["flowy-user-native", "user-native", "user-private", "user-wasm"] }
 [package]
 name = "flowy-user"
 version = "0.1.0"
