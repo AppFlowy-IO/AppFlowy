@@ -11,19 +11,6 @@ import 'package:textfield_tags/textfield_tags.dart';
 import 'extension.dart';
 
 class SelectOptionTextField extends StatefulWidget {
-  final TextfieldTagsController tagController;
-  final List<SelectOptionPB> options;
-  final LinkedHashMap<String, SelectOptionPB> selectedOptionMap;
-  final double distanceToText;
-  final List<String> textSeparators;
-  final TextEditingController? textController;
-
-  final Function(String) onSubmitted;
-  final Function(String) newText;
-  final Function(List<String>, String) onPaste;
-  final Function(String) onRemove;
-  final VoidCallback? onClick;
-
   const SelectOptionTextField({
     super.key,
     required this.options,
@@ -38,6 +25,18 @@ class SelectOptionTextField extends StatefulWidget {
     this.textController,
     this.onClick,
   });
+
+  final List<SelectOptionPB> options;
+  final LinkedHashMap<String, SelectOptionPB> selectedOptionMap;
+  final double distanceToText;
+  final TextfieldTagsController tagController;
+  final Function(String) onSubmitted;
+  final Function(List<String>, String) onPaste;
+  final Function(String) onRemove;
+  final Function(String) newText;
+  final List<String> textSeparators;
+  final TextEditingController? textController;
+  final VoidCallback? onClick;
 
   @override
   State<SelectOptionTextField> createState() => _SelectOptionTextFieldState();

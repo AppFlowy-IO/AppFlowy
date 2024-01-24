@@ -13,22 +13,22 @@ import 'package:styled_widget/styled_widget.dart';
 import '../../cell/editable_cell_builder.dart';
 
 class GridCellAccessoryBuildContext {
-  final BuildContext anchorContext;
-  final bool isCellEditing;
-
   GridCellAccessoryBuildContext({
     required this.anchorContext,
     required this.isCellEditing,
   });
+
+  final BuildContext anchorContext;
+  final bool isCellEditing;
 }
 
 class GridCellAccessoryBuilder<T extends State<StatefulWidget>> {
+  GridCellAccessoryBuilder({required Widget Function(Key key) builder})
+      : _builder = builder;
+
   final GlobalKey<T> _key = GlobalKey();
 
   final Widget Function(Key key) _builder;
-
-  GridCellAccessoryBuilder({required Widget Function(Key key) builder})
-      : _builder = builder;
 
   Widget build() => _builder(_key);
 
@@ -93,13 +93,14 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
 }
 
 class AccessoryHover extends StatefulWidget {
-  final CellAccessory child;
-  final FieldType fieldType;
   const AccessoryHover({
     super.key,
     required this.child,
     required this.fieldType,
   });
+
+  final CellAccessory child;
+  final FieldType fieldType;
 
   @override
   State<AccessoryHover> createState() => _AccessoryHoverState();
@@ -152,8 +153,9 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 }
 
 class CellAccessoryContainer extends StatelessWidget {
-  final List<GridCellAccessoryBuilder> accessories;
   const CellAccessoryContainer({required this.accessories, super.key});
+
+  final List<GridCellAccessoryBuilder> accessories;
 
   @override
   Widget build(BuildContext context) {

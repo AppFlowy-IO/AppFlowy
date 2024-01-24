@@ -264,9 +264,9 @@ class RowCache {
 }
 
 class RowChangesetNotifier extends ChangeNotifier {
-  ChangedReason reason = const InitialListState();
-
   RowChangesetNotifier();
+
+  ChangedReason reason = const InitialListState();
 
   void receive(ChangedReason newReason) {
     reason = newReason;
@@ -315,28 +315,31 @@ class ChangedReason with _$ChangedReason {
 }
 
 class InsertedIndex {
-  final int index;
-  final RowId rowId;
   InsertedIndex({
     required this.index,
     required this.rowId,
   });
+
+  final int index;
+  final RowId rowId;
 }
 
 class DeletedIndex {
-  final int index;
-  final RowInfo rowInfo;
   DeletedIndex({
     required this.index,
     required this.rowInfo,
   });
+
+  final int index;
+  final RowInfo rowInfo;
 }
 
 class UpdatedIndex {
-  final int index;
-  final RowId rowId;
   UpdatedIndex({
     required this.index,
     required this.rowId,
   });
+
+  final int index;
+  final RowId rowId;
 }

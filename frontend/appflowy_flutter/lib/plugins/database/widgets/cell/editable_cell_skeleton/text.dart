@@ -34,16 +34,16 @@ abstract class IEditableTextCellSkin {
 }
 
 class EditableTextCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableTextCellSkin skin;
-
   EditableTextCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableTextCellSkin skin;
 
   @override
   GridEditableTextCell<EditableTextCell> createState() => _TextCellState();

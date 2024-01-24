@@ -23,9 +23,9 @@ import 'text_field.dart';
 const double _editorPanelWidth = 300;
 
 class SelectOptionCellEditor extends StatefulWidget {
-  final SelectOptionCellController cellController;
-
   const SelectOptionCellEditor({super.key, required this.cellController});
+
+  final SelectOptionCellController cellController;
 
   @override
   State<SelectOptionCellEditor> createState() => _SelectOptionCellEditorState();
@@ -73,13 +73,13 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
 }
 
 class _OptionList extends StatelessWidget {
-  final PopoverMutex popoverMutex;
-  final TextfieldTagsController tagController;
-
   const _OptionList({
     required this.popoverMutex,
     required this.tagController,
   });
+
+  final PopoverMutex popoverMutex;
+  final TextfieldTagsController tagController;
 
   @override
   Widget build(BuildContext context) {
@@ -128,13 +128,13 @@ class _OptionList extends StatelessWidget {
 }
 
 class _TextField extends StatelessWidget {
-  final PopoverMutex popoverMutex;
-  final TextfieldTagsController tagController;
-
   const _TextField({
     required this.popoverMutex,
     required this.tagController,
   });
+
+  final PopoverMutex popoverMutex;
+  final TextfieldTagsController tagController;
 
   @override
   Widget build(BuildContext context) {
@@ -276,15 +276,15 @@ class _CreateOptionCell extends StatelessWidget {
 }
 
 class _SelectOptionCell extends StatefulWidget {
-  final SelectOptionPB option;
-  final PopoverMutex popoverMutex;
-  final bool isSelected;
-
   const _SelectOptionCell({
     required this.option,
     required this.isSelected,
     required this.popoverMutex,
   });
+
+  final SelectOptionPB option;
+  final bool isSelected;
+  final PopoverMutex popoverMutex;
 
   @override
   State<_SelectOptionCell> createState() => _SelectOptionCellState();

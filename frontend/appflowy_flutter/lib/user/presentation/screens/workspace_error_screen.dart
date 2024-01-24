@@ -18,13 +18,14 @@ class WorkspaceErrorScreen extends StatelessWidget {
   static const argError = "error";
   static const argUserFolder = "userFolder";
 
-  final FlowyError error;
-  final UserFolderPB userFolder;
   const WorkspaceErrorScreen({
+    super.key,
     required this.userFolder,
     required this.error,
-    super.key,
   });
+
+  final UserFolderPB userFolder;
+  final FlowyError error;
 
   @override
   Widget build(BuildContext context) {
@@ -107,11 +108,9 @@ class WorkspaceErrorScreen extends StatelessWidget {
 }
 
 class WorkspaceErrorDescription extends StatelessWidget {
+  const WorkspaceErrorDescription({super.key, required this.error});
+
   final FlowyError error;
-  const WorkspaceErrorDescription({
-    required this.error,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {

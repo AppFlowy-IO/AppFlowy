@@ -383,9 +383,9 @@ class _EventList extends StatelessWidget {
 }
 
 class _CardEnterNotifier extends ChangeNotifier {
-  bool _onEnter = false;
-
   _CardEnterNotifier();
+
+  bool _onEnter = false;
 
   set onEnter(bool value) {
     if (_onEnter != value) {

@@ -226,12 +226,9 @@ class SettingsUserView extends StatelessWidget {
 
 @visibleForTesting
 class UserNameInput extends StatefulWidget {
-  final String name;
+  const UserNameInput(this.name, {super.key});
 
-  const UserNameInput(
-    this.name, {
-    super.key,
-  });
+  final String name;
 
   @override
   UserNameInputState createState() => UserNameInputState();
@@ -291,12 +288,9 @@ class UserNameInputState extends State<UserNameInput> {
 
 @visibleForTesting
 class UserEmailInput extends StatefulWidget {
-  final String email;
+  const UserEmailInput(this.email, {super.key});
 
-  const UserEmailInput(
-    this.email, {
-    super.key,
-  });
+  final String email;
 
   @override
   UserEmailInputState createState() => UserEmailInputState();
@@ -449,16 +443,16 @@ final builtInSVGIcons = [
 
 // REMOVE this widget in next version 0.3.10
 class IconGallery extends StatelessWidget {
-  final String selectedIcon;
-  final SelectIconCallback onSelectIcon;
-  final Widget? defaultOption;
-
   const IconGallery({
     super.key,
     required this.selectedIcon,
     required this.onSelectIcon,
     this.defaultOption,
   });
+
+  final String selectedIcon;
+  final SelectIconCallback onSelectIcon;
+  final Widget? defaultOption;
 
   @override
   Widget build(BuildContext context) {
@@ -483,17 +477,17 @@ class IconGallery extends StatelessWidget {
 }
 
 class IconOption extends StatelessWidget {
-  final FlowySvgData emoji;
-  final String iconUrl;
-  final SelectIconCallback onSelectIcon;
-  final bool isSelected;
-
   IconOption({
     required this.emoji,
     required this.iconUrl,
     required this.onSelectIcon,
     required this.isSelected,
   }) : super(key: ValueKey(emoji));
+
+  final FlowySvgData emoji;
+  final String iconUrl;
+  final SelectIconCallback onSelectIcon;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -519,13 +513,14 @@ class IconOption extends StatelessWidget {
 }
 
 class SettingLogoutButton extends StatelessWidget {
-  final UserProfilePB user;
-  final VoidCallback didLogout;
   const SettingLogoutButton({
+    super.key,
     required this.user,
     required this.didLogout,
-    super.key,
   });
+
+  final UserProfilePB user;
+  final VoidCallback didLogout;
 
   @override
   Widget build(BuildContext context) {

@@ -16,14 +16,14 @@ import '../../layout/sizes.dart';
 import 'mobile_field_button.dart';
 
 class MobileGridHeader extends StatefulWidget {
-  final String viewId;
-  final ScrollController anchorScrollController;
-
   const MobileGridHeader({
+    super.key,
     required this.viewId,
     required this.anchorScrollController,
-    super.key,
   });
+
+  final String viewId;
+  final ScrollController anchorScrollController;
 
   @override
   State<MobileGridHeader> createState() => _MobileGridHeaderState();
@@ -78,13 +78,13 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
 }
 
 class _GridHeader extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-
   const _GridHeader({
     required this.viewId,
     required this.fieldController,
   });
+
+  final String viewId;
+  final FieldController fieldController;
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();

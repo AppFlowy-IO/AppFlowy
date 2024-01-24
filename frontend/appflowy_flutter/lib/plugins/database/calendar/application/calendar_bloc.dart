@@ -434,13 +434,13 @@ class CalendarState with _$CalendarState {
 }
 
 class CalendarEditingRow {
-  RowPB row;
-  int? index;
-
   CalendarEditingRow({
     required this.row,
     required this.index,
   });
+
+  RowPB row;
+  int? index;
 }
 
 @freezed

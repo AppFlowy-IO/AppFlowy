@@ -19,14 +19,14 @@ typedef OnSubmittedEmoji = void Function(String emoji);
 const _kBannerActionHeight = 40.0;
 
 class RowBanner extends StatefulWidget {
-  final RowController rowController;
-  final EditableCellBuilder cellBuilder;
-
   const RowBanner({
+    super.key,
     required this.rowController,
     required this.cellBuilder,
-    super.key,
   });
+
+  final RowController rowController;
+  final EditableCellBuilder cellBuilder;
 
   @override
   State<RowBanner> createState() => _RowBannerState();
@@ -88,13 +88,13 @@ class _RowBannerState extends State<RowBanner> {
 }
 
 class _BannerAction extends StatelessWidget {
-  final ValueNotifier<bool> isHovering;
-  final PopoverController popoverController;
-
   const _BannerAction({
     required this.isHovering,
     required this.popoverController,
   });
+
+  final ValueNotifier<bool> isHovering;
+  final PopoverController popoverController;
 
   @override
   Widget build(BuildContext context) {
@@ -133,15 +133,15 @@ class _BannerAction extends StatelessWidget {
 }
 
 class _BannerTitle extends StatelessWidget {
-  final EditableCellBuilder cellBuilder;
-  final PopoverController popoverController;
-  final RowController rowController;
-
   const _BannerTitle({
     required this.cellBuilder,
     required this.popoverController,
     required this.rowController,
   });
+
+  final EditableCellBuilder cellBuilder;
+  final PopoverController popoverController;
+  final RowController rowController;
 
   @override
   Widget build(BuildContext context) {
@@ -186,14 +186,14 @@ class _BannerTitle extends StatelessWidget {
 }
 
 class EmojiButton extends StatelessWidget {
-  final String emoji;
-  final VoidCallback showEmojiPicker;
-
   const EmojiButton({
+    super.key,
     required this.emoji,
     required this.showEmojiPicker,
-    super.key,
   });
+
+  final String emoji;
+  final VoidCallback showEmojiPicker;
 
   @override
   Widget build(BuildContext context) {
@@ -213,11 +213,9 @@ class EmojiButton extends StatelessWidget {
 }
 
 class AddEmojiButton extends StatelessWidget {
+  const AddEmojiButton({super.key, required this.onTap});
+
   final VoidCallback onTap;
-  const AddEmojiButton({
-    super.key,
-    required this.onTap,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -237,11 +235,9 @@ class AddEmojiButton extends StatelessWidget {
 }
 
 class RemoveEmojiButton extends StatelessWidget {
+  const RemoveEmojiButton({super.key, required this.onTap});
+
   final VoidCallback onTap;
-  const RemoveEmojiButton({
-    super.key,
-    required this.onTap,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -261,8 +257,9 @@ class RemoveEmojiButton extends StatelessWidget {
 }
 
 class RowActionButton extends StatelessWidget {
-  final RowController rowController;
   const RowActionButton({super.key, required this.rowController});
+
+  final RowController rowController;
 
   @override
   Widget build(BuildContext context) {

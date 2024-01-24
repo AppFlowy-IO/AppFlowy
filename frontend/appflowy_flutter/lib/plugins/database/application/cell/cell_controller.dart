@@ -38,9 +38,27 @@ class CellContext with _$CellContext {
 /// T represents the type of the cell data.
 /// D represents the type of data that will be saved to the disk.
 class CellController<T, D> {
+  CellController({
+    required this.viewId,
+    required FieldController fieldController,
+    required CellContext cellContext,
+    required RowCache rowCache,
+    required CellDataLoader<T> cellDataLoader,
+    required CellDataPersistence<D> cellDataPersistence,
+  })  : _fieldController = fieldController,
+        _cellContext = cellContext,
+        _rowCache = rowCache,
+        _cellDataLoader = cellDataLoader,
+        _cellDataPersistence = cellDataPersistence,
+        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
+        _cellDataNotifier =
+            CellDataNotifier(value: rowCache.cellCache.get(cellContext)) {
+    _startListening();
+  }
+
   final String viewId;
-  final CellContext _cellContext;
   final FieldController _fieldController;
+  final CellContext _cellContext;
   final RowCache _rowCache;
   final CellDataLoader<T> _cellDataLoader;
   final CellDataPersistence<D> _cellDataPersistence;
@@ -63,24 +81,6 @@ class CellController<T, D> {
   RowMetaPB? get rowMeta => _rowCache.getRow(rowId)?.rowMeta;
   String? get icon => rowMeta?.icon;
   CellMemCache get _cellCache => _rowCache.cellCache;
-
-  CellController({
-    required this.viewId,
-    required FieldController fieldController,
-    required CellContext cellContext,
-    required RowCache rowCache,
-    required CellDataLoader<T> cellDataLoader,
-    required CellDataPersistence<D> cellDataPersistence,
-  })  : _fieldController = fieldController,
-        _cellContext = cellContext,
-        _rowCache = rowCache,
-        _cellDataLoader = cellDataLoader,
-        _cellDataPersistence = cellDataPersistence,
-        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
-        _cellDataNotifier =
-            CellDataNotifier(value: rowCache.cellCache.get(cellContext)) {
-    _startListening();
-  }
 
   /// casting method for painless type coersion
   CellController<A, B> as<A, B>() => this as CellController<A, B>;
@@ -233,9 +233,10 @@ class CellController<T, D> {
 }
 
 class CellDataNotifier<T> extends ChangeNotifier {
+  CellDataNotifier({required T value, this.listenWhen}) : _value = value;
+
   T _value;
   bool Function(T? oldValue, T? newValue)? listenWhen;
-  CellDataNotifier({required T value, this.listenWhen}) : _value = value;
 
   set value(T newValue) {
     if (listenWhen?.call(_value, newValue) ?? false) {

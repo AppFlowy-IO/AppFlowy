@@ -14,9 +14,9 @@ import '../../../generated/locale_keys.g.dart';
 import 'device_id.dart';
 
 class BackendAuthService implements AuthService {
-  final AuthenticatorPB authType;
-
   BackendAuthService(this.authType);
+
+  final AuthenticatorPB authType;
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({

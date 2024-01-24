@@ -298,11 +298,9 @@ class DesktopHomeScreen extends StatelessWidget {
 }
 
 class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
-  final BuildContext buildContext;
+  DesktopHomeScreenStackAdaptor({required this.buildContext});
 
-  DesktopHomeScreenStackAdaptor({
-    required this.buildContext,
-  });
+  final BuildContext buildContext;
 
   @override
   void didDeleteStackWidget(ViewPB view, int? index) {

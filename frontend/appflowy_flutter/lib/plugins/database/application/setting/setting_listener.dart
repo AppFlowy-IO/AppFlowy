@@ -10,12 +10,13 @@ import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.da
 typedef UpdateSettingNotifiedValue = Either<DatabaseViewSettingPB, FlowyError>;
 
 class DatabaseSettingListener {
+  DatabaseSettingListener({required this.viewId});
+
   final String viewId;
+
   DatabaseNotificationListener? _listener;
   PublishNotifier<UpdateSettingNotifiedValue>? _updateSettingNotifier =
       PublishNotifier();
-
-  DatabaseSettingListener({required this.viewId});
 
   void start({
     required void Function(UpdateSettingNotifiedValue) onSettingUpdated,

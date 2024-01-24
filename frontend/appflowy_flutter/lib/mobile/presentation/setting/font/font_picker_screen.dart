@@ -14,9 +14,7 @@ final List<String> _availableFonts = GoogleFonts.asMap().keys.toList();
 class FontPickerScreen extends StatelessWidget {
   static const routeName = '/font_picker';
 
-  const FontPickerScreen({
-    super.key,
-  });
+  const FontPickerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

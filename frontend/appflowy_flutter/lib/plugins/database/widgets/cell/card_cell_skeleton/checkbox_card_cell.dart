@@ -11,28 +11,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell.dart';
 
 class CheckboxCardCellStyle extends CardCellStyle {
-  final Size iconSize;
-  final bool showFieldName;
-  final TextStyle? textStyle;
-
   CheckboxCardCellStyle({
     required super.padding,
     required this.iconSize,
     required this.showFieldName,
     this.textStyle,
   }) : assert(!showFieldName || showFieldName && textStyle != null);
+
+  final Size iconSize;
+  final bool showFieldName;
+  final TextStyle? textStyle;
 }
 
 class CheckboxCardCell extends CardCell<CheckboxCardCellStyle> {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-
   const CheckboxCardCell({
     super.key,
     required super.style,
     required this.databaseController,
     required this.cellContext,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   @override
   State<CheckboxCardCell> createState() => _CheckboxCellState();

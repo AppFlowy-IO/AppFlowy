@@ -233,8 +233,9 @@ extension on RawKeyEvent {
 }
 
 class ShortcutsErrorView extends StatelessWidget {
-  final String errorMessage;
   const ShortcutsErrorView({super.key, required this.errorMessage});
+
+  final String errorMessage;
 
   @override
   Widget build(BuildContext context) {

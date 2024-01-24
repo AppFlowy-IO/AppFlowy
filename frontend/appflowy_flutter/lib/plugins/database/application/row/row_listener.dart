@@ -10,11 +10,13 @@ typedef DidFetchRowCallback = void Function(DidFetchRowPB);
 typedef RowMetaCallback = void Function(RowMetaPB);
 
 class RowListener {
+  RowListener(this.rowId);
+
   final String rowId;
+
   DidFetchRowCallback? _onRowFetchedCallback;
   RowMetaCallback? _onMetaChangedCallback;
   DatabaseNotificationListener? _listener;
-  RowListener(this.rowId);
 
   /// OnMetaChanged will be called when the row meta is changed.
   /// OnRowFetched will be called when the row is fetched from remote storage

@@ -35,16 +35,16 @@ abstract class IEditableChecklistCellSkin {
 }
 
 class EditableChecklistCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableChecklistCellSkin skin;
-
   EditableChecklistCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableChecklistCellSkin skin;
 
   @override
   GridCellState<EditableChecklistCell> createState() =>

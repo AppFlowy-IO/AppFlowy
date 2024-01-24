@@ -18,8 +18,9 @@ import 'checklist_cell_bloc.dart';
 import 'checklist_progress_bar.dart';
 
 class ChecklistCellEditor extends StatefulWidget {
-  final ChecklistCellController cellController;
   const ChecklistCellEditor({required this.cellController, super.key});
+
+  final ChecklistCellController cellController;
 
   @override
   State<ChecklistCellEditor> createState() => _GridChecklistCellState();
@@ -93,14 +94,14 @@ class _GridChecklistCellState extends State<ChecklistCellEditor> {
 /// Displays the a list of all the exisiting tasks and an input field to create
 /// a new task if `isAddingNewTask` is true
 class ChecklistItemList extends StatefulWidget {
-  final List<ChecklistSelectOption> options;
-  final VoidCallback onUpdateTask;
-
   const ChecklistItemList({
     super.key,
     required this.options,
     required this.onUpdateTask,
   });
+
+  final List<ChecklistSelectOption> options;
+  final VoidCallback onUpdateTask;
 
   @override
   State<ChecklistItemList> createState() => _ChecklistItemListState();
@@ -143,15 +144,16 @@ class _ChecklistItemListState extends State<ChecklistItemList> {
 /// Represents an existing task
 @visibleForTesting
 class ChecklistItem extends StatefulWidget {
-  final ChecklistSelectOption task;
-  final VoidCallback? onSubmitted;
-  final bool autofocus;
   const ChecklistItem({
     super.key,
     required this.task,
     this.onSubmitted,
     this.autofocus = false,
   });
+
+  final ChecklistSelectOption task;
+  final VoidCallback? onSubmitted;
+  final bool autofocus;
 
   @override
   State<ChecklistItem> createState() => _ChecklistItemState();
@@ -278,8 +280,9 @@ class _ChecklistItemState extends State<ChecklistItem> {
 /// This can be cancelled by pressing escape
 @visibleForTesting
 class NewTaskItem extends StatefulWidget {
-  final FocusNode focusNode;
   const NewTaskItem({super.key, required this.focusNode});
+
+  final FocusNode focusNode;
 
   @override
   State<NewTaskItem> createState() => _NewTaskItemState();

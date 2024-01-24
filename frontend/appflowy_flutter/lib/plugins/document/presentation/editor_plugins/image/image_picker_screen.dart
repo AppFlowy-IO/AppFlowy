@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 class MobileImagePickerScreen extends StatelessWidget {
   static const routeName = '/image_picker';
 
-  const MobileImagePickerScreen({
-    super.key,
-  });
+  const MobileImagePickerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

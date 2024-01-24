@@ -57,10 +57,7 @@ class MobileBlockSettingsScreen extends StatelessWidget {
   // example: MobileBlockActionType.delete.actionString, MobileBlockActionType.duplicate.actionString, etc.
   static const supportedActions = 'actions';
 
-  const MobileBlockSettingsScreen({
-    super.key,
-    required this.actions,
-  });
+  const MobileBlockSettingsScreen({super.key, required this.actions});
 
   final List<MobileBlockActionType> actions;
 

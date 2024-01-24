@@ -44,19 +44,19 @@ abstract class DatabaseTabBarItemBuilder {
 }
 
 class DatabaseTabBarView extends StatefulWidget {
-  final ViewPB view;
-  final bool shrinkWrap;
-
-  /// Used to open a Row on plugin load
-  ///
-  final String? initialRowId;
-
   const DatabaseTabBarView({
     super.key,
     required this.view,
     required this.shrinkWrap,
     this.initialRowId,
   });
+
+  final ViewPB view;
+  final bool shrinkWrap;
+
+  /// Used to open a Row on plugin load
+  ///
+  final String? initialRowId;
 
   @override
   State<DatabaseTabBarView> createState() => _DatabaseTabBarViewState();
@@ -169,6 +169,13 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
 }
 
 class DatabaseTabBarViewPlugin extends Plugin {
+  DatabaseTabBarViewPlugin({
+    required ViewPB view,
+    required PluginType pluginType,
+    this.initialRowId,
+  })  : _pluginType = pluginType,
+        notifier = ViewPluginNotifier(view: view);
+
   @override
   final ViewPluginNotifier notifier;
   final PluginType _pluginType;
@@ -176,13 +183,6 @@ class DatabaseTabBarViewPlugin extends Plugin {
   /// Used to open a Row on plugin load
   ///
   final String? initialRowId;
-
-  DatabaseTabBarViewPlugin({
-    required ViewPB view,
-    required PluginType pluginType,
-    this.initialRowId,
-  })  : _pluginType = pluginType,
-        notifier = ViewPluginNotifier(view: view);
 
   @override
   PluginWidgetBuilder get widgetBuilder => DatabasePluginWidgetBuilder(
@@ -198,16 +198,13 @@ class DatabaseTabBarViewPlugin extends Plugin {
 }
 
 class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
+  DatabasePluginWidgetBuilder({required this.notifier, this.initialRowId});
+
   final ViewPluginNotifier notifier;
 
   /// Used to open a Row on plugin load
   ///
   final String? initialRowId;
-
-  DatabasePluginWidgetBuilder({
-    required this.notifier,
-    this.initialRowId,
-  });
 
   @override
   Widget get leftBarItem => ViewTitleBar(view: notifier.view);

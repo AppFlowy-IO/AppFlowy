@@ -202,9 +202,9 @@ class FlowyVersionDescription extends CustomActionCell {
 enum BubbleAction { whatsNews, help, debug, shortcuts, markdown, github }
 
 class BubbleActionWrapper extends ActionCell {
-  final BubbleAction inner;
-
   BubbleActionWrapper(this.inner);
+
+  final BubbleAction inner;
   @override
   Widget? leftIcon(Color iconColor) => inner.emoji;
 

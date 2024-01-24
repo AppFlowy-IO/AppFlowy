@@ -192,10 +192,10 @@ class InitAppFlowyCloudTask extends LaunchTask {
 }
 
 class DeepLinkResult {
+  DeepLinkResult({required this.state, this.result});
+
   final DeepLinkState state;
   final Either<FlowyError, UserProfilePB>? result;
-
-  DeepLinkResult({required this.state, this.result});
 }
 
 enum DeepLinkState {

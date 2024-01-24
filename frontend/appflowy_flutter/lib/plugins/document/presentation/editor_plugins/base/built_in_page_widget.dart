@@ -187,9 +187,9 @@ enum _ActionType {
 }
 
 class _ActionWrapper extends ActionCell {
-  final _ActionType inner;
-
   _ActionWrapper(this.inner);
+
+  final _ActionType inner;
 
   Widget? icon(Color iconColor) => null;
 

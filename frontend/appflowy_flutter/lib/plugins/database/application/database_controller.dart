@@ -29,12 +29,6 @@ typedef OnDeleteGroup = void Function(List<String>);
 typedef OnInsertGroup = void Function(InsertedGroupPB);
 
 class GroupCallbacks {
-  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
-  final OnGroupByField? onGroupByField;
-  final OnUpdateGroup? onUpdateGroup;
-  final OnDeleteGroup? onDeleteGroup;
-  final OnInsertGroup? onInsertGroup;
-
   GroupCallbacks({
     this.onGroupConfigurationChanged,
     this.onGroupByField,
@@ -42,26 +36,21 @@ class GroupCallbacks {
     this.onDeleteGroup,
     this.onInsertGroup,
   });
+
+  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
+  final OnGroupByField? onGroupByField;
+  final OnUpdateGroup? onUpdateGroup;
+  final OnDeleteGroup? onDeleteGroup;
+  final OnInsertGroup? onInsertGroup;
 }
 
 class DatabaseLayoutSettingCallbacks {
-  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
+  DatabaseLayoutSettingCallbacks({required this.onLayoutSettingsChanged});
 
-  DatabaseLayoutSettingCallbacks({
-    required this.onLayoutSettingsChanged,
-  });
+  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
 }
 
 class DatabaseCallbacks {
-  OnDatabaseChanged? onDatabaseChanged;
-  OnFieldsChanged? onFieldsChanged;
-  OnFiltersChanged? onFiltersChanged;
-  OnSortsChanged? onSortsChanged;
-  OnNumOfRowsChanged? onNumOfRowsChanged;
-  OnRowsDeleted? onRowsDeleted;
-  OnRowsUpdated? onRowsUpdated;
-  OnRowsCreated? onRowsCreated;
-
   DatabaseCallbacks({
     this.onDatabaseChanged,
     this.onNumOfRowsChanged,
@@ -72,6 +61,15 @@ class DatabaseCallbacks {
     this.onRowsDeleted,
     this.onRowsCreated,
   });
+
+  OnDatabaseChanged? onDatabaseChanged;
+  OnFieldsChanged? onFieldsChanged;
+  OnFiltersChanged? onFiltersChanged;
+  OnSortsChanged? onSortsChanged;
+  OnNumOfRowsChanged? onNumOfRowsChanged;
+  OnRowsDeleted? onRowsDeleted;
+  OnRowsUpdated? onRowsUpdated;
+  OnRowsCreated? onRowsCreated;
 }
 
 class DatabaseController {

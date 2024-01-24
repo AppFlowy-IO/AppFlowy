@@ -22,16 +22,6 @@ import '../../layout/sizes.dart';
 import 'action.dart';
 
 class GridRow extends StatefulWidget {
-  final FieldController fieldController;
-  final RowId viewId;
-  final RowId rowId;
-  final RowController rowController;
-  final EditableCellBuilder cellBuilder;
-  final void Function(BuildContext, EditableCellBuilder) openDetailPage;
-
-  final int? index;
-  final bool isDraggable;
-
   const GridRow({
     super.key,
     required this.fieldController,
@@ -43,6 +33,15 @@ class GridRow extends StatefulWidget {
     this.index,
     this.isDraggable = false,
   });
+
+  final FieldController fieldController;
+  final RowId viewId;
+  final RowId rowId;
+  final RowController rowController;
+  final EditableCellBuilder cellBuilder;
+  final void Function(BuildContext, EditableCellBuilder) openDetailPage;
+  final int? index;
+  final bool isDraggable;
 
   @override
   State<GridRow> createState() => _GridRowState();
@@ -83,13 +82,13 @@ class _GridRowState extends State<GridRow> {
 }
 
 class _RowLeading extends StatefulWidget {
-  final int? index;
-  final bool isDraggable;
-
   const _RowLeading({
     this.index,
     this.isDraggable = false,
   });
+
+  final int? index;
+  final bool isDraggable;
 
   @override
   State<_RowLeading> createState() => _RowLeadingState();
@@ -310,8 +309,9 @@ class RegionStateNotifier extends ChangeNotifier {
 }
 
 class _RowEnterRegion extends StatefulWidget {
-  final Widget child;
   const _RowEnterRegion({required this.child});
+
+  final Widget child;
 
   @override
   State<_RowEnterRegion> createState() => _RowEnterRegionState();

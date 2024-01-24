@@ -9,10 +9,10 @@ import 'dart:async';
 part 'checklist_cell_bloc.freezed.dart';
 
 class ChecklistSelectOption {
+  ChecklistSelectOption(this.isSelected, this.data);
+
   final bool isSelected;
   final SelectOptionPB data;
-
-  ChecklistSelectOption(this.isSelected, this.data);
 }
 
 class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {

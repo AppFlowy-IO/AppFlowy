@@ -20,16 +20,16 @@ abstract class GroupControllerDelegate {
 }
 
 class GroupController {
-  GroupPB group;
-  final SingleGroupListener _listener;
-  final GroupControllerDelegate delegate;
-  final void Function(GroupPB group) onGroupChanged;
-
   GroupController({
     required this.group,
     required this.delegate,
     required this.onGroupChanged,
   }) : _listener = SingleGroupListener(group);
+
+  GroupPB group;
+  final SingleGroupListener _listener;
+  final GroupControllerDelegate delegate;
+  final void Function(GroupPB group) onGroupChanged;
 
   RowMetaPB? rowAtIndex(int index) {
     if (index < group.rows.length) {
@@ -115,10 +115,12 @@ class GroupController {
 typedef UpdateGroupNotifiedValue = Either<GroupRowsNotificationPB, FlowyError>;
 
 class SingleGroupListener {
+  SingleGroupListener(this.group);
+
   final GroupPB group;
+
   PublishNotifier<UpdateGroupNotifiedValue>? _groupNotifier = PublishNotifier();
   DatabaseNotificationListener? _listener;
-  SingleGroupListener(this.group);
 
   void start({
     required void Function(UpdateGroupNotifiedValue) onGroupChanged,

@@ -10,9 +10,7 @@ import 'package:go_router/go_router.dart';
 class MobileCodeLanguagePickerScreen extends StatelessWidget {
   static const routeName = '/code_language_picker';
 
-  const MobileCodeLanguagePickerScreen({
-    super.key,
-  });
+  const MobileCodeLanguagePickerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

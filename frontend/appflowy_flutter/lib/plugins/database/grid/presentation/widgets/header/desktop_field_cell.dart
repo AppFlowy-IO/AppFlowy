@@ -126,12 +126,13 @@ class _GridFieldCellState extends State<GridFieldCell> {
 }
 
 class _GridHeaderCellContainer extends StatelessWidget {
-  final Widget child;
-  final double width;
   const _GridHeaderCellContainer({
     required this.child,
     required this.width,
   });
+
+  final Widget child;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
@@ -192,19 +193,20 @@ class _DragToExpandLine extends StatelessWidget {
 }
 
 class FieldCellButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final FieldPB field;
-  final int? maxLines;
-  final BorderRadius? radius;
-  final EdgeInsets? margin;
   const FieldCellButton({
+    super.key,
     required this.field,
     required this.onTap,
     this.maxLines = 1,
     this.radius = BorderRadius.zero,
     this.margin,
-    super.key,
   });
+
+  final FieldPB field;
+  final VoidCallback onTap;
+  final int? maxLines;
+  final BorderRadius? radius;
+  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context) {

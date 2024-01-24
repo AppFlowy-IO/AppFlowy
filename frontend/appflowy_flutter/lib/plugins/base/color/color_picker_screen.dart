@@ -10,10 +10,7 @@ class MobileColorPickerScreen extends StatelessWidget {
   static const routeName = '/color_picker';
   static const pageTitle = 'title';
 
-  const MobileColorPickerScreen({
-    super.key,
-    this.title,
-  });
+  const MobileColorPickerScreen({super.key, this.title});
 
   final String? title;
 

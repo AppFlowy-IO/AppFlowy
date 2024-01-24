@@ -23,11 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalendarEventEditor extends StatelessWidget {
-  final DatabaseController databaseController;
-  final RowController rowController;
-  final CalendarLayoutSettingPB layoutSettings;
-  final EditableCellBuilder cellBuilder;
-
   CalendarEventEditor({
     super.key,
     required RowMetaPB rowMeta,
@@ -38,9 +33,13 @@ class CalendarEventEditor extends StatelessWidget {
           viewId: databaseController.viewId,
           rowCache: databaseController.rowCache,
         ),
-        cellBuilder = EditableCellBuilder(
-          databaseController: databaseController,
-        );
+        cellBuilder =
+            EditableCellBuilder(databaseController: databaseController);
+
+  final CalendarLayoutSettingPB layoutSettings;
+  final DatabaseController databaseController;
+  final RowController rowController;
+  final EditableCellBuilder cellBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -124,16 +123,16 @@ class EventEditorControls extends StatelessWidget {
 }
 
 class EventPropertyList extends StatelessWidget {
-  final FieldController fieldController;
-  final String dateFieldId;
-  final EditableCellBuilder cellBuilder;
-
   const EventPropertyList({
     super.key,
     required this.fieldController,
     required this.dateFieldId,
     required this.cellBuilder,
   });
+
+  final FieldController fieldController;
+  final String dateFieldId;
+  final EditableCellBuilder cellBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -184,16 +183,16 @@ class EventPropertyList extends StatelessWidget {
 }
 
 class PropertyCell extends StatefulWidget {
-  final FieldController fieldController;
-  final CellContext cellContext;
-  final EditableCellBuilder cellBuilder;
-
   const PropertyCell({
+    super.key,
     required this.fieldController,
     required this.cellContext,
     required this.cellBuilder,
-    super.key,
   });
+
+  final FieldController fieldController;
+  final CellContext cellContext;
+  final EditableCellBuilder cellBuilder;
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();

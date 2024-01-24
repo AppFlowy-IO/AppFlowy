@@ -35,16 +35,16 @@ abstract class IEditableDateCellSkin {
 }
 
 class EditableDateCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableDateCellSkin skin;
-
   EditableDateCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableDateCellSkin skin;
 
   @override
   GridCellState<EditableDateCell> createState() => _DateCellState();

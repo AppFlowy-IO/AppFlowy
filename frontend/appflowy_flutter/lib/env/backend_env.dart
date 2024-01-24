@@ -5,15 +5,6 @@ part 'backend_env.g.dart';
 
 @JsonSerializable()
 class AppFlowyConfiguration {
-  final String root;
-  final String custom_app_path;
-  final String origin_app_path;
-  final String device_id;
-  final int authenticator_type;
-  final SupabaseConfiguration supabase_config;
-  final AppFlowyCloudConfiguration appflowy_cloud_config;
-  final Map<String, String> envs;
-
   AppFlowyConfiguration({
     required this.root,
     required this.custom_app_path,
@@ -25,6 +16,15 @@ class AppFlowyConfiguration {
     required this.envs,
   });
 
+  final String root;
+  final String custom_app_path;
+  final String origin_app_path;
+  final String device_id;
+  final int authenticator_type;
+  final SupabaseConfiguration supabase_config;
+  final AppFlowyCloudConfiguration appflowy_cloud_config;
+  final Map<String, String> envs;
+
   factory AppFlowyConfiguration.fromJson(Map<String, dynamic> json) =>
       _$AppFlowyConfigurationFromJson(json);
 
@@ -33,14 +33,14 @@ class AppFlowyConfiguration {
 
 @JsonSerializable()
 class SupabaseConfiguration {
-  /// Indicates whether the sync feature is enabled.
-  final String url;
-  final String anon_key;
-
   SupabaseConfiguration({
     required this.url,
     required this.anon_key,
   });
+
+  /// Indicates whether the sync feature is enabled.
+  final String url;
+  final String anon_key;
 
   factory SupabaseConfiguration.fromJson(Map<String, dynamic> json) =>
       _$SupabaseConfigurationFromJson(json);
@@ -61,15 +61,15 @@ class SupabaseConfiguration {
 
 @JsonSerializable()
 class AppFlowyCloudConfiguration {
-  final String base_url;
-  final String ws_base_url;
-  final String gotrue_url;
-
   AppFlowyCloudConfiguration({
     required this.base_url,
     required this.ws_base_url,
     required this.gotrue_url,
   });
+
+  final String base_url;
+  final String ws_base_url;
+  final String gotrue_url;
 
   factory AppFlowyCloudConfiguration.fromJson(Map<String, dynamic> json) =>
       _$AppFlowyCloudConfigurationFromJson(json);

@@ -74,8 +74,9 @@ class SidebarUser extends StatelessWidget {
 }
 
 class UserSettingButton extends StatelessWidget {
-  final UserProfilePB userProfile;
   const UserSettingButton({required this.userProfile, super.key});
+
+  final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {

@@ -180,15 +180,15 @@ Future<void> setAppFlowyCloudUrl(Option<String> url) async {
 
 /// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
 class AppFlowyCloudSharedEnv {
-  final AuthenticatorType _authenticatorType;
-  final AppFlowyCloudConfiguration appflowyCloudConfig;
-  final SupabaseConfiguration supabaseConfig;
-
   AppFlowyCloudSharedEnv({
     required AuthenticatorType authenticatorType,
     required this.appflowyCloudConfig,
     required this.supabaseConfig,
   }) : _authenticatorType = authenticatorType;
+
+  final AuthenticatorType _authenticatorType;
+  final AppFlowyCloudConfiguration appflowyCloudConfig;
+  final SupabaseConfiguration supabaseConfig;
 
   AuthenticatorType get authenticatorType => _authenticatorType;
 

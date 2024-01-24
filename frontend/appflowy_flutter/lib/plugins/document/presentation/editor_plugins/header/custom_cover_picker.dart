@@ -15,14 +15,14 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 
 class CoverImagePicker extends StatefulWidget {
-  final VoidCallback onBackPressed;
-  final Function(List<String> paths) onFileSubmit;
-
   const CoverImagePicker({
     super.key,
     required this.onBackPressed,
     required this.onFileSubmit,
   });
+
+  final VoidCallback onBackPressed;
+  final Function(List<String> paths) onFileSubmit;
 
   @override
   State<CoverImagePicker> createState() => _CoverImagePickerState();
@@ -95,12 +95,9 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
 }
 
 class NetworkImageUrlInput extends StatefulWidget {
-  final void Function(String color) onAdd;
+  const NetworkImageUrlInput({super.key, required this.onAdd});
 
-  const NetworkImageUrlInput({
-    super.key,
-    required this.onAdd,
-  });
+  final void Function(String color) onAdd;
 
   @override
   State<NetworkImageUrlInput> createState() => _NetworkImageUrlInputState();
@@ -154,14 +151,14 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
 }
 
 class ImagePickerActionButtons extends StatelessWidget {
-  final VoidCallback onBackPressed;
-  final VoidCallback onSave;
-
   const ImagePickerActionButtons({
     super.key,
     required this.onBackPressed,
     required this.onSave,
   });
+
+  final VoidCallback onBackPressed;
+  final VoidCallback onSave;
 
   @override
   Widget build(BuildContext context) {
@@ -189,9 +186,9 @@ class ImagePickerActionButtons extends StatelessWidget {
 }
 
 class CoverImagePreviewWidget extends StatefulWidget {
-  final dynamic state;
-
   const CoverImagePreviewWidget({super.key, required this.state});
+
+  final dynamic state;
 
   @override
   State<CoverImagePreviewWidget> createState() =>

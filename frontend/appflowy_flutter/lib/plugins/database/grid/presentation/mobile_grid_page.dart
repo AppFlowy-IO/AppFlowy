@@ -142,11 +142,12 @@ class _MobileGridPageState extends State<MobileGridPage> {
 }
 
 class GridPageContent extends StatefulWidget {
-  final ViewPB view;
   const GridPageContent({
-    required this.view,
     super.key,
+    required this.view,
   });
+
+  final ViewPB view;
 
   @override
   State<GridPageContent> createState() => _GridPageContentState();
@@ -215,8 +216,9 @@ class _GridPageContentState extends State<GridPageContent> {
 }
 
 class _GridHeader extends StatelessWidget {
-  final ScrollController headerScrollController;
   const _GridHeader({required this.headerScrollController});
+
+  final ScrollController headerScrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -232,13 +234,13 @@ class _GridHeader extends StatelessWidget {
 }
 
 class _GridRows extends StatelessWidget {
-  final String viewId;
-  final GridScrollController scrollController;
-
   const _GridRows({
     required this.viewId,
     required this.scrollController,
   });
+
+  final String viewId;
+  final GridScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {

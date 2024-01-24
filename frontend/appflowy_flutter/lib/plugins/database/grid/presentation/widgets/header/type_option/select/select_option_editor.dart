@@ -17,19 +17,20 @@ import '../../../../layout/sizes.dart';
 import '../../../common/type_option_separator.dart';
 
 class SelectOptionTypeOptionEditor extends StatelessWidget {
-  final SelectOptionPB option;
-  final VoidCallback onDeleted;
-  final Function(SelectOptionPB) onUpdated;
-  final bool showOptions;
-  final bool autoFocus;
   const SelectOptionTypeOptionEditor({
+    super.key,
     required this.option,
     required this.onDeleted,
     required this.onUpdated,
     this.showOptions = true,
     this.autoFocus = true,
-    super.key,
   });
+
+  final SelectOptionPB option;
+  final VoidCallback onDeleted;
+  final Function(SelectOptionPB) onUpdated;
+  final bool showOptions;
+  final bool autoFocus;
 
   static String get identifier => (SelectOptionTypeOptionEditor).toString();
 
@@ -118,12 +119,13 @@ class _DeleteTag extends StatelessWidget {
 }
 
 class _OptionNameTextField extends StatelessWidget {
-  final String name;
-  final bool autoFocus;
   const _OptionNameTextField({
     required this.name,
     required this.autoFocus,
   });
+
+  final String name;
+  final bool autoFocus;
 
   @override
   Widget build(BuildContext context) {

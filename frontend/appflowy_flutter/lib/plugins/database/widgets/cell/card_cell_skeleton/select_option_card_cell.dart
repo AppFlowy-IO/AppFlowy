@@ -9,28 +9,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell.dart';
 
 class SelectOptionCardCellStyle extends CardCellStyle {
-  final double tagFontSize;
-  final bool wrap;
-  final EdgeInsets tagPadding;
-
   SelectOptionCardCellStyle({
     required super.padding,
     required this.tagFontSize,
     required this.wrap,
     required this.tagPadding,
   });
+
+  final double tagFontSize;
+  final bool wrap;
+  final EdgeInsets tagPadding;
 }
 
 class SelectOptionCardCell extends CardCell<SelectOptionCardCellStyle> {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-
   const SelectOptionCardCell({
     super.key,
     required super.style,
     required this.databaseController,
     required this.cellContext,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   @override
   State<SelectOptionCardCell> createState() => _SelectOptionCellState();

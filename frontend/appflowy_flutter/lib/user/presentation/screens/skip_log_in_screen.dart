@@ -22,9 +22,7 @@ import 'package:url_launcher/url_launcher.dart';
 class SkipLogInScreen extends StatefulWidget {
   static const routeName = '/SkipLogInScreen';
 
-  const SkipLogInScreen({
-    super.key,
-  });
+  const SkipLogInScreen({super.key});
 
   @override
   State<SkipLogInScreen> createState() => _SkipLogInScreenState();

@@ -13,9 +13,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   final FieldSettingsBackendService _fieldSettingsService;
 
   FieldCellBloc({required String viewId, required this.fieldInfo})
-      : _fieldSettingsService = FieldSettingsBackendService(
-          viewId: viewId,
-        ),
+      : _fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
         super(FieldCellState.initial(fieldInfo)) {
     on<FieldCellEvent>(
       (event, emit) async {

@@ -7,10 +7,7 @@ class MobileEmojiPickerScreen extends StatelessWidget {
   static const routeName = '/emoji_picker';
   static const pageTitle = 'title';
 
-  const MobileEmojiPickerScreen({
-    super.key,
-    this.title,
-  });
+  const MobileEmojiPickerScreen({super.key, this.title});
 
   final String? title;
 

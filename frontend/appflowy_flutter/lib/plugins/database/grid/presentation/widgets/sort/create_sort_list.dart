@@ -16,18 +16,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridCreateSortList extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final VoidCallback onClosed;
-  final VoidCallback? onCreateSort;
-
   const GridCreateSortList({
+    super.key,
     required this.viewId,
     required this.fieldController,
     required this.onClosed,
     this.onCreateSort,
-    super.key,
   });
+
+  final String viewId;
+  final FieldController fieldController;
+  final VoidCallback onClosed;
+  final VoidCallback? onCreateSort;
 
   @override
   State<StatefulWidget> createState() => _GridCreateSortListState();
@@ -147,13 +147,14 @@ class _SortTextFieldDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class GridSortPropertyCell extends StatelessWidget {
-  final FieldInfo fieldInfo;
-  final Function(FieldInfo) onTap;
   const GridSortPropertyCell({
+    super.key,
     required this.fieldInfo,
     required this.onTap,
-    super.key,
   });
+
+  final FieldInfo fieldInfo;
+  final Function(FieldInfo) onTap;
 
   @override
   Widget build(BuildContext context) {

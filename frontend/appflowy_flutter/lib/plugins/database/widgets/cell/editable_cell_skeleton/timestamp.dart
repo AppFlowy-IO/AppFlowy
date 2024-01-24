@@ -34,12 +34,6 @@ abstract class IEditableTimestampCellSkin {
 }
 
 class EditableTimestampCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableTimestampCellSkin skin;
-
-  final FieldType fieldType;
-
   EditableTimestampCell({
     super.key,
     required this.databaseController,
@@ -47,6 +41,11 @@ class EditableTimestampCell extends EditableCellWidget {
     required this.skin,
     required this.fieldType,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableTimestampCellSkin skin;
+  final FieldType fieldType;
 
   @override
   GridCellState<EditableTimestampCell> createState() => _TimestampCellState();

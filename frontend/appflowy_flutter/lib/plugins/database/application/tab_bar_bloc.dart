@@ -246,18 +246,18 @@ class DatabaseTabBarState with _$DatabaseTabBarState {
 }
 
 class DatabaseTabBar extends Equatable {
+  DatabaseTabBar({
+    required this.view,
+  }) : _builder = PlatformExtension.isMobile
+            ? view.mobileTabBarItem()
+            : view.tabBarItem();
+
   final ViewPB view;
   final DatabaseTabBarItemBuilder _builder;
 
   String get viewId => view.id;
   DatabaseTabBarItemBuilder get builder => _builder;
   ViewLayoutPB get layout => view.layout;
-
-  DatabaseTabBar({
-    required this.view,
-  }) : _builder = PlatformExtension.isMobile
-            ? view.mobileTabBarItem()
-            : view.tabBarItem();
 
   @override
   List<Object?> get props => [view.hashCode];

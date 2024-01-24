@@ -8,6 +8,13 @@ import '../row/row_cache.dart';
 import 'view_listener.dart';
 
 class DatabaseViewCallbacks {
+  const DatabaseViewCallbacks({
+    this.onNumOfRowsChanged,
+    this.onRowsCreated,
+    this.onRowsUpdated,
+    this.onRowsDeleted,
+  });
+
   /// Will get called when number of rows were changed that includes
   /// update/delete/insert rows. The [onNumOfRowsChanged] will return all
   /// the rows of the current database
@@ -21,13 +28,6 @@ class DatabaseViewCallbacks {
 
   /// Will get called when number of rows were deleted
   final OnRowsDeleted? onRowsDeleted;
-
-  const DatabaseViewCallbacks({
-    this.onNumOfRowsChanged,
-    this.onRowsCreated,
-    this.onRowsUpdated,
-    this.onRowsDeleted,
-  });
 }
 
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information

@@ -8,6 +8,13 @@ import 'row_cache.dart';
 typedef OnRowChanged = void Function(CellContextByFieldId, ChangedReason);
 
 class RowController {
+  RowController({
+    required this.rowMeta,
+    required this.viewId,
+    required RowCache rowCache,
+    this.groupId,
+  }) : _rowCache = rowCache;
+
   final RowMetaPB rowMeta;
   final String? groupId;
   final String viewId;
@@ -17,13 +24,6 @@ class RowController {
   CellMemCache get cellCache => _rowCache.cellCache;
 
   String get rowId => rowMeta.id;
-
-  RowController({
-    required this.rowMeta,
-    required this.viewId,
-    required RowCache rowCache,
-    this.groupId,
-  }) : _rowCache = rowCache;
 
   CellContextByFieldId loadData() {
     return _rowCache.loadCells(rowMeta);

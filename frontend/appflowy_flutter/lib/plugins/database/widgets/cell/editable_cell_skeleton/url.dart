@@ -45,17 +45,17 @@ abstract class IEditableURLCellSkin {
 typedef URLCellDataNotifier = CellDataNotifier<String>;
 
 class EditableURLCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableURLCellSkin skin;
-  final URLCellDataNotifier _cellDataNotifier;
-
   EditableURLCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
   }) : _cellDataNotifier = CellDataNotifier(value: '');
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableURLCellSkin skin;
+  final URLCellDataNotifier _cellDataNotifier;
 
   @override
   List<GridCellAccessoryBuilder> Function(

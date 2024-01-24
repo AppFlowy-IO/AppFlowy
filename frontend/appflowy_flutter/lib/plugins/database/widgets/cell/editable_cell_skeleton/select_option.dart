@@ -38,12 +38,6 @@ abstract class IEditableSelectOptionCellSkin {
 }
 
 class EditableSelectOptionCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableSelectOptionCellSkin skin;
-
-  final FieldType fieldType;
-
   EditableSelectOptionCell({
     super.key,
     required this.databaseController,
@@ -51,6 +45,12 @@ class EditableSelectOptionCell extends EditableCellWidget {
     required this.skin,
     required this.fieldType,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableSelectOptionCellSkin skin;
+
+  final FieldType fieldType;
 
   @override
   GridCellState<EditableSelectOptionCell> createState() =>

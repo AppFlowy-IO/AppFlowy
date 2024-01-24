@@ -573,9 +573,6 @@ List<GroupPB> _filterHiddenGroups(bool hideUngrouped, List<GroupPB> groups) {
 }
 
 class GroupItem extends AppFlowyGroupItem {
-  final RowMetaPB row;
-  final FieldInfo fieldInfo;
-
   GroupItem({
     required this.row,
     required this.fieldInfo,
@@ -584,25 +581,26 @@ class GroupItem extends AppFlowyGroupItem {
     super.draggable = draggable;
   }
 
+  final RowMetaPB row;
+  final FieldInfo fieldInfo;
+
   @override
   String get id => row.id.toString();
 }
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
-  final FieldController fieldController;
-  final AppFlowyBoardController controller;
-  final void Function(String, RowMetaPB, int?) onNewColumnItem;
-
   GroupControllerDelegateImpl({
     required this.controller,
     required this.fieldController,
     required this.onNewColumnItem,
   });
 
+  final FieldController fieldController;
+  final AppFlowyBoardController controller;
+  final void Function(String, RowMetaPB, int?) onNewColumnItem;
+
   @override
-  bool hasGroup(String groupId) {
-    return controller.groupIds.contains(groupId);
-  }
+  bool hasGroup(String groupId) => controller.groupIds.contains(groupId);
 
   @override
   void insertRow(GroupPB group, RowMetaPB row, int? index) {
@@ -666,15 +664,15 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 }
 
 class BoardEditingRow {
-  GroupPB group;
-  RowMetaPB row;
-  int? index;
-
   BoardEditingRow({
     required this.group,
     required this.row,
     required this.index,
   });
+
+  GroupPB group;
+  RowMetaPB row;
+  int? index;
 }
 
 class GroupData {

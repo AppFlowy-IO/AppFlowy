@@ -16,13 +16,14 @@ typedef CardAccessoryBuilder = List<CardAccessory> Function(
 );
 
 class CardAccessoryContainer extends StatelessWidget {
-  final void Function(AccessoryType) onTapAccessory;
-  final List<CardAccessory> accessories;
   const CardAccessoryContainer({
+    super.key,
     required this.accessories,
     required this.onTapAccessory,
-    super.key,
   });
+
+  final List<CardAccessory> accessories;
+  final void Function(AccessoryType) onTapAccessory;
 
   @override
   Widget build(BuildContext context) {

@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AnimatedPanel extends StatefulWidget {
-  final bool isClosed;
-  final double closedX;
-  final double closedY;
-  final double duration;
-  final Curve? curve;
-  final Widget? child;
-
   const AnimatedPanel({
     super.key,
     this.isClosed = false,
@@ -17,6 +10,13 @@ class AnimatedPanel extends StatefulWidget {
     this.curve,
     this.child,
   });
+
+  final bool isClosed;
+  final double closedX;
+  final double closedY;
+  final double duration;
+  final Curve? curve;
+  final Widget? child;
 
   @override
   AnimatedPanelState createState() => AnimatedPanelState();

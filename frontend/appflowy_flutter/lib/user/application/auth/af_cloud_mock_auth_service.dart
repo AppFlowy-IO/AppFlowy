@@ -13,10 +13,10 @@ import 'package:flowy_infra/uuid.dart';
 
 /// Only used for testing.
 class AppFlowyCloudMockAuthService implements AuthService {
-  final String userEmail;
-
   AppFlowyCloudMockAuthService({String? email})
       : userEmail = email ?? "${uuid()}@appflowy.io";
+
+  final String userEmail;
 
   final BackendAuthService _appFlowyAuthService =
       BackendAuthService(AuthenticatorPB.Supabase);

@@ -17,8 +17,9 @@ class EncryptSecretScreen extends StatefulWidget {
   static const argUser = 'user';
   static const argKey = 'key';
 
-  final UserProfilePB user;
   const EncryptSecretScreen({required this.user, super.key});
+
+  final UserProfilePB user;
 
   @override
   State<EncryptSecretScreen> createState() => _EncryptSecretScreenState();

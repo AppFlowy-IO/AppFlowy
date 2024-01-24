@@ -6,13 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'url_cell_editor_bloc.dart';
 
 class URLCellEditor extends StatefulWidget {
-  final VoidCallback onExit;
-  final URLCellController cellController;
   const URLCellEditor({
+    super.key,
     required this.cellController,
     required this.onExit,
-    super.key,
   });
+
+  final URLCellController cellController;
+  final VoidCallback onExit;
 
   @override
   State<URLCellEditor> createState() => _URLCellEditorState();
@@ -79,13 +80,14 @@ class _URLCellEditorState extends State<URLCellEditor> {
 }
 
 class URLEditorPopover extends StatelessWidget {
-  final VoidCallback onExit;
-  final URLCellController cellController;
   const URLEditorPopover({
+    super.key,
     required this.cellController,
     required this.onExit,
-    super.key,
   });
+
+  final URLCellController cellController;
+  final VoidCallback onExit;
 
   @override
   Widget build(BuildContext context) {

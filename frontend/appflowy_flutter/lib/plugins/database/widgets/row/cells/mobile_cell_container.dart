@@ -6,16 +6,16 @@ import '../../cell/editable_cell_builder.dart';
 import 'cell_container.dart';
 
 class MobileCellContainer extends StatelessWidget {
-  final EditableCellWidget child;
-  final bool isPrimary;
-  final VoidCallback? onPrimaryFieldCellTap;
-
   const MobileCellContainer({
     super.key,
     required this.child,
     required this.isPrimary,
     this.onPrimaryFieldCellTap,
   });
+
+  final EditableCellWidget child;
+  final bool isPrimary;
+  final VoidCallback? onPrimaryFieldCellTap;
 
   @override
   Widget build(BuildContext context) {

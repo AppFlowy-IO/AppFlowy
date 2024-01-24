@@ -4,14 +4,14 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseViewWidget extends StatefulWidget {
-  final ViewPB view;
-  final bool shrinkWrap;
-
   const DatabaseViewWidget({
     super.key,
     required this.view,
     this.shrinkWrap = true,
   });
+
+  final ViewPB view;
+  final bool shrinkWrap;
 
   @override
   State<DatabaseViewWidget> createState() => _DatabaseViewWidgetState();

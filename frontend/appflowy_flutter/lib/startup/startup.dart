@@ -22,9 +22,9 @@ abstract class EntryPoint {
 }
 
 class FlowyRunnerContext {
-  final Directory applicationDataDirectory;
-
   FlowyRunnerContext({required this.applicationDataDirectory});
+
+  final Directory applicationDataDirectory;
 }
 
 Future<void> runAppFlowy({bool isAnon = false}) async {
@@ -174,10 +174,11 @@ Future<void> initGetIt(
 }
 
 class LaunchContext {
+  LaunchContext(this.getIt, this.env, this.config);
+
   GetIt getIt;
   IntegrationMode env;
   LaunchConfiguration config;
-  LaunchContext(this.getIt, this.env, this.config);
 }
 
 enum LaunchTaskType {

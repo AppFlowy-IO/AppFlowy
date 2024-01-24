@@ -22,6 +22,22 @@ import 'container/card_container.dart';
 
 /// Edit a database row with card style widget
 class RowCard extends StatefulWidget {
+  const RowCard({
+    super.key,
+    required this.fieldController,
+    required this.rowMeta,
+    required this.viewId,
+    required this.isEditing,
+    required this.rowCache,
+    required this.cellBuilder,
+    required this.openCard,
+    required this.onStartEditing,
+    required this.onEndEditing,
+    required this.styleConfiguration,
+    this.groupingFieldId,
+    this.groupId,
+  });
+
   final FieldController fieldController;
   final RowMetaPB rowMeta;
   final String viewId;
@@ -44,22 +60,6 @@ class RowCard extends StatefulWidget {
   final VoidCallback onEndEditing;
 
   final RowCardStyleConfiguration styleConfiguration;
-
-  const RowCard({
-    super.key,
-    required this.fieldController,
-    required this.rowMeta,
-    required this.viewId,
-    required this.isEditing,
-    required this.rowCache,
-    required this.cellBuilder,
-    required this.openCard,
-    required this.onStartEditing,
-    required this.onEndEditing,
-    required this.styleConfiguration,
-    this.groupingFieldId,
-    this.groupId,
-  });
 
   @override
   State<RowCard> createState() => _RowCardState();
@@ -262,11 +262,9 @@ class MoreCardOptionsAccessory extends StatelessWidget with CardAccessory {
 }
 
 class EditCardAccessory extends StatelessWidget with CardAccessory {
+  const EditCardAccessory({super.key, required this.rowNotifier});
+
   final EditableRowNotifier rowNotifier;
-  const EditCardAccessory({
-    super.key,
-    required this.rowNotifier,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -287,15 +285,15 @@ class EditCardAccessory extends StatelessWidget with CardAccessory {
 }
 
 class RowCardStyleConfiguration {
-  final CardCellStyleMap cellStyleMap;
-  final bool showAccessory;
-  final EdgeInsets cardPadding;
-  final HoverStyle? hoverStyle;
-
   const RowCardStyleConfiguration({
     required this.cellStyleMap,
     this.showAccessory = true,
     this.cardPadding = const EdgeInsets.all(8),
     this.hoverStyle,
   });
+
+  final CardCellStyleMap cellStyleMap;
+  final bool showAccessory;
+  final EdgeInsets cardPadding;
+  final HoverStyle? hoverStyle;
 }

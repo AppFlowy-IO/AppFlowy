@@ -8,24 +8,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell.dart';
 
 class URLCardCellStyle extends CardCellStyle {
-  final TextStyle textStyle;
-
   URLCardCellStyle({
     required super.padding,
     required this.textStyle,
   });
+
+  final TextStyle textStyle;
 }
 
 class URLCardCell extends CardCell<URLCardCellStyle> {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-
   const URLCardCell({
     super.key,
     required super.style,
     required this.databaseController,
     required this.cellContext,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   @override
   State<URLCardCell> createState() => _URLCellState();
