@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/timestamp_cell/timestamp_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -37,11 +38,14 @@ class EditableTimestampCell extends EditableCellWidget {
   final CellContext cellContext;
   final IEditableTimestampCellSkin skin;
 
+  final FieldType fieldType;
+
   EditableTimestampCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
+    required this.fieldType,
   });
 
   @override

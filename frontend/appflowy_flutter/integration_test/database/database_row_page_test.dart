@@ -123,7 +123,7 @@ void main() {
         await tester.renameField(fieldType.name);
 
         // Open the type option menu
-        await tester.tapTypeOptionButton();
+        await tester.tapSwitchFieldTypeButton();
 
         await tester.selectFieldType(fieldType);
 

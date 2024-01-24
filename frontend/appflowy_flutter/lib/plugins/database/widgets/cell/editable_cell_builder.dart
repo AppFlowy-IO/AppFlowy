@@ -55,19 +55,25 @@ class EditableCellBuilder {
           skin: IEditableChecklistCellSkin.fromStyle(style),
           key: key,
         ),
-      FieldType.LastEditedTime ||
-      FieldType.CreatedTime =>
-        EditableTimestampCell(
+      FieldType.CreatedTime => EditableTimestampCell(
           databaseController: databaseController,
           cellContext: cellContext,
           skin: IEditableTimestampCellSkin.fromStyle(style),
           key: key,
+          fieldType: FieldType.CreatedTime,
         ),
       FieldType.DateTime => EditableDateCell(
           databaseController: databaseController,
           cellContext: cellContext,
           skin: IEditableDateCellSkin.fromStyle(style),
           key: key,
+        ),
+      FieldType.LastEditedTime => EditableTimestampCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableTimestampCellSkin.fromStyle(style),
+          key: key,
+          fieldType: FieldType.LastEditedTime,
         ),
       FieldType.MultiSelect => EditableSelectOptionCell(
           databaseController: databaseController,
@@ -128,19 +134,25 @@ class EditableCellBuilder {
           skin: skinMap.checklistSkin!,
           key: key,
         ),
-      FieldType.LastEditedTime ||
-      FieldType.CreatedTime =>
-        EditableTimestampCell(
+      FieldType.CreatedTime => EditableTimestampCell(
           databaseController: databaseController,
           cellContext: cellContext,
           skin: skinMap.timestampSkin!,
           key: key,
+          fieldType: FieldType.CreatedTime,
         ),
       FieldType.DateTime => EditableDateCell(
           databaseController: databaseController,
           cellContext: cellContext,
           skin: skinMap.dateSkin!,
           key: key,
+        ),
+      FieldType.LastEditedTime => EditableTimestampCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: skinMap.timestampSkin!,
+          key: key,
+          fieldType: FieldType.LastEditedTime,
         ),
       FieldType.MultiSelect => EditableSelectOptionCell(
           databaseController: databaseController,
