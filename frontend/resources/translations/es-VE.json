@@ -837,6 +837,7 @@
       "createNewColumn": "Agregar un nuevo grupo",
       "renameColumn": "Renombrar",
       "hideColumn": "Ocultar",
+      "groupActions": "Acciones grupales",
       "newGroup": "Nuevo grupo",
       "deleteColumn": "Borrar"
     },
@@ -847,14 +848,28 @@
     "cardActions": "Acciones de tarjeta",
     "cardDuplicated": "La tarjeta ha sido duplicada.",
     "cardDeleted": "La tarjeta ha sido eliminada",
+    "showOnCard": "Mostrar en el detalle de la tarjeta",
     "setting": "Configuración",
     "propertyName": "Nombre de la propiedad",
     "menuName": "Junta",
-    "referencedBoardPrefix": "Vista de"
+    "showUngrouped": "Mostrar elementos desagrupados",
+    "ungroupedButtonText": "Desagrupados",
+    "ungroupedButtonTooltip": "Contiene tarjetas que no pertenecen a ningún grupo.",
+    "ungroupedItemsTitle": "Haga clic para agregar al tablero",
+    "groupBy": "Agrupar por",
+    "referencedBoardPrefix": "Vista de",
+    "notesTooltip": "Notas en el interior",
+    "mobile": {
+      "editURL": "Editar URL",
+      "unhideGroup": "Mostrar grupo",
+      "unhideGroupContent": "¿Estás seguro de que quieres mostrar este grupo en el tablero?",
+      "faildToLoad": "No se pudo cargar la vista del tablero"
+    }
   },
   "calendar": {
     "menuName": "Calendario",
     "defaultNewCalendarTitle": "Intitulado",
+    "newEventButtonTooltip": "Agregar un nuevo evento",
     "navigation": {
       "today": "Hoy",
       "jumpToday": "Saltar a hoy",
@@ -866,12 +881,14 @@
       "showWeekends": "Mostrar fines de semana",
       "firstDayOfWeek": "Empieza la semana en",
       "layoutDateField": "Diseño de calendario por",
+      "changeLayoutDateField": "Cambiar campo de diseño",
       "noDateTitle": "Sin cita",
       "clickToAdd": "Haga clic para agregar al calendario",
       "name": "Diseño de calendario",
       "noDateHint": "Los eventos no programados se mostrarán aquí"
     },
-    "referencedCalendarPrefix": "Vista de"
+    "referencedCalendarPrefix": "Vista de",
+    "quickJumpYear": "Ir a"
   },
   "errorDialog": {
     "title": "Error de flujo de aplicación",
@@ -920,6 +937,10 @@
     "categories": {
       "smileys": "Emoticonos y emociones",
       "people": "Personas y cuerpo",
+      "animals": "Animales y naturaleza",
+      "food": "Comida y bebida",
+      "activities": "Actividades",
+      "places": "Viajes y lugares",
       "objects": "Objetos",
       "symbols": "Símbolos",
       "flags": "Banderas",
@@ -936,6 +957,111 @@
     }
   },
   "inlineActions": {
-    "noResults": "No hay resultados"
+    "noResults": "No hay resultados",
+    "pageReference": "Referencia de página",
+    "docReference": "Referencia de documento",
+    "boardReference": "Referencia del tablero",
+    "calReference": "Referencia del calendario",
+    "gridReference": "Referencia de cuadrícula",
+    "date": "Fecha",
+    "reminder": {
+      "groupTitle": "Recordatorio",
+      "shortKeyword": "recordar"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Cambiar el formato de fecha y hora en la configuración",
+    "dateFormat": "Formato de fecha",
+    "includeTime": "incluir tiempo",
+    "isRange": "Fecha final",
+    "timeFormat": "Formato de tiempo",
+    "clearDate": "Borrar fecha"
+  },
+  "relativeDates": {
+    "yesterday": "Ayer",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "oneWeek": "1 semana"
+  },
+  "notificationHub": {
+    "title": "Notificaciones",
+    "mobile": {
+      "title": "Actualizaciones"
+    },
+    "emptyBody": "No hay notificaciones ni acciones pendientes. Disfruta de la calma.",
+    "tabs": {
+      "inbox": "Bandeja de entrada",
+      "upcoming": "Próximo"
+    },
+    "actions": {
+      "markAllRead": "marcar todo como leido",
+      "showAll": "Todo",
+      "showUnreads": "No leído"
+    },
+    "filters": {
+      "ascending": "Ascendente",
+      "descending": "Descendente",
+      "groupByDate": "Agrupar por fecha",
+      "showUnreadsOnly": "Mostrar solo no leídos",
+      "resetToDefault": "Restablecen a los predeterminados"
+    }
+  },
+  "reminderNotification": {
+    "title": "Recordatorio",
+    "message": "¡Recuerda comprobar esto antes de que lo olvides!",
+    "tooltipDelete": "Borrar",
+    "tooltipMarkRead": "Marcar como leído",
+    "tooltipMarkUnread": "marcar como no leído"
+  },
+  "findAndReplace": {
+    "find": "Encontrar",
+    "previousMatch": "Partido anterior",
+    "nextMatch": "Próximo partido",
+    "close": "Cerca",
+    "replace": "Reemplazar",
+    "replaceAll": "Reemplaza todo",
+    "noResult": "No hay resultados",
+    "caseSensitive": "Distingue mayúsculas y minúsculas"
+  },
+  "error": {
+    "weAreSorry": "Lo lamentamos"
+  },
+  "editor": {
+    "bold": "Negrita",
+    "bulletedList": "Lista con viñetas",
+    "embedCode": "Código de inserción",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Destacar",
+    "color": "Color",
+    "image": "Imagen",
+    "italic": "Itálico",
+    "link": "Enlace",
+    "numberedList": "Lista numerada",
+    "quote": "Cita",
+    "strikethrough": "Tachado",
+    "text": "Texto",
+    "underline": "Subrayar",
+    "fontColorDefault": "Por defecto",
+    "fontColorGray": "Gris",
+    "fontColorBrown": "Marrón",
+    "fontColorOrange": "Naranja",
+    "fontColorYellow": "Amarillo",
+    "fontColorGreen": "Verde",
+    "fontColorBlue": "Azul",
+    "fontColorPurple": "Púrpura",
+    "fontColorPink": "Rosa",
+    "fontColorRed": "Rojo",
+    "backgroundColorDefault": "Fondo predeterminado",
+    "backgroundColorGray": "fondo gris",
+    "backgroundColorBrown": "fondo marrón",
+    "backgroundColorOrange": "fondo naranja",
+    "backgroundColorYellow": "fondo amarillo",
+    "backgroundColorGreen": "fondo verde",
+    "backgroundColorBlue": "Fondo azul",
+    "backgroundColorPurple": "fondo morado",
+    "backgroundColorPink": "fondo rosa",
+    "backgroundColorRed": "fondo rojo"
   }
 }
