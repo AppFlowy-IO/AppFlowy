@@ -191,7 +191,7 @@ class EnableEncrypt extends StatelessWidget {
                   child: FlowyTooltip(
                     message: LocaleKeys.settings_menu_clickToCopySecret.tr(),
                     child: FlowyButton(
-                      disable: !(state.setting.enableEncrypt),
+                      disable: !state.setting.enableEncrypt,
                       decoration: BoxDecoration(
                         borderRadius: Corners.s5Border,
                         border: Border.all(

@@ -47,11 +47,11 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: ((cellData) {
+      onCellChanged: (cellData) {
         if (!isClosed) {
           add(URLCellEditorEvent.didReceiveCellUpdate(cellData));
         }
-      }),
+      },
     );
   }
 }

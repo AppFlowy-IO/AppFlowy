@@ -34,7 +34,7 @@ class CommandShortcutModel {
   factory CommandShortcutModel.fromJson(Map<String, dynamic> json) =>
       CommandShortcutModel(
         key: json["key"],
-        command: (json["command"] ?? ''),
+        command: json["command"] ?? '',
       );
 
   factory CommandShortcutModel.fromCommandEvent(

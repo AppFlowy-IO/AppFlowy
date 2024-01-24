@@ -48,7 +48,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<ViewPB>>(
       future: ancestors,
-      builder: ((context, snapshot) {
+      builder: (context, snapshot) {
         final ancestors = snapshot.data;
         if (ancestors == null) {
           return const SizedBox.shrink();
@@ -74,7 +74,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
             );
           },
         );
-      }),
+      },
     );
   }
 

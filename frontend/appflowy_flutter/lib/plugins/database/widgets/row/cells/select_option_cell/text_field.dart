@@ -71,7 +71,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         onChanged,
         onSubmitted,
       ) {
-        return ((context, sc, tags, onTagDelegate) {
+        return (context, sc, tags, onTagDelegate) {
           return TextField(
             controller: editController,
             focusNode: focusNode,
@@ -117,7 +117,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               ),
             ),
           );
-        });
+        };
       },
     );
   }

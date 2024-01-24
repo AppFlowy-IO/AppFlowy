@@ -248,9 +248,9 @@ class SelectOptionCellEditorBloc
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: ((selectOptionContext) {
+      onCellChanged: (selectOptionContext) {
         _loadOptions();
-      }),
+      },
       onCellFieldChanged: (field) {
         _loadOptions();
       },

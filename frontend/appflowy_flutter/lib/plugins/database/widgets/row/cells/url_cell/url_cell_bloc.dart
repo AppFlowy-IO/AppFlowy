@@ -46,11 +46,11 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: ((cellData) {
+      onCellChanged: (cellData) {
         if (!isClosed) {
           add(URLCellEvent.didReceiveCellUpdate(cellData));
         }
-      }),
+      },
     );
   }
 }

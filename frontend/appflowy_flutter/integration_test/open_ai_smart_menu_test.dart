@@ -99,7 +99,7 @@ Future<AppFlowyEditor> setUpOpenAITesting(WidgetTester tester) async {
   final Finder editor = find.byType(AppFlowyEditor);
   await tester.tap(editor);
   await tester.pumpAndSettle();
-  return (tester.state(editor).widget as AppFlowyEditor);
+  return tester.state(editor).widget as AppFlowyEditor;
 }
 
 Future<void> mockOpenAIRepository() async {

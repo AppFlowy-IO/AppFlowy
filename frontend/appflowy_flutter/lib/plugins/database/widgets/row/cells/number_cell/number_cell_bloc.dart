@@ -53,11 +53,11 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: ((cellContent) {
+      onCellChanged: (cellContent) {
         if (!isClosed) {
           add(NumberCellEvent.didReceiveCellUpdate(cellContent));
         }
-      }),
+      },
     );
   }
 }

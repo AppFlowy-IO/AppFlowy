@@ -126,10 +126,10 @@ class _AccessoryHoverState extends State<AccessoryHover> {
     final accessoryBuilder = widget.child.accessoryBuilder;
     if (accessoryBuilder != null && _isHover) {
       final accessories = accessoryBuilder(
-        (GridCellAccessoryBuildContext(
+        GridCellAccessoryBuildContext(
           anchorContext: context,
           isCellEditing: false,
-        )),
+        ),
       );
       children.add(
         Padding(

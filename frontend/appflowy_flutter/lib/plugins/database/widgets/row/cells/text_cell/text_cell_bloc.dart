@@ -50,11 +50,11 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: ((cellContent) {
+      onCellChanged: (cellContent) {
         if (!isClosed) {
           add(TextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
-      }),
+      },
       onRowMetaChanged: () {
         if (!isClosed && cellController.fieldInfo.isPrimary) {
           add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));

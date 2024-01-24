@@ -105,7 +105,7 @@ class InlinePageReferenceService {
     }
 
     final List<InlineActionsMenuItem> pages = [];
-    views.sort(((a, b) => b.createTime.compareTo(a.createTime)));
+    views.sort((a, b) => b.createTime.compareTo(a.createTime));
 
     for (final view in views) {
       if (view.id == currentViewId) {
