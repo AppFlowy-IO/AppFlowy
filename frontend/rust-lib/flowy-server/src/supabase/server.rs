@@ -1,3 +1,4 @@
+use flowy_storage::ObjectStorageService;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
@@ -9,7 +10,6 @@ use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
-use flowy_storage::FileStorageService;
 use flowy_user_pub::cloud::UserCloudService;
 
 use crate::supabase::api::{
@@ -187,11 +187,11 @@ impl AppFlowyServer for SupabaseServer {
     )))
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
     self
       .file_storage
       .read()
       .clone()
-      .map(|s| s as Arc<dyn FileStorageService>)
+      .map(|s| s as Arc<dyn ObjectStorageService>)
   }
 }

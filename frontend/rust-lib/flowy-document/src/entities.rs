@@ -5,6 +5,8 @@ use collab_document::blocks::{json_str_to_hashmap, Block, BlockAction, DocumentD
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use lib_infra::validator_fn::{required_not_empty_str, required_valid_path};
+use validator::Validate;
 
 use crate::parse::{NotEmptyStr, NotEmptyVec};
 
@@ -60,6 +62,28 @@ pub struct DocumentRedoUndoResponsePB {
 
   #[pb(index = 3)]
   pub is_success: bool,
+}
+
+#[derive(Default, ProtoBuf, Validate)]
+pub struct UploadFileParamsPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "required_valid_path")]
+  pub local_file_path: String,
+}
+
+#[derive(Default, ProtoBuf, Validate)]
+pub struct UploadedFilePB {
+  #[pb(index = 1)]
+  #[validate(url)]
+  pub url: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "required_valid_path")]
+  pub local_file_path: String,
 }
 
 #[derive(Default, ProtoBuf)]

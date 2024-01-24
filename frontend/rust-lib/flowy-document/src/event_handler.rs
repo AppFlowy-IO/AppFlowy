@@ -9,10 +9,10 @@ use std::sync::{Arc, Weak};
 use collab_document::blocks::{
   BlockAction, BlockActionPayload, BlockActionType, BlockEvent, BlockEventPayload, DeltaType,
 };
-use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use tracing::instrument;
 
 use crate::entities::*;
 use crate::parser::document_data_parser::DocumentDataParser;
@@ -400,4 +400,51 @@ pub(crate) async fn convert_data_to_json_handler(
   };
 
   data_result_ok(ConvertDataToJsonResponsePB { json: result })
+}
+
+// Handler for uploading a file
+// `workspace_id` and `file_name` determines file identity
+pub(crate) async fn upload_file_handler(
+  params: AFPluginData<UploadFileParamsPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> DataResult<UploadedFilePB, FlowyError> {
+  let AFPluginData(UploadFileParamsPB {
+    workspace_id,
+    local_file_path,
+  }) = params;
+
+  let manager = upgrade_document(manager)?;
+  let url = manager.upload_file(workspace_id, &local_file_path).await?;
+
+  Ok(AFPluginData(UploadedFilePB {
+    url,
+    local_file_path,
+  }))
+}
+
+#[instrument(level = "debug", skip_all, err)]
+pub(crate) async fn download_file_handler(
+  params: AFPluginData<UploadedFilePB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let AFPluginData(UploadedFilePB {
+    url,
+    local_file_path,
+  }) = params;
+
+  let manager = upgrade_document(manager)?;
+  manager.download_file(local_file_path, url).await
+}
+
+// Handler for deleting file
+pub(crate) async fn delete_file_handler(
+  params: AFPluginData<UploadedFilePB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let AFPluginData(UploadedFilePB {
+    url,
+    local_file_path,
+  }) = params;
+  let manager = upgrade_document(manager)?;
+  manager.delete_file(local_file_path, url).await
 }

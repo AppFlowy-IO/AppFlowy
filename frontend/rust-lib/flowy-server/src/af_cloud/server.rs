@@ -5,10 +5,11 @@ use anyhow::Error;
 use client_api::collab_sync::collab_msg::CollabMessage;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
-use client_api::ws::{
+use client_api::{Client, ClientConfiguration};
+use client_api::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
-use client_api::{Client, ClientConfiguration};
+use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{error, event, info};
@@ -18,7 +19,6 @@ use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_storage::FileStorageService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
@@ -213,7 +213,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     }
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
     let client = AFServerImpl {
       client: self.get_client(),
     };
@@ -247,7 +247,7 @@ fn spawn_ws_conn(
             // Try to reconnect if the connection is timed out.
             if let Some(api_client) = weak_api_client.upgrade() {
               if enable_sync.load(Ordering::SeqCst) {
-                match api_client.ws_url(&cloned_device_id) {
+                match api_client.ws_url(&cloned_device_id).await {
                   Ok(ws_addr) => {
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
                     let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
@@ -280,7 +280,7 @@ fn spawn_ws_conn(
           if let (Some(api_client), Some(ws_client)) =
             (weak_api_client.upgrade(), weak_ws_client.upgrade())
           {
-            match api_client.ws_url(&device_id) {
+            match api_client.ws_url(&device_id).await {
               Ok(ws_addr) => {
                 info!("🟢token state: {:?}, reconnecting websocket", token_state);
                 let _ = ws_client.connect(ws_addr, &device_id).await;

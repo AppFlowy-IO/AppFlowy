@@ -20,6 +20,7 @@ use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::gen_view_id;
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
