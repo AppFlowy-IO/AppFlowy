@@ -148,7 +148,7 @@ impl UserManager {
     Ok(())
   }
 
-  pub async fn add_workspace(&self) -> FlowyResult<UserWorkspace> {
+  pub async fn add_workspace(&self, workspace_name: &str) -> FlowyResult<UserWorkspace> {
     let new_workspace = self
       .cloud_services
       .get_user_service()?

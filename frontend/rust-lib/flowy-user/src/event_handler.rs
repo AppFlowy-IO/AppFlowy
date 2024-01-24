@@ -655,10 +655,12 @@ pub async fn update_workspace_member_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn add_workspace_handler(
+  data: AFPluginData<AddWorkspacePB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserWorkspacePB, FlowyError> {
+  let data = data.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
-  let new_workspace = manager.add_workspace().await?;
+  let new_workspace = manager.add_workspace(&data.name).await?;
   data_result_ok(new_workspace.into())
 }
 

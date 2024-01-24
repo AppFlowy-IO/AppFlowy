@@ -38,7 +38,6 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::OauthSignIn, oauth_sign_in_handler)
     .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
-    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::OpenAnonUser, open_anon_user_handler)
@@ -60,6 +59,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
       // Workspace
+    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::AddWorkspace, add_workspace_handler)
     .event(UserEvent::DeleteWorkspace, delete_workspace_handler)
 }
