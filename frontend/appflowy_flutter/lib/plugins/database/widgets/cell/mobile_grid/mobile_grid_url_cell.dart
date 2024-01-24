@@ -44,39 +44,39 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
           );
         }
 
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: GestureDetector(
-            onTap: () {
-              if (content.isEmpty) {
-                return;
-              }
-              final shouldAddScheme = !['http', 'https']
-                  .any((pattern) => content.startsWith(pattern));
-              final url = shouldAddScheme ? 'http://$content' : content;
-              canLaunchUrlString(url).then((value) => launchUrlString(url));
+        return GestureDetector(
+          onTap: () {
+            if (content.isEmpty) {
+              return;
+            }
+            final shouldAddScheme = !['http', 'https']
+                .any((pattern) => content.startsWith(pattern));
+            final url = shouldAddScheme ? 'http://$content' : content;
+            canLaunchUrlString(url).then((value) => launchUrlString(url));
+          },
+          onLongPress: () => showMobileBottomSheet(
+            context,
+            title: LocaleKeys.board_mobile_editURL.tr(),
+            showHeader: true,
+            showCloseButton: true,
+            builder: (_) {
+              final controller = TextEditingController(text: content);
+              return TextField(
+                controller: controller,
+                autofocus: true,
+                keyboardType: TextInputType.url,
+                onEditingComplete: () {
+                  bloc.add(URLCellEvent.updateURL(controller.text));
+                  context.pop();
+                },
+              );
             },
-            onLongPress: () => showMobileBottomSheet(
-              context,
-              title: LocaleKeys.board_mobile_editURL.tr(),
-              showHeader: true,
-              showCloseButton: true,
-              builder: (_) {
-                final controller = TextEditingController(text: content);
-                return TextField(
-                  controller: controller,
-                  autofocus: true,
-                  keyboardType: TextInputType.url,
-                  onEditingComplete: () {
-                    bloc.add(URLCellEvent.updateURL(controller.text));
-                    context.pop();
-                  },
-                );
-              },
-            ),
+          ),
+          child: Container(
+            alignment: AlignmentDirectional.centerStart,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Text(
                 content,
                 maxLines: 1,

@@ -47,7 +47,7 @@ class _URLCellState extends State<URLCardCell> {
         buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
-            return const SizedBox();
+            return const SizedBox.shrink();
           }
           return Container(
             alignment: AlignmentDirectional.centerStart,

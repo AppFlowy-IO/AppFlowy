@@ -1,5 +1,4 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/mobile_select_option_editor.dart';
@@ -25,8 +24,8 @@ class MobileGridSelectOptionCellSkin extends IEditableSelectOptionCellSkin {
       hoverColor: Colors.transparent,
       radius: BorderRadius.zero,
       margin: EdgeInsets.zero,
-      text: Padding(
-        padding: GridSize.cellContentInsets,
+      text: Align(
+        alignment: AlignmentDirectional.centerStart,
         child: state.selectedOptions.isEmpty
             ? const SizedBox.shrink()
             : _buildOptions(context, state.selectedOptions),
@@ -46,28 +45,22 @@ class MobileGridSelectOptionCellSkin extends IEditableSelectOptionCellSkin {
   }
 
   Widget _buildOptions(BuildContext context, List<SelectOptionPB> options) {
-    final children = options.mapIndexed(
-      (index, option) {
-        return Padding(
-          padding: EdgeInsets.only(left: index == 0 ? 0 : 4),
-          child: SelectOptionTag(
+    final children = options
+        .mapIndexed(
+          (index, option) => SelectOptionTag(
             option: option,
             fontSize: 14,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           ),
-        );
-      },
-    ).toList();
+        )
+        .toList();
 
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        separatorBuilder: (context, index) => const HSpace(4),
-        itemCount: children.length,
-        itemBuilder: (context, index) => children[index],
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      ),
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      separatorBuilder: (context, index) => const HSpace(8),
+      itemCount: children.length,
+      itemBuilder: (context, index) => children[index],
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
     );
   }
 }

@@ -127,6 +127,7 @@ class _RowCardState extends State<RowCard> {
   Widget _mobile(CardState state) {
     return GestureDetector(
       onTap: () => widget.openCard(context),
+      behavior: HitTestBehavior.opaque,
       child: MobileCardContent(
         rowMeta: state.rowMeta,
         cellBuilder: widget.cellBuilder,

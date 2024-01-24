@@ -3,8 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/text_card_cell.dart';
@@ -109,13 +107,14 @@ class MobileHiddenGroupList extends StatelessWidget {
     return BlocBuilder<BoardBloc, BoardState>(
       builder: (_, state) => ReorderableListView.builder(
         itemCount: state.hiddenGroups.length,
-        itemBuilder: (_, index) => BlocProvider.value(
+        itemBuilder: (_, index) => MobileHiddenGroup(
+          key: ValueKey(state.hiddenGroups[index].groupId),
+          group: state.hiddenGroups[index],
+          index: index,
+        ),
+        proxyDecorator: (child, index, animation) => BlocProvider.value(
           value: context.read<BoardBloc>(),
-          child: MobileHiddenGroup(
-            key: ValueKey(state.hiddenGroups[index].groupId),
-            group: state.hiddenGroups[index],
-            index: index,
-          ),
+          child: Material(color: Colors.transparent, child: child),
         ),
         physics: const ClampingScrollPhysics(),
         onReorder: (oldIndex, newIndex) {
@@ -158,6 +157,39 @@ class MobileHiddenGroup extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
+        final cells = group.rows.map(
+          (item) {
+            final cellContext =
+                databaseController.rowCache.loadCells(item)[primaryField.id]!;
+
+            return TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.bodyMedium,
+                foregroundColor: Theme.of(context).colorScheme.onBackground,
+                visualDensity: VisualDensity.compact,
+              ),
+              child: CardCellBuilder(
+                databaseController:
+                    context.read<BoardBloc>().databaseController,
+              ).build(
+                cellContext: cellContext,
+                styleMap: {FieldType.RichText: _titleCellStyle(context)},
+                hasNotes: !item.isDocumentEmpty,
+              ),
+              onPressed: () {
+                context.push(
+                  MobileRowDetailPage.routeName,
+                  extra: {
+                    MobileRowDetailPage.argRowId: item.id,
+                    MobileRowDetailPage.argDatabaseController:
+                        context.read<BoardBloc>().databaseController,
+                  },
+                );
+              },
+            );
+          },
+        ).toList();
+
         return ExpansionTile(
           tilePadding: EdgeInsets.zero,
           childrenPadding: EdgeInsets.zero,
@@ -195,82 +227,7 @@ class MobileHiddenGroup extends StatelessWidget {
               ),
             ],
           ),
-          children: [
-            MobileHiddenGroupItemList(
-              viewId: databaseController.viewId,
-              groupId: group.groupId,
-              primaryField: primaryField,
-              rowCache: databaseController.rowCache,
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class MobileHiddenGroupItemList extends StatelessWidget {
-  const MobileHiddenGroupItemList({
-    required this.groupId,
-    required this.viewId,
-    required this.primaryField,
-    required this.rowCache,
-    super.key,
-  });
-
-  final String groupId;
-  final String viewId;
-  final FieldInfo primaryField;
-  final RowCache rowCache;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<BoardBloc, BoardState>(
-      builder: (context, state) {
-        final group = state.hiddenGroups.firstWhereOrNull(
-          (g) => g.groupId == groupId,
-        );
-        if (group == null) {
-          return const SizedBox.shrink();
-        }
-
-        final cells = group.rows.map(
-          (item) {
-            final cellContext = rowCache.loadCells(item)[primaryField.id]!;
-
-            return TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.bodyMedium,
-                foregroundColor: Theme.of(context).colorScheme.onBackground,
-                visualDensity: VisualDensity.compact,
-              ),
-              child: CardCellBuilder(
-                databaseController:
-                    context.read<BoardBloc>().databaseController,
-              ).build(
-                cellContext: cellContext,
-                styleMap: {FieldType.RichText: _titleCellStyle(context)},
-                hasNotes: !item.isDocumentEmpty,
-              ),
-              onPressed: () {
-                context.push(
-                  MobileRowDetailPage.routeName,
-                  extra: {
-                    MobileRowDetailPage.argRowId: item.id,
-                    MobileRowDetailPage.argDatabaseController:
-                        context.read<BoardBloc>().databaseController,
-                  },
-                );
-              },
-            );
-          },
-        ).toList();
-
-        return ListView.builder(
-          itemBuilder: (context, index) => cells[index],
-          itemCount: cells.length,
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
+          children: cells,
         );
       },
     );

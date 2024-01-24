@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/mobil
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_skeleton/checklist.dart';
 
@@ -41,8 +42,9 @@ class MobileGridChecklistCellSkin extends IEditableChecklistCellSkin {
         padding: EdgeInsets.zero,
         backgroundColor: Theme.of(context).colorScheme.background,
         builder: (context) {
-          return MobileChecklistCellEditScreen(
-            cellController: bloc.cellController,
+          return BlocProvider.value(
+            value: bloc,
+            child: const MobileChecklistCellEditScreen(),
           );
         },
       ),
