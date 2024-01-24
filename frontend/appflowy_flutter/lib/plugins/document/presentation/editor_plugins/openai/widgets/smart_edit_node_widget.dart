@@ -331,7 +331,7 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
               ),
             ],
           ),
-          onPressed: () async => await _onExit(),
+          onPressed: () async => _onExit(),
         ),
         const Spacer(),
         Expanded(

@@ -15,8 +15,8 @@ void main() {
   const service = TestWorkspaceService(TestWorkspace.aiWorkSpace);
 
   group('integration tests for open-ai smart menu', () {
-    setUpAll(() async => await service.setUpAll());
-    setUp(() async => await service.setUp());
+    setUpAll(() async => service.setUpAll());
+    setUp(() async => service.setUp());
 
     testWidgets('testing selection on open-ai smart menu replace',
         (tester) async {

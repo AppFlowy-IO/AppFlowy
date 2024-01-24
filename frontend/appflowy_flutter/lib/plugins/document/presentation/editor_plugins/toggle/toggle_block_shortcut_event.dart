@@ -14,7 +14,7 @@ const _greater = '>';
 CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
   key: 'format greater to quote',
   character: ' ',
-  handler: (editorState) async => await formatMarkdownSymbol(
+  handler: (editorState) async => formatMarkdownSymbol(
     editorState,
     (node) => node.type != ToggleListBlockKeys.type,
     (_, text, __) => text == _greater,

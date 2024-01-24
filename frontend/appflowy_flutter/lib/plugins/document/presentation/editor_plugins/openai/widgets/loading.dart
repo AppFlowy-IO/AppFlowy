@@ -6,7 +6,7 @@ class Loading {
   late BuildContext loadingContext;
   final BuildContext context;
 
-  Future<void> start() async => await showDialog<void>(
+  Future<void> start() async => showDialog<void>(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
@@ -33,7 +33,7 @@ class BarrierDialog {
   late BuildContext loadingContext;
   final BuildContext context;
 
-  Future<void> show() async => await showDialog<void>(
+  Future<void> show() async => showDialog<void>(
         context: context,
         barrierDismissible: false,
         barrierColor: Colors.transparent,

@@ -63,7 +63,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
           },
         );
         Log.info("UserEventOauthSignIn with payload: $payload");
-        return await UserEventOauthSignIn(payload).send().then((value) {
+        return UserEventOauthSignIn(payload).send().then((value) {
           value.fold((l) => null, (err) => Log.error(err));
           return value.swap();
         });

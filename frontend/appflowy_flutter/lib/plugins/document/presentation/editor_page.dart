@@ -175,7 +175,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final EditorScrollController editorScrollController;
 
-  Future<bool> showSlashMenu(editorState) async => await customSlashCommand(
+  Future<bool> showSlashMenu(editorState) async => customSlashCommand(
         slashMenuItems,
         shouldInsertSlash: false,
         style: styleCustomizer.selectionMenuStyleBuilder(),
