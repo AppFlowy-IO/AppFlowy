@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:appflowy/plugins/database/application/defines.dart';
@@ -10,13 +12,13 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../widgets/row/accessory/cell_accessory.dart';
 import '../../../../widgets/row/cells/cell_container.dart';
 import '../../layout/sizes.dart';
+
 import 'action.dart';
 
 class GridRow extends StatefulWidget {
@@ -167,14 +169,14 @@ class InsertRowButton extends StatelessWidget {
 }
 
 class RowMenuButton extends StatefulWidget {
-  final VoidCallback openMenu;
-  final bool isDragEnabled;
-
   const RowMenuButton({
+    super.key,
     required this.openMenu,
     this.isDragEnabled = false,
-    super.key,
   });
+
+  final VoidCallback openMenu;
+  final bool isDragEnabled;
 
   @override
   State<RowMenuButton> createState() => _RowMenuButtonState();
@@ -208,16 +210,16 @@ class _RowMenuButtonState extends State<RowMenuButton> {
 }
 
 class RowContent extends StatelessWidget {
-  final FieldController fieldController;
-  final VoidCallback onExpand;
-  final EditableCellBuilder cellBuilder;
-
   const RowContent({
     super.key,
     required this.fieldController,
     required this.cellBuilder,
     required this.onExpand,
   });
+
+  final FieldController fieldController;
+  final VoidCallback onExpand;
+  final EditableCellBuilder cellBuilder;
 
   @override
   Widget build(BuildContext context) {

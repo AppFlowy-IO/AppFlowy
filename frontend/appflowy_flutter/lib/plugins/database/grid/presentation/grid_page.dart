@@ -1,9 +1,14 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -11,22 +16,22 @@ import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+
+import '../../application/database_controller.dart';
 import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
-import '../application/grid_bloc.dart';
-import '../../application/database_controller.dart';
-import 'grid_scroll.dart';
 import '../../tab_bar/tab_bar_view.dart';
+import '../../widgets/row/row_detail.dart';
+import '../application/grid_bloc.dart';
+
+import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
-import 'widgets/row/row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
-import '../../widgets/row/row_detail.dart';
+import 'widgets/row/row.dart';
 import 'widgets/shortcuts.dart';
 
 class ToggleExtensionNotifier extends ChangeNotifier {
@@ -49,11 +54,13 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     ViewPB view,
     DatabaseController controller,
     bool shrinkWrap,
+    String? initialRowId,
   ) {
     return GridPage(
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
+      initialRowId: initialRowId,
     );
   }
 
@@ -85,26 +92,25 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 }
 
 class GridPage extends StatefulWidget {
-  final DatabaseController databaseController;
   const GridPage({
+    super.key,
     required this.view,
     required this.databaseController,
     this.onDeleted,
-    super.key,
+    this.initialRowId,
   });
 
   final ViewPB view;
+  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
+  final String? initialRowId;
 
   @override
   State<GridPage> createState() => _GridPageState();
 }
 
 class _GridPageState extends State<GridPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  bool _didOpenInitialRow = false;
 
   @override
   Widget build(BuildContext context) {
@@ -113,34 +119,85 @@ class _GridPageState extends State<GridPage> {
         view: widget.view,
         databaseController: widget.databaseController,
       )..add(const GridEvent.initial()),
-      child: BlocBuilder<GridBloc, GridState>(
-        builder: (context, state) {
-          return state.loadingState.map(
+      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+        listener: (context, state) {
+          final action = state.action;
+          if (action?.type == ActionType.openRow &&
+              action?.objectId == widget.view.id) {
+            final rowId = action!.arguments?[ActionArgumentKeys.rowId];
+            if (rowId != null) {
+              // If Reminder in existing database is pressed
+              // then open the row
+              _openRow(context, rowId);
+            }
+          }
+        },
+        child: BlocConsumer<GridBloc, GridState>(
+          listener: (context, state) => state.loadingState.whenOrNull(
+            // If initial row id is defined, open row details overlay
+            finish: (_) {
+              if (widget.initialRowId != null && !_didOpenInitialRow) {
+                _didOpenInitialRow = true;
+
+                _openRow(context, widget.initialRowId!);
+              }
+
+              return;
+            },
+          ),
+          builder: (context, state) => state.loadingState.map(
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => GridShortcuts(
-                child: GridPageContent(view: widget.view),
-              ),
+              (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
               (err) => FlowyErrorPage.message(
                 err.toString(),
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
               ),
             ),
             idle: (_) => const SizedBox.shrink(),
-          );
-        },
+          ),
+        ),
       ),
     );
+  }
+
+  void _openRow(
+    BuildContext context,
+    String rowId,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final gridBloc = context.read<GridBloc>();
+      final rowCache = gridBloc.getRowCache(rowId);
+      final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+      if (rowMeta == null) {
+        return;
+      }
+
+      final rowController = RowController(
+        viewId: widget.view.id,
+        rowMeta: rowMeta,
+        rowCache: rowCache,
+      );
+
+      FlowyOverlay.show(
+        context: context,
+        builder: (_) => RowDetailPage(
+          databaseController: context.read<GridBloc>().databaseController,
+          rowController: rowController,
+        ),
+      );
+    });
   }
 }
 
 class GridPageContent extends StatefulWidget {
-  final ViewPB view;
   const GridPageContent({
-    required this.view,
     super.key,
+    required this.view,
   });
+
+  final ViewPB view;
 
   @override
   State<GridPageContent> createState() => _GridPageContentState();

@@ -70,6 +70,7 @@ import 'package:appflowy/plugins/database/widgets/setting/setting_property_list.
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
@@ -83,6 +84,9 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:table_calendar/table_calendar.dart';
+
+// Non-exported member of the table_calendar library
+import 'package:table_calendar/src/widgets/cell_content.dart';
 
 import 'base.dart';
 import 'common_operations.dart';
@@ -314,6 +318,23 @@ extension AppFlowyDatabaseTest on WidgetTester {
       of: findDateEditor,
       matching: findToggle,
     );
+    await tapButton(finder);
+  }
+
+  Future<void> selectReminderOption(ReminderOption option) async {
+    await hoverOnWidget(find.byType(ReminderSelector));
+
+    final finder = find.descendant(
+      of: find.byType(FlowyButton),
+      matching: find.text(option.label),
+    );
+
+    await tapButton(finder);
+  }
+
+  Future<void> selectLastDateInPicker() async {
+    final finder = find.byType(CellContent).last;
+
     await tapButton(finder);
   }
 
