@@ -52,18 +52,13 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         if (event is KeyDownEvent &&
             event.logicalKey == LogicalKeyboardKey.escape) {
           if (!widget.textController.value.composing.isCollapsed) {
-            final start = widget.textController.value.composing.start;
-            final end = widget.textController.value.composing.end;
-            String text = widget.textController.text;
-            text = "${text.substring(0, start)}${text.substring(end)}";
-            final selection = TextSelection(
-              baseOffset: start,
-              extentOffset: start,
-            );
+            final TextRange(:start, :end) =
+                widget.textController.value.composing;
+            final text = widget.textController.text;
 
-            widget.textController.value = widget.textController.value.copyWith(
-              text: text,
-              selection: selection,
+            widget.textController.value = TextEditingValue(
+              text: "${text.substring(0, start)}${text.substring(end)}",
+              selection: TextSelection(baseOffset: start, extentOffset: start),
               composing: const TextRange(start: -1, end: -1),
             );
             return KeyEventResult.handled;
