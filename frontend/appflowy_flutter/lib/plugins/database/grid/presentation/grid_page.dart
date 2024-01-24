@@ -4,8 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
-import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
-import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy_backend/log.dart';
@@ -115,18 +114,11 @@ class _GridPageState extends State<GridPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<NotificationActionBloc>.value(
-          value: getIt<NotificationActionBloc>(),
-        ),
-        BlocProvider<GridBloc>(
-          create: (context) => GridBloc(
-            view: widget.view,
-            databaseController: widget.databaseController,
-          )..add(const GridEvent.initial()),
-        ),
-      ],
+    return BlocProvider<GridBloc>(
+      create: (context) => GridBloc(
+        view: widget.view,
+        databaseController: widget.databaseController,
+      )..add(const GridEvent.initial()),
       child: BlocListener<NotificationActionBloc, NotificationActionState>(
         listener: (context, state) {
           final action = state.action;
@@ -182,7 +174,6 @@ class _GridPageState extends State<GridPage> {
         return;
       }
 
-      final fieldController = gridBloc.databaseController.fieldController;
       final rowController = RowController(
         viewId: widget.view.id,
         rowMeta: rowMeta,
@@ -192,9 +183,8 @@ class _GridPageState extends State<GridPage> {
       FlowyOverlay.show(
         context: context,
         builder: (_) => RowDetailPage(
-          cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
+          databaseController: context.read<GridBloc>().databaseController,
           rowController: rowController,
-          fieldController: fieldController,
         ),
       );
     });
@@ -288,7 +278,7 @@ class _GridRows extends StatelessWidget {
                 reorderSingleRow: (reorderRow, rowInfo) => true,
                 delete: (item) => true,
                 insert: (item) => true,
-                orElse: () => false,
+                orElse: () => true,
               ),
               builder: (context, state) {
                 final rowInfos = state.rowInfos;
@@ -312,15 +302,17 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
-    final children = rowInfos.mapIndexed((index, rowInfo) {
-      return _renderRow(
-        context,
-        rowInfo.rowId,
-        isDraggable: state.reorderable,
-        index: index,
-      );
-    }).toList()
-      ..add(const GridRowBottomBar(key: Key('gridFooter')));
+    final children = [
+      ...rowInfos.mapIndexed((index, rowInfo) {
+        return _renderRow(
+          context,
+          rowInfo.rowId,
+          isDraggable: state.reorderable,
+          index: index,
+        );
+      }),
+      const GridRowBottomBar(key: Key('gridFooter')),
+    ];
     return ReorderableListView.builder(
       ///  This is a workaround related to
       ///  https://github.com/flutter/flutter/issues/25652
@@ -333,12 +325,11 @@ class _GridRows extends StatelessWidget {
       ),
       onReorder: (fromIndex, newIndex) {
         final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-        if (fromIndex == toIndex) {
-          return;
+        if (fromIndex != toIndex) {
+          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
         }
-        context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
       },
-      itemCount: rowInfos.length + 1, // the extra item is the footer
+      itemCount: children.length,
       itemBuilder: (context, index) => children[index],
     );
   }
@@ -350,7 +341,8 @@ class _GridRows extends StatelessWidget {
     required bool isDraggable,
     Animation<double>? animation,
   }) {
-    final rowCache = context.read<GridBloc>().getRowCache(rowId);
+    final databaseController = context.read<GridBloc>().databaseController;
+    final DatabaseController(:viewId, :rowCache) = databaseController;
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
     /// Return placeholder widget if the rowMeta is null.
@@ -358,9 +350,6 @@ class _GridRows extends StatelessWidget {
       Log.warn('RowMeta is null for rowId: $rowId');
       return const SizedBox.shrink();
     }
-
-    final fieldController =
-        context.read<GridBloc>().databaseController.fieldController;
     final rowController = RowController(
       viewId: viewId,
       rowMeta: rowMeta,
@@ -369,20 +358,20 @@ class _GridRows extends StatelessWidget {
 
     final child = GridRow(
       key: ValueKey(rowMeta.id),
+      fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,
       index: index,
       isDraggable: isDraggable,
-      dataController: rowController,
-      cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
+      rowController: rowController,
+      cellBuilder: EditableCellBuilder(databaseController: databaseController),
       openDetailPage: (context, cellBuilder) {
         FlowyOverlay.show(
           context: context,
           builder: (BuildContext context) {
             return RowDetailPage(
-              cellBuilder: cellBuilder,
               rowController: rowController,
-              fieldController: fieldController,
+              databaseController: databaseController,
             );
           },
         );

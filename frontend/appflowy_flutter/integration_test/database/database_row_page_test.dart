@@ -14,8 +14,8 @@ import '../util/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('grid', () {
-    testWidgets('row details page opens', (tester) async {
+  group('grid row detail page:', () {
+    testWidgets('opens', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -27,9 +27,12 @@ void main() {
 
       // Make sure that the row page is opened
       tester.assertRowDetailPageOpened();
+
+      // Each row detail page should have a document
+      await tester.assertDocumentExistInRowDetailPage();
     });
 
-    testWidgets('insert emoji in the row detail page', (tester) async {
+    testWidgets('add emoji', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -48,7 +51,7 @@ void main() {
       await tester.tapButton(find.byType(EmojiButton));
     });
 
-    testWidgets('update emoji in the row detail page', (tester) async {
+    testWidgets('update emoji', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -75,7 +78,7 @@ void main() {
       expect(emojiText, findsNWidgets(2));
     });
 
-    testWidgets('remove emoji in the row detail page', (tester) async {
+    testWidgets('remove emoji', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -96,7 +99,7 @@ void main() {
       expect(emojiText, findsNothing);
     });
 
-    testWidgets('create list of fields in row detail page', (tester) async {
+    testWidgets('create list of fields', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -120,7 +123,7 @@ void main() {
         await tester.renameField(fieldType.name);
 
         // Open the type option menu
-        await tester.tapTypeOptionButton();
+        await tester.tapSwitchFieldTypeButton();
 
         await tester.selectFieldType(fieldType);
 
@@ -211,20 +214,6 @@ void main() {
       tester.assertToggleShowHiddenFieldsVisibility(false);
     });
 
-    testWidgets('check document exists in row detail page', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      // Create a new grid
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-
-      // Hover first row and then open the row page
-      await tester.openFirstRowDetailPage();
-
-      // Each row detail page should have a document
-      await tester.assertDocumentExistInRowDetailPage();
-    });
-
     testWidgets('update the contents of the document and re-open it',
         (tester) async {
       await tester.initializeAppFlowy();
@@ -305,7 +294,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('delete row in row detail page', (tester) async {
+    testWidgets('delete row', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -322,7 +311,7 @@ void main() {
       await tester.assertNumberOfRowsInGridPage(2);
     });
 
-    testWidgets('duplicate row in row detail page', (tester) async {
+    testWidgets('duplicate row', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 

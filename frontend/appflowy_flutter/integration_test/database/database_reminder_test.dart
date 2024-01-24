@@ -20,10 +20,10 @@ void main() {
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Type');
-      await tester.tapEditPropertyButton();
+      await tester.tapEditFieldButton();
 
       // Change to date type
-      await tester.tapTypeOptionButton();
+      await tester.tapSwitchFieldTypeButton();
       await tester.selectFieldType(FieldType.DateTime);
       await tester.dismissFieldEditor();
 
@@ -68,10 +68,10 @@ void main() {
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Type');
-      await tester.tapEditPropertyButton();
+      await tester.tapEditFieldButton();
 
       // Change to date type
-      await tester.tapTypeOptionButton();
+      await tester.tapSwitchFieldTypeButton();
       await tester.selectFieldType(FieldType.DateTime);
       await tester.dismissFieldEditor();
 

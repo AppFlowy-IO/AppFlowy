@@ -41,7 +41,7 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((data) {
         if (!isClosed) {
           add(DateCellEvent.didReceiveCellUpdate(data));

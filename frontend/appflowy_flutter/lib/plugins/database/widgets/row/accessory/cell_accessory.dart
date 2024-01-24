@@ -10,7 +10,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-import '../cell_builder.dart';
+import '../../cell/editable_cell_builder.dart';
 
 class GridCellAccessoryBuildContext {
   final BuildContext anchorContext;
@@ -54,11 +54,11 @@ abstract mixin class GridCellAccessoryState {
 class PrimaryCellAccessory extends StatefulWidget {
   const PrimaryCellAccessory({
     super.key,
-    required this.onTapCallback,
+    required this.onTap,
     required this.isCellEditing,
   });
 
-  final VoidCallback onTapCallback;
+  final VoidCallback onTap;
   final bool isCellEditing;
 
   @override
@@ -86,7 +86,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
   }
 
   @override
-  void onTap() => widget.onTapCallback();
+  void onTap() => widget.onTap();
 
   @override
   bool enable() => !widget.isCellEditing;

@@ -33,8 +33,8 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
 }
 
 Future<void> editCells(GridTestContext context) async {
-  final controller0 = await context.makeTextCellController(0);
-  final controller1 = await context.makeTextCellController(1);
+  final controller0 = context.makeTextCellController(0);
+  final controller1 = context.makeTextCellController(1);
 
   controller0.saveCellData('A');
   await gridResponseFuture();

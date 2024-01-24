@@ -16,8 +16,8 @@ use crate::entities::{
 use crate::services::cell::{CellDataDecoder, FromCellChangeset, ToCellChangeset};
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateFormat, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RichTextTypeOption, SingleSelectTypeOption, TimeFormat, TimestampTypeOption, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
+  SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
 };
 use crate::services::filter::FromFilterString;
 use crate::services::sort::SortCondition;
@@ -271,9 +271,8 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
     FieldType::DateTime => DateTypeOption::default().into(),
     FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
       field_type: *field_type,
-      date_format: DateFormat::Friendly,
-      time_format: TimeFormat::TwelveHour,
       include_time: true,
+      ..Default::default()
     }
     .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),

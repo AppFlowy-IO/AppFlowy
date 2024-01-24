@@ -77,7 +77,7 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
           }
 
           if (newField.type != widget.field.fieldType) {
-            await fieldService.updateFieldType(fieldType: newField.type);
+            await fieldService.updateType(fieldType: newField.type);
           }
 
           final data = newField.getTypeOptionData();

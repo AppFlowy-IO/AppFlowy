@@ -15,7 +15,7 @@ void main() {
     test('create options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -34,7 +34,7 @@ void main() {
     test('update options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -59,7 +59,7 @@ void main() {
     test('delete options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -101,7 +101,7 @@ void main() {
     test('select/unselect option', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -128,7 +128,7 @@ void main() {
     test('select an option or create one', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -154,7 +154,7 @@ void main() {
     test('select multiple options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -185,7 +185,7 @@ void main() {
     test('filter options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
