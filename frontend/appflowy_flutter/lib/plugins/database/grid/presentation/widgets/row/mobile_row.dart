@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
@@ -141,9 +141,9 @@ class RowContent extends StatelessWidget {
 
   List<Widget> _makeCells(
     BuildContext context,
-    CellContextByFieldId cellByFieldId,
+    List<CellContext> cellByFieldId,
   ) {
-    return cellByFieldId.values.map(
+    return cellByFieldId.map(
       (cellContext) {
         final fieldInfo = fieldController.getField(cellContext.fieldId)!;
         final EditableCellWidget child = builder.buildStyled(
