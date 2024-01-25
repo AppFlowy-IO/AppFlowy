@@ -7,18 +7,21 @@ import 'package:flutter/material.dart';
 Future<T?> showMobileBottomSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
-  ShapeBorder? shape,
   bool isDragEnabled = true,
-  bool resizeToAvoidBottomInset = true,
-  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 32),
   bool showDragHandle = false,
   bool showHeader = false,
+  // this field is only used if showHeader is true
   bool showCloseButton = false,
-  String title = '', // only works if showHeader is true
-  Color? backgroundColor,
+  // this field is only used if showHeader is true
+  String title = '',
+  bool resizeToAvoidBottomInset = true,
   bool isScrollControlled = true,
-  BoxConstraints? constraints,
   bool showDivider = true,
+  ShapeBorder? shape,
+  // the padding of the content, the padding of the header area is fixed
+  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 32),
+  Color? backgroundColor,
+  BoxConstraints? constraints,
   Color? barrierColor,
   double? elevation,
 }) async {
@@ -26,6 +29,12 @@ Future<T?> showMobileBottomSheet<T>(
     if (showCloseButton || title.isNotEmpty) assert(showHeader);
     return true;
   }());
+
+  shape ??= const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(
+      top: Corners.s12Radius,
+    ),
+  );
 
   return showModalBottomSheet<T>(
     context: context,
@@ -37,72 +46,57 @@ Future<T?> showMobileBottomSheet<T>(
     constraints: constraints,
     barrierColor: barrierColor,
     elevation: elevation,
-    shape: shape ??
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Corners.s12Radius,
-          ),
-        ),
+    shape: shape,
     builder: (context) {
       final List<Widget> children = [];
 
+      final child = builder(context);
+
+      // if the children is only one, we don't need to wrap it with a column
+      if (!showDragHandle && !showHeader && !showDivider) {
+        return child;
+      }
+
+      // ----- header area -----
       if (showDragHandle) {
-        children.addAll([
+        children.add(
           const DragHandler(),
-        ]);
+        );
       }
 
       if (showHeader) {
-        children.addAll([
-          VSpace(padding.top),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              showCloseButton
-                  ? Padding(
-                      padding: EdgeInsets.only(left: padding.left),
-                      child: const AppBarCloseButton(
-                        margin: EdgeInsets.zero,
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-              FlowyText(
-                title,
-                fontSize: 16.0,
-                fontWeight: FontWeight.w500,
-              ),
-              showCloseButton
-                  ? HSpace(padding.right + 24)
-                  : const SizedBox.shrink(),
-            ],
+        children.add(
+          _Header(
+            showCloseButton: showCloseButton,
+            title: title,
           ),
-          const VSpace(4),
-          if (showDivider) const Divider(),
-        ]);
+        );
       }
 
-      final child = builder(context);
+      if (showDivider) {
+        children.add(
+          const Divider(height: 1.0, thickness: 1.0),
+        );
+      }
+      // ----- header area -----
 
+      // ----- content area -----
       if (resizeToAvoidBottomInset) {
         children.add(
-          AnimatedPadding(
+          Padding(
             padding: EdgeInsets.only(
-              top: showHeader ? 0 : padding.top,
+              top: padding.top,
               left: padding.left,
               right: padding.right,
               bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
             ),
-            duration: Duration.zero,
             child: child,
           ),
         );
       } else {
         children.add(child);
       }
-
-      if (children.length == 1) {
-        return children.first;
-      }
+      // ----- content area -----
 
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -110,4 +104,38 @@ Future<T?> showMobileBottomSheet<T>(
       );
     },
   );
+}
+
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.showCloseButton,
+    required this.title,
+  });
+
+  final bool showCloseButton;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 44.0, // the height of the header area is fixed
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (showCloseButton) ...[
+            const HSpace(16),
+            const AppBarCloseButton(
+              margin: EdgeInsets.zero,
+            ),
+          ],
+          FlowyText(
+            title,
+            fontSize: 16.0,
+            fontWeight: FontWeight.w500,
+          ),
+          if (showCloseButton) const HSpace(16), // used to align the title
+        ],
+      ),
+    );
+  }
 }
