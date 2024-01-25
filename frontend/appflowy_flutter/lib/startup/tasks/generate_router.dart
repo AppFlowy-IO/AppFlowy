@@ -612,5 +612,5 @@ Widget _buildFadeTransition(
     FadeTransition(opacity: animation, child: child);
 
 Duration _slowDuration = Duration(
-  milliseconds: (RouteDurations.slow.inMilliseconds).round(),
+  milliseconds: RouteDurations.slow.inMilliseconds.round(),
 );

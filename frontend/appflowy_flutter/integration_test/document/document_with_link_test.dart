@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,9 +23,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);

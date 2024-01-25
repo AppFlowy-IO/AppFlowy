@@ -4,9 +4,9 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 
 class GroupBackendService {
-  final String viewId;
-
   GroupBackendService(this.viewId);
+
+  final String viewId;
 
   Future<Either<Unit, FlowyError>> groupByField({
     required String fieldId,

@@ -148,7 +148,6 @@ class _Header extends StatelessWidget {
                 ),
               ),
             Align(
-              alignment: Alignment.center,
               child: FlowyText(
                 title,
                 fontSize: 16.0,

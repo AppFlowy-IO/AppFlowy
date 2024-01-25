@@ -38,7 +38,7 @@ class UserAvatar extends StatelessWidget {
           .where((element) => element.isNotEmpty)
           .take(initialsCount)
           .map((element) => element[0].toUpperCase())
-          .join('');
+          .join();
 
       return Container(
         width: size,

@@ -289,7 +289,6 @@ class _MobileToolbarState extends State<_MobileToolbar>
             color: Color(0x0F181818),
             blurRadius: 40,
             offset: Offset(0, -4),
-            spreadRadius: 0,
           ),
         ],
       ),

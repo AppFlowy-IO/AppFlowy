@@ -47,7 +47,6 @@ class MobilePersonalFolder extends StatelessWidget {
                     key: ValueKey(
                       '${FolderCategoryType.personal.name} ${view.id}',
                     ),
-                    isDraggable: true,
                     categoryType: FolderCategoryType.personal,
                     isFirstChild: view.id == views.first.id,
                     view: view,

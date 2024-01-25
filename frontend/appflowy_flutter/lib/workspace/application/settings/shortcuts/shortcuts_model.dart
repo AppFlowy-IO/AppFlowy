@@ -1,20 +1,16 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 class EditorShortcuts {
-  EditorShortcuts({
-    required this.commandShortcuts,
-  });
-
-  final List<CommandShortcutModel> commandShortcuts;
-
   factory EditorShortcuts.fromJson(Map<String, dynamic> json) =>
       EditorShortcuts(
         commandShortcuts: List<CommandShortcutModel>.from(
-          json["commandShortcuts"].map(
-            (x) => CommandShortcutModel.fromJson(x),
-          ),
+          json["commandShortcuts"].map((x) => CommandShortcutModel.fromJson(x)),
         ),
       );
+
+  EditorShortcuts({required this.commandShortcuts});
+
+  final List<CommandShortcutModel> commandShortcuts;
 
   Map<String, dynamic> toJson() => {
         "commandShortcuts":
@@ -23,20 +19,6 @@ class EditorShortcuts {
 }
 
 class CommandShortcutModel {
-  const CommandShortcutModel({
-    required this.key,
-    required this.command,
-  });
-
-  final String key;
-  final String command;
-
-  factory CommandShortcutModel.fromJson(Map<String, dynamic> json) =>
-      CommandShortcutModel(
-        key: json["key"],
-        command: (json["command"] ?? ''),
-      );
-
   factory CommandShortcutModel.fromCommandEvent(
     CommandShortcutEvent commandShortcutEvent,
   ) =>
@@ -45,10 +27,18 @@ class CommandShortcutModel {
         command: commandShortcutEvent.command,
       );
 
-  Map<String, dynamic> toJson() => {
-        "key": key,
-        "command": command,
-      };
+  factory CommandShortcutModel.fromJson(Map<String, dynamic> json) =>
+      CommandShortcutModel(
+        key: json["key"],
+        command: json["command"] ?? '',
+      );
+
+  const CommandShortcutModel({required this.key, required this.command});
+
+  final String key;
+  final String command;
+
+  Map<String, dynamic> toJson() => {"key": key, "command": command};
 
   @override
   bool operator ==(Object other) =>

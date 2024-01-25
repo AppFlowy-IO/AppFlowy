@@ -144,8 +144,6 @@ Future<void> insertReferenceDatabase(
   // create a new document
   await tester.createNewPageWithNameUnderParent(
     name: 'insert_a_reference_${layout.name}',
-    layout: ViewLayoutPB.Document,
-    openAfterCreated: true,
   );
   // tap the first line of the document
   await tester.editor.tapLineOfEditorAt(0);
@@ -173,8 +171,6 @@ Future<void> createInlineDatabase(
   final documentName = 'insert_a_inline_${layout.name}';
   await tester.createNewPageWithNameUnderParent(
     name: documentName,
-    layout: ViewLayoutPB.Document,
-    openAfterCreated: true,
   );
   // tap the first line of the document
   await tester.editor.tapLineOfEditorAt(0);

@@ -57,8 +57,6 @@ Future<bool?> showAddBlockMenu(
   return showMobileBottomSheet<bool>(
     context,
     showHeader: true,
-    showCloseButton: false,
-    showDivider: true,
     showDragHandle: true,
     showDoneButton: true,
     barrierColor: Colors.transparent,
@@ -347,7 +345,7 @@ extension on EditorState {
       node,
     );
     transaction.afterSelection = Selection.collapsed(
-      Position(path: path, offset: 0),
+      Position(path: path),
     );
     transaction.selectionExtraInfo = {};
     await apply(transaction);

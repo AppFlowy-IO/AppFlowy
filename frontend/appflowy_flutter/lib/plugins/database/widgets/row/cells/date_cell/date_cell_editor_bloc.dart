@@ -27,11 +27,6 @@ part 'date_cell_editor_bloc.freezed.dart';
 
 class DateCellEditorBloc
     extends Bloc<DateCellEditorEvent, DateCellEditorState> {
-  final DateCellBackendService _dateCellBackendService;
-  final DateCellController cellController;
-  final ReminderBloc _reminderBloc;
-  void Function()? _onCellChangedFn;
-
   DateCellEditorBloc({
     required this.cellController,
     required ReminderBloc reminderBloc,
@@ -42,6 +37,15 @@ class DateCellEditorBloc
           rowId: cellController.rowId,
         ),
         super(DateCellEditorState.initial(cellController, reminderBloc)) {
+    _dispatch();
+  }
+
+  final DateCellBackendService _dateCellBackendService;
+  final DateCellController cellController;
+  final ReminderBloc _reminderBloc;
+  void Function()? _onCellChangedFn;
+
+  void _dispatch() {
     on<DateCellEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -120,9 +124,8 @@ class DateCellEditorBloc
             }
           },
           setIncludeTime: (includeTime) async =>
-              await _updateDateData(includeTime: includeTime),
-          setIsRange: (isRange) async =>
-              await _updateDateData(isRange: isRange),
+              _updateDateData(includeTime: includeTime),
+          setIsRange: (isRange) async => _updateDateData(isRange: isRange),
           setTime: (timeStr) async {
             emit(state.copyWith(timeStr: timeStr));
             await _updateDateData(timeStr: timeStr);
@@ -213,7 +216,7 @@ class DateCellEditorBloc
             }
           },
           // Empty String signifies no reminder
-          removeReminder: () async => await _updateDateData(reminderId: ""),
+          removeReminder: () async => _updateDateData(reminderId: ""),
         );
       },
     );
@@ -578,16 +581,6 @@ _DateCellData _dateDataFromCellData(
 }
 
 class _DateCellData {
-  final DateTime? dateTime;
-  final DateTime? endDateTime;
-  final String? timeStr;
-  final String? endTimeStr;
-  final bool includeTime;
-  final bool isRange;
-  final String? dateStr;
-  final String? endDateStr;
-  final String? reminderId;
-
   _DateCellData({
     required this.dateTime,
     required this.endDateTime,
@@ -599,4 +592,14 @@ class _DateCellData {
     required this.endDateStr,
     required this.reminderId,
   });
+
+  final DateTime? dateTime;
+  final DateTime? endDateTime;
+  final String? timeStr;
+  final String? endTimeStr;
+  final bool includeTime;
+  final bool isRange;
+  final String? dateStr;
+  final String? endDateStr;
+  final String? reminderId;
 }

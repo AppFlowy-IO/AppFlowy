@@ -20,8 +20,9 @@ import 'setting_appflowy_cloud.dart';
 import 'setting_supabase_cloud.dart';
 
 class SettingCloud extends StatelessWidget {
-  final VoidCallback didResetServerUrl;
   const SettingCloud({required this.didResetServerUrl, super.key});
+
+  final VoidCallback didResetServerUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +107,14 @@ class SettingCloud extends StatelessWidget {
 }
 
 class CloudTypeSwitcher extends StatelessWidget {
-  final AuthenticatorType cloudType;
-  final Function(AuthenticatorType) onSelected;
   const CloudTypeSwitcher({
+    super.key,
     required this.cloudType,
     required this.onSelected,
-    super.key,
   });
+
+  final AuthenticatorType cloudType;
+  final Function(AuthenticatorType) onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -190,16 +192,16 @@ class CloudTypeSwitcher extends StatelessWidget {
 }
 
 class CloudTypeItem extends StatelessWidget {
-  final AuthenticatorType cloudType;
-  final AuthenticatorType currentCloudtype;
-  final Function(AuthenticatorType) onSelected;
-
   const CloudTypeItem({
+    super.key,
     required this.cloudType,
     required this.currentCloudtype,
     required this.onSelected,
-    super.key,
   });
+
+  final AuthenticatorType cloudType;
+  final AuthenticatorType currentCloudtype;
+  final Function(AuthenticatorType) onSelected;
 
   @override
   Widget build(BuildContext context) {

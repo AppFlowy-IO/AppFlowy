@@ -125,7 +125,6 @@ class _EventCardState extends State<EventCard> {
           blurRadius: 2,
         ),
         BoxShadow(
-          spreadRadius: 0,
           color: const Color(0xFF1F2329).withOpacity(0.02),
           blurRadius: 4,
         ),

@@ -28,7 +28,6 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
           return TextField(
             focusNode: focusNode,
             keyboardType: TextInputType.url,
-            maxLines: 1,
             decoration: const InputDecoration(
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,

@@ -11,11 +11,12 @@ import 'package:flowy_infra/notifier.dart';
 typedef UpdateFieldNotifiedValue = FieldPB;
 
 class SingleFieldListener {
+  SingleFieldListener({required this.fieldId});
+
   final String fieldId;
+
   void Function(UpdateFieldNotifiedValue)? _updateFieldNotifier;
   DatabaseNotificationListener? _listener;
-
-  SingleFieldListener({required this.fieldId});
 
   void start({
     required void Function(UpdateFieldNotifiedValue) onFieldChanged,
@@ -53,11 +54,13 @@ typedef UpdateFieldsNotifiedValue
     = Either<DatabaseFieldChangesetPB, FlowyError>;
 
 class FieldsListener {
+  FieldsListener({required this.viewId});
+
   final String viewId;
+
   PublishNotifier<UpdateFieldsNotifiedValue>? updateFieldsNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  FieldsListener({required this.viewId});
 
   void start({
     required void Function(UpdateFieldsNotifiedValue) onFieldsChanged,

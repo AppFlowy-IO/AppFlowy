@@ -18,11 +18,6 @@ import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:easy_localization/easy_localization.dart';
 
 class MobileGridRow extends StatefulWidget {
-  final DatabaseController databaseController;
-  final RowId rowId;
-  final void Function(BuildContext context) openDetailPage;
-  final bool isDraggable;
-
   const MobileGridRow({
     super.key,
     required this.rowId,
@@ -30,6 +25,11 @@ class MobileGridRow extends StatefulWidget {
     required this.openDetailPage,
     this.isDraggable = false,
   });
+
+  final RowId rowId;
+  final DatabaseController databaseController;
+  final void Function(BuildContext context) openDetailPage;
+  final bool isDraggable;
 
   @override
   State<MobileGridRow> createState() => _MobileGridRowState();
@@ -111,15 +111,16 @@ class InsertRowButton extends StatelessWidget {
 }
 
 class RowContent extends StatelessWidget {
-  final FieldController fieldController;
-  final VoidCallback onExpand;
-  final EditableCellBuilder builder;
   const RowContent({
     super.key,
     required this.fieldController,
-    required this.builder,
     required this.onExpand,
+    required this.builder,
   });
+
+  final FieldController fieldController;
+  final VoidCallback onExpand;
+  final EditableCellBuilder builder;
 
   @override
   Widget build(BuildContext context) {

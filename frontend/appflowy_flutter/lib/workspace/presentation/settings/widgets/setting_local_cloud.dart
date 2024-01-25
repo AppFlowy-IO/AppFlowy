@@ -6,11 +6,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class SettingLocalCloud extends StatelessWidget {
+  const SettingLocalCloud({super.key, required this.didResetServerUrl});
+
   final VoidCallback didResetServerUrl;
-  const SettingLocalCloud({
-    required this.didResetServerUrl,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {

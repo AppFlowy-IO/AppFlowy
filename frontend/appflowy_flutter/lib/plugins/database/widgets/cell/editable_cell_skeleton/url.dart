@@ -18,6 +18,15 @@ import '../mobile_row_detail/mobile_row_detail_url_cell.dart';
 abstract class IEditableURLCellSkin {
   const IEditableURLCellSkin();
 
+  factory IEditableURLCellSkin.fromStyle(EditableCellStyle style) {
+    return switch (style) {
+      EditableCellStyle.desktopGrid => DesktopGridURLSkin(),
+      EditableCellStyle.desktopRowDetail => DesktopRowDetailURLSkin(),
+      EditableCellStyle.mobileGrid => MobileGridURLCellSkin(),
+      EditableCellStyle.mobileRowDetail => MobileRowDetailURLCellSkin(),
+    };
+  }
+
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
@@ -31,31 +40,22 @@ abstract class IEditableURLCellSkin {
     GridCellAccessoryBuildContext context,
     URLCellDataNotifier cellDataNotifier,
   );
-
-  factory IEditableURLCellSkin.fromStyle(EditableCellStyle style) {
-    return switch (style) {
-      EditableCellStyle.desktopGrid => DesktopGridURLSkin(),
-      EditableCellStyle.desktopRowDetail => DesktopRowDetailURLSkin(),
-      EditableCellStyle.mobileGrid => MobileGridURLCellSkin(),
-      EditableCellStyle.mobileRowDetail => MobileRowDetailURLCellSkin(),
-    };
-  }
 }
 
 typedef URLCellDataNotifier = CellDataNotifier<String>;
 
 class EditableURLCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableURLCellSkin skin;
-  final URLCellDataNotifier _cellDataNotifier;
-
   EditableURLCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
   }) : _cellDataNotifier = CellDataNotifier(value: '');
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableURLCellSkin skin;
+  final URLCellDataNotifier _cellDataNotifier;
 
   @override
   List<GridCellAccessoryBuilder> Function(

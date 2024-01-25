@@ -60,14 +60,6 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
 }
 
 class SelectOptionTag extends StatelessWidget {
-  final SelectOptionPB? option;
-  final String? name;
-  final double? fontSize;
-  final Color? color;
-  final TextStyle? textStyle;
-  final EdgeInsets padding;
-  final void Function(String)? onRemove;
-
   const SelectOptionTag({
     super.key,
     this.option,
@@ -78,6 +70,14 @@ class SelectOptionTag extends StatelessWidget {
     this.onRemove,
     required this.padding,
   }) : assert(option != null || name != null && color != null);
+
+  final SelectOptionPB? option;
+  final String? name;
+  final double? fontSize;
+  final Color? color;
+  final TextStyle? textStyle;
+  final void Function(String)? onRemove;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {

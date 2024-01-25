@@ -5,14 +5,8 @@ part 'grid_accessory_bloc.freezed.dart';
 
 class DatabaseViewSettingExtensionBloc extends Bloc<
     DatabaseViewSettingExtensionEvent, DatabaseViewSettingExtensionState> {
-  final String viewId;
-
   DatabaseViewSettingExtensionBloc({required this.viewId})
-      : super(
-          DatabaseViewSettingExtensionState.initial(
-            viewId,
-          ),
-        ) {
+      : super(DatabaseViewSettingExtensionState.initial(viewId)) {
     on<DatabaseViewSettingExtensionEvent>(
       (event, emit) async {
         event.when(
@@ -24,6 +18,8 @@ class DatabaseViewSettingExtensionBloc extends Bloc<
       },
     );
   }
+
+  final String viewId;
 }
 
 @freezed

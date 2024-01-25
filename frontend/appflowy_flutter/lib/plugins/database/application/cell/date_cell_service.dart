@@ -6,8 +6,6 @@ import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart';
 
 final class DateCellBackendService {
-  final CellIdPB cellId;
-
   DateCellBackendService({
     required String viewId,
     required String fieldId,
@@ -16,6 +14,8 @@ final class DateCellBackendService {
           ..viewId = viewId
           ..fieldId = fieldId
           ..rowId = rowId;
+
+  final CellIdPB cellId;
 
   Future<Either<Unit, FlowyError>> update({
     required bool includeTime,

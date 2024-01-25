@@ -16,7 +16,10 @@ typedef ReorderAllRowsNotifierValue = Either<List<String>, FlowyError>;
 typedef SingleRowNotifierValue = Either<ReorderSingleRowPB, FlowyError>;
 
 class DatabaseViewListener {
+  DatabaseViewListener({required this.viewId});
+
   final String viewId;
+
   PublishNotifier<NumberOfRowsNotifierValue>? _rowsNotifier = PublishNotifier();
   PublishNotifier<ReorderAllRowsNotifierValue>? _reorderAllRows =
       PublishNotifier();
@@ -26,7 +29,6 @@ class DatabaseViewListener {
       PublishNotifier();
 
   DatabaseNotificationListener? _listener;
-  DatabaseViewListener({required this.viewId});
 
   void start({
     required void Function(NumberOfRowsNotifierValue) onRowsChanged,

@@ -7,14 +7,6 @@ typedef OnError = void Function(FlowyError);
 typedef OnSettingUpdated = void Function(DatabaseViewSettingPB);
 
 class SettingController {
-  final String viewId;
-  final SettingBackendService _settingBackendSvc;
-  final DatabaseSettingListener _listener;
-  OnSettingUpdated? _onSettingUpdated;
-  OnError? _onError;
-  DatabaseViewSettingPB? _setting;
-  DatabaseViewSettingPB? get setting => _setting;
-
   SettingController({
     required this.viewId,
   })  : _settingBackendSvc = SettingBackendService(viewId: viewId),
@@ -37,6 +29,15 @@ class SettingController {
       },
     );
   }
+
+  final String viewId;
+  final SettingBackendService _settingBackendSvc;
+  final DatabaseSettingListener _listener;
+
+  OnSettingUpdated? _onSettingUpdated;
+  OnError? _onError;
+  DatabaseViewSettingPB? _setting;
+  DatabaseViewSettingPB? get setting => _setting;
 
   void startListening({
     required OnSettingUpdated onSettingUpdated,

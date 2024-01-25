@@ -1,6 +1,7 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pbenum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'number_format_bloc.freezed.dart';
 
 class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {

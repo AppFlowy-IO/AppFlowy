@@ -72,7 +72,6 @@ class _FieldHeader extends StatelessWidget {
     return SizedBox(
       height: 56,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(

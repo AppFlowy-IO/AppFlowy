@@ -10,10 +10,6 @@ import 'dart:math' as math;
 import '../filter_info.dart';
 
 class ChoiceChipButton extends StatelessWidget {
-  final FilterInfo filterInfo;
-  final VoidCallback? onTap;
-  final String filterDesc;
-
   const ChoiceChipButton({
     super.key,
     required this.filterInfo,
@@ -21,11 +17,14 @@ class ChoiceChipButton extends StatelessWidget {
     this.onTap,
   });
 
+  final FilterInfo filterInfo;
+  final String filterDesc;
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final borderSide = BorderSide(
       color: AFThemeExtension.of(context).toggleOffFill,
-      width: 1.0,
     );
 
     final decoration = BoxDecoration(
@@ -58,8 +57,9 @@ class ChoiceChipButton extends StatelessWidget {
 }
 
 class _ChoicechipFilterDesc extends StatelessWidget {
-  final String filterDesc;
   const _ChoicechipFilterDesc({this.filterDesc = ''});
+
+  final String filterDesc;
 
   @override
   Widget build(BuildContext context) {

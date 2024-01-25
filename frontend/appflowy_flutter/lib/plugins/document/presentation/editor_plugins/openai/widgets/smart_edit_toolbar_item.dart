@@ -112,7 +112,6 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
       transaction,
       options: const ApplyOptions(
         recordUndo: false,
-        recordRedo: false,
       ),
       withUpdateSelection: false,
     );

@@ -9,24 +9,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell.dart';
 
 class ChecklistCardCellStyle extends CardCellStyle {
-  final TextStyle textStyle;
-
   ChecklistCardCellStyle({
     required super.padding,
     required this.textStyle,
   });
+
+  final TextStyle textStyle;
 }
 
 class ChecklistCardCell extends CardCell<ChecklistCardCellStyle> {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-
   const ChecklistCardCell({
     super.key,
     required super.style,
     required this.databaseController,
     required this.cellContext,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   @override
   State<ChecklistCardCell> createState() => _ChecklistCellState();

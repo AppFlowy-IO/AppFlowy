@@ -1,7 +1,6 @@
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,14 +33,8 @@ void main() {
         await tester.createNewPageWithNameUnderParent(
           name: names[i],
           parentName: parentName,
-          layout: ViewLayoutPB.Document,
         );
-        tester.expectToSeePageName(
-          names[i],
-          parentName: parentName,
-          layout: ViewLayoutPB.Document,
-          parentLayout: ViewLayoutPB.Document,
-        );
+        tester.expectToSeePageName(names[i], parentName: parentName);
       }
 
       await tester.favoriteViewByName(gettingStarted);
@@ -87,7 +80,6 @@ void main() {
         await tester.favoriteViewByName(gettingStarted);
         await tester.hoverOnPageName(
           gettingStarted,
-          layout: ViewLayoutPB.Document,
           onHover: () async {
             await tester.renamePage(name);
             await tester.pumpAndSettle();
@@ -116,7 +108,6 @@ void main() {
           await tester.createNewPageWithNameUnderParent(
             name: names[i],
             parentName: parentName,
-            layout: ViewLayoutPB.Document,
           );
           tester.expectToSeePageName(names[i], parentName: parentName);
         }
@@ -136,7 +127,6 @@ void main() {
 
         await tester.hoverOnPageName(
           names[1],
-          layout: ViewLayoutPB.Document,
           onHover: () async {
             await tester.tapDeletePageButton();
             await tester.pumpAndSettle();
@@ -150,7 +140,6 @@ void main() {
 
         await tester.hoverOnPageName(
           gettingStarted,
-          layout: ViewLayoutPB.Document,
           onHover: () async {
             await tester.tapDeletePageButton();
             await tester.pumpAndSettle();
@@ -194,7 +183,6 @@ void main() {
         await tester.favoriteViewByName(gettingStarted);
         await tester.hoverOnPageName(
           gettingStarted,
-          layout: ViewLayoutPB.Document,
           useLast: false,
           onHover: () async {
             await tester.tapPageOptionButton();

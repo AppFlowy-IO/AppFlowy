@@ -22,8 +22,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HiddenGroupsColumn extends StatelessWidget {
-  final EdgeInsets margin;
   const HiddenGroupsColumn({super.key, required this.margin});
+
+  final EdgeInsets margin;
 
   @override
   Widget build(BuildContext context) {
@@ -220,9 +221,6 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
 }
 
 class HiddenGroupButtonContent extends StatelessWidget {
-  final String groupId;
-  final int index;
-  final BoardBloc bloc;
   const HiddenGroupButtonContent({
     super.key,
     required this.popoverController,
@@ -232,6 +230,9 @@ class HiddenGroupButtonContent extends StatelessWidget {
   });
 
   final PopoverController popoverController;
+  final String groupId;
+  final int index;
+  final BoardBloc bloc;
 
   @override
   Widget build(BuildContext context) {
@@ -309,14 +310,14 @@ class HiddenGroupButtonContent extends StatelessWidget {
 }
 
 class HiddenGroupCardActions extends StatelessWidget {
-  final bool isVisible;
-  final int index;
-
   const HiddenGroupCardActions({
     super.key,
     required this.isVisible,
     required this.index,
   });
+
+  final bool isVisible;
+  final int index;
 
   @override
   Widget build(BuildContext context) {

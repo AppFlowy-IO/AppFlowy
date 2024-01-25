@@ -20,16 +20,16 @@ import 'sort_choice_button.dart';
 import 'sort_info.dart';
 
 class SortEditor extends StatefulWidget {
-  final String viewId;
-  final List<SortInfo> sortInfos;
-  final FieldController fieldController;
-
   const SortEditor({
     super.key,
     required this.viewId,
     required this.fieldController,
     required this.sortInfos,
   });
+
+  final String viewId;
+  final FieldController fieldController;
+  final List<SortInfo> sortInfos;
 
   @override
   State<SortEditor> createState() => _SortEditorState();
@@ -83,14 +83,14 @@ class _SortEditorState extends State<SortEditor> {
 }
 
 class DatabaseSortItem extends StatelessWidget {
-  final SortInfo sortInfo;
-  final PopoverMutex popoverMutex;
-
   const DatabaseSortItem({
     super.key,
     required this.popoverMutex,
     required this.sortInfo,
   });
+
+  final PopoverMutex popoverMutex;
+  final SortInfo sortInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -142,16 +142,16 @@ extension SortConditionExtension on SortConditionPB {
 }
 
 class DatabaseAddSortButton extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final PopoverMutex popoverMutex;
-
   const DatabaseAddSortButton({
     super.key,
     required this.viewId,
     required this.fieldController,
     required this.popoverMutex,
   });
+
+  final String viewId;
+  final FieldController fieldController;
+  final PopoverMutex popoverMutex;
 
   @override
   State<DatabaseAddSortButton> createState() => _DatabaseAddSortButtonState();
@@ -192,11 +192,9 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
 }
 
 class DatabaseDeleteSortButton extends StatelessWidget {
+  const DatabaseDeleteSortButton({super.key, required this.popoverMutex});
+
   final PopoverMutex popoverMutex;
-  const DatabaseDeleteSortButton({
-    super.key,
-    required this.popoverMutex,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -221,13 +219,14 @@ class DatabaseDeleteSortButton extends StatelessWidget {
 }
 
 class DatabaseSortItemOrderButton extends StatefulWidget {
-  final SortInfo sortInfo;
-  final PopoverMutex popoverMutex;
   const DatabaseSortItemOrderButton({
     super.key,
     required this.popoverMutex,
     required this.sortInfo,
   });
+
+  final PopoverMutex popoverMutex;
+  final SortInfo sortInfo;
 
   @override
   State<DatabaseSortItemOrderButton> createState() =>

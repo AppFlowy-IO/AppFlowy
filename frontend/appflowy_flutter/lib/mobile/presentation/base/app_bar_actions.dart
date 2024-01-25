@@ -128,7 +128,6 @@ class AppBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      enableFeedback: true,
       borderRadius: BorderRadius.circular(28),
       splashColor: Colors.transparent,
       focusColor: Colors.transparent,

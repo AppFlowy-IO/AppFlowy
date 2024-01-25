@@ -26,11 +26,9 @@ enum EditableCellStyle {
 
 /// Build an editable cell widget
 class EditableCellBuilder {
-  final DatabaseController databaseController;
+  EditableCellBuilder({required this.databaseController});
 
-  EditableCellBuilder({
-    required this.databaseController,
-  });
+  final DatabaseController databaseController;
 
   EditableCellWidget buildStyled(
     CellContext cellContext,

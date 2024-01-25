@@ -149,7 +149,6 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
             child: Column(
               key: ValueKey(children.hashCode),
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               textDirection: textDirection,
               children: children,

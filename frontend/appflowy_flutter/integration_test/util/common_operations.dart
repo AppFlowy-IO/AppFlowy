@@ -397,7 +397,6 @@ extension CommonOperations on WidgetTester {
     await hoverOnPageName(
       name,
       layout: layout,
-      useLast: true,
       onHover: () async {
         await tapFavoritePageButton();
         await pumpAndSettle();
@@ -412,7 +411,6 @@ extension CommonOperations on WidgetTester {
     await hoverOnPageName(
       name,
       layout: layout,
-      useLast: true,
       onHover: () async {
         await tapUnfavoritePageButton();
         await pumpAndSettle();

@@ -13,14 +13,14 @@ import 'row_banner.dart';
 import 'row_property.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
-  final DatabaseController databaseController;
-  final RowController rowController;
-
   const RowDetailPage({
     super.key,
     required this.rowController,
     required this.databaseController,
   });
+
+  final RowController rowController;
+  final DatabaseController databaseController;
 
   @override
   State<RowDetailPage> createState() => _RowDetailPageState();

@@ -10,7 +10,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resi
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     hide UploadImageMenu, ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
@@ -38,7 +37,6 @@ void main() {
       // create a new document
       await tester.createNewPageWithNameUnderParent(
         name: LocaleKeys.document_plugins_image_addAnImage.tr(),
-        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -87,7 +85,6 @@ void main() {
       // create a new document
       await tester.createNewPageWithNameUnderParent(
         name: LocaleKeys.document_plugins_image_addAnImage.tr(),
-        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -141,7 +138,6 @@ void main() {
         // create a new document
         await tester.createNewPageWithNameUnderParent(
           name: LocaleKeys.document_plugins_image_addAnImage.tr(),
-          layout: ViewLayoutPB.Document,
         );
 
         // tap the first line of the document

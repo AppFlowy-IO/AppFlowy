@@ -16,21 +16,22 @@ typedef KeyDownHandler = void Function(HotKey hotKey);
 /// relevant [HotKey].
 ///
 class HotKeyItem {
-  final HotKey hotKey;
-  final KeyDownHandler? keyDownHandler;
-
   HotKeyItem({
     required this.hotKey,
     this.keyDownHandler,
   });
+
+  final HotKey hotKey;
+  final KeyDownHandler? keyDownHandler;
 
   void register() =>
       hotKeyManager.register(hotKey, keyDownHandler: keyDownHandler);
 }
 
 class HomeHotKeys extends StatelessWidget {
-  final Widget child;
   const HomeHotKeys({required this.child, super.key});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {

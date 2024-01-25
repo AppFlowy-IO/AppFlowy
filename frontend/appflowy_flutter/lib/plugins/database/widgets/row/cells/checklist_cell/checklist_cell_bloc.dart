@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/cell/checklist_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -5,28 +7,31 @@ import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 part 'checklist_cell_bloc.freezed.dart';
 
 class ChecklistSelectOption {
+  ChecklistSelectOption(this.isSelected, this.data);
+
   final bool isSelected;
   final SelectOptionPB data;
-
-  ChecklistSelectOption(this.isSelected, this.data);
 }
 
 class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
-  final ChecklistCellController cellController;
-  final ChecklistCellBackendService _checklistCellService;
-  void Function()? _onCellChangedFn;
-  ChecklistCellBloc({
-    required this.cellController,
-  })  : _checklistCellService = ChecklistCellBackendService(
+  ChecklistCellBloc({required this.cellController})
+      : _checklistCellService = ChecklistCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,
         ),
         super(ChecklistCellState.initial(cellController)) {
+    _dispatch();
+  }
+
+  final ChecklistCellController cellController;
+  final ChecklistCellBackendService _checklistCellService;
+  void Function()? _onCellChangedFn;
+
+  void _dispatch() {
     on<ChecklistCellEvent>(
       (event, emit) async {
         await event.when(
