@@ -39,12 +39,12 @@ class RTLSetting extends StatelessWidget {
           showDivider: false,
           showCloseButton: false,
           title: LocaleKeys.settings_appearance_textDirection_label.tr(),
-          padding: const EdgeInsets.fromLTRB(0, 8, 0, 48),
+          padding: const EdgeInsets.only(bottom: 36),
           builder: (context) {
             final layoutDirection =
                 context.watch<AppearanceSettingsCubit>().state.layoutDirection;
             return Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(top: 4),
               child: Column(
                 children: [
                   FlowyOptionTile.checkbox(

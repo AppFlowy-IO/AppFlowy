@@ -20,7 +20,7 @@ Future<T?> showMobileBottomSheet<T>(
   bool useRootNavigator = false,
   ShapeBorder? shape,
   // the padding of the content, the padding of the header area is fixed
-  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 0, 16, 32),
+  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 4, 16, 32),
   Color? backgroundColor,
   BoxConstraints? constraints,
   Color? barrierColor,
@@ -126,18 +126,19 @@ class _Header extends StatelessWidget {
             ? MainAxisAlignment.spaceBetween
             : MainAxisAlignment.center,
         children: [
-          if (showCloseButton) ...[
-            const HSpace(16),
-            const AppBarCloseButton(
-              margin: EdgeInsets.zero,
+          if (showCloseButton)
+            const Padding(
+              padding: EdgeInsets.only(left: 16),
+              child: AppBarCloseButton(
+                margin: EdgeInsets.zero,
+              ),
             ),
-          ],
           FlowyText(
             title,
             fontSize: 16.0,
             fontWeight: FontWeight.w500,
           ),
-          if (showCloseButton) const HSpace(16), // used to align the title
+          if (showCloseButton) const HSpace(40), // used to align the title
         ],
       ),
     );

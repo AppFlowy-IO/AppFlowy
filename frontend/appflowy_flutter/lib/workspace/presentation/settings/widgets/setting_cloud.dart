@@ -168,7 +168,7 @@ class CloudTypeSwitcher extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 36),
                 builder: (context) {
                   return Padding(
-                    padding: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.only(top: 4),
                     child: Column(
                       children: values
                           .mapIndexed(
