@@ -338,6 +338,7 @@ class DatabaseViewSettingTile extends StatelessWidget {
         context,
         padding: EdgeInsets.zero,
         resizeToAvoidBottomInset: false,
+        showDragHandle: true,
         builder: (context) {
           return Padding(
             padding: const EdgeInsets.only(top: 24, bottom: 46),
