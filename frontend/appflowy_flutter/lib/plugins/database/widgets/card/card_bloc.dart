@@ -1,6 +1,6 @@
-// ignore_for_file: sort_constructors_first
-
 import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -8,22 +8,12 @@ import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_listener.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'card_bloc.freezed.dart';
 
 class CardBloc extends Bloc<CardEvent, CardState> {
-  final FieldController fieldController;
-  final String rowId;
-  final String? groupFieldId;
-  final RowCache _rowCache;
-  final String viewId;
-  final RowListener _rowListener;
-
-  VoidCallback? _rowCallback;
-
   CardBloc({
     required this.fieldController,
     required this.groupFieldId,
@@ -45,6 +35,19 @@ class CardBloc extends Bloc<CardEvent, CardState> {
             isEditing,
           ),
         ) {
+    _dispatch();
+  }
+
+  final FieldController fieldController;
+  final String rowId;
+  final String? groupFieldId;
+  final RowCache _rowCache;
+  final String viewId;
+  final RowListener _rowListener;
+
+  VoidCallback? _rowCallback;
+
+  void _dispatch() {
     on<CardEvent>(
       (event, emit) async {
         await event.when(

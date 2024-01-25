@@ -1,29 +1,33 @@
-// ignore_for_file: sort_constructors_first
+import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 import '../../../application/field/field_controller.dart';
 import '../../../application/sort/sort_service.dart';
+
 import 'util.dart';
 
 part 'sort_create_bloc.freezed.dart';
 
 class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
+  CreateSortBloc({required this.viewId, required this.fieldController})
+      : _sortBackendSvc = SortBackendService(viewId: viewId),
+        super(CreateSortState.initial(fieldController.fieldInfos)) {
+    _dispatch();
+  }
+
   final String viewId;
   final SortBackendService _sortBackendSvc;
   final FieldController fieldController;
   void Function(List<FieldInfo>)? _onFieldFn;
 
-  CreateSortBloc({required this.viewId, required this.fieldController})
-      : _sortBackendSvc = SortBackendService(viewId: viewId),
-        super(CreateSortState.initial(fieldController.fieldInfos)) {
+  void _dispatch() {
     on<CreateSortEvent>(
       (event, emit) async {
         event.when(

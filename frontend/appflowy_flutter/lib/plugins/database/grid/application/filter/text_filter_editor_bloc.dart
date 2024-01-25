@@ -1,4 +1,4 @@
-// ignore_for_file: sort_constructors_first
+import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/filter/filter_listener.dart';
 import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
@@ -7,16 +7,11 @@ import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pbserver.d
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'text_filter_editor_bloc.freezed.dart';
 
 class TextFilterEditorBloc
     extends Bloc<TextFilterEditorEvent, TextFilterEditorState> {
-  final FilterInfo filterInfo;
-  final FilterBackendService _filterBackendSvc;
-  final FilterListener _listener;
-
   TextFilterEditorBloc({required this.filterInfo})
       : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
@@ -24,6 +19,14 @@ class TextFilterEditorBloc
           filterId: filterInfo.filter.id,
         ),
         super(TextFilterEditorState.initial(filterInfo)) {
+    _dispatch();
+  }
+
+  final FilterInfo filterInfo;
+  final FilterBackendService _filterBackendSvc;
+  final FilterListener _listener;
+
+  void _dispatch() {
     on<TextFilterEditorEvent>(
       (event, emit) async {
         event.when(

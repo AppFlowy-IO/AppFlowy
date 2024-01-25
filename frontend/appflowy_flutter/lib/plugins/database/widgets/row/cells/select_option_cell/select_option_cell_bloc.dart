@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
@@ -11,11 +9,15 @@ part 'select_option_cell_bloc.freezed.dart';
 
 class SelectOptionCellBloc
     extends Bloc<SelectOptionCellEvent, SelectOptionCellState> {
+  SelectOptionCellBloc({required this.cellController})
+      : super(SelectOptionCellState.initial(cellController)) {
+    _dispatch();
+  }
+
   final SelectOptionCellController cellController;
   void Function()? _onCellChangedFn;
 
-  SelectOptionCellBloc({required this.cellController})
-      : super(SelectOptionCellState.initial(cellController)) {
+  void _dispatch() {
     on<SelectOptionCellEvent>(
       (event, emit) async {
         await event.when(

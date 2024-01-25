@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -13,10 +11,20 @@ import 'favorite_listener.dart';
 part 'favorite_bloc.freezed.dart';
 
 class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
+  FavoriteBloc() : super(FavoriteState.initial()) {
+    _dispatch();
+  }
+
   final _service = FavoriteService();
   final _listener = FavoriteListener();
 
-  FavoriteBloc() : super(FavoriteState.initial()) {
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<FavoriteEvent>(
       (event, emit) async {
         await event.map(
@@ -58,12 +66,6 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _listener.stop();
-    return super.close();
   }
 
   void _onFavoritesUpdated(

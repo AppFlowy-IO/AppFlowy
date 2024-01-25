@@ -1,54 +1,42 @@
-// ignore_for_file: sort_constructors_first
-
 import 'dart:async';
 import 'dart:collection';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/group/group_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
-import 'package:appflowy_board/appflowy_board.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:flutter/foundation.dart';
+import 'package:appflowy_board/appflowy_board.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
+import '../../application/database_controller.dart';
 import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
-import '../../application/database_controller.dart';
+
 import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
-  final DatabaseController databaseController;
-  final LinkedHashMap<String, GroupController> groupControllers =
-      LinkedHashMap();
-  final List<GroupPB> groupList = [];
-
-  late final GroupBackendService groupBackendSvc;
-  late final AppFlowyBoardController boardController;
-
-  FieldController get fieldController => databaseController.fieldController;
-  String get viewId => databaseController.viewId;
-
   BoardBloc({
     required ViewPB view,
     required this.databaseController,
   }) : super(BoardState.initial(view.id)) {
     groupBackendSvc = GroupBackendService(viewId);
     boardController = AppFlowyBoardController(
-      onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
-        databaseController.moveGroup(
-          fromGroupId: fromGroupId,
-          toGroupId: toGroupId,
-        );
-      },
+      onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) =>
+          databaseController.moveGroup(
+        fromGroupId: fromGroupId,
+        toGroupId: toGroupId,
+      ),
       onMoveGroupItem: (groupId, fromIndex, toIndex) {
         final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
@@ -75,6 +63,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
     );
 
+    _dispatch();
+  }
+
+  final DatabaseController databaseController;
+  final LinkedHashMap<String, GroupController> groupControllers =
+      LinkedHashMap();
+  final List<GroupPB> groupList = [];
+
+  late final AppFlowyBoardController boardController;
+  late final GroupBackendService groupBackendSvc;
+
+  FieldController get fieldController => databaseController.fieldController;
+  String get viewId => databaseController.viewId;
+
+  void _dispatch() {
     on<BoardEvent>(
       (event, emit) async {
         await event.when(
@@ -95,9 +98,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
 
             result.fold(
-              (rowMeta) {
-                emit(state.copyWith(recentAddedRowMeta: rowMeta));
-              },
+              (rowMeta) => emit(state.copyWith(recentAddedRowMeta: rowMeta)),
               (err) => Log.error(err),
             );
           },
@@ -114,9 +115,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
 
             result.fold(
-              (rowMeta) {
-                emit(state.copyWith(recentAddedRowMeta: rowMeta));
-              },
+              (rowMeta) => emit(state.copyWith(recentAddedRowMeta: rowMeta)),
               (err) => Log.error(err),
             );
           },

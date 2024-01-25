@@ -1,4 +1,4 @@
-// ignore_for_file: sort_constructors_first
+import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/filter/filter_listener.dart';
 import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
@@ -7,24 +7,26 @@ import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pb.da
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'checklist_filter_bloc.freezed.dart';
 
 class ChecklistFilterEditorBloc
     extends Bloc<ChecklistFilterEditorEvent, ChecklistFilterEditorState> {
-  final FilterInfo filterInfo;
-  final FilterBackendService _filterBackendSvc;
-  final FilterListener _listener;
-
-  ChecklistFilterEditorBloc({
-    required this.filterInfo,
-  })  : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  ChecklistFilterEditorBloc({required this.filterInfo})
+      : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
         ),
         super(ChecklistFilterEditorState.initial(filterInfo)) {
+    _dispatch();
+  }
+
+  final FilterInfo filterInfo;
+  final FilterBackendService _filterBackendSvc;
+  final FilterListener _listener;
+
+  void _dispatch() {
     on<ChecklistFilterEditorEvent>(
       (event, emit) async {
         event.when(

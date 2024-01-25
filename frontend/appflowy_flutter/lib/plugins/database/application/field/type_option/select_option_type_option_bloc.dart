@@ -1,10 +1,9 @@
-// ignore_for_file: sort_constructors_first
+import 'dart:async';
 
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
-import 'package:dartz/dartz.dart';
 part 'select_option_type_option_bloc.freezed.dart';
 
 abstract class ISelectOptionAction {
@@ -26,12 +25,16 @@ abstract class ISelectOptionAction {
 
 class SelectOptionTypeOptionBloc
     extends Bloc<SelectOptionTypeOptionEvent, SelectOptionTypeOptionState> {
-  final ISelectOptionAction typeOptionAction;
-
   SelectOptionTypeOptionBloc({
     required List<SelectOptionPB> options,
     required this.typeOptionAction,
   }) : super(SelectOptionTypeOptionState.initial(options)) {
+    _dispatch();
+  }
+
+  final ISelectOptionAction typeOptionAction;
+
+  void _dispatch() {
     on<SelectOptionTypeOptionEvent>(
       (event, emit) async {
         await event.when(

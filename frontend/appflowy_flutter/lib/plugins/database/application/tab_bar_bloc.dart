@@ -17,9 +17,8 @@ part 'tab_bar_bloc.freezed.dart';
 
 class DatabaseTabBarBloc
     extends Bloc<DatabaseTabBarEvent, DatabaseTabBarState> {
-  DatabaseTabBarBloc({
-    required ViewPB view,
-  }) : super(DatabaseTabBarState.initial(view)) {
+  DatabaseTabBarBloc({required ViewPB view})
+      : super(DatabaseTabBarState.initial(view)) {
     on<DatabaseTabBarEvent>(
       (event, emit) async {
         event.when(

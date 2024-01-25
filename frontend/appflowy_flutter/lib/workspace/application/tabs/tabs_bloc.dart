@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/plugins/util.dart';
@@ -17,40 +15,45 @@ part 'tabs_state.dart';
 part 'tabs_bloc.freezed.dart';
 
 class TabsBloc extends Bloc<TabsEvent, TabsState> {
-  late final MenuSharedState menuSharedState;
-
   TabsBloc() : super(TabsState()) {
     menuSharedState = getIt<MenuSharedState>();
+    _dispatch();
+  }
 
-    on<TabsEvent>((event, emit) async {
-      event.when(
-        selectTab: (int index) {
-          if (index != state.currentIndex &&
-              index >= 0 &&
-              index < state.pages) {
-            emit(state.copyWith(newIndex: index));
+  late final MenuSharedState menuSharedState;
+
+  void _dispatch() {
+    on<TabsEvent>(
+      (event, emit) async {
+        event.when(
+          selectTab: (int index) {
+            if (index != state.currentIndex &&
+                index >= 0 &&
+                index < state.pages) {
+              emit(state.copyWith(newIndex: index));
+              _setLatestOpenView();
+            }
+          },
+          moveTab: () {},
+          closeTab: (String pluginId) {
+            emit(state.closeView(pluginId));
             _setLatestOpenView();
-          }
-        },
-        moveTab: () {},
-        closeTab: (String pluginId) {
-          emit(state.closeView(pluginId));
-          _setLatestOpenView();
-        },
-        closeCurrentTab: () {
-          emit(state.closeView(state.currentPageManager.plugin.id));
-          _setLatestOpenView();
-        },
-        openTab: (Plugin plugin, ViewPB view) {
-          emit(state.openView(plugin, view));
-          _setLatestOpenView(view);
-        },
-        openPlugin: (Plugin plugin, ViewPB? view) {
-          emit(state.openPlugin(plugin: plugin));
-          _setLatestOpenView(view);
-        },
-      );
-    });
+          },
+          closeCurrentTab: () {
+            emit(state.closeView(state.currentPageManager.plugin.id));
+            _setLatestOpenView();
+          },
+          openTab: (Plugin plugin, ViewPB view) {
+            emit(state.openView(plugin, view));
+            _setLatestOpenView(view);
+          },
+          openPlugin: (Plugin plugin, ViewPB? view) {
+            emit(state.openPlugin(plugin: plugin));
+            _setLatestOpenView(view);
+          },
+        );
+      },
+    );
   }
 
   void _setLatestOpenView([ViewPB? view]) {

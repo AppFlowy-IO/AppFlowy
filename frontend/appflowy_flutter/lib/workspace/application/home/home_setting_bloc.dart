@@ -1,8 +1,6 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_context.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
 import 'package:dartz/dartz.dart';
@@ -14,9 +12,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'home_setting_bloc.freezed.dart';
 
 class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
-  final UserWorkspaceListener _listener;
-  final AppearanceSettingsCubit _appearanceSettingsCubit;
-
   HomeSettingBloc(
     WorkspaceSettingPB workspaceSetting,
     AppearanceSettingsCubit appearanceSettingsCubit,
@@ -30,6 +25,19 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
             screenWidthPx,
           ),
         ) {
+    _dispatch();
+  }
+
+  final UserWorkspaceListener _listener;
+  final AppearanceSettingsCubit _appearanceSettingsCubit;
+
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<HomeSettingEvent>(
       (event, emit) async {
         await event.map(
@@ -91,12 +99,6 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _listener.stop();
-    return super.close();
   }
 }
 

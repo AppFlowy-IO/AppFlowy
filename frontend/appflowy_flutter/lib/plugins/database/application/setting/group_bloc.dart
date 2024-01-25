@@ -1,4 +1,4 @@
-// ignore_for_file: sort_constructors_first
+import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
@@ -7,18 +7,12 @@ import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 import '../group/group_service.dart';
 
 part 'group_bloc.freezed.dart';
 
 class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
-  final DatabaseController _databaseController;
-  final GroupBackendService _groupBackendSvc;
-  Function(List<FieldInfo>)? _onFieldsFn;
-  DatabaseLayoutSettingCallbacks? _layoutSettingCallbacks;
-
   DatabaseGroupBloc({
     required String viewId,
     required DatabaseController databaseController,
@@ -31,6 +25,26 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
             databaseController.databaseLayoutSetting!.board,
           ),
         ) {
+    _dispatch();
+  }
+
+  final DatabaseController _databaseController;
+  final GroupBackendService _groupBackendSvc;
+  Function(List<FieldInfo>)? _onFieldsFn;
+  DatabaseLayoutSettingCallbacks? _layoutSettingCallbacks;
+
+  @override
+  Future<void> close() async {
+    if (_onFieldsFn != null) {
+      _databaseController.fieldController
+          .removeListener(onFieldsListener: _onFieldsFn!);
+      _onFieldsFn = null;
+    }
+    _layoutSettingCallbacks = null;
+    return super.close();
+  }
+
+  void _dispatch() {
     on<DatabaseGroupEvent>(
       (event, emit) async {
         event.when(
@@ -52,17 +66,6 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onFieldsFn != null) {
-      _databaseController.fieldController
-          .removeListener(onFieldsListener: _onFieldsFn!);
-      _onFieldsFn = null;
-    }
-    _layoutSettingCallbacks = null;
-    return super.close();
   }
 
   void _startListening() {

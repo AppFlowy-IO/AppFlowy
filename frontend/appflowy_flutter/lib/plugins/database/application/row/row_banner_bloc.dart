@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/plugins/database/application/field/field_listener.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
@@ -13,17 +11,30 @@ import 'row_meta_listener.dart';
 part 'row_banner_bloc.freezed.dart';
 
 class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
-  final String viewId;
-  final RowBackendService _rowBackendSvc;
-  final RowMetaListener _metaListener;
-  SingleFieldListener? _fieldListener;
-
   RowBannerBloc({
     required this.viewId,
     required RowMetaPB rowMeta,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _metaListener = RowMetaListener(rowMeta.id),
         super(RowBannerState.initial(rowMeta)) {
+    _dispatch();
+  }
+
+  final String viewId;
+  final RowBackendService _rowBackendSvc;
+  final RowMetaListener _metaListener;
+  SingleFieldListener? _fieldListener;
+
+  @override
+  Future<void> close() async {
+    await _metaListener.stop();
+    await _fieldListener?.stop();
+    _fieldListener = null;
+
+    return super.close();
+  }
+
+  void _dispatch() {
     on<RowBannerEvent>(
       (event, emit) {
         event.when(
@@ -34,12 +45,8 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
           didReceiveRowMeta: (RowMetaPB rowMeta) {
             emit(state.copyWith(rowMeta: rowMeta));
           },
-          setCover: (String coverURL) {
-            _updateMeta(coverURL: coverURL);
-          },
-          setIcon: (String iconURL) {
-            _updateMeta(iconURL: iconURL);
-          },
+          setCover: (String coverURL) => _updateMeta(coverURL: coverURL),
+          setIcon: (String iconURL) => _updateMeta(iconURL: iconURL),
           didReceiveFieldUpdate: (updatedField) {
             emit(
               state.copyWith(
@@ -51,15 +58,6 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _metaListener.stop();
-    await _fieldListener?.stop();
-    _fieldListener = null;
-
-    return super.close();
   }
 
   Future<void> _loadPrimaryField() async {

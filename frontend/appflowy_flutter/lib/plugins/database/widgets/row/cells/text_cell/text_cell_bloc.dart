@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
@@ -9,11 +7,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'text_cell_bloc.freezed.dart';
 
 class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
+  TextCellBloc({required this.cellController})
+      : super(TextCellState.initial(cellController)) {
+    _dispatch();
+  }
+
   final TextCellController cellController;
   void Function()? _onCellChangedFn;
 
-  TextCellBloc({required this.cellController})
-      : super(TextCellState.initial(cellController)) {
+  void _dispatch() {
     on<TextCellEvent>(
       (event, emit) {
         event.when(

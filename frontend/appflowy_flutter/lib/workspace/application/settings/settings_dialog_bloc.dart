@@ -1,12 +1,10 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:dartz/dartz.dart';
 
 part 'settings_dialog_bloc.freezed.dart';
 
@@ -22,31 +20,37 @@ enum SettingsPage {
 
 class SettingsDialogBloc
     extends Bloc<SettingsDialogEvent, SettingsDialogState> {
-  final UserProfilePB userProfile;
-  final UserListener _userListener;
-
   SettingsDialogBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
         super(SettingsDialogState.initial(userProfile)) {
-    on<SettingsDialogEvent>((event, emit) async {
-      await event.when(
-        initial: () async {
-          _userListener.start(onProfileUpdated: _profileUpdated);
-        },
-        didReceiveUserProfile: (UserProfilePB newUserProfile) {
-          emit(state.copyWith(userProfile: newUserProfile));
-        },
-        setSelectedPage: (SettingsPage page) {
-          emit(state.copyWith(page: page));
-        },
-      );
-    });
+    _dispatch();
   }
+
+  final UserProfilePB userProfile;
+  final UserListener _userListener;
 
   @override
   Future<void> close() async {
     await _userListener.stop();
     super.close();
+  }
+
+  void _dispatch() {
+    on<SettingsDialogEvent>(
+      (event, emit) async {
+        await event.when(
+          initial: () async {
+            _userListener.start(onProfileUpdated: _profileUpdated);
+          },
+          didReceiveUserProfile: (UserProfilePB newUserProfile) {
+            emit(state.copyWith(userProfile: newUserProfile));
+          },
+          setSelectedPage: (SettingsPage page) {
+            emit(state.copyWith(page: page));
+          },
+        );
+      },
+    );
   }
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {

@@ -1,13 +1,12 @@
-// ignore_for_file: sort_constructors_first
-
 import 'dart:async';
+
+import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/cell/select_option_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,11 +14,6 @@ part 'select_option_editor_bloc.freezed.dart';
 
 class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
-  final SelectOptionCellBackendService _selectOptionService;
-  final SelectOptionCellController cellController;
-
-  VoidCallback? _onCellChangedFn;
-
   SelectOptionCellEditorBloc({required this.cellController})
       : _selectOptionService = SelectOptionCellBackendService(
           viewId: cellController.viewId,
@@ -27,6 +21,15 @@ class SelectOptionCellEditorBloc
           rowId: cellController.rowId,
         ),
         super(SelectOptionEditorState.initial(cellController)) {
+    _dispatch();
+  }
+
+  final SelectOptionCellBackendService _selectOptionService;
+  final SelectOptionCellController cellController;
+
+  VoidCallback? _onCellChangedFn;
+
+  void _dispatch() {
     on<SelectOptionEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -309,11 +312,11 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
 }
 
 class _MakeOptionResult {
-  List<SelectOptionPB> options;
-  Option<String> createOption;
-
   _MakeOptionResult({
     required this.options,
     required this.createOption,
   });
+
+  List<SelectOptionPB> options;
+  Option<String> createOption;
 }

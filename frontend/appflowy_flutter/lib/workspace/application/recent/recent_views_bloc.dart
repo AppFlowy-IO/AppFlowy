@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/workspace/application/recent/recent_listener.dart';
 import 'package:appflowy/workspace/application/recent/recent_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -12,10 +10,20 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'recent_views_bloc.freezed.dart';
 
 class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
+  RecentViewsBloc() : super(RecentViewsState.initial()) {
+    _dispatch();
+  }
+
   final _service = RecentService();
   final _listener = RecentViewsListener();
 
-  RecentViewsBloc() : super(RecentViewsState.initial()) {
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<RecentViewsEvent>(
       (event, emit) async {
         await event.map(
@@ -43,12 +51,6 @@ class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _listener.stop();
-    return super.close();
   }
 
   void _onRecentViewsUpdated(

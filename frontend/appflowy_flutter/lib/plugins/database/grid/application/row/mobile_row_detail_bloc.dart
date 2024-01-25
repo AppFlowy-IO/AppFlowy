@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,11 +7,14 @@ part 'mobile_row_detail_bloc.freezed.dart';
 
 class MobileRowDetailBloc
     extends Bloc<MobileRowDetailEvent, MobileRowDetailState> {
+  MobileRowDetailBloc({required this.databaseController})
+      : super(MobileRowDetailState.initial()) {
+    _dispatch();
+  }
+
   final DatabaseController databaseController;
 
-  MobileRowDetailBloc({
-    required this.databaseController,
-  }) : super(MobileRowDetailState.initial()) {
+  void _dispatch() {
     on<MobileRowDetailEvent>(
       (event, emit) {
         event.when(

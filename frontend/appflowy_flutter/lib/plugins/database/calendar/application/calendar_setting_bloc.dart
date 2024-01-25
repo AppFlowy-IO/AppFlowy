@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/layout/layout_setting_listener.dart';
 import 'package:appflowy_backend/log.dart';
@@ -14,18 +12,21 @@ typedef DayOfWeek = int;
 
 class CalendarSettingBloc
     extends Bloc<CalendarSettingEvent, CalendarSettingState> {
-  final DatabaseController _databaseController;
-  final DatabaseLayoutSettingListener _listener;
-
-  CalendarSettingBloc({
-    required DatabaseController databaseController,
-  })  : _databaseController = databaseController,
+  CalendarSettingBloc({required DatabaseController databaseController})
+      : _databaseController = databaseController,
         _listener = DatabaseLayoutSettingListener(databaseController.viewId),
         super(
           CalendarSettingState.initial(
             databaseController.databaseLayoutSetting?.calendar,
           ),
         ) {
+    _dispatch();
+  }
+
+  final DatabaseController _databaseController;
+  final DatabaseLayoutSettingListener _listener;
+
+  void _dispatch() {
     on<CalendarSettingEvent>((event, emit) {
       event.when(
         initial: () {

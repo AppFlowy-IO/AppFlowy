@@ -1,21 +1,29 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final UserWorkspaceListener _workspaceListener;
-
   HomeBloc(WorkspaceSettingPB workspaceSetting)
       : _workspaceListener = UserWorkspaceListener(),
         super(HomeState.initial(workspaceSetting)) {
+    _dispatch(workspaceSetting);
+  }
+
+  final UserWorkspaceListener _workspaceListener;
+
+  @override
+  Future<void> close() async {
+    await _workspaceListener.stop();
+    return super.close();
+  }
+
+  void _dispatch(WorkspaceSettingPB workspaceSetting) {
     on<HomeEvent>(
       (event, emit) async {
         await event.map(
@@ -54,12 +62,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _workspaceListener.stop();
-    return super.close();
   }
 }
 

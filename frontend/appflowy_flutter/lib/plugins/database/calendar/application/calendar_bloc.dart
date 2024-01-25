@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/plugins/database/application/cell/cell_cache.dart';
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -7,8 +5,8 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart';
@@ -21,6 +19,11 @@ import '../../application/row/row_cache.dart';
 part 'calendar_bloc.freezed.dart';
 
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
+  CalendarBloc({required this.databaseController})
+      : super(CalendarState.initial()) {
+    _dispatch();
+  }
+
   final DatabaseController databaseController;
   Map<String, FieldInfo> fieldInfoByFieldId = {};
 
@@ -30,8 +33,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   CellMemCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
-  CalendarBloc({required this.databaseController})
-      : super(CalendarState.initial()) {
+  void _dispatch() {
     on<CalendarEvent>(
       (event, emit) async {
         await event.when(

@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
@@ -14,43 +12,49 @@ part 'calendar_event_editor_bloc.freezed.dart';
 
 class CalendarEventEditorBloc
     extends Bloc<CalendarEventEditorEvent, CalendarEventEditorState> {
-  final FieldController fieldController;
-  final RowController rowController;
-  final CalendarLayoutSettingPB layoutSettings;
-
   CalendarEventEditorBloc({
     required this.fieldController,
     required this.rowController,
     required this.layoutSettings,
   }) : super(CalendarEventEditorState.initial()) {
-    on<CalendarEventEditorEvent>((event, emit) async {
-      await event.when(
-        initial: () {
-          _startListening();
-          final primaryFieldId = fieldController.fieldInfos
-              .firstWhere((fieldInfo) => fieldInfo.isPrimary)
-              .id;
-          final cells = rowController
-              .loadData()
-              .where(
-                (cellContext) =>
-                    _filterCellContext(cellContext, primaryFieldId),
-              )
-              .toList();
-          add(CalendarEventEditorEvent.didReceiveCellDatas(cells));
-        },
-        didReceiveCellDatas: (cells) {
-          emit(state.copyWith(cells: cells));
-        },
-        delete: () async {
-          final result = await RowBackendService.deleteRow(
-            rowController.viewId,
-            rowController.rowId,
-          );
-          result.fold((l) => null, (err) => Log.error(err));
-        },
-      );
-    });
+    _dispatch();
+  }
+
+  final FieldController fieldController;
+  final RowController rowController;
+  final CalendarLayoutSettingPB layoutSettings;
+
+  void _dispatch() {
+    on<CalendarEventEditorEvent>(
+      (event, emit) async {
+        await event.when(
+          initial: () {
+            _startListening();
+            final primaryFieldId = fieldController.fieldInfos
+                .firstWhere((fieldInfo) => fieldInfo.isPrimary)
+                .id;
+            final cells = rowController
+                .loadData()
+                .where(
+                  (cellContext) =>
+                      _filterCellContext(cellContext, primaryFieldId),
+                )
+                .toList();
+            add(CalendarEventEditorEvent.didReceiveCellDatas(cells));
+          },
+          didReceiveCellDatas: (cells) {
+            emit(state.copyWith(cells: cells));
+          },
+          delete: () async {
+            final result = await RowBackendService.deleteRow(
+              rowController.viewId,
+              rowController.rowId,
+            );
+            result.fold((l) => null, (err) => Log.error(err));
+          },
+        );
+      },
+    );
   }
 
   void _startListening() {

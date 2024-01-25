@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -29,11 +27,6 @@ part 'date_cell_editor_bloc.freezed.dart';
 
 class DateCellEditorBloc
     extends Bloc<DateCellEditorEvent, DateCellEditorState> {
-  final DateCellBackendService _dateCellBackendService;
-  final DateCellController cellController;
-  final ReminderBloc _reminderBloc;
-  void Function()? _onCellChangedFn;
-
   DateCellEditorBloc({
     required this.cellController,
     required ReminderBloc reminderBloc,
@@ -44,6 +37,15 @@ class DateCellEditorBloc
           rowId: cellController.rowId,
         ),
         super(DateCellEditorState.initial(cellController, reminderBloc)) {
+    _dispatch();
+  }
+
+  final DateCellBackendService _dateCellBackendService;
+  final DateCellController cellController;
+  final ReminderBloc _reminderBloc;
+  void Function()? _onCellChangedFn;
+
+  void _dispatch() {
     on<DateCellEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -579,16 +581,6 @@ _DateCellData _dateDataFromCellData(
 }
 
 class _DateCellData {
-  final DateTime? dateTime;
-  final DateTime? endDateTime;
-  final String? timeStr;
-  final String? endTimeStr;
-  final bool includeTime;
-  final bool isRange;
-  final String? dateStr;
-  final String? endDateStr;
-  final String? reminderId;
-
   _DateCellData({
     required this.dateTime,
     required this.endDateTime,
@@ -600,4 +592,14 @@ class _DateCellData {
     required this.endDateStr,
     required this.reminderId,
   });
+
+  final DateTime? dateTime;
+  final DateTime? endDateTime;
+  final String? timeStr;
+  final String? endTimeStr;
+  final bool includeTime;
+  final bool isRange;
+  final String? dateStr;
+  final String? endDateStr;
+  final String? reminderId;
 }

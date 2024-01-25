@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'dart:math';
 
 import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
@@ -11,11 +9,15 @@ import 'field_info.dart';
 part 'field_cell_bloc.freezed.dart';
 
 class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
-  final FieldSettingsBackendService _fieldSettingsService;
-
   FieldCellBloc({required String viewId, required FieldInfo fieldInfo})
       : _fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
         super(FieldCellState.initial(fieldInfo)) {
+    _dispatch();
+  }
+
+  final FieldSettingsBackendService _fieldSettingsService;
+
+  void _dispatch() {
     on<FieldCellEvent>(
       (event, emit) async {
         event.when(
@@ -28,7 +30,8 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
             emit(state.copyWith(width: width));
           },
           endUpdateWidth: () {
-            if (state.width != fieldInfo.fieldSettings?.width.toDouble()) {
+            if (state.width !=
+                state.fieldInfo.fieldSettings?.width.toDouble()) {
               _fieldSettingsService.updateFieldSettings(
                 fieldId: state.fieldInfo.id,
                 width: state.width,

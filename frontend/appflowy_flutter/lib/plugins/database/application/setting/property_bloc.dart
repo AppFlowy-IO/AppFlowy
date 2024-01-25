@@ -1,5 +1,3 @@
-// ignore_for_file: sort_constructors_first
-
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -16,16 +14,32 @@ part 'property_bloc.freezed.dart';
 
 class DatabasePropertyBloc
     extends Bloc<DatabasePropertyEvent, DatabasePropertyState> {
-  final FieldController _fieldController;
-  Function(List<FieldInfo>)? _onFieldsFn;
-
   DatabasePropertyBloc({
     required String viewId,
     required FieldController fieldController,
   })  : _fieldController = fieldController,
         super(
-          DatabasePropertyState.initial(viewId, fieldController.fieldInfos),
+          DatabasePropertyState.initial(
+            viewId,
+            fieldController.fieldInfos,
+          ),
         ) {
+    _dispatch();
+  }
+
+  final FieldController _fieldController;
+  Function(List<FieldInfo>)? _onFieldsFn;
+
+  @override
+  Future<void> close() async {
+    if (_onFieldsFn != null) {
+      _fieldController.removeListener(onFieldsListener: _onFieldsFn!);
+      _onFieldsFn = null;
+    }
+    return super.close();
+  }
+
+  void _dispatch() {
     on<DatabasePropertyEvent>(
       (event, emit) async {
         await event.when(
@@ -33,9 +47,8 @@ class DatabasePropertyBloc
             _startListening();
           },
           setFieldVisibility: (fieldId, visibility) async {
-            final fieldSettingsSvc = FieldSettingsBackendService(
-              viewId: viewId,
-            );
+            final fieldSettingsSvc =
+                FieldSettingsBackendService(viewId: state.viewId);
 
             final result = await fieldSettingsSvc.updateFieldSettings(
               fieldId: fieldId,
@@ -59,7 +72,7 @@ class DatabasePropertyBloc
             emit(state.copyWith(fieldContexts: fieldContexts));
 
             final result = await FieldBackendService.moveField(
-              viewId: viewId,
+              viewId: state.viewId,
               fromFieldId: fromId,
               toFieldId: toId,
             );
@@ -69,15 +82,6 @@ class DatabasePropertyBloc
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onFieldsFn != null) {
-      _fieldController.removeListener(onFieldsListener: _onFieldsFn!);
-      _onFieldsFn = null;
-    }
-    return super.close();
   }
 
   void _startListening() {
