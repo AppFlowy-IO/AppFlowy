@@ -30,7 +30,6 @@ class CalendarEventEditorBloc
               .id;
           final cells = rowController
               .loadData()
-              .values
               .where(
                 (cellContext) =>
                     _filterCellContext(cellContext, primaryFieldId),
@@ -61,7 +60,7 @@ class CalendarEventEditorBloc
         final primaryFieldId = fieldController.fieldInfos
             .firstWhere((fieldInfo) => fieldInfo.isPrimary)
             .id;
-        final cellData = cells.values
+        final cellData = cells
             .where(
               (cellContext) => _filterCellContext(cellContext, primaryFieldId),
             )

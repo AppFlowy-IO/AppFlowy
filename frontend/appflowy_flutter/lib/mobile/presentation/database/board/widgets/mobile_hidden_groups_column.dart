@@ -160,7 +160,9 @@ class MobileHiddenGroup extends StatelessWidget {
         final cells = group.rows.map(
           (item) {
             final cellContext =
-                databaseController.rowCache.loadCells(item)[primaryField.id]!;
+                databaseController.rowCache.loadCells(item).firstWhere(
+                      (cellContext) => cellContext.fieldId == primaryField.id,
+                    );
 
             return TextButton(
               style: TextButton.styleFrom(

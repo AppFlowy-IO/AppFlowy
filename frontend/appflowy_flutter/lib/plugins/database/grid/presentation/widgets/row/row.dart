@@ -1,8 +1,8 @@
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import "package:appflowy/generated/locale_keys.g.dart";
-import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
@@ -229,7 +229,7 @@ class RowContent extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ..._makeCells(context, state.cellByFieldId),
+              ..._makeCells(context, state.cellContexts),
               _finalCellDecoration(context),
             ],
           ),
@@ -240,9 +240,9 @@ class RowContent extends StatelessWidget {
 
   List<Widget> _makeCells(
     BuildContext context,
-    CellContextByFieldId cellByFieldId,
+    List<CellContext> cellContexts,
   ) {
-    return cellByFieldId.values.map(
+    return cellContexts.map(
       (cellContext) {
         final fieldInfo = fieldController.getField(cellContext.fieldId)!;
         final EditableCellWidget child = cellBuilder.buildStyled(

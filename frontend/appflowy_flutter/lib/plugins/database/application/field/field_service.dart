@@ -168,7 +168,11 @@ class FieldBackendService {
   Future<Either<Unit, FlowyError>> updateType({
     required FieldType fieldType,
   }) {
-    return updateFieldType(viewId: viewId, fieldId: fieldId, fieldType: fieldType);
+    return updateFieldType(
+      viewId: viewId,
+      fieldId: fieldId,
+      fieldType: fieldType,
+    );
   }
 
   Future<Either<Unit, FlowyError>> delete() {

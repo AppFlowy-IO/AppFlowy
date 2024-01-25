@@ -92,7 +92,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           return;
         }
         allCells.clear();
-        allCells.addAll(cellMap.values);
+        allCells.addAll(cellMap);
         int numHiddenFields = 0;
         final visibleCells = <CellContext>[];
 
@@ -125,7 +125,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   }
 
   void _init() {
-    allCells.addAll(rowController.loadData().values);
+    allCells.addAll(rowController.loadData());
     int numHiddenFields = 0;
     final visibleCells = <CellContext>[];
     for (final cell in allCells) {

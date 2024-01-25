@@ -8,7 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'cell/cell_controller.dart';
 import 'field/field_info.dart';
 import 'row/row_cache.dart';
 import 'row/row_service.dart';
@@ -33,8 +32,6 @@ typedef OnNumOfRowsChanged = void Function(
 );
 
 typedef OnError = void Function(FlowyError);
-
-typedef CellContextByFieldId = LinkedHashMap<String, CellContext>;
 
 @freezed
 class LoadingState with _$LoadingState {
