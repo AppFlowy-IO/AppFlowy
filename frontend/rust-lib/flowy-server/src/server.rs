@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::collab_msg::CollabMessage;
-use client_api::{ConnectState, WSConnectStateReceiver, WebSocketChannel};
+use client_api::ws::{ConnectState, WSConnectStateReceiver, WebSocketChannel};
 use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;

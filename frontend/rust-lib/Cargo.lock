@@ -2120,6 +2120,7 @@ name = "flowy-user-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "base64 0.21.5",
  "chrono",
  "collab",
  "collab-entity",
@@ -2131,6 +2132,7 @@ dependencies = [
  "serde_repr",
  "tokio",
  "tokio-stream",
+ "tracing",
  "uuid",
 ]
 
@@ -2138,10 +2140,13 @@ dependencies = [
 name = "flowy-user-wasm"
 version = "0.1.0"
 dependencies = [
+ "collab-integrate",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
+ "flowy-user-pub",
  "lib-dispatch",
+ "lib-infra",
  "strum_macros 0.25.2",
  "tracing",
 ]

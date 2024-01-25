@@ -1,3 +1,4 @@
+use crate::event_handler::*;
 use crate::manager::UserManagerWASM;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::AFPlugin;
@@ -10,19 +11,12 @@ pub fn init(user_manager: Weak<UserManagerWASM>) -> AFPlugin {
     AFPlugin::new()
         .name("Flowy-User")
         .state(user_manager)
-        .event(UserEvent::SignUp, sign_up)
-        .event(UserEvent::SignOut, sign_out_handler)
+        .event(UserWasmEvent::OauthSignIn, oauth_sign_in_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
-pub enum UserEvent {
-  /// Only use when the [Authenticator] is Local or SelfHosted
-  /// Creating a new account
+pub enum UserWasmEvent {
   #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
-  SignUp = 0,
-
-  /// Logging out fo an account
-  #[event()]
-  SignOut = 1,
+  OauthSignIn = 0,
 }

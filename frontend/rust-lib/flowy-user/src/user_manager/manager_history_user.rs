@@ -6,7 +6,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::entities::Authenticator;
 
 use crate::migrations::AnonUser;
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 const ANON_USER: &str = "anon_user";
 impl UserManager {

@@ -5,10 +5,10 @@ use anyhow::Error;
 use client_api::collab_sync::collab_msg::CollabMessage;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
-use client_api::{Client, ClientConfiguration};
-use client_api::{
+use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
+use client_api::{Client, ClientConfiguration};
 use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;

@@ -16,9 +16,9 @@ use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{upload_collab_objects_data, ImportContext};
-use crate::services::entities::Session;
 use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
 use crate::user_manager::UserManager;
+use flowy_user_pub::session::Session;
 
 impl UserManager {
   /// Import appflowy data from the given path.

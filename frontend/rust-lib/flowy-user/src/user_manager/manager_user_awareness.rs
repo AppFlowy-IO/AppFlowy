@@ -13,8 +13,8 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::ReminderPB;
-use crate::services::entities::Session;
 use crate::user_manager::UserManager;
+use flowy_user_pub::session::Session;
 
 impl UserManager {
   /// Adds a new reminder based on the given payload.

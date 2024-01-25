@@ -2115,6 +2115,7 @@ name = "flowy-user-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "base64 0.21.5",
  "chrono",
  "collab",
  "collab-entity",
@@ -2126,6 +2127,7 @@ dependencies = [
  "serde_repr",
  "tokio",
  "tokio-stream",
+ "tracing",
  "uuid",
 ]
 
