@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use collab_database::rows::{RowCell, RowDetail, RowId};
-use lib_infra::future::Fut;
+use collab_database::rows::RowCell;
+use lib_infra::future::{to_fut, Fut};
 
 use crate::services::calculations::{
-  CalculationsController, CalculationsDelegate, CalculationsTaskHandler,
+  Calculation, CalculationsController, CalculationsDelegate, CalculationsTaskHandler,
 };
 
 use crate::services::database_view::{
@@ -49,7 +49,16 @@ impl CalculationsDelegate for DatabaseViewCalculationsDelegateImpl {
     self.0.get_cells_for_field(view_id, field_id)
   }
 
-  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>> {
-    self.0.get_row(view_id, row_id)
+  fn get_calculation(&self, view_id: &str, field_id: &str) -> Fut<Option<Arc<Calculation>>> {
+    let calculation = self.0.get_calculation(view_id, field_id).map(Arc::new);
+    to_fut(async move { calculation })
+  }
+
+  fn update_calculation(&self, view_id: &str, calculation: Calculation) {
+    self.0.update_calculation(view_id, calculation)
+  }
+
+  fn remove_calculation(&self, view_id: &str, calculation_id: &str) {
+    self.0.remove_calculation(view_id, calculation_id)
   }
 }

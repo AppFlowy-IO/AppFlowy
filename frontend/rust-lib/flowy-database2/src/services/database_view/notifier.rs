@@ -16,6 +16,7 @@ pub enum DatabaseViewChanged {
   FilterNotification(FilterResultNotification),
   ReorderAllRowsNotification(ReorderAllRowsResult),
   ReorderSingleRowNotification(ReorderSingleRowResult),
+  CalculationValueNotification(CalculationChangesetNotificationPB),
 }
 
 pub type DatabaseViewChangedNotifier = broadcast::Sender<DatabaseViewChanged>;
@@ -77,6 +78,12 @@ impl DatabaseViewChangedReceiverRunner {
             .payload(reorder_row)
             .send()
           },
+          DatabaseViewChanged::CalculationValueNotification(notification) => send_notification(
+            &notification.view_id,
+            DatabaseNotification::DidUpdateCalculation,
+          )
+          .payload(notification)
+          .send(),
         }
       })
       .await;

@@ -29,7 +29,7 @@ pub struct RemoveCalculationChangesetPB {
   pub calculation_id: String,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Default, ProtoBuf, Clone)]
 pub struct CalculationChangesetNotificationPB {
   #[pb(index = 1)]
   pub view_id: String,

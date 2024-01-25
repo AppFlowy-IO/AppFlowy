@@ -384,6 +384,10 @@ impl DatabaseEditor {
               .set_field_type(new_field_type.into())
               .set_type_option(new_field_type.into(), Some(transformed_type_option));
           });
+
+        for view in self.database_views.editors().await {
+          view.v_did_update_field_type(field_id, new_field_type).await;
+        }
       },
     }
 
@@ -745,7 +749,9 @@ impl DatabaseEditor {
     let option_row = self.get_row_detail(view_id, &row_id);
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
-        view.v_did_update_row(&old_row, &new_row_detail).await;
+        view
+          .v_did_update_row(&old_row, &new_row_detail, field_id.to_owned())
+          .await;
       }
     }
 
@@ -1451,6 +1457,13 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .into_iter()
       .map(Arc::new)
       .collect()
+  }
+
+  fn get_calculation(&self, view_id: &str, field_id: &str) -> Option<Calculation> {
+    self
+      .database
+      .lock()
+      .get_calculation::<Calculation>(view_id, field_id)
   }
 
   fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>> {

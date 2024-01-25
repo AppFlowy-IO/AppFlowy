@@ -164,6 +164,8 @@ impl DatabaseViewEditor {
 
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn v_did_delete_row(&self, row: &Row) {
+    let deleted_row = row.clone();
+
     // Send the group notification if the current view has groups;
     let result = self
       .mut_group_controller(|group_controller, _| group_controller.did_delete_row(row))
@@ -184,15 +186,32 @@ impl DatabaseViewEditor {
       }
     }
     let changes = RowsChangePB::from_delete(row.id.clone().into_inner());
+
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changes)
       .send();
+
+    // Updating calculations for each of the Rows cells is a tedious task
+    // Therefore we spawn a separate task for this
+    let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
+    af_spawn(async move {
+      if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
+        calculations_controller
+          .did_receive_row_deleted(deleted_row)
+          .await;
+      }
+    });
   }
 
   /// Notify the view that the row has been updated. If the view has groups,
   /// send the group notification with [GroupRowsNotificationPB]. Otherwise,
   /// send the view notification with [RowsChangePB]
-  pub async fn v_did_update_row(&self, old_row: &Option<RowDetail>, row_detail: &RowDetail) {
+  pub async fn v_did_update_row(
+    &self,
+    old_row: &Option<RowDetail>,
+    row_detail: &RowDetail,
+    field_id: String,
+  ) {
     let result = self
       .mut_group_controller(|group_controller, field| {
         Ok(group_controller.did_update_group_row(old_row, row_detail, &field))
@@ -245,10 +264,9 @@ impl DatabaseViewEditor {
           .await;
       }
 
-      // If it was a Row deletion
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
         calculations_controller
-          .did_receive_row_changed(row_id)
+          .did_receive_cell_changed(field_id)
           .await;
       }
     });
@@ -994,6 +1012,13 @@ impl DatabaseViewEditor {
       .update_field_settings(view_id, field_id, visibility, width);
 
     Ok(())
+  }
+
+  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: &FieldType) {
+    self
+      .calculations_controller
+      .did_receive_field_type_changed(field_id.to_owned(), new_field_type.to_owned())
+      .await;
   }
 
   async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>

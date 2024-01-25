@@ -36,6 +36,19 @@ impl std::convert::From<&Calculation> for CalculationPB {
   }
 }
 
+impl std::convert::From<&Arc<Calculation>> for CalculationPB {
+  fn from(calculation: &Arc<Calculation>) -> Self {
+    let calculation_type = calculation.calculation_type.into();
+
+    Self {
+      id: calculation.id.clone(),
+      field_id: calculation.field_id.clone(),
+      calculation_type,
+      value: calculation.value.clone(),
+    }
+  }
+}
+
 #[derive(
   Default, Debug, Copy, Clone, PartialEq, Hash, Eq, ProtoBuf_Enum, Serialize_repr, Deserialize_repr,
 )]

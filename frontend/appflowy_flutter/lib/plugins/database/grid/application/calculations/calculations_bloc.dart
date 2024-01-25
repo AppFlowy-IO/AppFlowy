@@ -11,11 +11,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'calculations_bloc.freezed.dart';
 
 class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
-  final String viewId;
-  final FieldController _fieldController;
-  final CalculationsListener _calculationsListener;
-  late final CalculationsBackendService _calculationsService;
-
   CalculationsBloc({
     required this.viewId,
     required FieldController fieldController,
@@ -23,6 +18,21 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
         _calculationsListener = CalculationsListener(viewId: viewId),
         _calculationsService = CalculationsBackendService(viewId: viewId),
         super(CalculationsState.initial()) {
+    _dispatch();
+  }
+
+  final String viewId;
+  final FieldController _fieldController;
+  final CalculationsListener _calculationsListener;
+  late final CalculationsBackendService _calculationsService;
+
+  @override
+  Future<void> close() async {
+    _fieldController.removeListener(onFieldsListener: _onReceiveFields);
+    super.close();
+  }
+
+  void _dispatch() {
     on<CalculationsEvent>((event, emit) async {
       await event.when(
         started: () async {
@@ -86,6 +96,13 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
               }
             }
 
+            if (changeset.updateCalculations.isNotEmpty) {
+              for (final update in changeset.updateCalculations) {
+                calculationsMap.removeWhere((key, _) => key == update.fieldId);
+                calculationsMap.addAll({update.fieldId: update});
+              }
+            }
+
             if (changeset.deleteCalculations.isNotEmpty) {
               for (final delete in changeset.deleteCalculations) {
                 calculationsMap.removeWhere((key, _) => key == delete.fieldId);
@@ -120,12 +137,6 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
 
       add(CalculationsEvent.didReceiveCalculationsUpdate(calculationMap));
     }
-  }
-
-  @override
-  Future<void> close() async {
-    _fieldController.removeListener(onFieldsListener: _onReceiveFields);
-    super.close();
   }
 }
 

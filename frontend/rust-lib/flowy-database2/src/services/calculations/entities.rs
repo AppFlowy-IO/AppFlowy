@@ -1,13 +1,8 @@
-use std::sync::Arc;
-
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
-use collab_database::{
-  rows::RowCell,
-  views::{CalculationMap, CalculationMapBuilder},
-};
+use collab_database::views::{CalculationMap, CalculationMapBuilder};
 
-use crate::entities::{CalculationPB, CalculationType};
+use crate::entities::CalculationPB;
 
 #[derive(Debug, Clone)]
 pub struct Calculation {
@@ -76,17 +71,18 @@ impl TryFrom<CalculationMap> for Calculation {
   }
 }
 
-pub struct CalculationsResultNotification {
+#[derive(Clone)]
+pub struct CalculationUpdatedNotification {
   pub view_id: String,
 
-  pub calculations: Vec<Calculation>,
+  pub calculation: Calculation,
 }
 
-impl CalculationsResultNotification {
-  pub fn new(view_id: String) -> Self {
+impl CalculationUpdatedNotification {
+  pub fn new(view_id: String, calculation: Calculation) -> Self {
     Self {
       view_id,
-      calculations: vec![],
+      calculation,
     }
   }
 }
@@ -98,6 +94,15 @@ impl Calculation {
       field_id,
       calculation_type: calculation_type.unwrap_or(0),
       value: "".to_owned(),
+    }
+  }
+
+  pub fn with_value(&self, value: String) -> Self {
+    Self {
+      id: self.id.clone(),
+      field_id: self.field_id.clone(),
+      calculation_type: self.calculation_type,
+      value,
     }
   }
 }

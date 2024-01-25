@@ -156,14 +156,15 @@ class CalculateCell extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const HSpace(8),
-          calculation!.value.isEmpty
-              ? const SizedBox(
-                  width: 12,
-                  height: 12,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Flexible(child: FlowyText(calculation!.value)),
+          if (calculation!.value.isNotEmpty) ...[
+            const HSpace(8),
+            Flexible(
+              child: FlowyText(
+                calculation!.value,
+                color: AFThemeExtension.of(context).textColor,
+              ),
+            ),
+          ],
           const HSpace(8),
           FlowySvg(
             FlowySvgs.arrow_down_s,

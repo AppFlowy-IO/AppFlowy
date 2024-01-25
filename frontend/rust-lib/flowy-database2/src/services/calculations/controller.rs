@@ -1,7 +1,8 @@
 use std::str::FromStr;
 use std::sync::Arc;
 
-use collab_database::rows::{RowCell, RowDetail, RowId};
+use collab::core::any_map::AnyMapExtension;
+use collab_database::rows::{Row, RowCell};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -9,17 +10,20 @@ use tokio::sync::RwLock;
 use lib_infra::future::Fut;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
-use crate::entities::{CalculationChangesetNotificationPB, CalculationPB, CalculationType};
+use crate::entities::{
+  CalculationChangesetNotificationPB, CalculationPB, CalculationType, FieldType,
+};
 use crate::services::calculations::CalculationsByFieldIdCache;
-use crate::services::database_view::DatabaseViewChangedNotifier;
+use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::utils::cache::AnyTypeCache;
 
 use super::{Calculation, CalculationChangeset, CalculationsService};
 
 pub trait CalculationsDelegate: Send + Sync + 'static {
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
-
-  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
+  fn get_calculation(&self, view_id: &str, field_id: &str) -> Fut<Option<Arc<Calculation>>>;
+  fn update_calculation(&self, view_id: &str, calculation: Calculation);
+  fn remove_calculation(&self, view_id: &str, calculation_id: &str);
 }
 
 pub struct CalculationsController {
@@ -93,21 +97,151 @@ impl CalculationsController {
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = CalculationEvent::from_str(predicate).unwrap();
     match event_type {
-      CalculationEvent::RowDeleted(row_id) => self.update_calculation(row_id).await?,
+      CalculationEvent::RowDeleted(row) => self.handle_row_deleted(row).await,
+      CalculationEvent::CellUpdated(field_id) => self.handle_cell_changed(field_id).await,
+      CalculationEvent::FieldTypeChanged(field_id, new_field_type) => {
+        self
+          .handle_field_type_changed(field_id, new_field_type)
+          .await
+      },
     }
+
     Ok(())
   }
 
-  pub async fn did_receive_row_changed(&self, _row_id: RowId) {
-    todo!("RowDeleted / CellChanged")
-    // let row = self.delegate.get_row(&self.view_id, &row_id.clone()).await;
+  pub async fn did_receive_field_type_changed(&self, field_id: String, new_field_type: FieldType) {
+    self
+      .gen_task(
+        CalculationEvent::FieldTypeChanged(field_id, new_field_type),
+        QualityOfService::UserInteractive,
+      )
+      .await
+  }
 
-    // self
-    //   .gen_task(
-    //     CalculationEvent::RowDeleted(row_id.into_inner()),
-    //     QualityOfService::UserInteractive,
-    //   )
-    //   .await
+  pub async fn handle_field_type_changed(&self, field_id: String, new_field_type: FieldType) {
+    let calculation = self
+      .delegate
+      .get_calculation(&self.view_id, &field_id)
+      .await;
+
+    if let Some(calculation) = calculation {
+      if new_field_type != FieldType::Number {
+        self
+          .delegate
+          .remove_calculation(&self.view_id, &calculation.id);
+
+        let notification = CalculationChangesetNotificationPB::from_delete(
+          &self.view_id,
+          vec![CalculationPB::from(&calculation)],
+        );
+
+        let _ = self
+          .notifier
+          .send(DatabaseViewChanged::CalculationValueNotification(
+            notification,
+          ));
+      }
+    }
+  }
+
+  pub async fn did_receive_cell_changed(&self, field_id: String) {
+    self
+      .gen_task(
+        CalculationEvent::CellUpdated(field_id),
+        QualityOfService::UserInteractive,
+      )
+      .await
+  }
+
+  async fn handle_cell_changed(&self, field_id: String) {
+    let calculation = self
+      .delegate
+      .get_calculation(&self.view_id, &field_id)
+      .await;
+
+    if let Some(calculation) = calculation {
+      let update = self.get_updated_calculation(calculation).await;
+      if let Some(update) = update {
+        self
+          .delegate
+          .update_calculation(&self.view_id, update.clone());
+
+        let notification = CalculationChangesetNotificationPB::from_update(
+          &self.view_id,
+          vec![CalculationPB::from(&update)],
+        );
+
+        let _ = self
+          .notifier
+          .send(DatabaseViewChanged::CalculationValueNotification(
+            notification,
+          ));
+      }
+    }
+  }
+
+  pub async fn did_receive_row_deleted(&self, row: Row) {
+    self
+      .gen_task(
+        CalculationEvent::RowDeleted(row),
+        QualityOfService::UserInteractive,
+      )
+      .await
+  }
+
+  async fn handle_row_deleted(&self, row: Row) {
+    let cells = row.cells.iter();
+
+    let mut updates = vec![];
+
+    // Iterate each cell in the row
+    for cell in cells {
+      let field_id = cell.0;
+      let value = cell.1.value().get("data");
+
+      // Only continue if there is a value in the cell
+      if let Some(_cell_value) = value {
+        let calculation = self.delegate.get_calculation(&self.view_id, field_id).await;
+
+        if let Some(calculation) = calculation {
+          let update = self.get_updated_calculation(calculation.clone()).await;
+
+          if let Some(update) = update {
+            updates.push(CalculationPB::from(&update));
+            self.delegate.update_calculation(&self.view_id, update);
+          }
+        }
+      }
+    }
+
+    if !updates.is_empty() {
+      let notification = CalculationChangesetNotificationPB::from_update(&self.view_id, updates);
+
+      let _ = self
+        .notifier
+        .send(DatabaseViewChanged::CalculationValueNotification(
+          notification,
+        ));
+    }
+  }
+
+  async fn get_updated_calculation(&self, calculation: Arc<Calculation>) -> Option<Calculation> {
+    let row_cells = self
+      .delegate
+      .get_cells_for_field(&self.view_id, &calculation.field_id)
+      .await;
+
+    if !row_cells.is_empty() {
+      let value = self
+        .calculations_service
+        .calculate(calculation.calculation_type, row_cells);
+
+      if value != calculation.value {
+        return Some(calculation.with_value(value));
+      }
+    }
+
+    None
   }
 
   pub async fn did_receive_changes(
@@ -161,15 +295,13 @@ impl CalculationsController {
         .insert(field_id, calculation.clone());
     }
   }
-
-  async fn update_calculation(&self, _row_id: String) -> FlowyResult<()> {
-    todo!("update_calculation");
-  }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum CalculationEvent {
-  RowDeleted(String),
+  RowDeleted(Row),
+  CellUpdated(String),
+  FieldTypeChanged(String, FieldType),
 }
 
 impl ToString for CalculationEvent {
