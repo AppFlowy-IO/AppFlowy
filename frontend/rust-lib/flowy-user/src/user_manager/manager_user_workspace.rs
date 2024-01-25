@@ -152,13 +152,13 @@ impl UserManager {
     let new_workspace = self
       .cloud_services
       .get_user_service()?
-      .add_workspace(workspace_name)
+      .create_workspace(workspace_name)
       .await?;
 
     // save the workspace to sqlite db
     let uid = self.user_id()?;
     let mut conn = self.db_connection(uid)?;
-    insert_new_workspaces_op(uid, &vec![new_workspace.clone()], &mut *conn)?;
+    insert_new_workspaces_op(uid, &[new_workspace.clone()], &mut conn)?;
     Ok(new_workspace)
   }
 

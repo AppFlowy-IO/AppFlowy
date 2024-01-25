@@ -283,7 +283,7 @@ where
     })
   }
 
-  fn add_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let workspace_name_owned = workspace_name.to_owned();
     FutureResult::new(async move {

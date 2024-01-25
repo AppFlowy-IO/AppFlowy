@@ -339,7 +339,7 @@ where
     })
   }
 
-  fn add_workspace(&self, _workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+  fn create_workspace(&self, _workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
     FutureResult::new(async {
       Err(
         FlowyError::local_version_not_support()
