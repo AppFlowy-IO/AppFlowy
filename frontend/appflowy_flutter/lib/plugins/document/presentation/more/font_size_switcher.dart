@@ -8,10 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class _DocumentFontSize {
+  const _DocumentFontSize(this.name, this.size);
   final String name;
   final double size;
-
-  const _DocumentFontSize(this.name, this.size);
 }
 
 class FontSizeSwitcher extends StatefulWidget {
