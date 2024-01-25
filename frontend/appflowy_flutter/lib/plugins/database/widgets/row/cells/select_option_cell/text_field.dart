@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
