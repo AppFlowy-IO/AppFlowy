@@ -150,7 +150,7 @@ impl std::default::Default for AppearanceSettingsPB {
       layout_direction: LayoutDirectionPB::default(),
       text_direction: TextDirectionPB::default(),
       document_setting: DocumentSettingsPB::default(),
-      font_icons_size_factor: APPEARANCE_DEFAULT_FONT_ICONS_SIZE_FACTOR,    
+      font_icons_size_factor: APPEARANCE_DEFAULT_FONT_ICONS_SIZE_FACTOR,
     }
   }
 }
