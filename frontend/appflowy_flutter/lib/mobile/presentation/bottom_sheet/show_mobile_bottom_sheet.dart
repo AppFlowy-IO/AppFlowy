@@ -122,7 +122,9 @@ class _Header extends StatelessWidget {
     return SizedBox(
       height: 44.0, // the height of the header area is fixed
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: showCloseButton
+            ? MainAxisAlignment.spaceBetween
+            : MainAxisAlignment.center,
         children: [
           if (showCloseButton) ...[
             const HSpace(16),

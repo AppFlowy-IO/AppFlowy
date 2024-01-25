@@ -165,7 +165,7 @@ class CloudTypeSwitcher extends StatelessWidget {
                 showDivider: false,
                 showCloseButton: false,
                 title: LocaleKeys.settings_menu_cloudServerType.tr(),
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 48),
+                padding: const EdgeInsets.only(bottom: 36),
                 builder: (context) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 10),
