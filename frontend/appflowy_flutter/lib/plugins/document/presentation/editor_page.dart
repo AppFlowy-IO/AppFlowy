@@ -175,7 +175,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final EditorScrollController editorScrollController;
 
-  Future<bool> showSlashMenu(editorState) async => await customSlashCommand(
+  Future<bool> showSlashMenu(editorState) async => customSlashCommand(
         slashMenuItems,
         shouldInsertSlash: false,
         style: styleCustomizer.selectionMenuStyleBuilder(),
@@ -216,7 +216,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.editorState.updateSelectionWithReason(
           widget.initialSelection,
-          reason: SelectionUpdateReason.transaction,
         );
       });
     }
@@ -251,7 +250,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       textDirection: textDirection,
       child: AppFlowyEditor(
         editorState: widget.editorState,
-        editable: true,
         editorScrollController: editorScrollController,
         // setup the auto focus parameters
         autoFocus: widget.autoFocus ?? autoFocus,
@@ -375,7 +373,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (widget.editorState.document.isEmpty) {
       return (
         true,
-        Selection.collapsed(Position(path: [0], offset: 0)),
+        Selection.collapsed(Position(path: [0])),
       );
     }
     final nodes = widget.editorState.document.root.children
@@ -383,10 +381,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final isAllEmpty =
         nodes.isNotEmpty && nodes.every((element) => element.delta!.isEmpty);
     if (isAllEmpty) {
-      return (
-        true,
-        Selection.collapsed(Position(path: nodes.first.path, offset: 0))
-      );
+      return (true, Selection.collapsed(Position(path: nodes.first.path)));
     }
     return const (false, null);
   }

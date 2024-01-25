@@ -17,10 +17,8 @@ part 'tab_bar_bloc.freezed.dart';
 
 class DatabaseTabBarBloc
     extends Bloc<DatabaseTabBarEvent, DatabaseTabBarState> {
-  DatabaseTabBarBloc({
-    bool isInlineView = false,
-    required ViewPB view,
-  }) : super(DatabaseTabBarState.initial(view)) {
+  DatabaseTabBarBloc({required ViewPB view})
+      : super(DatabaseTabBarState.initial(view)) {
     on<DatabaseTabBarEvent>(
       (event, emit) async {
         event.when(
@@ -247,18 +245,18 @@ class DatabaseTabBarState with _$DatabaseTabBarState {
 }
 
 class DatabaseTabBar extends Equatable {
+  DatabaseTabBar({
+    required this.view,
+  }) : _builder = PlatformExtension.isMobile
+            ? view.mobileTabBarItem()
+            : view.tabBarItem();
+
   final ViewPB view;
   final DatabaseTabBarItemBuilder _builder;
 
   String get viewId => view.id;
   DatabaseTabBarItemBuilder get builder => _builder;
   ViewLayoutPB get layout => view.layout;
-
-  DatabaseTabBar({
-    required this.view,
-  }) : _builder = PlatformExtension.isMobile
-            ? view.mobileTabBarItem()
-            : view.tabBarItem();
 
   @override
   List<Object?> get props => [view.hashCode];
@@ -270,26 +268,23 @@ typedef OnViewChildViewChanged = void Function(
 );
 
 class DatabaseTabBarController {
-  ViewPB view;
-  final DatabaseController controller;
-  final ViewListener viewListener;
-  OnViewUpdated? onViewUpdated;
-  OnViewChildViewChanged? onViewChildViewChanged;
-
-  DatabaseTabBarController({
-    required this.view,
-  })  : controller = DatabaseController(view: view),
+  DatabaseTabBarController({required this.view})
+      : controller = DatabaseController(view: view),
         viewListener = ViewListener(viewId: view.id) {
     viewListener.start(
-      onViewChildViewsUpdated: (update) {
-        onViewChildViewChanged?.call(update);
-      },
+      onViewChildViewsUpdated: (update) => onViewChildViewChanged?.call(update),
       onViewUpdated: (newView) {
         view = newView;
         onViewUpdated?.call(newView);
       },
     );
   }
+
+  ViewPB view;
+  final DatabaseController controller;
+  final ViewListener viewListener;
+  OnViewUpdated? onViewUpdated;
+  OnViewChildViewChanged? onViewChildViewChanged;
 
   Future<void> dispose() async {
     await viewListener.stop();

@@ -43,7 +43,6 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
         plainText: text,
         html: html,
         inAppJson: inAppJson,
-        image: null,
       ),
     );
   }();

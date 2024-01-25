@@ -66,7 +66,7 @@ class SettingsShortcutService {
   ) async {
     for (final shortcut in customizeShortcuts) {
       final shortcutEvent = commandShortcuts.firstWhereOrNull(
-        (s) => (s.key == shortcut.key && s.command != shortcut.command),
+        (s) => s.key == shortcut.key && s.command != shortcut.command,
       );
       shortcutEvent?.updateCommand(command: shortcut.command);
     }

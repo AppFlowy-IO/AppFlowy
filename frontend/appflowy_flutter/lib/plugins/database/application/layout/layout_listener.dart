@@ -8,11 +8,13 @@ import 'package:dartz/dartz.dart';
 
 /// Listener for database layout changes.
 class DatabaseLayoutListener {
+  DatabaseLayoutListener(this.viewId);
+
   final String viewId;
+
   PublishNotifier<Either<DatabaseLayoutPB, FlowyError>>? _layoutNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  DatabaseLayoutListener(this.viewId);
 
   void start({
     required void Function(Either<DatabaseLayoutPB, FlowyError>)

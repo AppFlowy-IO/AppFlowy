@@ -79,7 +79,6 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
-          onTap: null,
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText.medium(
             title(),

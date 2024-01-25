@@ -15,12 +15,12 @@ import 'sort_editor.dart';
 import 'sort_info.dart';
 
 class SortMenu extends StatelessWidget {
-  final FieldController fieldController;
-
   const SortMenu({
     super.key,
     required this.fieldController,
   });
+
+  final FieldController fieldController;
 
   @override
   Widget build(BuildContext context) {
@@ -59,14 +59,14 @@ class SortMenu extends StatelessWidget {
 }
 
 class SortChoiceChip extends StatelessWidget {
-  final List<SortInfo> sortInfos;
-  final VoidCallback? onTap;
-
   const SortChoiceChip({
     super.key,
     required this.sortInfos,
     this.onTap,
   });
+
+  final List<SortInfo> sortInfos;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

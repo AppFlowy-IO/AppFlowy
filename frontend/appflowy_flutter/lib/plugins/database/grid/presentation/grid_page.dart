@@ -256,13 +256,13 @@ class _GridHeader extends StatelessWidget {
 }
 
 class _GridRows extends StatelessWidget {
-  final String viewId;
-  final GridScrollController scrollController;
-
   const _GridRows({
     required this.viewId,
     required this.scrollController,
   });
+
+  final String viewId;
+  final GridScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 import 'package:appflowy/workspace/application/edit_panel/edit_context.dart';
 import 'package:dartz/dartz.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'edit_panel_bloc.freezed.dart';
 

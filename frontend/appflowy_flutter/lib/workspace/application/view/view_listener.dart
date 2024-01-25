@@ -19,6 +19,8 @@ typedef RestoreViewNotifiedValue = Either<ViewPB, FlowyError>;
 typedef MoveToTrashNotifiedValue = Either<DeletedViewPB, FlowyError>;
 
 class ViewListener {
+  ViewListener({required this.viewId});
+
   StreamSubscription<SubscribeObject>? _subscription;
   void Function(UpdateViewNotifiedValue)? _updatedViewNotifier;
   void Function(ChildViewUpdatePB)? _updateViewChildViewsNotifier;
@@ -29,10 +31,6 @@ class ViewListener {
 
   FolderNotificationParser? _parser;
   final String viewId;
-
-  ViewListener({
-    required this.viewId,
-  });
 
   void start({
     void Function(UpdateViewNotifiedValue)? onViewUpdated,

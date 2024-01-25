@@ -34,9 +34,9 @@ class TrashPluginConfig implements PluginConfig {
 }
 
 class TrashPlugin extends Plugin {
-  final PluginType _pluginType;
-
   TrashPlugin({required PluginType pluginType}) : _pluginType = pluginType;
+
+  final PluginType _pluginType;
 
   @override
   PluginWidgetBuilder get widgetBuilder => TrashPluginDisplay();

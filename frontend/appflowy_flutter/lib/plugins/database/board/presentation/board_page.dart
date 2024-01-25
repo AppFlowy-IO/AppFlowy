@@ -290,13 +290,11 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
           color: Theme.of(context).brightness == Brightness.light
               ? const Color(0xFF1F2329).withOpacity(0.12)
               : const Color(0xFF59647A),
-          width: 1.0,
         ),
       ),
       boxShadow: [
         BoxShadow(
           blurRadius: 4,
-          spreadRadius: 0,
           color: const Color(0xFF1F2329).withOpacity(0.02),
         ),
         BoxShadow(
@@ -424,7 +422,6 @@ class _BoardTrailingState extends State<BoardTrailing> {
                         isDense: true,
                       ),
                       style: Theme.of(context).textTheme.bodySmall,
-                      maxLines: 1,
                       onSubmitted: (groupName) => context
                           .read<BoardBloc>()
                           .add(BoardEvent.createGroup(groupName)),

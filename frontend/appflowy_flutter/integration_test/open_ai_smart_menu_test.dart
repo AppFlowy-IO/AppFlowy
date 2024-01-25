@@ -15,8 +15,8 @@ void main() {
   const service = TestWorkspaceService(TestWorkspace.aiWorkSpace);
 
   group('integration tests for open-ai smart menu', () {
-    setUpAll(() async => await service.setUpAll());
-    setUp(() async => await service.setUp());
+    setUpAll(() async => service.setUpAll());
+    setUp(() async => service.setUp());
 
     testWidgets('testing selection on open-ai smart menu replace',
         (tester) async {
@@ -59,7 +59,7 @@ void main() {
 
       editorState.service.selectionService.updateSelection(
         Selection(
-          start: Position(path: [1], offset: 0),
+          start: Position(path: [1]),
           end: Position(path: [1], offset: 5),
         ),
       );
@@ -80,8 +80,8 @@ void main() {
       expect(
         editorState.service.selectionService.currentSelection.value,
         Selection(
-          start: Position(path: [2], offset: 0),
-          end: Position(path: [3], offset: 0),
+          start: Position(path: [2]),
+          end: Position(path: [3]),
         ),
       );
     });
@@ -99,7 +99,7 @@ Future<AppFlowyEditor> setUpOpenAITesting(WidgetTester tester) async {
   final Finder editor = find.byType(AppFlowyEditor);
   await tester.tap(editor);
   await tester.pumpAndSettle();
-  return (tester.state(editor).widget as AppFlowyEditor);
+  return tester.state(editor).widget as AppFlowyEditor;
 }
 
 Future<void> mockOpenAIRepository() async {

@@ -13,10 +13,10 @@ class ExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: overlayManagerBuilder(),
+    return const MaterialApp(
+      builder: overlayManagerBuilder,
       title: "Flowy Infra Title",
-      home: const HomeScreen(),
+      home: HomeScreen(),
     );
   }
 }

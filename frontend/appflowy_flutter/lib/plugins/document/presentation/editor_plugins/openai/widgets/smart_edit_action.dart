@@ -64,9 +64,9 @@ enum SmartEditAction {
 }
 
 class SmartEditActionWrapper extends ActionCell {
-  final SmartEditAction inner;
-
   SmartEditActionWrapper(this.inner);
+
+  final SmartEditAction inner;
 
   Widget? icon(Color iconColor) => null;
 

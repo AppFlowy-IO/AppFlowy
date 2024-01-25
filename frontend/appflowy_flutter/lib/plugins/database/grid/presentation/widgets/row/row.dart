@@ -82,13 +82,13 @@ class _GridRowState extends State<GridRow> {
 }
 
 class _RowLeading extends StatefulWidget {
-  final int? index;
-  final bool isDraggable;
-
   const _RowLeading({
     this.index,
     this.isDraggable = false,
   });
+
+  final int? index;
+  final bool isDraggable;
 
   @override
   State<_RowLeading> createState() => _RowLeadingState();
@@ -309,8 +309,9 @@ class RegionStateNotifier extends ChangeNotifier {
 }
 
 class _RowEnterRegion extends StatefulWidget {
-  final Widget child;
   const _RowEnterRegion({required this.child});
+
+  final Widget child;
 
   @override
   State<_RowEnterRegion> createState() => _RowEnterRegionState();

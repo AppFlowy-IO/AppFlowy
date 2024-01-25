@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
@@ -6,20 +7,27 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../application/database_controller.dart';
 
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
-  final DatabaseController databaseController;
-
   GridBloc({required ViewPB view, required this.databaseController})
       : super(GridState.initial(view.id)) {
+    _dispatch();
+  }
+
+  final DatabaseController databaseController;
+
+  String get viewId => databaseController.viewId;
+
+  void _dispatch() {
     on<GridEvent>(
       (event, emit) async {
         await event.when(
@@ -93,11 +101,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  String get viewId => databaseController.viewId;
-
-  RowCache getRowCache(RowId rowId) {
-    return databaseController.rowCache;
-  }
+  RowCache getRowCache(RowId rowId) => databaseController.rowCache;
 
   void _startListening() {
     final onDatabaseChanged = DatabaseCallbacks(

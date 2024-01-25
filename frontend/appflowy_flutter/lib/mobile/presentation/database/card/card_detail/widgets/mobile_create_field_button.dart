@@ -25,7 +25,6 @@ class MobileRowDetailCreateFieldButton extends StatelessWidget {
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  side: BorderSide.none,
                 ),
               ),
               overlayColor: MaterialStateProperty.all<Color>(

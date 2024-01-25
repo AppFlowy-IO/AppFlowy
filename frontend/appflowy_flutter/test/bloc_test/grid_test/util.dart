@@ -14,10 +14,10 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart
 import '../../util.dart';
 
 class GridTestContext {
+  GridTestContext(this.gridView, this.gridController);
+
   final ViewPB gridView;
   final DatabaseController gridController;
-
-  GridTestContext(this.gridView, this.gridController);
 
   List<RowInfo> get rowInfos {
     return gridController.rowCache.rowInfos;
@@ -112,9 +112,9 @@ Future<FieldEditorBloc> createFieldEditor({
 
 /// Create a empty Grid for test
 class AppFlowyGridTest {
-  final AppFlowyUnitTest unitTest;
-
   AppFlowyGridTest({required this.unitTest});
+
+  final AppFlowyUnitTest unitTest;
 
   static Future<AppFlowyGridTest> ensureInitialized() async {
     final inner = await AppFlowyUnitTest.ensureInitialized();
@@ -151,9 +151,10 @@ class AppFlowyGridTest {
 
 /// Create a new Grid for cell test
 class AppFlowyGridCellTest {
+  AppFlowyGridCellTest({required this.gridTest});
+
   late GridTestContext context;
   final AppFlowyGridTest gridTest;
-  AppFlowyGridCellTest({required this.gridTest});
 
   static Future<AppFlowyGridCellTest> ensureInitialized() async {
     final gridTest = await AppFlowyGridTest.ensureInitialized();

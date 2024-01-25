@@ -6,7 +6,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-const _iconWidth = 30.0;
 const _height = 44.0;
 
 class MobileDateHeader extends StatelessWidget {
@@ -26,13 +25,10 @@ class MobileDateHeader extends StatelessWidget {
                 FlowySvgs.close_s,
                 size: Size.square(_height),
               ),
-              width: _iconWidth,
-              iconPadding: EdgeInsets.zero,
               onPressed: () => context.pop(),
             ),
           ),
           Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               LocaleKeys.grid_field_dateFieldName.tr(),
               fontSize: 16,

@@ -35,7 +35,6 @@ class _OpenAIImageWidgetState extends State<OpenAIImageWidget> {
           children: [
             Expanded(
               child: FlowyTextField(
-                autoFocus: true,
                 hintText: LocaleKeys.document_imageBlock_ai_placeholder.tr(),
                 onChanged: (value) => query = value,
                 onEditingComplete: _search,

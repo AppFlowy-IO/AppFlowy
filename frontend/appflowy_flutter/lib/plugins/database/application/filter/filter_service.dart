@@ -15,8 +15,9 @@ import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
 
 class FilterBackendService {
-  final String viewId;
   const FilterBackendService({required this.viewId});
+
+  final String viewId;
 
   Future<Either<List<FilterPB>, FlowyError>> getAllFilters() {
     final payload = DatabaseViewIdPB()..value = viewId;

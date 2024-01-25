@@ -7,15 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileColorPickerScreen extends StatelessWidget {
-  static const routeName = '/color_picker';
-  static const pageTitle = 'title';
-
-  const MobileColorPickerScreen({
-    super.key,
-    this.title,
-  });
+  const MobileColorPickerScreen({super.key, this.title});
 
   final String? title;
+
+  static const routeName = '/color_picker';
+  static const pageTitle = 'title';
 
   @override
   Widget build(BuildContext context) {

@@ -8,10 +8,9 @@ import 'package:dartz/dartz.dart';
 import 'layout/layout_service.dart';
 
 class DatabaseViewBackendService {
+  DatabaseViewBackendService({required this.viewId});
+
   final String viewId;
-  DatabaseViewBackendService({
-    required this.viewId,
-  });
 
   /// Returns the datbaase id associated with the view.
   Future<Either<String, FlowyError>> getDatabaseId() async {

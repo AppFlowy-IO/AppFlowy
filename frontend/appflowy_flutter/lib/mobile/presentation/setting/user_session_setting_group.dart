@@ -30,7 +30,7 @@ class UserSessionSettingGroup extends StatelessWidget {
                   () => null,
                   (result) => result.fold(
                     (l) {},
-                    (r) async => await runAppFlowy(),
+                    (r) async => runAppFlowy(),
                   ),
                 );
               },

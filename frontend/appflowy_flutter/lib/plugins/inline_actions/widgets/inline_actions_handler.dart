@@ -270,7 +270,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       widget.onSelectionUpdate();
 
       event.logicalKey == LogicalKeyboardKey.arrowLeft
-          ? widget.editorState.moveCursorForward(SelectionMoveRange.character)
+          ? widget.editorState.moveCursorForward()
           : widget.editorState.moveCursorBackward(SelectionMoveRange.character);
 
       /// If cursor moves before @ then dismiss menu

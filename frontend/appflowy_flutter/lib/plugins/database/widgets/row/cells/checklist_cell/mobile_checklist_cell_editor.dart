@@ -60,14 +60,12 @@ class _MobileChecklistCellEditScreenState
               size: Size.square(iconWidth),
             ),
             width: iconWidth,
-            iconPadding: EdgeInsets.zero,
             onPressed: () => context.pop(),
           ),
         ),
         SizedBox(
           height: 44.0,
           child: Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               LocaleKeys.grid_field_checklistFieldName.tr(),
               fontSize: 18,
@@ -156,7 +154,6 @@ class _ChecklistItemState extends State<_ChecklistItem> {
       padding: const EdgeInsets.symmetric(horizontal: 5),
       height: 44,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           InkWell(
             borderRadius: BorderRadius.circular(22),
@@ -181,7 +178,6 @@ class _ChecklistItemState extends State<_ChecklistItem> {
               controller: _textController,
               focusNode: _focusNode,
               style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 1,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,

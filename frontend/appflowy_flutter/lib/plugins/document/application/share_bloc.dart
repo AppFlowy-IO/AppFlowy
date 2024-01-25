@@ -11,9 +11,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'share_bloc.freezed.dart';
 
 class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
-  DocShareBloc({
-    required this.view,
-  }) : super(const DocShareState.initial()) {
+  DocShareBloc({required this.view}) : super(const DocShareState.initial()) {
     on<ShareMarkdown>(_onShareMarkdown);
   }
 

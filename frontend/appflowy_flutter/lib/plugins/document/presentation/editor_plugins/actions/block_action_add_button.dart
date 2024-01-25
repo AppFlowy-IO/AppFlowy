@@ -59,11 +59,11 @@ class BlockAddButton extends StatelessWidget {
 
           transaction.insertNode(path, paragraphNode());
           transaction.afterSelection = Selection.collapsed(
-            Position(path: path, offset: 0),
+            Position(path: path),
           );
         } else {
           transaction.afterSelection = Selection.collapsed(
-            Position(path: node.path, offset: 0),
+            Position(path: node.path),
           );
         }
 

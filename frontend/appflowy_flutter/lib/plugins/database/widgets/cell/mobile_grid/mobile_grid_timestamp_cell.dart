@@ -20,7 +20,6 @@ class MobileGridTimestampCellSkin extends IEditableTimestampCellSkin {
         child: FlowyText(
           state.dateStr,
           fontSize: 15,
-          maxLines: 1,
         ),
       ),
     );

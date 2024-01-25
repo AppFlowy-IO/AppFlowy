@@ -196,21 +196,21 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
 
 @visibleForTesting
 class DocumentHeaderToolbar extends StatefulWidget {
+  const DocumentHeaderToolbar({
+    super.key,
+    required this.node,
+    required this.editorState,
+    required this.hasCover,
+    required this.hasIcon,
+    required this.onCoverChanged,
+  });
+
   final Node node;
   final EditorState editorState;
   final bool hasCover;
   final bool hasIcon;
   final Future<void> Function({(CoverType, String?)? cover, String? icon})
       onCoverChanged;
-
-  const DocumentHeaderToolbar({
-    required this.node,
-    required this.editorState,
-    required this.hasCover,
-    required this.hasIcon,
-    required this.onCoverChanged,
-    super.key,
-  });
 
   @override
   State<DocumentHeaderToolbar> createState() => _DocumentHeaderToolbarState();
@@ -364,20 +364,20 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
 
 @visibleForTesting
 class DocumentCover extends StatefulWidget {
+  const DocumentCover({
+    super.key,
+    required this.node,
+    required this.editorState,
+    required this.coverType,
+    this.coverDetails,
+    required this.onCoverChanged,
+  });
+
   final Node node;
   final EditorState editorState;
   final CoverType coverType;
   final String? coverDetails;
   final Future<void> Function(CoverType type, String? details) onCoverChanged;
-
-  const DocumentCover({
-    required this.editorState,
-    required this.node,
-    required this.coverType,
-    required this.onCoverChanged,
-    this.coverDetails,
-    super.key,
-  });
 
   @override
   State<DocumentCover> createState() => DocumentCoverState();
@@ -443,33 +443,36 @@ class DocumentCoverState extends State<DocumentCover> {
                         title:
                             LocaleKeys.document_plugins_cover_changeCover.tr(),
                         builder: (context) {
-                          return ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxHeight: 340,
-                              minHeight: 80,
-                            ),
-                            child: UploadImageMenu(
-                              supportTypes: const [
-                                UploadImageType.color,
-                                UploadImageType.local,
-                                UploadImageType.url,
-                                UploadImageType.unsplash,
-                              ],
-                              onSelectedLocalImage: (path) async {
-                                context.pop();
-                                widget.onCoverChanged(CoverType.file, path);
-                              },
-                              onSelectedAIImage: (_) {
-                                throw UnimplementedError();
-                              },
-                              onSelectedNetworkImage: (url) async {
-                                context.pop();
-                                widget.onCoverChanged(CoverType.file, url);
-                              },
-                              onSelectedColor: (color) {
-                                context.pop();
-                                widget.onCoverChanged(CoverType.color, color);
-                              },
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxHeight: 340,
+                                minHeight: 80,
+                              ),
+                              child: UploadImageMenu(
+                                supportTypes: const [
+                                  UploadImageType.color,
+                                  UploadImageType.local,
+                                  UploadImageType.url,
+                                  UploadImageType.unsplash,
+                                ],
+                                onSelectedLocalImage: (path) async {
+                                  context.pop();
+                                  widget.onCoverChanged(CoverType.file, path);
+                                },
+                                onSelectedAIImage: (_) {
+                                  throw UnimplementedError();
+                                },
+                                onSelectedNetworkImage: (url) async {
+                                  context.pop();
+                                  widget.onCoverChanged(CoverType.file, url);
+                                },
+                                onSelectedColor: (color) {
+                                  context.pop();
+                                  widget.onCoverChanged(CoverType.color, color);
+                                },
+                              ),
                             ),
                           );
                         },
@@ -630,8 +633,9 @@ class DocumentCoverState extends State<DocumentCover> {
 
 @visibleForTesting
 class DeleteCoverButton extends StatelessWidget {
-  final VoidCallback onTap;
   const DeleteCoverButton({required this.onTap, super.key});
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -657,18 +661,18 @@ class DeleteCoverButton extends StatelessWidget {
 
 @visibleForTesting
 class DocumentIcon extends StatefulWidget {
-  final Node node;
-  final EditorState editorState;
-  final String icon;
-  final Future<void> Function(String icon) onIconChanged;
-
   const DocumentIcon({
+    super.key,
     required this.node,
     required this.editorState,
     required this.icon,
     required this.onIconChanged,
-    super.key,
   });
+
+  final Node node;
+  final EditorState editorState;
+  final String icon;
+  final Future<void> Function(String icon) onIconChanged;
 
   @override
   State<DocumentIcon> createState() => _DocumentIconState();

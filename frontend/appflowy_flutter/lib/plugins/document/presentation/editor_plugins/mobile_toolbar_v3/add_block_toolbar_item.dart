@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -12,6 +10,7 @@ import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
@@ -58,17 +57,16 @@ Future<bool?> showAddBlockMenu(
   return showMobileBottomSheet<bool>(
     context,
     showHeader: true,
-    showCloseButton: true,
-    showDivider: false,
     showDragHandle: true,
+    showDoneButton: true,
     barrierColor: Colors.transparent,
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
     title: LocaleKeys.button_add.tr(),
-    padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
     builder: (context) {
       return Padding(
-        padding: const EdgeInsets.only(top: 12.0, bottom: 16),
+        padding: const EdgeInsets.only(bottom: 16),
         child: _AddBlockMenu(
           selection: selection,
           editorState: editorState,
@@ -347,7 +345,7 @@ extension on EditorState {
       node,
     );
     transaction.afterSelection = Selection.collapsed(
-      Position(path: path, offset: 0),
+      Position(path: path),
     );
     transaction.selectionExtraInfo = {};
     await apply(transaction);

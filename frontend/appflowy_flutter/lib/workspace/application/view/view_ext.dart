@@ -44,7 +44,6 @@ extension ViewExtension on ViewPB {
       };
 
   Plugin plugin({
-    bool listenOnViewChanged = false,
     Map<String, dynamic> arguments = const {},
   }) {
     switch (layout) {
@@ -65,7 +64,6 @@ extension ViewExtension on ViewPB {
         return DocumentPlugin(
           view: this,
           pluginType: pluginType,
-          listenOnViewChanged: listenOnViewChanged,
           initialSelection: initialSelection,
         );
     }

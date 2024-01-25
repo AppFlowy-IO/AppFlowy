@@ -28,7 +28,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: getIt<AuthService>().getUser(),
-      builder: ((context, snapshot) {
+      builder: (context, snapshot) {
         String? errorMsg;
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator.adaptive());
@@ -49,7 +49,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
               ? _buildErrorWidget(errorMsg)
               : _buildSettingsWidget(userProfile),
         );
-      }),
+      },
     );
   }
 
