@@ -2137,23 +2137,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-user-wasm"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "collab-integrate",
- "flowy-codegen",
- "flowy-derive",
- "flowy-error",
- "flowy-user-pub",
- "lib-dispatch",
- "lib-infra",
- "protobuf",
- "strum_macros 0.25.2",
- "tracing",
-]
-
-[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,7 +1,6 @@
 use crate::entities::{OauthSignInPB, UserProfilePB};
 use crate::manager::UserManagerWASM;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_user_pub::entities::Authenticator;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};

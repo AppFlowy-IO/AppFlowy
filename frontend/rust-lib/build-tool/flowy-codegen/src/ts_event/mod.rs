@@ -4,6 +4,7 @@ use crate::ast::EventASTContext;
 use crate::flowy_toml::{parse_crate_config_from, CrateConfig};
 use crate::ts_event::event_template::{EventRenderContext, EventTemplate};
 use crate::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
+use crate::Project;
 use flowy_ast::ASTResult;
 use std::collections::HashSet;
 use std::fs::File;
@@ -12,10 +13,10 @@ use std::path::PathBuf;
 use syn::Item;
 use walkdir::WalkDir;
 
-pub fn gen(crate_name: &str) {
+pub fn gen(crate_name: &str, project: Project) {
   let root = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("../../".to_string());
-  let tauri_backend_service_path = std::env::var("TAURI_BACKEND_SERVICE_PATH")
-    .unwrap_or("appflowy_tauri/src/services/backend".to_string());
+  let tauri_backend_service_path =
+    std::env::var("TAURI_BACKEND_SERVICE_PATH").unwrap_or(project.dst());
 
   let crate_path = std::fs::canonicalize(".")
     .unwrap()

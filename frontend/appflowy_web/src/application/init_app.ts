@@ -1,5 +1,5 @@
 import { initEventBus } from "./event_bus.ts";
-import { register_listener } from "../../wasm-libs/appflowy-wasm/pkg";
+import { register_listener } from "../../wasm-libs/af-wasm/pkg";
 
 export function initApp() {
   initEventBus();

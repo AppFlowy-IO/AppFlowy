@@ -1,5 +1,5 @@
 [package]
-name = "appflowy-wasm"
+name = "af-wasm"
 version = "0.1.0"
 edition = "2021"
 
@@ -18,9 +18,9 @@ tracing-wasm = "0.2.1"
 serde.workspace = true
 collab-integrate = { workspace = true, features = ["wasm_build"] }
 
+af-user.workspace = true
 flowy-notification = { workspace = true, features = ["ts"] }
 flowy-user-pub = { workspace = true }
-flowy-user-wasm.workspace = true
 flowy-server = { workspace = true, features = ["wasm_build"] }
 flowy-server-pub = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error"] }

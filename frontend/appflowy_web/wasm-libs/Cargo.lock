@@ -65,6 +65,50 @@ dependencies = [
 ]
 
 [[package]]
+name = "af-persistence-wasm"
+version = "0.1.0"
+
+[[package]]
+name = "af-user"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "collab-integrate",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-user-pub",
+ "lib-dispatch",
+ "lib-infra",
+ "protobuf",
+ "strum_macros",
+ "tracing",
+]
+
+[[package]]
+name = "af-wasm"
+version = "0.1.0"
+dependencies = [
+ "af-user",
+ "collab",
+ "collab-integrate",
+ "flowy-error",
+ "flowy-notification",
+ "flowy-server",
+ "flowy-server-pub",
+ "flowy-user-pub",
+ "lazy_static",
+ "lib-dispatch",
+ "lib-infra",
+ "parking_lot 0.12.1",
+ "serde",
+ "tracing",
+ "tracing-core",
+ "tracing-wasm",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "again"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -149,29 +193,6 @@ dependencies = [
  "tokio",
  "url",
  "uuid",
-]
-
-[[package]]
-name = "appflowy-wasm"
-version = "0.1.0"
-dependencies = [
- "collab",
- "collab-integrate",
- "flowy-error",
- "flowy-notification",
- "flowy-server",
- "flowy-server-pub",
- "flowy-user-pub",
- "flowy-user-wasm",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "parking_lot 0.12.1",
- "serde",
- "tracing",
- "tracing-core",
- "tracing-wasm",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -1286,23 +1307,6 @@ dependencies = [
  "tokio-stream",
  "tracing",
  "uuid",
-]
-
-[[package]]
-name = "flowy-user-wasm"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "collab-integrate",
- "flowy-codegen",
- "flowy-derive",
- "flowy-error",
- "flowy-user-pub",
- "lib-dispatch",
- "lib-infra",
- "protobuf",
- "strum_macros",
- "tracing",
 ]
 
 [[package]]

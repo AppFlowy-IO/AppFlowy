@@ -1,5 +1,5 @@
 [package]
-name = "flowy-user-wasm"
+name = "af-user"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,12 +10,12 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 lib-dispatch = { workspace = true, features = ["wasm_build"] }
 flowy-derive = { workspace = true }
-flowy-error = { workspace = true }
+flowy-error = { workspace = true, features = ["wasm_build", "impl_from_dispatch_error"] }
 flowy-user-pub = { workspace = true }
 strum_macros = "0.25.2"
 tracing.workspace = true
 lib-infra = { workspace = true }
-collab-integrate = { workspace = true }
+collab-integrate = { workspace = true, features = ["wasm_build"] }
 protobuf.workspace = true
 bytes.workspace = true
 
