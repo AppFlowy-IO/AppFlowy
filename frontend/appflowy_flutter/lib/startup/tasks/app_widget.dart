@@ -220,6 +220,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
       SystemChrome.setSystemUIOverlayStyle(
         style.copyWith(
           statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
         ),
       );
     }
