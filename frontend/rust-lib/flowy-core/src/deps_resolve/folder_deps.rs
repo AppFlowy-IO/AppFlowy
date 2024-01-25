@@ -140,7 +140,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      match manager.delete_document(&view_id) {
+      match manager.delete_document(&view_id).await {
         Ok(_) => tracing::trace!("Delete document: {}", view_id),
         Err(e) => tracing::error!("🔴delete document failed: {}", e),
       }

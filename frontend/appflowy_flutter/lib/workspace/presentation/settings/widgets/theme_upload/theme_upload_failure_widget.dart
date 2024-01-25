@@ -18,7 +18,6 @@ class ThemeUploadFailureWidget extends StatelessWidget {
       constraints: const BoxConstraints.expand(),
       padding: ThemeUploadWidget.padding,
       child: Column(
-        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(),

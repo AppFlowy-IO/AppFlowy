@@ -37,7 +37,6 @@ class _TrashPageState extends State<TrashPage> {
         builder: (context, state) {
           return SizedBox.expand(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _renderTopBar(context, state),
                 const VSpace(32),

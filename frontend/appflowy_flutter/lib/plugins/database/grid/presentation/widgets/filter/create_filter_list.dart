@@ -17,18 +17,18 @@ import '../../../../application/field/field_controller.dart';
 import '../../../application/filter/filter_create_bloc.dart';
 
 class GridCreateFilterList extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final VoidCallback onClosed;
-  final VoidCallback? onCreateFilter;
-
   const GridCreateFilterList({
+    super.key,
     required this.viewId,
     required this.fieldController,
     required this.onClosed,
     this.onCreateFilter,
-    super.key,
   });
+
+  final String viewId;
+  final FieldController fieldController;
+  final VoidCallback onClosed;
+  final VoidCallback? onCreateFilter;
 
   @override
   State<StatefulWidget> createState() => _GridCreateFilterListState();
@@ -148,13 +148,14 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class GridFilterPropertyCell extends StatelessWidget {
-  final FieldInfo fieldInfo;
-  final Function(FieldInfo) onTap;
   const GridFilterPropertyCell({
+    super.key,
     required this.fieldInfo,
     required this.onTap,
-    super.key,
   });
+
+  final FieldInfo fieldInfo;
+  final Function(FieldInfo) onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class GridShortcuts extends StatelessWidget {
-  final Widget child;
   const GridShortcuts({required this.child, super.key});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +30,9 @@ Map<Type, Action<Intent>> bindActions() {
 }
 
 class KeyboardKeyIdent extends Intent {
-  final KeyboardKey key;
-
   const KeyboardKeyIdent(this.key);
+
+  final KeyboardKey key;
 }
 
 class KeyboardBindingAction extends Action<KeyboardKeyIdent> {

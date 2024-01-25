@@ -32,9 +32,9 @@ import 'home_layout.dart';
 import 'home_stack.dart';
 
 class DesktopHomeScreen extends StatelessWidget {
-  static const routeName = '/DesktopHomeScreen';
-
   const DesktopHomeScreen({super.key});
+
+  static const routeName = '/DesktopHomeScreen';
 
   @override
   Widget build(BuildContext context) {
@@ -72,14 +72,13 @@ class DesktopHomeScreen extends StatelessWidget {
             BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
             BlocProvider<HomeBloc>(
               create: (context) {
-                return HomeBloc(userProfile, workspaceSetting)
+                return HomeBloc(workspaceSetting)
                   ..add(const HomeEvent.initial());
               },
             ),
             BlocProvider<HomeSettingBloc>(
               create: (_) {
                 return HomeSettingBloc(
-                  userProfile,
                   workspaceSetting,
                   context.read<AppearanceSettingsCubit>(),
                   context.widthPx,
@@ -104,9 +103,7 @@ class DesktopHomeScreen extends StatelessWidget {
                         if (currentPageManager.plugin.pluginType ==
                             PluginType.blank) {
                           getIt<TabsBloc>().add(
-                            TabsEvent.openPlugin(
-                              plugin: view.plugin(listenOnViewChanged: true),
-                            ),
+                            TabsEvent.openPlugin(plugin: view.plugin()),
                           );
                         }
                       }
@@ -150,37 +147,33 @@ class DesktopHomeScreen extends StatelessWidget {
     WorkspaceSettingPB workspaceSetting,
     HomeSettingState homeSettingState,
   ) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final layout = HomeLayout(context, constraints);
-        final homeStack = HomeStack(
-          layout: layout,
-          delegate: DesktopHomeScreenStackAdaptor(
-            buildContext: context,
-          ),
-        );
-        final menu = _buildHomeSidebar(
-          layout: layout,
-          context: context,
-          userProfile: userProfile,
-          workspaceSetting: workspaceSetting,
-          homeSettingState: homeSettingState,
-        );
-        final homeMenuResizer = _buildHomeMenuResizer(context: context);
-        final editPanel = _buildEditPanel(
-          layout: layout,
-          context: context,
-        );
-        const bubble = QuestionBubble();
-        return _layoutWidgets(
-          layout: layout,
-          homeStack: homeStack,
-          homeMenu: menu,
-          editPanel: editPanel,
-          bubble: bubble,
-          homeMenuResizer: homeMenuResizer,
-        );
-      },
+    final layout = HomeLayout(context);
+    final homeStack = HomeStack(
+      layout: layout,
+      delegate: DesktopHomeScreenStackAdaptor(
+        buildContext: context,
+      ),
+    );
+    final menu = _buildHomeSidebar(
+      layout: layout,
+      context: context,
+      userProfile: userProfile,
+      workspaceSetting: workspaceSetting,
+      homeSettingState: homeSettingState,
+    );
+    final homeMenuResizer = _buildHomeMenuResizer(context: context);
+    final editPanel = _buildEditPanel(
+      layout: layout,
+      context: context,
+    );
+    const bubble = QuestionBubble();
+    return _layoutWidgets(
+      layout: layout,
+      homeStack: homeStack,
+      homeMenu: menu,
+      editPanel: editPanel,
+      bubble: bubble,
+      homeMenuResizer: homeMenuResizer,
     );
   }
 
@@ -321,11 +314,9 @@ class DesktopHomeScreen extends StatelessWidget {
 }
 
 class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
-  final BuildContext buildContext;
+  DesktopHomeScreenStackAdaptor({required this.buildContext});
 
-  DesktopHomeScreenStackAdaptor({
-    required this.buildContext,
-  });
+  final BuildContext buildContext;
 
   @override
   void didDeleteStackWidget(ViewPB view, int? index) {
@@ -341,9 +332,7 @@ class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
             }
 
             getIt<TabsBloc>().add(
-              TabsEvent.openPlugin(
-                plugin: lastView.plugin(listenOnViewChanged: true),
-              ),
+              TabsEvent.openPlugin(plugin: lastView.plugin()),
             );
           } else {
             getIt<TabsBloc>().add(

@@ -8,6 +8,13 @@ import '../row/row_cache.dart';
 import 'view_listener.dart';
 
 class DatabaseViewCallbacks {
+  const DatabaseViewCallbacks({
+    this.onNumOfRowsChanged,
+    this.onRowsCreated,
+    this.onRowsUpdated,
+    this.onRowsDeleted,
+  });
+
   /// Will get called when number of rows were changed that includes
   /// update/delete/insert rows. The [onNumOfRowsChanged] will return all
   /// the rows of the current database
@@ -21,27 +28,10 @@ class DatabaseViewCallbacks {
 
   /// Will get called when number of rows were deleted
   final OnRowsDeleted? onRowsDeleted;
-
-  const DatabaseViewCallbacks({
-    this.onNumOfRowsChanged,
-    this.onRowsCreated,
-    this.onRowsUpdated,
-    this.onRowsDeleted,
-  });
 }
 
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information
 class DatabaseViewCache {
-  final String viewId;
-  late RowCache _rowCache;
-  final DatabaseViewListener _databaseViewListener;
-  final List<DatabaseViewCallbacks> _callbacks = [];
-
-  UnmodifiableListView<RowInfo> get rowInfos => _rowCache.rowInfos;
-  RowCache get rowCache => _rowCache;
-
-  RowInfo? getRow(RowId rowId) => _rowCache.getRow(rowId);
-
   DatabaseViewCache({
     required this.viewId,
     required FieldController fieldController,
@@ -54,76 +44,75 @@ class DatabaseViewCache {
     );
 
     _databaseViewListener.start(
-      onRowsChanged: (result) {
-        result.fold(
-          (changeset) {
-            // Update the cache
-            _rowCache.applyRowsChanged(changeset);
+      onRowsChanged: (result) => result.fold(
+        (changeset) {
+          // Update the cache
+          _rowCache.applyRowsChanged(changeset);
 
-            if (changeset.deletedRows.isNotEmpty) {
-              for (final callback in _callbacks) {
-                callback.onRowsDeleted?.call(changeset.deletedRows);
-              }
+          if (changeset.deletedRows.isNotEmpty) {
+            for (final callback in _callbacks) {
+              callback.onRowsDeleted?.call(changeset.deletedRows);
             }
+          }
 
-            if (changeset.updatedRows.isNotEmpty) {
-              for (final callback in _callbacks) {
-                callback.onRowsUpdated?.call(
-                  changeset.updatedRows.map((e) => e.rowId).toList(),
-                  _rowCache.changeReason,
-                );
-              }
+          if (changeset.updatedRows.isNotEmpty) {
+            for (final callback in _callbacks) {
+              callback.onRowsUpdated?.call(
+                changeset.updatedRows.map((e) => e.rowId).toList(),
+                _rowCache.changeReason,
+              );
             }
+          }
 
-            if (changeset.insertedRows.isNotEmpty) {
-              for (final callback in _callbacks) {
-                callback.onRowsCreated?.call(
-                  changeset.insertedRows
-                      .map((insertedRow) => insertedRow.rowMeta.id)
-                      .toList(),
-                );
-              }
+          if (changeset.insertedRows.isNotEmpty) {
+            for (final callback in _callbacks) {
+              callback.onRowsCreated?.call(
+                changeset.insertedRows
+                    .map((insertedRow) => insertedRow.rowMeta.id)
+                    .toList(),
+              );
             }
-          },
-          (err) => Log.error(err),
-        );
-      },
-      onRowsVisibilityChanged: (result) {
-        result.fold(
-          (changeset) => _rowCache.applyRowsVisibility(changeset),
-          (err) => Log.error(err),
-        );
-      },
-      onReorderAllRows: (result) {
-        result.fold(
-          (rowIds) => _rowCache.reorderAllRows(rowIds),
-          (err) => Log.error(err),
-        );
-      },
-      onReorderSingleRow: (result) {
-        result.fold(
-          (reorderRow) => _rowCache.reorderSingleRow(reorderRow),
-          (err) => Log.error(err),
-        );
-      },
+          }
+        },
+        (err) => Log.error(err),
+      ),
+      onRowsVisibilityChanged: (result) => result.fold(
+        (changeset) => _rowCache.applyRowsVisibility(changeset),
+        (err) => Log.error(err),
+      ),
+      onReorderAllRows: (result) => result.fold(
+        (rowIds) => _rowCache.reorderAllRows(rowIds),
+        (err) => Log.error(err),
+      ),
+      onReorderSingleRow: (result) => result.fold(
+        (reorderRow) => _rowCache.reorderSingleRow(reorderRow),
+        (err) => Log.error(err),
+      ),
     );
 
     _rowCache.onRowsChanged(
       (reason) {
         for (final callback in _callbacks) {
-          callback.onNumOfRowsChanged?.call(
-            rowInfos,
-            _rowCache.rowByRowId,
-            reason,
-          );
+          callback.onNumOfRowsChanged
+              ?.call(rowInfos, _rowCache.rowByRowId, reason);
         }
       },
     );
   }
 
+  final String viewId;
+  late RowCache _rowCache;
+  final DatabaseViewListener _databaseViewListener;
+  final List<DatabaseViewCallbacks> _callbacks = [];
+
+  UnmodifiableListView<RowInfo> get rowInfos => _rowCache.rowInfos;
+  RowCache get rowCache => _rowCache;
+
+  RowInfo? getRow(RowId rowId) => _rowCache.getRow(rowId);
+
   Future<void> dispose() async {
     await _databaseViewListener.stop();
-    await _rowCache.dispose();
+    _rowCache.dispose();
     _callbacks.clear();
   }
 

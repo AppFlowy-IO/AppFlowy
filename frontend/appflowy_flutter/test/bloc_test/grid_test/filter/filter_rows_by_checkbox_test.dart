@@ -15,7 +15,7 @@ void main() {
     final context = await createTestFilterGrid(gridTest);
     final service = FilterBackendService(viewId: context.gridView.id);
 
-    final controller = await context.makeCheckboxCellController(0);
+    final controller = context.makeCheckboxCellController(0);
     controller.saveCellData("Yes");
     await gridResponseFuture();
 
@@ -36,7 +36,7 @@ void main() {
     final context = await createTestFilterGrid(gridTest);
     final service = FilterBackendService(viewId: context.gridView.id);
 
-    final controller = await context.makeCheckboxCellController(0);
+    final controller = context.makeCheckboxCellController(0);
     controller.saveCellData("Yes");
     await gridResponseFuture();
 

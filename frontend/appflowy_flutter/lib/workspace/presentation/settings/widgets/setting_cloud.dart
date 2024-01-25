@@ -2,21 +2,27 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_local_cloud.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'setting_appflowy_cloud.dart';
 import 'setting_supabase_cloud.dart';
 
 class SettingCloud extends StatelessWidget {
-  final VoidCallback didResetServerUrl;
   const SettingCloud({required this.didResetServerUrl, super.key});
+
+  final VoidCallback didResetServerUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +62,7 @@ class SettingCloud extends StatelessWidget {
                           ),
                         ],
                       ),
+                    const VSpace(8),
                     _viewFromCloudType(state.cloudType),
                   ],
                 );
@@ -74,7 +81,9 @@ class SettingCloud extends StatelessWidget {
   Widget _viewFromCloudType(AuthenticatorType cloudType) {
     switch (cloudType) {
       case AuthenticatorType.local:
-        return SettingLocalCloud(didResetServerUrl: didResetServerUrl);
+        return SettingLocalCloud(
+          didResetServerUrl: didResetServerUrl,
+        );
       case AuthenticatorType.supabase:
         return SettingSupabaseCloudView(
           didResetServerUrl: didResetServerUrl,
@@ -98,63 +107,101 @@ class SettingCloud extends StatelessWidget {
 }
 
 class CloudTypeSwitcher extends StatelessWidget {
-  final AuthenticatorType cloudType;
-  final Function(AuthenticatorType) onSelected;
   const CloudTypeSwitcher({
+    super.key,
     required this.cloudType,
     required this.onSelected,
-    super.key,
   });
+
+  final AuthenticatorType cloudType;
+  final Function(AuthenticatorType) onSelected;
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithRightAligned,
-      child: FlowyTextButton(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-        titleFromCloudType(cloudType),
-        fontColor: Theme.of(context).colorScheme.onBackground,
-        fillColor: Colors.transparent,
-        onPressed: () {},
-      ),
-      popupBuilder: (BuildContext context) {
-        final isDevelopMode = integrationMode().isDevelop;
-        // Only show the appflowyCloudDevelop in develop mode
-        final values = AuthenticatorType.values
-            .where(
-              (element) =>
-                  isDevelopMode ||
-                  element != AuthenticatorType.appflowyCloudDevelop,
-            )
-            .toList();
-
-        return ListView.builder(
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return CloudTypeItem(
-              cloudType: values[index],
-              currentCloudtype: cloudType,
-              onSelected: onSelected,
-            );
-          },
-          itemCount: values.length,
-        );
-      },
-    );
+    final isDevelopMode = integrationMode().isDevelop;
+    // Only show the appflowyCloudDevelop in develop mode
+    final values = AuthenticatorType.values
+        .where(
+          (element) =>
+              isDevelopMode ||
+              element != AuthenticatorType.appflowyCloudDevelop,
+        )
+        .toList();
+    return PlatformExtension.isDesktopOrWeb
+        ? AppFlowyPopover(
+            direction: PopoverDirection.bottomWithRightAligned,
+            child: FlowyTextButton(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              titleFromCloudType(cloudType),
+              fontColor: Theme.of(context).colorScheme.onBackground,
+              fillColor: Colors.transparent,
+              onPressed: () {},
+            ),
+            popupBuilder: (BuildContext context) {
+              return ListView.builder(
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return CloudTypeItem(
+                    cloudType: values[index],
+                    currentCloudtype: cloudType,
+                    onSelected: onSelected,
+                  );
+                },
+                itemCount: values.length,
+              );
+            },
+          )
+        : FlowyButton(
+            text: FlowyText(
+              titleFromCloudType(cloudType),
+            ),
+            useIntrinsicWidth: true,
+            rightIcon: const Icon(
+              Icons.chevron_right,
+            ),
+            onTap: () {
+              showMobileBottomSheet(
+                context,
+                showHeader: true,
+                showDragHandle: true,
+                showDivider: false,
+                showCloseButton: false,
+                title: LocaleKeys.settings_menu_cloudServerType.tr(),
+                padding: const EdgeInsets.only(bottom: 36),
+                builder: (context) {
+                  return Column(
+                    children: values
+                        .mapIndexed(
+                          (i, e) => FlowyOptionTile.checkbox(
+                            text: titleFromCloudType(values[i]),
+                            isSelected: cloudType == values[i],
+                            onTap: () {
+                              onSelected(e);
+                              context.pop();
+                            },
+                            showBottomBorder: i == values.length - 1,
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              );
+            },
+          );
   }
 }
 
 class CloudTypeItem extends StatelessWidget {
-  final AuthenticatorType cloudType;
-  final AuthenticatorType currentCloudtype;
-  final Function(AuthenticatorType) onSelected;
-
   const CloudTypeItem({
+    super.key,
     required this.cloudType,
     required this.currentCloudtype,
     required this.onSelected,
-    super.key,
   });
+
+  final AuthenticatorType cloudType;
+  final AuthenticatorType currentCloudtype;
+  final Function(AuthenticatorType) onSelected;
 
   @override
   Widget build(BuildContext context) {

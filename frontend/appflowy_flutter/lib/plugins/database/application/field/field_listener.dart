@@ -1,21 +1,22 @@
-import 'package:appflowy/core/notification/grid_notification.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
-import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+
+import 'package:appflowy/core/notification/grid_notification.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
 
 typedef UpdateFieldNotifiedValue = FieldPB;
 
 class SingleFieldListener {
+  SingleFieldListener({required this.fieldId});
+
   final String fieldId;
+
   void Function(UpdateFieldNotifiedValue)? _updateFieldNotifier;
   DatabaseNotificationListener? _listener;
-
-  SingleFieldListener({required this.fieldId});
 
   void start({
     required void Function(UpdateFieldNotifiedValue) onFieldChanged,
@@ -53,11 +54,13 @@ typedef UpdateFieldsNotifiedValue
     = Either<DatabaseFieldChangesetPB, FlowyError>;
 
 class FieldsListener {
+  FieldsListener({required this.viewId});
+
   final String viewId;
+
   PublishNotifier<UpdateFieldsNotifiedValue>? updateFieldsNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  FieldsListener({required this.viewId});
 
   void start({
     required void Function(UpdateFieldsNotifiedValue) onFieldsChanged,

@@ -67,9 +67,9 @@ class _BlankPageState extends State<BlankPage> {
     return SizedBox.expand(
       child: Container(
         color: Theme.of(context).colorScheme.surface,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Container(),
+        child: const Padding(
+          padding: EdgeInsets.all(10),
+          child: SizedBox.shrink(),
         ),
       ),
     );

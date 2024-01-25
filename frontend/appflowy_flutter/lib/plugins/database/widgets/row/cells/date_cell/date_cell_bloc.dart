@@ -9,11 +9,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
+  DateCellBloc({required this.cellController})
+      : super(DateCellState.initial(cellController)) {
+    _dispatch();
+  }
+
   final DateCellController cellController;
   void Function()? _onCellChangedFn;
 
-  DateCellBloc({required this.cellController})
-      : super(DateCellState.initial(cellController)) {
+  void _dispatch() {
     on<DateCellEvent>(
       (event, emit) async {
         event.when(
@@ -41,12 +45,12 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((data) {
+    _onCellChangedFn = cellController.addListener(
+      onCellChanged: (data) {
         if (!isClosed) {
           add(DateCellEvent.didReceiveCellUpdate(data));
         }
-      }),
+      },
     );
   }
 }

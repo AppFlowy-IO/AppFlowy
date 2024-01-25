@@ -2,18 +2,19 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/mobile_row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
-import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -232,7 +233,6 @@ class RowDetailFab extends StatelessWidget {
                 BoxShadow(
                   offset: Offset(0, 8),
                   blurRadius: 20,
-                  spreadRadius: 0,
                   color: Color(0x191F2329),
                 ),
               ],
@@ -247,20 +247,16 @@ class RowDetailFab extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(26),
                     borderOnForeground: false,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(26),
-                      onTap: () {
-                        if (!previousDisabled) {
-                          onTapPrevious();
-                        }
-                      },
-                      child: Icon(
-                        Icons.chevron_left_outlined,
-                        color: previousDisabled
-                            ? Theme.of(context).disabledColor
-                            : null,
-                      ),
-                    ),
+                    child: previousDisabled
+                        ? Icon(
+                            Icons.chevron_left_outlined,
+                            color: Theme.of(context).disabledColor,
+                          )
+                        : InkWell(
+                            borderRadius: BorderRadius.circular(26),
+                            onTap: onTapPrevious,
+                            child: const Icon(Icons.chevron_left_outlined),
+                          ),
                   ),
                 ),
                 FlowyText.medium(
@@ -273,20 +269,16 @@ class RowDetailFab extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(26),
                     borderOnForeground: false,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(26),
-                      onTap: () {
-                        if (!nextDisabled) {
-                          onTapNext();
-                        }
-                      },
-                      child: Icon(
-                        Icons.chevron_right_outlined,
-                        color: nextDisabled
-                            ? Theme.of(context).disabledColor
-                            : null,
-                      ),
-                    ),
+                    child: nextDisabled
+                        ? Icon(
+                            Icons.chevron_right_outlined,
+                            color: Theme.of(context).disabledColor,
+                          )
+                        : InkWell(
+                            borderRadius: BorderRadius.circular(26),
+                            onTap: onTapNext,
+                            child: const Icon(Icons.chevron_right_outlined),
+                          ),
                   ),
                 ),
               ],
@@ -316,7 +308,7 @@ class MobileRowDetailPageContent extends StatefulWidget {
 class MobileRowDetailPageContentState
     extends State<MobileRowDetailPageContent> {
   late final RowController rowController;
-  late final MobileRowDetailPageCellBuilder cellBuilder;
+  late final EditableCellBuilder cellBuilder;
 
   String get viewId => widget.databaseController.viewId;
   RowCache get rowCache => widget.databaseController.rowCache;
@@ -332,16 +324,18 @@ class MobileRowDetailPageContentState
       viewId: viewId,
       rowCache: rowCache,
     );
-    cellBuilder = MobileRowDetailPageCellBuilder(
-      cellCache: rowCache.cellCache,
+    cellBuilder = EditableCellBuilder(
+      databaseController: widget.databaseController,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RowDetailBloc>(
-      create: (_) => RowDetailBloc(rowController: rowController)
-        ..add(const RowDetailEvent.initial()),
+      create: (_) => RowDetailBloc(
+        fieldController: fieldController,
+        rowController: rowController,
+      ),
       child: BlocBuilder<RowDetailBloc, RowDetailState>(
         builder: (context, rowDetailState) {
           return Column(
@@ -354,28 +348,17 @@ class MobileRowDetailPageContentState
                 child: BlocBuilder<RowBannerBloc, RowBannerState>(
                   builder: (context, state) {
                     if (state.primaryField != null) {
-                      final cellStyle = GridTextCellStyle(
-                        placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
-                        textStyle:
-                            Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                        cellPadding: const EdgeInsets.symmetric(vertical: 9),
-                        useRoundedBorder: false,
+                      final cellContext = CellContext(
+                        rowId: rowController.rowId,
+                        fieldId: state.primaryField!.id,
                       );
-
-                      final cellContext = DatabaseCellContext(
-                        viewId: viewId,
-                        rowMeta: rowController.rowMeta,
-                        fieldInfo: FieldInfo.initial(state.primaryField!),
-                      );
-
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: cellBuilder.build(
+                        child: cellBuilder.buildCustom(
                           cellContext,
-                          style: cellStyle,
+                          skinMap: EditableCellSkinMap(
+                            textSkin: _TitleSkin(),
+                          ),
                         ),
                       );
                     }
@@ -390,9 +373,8 @@ class MobileRowDetailPageContentState
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: MobileRowPropertyList(
+                        databaseController: widget.databaseController,
                         cellBuilder: cellBuilder,
-                        viewId: viewId,
-                        fieldController: fieldController,
                       ),
                     ),
                     Padding(
@@ -416,6 +398,38 @@ class MobileRowDetailPageContentState
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _TitleSkin extends IEditableTextCellSkin {
+  @override
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    TextCellBloc bloc,
+    FocusNode focusNode,
+    TextEditingController textEditingController,
+  ) {
+    return TextField(
+      controller: textEditingController,
+      focusNode: focusNode,
+      maxLines: null,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontSize: 23,
+            fontWeight: FontWeight.w500,
+          ),
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(vertical: 9),
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+        isDense: true,
+        isCollapsed: true,
       ),
     );
   }

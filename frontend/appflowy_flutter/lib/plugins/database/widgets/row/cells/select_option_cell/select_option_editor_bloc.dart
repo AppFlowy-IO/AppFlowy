@@ -1,72 +1,78 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/cell/select_option_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import '../../../../application/cell/select_option_cell_service.dart';
 
 part 'select_option_editor_bloc.freezed.dart';
 
 class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
-  final SelectOptionCellBackendService _selectOptionService;
-  final SelectOptionCellController cellController;
-
-  SelectOptionCellEditorBloc({
-    required this.cellController,
-  })  : _selectOptionService = SelectOptionCellBackendService(
+  SelectOptionCellEditorBloc({required this.cellController})
+      : _selectOptionService = SelectOptionCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,
         ),
         super(SelectOptionEditorState.initial(cellController)) {
+    _dispatch();
+  }
+
+  final SelectOptionCellBackendService _selectOptionService;
+  final SelectOptionCellController cellController;
+
+  VoidCallback? _onCellChangedFn;
+
+  void _dispatch() {
     on<SelectOptionEditorEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_Initial value) async {
+        await event.when(
+          initial: () async {
             _startListening();
             await _loadOptions();
           },
-          didReceiveOptions: (_DidReceiveOptions value) {
-            final result = _makeOptions(state.filter, value.options);
+          didReceiveOptions: (options, selectedOptions) {
+            final result = _makeOptions(state.filter, options);
             emit(
               state.copyWith(
-                allOptions: value.options,
+                allOptions: options,
                 options: result.options,
                 createOption: result.createOption,
-                selectedOptions: value.selectedOptions,
+                selectedOptions: selectedOptions,
               ),
             );
           },
-          newOption: (_NewOption value) async {
-            await _createOption(value.optionName);
+          newOption: (optionName) async {
+            await _createOption(optionName);
             emit(
               state.copyWith(
                 filter: none(),
               ),
             );
           },
-          deleteOption: (_DeleteOption value) async {
-            await _deleteOption([value.option]);
+          deleteOption: (option) async {
+            await _deleteOption([option]);
           },
-          deleteAllOptions: (_DeleteAllOptions value) async {
+          deleteAllOptions: () async {
             if (state.allOptions.isNotEmpty) {
               await _deleteOption(state.allOptions);
             }
           },
-          updateOption: (_UpdateOption value) async {
-            await _updateOption(value.option);
+          updateOption: (option) async {
+            await _updateOption(option);
           },
-          selectOption: (_SelectOption value) async {
-            await _selectOptionService.select(optionIds: [value.optionId]);
+          selectOption: (optionId) async {
+            await _selectOptionService.select(optionIds: [optionId]);
             final selectedOption = [
               ...state.selectedOptions,
               state.options.firstWhere(
-                (element) => element.id == value.optionId,
+                (element) => element.id == optionId,
               ),
             ];
             emit(
@@ -75,27 +81,27 @@ class SelectOptionCellEditorBloc
               ),
             );
           },
-          unSelectOption: (_UnSelectOption value) async {
-            await _selectOptionService.unSelect(optionIds: [value.optionId]);
+          unSelectOption: (optionId) async {
+            await _selectOptionService.unSelect(optionIds: [optionId]);
             final selectedOptions = [...state.selectedOptions]
-              ..removeWhere((e) => e.id == value.optionId);
+              ..removeWhere((e) => e.id == optionId);
             emit(
               state.copyWith(
                 selectedOptions: selectedOptions,
               ),
             );
           },
-          trySelectOption: (_TrySelectOption value) {
-            _trySelectOption(value.optionName, emit);
+          trySelectOption: (optionName) {
+            _trySelectOption(optionName, emit);
           },
-          selectMultipleOptions: (_SelectMultipleOptions value) {
-            if (value.optionNames.isNotEmpty) {
-              _selectMultipleOptions(value.optionNames);
+          selectMultipleOptions: (optionNames, remainder) {
+            if (optionNames.isNotEmpty) {
+              _selectMultipleOptions(optionNames);
             }
-            _filterOption(value.remainder, emit);
+            _filterOption(remainder, emit);
           },
-          filterOption: (_SelectOptionFilter value) {
-            _filterOption(value.optionName, emit);
+          filterOption: (optionName) {
+            _filterOption(optionName, emit);
           },
         );
       },
@@ -104,7 +110,10 @@ class SelectOptionCellEditorBloc
 
   @override
   Future<void> close() async {
-    await cellController.dispose();
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
     return super.close();
   }
 
@@ -241,11 +250,11 @@ class SelectOptionCellEditorBloc
   }
 
   void _startListening() {
-    cellController.startListening(
-      onCellChanged: ((selectOptionContext) {
+    _onCellChangedFn = cellController.addListener(
+      onCellChanged: (selectOptionContext) {
         _loadOptions();
-      }),
-      onCellFieldChanged: () {
+      },
+      onCellFieldChanged: (field) {
         _loadOptions();
       },
     );
@@ -303,11 +312,11 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
 }
 
 class _MakeOptionResult {
-  List<SelectOptionPB> options;
-  Option<String> createOption;
-
   _MakeOptionResult({
     required this.options,
     required this.createOption,
   });
+
+  List<SelectOptionPB> options;
+  Option<String> createOption;
 }

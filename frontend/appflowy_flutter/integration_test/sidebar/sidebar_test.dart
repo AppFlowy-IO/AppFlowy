@@ -82,7 +82,6 @@ void main() {
         await tester.createNewPageWithNameUnderParent(
           name: names[i],
           parentName: parentName,
-          layout: ViewLayoutPB.Document,
         );
         tester.expectToSeePageName(names[i], parentName: parentName);
       }
@@ -148,7 +147,7 @@ void main() {
         name: document,
         openAfterCreated: false,
       );
-      tester.expectToSeePageName(document, layout: ViewLayoutPB.Document);
+      tester.expectToSeePageName(document);
 
       const grid = 'grid';
       await tester.createNewPageWithNameUnderParent(
@@ -190,7 +189,6 @@ void main() {
       await tester.createNewPageWithNameUnderParent(
         name: grid,
         layout: ViewLayoutPB.Grid,
-        openAfterCreated: true,
       );
       tester.expectToSeePageName(grid, layout: ViewLayoutPB.Grid);
 

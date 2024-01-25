@@ -39,6 +39,31 @@ class FieldOptionValues {
     this.selectOption = const [],
   });
 
+  factory FieldOptionValues.fromField({required FieldPB field}) {
+    final fieldType = field.fieldType;
+    final buffer = field.typeOptionData;
+    return FieldOptionValues(
+      type: fieldType,
+      name: field.name,
+      numberFormat: fieldType == FieldType.Number
+          ? NumberTypeOptionPB.fromBuffer(buffer).format
+          : null,
+      dateFormate: fieldType == FieldType.DateTime
+          ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
+          : null,
+      timeFormat: fieldType == FieldType.DateTime
+          ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
+          : null,
+      selectOption: switch (fieldType) {
+        FieldType.SingleSelect =>
+          SingleSelectTypeOptionPB.fromBuffer(buffer).options,
+        FieldType.MultiSelect =>
+          MultiSelectTypeOptionPB.fromBuffer(buffer).options,
+        _ => [],
+      },
+    );
+  }
+
   FieldType type;
   String name;
 
@@ -94,33 +119,6 @@ class FieldOptionValues {
       default:
         throw UnimplementedError();
     }
-  }
-
-  factory FieldOptionValues.fromField({
-    required FieldPB field,
-  }) {
-    final fieldType = field.fieldType;
-    final buffer = field.typeOptionData;
-    return FieldOptionValues(
-      type: fieldType,
-      name: field.name,
-      numberFormat: fieldType == FieldType.Number
-          ? NumberTypeOptionPB.fromBuffer(buffer).format
-          : null,
-      dateFormate: fieldType == FieldType.DateTime
-          ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
-          : null,
-      timeFormat: fieldType == FieldType.DateTime
-          ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
-          : null,
-      selectOption: switch (fieldType) {
-        FieldType.SingleSelect =>
-          SingleSelectTypeOptionPB.fromBuffer(buffer).options,
-        FieldType.MultiSelect =>
-          MultiSelectTypeOptionPB.fromBuffer(buffer).options,
-        _ => [],
-      },
-    );
   }
 }
 
@@ -202,9 +200,10 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
                   () {
                     if (widget.mode == FieldOptionMode.add) {
                       controller.text = type.i18n;
-                      _updateOptionValues(name: type.i18n);
+                      _updateOptionValues(name: type.i18n, type: type);
+                    } else {
+                      _updateOptionValues(type: type);
                     }
-                    _updateOptionValues(type: type);
                   },
                 ),
               ),
@@ -364,7 +363,6 @@ class _PropertyType extends StatelessWidget {
     return FlowyOptionTile.text(
       text: LocaleKeys.grid_field_propertyType.tr(),
       trailing: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FlowySvg(
             type.smallSvgData,
@@ -541,7 +539,6 @@ class _NumberOption extends StatelessWidget {
     return FlowyOptionTile.text(
       text: LocaleKeys.grid_field_numberFormat.tr(),
       trailing: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FlowyText(
             selectedFormat.title(),
@@ -772,10 +769,6 @@ class __SelectOptionTileState extends State<_SelectOptionTile> {
       textFieldHintText: LocaleKeys.grid_field_typeANewOption.tr(),
       showTopBorder: widget.showTopBorder,
       showBottomBorder: widget.showBottomBorder,
-      textFieldPadding: const EdgeInsets.symmetric(
-        horizontal: 0.0,
-        vertical: 16.0,
-      ),
       trailing: _SelectOptionColor(
         color: option.color,
         onChanged: (color) {

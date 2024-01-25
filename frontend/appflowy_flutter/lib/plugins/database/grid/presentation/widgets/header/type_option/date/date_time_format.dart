@@ -57,13 +57,14 @@ class TimeFormatButton extends StatelessWidget {
 }
 
 class DateFormatList extends StatelessWidget {
-  final DateFormatPB selectedFormat;
-  final Function(DateFormatPB format) onSelected;
   const DateFormatList({
+    super.key,
     required this.selectedFormat,
     required this.onSelected,
-    super.key,
   });
+
+  final DateFormatPB selectedFormat;
+  final Function(DateFormatPB format) onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +93,16 @@ class DateFormatList extends StatelessWidget {
 }
 
 class DateFormatCell extends StatelessWidget {
-  final bool isSelected;
-  final DateFormatPB dateFormat;
-  final Function(DateFormatPB format) onSelected;
   const DateFormatCell({
+    super.key,
     required this.dateFormat,
     required this.onSelected,
     required this.isSelected,
-    super.key,
   });
+
+  final DateFormatPB dateFormat;
+  final Function(DateFormatPB format) onSelected;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -140,13 +142,14 @@ extension DateFormatExtension on DateFormatPB {
 }
 
 class TimeFormatList extends StatelessWidget {
-  final TimeFormatPB selectedFormat;
-  final Function(TimeFormatPB format) onSelected;
   const TimeFormatList({
+    super.key,
     required this.selectedFormat,
     required this.onSelected,
-    super.key,
   });
+
+  final TimeFormatPB selectedFormat;
+  final Function(TimeFormatPB format) onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -175,15 +178,16 @@ class TimeFormatList extends StatelessWidget {
 }
 
 class TimeFormatCell extends StatelessWidget {
-  final TimeFormatPB timeFormat;
-  final bool isSelected;
-  final Function(TimeFormatPB format) onSelected;
   const TimeFormatCell({
+    super.key,
     required this.timeFormat,
     required this.onSelected,
     required this.isSelected,
-    super.key,
   });
+
+  final TimeFormatPB timeFormat;
+  final bool isSelected;
+  final Function(TimeFormatPB format) onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -217,13 +221,14 @@ extension TimeFormatExtension on TimeFormatPB {
 }
 
 class IncludeTimeButton extends StatelessWidget {
-  final bool value;
-  final Function(bool value) onChanged;
   const IncludeTimeButton({
     super.key,
     required this.onChanged,
     required this.value,
   });
+
+  final Function(bool value) onChanged;
+  final bool value;
 
   @override
   Widget build(BuildContext context) {

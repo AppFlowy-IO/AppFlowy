@@ -78,54 +78,57 @@ class CalendarDayCard extends StatelessWidget {
               ],
             );
 
-            return MouseRegion(
-              onEnter: (p) => notifyEnter(context, true),
-              onExit: (p) => notifyEnter(context, false),
-              opaque: false,
-              hitTestBehavior: HitTestBehavior.translucent,
-              child: GestureDetector(
-                onDoubleTap: () => onCreateEvent(date),
-                onTap: PlatformExtension.isMobile
-                    ? () => _mobileOnTap(context)
-                    : null,
-                behavior: HitTestBehavior.deferToChild,
-                child: Container(
-                  color: date.isWeekend
-                      ? AFThemeExtension.of(context).calendarWeekendBGColor
-                      : Colors.transparent,
-                  child: DragTarget<CalendarDayEvent>(
-                    builder: (context, candidate, __) {
-                      return Stack(
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            decoration: BoxDecoration(
-                              color: candidate.isEmpty
-                                  ? null
-                                  : hoverBackgroundColor,
-                              border: _borderFromPosition(context, position),
-                            ),
-                            padding: const EdgeInsets.only(top: 5.0),
-                            child: child,
+            return Stack(
+              children: [
+                GestureDetector(
+                  onDoubleTap: () => onCreateEvent(date),
+                  onTap: PlatformExtension.isMobile
+                      ? () => _mobileOnTap(context)
+                      : null,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: date.isWeekend
+                          ? AFThemeExtension.of(context).calendarWeekendBGColor
+                          : Colors.transparent,
+                      border: _borderFromPosition(context, position),
+                    ),
+                  ),
+                ),
+                DragTarget<CalendarDayEvent>(
+                  builder: (context, candidate, __) {
+                    return Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color:
+                              candidate.isEmpty ? null : hoverBackgroundColor,
+                          padding: const EdgeInsets.only(top: 5.0),
+                          child: child,
+                        ),
+                        if (candidate.isEmpty && !PlatformExtension.isMobile)
+                          NewEventButton(
+                            onCreate: () => onCreateEvent(date),
                           ),
-                          if (candidate.isEmpty && !PlatformExtension.isMobile)
-                            NewEventButton(onCreate: () => onCreateEvent(date)),
-                        ],
-                      );
-                    },
-                    onAcceptWithDetails: (details) {
-                      final event = details.data;
-                      if (event.date == date) {
-                        return;
-                      }
+                      ],
+                    );
+                  },
+                  onAcceptWithDetails: (details) {
+                    final event = details.data;
+                    if (event.date != date) {
                       context
                           .read<CalendarBloc>()
                           .add(CalendarEvent.moveEvent(event, date));
-                    },
-                  ),
+                    }
+                  },
                 ),
-              ),
+                MouseRegion(
+                  onEnter: (p) => notifyEnter(context, true),
+                  onExit: (p) => notifyEnter(context, false),
+                  opaque: false,
+                  hitTestBehavior: HitTestBehavior.translucent,
+                ),
+              ],
             );
           },
         );
@@ -234,7 +237,6 @@ class NewEventButton extends StatelessWidget {
           padding: const EdgeInsets.all(4.0),
           child: FlowyIconButton(
             onPressed: onCreate,
-            iconPadding: EdgeInsets.zero,
             icon: const FlowySvg(FlowySvgs.add_s),
             fillColor: Theme.of(context).colorScheme.background,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
@@ -257,7 +259,6 @@ class NewEventButton extends StatelessWidget {
                   blurRadius: 2,
                 ),
                 BoxShadow(
-                  spreadRadius: 0,
                   color: const Color(0xFF1F2329).withOpacity(0.02),
                   blurRadius: 4,
                 ),
@@ -310,7 +311,6 @@ class _DayBadge extends StatelessWidget {
         mainAxisAlignment: PlatformExtension.isMobile
             ? MainAxisAlignment.center
             : MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (date.day == 1 && !PlatformExtension.isMobile)
             FlowyText.medium(
@@ -383,9 +383,9 @@ class _EventList extends StatelessWidget {
 }
 
 class _CardEnterNotifier extends ChangeNotifier {
-  bool _onEnter = false;
-
   _CardEnterNotifier();
+
+  bool _onEnter = false;
 
   set onEnter(bool value) {
     if (_onEnter != value) {

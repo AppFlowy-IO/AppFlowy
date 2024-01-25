@@ -135,7 +135,7 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
                       .getTextInSelection(
                         widget.selection,
                       )
-                      .join('');
+                      .join();
                   final href =
                       editorState.getDeltaAttributeValueInSelection<String>(
                     AppFlowyRichTextKeys.href,

@@ -17,14 +17,15 @@ typedef UserProfileNotifyValue = Either<UserProfilePB, FlowyError>;
 typedef AuthNotifyValue = Either<Unit, FlowyError>;
 
 class UserListener {
-  StreamSubscription<SubscribeObject>? _subscription;
-  PublishNotifier<UserProfileNotifyValue>? _profileNotifier = PublishNotifier();
-
-  UserNotificationParser? _userParser;
-  final UserProfilePB _userProfile;
   UserListener({
     required UserProfilePB userProfile,
   }) : _userProfile = userProfile;
+
+  final UserProfilePB _userProfile;
+
+  UserNotificationParser? _userParser;
+  StreamSubscription<SubscribeObject>? _subscription;
+  PublishNotifier<UserProfileNotifyValue>? _profileNotifier = PublishNotifier();
 
   void start({
     void Function(UserProfileNotifyValue)? onProfileUpdated,
@@ -70,14 +71,12 @@ class UserListener {
 typedef WorkspaceSettingNotifyValue = Either<WorkspaceSettingPB, FlowyError>;
 
 class UserWorkspaceListener {
+  UserWorkspaceListener();
+
   PublishNotifier<WorkspaceSettingNotifyValue>? _settingChangedNotifier =
       PublishNotifier();
 
   FolderNotificationListener? _listener;
-
-  UserWorkspaceListener({
-    required UserProfilePB userProfile,
-  });
 
   void start({
     void Function(WorkspaceSettingNotifyValue)? onSettingUpdated,

@@ -21,7 +21,7 @@ class SidebarNewPageButton extends StatelessWidget {
       fillColor: Colors.transparent,
       hoverColor: Colors.transparent,
       fontColor: Theme.of(context).colorScheme.tertiary,
-      onPressed: () async => await createViewAndShowRenameDialogIfNeeded(
+      onPressed: () async => createViewAndShowRenameDialogIfNeeded(
         context,
         LocaleKeys.newPageText.tr(),
         (viewName) {

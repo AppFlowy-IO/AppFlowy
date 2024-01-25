@@ -17,14 +17,14 @@ import '../../layout/sizes.dart';
 import 'desktop_field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatefulWidget {
-  final String viewId;
-  final ScrollController anchorScrollController;
-
   const GridHeaderSliverAdaptor({
+    super.key,
     required this.viewId,
     required this.anchorScrollController,
-    super.key,
   });
+
+  final String viewId;
+  final ScrollController anchorScrollController;
 
   @override
   State<GridHeaderSliverAdaptor> createState() =>
@@ -56,9 +56,10 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
 }
 
 class _GridHeader extends StatefulWidget {
+  const _GridHeader({required this.viewId, required this.fieldController});
+
   final String viewId;
   final FieldController fieldController;
-  const _GridHeader({required this.viewId, required this.fieldController});
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -152,7 +153,7 @@ class _CellTrailing extends StatelessWidget {
       width: GridSize.trailHeaderPadding,
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1.0),
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
         ),
       ),
       padding: GridSize.headerContentInsets,

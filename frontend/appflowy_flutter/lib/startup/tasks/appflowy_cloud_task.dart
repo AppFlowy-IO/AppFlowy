@@ -21,13 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:url_protocol/url_protocol.dart';
 
 class AppFlowyCloudDeepLink {
-  final _appLinks = AppLinks();
-  // The AppLinks is a singleton, so we need to cancel the previous subscription
-  // before creating a new one.
-  static StreamSubscription<Uri?>? _deeplinkSubscription;
-  ValueNotifier<DeepLinkResult?>? _stateNotifier = ValueNotifier(null);
-  Completer<Either<FlowyError, UserProfilePB>>? _completer;
-
   AppFlowyCloudDeepLink() {
     if (_deeplinkSubscription == null) {
       _deeplinkSubscription = _appLinks.uriLinkStream.listen(
@@ -49,6 +42,15 @@ class AppFlowyCloudDeepLink {
       _deeplinkSubscription?.resume();
     }
   }
+
+  final _appLinks = AppLinks();
+
+  ValueNotifier<DeepLinkResult?>? _stateNotifier = ValueNotifier(null);
+  Completer<Either<FlowyError, UserProfilePB>>? _completer;
+
+  // The AppLinks is a singleton, so we need to cancel the previous subscription
+  // before creating a new one.
+  static StreamSubscription<Uri?>? _deeplinkSubscription;
 
   Future<void> dispose() async {
     _deeplinkSubscription?.pause();
@@ -192,10 +194,10 @@ class InitAppFlowyCloudTask extends LaunchTask {
 }
 
 class DeepLinkResult {
+  DeepLinkResult({required this.state, this.result});
+
   final DeepLinkState state;
   final Either<FlowyError, UserProfilePB>? result;
-
-  DeepLinkResult({required this.state, this.result});
 }
 
 enum DeepLinkState {

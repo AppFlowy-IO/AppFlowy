@@ -1,5 +1,16 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/number.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checklist.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/number.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/select_option.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/timestamp.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/url.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,7 +51,6 @@ import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_add_button.dar
 import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_header.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/date_editor.dart';
@@ -60,11 +70,10 @@ import 'package:appflowy/plugins/database/widgets/setting/setting_property_list.
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -75,6 +84,9 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:table_calendar/table_calendar.dart';
+
+// Non-exported member of the table_calendar library
+import 'package:table_calendar/src/widgets/cell_content.dart';
 
 import 'base.dart';
 import 'common_operations.dart';
@@ -138,7 +150,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
   }
 
-  ///
   Finder cellFinder(int rowIndex, FieldType fieldType, {int cellIndex = 0}) {
     final findRow = find.byType(GridRow, skipOffstage: false);
     final findCell = finderForFieldType(fieldType);
@@ -170,10 +181,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     required bool isSelected,
   }) async {
     final cell = cellFinder(rowIndex, FieldType.Checkbox);
-    var finder = find.byType(CheckboxCellUncheck);
-    if (isSelected) {
-      finder = find.byType(CheckboxCellCheck);
-    }
+    final finder = isSelected
+        ? find.byWidgetPredicate(
+            (widget) =>
+                widget is FlowySvg && widget.svg == FlowySvgs.check_filled_s,
+          )
+        : find.byWidgetPredicate(
+            (widget) => widget is FlowySvg && widget.svg == FlowySvgs.uncheck_s,
+          );
 
     expect(
       find.descendant(
@@ -190,7 +205,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }) async {
     final cell = cellFinder(rowIndex, fieldType);
     expect(cell, findsOneWidget);
-    await tapButton(cell, warnIfMissed: false);
+    await tapButton(cell);
   }
 
   /// The [fieldName] must be unique in the grid.
@@ -206,14 +221,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       matching: find.text(content),
       skipOffstage: false,
     );
-
-    final text = find.descendant(
-      of: find.byType(TextField),
-      matching: findContent,
-      skipOffstage: false,
-    );
-
-    expect(text, findsOneWidget);
+    expect(findContent, findsOneWidget);
   }
 
   Future<void> assertSingleSelectOption({
@@ -271,42 +279,12 @@ extension AppFlowyDatabaseTest on WidgetTester {
       final finder = find.descendant(
         of: findCell,
         matching: find.byWidgetPredicate(
-          (widget) {
-            if (widget is ChecklistProgressBar) {
-              return widget.percent == percent;
-            }
-            return false;
-          },
+          (widget) =>
+              widget is ChecklistProgressBar && widget.percent == percent,
         ),
       );
       expect(finder, findsOneWidget);
     }
-  }
-
-  Future<void> assertDateCellInGrid({
-    required int rowIndex,
-    required String content,
-  }) async {
-    final findRow = find.byType(GridRow, skipOffstage: false);
-    final findCell = find.descendant(
-      of: findRow.at(rowIndex),
-      matching: find.byType(GridDateCell),
-      skipOffstage: false,
-    );
-
-    final text = find.descendant(
-      of: findCell,
-      matching: find.byWidgetPredicate(
-        (widget) {
-          if (widget is FlowyText) {
-            return widget.text == content;
-          }
-          return false;
-        },
-      ),
-      skipOffstage: false,
-    );
-    expect(text, findsOneWidget);
   }
 
   Future<void> selectDay({
@@ -343,6 +321,23 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(finder);
   }
 
+  Future<void> selectReminderOption(ReminderOption option) async {
+    await hoverOnWidget(find.byType(ReminderSelector));
+
+    final finder = find.descendant(
+      of: find.byType(FlowyButton),
+      matching: find.text(option.label),
+    );
+
+    await tapButton(finder);
+  }
+
+  Future<void> selectLastDateInPicker() async {
+    final finder = find.byType(CellContent).last;
+
+    await tapButton(finder);
+  }
+
   Future<void> toggleDateRange() async {
     final findDateEditor = find.byType(EndTimeButton);
     final findToggle = find.byType(Toggle);
@@ -353,15 +348,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(finder);
   }
 
-  Future<void> changeDateFormat() async {
-    final findDateEditor = find.byType(DateCellEditor);
-    final findDateTimeOptionButton = find.byType(DateTypeOptionButton);
-    final finder = find.descendant(
-      of: findDateEditor,
-      matching: findDateTimeOptionButton,
-    );
-    await tapButton(finder);
+  Future<void> tapChangeDateTimeFormatButton() async {
+    await tapButton(find.byType(DateTypeOptionButton));
+  }
 
+  Future<void> changeDateFormat() async {
     final findDateFormatButton = find.byType(DateFormatButton);
     await tapButton(findDateFormatButton);
 
@@ -370,14 +361,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> changeTimeFormat() async {
-    final findDateEditor = find.byType(DateCellEditor);
-    final findDateTimeOptionButton = find.byType(DateTypeOptionButton);
-    final finder = find.descendant(
-      of: findDateEditor,
-      matching: findDateTimeOptionButton,
-    );
-    await tapButton(finder);
-
     final findDateFormatButton = find.byType(TimeFormatButton);
     await tapButton(findDateFormatButton);
 
@@ -491,7 +474,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   void assertChecklistEditorVisible({required bool visible}) {
-    final editor = find.byType(GridChecklistCellEditor);
+    final editor = find.byType(ChecklistCellEditor);
     if (visible) {
       expect(editor, findsOneWidget);
     } else {
@@ -604,7 +587,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> editTitleInRowDetailPage(String title) async {
-    final titleField = find.byType(GridTextCell);
+    final titleField = find.byType(EditableTextCell);
     await enterText(titleField, title);
     await pumpAndSettle();
   }
@@ -622,11 +605,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> openEmojiPicker() async {
-    await tapButton(find.byType(EmojiPickerButton));
+    await tapButton(find.byType(AddEmojiButton));
   }
 
   Future<void> tapDateCellInRowDetailPage() async {
-    final findDateCell = find.byType(GridDateCell);
+    final findDateCell = find.byType(EditableDateCell);
     await tapButton(findDateCell);
   }
 
@@ -717,7 +700,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> scrollToRight(Finder find) async {
     final size = getSize(find);
-    await drag(find, Offset(-size.width, 0));
+    await drag(find, Offset(-size.width, 0), warnIfMissed: false);
     await pumpAndSettle(const Duration(milliseconds: 500));
   }
 
@@ -735,7 +718,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// Should call [tapGridFieldWithName] first.
-  Future<void> tapEditPropertyButton() async {
+  Future<void> tapEditFieldButton() async {
     await tapButtonWithName(LocaleKeys.grid_field_editProperty.tr());
     await pumpAndSettle(const Duration(milliseconds: 200));
   }
@@ -749,7 +732,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(field);
   }
 
-  /// Should call [tapGridFieldWithName] first.
+  /// A SimpleDialog must be shown first, e.g. when deleting a field.
   Future<void> tapDialogOkButton() async {
     final field = find.byWidgetPredicate(
       (widget) =>
@@ -817,7 +800,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(find.byType(RowDetailPageDuplicateButton));
   }
 
-  Future<void> tapTypeOptionButton() async {
+  Future<void> tapSwitchFieldTypeButton() async {
     await tapButton(find.byType(SwitchFieldButton));
   }
 
@@ -825,7 +808,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await sendKeyEvent(LogicalKeyboardKey.escape);
   }
 
-  /// Must call [tapTypeOptionButton] first.
+  /// Must call [tapSwitchFieldTypeButton] first.
   Future<void> selectFieldType(FieldType fieldType) async {
     final fieldTypeCell = find.byType(FieldTypeCell);
     final fieldTypeButton = find.descendant(
@@ -835,6 +818,17 @@ extension AppFlowyDatabaseTest on WidgetTester {
       ),
     );
     await tapButton(fieldTypeButton);
+  }
+
+  // Use in edit mode of FieldEditor
+  void expectEmptyTypeOptionEditor() {
+    expect(
+      find.descendant(
+        of: find.byType(FieldTypeOptionEditor),
+        matching: find.byType(TypeOptionSeparator),
+      ),
+      findsNothing,
+    );
   }
 
   /// Each field has its own cell, so we can find the corresponding cell by
@@ -958,7 +952,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await scrollToRight(find.byType(GridPage));
     await tapNewPropertyButton();
     await renameField(name);
-    await tapTypeOptionButton();
+    await tapSwitchFieldTypeButton();
     await selectFieldType(fieldType);
     await dismissFieldEditor();
   }
@@ -1116,7 +1110,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       skipOffstage: false,
     );
     expect(findCell, findsOneWidget);
-    await tapButton(findCell, warnIfMissed: false);
+    await tapButton(findCell);
   }
 
   Future<void> tapCheckedButtonOnCheckboxFilter() async {
@@ -1386,7 +1380,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> dragDropRescheduleCalendarEvent() async {
     final findEventCard = find.byType(EventCard);
     await drag(findEventCard.first, const Offset(0, 300));
-    await pumpAndSettle();
+    await pumpAndSettle(const Duration(microseconds: 300));
   }
 
   Future<void> openUnscheduledEventsPopup() async {
@@ -1603,6 +1597,23 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButtonWithName(LocaleKeys.importPanel_database.tr());
   }
 
+  // Use in edit mode of FieldEditor
+  Future<void> changeNumberFieldFormat() async {
+    final changeFormatButton = find.descendant(
+      of: find.byType(FieldTypeOptionEditor),
+      matching: find.text("Number"),
+    );
+    await tapButton(changeFormatButton);
+
+    await tapButton(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is NumberFormatCell && widget.format == NumberFormatPB.USD,
+      ),
+    );
+  }
+
+  // Use in edit mode of FieldEditor
   Future<void> tapAddSelectOptionButton() async {
     await tapButtonWithName(LocaleKeys.grid_field_addSelectOption.tr());
   }
@@ -1636,24 +1647,45 @@ Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) {
 Finder finderForFieldType(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
-      return find.byType(GridCheckboxCell, skipOffstage: false);
+      return find.byType(EditableCheckboxCell, skipOffstage: false);
     case FieldType.DateTime:
-      return find.byType(GridDateCell, skipOffstage: false);
+      return find.byType(EditableDateCell, skipOffstage: false);
     case FieldType.LastEditedTime:
+      return find.byWidgetPredicate(
+        (widget) =>
+            widget is EditableTimestampCell &&
+            widget.fieldType == FieldType.LastEditedTime,
+        skipOffstage: false,
+      );
     case FieldType.CreatedTime:
-      return find.byType(GridTimestampCell, skipOffstage: false);
+      return find.byWidgetPredicate(
+        (widget) =>
+            widget is EditableTimestampCell &&
+            widget.fieldType == FieldType.CreatedTime,
+        skipOffstage: false,
+      );
     case FieldType.SingleSelect:
-      return find.byType(GridSingleSelectCell, skipOffstage: false);
+      return find.byWidgetPredicate(
+        (widget) =>
+            widget is EditableSelectOptionCell &&
+            widget.fieldType == FieldType.SingleSelect,
+        skipOffstage: false,
+      );
     case FieldType.MultiSelect:
-      return find.byType(GridMultiSelectCell, skipOffstage: false);
+      return find.byWidgetPredicate(
+        (widget) =>
+            widget is EditableSelectOptionCell &&
+            widget.fieldType == FieldType.MultiSelect,
+        skipOffstage: false,
+      );
     case FieldType.Checklist:
-      return find.byType(GridChecklistCell, skipOffstage: false);
+      return find.byType(EditableChecklistCell, skipOffstage: false);
     case FieldType.Number:
-      return find.byType(GridNumberCell, skipOffstage: false);
+      return find.byType(EditableNumberCell, skipOffstage: false);
     case FieldType.RichText:
-      return find.byType(GridTextCell, skipOffstage: false);
+      return find.byType(EditableTextCell, skipOffstage: false);
     case FieldType.URL:
-      return find.byType(GridURLCell, skipOffstage: false);
+      return find.byType(EditableURLCell, skipOffstage: false);
     default:
       throw Exception('Unknown field type: $fieldType');
   }

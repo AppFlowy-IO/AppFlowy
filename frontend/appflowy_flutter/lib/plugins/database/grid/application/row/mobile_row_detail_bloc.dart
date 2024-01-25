@@ -7,11 +7,14 @@ part 'mobile_row_detail_bloc.freezed.dart';
 
 class MobileRowDetailBloc
     extends Bloc<MobileRowDetailEvent, MobileRowDetailState> {
+  MobileRowDetailBloc({required this.databaseController})
+      : super(MobileRowDetailState.initial()) {
+    _dispatch();
+  }
+
   final DatabaseController databaseController;
 
-  MobileRowDetailBloc({
-    required this.databaseController,
-  }) : super(MobileRowDetailState.initial()) {
+  void _dispatch() {
     on<MobileRowDetailEvent>(
       (event, emit) {
         event.when(

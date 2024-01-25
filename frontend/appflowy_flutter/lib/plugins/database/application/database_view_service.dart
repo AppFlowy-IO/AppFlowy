@@ -1,23 +1,16 @@
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
+import 'package:dartz/dartz.dart';
 
 import 'layout/layout_service.dart';
 
 class DatabaseViewBackendService {
+  DatabaseViewBackendService({required this.viewId});
+
   final String viewId;
-  DatabaseViewBackendService({
-    required this.viewId,
-  });
 
   /// Returns the datbaase id associated with the view.
   Future<Either<String, FlowyError>> getDatabaseId() async {

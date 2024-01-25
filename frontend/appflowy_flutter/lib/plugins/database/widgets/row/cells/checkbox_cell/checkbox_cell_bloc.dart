@@ -1,28 +1,34 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
-  final CheckboxCellController cellController;
-  void Function()? _onCellChangedFn;
-
   CheckboxCellBloc({
     required this.cellController,
   }) : super(CheckboxCellState.initial(cellController)) {
+    _dispatch();
+  }
+
+  final CheckboxCellController cellController;
+  void Function()? _onCellChangedFn;
+
+  void _dispatch() {
     on<CheckboxCellEvent>(
-      (event, emit) async {
-        await event.when(
-          initial: () {
-            _startListening();
+      (event, emit) {
+        event.when(
+          initial: () => _startListening(),
+          didUpdateCell: (isSelected) {
+            emit(state.copyWith(isSelected: isSelected));
           },
-          didReceiveCellUpdate: (cellData) {
-            emit(state.copyWith(isSelected: _isSelected(cellData)));
+          didUpdateField: (fieldName) {
+            emit(state.copyWith(fieldName: fieldName));
           },
-          select: () async {
-            cellController.saveCellData(!state.isSelected ? "Yes" : "No");
+          select: () {
+            cellController.saveCellData(state.isSelected ? "No" : "Yes");
           },
         );
       },
@@ -41,12 +47,17 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellData) {
+    _onCellChangedFn = cellController.addListener(
+      onCellChanged: (cellData) {
         if (!isClosed) {
-          add(CheckboxCellEvent.didReceiveCellUpdate(cellData));
+          add(CheckboxCellEvent.didUpdateCell(_isSelected(cellData)));
         }
-      }),
+      },
+      onCellFieldChanged: (field) {
+        if (!isClosed) {
+          add(CheckboxCellEvent.didUpdateField(field.name));
+        }
+      },
     );
   }
 }
@@ -55,18 +66,24 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 class CheckboxCellEvent with _$CheckboxCellEvent {
   const factory CheckboxCellEvent.initial() = _Initial;
   const factory CheckboxCellEvent.select() = _Selected;
-  const factory CheckboxCellEvent.didReceiveCellUpdate(String? cellData) =
-      _DidReceiveCellUpdate;
+  const factory CheckboxCellEvent.didUpdateCell(bool isSelected) =
+      _DidUpdateCell;
+  const factory CheckboxCellEvent.didUpdateField(String fieldName) =
+      _DidUpdateField;
 }
 
 @freezed
 class CheckboxCellState with _$CheckboxCellState {
   const factory CheckboxCellState({
     required bool isSelected,
+    required String fieldName,
   }) = _CheckboxCellState;
 
-  factory CheckboxCellState.initial(TextCellController context) {
-    return CheckboxCellState(isSelected: _isSelected(context.getCellData()));
+  factory CheckboxCellState.initial(CheckboxCellController cellController) {
+    return CheckboxCellState(
+      isSelected: _isSelected(cellController.getCellData()),
+      fieldName: cellController.fieldInfo.field.name,
+    );
   }
 }
 

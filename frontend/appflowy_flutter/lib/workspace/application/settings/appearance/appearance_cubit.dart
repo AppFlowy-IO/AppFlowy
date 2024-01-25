@@ -26,9 +26,6 @@ part 'appearance_cubit.freezed.dart';
 /// - [UserTimeFormatPB]
 ///
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
-  final AppearanceSettingsPB _appearanceSettings;
-  final DateTimeSettingsPB _dateTimeSettings;
-
   AppearanceSettingsCubit(
     AppearanceSettingsPB appearanceSettings,
     DateTimeSettingsPB dateTimeSettings,
@@ -52,9 +49,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             appearanceSettings.documentSetting.cursorColor.isEmpty
                 ? null
                 : Color(
-                    int.parse(
-                      appearanceSettings.documentSetting.cursorColor,
-                    ),
+                    int.parse(appearanceSettings.documentSetting.cursorColor),
                   ),
             appearanceSettings.documentSetting.selectionColor.isEmpty
                 ? null
@@ -66,6 +61,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             appearanceSettings.fontIconsSizeFactor,
           ),
         );
+
+  final AppearanceSettingsPB _appearanceSettings;
+  final DateTimeSettingsPB _dateTimeSettings;
 
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].

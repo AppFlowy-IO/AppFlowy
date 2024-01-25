@@ -5,16 +5,17 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 
-/// FieldService consists of lots of event functions. We define the events in the backend(Rust),
-/// you can find the corresponding event implementation in event_map.rs of the corresponding crate.
-///
-/// You could check out the rust-lib/flowy-database/event_map.rs for more information.
+/// FieldService provides many field-related interfaces event functions. Check out
+/// `rust-lib/flowy-database/event_map.rs` for a list of events and their
+/// implementations.
 class FieldBackendService {
   FieldBackendService({required this.viewId, required this.fieldId});
 
   final String viewId;
   final String fieldId;
 
+  /// Create a field in a database view. The position will only be applicable
+  /// in this view; for other views it will be appended to the end
   static Future<Either<FieldPB, FlowyError>> createField({
     required String viewId,
     FieldType fieldType = FieldType.RichText,
@@ -33,40 +34,7 @@ class FieldBackendService {
     return DatabaseEventCreateField(payload).send();
   }
 
-  Future<Either<FieldPB, FlowyError>> insertBefore({
-    FieldType fieldType = FieldType.RichText,
-    String? fieldName,
-    Uint8List? typeOptionData,
-  }) {
-    return createField(
-      viewId: viewId,
-      fieldType: fieldType,
-      fieldName: fieldName,
-      typeOptionData: typeOptionData,
-      position: OrderObjectPositionPB(
-        position: OrderObjectPositionTypePB.Before,
-        objectId: fieldId,
-      ),
-    );
-  }
-
-  Future<Either<FieldPB, FlowyError>> insertAfter({
-    FieldType fieldType = FieldType.RichText,
-    String? fieldName,
-    Uint8List? typeOptionData,
-  }) {
-    return createField(
-      viewId: viewId,
-      fieldType: fieldType,
-      fieldName: fieldName,
-      typeOptionData: typeOptionData,
-      position: OrderObjectPositionPB(
-        position: OrderObjectPositionTypePB.After,
-        objectId: fieldId,
-      ),
-    );
-  }
-
+  /// Reorder a field within a database view
   static Future<Either<Unit, FlowyError>> moveField({
     required String viewId,
     required String fromFieldId,
@@ -81,6 +49,7 @@ class FieldBackendService {
     return DatabaseEventMoveField(payload).send();
   }
 
+  /// Delete a field
   static Future<Either<Unit, FlowyError>> deleteField({
     required String viewId,
     required String fieldId,
@@ -93,6 +62,7 @@ class FieldBackendService {
     return DatabaseEventDeleteField(payload).send();
   }
 
+  /// Duplicate a field
   static Future<Either<Unit, FlowyError>> duplicateField({
     required String viewId,
     required String fieldId,
@@ -105,6 +75,7 @@ class FieldBackendService {
     return DatabaseEventDuplicateField(payload).send();
   }
 
+  /// Update a field's properties
   Future<Either<Unit, FlowyError>> updateField({
     String? name,
     bool? frozen,
@@ -124,6 +95,21 @@ class FieldBackendService {
     return DatabaseEventUpdateField(payload).send();
   }
 
+  /// Change a field's type
+  static Future<Either<Unit, FlowyError>> updateFieldType({
+    required String viewId,
+    required String fieldId,
+    required FieldType fieldType,
+  }) {
+    final payload = UpdateFieldTypePayloadPB()
+      ..viewId = viewId
+      ..fieldId = fieldId
+      ..fieldType = fieldType;
+
+    return DatabaseEventUpdateFieldType(payload).send();
+  }
+
+  /// Update a field's type option data
   static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
     required String viewId,
     required String fieldId,
@@ -137,25 +123,6 @@ class FieldBackendService {
     return DatabaseEventUpdateFieldTypeOption(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateFieldType({
-    required FieldType fieldType,
-  }) {
-    final payload = UpdateFieldTypePayloadPB.create()
-      ..viewId = viewId
-      ..fieldId = fieldId
-      ..fieldType = fieldType;
-
-    return DatabaseEventUpdateFieldType(payload).send();
-  }
-
-  Future<Either<Unit, FlowyError>> delete() {
-    return deleteField(viewId: viewId, fieldId: fieldId);
-  }
-
-  Future<Either<Unit, FlowyError>> duplicate() {
-    return duplicateField(viewId: viewId, fieldId: fieldId);
-  }
-
   /// Returns the primary field of the view.
   static Future<Either<FieldPB, FlowyError>> getPrimaryField({
     required String viewId,
@@ -163,4 +130,53 @@ class FieldBackendService {
     final payload = DatabaseViewIdPB.create()..value = viewId;
     return DatabaseEventGetPrimaryField(payload).send();
   }
+
+  Future<Either<FieldPB, FlowyError>> createBefore({
+    FieldType fieldType = FieldType.RichText,
+    String? fieldName,
+    Uint8List? typeOptionData,
+  }) {
+    return createField(
+      viewId: viewId,
+      fieldType: fieldType,
+      fieldName: fieldName,
+      typeOptionData: typeOptionData,
+      position: OrderObjectPositionPB(
+        position: OrderObjectPositionTypePB.Before,
+        objectId: fieldId,
+      ),
+    );
+  }
+
+  Future<Either<FieldPB, FlowyError>> createAfter({
+    FieldType fieldType = FieldType.RichText,
+    String? fieldName,
+    Uint8List? typeOptionData,
+  }) {
+    return createField(
+      viewId: viewId,
+      fieldType: fieldType,
+      fieldName: fieldName,
+      typeOptionData: typeOptionData,
+      position: OrderObjectPositionPB(
+        position: OrderObjectPositionTypePB.After,
+        objectId: fieldId,
+      ),
+    );
+  }
+
+  Future<Either<Unit, FlowyError>> updateType({
+    required FieldType fieldType,
+  }) =>
+      updateFieldType(
+        viewId: viewId,
+        fieldId: fieldId,
+        fieldType: fieldType,
+      );
+
+  Future<Either<Unit, FlowyError>> delete() =>
+      deleteField(viewId: viewId, fieldId: fieldId);
+
+  Future<Either<Unit, FlowyError>> duplicate() =>
+      duplicateField(viewId: viewId, fieldId: fieldId);
 }

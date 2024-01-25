@@ -41,25 +41,22 @@ class SidebarUser extends StatelessWidget {
           const MenuUserEvent.initial(),
         ),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
-        builder: (context, state) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              HSpace(0 + ((factor + tempOne - 1) * 10)),
-              UserAvatar(
-                iconUrl: state.userProfile.iconUrl,
-                name: state.userProfile.name,
-              ),
-              HSpace(0 + ((factor + tempOne - 1) * 10)),
-              Expanded(
-                child: _buildUserName(context, state),
-              ),
-              UserSettingButton(userProfile: state.userProfile),
-              HSpace(4 + ((factor + tempOne - 1) * 25)),
-              NotificationButton(views: views),
-            ],
-          );
-        },
+        builder: (context, state) => Row(
+          children: [
+            HSpace(0 + ((factor + tempOne - 1) * 10)),
+            UserAvatar(
+              iconUrl: state.userProfile.iconUrl,
+              name: state.userProfile.name,
+            ),
+            HSpace(4 + ((factor + tempOne - 1) * 10)),
+            Expanded(
+              child: _buildUserName(context, state),
+            ),
+            UserSettingButton(userProfile: state.userProfile),
+            HSpace(4 + ((factor + tempOne - 1) * 25)),
+            NotificationButton(views: views),
+          ],
+        ),
       ),
     );
   }
@@ -84,8 +81,9 @@ class SidebarUser extends StatelessWidget {
 }
 
 class UserSettingButton extends StatelessWidget {
-  final UserProfilePB userProfile;
   const UserSettingButton({required this.userProfile, super.key});
+
+  final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {

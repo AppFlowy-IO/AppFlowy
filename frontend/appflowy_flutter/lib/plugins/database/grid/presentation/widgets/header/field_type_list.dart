@@ -10,8 +10,9 @@ import 'field_type_extension.dart';
 typedef SelectFieldCallback = void Function(FieldType);
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
-  final SelectFieldCallback onSelectField;
   const FieldTypeList({required this.onSelectField, super.key});
+
+  final SelectFieldCallback onSelectField;
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +44,14 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
 }
 
 class FieldTypeCell extends StatelessWidget {
-  final FieldType fieldType;
-  final SelectFieldCallback onSelectField;
   const FieldTypeCell({
+    super.key,
     required this.fieldType,
     required this.onSelectField,
-    super.key,
   });
+
+  final FieldType fieldType;
+  final SelectFieldCallback onSelectField;
 
   @override
   Widget build(BuildContext context) {

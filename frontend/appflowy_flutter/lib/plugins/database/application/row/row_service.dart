@@ -8,11 +8,9 @@ import '../field/field_info.dart';
 typedef RowId = String;
 
 class RowBackendService {
-  final String viewId;
+  RowBackendService({required this.viewId});
 
-  RowBackendService({
-    required this.viewId,
-  });
+  final String viewId;
 
   static Future<Either<RowMetaPB, FlowyError>> createRow({
     required String viewId,
@@ -61,12 +59,15 @@ class RowBackendService {
     );
   }
 
-  Future<Either<OptionalRowPB, FlowyError>> getRow(RowId rowId) {
-    final payload = RowIdPB.create()
+  static Future<Either<RowMetaPB, FlowyError>> getRow({
+    required String viewId,
+    required String rowId,
+  }) {
+    final payload = RowIdPB()
       ..viewId = viewId
       ..rowId = rowId;
 
-    return DatabaseEventGetRow(payload).send();
+    return DatabaseEventGetRowMeta(payload).send();
   }
 
   Future<Either<RowMetaPB, FlowyError>> getRowMeta(RowId rowId) {

@@ -583,17 +583,24 @@
     "sort": {
       "ascending": "ascendente",
       "descending": "Descendente",
+      "deleteAllSorts": "Eliminar todos filtros",
       "addSort": "Agregar clasificación",
       "deleteSort": "Borrar ordenar"
     },
     "row": {
       "duplicate": "Duplicar",
       "delete": "Eliminar",
+      "titlePlaceholder": "Intitulado",
       "textPlaceholder": "Vacío",
       "copyProperty": "Propiedad copiada al portapapeles",
       "count": "Contar",
       "newRow": "Nueva fila",
-      "action": "Acción"
+      "action": "Acción",
+      "add": "Haga clic en agregar a continuación",
+      "drag": "Arrastre para mover",
+      "dragAndClick": "Arrastra para mover, haz clic para abrir el menú",
+      "insertRecordAbove": "Insertar registro arriba",
+      "insertRecordBelow": "Insertar registro a continuación"
     },
     "selectOption": {
       "create": "Crear",
@@ -609,10 +616,19 @@
       "deleteTag": "Borrar etiqueta",
       "colorPanelTitle": "Colores",
       "panelTitle": "Selecciona una opción o crea una",
-      "searchOption": "Buscar una opción"
+      "searchOption": "Buscar una opción",
+      "searchOrCreateOption": "Buscar o crear una opción...",
+      "createNew": "Crear un nuevo",
+      "orSelectOne": "O seleccione una opción",
+      "typeANewOption": "Escribe una nueva opción",
+      "tagName": "Nombre de etiqueta"
     },
     "checklist": {
-      "addNew": "Agregar un elemento"
+      "taskHint": "Descripción de la tarea",
+      "addNew": "Agregar un elemento",
+      "submitNewTask": "Crear",
+      "hideComplete": "Ocultar tareas completadas",
+      "showComplete": "Mostrar todas las tareas"
     },
     "menuName": "Cuadrícula",
     "referencedGridPrefix": "Vista de"
@@ -635,15 +651,20 @@
       "calendar": {
         "selectACalendarToLinkTo": "Seleccione un calendario para vincular",
         "createANewCalendar": "Crear un nuevo Calendario"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Seleccione un documento para vincularlo"
       }
     },
     "selectionMenu": {
-      "outline": "Describir"
+      "outline": "Describir",
+      "codeBlock": "Bloque de código"
     },
     "plugins": {
       "referencedBoard": "Tablero referenciado",
       "referencedGrid": "Cuadrícula referenciada",
       "referencedCalendar": "Calendario referenciado",
+      "referencedDocument": "Documento referenciado",
       "autoGeneratorMenuItemName": "Escritor de OpenAI",
       "autoGeneratorTitleName": "OpenAI: Pídele a AI que escriba cualquier cosa...",
       "autoGeneratorLearnMore": "Aprende más",
@@ -663,7 +684,11 @@
       "smartEditDisabled": "Conectar OpenAI en Configuración",
       "discardResponse": "¿Quieres descartar las respuestas de IA?",
       "createInlineMathEquation": "Crear ecuación",
+      "fonts": "Tipo de letra",
       "toggleList": "Alternar lista",
+      "numberedList": "lista numerada",
+      "bulletedList": "Lista con viñetas",
+      "todoList": "Lista de tareas",
       "cover": {
         "changeCover": "Cubierta de cambio",
         "colors": "Colores",
@@ -685,10 +710,12 @@
         "couldNotFetchImage": "No se pudo obtener la imagen",
         "imageSavingFailed": "Error al guardar la imagen",
         "addIcon": "Añadir icono",
+        "changeIcon": "Cambiar el ícono",
         "coverRemoveAlert": "Se eliminará de la portada después de que se elimine.",
         "alertDialogConfirmation": "¿Estás seguro de que quieres continuar?"
       },
       "mathEquation": {
+        "name": "Ecuación matemática",
         "addMathEquation": "Agregar ecuación matemática",
         "editMathEquation": "Editar ecuación matemática"
       },
@@ -708,10 +735,36 @@
         "defaultColor": "Por defecto"
       },
       "image": {
-        "copiedToPasteBoard": "El enlace de la imagen se ha copiado en el portapapeles."
+        "copiedToPasteBoard": "El enlace de la imagen se ha copiado en el portapapeles.",
+        "addAnImage": "Añadir una imagen"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "El enlace ha sido copiado al portapapeles."
       },
       "outline": {
         "addHeadingToCreateOutline": "Agregue encabezados para crear una tabla de contenido."
+      },
+      "table": {
+        "addAfter": "Agregar después",
+        "addBefore": "Añadir antes",
+        "delete": "Borrar",
+        "clear": "Borrar contenido",
+        "duplicate": "Duplicar",
+        "bgColor": "Color de fondo"
+      },
+      "contextMenu": {
+        "copy": "Copiar",
+        "cut": "Cortar",
+        "paste": "Pegar"
+      },
+      "action": "Comportamiento",
+      "database": {
+        "selectDataSource": "Seleccionar fuente de datos",
+        "noDataSource": "No hay fuente de datos",
+        "selectADataSource": "Seleccione una fuente de datos",
+        "toContinue": "continuar",
+        "newDatabase": "Nueva base de datos",
+        "linkToDatabase": "Enlace a la base de datos"
       }
     },
     "textBlock": {
@@ -730,13 +783,22 @@
         "label": "URL de la imagen",
         "placeholder": "Introduce la URL de la imagen"
       },
+      "ai": {
+        "label": "Generar imagen desde OpenAI"
+      },
       "support": "El límite de tamaño de la imagen es de 5 MB. Formatos admitidos: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Imagen inválida",
         "invalidImageSize": "El tamaño de la imagen debe ser inferior a 5 MB",
         "invalidImageFormat": "El formato de imagen no es compatible. Formatos admitidos: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "URL de imagen no válida"
-      }
+      },
+      "embedLink": {
+        "label": "Insertar enlace",
+        "placeholder": "Pega o escribe el enlace de una imagen"
+      },
+      "searchForAnImage": "Buscar una imagen",
+      "saveImageToGallery": "Guardar imagen"
     },
     "codeBlock": {
       "language": {
@@ -746,6 +808,9 @@
     },
     "inlineLink": {
       "placeholder": "Pegar o escribir un enlace",
+      "openInNewTab": "Abrir en una pestaña nueva",
+      "copyLink": "Copiar link",
+      "removeLink": "Remover enlace",
       "url": {
         "label": "URL del enlace",
         "placeholder": "Introduzca la URL del enlace"
@@ -754,18 +819,57 @@
         "label": "Título del enlace",
         "placeholder": "Introduce el título del enlace"
       }
+    },
+    "mention": {
+      "page": {
+        "label": "Enlace a la página",
+        "tooltip": "Haga clic para abrir la página"
+      }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Restablecer a los predeterminados"
     }
   },
   "board": {
     "column": {
-      "createNewCard": "Nuevo"
+      "createNewCard": "Nuevo",
+      "renameGroupTooltip": "Presione para cambiar el nombre del grupo",
+      "createNewColumn": "Agregar un nuevo grupo",
+      "renameColumn": "Renombrar",
+      "hideColumn": "Ocultar",
+      "groupActions": "Acciones grupales",
+      "newGroup": "Nuevo grupo",
+      "deleteColumn": "Borrar"
     },
+    "hiddenGroupSection": {
+      "sectionTitle": "Grupos ocultos"
+    },
+    "cardDetail": "Detalle de la tarjeta",
+    "cardActions": "Acciones de tarjeta",
+    "cardDuplicated": "La tarjeta ha sido duplicada.",
+    "cardDeleted": "La tarjeta ha sido eliminada",
+    "showOnCard": "Mostrar en el detalle de la tarjeta",
+    "setting": "Configuración",
+    "propertyName": "Nombre de la propiedad",
     "menuName": "Junta",
-    "referencedBoardPrefix": "Vista de"
+    "showUngrouped": "Mostrar elementos desagrupados",
+    "ungroupedButtonText": "Desagrupados",
+    "ungroupedButtonTooltip": "Contiene tarjetas que no pertenecen a ningún grupo.",
+    "ungroupedItemsTitle": "Haga clic para agregar al tablero",
+    "groupBy": "Agrupar por",
+    "referencedBoardPrefix": "Vista de",
+    "notesTooltip": "Notas en el interior",
+    "mobile": {
+      "editURL": "Editar URL",
+      "unhideGroup": "Mostrar grupo",
+      "unhideGroupContent": "¿Estás seguro de que quieres mostrar este grupo en el tablero?",
+      "faildToLoad": "No se pudo cargar la vista del tablero"
+    }
   },
   "calendar": {
     "menuName": "Calendario",
     "defaultNewCalendarTitle": "Intitulado",
+    "newEventButtonTooltip": "Agregar un nuevo evento",
     "navigation": {
       "today": "Hoy",
       "jumpToday": "Saltar a hoy",
@@ -777,12 +881,14 @@
       "showWeekends": "Mostrar fines de semana",
       "firstDayOfWeek": "Empieza la semana en",
       "layoutDateField": "Diseño de calendario por",
+      "changeLayoutDateField": "Cambiar campo de diseño",
       "noDateTitle": "Sin cita",
       "clickToAdd": "Haga clic para agregar al calendario",
       "name": "Diseño de calendario",
       "noDateHint": "Los eventos no programados se mostrarán aquí"
     },
-    "referencedCalendarPrefix": "Vista de"
+    "referencedCalendarPrefix": "Vista de",
+    "quickJumpYear": "Ir a"
   },
   "errorDialog": {
     "title": "Error de flujo de aplicación",
@@ -805,5 +911,157 @@
   "views": {
     "deleteContentTitle": "¿Está seguro de que desea eliminar {pageType}?",
     "deleteContentCaption": "si elimina este {pageType}, puede restaurarlo de la papelera."
+  },
+  "colors": {
+    "custom": "Costumbre",
+    "default": "Por defecto",
+    "red": "Rojo",
+    "orange": "Naranja",
+    "yellow": "Amarillo",
+    "green": "Verde",
+    "blue": "Azul",
+    "purple": "Púrpura",
+    "pink": "Rosa",
+    "brown": "Marrón",
+    "gray": "Gris"
+  },
+  "emoji": {
+    "emojiTab": "emojis",
+    "search": "buscar emojis",
+    "noRecent": "Ningún emoji reciente",
+    "noEmojiFound": "No se encontraron emojis",
+    "filter": "Filtrar",
+    "random": "Aleatorio",
+    "selectSkinTone": "Selecciona el tono de piel",
+    "remove": "Quitar emojis",
+    "categories": {
+      "smileys": "Emoticonos y emociones",
+      "people": "Personas y cuerpo",
+      "animals": "Animales y naturaleza",
+      "food": "Comida y bebida",
+      "activities": "Actividades",
+      "places": "Viajes y lugares",
+      "objects": "Objetos",
+      "symbols": "Símbolos",
+      "flags": "Banderas",
+      "nature": "Naturaleza",
+      "frequentlyUsed": "Usado frecuentemente"
+    },
+    "skinTone": {
+      "default": "Por defecto",
+      "light": "Luz",
+      "mediumLight": "Luz media",
+      "medium": "Medio",
+      "mediumDark": "Medio-Oscuro",
+      "dark": "Oscuro"
+    }
+  },
+  "inlineActions": {
+    "noResults": "No hay resultados",
+    "pageReference": "Referencia de página",
+    "docReference": "Referencia de documento",
+    "boardReference": "Referencia del tablero",
+    "calReference": "Referencia del calendario",
+    "gridReference": "Referencia de cuadrícula",
+    "date": "Fecha",
+    "reminder": {
+      "groupTitle": "Recordatorio",
+      "shortKeyword": "recordar"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Cambiar el formato de fecha y hora en la configuración",
+    "dateFormat": "Formato de fecha",
+    "includeTime": "incluir tiempo",
+    "isRange": "Fecha final",
+    "timeFormat": "Formato de tiempo",
+    "clearDate": "Borrar fecha"
+  },
+  "relativeDates": {
+    "yesterday": "Ayer",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "oneWeek": "1 semana"
+  },
+  "notificationHub": {
+    "title": "Notificaciones",
+    "mobile": {
+      "title": "Actualizaciones"
+    },
+    "emptyBody": "No hay notificaciones ni acciones pendientes. Disfruta de la calma.",
+    "tabs": {
+      "inbox": "Bandeja de entrada",
+      "upcoming": "Próximo"
+    },
+    "actions": {
+      "markAllRead": "marcar todo como leido",
+      "showAll": "Todo",
+      "showUnreads": "No leído"
+    },
+    "filters": {
+      "ascending": "Ascendente",
+      "descending": "Descendente",
+      "groupByDate": "Agrupar por fecha",
+      "showUnreadsOnly": "Mostrar solo no leídos",
+      "resetToDefault": "Restablecen a los predeterminados"
+    }
+  },
+  "reminderNotification": {
+    "title": "Recordatorio",
+    "message": "¡Recuerda comprobar esto antes de que lo olvides!",
+    "tooltipDelete": "Borrar",
+    "tooltipMarkRead": "Marcar como leído",
+    "tooltipMarkUnread": "marcar como no leído"
+  },
+  "findAndReplace": {
+    "find": "Encontrar",
+    "previousMatch": "Partido anterior",
+    "nextMatch": "Próximo partido",
+    "close": "Cerca",
+    "replace": "Reemplazar",
+    "replaceAll": "Reemplaza todo",
+    "noResult": "No hay resultados",
+    "caseSensitive": "Distingue mayúsculas y minúsculas"
+  },
+  "error": {
+    "weAreSorry": "Lo lamentamos"
+  },
+  "editor": {
+    "bold": "Negrita",
+    "bulletedList": "Lista con viñetas",
+    "embedCode": "Código de inserción",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Destacar",
+    "color": "Color",
+    "image": "Imagen",
+    "italic": "Itálico",
+    "link": "Enlace",
+    "numberedList": "Lista numerada",
+    "quote": "Cita",
+    "strikethrough": "Tachado",
+    "text": "Texto",
+    "underline": "Subrayar",
+    "fontColorDefault": "Por defecto",
+    "fontColorGray": "Gris",
+    "fontColorBrown": "Marrón",
+    "fontColorOrange": "Naranja",
+    "fontColorYellow": "Amarillo",
+    "fontColorGreen": "Verde",
+    "fontColorBlue": "Azul",
+    "fontColorPurple": "Púrpura",
+    "fontColorPink": "Rosa",
+    "fontColorRed": "Rojo",
+    "backgroundColorDefault": "Fondo predeterminado",
+    "backgroundColorGray": "fondo gris",
+    "backgroundColorBrown": "fondo marrón",
+    "backgroundColorOrange": "fondo naranja",
+    "backgroundColorYellow": "fondo amarillo",
+    "backgroundColorGreen": "fondo verde",
+    "backgroundColorBlue": "Fondo azul",
+    "backgroundColorPurple": "fondo morado",
+    "backgroundColorPink": "fondo rosa",
+    "backgroundColorRed": "fondo rojo"
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -8,22 +9,25 @@ part 'select_option_cell_bloc.freezed.dart';
 
 class SelectOptionCellBloc
     extends Bloc<SelectOptionCellEvent, SelectOptionCellState> {
+  SelectOptionCellBloc({required this.cellController})
+      : super(SelectOptionCellState.initial(cellController)) {
+    _dispatch();
+  }
+
   final SelectOptionCellController cellController;
   void Function()? _onCellChangedFn;
 
-  SelectOptionCellBloc({
-    required this.cellController,
-  }) : super(SelectOptionCellState.initial(cellController)) {
+  void _dispatch() {
     on<SelectOptionCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialCell value) async {
+        await event.when(
+          initial: () async {
             _startListening();
           },
-          didReceiveOptions: (_DidReceiveOptions value) {
+          didReceiveOptions: (List<SelectOptionPB> selectedOptions) {
             emit(
               state.copyWith(
-                selectedOptions: value.selectedOptions,
+                selectedOptions: selectedOptions,
               ),
             );
           },
@@ -43,16 +47,16 @@ class SelectOptionCellBloc
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((selectOptionContext) {
+    _onCellChangedFn = cellController.addListener(
+      onCellChanged: (selectOptionCellData) {
         if (!isClosed) {
           add(
             SelectOptionCellEvent.didReceiveOptions(
-              selectOptionContext?.selectOptions ?? [],
+              selectOptionCellData?.selectOptions ?? [],
             ),
           );
         }
-      }),
+      },
     );
   }
 }
@@ -71,8 +75,10 @@ class SelectOptionCellState with _$SelectOptionCellState {
     required List<SelectOptionPB> selectedOptions,
   }) = _SelectOptionCellState;
 
-  factory SelectOptionCellState.initial(SelectOptionCellController context) {
-    final data = context.getCellData();
+  factory SelectOptionCellState.initial(
+    SelectOptionCellController cellController,
+  ) {
+    final data = cellController.getCellData();
 
     return SelectOptionCellState(
       selectedOptions: data?.selectOptions ?? [],

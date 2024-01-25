@@ -18,8 +18,9 @@ import 'package:styled_widget/styled_widget.dart';
 typedef NaviAction = void Function();
 
 class NavigationNotifier with ChangeNotifier {
-  List<NavigationItem> navigationItems;
   NavigationNotifier({required this.navigationItems});
+
+  List<NavigationItem> navigationItems;
 
   void update(PageNotifier notifier) {
     if (navigationItems != notifier.plugin.widgetBuilder.navigationItems) {
@@ -89,7 +90,7 @@ class FlowyNavigation extends StatelessWidget {
             ),
           );
         } else {
-          return Container();
+          return const SizedBox.shrink();
         }
       },
     );
@@ -134,8 +135,9 @@ class FlowyNavigation extends StatelessWidget {
 }
 
 class NaviItemWidget extends StatelessWidget {
-  final NavigationItem item;
   const NaviItemWidget(this.item, {super.key});
+
+  final NavigationItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -146,8 +148,9 @@ class NaviItemWidget extends StatelessWidget {
 }
 
 class NaviItemDivider extends StatelessWidget {
-  final Widget child;
   const NaviItemDivider({super.key, required this.child});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +161,9 @@ class NaviItemDivider extends StatelessWidget {
 }
 
 class EllipsisNaviItem extends NavigationItem {
+  EllipsisNaviItem({required this.items});
+
   final List<NavigationItem> items;
-  EllipsisNaviItem({
-    required this.items,
-  });
 
   @override
   Widget get leftBarItem => FlowyText.medium(

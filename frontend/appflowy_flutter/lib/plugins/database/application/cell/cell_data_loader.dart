@@ -1,4 +1,10 @@
-part of 'cell_service.dart';
+import 'dart:convert';
+
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+
+import 'cell_controller.dart';
+import 'cell_service.dart';
 
 abstract class IGridCellDataConfig {
   // The cell data will reload if it receives the field's change notification.
@@ -10,24 +16,28 @@ abstract class CellDataParser<T> {
 }
 
 class CellDataLoader<T> {
-  final CellBackendService service = CellBackendService();
-  final DatabaseCellContext cellContext;
-  final CellDataParser<T> parser;
-  final bool reloadOnFieldChanged;
-
   CellDataLoader({
-    required this.cellContext,
     required this.parser,
-    this.reloadOnFieldChanged = false,
+    this.reloadOnFieldChange = false,
   });
 
-  Future<T?> loadData() {
-    final fut = service.getCell(cellContext: cellContext);
-    return fut.then(
+  final CellDataParser<T> parser;
+
+  /// Reload the cell data if the field is changed.
+  final bool reloadOnFieldChange;
+
+  Future<T?> loadData({
+    required String viewId,
+    required CellContext cellContext,
+  }) {
+    return CellBackendService.getCell(
+      viewId: viewId,
+      cellContext: cellContext,
+    ).then(
       (result) => result.fold(
         (CellPB cell) {
           try {
-            // Return null the data of the cell is empty.
+            // Return null if the data of the cell is empty.
             if (cell.data.isEmpty) {
               return null;
             } else {

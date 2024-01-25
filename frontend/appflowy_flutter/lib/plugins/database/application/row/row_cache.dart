@@ -1,13 +1,13 @@
 import 'dart:collection';
 
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../cell/cell_service.dart';
+import '../cell/cell_cache.dart';
+import '../cell/cell_controller.dart';
 import 'row_list.dart';
 import 'row_service.dart';
 
@@ -28,6 +28,24 @@ abstract mixin class RowLifeCycle {
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information.
 
 class RowCache {
+  RowCache({
+    required this.viewId,
+    required RowFieldsDelegate fieldsDelegate,
+    required RowLifeCycle rowLifeCycle,
+  })  : _cellMemCache = CellMemCache(),
+        _changedNotifier = RowChangesetNotifier(),
+        _rowLifeCycle = rowLifeCycle,
+        _fieldDelegate = fieldsDelegate {
+    // Listen to field changes. If a field is deleted, we can safely remove the
+    // cells corresponding to that field from our cache.
+    fieldsDelegate.onFieldsChanged((fieldInfos) {
+      for (final fieldInfo in fieldInfos) {
+        _cellMemCache.removeCellWithFieldId(fieldInfo.id);
+      }
+      _changedNotifier.receive(const ChangedReason.fieldDidChange());
+    });
+  }
+
   final String viewId;
   final RowList _rowList = RowList();
   final CellMemCache _cellMemCache;
@@ -49,24 +67,6 @@ class RowCache {
   CellMemCache get cellCache => _cellMemCache;
   ChangedReason get changeReason => _changedNotifier.reason;
 
-  RowCache({
-    required this.viewId,
-    required RowFieldsDelegate fieldsDelegate,
-    required RowLifeCycle rowLifeCycle,
-  })  : _cellMemCache = CellMemCache(viewId: viewId),
-        _changedNotifier = RowChangesetNotifier(),
-        _rowLifeCycle = rowLifeCycle,
-        _fieldDelegate = fieldsDelegate {
-    // Listen on the changed of the fields. If the fields changed, we need to
-    // clear the cell cache with the given field id.
-    fieldsDelegate.onFieldsChanged((fieldInfos) {
-      for (final fieldInfo in fieldInfos) {
-        _cellMemCache.removeCellWithFieldId(fieldInfo.id);
-      }
-      _changedNotifier.receive(const ChangedReason.fieldDidChange());
-    });
-  }
-
   RowInfo? getRow(RowId rowId) {
     return _rowList.get(rowId);
   }
@@ -79,10 +79,10 @@ class RowCache {
     _changedNotifier.receive(const ChangedReason.setInitialRows());
   }
 
-  Future<void> dispose() async {
+  void dispose() {
     _rowLifeCycle.onRowDisposed();
     _changedNotifier.dispose();
-    await _cellMemCache.dispose();
+    _cellMemCache.dispose();
   }
 
   void applyRowsChanged(RowsChangePB changeset) {
@@ -142,7 +142,7 @@ class RowCache {
     final List<RowMetaPB> updatedList = [];
     for (final updatedRow in updatedRows) {
       for (final fieldId in updatedRow.fieldIds) {
-        final key = CellCacheKey(
+        final key = CellContext(
           fieldId: fieldId,
           rowId: updatedRow.rowId,
         );
@@ -188,7 +188,7 @@ class RowCache {
 
   RowUpdateCallback addListener({
     required RowId rowId,
-    void Function(CellContextByFieldId, ChangedReason)? onRowChanged,
+    void Function(List<CellContext>, ChangedReason)? onRowChanged,
   }) {
     void listenerHandler() async {
       if (onRowChanged != null) {
@@ -208,7 +208,7 @@ class RowCache {
     _changedNotifier.removeListener(callback);
   }
 
-  CellContextByFieldId loadCells(RowMetaPB rowMeta) {
+  List<CellContext> loadCells(RowMetaPB rowMeta) {
     final rowInfo = _rowList.get(rowMeta.id);
     if (rowInfo == null) {
       _loadRow(rowMeta.id);
@@ -217,11 +217,7 @@ class RowCache {
   }
 
   Future<void> _loadRow(RowId rowId) async {
-    final payload = RowIdPB.create()
-      ..viewId = viewId
-      ..rowId = rowId;
-
-    final result = await DatabaseEventGetRowMeta(payload).send();
+    final result = await RowBackendService.getRow(viewId: viewId, rowId: rowId);
     result.fold(
       (rowMetaPB) {
         final rowInfo = _rowList.get(rowMetaPB.id);
@@ -244,17 +240,15 @@ class RowCache {
     );
   }
 
-  CellContextByFieldId _makeCells(RowMetaPB rowMeta) {
-    // ignore: prefer_collection_literals
-    final cellContextMap = CellContextByFieldId();
-    for (final fieldInfo in _fieldDelegate.fieldInfos) {
-      cellContextMap[fieldInfo.id] = DatabaseCellContext(
-        rowMeta: rowMeta,
-        viewId: viewId,
-        fieldInfo: fieldInfo,
-      );
-    }
-    return cellContextMap;
+  List<CellContext> _makeCells(RowMetaPB rowMeta) {
+    return _fieldDelegate.fieldInfos
+        .map(
+          (fieldInfo) => CellContext(
+            rowId: rowMeta.id,
+            fieldId: fieldInfo.id,
+          ),
+        )
+        .toList();
   }
 
   RowInfo buildGridRow(RowMetaPB rowMetaPB) {
@@ -268,9 +262,9 @@ class RowCache {
 }
 
 class RowChangesetNotifier extends ChangeNotifier {
-  ChangedReason reason = const InitialListState();
-
   RowChangesetNotifier();
+
+  ChangedReason reason = const InitialListState();
 
   void receive(ChangedReason newReason) {
     reason = newReason;
@@ -319,28 +313,31 @@ class ChangedReason with _$ChangedReason {
 }
 
 class InsertedIndex {
-  final int index;
-  final RowId rowId;
   InsertedIndex({
     required this.index,
     required this.rowId,
   });
+
+  final int index;
+  final RowId rowId;
 }
 
 class DeletedIndex {
-  final int index;
-  final RowInfo rowInfo;
   DeletedIndex({
     required this.index,
     required this.rowInfo,
   });
+
+  final int index;
+  final RowInfo rowInfo;
 }
 
 class UpdatedIndex {
-  final int index;
-  final RowId rowId;
   UpdatedIndex({
     required this.index,
     required this.rowId,
   });
+
+  final int index;
+  final RowId rowId;
 }

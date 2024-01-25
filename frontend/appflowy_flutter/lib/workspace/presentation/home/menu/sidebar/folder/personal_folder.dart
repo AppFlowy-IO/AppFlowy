@@ -97,7 +97,6 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
       onEnter: (event) => setState(() => onHover = true),
       onExit: (event) => setState(() => onHover = false),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FlowyTextButton(
             LocaleKeys.sideBar_personal.tr(),

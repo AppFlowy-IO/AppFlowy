@@ -1,20 +1,20 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:protobuf/protobuf.dart';
 
 class ChecklistCellBackendService {
-  final String viewId;
-  final String fieldId;
-  final String rowId;
-
   ChecklistCellBackendService({
     required this.viewId,
     required this.fieldId,
     required this.rowId,
   });
+
+  final String viewId;
+  final String fieldId;
+  final String rowId;
 
   Future<Either<Unit, FlowyError>> create({
     required String name,

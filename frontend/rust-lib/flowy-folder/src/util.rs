@@ -1,10 +1,10 @@
 use collab_folder::Folder;
-use std::sync::Arc;
-use tracing::{event, instrument};
-
 use collab_integrate::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::folder_builder::ParentChildViews;
+use std::sync::Arc;
+use tracing::{event, instrument};
 
 use crate::entities::UserFolderPB;
 use crate::manager::FolderUser;

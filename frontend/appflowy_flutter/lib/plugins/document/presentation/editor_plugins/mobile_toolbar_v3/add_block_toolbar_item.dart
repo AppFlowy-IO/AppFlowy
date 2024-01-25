@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -56,17 +57,16 @@ Future<bool?> showAddBlockMenu(
   return showMobileBottomSheet<bool>(
     context,
     showHeader: true,
-    showCloseButton: true,
-    showDivider: false,
     showDragHandle: true,
+    showDoneButton: true,
     barrierColor: Colors.transparent,
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
     title: LocaleKeys.button_add.tr(),
-    padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
     builder: (context) {
       return Padding(
-        padding: const EdgeInsets.only(top: 12.0, bottom: 16),
+        padding: const EdgeInsets.only(bottom: 16),
         child: _AddBlockMenu(
           selection: selection,
           editorState: editorState,
@@ -213,6 +213,15 @@ class _AddBlockMenu extends StatelessWidget {
         });
       },
     ),
+
+    // date
+    _AddBlockMenuItemData(
+      blockType: ParagraphBlockKeys.type,
+      backgroundColor: const Color(0xFFF49898),
+      text: LocaleKeys.editor_date.tr(),
+      icon: FlowySvgs.date_s,
+      onTap: () => _insertBlock(dateMentionNode()),
+    ),
   ];
 
   @override
@@ -336,7 +345,7 @@ extension on EditorState {
       node,
     );
     transaction.afterSelection = Selection.collapsed(
-      Position(path: path, offset: 0),
+      Position(path: path),
     );
     transaction.selectionExtraInfo = {};
     await apply(transaction);

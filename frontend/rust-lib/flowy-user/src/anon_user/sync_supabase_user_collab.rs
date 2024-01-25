@@ -11,6 +11,7 @@ use collab_database::rows::database_row_document_id_from_row_id;
 use collab_database::user::{get_all_database_view_trackers, DatabaseViewTracker};
 use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use parking_lot::Mutex;
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
