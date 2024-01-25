@@ -57,7 +57,7 @@ void main() {
 
       final editorState = tester.editor.getCurrentEditorState();
       final first = editorState.getNodeAtPath([0])!;
-      
+
       // expect to see text aligned to the right
       await FlowyTestKeyboard.simulateKeyDownEvent(
         [

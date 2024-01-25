@@ -17,17 +17,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'checklist_cell_bloc.dart';
 import 'checklist_progress_bar.dart';
 
-class GridChecklistCellEditor extends StatefulWidget {
+class ChecklistCellEditor extends StatefulWidget {
   final ChecklistCellController cellController;
-  const GridChecklistCellEditor({required this.cellController, super.key});
+  const ChecklistCellEditor({required this.cellController, super.key});
 
   @override
-  State<GridChecklistCellEditor> createState() => _GridChecklistCellState();
+  State<ChecklistCellEditor> createState() => _GridChecklistCellState();
 }
 
-class _GridChecklistCellState extends State<GridChecklistCellEditor> {
-  late ChecklistCellBloc _bloc;
-
+class _GridChecklistCellState extends State<ChecklistCellEditor> {
   /// Focus node for the new task text field
   late final FocusNode newTaskFocusNode;
 
@@ -44,56 +42,50 @@ class _GridChecklistCellState extends State<GridChecklistCellEditor> {
         return KeyEventResult.ignored;
       },
     );
-    _bloc = ChecklistCellBloc(cellController: widget.cellController)
-      ..add(const ChecklistCellEvent.initial());
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _bloc,
-      child: BlocConsumer<ChecklistCellBloc, ChecklistCellState>(
-        listener: (context, state) {
-          if (state.tasks.isEmpty) {
-            newTaskFocusNode.requestFocus();
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: state.tasks.isEmpty
-                    ? const SizedBox.shrink()
-                    : Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                        child: ChecklistProgressBar(
-                          tasks: state.tasks,
-                          percent: state.percent,
-                        ),
+    return BlocConsumer<ChecklistCellBloc, ChecklistCellState>(
+      listener: (context, state) {
+        if (state.tasks.isEmpty) {
+          newTaskFocusNode.requestFocus();
+        }
+      },
+      builder: (context, state) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: state.tasks.isEmpty
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                      child: ChecklistProgressBar(
+                        tasks: state.tasks,
+                        percent: state.percent,
                       ),
-              ),
-              ChecklistItemList(
-                options: state.tasks,
-                onUpdateTask: () => newTaskFocusNode.requestFocus(),
-              ),
-              if (state.tasks.isNotEmpty)
-                const TypeOptionSeparator(spacing: 0.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: NewTaskItem(focusNode: newTaskFocusNode),
-              ),
-            ],
-          );
-        },
-      ),
+                    ),
+            ),
+            ChecklistItemList(
+              options: state.tasks,
+              onUpdateTask: () => newTaskFocusNode.requestFocus(),
+            ),
+            if (state.tasks.isNotEmpty) const TypeOptionSeparator(spacing: 0.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: NewTaskItem(focusNode: newTaskFocusNode),
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   void dispose() {
-    _bloc.close();
+    newTaskFocusNode.dispose();
     super.dispose();
   }
 }

@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -9,7 +12,6 @@ import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
@@ -212,6 +214,15 @@ class _AddBlockMenu extends StatelessWidget {
           await editorState.insertEmptyImageBlock(imagePlaceholderKey);
         });
       },
+    ),
+
+    // date
+    _AddBlockMenuItemData(
+      blockType: ParagraphBlockKeys.type,
+      backgroundColor: const Color(0xFFF49898),
+      text: LocaleKeys.editor_date.tr(),
+      icon: FlowySvgs.date_s,
+      onTap: () => _insertBlock(dateMentionNode()),
     ),
   ];
 

@@ -42,7 +42,7 @@ class TimestampCellBloc extends Bloc<TimestampCellEvent, TimestampCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((data) {
         if (!isClosed) {
           add(TimestampCellEvent.didReceiveCellUpdate(data));

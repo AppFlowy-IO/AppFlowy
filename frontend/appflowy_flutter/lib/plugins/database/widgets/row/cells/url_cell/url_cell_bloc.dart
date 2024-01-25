@@ -27,7 +27,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
             );
           },
           updateURL: (String url) {
-            cellController.saveCellData(url, deduplicate: true);
+            cellController.saveCellData(url, debounce: true);
           },
         );
       },
@@ -45,7 +45,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((cellData) {
         if (!isClosed) {
           add(URLCellEvent.didReceiveCellUpdate(cellData));

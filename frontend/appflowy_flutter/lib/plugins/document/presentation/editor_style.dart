@@ -252,9 +252,7 @@ class EditorStyleCustomizer {
           key: ValueKey(
             switch (type) {
               MentionType.page => mention[MentionBlockKeys.pageId],
-              MentionType.date ||
-              MentionType.reminder =>
-                mention[MentionBlockKeys.date],
+              MentionType.date => mention[MentionBlockKeys.date],
               _ => MentionBlockKeys.mention,
             },
           ),

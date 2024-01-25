@@ -1,16 +1,16 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
-
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 
-import '../cell_builder.dart';
+import '../../cell/editable_cell_builder.dart';
 
 class GridCellAccessoryBuildContext {
   final BuildContext anchorContext;
@@ -52,13 +52,14 @@ abstract mixin class GridCellAccessoryState {
 }
 
 class PrimaryCellAccessory extends StatefulWidget {
-  final VoidCallback onTapCallback;
-  final bool isCellEditing;
   const PrimaryCellAccessory({
-    required this.onTapCallback,
-    required this.isCellEditing,
     super.key,
+    required this.onTap,
+    required this.isCellEditing,
   });
+
+  final VoidCallback onTap;
+  final bool isCellEditing;
 
   @override
   State<StatefulWidget> createState() => _PrimaryCellAccessoryState();
@@ -85,7 +86,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
   }
 
   @override
-  void onTap() => widget.onTapCallback();
+  void onTap() => widget.onTap();
 
   @override
   bool enable() => !widget.isCellEditing;

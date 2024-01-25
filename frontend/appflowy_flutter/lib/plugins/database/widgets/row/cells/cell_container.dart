@@ -6,10 +6,10 @@ import '../../../grid/presentation/layout/sizes.dart';
 import '../../../grid/presentation/widgets/row/row.dart';
 import '../accessory/cell_accessory.dart';
 import '../accessory/cell_shortcuts.dart';
-import '../cell_builder.dart';
+import '../../cell/editable_cell_builder.dart';
 
 class CellContainer extends StatelessWidget {
-  final GridCellWidget child;
+  final EditableCellWidget child;
   final AccessoryBuilder? accessoryBuilder;
   final double width;
   final bool isPrimary;

@@ -4,7 +4,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -16,10 +15,7 @@ import 'package:go_router/go_router.dart';
 class MobileChecklistCellEditScreen extends StatefulWidget {
   const MobileChecklistCellEditScreen({
     super.key,
-    required this.cellController,
   });
-
-  final ChecklistCellController cellController;
 
   @override
   State<MobileChecklistCellEditScreen> createState() =>
@@ -32,26 +28,21 @@ class _MobileChecklistCellEditScreenState
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints.tightFor(height: 420),
-      child: BlocProvider(
-        create: (context) => ChecklistCellBloc(
-          cellController: widget.cellController,
-        )..add(const ChecklistCellEvent.initial()),
-        child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
-          builder: (context, state) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const DragHandler(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: _buildHeader(context),
-                ),
-                const Divider(),
-                const Expanded(child: _TaskList()),
-              ],
-            );
-          },
-        ),
+      child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+        builder: (context, state) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const DragHandler(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: _buildHeader(context),
+              ),
+              const Divider(),
+              const Expanded(child: _TaskList()),
+            ],
+          );
+        },
       ),
     );
   }
@@ -109,10 +100,8 @@ class _TaskList extends StatelessWidget {
         cells.add(const _NewTaskButton());
 
         return ListView.separated(
-          shrinkWrap: true,
           itemCount: cells.length,
           separatorBuilder: (_, __) => const VSpace(8),
-          physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (_, int index) => cells[index],
           padding: const EdgeInsets.only(bottom: 12.0),
         );

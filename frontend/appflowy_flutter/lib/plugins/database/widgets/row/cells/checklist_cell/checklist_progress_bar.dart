@@ -1,6 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'checklist_cell_bloc.dart';
@@ -9,13 +8,13 @@ class ChecklistProgressBar extends StatefulWidget {
   final List<ChecklistSelectOption> tasks;
   final double percent;
   final int segmentLimit = 5;
-  final double fontSize;
+  final TextStyle? textStyle;
 
   const ChecklistProgressBar({
     super.key,
     required this.tasks,
     required this.percent,
-    this.fontSize = 11,
+    this.textStyle,
   });
 
   @override
@@ -72,12 +71,9 @@ class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
           width: PlatformExtension.isDesktop ? 36 : 45,
           child: Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: FlowyText.regular(
+            child: Text(
               "${(widget.percent * 100).round()}%",
-              fontSize: widget.fontSize,
-              color: PlatformExtension.isDesktop
-                  ? Theme.of(context).hintColor
-                  : null,
+              style: widget.textStyle,
             ),
           ),
         ),
