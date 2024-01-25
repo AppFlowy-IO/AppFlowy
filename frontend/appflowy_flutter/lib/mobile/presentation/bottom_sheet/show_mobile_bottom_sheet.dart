@@ -17,9 +17,10 @@ Future<T?> showMobileBottomSheet<T>(
   bool resizeToAvoidBottomInset = true,
   bool isScrollControlled = true,
   bool showDivider = true,
+  bool useRootNavigator = false,
   ShapeBorder? shape,
   // the padding of the content, the padding of the header area is fixed
-  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 32),
+  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 0, 16, 32),
   Color? backgroundColor,
   BoxConstraints? constraints,
   Color? barrierColor,
@@ -47,6 +48,7 @@ Future<T?> showMobileBottomSheet<T>(
     barrierColor: barrierColor,
     elevation: elevation,
     shape: shape,
+    useRootNavigator: useRootNavigator,
     builder: (context) {
       final List<Widget> children = [];
 
