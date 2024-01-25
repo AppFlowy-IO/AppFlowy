@@ -55,7 +55,10 @@ Future<T?> showMobileBottomSheet<T>(
       final child = builder(context);
 
       // if the children is only one, we don't need to wrap it with a column
-      if (!showDragHandle && !showHeader && !showDivider) {
+      if (!showDragHandle &&
+          !showHeader &&
+          !showDivider &&
+          !resizeToAvoidBottomInset) {
         return child;
       }
 
@@ -73,13 +76,14 @@ Future<T?> showMobileBottomSheet<T>(
             title: title,
           ),
         );
+
+        if (showDivider) {
+          children.add(
+            const Divider(height: 1.0, thickness: 1.0),
+          );
+        }
       }
 
-      if (showDivider) {
-        children.add(
-          const Divider(height: 1.0, thickness: 1.0),
-        );
-      }
       // ----- header area -----
 
       // ----- content area -----
