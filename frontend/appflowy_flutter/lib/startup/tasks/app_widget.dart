@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -17,6 +17,8 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -173,27 +175,54 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           });
         },
         child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-          builder: (context, state) => MaterialApp.router(
-            builder: (context, child) => MediaQuery(
-              // use the 1.0 as the textScaleFactor to avoid the text size
-              //  affected by the system setting.
-              data: MediaQuery.of(context).copyWith(
-                textScaler: const TextScaler.linear(1),
+          builder: (context, state) {
+            _setSystemOverlayStyle(state);
+            return MaterialApp.router(
+              builder: (context, child) => MediaQuery(
+                // use the 1.0 as the textScaleFactor to avoid the text size
+                //  affected by the system setting.
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(1),
+                ),
+                child: overlayManagerBuilder(context, child),
               ),
-              child: overlayManagerBuilder()(context, child),
-            ),
-            debugShowCheckedModeBanner: false,
-            theme: state.lightTheme,
-            darkTheme: state.darkTheme,
-            themeMode: state.themeMode,
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            locale: state.locale,
-            routerConfig: routerConfig,
-          ),
+              debugShowCheckedModeBanner: false,
+              theme: state.lightTheme,
+              darkTheme: state.darkTheme,
+              themeMode: state.themeMode,
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: state.locale,
+              routerConfig: routerConfig,
+            );
+          },
         ),
       ),
     );
+  }
+
+  void _setSystemOverlayStyle(AppearanceSettingsState state) {
+    if (Platform.isAndroid) {
+      SystemUiOverlayStyle style = SystemUiOverlayStyle.dark;
+      final themeMode = state.themeMode;
+      if (themeMode == ThemeMode.dark) {
+        style = SystemUiOverlayStyle.light;
+      } else if (themeMode == ThemeMode.light) {
+        style = SystemUiOverlayStyle.dark;
+      } else {
+        final brightness = Theme.of(context).brightness;
+        // reverse the brightness of the system status bar.
+        style = brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark;
+      }
+
+      SystemChrome.setSystemUIOverlayStyle(
+        style.copyWith(
+          statusBarColor: Colors.transparent,
+        ),
+      );
+    }
   }
 }
 
