@@ -104,6 +104,10 @@ Future<T?> showMobileBottomSheet<T>(
       }
       // ----- content area -----
 
+      if (children.length == 1) {
+        return children.first;
+      }
+
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: children,
