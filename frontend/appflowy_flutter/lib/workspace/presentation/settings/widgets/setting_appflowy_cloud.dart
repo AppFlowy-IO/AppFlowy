@@ -20,15 +20,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppFlowyCloudViewSetting extends StatelessWidget {
-  final String serverURL;
-  final AuthenticatorType authenticatorType;
-  final VoidCallback restartAppFlowy;
   const AppFlowyCloudViewSetting({
-    required this.restartAppFlowy,
     super.key,
     this.serverURL = kAppflowyCloudUrl,
     this.authenticatorType = AuthenticatorType.appflowyCloud,
+    required this.restartAppFlowy,
   });
+
+  final String serverURL;
+  final AuthenticatorType authenticatorType;
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +81,9 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
 }
 
 class CustomAppFlowyCloudView extends StatelessWidget {
-  final VoidCallback restartAppFlowy;
   const CustomAppFlowyCloudView({required this.restartAppFlowy, super.key});
+
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +141,9 @@ class CustomAppFlowyCloudView extends StatelessWidget {
 }
 
 class AppFlowyCloudURLs extends StatelessWidget {
+  const AppFlowyCloudURLs({super.key, required this.restartAppFlowy});
+
   final VoidCallback restartAppFlowy;
-  const AppFlowyCloudURLs({
-    required this.restartAppFlowy,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -197,9 +197,10 @@ class AppFlowyCloudURLs extends StatelessWidget {
 }
 
 class AppFlowySelfhostTip extends StatelessWidget {
+  const AppFlowySelfhostTip({super.key});
+
   final url =
       "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy#build-appflowy-with-a-self-hosted-server";
-  const AppFlowySelfhostTip({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -243,19 +244,18 @@ class AppFlowySelfhostTip extends StatelessWidget {
 
 @visibleForTesting
 class CloudURLInput extends StatefulWidget {
-  final String title;
-  final String url;
-  final String hint;
-
-  final Function(String) onChanged;
-
   const CloudURLInput({
+    super.key,
     required this.title,
     required this.url,
     required this.hint,
     required this.onChanged,
-    super.key,
   });
+
+  final String title;
+  final String url;
+  final String hint;
+  final Function(String) onChanged;
 
   @override
   CloudURLInputState createState() => CloudURLInputState();

@@ -1,11 +1,10 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:dartz/dartz.dart';
 
 part 'board_setting_bloc.freezed.dart';
 
 class BoardSettingBloc extends Bloc<BoardSettingEvent, BoardSettingState> {
-  final String viewId;
   BoardSettingBloc({required this.viewId})
       : super(BoardSettingState.initial()) {
     on<BoardSettingEvent>(
@@ -18,6 +17,8 @@ class BoardSettingBloc extends Bloc<BoardSettingEvent, BoardSettingState> {
       },
     );
   }
+
+  final String viewId;
 }
 
 @freezed

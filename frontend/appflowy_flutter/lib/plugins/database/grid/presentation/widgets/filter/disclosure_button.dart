@@ -9,13 +9,14 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
 class DisclosureButton extends StatefulWidget {
-  final PopoverMutex popoverMutex;
-  final Function(FilterDisclosureAction) onAction;
   const DisclosureButton({
+    super.key,
     required this.popoverMutex,
     required this.onAction,
-    super.key,
   });
+
+  final PopoverMutex popoverMutex;
+  final Function(FilterDisclosureAction) onAction;
 
   @override
   State<DisclosureButton> createState() => _DisclosureButtonState();
@@ -27,7 +28,6 @@ class _DisclosureButtonState extends State<DisclosureButton> {
     return PopoverActionList<FilterDisclosureActionWrapper>(
       asBarrier: true,
       mutex: widget.popoverMutex,
-      direction: PopoverDirection.rightWithTopAligned,
       actions: FilterDisclosureAction.values
           .map((action) => FilterDisclosureActionWrapper(action))
           .toList(),
@@ -55,9 +55,9 @@ enum FilterDisclosureAction {
 }
 
 class FilterDisclosureActionWrapper extends ActionCell {
-  final FilterDisclosureAction inner;
-
   FilterDisclosureActionWrapper(this.inner);
+
+  final FilterDisclosureAction inner;
 
   @override
   Widget? leftIcon(Color iconColor) => null;

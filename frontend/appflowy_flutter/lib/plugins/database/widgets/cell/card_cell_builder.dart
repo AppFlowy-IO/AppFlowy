@@ -16,9 +16,9 @@ import 'card_cell_skeleton/url_card_cell.dart';
 typedef CardCellStyleMap = Map<FieldType, CardCellStyle>;
 
 class CardCellBuilder {
-  final DatabaseController databaseController;
-
   CardCellBuilder({required this.databaseController});
+
+  final DatabaseController databaseController;
 
   Widget build({
     required CellContext cellContext,

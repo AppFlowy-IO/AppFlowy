@@ -247,7 +247,7 @@ extension EditorStateAddBlock on EditorState {
       transaction
         ..insertNode(path, insertedNode)
         ..afterSelection = Selection.collapsed(
-          Position(path: path, offset: 0),
+          Position(path: path),
         );
     } else {
       final path = node.path;
@@ -256,7 +256,7 @@ extension EditorStateAddBlock on EditorState {
         ..insertNode(path, insertedNode)
         ..deleteNode(node)
         ..afterSelection = Selection.collapsed(
-          Position(path: path, offset: 0),
+          Position(path: path),
         )
         ..selectionExtraInfo = null;
     }

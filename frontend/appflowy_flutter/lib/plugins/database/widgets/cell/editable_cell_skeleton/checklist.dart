@@ -16,14 +16,6 @@ import '../mobile_row_detail/mobile_row_detail_checklist_cell.dart';
 abstract class IEditableChecklistCellSkin {
   const IEditableChecklistCellSkin();
 
-  Widget build(
-    BuildContext context,
-    CellContainerNotifier cellContainerNotifier,
-    ChecklistCellBloc bloc,
-    ChecklistCellState state,
-    PopoverController popoverController,
-  );
-
   factory IEditableChecklistCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridChecklistCellSkin(),
@@ -32,19 +24,27 @@ abstract class IEditableChecklistCellSkin {
       EditableCellStyle.mobileRowDetail => MobileRowDetailChecklistCellSkin(),
     };
   }
+
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    ChecklistCellBloc bloc,
+    ChecklistCellState state,
+    PopoverController popoverController,
+  );
 }
 
 class EditableChecklistCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableChecklistCellSkin skin;
-
   EditableChecklistCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableChecklistCellSkin skin;
 
   @override
   GridCellState<EditableChecklistCell> createState() =>

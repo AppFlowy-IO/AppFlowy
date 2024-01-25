@@ -67,7 +67,7 @@ class OptionActionList extends StatelessWidget {
       endNode = endNode.children.last;
     }
 
-    final start = Position(path: startNode.path, offset: 0);
+    final start = Position(path: startNode.path);
     final end = endNode.selectable?.end() ??
         Position(
           path: endNode.path,
@@ -122,7 +122,6 @@ class OptionActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.center,
       child: MouseRegion(
         cursor: SystemMouseCursors.grab,
         child: IgnoreParentGestureWidget(

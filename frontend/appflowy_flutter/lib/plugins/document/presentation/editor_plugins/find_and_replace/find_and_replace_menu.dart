@@ -31,7 +31,6 @@ class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(

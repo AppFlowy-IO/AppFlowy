@@ -94,14 +94,12 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
               size: const Size.square(iconWidth),
             ),
             width: iconWidth,
-            iconPadding: EdgeInsets.zero,
             onPressed: () => _popOrBack(),
           ),
         ),
         SizedBox(
           height: 44.0,
           child: Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               _headerTitle(),
               fontSize: 18,
@@ -335,7 +333,6 @@ class _SelectOption extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         onTap: () => onCheck(!checked),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // check icon
             FlowySvg(
@@ -450,8 +447,6 @@ class _MoreOptionsState extends State<_MoreOptions> {
           ),
           const VSpace(4.0),
           FlowyOptionDecorateBox(
-            showTopBorder: true,
-            showBottomBorder: true,
             child: Padding(
               padding: const EdgeInsets.only(
                 top: 12.0,

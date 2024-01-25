@@ -13,10 +13,10 @@ import 'package:flowy_infra/uuid.dart';
 
 /// Only used for testing.
 class AppFlowyCloudMockAuthService implements AuthService {
-  final String userEmail;
-
   AppFlowyCloudMockAuthService({String? email})
       : userEmail = email ?? "${uuid()}@appflowy.io";
+
+  final String userEmail;
 
   final BackendAuthService _appFlowyAuthService =
       BackendAuthService(AuthenticatorPB.Supabase);
@@ -63,7 +63,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
           },
         );
         Log.info("UserEventOauthSignIn with payload: $payload");
-        return await UserEventOauthSignIn(payload).send().then((value) {
+        return UserEventOauthSignIn(payload).send().then((value) {
           value.fold((l) => null, (err) => Log.error(err));
           return value.swap();
         });

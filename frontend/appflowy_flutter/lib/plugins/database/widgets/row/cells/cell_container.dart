@@ -9,11 +9,6 @@ import '../accessory/cell_shortcuts.dart';
 import '../../cell/editable_cell_builder.dart';
 
 class CellContainer extends StatelessWidget {
-  final EditableCellWidget child;
-  final AccessoryBuilder? accessoryBuilder;
-  final double width;
-  final bool isPrimary;
-
   const CellContainer({
     super.key,
     required this.child,
@@ -21,6 +16,11 @@ class CellContainer extends StatelessWidget {
     required this.isPrimary,
     this.accessoryBuilder,
   });
+
+  final EditableCellWidget child;
+  final AccessoryBuilder? accessoryBuilder;
+  final double width;
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {

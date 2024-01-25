@@ -67,13 +67,10 @@ class _Header extends StatelessWidget {
                 FlowySvgs.close_s,
                 size: Size.square(iconWidth),
               ),
-              width: iconWidth,
-              iconPadding: EdgeInsets.zero,
               onPressed: () => context.pop(),
             ),
           ),
           Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               LocaleKeys.grid_settings_viewList.tr(),
               fontSize: 16,

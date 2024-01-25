@@ -183,7 +183,6 @@ class _ReminderSelector extends StatelessWidget {
     return FlowyOptionTile.text(
       text: 'Reminder',
       trailing: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const HSpace(6.0),
           FlowyText(
@@ -247,7 +246,6 @@ class _ReminderSelectHeader extends StatelessWidget {
     return SizedBox(
       height: 56,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
@@ -370,7 +368,6 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
                 builder: (context) => ConstrainedBox(
                   constraints: const BoxConstraints(maxHeight: 300),
                   child: CupertinoDatePicker(
-                    showDayOfWeek: false,
                     mode: CupertinoDatePickerMode.time,
                     use24hFormat: use24hFormat,
                     onDateTimeChanged: (dateTime) {
@@ -403,7 +400,6 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
           color: Theme.of(context).colorScheme.secondaryContainer,
           border: Border.all(
             color: Theme.of(context).colorScheme.outline,
-            width: 1,
           ),
         ),
         child: Row(children: children),

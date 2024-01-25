@@ -60,7 +60,6 @@ void main() {
         rowIndex: 0,
         fieldType: FieldType.RichText,
         content: 'hello',
-        cellIndex: 0,
       );
 
       await tester.assertCellContent(

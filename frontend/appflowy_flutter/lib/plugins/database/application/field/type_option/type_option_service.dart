@@ -4,13 +4,13 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 
 class TypeOptionBackendService {
-  final String viewId;
-  final String fieldId;
-
   TypeOptionBackendService({
     required this.viewId,
     required this.fieldId,
   });
+
+  final String viewId;
+  final String fieldId;
 
   Future<Either<SelectOptionPB, FlowyError>> newOption({
     required String name,

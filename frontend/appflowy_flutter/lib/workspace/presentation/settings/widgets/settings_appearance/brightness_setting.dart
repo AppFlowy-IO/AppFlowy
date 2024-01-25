@@ -13,8 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'theme_setting_entry_template.dart';
 
 class BrightnessSetting extends StatelessWidget {
-  final ThemeMode currentThemeMode;
   const BrightnessSetting({required this.currentThemeMode, super.key});
+
+  final ThemeMode currentThemeMode;
 
   @override
   Widget build(BuildContext context) {

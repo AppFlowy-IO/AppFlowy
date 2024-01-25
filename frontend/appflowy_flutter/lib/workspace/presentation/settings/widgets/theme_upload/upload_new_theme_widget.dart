@@ -17,7 +17,6 @@ class UploadNewThemeWidget extends StatelessWidget {
           .withOpacity(ThemeUploadWidget.fadeOpacity),
       padding: ThemeUploadWidget.padding,
       child: Column(
-        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(),

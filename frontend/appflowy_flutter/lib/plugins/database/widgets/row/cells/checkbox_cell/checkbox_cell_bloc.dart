@@ -7,12 +7,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
-  final CheckboxCellController cellController;
-  void Function()? _onCellChangedFn;
-
   CheckboxCellBloc({
     required this.cellController,
   }) : super(CheckboxCellState.initial(cellController)) {
+    _dispatch();
+  }
+
+  final CheckboxCellController cellController;
+  void Function()? _onCellChangedFn;
+
+  void _dispatch() {
     on<CheckboxCellEvent>(
       (event, emit) {
         event.when(

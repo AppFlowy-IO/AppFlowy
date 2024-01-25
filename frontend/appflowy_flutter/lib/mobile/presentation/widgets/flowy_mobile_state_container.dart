@@ -45,7 +45,6 @@ class FlowyMobileStateContainer extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               emoji ??

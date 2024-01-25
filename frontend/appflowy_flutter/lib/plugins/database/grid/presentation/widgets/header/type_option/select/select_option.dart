@@ -15,11 +15,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'select_option_editor.dart';
 
 class SelectOptionTypeOptionWidget extends StatelessWidget {
-  final List<SelectOptionPB> options;
-  final VoidCallback beginEdit;
-  final ISelectOptionAction typeOptionAction;
-  final PopoverMutex? popoverMutex;
-
   const SelectOptionTypeOptionWidget({
     super.key,
     required this.options,
@@ -27,6 +22,11 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
     required this.typeOptionAction,
     this.popoverMutex,
   });
+
+  final List<SelectOptionPB> options;
+  final VoidCallback beginEdit;
+  final ISelectOptionAction typeOptionAction;
+  final PopoverMutex? popoverMutex;
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +89,10 @@ class _OptionTitle extends StatelessWidget {
 }
 
 class _OptionCell extends StatefulWidget {
+  const _OptionCell({required this.option, this.popoverMutex});
+
   final SelectOptionPB option;
   final PopoverMutex? popoverMutex;
-  const _OptionCell({required this.option, this.popoverMutex});
 
   @override
   State<_OptionCell> createState() => _OptionCellState();
@@ -185,12 +186,9 @@ class _AddOptionButton extends StatelessWidget {
 }
 
 class CreateOptionTextField extends StatefulWidget {
-  final PopoverMutex? popoverMutex;
+  const CreateOptionTextField({super.key, this.popoverMutex});
 
-  const CreateOptionTextField({
-    super.key,
-    this.popoverMutex,
-  });
+  final PopoverMutex? popoverMutex;
 
   @override
   State<CreateOptionTextField> createState() => _CreateOptionTextFieldState();

@@ -16,12 +16,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Widget that displays a list of settings that alters the appearance of the
 /// calendar
 class CalendarLayoutSetting extends StatefulWidget {
-  final DatabaseController databaseController;
-
   const CalendarLayoutSetting({
     super.key,
     required this.databaseController,
   });
+
+  final DatabaseController databaseController;
 
   @override
   State<CalendarLayoutSetting> createState() => _CalendarLayoutSettingState();

@@ -31,9 +31,6 @@ typedef FolderNotificationHandler = Function(
 );
 
 class FolderNotificationListener {
-  StreamSubscription<SubscribeObject>? _subscription;
-  FolderNotificationParser? _parser;
-
   FolderNotificationListener({
     required String objectId,
     required FolderNotificationHandler handler,
@@ -44,6 +41,9 @@ class FolderNotificationListener {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
+
+  FolderNotificationParser? _parser;
+  StreamSubscription<SubscribeObject>? _subscription;
 
   Future<void> stop() async {
     _parser = null;

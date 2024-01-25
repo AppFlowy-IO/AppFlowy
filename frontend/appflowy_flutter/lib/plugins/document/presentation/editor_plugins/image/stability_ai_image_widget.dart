@@ -40,7 +40,6 @@ class _StabilityAIImageWidgetState extends State<StabilityAIImageWidget> {
           children: [
             Expanded(
               child: FlowyTextField(
-                autoFocus: true,
                 hintText: LocaleKeys
                     .document_imageBlock_stability_ai_placeholder
                     .tr(),

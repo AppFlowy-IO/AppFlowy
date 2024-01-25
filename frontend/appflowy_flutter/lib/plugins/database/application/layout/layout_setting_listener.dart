@@ -9,11 +9,13 @@ import 'package:dartz/dartz.dart';
 typedef LayoutSettingsValue<T> = Either<T, FlowyError>;
 
 class DatabaseLayoutSettingListener {
+  DatabaseLayoutSettingListener(this.viewId);
+
   final String viewId;
+
   PublishNotifier<LayoutSettingsValue<DatabaseLayoutSettingPB>>?
       _settingNotifier = PublishNotifier();
   DatabaseNotificationListener? _listener;
-  DatabaseLayoutSettingListener(this.viewId);
 
   void start({
     required void Function(LayoutSettingsValue<DatabaseLayoutSettingPB>)

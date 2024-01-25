@@ -14,12 +14,14 @@ typedef GroupUpdateValue = Either<GroupChangesPB, FlowyError>;
 typedef GroupByNewFieldValue = Either<List<GroupPB>, FlowyError>;
 
 class DatabaseGroupListener {
+  DatabaseGroupListener(this.viewId);
+
   final String viewId;
+
   PublishNotifier<GroupUpdateValue>? _numOfGroupsNotifier = PublishNotifier();
   PublishNotifier<GroupByNewFieldValue>? _groupByFieldNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  DatabaseGroupListener(this.viewId);
 
   void start({
     required void Function(GroupUpdateValue) onNumOfGroupsChanged,

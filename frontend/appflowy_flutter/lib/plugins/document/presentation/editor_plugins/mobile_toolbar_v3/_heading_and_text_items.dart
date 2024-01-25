@@ -72,7 +72,7 @@ class _HeadingOrTextItem extends StatelessWidget {
           );
     return MobileToolbarMenuItemWrapper(
       size: const Size(76, 52),
-      onTap: () async => await _convert(isSelected),
+      onTap: () async => _convert(isSelected),
       icon: icon,
       isSelected: isSelected,
       iconPadding: padding,

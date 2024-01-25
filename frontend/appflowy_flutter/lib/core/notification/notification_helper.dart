@@ -3,18 +3,18 @@ import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
 class NotificationParser<T, E> {
-  String? id;
-  void Function(T, Either<Uint8List, E>) callback;
-
-  T? Function(int) tyParser;
-  E Function(Uint8List) errorParser;
-
   NotificationParser({
     this.id,
     required this.callback,
     required this.errorParser,
     required this.tyParser,
   });
+
+  String? id;
+  void Function(T, Either<Uint8List, E>) callback;
+  E Function(Uint8List) errorParser;
+  T? Function(int) tyParser;
+
   void parse(SubscribeObject subject) {
     if (id != null) {
       if (subject.id != id) {

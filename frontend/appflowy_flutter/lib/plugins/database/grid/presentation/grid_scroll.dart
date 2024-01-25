@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class GridScrollController {
-  final LinkedScrollControllerGroup _scrollGroupController;
-  final ScrollController verticalController;
-  final ScrollController horizontalController;
-
-  final List<ScrollController> _linkHorizontalControllers = [];
-
   GridScrollController({
     required LinkedScrollControllerGroup scrollGroupController,
   })  : _scrollGroupController = scrollGroupController,
         verticalController = ScrollController(),
         horizontalController = scrollGroupController.addAndGet();
+
+  final LinkedScrollControllerGroup _scrollGroupController;
+  final ScrollController verticalController;
+  final ScrollController horizontalController;
+
+  final List<ScrollController> _linkHorizontalControllers = [];
 
   ScrollController linkHorizontalController() {
     final controller = _scrollGroupController.addAndGet();

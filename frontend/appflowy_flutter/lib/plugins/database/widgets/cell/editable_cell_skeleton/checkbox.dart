@@ -15,13 +15,6 @@ import '../mobile_row_detail/mobile_row_detail_checkbox_cell.dart';
 abstract class IEditableCheckboxCellSkin {
   const IEditableCheckboxCellSkin();
 
-  Widget build(
-    BuildContext context,
-    CellContainerNotifier cellContainerNotifier,
-    CheckboxCellBloc bloc,
-    CheckboxCellState state,
-  );
-
   factory IEditableCheckboxCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridCheckboxCellSkin(),
@@ -30,19 +23,26 @@ abstract class IEditableCheckboxCellSkin {
       EditableCellStyle.mobileRowDetail => MobileRowDetailCheckboxCellSkin(),
     };
   }
+
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    CheckboxCellBloc bloc,
+    CheckboxCellState state,
+  );
 }
 
 class EditableCheckboxCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableCheckboxCellSkin skin;
-
   EditableCheckboxCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableCheckboxCellSkin skin;
 
   @override
   GridCellState<EditableCheckboxCell> createState() => _CheckboxCellState();

@@ -12,13 +12,15 @@ import '../../application/field/field_service.dart';
 part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
-  final FieldController fieldController;
-  final String viewId;
+  GridHeaderBloc({required this.viewId, required this.fieldController})
+      : super(GridHeaderState.initial()) {
+    _dispatch();
+  }
 
-  GridHeaderBloc({
-    required this.viewId,
-    required this.fieldController,
-  }) : super(GridHeaderState.initial()) {
+  final String viewId;
+  final FieldController fieldController;
+
+  void _dispatch() {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.when(

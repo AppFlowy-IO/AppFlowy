@@ -12,12 +12,14 @@ import '../row/row_service.dart';
 typedef UpdateFieldNotifiedValue = Either<Unit, FlowyError>;
 
 class CellListener {
+  CellListener({required this.rowId, required this.fieldId});
+
   final RowId rowId;
   final String fieldId;
+
   PublishNotifier<UpdateFieldNotifiedValue>? _updateCellNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  CellListener({required this.rowId, required this.fieldId});
 
   void start({required void Function(UpdateFieldNotifiedValue) onCellChanged}) {
     _updateCellNotifier?.addPublishListener(onCellChanged);

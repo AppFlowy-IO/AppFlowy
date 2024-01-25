@@ -10,15 +10,16 @@ import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'sizes.dart';
 
 class TrashCell extends StatelessWidget {
-  final VoidCallback onRestore;
-  final VoidCallback onDelete;
-  final TrashPB object;
   const TrashCell({
+    super.key,
     required this.object,
     required this.onRestore,
     required this.onDelete,
-    super.key,
   });
+
+  final VoidCallback onRestore;
+  final VoidCallback onDelete;
+  final TrashPB object;
 
   @override
   Widget build(BuildContext context) {

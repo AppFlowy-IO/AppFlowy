@@ -142,7 +142,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
   Widget _buildCoverWidget() {
     return FutureBuilder<Node?>(
       future: _getPageNode(),
-      builder: ((context, snapshot) {
+      builder: (context, snapshot) {
         final node = snapshot.data;
         final placeholder = Container(
           // random color, update it once we have a better placeholder
@@ -189,7 +189,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
           case CoverType.none:
             return placeholder;
         }
-      }),
+      },
     );
   }
 

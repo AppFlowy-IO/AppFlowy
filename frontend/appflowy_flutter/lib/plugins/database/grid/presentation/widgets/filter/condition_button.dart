@@ -7,13 +7,14 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
 class ConditionButton extends StatelessWidget {
-  final String conditionName;
-  final VoidCallback onTap;
   const ConditionButton({
+    super.key,
     required this.conditionName,
     required this.onTap,
-    super.key,
   });
+
+  final String conditionName;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -7,10 +7,10 @@ import 'cell_controller.dart';
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid
 /// for more information
 class CellMemCache {
+  CellMemCache();
+
   /// fieldId: {rowId: cellData}
   final Map<String, Map<RowId, dynamic>> _cellByFieldId = {};
-
-  CellMemCache();
 
   void removeCellWithFieldId(String fieldId) {
     _cellByFieldId.remove(fieldId);

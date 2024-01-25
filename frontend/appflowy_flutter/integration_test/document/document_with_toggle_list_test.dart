@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,9 +39,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -86,9 +83,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -125,9 +120,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -162,9 +155,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -176,11 +167,8 @@ void main() {
       final toggleListIcon = find.byIcon(Icons.arrow_right);
       await tester.tapButton(toggleListIcon);
 
-      await tester.editor.updateSelection(
-        Selection.collapsed(
-          Position(path: [0], offset: 0),
-        ),
-      );
+      await tester.editor
+          .updateSelection(Selection.collapsed(Position(path: [0])));
       await tester.ime.insertCharacter('\n');
 
       final editorState = tester.editor.getCurrentEditorState();
@@ -196,9 +184,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -209,7 +195,7 @@ void main() {
 
       await tester.editor.updateSelection(
         Selection.collapsed(
-          Position(path: [0], offset: 0),
+          Position(path: [0]),
         ),
       );
       await tester.simulateKeyEvent(

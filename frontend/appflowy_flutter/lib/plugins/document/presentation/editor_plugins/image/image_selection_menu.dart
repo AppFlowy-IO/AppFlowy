@@ -56,7 +56,6 @@ extension InsertImage on EditorState {
     transaction.afterSelection = Selection.collapsed(
       Position(
         path: node.path.next,
-        offset: 0,
       ),
     );
     transaction.selectionExtraInfo = {};
