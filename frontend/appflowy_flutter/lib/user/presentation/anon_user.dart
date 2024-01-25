@@ -8,8 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AnonUserList extends StatelessWidget {
-  final VoidCallback didOpenUser;
   const AnonUserList({required this.didOpenUser, super.key});
+
+  final VoidCallback didOpenUser;
 
   @override
   Widget build(BuildContext context) {
@@ -59,15 +60,16 @@ class AnonUserList extends StatelessWidget {
 }
 
 class AnonUserItem extends StatelessWidget {
-  final VoidCallback didOpenUser;
-  final bool isSelected;
-  final UserProfilePB user;
   const AnonUserItem({
+    super.key,
     required this.user,
     required this.isSelected,
     required this.didOpenUser,
-    super.key,
   });
+
+  final UserProfilePB user;
+  final bool isSelected;
+  final VoidCallback didOpenUser;
 
   @override
   Widget build(BuildContext context) {

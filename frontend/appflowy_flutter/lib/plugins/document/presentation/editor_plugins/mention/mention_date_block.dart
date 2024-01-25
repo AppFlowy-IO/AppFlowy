@@ -104,7 +104,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               includeTime: _includeTime,
               dateFormat: appearance.dateFormat,
               timeFormat: appearance.timeFormat,
-              enableRanges: true,
               selectedReminderOption: widget.reminderOption,
               onIncludeTimeChanged: (includeTime) {
                 _includeTime = includeTime;
@@ -311,7 +310,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     //  the cursor with the new block render
     widget.editorState.updateSelectionWithReason(
       widget.editorState.selection,
-      reason: SelectionUpdateReason.transaction,
     );
   }
 

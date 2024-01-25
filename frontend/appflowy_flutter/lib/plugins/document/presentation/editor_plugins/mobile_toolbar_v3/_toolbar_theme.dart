@@ -3,6 +3,41 @@
 import 'package:flutter/material.dart';
 
 class ToolbarColorExtension extends ThemeExtension<ToolbarColorExtension> {
+  factory ToolbarColorExtension.light() => const ToolbarColorExtension(
+        toolbarBackgroundColor: Color(0xFFF3F3F8),
+        toolbarItemIconColor: Color(0xFF1F2329),
+        toolbarItemIconDisabledColor: Color(0xFF999BA0),
+        toolbarItemIconSelectedColor: Color(0x1F232914),
+        toolbarItemSelectedBackgroundColor: Color(0x1F232914),
+        toolbarMenuBackgroundColor: Color(0xFFFFFFFF),
+        toolbarMenuItemBackgroundColor: Color(0xFFF2F2F7),
+        toolbarMenuItemSelectedBackgroundColor: Color(0xFF00BCF0),
+        toolbarMenuIconColor: Color(0xFF1F2329),
+        toolbarMenuIconDisabledColor: Color(0xFF999BA0),
+        toolbarMenuIconSelectedColor: Color(0xFFFFFFFF),
+        toolbarShadowColor: Color(0x2D000000),
+      );
+
+  factory ToolbarColorExtension.dark() => const ToolbarColorExtension(
+        toolbarBackgroundColor: Color(0xFF1F2329),
+        toolbarItemIconColor: Color(0xFFF3F3F8),
+        toolbarItemIconDisabledColor: Color(0xFF55565B),
+        toolbarItemIconSelectedColor: Color(0xFF00BCF0),
+        toolbarItemSelectedBackgroundColor: Color(0xFF3A3D43),
+        toolbarMenuBackgroundColor: Color(0xFF23262B),
+        toolbarMenuItemBackgroundColor: Color(0xFF2D3036),
+        toolbarMenuItemSelectedBackgroundColor: Color(0xFF00BCF0),
+        toolbarMenuIconColor: Color(0xFFF3F3F8),
+        toolbarMenuIconDisabledColor: Color(0xFF55565B),
+        toolbarMenuIconSelectedColor: Color(0xFF1F2329),
+        toolbarShadowColor: Color.fromARGB(80, 112, 112, 112),
+      );
+
+  factory ToolbarColorExtension.fromBrightness(Brightness brightness) =>
+      brightness == Brightness.light
+          ? ToolbarColorExtension.light()
+          : ToolbarColorExtension.dark();
+
   const ToolbarColorExtension({
     required this.toolbarBackgroundColor,
     required this.toolbarItemIconColor,
@@ -33,50 +68,6 @@ class ToolbarColorExtension extends ThemeExtension<ToolbarColorExtension> {
   final Color toolbarMenuIconSelectedColor;
 
   final Color toolbarShadowColor;
-
-  factory ToolbarColorExtension.fromBrightness(Brightness brightness) {
-    return brightness == Brightness.light
-        ? ToolbarColorExtension.light()
-        : ToolbarColorExtension.dark();
-  }
-
-  factory ToolbarColorExtension.light() {
-    return const ToolbarColorExtension(
-      toolbarBackgroundColor: Color(0xFFF3F3F8),
-      toolbarItemIconColor: Color(0xFF1F2329),
-      toolbarItemIconDisabledColor: Color(0xFF999BA0),
-      toolbarItemIconSelectedColor: Color(0x1F232914),
-      toolbarItemSelectedBackgroundColor: Color(0x1F232914),
-      toolbarMenuBackgroundColor: Color(0xFFFFFFFF),
-      toolbarMenuItemBackgroundColor: Color(0xFFF2F2F7),
-      toolbarMenuItemSelectedBackgroundColor: Color(0xFF00BCF0),
-      toolbarMenuIconColor: Color(0xFF1F2329),
-      toolbarMenuIconDisabledColor: Color(0xFF999BA0),
-      toolbarMenuIconSelectedColor: Color(0xFFFFFFFF),
-      toolbarShadowColor: Color(0x2D000000),
-    );
-  }
-  factory ToolbarColorExtension.dark() {
-    return const ToolbarColorExtension(
-      toolbarBackgroundColor: Color(0xFF1F2329),
-      toolbarItemIconColor: Color(0xFFF3F3F8),
-      toolbarItemIconDisabledColor: Color(0xFF55565B),
-      toolbarItemIconSelectedColor: Color(0xFF00BCF0),
-      toolbarItemSelectedBackgroundColor: Color(0xFF3A3D43),
-      toolbarMenuBackgroundColor: Color(0xFF23262B),
-      toolbarMenuItemBackgroundColor: Color(0xFF2D3036),
-      toolbarMenuItemSelectedBackgroundColor: Color(0xFF00BCF0),
-      toolbarMenuIconColor: Color(0xFFF3F3F8),
-      toolbarMenuIconDisabledColor: Color(0xFF55565B),
-      toolbarMenuIconSelectedColor: Color(0xFF1F2329),
-      toolbarShadowColor: Color.fromARGB(
-        80,
-        112,
-        112,
-        112,
-      ),
-    );
-  }
 
   static ToolbarColorExtension of(BuildContext context) {
     return Theme.of(context).extension<ToolbarColorExtension>()!;

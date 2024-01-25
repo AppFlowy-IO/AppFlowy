@@ -29,12 +29,6 @@ typedef OnDeleteGroup = void Function(List<String>);
 typedef OnInsertGroup = void Function(InsertedGroupPB);
 
 class GroupCallbacks {
-  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
-  final OnGroupByField? onGroupByField;
-  final OnUpdateGroup? onUpdateGroup;
-  final OnDeleteGroup? onDeleteGroup;
-  final OnInsertGroup? onInsertGroup;
-
   GroupCallbacks({
     this.onGroupConfigurationChanged,
     this.onGroupByField,
@@ -42,26 +36,21 @@ class GroupCallbacks {
     this.onDeleteGroup,
     this.onInsertGroup,
   });
+
+  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
+  final OnGroupByField? onGroupByField;
+  final OnUpdateGroup? onUpdateGroup;
+  final OnDeleteGroup? onDeleteGroup;
+  final OnInsertGroup? onInsertGroup;
 }
 
 class DatabaseLayoutSettingCallbacks {
-  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
+  DatabaseLayoutSettingCallbacks({required this.onLayoutSettingsChanged});
 
-  DatabaseLayoutSettingCallbacks({
-    required this.onLayoutSettingsChanged,
-  });
+  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
 }
 
 class DatabaseCallbacks {
-  OnDatabaseChanged? onDatabaseChanged;
-  OnFieldsChanged? onFieldsChanged;
-  OnFiltersChanged? onFiltersChanged;
-  OnSortsChanged? onSortsChanged;
-  OnNumOfRowsChanged? onNumOfRowsChanged;
-  OnRowsDeleted? onRowsDeleted;
-  OnRowsUpdated? onRowsUpdated;
-  OnRowsCreated? onRowsCreated;
-
   DatabaseCallbacks({
     this.onDatabaseChanged,
     this.onNumOfRowsChanged,
@@ -72,9 +61,36 @@ class DatabaseCallbacks {
     this.onRowsDeleted,
     this.onRowsCreated,
   });
+
+  OnDatabaseChanged? onDatabaseChanged;
+  OnFieldsChanged? onFieldsChanged;
+  OnFiltersChanged? onFiltersChanged;
+  OnSortsChanged? onSortsChanged;
+  OnNumOfRowsChanged? onNumOfRowsChanged;
+  OnRowsDeleted? onRowsDeleted;
+  OnRowsUpdated? onRowsUpdated;
+  OnRowsCreated? onRowsCreated;
 }
 
 class DatabaseController {
+  DatabaseController({required ViewPB view})
+      : viewId = view.id,
+        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
+        fieldController = FieldController(viewId: view.id),
+        _groupListener = DatabaseGroupListener(view.id),
+        databaseLayout = databaseLayoutFromViewLayout(view.layout),
+        _layoutListener = DatabaseLayoutSettingListener(view.id) {
+    _viewCache = DatabaseViewCache(
+      viewId: viewId,
+      fieldController: fieldController,
+    );
+
+    _listenOnRowsChanged();
+    _listenOnFieldsChanged();
+    _listenOnGroupChanged();
+    _listenOnLayoutChanged();
+  }
+
   final String viewId;
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
@@ -95,23 +111,6 @@ class DatabaseController {
   final DatabaseLayoutSettingListener _layoutListener;
 
   final ValueNotifier<bool> _isLoading = ValueNotifier(true);
-
-  DatabaseController({required ViewPB view})
-      : viewId = view.id,
-        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
-        fieldController = FieldController(viewId: view.id),
-        _groupListener = DatabaseGroupListener(view.id),
-        databaseLayout = databaseLayoutFromViewLayout(view.layout),
-        _layoutListener = DatabaseLayoutSettingListener(view.id) {
-    _viewCache = DatabaseViewCache(
-      viewId: viewId,
-      fieldController: fieldController,
-    );
-    _listenOnRowsChanged();
-    _listenOnFieldsChanged();
-    _listenOnGroupChanged();
-    _listenOnLayoutChanged();
-  }
 
   void setIsLoading(bool isLoading) {
     _isLoading.value = isLoading;

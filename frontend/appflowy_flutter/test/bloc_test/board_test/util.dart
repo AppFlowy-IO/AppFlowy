@@ -14,9 +14,9 @@ import '../../util.dart';
 import '../grid_test/util.dart';
 
 class AppFlowyBoardTest {
-  final AppFlowyUnitTest unitTest;
-
   AppFlowyBoardTest({required this.unitTest});
+
+  final AppFlowyUnitTest unitTest;
 
   static Future<AppFlowyBoardTest> ensureInitialized() async {
     final inner = await AppFlowyUnitTest.ensureInitialized();
@@ -51,7 +51,7 @@ class AppFlowyBoardTest {
 }
 
 Future<void> boardResponseFuture() {
-  return Future.delayed(boardResponseDuration(milliseconds: 200));
+  return Future.delayed(boardResponseDuration());
 }
 
 Duration boardResponseDuration({int milliseconds = 200}) {
@@ -59,10 +59,10 @@ Duration boardResponseDuration({int milliseconds = 200}) {
 }
 
 class BoardTestContext {
+  BoardTestContext(this.gridView, this._boardDataController);
+
   final ViewPB gridView;
   final DatabaseController _boardDataController;
-
-  BoardTestContext(this.gridView, this._boardDataController);
 
   List<RowInfo> get rowInfos {
     return _boardDataController.rowCache.rowInfos;

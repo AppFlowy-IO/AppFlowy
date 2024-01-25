@@ -48,7 +48,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<ViewPB>>(
       future: ancestors,
-      builder: ((context, snapshot) {
+      builder: (context, snapshot) {
         final ancestors = snapshot.data;
         if (ancestors == null) {
           return const SizedBox.shrink();
@@ -68,14 +68,13 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
               child: _ViewTitle(
                 key: ValueKey(ancestors.last),
                 view: ancestors.last,
-                behavior: _ViewTitleBehavior.editable,
                 maxTitleWidth: constraints.maxWidth - 50.0,
                 onUpdated: () => setState(() => _reloadAncestors()),
               ),
             );
           },
         );
-      }),
+      },
     );
   }
 
@@ -258,7 +257,6 @@ class _ViewTitleState extends State<_ViewTitle> {
               height: 36.0,
               width: 220,
               child: FlowyTextField(
-                autoFocus: true,
                 controller: textEditingController,
                 onSubmitted: (text) async {
                   if (text.isNotEmpty && text != name) {

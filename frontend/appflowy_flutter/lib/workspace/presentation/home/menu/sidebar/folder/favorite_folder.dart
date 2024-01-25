@@ -96,7 +96,6 @@ class _FavoriteHeaderState extends State<FavoriteHeader> {
       onEnter: (event) => setState(() => onHover = true),
       onExit: (event) => setState(() => onHover = false),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FlowyTextButton(
             LocaleKeys.sideBar_favorites.tr(),

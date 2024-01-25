@@ -1,18 +1,21 @@
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'workspace_bloc.freezed.dart';
 
 class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
+  WorkspaceBloc({required this.userService}) : super(WorkspaceState.initial()) {
+    _dispatch();
+  }
+
   final UserBackendService userService;
-  WorkspaceBloc({
-    required this.userService,
-  }) : super(WorkspaceState.initial()) {
+
+  void _dispatch() {
     on<WorkspaceEvent>(
       (event, emit) async {
         await event.map(

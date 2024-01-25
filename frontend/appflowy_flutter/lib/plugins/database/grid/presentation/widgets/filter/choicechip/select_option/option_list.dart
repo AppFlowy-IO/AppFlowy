@@ -12,15 +12,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'select_option_loader.dart';
 
 class SelectOptionFilterList extends StatelessWidget {
-  final FilterInfo filterInfo;
-  final List<String> selectedOptionIds;
-  final Function(List<String>) onSelectedOptions;
   const SelectOptionFilterList({
+    super.key,
     required this.filterInfo,
     required this.selectedOptionIds,
     required this.onSelectedOptions,
-    super.key,
   });
+
+  final FilterInfo filterInfo;
+  final List<String> selectedOptionIds;
+  final Function(List<String>) onSelectedOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +30,12 @@ class SelectOptionFilterList extends StatelessWidget {
         late SelectOptionFilterListBloc bloc;
         if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
           bloc = SelectOptionFilterListBloc(
-            viewId: filterInfo.viewId,
-            fieldPB: filterInfo.fieldInfo.field,
             selectedOptionIds: selectedOptionIds,
             delegate:
                 SingleSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
           );
         } else {
           bloc = SelectOptionFilterListBloc(
-            viewId: filterInfo.viewId,
-            fieldPB: filterInfo.fieldInfo.field,
             selectedOptionIds: selectedOptionIds,
             delegate:
                 MultiSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
@@ -81,13 +78,14 @@ class SelectOptionFilterList extends StatelessWidget {
 }
 
 class SelectOptionFilterCell extends StatefulWidget {
-  final SelectOptionPB option;
-  final bool isSelected;
   const SelectOptionFilterCell({
+    super.key,
     required this.option,
     required this.isSelected,
-    super.key,
   });
+
+  final SelectOptionPB option;
+  final bool isSelected;
 
   @override
   State<SelectOptionFilterCell> createState() => _SelectOptionFilterCellState();

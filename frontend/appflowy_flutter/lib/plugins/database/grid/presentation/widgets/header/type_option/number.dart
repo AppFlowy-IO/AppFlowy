@@ -95,14 +95,14 @@ class NumberTypeOptionEditorFactory implements TypeOptionEditorFactory {
 typedef SelectNumberFormatCallback = void Function(NumberFormatPB format);
 
 class NumberFormatList extends StatelessWidget {
-  final SelectNumberFormatCallback onSelected;
-  final NumberFormatPB selectedFormat;
-
   const NumberFormatList({
     super.key,
     required this.selectedFormat,
     required this.onSelected,
   });
+
+  final NumberFormatPB selectedFormat;
+  final SelectNumberFormatCallback onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -149,15 +149,16 @@ class NumberFormatList extends StatelessWidget {
 }
 
 class NumberFormatCell extends StatelessWidget {
+  const NumberFormatCell({
+    super.key,
+    required this.format,
+    required this.isSelected,
+    required this.onSelected,
+  });
+
   final NumberFormatPB format;
   final bool isSelected;
   final SelectNumberFormatCallback onSelected;
-  const NumberFormatCell({
-    required this.isSelected,
-    required this.format,
-    required this.onSelected,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {

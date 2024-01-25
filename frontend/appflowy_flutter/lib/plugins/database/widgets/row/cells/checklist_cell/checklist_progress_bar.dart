@@ -5,17 +5,17 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'checklist_cell_bloc.dart';
 
 class ChecklistProgressBar extends StatefulWidget {
-  final List<ChecklistSelectOption> tasks;
-  final double percent;
-  final int segmentLimit = 5;
-  final TextStyle? textStyle;
-
   const ChecklistProgressBar({
     super.key,
     required this.tasks,
     required this.percent,
     this.textStyle,
   });
+
+  final List<ChecklistSelectOption> tasks;
+  final double percent;
+  final TextStyle? textStyle;
+  final int segmentLimit = 5;
 
   @override
   State<ChecklistProgressBar> createState() => _ChecklistProgressBarState();

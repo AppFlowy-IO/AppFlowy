@@ -13,32 +13,31 @@ import '../editable_cell_builder.dart';
 import 'card_cell.dart';
 
 class TextCardCellStyle extends CardCellStyle {
-  final TextStyle textStyle;
-  final TextStyle titleTextStyle;
-  final int? maxLines;
-
   TextCardCellStyle({
     required super.padding,
     required this.textStyle,
     required this.titleTextStyle,
     this.maxLines = 1,
   });
+
+  final TextStyle textStyle;
+  final TextStyle titleTextStyle;
+  final int? maxLines;
 }
 
 class TextCardCell extends CardCell<TextCardCellStyle> with EditableCell {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-
-  final bool showNotes;
-
   const TextCardCell({
     super.key,
     required super.style,
     required this.databaseController,
     required this.cellContext,
-    this.editableNotifier,
     this.showNotes = false,
+    this.editableNotifier,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final bool showNotes;
 
   @override
   final EditableCardNotifier? editableNotifier;
@@ -134,7 +133,6 @@ class _TextCellState extends State<TextCardCell> {
               : _buildText(state, isTitle);
 
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (isTitle && widget.showNotes)
                 FlowyTooltip(

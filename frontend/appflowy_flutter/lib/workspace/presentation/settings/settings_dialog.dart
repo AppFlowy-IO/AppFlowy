@@ -19,17 +19,17 @@ const _dialogHorizontalPadding = EdgeInsets.symmetric(horizontal: 12);
 const _contentInsetPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
 
 class SettingsDialog extends StatelessWidget {
-  final VoidCallback dismissDialog;
-  final VoidCallback didLogout;
-  final VoidCallback restartApp;
-  final UserProfilePB user;
   SettingsDialog(
     this.user, {
     required this.dismissDialog,
     required this.didLogout,
     required this.restartApp,
-    Key? key,
   }) : super(key: ValueKey(user.id));
+
+  final VoidCallback dismissDialog;
+  final VoidCallback didLogout;
+  final VoidCallback restartApp;
+  final UserProfilePB user;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.shortcuts:
         return const SettingsCustomizeShortcutsWrapper();
       default:
-        return Container();
+        return const SizedBox.shrink();
     }
   }
 }

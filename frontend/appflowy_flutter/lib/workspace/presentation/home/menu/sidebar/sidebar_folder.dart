@@ -28,7 +28,6 @@ class SidebarFolder extends StatelessWidget {
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, child) {
         return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // favorite
             if (favoriteViews.isNotEmpty) ...[

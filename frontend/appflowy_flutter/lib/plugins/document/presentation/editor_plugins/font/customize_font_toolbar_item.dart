@@ -34,7 +34,7 @@ final customizeFontToolbarItem = ToolbarItem(
             Log.error('Failed to set font family: $e');
           }
         },
-        onResetFont: () async => await editorState.formatDelta(selection, {
+        onResetFont: () async => editorState.formatDelta(selection, {
           AppFlowyRichTextKeys.fontFamily: null,
         }),
         child: Padding(

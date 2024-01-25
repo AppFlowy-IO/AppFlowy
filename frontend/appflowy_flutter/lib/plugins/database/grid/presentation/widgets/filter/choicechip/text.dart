@@ -15,8 +15,9 @@ import '../filter_info.dart';
 import 'choicechip.dart';
 
 class TextFilterChoicechip extends StatefulWidget {
-  final FilterInfo filterInfo;
   const TextFilterChoicechip({required this.filterInfo, super.key});
+
+  final FilterInfo filterInfo;
 
   @override
   State<TextFilterChoicechip> createState() => _TextFilterChoicechipState();
@@ -77,8 +78,9 @@ class _TextFilterChoicechipState extends State<TextFilterChoicechip> {
 }
 
 class TextFilterEditor extends StatefulWidget {
-  final TextFilterEditorBloc bloc;
   const TextFilterEditor({required this.bloc, super.key});
+
+  final TextFilterEditorBloc bloc;
 
   @override
   State<TextFilterEditor> createState() => _TextFilterEditorState();
@@ -172,15 +174,16 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
 }
 
 class TextFilterConditionPBList extends StatelessWidget {
-  final FilterInfo filterInfo;
-  final PopoverMutex popoverMutex;
-  final Function(TextFilterConditionPB) onCondition;
   const TextFilterConditionPBList({
+    super.key,
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
-    super.key,
   });
+
+  final FilterInfo filterInfo;
+  final PopoverMutex popoverMutex;
+  final Function(TextFilterConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {
@@ -212,10 +215,10 @@ class TextFilterConditionPBList extends StatelessWidget {
 }
 
 class ConditionWrapper extends ActionCell {
+  ConditionWrapper(this.inner, this.isSelected);
+
   final TextFilterConditionPB inner;
   final bool isSelected;
-
-  ConditionWrapper(this.inner, this.isSelected);
 
   @override
   Widget? rightIcon(Color iconColor) {

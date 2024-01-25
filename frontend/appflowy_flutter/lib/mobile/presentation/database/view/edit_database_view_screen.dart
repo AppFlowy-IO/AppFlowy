@@ -127,13 +127,10 @@ class _EditDatabaseViewHeader extends StatelessWidget {
                 FlowySvgs.close_s,
                 size: Size.square(iconWidth),
               ),
-              width: iconWidth,
-              iconPadding: EdgeInsets.zero,
               onPressed: () => context.pop(),
             ),
           ),
           Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               LocaleKeys.grid_settings_editView.tr(),
               fontSize: 16,

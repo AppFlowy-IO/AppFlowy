@@ -8,24 +8,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell.dart';
 
 class DateCardCellStyle extends CardCellStyle {
-  final TextStyle textStyle;
-
   DateCardCellStyle({
     required super.padding,
     required this.textStyle,
   });
+
+  final TextStyle textStyle;
 }
 
 class DateCardCell extends CardCell<DateCardCellStyle> {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-
   const DateCardCell({
     super.key,
     required super.style,
     required this.databaseController,
     required this.cellContext,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   @override
   State<DateCardCell> createState() => _DateCellState();

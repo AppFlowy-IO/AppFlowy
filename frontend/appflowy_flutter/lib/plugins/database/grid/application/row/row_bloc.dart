@@ -1,9 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -14,12 +15,6 @@ import '../../../application/row/row_service.dart';
 part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
-  final FieldController fieldController;
-  final RowBackendService _rowBackendSvc;
-  final RowController _rowController;
-  final String viewId;
-  final String rowId;
-
   RowBloc({
     required this.fieldController,
     required this.rowId,
@@ -32,6 +27,12 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     _startListening();
     _init();
   }
+
+  final FieldController fieldController;
+  final RowBackendService _rowBackendSvc;
+  final RowController _rowController;
+  final String viewId;
+  final String rowId;
 
   @override
   Future<void> close() async {
@@ -104,10 +105,5 @@ class RowState with _$RowState {
     ChangedReason? changeReason,
   }) = _RowState;
 
-  factory RowState.initial() {
-    return const RowState(
-      cellContexts: [],
-      changeReason: null,
-    );
-  }
+  factory RowState.initial() => const RowState(cellContexts: []);
 }

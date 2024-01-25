@@ -9,10 +9,12 @@ import 'package:dartz/dartz.dart';
 typedef RowMetaCallback = void Function(RowMetaPB);
 
 class RowMetaListener {
+  RowMetaListener(this.rowId);
+
   final String rowId;
+
   RowMetaCallback? _callback;
   DatabaseNotificationListener? _listener;
-  RowMetaListener(this.rowId);
 
   void start({required RowMetaCallback callback}) {
     _callback = callback;

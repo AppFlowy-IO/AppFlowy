@@ -6,15 +6,15 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 
 class SelectOptionCellBackendService {
-  final String viewId;
-  final String fieldId;
-  final String rowId;
-
   SelectOptionCellBackendService({
     required this.viewId,
     required this.fieldId,
     required this.rowId,
   });
+
+  final String viewId;
+  final String fieldId;
+  final String rowId;
 
   Future<Either<Unit, FlowyError>> create({
     required String name,

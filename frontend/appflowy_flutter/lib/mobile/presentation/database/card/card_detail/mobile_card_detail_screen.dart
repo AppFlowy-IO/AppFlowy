@@ -233,7 +233,6 @@ class RowDetailFab extends StatelessWidget {
                 BoxShadow(
                   offset: Offset(0, 8),
                   blurRadius: 20,
-                  spreadRadius: 0,
                   color: Color(0x191F2329),
                 ),
               ],

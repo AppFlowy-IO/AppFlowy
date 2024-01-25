@@ -8,9 +8,9 @@ import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.da
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart';
 
 class SortBackendService {
-  final String viewId;
-
   SortBackendService({required this.viewId});
+
+  final String viewId;
 
   Future<Either<List<SortPB>, FlowyError>> getAllSorts() {
     final payload = DatabaseViewIdPB()..value = viewId;

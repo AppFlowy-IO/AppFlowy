@@ -32,15 +32,9 @@ void main() {
         findsNothing,
       );
 
-      await tester.createNewPageWithNameUnderParent(
-        name: _documentName,
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent(name: _documentName);
 
-      await tester.createNewPageWithNameUnderParent(
-        name: _documentTwoName,
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent(name: _documentTwoName);
 
       /// Open second menu item in a new tab
       await tester.openAppInNewTab(gettingStarted, ViewLayoutPB.Document);

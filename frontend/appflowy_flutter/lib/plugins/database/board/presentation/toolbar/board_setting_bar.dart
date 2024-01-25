@@ -3,11 +3,12 @@ import 'package:appflowy/plugins/database/widgets/setting/setting_button.dart';
 import 'package:flutter/material.dart';
 
 class BoardSettingBar extends StatelessWidget {
-  final DatabaseController databaseController;
   const BoardSettingBar({
-    required this.databaseController,
     super.key,
+    required this.databaseController,
   });
+
+  final DatabaseController databaseController;
 
   @override
   Widget build(BuildContext context) {

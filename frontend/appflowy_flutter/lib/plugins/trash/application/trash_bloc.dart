@@ -1,21 +1,26 @@
-import 'package:dartz/dartz.dart';
+import 'package:appflowy/plugins/trash/application/trash_listener.dart';
+import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:appflowy/plugins/trash/application/trash_service.dart';
-import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 
 part 'trash_bloc.freezed.dart';
 
 class TrashBloc extends Bloc<TrashEvent, TrashState> {
-  final TrashService _service;
-  final TrashListener _listener;
   TrashBloc()
       : _service = TrashService(),
         _listener = TrashListener(),
         super(TrashState.init()) {
+    _dispatch();
+  }
+
+  final TrashService _service;
+  final TrashListener _listener;
+
+  void _dispatch() {
     on<TrashEvent>((event, emit) async {
       await event.map(
         initial: (e) async {

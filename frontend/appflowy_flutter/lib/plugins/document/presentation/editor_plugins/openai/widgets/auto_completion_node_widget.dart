@@ -173,7 +173,7 @@ class _AutoCompletionBlockComponentState
       focusNode: textFieldFocusNode,
       autoFocus: false,
       hintTextConstraints: const BoxConstraints(
-        maxHeight: double.infinity,
+        
       ),
     );
   }
@@ -183,8 +183,6 @@ class _AutoCompletionBlockComponentState
     await editorState.apply(
       transaction,
       options: const ApplyOptions(
-        // disable undo/redo
-        recordRedo: false,
         recordUndo: false,
       ),
     );
@@ -229,7 +227,6 @@ class _AutoCompletionBlockComponentState
           final text = response.choices.first.text;
           await textRobot.autoInsertText(
             text,
-            inputType: TextRobotInputType.word,
             delay: Duration.zero,
           );
         }
@@ -319,7 +316,6 @@ class _AutoCompletionBlockComponentState
           final text = response.choices.first.text;
           await textRobot.autoInsertText(
             text,
-            inputType: TextRobotInputType.word,
             delay: Duration.zero,
           );
         }

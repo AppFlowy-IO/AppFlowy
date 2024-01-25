@@ -12,12 +12,13 @@ typedef UpdateFilterNotifiedValue
     = Either<FilterChangesetNotificationPB, FlowyError>;
 
 class FiltersListener {
+  FiltersListener({required this.viewId});
+
   final String viewId;
 
   PublishNotifier<UpdateFilterNotifiedValue>? _filterNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  FiltersListener({required this.viewId});
 
   void start({
     required void Function(UpdateFilterNotifiedValue) onFilterChanged,
@@ -54,6 +55,8 @@ class FiltersListener {
 }
 
 class FilterListener {
+  FilterListener({required this.viewId, required this.filterId});
+
   final String viewId;
   final String filterId;
 
@@ -61,7 +64,6 @@ class FilterListener {
   PublishNotifier<FilterPB>? _onUpdateNotifier = PublishNotifier();
 
   DatabaseNotificationListener? _listener;
-  FilterListener({required this.viewId, required this.filterId});
 
   void start({
     void Function()? onDeleted,

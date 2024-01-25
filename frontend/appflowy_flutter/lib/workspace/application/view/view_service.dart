@@ -94,7 +94,6 @@ class ViewBackendService {
       layoutType: layoutType,
       parentViewId: parentViewId,
       name: name,
-      openAfterCreate: false,
       ext: {
         'database_id': databaseId,
       },
@@ -236,7 +235,7 @@ class ViewBackendService {
     if (childViews != null && childViews.isNotEmpty) {
       result.addAll(childViews);
       final views = await Future.wait(
-        childViews.map((e) async => await getAllViews(e)),
+        childViews.map((e) async => getAllViews(e)),
       );
       result.addAll(views.expand((element) => element));
     }
