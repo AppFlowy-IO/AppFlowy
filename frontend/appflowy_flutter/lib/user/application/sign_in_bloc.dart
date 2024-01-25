@@ -46,15 +46,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           );
         },
         signedInWithOAuth: (value) async =>
-            await _performActionOnSignInWithOAuth(
-          state,
-          emit,
-          value.platform,
-        ),
-        signedInAsGuest: (value) async => await _performActionOnSignInAsGuest(
-          state,
-          emit,
-        ),
+            _performActionOnSignInWithOAuth(state, emit, value.platform),
+        signedInAsGuest: (value) async =>
+            _performActionOnSignInAsGuest(state, emit),
         emailChanged: (EmailChanged value) async {
           emit(
             state.copyWith(

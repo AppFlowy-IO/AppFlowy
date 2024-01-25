@@ -59,7 +59,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             widget.textController.value = TextEditingValue(
               text: "${text.substring(0, start)}${text.substring(end)}",
               selection: TextSelection(baseOffset: start, extentOffset: start),
-              composing: const TextRange(start: -1, end: -1),
             );
             return KeyEventResult.handled;
           }
@@ -92,7 +91,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
           widget.textController.clear();
         }
       },
-      maxLines: 1,
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(

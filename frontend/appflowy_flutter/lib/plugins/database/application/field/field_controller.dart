@@ -402,7 +402,7 @@ class FieldController {
         for (final fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder,
       };
 
-      newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
+      newFields.retainWhere((field) => deletedFieldMap[field.id] == null);
       return newFields;
     }
 

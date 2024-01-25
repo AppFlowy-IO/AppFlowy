@@ -120,9 +120,8 @@ class DateCellEditorBloc
             }
           },
           setIncludeTime: (includeTime) async =>
-              await _updateDateData(includeTime: includeTime),
-          setIsRange: (isRange) async =>
-              await _updateDateData(isRange: isRange),
+              _updateDateData(includeTime: includeTime),
+          setIsRange: (isRange) async => _updateDateData(isRange: isRange),
           setTime: (timeStr) async {
             emit(state.copyWith(timeStr: timeStr));
             await _updateDateData(timeStr: timeStr);
@@ -213,7 +212,7 @@ class DateCellEditorBloc
             }
           },
           // Empty String signifies no reminder
-          removeReminder: () async => await _updateDateData(reminderId: ""),
+          removeReminder: () async => _updateDateData(reminderId: ""),
         );
       },
     );
