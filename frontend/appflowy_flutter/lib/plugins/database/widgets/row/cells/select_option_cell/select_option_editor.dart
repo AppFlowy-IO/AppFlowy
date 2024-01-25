@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -11,7 +11,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:textfield_tags/textfield_tags.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
@@ -21,11 +20,9 @@ import 'select_option_editor_bloc.dart';
 import 'text_field.dart';
 
 const double _editorPanelWidth = 300;
-const double _padding = 12.0;
 
 class SelectOptionCellEditor extends StatefulWidget {
   final SelectOptionCellController cellController;
-  static double editorPanelWidth = 300;
 
   const SelectOptionCellEditor({super.key, required this.cellController});
 
@@ -34,13 +31,12 @@ class SelectOptionCellEditor extends StatefulWidget {
 }
 
 class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
+  final TextEditingController textEditingController = TextEditingController();
   final popoverMutex = PopoverMutex();
-  final tagController = TextfieldTagsController();
 
   @override
   void dispose() {
     popoverMutex.dispose();
-    tagController.dispose();
     super.dispose();
   }
 
@@ -56,14 +52,14 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
             mainAxisSize: MainAxisSize.min,
             children: [
               _TextField(
+                textEditingController: textEditingController,
                 popoverMutex: popoverMutex,
-                tagController: tagController,
               ),
               const TypeOptionSeparator(spacing: 0.0),
               Flexible(
                 child: _OptionList(
+                  textEditingController: textEditingController,
                   popoverMutex: popoverMutex,
-                  tagController: tagController,
                 ),
               ),
             ],
@@ -75,12 +71,12 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
 }
 
 class _OptionList extends StatelessWidget {
+  final TextEditingController textEditingController;
   final PopoverMutex popoverMutex;
-  final TextfieldTagsController tagController;
 
   const _OptionList({
+    required this.textEditingController,
     required this.popoverMutex,
-    required this.tagController,
   });
 
   @override
@@ -112,30 +108,30 @@ class _OptionList extends StatelessWidget {
               VSpace(GridSize.typeOptionSeparatorHeight),
           physics: StyledScrollPhysics(),
           itemBuilder: (_, int index) => cells[index],
-          padding: const EdgeInsets.only(top: 6.0, bottom: 12.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
         );
       },
     );
   }
 
   void onPressedAddButton(BuildContext context) {
-    final text = tagController.textEditingController?.text;
-    if (text != null) {
-      context.read<SelectOptionCellEditorBloc>().add(
-            SelectOptionEditorEvent.trySelectOption(text),
-          );
+    final text = textEditingController.text;
+    if (text.isNotEmpty) {
+      context
+          .read<SelectOptionCellEditorBloc>()
+          .add(SelectOptionEditorEvent.trySelectOption(text));
     }
-    tagController.textEditingController?.clear();
+    textEditingController.clear();
   }
 }
 
 class _TextField extends StatelessWidget {
+  final TextEditingController textEditingController;
   final PopoverMutex popoverMutex;
-  final TextfieldTagsController tagController;
 
   const _TextField({
+    required this.textEditingController,
     required this.popoverMutex,
-    required this.tagController,
   });
 
   @override
@@ -149,12 +145,12 @@ class _TextField extends StatelessWidget {
         );
 
         return Padding(
-          padding: const EdgeInsets.all(_padding),
+          padding: const EdgeInsets.all(12.0),
           child: SelectOptionTextField(
             options: state.options,
             selectedOptionMap: optionMap,
             distanceToText: _editorPanelWidth * 0.7,
-            tagController: tagController,
+            textController: textEditingController,
             textSeparators: const [','],
             onClick: () => popoverMutex.close(),
             newText: (text) {
@@ -199,7 +195,7 @@ class _Title extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: Row(
@@ -241,7 +237,7 @@ class _CreateOptionCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: SizedBox(
         height: 28,
         child: FlowyButton(
@@ -342,7 +338,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       mutex: widget.popoverMutex,
       clickHandler: PopoverClickHandler.gestureDetector,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: FlowyHover(
           resetHoverOnRebuild: false,
           style: HoverStyle(

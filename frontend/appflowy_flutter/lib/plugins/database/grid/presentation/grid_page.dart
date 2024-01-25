@@ -5,7 +5,9 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
-import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -52,11 +54,13 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     ViewPB view,
     DatabaseController controller,
     bool shrinkWrap,
+    String? initialRowId,
   ) {
     return GridPage(
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
+      initialRowId: initialRowId,
     );
   }
 
@@ -93,31 +97,55 @@ class GridPage extends StatefulWidget {
     required this.view,
     required this.databaseController,
     this.onDeleted,
+    this.initialRowId,
   });
 
   final ViewPB view;
   final DatabaseController databaseController;
   final VoidCallback? onDeleted;
+  final String? initialRowId;
 
   @override
   State<GridPage> createState() => _GridPageState();
 }
 
 class _GridPageState extends State<GridPage> {
+  bool _didOpenInitialRow = false;
+
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<GridBloc>(
-          create: (context) => GridBloc(
-            view: widget.view,
-            databaseController: widget.databaseController,
-          )..add(const GridEvent.initial()),
-        ),
-      ],
-      child: BlocBuilder<GridBloc, GridState>(
-        builder: (context, state) {
-          return state.loadingState.map(
+    return BlocProvider<GridBloc>(
+      create: (context) => GridBloc(
+        view: widget.view,
+        databaseController: widget.databaseController,
+      )..add(const GridEvent.initial()),
+      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+        listener: (context, state) {
+          final action = state.action;
+          if (action?.type == ActionType.openRow &&
+              action?.objectId == widget.view.id) {
+            final rowId = action!.arguments?[ActionArgumentKeys.rowId];
+            if (rowId != null) {
+              // If Reminder in existing database is pressed
+              // then open the row
+              _openRow(context, rowId);
+            }
+          }
+        },
+        child: BlocConsumer<GridBloc, GridState>(
+          listener: (context, state) => state.loadingState.whenOrNull(
+            // If initial row id is defined, open row details overlay
+            finish: (_) {
+              if (widget.initialRowId != null && !_didOpenInitialRow) {
+                _didOpenInitialRow = true;
+
+                _openRow(context, widget.initialRowId!);
+              }
+
+              return;
+            },
+          ),
+          builder: (context, state) => state.loadingState.map(
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
@@ -128,10 +156,38 @@ class _GridPageState extends State<GridPage> {
               ),
             ),
             idle: (_) => const SizedBox.shrink(),
-          );
-        },
+          ),
+        ),
       ),
     );
+  }
+
+  void _openRow(
+    BuildContext context,
+    String rowId,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final gridBloc = context.read<GridBloc>();
+      final rowCache = gridBloc.getRowCache(rowId);
+      final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+      if (rowMeta == null) {
+        return;
+      }
+
+      final rowController = RowController(
+        viewId: widget.view.id,
+        rowMeta: rowMeta,
+        rowCache: rowCache,
+      );
+
+      FlowyOverlay.show(
+        context: context,
+        builder: (_) => RowDetailPage(
+          databaseController: context.read<GridBloc>().databaseController,
+          rowController: rowController,
+        ),
+      );
+    });
   }
 }
 
@@ -223,7 +279,7 @@ class _GridRows extends StatelessWidget {
                 reorderSingleRow: (reorderRow, rowInfo) => true,
                 delete: (item) => true,
                 insert: (item) => true,
-                orElse: () => false,
+                orElse: () => true,
               ),
               builder: (context, state) {
                 final rowInfos = state.rowInfos;
@@ -275,10 +331,9 @@ class _GridRows extends StatelessWidget {
       ),
       onReorder: (fromIndex, newIndex) {
         final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-        if (fromIndex == toIndex) {
-          return;
+        if (fromIndex != toIndex) {
+          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
         }
-        context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
       },
       itemCount: children.length,
       itemBuilder: (context, index) => children[index],
@@ -292,7 +347,8 @@ class _GridRows extends StatelessWidget {
     required bool isDraggable,
     Animation<double>? animation,
   }) {
-    final rowCache = context.read<GridBloc>().getRowCache(rowId);
+    final databaseController = context.read<GridBloc>().databaseController;
+    final DatabaseController(:viewId, :rowCache) = databaseController;
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
     /// Return placeholder widget if the rowMeta is null.
@@ -300,9 +356,6 @@ class _GridRows extends StatelessWidget {
       Log.warn('RowMeta is null for rowId: $rowId');
       return const SizedBox.shrink();
     }
-
-    final fieldController =
-        context.read<GridBloc>().databaseController.fieldController;
     final rowController = RowController(
       viewId: viewId,
       rowMeta: rowMeta,
@@ -311,20 +364,20 @@ class _GridRows extends StatelessWidget {
 
     final child = GridRow(
       key: ValueKey(rowMeta.id),
+      fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,
       index: index,
       isDraggable: isDraggable,
-      dataController: rowController,
-      cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
+      rowController: rowController,
+      cellBuilder: EditableCellBuilder(databaseController: databaseController),
       openDetailPage: (context, cellBuilder) {
         FlowyOverlay.show(
           context: context,
           builder: (BuildContext context) {
             return RowDetailPage(
-              cellBuilder: cellBuilder,
               rowController: rowController,
-              fieldController: fieldController,
+              databaseController: databaseController,
             );
           },
         );

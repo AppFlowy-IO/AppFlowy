@@ -15,12 +15,10 @@ class RowDocument extends StatelessWidget {
     super.key,
     required this.viewId,
     required this.rowId,
-    required this.scrollController,
   });
 
   final String viewId;
   final String rowId;
-  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +37,6 @@ class RowDocument extends StatelessWidget {
             ),
             finish: () => RowEditor(
               viewPB: state.viewPB!,
-              scrollController: scrollController,
               onIsEmptyChanged: (isEmpty) => context
                   .read<RowDocumentBloc>()
                   .add(RowDocumentEvent.updateIsEmpty(isEmpty)),
@@ -55,12 +52,10 @@ class RowEditor extends StatefulWidget {
   const RowEditor({
     super.key,
     required this.viewPB,
-    required this.scrollController,
     this.onIsEmptyChanged,
   });
 
   final ViewPB viewPB;
-  final ScrollController scrollController;
   final void Function(bool)? onIsEmptyChanged;
 
   @override
@@ -119,7 +114,7 @@ class _RowEditorState extends State<RowEditor> {
                   shrinkWrap: true,
                   autoFocus: false,
                   editorState: editorState,
-                  scrollController: widget.scrollController,
+                  // scrollController: widget.scrollController,
                   styleCustomizer: EditorStyleCustomizer(
                     context: context,
                     padding: const EdgeInsets.only(left: 16, right: 54),

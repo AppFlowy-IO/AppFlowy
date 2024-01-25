@@ -61,12 +61,15 @@ class RowBackendService {
     );
   }
 
-  Future<Either<OptionalRowPB, FlowyError>> getRow(RowId rowId) {
-    final payload = RowIdPB.create()
+  static Future<Either<RowMetaPB, FlowyError>> getRow({
+    required String viewId,
+    required String rowId,
+  }) {
+    final payload = RowIdPB()
       ..viewId = viewId
       ..rowId = rowId;
 
-    return DatabaseEventGetRow(payload).send();
+    return DatabaseEventGetRowMeta(payload).send();
   }
 
   Future<Either<RowMetaPB, FlowyError>> getRowMeta(RowId rowId) {
