@@ -25,6 +25,7 @@ Future<T?> showMobileBottomSheet<T>(
   BoxConstraints? constraints,
   Color? barrierColor,
   double? elevation,
+  bool showDoneButton = false,
 }) async {
   assert(() {
     if (showCloseButton || title.isNotEmpty) assert(showHeader);
@@ -73,6 +74,7 @@ Future<T?> showMobileBottomSheet<T>(
         children.add(
           _Header(
             showCloseButton: showCloseButton,
+            showDoneButton: showDoneButton,
             title: title,
           ),
         );
@@ -120,10 +122,12 @@ class _Header extends StatelessWidget {
   const _Header({
     required this.showCloseButton,
     required this.title,
+    required this.showDoneButton,
   });
 
   final bool showCloseButton;
   final String title;
+  final bool showDoneButton;
 
   @override
   Widget build(BuildContext context) {
@@ -131,24 +135,36 @@ class _Header extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4.0),
       child: SizedBox(
         height: 44.0, // the height of the header area is fixed
-        child: Row(
-          mainAxisAlignment: showCloseButton
-              ? MainAxisAlignment.spaceBetween
-              : MainAxisAlignment.center,
+        child: Stack(
           children: [
             if (showCloseButton)
-              const Padding(
-                padding: EdgeInsets.only(left: 16),
-                child: AppBarCloseButton(
-                  margin: EdgeInsets.zero,
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 16),
+                  child: AppBarCloseButton(
+                    margin: EdgeInsets.zero,
+                  ),
                 ),
               ),
-            FlowyText(
-              title,
-              fontSize: 16.0,
-              fontWeight: FontWeight.w500,
+            Align(
+              alignment: Alignment.center,
+              child: FlowyText(
+                title,
+                fontSize: 16.0,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            if (showCloseButton) const HSpace(40), // used to align the title
+            if (showDoneButton)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: AppBarDoneButton(
+                    onTap: () => Navigator.pop(context),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
