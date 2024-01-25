@@ -119,27 +119,30 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44.0, // the height of the header area is fixed
-      child: Row(
-        mainAxisAlignment: showCloseButton
-            ? MainAxisAlignment.spaceBetween
-            : MainAxisAlignment.center,
-        children: [
-          if (showCloseButton)
-            const Padding(
-              padding: EdgeInsets.only(left: 16),
-              child: AppBarCloseButton(
-                margin: EdgeInsets.zero,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: SizedBox(
+        height: 44.0, // the height of the header area is fixed
+        child: Row(
+          mainAxisAlignment: showCloseButton
+              ? MainAxisAlignment.spaceBetween
+              : MainAxisAlignment.center,
+          children: [
+            if (showCloseButton)
+              const Padding(
+                padding: EdgeInsets.only(left: 16),
+                child: AppBarCloseButton(
+                  margin: EdgeInsets.zero,
+                ),
               ),
+            FlowyText(
+              title,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w500,
             ),
-          FlowyText(
-            title,
-            fontSize: 16.0,
-            fontWeight: FontWeight.w500,
-          ),
-          if (showCloseButton) const HSpace(40), // used to align the title
-        ],
+            if (showCloseButton) const HSpace(40), // used to align the title
+          ],
+        ),
       ),
     );
   }

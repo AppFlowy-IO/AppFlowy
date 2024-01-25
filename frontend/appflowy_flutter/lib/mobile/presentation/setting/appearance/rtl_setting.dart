@@ -43,27 +43,24 @@ class RTLSetting extends StatelessWidget {
           builder: (context) {
             final layoutDirection =
                 context.watch<AppearanceSettingsCubit>().state.layoutDirection;
-            return Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Column(
-                children: [
-                  FlowyOptionTile.checkbox(
-                    text: LocaleKeys.settings_appearance_textDirection_ltr.tr(),
-                    isSelected: layoutDirection == LayoutDirection.ltrLayout,
-                    onTap: () => context
-                        .read<AppearanceSettingsCubit>()
-                        .setLayoutDirection(LayoutDirection.ltrLayout),
-                  ),
-                  FlowyOptionTile.checkbox(
-                    showTopBorder: false,
-                    text: LocaleKeys.settings_appearance_textDirection_rtl.tr(),
-                    isSelected: layoutDirection == LayoutDirection.rtlLayout,
-                    onTap: () => context
-                        .read<AppearanceSettingsCubit>()
-                        .setLayoutDirection(LayoutDirection.rtlLayout),
-                  ),
-                ],
-              ),
+            return Column(
+              children: [
+                FlowyOptionTile.checkbox(
+                  text: LocaleKeys.settings_appearance_textDirection_ltr.tr(),
+                  isSelected: layoutDirection == LayoutDirection.ltrLayout,
+                  onTap: () => context
+                      .read<AppearanceSettingsCubit>()
+                      .setLayoutDirection(LayoutDirection.ltrLayout),
+                ),
+                FlowyOptionTile.checkbox(
+                  showTopBorder: false,
+                  text: LocaleKeys.settings_appearance_textDirection_rtl.tr(),
+                  isSelected: layoutDirection == LayoutDirection.rtlLayout,
+                  onTap: () => context
+                      .read<AppearanceSettingsCubit>()
+                      .setLayoutDirection(LayoutDirection.rtlLayout),
+                ),
+              ],
             );
           },
         );

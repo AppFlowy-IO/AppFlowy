@@ -396,8 +396,10 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
           context,
           showHeader: true,
           title: title,
-          showCloseButton: true,
           showDragHandle: true,
+          showCloseButton: true,
+          useRootNavigator: true,
+          padding: const EdgeInsets.only(bottom: 36),
           builder: (_) {
             return AddNewPageWidgetBottomSheet(
               view: widget.view,

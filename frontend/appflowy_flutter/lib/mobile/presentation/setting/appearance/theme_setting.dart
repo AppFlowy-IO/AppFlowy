@@ -44,44 +44,41 @@ class ThemeSetting extends StatelessWidget {
           builder: (context) {
             final themeMode =
                 context.read<AppearanceSettingsCubit>().state.themeMode;
-            return Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Column(
-                children: [
-                  FlowyOptionTile.checkbox(
-                    text: LocaleKeys.settings_appearance_themeMode_system.tr(),
-                    leftIcon: const FlowySvg(
-                      FlowySvgs.m_theme_mode_system_s,
-                    ),
-                    isSelected: themeMode == ThemeMode.system,
-                    onTap: () => context
-                        .read<AppearanceSettingsCubit>()
-                        .setThemeMode(ThemeMode.system),
+            return Column(
+              children: [
+                FlowyOptionTile.checkbox(
+                  text: LocaleKeys.settings_appearance_themeMode_system.tr(),
+                  leftIcon: const FlowySvg(
+                    FlowySvgs.m_theme_mode_system_s,
                   ),
-                  FlowyOptionTile.checkbox(
-                    showTopBorder: false,
-                    text: LocaleKeys.settings_appearance_themeMode_light.tr(),
-                    leftIcon: const FlowySvg(
-                      FlowySvgs.m_theme_mode_light_s,
-                    ),
-                    isSelected: themeMode == ThemeMode.light,
-                    onTap: () => context
-                        .read<AppearanceSettingsCubit>()
-                        .setThemeMode(ThemeMode.light),
+                  isSelected: themeMode == ThemeMode.system,
+                  onTap: () => context
+                      .read<AppearanceSettingsCubit>()
+                      .setThemeMode(ThemeMode.system),
+                ),
+                FlowyOptionTile.checkbox(
+                  showTopBorder: false,
+                  text: LocaleKeys.settings_appearance_themeMode_light.tr(),
+                  leftIcon: const FlowySvg(
+                    FlowySvgs.m_theme_mode_light_s,
                   ),
-                  FlowyOptionTile.checkbox(
-                    showTopBorder: false,
-                    text: LocaleKeys.settings_appearance_themeMode_dark.tr(),
-                    leftIcon: const FlowySvg(
-                      FlowySvgs.m_theme_mode_dark_s,
-                    ),
-                    isSelected: themeMode == ThemeMode.dark,
-                    onTap: () => context
-                        .read<AppearanceSettingsCubit>()
-                        .setThemeMode(ThemeMode.dark),
+                  isSelected: themeMode == ThemeMode.light,
+                  onTap: () => context
+                      .read<AppearanceSettingsCubit>()
+                      .setThemeMode(ThemeMode.light),
+                ),
+                FlowyOptionTile.checkbox(
+                  showTopBorder: false,
+                  text: LocaleKeys.settings_appearance_themeMode_dark.tr(),
+                  leftIcon: const FlowySvg(
+                    FlowySvgs.m_theme_mode_dark_s,
                   ),
-                ],
-              ),
+                  isSelected: themeMode == ThemeMode.dark,
+                  onTap: () => context
+                      .read<AppearanceSettingsCubit>()
+                      .setThemeMode(ThemeMode.dark),
+                ),
+              ],
             );
           },
         );
