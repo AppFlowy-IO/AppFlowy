@@ -229,7 +229,7 @@ class RowContent extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ..._makeCells(context, state.cellByFieldId),
+              ..._makeCells(context, state.cellContexts),
               _finalCellDecoration(context),
             ],
           ),
@@ -240,9 +240,9 @@ class RowContent extends StatelessWidget {
 
   List<Widget> _makeCells(
     BuildContext context,
-    List<CellContext> cellByFieldId,
+    List<CellContext> cellContexts,
   ) {
-    return cellByFieldId.map(
+    return cellContexts.map(
       (cellContext) {
         final fieldInfo = fieldController.getField(cellContext.fieldId)!;
         final EditableCellWidget child = cellBuilder.buildStyled(

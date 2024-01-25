@@ -46,17 +46,19 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           createRow: () {
             _rowBackendSvc.createRowAfter(rowId);
           },
-          didReceiveCells: (List<CellContext> cellByFieldId, reason) {
-            cellByFieldId.removeWhere(
-              (cellContext) => !fieldController
-                  .getField(cellContext.fieldId)!
-                  .fieldSettings!
-                  .visibility
-                  .isVisibleState(),
-            );
+          didReceiveCells: (List<CellContext> cellContexts, reason) {
+            final visibleCellContexts = cellContexts
+                .where(
+                  (cellContext) => fieldController
+                      .getField(cellContext.fieldId)!
+                      .fieldSettings!
+                      .visibility
+                      .isVisibleState(),
+                )
+                .toList();
             emit(
               state.copyWith(
-                cellByFieldId: cellByFieldId,
+                cellContexts: visibleCellContexts,
                 changeReason: reason,
               ),
             );
@@ -98,13 +100,13 @@ class RowEvent with _$RowEvent {
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required List<CellContext> cellByFieldId,
+    required List<CellContext> cellContexts,
     ChangedReason? changeReason,
   }) = _RowState;
 
   factory RowState.initial() {
-    return const  RowState(
-      cellByFieldId: [],
+    return const RowState(
+      cellContexts: [],
       changeReason: null,
     );
   }
