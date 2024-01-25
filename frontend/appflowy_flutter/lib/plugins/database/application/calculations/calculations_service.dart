@@ -4,9 +4,9 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 
 class CalculationsBackendService {
-  final String viewId;
-
   const CalculationsBackendService({required this.viewId});
+
+  final String viewId;
 
   // Get Calculations (initial fetch)
   Future<Either<RepeatedCalculationsPB, FlowyError>> getCalculations() async {

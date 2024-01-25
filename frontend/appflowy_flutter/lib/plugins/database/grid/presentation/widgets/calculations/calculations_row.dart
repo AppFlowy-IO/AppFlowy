@@ -14,12 +14,12 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridCalculationsRow extends StatelessWidget {
-  final String viewId;
-
   const GridCalculationsRow({
     super.key,
     required this.viewId,
   });
+
+  final String viewId;
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +121,6 @@ class CalculateCell extends StatelessWidget {
       radius: BorderRadius.zero,
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: Row(
-        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Flexible(
@@ -146,7 +145,6 @@ class CalculateCell extends StatelessWidget {
       radius: BorderRadius.zero,
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: Row(
-        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Flexible(

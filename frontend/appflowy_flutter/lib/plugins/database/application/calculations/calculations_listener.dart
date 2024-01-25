@@ -11,13 +11,13 @@ typedef UpdateCalculationValue
     = Either<CalculationChangesetNotificationPB, FlowyError>;
 
 class CalculationsListener {
+  CalculationsListener({required this.viewId});
+
   final String viewId;
 
   PublishNotifier<UpdateCalculationValue>? _calculationNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-
-  CalculationsListener({required this.viewId});
 
   void start({
     required void Function(UpdateCalculationValue) onCalculationChanged,
