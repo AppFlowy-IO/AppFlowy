@@ -543,12 +543,11 @@ impl DatabaseViewEditor {
       Some(calculation_id) => calculation_id,
     };
 
-    let calculation = Calculation {
-      id: calculation_id,
-      field_id: params.field_id,
-      calculation_type: params.calculation_type.value(),
-      value: "".to_owned(), // Empty for non-calculated
-    };
+    let calculation = Calculation::none(
+      calculation_id,
+      params.field_id,
+      Some(params.calculation_type.value()),
+    );
 
     let changeset = self
       .calculations_controller
@@ -579,7 +578,7 @@ impl DatabaseViewEditor {
       .delegate
       .remove_calculation(&params.view_id, &params.calculation_id);
 
-    let calculation = Calculation::none(params.calculation_id, params.field_id);
+    let calculation = Calculation::none(params.calculation_id, params.field_id, None);
 
     let changeset = self
       .calculations_controller

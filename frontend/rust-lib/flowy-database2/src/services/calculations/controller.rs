@@ -14,7 +14,7 @@ use crate::services::calculations::CalculationsByFieldIdCache;
 use crate::services::database_view::DatabaseViewChangedNotifier;
 use crate::utils::cache::AnyTypeCache;
 
-use super::{Calculation, CalculationChangeset};
+use super::{Calculation, CalculationChangeset, CalculationsService};
 
 pub trait CalculationsDelegate: Send + Sync + 'static {
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
@@ -28,6 +28,7 @@ pub struct CalculationsController {
   delegate: Box<dyn CalculationsDelegate>,
   calculations_by_field_cache: CalculationsByFieldIdCache,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  calculations_service: CalculationsService,
   notifier: DatabaseViewChangedNotifier,
 }
 
@@ -55,6 +56,7 @@ impl CalculationsController {
       delegate: Box::new(delegate),
       calculations_by_field_cache: AnyTypeCache::<String>::new(),
       task_scheduler,
+      calculations_service: CalculationsService::new(),
       notifier,
     };
     this.update_cache(calculations).await;
@@ -120,7 +122,10 @@ impl CalculationsController {
         .get_cells_for_field(&self.view_id, &insert.field_id)
         .await;
 
-      let value = insert.calculate(row_cells);
+      let value = self
+        .calculations_service
+        .calculate(insert.calculation_type, row_cells);
+
       notification = Some(CalculationChangesetNotificationPB::from_insert(
         &self.view_id,
         vec![CalculationPB {
