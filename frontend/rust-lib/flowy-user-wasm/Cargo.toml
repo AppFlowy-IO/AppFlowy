@@ -1,0 +1,23 @@
+[package]
+name = "flowy-user-wasm"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+lib-dispatch = { workspace = true, features = ["wasm_build"] }
+flowy-derive = { workspace = true }
+flowy-error = { workspace = true }
+flowy-user-pub = { workspace = true }
+strum_macros = "0.25.2"
+tracing.workspace = true
+lib-infra = { workspace = true }
+collab-integrate = { workspace = true }
+protobuf.workspace = true
+bytes.workspace = true
+
+[build-dependencies]
+flowy-codegen = { workspace = true, features = ["ts"] }

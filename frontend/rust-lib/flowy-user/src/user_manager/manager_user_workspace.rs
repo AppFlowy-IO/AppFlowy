@@ -8,7 +8,7 @@ use tracing::{error, info, instrument};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_sqlite::schema::user_workspace_table;
-use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
+use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
 use lib_dispatch::prelude::af_spawn;
 
@@ -222,11 +222,13 @@ impl UserManager {
       if let Ok(pool) = self.db_pool(uid) {
         af_spawn(async move {
           if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
-            let _ = save_user_workspaces(uid, pool, &new_user_workspaces);
-            let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
-            send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
-              .payload(repeated_workspace_pbs)
-              .send();
+            if let Ok(conn) = pool.get() {
+              let _ = save_user_workspaces(uid, conn, &new_user_workspaces);
+              let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
+              send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
+                .payload(repeated_workspace_pbs)
+                .send();
+            }
           }
         });
       }
@@ -255,7 +257,7 @@ impl UserManager {
 
 pub fn save_user_workspaces(
   uid: i64,
-  pool: Arc<ConnectionPool>,
+  mut conn: DBConnection,
   user_workspaces: &[UserWorkspace],
 ) -> FlowyResult<()> {
   let user_workspaces = user_workspaces
@@ -263,7 +265,6 @@ pub fn save_user_workspaces(
     .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
     .collect::<Vec<UserWorkspaceTable>>();
 
-  let mut conn = pool.get()?;
   conn.immediate_transaction(|conn| {
     for user_workspace in user_workspaces {
       if let Err(err) = diesel::update(

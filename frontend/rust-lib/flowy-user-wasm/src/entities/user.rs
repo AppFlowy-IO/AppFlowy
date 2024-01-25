@@ -1,5 +1,6 @@
 use crate::entities::AuthenticatorPB;
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_user_pub::entities::{EncryptionType, UserProfile};
 
 #[derive(ProtoBuf, Default, Eq, PartialEq, Debug, Clone)]
 pub struct UserProfilePB {
@@ -30,6 +31,39 @@ pub struct UserProfilePB {
   #[pb(index = 9)]
   pub workspace_id: String,
 
-  #[pb(index = 1-)]
+  #[pb(index = 10)]
   pub stability_ai_key: String,
+}
+
+impl From<UserProfile> for UserProfilePB {
+  fn from(user_profile: UserProfile) -> Self {
+    let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
+      EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
+      EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::Symmetric),
+    };
+    Self {
+      id: user_profile.uid,
+      email: user_profile.email,
+      name: user_profile.name,
+      token: user_profile.token,
+      icon_url: user_profile.icon_url,
+      openai_key: user_profile.openai_key,
+      encryption_sign,
+      authenticator: user_profile.authenticator.into(),
+      workspace_id: user_profile.workspace_id,
+      stability_ai_key: user_profile.stability_ai_key,
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
+pub enum EncryptionTypePB {
+  NoEncryption = 0,
+  Symmetric = 1,
+}
+
+impl Default for EncryptionTypePB {
+  fn default() -> Self {
+    Self::NoEncryption
+  }
 }

@@ -63,10 +63,10 @@ pub type BoxFutureCallback =
 #[cfg(feature = "single_thread")]
 pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
-  T: Future + Send + 'static,
-  T::Output: Send + 'static,
+  T: Future + 'static,
+  T::Output: 'static,
 {
-  tokio::spawn(future)
+  tokio::task::spawn_local(future)
 }
 
 #[cfg(not(feature = "single_thread"))]

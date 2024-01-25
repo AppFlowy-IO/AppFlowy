@@ -16,6 +16,7 @@ if_wasm! {
 use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
 }
 
+pub use crate::plugin_provider::CollabCloudPluginProvider;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use lib_infra::future::Fut;
 use lib_infra::{if_native, if_wasm};
@@ -62,14 +63,6 @@ impl Display for CollabPluginProviderContext {
     };
     write!(f, "{}", str)
   }
-}
-
-pub trait CollabCloudPluginProvider: Send + Sync + 'static {
-  fn provider_type(&self) -> CollabPluginProviderType;
-
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>>;
-
-  fn is_sync_enabled(&self) -> bool;
 }
 
 impl<T> CollabCloudPluginProvider for Arc<T>

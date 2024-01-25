@@ -15,12 +15,12 @@ use flowy_user_pub::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
+use crate::af_cloud::define::USER_SIGN_IN_URL;
 use crate::af_cloud::impls::user::dto::{
   af_update_from_update_params, from_af_workspace_member, to_af_role, user_profile_from_af_profile,
 };
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::{AFCloudClient, AFServer};
-use crate::supabase::define::USER_SIGN_IN_URL;
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,

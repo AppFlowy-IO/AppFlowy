@@ -1,0 +1,28 @@
+[package]
+name = "appflowy-wasm"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2.89" }
+lazy_static = "1.4.0"
+lib-dispatch = { workspace = true, features = ["single_thread"] }
+parking_lot.workspace = true
+tracing.workspace = true
+tracing-core = { version = "0.1.32" }
+tracing-wasm = "0.2.1"
+serde.workspace = true
+collab-integrate = { workspace = true, features = ["wasm_build"] }
+
+flowy-notification = { workspace = true, features = ["ts"] }
+flowy-user-pub = { workspace = true }
+flowy-user-wasm.workspace = true
+flowy-server = { workspace = true, features = ["wasm_build"] }
+flowy-server-pub = { workspace = true }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error"] }
+lib-infra = { workspace = true }
+collab = { workspace = true, features = ["wasm_build"] }

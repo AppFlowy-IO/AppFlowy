@@ -1,7 +1,7 @@
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import {async_event, init_sdk, init_tracing} from "../appflowy-wasm/pkg/appflowy_wasm";
+import {async_event, init_sdk, init_tracing} from "../wasm-libs/appflowy-wasm/pkg/appflowy_wasm";
 import { useEffect } from "react";
 import { initApp } from "./application/init_app.ts";
 import { subscribeNotification } from "./application/notification.ts";

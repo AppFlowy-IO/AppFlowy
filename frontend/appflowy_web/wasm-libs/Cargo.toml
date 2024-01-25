@@ -1,0 +1,60 @@
+[workspace]
+members = [
+  "appflowy-wasm"
+]
+resolver = "2"
+
+[workspace.dependencies]
+lib-dispatch = { path = "../../rust-lib/lib-dispatch" }
+parking_lot = { version = "0.12.1" }
+tracing = { version = "0.1.22" }
+serde = { version = "1.0.194", features = ["derive"] }
+collab-integrate = { path = "../../rust-lib/collab-integrate"}
+flowy-notification = { path = "../../rust-lib/flowy-notification" }
+flowy-user-pub = { path = "../../rust-lib/flowy-user-pub" }
+flowy-user-wasm = { path = "../../rust-lib/flowy-user-wasm" }
+flowy-server = { path = "../../rust-lib/flowy-server" }
+flowy-server-pub = { path = "../../rust-lib/flowy-server-pub" }
+flowy-error = { path = "../../rust-lib/flowy-error" }
+lib-infra = { path = "../../rust-lib/lib-infra" }
+collab = { version = "0.1.0" }
+
+[profile.dev]
+opt-level = 0
+lto = false
+codegen-units = 16
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
+
+[profile.profiling]
+inherits = "release"
+debug = true
+codegen-units = 16
+lto = false
+
+[patch.crates-io]
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_client_api_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "2a7b0ad75f80fa9b8e352cd26030bba398bd6105" }
+# Please use the following script to update collab.
+# Working directory: frontend
+#
+# To update the commit ID, run:
+# scripts/tool/update_collab_rev.sh new_rev_id
+#
+# To switch to the local path, run:
+# scripts/tool/update_collab_source.sh
+# ⚠️⚠️⚠️️
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3eef93f35f606edef2541888cb91cd6686d77225" }
