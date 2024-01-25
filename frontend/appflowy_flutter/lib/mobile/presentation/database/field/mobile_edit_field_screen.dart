@@ -55,6 +55,14 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
         title: FlowyText.medium(
           LocaleKeys.grid_field_editProperty.tr(),
         ),
+        elevation: 0,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+          ),
+        ),
         leading: AppBarBackButton(
           onTap: () => context.pop(field),
         ),
