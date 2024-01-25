@@ -5,9 +5,7 @@ import 'package:appflowy/plugins/database/application/field/field_controller.dar
 import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/board.dart';
-import 'package:appflowy/plugins/database/grid/application/row/row_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -89,33 +87,10 @@ class BoardTestContext {
     return editorBloc;
   }
 
-  Future<CellController> makeCellController(String fieldId) async {
-    final builder = await makeCellControllerBuilder(fieldId);
-    return builder.build();
-  }
-
-  Future<CellControllerBuilder> makeCellControllerBuilder(
-    String fieldId,
-  ) async {
-    final RowInfo rowInfo = rowInfos.last;
-    final rowCache = _boardDataController.rowCache;
-
-    final rowDataController = RowController(
-      viewId: rowInfo.viewId,
-      rowMeta: rowInfo.rowMeta,
-      rowCache: rowCache,
-    );
-
-    final rowBloc = RowBloc(
-      viewId: rowInfo.viewId,
-      dataController: rowDataController,
-      rowId: rowInfo.rowMeta.id,
-    )..add(const RowEvent.initial());
-    await gridResponseFuture();
-
-    return CellControllerBuilder(
-      cellContext: rowBloc.state.cellByFieldId[fieldId]!,
-      cellCache: rowCache.cellCache,
+  CellController makeCellControllerFromFieldId(String fieldId) {
+    return makeCellController(
+      _boardDataController,
+      CellContext(fieldId: fieldId, rowId: rowInfos.last.rowId),
     );
   }
 

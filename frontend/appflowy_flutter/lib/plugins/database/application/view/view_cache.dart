@@ -123,7 +123,7 @@ class DatabaseViewCache {
 
   Future<void> dispose() async {
     await _databaseViewListener.stop();
-    await _rowCache.dispose();
+    _rowCache.dispose();
     _callbacks.clear();
   }
 

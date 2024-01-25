@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 const String leftAlignmentKey = 'left';
 const String centerAlignmentKey = 'center';
-const String rightAlignmentKey = 'right'; 
+const String rightAlignmentKey = 'right';
 
 final alignToolbarItem = ToolbarItem(
   id: 'editor.align',

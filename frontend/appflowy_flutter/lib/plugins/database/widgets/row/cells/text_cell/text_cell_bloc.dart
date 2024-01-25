@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'text_cell_bloc.freezed.dart';
 
 class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   final TextCellController cellController;
   void Function()? _onCellChangedFn;
+
   TextCellBloc({
     required this.cellController,
   }) : super(TextCellState.initial(cellController)) {
@@ -17,17 +19,16 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
           initial: () {
             _startListening();
           },
-          updateText: (text) {
-            if (state.content != text) {
-              cellController.saveCellData(text);
-              emit(state.copyWith(content: text));
-            }
-          },
-          didReceiveCellUpdate: (content) {
+          didReceiveCellUpdate: (String content) {
             emit(state.copyWith(content: content));
           },
           didUpdateEmoji: (String emoji) {
             emit(state.copyWith(emoji: emoji));
+          },
+          updateText: (String text) {
+            if (state.content != text) {
+              cellController.saveCellData(text, debounce: true);
+            }
           },
           enableEdit: (bool enabled) {
             emit(state.copyWith(enableEdit: enabled));
@@ -48,15 +49,15 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
+    _onCellChangedFn = cellController.addListener(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
           add(TextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
       }),
       onRowMetaChanged: () {
-        if (!isClosed) {
-          add(TextCellEvent.didUpdateEmoji(cellController.emoji ?? ""));
+        if (!isClosed && cellController.fieldInfo.isPrimary) {
+          add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));
         }
       },
     );
@@ -81,9 +82,11 @@ class TextCellState with _$TextCellState {
     required bool enableEdit,
   }) = _TextCellState;
 
-  factory TextCellState.initial(TextCellController context) => TextCellState(
-        content: context.getCellData() ?? "",
-        emoji: context.emoji ?? "",
+  factory TextCellState.initial(TextCellController cellController) =>
+      TextCellState(
+        content: cellController.getCellData() ?? "",
+        emoji:
+            cellController.fieldInfo.isPrimary ? cellController.icon ?? "" : "",
         enableEdit: false,
       );
 }

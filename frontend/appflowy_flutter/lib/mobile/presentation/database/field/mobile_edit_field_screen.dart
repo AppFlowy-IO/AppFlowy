@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
@@ -7,7 +9,6 @@ import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileEditPropertyScreen extends StatefulWidget {
@@ -54,6 +55,14 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
         title: FlowyText.medium(
           LocaleKeys.grid_field_editProperty.tr(),
         ),
+        elevation: 0,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+          ),
+        ),
         leading: AppBarBackButton(
           onTap: () => context.pop(field),
         ),
@@ -75,8 +84,8 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
             await fieldService.updateField(name: newField.name);
           }
 
-          if (newField.type != field.type) {
-            await fieldService.updateFieldType(fieldType: newField.type);
+          if (newField.type != widget.field.fieldType) {
+            await fieldService.updateType(fieldType: newField.type);
           }
 
           final data = newField.getTypeOptionData();

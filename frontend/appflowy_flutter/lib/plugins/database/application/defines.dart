@@ -1,12 +1,13 @@
 import 'dart:collection';
 
+// TODO(RS): remove dependency on presentation code
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../grid/presentation/widgets/filter/filter_info.dart';
 import 'field/field_info.dart';
 import 'row/row_cache.dart';
 import 'row/row_service.dart';
@@ -18,15 +19,15 @@ typedef OnFiltersChanged = void Function(List<FilterInfo>);
 typedef OnSortsChanged = void Function(List<SortInfo>);
 typedef OnDatabaseChanged = void Function(DatabasePB);
 
-typedef OnRowsCreated = void Function(List<RowId> ids);
+typedef OnRowsCreated = void Function(List<RowId> rowIds);
 typedef OnRowsUpdated = void Function(
-  List<RowId> ids,
+  List<RowId> rowIds,
   ChangedReason reason,
 );
-typedef OnRowsDeleted = void Function(List<RowId> ids);
+typedef OnRowsDeleted = void Function(List<RowId> rowIds);
 typedef OnNumOfRowsChanged = void Function(
   UnmodifiableListView<RowInfo> rows,
-  UnmodifiableMapView<RowId, RowInfo> rowByRowId,
+  UnmodifiableMapView<RowId, RowInfo> rowById,
   ChangedReason reason,
 );
 

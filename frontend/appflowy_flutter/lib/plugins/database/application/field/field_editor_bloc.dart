@@ -55,7 +55,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(field: fieldController.getField(fieldId)!));
           },
           switchFieldType: (fieldType) async {
-            await fieldService.updateFieldType(fieldType: fieldType);
+            await fieldService.updateType(fieldType: fieldType);
           },
           renameField: (newName) async {
             final result = await fieldService.updateField(name: newName);
@@ -70,14 +70,14 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
           },
           insertLeft: () async {
-            final result = await fieldService.insertBefore();
+            final result = await fieldService.createBefore();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           insertRight: () async {
-            final result = await fieldService.insertAfter();
+            final result = await fieldService.createAfter();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),

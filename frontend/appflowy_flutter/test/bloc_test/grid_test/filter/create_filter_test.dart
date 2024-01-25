@@ -93,7 +93,7 @@ void main() {
     );
     await gridResponseFuture();
 
-    final controller = await context.makeTextCellController(0);
+    final controller = context.makeTextCellController(0);
     controller.saveCellData("edit text cell content");
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.length == 2);

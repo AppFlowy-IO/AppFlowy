@@ -1,12 +1,9 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import 'cell_controller.dart';
-import 'cell_service.dart';
+import 'cell_data_loader.dart';
+import 'cell_data_persistence.dart';
 
 typedef TextCellController = CellController<String, String>;
 typedef CheckboxCellController = CellController<String, String>;
@@ -18,125 +15,109 @@ typedef DateCellController = CellController<DateCellDataPB, String>;
 typedef TimestampCellController = CellController<TimestampCellDataPB, String>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 
-class CellControllerBuilder {
-  final DatabaseCellContext _cellContext;
-  final CellMemCache _cellCache;
-
-  CellControllerBuilder({
-    required DatabaseCellContext cellContext,
-    required CellMemCache cellCache,
-  })  : _cellCache = cellCache,
-        _cellContext = cellContext;
-
-  CellController build() {
-    switch (_cellContext.fieldType) {
-      case FieldType.Checkbox:
-        final cellDataLoader = CellDataLoader(
-          cellContext: _cellContext,
+CellController makeCellController(
+  DatabaseController databaseController,
+  CellContext cellContext,
+) {
+  final DatabaseController(:viewId, :rowCache, :fieldController) =
+      databaseController;
+  final fieldType = fieldController.getField(cellContext.fieldId)!.fieldType;
+  switch (fieldType) {
+    case FieldType.Checkbox:
+      return TextCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
           parser: StringCellDataParser(),
-        );
-        return TextCellController(
-          cellContext: _cellContext,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          cellDataPersistence:
-              TextCellDataPersistence(cellContext: _cellContext),
-        );
-      case FieldType.DateTime:
-        final cellDataLoader = CellDataLoader(
-          cellContext: _cellContext,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.DateTime:
+      return DateCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
           parser: DateCellDataParser(),
-          reloadOnFieldChanged: true,
-        );
-        return DateCellController(
-          cellContext: _cellContext,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          cellDataPersistence:
-              TextCellDataPersistence(cellContext: _cellContext),
-        );
-      case FieldType.LastEditedTime:
-      case FieldType.CreatedTime:
-        final cellDataLoader = CellDataLoader(
-          cellContext: _cellContext,
+          reloadOnFieldChange: true,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
+      return TimestampCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
           parser: TimestampCellDataParser(),
-          reloadOnFieldChanged: true,
-        );
-        return TimestampCellController(
-          cellContext: _cellContext,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          cellDataPersistence:
-              TextCellDataPersistence(cellContext: _cellContext),
-        );
-      case FieldType.Number:
-        final cellDataLoader = CellDataLoader(
-          cellContext: _cellContext,
+          reloadOnFieldChange: true,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.Number:
+      return NumberCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
           parser: NumberCellDataParser(),
-          reloadOnFieldChanged: true,
-        );
-        return NumberCellController(
-          cellContext: _cellContext,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          cellDataPersistence:
-              TextCellDataPersistence(cellContext: _cellContext),
-        );
-      case FieldType.RichText:
-        final cellDataLoader = CellDataLoader(
-          cellContext: _cellContext,
+          reloadOnFieldChange: true,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.RichText:
+      return TextCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
           parser: StringCellDataParser(),
-        );
-        return TextCellController(
-          cellContext: _cellContext,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          cellDataPersistence:
-              TextCellDataPersistence(cellContext: _cellContext),
-        );
-      case FieldType.MultiSelect:
-      case FieldType.SingleSelect:
-        final cellDataLoader = CellDataLoader(
-          cellContext: _cellContext,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.MultiSelect:
+    case FieldType.SingleSelect:
+      return SelectOptionCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
           parser: SelectOptionCellDataParser(),
-          reloadOnFieldChanged: true,
-        );
-
-        return SelectOptionCellController(
-          cellContext: _cellContext,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          cellDataPersistence:
-              TextCellDataPersistence(cellContext: _cellContext),
-        );
-
-      case FieldType.Checklist:
-        final cellDataLoader = CellDataLoader(
-          cellContext: _cellContext,
+          reloadOnFieldChange: true,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.Checklist:
+      return ChecklistCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
           parser: ChecklistCellDataParser(),
-          reloadOnFieldChanged: true,
-        );
-
-        return ChecklistCellController(
-          cellContext: _cellContext,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          cellDataPersistence:
-              TextCellDataPersistence(cellContext: _cellContext),
-        );
-      case FieldType.URL:
-        final cellDataLoader = CellDataLoader(
-          cellContext: _cellContext,
+          reloadOnFieldChange: true,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.URL:
+      return URLCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
           parser: URLCellDataParser(),
-        );
-        return URLCellController(
-          cellContext: _cellContext,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          cellDataPersistence:
-              TextCellDataPersistence(cellContext: _cellContext),
-        );
-    }
-    throw UnimplementedError;
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
   }
+  throw UnimplementedError;
 }

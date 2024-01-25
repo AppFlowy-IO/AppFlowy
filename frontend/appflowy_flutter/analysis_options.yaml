@@ -30,6 +30,7 @@ linter:
   rules:
     - require_trailing_commas
 
+    - prefer_collection_literals
     - prefer_final_fields
     - prefer_final_in_for_each
     - prefer_final_locals

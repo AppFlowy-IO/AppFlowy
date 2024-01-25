@@ -1,15 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_bloc.dart';
-import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/mobile_cell_container.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,9 +36,8 @@ class MobileGridRow extends StatefulWidget {
 }
 
 class _MobileGridRowState extends State<MobileGridRow> {
-  late final RowBloc _rowBloc;
   late final RowController _rowController;
-  late final GridCellBuilder _cellBuilder;
+  late final EditableCellBuilder _cellBuilder;
 
   String get viewId => widget.databaseController.viewId;
   RowCache get rowCache => widget.databaseController.rowCache;
@@ -51,27 +50,28 @@ class _MobileGridRowState extends State<MobileGridRow> {
       viewId: viewId,
       rowCache: rowCache,
     );
-    _rowBloc = RowBloc(
-      rowId: widget.rowId,
-      dataController: _rowController,
-      viewId: viewId,
-    )..add(const RowEvent.initial());
-    _cellBuilder = GridCellBuilder(cellCache: rowCache.cellCache);
+    _cellBuilder = EditableCellBuilder(
+      databaseController: widget.databaseController,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _rowBloc,
+    return BlocProvider(
+      create: (context) => RowBloc(
+        fieldController: widget.databaseController.fieldController,
+        rowId: widget.rowId,
+        rowController: _rowController,
+        viewId: viewId,
+      ),
       child: BlocBuilder<RowBloc, RowState>(
-        // The row need to rebuild when the cell count changes.
-        buildWhen: (p, c) => p.rowSource != c.rowSource,
         builder: (context, state) {
           return Row(
             children: [
               SizedBox(width: GridSize.leadingHeaderPadding),
               Expanded(
                 child: RowContent(
+                  fieldController: widget.databaseController.fieldController,
                   builder: _cellBuilder,
                   onExpand: () => widget.openDetailPage(context),
                 ),
@@ -85,7 +85,6 @@ class _MobileGridRowState extends State<MobileGridRow> {
 
   @override
   Future<void> dispose() async {
-    _rowBloc.close();
     _rowController.dispose();
     super.dispose();
   }
@@ -112,10 +111,12 @@ class InsertRowButton extends StatelessWidget {
 }
 
 class RowContent extends StatelessWidget {
+  final FieldController fieldController;
   final VoidCallback onExpand;
-  final GridCellBuilder builder;
+  final EditableCellBuilder builder;
   const RowContent({
     super.key,
+    required this.fieldController,
     required this.builder,
     required this.onExpand,
   });
@@ -123,15 +124,13 @@ class RowContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (previous, current) =>
-          !listEquals(previous.cells, current.cells),
       builder: (context, state) {
         return SizedBox(
           height: 52,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ..._makeCells(context, state.cellByFieldId),
+              ..._makeCells(context, state.cellContexts),
               _finalCellDecoration(context),
             ],
           ),
@@ -142,14 +141,17 @@ class RowContent extends StatelessWidget {
 
   List<Widget> _makeCells(
     BuildContext context,
-    CellContextByFieldId cellByFieldId,
+    List<CellContext> cellContexts,
   ) {
-    return cellByFieldId.values.map(
-      (cellId) {
-        final GridCellWidget child = builder.build(cellId);
-
+    return cellContexts.map(
+      (cellContext) {
+        final fieldInfo = fieldController.getField(cellContext.fieldId)!;
+        final EditableCellWidget child = builder.buildStyled(
+          cellContext,
+          EditableCellStyle.mobileGrid,
+        );
         return MobileCellContainer(
-          isPrimary: cellId.fieldInfo.field.isPrimary,
+          isPrimary: fieldInfo.field.isPrimary,
           onPrimaryFieldCellTap: onExpand,
           child: child,
         );
