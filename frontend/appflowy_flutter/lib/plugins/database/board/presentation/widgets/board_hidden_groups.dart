@@ -387,7 +387,9 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                   context.read<BoardBloc>().databaseController;
 
               return HiddenGroupPopupItem(
-                cellContext: rowCache.loadCells(item)[primaryFieldId]!,
+                cellContext: rowCache.loadCells(item).firstWhere(
+                      (cellContext) => cellContext.fieldId == primaryFieldId,
+                    ),
                 rowController: rowController,
                 rowMeta: item,
                 cellBuilder: CardCellBuilder(

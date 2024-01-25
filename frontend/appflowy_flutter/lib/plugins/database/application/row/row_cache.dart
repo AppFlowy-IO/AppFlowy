@@ -8,7 +8,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../cell/cell_cache.dart';
 import '../cell/cell_controller.dart';
-import '../defines.dart';
 import 'row_list.dart';
 import 'row_service.dart';
 
@@ -189,7 +188,7 @@ class RowCache {
 
   RowUpdateCallback addListener({
     required RowId rowId,
-    void Function(CellContextByFieldId, ChangedReason)? onRowChanged,
+    void Function(List<CellContext>, ChangedReason)? onRowChanged,
   }) {
     void listenerHandler() async {
       if (onRowChanged != null) {
@@ -209,7 +208,7 @@ class RowCache {
     _changedNotifier.removeListener(callback);
   }
 
-  CellContextByFieldId loadCells(RowMetaPB rowMeta) {
+  List<CellContext> loadCells(RowMetaPB rowMeta) {
     final rowInfo = _rowList.get(rowMeta.id);
     if (rowInfo == null) {
       _loadRow(rowMeta.id);
@@ -241,16 +240,15 @@ class RowCache {
     );
   }
 
-  CellContextByFieldId _makeCells(RowMetaPB rowMeta) {
-    // TODO(RS): no need to use HashMap
-    final cellContextMap = CellContextByFieldId();
-    for (final fieldInfo in _fieldDelegate.fieldInfos) {
-      cellContextMap[fieldInfo.id] = CellContext(
-        rowId: rowMeta.id,
-        fieldId: fieldInfo.id,
-      );
-    }
-    return cellContextMap;
+  List<CellContext> _makeCells(RowMetaPB rowMeta) {
+    return _fieldDelegate.fieldInfos
+        .map(
+          (fieldInfo) => CellContext(
+            rowId: rowMeta.id,
+            fieldId: fieldInfo.id,
+          ),
+        )
+        .toList();
   }
 
   RowInfo buildGridRow(RowMetaPB rowMetaPB) {

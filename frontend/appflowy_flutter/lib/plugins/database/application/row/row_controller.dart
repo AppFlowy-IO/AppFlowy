@@ -2,10 +2,10 @@ import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter/material.dart';
 
 import '../cell/cell_cache.dart';
-import '../defines.dart';
+import '../cell/cell_controller.dart';
 import 'row_cache.dart';
 
-typedef OnRowChanged = void Function(CellContextByFieldId, ChangedReason);
+typedef OnRowChanged = void Function(List<CellContext>, ChangedReason);
 
 class RowController {
   RowController({
@@ -25,9 +25,7 @@ class RowController {
 
   String get rowId => rowMeta.id;
 
-  CellContextByFieldId loadData() {
-    return _rowCache.loadCells(rowMeta);
-  }
+  List<CellContext> loadData() => _rowCache.loadCells(rowMeta);
 
   void addListener({OnRowChanged? onRowChanged}) {
     final fn = _rowCache.addListener(

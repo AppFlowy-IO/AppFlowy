@@ -53,6 +53,14 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
           onTap: () => context.pop(),
         ),
         leadingWidth: 120,
+        elevation: 0,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+          ),
+        ),
         actions: [
           _SaveButton(
             onSave: () {

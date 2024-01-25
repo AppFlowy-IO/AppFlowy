@@ -247,20 +247,16 @@ class RowDetailFab extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(26),
                     borderOnForeground: false,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(26),
-                      onTap: () {
-                        if (!previousDisabled) {
-                          onTapPrevious();
-                        }
-                      },
-                      child: Icon(
-                        Icons.chevron_left_outlined,
-                        color: previousDisabled
-                            ? Theme.of(context).disabledColor
-                            : null,
-                      ),
-                    ),
+                    child: previousDisabled
+                        ? Icon(
+                            Icons.chevron_left_outlined,
+                            color: Theme.of(context).disabledColor,
+                          )
+                        : InkWell(
+                            borderRadius: BorderRadius.circular(26),
+                            onTap: onTapPrevious,
+                            child: const Icon(Icons.chevron_left_outlined),
+                          ),
                   ),
                 ),
                 FlowyText.medium(
@@ -273,20 +269,16 @@ class RowDetailFab extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(26),
                     borderOnForeground: false,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(26),
-                      onTap: () {
-                        if (!nextDisabled) {
-                          onTapNext();
-                        }
-                      },
-                      child: Icon(
-                        Icons.chevron_right_outlined,
-                        color: nextDisabled
-                            ? Theme.of(context).disabledColor
-                            : null,
-                      ),
-                    ),
+                    child: nextDisabled
+                        ? Icon(
+                            Icons.chevron_right_outlined,
+                            color: Theme.of(context).disabledColor,
+                          )
+                        : InkWell(
+                            borderRadius: BorderRadius.circular(26),
+                            onTap: onTapNext,
+                            child: const Icon(Icons.chevron_right_outlined),
+                          ),
                   ),
                 ),
               ],

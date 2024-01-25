@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:flutter/foundation.dart';
@@ -48,17 +46,19 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           createRow: () {
             _rowBackendSvc.createRowAfter(rowId);
           },
-          didReceiveCells: (CellContextByFieldId cellByFieldId, reason) {
-            cellByFieldId.removeWhere(
-              (_, cellContext) => !fieldController
-                  .getField(cellContext.fieldId)!
-                  .fieldSettings!
-                  .visibility
-                  .isVisibleState(),
-            );
+          didReceiveCells: (List<CellContext> cellContexts, reason) {
+            final visibleCellContexts = cellContexts
+                .where(
+                  (cellContext) => fieldController
+                      .getField(cellContext.fieldId)!
+                      .fieldSettings!
+                      .visibility
+                      .isVisibleState(),
+                )
+                .toList();
             emit(
               state.copyWith(
-                cellByFieldId: cellByFieldId,
+                cellContexts: visibleCellContexts,
                 changeReason: reason,
               ),
             );
@@ -92,7 +92,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 class RowEvent with _$RowEvent {
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
-    CellContextByFieldId cellsByFieldId,
+    List<CellContext> cellsByFieldId,
     ChangedReason reason,
   ) = _DidReceiveCells;
 }
@@ -100,13 +100,9 @@ class RowEvent with _$RowEvent {
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required CellContextByFieldId cellByFieldId,
+    required List<CellContext> cellContexts,
     ChangedReason? changeReason,
   }) = _RowState;
 
-  factory RowState.initial() {
-    return RowState(
-      cellByFieldId: CellContextByFieldId(),
-    );
-  }
+  factory RowState.initial() => const RowState(cellContexts: []);
 }

@@ -1,12 +1,12 @@
 import 'dart:collection';
 
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:textfield_tags/textfield_tags.dart';
+import 'package:flutter/services.dart';
 
 import 'extension.dart';
 
@@ -16,26 +16,25 @@ class SelectOptionTextField extends StatefulWidget {
     required this.options,
     required this.selectedOptionMap,
     required this.distanceToText,
-    required this.tagController,
+    required this.textSeparators,
+    required this.textController,
     required this.onSubmitted,
+    required this.newText,
     required this.onPaste,
     required this.onRemove,
-    required this.newText,
-    required this.textSeparators,
-    this.textController,
     this.onClick,
   });
 
   final List<SelectOptionPB> options;
   final LinkedHashMap<String, SelectOptionPB> selectedOptionMap;
   final double distanceToText;
-  final TextfieldTagsController tagController;
+  final List<String> textSeparators;
+  final TextEditingController textController;
+
   final Function(String) onSubmitted;
+  final Function(String) newText;
   final Function(List<String>, String) onPaste;
   final Function(String) onRemove;
-  final Function(String) newText;
-  final List<String> textSeparators;
-  final TextEditingController? textController;
   final VoidCallback? onClick;
 
   @override
@@ -43,100 +42,99 @@ class SelectOptionTextField extends StatefulWidget {
 }
 
 class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
-  final FocusNode focusNode = FocusNode();
-  late final TextEditingController controller;
+  late final FocusNode focusNode;
 
   @override
   void initState() {
     super.initState();
-    controller = widget.textController ?? TextEditingController();
+    focusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape) {
+          if (!widget.textController.value.composing.isCollapsed) {
+            final TextRange(:start, :end) =
+                widget.textController.value.composing;
+            final text = widget.textController.text;
+
+            widget.textController.value = TextEditingValue(
+              text: "${text.substring(0, start)}${text.substring(end)}",
+              selection: TextSelection(baseOffset: start, extentOffset: start),
+              composing: const TextRange(start: -1, end: -1),
+            );
+            return KeyEventResult.handled;
+          }
+        }
+        return KeyEventResult.ignored;
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
     });
+    widget.textController.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.textController.removeListener(_onChanged);
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TextFieldTags(
-      textEditingController: controller,
-      textfieldTagsController: widget.tagController,
-      initialTags: widget.selectedOptionMap.keys.toList(),
+    return TextField(
+      controller: widget.textController,
       focusNode: focusNode,
-      textSeparators: widget.textSeparators,
-      inputfieldBuilder: (
-        BuildContext context,
-        editController,
-        focusNode,
-        error,
-        onChanged,
-        onSubmitted,
-      ) {
-        return (context, sc, tags, onTagDelegate) {
-          return TextField(
-            controller: editController,
-            focusNode: focusNode,
-            onTap: widget.onClick,
-            onChanged: (text) {
-              if (onChanged != null) {
-                onChanged(text);
-              }
-              _newText(text, editController);
-            },
-            onSubmitted: (text) {
-              if (onSubmitted != null) {
-                onSubmitted(text);
-              }
-
-              if (text.isNotEmpty) {
-                widget.onSubmitted(text.trim());
-                focusNode.requestFocus();
-              }
-            },
-            style: Theme.of(context).textTheme.bodyMedium,
-            decoration: InputDecoration(
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                borderRadius: Corners.s10Border,
-              ),
-              isDense: true,
-              prefixIcon: _renderTags(context, sc),
-              hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
-              hintStyle: Theme.of(context)
-                  .textTheme
-                  .bodySmall!
-                  .copyWith(color: Theme.of(context).hintColor),
-              prefixIconConstraints:
-                  BoxConstraints(maxWidth: widget.distanceToText),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                borderRadius: Corners.s10Border,
-              ),
-            ),
-          );
-        };
+      onTap: widget.onClick,
+      onSubmitted: (text) {
+        if (text.isNotEmpty) {
+          widget.onSubmitted(text.trim());
+          focusNode.requestFocus();
+          widget.textController.clear();
+        }
       },
+      maxLines: 1,
+      style: Theme.of(context).textTheme.bodyMedium,
+      decoration: InputDecoration(
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+          borderRadius: Corners.s10Border,
+        ),
+        isDense: true,
+        prefixIcon: _renderTags(context),
+        hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
+        hintStyle: Theme.of(context)
+            .textTheme
+            .bodySmall!
+            .copyWith(color: Theme.of(context).hintColor),
+        prefixIconConstraints: BoxConstraints(maxWidth: widget.distanceToText),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+          borderRadius: Corners.s10Border,
+        ),
+      ),
     );
   }
 
-  void _newText(String text, TextEditingController editingController) {
-    if (text.isEmpty) {
-      widget.newText('');
+  void _onChanged() {
+    if (!widget.textController.value.composing.isCollapsed) {
       return;
     }
 
-    final result = splitInput(text.trimLeft(), widget.textSeparators);
+    // split input
+    final (submitted, remainder) = splitInput(
+      widget.textController.text.trimLeft(),
+      widget.textSeparators,
+    );
 
-    editingController.text = result[1];
-    editingController.selection =
-        TextSelection.collapsed(offset: controller.text.length);
-    widget.onPaste(result[0], result[1]);
+    if (submitted.isNotEmpty) {
+      widget.textController.text = remainder;
+      widget.textController.selection =
+          TextSelection.collapsed(offset: widget.textController.text.length);
+    }
+    widget.onPaste(submitted, remainder);
   }
 
-  Widget? _renderTags(BuildContext context, ScrollController sc) {
+  Widget? _renderTags(BuildContext context) {
     if (widget.selectedOptionMap.isEmpty) {
       return null;
     }
@@ -150,6 +148,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
           ),
         )
         .toList();
+
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
       child: Padding(
@@ -165,7 +164,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             },
           ),
           child: SingleChildScrollView(
-            controller: sc,
+            controller: ScrollController(),
             scrollDirection: Axis.horizontal,
             child: Wrap(spacing: 4, children: children),
           ),
@@ -176,7 +175,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
 }
 
 @visibleForTesting
-List splitInput(String input, List<String> textSeparators) {
+(List<String>, String) splitInput(String input, List<String> textSeparators) {
   final List<String> splits = [];
   String currentString = '';
 
@@ -197,5 +196,5 @@ List splitInput(String input, List<String> textSeparators) {
   final submittedOptions = splits.sublist(0, splits.length - 1).toList();
   final remainder = splits.elementAt(splits.length - 1).trimLeft();
 
-  return [submittedOptions, remainder];
+  return (submittedOptions, remainder);
 }

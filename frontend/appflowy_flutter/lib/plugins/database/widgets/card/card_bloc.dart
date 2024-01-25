@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_listener.dart';
@@ -103,16 +102,16 @@ class CardBloc extends Bloc<CardEvent, CardState> {
 List<CellContext> _makeCells(
   FieldController fieldController,
   String? groupFieldId,
-  CellContextByFieldId cellMap,
+  List<CellContext> cellContexts,
 ) {
   // Only show the non-hidden cells and cells that aren't of the grouping field
-  cellMap.removeWhere((_, cellContext) {
+  cellContexts.removeWhere((cellContext) {
     final fieldInfo = fieldController.getField(cellContext.fieldId);
     return fieldInfo == null ||
         !fieldInfo.fieldSettings!.visibility.isVisibleState() ||
         (groupFieldId != null && cellContext.fieldId == groupFieldId);
   });
-  return cellMap.values.toList();
+  return cellContexts.toList();
 }
 
 @freezed
