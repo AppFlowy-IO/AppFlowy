@@ -152,7 +152,7 @@ impl UserManager {
     let new_workspace = self
       .cloud_services
       .get_user_service()?
-      .add_workspace()
+      .add_workspace(workspace_name)
       .await?;
 
     // save the workspace to sqlite db

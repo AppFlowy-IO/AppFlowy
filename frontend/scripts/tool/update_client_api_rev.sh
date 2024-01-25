@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Ensure a new revision ID is provided
 if [ "$#" -ne 1 ]; then

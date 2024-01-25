@@ -388,9 +388,8 @@ async fn migrate_anon_data_on_cloud_signup() {
           json!("Row document")
         );
       }
-
       assert!(cloud_service
-        .get_collab_doc_state_db(&database_id, CollabType::Database, &workspace_id)
+        .get_database_object_doc_state(&database_id, CollabType::Database, &workspace_id)
         .await
         .is_ok());
     }

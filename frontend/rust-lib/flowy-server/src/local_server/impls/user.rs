@@ -158,7 +158,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Err(anyhow!("local server doesn't support create collab object")) })
   }
 
-  fn add_workspace(&self) -> FutureResult<UserWorkspace, FlowyError> {
+  fn add_workspace(&self, _workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
     FutureResult::new(async {
       Err(
         FlowyError::local_version_not_support()
