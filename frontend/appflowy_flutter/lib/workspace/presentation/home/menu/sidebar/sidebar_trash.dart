@@ -3,6 +3,8 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -26,8 +28,10 @@ class SidebarTrashButton extends StatelessWidget {
             hoverColor: AFThemeExtension.of(context).greySelect,
           ),
           isSelected: () => getIt<MenuSharedState>().latestOpenView == null,
-          child: SizedBox(
-            height: 26,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              vertical: 4,
+            ),
             child: InkWell(
               onTap: () {
                 getIt<MenuSharedState>().latestOpenView = null;
@@ -47,9 +51,10 @@ class SidebarTrashButton extends StatelessWidget {
 
   Widget _buildTextButton(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const HSpace(6),
-        const FlowySvg(
+        const ScalableFlowySvg(
           FlowySvgs.trash_m,
           size: Size(16, 16),
         ),

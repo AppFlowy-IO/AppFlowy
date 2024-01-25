@@ -88,6 +88,26 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
             _appearanceSettingsCubit.saveMenuOffset(state.resizeOffset);
             emit(state.copyWith(resizeType: MenuResizeType.slide));
           },
+          increaseFontIconsSize: (_IncreaseFontIconsSize e) {
+            final double newFactor = state.fontIconsSizeFactor + 0.2;
+            const templeOne = 1.0; //delete this later
+            if (newFactor >= (2 - templeOne)) {
+              return;
+            } else {
+              _appearanceSettingsCubit.saveFontIconsSizeFactor(newFactor);
+              emit(state.copyWith(fontIconsSizeFactor: newFactor));
+            }
+          },
+          decreaseFontIconsSize: (_DecreaseFontIconsSize e) {
+            final double newFactor = state.fontIconsSizeFactor - 0.2;
+            const templeOne = 1.0; //delete this later
+            if (newFactor <= (1 - templeOne)) {
+              return;
+            } else {
+              _appearanceSettingsCubit.saveFontIconsSizeFactor(newFactor);
+              emit(state.copyWith(fontIconsSizeFactor: newFactor));
+            }
+          },
         );
       },
     );
@@ -132,6 +152,10 @@ class HomeSettingEvent with _$HomeSettingEvent {
       _EditPanelResized;
   const factory HomeSettingEvent.editPanelResizeStart() = _EditPanelResizeStart;
   const factory HomeSettingEvent.editPanelResizeEnd() = _EditPanelResizeEnd;
+  const factory HomeSettingEvent.increaseFontIconsSize() =
+      _IncreaseFontIconsSize;
+  const factory HomeSettingEvent.decreaseFontIconsSize() =
+      _DecreaseFontIconsSize;
 }
 
 @freezed
@@ -146,6 +170,7 @@ class HomeSettingState with _$HomeSettingState {
     required double resizeOffset,
     required double resizeStart,
     required MenuResizeType resizeType,
+    required double fontIconsSizeFactor,
   }) = _HomeSettingState;
 
   factory HomeSettingState.initial(
@@ -163,6 +188,7 @@ class HomeSettingState with _$HomeSettingState {
       resizeOffset: appearanceSettingsState.menuOffset,
       resizeStart: 0,
       resizeType: MenuResizeType.slide,
+      fontIconsSizeFactor: appearanceSettingsState.fontIconsSizeFactor,
     );
   }
 }

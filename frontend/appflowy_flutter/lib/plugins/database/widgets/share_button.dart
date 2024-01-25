@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -39,10 +40,7 @@ class DatabaseShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DatabaseShareBloc, DatabaseShareState>(
           builder: (context, state) => ConstrainedBox(
-            constraints: const BoxConstraints.expand(
-              height: 30,
-              width: 100,
-            ),
+            constraints: BoxConstraints.loose(const Size(100, 45)),
             child: DatabaseShareActionList(view: view),
           ),
         ),
@@ -95,6 +93,9 @@ class DatabaseShareActionListState extends State<DatabaseShareActionList> {
   @override
   Widget build(BuildContext context) {
     final databaseShareBloc = context.read<DatabaseShareBloc>();
+    final factor =
+        context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor;
+    const tempOne = 1; // Delete this later
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
@@ -103,6 +104,7 @@ class DatabaseShareActionListState extends State<DatabaseShareActionList> {
           .toList(),
       buildChild: (controller) {
         return RoundedTextButton(
+          height: 30 * (factor + tempOne),
           title: LocaleKeys.shareAction_buttonText.tr(),
           textColor: Theme.of(context).colorScheme.onPrimary,
           onPressed: () => controller.show(),

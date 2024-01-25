@@ -2,6 +2,7 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
@@ -262,35 +263,49 @@ class HomeTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSecondaryContainer,
-        border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor),
-        ),
-      ),
-      height: HomeSizes.topBarHeight,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: HomeInsets.topBarTitlePadding,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            HSpace(layout.menuSpacing),
-            const FlowyNavigation(),
-            const HSpace(16),
-            ChangeNotifierProvider.value(
-              value: Provider.of<PageNotifier>(context, listen: false),
-              child: Consumer(
-                builder: (_, PageNotifier notifier, __) =>
-                    notifier.plugin.widgetBuilder.rightBarItem ??
-                    const SizedBox.shrink(),
+    return BlocBuilder<HomeSettingBloc, HomeSettingState>(
+      buildWhen: (previous, current) =>
+          previous.fontIconsSizeFactor != current.fontIconsSizeFactor,
+      builder: (context, state) {
+        const tempOne = 1; // Delete this later
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(
+              state.fontIconsSizeFactor + tempOne,
+            ),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
+              border: Border(
+                bottom: BorderSide(color: Theme.of(context).dividerColor),
               ),
             ),
-          ],
-        ),
-      ),
+            height: HomeSizes.topBarHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: HomeInsets.topBarTitlePadding,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  HSpace(layout.menuSpacing),
+                  const FlowyNavigation(),
+                  const HSpace(16),
+                  ChangeNotifierProvider.value(
+                    value: Provider.of<PageNotifier>(context, listen: false),
+                    child: Consumer(
+                      builder: (_, PageNotifier notifier, __) =>
+                          notifier.plugin.widgetBuilder.rightBarItem ??
+                          const SizedBox.shrink(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

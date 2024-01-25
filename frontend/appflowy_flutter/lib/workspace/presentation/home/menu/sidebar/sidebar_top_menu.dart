@@ -6,6 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -73,13 +74,13 @@ class SidebarTopMenu extends StatelessWidget {
     return FlowyTooltip(
       richMessage: textSpan,
       child: FlowyIconButton(
-        width: 28,
+        width: 40,
         hoverColor: Colors.transparent,
         onPressed: () => context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.collapseMenu()),
         iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-        icon: const FlowySvg(
+        icon: const ScalableFlowySvg(
           FlowySvgs.hide_menu_m,
         ),
       ),

@@ -68,6 +68,10 @@ pub struct AppearanceSettingsPB {
   #[pb(index = 12)]
   #[serde(default)]
   pub document_setting: DocumentSettingsPB,
+
+  #[pb(index = 13)]
+  #[serde(default)]
+  pub font_icons_size_factor: f64,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -129,6 +133,7 @@ pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
 const APPEARANCE_RESET_AS_DEFAULT: bool = true;
 const APPEARANCE_DEFAULT_IS_MENU_COLLAPSED: bool = false;
 const APPEARANCE_DEFAULT_MENU_OFFSET: f64 = 0.0;
+const APPEARANCE_DEFAULT_FONT_ICONS_SIZE_FACTOR: f64 = 1.0;
 
 impl std::default::Default for AppearanceSettingsPB {
   fn default() -> Self {
@@ -145,6 +150,7 @@ impl std::default::Default for AppearanceSettingsPB {
       layout_direction: LayoutDirectionPB::default(),
       text_direction: TextDirectionPB::default(),
       document_setting: DocumentSettingsPB::default(),
+      font_icons_size_factor: APPEARANCE_DEFAULT_FONT_ICONS_SIZE_FACTOR,    
     }
   }
 }

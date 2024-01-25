@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -12,6 +13,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,10 +23,14 @@ class QuestionBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 30,
-      height: 30,
-      child: BubbleActionList(),
+    const tempOne = 1; // Delete this later
+    return BlocBuilder<HomeSettingBloc, HomeSettingState>(
+      buildWhen: (previous, current) =>
+          previous.fontIconsSizeFactor != current.fontIconsSizeFactor,
+      builder: (context, state) => Transform.scale(
+        scale: state.fontIconsSizeFactor + tempOne,
+        child: const SizedBox(width: 30, height: 30, child: BubbleActionList()),
+      ),
     );
   }
 }
@@ -68,6 +74,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
       buildChild: (controller) {
         return FlowyTextButton(
           '?',
+          padding: const EdgeInsets.all(0),
           tooltip: LocaleKeys.questionBubble_help.tr(),
           fontWeight: FontWeight.w600,
           fontColor: fontColor,

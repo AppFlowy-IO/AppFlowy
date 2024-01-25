@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -116,7 +117,7 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
               iconPadding: const EdgeInsets.all(2),
               height: iconSize,
               width: iconSize,
-              icon: const FlowySvg(FlowySvgs.add_s),
+              icon: const ScalableFlowySvg(FlowySvgs.add_s),
               onPressed: () {
                 createViewAndShowRenameDialogIfNeeded(
                   context,

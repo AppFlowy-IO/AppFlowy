@@ -92,6 +92,34 @@ class HomeHotKeys extends StatelessWidget {
       keyDownHandler: (_) => _selectTab(context, 1),
     ).register();
 
+    // Increase the size of font and icons
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.equal,
+        modifiers: [
+          Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
+        ],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => context
+          .read<HomeSettingBloc>()
+          .add(const HomeSettingEvent.increaseFontIconsSize()),
+    ).register();
+
+    // Decrease the size of font and icons
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.minus,
+        modifiers: [
+          Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
+        ],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => context
+          .read<HomeSettingBloc>()
+          .add(const HomeSettingEvent.decreaseFontIconsSize()),
+    ).register();
+
     return child;
   }
 

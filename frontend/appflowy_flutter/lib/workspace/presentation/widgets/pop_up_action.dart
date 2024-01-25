@@ -1,7 +1,9 @@
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
@@ -225,30 +227,36 @@ class HoverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const tempOne = 1; // Delete this later
+    final factor =
+        context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor;
     return FlowyHover(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: SizedBox(
-          height: itemHeight,
-          child: Row(
-            children: [
-              if (leftIcon != null) ...[
-                leftIcon!,
-                HSpace(ActionListSizes.itemHPadding),
-              ],
-              Expanded(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (leftIcon != null) ...[
+              leftIcon!,
+              HSpace(ActionListSizes.itemHPadding),
+            ],
+            Expanded(
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(factor + tempOne),
+                ),
                 child: FlowyText.medium(
                   name,
                   overflow: TextOverflow.visible,
                 ),
               ),
-              if (rightIcon != null) ...[
-                HSpace(ActionListSizes.itemHPadding),
-                rightIcon!,
-              ],
+            ),
+            if (rightIcon != null) ...[
+              HSpace(ActionListSizes.itemHPadding),
+              rightIcon!,
             ],
-          ),
+          ],
         ).padding(
           horizontal: ActionListSizes.hPadding,
           vertical: ActionListSizes.vPadding,

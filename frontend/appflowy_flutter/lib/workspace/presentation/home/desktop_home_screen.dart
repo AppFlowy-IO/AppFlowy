@@ -115,10 +115,15 @@ class DesktopHomeScreen extends StatelessWidget {
                 ],
                 child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
                   buildWhen: (previous, current) => previous != current,
-                  builder: (context, state) {
+                  builder: (context, homeSettingState) {
                     return FlowyContainer(
                       Theme.of(context).colorScheme.surface,
-                      child: _buildBody(context, userProfile, workspaceSetting),
+                      child: _buildBody(
+                        context,
+                        userProfile,
+                        workspaceSetting,
+                        homeSettingState,
+                      ),
                     );
                   },
                 ),
@@ -143,6 +148,7 @@ class DesktopHomeScreen extends StatelessWidget {
     BuildContext context,
     UserProfilePB userProfile,
     WorkspaceSettingPB workspaceSetting,
+    HomeSettingState homeSettingState,
   ) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -158,6 +164,7 @@ class DesktopHomeScreen extends StatelessWidget {
           context: context,
           userProfile: userProfile,
           workspaceSetting: workspaceSetting,
+          homeSettingState: homeSettingState,
         );
         final homeMenuResizer = _buildHomeMenuResizer(context: context);
         final editPanel = _buildEditPanel(
@@ -182,10 +189,19 @@ class DesktopHomeScreen extends StatelessWidget {
     required BuildContext context,
     required UserProfilePB userProfile,
     required WorkspaceSettingPB workspaceSetting,
+    required HomeSettingState homeSettingState,
   }) {
-    final homeMenu = HomeSideBar(
-      user: userProfile,
-      workspaceSetting: workspaceSetting,
+    const tempOne = 1; // Delete this later
+    final homeMenu = MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: TextScaler.linear(
+          homeSettingState.fontIconsSizeFactor + tempOne,
+        ),
+      ),
+      child: HomeSideBar(
+        user: userProfile,
+        workspaceSetting: workspaceSetting,
+      ),
     );
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }

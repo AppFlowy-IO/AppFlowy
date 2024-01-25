@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -148,6 +150,11 @@ class InnerViewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final factor =
+        context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor;
+    const tempOne = 1; // delete this later
+    final adjustableHeight = (factor + tempOne - 1) * 15;
+
     Widget child = SingleInnerViewItem(
       view: view,
       parentView: parentView,
@@ -160,7 +167,7 @@ class InnerViewItem extends StatelessWidget {
       isDraggable: isDraggable,
       leftPadding: leftPadding,
       isFeedback: isFeedback,
-      height: height,
+      height: height + adjustableHeight,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -196,15 +203,13 @@ class InnerViewItem extends StatelessWidget {
           children: [
             child,
             Container(
-              height: height,
+              height: height + adjustableHeight,
               alignment: Alignment.centerLeft,
-              child: Padding(
-                // add 2px to make the text align with the view item
-                padding: EdgeInsets.only(left: (level + 1) * leftPadding + 2),
-                child: FlowyText.medium(
-                  LocaleKeys.noPagesInside.tr(),
-                  color: Theme.of(context).hintColor,
-                ),
+              // add 2px to make the text align with the view item
+              padding: EdgeInsets.only(left: (level + 1) * leftPadding + 2),
+              child: FlowyText.medium(
+                LocaleKeys.noPagesInside.tr(),
+                color: Theme.of(context).hintColor,
               ),
             ),
           ],
@@ -290,8 +295,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
+    final factor =
+        context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor;
     if (widget.isFeedback) {
-      return _buildViewItem(false);
+      return _buildViewItem(false, factor);
     }
 
     return FlowyHover(
@@ -301,20 +308,22 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
       buildWhenOnHover: () =>
           !widget.showActions && !_isDragging && !isIconPickerOpened,
-      builder: (_, onHover) => _buildViewItem(onHover),
+      builder: (_, onHover) => _buildViewItem(onHover, factor),
       isSelected: () =>
           widget.showActions ||
           getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
     );
   }
 
-  Widget _buildViewItem(bool onHover) {
+  Widget _buildViewItem(bool onHover, double factor) {
+    const tempOne = 1; // delete this later
     final children = [
       // expand icon
       _buildLeftIcon(),
+      HSpace(5 * (factor + tempOne)),
       // icon
       _buildViewIconButton(),
-      const HSpace(5),
+      HSpace(5 * (factor + tempOne)),
       // title
       Expanded(
         child: FlowyText.regular(
@@ -402,7 +411,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ? FlowySvgs.drop_menu_show_m
         : FlowySvgs.drop_menu_hide_m;
     return GestureDetector(
-      child: FlowySvg(
+      child: ScalableFlowySvg(
         svg,
         size: const Size.square(16.0),
       ),

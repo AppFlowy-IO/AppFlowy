@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
@@ -36,7 +37,7 @@ class SidebarNewPageButton extends StatelessWidget {
           shape: BoxShape.circle,
           color: Theme.of(context).colorScheme.surface,
         ),
-        child: FlowySvg(
+        child: ScalableFlowySvg(
           FlowySvgs.new_app_s,
           color: Theme.of(context).colorScheme.primary,
         ),

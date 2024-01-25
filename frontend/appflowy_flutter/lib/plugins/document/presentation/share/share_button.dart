@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -40,10 +41,7 @@ class DocumentShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
           builder: (context, state) => ConstrainedBox(
-            constraints: const BoxConstraints.expand(
-              height: 30,
-              width: 100,
-            ),
+            constraints: BoxConstraints.loose(const Size(100, 45)),
             child: ShareActionList(view: view),
           ),
         ),
@@ -102,6 +100,9 @@ class ShareActionListState extends State<ShareActionList> {
   @override
   Widget build(BuildContext context) {
     final docShareBloc = context.read<DocShareBloc>();
+    final factor =
+        context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor;
+    const tempOne = 1; // Delete this later
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
@@ -110,6 +111,7 @@ class ShareActionListState extends State<ShareActionList> {
           .toList(),
       buildChild: (controller) {
         return RoundedTextButton(
+          height: 30 * (factor + tempOne),
           title: LocaleKeys.shareAction_buttonText.tr(),
           onPressed: () => controller.show(),
           textColor: Theme.of(context).colorScheme.onPrimary,
