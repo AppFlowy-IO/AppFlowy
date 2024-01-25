@@ -7,14 +7,17 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
+af-user = { path = "af-user" }
+af-persistence = { path = "af-persistence" }
+
 lib-dispatch = { path = "../../rust-lib/lib-dispatch" }
 parking_lot = { version = "0.12.1" }
 tracing = { version = "0.1.22" }
 serde = { version = "1.0.194", features = ["derive"] }
+serde_json = "1.0"
 collab-integrate = { path = "../../rust-lib/collab-integrate"}
 flowy-notification = { path = "../../rust-lib/flowy-notification" }
 flowy-user-pub = { path = "../../rust-lib/flowy-user-pub" }
-af-user = { path = "af-user" }
 flowy-server = { path = "../../rust-lib/flowy-server" }
 flowy-server-pub = { path = "../../rust-lib/flowy-server-pub" }
 flowy-error = { path = "../../rust-lib/flowy-error" }
@@ -24,6 +27,9 @@ lib-infra = { path = "../../rust-lib/lib-infra" }
 collab = { version = "0.1.0" }
 bytes = { version = "1.5" }
 protobuf = { version = "2.28.0" }
+thiserror = "1.0"
+anyhow = "1.0"
+
 
 [profile.dev]
 opt-level = 0

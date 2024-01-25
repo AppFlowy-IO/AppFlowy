@@ -65,13 +65,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "af-persistence-wasm"
+name = "af-persistence"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "indexed_db_futures",
+ "js-sys",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "wasm-bindgen",
+ "web-sys",
+]
 
 [[package]]
 name = "af-user"
 version = "0.1.0"
 dependencies = [
+ "af-persistence",
  "bytes",
  "collab-integrate",
  "flowy-codegen",

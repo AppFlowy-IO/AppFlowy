@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 wasm-libs/**/target
+**/src/services/backend/models/
+**/src/services/backend/events/
+**/src/appflowy_app/i18n/translations/
