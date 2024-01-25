@@ -89,7 +89,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         ),
       );
     }
-    return Container();
+    return const SizedBox.shrink();
   }
 
   bool isEmojiSearching() {

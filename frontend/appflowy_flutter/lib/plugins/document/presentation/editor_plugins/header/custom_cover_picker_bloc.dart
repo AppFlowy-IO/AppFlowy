@@ -1,17 +1,17 @@
 import 'dart:io';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:easy_localization/easy_localization.dart';
-
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cover_editor.dart';
 
@@ -19,9 +19,13 @@ part 'custom_cover_picker_bloc.freezed.dart';
 
 class CoverImagePickerBloc
     extends Bloc<CoverImagePickerEvent, CoverImagePickerState> {
+  CoverImagePickerBloc() : super(const CoverImagePickerState.initial()) {
+    _dispatch();
+  }
+
   static const allowedExtensions = ['jpg', 'png', 'jpeg'];
 
-  CoverImagePickerBloc() : super(const CoverImagePickerState.initial()) {
+  void _dispatch() {
     on<CoverImagePickerEvent>(
       (event, emit) async {
         await event.map(
@@ -119,7 +123,6 @@ class CoverImagePickerBloc
   Future<String?> _pickImages() async {
     final result = await getIt<FilePickerService>().pickFiles(
       dialogTitle: LocaleKeys.document_plugins_cover_addLocalImage.tr(),
-      allowMultiple: false,
       type: FileType.image,
       allowedExtensions: allowedExtensions,
     );

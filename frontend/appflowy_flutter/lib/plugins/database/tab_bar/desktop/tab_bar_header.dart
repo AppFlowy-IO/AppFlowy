@@ -134,15 +134,16 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
 }
 
 class DatabaseTabBarItem extends StatelessWidget {
-  final bool isSelected;
-  final ViewPB view;
-  final Function(ViewPB) onTap;
   const DatabaseTabBarItem({
+    super.key,
     required this.view,
     required this.isSelected,
     required this.onTap,
-    super.key,
   });
+
+  final ViewPB view;
+  final bool isSelected;
+  final Function(ViewPB) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -176,15 +177,16 @@ class DatabaseTabBarItem extends StatelessWidget {
 }
 
 class TabBarItemButton extends StatelessWidget {
+  const TabBarItemButton({
+    super.key,
+    required this.view,
+    required this.isSelected,
+    required this.onTap,
+  });
+
   final ViewPB view;
   final bool isSelected;
   final VoidCallback onTap;
-  const TabBarItemButton({
-    required this.view,
-    required this.onTap,
-    super.key,
-    required this.isSelected,
-  });
 
   @override
   Widget build(BuildContext context) {

@@ -12,15 +12,16 @@ import '../../condition_button.dart';
 import '../../filter_info.dart';
 
 class SelectOptionFilterConditionList extends StatelessWidget {
-  final FilterInfo filterInfo;
-  final PopoverMutex popoverMutex;
-  final Function(SelectOptionConditionPB) onCondition;
   const SelectOptionFilterConditionList({
+    super.key,
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
-    super.key,
   });
+
+  final FilterInfo filterInfo;
+  final PopoverMutex popoverMutex;
+  final Function(SelectOptionConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +62,11 @@ class SelectOptionFilterConditionList extends StatelessWidget {
 }
 
 class ConditionWrapper extends ActionCell {
+  ConditionWrapper(this.inner, this.isSelected, this.fieldType);
+
   final SelectOptionConditionPB inner;
   final bool isSelected;
   final FieldType fieldType;
-
-  ConditionWrapper(this.inner, this.isSelected, this.fieldType);
 
   @override
   Widget? rightIcon(Color iconColor) {

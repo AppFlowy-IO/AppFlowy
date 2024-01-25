@@ -124,13 +124,14 @@ class DatabaseGroupList extends StatelessWidget {
 }
 
 class _GridGroupCell extends StatelessWidget {
-  final VoidCallback onSelected;
-  final FieldInfo fieldInfo;
   const _GridGroupCell({
+    super.key,
     required this.fieldInfo,
     required this.onSelected,
-    super.key,
   });
+
+  final FieldInfo fieldInfo;
+  final VoidCallback onSelected;
 
   @override
   Widget build(BuildContext context) {

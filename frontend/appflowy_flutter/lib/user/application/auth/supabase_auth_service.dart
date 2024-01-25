@@ -94,7 +94,7 @@ class SupabaseAuthService implements AuthService {
     final provider = platform.toProvider();
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await _setupAuth(
+        return _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
@@ -137,7 +137,7 @@ class SupabaseAuthService implements AuthService {
   }) async {
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await _setupAuth(
+        return _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,

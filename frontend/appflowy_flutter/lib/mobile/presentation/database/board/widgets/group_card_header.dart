@@ -82,7 +82,6 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                     _controller.text,
                   ),
                 ),
-            maxLines: 1,
             style: titleTextStyle,
             onTapOutside: (_) => context.read<BoardBloc>().add(
                   // group header switch from TextField to Text

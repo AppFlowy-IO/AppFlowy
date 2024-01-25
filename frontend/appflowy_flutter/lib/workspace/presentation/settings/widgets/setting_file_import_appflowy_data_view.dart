@@ -76,8 +76,9 @@ class _ImportAppFlowyDataState extends State<ImportAppFlowyData> {
 }
 
 class AppFlowyDataImportTip extends StatelessWidget {
-  final url = "https://docs.appflowy.io/docs/appflowy/product/data-storage";
   const AppFlowyDataImportTip({super.key});
+
+  final url = "https://docs.appflowy.io/docs/appflowy/product/data-storage";
 
   @override
   Widget build(BuildContext context) {

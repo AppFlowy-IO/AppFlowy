@@ -11,15 +11,6 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileCalendarEventsScreen extends StatefulWidget {
-  static const routeName = '/calendar_events';
-
-  // GoRouter Arguments
-  static const calendarBlocKey = 'calendar_bloc';
-  static const calendarDateKey = 'date';
-  static const calendarEventsKey = 'events';
-  static const calendarRowCacheKey = 'row_cache';
-  static const calendarViewIdKey = 'view_id';
-
   const MobileCalendarEventsScreen({
     super.key,
     required this.calendarBloc,
@@ -34,6 +25,15 @@ class MobileCalendarEventsScreen extends StatefulWidget {
   final List<CalendarDayEvent> events;
   final RowCache rowCache;
   final String viewId;
+
+  static const routeName = '/calendar_events';
+
+  // GoRouter Arguments
+  static const calendarBlocKey = 'calendar_bloc';
+  static const calendarDateKey = 'date';
+  static const calendarEventsKey = 'events';
+  static const calendarRowCacheKey = 'row_cache';
+  static const calendarViewIdKey = 'view_id';
 
   @override
   State<MobileCalendarEventsScreen> createState() =>

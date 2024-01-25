@@ -129,7 +129,7 @@ extension AppFlowyTestBase on WidgetTester {
   }
 
   Future<void> waitForSeconds(int seconds) async {
-    await Future.delayed((Duration(seconds: seconds)), () {});
+    await Future.delayed(Duration(seconds: seconds), () {});
   }
 
   Future<void> pumpUntilFound(

@@ -140,9 +140,9 @@ enum ShareAction {
 }
 
 class ShareActionWrapper extends ActionCell {
-  final ShareAction inner;
-
   ShareActionWrapper(this.inner);
+
+  final ShareAction inner;
 
   Widget? icon(Color iconColor) => null;
 

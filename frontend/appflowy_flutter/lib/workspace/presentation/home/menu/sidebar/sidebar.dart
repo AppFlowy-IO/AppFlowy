@@ -100,7 +100,6 @@ class HomeSideBar extends StatelessWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // top menu
           const Padding(

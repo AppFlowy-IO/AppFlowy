@@ -119,7 +119,6 @@ class MobileViewBottomSheetBody extends StatelessWidget {
       children: [
         // rename, duplicate
         Row(
-          mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
               child: BottomSheetActionWidget(
@@ -146,7 +145,6 @@ class MobileViewBottomSheetBody extends StatelessWidget {
 
         // share, delete
         Row(
-          mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
               child: BottomSheetActionWidget(

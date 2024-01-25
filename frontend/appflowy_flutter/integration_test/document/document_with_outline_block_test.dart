@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/outline/outline_block_component.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -17,7 +16,6 @@ void main() {
 
       await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',
-        layout: ViewLayoutPB.Document,
       );
 
       await tester.editor.tapLineOfEditorAt(0);
@@ -34,7 +32,6 @@ void main() {
 
       await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',
-        layout: ViewLayoutPB.Document,
       );
       await tester.editor.tapLineOfEditorAt(0);
 

@@ -38,6 +38,10 @@ class NotificationActionEvent with _$NotificationActionEvent {
 }
 
 class NotificationActionState {
+  const NotificationActionState.initial()
+      : action = null,
+        nextActions = const [];
+
   const NotificationActionState({
     required this.action,
     this.nextActions = const [],
@@ -45,10 +49,6 @@ class NotificationActionState {
 
   final NotificationAction? action;
   final List<NotificationAction> nextActions;
-
-  const NotificationActionState.initial()
-      : action = null,
-        nextActions = const [];
 
   NotificationActionState copyWith({
     NotificationAction? action,

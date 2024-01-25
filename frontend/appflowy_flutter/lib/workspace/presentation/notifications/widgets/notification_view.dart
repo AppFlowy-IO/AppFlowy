@@ -45,7 +45,6 @@ class NotificationsView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (shownReminders.isEmpty) {
       return Column(
-        mainAxisSize: MainAxisSize.max,
         children: [
           if (actionBar != null) actionBar!,
           const Expanded(child: NotificationsHubEmpty()),

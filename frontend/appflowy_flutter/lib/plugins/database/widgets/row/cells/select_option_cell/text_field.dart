@@ -11,6 +11,20 @@ import 'package:flutter/services.dart';
 import 'extension.dart';
 
 class SelectOptionTextField extends StatefulWidget {
+  const SelectOptionTextField({
+    super.key,
+    required this.options,
+    required this.selectedOptionMap,
+    required this.distanceToText,
+    required this.textSeparators,
+    required this.textController,
+    required this.onSubmitted,
+    required this.newText,
+    required this.onPaste,
+    required this.onRemove,
+    this.onClick,
+  });
+
   final List<SelectOptionPB> options;
   final LinkedHashMap<String, SelectOptionPB> selectedOptionMap;
   final double distanceToText;
@@ -22,20 +36,6 @@ class SelectOptionTextField extends StatefulWidget {
   final Function(List<String>, String) onPaste;
   final Function(String) onRemove;
   final VoidCallback? onClick;
-
-  const SelectOptionTextField({
-    super.key,
-    required this.options,
-    required this.selectedOptionMap,
-    required this.distanceToText,
-    required this.onSubmitted,
-    required this.onPaste,
-    required this.onRemove,
-    required this.newText,
-    required this.textSeparators,
-    required this.textController,
-    this.onClick,
-  });
 
   @override
   State<SelectOptionTextField> createState() => _SelectOptionTextFieldState();
@@ -59,7 +59,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             widget.textController.value = TextEditingValue(
               text: "${text.substring(0, start)}${text.substring(end)}",
               selection: TextSelection(baseOffset: start, extentOffset: start),
-              composing: const TextRange(start: -1, end: -1),
             );
             return KeyEventResult.handled;
           }
@@ -92,14 +91,10 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
           widget.textController.clear();
         }
       },
-      maxLines: 1,
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
-            width: 1.0,
-          ),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           borderRadius: Corners.s10Border,
         ),
         isDense: true,
@@ -111,10 +106,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             .copyWith(color: Theme.of(context).hintColor),
         prefixIconConstraints: BoxConstraints(maxWidth: widget.distanceToText),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1.0,
-          ),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
           borderRadius: Corners.s10Border,
         ),
       ),
@@ -154,6 +146,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
           ),
         )
         .toList();
+
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
       child: Padding(

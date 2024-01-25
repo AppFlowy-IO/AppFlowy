@@ -79,6 +79,24 @@ typedef OnReceiveSorts = void Function(List<SortInfo>);
 typedef OnReceiveFieldSettings = void Function(List<FieldInfo>);
 
 class FieldController {
+  FieldController({required this.viewId})
+      : _fieldListener = FieldsListener(viewId: viewId),
+        _settingListener = DatabaseSettingListener(viewId: viewId),
+        _filterBackendSvc = FilterBackendService(viewId: viewId),
+        _filtersListener = FiltersListener(viewId: viewId),
+        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: viewId),
+        _sortBackendSvc = SortBackendService(viewId: viewId),
+        _sortsListener = SortsListener(viewId: viewId),
+        _fieldSettingsListener = FieldSettingsListener(viewId: viewId),
+        _fieldSettingsBackendSvc = FieldSettingsBackendService(viewId: viewId) {
+    // Start listeners
+    _listenOnFieldChanges();
+    _listenOnSettingChanges();
+    _listenOnFilterChanges();
+    _listenOnSortChanged();
+    _listenOnFieldSettingsChanged();
+  }
+
   final String viewId;
 
   // Listeners
@@ -144,24 +162,6 @@ class FieldController {
   SortInfo? getSortByFieldId(String fieldId) {
     return _sortNotifier?.sorts
         .firstWhereOrNull((element) => element.fieldId == fieldId);
-  }
-
-  FieldController({required this.viewId})
-      : _fieldListener = FieldsListener(viewId: viewId),
-        _settingListener = DatabaseSettingListener(viewId: viewId),
-        _filterBackendSvc = FilterBackendService(viewId: viewId),
-        _filtersListener = FiltersListener(viewId: viewId),
-        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: viewId),
-        _sortBackendSvc = SortBackendService(viewId: viewId),
-        _sortsListener = SortsListener(viewId: viewId),
-        _fieldSettingsListener = FieldSettingsListener(viewId: viewId),
-        _fieldSettingsBackendSvc = FieldSettingsBackendService(viewId: viewId) {
-    // Start listeners
-    _listenOnFieldChanges();
-    _listenOnSettingChanges();
-    _listenOnFilterChanges();
-    _listenOnSortChanged();
-    _listenOnFieldSettingsChanged();
   }
 
   /// Listen for filter changes in the backend.
@@ -402,7 +402,7 @@ class FieldController {
         for (final fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder,
       };
 
-      newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
+      newFields.retainWhere((field) => deletedFieldMap[field.id] == null);
       return newFields;
     }
 
@@ -784,9 +784,10 @@ class FieldController {
 }
 
 class RowCacheDependenciesImpl extends RowFieldsDelegate with RowLifeCycle {
+  RowCacheDependenciesImpl(FieldController cache) : _fieldController = cache;
+
   final FieldController _fieldController;
   OnReceiveFields? _onFieldFn;
-  RowCacheDependenciesImpl(FieldController cache) : _fieldController = cache;
 
   @override
   UnmodifiableListView<FieldInfo> get fieldInfos =>

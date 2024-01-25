@@ -71,10 +71,10 @@ abstract class PluginWidgetBuilder with NavigationItem {
 }
 
 class PluginContext {
+  PluginContext({required this.onDeleted});
+
   // calls when widget of the plugin get deleted
   final Function(ViewPB, int?) onDeleted;
-
-  PluginContext({required this.onDeleted});
 }
 
 void registerPlugin({required PluginBuilder builder, PluginConfig? config}) {

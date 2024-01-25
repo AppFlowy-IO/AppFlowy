@@ -4,22 +4,22 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
 class SortChoiceButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onTap;
-  final Widget? leftIcon;
-  final Widget? rightIcon;
-  final Radius radius;
-  final bool editable;
-
   const SortChoiceButton({
+    super.key,
     required this.text,
     this.onTap,
     this.radius = const Radius.circular(14),
     this.leftIcon,
     this.rightIcon,
     this.editable = true,
-    super.key,
   });
+
+  final String text;
+  final VoidCallback? onTap;
+  final Radius radius;
+  final Widget? leftIcon;
+  final Widget? rightIcon;
+  final bool editable;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,6 @@ class SortChoiceButton extends StatelessWidget {
         border: Border.fromBorderSide(
           BorderSide(
             color: AFThemeExtension.of(context).toggleOffFill,
-            width: 1.0,
           ),
         ),
         borderRadius: const BorderRadius.all(Radius.circular(14)),

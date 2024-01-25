@@ -8,10 +8,9 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 
 class WorkspaceService {
+  WorkspaceService({required this.workspaceId});
+
   final String workspaceId;
-  WorkspaceService({
-    required this.workspaceId,
-  });
 
   Future<Either<ViewPB, FlowyError>> createApp({
     required String name,

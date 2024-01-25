@@ -7,12 +7,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'text_cell_bloc.freezed.dart';
 
 class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
+  TextCellBloc({required this.cellController})
+      : super(TextCellState.initial(cellController)) {
+    _dispatch();
+  }
+
   final TextCellController cellController;
   void Function()? _onCellChangedFn;
 
-  TextCellBloc({
-    required this.cellController,
-  }) : super(TextCellState.initial(cellController)) {
+  void _dispatch() {
     on<TextCellEvent>(
       (event, emit) {
         event.when(
@@ -50,11 +53,11 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: ((cellContent) {
+      onCellChanged: (cellContent) {
         if (!isClosed) {
           add(TextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
-      }),
+      },
       onRowMetaChanged: () {
         if (!isClosed && cellController.fieldInfo.isPrimary) {
           add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));

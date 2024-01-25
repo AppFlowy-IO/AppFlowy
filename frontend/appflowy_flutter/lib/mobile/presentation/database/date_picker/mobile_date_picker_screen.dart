@@ -14,14 +14,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileDateCellEditScreen extends StatefulWidget {
-  static const routeName = '/edit_date_cell';
-
-  // the type is DateCellController
-  static const dateCellController = 'date_cell_controller';
-
-  // bool value, default is true
-  static const fullScreen = 'full_screen';
-
   const MobileDateCellEditScreen({
     super.key,
     required this.controller,
@@ -30,6 +22,14 @@ class MobileDateCellEditScreen extends StatefulWidget {
 
   final DateCellController controller;
   final bool showAsFullScreen;
+
+  static const routeName = '/edit_date_cell';
+
+  // the type is DateCellController
+  static const dateCellController = 'date_cell_controller';
+
+  // bool value, default is true
+  static const fullScreen = 'full_screen';
 
   @override
   State<MobileDateCellEditScreen> createState() =>

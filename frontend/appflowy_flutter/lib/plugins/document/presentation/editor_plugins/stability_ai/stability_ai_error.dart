@@ -1,7 +1,7 @@
 class StabilityAIRequestError {
-  final String message;
-
   StabilityAIRequestError(this.message);
+
+  final String message;
 
   @override
   String toString() {

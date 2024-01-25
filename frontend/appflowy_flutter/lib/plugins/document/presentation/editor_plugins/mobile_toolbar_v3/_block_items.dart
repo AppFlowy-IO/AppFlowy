@@ -114,8 +114,6 @@ class BlockItems extends StatelessWidget {
         size: const Size(62, 54),
         enableTopLeftRadius: false,
         enableBottomLeftRadius: false,
-        enableTopRightRadius: true,
-        enableBottomRightRadius: true,
         showDownArrow: true,
         onTap: _onLinkItemTap,
         backgroundColor: theme.toolbarMenuItemBackgroundColor,
@@ -154,7 +152,7 @@ class BlockItems extends StatelessWidget {
           .getTextInSelection(
             selection,
           )
-          .join('');
+          .join();
       final href = editorState.getDeltaAttributeValueInSelection<String>(
         AppFlowyRichTextKeys.href,
         selection,

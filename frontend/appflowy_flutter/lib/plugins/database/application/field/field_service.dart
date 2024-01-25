@@ -9,10 +9,10 @@ import 'package:dartz/dartz.dart';
 /// `rust-lib/flowy-database/event_map.rs` for a list of events and their
 /// implementations.
 class FieldBackendService {
+  FieldBackendService({required this.viewId, required this.fieldId});
+
   final String viewId;
   final String fieldId;
-
-  FieldBackendService({required this.viewId, required this.fieldId});
 
   /// Create a field in a database view. The position will only be applicable
   /// in this view; for other views it will be appended to the end
@@ -167,19 +167,16 @@ class FieldBackendService {
 
   Future<Either<Unit, FlowyError>> updateType({
     required FieldType fieldType,
-  }) {
-    return updateFieldType(
-      viewId: viewId,
-      fieldId: fieldId,
-      fieldType: fieldType,
-    );
-  }
+  }) =>
+      updateFieldType(
+        viewId: viewId,
+        fieldId: fieldId,
+        fieldType: fieldType,
+      );
 
-  Future<Either<Unit, FlowyError>> delete() {
-    return deleteField(viewId: viewId, fieldId: fieldId);
-  }
+  Future<Either<Unit, FlowyError>> delete() =>
+      deleteField(viewId: viewId, fieldId: fieldId);
 
-  Future<Either<Unit, FlowyError>> duplicate() {
-    return duplicateField(viewId: viewId, fieldId: fieldId);
-  }
+  Future<Either<Unit, FlowyError>> duplicate() =>
+      duplicateField(viewId: viewId, fieldId: fieldId);
 }

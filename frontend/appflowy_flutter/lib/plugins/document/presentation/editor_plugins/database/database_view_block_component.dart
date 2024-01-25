@@ -75,7 +75,6 @@ class _DatabaseBlockComponentWidgetState
         return DatabaseViewWidget(
           key: ValueKey(viewPB.id),
           view: viewPB,
-          shrinkWrap: true,
         );
       },
     );

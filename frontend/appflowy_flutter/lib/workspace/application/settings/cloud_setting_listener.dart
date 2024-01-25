@@ -10,11 +10,11 @@ import 'package:dartz/dartz.dart';
 import '../../../core/notification/user_notification.dart';
 
 class UserCloudConfigListener {
-  StreamSubscription<SubscribeObject>? _subscription;
-  void Function(Either<CloudSettingPB, FlowyError>)? _onSettingChanged;
+  UserCloudConfigListener();
 
   UserNotificationParser? _userParser;
-  UserCloudConfigListener();
+  StreamSubscription<SubscribeObject>? _subscription;
+  void Function(Either<CloudSettingPB, FlowyError>)? _onSettingChanged;
 
   void start({
     void Function(Either<CloudSettingPB, FlowyError>)? onSettingChanged,

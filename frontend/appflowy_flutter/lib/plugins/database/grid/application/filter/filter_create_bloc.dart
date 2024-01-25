@@ -1,8 +1,8 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_filter.pbenum.dart';
@@ -10,21 +10,27 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart
 import 'package:appflowy_backend/protobuf/flowy-database2/number_filter.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'filter_create_bloc.freezed.dart';
 
 class GridCreateFilterBloc
     extends Bloc<GridCreateFilterEvent, GridCreateFilterState> {
+  GridCreateFilterBloc({required this.viewId, required this.fieldController})
+      : _filterBackendSvc = FilterBackendService(viewId: viewId),
+        super(GridCreateFilterState.initial(fieldController.fieldInfos)) {
+    _dispatch();
+  }
+
   final String viewId;
   final FilterBackendService _filterBackendSvc;
   final FieldController fieldController;
   void Function(List<FieldInfo>)? _onFieldFn;
-  GridCreateFilterBloc({required this.viewId, required this.fieldController})
-      : _filterBackendSvc = FilterBackendService(viewId: viewId),
-        super(GridCreateFilterState.initial(fieldController.fieldInfos)) {
+
+  void _dispatch() {
     on<GridCreateFilterEvent>(
       (event, emit) async {
         event.when(
@@ -118,7 +124,6 @@ class GridCreateFilterBloc
         return _filterBackendSvc.insertNumberFilter(
           fieldId: fieldId,
           condition: NumberFilterConditionPB.Equal,
-          content: "",
         );
       case FieldType.RichText:
         return _filterBackendSvc.insertTextFilter(

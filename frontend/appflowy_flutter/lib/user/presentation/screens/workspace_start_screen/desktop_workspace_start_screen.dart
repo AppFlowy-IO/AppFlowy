@@ -57,12 +57,13 @@ Widget _renderList(List<WorkspacePB> workspaces) {
 }
 
 class _WorkspaceItem extends StatelessWidget {
-  final WorkspacePB workspace;
-  final void Function(WorkspacePB workspace) onPressed;
   const _WorkspaceItem({
     required this.workspace,
     required this.onPressed,
   });
+
+  final WorkspacePB workspace;
+  final void Function(WorkspacePB workspace) onPressed;
 
   @override
   Widget build(BuildContext context) {

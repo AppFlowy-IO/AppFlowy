@@ -323,7 +323,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
     Widget child = InkWell(
       borderRadius: BorderRadius.circular(4.0),
-      enableFeedback: true,
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
         height: _itemHeight,

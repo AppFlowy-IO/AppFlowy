@@ -4,11 +4,6 @@ import 'package:appflowy/mobile/presentation/base/mobile_view_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 class MobileGridScreen extends StatelessWidget {
-  static const routeName = '/grid';
-  static const viewId = 'id';
-  static const viewTitle = 'title';
-  static const viewArgs = 'arguments';
-
   const MobileGridScreen({
     super.key,
     required this.id,
@@ -20,6 +15,11 @@ class MobileGridScreen extends StatelessWidget {
   final String id;
   final String? title;
   final Map<String, dynamic>? arguments;
+
+  static const routeName = '/grid';
+  static const viewId = 'id';
+  static const viewTitle = 'title';
+  static const viewArgs = 'arguments';
 
   @override
   Widget build(BuildContext context) {

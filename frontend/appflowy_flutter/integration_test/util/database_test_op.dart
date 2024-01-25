@@ -205,7 +205,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }) async {
     final cell = cellFinder(rowIndex, fieldType);
     expect(cell, findsOneWidget);
-    await tapButton(cell, warnIfMissed: false);
+    await tapButton(cell);
   }
 
   /// The [fieldName] must be unique in the grid.
@@ -1110,7 +1110,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       skipOffstage: false,
     );
     expect(findCell, findsOneWidget);
-    await tapButton(findCell, warnIfMissed: false);
+    await tapButton(findCell);
   }
 
   Future<void> tapCheckedButtonOnCheckboxFilter() async {

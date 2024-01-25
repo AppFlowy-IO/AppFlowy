@@ -44,10 +44,8 @@ class DocumentPluginBuilder extends PluginBuilder {
 
 class DocumentPlugin extends Plugin<int> {
   DocumentPlugin({
-    Key? key,
     required ViewPB view,
     required PluginType pluginType,
-    bool listenOnViewChanged = false,
     this.initialSelection,
   }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
@@ -76,7 +74,6 @@ class DocumentPlugin extends Plugin<int> {
 class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
     with NavigationItem {
   DocumentPluginWidgetBuilder({
-    Key? key,
     required this.notifier,
     this.initialSelection,
   });

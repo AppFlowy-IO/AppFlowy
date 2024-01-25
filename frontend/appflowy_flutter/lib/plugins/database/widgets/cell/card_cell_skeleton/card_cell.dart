@@ -2,15 +2,15 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller.dart'
 import 'package:flutter/material.dart';
 
 abstract class CardCell<T extends CardCellStyle> extends StatefulWidget {
-  final T style;
-
   const CardCell({super.key, required this.style});
+
+  final T style;
 }
 
 abstract class CardCellStyle {
-  final EdgeInsetsGeometry padding;
-
   const CardCellStyle({required this.padding});
+
+  final EdgeInsetsGeometry padding;
 }
 
 S? isStyleOrNull<S>(CardCellStyle? style) {
@@ -22,10 +22,10 @@ S? isStyleOrNull<S>(CardCellStyle? style) {
 }
 
 class EditableCardNotifier {
-  final ValueNotifier<bool> isCellEditing;
-
   EditableCardNotifier({bool isEditing = false})
       : isCellEditing = ValueNotifier(isEditing);
+
+  final ValueNotifier<bool> isCellEditing;
 
   void dispose() {
     isCellEditing.dispose();
@@ -33,11 +33,11 @@ class EditableCardNotifier {
 }
 
 class EditableRowNotifier {
-  final Map<CellContext, EditableCardNotifier> _cells = {};
-  final ValueNotifier<bool> isEditing;
-
   EditableRowNotifier({required bool isEditing})
       : isEditing = ValueNotifier(isEditing);
+
+  final Map<CellContext, EditableCardNotifier> _cells = {};
+  final ValueNotifier<bool> isEditing;
 
   void bindCell(
     CellContext cellIdentifier,

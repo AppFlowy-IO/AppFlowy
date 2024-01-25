@@ -22,8 +22,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingSupabaseCloudView extends StatelessWidget {
-  final VoidCallback didResetServerUrl;
   const SettingSupabaseCloudView({required this.didResetServerUrl, super.key});
+
+  final VoidCallback didResetServerUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -75,11 +76,9 @@ class SettingSupabaseCloudView extends StatelessWidget {
 }
 
 class SupabaseCloudURLs extends StatelessWidget {
+  const SupabaseCloudURLs({super.key, required this.didUpdateUrls});
+
   final VoidCallback didUpdateUrls;
-  const SupabaseCloudURLs({
-    required this.didUpdateUrls,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +175,6 @@ class EnableEncrypt extends StatelessWidget {
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IntrinsicHeight(
                   child: Opacity(
@@ -193,7 +191,7 @@ class EnableEncrypt extends StatelessWidget {
                   child: FlowyTooltip(
                     message: LocaleKeys.settings_menu_clickToCopySecret.tr(),
                     child: FlowyButton(
-                      disable: !(state.setting.enableEncrypt),
+                      disable: !state.setting.enableEncrypt,
                       decoration: BoxDecoration(
                         borderRadius: Corners.s5Border,
                         border: Border.all(
@@ -248,20 +246,20 @@ class SupabaseEnableSync extends StatelessWidget {
 
 @visibleForTesting
 class SupabaseInput extends StatefulWidget {
+  const SupabaseInput({
+    super.key,
+    required this.title,
+    required this.url,
+    required this.hint,
+    required this.error,
+    required this.onChanged,
+  });
+
   final String title;
   final String url;
   final String hint;
   final String? error;
   final Function(String) onChanged;
-
-  const SupabaseInput({
-    required this.title,
-    required this.url,
-    required this.hint,
-    required this.onChanged,
-    required this.error,
-    super.key,
-  });
 
   @override
   SupabaseInputState createState() => SupabaseInputState();
@@ -310,9 +308,10 @@ class SupabaseInputState extends State<SupabaseInput> {
 }
 
 class SupabaseSelfhostTip extends StatelessWidget {
+  const SupabaseSelfhostTip({super.key});
+
   final url =
       "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy-using-supabase";
-  const SupabaseSelfhostTip({super.key});
 
   @override
   Widget build(BuildContext context) {
