@@ -167,6 +167,36 @@ class _DatePickerState extends State<DatePicker> {
 }
 
 class _CalendarStyle {
+  _CalendarStyle.desktop({
+    required TextStyle textStyle,
+    required this.selectedColor,
+    required this.dowTextStyle,
+    Color? iconColor,
+  })  : rowHeight = 33,
+        dowHeight = 35,
+        headerVisible = true,
+        headerStyle = HeaderStyle(
+          formatButtonVisible: false,
+          titleCentered: true,
+          titleTextStyle: textStyle,
+          leftChevronMargin: EdgeInsets.zero,
+          leftChevronPadding: EdgeInsets.zero,
+          leftChevronIcon: FlowySvg(FlowySvgs.arrow_left_s, color: iconColor),
+          rightChevronPadding: EdgeInsets.zero,
+          rightChevronMargin: EdgeInsets.zero,
+          rightChevronIcon: FlowySvg(FlowySvgs.arrow_right_s, color: iconColor),
+          headerPadding: const EdgeInsets.only(bottom: 8.0),
+        ),
+        availableGestures = AvailableGestures.all;
+
+  _CalendarStyle.mobile({required this.dowTextStyle})
+      : rowHeight = 48,
+        dowHeight = 48,
+        headerVisible = false,
+        headerStyle = const HeaderStyle(),
+        selectedColor = const Color(0xFF00BCF0),
+        availableGestures = AvailableGestures.horizontalSwipe;
+
   _CalendarStyle({
     required this.rowHeight,
     required this.dowHeight,
@@ -184,41 +214,4 @@ class _CalendarStyle {
   final TextStyle dowTextStyle;
   final Color selectedColor;
   final AvailableGestures availableGestures;
-
-  _CalendarStyle.mobile({
-    required this.dowTextStyle,
-  })  : rowHeight = 48,
-        dowHeight = 48,
-        headerVisible = false,
-        headerStyle = const HeaderStyle(),
-        selectedColor = const Color(0xFF00BCF0),
-        availableGestures = AvailableGestures.horizontalSwipe;
-
-  _CalendarStyle.desktop({
-    required TextStyle textStyle,
-    required this.selectedColor,
-    required this.dowTextStyle,
-    Color? iconColor,
-  })  : rowHeight = 33,
-        dowHeight = 35,
-        headerVisible = true,
-        headerStyle = HeaderStyle(
-          formatButtonVisible: false,
-          titleCentered: true,
-          titleTextStyle: textStyle,
-          leftChevronMargin: EdgeInsets.zero,
-          leftChevronPadding: EdgeInsets.zero,
-          leftChevronIcon: FlowySvg(
-            FlowySvgs.arrow_left_s,
-            color: iconColor,
-          ),
-          rightChevronPadding: EdgeInsets.zero,
-          rightChevronMargin: EdgeInsets.zero,
-          rightChevronIcon: FlowySvg(
-            FlowySvgs.arrow_right_s,
-            color: iconColor,
-          ),
-          headerPadding: const EdgeInsets.only(bottom: 8.0),
-        ),
-        availableGestures = AvailableGestures.all;
 }

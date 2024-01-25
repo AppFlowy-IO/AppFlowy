@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -20,8 +22,8 @@ enum SettingsPage {
 
 class SettingsDialogBloc
     extends Bloc<SettingsDialogEvent, SettingsDialogState> {
-  final UserListener _userListener;
   final UserProfilePB userProfile;
+  final UserListener _userListener;
 
   SettingsDialogBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),

@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/plugins/database/application/defines.dart';

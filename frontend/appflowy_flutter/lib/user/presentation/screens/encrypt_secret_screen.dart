@@ -12,14 +12,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../application/encrypt_secret_bloc.dart';
 
 class EncryptSecretScreen extends StatefulWidget {
-  static const routeName = '/EncryptSecretScreen';
-  // arguments names to used in GoRouter
-  static const argUser = 'user';
-  static const argKey = 'key';
-
   const EncryptSecretScreen({required this.user, super.key});
 
   final UserProfilePB user;
+
+  static const routeName = '/EncryptSecretScreen';
+
+  // arguments used in GoRouter
+  static const argUser = 'user';
+  static const argKey = 'key';
 
   @override
   State<EncryptSecretScreen> createState() => _EncryptSecretScreenState();

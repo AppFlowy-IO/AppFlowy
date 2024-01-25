@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'dart:typed_data';
 
 import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';

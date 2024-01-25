@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/cloud_setting_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -13,6 +15,7 @@ part 'appflowy_cloud_setting_bloc.freezed.dart';
 class AppFlowyCloudSettingBloc
     extends Bloc<AppFlowyCloudSettingEvent, AppFlowyCloudSettingState> {
   final UserCloudConfigListener _listener;
+
   AppFlowyCloudSettingBloc(CloudSettingPB setting)
       : _listener = UserCloudConfigListener(),
         super(AppFlowyCloudSettingState.initial(setting)) {

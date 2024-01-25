@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,9 +11,9 @@ part 'url_cell_bloc.freezed.dart';
 class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
   final URLCellController cellController;
   void Function()? _onCellChangedFn;
-  URLCellBloc({
-    required this.cellController,
-  }) : super(URLCellState.initial(cellController)) {
+
+  URLCellBloc({required this.cellController})
+      : super(URLCellState.initial(cellController)) {
     on<URLCellEvent>(
       (event, emit) async {
         event.when(

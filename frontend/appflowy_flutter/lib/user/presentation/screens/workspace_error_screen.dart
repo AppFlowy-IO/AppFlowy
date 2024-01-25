@@ -13,11 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../application/workspace_error_bloc.dart';
 
 class WorkspaceErrorScreen extends StatelessWidget {
-  static const routeName = "/WorkspaceErrorScreen";
-  // arguments names to used in GoRouter
-  static const argError = "error";
-  static const argUserFolder = "userFolder";
-
   const WorkspaceErrorScreen({
     super.key,
     required this.userFolder,
@@ -26,6 +21,11 @@ class WorkspaceErrorScreen extends StatelessWidget {
 
   final UserFolderPB userFolder;
   final FlowyError error;
+
+  static const routeName = "/WorkspaceErrorScreen";
+  // arguments names to used in GoRouter
+  static const argError = "error";
+  static const argUserFolder = "userFolder";
 
   @override
   Widget build(BuildContext context) {

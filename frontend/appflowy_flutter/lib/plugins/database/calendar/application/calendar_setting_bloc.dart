@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/layout/layout_setting_listener.dart';
 import 'package:appflowy_backend/log.dart';

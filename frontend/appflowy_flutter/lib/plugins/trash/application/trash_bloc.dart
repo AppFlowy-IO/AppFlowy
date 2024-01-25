@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
@@ -12,6 +14,7 @@ part 'trash_bloc.freezed.dart';
 class TrashBloc extends Bloc<TrashEvent, TrashState> {
   final TrashService _service;
   final TrashListener _listener;
+
   TrashBloc()
       : _service = TrashService(),
         _listener = TrashListener(),

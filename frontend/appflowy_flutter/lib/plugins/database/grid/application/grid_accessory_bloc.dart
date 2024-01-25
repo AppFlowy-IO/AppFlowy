@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -8,11 +10,7 @@ class DatabaseViewSettingExtensionBloc extends Bloc<
   final String viewId;
 
   DatabaseViewSettingExtensionBloc({required this.viewId})
-      : super(
-          DatabaseViewSettingExtensionState.initial(
-            viewId,
-          ),
-        ) {
+      : super(DatabaseViewSettingExtensionState.initial(viewId)) {
     on<DatabaseViewSettingExtensionEvent>(
       (event, emit) async {
         event.when(

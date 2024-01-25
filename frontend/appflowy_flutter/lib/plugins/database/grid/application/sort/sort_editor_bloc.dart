@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/sort/sort_service.dart';
@@ -17,6 +19,7 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
   final SortBackendService _sortBackendSvc;
   final FieldController fieldController;
   void Function(List<FieldInfo>)? _onFieldFn;
+
   SortEditorBloc({
     required this.viewId,
     required this.fieldController,

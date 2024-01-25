@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'dart:async';
 import 'dart:io';
 
@@ -14,13 +16,11 @@ class ChangeCoverPopoverBloc
     extends Bloc<ChangeCoverPopoverEvent, ChangeCoverPopoverState> {
   final EditorState editorState;
   final Node node;
-  late final SharedPreferences _prefs;
   final _initCompleter = Completer<void>();
+  late final SharedPreferences _prefs;
 
-  ChangeCoverPopoverBloc({
-    required this.editorState,
-    required this.node,
-  }) : super(const ChangeCoverPopoverState.initial()) {
+  ChangeCoverPopoverBloc({required this.editorState, required this.node})
+      : super(const ChangeCoverPopoverState.initial()) {
     SharedPreferences.getInstance().then((prefs) {
       _prefs = prefs;
       _initCompleter.complete();

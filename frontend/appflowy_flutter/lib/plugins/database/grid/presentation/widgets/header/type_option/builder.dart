@@ -17,14 +17,6 @@ import 'url.dart';
 typedef TypeOptionDataCallback = void Function(Uint8List typeOptionData);
 
 abstract class TypeOptionEditorFactory {
-  Widget? build({
-    required BuildContext context,
-    required String viewId,
-    required FieldPB field,
-    required PopoverMutex popoverMutex,
-    required TypeOptionDataCallback onTypeOptionUpdated,
-  });
-
   factory TypeOptionEditorFactory.makeBuilder(FieldType fieldType) {
     return switch (fieldType) {
       FieldType.RichText => const RichTextTypeOptionEditorFactory(),
@@ -40,6 +32,14 @@ abstract class TypeOptionEditorFactory {
       _ => throw UnimplementedError(),
     };
   }
+
+  Widget? build({
+    required BuildContext context,
+    required String viewId,
+    required FieldPB field,
+    required PopoverMutex popoverMutex,
+    required TypeOptionDataCallback onTypeOptionUpdated,
+  });
 }
 
 Widget? makeTypeOptionEditor({

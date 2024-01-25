@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
@@ -18,14 +20,13 @@ import 'package:protobuf/protobuf.dart';
 part 'view_bloc.freezed.dart';
 
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
+  final ViewPB view;
   final ViewBackendService viewBackendSvc;
   final ViewListener listener;
   final FavoriteListener favoriteListener;
-  final ViewPB view;
 
-  ViewBloc({
-    required this.view,
-  })  : viewBackendSvc = ViewBackendService(),
+  ViewBloc({required this.view})
+      : viewBackendSvc = ViewBackendService(),
         listener = ViewListener(viewId: view.id),
         favoriteListener = FavoriteListener(),
         super(ViewState.init(view)) {

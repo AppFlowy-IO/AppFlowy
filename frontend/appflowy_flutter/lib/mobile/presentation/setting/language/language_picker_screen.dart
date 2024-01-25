@@ -7,14 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class LanguagePickerScreen extends StatelessWidget {
-  static const routeName = '/language_picker';
-
   const LanguagePickerScreen({super.key});
 
+  static const routeName = '/language_picker';
+
   @override
-  Widget build(BuildContext context) {
-    return const LanguagePickerPage();
-  }
+  Widget build(BuildContext context) => const LanguagePickerPage();
 }
 
 class LanguagePickerPage extends StatefulWidget {

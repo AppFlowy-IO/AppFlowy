@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +15,7 @@ part 'sign_up_bloc.freezed.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final AuthService authService;
+
   SignUpBloc(this.authService) : super(SignUpState.initial()) {
     on<SignUpEvent>((event, emit) async {
       await event.map(

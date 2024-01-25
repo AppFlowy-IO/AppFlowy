@@ -9,10 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileNewPropertyScreen extends StatefulWidget {
-  static const routeName = '/new_property';
-  static const argViewId = 'view_id';
-  static const argFieldTypeId = 'field_type_id';
-
   const MobileNewPropertyScreen({
     super.key,
     required this.viewId,
@@ -21,6 +17,10 @@ class MobileNewPropertyScreen extends StatefulWidget {
 
   final String viewId;
   final FieldType? fieldType;
+
+  static const routeName = '/new_property';
+  static const argViewId = 'view_id';
+  static const argFieldTypeId = 'field_type_id';
 
   @override
   State<MobileNewPropertyScreen> createState() =>

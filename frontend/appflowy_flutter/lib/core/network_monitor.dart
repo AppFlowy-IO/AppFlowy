@@ -7,13 +7,13 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flutter/services.dart';
 
 class NetworkListener {
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
   NetworkListener() {
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
+
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   Future<void> start() async {
     late ConnectivityResult result;

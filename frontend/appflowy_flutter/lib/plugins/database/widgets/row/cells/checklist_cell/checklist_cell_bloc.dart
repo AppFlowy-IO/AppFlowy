@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/cell/checklist_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -19,9 +21,9 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   final ChecklistCellController cellController;
   final ChecklistCellBackendService _checklistCellService;
   void Function()? _onCellChangedFn;
-  ChecklistCellBloc({
-    required this.cellController,
-  })  : _checklistCellService = ChecklistCellBackendService(
+
+  ChecklistCellBloc({required this.cellController})
+      : _checklistCellService = ChecklistCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,

@@ -14,12 +14,6 @@ import '../../../application/row/row_service.dart';
 part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
-  final FieldController fieldController;
-  final RowBackendService _rowBackendSvc;
-  final RowController _rowController;
-  final String viewId;
-  final String rowId;
-
   RowBloc({
     required this.fieldController,
     required this.rowId,
@@ -32,6 +26,12 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     _startListening();
     _init();
   }
+
+  final FieldController fieldController;
+  final RowBackendService _rowBackendSvc;
+  final RowController _rowController;
+  final String viewId;
+  final String rowId;
 
   @override
   Future<void> close() async {

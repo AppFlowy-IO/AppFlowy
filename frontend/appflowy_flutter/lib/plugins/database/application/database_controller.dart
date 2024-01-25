@@ -73,6 +73,24 @@ class DatabaseCallbacks {
 }
 
 class DatabaseController {
+  DatabaseController({required ViewPB view})
+      : viewId = view.id,
+        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
+        fieldController = FieldController(viewId: view.id),
+        _groupListener = DatabaseGroupListener(view.id),
+        databaseLayout = databaseLayoutFromViewLayout(view.layout),
+        _layoutListener = DatabaseLayoutSettingListener(view.id) {
+    _viewCache = DatabaseViewCache(
+      viewId: viewId,
+      fieldController: fieldController,
+    );
+
+    _listenOnRowsChanged();
+    _listenOnFieldsChanged();
+    _listenOnGroupChanged();
+    _listenOnLayoutChanged();
+  }
+
   final String viewId;
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
@@ -93,23 +111,6 @@ class DatabaseController {
   final DatabaseLayoutSettingListener _layoutListener;
 
   final ValueNotifier<bool> _isLoading = ValueNotifier(true);
-
-  DatabaseController({required ViewPB view})
-      : viewId = view.id,
-        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
-        fieldController = FieldController(viewId: view.id),
-        _groupListener = DatabaseGroupListener(view.id),
-        databaseLayout = databaseLayoutFromViewLayout(view.layout),
-        _layoutListener = DatabaseLayoutSettingListener(view.id) {
-    _viewCache = DatabaseViewCache(
-      viewId: viewId,
-      fieldController: fieldController,
-    );
-    _listenOnRowsChanged();
-    _listenOnFieldsChanged();
-    _listenOnGroupChanged();
-    _listenOnLayoutChanged();
-  }
 
   void setIsLoading(bool isLoading) {
     _isLoading.value = isLoading;

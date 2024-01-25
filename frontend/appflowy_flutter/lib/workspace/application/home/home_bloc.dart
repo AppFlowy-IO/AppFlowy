@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:appflowy_backend/log.dart';

@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -14,10 +16,8 @@ class WorkspaceErrorBloc
     extends Bloc<WorkspaceErrorEvent, WorkspaceErrorState> {
   final UserFolderPB userFolder;
 
-  WorkspaceErrorBloc({
-    required this.userFolder,
-    required FlowyError error,
-  }) : super(WorkspaceErrorState.initial(error)) {
+  WorkspaceErrorBloc({required this.userFolder, required FlowyError error})
+      : super(WorkspaceErrorState.initial(error)) {
     on<WorkspaceErrorEvent>((event, emit) async {
       await event.when(
         init: () {

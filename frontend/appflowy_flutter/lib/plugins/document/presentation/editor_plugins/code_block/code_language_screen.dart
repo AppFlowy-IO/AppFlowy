@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileCodeLanguagePickerScreen extends StatelessWidget {
-  static const routeName = '/code_language_picker';
-
   const MobileCodeLanguagePickerScreen({super.key});
+
+  static const routeName = '/code_language_picker';
 
   @override
   Widget build(BuildContext context) {

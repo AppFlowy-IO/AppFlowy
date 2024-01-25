@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -18,6 +20,7 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
   final SortBackendService _sortBackendSvc;
   final FieldController fieldController;
   void Function(List<FieldInfo>)? _onFieldFn;
+
   CreateSortBloc({required this.viewId, required this.fieldController})
       : _sortBackendSvc = SortBackendService(viewId: viewId),
         super(CreateSortState.initial(fieldController.fieldInfos)) {

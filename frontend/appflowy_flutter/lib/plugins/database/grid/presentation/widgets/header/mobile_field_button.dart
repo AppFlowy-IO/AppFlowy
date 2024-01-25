@@ -8,6 +8,15 @@ import 'package:flutter/material.dart';
 import 'field_type_extension.dart';
 
 class MobileFieldButton extends StatelessWidget {
+  const MobileFieldButton.first({
+    super.key,
+    required this.viewId,
+    required this.fieldController,
+    required this.fieldInfo,
+  })  : radius = const BorderRadius.only(topLeft: Radius.circular(24)),
+        margin = const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        index = null;
+
   const MobileFieldButton({
     super.key,
     required this.viewId,
@@ -23,15 +32,6 @@ class MobileFieldButton extends StatelessWidget {
   final FieldInfo fieldInfo;
   final BorderRadius? radius;
   final EdgeInsets? margin;
-
-  const MobileFieldButton.first({
-    super.key,
-    required this.viewId,
-    required this.fieldController,
-    required this.fieldInfo,
-  })  : radius = const BorderRadius.only(topLeft: Radius.circular(24)),
-        margin = const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-        index = null;
 
   @override
   Widget build(BuildContext context) {

@@ -269,26 +269,23 @@ typedef OnViewChildViewChanged = void Function(
 );
 
 class DatabaseTabBarController {
-  ViewPB view;
-  final DatabaseController controller;
-  final ViewListener viewListener;
-  OnViewUpdated? onViewUpdated;
-  OnViewChildViewChanged? onViewChildViewChanged;
-
-  DatabaseTabBarController({
-    required this.view,
-  })  : controller = DatabaseController(view: view),
+  DatabaseTabBarController({required this.view})
+      : controller = DatabaseController(view: view),
         viewListener = ViewListener(viewId: view.id) {
     viewListener.start(
-      onViewChildViewsUpdated: (update) {
-        onViewChildViewChanged?.call(update);
-      },
+      onViewChildViewsUpdated: (update) => onViewChildViewChanged?.call(update),
       onViewUpdated: (newView) {
         view = newView;
         onViewUpdated?.call(newView);
       },
     );
   }
+
+  ViewPB view;
+  final DatabaseController controller;
+  final ViewListener viewListener;
+  OnViewUpdated? onViewUpdated;
+  OnViewChildViewChanged? onViewChildViewChanged;
 
   Future<void> dispose() async {
     await viewListener.stop();

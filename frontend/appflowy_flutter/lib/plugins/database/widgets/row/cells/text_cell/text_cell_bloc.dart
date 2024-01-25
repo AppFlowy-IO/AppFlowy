@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
@@ -10,9 +12,8 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   final TextCellController cellController;
   void Function()? _onCellChangedFn;
 
-  TextCellBloc({
-    required this.cellController,
-  }) : super(TextCellState.initial(cellController)) {
+  TextCellBloc({required this.cellController})
+      : super(TextCellState.initial(cellController)) {
     on<TextCellEvent>(
       (event, emit) {
         event.when(

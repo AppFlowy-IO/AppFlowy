@@ -17,14 +17,6 @@ import '../mobile_row_detail/mobile_row_detail_select_cell_option.dart';
 abstract class IEditableSelectOptionCellSkin {
   const IEditableSelectOptionCellSkin();
 
-  Widget build(
-    BuildContext context,
-    CellContainerNotifier cellContainerNotifier,
-    SelectOptionCellBloc bloc,
-    SelectOptionCellState state,
-    PopoverController popoverController,
-  );
-
   factory IEditableSelectOptionCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridSelectOptionCellSkin(),
@@ -35,6 +27,14 @@ abstract class IEditableSelectOptionCellSkin {
         MobileRowDetailSelectOptionCellSkin(),
     };
   }
+
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    SelectOptionCellBloc bloc,
+    SelectOptionCellState state,
+    PopoverController popoverController,
+  );
 }
 
 class EditableSelectOptionCell extends EditableCellWidget {

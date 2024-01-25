@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'dart:async';
 
 import 'package:appflowy/workspace/application/workspace/workspace_listener.dart';
@@ -18,10 +20,8 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   final UserProfilePB user;
   final String workspaceId;
 
-  MenuBloc({
-    required this.user,
-    required this.workspaceId,
-  })  : _workspaceService = WorkspaceService(workspaceId: workspaceId),
+  MenuBloc({required this.user, required this.workspaceId})
+      : _workspaceService = WorkspaceService(workspaceId: workspaceId),
         _listener = WorkspaceListener(
           user: user,
           workspaceId: workspaceId,

@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';

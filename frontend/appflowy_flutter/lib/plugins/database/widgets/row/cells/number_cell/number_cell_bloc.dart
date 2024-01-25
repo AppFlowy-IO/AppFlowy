@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,9 +11,8 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final NumberCellController cellController;
   void Function()? _onCellChangedFn;
 
-  NumberCellBloc({
-    required this.cellController,
-  }) : super(NumberCellState.initial(cellController)) {
+  NumberCellBloc({required this.cellController})
+      : super(NumberCellState.initial(cellController)) {
     on<NumberCellEvent>(
       (event, emit) async {
         event.when(

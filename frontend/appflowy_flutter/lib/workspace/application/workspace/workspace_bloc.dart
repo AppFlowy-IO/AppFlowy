@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
@@ -10,9 +12,8 @@ part 'workspace_bloc.freezed.dart';
 
 class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
   final UserBackendService userService;
-  WorkspaceBloc({
-    required this.userService,
-  }) : super(WorkspaceState.initial()) {
+
+  WorkspaceBloc({required this.userService}) : super(WorkspaceState.initial()) {
     on<WorkspaceEvent>(
       (event, emit) async {
         await event.map(

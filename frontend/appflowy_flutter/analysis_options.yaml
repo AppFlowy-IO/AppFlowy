@@ -48,6 +48,8 @@ linter:
 
     - always_declare_return_types
 
+    - sort_constructors_first
+
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 

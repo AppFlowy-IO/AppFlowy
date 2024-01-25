@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
@@ -12,9 +14,8 @@ class SelectOptionCellBloc
   final SelectOptionCellController cellController;
   void Function()? _onCellChangedFn;
 
-  SelectOptionCellBloc({
-    required this.cellController,
-  }) : super(SelectOptionCellState.initial(cellController)) {
+  SelectOptionCellBloc({required this.cellController})
+      : super(SelectOptionCellState.initial(cellController)) {
     on<SelectOptionCellEvent>(
       (event, emit) async {
         await event.when(

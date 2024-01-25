@@ -39,6 +39,31 @@ class FieldOptionValues {
     this.selectOption = const [],
   });
 
+  factory FieldOptionValues.fromField({required FieldPB field}) {
+    final fieldType = field.fieldType;
+    final buffer = field.typeOptionData;
+    return FieldOptionValues(
+      type: fieldType,
+      name: field.name,
+      numberFormat: fieldType == FieldType.Number
+          ? NumberTypeOptionPB.fromBuffer(buffer).format
+          : null,
+      dateFormate: fieldType == FieldType.DateTime
+          ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
+          : null,
+      timeFormat: fieldType == FieldType.DateTime
+          ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
+          : null,
+      selectOption: switch (fieldType) {
+        FieldType.SingleSelect =>
+          SingleSelectTypeOptionPB.fromBuffer(buffer).options,
+        FieldType.MultiSelect =>
+          MultiSelectTypeOptionPB.fromBuffer(buffer).options,
+        _ => [],
+      },
+    );
+  }
+
   FieldType type;
   String name;
 
@@ -94,33 +119,6 @@ class FieldOptionValues {
       default:
         throw UnimplementedError();
     }
-  }
-
-  factory FieldOptionValues.fromField({
-    required FieldPB field,
-  }) {
-    final fieldType = field.fieldType;
-    final buffer = field.typeOptionData;
-    return FieldOptionValues(
-      type: fieldType,
-      name: field.name,
-      numberFormat: fieldType == FieldType.Number
-          ? NumberTypeOptionPB.fromBuffer(buffer).format
-          : null,
-      dateFormate: fieldType == FieldType.DateTime
-          ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
-          : null,
-      timeFormat: fieldType == FieldType.DateTime
-          ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
-          : null,
-      selectOption: switch (fieldType) {
-        FieldType.SingleSelect =>
-          SingleSelectTypeOptionPB.fromBuffer(buffer).options,
-        FieldType.MultiSelect =>
-          MultiSelectTypeOptionPB.fromBuffer(buffer).options,
-        _ => [],
-      },
-    );
   }
 }
 

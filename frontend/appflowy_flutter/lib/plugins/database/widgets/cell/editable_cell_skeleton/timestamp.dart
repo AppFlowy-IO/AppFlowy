@@ -16,13 +16,6 @@ import '../mobile_row_detail/mobile_row_detail_timestamp_cell.dart';
 abstract class IEditableTimestampCellSkin {
   const IEditableTimestampCellSkin();
 
-  Widget build(
-    BuildContext context,
-    CellContainerNotifier cellContainerNotifier,
-    TimestampCellBloc bloc,
-    TimestampCellState state,
-  );
-
   factory IEditableTimestampCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridTimestampCellSkin(),
@@ -31,6 +24,13 @@ abstract class IEditableTimestampCellSkin {
       EditableCellStyle.mobileRowDetail => MobileRowDetailTimestampCellSkin(),
     };
   }
+
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    TimestampCellBloc bloc,
+    TimestampCellState state,
+  );
 }
 
 class EditableTimestampCell extends EditableCellWidget {

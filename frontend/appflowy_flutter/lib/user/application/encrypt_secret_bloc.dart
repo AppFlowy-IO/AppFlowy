@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -13,6 +15,7 @@ part 'encrypt_secret_bloc.freezed.dart';
 
 class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
   final UserProfilePB user;
+
   EncryptSecretBloc({required this.user})
       : super(EncryptSecretState.initial()) {
     on<EncryptSecretEvent>((event, emit) async {

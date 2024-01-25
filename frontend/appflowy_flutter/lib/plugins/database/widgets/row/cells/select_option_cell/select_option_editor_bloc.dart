@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
@@ -18,9 +20,8 @@ class SelectOptionCellEditorBloc
 
   VoidCallback? _onCellChangedFn;
 
-  SelectOptionCellEditorBloc({
-    required this.cellController,
-  })  : _selectOptionService = SelectOptionCellBackendService(
+  SelectOptionCellEditorBloc({required this.cellController})
+      : _selectOptionService = SelectOptionCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,

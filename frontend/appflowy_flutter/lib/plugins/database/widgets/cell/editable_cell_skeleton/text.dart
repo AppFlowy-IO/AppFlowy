@@ -15,14 +15,6 @@ import '../mobile_row_detail/mobile_row_detail_text_cell.dart';
 abstract class IEditableTextCellSkin {
   const IEditableTextCellSkin();
 
-  Widget build(
-    BuildContext context,
-    CellContainerNotifier cellContainerNotifier,
-    TextCellBloc bloc,
-    FocusNode focusNode,
-    TextEditingController textEditingController,
-  );
-
   factory IEditableTextCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridTextCellSkin(),
@@ -31,6 +23,14 @@ abstract class IEditableTextCellSkin {
       EditableCellStyle.mobileRowDetail => MobileRowDetailTextCellSkin(),
     };
   }
+
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    TextCellBloc bloc,
+    FocusNode focusNode,
+    TextEditingController textEditingController,
+  );
 }
 
 class EditableTextCell extends EditableCellWidget {

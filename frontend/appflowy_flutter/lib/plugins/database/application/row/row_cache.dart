@@ -28,6 +28,24 @@ abstract mixin class RowLifeCycle {
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information.
 
 class RowCache {
+  RowCache({
+    required this.viewId,
+    required RowFieldsDelegate fieldsDelegate,
+    required RowLifeCycle rowLifeCycle,
+  })  : _cellMemCache = CellMemCache(),
+        _changedNotifier = RowChangesetNotifier(),
+        _rowLifeCycle = rowLifeCycle,
+        _fieldDelegate = fieldsDelegate {
+    // Listen to field changes. If a field is deleted, we can safely remove the
+    // cells corresponding to that field from our cache.
+    fieldsDelegate.onFieldsChanged((fieldInfos) {
+      for (final fieldInfo in fieldInfos) {
+        _cellMemCache.removeCellWithFieldId(fieldInfo.id);
+      }
+      _changedNotifier.receive(const ChangedReason.fieldDidChange());
+    });
+  }
+
   final String viewId;
   final RowList _rowList = RowList();
   final CellMemCache _cellMemCache;
@@ -48,24 +66,6 @@ class RowCache {
 
   CellMemCache get cellCache => _cellMemCache;
   ChangedReason get changeReason => _changedNotifier.reason;
-
-  RowCache({
-    required this.viewId,
-    required RowFieldsDelegate fieldsDelegate,
-    required RowLifeCycle rowLifeCycle,
-  })  : _cellMemCache = CellMemCache(),
-        _changedNotifier = RowChangesetNotifier(),
-        _rowLifeCycle = rowLifeCycle,
-        _fieldDelegate = fieldsDelegate {
-    // Listen to field changes. If a field is deleted, we can safely remove the
-    // cells corresponding to that field from our cache.
-    fieldsDelegate.onFieldsChanged((fieldInfos) {
-      for (final fieldInfo in fieldInfos) {
-        _cellMemCache.removeCellWithFieldId(fieldInfo.id);
-      }
-      _changedNotifier.receive(const ChangedReason.fieldDidChange());
-    });
-  }
 
   RowInfo? getRow(RowId rowId) {
     return _rowList.get(rowId);

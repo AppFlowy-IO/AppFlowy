@@ -32,9 +32,9 @@ import 'home_layout.dart';
 import 'home_stack.dart';
 
 class DesktopHomeScreen extends StatelessWidget {
-  static const routeName = '/DesktopHomeScreen';
-
   const DesktopHomeScreen({super.key});
+
+  static const routeName = '/DesktopHomeScreen';
 
   @override
   Widget build(BuildContext context) {

@@ -15,13 +15,6 @@ import '../mobile_row_detail/mobile_row_detail_checkbox_cell.dart';
 abstract class IEditableCheckboxCellSkin {
   const IEditableCheckboxCellSkin();
 
-  Widget build(
-    BuildContext context,
-    CellContainerNotifier cellContainerNotifier,
-    CheckboxCellBloc bloc,
-    CheckboxCellState state,
-  );
-
   factory IEditableCheckboxCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridCheckboxCellSkin(),
@@ -30,6 +23,13 @@ abstract class IEditableCheckboxCellSkin {
       EditableCellStyle.mobileRowDetail => MobileRowDetailCheckboxCellSkin(),
     };
   }
+
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    CheckboxCellBloc bloc,
+    CheckboxCellState state,
+  );
 }
 
 class EditableCheckboxCell extends EditableCellWidget {

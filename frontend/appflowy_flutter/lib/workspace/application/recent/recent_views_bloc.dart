@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:appflowy/workspace/application/recent/recent_listener.dart';
 import 'package:appflowy/workspace/application/recent/recent_service.dart';
 import 'package:appflowy_backend/log.dart';

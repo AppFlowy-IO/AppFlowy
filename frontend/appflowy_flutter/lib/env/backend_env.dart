@@ -16,6 +16,9 @@ class AppFlowyConfiguration {
     required this.envs,
   });
 
+  factory AppFlowyConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$AppFlowyConfigurationFromJson(json);
+
   final String root;
   final String custom_app_path;
   final String origin_app_path;
@@ -24,9 +27,6 @@ class AppFlowyConfiguration {
   final SupabaseConfiguration supabase_config;
   final AppFlowyCloudConfiguration appflowy_cloud_config;
   final Map<String, String> envs;
-
-  factory AppFlowyConfiguration.fromJson(Map<String, dynamic> json) =>
-      _$AppFlowyConfigurationFromJson(json);
 
   Map<String, dynamic> toJson() => _$AppFlowyConfigurationToJson(this);
 }
@@ -38,12 +38,12 @@ class SupabaseConfiguration {
     required this.anon_key,
   });
 
+  factory SupabaseConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$SupabaseConfigurationFromJson(json);
+
   /// Indicates whether the sync feature is enabled.
   final String url;
   final String anon_key;
-
-  factory SupabaseConfiguration.fromJson(Map<String, dynamic> json) =>
-      _$SupabaseConfigurationFromJson(json);
 
   Map<String, dynamic> toJson() => _$SupabaseConfigurationToJson(this);
 
@@ -67,12 +67,12 @@ class AppFlowyCloudConfiguration {
     required this.gotrue_url,
   });
 
+  factory AppFlowyCloudConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$AppFlowyCloudConfigurationFromJson(json);
+
   final String base_url;
   final String ws_base_url;
   final String gotrue_url;
-
-  factory AppFlowyCloudConfiguration.fromJson(Map<String, dynamic> json) =>
-      _$AppFlowyCloudConfigurationFromJson(json);
 
   Map<String, dynamic> toJson() => _$AppFlowyCloudConfigurationToJson(this);
 

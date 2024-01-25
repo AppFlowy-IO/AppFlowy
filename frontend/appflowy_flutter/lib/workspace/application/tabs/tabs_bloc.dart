@@ -1,3 +1,5 @@
+// ignore_for_file: sort_constructors_first
+
 import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/plugins/util.dart';
