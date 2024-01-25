@@ -57,7 +57,7 @@ class _FolderWidgetState extends State<FolderWidget> {
           onPressedCreate: widget.createFolderCallback,
         );
       case _FolderPage.open:
-        return Container();
+        return const SizedBox.shrink();
     }
   }
 

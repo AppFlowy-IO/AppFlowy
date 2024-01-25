@@ -315,9 +315,9 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             : (widget.state is NetworkImagePicked)
                 ? widget.state.successOrFail.fold(
                     (l) => _buildImageDeleteButton(context),
-                    (r) => Container(),
+                    (r) => const SizedBox.shrink(),
                   )
-                : Container(),
+                : const SizedBox.shrink(),
       ],
     );
   }

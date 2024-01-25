@@ -40,7 +40,7 @@ class AnimatedPanelState extends State<AnimatedPanel> {
         _isHidden =
             widget.isClosed && value == Offset(widget.closedX, widget.closedY);
         return _isHidden
-            ? Container()
+            ? const SizedBox.shrink()
             : Transform.translate(offset: value, child: c);
       },
       child: widget.child,

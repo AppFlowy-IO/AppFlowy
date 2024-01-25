@@ -41,7 +41,7 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
   @override
   Widget build(BuildContext context) {
     if (!Platform.isMacOS) {
-      return widget.child ?? Container();
+      return widget.child ?? const SizedBox.shrink();
     }
     return GestureDetector(
       // https://stackoverflow.com/questions/52965799/flutter-gesturedetector-not-working-with-containers-in-stack

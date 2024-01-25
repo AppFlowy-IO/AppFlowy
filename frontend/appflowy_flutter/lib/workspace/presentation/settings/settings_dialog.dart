@@ -111,7 +111,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.shortcuts:
         return const SettingsCustomizeShortcutsWrapper();
       default:
-        return Container();
+        return const SizedBox.shrink();
     }
   }
 }
