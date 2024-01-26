@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -200,39 +201,41 @@ class _ReminderSelector extends StatelessWidget {
       onTap: () => showMobileBottomSheet(
         context,
         padding: EdgeInsets.zero,
-        builder: (context) {
-          return DraggableScrollableSheet(
-            expand: false,
-            snap: true,
-            initialChildSize: 0.7,
-            minChildSize: 0.7,
-            builder: (context, controller) => Column(
-              children: [
-                const _ReminderSelectHeader(),
-                const VSpace(12.0),
-                Flexible(
-                  child: SingleChildScrollView(
-                    controller: controller,
-                    child: Column(
-                      children: availableOptions
-                          .map(
-                            (o) => FlowyOptionTile.text(
-                              text: o.label,
-                              showTopBorder: o == ReminderOption.none,
-                              onTap: () {
-                                onReminderSelected(o);
-                                context.pop();
-                              },
-                            ),
-                          )
-                          .toList(),
-                    ),
+        builder: (_) => DraggableScrollableSheet(
+          expand: false,
+          snap: true,
+          initialChildSize: 0.7,
+          minChildSize: 0.7,
+          builder: (context, controller) => Column(
+            children: [
+              ColoredBox(
+                color: Theme.of(context).colorScheme.surface,
+                child: const Center(child: DragHandler()),
+              ),
+              const _ReminderSelectHeader(),
+              Flexible(
+                child: SingleChildScrollView(
+                  controller: controller,
+                  child: Column(
+                    children: availableOptions
+                        .map<Widget>(
+                          (o) => FlowyOptionTile.text(
+                            text: o.label,
+                            showTopBorder: o == ReminderOption.none,
+                            onTap: () {
+                              onReminderSelected(o);
+                              context.pop();
+                            },
+                          ),
+                        )
+                        .toList()
+                      ..insert(0, const _Divider()),
                   ),
                 ),
-              ],
-            ),
-          );
-        },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -243,8 +246,16 @@ class _ReminderSelectHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 56,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
+          ),
+        ),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
