@@ -126,9 +126,14 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
               onClearDate: () => context
                   .read<DateCellEditorBloc>()
                   .add(const DateCellEditorEvent.clearDate()),
-              onReminderSelected: (option) => context
-                  .read<DateCellEditorBloc>()
-                  .add(DateCellEditorEvent.setReminderOption(option: option)),
+              onReminderSelected: (option) =>
+                  context.read<DateCellEditorBloc>().add(
+                        DateCellEditorEvent.setReminderOption(
+                          option: option,
+                          selectedDay:
+                              state.dateTime == null ? DateTime.now() : null,
+                        ),
+                      ),
             );
           },
         ),

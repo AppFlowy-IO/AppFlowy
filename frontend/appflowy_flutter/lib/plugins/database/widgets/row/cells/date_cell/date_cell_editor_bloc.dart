@@ -185,16 +185,24 @@ class DateCellEditorBloc
 
             await _clearDate();
           },
-          setReminderOption: (ReminderOption option) async {
+          setReminderOption: (
+            ReminderOption option,
+            DateTime? selectedDay,
+          ) async {
             if (state.reminderId?.isEmpty ??
                 true &&
-                    state.dateTime != null &&
+                    (state.dateTime != null || selectedDay != null) &&
                     option != ReminderOption.none) {
               // New Reminder
               final reminderId = nanoid();
-              await _updateDateData(reminderId: reminderId);
+              await _updateDateData(reminderId: reminderId, date: selectedDay);
 
-              emit(state.copyWith(reminderOption: option));
+              emit(
+                state.copyWith(
+                  reminderOption: option,
+                  dateTime: selectedDay,
+                ),
+              );
             } else if (option == ReminderOption.none &&
                 (state.reminderId?.isNotEmpty ?? false)) {
               // Remove reminder
@@ -427,6 +435,7 @@ class DateCellEditorEvent with _$DateCellEditorEvent {
 
   const factory DateCellEditorEvent.setReminderOption({
     required ReminderOption option,
+    @Default(null) DateTime? selectedDay,
   }) = _SetReminderOption;
 
   const factory DateCellEditorEvent.removeReminder() = _RemoveReminder;
