@@ -104,6 +104,9 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         : 0;
 
     if (invalidCounter >= _invalidSearchesAmount) {
+      // Workaround to bring focus back to editor
+      widget.editorState
+          .updateSelectionWithReason(widget.editorState.selection);
       return widget.onDismiss();
     }
 
@@ -192,7 +195,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
   int get groupLength => results.length;
 
-  int lengthOfGroup(int index) => results[index].results.length;
+  int lengthOfGroup(int index) =>
+      results.length > index ? results[index].results.length : -1;
 
   InlineActionsMenuItem handlerOf(int groupIndex, int handlerIndex) =>
       results[groupIndex].results[handlerIndex];
@@ -224,7 +228,21 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         widget.onDismiss();
         return KeyEventResult.handled;
       }
+
+      if (noResults) {
+        // Workaround to bring focus back to editor
+        widget.editorState
+            .updateSelectionWithReason(widget.editorState.selection);
+        widget.editorState.insertNewLine();
+
+        widget.onDismiss();
+        return KeyEventResult.handled;
+      }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+      // Workaround to bring focus back to editor
+      widget.editorState
+          .updateSelectionWithReason(widget.editorState.selection);
+
       widget.onDismiss();
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
