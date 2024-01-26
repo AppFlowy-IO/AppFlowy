@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/home.dart';
@@ -80,10 +82,13 @@ class MobileHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // TODO: header + option icon button
         // Header
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: Platform.isAndroid ? 8.0 : 0.0,
+          ),
           child: MobileHomePageHeader(
             userProfile: userProfile,
           ),

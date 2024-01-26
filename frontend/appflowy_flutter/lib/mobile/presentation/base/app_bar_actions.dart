@@ -65,6 +65,32 @@ class AppBarCancelButton extends StatelessWidget {
   }
 }
 
+class AppBarDoneButton extends StatelessWidget {
+  const AppBarDoneButton({
+    super.key,
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBarButton(
+      onTap: onTap,
+      extent: 0.0,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: FlowyText(
+          LocaleKeys.button_Done.tr(),
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.w500,
+          textAlign: TextAlign.right,
+        ),
+      ),
+    );
+  }
+}
+
 class AppBarMoreButton extends StatelessWidget {
   const AppBarMoreButton({
     super.key,
