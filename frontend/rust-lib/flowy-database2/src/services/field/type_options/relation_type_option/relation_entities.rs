@@ -48,7 +48,7 @@ impl From<&RelationCellData> for Cell {
         .collect::<Vec<_>>(),
     ));
     new_cell_builder(FieldType::Relation)
-      .insert_any(CELL_DATA.to_string(), data)
+      .insert_any(CELL_DATA, data)
       .build()
   }
 }

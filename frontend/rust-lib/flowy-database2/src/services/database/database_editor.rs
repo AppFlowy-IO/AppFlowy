@@ -1198,7 +1198,7 @@ impl DatabaseEditor {
     let handler =
       TypeOptionCellExt::new_with_cell_data_cache(&primary_field, Some(self.cell_cache.clone()))
         .get_type_option_cell_data_handler(&FieldType::RichText)
-        .ok_or_else(|| FlowyError::internal())?;
+        .ok_or(FlowyError::internal())?;
 
     let row_data = {
       let database = self.database.lock();

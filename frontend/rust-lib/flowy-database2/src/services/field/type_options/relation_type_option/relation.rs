@@ -60,8 +60,8 @@ impl CellDataChangeset for RelationTypeOption {
     let cell_data: RelationCellData = cell.unwrap().as_ref().into();
     let mut row_ids = cell_data.row_ids.clone();
     for inserted in changeset.inserted_row_ids.iter() {
-      if let None = row_ids.iter().position(|row_id| row_id == inserted) {
-        row_ids.push(inserted.clone().into())
+      if row_ids.iter().any(|row_id| row_id == inserted) {
+        row_ids.push(inserted.clone())
       }
     }
     for removed_id in changeset.removed_row_ids.iter() {
