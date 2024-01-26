@@ -420,6 +420,7 @@ class _TitleSkin extends IEditableTextCellSkin {
             fontSize: 23,
             fontWeight: FontWeight.w500,
           ),
+      onChanged: (text) => bloc.add(TextCellEvent.updateText(text)),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(vertical: 9),
         border: InputBorder.none,
