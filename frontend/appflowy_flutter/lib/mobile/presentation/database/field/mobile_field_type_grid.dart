@@ -19,6 +19,8 @@ const _supportedFieldTypes = [
   FieldType.DateTime,
   FieldType.Checkbox,
   FieldType.Checklist,
+  FieldType.LastEditedTime,
+  FieldType.CreatedTime,
 ];
 
 class FieldOptions extends StatelessWidget {
@@ -35,29 +37,28 @@ class FieldOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _FieldHeader(mode: mode),
-        const VSpace(12.0),
-        Expanded(
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: _GridView(
-              crossAxisCount: 3,
-              mainAxisSpacing: 28,
-              itemWidth: MediaQuery.of(context).size.width / 3,
-              children: _supportedFieldTypes
-                  .map(
-                    (e) => _Field(
-                      type: e,
-                      onTap: () => onSelectFieldType(e),
-                    ),
-                  )
-                  .toList(),
-            ),
+    return SingleChildScrollView(
+      controller: scrollController,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _FieldHeader(mode: mode),
+          const VSpace(12.0),
+          _GridView(
+            crossAxisCount: 3,
+            mainAxisSpacing: 4,
+            itemSize: const Size(82, 140),
+            children: _supportedFieldTypes
+                .map(
+                  (e) => _Field(
+                    type: e,
+                    onTap: () => onSelectFieldType(e),
+                  ),
+                )
+                .toList(),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -119,6 +120,8 @@ class _Field extends StatelessWidget {
           FlowyText(
             type.i18n,
             fontSize: 15.0,
+            textAlign: TextAlign.center,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -132,13 +135,13 @@ class _GridView extends StatelessWidget {
     required this.children,
     required this.crossAxisCount,
     required this.mainAxisSpacing,
-    required this.itemWidth,
+    required this.itemSize,
   });
 
   final List<Widget> children;
   final int crossAxisCount;
   final double mainAxisSpacing;
-  final double itemWidth;
+  final Size itemSize;
 
   @override
   Widget build(BuildContext context) {
@@ -149,17 +152,15 @@ class _GridView extends StatelessWidget {
             padding: EdgeInsets.only(bottom: mainAxisSpacing),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (var j = 0; j < crossAxisCount; j++)
                   i + j < children.length
                       ? ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: itemWidth,
-                            minWidth: itemWidth,
-                          ),
+                          constraints: BoxConstraints.tight(itemSize),
                           child: children[i + j],
                         )
-                      : HSpace(itemWidth),
+                      : SizedBox.fromSize(size: itemSize),
               ],
             ),
           ),
