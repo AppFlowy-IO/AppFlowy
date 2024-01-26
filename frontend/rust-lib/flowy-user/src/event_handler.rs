@@ -654,8 +654,8 @@ pub async fn update_workspace_member_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn add_workspace_handler(
-  data: AFPluginData<AddWorkspacePB>,
+pub async fn create_workspace_handler(
+  data: AFPluginData<CreateWorkspacePB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserWorkspacePB, FlowyError> {
   let data = data.try_into_inner()?;

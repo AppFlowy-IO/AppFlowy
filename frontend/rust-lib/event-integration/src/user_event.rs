@@ -16,7 +16,7 @@ use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
-  AddWorkspacePB, AuthenticatorPB, CloudSettingPB, ImportAppFlowyDataPB, OauthSignInPB,
+  AuthenticatorPB, CloudSettingPB, CreateWorkspacePB, ImportAppFlowyDataPB, OauthSignInPB,
   RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB,
   UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB, UserWorkspacePB,
 };
@@ -213,11 +213,11 @@ impl EventIntegrationTest {
   }
 
   pub async fn create_workspace(&self, name: &str) -> UserWorkspacePB {
-    let payload = AddWorkspacePB {
+    let payload = CreateWorkspacePB {
       name: name.to_string(),
     };
     EventBuilder::new(self.clone())
-      .event(AddWorkspace)
+      .event(CreateWorkspace)
       .payload(payload)
       .async_send()
       .await

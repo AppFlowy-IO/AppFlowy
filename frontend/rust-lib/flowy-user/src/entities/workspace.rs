@@ -111,7 +111,7 @@ pub struct UserWorkspaceIdPB {
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
-pub struct AddWorkspacePB {
+pub struct CreateWorkspacePB {
   #[pb(index = 1)]
   #[validate(custom = "required_not_empty_str")]
   pub name: String,
