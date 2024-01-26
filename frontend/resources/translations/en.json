@@ -1039,6 +1039,7 @@
       "twoHoursBefore": "2 hours before",
       "oneDayBefore": "1 day before",
       "twoDaysBefore": "2 days before",
+      "oneWeekBefore": "1 week before",
       "custom": "Custom"
     }
   },

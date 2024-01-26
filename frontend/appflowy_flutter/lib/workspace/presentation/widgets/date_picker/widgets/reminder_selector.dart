@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/layout.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,11 +16,15 @@ class ReminderSelector extends StatelessWidget {
     required this.mutex,
     required this.selectedOption,
     required this.onOptionSelected,
+    required this.timeFormat,
+    this.hasTime = false,
   });
 
   final PopoverMutex? mutex;
   final ReminderOption selectedOption;
   final OnReminderSelected? onOptionSelected;
+  final TimeFormatPB timeFormat;
+  final bool hasTime;
 
   @override
   Widget build(BuildContext context) {
@@ -28,39 +33,53 @@ class ReminderSelector extends StatelessWidget {
       options.remove(ReminderOption.custom);
     }
 
-    final optionWidgets = options
-        .map(
-          (o) => SizedBox(
-            height: DatePickerSize.itemHeight,
-            child: FlowyButton(
-              text: FlowyText.medium(o.label),
-              rightIcon: o == selectedOption
-                  ? const FlowySvg(FlowySvgs.check_s)
-                  : null,
-              onTap: () {
-                if (o != selectedOption) {
-                  onOptionSelected?.call(o);
-                  mutex?.close();
-                }
-              },
-            ),
+    if (!hasTime) {
+      options.removeWhere((o) => o.requiresTime);
+    }
+
+    final optionWidgets = options.map(
+      (o) {
+        String label = o.label;
+        if (!o.requiresTime && !o.timeExempt) {
+          const time = "09:00";
+          final t = timeFormat == TimeFormatPB.TwelveHour ? "$time AM" : time;
+
+          label = "$label ($t)";
+        }
+
+        return SizedBox(
+          height: DatePickerSize.itemHeight,
+          child: FlowyButton(
+            text: FlowyText.medium(label),
+            rightIcon:
+                o == selectedOption ? const FlowySvg(FlowySvgs.check_s) : null,
+            onTap: () {
+              if (o != selectedOption) {
+                onOptionSelected?.call(o);
+                mutex?.close();
+              }
+            },
           ),
-        )
-        .toList();
+        );
+      },
+    ).toList();
 
     return AppFlowyPopover(
       mutex: mutex,
-      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-      offset: const Offset(8, -155),
+      offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
-      constraints: BoxConstraints.loose(const Size(150, 310)),
-      popupBuilder: (_) => Padding(
-        padding: const EdgeInsets.all(6.0),
-        child: ListView.separated(
-          itemCount: options.length,
-          separatorBuilder: (_, __) => VSpace(DatePickerSize.seperatorHeight),
-          itemBuilder: (_, index) => optionWidgets[index],
-        ),
+      constraints: const BoxConstraints(maxHeight: 350, maxWidth: 205),
+      popupBuilder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: SeparatedColumn(
+              children: optionWidgets,
+              separatorBuilder: () => VSpace(DatePickerSize.seperatorHeight),
+            ),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -83,20 +102,31 @@ class ReminderSelector extends StatelessWidget {
 
 enum ReminderOption {
   none(time: Duration()),
-  atTimeOfEvent(time: Duration()),
-  fiveMinsBefore(time: Duration(minutes: 5)),
-  tenMinsBefore(time: Duration(minutes: 10)),
-  fifteenMinsBefore(time: Duration(minutes: 15)),
-  thirtyMinsBefore(time: Duration(minutes: 30)),
-  oneHourBefore(time: Duration(hours: 1)),
-  twoHoursBefore(time: Duration(hours: 2)),
-  oneDayBefore(time: Duration(days: 1)),
-  twoDaysBefore(time: Duration(days: 2)),
+  atTimeOfEvent(time: Duration(), requiresTime: true),
+  fiveMinsBefore(time: Duration(minutes: 5), requiresTime: true),
+  tenMinsBefore(time: Duration(minutes: 10), requiresTime: true),
+  fifteenMinsBefore(time: Duration(minutes: 15), requiresTime: true),
+  thirtyMinsBefore(time: Duration(minutes: 30), requiresTime: true),
+  oneHourBefore(time: Duration(hours: 1), requiresTime: true),
+  twoHoursBefore(time: Duration(hours: 2), requiresTime: true),
+  // 9:00 AM the day before (24-9)
+  oneDayBefore(time: Duration(hours: 15), withoutTime: true),
+  twoDaysBefore(time: Duration(days: 1, hours: 15), withoutTime: true),
+  oneWeekBefore(time: Duration(days: 6, hours: 15), withoutTime: true),
   custom(time: Duration());
 
-  const ReminderOption({required this.time});
+  const ReminderOption({
+    required this.time,
+    this.withoutTime = false,
+    this.requiresTime = false,
+  });
 
   final Duration time;
+  final bool withoutTime;
+  final bool requiresTime;
+
+  bool get timeExempt =>
+      [ReminderOption.none, ReminderOption.custom].contains(this);
 
   String get label => switch (this) {
         ReminderOption.none => LocaleKeys.datePicker_reminderOptions_none.tr(),
@@ -118,6 +148,8 @@ enum ReminderOption {
           LocaleKeys.datePicker_reminderOptions_oneDayBefore.tr(),
         ReminderOption.twoDaysBefore =>
           LocaleKeys.datePicker_reminderOptions_twoDaysBefore.tr(),
+        ReminderOption.oneWeekBefore =>
+          LocaleKeys.datePicker_reminderOptions_oneWeekBefore.tr(),
         ReminderOption.custom =>
           LocaleKeys.datePicker_reminderOptions_custom.tr(),
       };

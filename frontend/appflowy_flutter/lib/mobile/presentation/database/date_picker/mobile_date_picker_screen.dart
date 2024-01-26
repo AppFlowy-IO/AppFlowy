@@ -96,6 +96,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
               includeTime: state.includeTime,
               use24hFormat: state.dateTypeOptionPB.timeFormat ==
                   TimeFormatPB.TwentyFourHour,
+              timeFormat: state.dateTypeOptionPB.timeFormat,
               selectedReminderOption: state.reminderOption,
               onStartTimeChanged: (String? time) {
                 if (time != null) {

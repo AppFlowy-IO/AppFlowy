@@ -13,6 +13,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
@@ -61,6 +62,10 @@ class DateCellEditorBloc
                 (state.reminderId?.isEmpty ?? true) &&
                 (dateCellData.reminderId?.isNotEmpty ?? false) &&
                 state.reminderOption != ReminderOption.none) {
+              final date = state.reminderOption.withoutTime
+                  ? dateCellData.dateTime!.withoutTime
+                  : dateCellData.dateTime!;
+
               // Add Reminder
               _reminderBloc.add(
                 ReminderEvent.addById(
@@ -68,7 +73,7 @@ class DateCellEditorBloc
                   objectId: cellController.viewId,
                   meta: {ReminderMetaKeys.rowId: cellController.rowId},
                   scheduledAt: Int64(
-                    dateCellData.dateTime!
+                    date
                             .subtract(state.reminderOption.time)
                             .millisecondsSinceEpoch ~/
                         1000,
@@ -79,13 +84,16 @@ class DateCellEditorBloc
 
             if ((dateCellData.reminderId?.isNotEmpty ?? false) &&
                 dateCellData.dateTime != null) {
+              final date = state.reminderOption.withoutTime
+                  ? dateCellData.dateTime!.withoutTime
+                  : dateCellData.dateTime!;
+
               // Update Reminder
               _reminderBloc.add(
                 ReminderEvent.update(
                   ReminderUpdate(
                     id: state.reminderId!,
-                    scheduledAt: dateCellData.dateTime!
-                        .subtract(state.reminderOption.time),
+                    scheduledAt: date.subtract(state.reminderOption.time),
                   ),
                 ),
               );

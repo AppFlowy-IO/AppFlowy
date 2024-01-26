@@ -222,6 +222,8 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
           const _GroupSeparator(),
           ReminderSelector(
             mutex: widget.popoverMutex,
+            hasTime: widget.includeTime,
+            timeFormat: widget.timeFormat,
             selectedOption: _selectedReminderOption,
             onOptionSelected: (option) {
               setState(() => _selectedReminderOption = option);
