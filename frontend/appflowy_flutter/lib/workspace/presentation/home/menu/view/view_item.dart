@@ -41,7 +41,6 @@ class ViewItem extends StatelessWidget {
     this.isFirstChild = false,
     this.isDraggable = true,
     required this.isFeedback,
-    this.height = 28.0,
   });
 
   final ViewPB view;
@@ -73,8 +72,6 @@ class ViewItem extends StatelessWidget {
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
-  final double height;
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -100,7 +97,6 @@ class ViewItem extends StatelessWidget {
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
             isFeedback: isFeedback,
-            height: height,
           );
         },
       ),
@@ -126,7 +122,6 @@ class InnerViewItem extends StatelessWidget {
     this.onTertiarySelected,
     this.isFirstChild = false,
     required this.isFeedback,
-    required this.height,
   });
 
   final ViewPB view;
@@ -146,15 +141,9 @@ class InnerViewItem extends StatelessWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
-  final double height;
 
   @override
   Widget build(BuildContext context) {
-    final factor =
-        context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor;
-    const tempOne = 1; // delete this later
-    final adjustableHeight = (factor + tempOne - 1) * 15;
-
     Widget child = SingleInnerViewItem(
       view: view,
       parentView: parentView,
@@ -167,7 +156,6 @@ class InnerViewItem extends StatelessWidget {
       isDraggable: isDraggable,
       leftPadding: leftPadding,
       isFeedback: isFeedback,
-      height: height + adjustableHeight,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -203,10 +191,12 @@ class InnerViewItem extends StatelessWidget {
           children: [
             child,
             Container(
-              height: height + adjustableHeight,
+              // minHeight is to make sure the height of the title is greater than the height of ViewAddButton and ViewMoreActionButton
+              constraints: const BoxConstraints(minHeight: 30),
               alignment: Alignment.centerLeft,
               // add 2px to make the text align with the view item
-              padding: EdgeInsets.only(left: (level + 1) * leftPadding + 2),
+              padding:
+                  EdgeInsets.fromLTRB((level + 1) * leftPadding + 2, 2, 0, 2),
               child: FlowyText.medium(
                 LocaleKeys.noPagesInside.tr(),
                 color: Theme.of(context).hintColor,
@@ -266,7 +256,6 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.onSelected,
     this.onTertiarySelected,
     required this.isFeedback,
-    required this.height,
   });
 
   final ViewPB view;
@@ -283,7 +272,6 @@ class SingleInnerViewItem extends StatefulWidget {
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final FolderCategoryType categoryType;
-  final double height;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -348,13 +336,15 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
-      child: SizedBox(
-        height: widget.height,
-        child: Padding(
-          padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-          child: Row(
-            children: children,
-          ),
+      child: Container(
+        // minHeight to make sure the height of the title is greater than the height of ViewAddButton and ViewMoreActionButton
+        constraints: const BoxConstraints(
+          minHeight: 30,
+        ),
+        padding:
+            EdgeInsets.fromLTRB(widget.level * widget.leftPadding, 2, 0, 2),
+        child: Row(
+          children: children,
         ),
       ),
     );
