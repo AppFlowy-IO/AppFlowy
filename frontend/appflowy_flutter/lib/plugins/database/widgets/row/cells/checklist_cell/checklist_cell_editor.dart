@@ -17,17 +17,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'checklist_cell_bloc.dart';
 import 'checklist_progress_bar.dart';
 
-class GridChecklistCellEditor extends StatefulWidget {
+class ChecklistCellEditor extends StatefulWidget {
+  const ChecklistCellEditor({required this.cellController, super.key});
+
   final ChecklistCellController cellController;
-  const GridChecklistCellEditor({required this.cellController, super.key});
 
   @override
-  State<GridChecklistCellEditor> createState() => _GridChecklistCellState();
+  State<ChecklistCellEditor> createState() => _GridChecklistCellState();
 }
 
-class _GridChecklistCellState extends State<GridChecklistCellEditor> {
-  late ChecklistCellBloc _bloc;
-
+class _GridChecklistCellState extends State<ChecklistCellEditor> {
   /// Focus node for the new task text field
   late final FocusNode newTaskFocusNode;
 
@@ -44,56 +43,50 @@ class _GridChecklistCellState extends State<GridChecklistCellEditor> {
         return KeyEventResult.ignored;
       },
     );
-    _bloc = ChecklistCellBloc(cellController: widget.cellController)
-      ..add(const ChecklistCellEvent.initial());
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _bloc,
-      child: BlocConsumer<ChecklistCellBloc, ChecklistCellState>(
-        listener: (context, state) {
-          if (state.tasks.isEmpty) {
-            newTaskFocusNode.requestFocus();
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: state.tasks.isEmpty
-                    ? const SizedBox.shrink()
-                    : Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                        child: ChecklistProgressBar(
-                          tasks: state.tasks,
-                          percent: state.percent,
-                        ),
+    return BlocConsumer<ChecklistCellBloc, ChecklistCellState>(
+      listener: (context, state) {
+        if (state.tasks.isEmpty) {
+          newTaskFocusNode.requestFocus();
+        }
+      },
+      builder: (context, state) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: state.tasks.isEmpty
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                      child: ChecklistProgressBar(
+                        tasks: state.tasks,
+                        percent: state.percent,
                       ),
-              ),
-              ChecklistItemList(
-                options: state.tasks,
-                onUpdateTask: () => newTaskFocusNode.requestFocus(),
-              ),
-              if (state.tasks.isNotEmpty)
-                const TypeOptionSeparator(spacing: 0.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: NewTaskItem(focusNode: newTaskFocusNode),
-              ),
-            ],
-          );
-        },
-      ),
+                    ),
+            ),
+            ChecklistItemList(
+              options: state.tasks,
+              onUpdateTask: () => newTaskFocusNode.requestFocus(),
+            ),
+            if (state.tasks.isNotEmpty) const TypeOptionSeparator(spacing: 0.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: NewTaskItem(focusNode: newTaskFocusNode),
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   void dispose() {
-    _bloc.close();
+    newTaskFocusNode.dispose();
     super.dispose();
   }
 }
@@ -101,14 +94,14 @@ class _GridChecklistCellState extends State<GridChecklistCellEditor> {
 /// Displays the a list of all the exisiting tasks and an input field to create
 /// a new task if `isAddingNewTask` is true
 class ChecklistItemList extends StatefulWidget {
-  final List<ChecklistSelectOption> options;
-  final VoidCallback onUpdateTask;
-
   const ChecklistItemList({
     super.key,
     required this.options,
     required this.onUpdateTask,
   });
+
+  final List<ChecklistSelectOption> options;
+  final VoidCallback onUpdateTask;
 
   @override
   State<ChecklistItemList> createState() => _ChecklistItemListState();
@@ -151,15 +144,16 @@ class _ChecklistItemListState extends State<ChecklistItemList> {
 /// Represents an existing task
 @visibleForTesting
 class ChecklistItem extends StatefulWidget {
-  final ChecklistSelectOption task;
-  final VoidCallback? onSubmitted;
-  final bool autofocus;
   const ChecklistItem({
     super.key,
     required this.task,
     this.onSubmitted,
     this.autofocus = false,
   });
+
+  final ChecklistSelectOption task;
+  final VoidCallback? onSubmitted;
+  final bool autofocus;
 
   @override
   State<ChecklistItem> createState() => _ChecklistItemState();
@@ -217,7 +211,6 @@ class _ChecklistItemState extends State<ChecklistItem> {
           borderRadius: Corners.s6Border,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FlowyIconButton(
               width: 32,
@@ -232,7 +225,6 @@ class _ChecklistItemState extends State<ChecklistItem> {
                 controller: _textController,
                 focusNode: _focusNode,
                 style: Theme.of(context).textTheme.bodyMedium,
-                maxLines: 1,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,
@@ -288,8 +280,9 @@ class _ChecklistItemState extends State<ChecklistItem> {
 /// This can be cancelled by pressing escape
 @visibleForTesting
 class NewTaskItem extends StatefulWidget {
-  final FocusNode focusNode;
   const NewTaskItem({super.key, required this.focusNode});
+
+  final FocusNode focusNode;
 
   @override
   State<NewTaskItem> createState() => _NewTaskItemState();
@@ -313,7 +306,6 @@ class _NewTaskItemState extends State<NewTaskItem> {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       constraints: BoxConstraints(minHeight: GridSize.popoverItemHeight),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const HSpace(8),
           Expanded(
@@ -321,7 +313,6 @@ class _NewTaskItemState extends State<NewTaskItem> {
               focusNode: widget.focusNode,
               controller: _textEditingController,
               style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 1,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 isCollapsed: true,

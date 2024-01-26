@@ -3,6 +3,7 @@ import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -19,15 +20,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppFlowyCloudViewSetting extends StatelessWidget {
-  final String serverURL;
-  final AuthenticatorType authenticatorType;
-  final VoidCallback restartAppFlowy;
   const AppFlowyCloudViewSetting({
-    required this.restartAppFlowy,
     super.key,
     this.serverURL = kAppflowyCloudUrl,
     this.authenticatorType = AuthenticatorType.appflowyCloud,
+    required this.restartAppFlowy,
   });
+
+  final String serverURL;
+  final AuthenticatorType authenticatorType;
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +61,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
       child: Column(
         children: [
           const AppFlowyCloudEnableSync(),
-          const VSpace(40),
+          const VSpace(12),
           RestartButton(
             onClick: () async {
               NavigatorAlertDialog(
@@ -79,8 +81,9 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
 }
 
 class CustomAppFlowyCloudView extends StatelessWidget {
-  final VoidCallback restartAppFlowy;
   const CustomAppFlowyCloudView({required this.restartAppFlowy, super.key});
+
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -138,11 +141,9 @@ class CustomAppFlowyCloudView extends StatelessWidget {
 }
 
 class AppFlowyCloudURLs extends StatelessWidget {
+  const AppFlowyCloudURLs({super.key, required this.restartAppFlowy});
+
   final VoidCallback restartAppFlowy;
-  const AppFlowyCloudURLs({
-    required this.restartAppFlowy,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +174,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
                         );
                   },
                 ),
-                const VSpace(20),
+                const VSpace(8),
                 RestartButton(
                   onClick: () async {
                     NavigatorAlertDialog(
@@ -196,9 +197,10 @@ class AppFlowyCloudURLs extends StatelessWidget {
 }
 
 class AppFlowySelfhostTip extends StatelessWidget {
+  const AppFlowySelfhostTip({super.key});
+
   final url =
       "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy#build-appflowy-with-a-self-hosted-server";
-  const AppFlowySelfhostTip({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -242,19 +244,18 @@ class AppFlowySelfhostTip extends StatelessWidget {
 
 @visibleForTesting
 class CloudURLInput extends StatefulWidget {
-  final String title;
-  final String url;
-  final String hint;
-
-  final Function(String) onChanged;
-
   const CloudURLInput({
+    super.key,
     required this.title,
     required this.url,
     required this.hint,
     required this.onChanged,
-    super.key,
   });
+
+  final String title;
+  final String url;
+  final String hint;
+  final Function(String) onChanged;
 
   @override
   CloudURLInputState createState() => CloudURLInputState();
@@ -317,38 +318,18 @@ class AppFlowyCloudEnableSync extends StatelessWidget {
           children: [
             FlowyText.medium(LocaleKeys.settings_menu_enableSync.tr()),
             const Spacer(),
-            Switch(
+            Switch.adaptive(
               onChanged: (bool value) {
                 context.read<AppFlowyCloudSettingBloc>().add(
                       AppFlowyCloudSettingEvent.enableSync(value),
                     );
               },
+              activeColor: Theme.of(context).colorScheme.primary,
               value: state.setting.enableSync,
             ),
           ],
         );
       },
-    );
-  }
-}
-
-class RestartButton extends StatelessWidget {
-  final VoidCallback onClick;
-  const RestartButton({required this.onClick, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyButton(
-      isSelected: true,
-      useIntrinsicWidth: true,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 30,
-        vertical: 10,
-      ),
-      text: FlowyText(
-        LocaleKeys.settings_menu_restartApp.tr(),
-      ),
-      onTap: onClick,
     );
   }
 }

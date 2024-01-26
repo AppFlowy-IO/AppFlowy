@@ -39,31 +39,28 @@ class RTLSetting extends StatelessWidget {
           showDivider: false,
           showCloseButton: false,
           title: LocaleKeys.settings_appearance_textDirection_label.tr(),
-          padding: const EdgeInsets.fromLTRB(0, 8, 0, 48),
+          padding: const EdgeInsets.only(bottom: 36),
           builder: (context) {
             final layoutDirection =
                 context.watch<AppearanceSettingsCubit>().state.layoutDirection;
-            return Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Column(
-                children: [
-                  FlowyOptionTile.checkbox(
-                    text: LocaleKeys.settings_appearance_textDirection_ltr.tr(),
-                    isSelected: layoutDirection == LayoutDirection.ltrLayout,
-                    onTap: () => context
-                        .read<AppearanceSettingsCubit>()
-                        .setLayoutDirection(LayoutDirection.ltrLayout),
-                  ),
-                  FlowyOptionTile.checkbox(
-                    showTopBorder: false,
-                    text: LocaleKeys.settings_appearance_textDirection_rtl.tr(),
-                    isSelected: layoutDirection == LayoutDirection.rtlLayout,
-                    onTap: () => context
-                        .read<AppearanceSettingsCubit>()
-                        .setLayoutDirection(LayoutDirection.rtlLayout),
-                  ),
-                ],
-              ),
+            return Column(
+              children: [
+                FlowyOptionTile.checkbox(
+                  text: LocaleKeys.settings_appearance_textDirection_ltr.tr(),
+                  isSelected: layoutDirection == LayoutDirection.ltrLayout,
+                  onTap: () => context
+                      .read<AppearanceSettingsCubit>()
+                      .setLayoutDirection(LayoutDirection.ltrLayout),
+                ),
+                FlowyOptionTile.checkbox(
+                  showTopBorder: false,
+                  text: LocaleKeys.settings_appearance_textDirection_rtl.tr(),
+                  isSelected: layoutDirection == LayoutDirection.rtlLayout,
+                  onTap: () => context
+                      .read<AppearanceSettingsCubit>()
+                      .setLayoutDirection(LayoutDirection.rtlLayout),
+                ),
+              ],
             );
           },
         );

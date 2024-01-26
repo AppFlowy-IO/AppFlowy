@@ -56,7 +56,7 @@ KeyEventResult _textAlignHandler(EditorState editorState, String align) {
   if (selection == null) {
     return KeyEventResult.ignored;
   }
-  
+
   editorState.updateNode(
     selection,
     (node) => node.copyWith(

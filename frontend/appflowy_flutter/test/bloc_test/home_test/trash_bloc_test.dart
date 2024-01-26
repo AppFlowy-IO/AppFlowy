@@ -6,12 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../util.dart';
 
 class TrashTestContext {
+  TrashTestContext(this.unitTest);
+
   late ViewPB view;
   late ViewBloc viewBloc;
   late List<ViewPB> allViews;
   final AppFlowyUnitTest unitTest;
-
-  TrashTestContext(this.unitTest);
 
   Future<void> initialize() async {
     view = await unitTest.createWorkspace();
@@ -64,7 +64,7 @@ void main() {
       final context = TrashTestContext(unitTest);
       await context.initialize();
       final trashBloc = TrashBloc()..add(const TrashEvent.initial());
-      await blocResponseFuture(millisecond: 200);
+      await blocResponseFuture();
 
       // delete a view
       final deletedView = context.viewBloc.state.view.childViews[0];

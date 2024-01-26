@@ -14,7 +14,7 @@ const _greater = '>';
 CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
   key: 'format greater to quote',
   character: ' ',
-  handler: (editorState) async => await formatMarkdownSymbol(
+  handler: (editorState) async => formatMarkdownSymbol(
     editorState,
     (node) => node.type != ToggleListBlockKeys.type,
     (_, text, __) => text == _greater,
@@ -58,13 +58,13 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
           )
           ..deleteNode(node)
           ..afterSelection = Selection.collapsed(
-            Position(path: selection.start.path, offset: 0),
+            Position(path: selection.start.path),
           );
       } else if (selection.startIndex == 0) {
         // insert a paragraph block above the current toggle list block
         transaction.insertNode(selection.start.path, paragraphNode());
         transaction.afterSelection = Selection.collapsed(
-          Position(path: selection.start.path.next, offset: 0),
+          Position(path: selection.start.path.next),
         );
       } else {
         // insert a toggle list block below the current toggle list block
@@ -78,7 +78,7 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
             ],
           )
           ..afterSelection = Selection.collapsed(
-            Position(path: selection.start.path.next, offset: 0),
+            Position(path: selection.start.path.next),
           );
       }
     } else {
@@ -90,7 +90,7 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
           paragraphNode(delta: slicedDelta),
         )
         ..afterSelection = Selection.collapsed(
-          Position(path: selection.start.path + [0], offset: 0),
+          Position(path: selection.start.path + [0]),
         );
     }
     await editorState.apply(transaction);

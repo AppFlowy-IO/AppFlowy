@@ -1,53 +1,60 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:dartz/dartz.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:dartz/dartz.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sign_up_bloc.freezed.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
-  final AuthService authService;
   SignUpBloc(this.authService) : super(SignUpState.initial()) {
-    on<SignUpEvent>((event, emit) async {
-      await event.map(
-        signUpWithUserEmailAndPassword: (e) async {
-          await _performActionOnSignUp(emit);
-        },
-        emailChanged: (_EmailChanged value) async {
-          emit(
-            state.copyWith(
-              email: value.email,
-              emailError: none(),
-              successOrFail: none(),
-            ),
-          );
-        },
-        passwordChanged: (_PasswordChanged value) async {
-          emit(
-            state.copyWith(
-              password: value.password,
-              passwordError: none(),
-              successOrFail: none(),
-            ),
-          );
-        },
-        repeatPasswordChanged: (_RepeatPasswordChanged value) async {
-          emit(
-            state.copyWith(
-              repeatedPassword: value.password,
-              repeatPasswordError: none(),
-              successOrFail: none(),
-            ),
-          );
-        },
-      );
-    });
+    _dispatch();
+  }
+
+  final AuthService authService;
+
+  void _dispatch() {
+    on<SignUpEvent>(
+      (event, emit) async {
+        await event.map(
+          signUpWithUserEmailAndPassword: (e) async {
+            await _performActionOnSignUp(emit);
+          },
+          emailChanged: (_EmailChanged value) async {
+            emit(
+              state.copyWith(
+                email: value.email,
+                emailError: none(),
+                successOrFail: none(),
+              ),
+            );
+          },
+          passwordChanged: (_PasswordChanged value) async {
+            emit(
+              state.copyWith(
+                password: value.password,
+                passwordError: none(),
+                successOrFail: none(),
+              ),
+            );
+          },
+          repeatPasswordChanged: (_RepeatPasswordChanged value) async {
+            emit(
+              state.copyWith(
+                repeatedPassword: value.password,
+                repeatPasswordError: none(),
+                successOrFail: none(),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _performActionOnSignUp(Emitter<SignUpState> emit) async {

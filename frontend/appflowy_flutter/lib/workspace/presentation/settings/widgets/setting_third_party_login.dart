@@ -14,8 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingThirdPartyLogin extends StatelessWidget {
-  final VoidCallback didLogin;
   const SettingThirdPartyLogin({required this.didLogin, super.key});
+
+  final VoidCallback didLogin;
 
   @override
   Widget build(BuildContext context) {

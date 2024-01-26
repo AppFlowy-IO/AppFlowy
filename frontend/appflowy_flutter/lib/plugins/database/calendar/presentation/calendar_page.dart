@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
@@ -19,14 +20,12 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
-import '../../widgets/row/cell_builder.dart';
 import '../../widgets/row/row_detail.dart';
+
 import 'calendar_day.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_setting_bar.dart';
@@ -38,6 +37,7 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     ViewPB view,
     DatabaseController controller,
     bool shrinkWrap,
+    String? initialRowId,
   ) {
     return CalendarPage(
       key: _makeValueKey(controller),
@@ -93,7 +93,6 @@ class _CalendarPageState extends State<CalendarPage> {
   void initState() {
     _calendarState = GlobalKey<MonthViewState>();
     _calendarBloc = CalendarBloc(
-      view: widget.view,
       databaseController: widget.databaseController,
     )..add(const CalendarEvent.initial());
 
@@ -217,7 +216,6 @@ class _CalendarPageState extends State<CalendarPage> {
     return SizedBox(
       height: 24,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
             onTap: PlatformExtension.isMobile
@@ -346,26 +344,21 @@ class _CalendarPageState extends State<CalendarPage> {
 
 void showEventDetails({
   required BuildContext context,
+  required DatabaseController databaseController,
   required CalendarEventPB event,
-  required String viewId,
-  required RowCache rowCache,
-  required FieldController fieldController,
 }) {
-  final dataController = RowController(
+  final rowController = RowController(
     rowMeta: event.rowMeta,
-    viewId: viewId,
-    rowCache: rowCache,
+    viewId: databaseController.viewId,
+    rowCache: databaseController.rowCache,
   );
 
   FlowyOverlay.show(
     context: context,
     builder: (BuildContext overlayContext) {
       return RowDetailPage(
-        cellBuilder: GridCellBuilder(
-          cellCache: rowCache.cellCache,
-        ),
-        rowController: dataController,
-        fieldController: fieldController,
+        rowController: rowController,
+        databaseController: databaseController,
       );
     },
   );
@@ -505,9 +498,7 @@ class UnscheduleEventsList extends StatelessWidget {
               showEventDetails(
                 context: context,
                 event: event,
-                viewId: databaseController.viewId,
-                rowCache: databaseController.rowCache,
-                fieldController: databaseController.fieldController,
+                databaseController: databaseController,
               );
               PopoverContainer.of(context).close();
             }

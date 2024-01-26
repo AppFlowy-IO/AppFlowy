@@ -8,7 +8,7 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/select_option_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -94,14 +94,12 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
               size: const Size.square(iconWidth),
             ),
             width: iconWidth,
-            iconPadding: EdgeInsets.zero,
             onPressed: () => _popOrBack(),
           ),
         ),
         SizedBox(
           height: 44.0,
           child: Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               _headerTitle(),
               fontSize: 18,
@@ -335,7 +333,6 @@ class _SelectOption extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         onTap: () => onCheck(!checked),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // check icon
             FlowySvg(
@@ -450,8 +447,6 @@ class _MoreOptionsState extends State<_MoreOptions> {
           ),
           const VSpace(4.0),
           FlowyOptionDecorateBox(
-            showTopBorder: true,
-            showBottomBorder: true,
             child: Padding(
               padding: const EdgeInsets.only(
                 top: 12.0,

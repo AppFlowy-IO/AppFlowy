@@ -47,7 +47,6 @@ class FlowyOptionTile extends StatelessWidget {
       type: FlowyOptionTileType.text,
       text: text,
       textColor: textColor,
-      controller: null,
       onTap: onTap,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
@@ -61,7 +60,6 @@ class FlowyOptionTile extends StatelessWidget {
     void Function(String value)? onTextChanged,
     void Function(String value)? onTextSubmitted,
     EdgeInsets textFieldPadding = const EdgeInsets.symmetric(
-      horizontal: 0.0,
       vertical: 16.0,
     ),
     bool showTopBorder = true,
@@ -75,8 +73,6 @@ class FlowyOptionTile extends StatelessWidget {
       type: FlowyOptionTileType.textField,
       controller: controller,
       textFieldPadding: textFieldPadding,
-      text: null,
-      onTap: null,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
@@ -126,7 +122,6 @@ class FlowyOptionTile extends StatelessWidget {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.toggle,
       text: text,
-      controller: null,
       onTap: onTap ?? () => onValueChanged(!isSelected),
       onValueChanged: onValueChanged,
       showTopBorder: showTopBorder,
@@ -172,7 +167,6 @@ class FlowyOptionTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (leadingWidget != null) leadingWidget,
               _buildText(),
@@ -210,7 +204,7 @@ class FlowyOptionTile extends StatelessWidget {
     }
 
     final padding = EdgeInsets.symmetric(
-      horizontal: leading == null ? 0.0 : 8.0,
+      horizontal: leading == null ? 0.0 : 12.0,
       vertical: 16.0,
     );
 
@@ -219,7 +213,7 @@ class FlowyOptionTile extends StatelessWidget {
         padding: padding,
         child: FlowyText(
           text!,
-          fontSize: 15,
+          fontSize: 16,
           color: textColor,
         ),
       ),

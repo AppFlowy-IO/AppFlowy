@@ -31,9 +31,6 @@ typedef DatabaseNotificationHandler = Function(
 );
 
 class DatabaseNotificationListener {
-  StreamSubscription<SubscribeObject>? _subscription;
-  DatabaseNotificationParser? _parser;
-
   DatabaseNotificationListener({
     required String objectId,
     required DatabaseNotificationHandler handler,
@@ -41,6 +38,9 @@ class DatabaseNotificationListener {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
+
+  DatabaseNotificationParser? _parser;
+  StreamSubscription<SubscribeObject>? _subscription;
 
   Future<void> stop() async {
     _parser = null;

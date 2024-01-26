@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -21,8 +22,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingSupabaseCloudView extends StatelessWidget {
-  final VoidCallback didResetServerUrl;
   const SettingSupabaseCloudView({required this.didResetServerUrl, super.key});
+
+  final VoidCallback didResetServerUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +76,9 @@ class SettingSupabaseCloudView extends StatelessWidget {
 }
 
 class SupabaseCloudURLs extends StatelessWidget {
+  const SupabaseCloudURLs({super.key, required this.didUpdateUrls});
+
   final VoidCallback didUpdateUrls;
-  const SupabaseCloudURLs({
-    required this.didUpdateUrls,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,24 +118,8 @@ class SupabaseCloudURLs extends StatelessWidget {
                   error: state.anonKeyError.fold(() => null, (a) => a),
                 ),
                 const VSpace(20),
-                FlowyButton(
-                  isSelected: true,
-                  useIntrinsicWidth: true,
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 10,
-                  ),
-                  text: FlowyText(
-                    LocaleKeys.settings_menu_restartApp.tr(),
-                  ),
-                  onTap: () {
-                    NavigatorAlertDialog(
-                      title: LocaleKeys.settings_menu_restartAppTip.tr(),
-                      confirm: () => context
-                          .read<SupabaseCloudURLsBloc>()
-                          .add(const SupabaseCloudURLsEvent.confirmUpdate()),
-                    ).show(context);
-                  },
+                RestartButton(
+                  onClick: () => _restartApp,
                 ),
               ],
             );
@@ -143,6 +127,15 @@ class SupabaseCloudURLs extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _restartApp(BuildContext context) {
+    NavigatorAlertDialog(
+      title: LocaleKeys.settings_menu_restartAppTip.tr(),
+      confirm: () => context
+          .read<SupabaseCloudURLsBloc>()
+          .add(const SupabaseCloudURLsEvent.confirmUpdate()),
+    ).show(context);
   }
 }
 
@@ -167,7 +160,8 @@ class EnableEncrypt extends StatelessWidget {
                 const Spacer(),
                 indicator,
                 const HSpace(3),
-                Switch(
+                Switch.adaptive(
+                  activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: state.setting.enableEncrypt
                       ? null
                       : (bool value) {
@@ -181,7 +175,6 @@ class EnableEncrypt extends StatelessWidget {
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IntrinsicHeight(
                   child: Opacity(
@@ -198,7 +191,7 @@ class EnableEncrypt extends StatelessWidget {
                   child: FlowyTooltip(
                     message: LocaleKeys.settings_menu_clickToCopySecret.tr(),
                     child: FlowyButton(
-                      disable: !(state.setting.enableEncrypt),
+                      disable: !state.setting.enableEncrypt,
                       decoration: BoxDecoration(
                         borderRadius: Corners.s5Border,
                         border: Border.all(
@@ -235,7 +228,8 @@ class SupabaseEnableSync extends StatelessWidget {
           children: [
             FlowyText.medium(LocaleKeys.settings_menu_enableSync.tr()),
             const Spacer(),
-            Switch(
+            Switch.adaptive(
+              activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) {
                 context.read<SupabaseCloudSettingBloc>().add(
                       SupabaseCloudSettingEvent.enableSync(value),
@@ -252,20 +246,20 @@ class SupabaseEnableSync extends StatelessWidget {
 
 @visibleForTesting
 class SupabaseInput extends StatefulWidget {
+  const SupabaseInput({
+    super.key,
+    required this.title,
+    required this.url,
+    required this.hint,
+    required this.error,
+    required this.onChanged,
+  });
+
   final String title;
   final String url;
   final String hint;
   final String? error;
   final Function(String) onChanged;
-
-  const SupabaseInput({
-    required this.title,
-    required this.url,
-    required this.hint,
-    required this.onChanged,
-    required this.error,
-    super.key,
-  });
 
   @override
   SupabaseInputState createState() => SupabaseInputState();
@@ -314,9 +308,10 @@ class SupabaseInputState extends State<SupabaseInput> {
 }
 
 class SupabaseSelfhostTip extends StatelessWidget {
+  const SupabaseSelfhostTip({super.key});
+
   final url =
       "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy-using-supabase";
-  const SupabaseSelfhostTip({super.key});
 
   @override
   Widget build(BuildContext context) {

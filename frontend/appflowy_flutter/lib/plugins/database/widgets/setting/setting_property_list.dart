@@ -18,14 +18,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class DatabasePropertyList extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-
   const DatabasePropertyList({
     super.key,
     required this.viewId,
     required this.fieldController,
   });
+
+  final String viewId;
+  final FieldController fieldController;
 
   @override
   State<StatefulWidget> createState() => _DatabasePropertyListState();

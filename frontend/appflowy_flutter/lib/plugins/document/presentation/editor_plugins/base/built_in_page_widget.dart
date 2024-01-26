@@ -93,7 +93,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       child: SizedBox(
         height: viewPB.pluginType == PluginType.calendar ? 700 : 400,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildMenu(context, viewPB),
@@ -188,9 +187,9 @@ enum _ActionType {
 }
 
 class _ActionWrapper extends ActionCell {
-  final _ActionType inner;
-
   _ActionWrapper(this.inner);
+
+  final _ActionType inner;
 
   Widget? icon(Color iconColor) => null;
 

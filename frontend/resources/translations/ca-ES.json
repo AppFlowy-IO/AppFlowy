@@ -2,6 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "Jo",
   "welcomeText": "Benvingut a @:appName",
+  "welcomeTo": "Benvingut a",
   "githubStarText": "Preferit a Github",
   "subscribeNewsletterText": "Subscriu-me al butlletí",
   "letsGoButtonText": "Endavant",
@@ -12,7 +13,9 @@
     "addBelowTooltip": "Feu clic per afegir a continuació",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Opció+clic",
-    "addAboveTooltip": "afegir a dalt"
+    "addAboveTooltip": "afegir a dalt",
+    "dragTooltip": "Arrossegueu per moure's",
+    "openMenuTooltip": "Feu clic per obrir el menú"
   },
   "signUp": {
     "buttonText": "Registra't",
@@ -24,29 +27,45 @@
     "alreadyHaveAnAccount": "Ja tens un compte?",
     "emailHint": "Correu electrònic",
     "passwordHint": "Contrasenya",
-    "repeatPasswordHint": "Repeteix la contrasenya"
+    "repeatPasswordHint": "Repeteix la contrasenya",
+    "signUpWith": "Registra't amb:"
   },
   "signIn": {
     "loginTitle": "Inicia sessió a @:appName",
     "loginButtonText": "Inicia sessió",
+    "loginStartWithAnonymous": "Comenceu amb una sessió anònima",
+    "continueAnonymousUser": "Continueu amb una sessió anònima",
     "buttonText": "Inicia sessió",
+    "signingInText": "S'està iniciant la sessió...",
     "forgotPassword": "Has oblidat la contrasenya?",
     "emailHint": "Correu electrònic",
     "passwordHint": "Contrasenya",
     "dontHaveAnAccount": "No tens un compte?",
     "repeatPasswordEmptyError": "La contrasenya repetida no pot ser buida",
     "unmatchedPasswordError": "Les contrasenyes no concorden",
+    "or": "O",
+    "LogInWithGoogle": "Inicieu sessió amb Google",
+    "LogInWithGithub": "Inicieu sessió amb Github",
+    "LogInWithDiscord": "Inicieu sessió amb Discord",
+    "signInWith": "Inicia sessió amb:",
     "loginAsGuestButtonText": "Començar"
   },
   "workspace": {
+    "chooseWorkspace": "Tria el teu espai de treball",
     "create": "Crear un espai de treball",
+    "reset": "Restableix l'espai de treball",
     "hint": "espai de treball",
-    "notFoundError": "No s'ha trobat l'espai de treball"
+    "notFoundError": "No s'ha trobat l'espai de treball",
+    "errorActions": {
+      "reportIssue": "Informar d'un problema",
+      "reachOut": "Posa't en contacte amb Discord"
+    }
   },
   "shareAction": {
     "buttonText": "Compartir",
     "workInProgress": "Pròximament",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Copiar l'enllaç"
   },
   "moreAction": {
@@ -68,10 +87,18 @@
     "rename": "Canviar el nom",
     "delete": "Eliminar",
     "duplicate": "Duplicar",
-    "openNewTab": "Obre en una pestanya nova"
+    "unfavorite": "Elimina dels preferits",
+    "favorite": "Afegir a preferits",
+    "openNewTab": "Obre en una pestanya nova",
+    "moveTo": "Moure's cap a",
+    "addToFavorites": "Afegir a preferits",
+    "copyLink": "Copia l'enllaç"
   },
   "blankPageTitle": "Pàgina en blanc",
   "newPageText": "Nova pàgina",
+  "newDocumentText": "Nou document",
+  "newCalendarText": "Nou calendari",
+  "newBoardText": "Nou tauler",
   "trash": {
     "text": "Paperera",
     "restoreAll": "Recuperar-ho tot",
@@ -88,6 +115,13 @@
     "confirmRestoreAll": {
       "title": "Esteu segur de restaurar totes les pàgines a la paperera?",
       "caption": "Aquesta acció no es pot desfer."
+    },
+    "mobile": {
+      "actions": "Accions de paperera",
+      "empty": "La paperera està buida",
+      "emptyDescription": "No tens cap fitxer suprimit",
+      "isDeleted": "está eliminat",
+      "isRestored": "es restaura"
     }
   },
   "deletePagePrompt": {
@@ -109,10 +143,12 @@
     "feedback": "Feedback"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Suprimeix, canvia el nom i més...",
     "addPageTooltip": "Afegeix ràpidament una pàgina dins",
     "defaultNewPageName": "Sense títol",
     "renameDialog": "Canviar el nom"
   },
+  "noPagesInside": "No hi ha pàgines dins",
   "toolbar": {
     "undo": "Desfer",
     "redo": "Refer",
@@ -140,11 +176,19 @@
     "dragRow": "Premeu llargament per reordenar la fila",
     "viewDataBase": "Veure base de dades",
     "referencePage": "Es fa referència a aquest {nom}",
-    "addBlockBelow": "Afegeix un bloc a continuació"
+    "addBlockBelow": "Afegeix un bloc a continuació",
+    "urlLaunchAccessory": "Oberta al navegador",
+    "urlCopyAccessory": "Copia l'URL"
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar"
+    "openSidebar": "Open sidebar",
+    "personal": "Personal",
+    "favorites": "Preferits",
+    "clickToHidePersonal": "Feu clic per amagar la secció personal",
+    "clickToHideFavorites": "Feu clic per amagar la secció preferida",
+    "addAPage": "Afegeix una pàgina",
+    "recent": "Recent"
   },
   "notifications": {
     "export": {
@@ -159,7 +203,9 @@
     "editContact": "Editar un contacte"
   },
   "button": {
+    "ok": "D'acord",
     "done": "Fet",
+    "cancel": "Cancel · lar",
     "signIn": "Iniciar sessió",
     "signOut": "Tancar sessió",
     "complete": "Completar",
@@ -171,13 +217,20 @@
     "discard": "Descartar",
     "replace": "Substitueix",
     "insertBelow": "Insereix a continuació",
+    "insertAbove": "Insereix a dalt",
     "upload": "Carrega",
     "edit": "Edita",
     "delete": "Suprimeix",
     "duplicate": "Duplicat",
     "putback": "Posar enrere",
-    "cancel": "Cancel·lar",
-    "ok": "OK"
+    "update": "Actualització",
+    "share": "Compartir",
+    "removeFromFavorites": "Elimina dels preferits",
+    "addToFavorites": "Afegir a preferits",
+    "rename": "Renombrar",
+    "helpCenter": "Centre d'ajuda",
+    "add": "Afegir",
+    "yes": "Sí"
   },
   "label": {
     "welcome": "Benvingut!",
@@ -206,10 +259,37 @@
       "language": "Idioma",
       "user": "Usuari",
       "files": "Fitxers",
+      "notifications": "Notificacions",
       "open": "Obrir la configuració",
+      "logout": "Tancar sessió",
+      "logoutPrompt": "Esteu segur de tancar la sessió?",
+      "selfEncryptionLogoutPrompt": "Esteu segur que voleu tancar la sessió? Assegureu-vos d'haver copiat el secret de xifratge",
+      "syncSetting": "Configuració de sincronització",
+      "cloudSettings": "Configuració del núvol",
+      "enableSync": "Activa la sincronització",
+      "enableEncrypt": "Xifrar dades",
+      "cloudURL": "URL base",
+      "invalidCloudURLScheme": "Esquema no vàlid",
+      "cloudServerType": "Servidor al núvol",
+      "cloudLocal": "Local",
+      "cloudAppFlowy": "AppFlowy Cloud Beta",
+      "clickToCopy": "Feu clic per copiar",
+      "selfHostContent": "document",
+      "cloudURLHint": "Introduïu l'URL base del vostre servidor",
+      "restartApp": "Reinicia",
+      "inputEncryptPrompt": "Introduïu el vostre secret de xifratge per a",
+      "clickToCopySecret": "Feu clic per copiar el secret",
+      "inputTextFieldHint": "El teu secret",
+      "importSuccess": "S'ha importat correctament la carpeta de dades d'AppFlowy",
       "supabaseSetting": "Configuració Supabase"
     },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Activa les notificacions"
+      }
+    },
     "appearance": {
+      "resetSetting": "Restableix",
       "fontFamily": {
         "label": "Família de lletres",
         "search": "Cerca"
@@ -220,8 +300,27 @@
         "dark": "Mode Fosc",
         "system": "Adapt to System"
       },
+      "documentSettings": {
+        "cursorColor": "Color del cursor del document",
+        "selectionColor": "Color de selecció del document",
+        "hexEmptyError": "El color hexadecimal no pot estar buit",
+        "hexLengthError": "El valor hexadecimal ha de tenir 6 dígits",
+        "hexInvalidError": "Valor hexadecimal no vàlid",
+        "opacityEmptyError": "L'opacitat no pot estar buida",
+        "opacityRangeError": "L'opacitat ha d'estar entre 1 i 100",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Aplicar"
+      },
+      "layoutDirection": {
+        "label": "Direcció de maquetació"
+      },
+      "textDirection": {
+        "auto": "AUTO"
+      },
       "themeUpload": {
         "button": "Carrega",
+        "uploadTheme": "Carrega el tema",
         "description": "Carregueu el vostre propi tema AppFlowy amb el botó següent.",
         "loading": "Si us plau, espereu mentre validem i carreguem el vostre tema...",
         "uploadSuccess": "El teu tema s'ha penjat correctament",
@@ -232,7 +331,18 @@
       },
       "theme": "Tema",
       "builtInsLabel": "Temes integrats",
-      "pluginsLabel": "Connectors"
+      "pluginsLabel": "Connectors",
+      "dateFormat": {
+        "label": "Format de data",
+        "local": "Local",
+        "iso": "ISO",
+        "dmy": "D/M/A"
+      },
+      "timeFormat": {
+        "label": "Format horari",
+        "twelveHour": "Dotze hores",
+        "twentyFourHour": "Vint-i-quatre hores"
+      }
     },
     "files": {
       "copy": "Còpia",
@@ -272,8 +382,18 @@
     },
     "user": {
       "name": "Nom",
+      "email": "Correu electrònic",
+      "tooltipSelectIcon": "Seleccioneu la icona",
       "selectAnIcon": "Seleccioneu una icona",
       "pleaseInputYourOpenAIKey": "si us plau, introduïu la vostra clau OpenAI"
+    },
+    "shortcuts": {
+      "command": "Comandament",
+      "addNewCommand": "Afegeix una comanda nova"
+    },
+    "mobile": {
+      "personalInfo": "Informació personal",
+      "username": "Nom d'usuari"
     }
   },
   "grid": {

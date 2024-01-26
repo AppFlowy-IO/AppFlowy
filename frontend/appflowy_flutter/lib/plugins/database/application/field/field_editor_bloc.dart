@@ -16,14 +16,6 @@ import 'field_service.dart';
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
-  final String viewId;
-  final String fieldId;
-  final FieldController fieldController;
-  final SingleFieldListener _singleFieldListener;
-  final FieldBackendService fieldService;
-  final FieldSettingsBackendService fieldSettingsService;
-  final void Function(String newFieldId)? onFieldInserted;
-
   FieldEditorBloc({
     required this.viewId,
     required this.fieldController,
@@ -37,6 +29,24 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
         ),
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
         super(FieldEditorState(field: FieldInfo.initial(field))) {
+    _dispatch();
+  }
+
+  final String viewId;
+  final String fieldId;
+  final FieldController fieldController;
+  final SingleFieldListener _singleFieldListener;
+  final FieldBackendService fieldService;
+  final FieldSettingsBackendService fieldSettingsService;
+  final void Function(String newFieldId)? onFieldInserted;
+
+  @override
+  Future<void> close() {
+    _singleFieldListener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -55,7 +65,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(field: fieldController.getField(fieldId)!));
           },
           switchFieldType: (fieldType) async {
-            await fieldService.updateFieldType(fieldType: fieldType);
+            await fieldService.updateType(fieldType: fieldType);
           },
           renameField: (newName) async {
             final result = await fieldService.updateField(name: newName);
@@ -70,14 +80,14 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
           },
           insertLeft: () async {
-            final result = await fieldService.insertBefore();
+            final result = await fieldService.createBefore();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           insertRight: () async {
-            final result = await fieldService.insertAfter();
+            final result = await fieldService.createAfter();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
@@ -106,13 +116,6 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
       (l) => null,
       (err) => Log.error(err),
     );
-  }
-
-  @override
-  Future<void> close() {
-    _singleFieldListener.stop();
-
-    return super.close();
   }
 }
 

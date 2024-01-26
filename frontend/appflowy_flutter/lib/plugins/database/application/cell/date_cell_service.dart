@@ -6,8 +6,6 @@ import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart';
 
 final class DateCellBackendService {
-  final CellIdPB cellId;
-
   DateCellBackendService({
     required String viewId,
     required String fieldId,
@@ -17,13 +15,16 @@ final class DateCellBackendService {
           ..fieldId = fieldId
           ..rowId = rowId;
 
+  final CellIdPB cellId;
+
   Future<Either<Unit, FlowyError>> update({
+    required bool includeTime,
+    required bool isRange,
     DateTime? date,
     String? time,
     DateTime? endDate,
     String? endTime,
-    required includeTime,
-    required isRange,
+    String? reminderId,
   }) {
     final payload = DateChangesetPB.create()
       ..cellId = cellId
@@ -43,6 +44,9 @@ final class DateCellBackendService {
     }
     if (endTime != null) {
       payload.endTime = endTime;
+    }
+    if (reminderId != null) {
+      payload.reminderId = reminderId;
     }
 
     return DatabaseEventUpdateDateCell(payload).send();

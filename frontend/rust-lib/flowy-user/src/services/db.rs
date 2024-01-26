@@ -2,10 +2,8 @@ use std::path::{Path, PathBuf};
 use std::{collections::HashMap, fs, io, sync::Arc, time::Duration};
 
 use chrono::Local;
-use parking_lot::RwLock;
-use tracing::{error, event, info, instrument};
-
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::FlowyError;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::ConnectionPool;
@@ -17,6 +15,8 @@ use flowy_sqlite::{
 use flowy_user_pub::entities::{UserProfile, UserWorkspace};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
+use parking_lot::RwLock;
+use tracing::{error, event, info, instrument};
 
 use crate::services::sqlite_sql::user_sql::UserTable;
 use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;

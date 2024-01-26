@@ -28,8 +28,8 @@ void main() {
   const service = TestWorkspaceService(TestWorkspace.emptyDocument);
 
   group('Tests on a workspace with only an empty document', () {
-    setUpAll(() async => await service.setUpAll());
-    setUp(() async => await service.setUp());
+    setUpAll(() async => service.setUpAll());
+    setUp(() async => service.setUp());
 
     testWidgets('/board shortcut creates a new board and view of the board',
         (tester) async {

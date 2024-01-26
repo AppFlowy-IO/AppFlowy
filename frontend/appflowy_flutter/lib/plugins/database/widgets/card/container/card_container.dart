@@ -105,9 +105,9 @@ class _CardEnterRegion extends StatelessWidget {
 }
 
 class _CardContainerNotifier extends ChangeNotifier {
-  bool _onEnter = false;
-
   _CardContainerNotifier();
+
+  bool _onEnter = false;
 
   set onEnter(bool value) {
     if (_onEnter != value) {

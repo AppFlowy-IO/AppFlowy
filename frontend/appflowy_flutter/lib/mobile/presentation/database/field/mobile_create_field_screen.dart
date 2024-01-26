@@ -9,10 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileNewPropertyScreen extends StatefulWidget {
-  static const routeName = '/new_property';
-  static const argViewId = 'view_id';
-  static const argFieldTypeId = 'field_type_id';
-
   const MobileNewPropertyScreen({
     super.key,
     required this.viewId,
@@ -21,6 +17,10 @@ class MobileNewPropertyScreen extends StatefulWidget {
 
   final String viewId;
   final FieldType? fieldType;
+
+  static const routeName = '/new_property';
+  static const argViewId = 'view_id';
+  static const argFieldTypeId = 'field_type_id';
 
   @override
   State<MobileNewPropertyScreen> createState() =>
@@ -53,6 +53,14 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
           onTap: () => context.pop(),
         ),
         leadingWidth: 120,
+        elevation: 0,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+          ),
+        ),
         actions: [
           _SaveButton(
             onSave: () {
@@ -84,7 +92,6 @@ class _SaveButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
       child: Align(
-        alignment: Alignment.center,
         child: GestureDetector(
           onTap: onSave,
           child: FlowyText.medium(

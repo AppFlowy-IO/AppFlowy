@@ -59,7 +59,6 @@ extension PasteNodes on EditorState {
 
       nodes.last.insertDelta(
         delta.slice(selection.endIndex),
-        insertAfter: true,
       );
     }
 

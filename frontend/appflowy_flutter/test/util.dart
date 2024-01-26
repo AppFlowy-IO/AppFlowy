@@ -114,7 +114,7 @@ void _pathProviderInitialized() {
 class AppFlowyApplicationUniTest implements EntryPoint {
   @override
   Widget create(LaunchConfiguration config) {
-    return Container();
+    return const SizedBox.shrink();
   }
 }
 

@@ -62,7 +62,6 @@ class PopupMenuWrapper extends StatelessWidget {
             color: theme.toolbarShadowColor,
             blurRadius: 20,
             offset: const Offset(0, 10),
-            spreadRadius: 0,
           ),
         ],
       ),

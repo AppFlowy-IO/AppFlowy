@@ -44,7 +44,6 @@ class MobileHomeTrashPage extends StatelessWidget {
                                 Expanded(
                                   child: _TrashActionAllButton(
                                     trashBloc: trashBloc,
-                                    type: _TrashActionType.deleteAll,
                                   ),
                                 ),
                                 const SizedBox(

@@ -11,8 +11,9 @@ import 'choicechip/url.dart';
 import 'filter_info.dart';
 
 class FilterMenuItem extends StatelessWidget {
-  final FilterInfo filterInfo;
   const FilterMenuItem({required this.filterInfo, super.key});
+
+  final FilterInfo filterInfo;
 
   @override
   Widget build(BuildContext context) {

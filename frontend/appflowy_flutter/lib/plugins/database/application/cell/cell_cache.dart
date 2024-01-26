@@ -1,77 +1,36 @@
-part of 'cell_service.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
 
-typedef CellContextByFieldId = LinkedHashMap<String, DatabaseCellContext>;
+import 'cell_controller.dart';
 
-class DatabaseCell {
-  dynamic object;
-  DatabaseCell({
-    required this.object,
-  });
-}
-
-/// Use to index the cell in the grid.
-/// We use [fieldId + rowId] to identify the cell.
-class CellCacheKey {
-  final String fieldId;
-  final RowId rowId;
-  CellCacheKey({
-    required this.fieldId,
-    required this.rowId,
-  });
-}
-
-/// GridCellCache is used to cache cell data of each block.
-/// We use GridCellCacheKey to index the cell in the cache.
+/// CellMemCache is used to cache cell data of each block.
+/// We use CellContext to index the cell in the cache.
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid
 /// for more information
 class CellMemCache {
-  final String viewId;
+  CellMemCache();
 
-  /// fieldId: {cacheKey: GridCell}
+  /// fieldId: {rowId: cellData}
   final Map<String, Map<RowId, dynamic>> _cellByFieldId = {};
-  CellMemCache({
-    required this.viewId,
-  });
 
   void removeCellWithFieldId(String fieldId) {
     _cellByFieldId.remove(fieldId);
   }
 
-  void remove(CellCacheKey key) {
-    final map = _cellByFieldId[key.fieldId];
-    if (map != null) {
-      map.remove(key.rowId);
-    }
+  void remove(CellContext context) {
+    _cellByFieldId[context.fieldId]?.remove(context.rowId);
   }
 
-  void insert<T extends DatabaseCell>(CellCacheKey key, T value) {
-    var map = _cellByFieldId[key.fieldId];
-    if (map == null) {
-      _cellByFieldId[key.fieldId] = {};
-      map = _cellByFieldId[key.fieldId];
-    }
-
-    map![key.rowId] = value.object;
+  void insert<T>(CellContext context, T data) {
+    _cellByFieldId.putIfAbsent(context.fieldId, () => {});
+    _cellByFieldId[context.fieldId]![context.rowId] = data;
   }
 
-  T? get<T>(CellCacheKey key) {
-    final map = _cellByFieldId[key.fieldId];
-    if (map == null) {
-      return null;
-    } else {
-      final value = map[key.rowId];
-      if (value is T) {
-        return value;
-      } else {
-        if (value != null) {
-          Log.error("Expected value type: $T, but receive $value");
-        }
-        return null;
-      }
-    }
+  T? get<T>(CellContext context) {
+    final value = _cellByFieldId[context.fieldId]?[context.rowId];
+    return value is T ? value : null;
   }
 
-  Future<void> dispose() async {
+  void dispose() {
     _cellByFieldId.clear();
   }
 }

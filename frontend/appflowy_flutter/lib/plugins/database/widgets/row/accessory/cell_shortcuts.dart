@@ -18,8 +18,9 @@ abstract class CellShortcuts extends Widget {
 }
 
 class GridCellShortcuts extends StatelessWidget {
-  final CellShortcuts child;
   const GridCellShortcuts({required this.child, super.key});
+
+  final CellShortcuts child;
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +61,9 @@ class GridCellEnterIdent extends Intent {
 }
 
 class GridCellEnterAction extends Action<GridCellEnterIdent> {
-  final CellShortcuts child;
   GridCellEnterAction({required this.child});
+
+  final CellShortcuts child;
 
   @override
   void invoke(covariant GridCellEnterIdent intent) {
@@ -77,8 +79,9 @@ class GridCellCopyIntent extends Intent {
 }
 
 class GridCellCopyAction extends Action<GridCellCopyIntent> {
-  final CellShortcuts child;
   GridCellCopyAction({required this.child});
+
+  final CellShortcuts child;
 
   @override
   void invoke(covariant GridCellCopyIntent intent) {
@@ -99,8 +102,9 @@ class GridCellPasteIntent extends Intent {
 }
 
 class GridCellPasteAction extends Action<GridCellPasteIntent> {
-  final CellShortcuts child;
   GridCellPasteAction({required this.child});
+
+  final CellShortcuts child;
 
   @override
   void invoke(covariant GridCellPasteIntent intent) {

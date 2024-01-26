@@ -1,22 +1,30 @@
-part of 'cell_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
+import 'package:dartz/dartz.dart';
+
+import 'cell_controller.dart';
+import 'cell_service.dart';
 
 /// Save the cell data to disk
 /// You can extend this class to do custom operations.
 abstract class CellDataPersistence<D> {
-  Future<Option<FlowyError>> save(D data);
+  Future<Option<FlowyError>> save({
+    required String viewId,
+    required CellContext cellContext,
+    required D data,
+  });
 }
 
 class TextCellDataPersistence implements CellDataPersistence<String> {
-  final DatabaseCellContext cellContext;
-  final _cellBackendSvc = CellBackendService();
-
-  TextCellDataPersistence({
-    required this.cellContext,
-  });
+  TextCellDataPersistence();
 
   @override
-  Future<Option<FlowyError>> save(String data) async {
-    final fut = _cellBackendSvc.updateCell(
+  Future<Option<FlowyError>> save({
+    required String viewId,
+    required CellContext cellContext,
+    required String data,
+  }) async {
+    final fut = CellBackendService.updateCell(
+      viewId: viewId,
       cellContext: cellContext,
       data: data,
     );

@@ -1,22 +1,25 @@
-import 'package:appflowy/core/notification/grid_notification.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
-import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
+
+import 'package:appflowy/core/notification/grid_notification.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
 
 import '../row/row_service.dart';
 
 typedef UpdateFieldNotifiedValue = Either<Unit, FlowyError>;
 
 class CellListener {
+  CellListener({required this.rowId, required this.fieldId});
+
   final RowId rowId;
   final String fieldId;
+
   PublishNotifier<UpdateFieldNotifiedValue>? _updateCellNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  CellListener({required this.rowId, required this.fieldId});
 
   void start({required void Function(UpdateFieldNotifiedValue) onCellChanged}) {
     _updateCellNotifier?.addPublishListener(onCellChanged);

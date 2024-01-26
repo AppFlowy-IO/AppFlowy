@@ -8,11 +8,11 @@ import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 
 class FilterInfo {
+  FilterInfo(this.viewId, this.filter, this.fieldInfo);
+
   final String viewId;
   final FilterPB filter;
   final FieldInfo fieldInfo;
-
-  FilterInfo(this.viewId, this.filter, this.fieldInfo);
 
   FilterInfo copyWith({FilterPB? filter, FieldInfo? fieldInfo}) {
     return FilterInfo(

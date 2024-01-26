@@ -74,13 +74,10 @@ class _MobileDatabaseFieldListHeader extends StatelessWidget {
                 FlowySvgs.arrow_left_m,
                 size: Size.square(iconWidth),
               ),
-              width: iconWidth,
-              iconPadding: EdgeInsets.zero,
               onPressed: () => Navigator.of(context).maybePop(),
             ),
           ),
           Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               LocaleKeys.grid_settings_properties.tr(),
               fontSize: 16,
@@ -160,7 +157,6 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                 },
               );
             },
-            buildDefaultDragHandles: true,
             shrinkWrap: true,
             onReorder: (from, to) {
               from++;

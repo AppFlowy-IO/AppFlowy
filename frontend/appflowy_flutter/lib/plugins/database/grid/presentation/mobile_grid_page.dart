@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
@@ -7,6 +9,8 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/shortcuts.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -15,7 +19,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
@@ -33,11 +36,13 @@ class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     ViewPB view,
     DatabaseController controller,
     bool shrinkWrap,
+    String? initialRowId,
   ) {
     return MobileGridPage(
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
+      initialRowId: initialRowId,
     );
   }
 
@@ -58,26 +63,33 @@ class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 }
 
 class MobileGridPage extends StatefulWidget {
-  final DatabaseController databaseController;
   const MobileGridPage({
+    super.key,
     required this.view,
     required this.databaseController,
     this.onDeleted,
-    super.key,
+    this.initialRowId,
   });
 
   final ViewPB view;
+  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
+  final String? initialRowId;
 
   @override
   State<MobileGridPage> createState() => _MobileGridPageState();
 }
 
 class _MobileGridPageState extends State<MobileGridPage> {
+  bool _didOpenInitialRow = false;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<NotificationActionBloc>.value(
+          value: getIt<NotificationActionBloc>(),
+        ),
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
             view: widget.view,
@@ -90,27 +102,52 @@ class _MobileGridPageState extends State<MobileGridPage> {
           return state.loadingState.map(
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
-            finish: (result) => result.successOrFail.fold(
-              (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
-              (err) => FlowyErrorPage.message(
-                err.toString(),
-                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-              ),
-            ),
+            finish: (result) {
+              _openRow(context, widget.initialRowId, true);
+              return result.successOrFail.fold(
+                (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
+                (err) => FlowyErrorPage.message(
+                  err.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                ),
+              );
+            },
             idle: (_) => const SizedBox.shrink(),
           );
         },
       ),
     );
   }
+
+  void _openRow(
+    BuildContext context,
+    String? rowId, [
+    bool initialRow = false,
+  ]) {
+    if (rowId != null && (!initialRow || (initialRow && !_didOpenInitialRow))) {
+      _didOpenInitialRow = initialRow;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.push(
+          MobileRowDetailPage.routeName,
+          extra: {
+            MobileRowDetailPage.argRowId: rowId,
+            MobileRowDetailPage.argDatabaseController:
+                widget.databaseController,
+          },
+        );
+      });
+    }
+  }
 }
 
 class GridPageContent extends StatefulWidget {
-  final ViewPB view;
   const GridPageContent({
-    required this.view,
     super.key,
+    required this.view,
   });
+
+  final ViewPB view;
 
   @override
   State<GridPageContent> createState() => _GridPageContentState();
@@ -179,8 +216,9 @@ class _GridPageContentState extends State<GridPageContent> {
 }
 
 class _GridHeader extends StatelessWidget {
-  final ScrollController headerScrollController;
   const _GridHeader({required this.headerScrollController});
+
+  final ScrollController headerScrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -196,13 +234,13 @@ class _GridHeader extends StatelessWidget {
 }
 
 class _GridRows extends StatelessWidget {
-  final String viewId;
-  final GridScrollController scrollController;
-
   const _GridRows({
     required this.viewId,
     required this.scrollController,
   });
+
+  final String viewId;
+  final GridScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +402,6 @@ class _AddRowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderSide = BorderSide(
       color: Theme.of(context).dividerColor,
-      width: 1.0,
     );
     const radius = BorderRadius.only(
       bottomLeft: Radius.circular(24),

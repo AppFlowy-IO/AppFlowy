@@ -1,9 +1,14 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
-import 'package:appflowy/plugins/database/widgets/row/cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -11,22 +16,22 @@ import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+
+import '../../application/database_controller.dart';
 import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
-import '../application/grid_bloc.dart';
-import '../../application/database_controller.dart';
-import 'grid_scroll.dart';
 import '../../tab_bar/tab_bar_view.dart';
+import '../../widgets/row/row_detail.dart';
+import '../application/grid_bloc.dart';
+
+import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
-import 'widgets/row/row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
-import '../../widgets/row/row_detail.dart';
+import 'widgets/row/row.dart';
 import 'widgets/shortcuts.dart';
 
 class ToggleExtensionNotifier extends ChangeNotifier {
@@ -49,11 +54,13 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     ViewPB view,
     DatabaseController controller,
     bool shrinkWrap,
+    String? initialRowId,
   ) {
     return GridPage(
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
+      initialRowId: initialRowId,
     );
   }
 
@@ -85,66 +92,112 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 }
 
 class GridPage extends StatefulWidget {
-  final DatabaseController databaseController;
   const GridPage({
+    super.key,
     required this.view,
     required this.databaseController,
     this.onDeleted,
-    super.key,
+    this.initialRowId,
   });
 
   final ViewPB view;
+  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
+  final String? initialRowId;
 
   @override
   State<GridPage> createState() => _GridPageState();
 }
 
 class _GridPageState extends State<GridPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  bool _didOpenInitialRow = false;
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<GridBloc>(
-          create: (context) => GridBloc(
-            view: widget.view,
-            databaseController: widget.databaseController,
-          )..add(const GridEvent.initial()),
-        ),
-      ],
-      child: BlocBuilder<GridBloc, GridState>(
-        builder: (context, state) {
-          return state.loadingState.map(
+    return BlocProvider<GridBloc>(
+      create: (context) => GridBloc(
+        view: widget.view,
+        databaseController: widget.databaseController,
+      )..add(const GridEvent.initial()),
+      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+        listener: (context, state) {
+          final action = state.action;
+          if (action?.type == ActionType.openRow &&
+              action?.objectId == widget.view.id) {
+            final rowId = action!.arguments?[ActionArgumentKeys.rowId];
+            if (rowId != null) {
+              // If Reminder in existing database is pressed
+              // then open the row
+              _openRow(context, rowId);
+            }
+          }
+        },
+        child: BlocConsumer<GridBloc, GridState>(
+          listener: (context, state) => state.loadingState.whenOrNull(
+            // If initial row id is defined, open row details overlay
+            finish: (_) {
+              if (widget.initialRowId != null && !_didOpenInitialRow) {
+                _didOpenInitialRow = true;
+
+                _openRow(context, widget.initialRowId!);
+              }
+
+              return;
+            },
+          ),
+          builder: (context, state) => state.loadingState.map(
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => GridShortcuts(
-                child: GridPageContent(view: widget.view),
-              ),
+              (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
               (err) => FlowyErrorPage.message(
                 err.toString(),
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
               ),
             ),
             idle: (_) => const SizedBox.shrink(),
-          );
-        },
+          ),
+        ),
       ),
     );
+  }
+
+  void _openRow(
+    BuildContext context,
+    String rowId,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final gridBloc = context.read<GridBloc>();
+      final rowCache = gridBloc.getRowCache(rowId);
+      final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+      if (rowMeta == null) {
+        return;
+      }
+
+      final rowController = RowController(
+        viewId: widget.view.id,
+        rowMeta: rowMeta,
+        rowCache: rowCache,
+      );
+
+      FlowyOverlay.show(
+        context: context,
+        builder: (_) => RowDetailPage(
+          databaseController: context.read<GridBloc>().databaseController,
+          rowController: rowController,
+        ),
+      );
+    });
   }
 }
 
 class GridPageContent extends StatefulWidget {
-  final ViewPB view;
   const GridPageContent({
-    required this.view,
     super.key,
+    required this.view,
   });
+
+  final ViewPB view;
 
   @override
   State<GridPageContent> createState() => _GridPageContentState();
@@ -185,8 +238,9 @@ class _GridPageContentState extends State<GridPageContent> {
 }
 
 class _GridHeader extends StatelessWidget {
-  final ScrollController headerScrollController;
   const _GridHeader({required this.headerScrollController});
+
+  final ScrollController headerScrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -202,13 +256,13 @@ class _GridHeader extends StatelessWidget {
 }
 
 class _GridRows extends StatelessWidget {
-  final String viewId;
-  final GridScrollController scrollController;
-
   const _GridRows({
     required this.viewId,
     required this.scrollController,
   });
+
+  final String viewId;
+  final GridScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +279,7 @@ class _GridRows extends StatelessWidget {
                 reorderSingleRow: (reorderRow, rowInfo) => true,
                 delete: (item) => true,
                 insert: (item) => true,
-                orElse: () => false,
+                orElse: () => true,
               ),
               builder: (context, state) {
                 final rowInfos = state.rowInfos;
@@ -249,15 +303,17 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
-    final children = rowInfos.mapIndexed((index, rowInfo) {
-      return _renderRow(
-        context,
-        rowInfo.rowId,
-        isDraggable: state.reorderable,
-        index: index,
-      );
-    }).toList()
-      ..add(const GridRowBottomBar(key: Key('gridFooter')));
+    final children = [
+      ...rowInfos.mapIndexed((index, rowInfo) {
+        return _renderRow(
+          context,
+          rowInfo.rowId,
+          isDraggable: state.reorderable,
+          index: index,
+        );
+      }),
+      const GridRowBottomBar(key: Key('gridFooter')),
+    ];
     return ReorderableListView.builder(
       ///  This is a workaround related to
       ///  https://github.com/flutter/flutter/issues/25652
@@ -270,12 +326,11 @@ class _GridRows extends StatelessWidget {
       ),
       onReorder: (fromIndex, newIndex) {
         final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-        if (fromIndex == toIndex) {
-          return;
+        if (fromIndex != toIndex) {
+          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
         }
-        context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
       },
-      itemCount: rowInfos.length + 1, // the extra item is the footer
+      itemCount: children.length,
       itemBuilder: (context, index) => children[index],
     );
   }
@@ -287,7 +342,8 @@ class _GridRows extends StatelessWidget {
     required bool isDraggable,
     Animation<double>? animation,
   }) {
-    final rowCache = context.read<GridBloc>().getRowCache(rowId);
+    final databaseController = context.read<GridBloc>().databaseController;
+    final DatabaseController(:viewId, :rowCache) = databaseController;
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
     /// Return placeholder widget if the rowMeta is null.
@@ -295,9 +351,6 @@ class _GridRows extends StatelessWidget {
       Log.warn('RowMeta is null for rowId: $rowId');
       return const SizedBox.shrink();
     }
-
-    final fieldController =
-        context.read<GridBloc>().databaseController.fieldController;
     final rowController = RowController(
       viewId: viewId,
       rowMeta: rowMeta,
@@ -306,20 +359,20 @@ class _GridRows extends StatelessWidget {
 
     final child = GridRow(
       key: ValueKey(rowMeta.id),
+      fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,
       index: index,
       isDraggable: isDraggable,
-      dataController: rowController,
-      cellBuilder: GridCellBuilder(cellCache: rowController.cellCache),
+      rowController: rowController,
+      cellBuilder: EditableCellBuilder(databaseController: databaseController),
       openDetailPage: (context, cellBuilder) {
         FlowyOverlay.show(
           context: context,
           builder: (BuildContext context) {
             return RowDetailPage(
-              cellBuilder: cellBuilder,
               rowController: rowController,
-              fieldController: fieldController,
+              databaseController: databaseController,
             );
           },
         );
