@@ -13,14 +13,13 @@ class MobileGridTimestampCellSkin extends IEditableTimestampCellSkin {
     TimestampCellBloc bloc,
     TimestampCellState state,
   ) {
-    return Align(
+    return Container(
       alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: FlowyText(
-          state.dateStr,
-          fontSize: 15,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: FlowyText(
+        state.dateStr,
+        fontSize: 15,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
