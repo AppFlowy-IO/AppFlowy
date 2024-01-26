@@ -272,6 +272,7 @@ class _AddBlockMenuItem extends StatelessWidget {
     return GestureDetector(
       onTap: data.onTap,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             height: 68.0 * context.scale,
@@ -289,9 +290,15 @@ class _AddBlockMenuItem extends StatelessWidget {
             ),
           ),
           const VSpace(4),
-          FlowyText(
-            data.text,
-            fontSize: 12.0,
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 68.0 * context.scale,
+            ),
+            child: FlowyText(
+              data.text,
+              fontSize: 12.0,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
