@@ -16,7 +16,7 @@ import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../../../../grid/presentation/widgets/header/type_option/select/select_option_editor.dart';
 import 'extension.dart';
-import 'select_option_editor_bloc.dart';
+import '../../../../application/cell/bloc/select_option_editor_bloc.dart';
 import 'text_field.dart';
 
 const double _editorPanelWidth = 300;
