@@ -1,13 +1,11 @@
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/view/view_cache.dart';
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
+import 'package:appflowy/plugins/database/domain/group_listener.dart';
+import 'package:appflowy/plugins/database/domain/layout_service.dart';
+import 'package:appflowy/plugins/database/domain/layout_setting_listener.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -15,12 +13,8 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import 'database_view_service.dart';
 import 'defines.dart';
-import 'layout/layout_service.dart';
-import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
-import 'group/group_listener.dart';
 
 typedef OnGroupConfigurationChanged = void Function(List<GroupSettingPB>);
 typedef OnGroupByField = void Function(List<GroupPB>);

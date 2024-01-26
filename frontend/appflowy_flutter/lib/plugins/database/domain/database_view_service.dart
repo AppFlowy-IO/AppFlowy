@@ -5,7 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:dartz/dartz.dart';
 
-import 'layout/layout_service.dart';
+import 'layout_service.dart';
 
 class DatabaseViewBackendService {
   DatabaseViewBackendService({required this.viewId});

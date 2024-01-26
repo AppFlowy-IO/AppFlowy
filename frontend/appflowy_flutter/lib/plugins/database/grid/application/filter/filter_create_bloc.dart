@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_filter.pbenum.dart';

@@ -1,10 +1,9 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/domain/type_option_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
-
-import 'type_option_service.dart';
 
 abstract class ISelectOptionAction {
   ISelectOptionAction({

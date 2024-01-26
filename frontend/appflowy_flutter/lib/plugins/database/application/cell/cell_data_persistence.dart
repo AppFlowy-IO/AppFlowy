@@ -1,8 +1,8 @@
+import 'package:appflowy/plugins/database/domain/cell_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
 import 'cell_controller.dart';
-import 'cell_service.dart';
 
 /// Save the cell data to disk
 /// You can extend this class to do custom operations.

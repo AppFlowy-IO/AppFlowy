@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
-import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 // This class is used for combining the

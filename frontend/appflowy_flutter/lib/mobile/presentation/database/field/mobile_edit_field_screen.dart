@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/mobile/presentation/database/field/mobile_full_field_editor.dart';
-import 'package:appflowy/plugins/database/application/field/field_backend_service.dart';
+import 'package:appflowy/plugins/database/domain/field_backend_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';

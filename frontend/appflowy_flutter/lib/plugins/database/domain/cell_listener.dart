@@ -7,7 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 
-import '../row/row_service.dart';
+import '../application/row/row_service.dart';
 
 typedef UpdateFieldNotifiedValue = Either<Unit, FlowyError>;
 
