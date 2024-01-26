@@ -248,8 +248,9 @@ jobs:
         working-directory: AppFlowy-Cloud
         run: |
           docker compose down -v --remove-orphans
-          docker pull appflowyinc/appflowy_cloud:latest
+          docker compose pull
           docker compose up -d
+          sleep 10
 
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -298,6 +299,7 @@ jobs:
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           sudo apt-get install network-manager
+          docker ps -a
           flutter test integration_test/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 

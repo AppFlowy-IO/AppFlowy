@@ -10,15 +10,20 @@ use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
+use flowy_storage::object_from_disk;
 use lru::LruCache;
 use parking_lot::Mutex;
+use tokio::io::AsyncWriteExt;
+use tracing::error;
+use tracing::info;
+use tracing::warn;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_storage::FileStorageService;
+use flowy_storage::ObjectStorageService;
 
 use crate::document::MutexDocument;
 use crate::entities::{
@@ -45,7 +50,7 @@ pub struct DocumentManager {
   collab_builder: Arc<AppFlowyCollabBuilder>,
   documents: Arc<Mutex<LruCache<String, Arc<MutexDocument>>>>,
   cloud_service: Arc<dyn DocumentCloudService>,
-  storage_service: Weak<dyn FileStorageService>,
+  storage_service: Weak<dyn ObjectStorageService>,
   snapshot_service: Arc<dyn DocumentSnapshotService>,
 }
 
@@ -54,7 +59,7 @@ impl DocumentManager {
     user_service: Arc<dyn DocumentUserService>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
-    storage_service: Weak<dyn FileStorageService>,
+    storage_service: Weak<dyn ObjectStorageService>,
     snapshot_service: Arc<dyn DocumentSnapshotService>,
   ) -> Self {
     let documents = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(10).unwrap())));
@@ -246,6 +251,64 @@ impl DocumentManager {
     Ok(snapshot)
   }
 
+  pub async fn upload_file(
+    &self,
+    workspace_id: String,
+    local_file_path: &str,
+  ) -> FlowyResult<String> {
+    let (object_identity, object_value) = object_from_disk(&workspace_id, local_file_path).await?;
+    let storage_service = self.storage_service_upgrade()?;
+    let url = storage_service.get_object_url(object_identity).await?;
+
+    // let the upload happen in the background
+    let clone_url = url.clone();
+    tokio::spawn(async move {
+      if let Err(e) = storage_service.put_object(clone_url, object_value).await {
+        error!("upload file failed: {}", e);
+      }
+    });
+    Ok(url)
+  }
+
+  pub async fn download_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+    if tokio::fs::metadata(&local_file_path).await.is_ok() {
+      warn!("file already exist in user local disk: {}", local_file_path);
+      return Ok(());
+    }
+
+    let storage_service = self.storage_service_upgrade()?;
+    let object_value = storage_service.get_object(url).await?;
+
+    // create file if not exist
+    let mut file = tokio::fs::OpenOptions::new()
+      .create(true)
+      .write(true)
+      .open(&local_file_path)
+      .await?;
+
+    let n = file.write(&object_value.raw).await?;
+    info!("downloaded {} bytes to file: {}", n, local_file_path);
+
+    Ok(())
+  }
+
+  pub async fn delete_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+    // delete file from local
+    tokio::fs::remove_file(local_file_path).await?;
+
+    // delete from cloud
+    let storage_service = self.storage_service_upgrade()?;
+    tokio::spawn(async move {
+      if let Err(e) = storage_service.delete_object(url).await {
+        // TODO: add WAL to log the delete operation.
+        // keep a list of files to be deleted, and retry later
+        error!("delete file failed: {}", e);
+      }
+    });
+
+    Ok(())
+  }
+
   async fn collab_for_document(
     &self,
     uid: i64,
@@ -279,6 +342,13 @@ impl DocumentManager {
     }
   }
 
+  fn storage_service_upgrade(&self) -> FlowyResult<Arc<dyn ObjectStorageService>> {
+    let storage_service = self.storage_service.upgrade().ok_or_else(|| {
+      FlowyError::internal().with_context("The file storage service is already dropped")
+    })?;
+    Ok(storage_service)
+  }
+
   /// Only expose this method for testing
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn DocumentCloudService> {
@@ -286,7 +356,7 @@ impl DocumentManager {
   }
   /// Only expose this method for testing
   #[cfg(debug_assertions)]
-  pub fn get_file_storage_service(&self) -> &Weak<dyn FileStorageService> {
+  pub fn get_file_storage_service(&self) -> &Weak<dyn ObjectStorageService> {
     &self.storage_service
   }
 }

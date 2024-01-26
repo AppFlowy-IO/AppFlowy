@@ -100,4 +100,37 @@ class DocumentService {
     final result = await DocumentEventApplyTextDeltaEvent(payload).send();
     return result.swap();
   }
+
+  /// Upload a file to the cloud storage.
+  Future<Either<FlowyError, UploadedFilePB>> uploadFile({
+    required String localFilePath,
+  }) async {
+    final workspace = await FolderEventReadCurrentWorkspace().send();
+    return workspace.fold((l) async {
+      final payload = UploadFileParamsPB(
+        workspaceId: l.id,
+        localFilePath: localFilePath,
+      );
+      final result = await DocumentEventUploadFile(payload).send();
+      return result.swap();
+    }, (r) async {
+      return left(FlowyError(msg: 'Workspace not found'));
+    });
+  }
+
+  /// Download a file from the cloud storage.
+  Future<Either<FlowyError, Unit>> downloadFile({
+    required String url,
+  }) async {
+    final workspace = await FolderEventReadCurrentWorkspace().send();
+    return workspace.fold((l) async {
+      final payload = UploadedFilePB(
+        url: url,
+      );
+      final result = await DocumentEventDownloadFile(payload).send();
+      return result.swap();
+    }, (r) async {
+      return left(FlowyError(msg: 'Workspace not found'));
+    });
+  }
 }

@@ -2,7 +2,6 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use anyhow::Error;
-use bytes::Bytes;
 use collab::core::collab::CollabDocState;
 use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
@@ -23,7 +22,7 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_storage::{FileStorageService, StorageObject};
+use flowy_storage::ObjectStorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
@@ -35,7 +34,7 @@ impl DocumentTest {
   pub fn new() -> Self {
     let user = FakeUser::new();
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
-    let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn FileStorageService>;
+    let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn ObjectStorageService>;
     let document_snapshot = Arc::new(DocumentTestSnapshot);
     let manager = DocumentManager::new(
       Arc::new(user),
@@ -165,16 +164,27 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
 }
 
 pub struct DocumentTestFileStorageService;
-impl FileStorageService for DocumentTestFileStorageService {
-  fn create_object(&self, _object: StorageObject) -> FutureResult<String, FlowyError> {
+impl ObjectStorageService for DocumentTestFileStorageService {
+  fn get_object_url(
+    &self,
+    _object_id: flowy_storage::ObjectIdentity,
+  ) -> FutureResult<String, FlowyError> {
     todo!()
   }
 
-  fn delete_object_by_url(&self, _object_url: String) -> FutureResult<(), FlowyError> {
+  fn put_object(
+    &self,
+    _url: String,
+    _object_value: flowy_storage::ObjectValue,
+  ) -> FutureResult<(), FlowyError> {
     todo!()
   }
 
-  fn get_object_by_url(&self, _object_url: String) -> FutureResult<Bytes, FlowyError> {
+  fn delete_object(&self, _url: String) -> FutureResult<(), FlowyError> {
+    todo!()
+  }
+
+  fn get_object(&self, _url: String) -> FutureResult<flowy_storage::ObjectValue, FlowyError> {
     todo!()
   }
 }
