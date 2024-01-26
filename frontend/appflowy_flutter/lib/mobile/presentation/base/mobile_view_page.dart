@@ -153,7 +153,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           showDragHandle: true,
           showDivider: false,
           padding: const EdgeInsets.only(bottom: 36.0),
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (_) => _buildViewPageBottomSheet(context),
         );
       },
