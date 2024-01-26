@@ -8,14 +8,14 @@ import 'select_option_type_option_bloc.dart';
 import 'type_option_service.dart';
 
 class MultiSelectAction implements ISelectOptionAction {
-  final TypeOptionBackendService service;
-  final TypeOptionDataCallback onTypeOptionUpdated;
-
   MultiSelectAction({
     required this.onTypeOptionUpdated,
     required String viewId,
     required String fieldId,
   }) : service = TypeOptionBackendService(viewId: viewId, fieldId: fieldId);
+
+  final TypeOptionBackendService service;
+  final TypeOptionDataCallback onTypeOptionUpdated;
 
   @override
   Future<List<SelectOptionPB>> insertOption(

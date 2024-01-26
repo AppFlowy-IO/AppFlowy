@@ -16,15 +16,15 @@ abstract class CellDataParser<T> {
 }
 
 class CellDataLoader<T> {
-  final CellDataParser<T> parser;
-
-  /// Reload the cell data if the field is changed.
-  final bool reloadOnFieldChange;
-
   CellDataLoader({
     required this.parser,
     this.reloadOnFieldChange = false,
   });
+
+  final CellDataParser<T> parser;
+
+  /// Reload the cell data if the field is changed.
+  final bool reloadOnFieldChange;
 
   Future<T?> loadData({
     required String viewId,

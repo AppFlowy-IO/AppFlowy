@@ -7,6 +7,14 @@ part 'field_info.freezed.dart';
 class FieldInfo with _$FieldInfo {
   const FieldInfo._();
 
+  factory FieldInfo.initial(FieldPB field) => FieldInfo(
+        field: field,
+        fieldSettings: null,
+        hasFilter: false,
+        hasSort: false,
+        isGroupField: false,
+      );
+
   const factory FieldInfo({
     required FieldPB field,
     required FieldSettingsPB? fieldSettings,
@@ -24,14 +32,6 @@ class FieldInfo with _$FieldInfo {
   bool get isPrimary => field.isPrimary;
 
   FieldVisibility? get visibility => fieldSettings?.visibility;
-
-  factory FieldInfo.initial(FieldPB field) => FieldInfo(
-        field: field,
-        fieldSettings: null,
-        hasFilter: false,
-        hasSort: false,
-        isGroupField: false,
-      );
 
   bool get canBeGroup {
     switch (field.fieldType) {

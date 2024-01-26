@@ -175,7 +175,6 @@ class _DocumentPageState extends State<DocumentPage> {
       if (editorState != null && widget.view.id == state.action?.objectId) {
         editorState.updateSelectionWithReason(
           Selection.collapsed(Position(path: [path])),
-          reason: SelectionUpdateReason.transaction,
         );
       }
     }

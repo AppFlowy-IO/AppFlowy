@@ -27,16 +27,16 @@ import '../cell/editable_cell_builder.dart';
 
 /// Display the row properties in a list. Only used in [RowDetailPage].
 class RowPropertyList extends StatelessWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final EditableCellBuilder cellBuilder;
-
   const RowPropertyList({
     super.key,
     required this.viewId,
     required this.fieldController,
     required this.cellBuilder,
   });
+
+  final String viewId;
+  final FieldController fieldController;
+  final EditableCellBuilder cellBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -109,11 +109,6 @@ class RowPropertyList extends StatelessWidget {
 }
 
 class _PropertyCell extends StatefulWidget {
-  final CellContext cellContext;
-  final EditableCellBuilder cellBuilder;
-  final FieldController fieldController;
-  final int index;
-
   const _PropertyCell({
     super.key,
     required this.cellContext,
@@ -121,6 +116,11 @@ class _PropertyCell extends StatefulWidget {
     required this.fieldController,
     required this.index,
   });
+
+  final CellContext cellContext;
+  final EditableCellBuilder cellBuilder;
+  final FieldController fieldController;
+  final int index;
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();
@@ -193,7 +193,6 @@ class _PropertyCellState extends State<_PropertyCell> {
         onExit: (event) => _isFieldHover.value = false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ValueListenableBuilder(
               valueListenable: _isFieldHover,
@@ -312,7 +311,6 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  side: BorderSide.none,
                 ),
               ),
               overlayColor: MaterialStateProperty.all<Color>(
@@ -345,14 +343,14 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
 }
 
 class CreateRowFieldButton extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-
   const CreateRowFieldButton({
     super.key,
     required this.viewId,
     required this.fieldController,
   });
+
+  final String viewId;
+  final FieldController fieldController;
 
   @override
   State<CreateRowFieldButton> createState() => _CreateRowFieldButtonState();

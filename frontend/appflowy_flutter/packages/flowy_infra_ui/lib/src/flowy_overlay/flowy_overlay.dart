@@ -67,11 +67,9 @@ class FlowyOverlayStyle {
 final GlobalKey<FlowyOverlayState> _key = GlobalKey<FlowyOverlayState>();
 
 /// Invoke this method in app generation process
-TransitionBuilder overlayManagerBuilder() {
-  return (context, child) {
-    assert(child != null, 'Child can\'t be null.');
-    return FlowyOverlay(key: _key, child: child!);
-  };
+Widget overlayManagerBuilder(BuildContext context, Widget? child) {
+  assert(child != null, 'Child can\'t be null.');
+  return FlowyOverlay(key: _key, child: child!);
 }
 
 abstract mixin class FlowyOverlayDelegate {

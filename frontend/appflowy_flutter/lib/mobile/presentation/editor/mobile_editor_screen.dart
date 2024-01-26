@@ -3,10 +3,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class MobileEditorScreen extends StatelessWidget {
-  static const routeName = '/docs';
-  static const viewId = 'id';
-  static const viewTitle = 'title';
-
   const MobileEditorScreen({
     super.key,
     required this.id,
@@ -16,6 +12,10 @@ class MobileEditorScreen extends StatelessWidget {
   /// view id
   final String id;
   final String? title;
+
+  static const routeName = '/docs';
+  static const viewId = 'id';
+  static const viewTitle = 'title';
 
   @override
   Widget build(BuildContext context) {

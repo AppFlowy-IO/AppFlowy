@@ -31,7 +31,6 @@ class _MobilePersonalFolderHeaderState
   Widget build(BuildContext context) {
     const iconSize = 32.0;
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: FlowyButton(

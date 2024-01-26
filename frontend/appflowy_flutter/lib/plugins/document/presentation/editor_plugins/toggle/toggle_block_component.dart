@@ -159,7 +159,6 @@ class _ToggleListBlockComponentWidgetState
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
         textDirection: textDirection,
         children: [
           // the emoji picker button for the note

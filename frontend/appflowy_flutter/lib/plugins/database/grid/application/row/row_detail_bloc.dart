@@ -13,11 +13,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
-  final FieldController fieldController;
-  final RowController rowController;
-
-  final List<CellContext> allCells = [];
-
   RowDetailBloc({
     required this.fieldController,
     required this.rowController,
@@ -26,6 +21,11 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     _startListening();
     _init();
   }
+
+  final FieldController fieldController;
+  final RowController rowController;
+
+  final List<CellContext> allCells = [];
 
   @override
   Future<void> close() async {

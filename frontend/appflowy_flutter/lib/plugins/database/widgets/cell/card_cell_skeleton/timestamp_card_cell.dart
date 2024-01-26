@@ -8,24 +8,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell.dart';
 
 class TimestampCardCellStyle extends CardCellStyle {
-  final TextStyle textStyle;
-
   TimestampCardCellStyle({
     required super.padding,
     required this.textStyle,
   });
+
+  final TextStyle textStyle;
 }
 
 class TimestampCardCell extends CardCell<TimestampCardCellStyle> {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-
   const TimestampCardCell({
     super.key,
     required super.style,
     required this.databaseController,
     required this.cellContext,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
 
   @override
   State<TimestampCardCell> createState() => _TimestampCellState();

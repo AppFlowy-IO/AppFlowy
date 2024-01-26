@@ -10,7 +10,7 @@ final boldToolbarItem = AppFlowyMobileToolbarItem(
         AppFlowyRichTextKeys.bold,
       ),
       icon: FlowySvgs.m_toolbar_bold_s,
-      onTap: () async => await editorState.toggleAttribute(
+      onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.bold,
         selectionExtraInfo: {
           selectionExtraInfoDisableFloatingToolbar: true,
@@ -28,7 +28,7 @@ final italicToolbarItem = AppFlowyMobileToolbarItem(
         AppFlowyRichTextKeys.italic,
       ),
       icon: FlowySvgs.m_toolbar_italic_s,
-      onTap: () async => await editorState.toggleAttribute(
+      onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.italic,
         selectionExtraInfo: {
           selectionExtraInfoDisableFloatingToolbar: true,
@@ -45,7 +45,7 @@ final underlineToolbarItem = AppFlowyMobileToolbarItem(
         AppFlowyRichTextKeys.underline,
       ),
       icon: FlowySvgs.m_toolbar_underline_s,
-      onTap: () async => await editorState.toggleAttribute(
+      onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.underline,
         selectionExtraInfo: {
           selectionExtraInfoDisableFloatingToolbar: true,

@@ -16,14 +16,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// a reference to a Supabase instance and sets up the necessary subscriptions
 /// accordingly.
 class SupabaseRealtimeService {
-  final Supabase supabase;
-  final _authStateListener = UserAuthStateListener();
-
-  bool isLoggingOut = false;
-
-  RealtimeChannel? channel;
-  StreamSubscription<AuthState>? authStateSubscription;
-
   SupabaseRealtimeService({required this.supabase}) {
     _subscribeAuthState();
     _subscribeTablesChanges();
@@ -44,6 +36,14 @@ class SupabaseRealtimeService {
       },
     );
   }
+
+  final Supabase supabase;
+  final _authStateListener = UserAuthStateListener();
+
+  bool isLoggingOut = false;
+
+  RealtimeChannel? channel;
+  StreamSubscription<AuthState>? authStateSubscription;
 
   void _subscribeAuthState() {
     final auth = Supabase.instance.client.auth;

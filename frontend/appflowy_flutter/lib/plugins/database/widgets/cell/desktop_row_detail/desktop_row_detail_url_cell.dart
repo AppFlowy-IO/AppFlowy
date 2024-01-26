@@ -25,7 +25,6 @@ class DesktopRowDetailURLSkin extends IEditableURLCellSkin {
             color: Theme.of(context).colorScheme.primary,
             decoration: TextDecoration.underline,
           ),
-      autofocus: false,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
         border: InputBorder.none,

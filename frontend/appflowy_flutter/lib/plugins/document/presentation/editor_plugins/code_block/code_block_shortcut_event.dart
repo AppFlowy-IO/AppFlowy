@@ -175,7 +175,7 @@ CommandShortcutEventHandler _insertNewParagraphNextToCodeBlockCommandHandler =
       ),
     )
     ..afterSelection = Selection.collapsed(
-      Position(path: selection.end.path.next, offset: 0),
+      Position(path: selection.end.path.next),
     );
   editorState.apply(transaction);
   return KeyEventResult.handled;

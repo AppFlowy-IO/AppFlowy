@@ -5,9 +5,9 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 
 class SettingBackendService {
-  final String viewId;
-
   const SettingBackendService({required this.viewId});
+
+  final String viewId;
 
   Future<Either<DatabaseViewSettingPB, FlowyError>> getSetting() {
     final payload = DatabaseViewIdPB.create()..value = viewId;

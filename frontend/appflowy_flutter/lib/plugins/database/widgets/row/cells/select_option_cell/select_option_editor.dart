@@ -22,9 +22,9 @@ import 'text_field.dart';
 const double _editorPanelWidth = 300;
 
 class SelectOptionCellEditor extends StatefulWidget {
-  final SelectOptionCellController cellController;
-
   const SelectOptionCellEditor({super.key, required this.cellController});
+
+  final SelectOptionCellController cellController;
 
   @override
   State<SelectOptionCellEditor> createState() => _SelectOptionCellEditorState();
@@ -71,13 +71,13 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
 }
 
 class _OptionList extends StatelessWidget {
-  final TextEditingController textEditingController;
-  final PopoverMutex popoverMutex;
-
   const _OptionList({
     required this.textEditingController,
     required this.popoverMutex,
   });
+
+  final TextEditingController textEditingController;
+  final PopoverMutex popoverMutex;
 
   @override
   Widget build(BuildContext context) {
@@ -126,13 +126,13 @@ class _OptionList extends StatelessWidget {
 }
 
 class _TextField extends StatelessWidget {
-  final TextEditingController textEditingController;
-  final PopoverMutex popoverMutex;
-
   const _TextField({
     required this.textEditingController,
     required this.popoverMutex,
   });
+
+  final TextEditingController textEditingController;
+  final PopoverMutex popoverMutex;
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +199,6 @@ class _Title extends StatelessWidget {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Flexible(
               child: FlowyText.medium(
@@ -275,15 +274,15 @@ class _CreateOptionCell extends StatelessWidget {
 }
 
 class _SelectOptionCell extends StatefulWidget {
-  final SelectOptionPB option;
-  final PopoverMutex popoverMutex;
-  final bool isSelected;
-
   const _SelectOptionCell({
     required this.option,
     required this.isSelected,
     required this.popoverMutex,
   });
+
+  final SelectOptionPB option;
+  final bool isSelected;
+  final PopoverMutex popoverMutex;
 
   @override
   State<_SelectOptionCell> createState() => _SelectOptionCellState();
@@ -317,7 +316,6 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
               ),
             ),
           FlowyIconButton(
-            width: 30,
             onPressed: () => _popoverController.show(),
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
             hoverColor: Colors.transparent,

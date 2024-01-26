@@ -9,12 +9,13 @@ import 'package:flowy_infra/notifier.dart';
 typedef FieldSettingsValue = Either<FieldSettingsPB, FlowyError>;
 
 class FieldSettingsListener {
+  FieldSettingsListener({required this.viewId});
+
   final String viewId;
+
   PublishNotifier<FieldSettingsValue>? _fieldSettingsNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-
-  FieldSettingsListener({required this.viewId});
 
   void start({
     required void Function(FieldSettingsValue) onFieldSettingsChanged,

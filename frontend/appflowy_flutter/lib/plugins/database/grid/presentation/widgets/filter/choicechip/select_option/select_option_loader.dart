@@ -8,11 +8,9 @@ abstract class SelectOptionFilterDelegate {
 
 class SingleSelectOptionFilterDelegateImpl
     implements SelectOptionFilterDelegate {
-  final FilterInfo filterInfo;
+  SingleSelectOptionFilterDelegateImpl({required this.filterInfo});
 
-  SingleSelectOptionFilterDelegateImpl({
-    required this.filterInfo,
-  });
+  final FilterInfo filterInfo;
 
   @override
   List<SelectOptionPB> loadOptions() {
@@ -23,9 +21,9 @@ class SingleSelectOptionFilterDelegateImpl
 
 class MultiSelectOptionFilterDelegateImpl
     implements SelectOptionFilterDelegate {
-  final FilterInfo filterInfo;
-
   MultiSelectOptionFilterDelegateImpl({required this.filterInfo});
+
+  final FilterInfo filterInfo;
 
   @override
   List<SelectOptionPB> loadOptions() {

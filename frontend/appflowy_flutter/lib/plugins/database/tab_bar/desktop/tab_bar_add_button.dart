@@ -12,11 +12,9 @@ import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flutter/material.dart';
 
 class AddDatabaseViewButton extends StatefulWidget {
+  const AddDatabaseViewButton({super.key, required this.onTap});
+
   final Function(DatabaseLayoutPB) onTap;
-  const AddDatabaseViewButton({
-    required this.onTap,
-    super.key,
-  });
 
   @override
   State<AddDatabaseViewButton> createState() => _AddDatabaseViewButtonState();
@@ -70,11 +68,9 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
 }
 
 class TabBarAddButtonAction extends StatelessWidget {
+  const TabBarAddButtonAction({super.key, required this.onTap});
+
   final Function(DatabaseLayoutPB) onTap;
-  const TabBarAddButtonAction({
-    required this.onTap,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,13 +93,14 @@ class TabBarAddButtonAction extends StatelessWidget {
 }
 
 class TabBarAddButtonActionCell extends StatelessWidget {
-  final DatabaseLayoutPB action;
-  final void Function(DatabaseLayoutPB) onTap;
   const TabBarAddButtonActionCell({
+    super.key,
     required this.action,
     required this.onTap,
-    super.key,
   });
+
+  final DatabaseLayoutPB action;
+  final void Function(DatabaseLayoutPB) onTap;
 
   @override
   Widget build(BuildContext context) {

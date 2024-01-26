@@ -93,7 +93,6 @@ class _CalendarPageState extends State<CalendarPage> {
   void initState() {
     _calendarState = GlobalKey<MonthViewState>();
     _calendarBloc = CalendarBloc(
-      view: widget.view,
       databaseController: widget.databaseController,
     )..add(const CalendarEvent.initial());
 
@@ -217,7 +216,6 @@ class _CalendarPageState extends State<CalendarPage> {
     return SizedBox(
       height: 24,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
             onTap: PlatformExtension.isMobile

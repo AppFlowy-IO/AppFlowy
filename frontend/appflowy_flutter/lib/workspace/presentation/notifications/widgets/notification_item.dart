@@ -126,7 +126,6 @@ class _NotificationItemState extends State<NotificationItem> {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 FlowyText.semibold(
                                   widget.title,

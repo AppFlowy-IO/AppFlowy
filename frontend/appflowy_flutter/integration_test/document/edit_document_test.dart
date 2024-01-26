@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,10 +17,7 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithNameUnderParent(
-        name: pageName,
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent(name: pageName);
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);
@@ -75,10 +71,7 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithNameUnderParent(
-        name: pageName,
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent(name: pageName);
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);

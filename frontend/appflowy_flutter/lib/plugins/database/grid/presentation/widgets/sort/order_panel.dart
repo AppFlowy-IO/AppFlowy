@@ -6,8 +6,9 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
 class OrderPanel extends StatelessWidget {
-  final Function(SortConditionPB) onCondition;
   const OrderPanel({required this.onCondition, super.key});
+
+  final Function(SortConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +33,14 @@ class OrderPanel extends StatelessWidget {
 }
 
 class OrderPannelItem extends StatelessWidget {
-  final SortConditionPB condition;
-  final Function(SortConditionPB) onCondition;
   const OrderPannelItem({
+    super.key,
     required this.condition,
     required this.onCondition,
-    super.key,
   });
+
+  final SortConditionPB condition;
+  final Function(SortConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {

@@ -16,14 +16,6 @@ import '../mobile_row_detail/mobile_row_detail_date_cell.dart';
 abstract class IEditableDateCellSkin {
   const IEditableDateCellSkin();
 
-  Widget build(
-    BuildContext context,
-    CellContainerNotifier cellContainerNotifier,
-    DateCellBloc bloc,
-    DateCellState state,
-    PopoverController popoverController,
-  );
-
   factory IEditableDateCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DesktopGridDateCellSkin(),
@@ -32,19 +24,27 @@ abstract class IEditableDateCellSkin {
       EditableCellStyle.mobileRowDetail => MobileRowDetailDateCellSkin(),
     };
   }
+
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    DateCellBloc bloc,
+    DateCellState state,
+    PopoverController popoverController,
+  );
 }
 
 class EditableDateCell extends EditableCellWidget {
-  final DatabaseController databaseController;
-  final CellContext cellContext;
-  final IEditableDateCellSkin skin;
-
   EditableDateCell({
     super.key,
     required this.databaseController,
     required this.cellContext,
     required this.skin,
   });
+
+  final DatabaseController databaseController;
+  final CellContext cellContext;
+  final IEditableDateCellSkin skin;
 
   @override
   GridCellState<EditableDateCell> createState() => _DateCellState();

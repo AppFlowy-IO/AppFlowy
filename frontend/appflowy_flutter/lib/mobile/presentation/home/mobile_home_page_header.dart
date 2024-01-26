@@ -27,14 +27,13 @@ class MobileHomePageHeader extends StatelessWidget {
         builder: (context, state) {
           final userIcon = state.userProfile.iconUrl;
           return ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
+            constraints: const BoxConstraints(minHeight: 52),
             child: Row(
               children: [
                 _UserIcon(userIcon: userIcon),
                 const HSpace(12),
                 Expanded(
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const FlowyText.medium('AppFlowy', fontSize: 18),

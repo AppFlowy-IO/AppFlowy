@@ -182,7 +182,6 @@ class MathEquationBlockComponentWidgetState
       child: Math.tex(
         formula,
         textStyle: const TextStyle(fontSize: 20),
-        mathStyle: MathStyle.display,
       ),
     );
   }

@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class FlowyMessageToast extends StatelessWidget {
-  final String message;
   const FlowyMessageToast({required this.message, super.key});
+
+  final String message;
 
   @override
   Widget build(BuildContext context) {

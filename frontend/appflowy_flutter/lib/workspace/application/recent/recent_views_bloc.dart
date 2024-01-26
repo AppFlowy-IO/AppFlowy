@@ -10,10 +10,20 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'recent_views_bloc.freezed.dart';
 
 class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
+  RecentViewsBloc() : super(RecentViewsState.initial()) {
+    _dispatch();
+  }
+
   final _service = RecentService();
   final _listener = RecentViewsListener();
 
-  RecentViewsBloc() : super(RecentViewsState.initial()) {
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<RecentViewsEvent>(
       (event, emit) async {
         await event.map(
@@ -41,12 +51,6 @@ class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _listener.stop();
-    return super.close();
   }
 
   void _onRecentViewsUpdated(

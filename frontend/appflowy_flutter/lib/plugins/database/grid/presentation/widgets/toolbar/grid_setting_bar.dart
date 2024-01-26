@@ -11,13 +11,14 @@ import 'filter_button.dart';
 import 'sort_button.dart';
 
 class GridSettingBar extends StatelessWidget {
-  final DatabaseController controller;
-  final ToggleExtensionNotifier toggleExtension;
   const GridSettingBar({
+    super.key,
     required this.controller,
     required this.toggleExtension,
-    super.key,
   });
+
+  final DatabaseController controller;
+  final ToggleExtensionNotifier toggleExtension;
 
   @override
   Widget build(BuildContext context) {

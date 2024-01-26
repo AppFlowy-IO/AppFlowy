@@ -65,7 +65,7 @@ void main() {
       const newName = 'RenameToNewPageName';
       await tester.hoverOnPageName(
         pageName,
-        onHover: () async => await tester.renamePage(newName),
+        onHover: () async => tester.renamePage(newName),
       );
       final finder = find.descendant(
         of: find.byType(MentionPageBlock),
@@ -84,7 +84,7 @@ void main() {
       await tester.hoverOnPageName(
         pageName,
         layout: ViewLayoutPB.Grid,
-        onHover: () async => await tester.tapDeletePageButton(),
+        onHover: () async => tester.tapDeletePageButton(),
       );
       final finder = find.descendant(
         of: find.byType(MentionPageBlock),
@@ -114,7 +114,6 @@ Future<String> insertInlinePage(
   // create a new document
   await tester.createNewPageWithNameUnderParent(
     name: 'insert_a_inline_page_${layout.name}',
-    layout: ViewLayoutPB.Document,
   );
 
   // tap the first line of the document

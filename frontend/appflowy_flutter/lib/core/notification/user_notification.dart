@@ -31,9 +31,6 @@ typedef UserNotificationHandler = Function(
 );
 
 class UserNotificationListener {
-  StreamSubscription<SubscribeObject>? _subscription;
-  UserNotificationParser? _parser;
-
   UserNotificationListener({
     required String objectId,
     required UserNotificationHandler handler,
@@ -41,6 +38,9 @@ class UserNotificationListener {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
+
+  UserNotificationParser? _parser;
+  StreamSubscription<SubscribeObject>? _subscription;
 
   Future<void> stop() async {
     _parser = null;

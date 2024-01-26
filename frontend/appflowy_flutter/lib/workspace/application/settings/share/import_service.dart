@@ -17,7 +17,7 @@ class ImportBackendService {
       ..viewLayout = importType.toLayout()
       ..name = name
       ..importType = importType;
-    return await FolderEventImportData(payload).send();
+    return FolderEventImportData(payload).send();
   }
 }
 

@@ -1,17 +1,21 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
+  NumberCellBloc({required this.cellController})
+      : super(NumberCellState.initial(cellController)) {
+    _dispatch();
+  }
+
   final NumberCellController cellController;
   void Function()? _onCellChangedFn;
 
-  NumberCellBloc({
-    required this.cellController,
-  }) : super(NumberCellState.initial(cellController)) {
+  void _dispatch() {
     on<NumberCellEvent>(
       (event, emit) async {
         event.when(
@@ -53,11 +57,11 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: ((cellContent) {
+      onCellChanged: (cellContent) {
         if (!isClosed) {
           add(NumberCellEvent.didReceiveCellUpdate(cellContent));
         }
-      }),
+      },
     );
   }
 }

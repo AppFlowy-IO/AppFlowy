@@ -34,7 +34,6 @@ class IMESimulator {
       selection: TextSelection.collapsed(
         offset: value.selection.baseOffset + 1,
       ),
-      composing: TextRange.empty,
     );
     client.updateEditingValue(textEditingValue);
     await tester.pumpAndSettle();

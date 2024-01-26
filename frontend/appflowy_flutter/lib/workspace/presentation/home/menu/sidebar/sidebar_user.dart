@@ -36,7 +36,6 @@ class SidebarUser extends StatelessWidget {
         ),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             UserAvatar(
               iconUrl: state.userProfile.iconUrl,
@@ -75,8 +74,9 @@ class SidebarUser extends StatelessWidget {
 }
 
 class UserSettingButton extends StatelessWidget {
-  final UserProfilePB userProfile;
   const UserSettingButton({required this.userProfile, super.key});
+
+  final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {

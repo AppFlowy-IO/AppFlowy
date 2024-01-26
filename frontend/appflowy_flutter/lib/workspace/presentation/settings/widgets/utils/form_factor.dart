@@ -5,8 +5,6 @@ enum FormFactor {
 
   const FormFactor._(this.width);
 
-  final double width;
-
   factory FormFactor.fromWidth(double width) {
     if (width < FormFactor.mobile.width) {
       return FormFactor.mobile;
@@ -16,4 +14,6 @@ enum FormFactor {
       return FormFactor.desktop;
     }
   }
+
+  final double width;
 }

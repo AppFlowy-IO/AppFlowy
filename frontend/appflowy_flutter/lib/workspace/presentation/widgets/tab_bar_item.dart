@@ -4,12 +4,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class ViewTabBarItem extends StatefulWidget {
-  final ViewPB view;
+  const ViewTabBarItem({super.key, required this.view});
 
-  const ViewTabBarItem({
-    super.key,
-    required this.view,
-  });
+  final ViewPB view;
 
   @override
   State<ViewTabBarItem> createState() => _ViewTabBarItemState();

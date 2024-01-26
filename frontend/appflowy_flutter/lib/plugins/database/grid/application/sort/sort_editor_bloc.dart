@@ -1,28 +1,35 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/sort/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbserver.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
+
 import 'util.dart';
 
 part 'sort_editor_bloc.freezed.dart';
 
 class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
-  final String viewId;
-  final SortBackendService _sortBackendSvc;
-  final FieldController fieldController;
-  void Function(List<FieldInfo>)? _onFieldFn;
   SortEditorBloc({
     required this.viewId,
     required this.fieldController,
     required List<SortInfo> sortInfos,
   })  : _sortBackendSvc = SortBackendService(viewId: viewId),
         super(SortEditorState.initial(sortInfos, fieldController.fieldInfos)) {
+    _dispatch();
+  }
+
+  final String viewId;
+  final SortBackendService _sortBackendSvc;
+  final FieldController fieldController;
+  void Function(List<FieldInfo>)? _onFieldFn;
+
+  void _dispatch() {
     on<SortEditorEvent>(
       (event, emit) async {
         event.when(

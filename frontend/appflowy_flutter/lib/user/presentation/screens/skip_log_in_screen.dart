@@ -20,11 +20,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SkipLogInScreen extends StatefulWidget {
-  static const routeName = '/SkipLogInScreen';
+  const SkipLogInScreen({super.key});
 
-  const SkipLogInScreen({
-    super.key,
-  });
+  static const routeName = '/SkipLogInScreen';
 
   @override
   State<SkipLogInScreen> createState() => _SkipLogInScreenState();
@@ -47,7 +45,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     final size = MediaQuery.of(context).size;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Spacer(),
         FlowyLogoTitle(
@@ -252,12 +249,9 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
 }
 
 class GoButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  const GoButton({super.key, required this.onPressed});
 
-  const GoButton({
-    super.key,
-    required this.onPressed,
-  });
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {

@@ -16,8 +16,9 @@ import '../filter_info.dart';
 import 'choicechip.dart';
 
 class CheckboxFilterChoicechip extends StatefulWidget {
-  final FilterInfo filterInfo;
   const CheckboxFilterChoicechip({required this.filterInfo, super.key});
+
+  final FilterInfo filterInfo;
 
   @override
   State<CheckboxFilterChoicechip> createState() =>
@@ -70,8 +71,9 @@ class _CheckboxFilterChoicechipState extends State<CheckboxFilterChoicechip> {
 }
 
 class CheckboxFilterEditor extends StatefulWidget {
-  final CheckboxFilterEditorBloc bloc;
   const CheckboxFilterEditor({required this.bloc, super.key});
+
+  final CheckboxFilterEditorBloc bloc;
 
   @override
   State<CheckboxFilterEditor> createState() => _CheckboxFilterEditorState();
@@ -142,15 +144,16 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
 }
 
 class CheckboxFilterConditionList extends StatelessWidget {
-  final FilterInfo filterInfo;
-  final PopoverMutex popoverMutex;
-  final Function(CheckboxFilterConditionPB) onCondition;
   const CheckboxFilterConditionList({
+    super.key,
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
-    super.key,
   });
+
+  final FilterInfo filterInfo;
+  final PopoverMutex popoverMutex;
+  final Function(CheckboxFilterConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {
@@ -182,19 +185,14 @@ class CheckboxFilterConditionList extends StatelessWidget {
 }
 
 class ConditionWrapper extends ActionCell {
+  ConditionWrapper(this.inner, this.isSelected);
+
   final CheckboxFilterConditionPB inner;
   final bool isSelected;
 
-  ConditionWrapper(this.inner, this.isSelected);
-
   @override
-  Widget? rightIcon(Color iconColor) {
-    if (isSelected) {
-      return const FlowySvg(FlowySvgs.check_s);
-    } else {
-      return null;
-    }
-  }
+  Widget? rightIcon(Color iconColor) =>
+      isSelected ? const FlowySvg(FlowySvgs.check_s) : null;
 
   @override
   String get name => inner.filterName;
