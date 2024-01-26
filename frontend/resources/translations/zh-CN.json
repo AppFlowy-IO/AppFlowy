@@ -233,9 +233,9 @@
     "helpCenter": "帮助中心",
     "add": "添加",
     "yes": "是",
-    "Done": "完成",
-    "Cancel": "取消",
-    "OK": "确定"
+    "done": "完成",
+    "cancel": "取消",
+    "ok": "确定"
   },
   "label": {
     "welcome": "欢迎！",

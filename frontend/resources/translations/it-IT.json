@@ -232,9 +232,9 @@
     "helpCenter": "Centro assistenza",
     "add": "Aggiungi",
     "yes": "SÌ",
-    "Done": "Fatto",
-    "Cancel": "Annulla",
-    "OK": "OK"
+    "done": "Fatto",
+    "cancel": "Annulla",
+    "ok": "OK"
   },
   "label": {
     "welcome": "Benvenuto!",

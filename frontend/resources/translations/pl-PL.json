@@ -229,8 +229,8 @@
     "addToFavorites": "Dodaj do ulubionych",
     "rename": "Zmień nazwę",
     "helpCenter": "Centrum Pomocy",
-    "Done": "Zrobione",
-    "Cancel": "Anuluj"
+    "done": "Zrobione",
+    "cancel": "Anuluj"
   },
   "label": {
     "welcome": "Witaj!",

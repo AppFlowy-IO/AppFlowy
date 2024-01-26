@@ -193,9 +193,9 @@
     "editContact": "እውቂያ ያርትዑ"
   },
   "button": {
-    "OK": "እሺ",
-    "Done": "ተከናውኗል",
-    "Cancel": "ይቅር",
+    "ok": "እሺ",
+    "done": "ተከናውኗል",
+    "cancel": "ይቅር",
     "signIn": "ይግቡ",
     "signOut": "ዘግተው ውጣ",
     "complete": "ተጠናቀቀ",
@@ -211,7 +211,6 @@
     "edit": "አርትዕ",
     "delete": "ሰርዝ",
     "duplicate": "የተባዛ",
-    "done": "ተከናውኗል",
     "putback": "ይቅር"
   },
   "label": {
