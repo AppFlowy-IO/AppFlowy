@@ -33,8 +33,9 @@ class FieldOptionValues {
   FieldOptionValues({
     required this.type,
     required this.name,
-    this.dateFormate,
+    this.dateFormat,
     this.timeFormat,
+    this.includeTime,
     this.numberFormat,
     this.selectOption = const [],
   });
@@ -48,12 +49,26 @@ class FieldOptionValues {
       numberFormat: fieldType == FieldType.Number
           ? NumberTypeOptionPB.fromBuffer(buffer).format
           : null,
-      dateFormate: fieldType == FieldType.DateTime
-          ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
-          : null,
-      timeFormat: fieldType == FieldType.DateTime
-          ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
-          : null,
+      dateFormat: switch (fieldType) {
+        FieldType.DateTime => DateTypeOptionPB.fromBuffer(buffer).dateFormat,
+        FieldType.LastEditedTime ||
+        FieldType.CreatedTime =>
+          TimestampTypeOptionPB.fromBuffer(buffer).dateFormat,
+        _ => null
+      },
+      timeFormat: switch (fieldType) {
+        FieldType.DateTime => DateTypeOptionPB.fromBuffer(buffer).timeFormat,
+        FieldType.LastEditedTime ||
+        FieldType.CreatedTime =>
+          TimestampTypeOptionPB.fromBuffer(buffer).timeFormat,
+        _ => null
+      },
+      includeTime: switch (fieldType) {
+        FieldType.LastEditedTime ||
+        FieldType.CreatedTime =>
+          TimestampTypeOptionPB.fromBuffer(buffer).includeTime,
+        _ => null
+      },
       selectOption: switch (fieldType) {
         FieldType.SingleSelect =>
           SingleSelectTypeOptionPB.fromBuffer(buffer).options,
@@ -67,11 +82,17 @@ class FieldOptionValues {
   FieldType type;
   String name;
 
-  // FieldType.Date
-  DateFormatPB? dateFormate;
+  // FieldType.DateTime
+  // FieldType.LastEditedTime
+  // FieldType.CreatedTime
+  DateFormatPB? dateFormat;
   TimeFormatPB? timeFormat;
 
-  // FieldType.Num
+  // FieldType.LastEditedTime
+  // FieldType.CreatedTime
+  bool? includeTime;
+
+  // FieldType.Number
   NumberFormatPB? numberFormat;
 
   // FieldType.Select
@@ -103,7 +124,7 @@ class FieldOptionValues {
         ).writeToBuffer();
       case FieldType.DateTime:
         return DateTypeOptionPB(
-          dateFormat: dateFormate,
+          dateFormat: dateFormat,
           timeFormat: timeFormat,
         ).writeToBuffer();
       case FieldType.SingleSelect:
@@ -116,6 +137,13 @@ class FieldOptionValues {
         ).writeToBuffer();
       case FieldType.Checklist:
         return ChecklistTypeOptionPB().writeToBuffer();
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        return TimestampTypeOptionPB(
+          dateFormat: dateFormat,
+          timeFormat: timeFormat,
+          includeTime: includeTime,
+        ).writeToBuffer();
       default:
         throw UnimplementedError();
     }
@@ -237,9 +265,9 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
       case FieldType.DateTime:
         return [
           _DateOption(
-            selectedFormat: values.dateFormate ?? DateFormatPB.Local,
+            selectedFormat: values.dateFormat ?? DateFormatPB.Local,
             onSelected: (format) => _updateOptionValues(
-              dateFormate: format,
+              dateFormat: format,
             ),
           ),
           const _Divider(),
@@ -247,6 +275,30 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
             selectedFormat: values.timeFormat ?? TimeFormatPB.TwelveHour,
             onSelected: (format) => _updateOptionValues(
               timeFormat: format,
+            ),
+          ),
+        ];
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        return [
+          _DateOption(
+            selectedFormat: values.dateFormat ?? DateFormatPB.Local,
+            onSelected: (format) => _updateOptionValues(
+              dateFormat: format,
+            ),
+          ),
+          const _Divider(),
+          _TimeOption(
+            selectedFormat: values.timeFormat ?? TimeFormatPB.TwelveHour,
+            onSelected: (format) => _updateOptionValues(
+              timeFormat: format,
+            ),
+          ),
+          const _Divider(),
+          _IncludeTimeOption(
+            includeTime: values.includeTime ?? true,
+            onToggle: (includeTime) => _updateOptionValues(
+              includeTime: includeTime,
             ),
           ),
         ];
@@ -321,8 +373,9 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
   void _updateOptionValues({
     FieldType? type,
     String? name,
-    DateFormatPB? dateFormate,
+    DateFormatPB? dateFormat,
     TimeFormatPB? timeFormat,
+    bool? includeTime,
     NumberFormatPB? numberFormat,
     List<SelectOptionPB>? selectOption,
   }) {
@@ -332,11 +385,14 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
     if (name != null) {
       values.name = name;
     }
-    if (dateFormate != null) {
-      values.dateFormate = dateFormate;
+    if (dateFormat != null) {
+      values.dateFormat = dateFormat;
     }
     if (timeFormat != null) {
       values.timeFormat = timeFormat;
+    }
+    if (includeTime != null) {
+      values.includeTime = includeTime;
     }
     if (numberFormat != null) {
       values.numberFormat = numberFormat;
@@ -521,6 +577,37 @@ class _TimeOptionState extends State<_TimeOption> {
           );
         }),
       ],
+    );
+  }
+}
+
+class _IncludeTimeOption extends StatefulWidget {
+  const _IncludeTimeOption({
+    required this.includeTime,
+    required this.onToggle,
+  });
+
+  final bool includeTime;
+  final void Function(bool includeTime) onToggle;
+
+  @override
+  State<_IncludeTimeOption> createState() => _IncludeTimeOptionState();
+}
+
+class _IncludeTimeOptionState extends State<_IncludeTimeOption> {
+  late bool includeTime = widget.includeTime;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyOptionTile.toggle(
+      text: LocaleKeys.grid_field_includeTime.tr(),
+      isSelected: includeTime,
+      onValueChanged: (value) {
+        widget.onToggle(value);
+        setState(() {
+          includeTime = value;
+        });
+      },
     );
   }
 }
