@@ -204,11 +204,14 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
   void _setSystemOverlayStyle(AppearanceSettingsState state) {
     if (Platform.isAndroid) {
       SystemUiOverlayStyle style = SystemUiOverlayStyle.dark;
+      Color systemNavigationBarColor = Colors.transparent;
       final themeMode = state.themeMode;
       if (themeMode == ThemeMode.dark) {
         style = SystemUiOverlayStyle.light;
+        systemNavigationBarColor = state.darkTheme.colorScheme.surface;
       } else if (themeMode == ThemeMode.light) {
         style = SystemUiOverlayStyle.dark;
+        systemNavigationBarColor = state.lightTheme.colorScheme.surface;
       } else {
         final brightness = Theme.of(context).brightness;
         // reverse the brightness of the system status bar.
@@ -220,7 +223,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
       SystemChrome.setSystemUIOverlayStyle(
         style.copyWith(
           statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarColor: systemNavigationBarColor,
         ),
       );
     }
