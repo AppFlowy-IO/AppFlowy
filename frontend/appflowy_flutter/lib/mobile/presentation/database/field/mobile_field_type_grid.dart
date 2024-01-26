@@ -45,7 +45,7 @@ class FieldOptions extends StatelessWidget {
             child: _GridView(
               crossAxisCount: 3,
               mainAxisSpacing: 28,
-              itemWidth: 82,
+              itemWidth: MediaQuery.of(context).size.width / 3,
               children: _supportedFieldTypes
                   .map(
                     (e) => _Field(
@@ -108,7 +108,7 @@ class _Field extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FlowySvg(
             type.svgData,
@@ -119,6 +119,7 @@ class _Field extends StatelessWidget {
           FlowyText(
             type.i18n,
             fontSize: 15.0,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -150,7 +151,15 @@ class _GridView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 for (var j = 0; j < crossAxisCount; j++)
-                  i + j < children.length ? children[i + j] : HSpace(itemWidth),
+                  i + j < children.length
+                      ? ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: itemWidth,
+                            minWidth: itemWidth,
+                          ),
+                          child: children[i + j],
+                        )
+                      : HSpace(itemWidth),
               ],
             ),
           ),
