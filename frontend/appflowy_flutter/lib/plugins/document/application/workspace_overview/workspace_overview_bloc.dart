@@ -11,10 +11,6 @@ part 'workspace_overview_bloc.freezed.dart';
 
 class WorkspaceOverviewBloc
     extends Bloc<WorkspaceOverviewEvent, WorkspaceOverviewState> {
-  final ViewPB view;
-
-  final ViewListener _listener;
-
   WorkspaceOverviewBloc({
     required this.view,
   })  : _listener = ViewListener(viewId: view.id),
@@ -42,6 +38,10 @@ class WorkspaceOverviewBloc
       );
     });
   }
+
+  final ViewPB view;
+
+  final ViewListener _listener;
 
   void _onViewUpdated(UpdateViewNotifiedValue update) {
     bool isRebuildRequired = false;
@@ -97,7 +97,7 @@ class WorkspaceOverviewBloc
     }
 
     // The update view payload mirrors `FolderNotification.DidUpdateChildViews`.
-    // Retrieve the view specified in `update.parentViewId` from the cached views 
+    // Retrieve the view specified in `update.parentViewId` from the cached views
     // stored in this state to determine if a rebuild is necessary.
     if (update.updateChildViews.isNotEmpty) {
       final view = _getView(update.parentViewId, state.view);

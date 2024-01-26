@@ -156,7 +156,6 @@ class _OverviewBlockWidgetState extends State<OverviewBlockWidget>
               child: Column(
                 key: ValueKey(children.hashCode),
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 textDirection: textDirection,
                 children: [
