@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = { version = "0.2.89" }
 lazy_static = "1.4.0"
-lib-dispatch = { workspace = true, features = ["wasm_build"] }
+lib-dispatch = { workspace = true, features = ["enable_wasm"] }
 parking_lot.workspace = true
 tracing.workspace = true
 tracing-core = { version = "0.1.32" }
@@ -20,9 +20,9 @@ collab-integrate = { workspace = true, features = ["enable_wasm"] }
 tokio-stream.workspace = true
 
 af-user.workspace = true
-flowy-notification = { workspace = true, features = ["ts", "wasm_build"] }
+flowy-notification = { workspace = true, features = ["ts", "enable_wasm"] }
 flowy-user-pub = { workspace = true }
-flowy-server = { workspace = true, features = ["wasm_build"] }
+flowy-server = { workspace = true, features = ["enable_wasm"] }
 flowy-server-pub = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error"] }
 lib-infra = { workspace = true }

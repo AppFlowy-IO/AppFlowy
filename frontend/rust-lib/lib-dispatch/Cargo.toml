@@ -44,6 +44,6 @@ default = ["use_protobuf"]
 use_serde = ["bincode", "serde_json", "serde", "serde_repr"]
 use_protobuf= ["protobuf"]
 single_thread = []
-wasm_build = ["single_thread"]
+enable_wasm = ["single_thread"]
 
 

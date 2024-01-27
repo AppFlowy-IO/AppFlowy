@@ -81,6 +81,7 @@ pub fn dart_gen(crate_name: &str) {
   }
 }
 
+#[allow(unused_variables)]
 pub fn ts_gen(crate_name: &str, project: Project) {
   let crate_path = std::fs::canonicalize(".")
     .unwrap()

@@ -58,5 +58,5 @@ serde_json.workspace = true
 client-api = { version = "0.1.0" }
 
 [features]
-wasm_build = ["client-api/wasm_build", "collab/async-plugin", "lib-dispatch/wasm_build"]
+enable_wasm = ["client-api/wasm_build", "collab/async-plugin", "lib-dispatch/enable_wasm"]
 enable_supabase = ["collab-plugins/postgres_plugin"]

@@ -40,4 +40,4 @@ flowy-codegen.workspace = true
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
 test_helper = []
-wasm_build = ["collab-plugins/wasm_build"]
+enable_wasm = ["collab-plugins/wasm_build"]

@@ -22,7 +22,7 @@ fancy-regex = { version = "0.11.0" }
 [features]
 dart = ["flowy-codegen/dart"]
 ts = ["flowy-codegen/ts"]
-enable_wasm = ["lib-dispatch/wasm_build", "flowy-codegen/ts"]
+enable_wasm = ["lib-dispatch/enable_wasm", "flowy-codegen/ts"]
 
 [build-dependencies]
 flowy-codegen.workspace = true
