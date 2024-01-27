@@ -30,6 +30,8 @@ extension FieldTypeExtension on FieldType {
         FieldType.Checkbox => FlowySvgs.field_option_checkbox_xl,
         FieldType.Checklist => FlowySvgs.field_option_checklist_xl,
         FieldType.URL => FlowySvgs.field_option_url_xl,
+        FieldType.LastEditedTime => FlowySvgs.field_option_date_xl,
+        FieldType.CreatedTime => FlowySvgs.field_option_date_xl,
         _ => throw UnimplementedError(),
       };
 
@@ -42,6 +44,8 @@ extension FieldTypeExtension on FieldType {
         FieldType.Checkbox => FlowySvgs.field_option_checkbox_s,
         FieldType.URL => FlowySvgs.field_option_url_s,
         FieldType.Checklist => FlowySvgs.checklist_s,
+        FieldType.LastEditedTime => FlowySvgs.field_option_date_s,
+        FieldType.CreatedTime => FlowySvgs.field_option_date_s,
         _ => throw UnimplementedError(),
       };
 }
