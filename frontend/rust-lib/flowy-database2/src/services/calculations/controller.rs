@@ -99,6 +99,7 @@ impl CalculationsController {
     match event_type {
       CalculationEvent::RowDeleted(row) => self.handle_row_deleted(row).await,
       CalculationEvent::CellUpdated(field_id) => self.handle_cell_changed(field_id).await,
+      CalculationEvent::FieldDeleted(field_id) => self.handle_field_deleted(field_id).await,
       CalculationEvent::FieldTypeChanged(field_id, new_field_type) => {
         self
           .handle_field_type_changed(field_id, new_field_type)
@@ -107,6 +108,39 @@ impl CalculationsController {
     }
 
     Ok(())
+  }
+
+  pub async fn did_receive_field_deleted(&self, field_id: String) {
+    self
+      .gen_task(
+        CalculationEvent::FieldDeleted(field_id),
+        QualityOfService::UserInteractive,
+      )
+      .await
+  }
+
+  async fn handle_field_deleted(&self, field_id: String) {
+    let calculation = self
+      .delegate
+      .get_calculation(&self.view_id, &field_id)
+      .await;
+
+    if let Some(calculation) = calculation {
+      self
+        .delegate
+        .remove_calculation(&self.view_id, &calculation.id);
+
+      let notification = CalculationChangesetNotificationPB::from_delete(
+        &self.view_id,
+        vec![CalculationPB::from(&calculation)],
+      );
+
+      let _ = self
+        .notifier
+        .send(DatabaseViewChanged::CalculationValueNotification(
+          notification,
+        ));
+    }
   }
 
   pub async fn did_receive_field_type_changed(&self, field_id: String, new_field_type: FieldType) {
@@ -118,7 +152,7 @@ impl CalculationsController {
       .await
   }
 
-  pub async fn handle_field_type_changed(&self, field_id: String, new_field_type: FieldType) {
+  async fn handle_field_type_changed(&self, field_id: String, new_field_type: FieldType) {
     let calculation = self
       .delegate
       .get_calculation(&self.view_id, &field_id)
@@ -302,6 +336,7 @@ enum CalculationEvent {
   RowDeleted(Row),
   CellUpdated(String),
   FieldTypeChanged(String, FieldType),
+  FieldDeleted(String),
 }
 
 impl ToString for CalculationEvent {

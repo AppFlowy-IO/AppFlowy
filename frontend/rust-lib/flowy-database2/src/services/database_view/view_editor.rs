@@ -1014,6 +1014,13 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  pub async fn v_did_delete_field(&self, field_id: &str) {
+    self
+      .calculations_controller
+      .did_receive_field_deleted(field_id.to_owned())
+      .await;
+  }
+
   pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: &FieldType) {
     self
       .calculations_controller
