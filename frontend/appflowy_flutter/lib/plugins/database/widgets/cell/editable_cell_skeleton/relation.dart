@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/relation_cell/relation_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/relation_cell_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

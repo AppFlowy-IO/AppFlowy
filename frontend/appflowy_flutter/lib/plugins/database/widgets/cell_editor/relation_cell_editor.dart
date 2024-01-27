@@ -7,8 +7,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'relation_cell_bloc.dart';
-import 'relation_row_search_bloc.dart';
+import '../../application/cell/bloc/relation_cell_bloc.dart';
+import '../../application/cell/bloc/relation_row_search_bloc.dart';
 
 class RelationCellEditor extends StatelessWidget {
   const RelationCellEditor({
