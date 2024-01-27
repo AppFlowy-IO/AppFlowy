@@ -36,6 +36,7 @@ client-api = { version = "0.1.0", optional = true }
 impl_from_dispatch_error = ["lib-dispatch"]
 impl_from_serde = []
 impl_from_reqwest = ["reqwest"]
+impl_from_collab_persistence = ["collab-plugins"]
 impl_from_collab_document = ["collab-document", "impl_from_reqwest", "collab-plugins"]
 impl_from_collab_database= ["collab-database"]
 impl_from_url = ["url"]

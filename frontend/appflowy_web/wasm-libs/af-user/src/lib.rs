@@ -1,6 +1,6 @@
+mod define;
 mod entities;
 mod event_handler;
-mod event_map;
-mod manager;
-
+pub mod event_map;
+pub mod manager;
 mod protobuf;

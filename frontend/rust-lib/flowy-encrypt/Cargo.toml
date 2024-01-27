@@ -20,4 +20,4 @@ base64 = "0.21.2"
 getrandom = { version = "0.2", features = ["js"]}
 
 [features]
-wasm_build = []
+enable_wasm = []

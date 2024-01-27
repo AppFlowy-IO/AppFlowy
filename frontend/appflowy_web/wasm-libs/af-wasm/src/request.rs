@@ -1,21 +1,6 @@
-
-use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest};
-
-use parking_lot::Mutex;
-use std::sync::Arc;
+use lib_dispatch::prelude::{AFPluginRequest};
 
 use wasm_bindgen::prelude::wasm_bindgen;
-
-pub(crate) struct MutexDispatcher(pub Arc<Mutex<Option<Arc<AFPluginDispatcher>>>>);
-
-impl MutexDispatcher {
-  pub(crate) fn new() -> Self {
-    Self(Arc::new(Mutex::new(None)))
-  }
-}
-
-unsafe impl Sync for MutexDispatcher {}
-unsafe impl Send for MutexDispatcher {}
 
 #[wasm_bindgen]
 pub struct WasmRequest {

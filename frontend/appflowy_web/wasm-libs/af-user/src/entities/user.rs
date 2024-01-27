@@ -37,7 +37,7 @@ pub struct UserProfilePB {
 
 impl From<UserProfile> for UserProfilePB {
   fn from(user_profile: UserProfile) -> Self {
-    let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
+    let (encryption_sign, _encryption_ty) = match user_profile.encryption_type {
       EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
       EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::Symmetric),
     };

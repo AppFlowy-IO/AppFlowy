@@ -13,7 +13,7 @@ script = [
       echo "🔥🔥🔥  Building $crate with wasm-pack..."
       cd "$BASE_DIR/rust-lib/$crate" || { echo "Failed to enter directory $crate"; exit 1; }
 
-      wasm-pack build --features="wasm_build" || { echo "Build failed for $crate"; exit 1; }
+      wasm-pack build --features="enable_wasm" || { echo "Build failed for $crate"; exit 1; }
     done
     """
 ]

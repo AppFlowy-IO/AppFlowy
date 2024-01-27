@@ -32,4 +32,3 @@ brotli = {  version = "3.4.0", optional = true }
 
 [features]
 compression = ["brotli"]
-wasm_build = []

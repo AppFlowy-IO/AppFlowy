@@ -8,6 +8,7 @@ use std::{
   task::{Context, Poll},
 };
 
+#[allow(dead_code)]
 pub fn to_fut<T, O>(f: T) -> Fut<O>
 where
   T: Future<Output = O> + 'static,
@@ -30,6 +31,7 @@ impl<T> Future for Fut<T> {
   }
 }
 
+#[allow(dead_code)]
 #[pin_project]
 pub struct FutureResult<T, E> {
   #[pin]
@@ -37,6 +39,7 @@ pub struct FutureResult<T, E> {
 }
 
 impl<T, E> FutureResult<T, E> {
+  #[allow(dead_code)]
   pub fn new<F>(f: F) -> Self
   where
     F: Future<Output = Result<T, E>> + 'static,
@@ -58,4 +61,5 @@ where
   }
 }
 
+#[allow(dead_code)]
 pub type BoxResultFuture<'a, T, E> = LocalBoxFuture<'a, Result<T, E>>;

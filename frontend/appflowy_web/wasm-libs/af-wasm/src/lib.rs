@@ -1,28 +1,36 @@
 use crate::notification::TSNotificationSender;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
+use std::cell::RefCell;
 
 mod core;
 mod integrate;
 pub mod notification;
 pub mod request;
 
-use crate::request::{MutexDispatcher, WasmRequest};
+use crate::core::AppFlowyWASMCore;
+use crate::request::WasmRequest;
 use lazy_static::lazy_static;
-use lib_dispatch::prelude::AFPluginDispatcher;
-use lib_dispatch::runtime::AFPluginRuntime;
+use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher};
+
 use std::sync::Arc;
-use tracing::trace;
+use tracing::{error, info, trace};
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
 lazy_static! {
-  pub(crate) static ref DISPATCHER: MutexDispatcher = MutexDispatcher::new();
+  static ref APPFLOWY_CORE: RefCellAppFlowyCore = RefCellAppFlowyCore::new();
 }
 
 #[wasm_bindgen]
 pub fn init_sdk(_data: String) -> i64 {
-  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-  *DISPATCHER.0.lock() = Some(Arc::new(AFPluginDispatcher::new(runtime, vec![])));
+  af_spawn(async {
+    if let Ok(core) = AppFlowyWASMCore::new("device_id").await {
+      info!("AppFlowyWASMCore initialized");
+      *APPFLOWY_CORE.0.borrow_mut() = Some(core);
+    } else {
+      error!("Failed to initialize AppFlowyWASMCore")
+    }
+  });
   0
 }
 
@@ -34,13 +42,18 @@ pub fn init_tracing() {
 #[wasm_bindgen]
 pub fn async_event(name: String, payload: Vec<u8>) {
   trace!("[WASM]: receives event: {}", name);
-
-  let dispatcher = DISPATCHER.0.lock().as_ref().unwrap().clone();
-  AFPluginDispatcher::boxed_async_send_with_callback(
-    dispatcher,
-    WasmRequest::new(name, payload),
-    |_| Box::pin(async {}),
-  );
+  if let Some(dispatcher) = APPFLOWY_CORE.dispatcher() {
+    AFPluginDispatcher::boxed_async_send_with_callback(
+      dispatcher,
+      WasmRequest::new(name, payload),
+      |_| Box::pin(async {}),
+    );
+  } else {
+    error!(
+      "Dispatcher is not initialized, failed to send event: {}",
+      name
+    );
+  }
 }
 
 #[wasm_bindgen]
@@ -59,4 +72,25 @@ pub fn register_listener() {
 
 pub fn on_event(event_name: &str, args: JsValue) {
   onFlowyNotify(event_name, args);
+}
+
+struct RefCellAppFlowyCore(RefCell<Option<AppFlowyWASMCore>>);
+
+/// safety:
+/// In a WebAssembly, implement the Sync for RefCellAppFlowyCore is safety
+/// since WASM currently operates in a single-threaded environment.
+unsafe impl Sync for RefCellAppFlowyCore {}
+
+impl RefCellAppFlowyCore {
+  fn new() -> Self {
+    Self(RefCell::new(None))
+  }
+
+  fn dispatcher(&self) -> Option<Arc<AFPluginDispatcher>> {
+    self
+      .0
+      .borrow()
+      .as_ref()
+      .map(|core| core.event_dispatcher.clone())
+  }
 }

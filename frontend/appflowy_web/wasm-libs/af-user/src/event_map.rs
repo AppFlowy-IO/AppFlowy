@@ -2,7 +2,7 @@ use crate::event_handler::*;
 use crate::manager::UserManagerWASM;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::AFPlugin;
-use std::sync::Weak;
+use std::rc::Weak;
 use strum_macros::Display;
 
 #[rustfmt::skip]

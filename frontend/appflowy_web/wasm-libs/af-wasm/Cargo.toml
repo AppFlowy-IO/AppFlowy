@@ -10,19 +10,20 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = { version = "0.2.89" }
 lazy_static = "1.4.0"
-lib-dispatch = { workspace = true, features = ["single_thread"] }
+lib-dispatch = { workspace = true, features = ["wasm_build"] }
 parking_lot.workspace = true
 tracing.workspace = true
 tracing-core = { version = "0.1.32" }
 tracing-wasm = "0.2.1"
 serde.workspace = true
-collab-integrate = { workspace = true, features = ["wasm_build"] }
+collab-integrate = { workspace = true, features = ["enable_wasm"] }
+tokio-stream.workspace = true
 
 af-user.workspace = true
-flowy-notification = { workspace = true, features = ["ts"] }
+flowy-notification = { workspace = true, features = ["ts", "wasm_build"] }
 flowy-user-pub = { workspace = true }
 flowy-server = { workspace = true, features = ["wasm_build"] }
 flowy-server-pub = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error"] }
 lib-infra = { workspace = true }
-collab = { workspace = true, features = ["wasm_build"] }
+collab = { workspace = true, features = ["wasm_build", "async-plugin"] }
