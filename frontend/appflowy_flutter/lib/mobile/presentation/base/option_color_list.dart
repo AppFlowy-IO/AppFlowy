@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';

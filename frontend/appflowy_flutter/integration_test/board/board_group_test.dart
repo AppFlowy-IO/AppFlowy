@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/widgets.dart';

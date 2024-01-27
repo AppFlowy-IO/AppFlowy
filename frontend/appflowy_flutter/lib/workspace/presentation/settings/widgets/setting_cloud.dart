@@ -167,25 +167,22 @@ class CloudTypeSwitcher extends StatelessWidget {
                 showDivider: false,
                 showCloseButton: false,
                 title: LocaleKeys.settings_menu_cloudServerType.tr(),
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 48),
+                padding: const EdgeInsets.only(bottom: 36),
                 builder: (context) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Column(
-                      children: values
-                          .mapIndexed(
-                            (i, e) => FlowyOptionTile.checkbox(
-                              text: titleFromCloudType(values[i]),
-                              isSelected: cloudType == values[i],
-                              onTap: () {
-                                onSelected(e);
-                                context.pop();
-                              },
-                              showBottomBorder: i == values.length - 1,
-                            ),
-                          )
-                          .toList(),
-                    ),
+                  return Column(
+                    children: values
+                        .mapIndexed(
+                          (i, e) => FlowyOptionTile.checkbox(
+                            text: titleFromCloudType(values[i]),
+                            isSelected: cloudType == values[i],
+                            onTap: () {
+                              onSelected(e);
+                              context.pop();
+                            },
+                            showBottomBorder: i == values.length - 1,
+                          ),
+                        )
+                        .toList(),
                   );
                 },
               );

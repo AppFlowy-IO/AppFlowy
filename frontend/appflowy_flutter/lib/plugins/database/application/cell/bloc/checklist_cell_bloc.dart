@@ -7,6 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'checklist_cell_bloc.freezed.dart';
 
 class ChecklistSelectOption {

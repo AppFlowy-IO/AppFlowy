@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'checklist_cell_bloc.dart';
+import '../../application/cell/bloc/checklist_cell_bloc.dart';
 import 'checklist_progress_bar.dart';
 
 class ChecklistCellEditor extends StatefulWidget {

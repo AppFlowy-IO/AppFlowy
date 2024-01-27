@@ -18,9 +18,10 @@ Future<void> showTextColorAndBackgroundColorPicker(
   await showMobileBottomSheet(
     context,
     showHeader: true,
-    showCloseButton: true,
-    showDivider: false,
+    showCloseButton: false,
+    showDivider: true,
     showDragHandle: true,
+    showDoneButton: true,
     barrierColor: Colors.transparent,
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,

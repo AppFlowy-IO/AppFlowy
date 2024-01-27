@@ -25,9 +25,12 @@ class _MobileRecentFolderState extends State<MobileRecentFolder> {
       child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
         builder: (context, state) {
           final ids = <String>{};
-          final List<ViewPB> recentViews = state.views.reversed.toList();
+
+          List<ViewPB> recentViews = state.views.reversed.toList();
           recentViews.retainWhere((element) => ids.add(element.id));
-          // only keep the first 10 items.
+
+          // only keep the first 20 items.
+          recentViews = recentViews.take(20).toList();
 
           if (recentViews.isEmpty) {
             return const SizedBox.shrink();
