@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/number_cell/number_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/number_cell_bloc.dart';
 import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/number.dart';
