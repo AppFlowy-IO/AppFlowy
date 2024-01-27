@@ -74,7 +74,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
       buildChild: (controller) {
         return FlowyTextButton(
           '?',
-          padding: const EdgeInsets.all(0),
+          padding: EdgeInsets.zero,
           tooltip: LocaleKeys.questionBubble_help.tr(),
           fontWeight: FontWeight.w600,
           fontColor: fontColor,

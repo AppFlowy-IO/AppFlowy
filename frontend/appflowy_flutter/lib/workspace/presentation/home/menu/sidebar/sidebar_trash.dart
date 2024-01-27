@@ -51,7 +51,6 @@ class SidebarTrashButton extends StatelessWidget {
 
   Widget _buildTextButton(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const HSpace(6),
         const ScalableFlowySvg(

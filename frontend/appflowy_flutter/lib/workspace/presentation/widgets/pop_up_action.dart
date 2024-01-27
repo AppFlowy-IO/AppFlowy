@@ -236,7 +236,6 @@ class HoverButton extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (leftIcon != null) ...[
               leftIcon!,
