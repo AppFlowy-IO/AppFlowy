@@ -40,6 +40,3 @@ frontend/package
 frontend/*.deb
 
 **/Cargo.toml.bak
-shell.nix
-.envrc
-.direnv/
