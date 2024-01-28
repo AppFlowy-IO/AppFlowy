@@ -72,7 +72,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
         const _Divider(),
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_editProperty.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.edit_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_edit_s),
           onTap: () async {
             widget.fieldInfo.field.freeze();
             final field = widget.fieldInfo.field.rebuild((field) {
@@ -98,7 +98,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
             text: fieldVisibility.isVisibleState()
                 ? LocaleKeys.grid_field_hide.tr()
                 : LocaleKeys.grid_field_show.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.hide_s),
+            leftIcon: const FlowySvg(FlowySvgs.m_field_hide_s),
             onTap: () async {
               context.pop();
               if (fieldVisibility.isVisibleState()) {
@@ -112,7 +112,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
           FlowyOptionTile.text(
             showTopBorder: false,
             text: LocaleKeys.grid_field_insertLeft.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.insert_left_s),
+            leftIcon: const FlowySvg(FlowySvgs.m_filed_insert_left_s),
             onTap: () async {
               context.pop();
               showCreateFieldBottomSheet(
@@ -128,7 +128,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.grid_field_insertRight.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.insert_right_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_filed_insert_right_s),
           onTap: () async {
             context.pop();
             showCreateFieldBottomSheet(
@@ -145,7 +145,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
           FlowyOptionTile.text(
             showTopBorder: false,
             text: LocaleKeys.button_duplicate.tr(),
-            leftIcon: const FlowySvg(FlowySvgs.copy_s),
+            leftIcon: const FlowySvg(FlowySvgs.m_field_copy_s),
             onTap: () async {
               context.pop();
               await service.duplicate();
@@ -156,7 +156,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
             text: LocaleKeys.button_delete.tr(),
             textColor: Theme.of(context).colorScheme.error,
             leftIcon: FlowySvg(
-              FlowySvgs.delete_s,
+              FlowySvgs.m_field_delete_s,
               color: Theme.of(context).colorScheme.error,
             ),
             onTap: () async {
