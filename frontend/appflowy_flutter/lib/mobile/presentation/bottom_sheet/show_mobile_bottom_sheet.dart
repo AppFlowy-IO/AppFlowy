@@ -38,16 +38,20 @@ Future<T?> showMobileBottomSheet<T>(
     ),
   );
 
+  backgroundColor ??= Theme.of(context).brightness == Brightness.light
+      ? const Color(0xFFF7F8FB)
+      : const Color(0xFF626364);
+
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: isScrollControlled,
     enableDrag: isDragEnabled,
     useSafeArea: true,
     clipBehavior: Clip.antiAlias,
-    backgroundColor: backgroundColor,
     constraints: constraints,
     barrierColor: barrierColor,
     elevation: elevation,
+    backgroundColor: backgroundColor,
     shape: shape,
     useRootNavigator: useRootNavigator,
     builder: (context) {

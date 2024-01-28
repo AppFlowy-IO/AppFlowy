@@ -5,18 +5,20 @@ class FlowyOptionDecorateBox extends StatelessWidget {
     super.key,
     this.showTopBorder = true,
     this.showBottomBorder = true,
+    this.color,
     required this.child,
   });
 
   final bool showTopBorder;
   final bool showBottomBorder;
   final Widget child;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: color ?? Theme.of(context).colorScheme.surface,
         border: Border(
           top: showTopBorder
               ? BorderSide(

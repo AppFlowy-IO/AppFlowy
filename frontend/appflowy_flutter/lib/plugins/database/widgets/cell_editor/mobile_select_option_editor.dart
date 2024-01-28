@@ -330,7 +330,7 @@ class _SelectOption extends StatelessWidget {
                   ? FlowySvgs.m_checkbox_checked_s
                   : FlowySvgs.m_checkbox_uncheck_s,
               size: const Size.square(24.0),
-              blendMode: null,
+              blendMode: checked ? null : BlendMode.srcIn,
             ),
             // padding
             const HSpace(12),

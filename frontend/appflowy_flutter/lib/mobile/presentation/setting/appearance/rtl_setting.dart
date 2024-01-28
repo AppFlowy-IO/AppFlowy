@@ -47,17 +47,23 @@ class RTLSetting extends StatelessWidget {
                 FlowyOptionTile.checkbox(
                   text: LocaleKeys.settings_appearance_textDirection_ltr.tr(),
                   isSelected: layoutDirection == LayoutDirection.ltrLayout,
-                  onTap: () => context
-                      .read<AppearanceSettingsCubit>()
-                      .setLayoutDirection(LayoutDirection.ltrLayout),
+                  onTap: () {
+                    context
+                        .read<AppearanceSettingsCubit>()
+                        .setLayoutDirection(LayoutDirection.ltrLayout);
+                    Navigator.pop(context);
+                  },
                 ),
                 FlowyOptionTile.checkbox(
                   showTopBorder: false,
                   text: LocaleKeys.settings_appearance_textDirection_rtl.tr(),
                   isSelected: layoutDirection == LayoutDirection.rtlLayout,
-                  onTap: () => context
-                      .read<AppearanceSettingsCubit>()
-                      .setLayoutDirection(LayoutDirection.rtlLayout),
+                  onTap: () {
+                    context
+                        .read<AppearanceSettingsCubit>()
+                        .setLayoutDirection(LayoutDirection.rtlLayout);
+                    Navigator.pop(context);
+                  },
                 ),
               ],
             );

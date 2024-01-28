@@ -51,9 +51,12 @@ class ThemeSetting extends StatelessWidget {
                     FlowySvgs.m_theme_mode_system_s,
                   ),
                   isSelected: themeMode == ThemeMode.system,
-                  onTap: () => context
-                      .read<AppearanceSettingsCubit>()
-                      .setThemeMode(ThemeMode.system),
+                  onTap: () {
+                    context
+                        .read<AppearanceSettingsCubit>()
+                        .setThemeMode(ThemeMode.system);
+                    Navigator.pop(context);
+                  },
                 ),
                 FlowyOptionTile.checkbox(
                   showTopBorder: false,
@@ -62,9 +65,12 @@ class ThemeSetting extends StatelessWidget {
                     FlowySvgs.m_theme_mode_light_s,
                   ),
                   isSelected: themeMode == ThemeMode.light,
-                  onTap: () => context
-                      .read<AppearanceSettingsCubit>()
-                      .setThemeMode(ThemeMode.light),
+                  onTap: () {
+                    context
+                        .read<AppearanceSettingsCubit>()
+                        .setThemeMode(ThemeMode.light);
+                    Navigator.pop(context);
+                  },
                 ),
                 FlowyOptionTile.checkbox(
                   showTopBorder: false,
@@ -73,9 +79,12 @@ class ThemeSetting extends StatelessWidget {
                     FlowySvgs.m_theme_mode_dark_s,
                   ),
                   isSelected: themeMode == ThemeMode.dark,
-                  onTap: () => context
-                      .read<AppearanceSettingsCubit>()
-                      .setThemeMode(ThemeMode.dark),
+                  onTap: () {
+                    context
+                        .read<AppearanceSettingsCubit>()
+                        .setThemeMode(ThemeMode.dark);
+                    Navigator.pop(context);
+                  },
                 ),
               ],
             );
