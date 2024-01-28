@@ -100,11 +100,7 @@ class HomeHotKeys extends StatelessWidget {
     // Rename current view
     HotKeyItem(
       hotKey: HotKey(
-        KeyCode.keyR,
-        modifiers: [
-          KeyModifier.shift,
-          Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
-        ],
+        KeyCode.f2,
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) =>
