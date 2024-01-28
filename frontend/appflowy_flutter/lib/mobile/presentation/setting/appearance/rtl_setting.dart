@@ -39,7 +39,6 @@ class RTLSetting extends StatelessWidget {
           showDivider: false,
           showCloseButton: false,
           title: LocaleKeys.settings_appearance_textDirection_label.tr(),
-          padding: const EdgeInsets.only(bottom: 36),
           builder: (context) {
             final layoutDirection =
                 context.watch<AppearanceSettingsCubit>().state.layoutDirection;

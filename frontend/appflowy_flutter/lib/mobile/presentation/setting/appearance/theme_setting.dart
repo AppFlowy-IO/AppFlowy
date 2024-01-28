@@ -40,7 +40,6 @@ class ThemeSetting extends StatelessWidget {
           showDivider: false,
           showCloseButton: false,
           title: LocaleKeys.settings_appearance_themeMode_label.tr(),
-          padding: const EdgeInsets.only(bottom: 36),
           builder: (context) {
             final themeMode =
                 context.read<AppearanceSettingsCubit>().state.themeMode;

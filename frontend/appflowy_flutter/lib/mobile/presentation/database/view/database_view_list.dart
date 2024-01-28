@@ -156,7 +156,6 @@ class MobileNewDatabaseViewButton extends StatelessWidget {
       onTap: () async {
         final result = await showMobileBottomSheet<(DatabaseLayoutPB, String)>(
           context,
-          padding: const EdgeInsets.only(bottom: 36),
           builder: (_) {
             return const MobileCreateDatabaseView();
           },

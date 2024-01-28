@@ -20,7 +20,7 @@ Future<T?> showMobileBottomSheet<T>(
   bool useRootNavigator = false,
   ShapeBorder? shape,
   // the padding of the content, the padding of the header area is fixed
-  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 4, 16, 32),
+  EdgeInsets padding = const EdgeInsets.all(0.0),
   Color? backgroundColor,
   BoxConstraints? constraints,
   Color? barrierColor,
@@ -110,9 +110,18 @@ Future<T?> showMobileBottomSheet<T>(
         return children.first;
       }
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: children,
+      // not full-screen mode
+      if (MediaQuery.of(context).padding.bottom == 0) {
+        children.add(
+          const VSpace(16),
+        );
+      }
+
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
+        ),
       );
     },
   );
