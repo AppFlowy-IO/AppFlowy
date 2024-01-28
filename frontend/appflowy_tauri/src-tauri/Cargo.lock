@@ -3219,6 +3219,7 @@ dependencies = [
  "tracing",
  "validator",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
 ]
 
 [[package]]

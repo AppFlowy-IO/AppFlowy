@@ -34,6 +34,7 @@ thread-id = "3.3.0"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2", features = ["js"]}
 wasm-bindgen = { version = "0.2.89" }
+wasm-bindgen-futures = "0.4"
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt"] }

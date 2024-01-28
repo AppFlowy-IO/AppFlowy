@@ -56,7 +56,7 @@ impl UserManager {
         // with synchronous handler requirements."
         let (tx, rx) = tokio::sync::oneshot::channel();
         let cloned_workspace_service = self.user_workspace_service.clone();
-        tokio::spawn(async move {
+        af_spawn(async move {
           let result = async {
             cloned_workspace_service
               .did_import_database_views(database_view_ids_by_database_id)
