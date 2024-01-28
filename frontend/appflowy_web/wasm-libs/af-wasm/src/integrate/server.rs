@@ -10,30 +10,45 @@ use flowy_user_pub::cloud::{
   UserCloudService, UserCloudServiceProvider, UserCloudServiceProviderBase,
 };
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
-use lib_infra::future::Fut;
+use lib_infra::future::{to_fut, Fut};
+use parking_lot::RwLock;
 use std::rc::Rc;
 use std::sync::Arc;
 use tokio_stream::wrappers::WatchStream;
 use tracing::warn;
 
-#[derive(Clone)]
 pub struct ServerProviderWASM {
-  server: Rc<dyn AppFlowyServer>,
+  device_id: String,
+  server: RwLock<Option<Rc<dyn AppFlowyServer>>>,
 }
 
 impl ServerProviderWASM {
   pub fn new(device_id: &str) -> Self {
-    let config = AFCloudConfiguration {
-      base_url: "http://localhost".to_string(),
-      ws_base_url: "ws://localhost/ws".to_string(),
-      gotrue_url: "http://localhost/gotrue".to_string(),
-    };
-    let server = Rc::new(AppFlowyCloudServer::new(
-      config,
-      true,
-      device_id.to_string(),
-    ));
-    Self { server }
+    Self {
+      device_id: device_id.to_string(),
+      server: RwLock::new(Default::default()),
+    }
+  }
+
+  pub fn get_server(&self) -> Rc<dyn AppFlowyServer> {
+    let server = self.server.read().as_ref().map(|server| server.clone());
+    match server {
+      Some(server) => server,
+      None => {
+        let config = AFCloudConfiguration {
+          base_url: "http://localhost".to_string(),
+          ws_base_url: "ws://localhost/ws".to_string(),
+          gotrue_url: "http://localhost/gotrue".to_string(),
+        };
+        let server = Rc::new(AppFlowyCloudServer::new(
+          config,
+          true,
+          self.device_id.clone(),
+        ));
+        *self.server.write() = Some(server.clone());
+        server
+      },
+    }
   }
 }
 
@@ -43,7 +58,7 @@ impl CollabCloudPluginProvider for ServerProviderWASM {
   }
 
   fn get_plugins(&self, _context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
-    todo!()
+    to_fut(async move { vec![] })
   }
 
   fn is_sync_enabled(&self) -> bool {
@@ -55,12 +70,12 @@ impl UserCloudServiceProvider for ServerProviderWASM {}
 
 impl UserCloudServiceProviderBase for ServerProviderWASM {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
-    self.server.set_token(token)?;
+    self.get_server().set_token(token)?;
     Ok(())
   }
 
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
-    self.server.subscribe_token_state()
+    self.get_server().subscribe_token_state()
   }
 
   fn set_enable_sync(&self, _uid: i64, _enable_sync: bool) {
@@ -84,7 +99,7 @@ impl UserCloudServiceProviderBase for ServerProviderWASM {
   }
 
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    Ok(self.server.user_service())
+    Ok(self.get_server().user_service())
   }
 
   fn service_url(&self) -> String {

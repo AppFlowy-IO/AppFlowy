@@ -61,11 +61,12 @@ pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + Send + Sync + 'static>;
 
 #[cfg(target_arch = "wasm32")]
-pub fn af_spawn<T>(future: T)
+pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
-  T: Future<Output = ()> + 'static,
+  T: Future + 'static,
+  T::Output: 'static,
 {
-  wasm_bindgen_futures::spawn_local(future);
+  tokio::task::spawn_local(future)
 }
 
 #[cfg(not(target_arch = "wasm32"))]
