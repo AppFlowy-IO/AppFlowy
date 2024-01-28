@@ -51,6 +51,9 @@ class BlockActionBottomSheet extends StatelessWidget {
           leftIcon: const FlowySvg(FlowySvgs.m_field_copy_s),
           onTap: () => onAction(BlockActionBottomSheetType.duplicate),
         ),
+
+        ...extendActionWidgets,
+
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.button_delete.tr(),
@@ -61,8 +64,6 @@ class BlockActionBottomSheet extends StatelessWidget {
           textColor: Theme.of(context).colorScheme.error,
           onTap: () => onAction(BlockActionBottomSheetType.delete),
         ),
-
-        ...extendActionWidgets,
       ],
     );
   }
