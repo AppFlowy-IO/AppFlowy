@@ -42,7 +42,10 @@ export function useLoadExpandedPages() {
       setPagePath((prev) => {
         return [page, ...prev];
       });
-      await loadPagePath(page.parentId);
+
+      if (page.parentId) {
+        await loadPagePath(page.parentId);
+      }
     },
     [pageMap]
   );

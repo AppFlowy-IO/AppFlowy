@@ -1,11 +1,12 @@
-import { useCallback, useEffect } from 'react';
-import { Page, pagesActions, pageTypeMap, parserViewPBToPage } from '$app_reducers/pages/slice';
+import { useCallback, useEffect, useMemo } from 'react';
+import { Page, pagesActions, pageTypeMap } from '$app_reducers/pages/slice';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { FolderNotification, ViewLayoutPB } from '@/services/backend';
 import { useNavigate, useParams } from 'react-router-dom';
 import { updatePageName } from '$app_reducers/pages/async_actions';
 import { createPage, deletePage, duplicatePage, getChildPages } from '$app/application/folder/page.service';
 import { subscribeNotifications } from '$app/application/notification';
+import debounce from 'lodash-es/debounce';
 
 export function useLoadChildPages(pageId: string) {
   const dispatch = useAppDispatch();
@@ -19,12 +20,13 @@ export function useLoadChildPages(pageId: string) {
     }
   }, [dispatch, pageId, collapsed]);
 
-  const onPageChanged = useCallback(
-    (page: Page) => {
+  const onPageChanged = useMemo(() => {
+    return debounce((page: Page) => {
+      console.log('DidUpdateView');
+
       dispatch(pagesActions.onPageChanged(page));
-    },
-    [dispatch]
-  );
+    }, 200);
+  }, [dispatch]);
 
   const loadPageChildren = useCallback(
     async (pageId: string) => {
@@ -47,12 +49,15 @@ export function useLoadChildPages(pageId: string) {
   useEffect(() => {
     const unsubscribePromise = subscribeNotifications(
       {
-        [FolderNotification.DidUpdateView]: async (payload) => {
-          const page = parserViewPBToPage(payload);
-
-          onPageChanged(page);
+        [FolderNotification.DidUpdateView]: (_payload) => {
+          // const page = parserViewPBToPage(payload);
+          // onPageChanged(page);
         },
-        [FolderNotification.DidUpdateChildViews]: async () => {
+        [FolderNotification.DidUpdateChildViews]: async (payload) => {
+          if (payload.delete_child_views.length === 0 && payload.create_child_views.length === 0) {
+            return;
+          }
+
           void loadPageChildren(pageId);
         },
       },

@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import emojiData, { EmojiMartData } from '@emoji-mart/data';
 import { init, FrequentlyUsed, getEmojiDataFromNative, Store } from 'emoji-mart';
 
 import { PopoverProps } from '@mui/material/Popover';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import chunk from 'lodash-es/chunk';
 
 export const EMOJI_SIZE = 32;
@@ -163,17 +162,4 @@ export function getRowsWithCategories(emojiCategories: EmojiCategory[], rowSize:
     });
   });
   return rows;
-}
-
-export function useVirtualizedCategories({ count }: { count: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const virtualize = useVirtualizer({
-    count,
-    getScrollElement: () => ref.current,
-    estimateSize: () => {
-      return EMOJI_SIZE;
-    },
-  });
-
-  return { virtualize, ref };
 }

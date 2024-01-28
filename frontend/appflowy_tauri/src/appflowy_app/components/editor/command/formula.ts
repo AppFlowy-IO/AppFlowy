@@ -2,9 +2,9 @@ import { ReactEditor } from 'slate-react';
 import { Editor, Element as SlateElement, NodeEntry, Range, Transforms } from 'slate';
 import { EditorInlineNodeType, FormulaNode } from '$app/application/document/document.types';
 
-export function insertFormula(editor: ReactEditor) {
+export function insertFormula(editor: ReactEditor, formula?: string) {
   if (editor.selection) {
-    wrapFormula(editor);
+    wrapFormula(editor, formula);
   }
 }
 

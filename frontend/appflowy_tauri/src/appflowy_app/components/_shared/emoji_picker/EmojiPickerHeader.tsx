@@ -49,7 +49,7 @@ function EmojiPickerHeader({ onEmojiSelect, onSkinSelect, searchValue, onSearchC
   const { t } = useTranslation();
 
   return (
-    <div className={'h-[45px] px-0.5'}>
+    <div className={'px-0.5 py-2'}>
       <div className={'search-input flex items-end'}>
         <Box sx={{ display: 'flex', alignItems: 'flex-end', marginRight: 2 }}>
           <SearchOutlined sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
@@ -59,7 +59,11 @@ function EmojiPickerHeader({ onEmojiSelect, onSkinSelect, searchValue, onSearchC
               onSearchChange(e.target.value);
             }}
             autoFocus={true}
-            label={t('search.label')}
+            autoCorrect={'off'}
+            autoComplete={'off'}
+            spellCheck={false}
+            className={'search-emoji-input'}
+            placeholder={t('search.label')}
             variant='standard'
           />
         </Box>

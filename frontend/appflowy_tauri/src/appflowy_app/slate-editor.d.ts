@@ -1,4 +1,3 @@
-import { BaseEditor } from 'slate';
 import { ReactEditor } from 'slate-react';
 
 interface EditorInlineAttributes {
@@ -37,5 +36,9 @@ declare module 'slate' {
     Editor: BaseEditor & ReactEditor;
     Element: CustomElement;
     Text: CustomText;
+  }
+
+  interface BaseEditor {
+    isEmbed: (element: CustomElement) => boolean;
   }
 }
