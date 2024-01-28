@@ -23,7 +23,11 @@ pub struct ServerProviderWASM {
 
 impl ServerProviderWASM {
   pub fn new(device_id: &str) -> Self {
-    let config = AFCloudConfiguration::from_env().unwrap();
+    let config = AFCloudConfiguration {
+      base_url: "http://localhost".to_string(),
+      ws_base_url: "ws://localhost/ws".to_string(),
+      gotrue_url: "http://localhost/gotrue".to_string(),
+    };
     let server = Rc::new(AppFlowyCloudServer::new(
       config,
       true,

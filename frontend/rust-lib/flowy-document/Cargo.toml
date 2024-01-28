@@ -57,9 +57,6 @@ enable_wasm = [
     "flowy-notification/ts",
     "collab-plugins/wasm_build",
     "collab/wasm_build",
-    "lib-dispatch/enable_wasm",
     "collab-document/wasm_build",
-    "flowy-error/enable_wasm",
-    "flowy-notification/enable_wasm"
 ]
 

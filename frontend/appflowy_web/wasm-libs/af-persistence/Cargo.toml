@@ -19,3 +19,4 @@ anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 futures-util.workspace = true
+wasm-bindgen-futures.workspace = true

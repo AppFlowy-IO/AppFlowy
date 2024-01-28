@@ -12,7 +12,7 @@ use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use wasm_bindgen::JsValue;
-use web_sys::IdbTransactionMode;
+use web_sys::{DomException, IdbTransactionMode};
 
 pub trait IndexddbStore {
   fn get<'a, T>(&'a self, key: &'a str) -> LocalBoxFuture<Result<Option<T>, PersistenceError>>
@@ -36,10 +36,7 @@ impl AppFlowyWASMStore {
   pub async fn new() -> Result<Self, PersistenceError> {
     let mut db_req = IdbDatabase::open_u32("appflowy", 1)?;
     db_req.set_on_upgrade_needed(Some(|evt: &IdbVersionChangeEvent| -> Result<(), JsValue> {
-      if !evt
-        .db()
-        .object_store_names().any(|n| &n == APPFLOWY_STORE)
-      {
+      if !evt.db().object_store_names().any(|n| &n == APPFLOWY_STORE) {
         evt.db().create_object_store(APPFLOWY_STORE)?;
       }
       Ok(())

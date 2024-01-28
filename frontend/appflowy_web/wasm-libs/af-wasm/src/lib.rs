@@ -2,7 +2,7 @@ use crate::notification::TSNotificationSender;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
 use std::cell::RefCell;
 
-mod core;
+pub mod core;
 mod integrate;
 pub mod notification;
 pub mod request;

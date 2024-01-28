@@ -9,9 +9,9 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 af-persistence.workspace = true
-lib-dispatch = { workspace = true, features = ["enable_wasm"] }
+lib-dispatch = { workspace = true }
 flowy-derive = { workspace = true }
-flowy-error = { workspace = true, features = ["enable_wasm", "impl_from_dispatch_error", "impl_from_collab_persistence"] }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_collab_persistence"] }
 flowy-user-pub = { workspace = true }
 strum_macros = "0.25.2"
 tracing.workspace = true
@@ -23,6 +23,8 @@ collab-integrate = { workspace = true, features = ["enable_wasm"] }
 protobuf.workspace = true
 bytes.workspace = true
 anyhow.workspace = true
+wasm-bindgen-futures.workspace = true
+tokio = { workspace = true, features = ["sync"] }
 
 [build-dependencies]
 flowy-codegen = { workspace = true, features = ["ts"] }

@@ -5,8 +5,7 @@ script = [
     """
     #!/bin/bash
     BASE_DIR=$(pwd)
-#    crates=("lib-dispatch" "flowy-encrypt" "lib-infra" "flowy-notification" "flowy-date" "flowy-error" "collab-integrate" "flowy-document")
-    crates=("flowy-document")
+    crates=("lib-dispatch" "flowy-encrypt" "lib-infra" "flowy-notification" "flowy-date" "flowy-error" "collab-integrate" "flowy-document")
 
     # Iterate over each crate and build it
     for crate in "${crates[@]}"; do

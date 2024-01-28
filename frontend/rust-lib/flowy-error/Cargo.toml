@@ -40,7 +40,6 @@ impl_from_collab_persistence = ["collab-plugins"]
 impl_from_collab_document = ["collab-document", "impl_from_reqwest", "collab-plugins"]
 impl_from_collab_database= ["collab-database"]
 impl_from_url = ["url"]
-enable_wasm = ["lib-dispatch/enable_wasm"]
 
 impl_from_sqlite = ["flowy-sqlite", "r2d2"]
 impl_from_appflowy_cloud = ["client-api"]

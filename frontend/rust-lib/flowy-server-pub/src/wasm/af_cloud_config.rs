@@ -1,0 +1,31 @@
+use std::fmt::Display;
+
+use serde::{Deserialize, Serialize};
+
+use flowy_error::{ErrorCode, FlowyError};
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct AFCloudConfiguration {
+  pub base_url: String,
+  pub ws_base_url: String,
+  pub gotrue_url: String,
+}
+
+impl AFCloudConfiguration {
+  pub fn from_env() -> Result<Self, FlowyError> {
+    Ok(AFCloudConfiguration {
+      base_url: "".to_string(),
+      ws_base_url: "".to_string(),
+      gotrue_url: "".to_string(),
+    })
+  }
+}
+
+impl Display for AFCloudConfiguration {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_fmt(format_args!(
+      "base_url: {}, ws_base_url: {}, gotrue_url: {}",
+      self.base_url, self.ws_base_url, self.gotrue_url,
+    ))
+  }
+}
