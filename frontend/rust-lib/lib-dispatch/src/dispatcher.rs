@@ -92,10 +92,7 @@ impl AFPluginDispatcher {
     }
   }
 
-  pub async fn async_send<Req>(
-    dispatch: Arc<AFPluginDispatcher>,
-    request: Req,
-  ) -> AFPluginEventResponse
+  pub async fn async_send<Req>(dispatch: &AFPluginDispatcher, request: Req) -> AFPluginEventResponse
   where
     Req: Into<AFPluginRequest>,
   {
@@ -103,7 +100,7 @@ impl AFPluginDispatcher {
   }
 
   pub async fn async_send_with_callback<Req, Callback>(
-    dispatch: Arc<AFPluginDispatcher>,
+    dispatch: &AFPluginDispatcher,
     request: Req,
     callback: Callback,
   ) -> AFPluginEventResponse
@@ -146,7 +143,7 @@ impl AFPluginDispatcher {
   }
 
   pub fn box_async_send<Req>(
-    dispatch: Arc<AFPluginDispatcher>,
+    dispatch: &AFPluginDispatcher,
     request: Req,
   ) -> DispatchFuture<AFPluginEventResponse>
   where
@@ -156,7 +153,7 @@ impl AFPluginDispatcher {
   }
 
   pub fn boxed_async_send_with_callback<Req, Callback>(
-    dispatch: Arc<AFPluginDispatcher>,
+    dispatch: &AFPluginDispatcher,
     request: Req,
     callback: Callback,
   ) -> DispatchFuture<AFPluginEventResponse>
@@ -189,9 +186,10 @@ impl AFPluginDispatcher {
       })
     });
 
+    let runtime = dispatch.runtime.clone();
     DispatchFuture {
       fut: Box::pin(async move {
-        let result = dispatch.runtime.run_until(handle).await;
+        let result = runtime.run_until(handle).await;
         result.unwrap_or_else(|e| {
           let msg = format!("EVENT_DISPATCH join error: {:?}", e);
           tracing::error!("{}", msg);
@@ -208,7 +206,7 @@ impl AFPluginDispatcher {
     request: AFPluginRequest,
   ) -> AFPluginEventResponse {
     futures::executor::block_on(AFPluginDispatcher::async_send_with_callback(
-      dispatch,
+      dispatch.as_ref(),
       request,
       |_| Box::pin(async {}),
     ))

@@ -1,8 +1,5 @@
-use std::fmt::Display;
-
 use serde::{Deserialize, Serialize};
-
-use flowy_error::{ErrorCode, FlowyError};
+use std::fmt::Display;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct AFCloudConfiguration {

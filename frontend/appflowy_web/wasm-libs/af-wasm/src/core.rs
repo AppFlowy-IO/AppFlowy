@@ -1,16 +1,16 @@
 use crate::integrate::server::ServerProviderWASM;
 use af_user::manager::UserManagerWASM;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use flowy_error::{FlowyResult};
+use flowy_error::FlowyResult;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use lib_dispatch::prelude::{AFPluginDispatcher};
+use lib_dispatch::prelude::AFPluginDispatcher;
 use lib_dispatch::runtime::AFPluginRuntime;
 use std::rc::Rc;
 use std::sync::Arc;
 
 pub struct AppFlowyWASMCore {
   pub collab_builder: Arc<AppFlowyCollabBuilder>,
-  pub event_dispatcher: Arc<AFPluginDispatcher>,
+  pub event_dispatcher: Rc<AFPluginDispatcher>,
   pub user_manager: Rc<UserManagerWASM>,
 }
 
@@ -32,7 +32,7 @@ impl AppFlowyWASMCore {
       .await?,
     );
 
-    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
+    let event_dispatcher = Rc::new(AFPluginDispatcher::new(
       runtime,
       vec![af_user::event_map::init(Rc::downgrade(&user_manager))],
     ));

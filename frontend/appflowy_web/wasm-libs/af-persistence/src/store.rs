@@ -12,7 +12,7 @@ use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use wasm_bindgen::JsValue;
-use web_sys::{DomException, IdbTransactionMode};
+use web_sys::IdbTransactionMode;
 
 pub trait IndexddbStore {
   fn get<'a, T>(&'a self, key: &'a str) -> LocalBoxFuture<Result<Option<T>, PersistenceError>>

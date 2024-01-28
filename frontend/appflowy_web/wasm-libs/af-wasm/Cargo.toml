@@ -36,4 +36,4 @@ wasm-bindgen-test = "0.3.40"
 tokio = { version = "1.0", features = ["sync"] }
 
 [features]
-localhost_test = []
+localhost_dev = []

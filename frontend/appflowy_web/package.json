@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "wasm_release": "cd wasm-libs/af-wasm && wasm-pack build",
-    "wasm_develop": "cd wasm-libs/af-wasm && wasm-pack build --dev --features=\"localhost_test\"",
+    "wasm_develop": "cd wasm-libs/af-wasm && wasm-pack build --dev --features=\"localhost_dev\"",
     "dev": "pnpm run wasm_develop && vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

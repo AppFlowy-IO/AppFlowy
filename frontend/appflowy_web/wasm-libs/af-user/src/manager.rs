@@ -43,6 +43,8 @@ pub struct UserManagerWASM {
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) store: Rc<AppFlowyWASMStore>,
   user_callbacks: Vec<Rc<dyn UserCallback>>,
+
+  #[allow(dead_code)]
   pub(crate) user_awareness: Rc<Mutex<Option<MutexUserAwareness>>>,
   pub(crate) collab_db: Arc<CollabKVDB>,
 }

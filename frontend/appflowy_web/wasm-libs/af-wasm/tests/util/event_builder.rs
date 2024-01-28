@@ -1,5 +1,6 @@
 use af_wasm::core::AppFlowyWASMCore;
 use flowy_error::{internal_error, FlowyError};
+use std::rc::Rc;
 use std::{
   convert::TryFrom,
   fmt::{Debug, Display},
@@ -49,7 +50,7 @@ impl EventBuilder {
 
   pub async fn async_send(mut self) -> Self {
     let request = self.take_request();
-    let resp = AFPluginDispatcher::async_send(self.dispatch(), request).await;
+    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request).await;
     self.context.response = Some(resp);
     self
   }
@@ -95,8 +96,8 @@ impl EventBuilder {
       .map(|data| data.into_inner())
   }
 
-  fn dispatch(&self) -> Arc<AFPluginDispatcher> {
-    self.context.sdk.event_dispatcher.clone()
+  fn dispatch(&self) -> &Rc<AFPluginDispatcher> {
+    &self.context.sdk.event_dispatcher
   }
 
   fn get_response(&self) -> AFPluginEventResponse {

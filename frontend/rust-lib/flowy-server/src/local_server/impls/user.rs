@@ -93,7 +93,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+  fn create_user(&self, _email: &str, _password: &str) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::local_version_not_support().with_context("Not support create user"))
     })
@@ -101,8 +101,8 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   fn sign_in_with_password(
     &self,
-    email: &str,
-    password: &str,
+    _email: &str,
+    _password: &str,
   ) -> FutureResult<UserProfile, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::local_version_not_support().with_context("Not support"))
