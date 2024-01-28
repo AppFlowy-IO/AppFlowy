@@ -3,10 +3,10 @@ use af_user::entities::*;
 use af_user::event_map::UserWasmEvent::*;
 use af_wasm::core::AppFlowyWASMCore;
 use flowy_error::FlowyResult;
-use flowy_server::af_cloud::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
+
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use parking_lot::Once;
-use std::collections::HashMap;
+
 use std::sync::Arc;
 use uuid::Uuid;
 

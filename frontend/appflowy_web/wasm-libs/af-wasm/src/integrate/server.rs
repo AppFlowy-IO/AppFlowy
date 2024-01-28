@@ -34,7 +34,7 @@ impl ServerProviderWASM {
   }
 
   pub fn get_server(&self) -> Rc<dyn AppFlowyServer> {
-    let server = self.server.read().as_ref().map(|server| server.clone());
+    let server = self.server.read().as_ref().cloned();
     match server {
       Some(server) => server,
       None => {

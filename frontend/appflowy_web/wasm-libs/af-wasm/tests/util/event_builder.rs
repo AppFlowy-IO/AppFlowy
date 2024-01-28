@@ -78,6 +78,7 @@ impl EventBuilder {
     }
   }
 
+  #[allow(dead_code)]
   pub fn try_parse<R>(self) -> Result<R, FlowyError>
   where
     R: AFPluginFromBytes,
@@ -86,6 +87,7 @@ impl EventBuilder {
     response.parse::<R, FlowyError>().map_err(internal_error)?
   }
 
+  #[allow(dead_code)]
   pub fn error(self) -> Option<FlowyError> {
     let response = self.get_response();
     <AFPluginData<FlowyError>>::try_from(response.payload)

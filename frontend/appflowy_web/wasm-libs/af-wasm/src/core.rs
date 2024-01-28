@@ -1,9 +1,9 @@
 use crate::integrate::server::ServerProviderWASM;
 use af_user::manager::UserManagerWASM;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{FlowyResult};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher};
+use lib_dispatch::prelude::{AFPluginDispatcher};
 use lib_dispatch::runtime::AFPluginRuntime;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -25,7 +25,7 @@ impl AppFlowyWASMCore {
 
     let user_manager = Rc::new(
       UserManagerWASM::new(
-        &device_id,
+        device_id,
         server_provider.clone(),
         Arc::downgrade(&collab_builder),
       )

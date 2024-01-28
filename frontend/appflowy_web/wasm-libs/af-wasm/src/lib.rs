@@ -10,11 +10,11 @@ pub mod request;
 use crate::core::AppFlowyWASMCore;
 use crate::request::WasmRequest;
 use lazy_static::lazy_static;
-use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher};
+use lib_dispatch::prelude::{AFPluginDispatcher};
 
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use std::sync::Arc;
-use tracing::{error, info, trace};
+use tracing::{error, trace};
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
