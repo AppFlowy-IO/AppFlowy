@@ -238,8 +238,13 @@ impl FolderManager {
   pub async fn clear(&self, _user_id: i64) {}
 
   #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn create_workspace(&self, _params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
-    Err(FlowyError::not_support())
+  pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
+    let uid = self.user.user_id()?;
+    let new_workspace = self
+      .cloud_service
+      .create_workspace(uid, &params.name)
+      .await?;
+    Ok(new_workspace)
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]

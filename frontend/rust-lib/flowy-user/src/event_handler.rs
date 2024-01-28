@@ -466,7 +466,7 @@ pub async fn get_all_workspace_handler(
 ) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let user_workspaces = manager.get_all_user_workspaces(uid)?;
+  let user_workspaces = manager.get_all_user_workspaces(uid).await?;
   data_result_ok(user_workspaces.into())
 }
 

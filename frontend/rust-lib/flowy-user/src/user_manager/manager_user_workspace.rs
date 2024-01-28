@@ -13,7 +13,6 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
-use lib_dispatch::prelude::af_spawn;
 use std::sync::Arc;
 use tracing::{error, info, instrument};
 
@@ -228,22 +227,19 @@ impl UserManager {
     get_user_workspace_op(workspace_id, conn)
   }
 
-  pub fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
+  pub async fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
     let conn = self.db_connection(uid)?;
-    let workspaces = get_all_user_workspace_op(uid, conn)?;
+    let mut workspaces = get_all_user_workspace_op(uid, conn)?;
 
-    if let Ok(service) = self.cloud_services.get_user_service() {
-      if let Ok(conn) = self.db_connection(uid) {
-        af_spawn(async move {
-          if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
-            let _ = save_user_workspaces_op(uid, conn, &new_user_workspaces);
-            let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
-            send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
-              .payload(repeated_workspace_pbs)
-              .send();
-          }
-        });
-      }
+    if let Ok(cloud_srv) = self.cloud_services.get_user_service() {
+      let user_cloud_workspaces = cloud_srv.get_all_workspace(uid).await?;
+      workspaces = user_cloud_workspaces.clone();
+      let conn = self.db_connection(uid)?;
+      save_user_workspaces_op(uid, conn, &user_cloud_workspaces)?;
+      let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(user_cloud_workspaces);
+      send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
+        .payload(repeated_workspace_pbs)
+        .send();
     }
     Ok(workspaces)
   }
