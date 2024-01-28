@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_bar.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -48,11 +48,18 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
+        elevation: 0,
         title: FlowyText.semibold(
           LocaleKeys.titleBar_font.tr(),
           fontSize: 14.0,
         ),
         leading: const AppBarBackButton(),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(0.5),
+          child: Divider(
+            height: 0.5,
+          ),
+        ),
       ),
       body: SafeArea(
         child: ListView.separated(
@@ -62,7 +69,7 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FlowyMobileSearchTextField(
-                  onKeywordChanged: (keyword) {
+                  onChanged: (keyword) {
                     setState(() {
                       availableFonts = _availableFonts
                           .where(

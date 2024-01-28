@@ -81,7 +81,7 @@ Future<T?> showMobileBottomSheet<T>(
 
         if (showDivider) {
           children.add(
-            const Divider(height: 1.0, thickness: 1.0),
+            const Divider(height: 0.5, thickness: 0.5),
           );
         }
       }

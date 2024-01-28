@@ -34,6 +34,7 @@ class OptionColorList extends StatelessWidget {
                 color: color,
                 borderRadius: Corners.s12Border,
                 border: Border.all(
+                  width: isSelected ? 2.0 : 1.0,
                   color: isSelected
                       ? const Color(0xff00C6F1)
                       : Theme.of(context).dividerColor,

@@ -340,7 +340,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
       if (widget.actions.contains(FieldOptionAction.hide))
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_hide.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.hide_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_hide_s),
           onTap: () => widget.onAction?.call(FieldOptionAction.hide),
         ),
       if (widget.actions.contains(FieldOptionAction.show))
@@ -354,7 +354,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.button_duplicate.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.copy_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_copy_s),
           onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
         ),
       if (widget.actions.contains(FieldOptionAction.delete) &&
@@ -364,7 +364,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
           leftIcon: FlowySvg(
-            FlowySvgs.delete_s,
+            FlowySvgs.m_delete_s,
             color: Theme.of(context).colorScheme.error,
           ),
           onTap: () => widget.onAction?.call(FieldOptionAction.delete),
@@ -793,7 +793,10 @@ class _SelectOption extends StatelessWidget {
         ),
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_addOption.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.add_s),
+          leftIcon: const FlowySvg(
+            FlowySvgs.add_s,
+            size: Size.square(20),
+          ),
           onTap: () {
             onAddOptions([
               SelectOptionPB(
