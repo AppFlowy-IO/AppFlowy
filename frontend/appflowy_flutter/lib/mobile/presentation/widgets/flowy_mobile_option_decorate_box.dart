@@ -21,11 +21,13 @@ class FlowyOptionDecorateBox extends StatelessWidget {
           top: showTopBorder
               ? BorderSide(
                   color: Theme.of(context).dividerColor,
+                  width: 0.5,
                 )
               : BorderSide.none,
           bottom: showBottomBorder
               ? BorderSide(
                   color: Theme.of(context).dividerColor,
+                  width: 0.5,
                 )
               : BorderSide.none,
         ),
