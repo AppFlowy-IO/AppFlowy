@@ -104,16 +104,21 @@ impl UserManagerWASM {
     Ok(new_user_profile)
   }
 
-  pub(crate) async fn generate_sign_in_url_with_email(
+  pub(crate) async fn add_user(&self, email: &str, password: &str) -> Result<(), FlowyError> {
+    let auth_service = self.cloud_services.get_user_service()?;
+    auth_service.create_user(email, password).await?;
+    Ok(())
+  }
+
+  pub(crate) async fn sign_in_with_password(
     &self,
     email: &str,
-  ) -> Result<String, FlowyError> {
+    password: &str,
+  ) -> Result<(), FlowyError> {
     let auth_service = self.cloud_services.get_user_service()?;
-    let url = auth_service
-      .generate_sign_in_url_with_email(email)
-      .await
-      .map_err(|err| FlowyError::server_error().with_context(err))?;
-    Ok(url)
+    auth_service.sign_in_with_password(email, password).await?;
+    auth_service.get_user_profile().await?;
+    Ok(())
   }
 
   fn prepare_collab(&self, session: &Session) {

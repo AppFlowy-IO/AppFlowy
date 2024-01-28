@@ -17,16 +17,27 @@ pub async fn oauth_sign_in_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn gen_sign_in_url_handler(
-  data: AFPluginData<SignInUrlPayloadPB>,
+pub async fn add_user_handler(
+  data: AFPluginData<AddUserPB>,
   manager: AFPluginState<Weak<UserManagerWASM>>,
-) -> DataResult<SignInUrlPB, FlowyError> {
+) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let sign_in_url = manager
-    .generate_sign_in_url_with_email(&params.email)
+  manager.add_user(&params.email, &params.password).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub async fn sign_in_with_password_handler(
+  data: AFPluginData<UserSignInPB>,
+  manager: AFPluginState<Weak<UserManagerWASM>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  manager
+    .sign_in_with_password(&params.email, &params.password)
     .await?;
-  data_result_ok(SignInUrlPB { sign_in_url })
+  Ok(())
 }
 
 fn upgrade_manager(

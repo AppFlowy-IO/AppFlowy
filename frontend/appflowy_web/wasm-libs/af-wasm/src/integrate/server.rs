@@ -101,8 +101,6 @@ impl UserCloudServiceProviderBase for ServerProviderWASM {
   }
 
   fn service_url(&self) -> String {
-    AFCloudConfiguration::from_env()
-      .map(|config| config.base_url)
-      .unwrap_or_default()
+    self.config.base_url.clone()
   }
 }

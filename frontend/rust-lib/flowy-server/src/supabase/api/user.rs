@@ -171,6 +171,18 @@ where
     })
   }
 
+  fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("Can't create user when using supabase"))
+    })
+  }
+
+  fn sign_in_with_password(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("Can't sign in with password when using supabase"))
+    })
+  }
+
   fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::internal().with_context("Can't generate oauth url when using supabase"))

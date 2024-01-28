@@ -17,6 +17,11 @@ pub struct WASMEventTester {
 impl WASMEventTester {
   pub async fn new() -> Self {
     setup_log();
+    // let config = AFCloudConfiguration {
+    //   base_url: "http://localhost".to_string(),
+    //   ws_base_url: "ws://localhost/ws".to_string(),
+    //   gotrue_url: "http://localhost/gotrue".to_string(),
+    // };
     let config = AFCloudConfiguration {
       base_url: "http://localhost:8000".to_string(),
       ws_base_url: "ws://localhost:8000/ws".to_string(),
@@ -27,17 +32,24 @@ impl WASMEventTester {
   }
 
   pub async fn sign_in_with_email(&self, email: &str) -> FlowyResult<UserProfilePB> {
-    let payload = SignInUrlPayloadPB {
-      email: email.to_string(),
-      authenticator: AuthenticatorPB::AppFlowyCloud,
+    let email = unique_email();
+    let password = "AppFlowy!2024".to_string();
+    let payload = AddUserPB {
+      email: email.clone(),
+      password: password.clone(),
     };
-    let sign_in_url = EventBuilder::new(self.core.clone())
-      .event(GenerateSignInURL)
+    EventBuilder::new(self.core.clone())
+      .event(AddUser)
       .payload(payload)
       .async_send()
-      .await
-      .try_parse::<SignInUrlPB>()?
-      .sign_in_url;
+      .await;
+
+    let payload = UserSignInPB { email, password };
+    EventBuilder::new(self.core.clone())
+      .event(SignInPassword)
+      .payload(payload)
+      .async_send()
+      .await;
 
     // let mut map = HashMap::new();
     // map.insert(USER_SIGN_IN_URL.to_string(), sign_in_url);

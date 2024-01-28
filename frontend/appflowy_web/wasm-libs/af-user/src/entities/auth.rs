@@ -50,16 +50,19 @@ impl Default for AuthenticatorPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct SignInUrlPayloadPB {
+pub struct AddUserPB {
   #[pb(index = 1)]
   pub email: String,
 
   #[pb(index = 2)]
-  pub authenticator: AuthenticatorPB,
+  pub password: String,
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct SignInUrlPB {
+pub struct UserSignInPB {
   #[pb(index = 1)]
-  pub sign_in_url: String,
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub password: String,
 }

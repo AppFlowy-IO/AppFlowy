@@ -11,7 +11,8 @@ pub fn init(user_manager: Weak<UserManagerWASM>) -> AFPlugin {
         .name("Flowy-User")
         .state(user_manager)
         .event(UserWasmEvent::OauthSignIn, oauth_sign_in_handler)
-        .event(UserWasmEvent::GenerateSignInURL, gen_sign_in_url_handler)
+        .event(UserWasmEvent::AddUser, add_user_handler)
+        .event(UserWasmEvent::SignInPassword, sign_in_with_password_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -20,6 +21,9 @@ pub enum UserWasmEvent {
   #[event(input = "OauthSignInPB", output = "UserProfilePB")]
   OauthSignIn = 0,
 
-  #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
-  GenerateSignInURL = 1,
+  #[event(input = "AddUserPB")]
+  AddUser = 1,
+
+  #[event(input = "UserSignInPB")]
+  SignInPassword = 2,
 }

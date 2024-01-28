@@ -209,23 +209,23 @@ impl ::protobuf::reflect::ProtobufValue for OauthSignInPB {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct SignInUrlPayloadPB {
+pub struct AddUserPB {
     // message fields
     pub email: ::std::string::String,
-    pub authenticator: AuthenticatorPB,
+    pub password: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a SignInUrlPayloadPB {
-    fn default() -> &'a SignInUrlPayloadPB {
-        <SignInUrlPayloadPB as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a AddUserPB {
+    fn default() -> &'a AddUserPB {
+        <AddUserPB as ::protobuf::Message>::default_instance()
     }
 }
 
-impl SignInUrlPayloadPB {
-    pub fn new() -> SignInUrlPayloadPB {
+impl AddUserPB {
+    pub fn new() -> AddUserPB {
         ::std::default::Default::default()
     }
 
@@ -255,23 +255,34 @@ impl SignInUrlPayloadPB {
         ::std::mem::replace(&mut self.email, ::std::string::String::new())
     }
 
-    // .AuthenticatorPB authenticator = 2;
+    // string password = 2;
 
 
-    pub fn get_authenticator(&self) -> AuthenticatorPB {
-        self.authenticator
+    pub fn get_password(&self) -> &str {
+        &self.password
     }
-    pub fn clear_authenticator(&mut self) {
-        self.authenticator = AuthenticatorPB::Local;
+    pub fn clear_password(&mut self) {
+        self.password.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_authenticator(&mut self, v: AuthenticatorPB) {
-        self.authenticator = v;
+    pub fn set_password(&mut self, v: ::std::string::String) {
+        self.password = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_password(&mut self) -> &mut ::std::string::String {
+        &mut self.password
+    }
+
+    // Take field
+    pub fn take_password(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.password, ::std::string::String::new())
     }
 }
 
-impl ::protobuf::Message for SignInUrlPayloadPB {
+impl ::protobuf::Message for AddUserPB {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -284,7 +295,7 @@ impl ::protobuf::Message for SignInUrlPayloadPB {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.email)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.authenticator, 2, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.password)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -301,8 +312,8 @@ impl ::protobuf::Message for SignInUrlPayloadPB {
         if !self.email.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.email);
         }
-        if self.authenticator != AuthenticatorPB::Local {
-            my_size += ::protobuf::rt::enum_size(2, self.authenticator);
+        if !self.password.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.password);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -313,8 +324,8 @@ impl ::protobuf::Message for SignInUrlPayloadPB {
         if !self.email.is_empty() {
             os.write_string(1, &self.email)?;
         }
-        if self.authenticator != AuthenticatorPB::Local {
-            os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.authenticator))?;
+        if !self.password.is_empty() {
+            os.write_string(2, &self.password)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -346,8 +357,8 @@ impl ::protobuf::Message for SignInUrlPayloadPB {
         Self::descriptor_static()
     }
 
-    fn new() -> SignInUrlPayloadPB {
-        SignInUrlPayloadPB::new()
+    fn new() -> AddUserPB {
+        AddUserPB::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -356,96 +367,123 @@ impl ::protobuf::Message for SignInUrlPayloadPB {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "email",
-                |m: &SignInUrlPayloadPB| { &m.email },
-                |m: &mut SignInUrlPayloadPB| { &mut m.email },
+                |m: &AddUserPB| { &m.email },
+                |m: &mut AddUserPB| { &mut m.email },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<AuthenticatorPB>>(
-                "authenticator",
-                |m: &SignInUrlPayloadPB| { &m.authenticator },
-                |m: &mut SignInUrlPayloadPB| { &mut m.authenticator },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "password",
+                |m: &AddUserPB| { &m.password },
+                |m: &mut AddUserPB| { &mut m.password },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignInUrlPayloadPB>(
-                "SignInUrlPayloadPB",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<AddUserPB>(
+                "AddUserPB",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static SignInUrlPayloadPB {
-        static instance: ::protobuf::rt::LazyV2<SignInUrlPayloadPB> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(SignInUrlPayloadPB::new)
+    fn default_instance() -> &'static AddUserPB {
+        static instance: ::protobuf::rt::LazyV2<AddUserPB> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(AddUserPB::new)
     }
 }
 
-impl ::protobuf::Clear for SignInUrlPayloadPB {
+impl ::protobuf::Clear for AddUserPB {
     fn clear(&mut self) {
         self.email.clear();
-        self.authenticator = AuthenticatorPB::Local;
+        self.password.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for SignInUrlPayloadPB {
+impl ::std::fmt::Debug for AddUserPB {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SignInUrlPayloadPB {
+impl ::protobuf::reflect::ProtobufValue for AddUserPB {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct SignInUrlPB {
+pub struct UserSignInPB {
     // message fields
-    pub sign_in_url: ::std::string::String,
+    pub email: ::std::string::String,
+    pub password: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a SignInUrlPB {
-    fn default() -> &'a SignInUrlPB {
-        <SignInUrlPB as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a UserSignInPB {
+    fn default() -> &'a UserSignInPB {
+        <UserSignInPB as ::protobuf::Message>::default_instance()
     }
 }
 
-impl SignInUrlPB {
-    pub fn new() -> SignInUrlPB {
+impl UserSignInPB {
+    pub fn new() -> UserSignInPB {
         ::std::default::Default::default()
     }
 
-    // string sign_in_url = 1;
+    // string email = 1;
 
 
-    pub fn get_sign_in_url(&self) -> &str {
-        &self.sign_in_url
+    pub fn get_email(&self) -> &str {
+        &self.email
     }
-    pub fn clear_sign_in_url(&mut self) {
-        self.sign_in_url.clear();
+    pub fn clear_email(&mut self) {
+        self.email.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_sign_in_url(&mut self, v: ::std::string::String) {
-        self.sign_in_url = v;
+    pub fn set_email(&mut self, v: ::std::string::String) {
+        self.email = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_sign_in_url(&mut self) -> &mut ::std::string::String {
-        &mut self.sign_in_url
+    pub fn mut_email(&mut self) -> &mut ::std::string::String {
+        &mut self.email
     }
 
     // Take field
-    pub fn take_sign_in_url(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.sign_in_url, ::std::string::String::new())
+    pub fn take_email(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.email, ::std::string::String::new())
+    }
+
+    // string password = 2;
+
+
+    pub fn get_password(&self) -> &str {
+        &self.password
+    }
+    pub fn clear_password(&mut self) {
+        self.password.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_password(&mut self, v: ::std::string::String) {
+        self.password = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_password(&mut self) -> &mut ::std::string::String {
+        &mut self.password
+    }
+
+    // Take field
+    pub fn take_password(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.password, ::std::string::String::new())
     }
 }
 
-impl ::protobuf::Message for SignInUrlPB {
+impl ::protobuf::Message for UserSignInPB {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -455,7 +493,10 @@ impl ::protobuf::Message for SignInUrlPB {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.sign_in_url)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.email)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.password)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -469,8 +510,11 @@ impl ::protobuf::Message for SignInUrlPB {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.sign_in_url.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.sign_in_url);
+        if !self.email.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.email);
+        }
+        if !self.password.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.password);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -478,8 +522,11 @@ impl ::protobuf::Message for SignInUrlPB {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.sign_in_url.is_empty() {
-            os.write_string(1, &self.sign_in_url)?;
+        if !self.email.is_empty() {
+            os.write_string(1, &self.email)?;
+        }
+        if !self.password.is_empty() {
+            os.write_string(2, &self.password)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -511,8 +558,8 @@ impl ::protobuf::Message for SignInUrlPB {
         Self::descriptor_static()
     }
 
-    fn new() -> SignInUrlPB {
-        SignInUrlPB::new()
+    fn new() -> UserSignInPB {
+        UserSignInPB::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -520,38 +567,44 @@ impl ::protobuf::Message for SignInUrlPB {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "sign_in_url",
-                |m: &SignInUrlPB| { &m.sign_in_url },
-                |m: &mut SignInUrlPB| { &mut m.sign_in_url },
+                "email",
+                |m: &UserSignInPB| { &m.email },
+                |m: &mut UserSignInPB| { &mut m.email },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignInUrlPB>(
-                "SignInUrlPB",
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "password",
+                |m: &UserSignInPB| { &m.password },
+                |m: &mut UserSignInPB| { &mut m.password },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UserSignInPB>(
+                "UserSignInPB",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static SignInUrlPB {
-        static instance: ::protobuf::rt::LazyV2<SignInUrlPB> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(SignInUrlPB::new)
+    fn default_instance() -> &'static UserSignInPB {
+        static instance: ::protobuf::rt::LazyV2<UserSignInPB> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UserSignInPB::new)
     }
 }
 
-impl ::protobuf::Clear for SignInUrlPB {
+impl ::protobuf::Clear for UserSignInPB {
     fn clear(&mut self) {
-        self.sign_in_url.clear();
+        self.email.clear();
+        self.password.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for SignInUrlPB {
+impl ::std::fmt::Debug for UserSignInPB {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SignInUrlPB {
+impl ::protobuf::reflect::ProtobufValue for UserSignInPB {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -615,12 +668,12 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0b2\x17.OauthSignInPB.MapEntryR\x03map\x126\n\rauthenticator\x18\x02\
     \x20\x01(\x0e2\x10.AuthenticatorPBR\rauthenticator\x1a6\n\x08MapEntry\
     \x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\
-    \x20\x01(\tR\x05value:\x028\x01\"b\n\x12SignInUrlPayloadPB\x12\x14\n\x05\
-    email\x18\x01\x20\x01(\tR\x05email\x126\n\rauthenticator\x18\x02\x20\x01\
-    (\x0e2\x10.AuthenticatorPBR\rauthenticator\"-\n\x0bSignInUrlPB\x12\x1e\n\
-    \x0bsign_in_url\x18\x01\x20\x01(\tR\tsignInUrl*=\n\x0fAuthenticatorPB\
-    \x12\t\n\x05Local\x10\0\x12\x0c\n\x08Supabase\x10\x01\x12\x11\n\rAppFlow\
-    yCloud\x10\x02b\x06proto3\
+    \x20\x01(\tR\x05value:\x028\x01\"=\n\tAddUserPB\x12\x14\n\x05email\x18\
+    \x01\x20\x01(\tR\x05email\x12\x1a\n\x08password\x18\x02\x20\x01(\tR\x08p\
+    assword\"@\n\x0cUserSignInPB\x12\x14\n\x05email\x18\x01\x20\x01(\tR\x05e\
+    mail\x12\x1a\n\x08password\x18\x02\x20\x01(\tR\x08password*=\n\x0fAuthen\
+    ticatorPB\x12\t\n\x05Local\x10\0\x12\x0c\n\x08Supabase\x10\x01\x12\x11\n\
+    \rAppFlowyCloud\x10\x02b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
