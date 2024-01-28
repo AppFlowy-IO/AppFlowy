@@ -99,7 +99,11 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn sign_in_with_password(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+  fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> FutureResult<UserProfile, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::local_version_not_support().with_context("Not support"))
     })

@@ -177,7 +177,11 @@ where
     })
   }
 
-  fn sign_in_with_password(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+  fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> FutureResult<UserProfile, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::not_support().with_context("Can't sign in with password when using supabase"))
     })

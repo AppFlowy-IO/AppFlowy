@@ -24,6 +24,6 @@ pub enum UserWasmEvent {
   #[event(input = "AddUserPB")]
   AddUser = 1,
 
-  #[event(input = "UserSignInPB")]
+  #[event(input = "UserSignInPB", output = "UserProfilePB")]
   SignInPassword = 2,
 }

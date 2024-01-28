@@ -114,11 +114,10 @@ impl UserManagerWASM {
     &self,
     email: &str,
     password: &str,
-  ) -> Result<(), FlowyError> {
+  ) -> Result<UserProfile, FlowyError> {
     let auth_service = self.cloud_services.get_user_service()?;
-    auth_service.sign_in_with_password(email, password).await?;
-    auth_service.get_user_profile().await?;
-    Ok(())
+    let user_profile = auth_service.sign_in_with_password(email, password).await?;
+    Ok(user_profile)
   }
 
   fn prepare_collab(&self, session: &Session) {

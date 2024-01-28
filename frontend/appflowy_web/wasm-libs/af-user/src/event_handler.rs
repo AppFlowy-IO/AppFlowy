@@ -31,13 +31,13 @@ pub async fn add_user_handler(
 pub async fn sign_in_with_password_handler(
   data: AFPluginData<UserSignInPB>,
   manager: AFPluginState<Weak<UserManagerWASM>>,
-) -> Result<(), FlowyError> {
+) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  manager
+  let user_profile = manager
     .sign_in_with_password(&params.email, &params.password)
     .await?;
-  Ok(())
+  data_result_ok(UserProfilePB::from(user_profile))
 }
 
 fn upgrade_manager(

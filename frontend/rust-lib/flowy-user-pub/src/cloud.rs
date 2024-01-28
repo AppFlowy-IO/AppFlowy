@@ -149,7 +149,12 @@ pub trait UserCloudService: Send + Sync + 'static {
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError>;
 
   fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError>;
-  fn sign_in_with_password(&self, email: &str, password: &str) -> FutureResult<(), FlowyError>;
+
+  fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> FutureResult<UserProfile, FlowyError>;
 
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
   /// After the user is authenticated, the browser will open a deep link to the AppFlowy app (iOS, macOS, etc.),

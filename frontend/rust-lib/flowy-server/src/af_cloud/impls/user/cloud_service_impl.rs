@@ -93,14 +93,21 @@ where
     })
   }
 
-  fn sign_in_with_password(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+  fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> FutureResult<UserProfile, FlowyError> {
     let password = password.to_string();
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
       client.sign_in_password(&email, &password).await?;
-      Ok(())
+      let profile = client.get_profile().await?;
+      let token = client.get_token()?;
+      let profile = user_profile_from_af_profile(token, profile)?;
+      Ok(profile)
     })
   }
 
