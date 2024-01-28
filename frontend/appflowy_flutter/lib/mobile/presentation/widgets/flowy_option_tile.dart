@@ -32,6 +32,7 @@ class FlowyOptionTile extends StatelessWidget {
     this.onTextChanged,
     this.onTextSubmitted,
     this.autofocus,
+    this.content,
   });
 
   factory FlowyOptionTile.text({
@@ -89,6 +90,7 @@ class FlowyOptionTile extends StatelessWidget {
     required bool isSelected,
     required VoidCallback? onTap,
     Widget? leftIcon,
+    Widget? content,
     bool showTopBorder = true,
     bool showBottomBorder = true,
   }) {
@@ -96,6 +98,7 @@ class FlowyOptionTile extends StatelessWidget {
       type: FlowyOptionTileType.checkbox,
       isSelected: isSelected,
       text: text,
+      content: content,
       onTap: onTap,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
@@ -141,6 +144,9 @@ class FlowyOptionTile extends StatelessWidget {
   final Widget? leading;
   final Widget? trailing;
 
+  // customize the content widget
+  final Widget? content;
+
   // only used in checkbox or switcher
   final bool isSelected;
 
@@ -169,8 +175,9 @@ class FlowyOptionTile extends StatelessWidget {
           child: Row(
             children: [
               if (leadingWidget != null) leadingWidget,
-              _buildText(),
-              _buildTextField(),
+              if (content != null) content!,
+              if (content == null) _buildText(),
+              if (content == null) _buildTextField(),
               if (trailing != null) trailing!,
             ],
           ),
