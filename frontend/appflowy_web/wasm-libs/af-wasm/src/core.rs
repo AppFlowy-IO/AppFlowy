@@ -2,6 +2,7 @@ use crate::integrate::server::ServerProviderWASM;
 use af_user::manager::UserManagerWASM;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher};
 use lib_dispatch::runtime::AFPluginRuntime;
 use std::rc::Rc;
@@ -14,10 +15,9 @@ pub struct AppFlowyWASMCore {
 }
 
 impl AppFlowyWASMCore {
-  pub async fn new(device_id: &str) -> FlowyResult<Self> {
+  pub async fn new(device_id: &str, cloud_config: AFCloudConfiguration) -> FlowyResult<Self> {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-
-    let server_provider = Rc::new(ServerProviderWASM::new(device_id));
+    let server_provider = Rc::new(ServerProviderWASM::new(device_id, cloud_config));
     let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
       server_provider.clone(),
       device_id.to_string(),

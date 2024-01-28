@@ -104,6 +104,18 @@ impl UserManagerWASM {
     Ok(new_user_profile)
   }
 
+  pub(crate) async fn generate_sign_in_url_with_email(
+    &self,
+    email: &str,
+  ) -> Result<String, FlowyError> {
+    let auth_service = self.cloud_services.get_user_service()?;
+    let url = auth_service
+      .generate_sign_in_url_with_email(email)
+      .await
+      .map_err(|err| FlowyError::server_error().with_context(err))?;
+    Ok(url)
+  }
+
   fn prepare_collab(&self, session: &Session) {
     let collab_builder = self.collab_builder.upgrade().unwrap();
     collab_builder.initialize(session.user_workspace.id.clone());

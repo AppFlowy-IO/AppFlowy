@@ -15,18 +15,21 @@ use parking_lot::RwLock;
 use std::rc::Rc;
 use std::sync::Arc;
 use tokio_stream::wrappers::WatchStream;
-use tracing::warn;
+use tracing::{info, warn};
 
 pub struct ServerProviderWASM {
   device_id: String,
+  config: AFCloudConfiguration,
   server: RwLock<Option<Rc<dyn AppFlowyServer>>>,
 }
 
 impl ServerProviderWASM {
-  pub fn new(device_id: &str) -> Self {
+  pub fn new(device_id: &str, config: AFCloudConfiguration) -> Self {
+    info!("Server config: {}", config);
     Self {
       device_id: device_id.to_string(),
       server: RwLock::new(Default::default()),
+      config,
     }
   }
 
@@ -35,13 +38,8 @@ impl ServerProviderWASM {
     match server {
       Some(server) => server,
       None => {
-        let config = AFCloudConfiguration {
-          base_url: "http://localhost".to_string(),
-          ws_base_url: "ws://localhost/ws".to_string(),
-          gotrue_url: "http://localhost/gotrue".to_string(),
-        };
         let server = Rc::new(AppFlowyCloudServer::new(
-          config,
+          self.config.clone(),
           true,
           self.device_id.clone(),
         ));

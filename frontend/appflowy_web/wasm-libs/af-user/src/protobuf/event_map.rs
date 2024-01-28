@@ -26,6 +26,7 @@
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum UserWasmEvent {
     OauthSignIn = 0,
+    GenerateSignInURL = 1,
 }
 
 impl ::protobuf::ProtobufEnum for UserWasmEvent {
@@ -36,6 +37,7 @@ impl ::protobuf::ProtobufEnum for UserWasmEvent {
     fn from_i32(value: i32) -> ::std::option::Option<UserWasmEvent> {
         match value {
             0 => ::std::option::Option::Some(UserWasmEvent::OauthSignIn),
+            1 => ::std::option::Option::Some(UserWasmEvent::GenerateSignInURL),
             _ => ::std::option::Option::None
         }
     }
@@ -43,6 +45,7 @@ impl ::protobuf::ProtobufEnum for UserWasmEvent {
     fn values() -> &'static [Self] {
         static values: &'static [UserWasmEvent] = &[
             UserWasmEvent::OauthSignIn,
+            UserWasmEvent::GenerateSignInURL,
         ];
         values
     }
@@ -71,8 +74,8 @@ impl ::protobuf::reflect::ProtobufValue for UserWasmEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*\x20\n\rUserWasmEvent\x12\x0f\n\x0bOauthSignIn\x10\
-    \0b\x06proto3\
+    \n\x0fevent_map.proto*7\n\rUserWasmEvent\x12\x0f\n\x0bOauthSignIn\x10\0\
+    \x12\x15\n\x11GenerateSignInURL\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

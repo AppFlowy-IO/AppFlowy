@@ -28,9 +28,12 @@ flowy-error = { workspace = true, features = ["impl_from_dispatch_error"] }
 lib-infra = { workspace = true }
 collab = { workspace = true, features = ["wasm_build", "async-plugin"] }
 web-sys = "0.3"
-
+wasm-bindgen-futures.workspace = true
+uuid.workspace = true
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.40"
-wasm-bindgen-futures = "0.4.40"
 tokio = { version = "1.0", features = ["sync"] }
+
+[features]
+localhost_test = []

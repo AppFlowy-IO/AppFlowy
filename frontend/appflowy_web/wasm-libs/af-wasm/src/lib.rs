@@ -12,6 +12,7 @@ use crate::request::WasmRequest;
 use lazy_static::lazy_static;
 use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher};
 
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use std::sync::Arc;
 use tracing::{error, info, trace};
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -23,9 +24,22 @@ lazy_static! {
 
 #[wasm_bindgen]
 pub fn init_sdk(_data: String) -> i64 {
-  af_spawn(async {
-    if let Ok(core) = AppFlowyWASMCore::new("device_id").await {
-      info!("AppFlowyWASMCore initialized");
+  #[cfg(feature = "localhost_test")]
+  let config = AFCloudConfiguration {
+    base_url: "http://localhost:8000".to_string(),
+    ws_base_url: "ws://localhost:8000/ws".to_string(),
+    gotrue_url: "http://localhost:9999".to_string(),
+  };
+
+  #[cfg(not(feature = "localhost_test"))]
+  let config = AFCloudConfiguration {
+    base_url: "https://beta.appflowy.cloud".to_string(),
+    ws_base_url: "wss://beta.appflowy.cloud/ws".to_string(),
+    gotrue_url: "https://beta.appflowy.cloud/gotrue".to_string(),
+  };
+
+  wasm_bindgen_futures::spawn_local(async {
+    if let Ok(core) = AppFlowyWASMCore::new("device_id", config).await {
       *APPFLOWY_CORE.0.borrow_mut() = Some(core);
     } else {
       error!("Failed to initialize AppFlowyWASMCore")

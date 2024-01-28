@@ -1,5 +1,5 @@
 mod define;
-mod entities;
+pub mod entities;
 mod event_handler;
 pub mod event_map;
 pub mod manager;

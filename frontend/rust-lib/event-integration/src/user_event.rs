@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::NotificationSender;
-use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_URL, USER_UUID};
+use flowy_server::af_cloud::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_URL, USER_UUID};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{

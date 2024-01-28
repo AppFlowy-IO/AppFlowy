@@ -48,3 +48,18 @@ impl Default for AuthenticatorPB {
     Self::AppFlowyCloud
   }
 }
+
+#[derive(ProtoBuf, Default)]
+pub struct SignInUrlPayloadPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub authenticator: AuthenticatorPB,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct SignInUrlPB {
+  #[pb(index = 1)]
+  pub sign_in_url: String,
+}
