@@ -5,6 +5,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
@@ -107,12 +108,16 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         child: child,
       );
     } else {
-      return GestureDetector(
-        onTap: () {
-          editorState.updateSelectionWithReason(null, extraInfo: {});
-          showUploadImageMenu();
-        },
-        child: child,
+      return MobileBlockActionButtons(
+        node: widget.node,
+        editorState: editorState,
+        child: GestureDetector(
+          onTap: () {
+            editorState.updateSelectionWithReason(null, extraInfo: {});
+            showUploadImageMenu();
+          },
+          child: child,
+        ),
       );
     }
   }
@@ -128,7 +133,8 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         showCloseButton: true,
         showDragHandle: true,
         builder: (context) {
-          return ConstrainedBox(
+          return Container(
+            margin: const EdgeInsets.only(top: 12.0),
             constraints: const BoxConstraints(
               maxHeight: 340,
               minHeight: 80,
