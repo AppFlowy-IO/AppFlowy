@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/text_field.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
