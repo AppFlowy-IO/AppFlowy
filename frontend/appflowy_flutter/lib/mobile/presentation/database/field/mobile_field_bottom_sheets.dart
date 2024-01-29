@@ -75,7 +75,7 @@ void showQuickEditField(
   BuildContext context,
   String viewId,
   FieldInfo fieldInfo,
-) async {
+) {
   showMobileBottomSheet(
     context,
     padding: EdgeInsets.zero,

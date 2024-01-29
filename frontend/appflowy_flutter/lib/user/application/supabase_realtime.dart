@@ -27,7 +27,7 @@ class SupabaseRealtimeService {
       },
       onInvalidAuth: (message) async {
         Log.error(message);
-        channel?.unsubscribe();
+        await channel?.unsubscribe();
         channel = null;
         if (!isLoggingOut) {
           isLoggingOut = true;

@@ -37,7 +37,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       title: title,
     );
 
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
 
@@ -53,7 +53,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowResize();
 
     final currentWindowSize = await windowManager.getSize();
-    WindowSizeManager().setSize(currentWindowSize);
+    return WindowSizeManager().setSize(currentWindowSize);
   }
 
   @override
@@ -61,7 +61,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowMaximize();
 
     final currentWindowSize = await windowManager.getSize();
-    WindowSizeManager().setSize(currentWindowSize);
+    return WindowSizeManager().setSize(currentWindowSize);
   }
 
   @override
@@ -69,7 +69,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowMoved();
 
     final position = await windowManager.getPosition();
-    WindowSizeManager().setPosition(position);
+    return WindowSizeManager().setPosition(position);
   }
 
   @override

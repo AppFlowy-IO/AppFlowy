@@ -1,8 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 enum BlockActionBottomSheetType {
@@ -28,50 +27,43 @@ class BlockActionBottomSheet extends StatelessWidget {
     return Column(
       children: [
         // insert above, insert below
-        Row(
-          children: [
-            Expanded(
-              child: BottomSheetActionWidget(
-                svg: FlowySvgs.arrow_up_s,
-                text: LocaleKeys.button_insertAbove.tr(),
-                onTap: () => onAction(BlockActionBottomSheetType.insertAbove),
-              ),
-            ),
-            const HSpace(8),
-            Expanded(
-              child: BottomSheetActionWidget(
-                svg: FlowySvgs.arrow_down_s,
-                text: LocaleKeys.button_insertBelow.tr(),
-                onTap: () => onAction(BlockActionBottomSheetType.insertBelow),
-              ),
-            ),
-          ],
+        FlowyOptionTile.text(
+          text: LocaleKeys.button_insertAbove.tr(),
+          leftIcon: const FlowySvg(
+            FlowySvgs.arrow_up_s,
+            size: Size.square(20),
+          ),
+          onTap: () => onAction(BlockActionBottomSheetType.insertAbove),
         ),
-        const VSpace(8),
-
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.button_insertBelow.tr(),
+          leftIcon: const FlowySvg(
+            FlowySvgs.arrow_down_s,
+            size: Size.square(20),
+          ),
+          onTap: () => onAction(BlockActionBottomSheetType.insertBelow),
+        ),
         // duplicate, delete
-        Row(
-          children: [
-            Expanded(
-              child: BottomSheetActionWidget(
-                svg: FlowySvgs.m_duplicate_m,
-                text: LocaleKeys.button_duplicate.tr(),
-                onTap: () => onAction(BlockActionBottomSheetType.duplicate),
-              ),
-            ),
-            const HSpace(8),
-            Expanded(
-              child: BottomSheetActionWidget(
-                svg: FlowySvgs.m_delete_m,
-                text: LocaleKeys.button_delete.tr(),
-                onTap: () => onAction(BlockActionBottomSheetType.delete),
-              ),
-            ),
-          ],
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.button_duplicate.tr(),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_copy_s),
+          onTap: () => onAction(BlockActionBottomSheetType.duplicate),
         ),
-        const VSpace(8),
 
         ...extendActionWidgets,
+
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.button_delete.tr(),
+          leftIcon: FlowySvg(
+            FlowySvgs.m_delete_s,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          textColor: Theme.of(context).colorScheme.error,
+          onTap: () => onAction(BlockActionBottomSheetType.delete),
+        ),
       ],
     );
   }

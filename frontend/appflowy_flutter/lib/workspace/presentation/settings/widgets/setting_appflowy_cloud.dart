@@ -63,7 +63,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
           const AppFlowyCloudEnableSync(),
           const VSpace(12),
           RestartButton(
-            onClick: () async {
+            onClick: () {
               NavigatorAlertDialog(
                 title: LocaleKeys.settings_menu_restartAppTip.tr(),
                 confirm: () async {
@@ -176,7 +176,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
                 ),
                 const VSpace(8),
                 RestartButton(
-                  onClick: () async {
+                  onClick: () {
                     NavigatorAlertDialog(
                       title: LocaleKeys.settings_menu_restartAppTip.tr(),
                       confirm: () {

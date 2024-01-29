@@ -190,14 +190,14 @@ class _AutoCompletionBlockComponentState
 
   Future<void> _onGenerate() async {
     final loading = Loading(context);
-    loading.start();
+    await loading.start();
 
     await _updateEditingText();
 
     final userProfile = await UserBackendService.getCurrentUserProfile()
         .then((value) => value.toOption().toNullable());
     if (userProfile == null) {
-      loading.stop();
+      await loading.stop();
       if (mounted) {
         showSnackBarMessage(
           context,
@@ -217,10 +217,12 @@ class _AutoCompletionBlockComponentState
     await openAIRepository.getStreamedCompletions(
       prompt: controller.text,
       onStart: () async {
-        loading.stop();
-        barrierDialog = BarrierDialog(context);
-        barrierDialog?.show();
-        await _makeSurePreviousNodeIsEmptyParagraphNode();
+        await loading.stop();
+        if (mounted) {
+          barrierDialog = BarrierDialog(context);
+          await barrierDialog?.show();
+          await _makeSurePreviousNodeIsEmptyParagraphNode();
+        }
       },
       onProcess: (response) async {
         if (response.choices.isNotEmpty) {
@@ -235,12 +237,14 @@ class _AutoCompletionBlockComponentState
         await barrierDialog?.dismiss();
       },
       onError: (error) async {
-        loading.stop();
-        showSnackBarMessage(
-          context,
-          error.message,
-          showCancel: true,
-        );
+        await loading.stop();
+        if (mounted) {
+          showSnackBarMessage(
+            context,
+            error.message,
+            showCancel: true,
+          );
+        }
       },
     );
     await _updateGenerationCount();
@@ -261,7 +265,7 @@ class _AutoCompletionBlockComponentState
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       }
     }
-    _onExit();
+    return _onExit();
   }
 
   Future<void> _onRewrite() async {
@@ -271,7 +275,7 @@ class _AutoCompletionBlockComponentState
     }
 
     final loading = Loading(context);
-    loading.start();
+    await loading.start();
     // clear previous response
     final selection = startSelection;
     if (selection != null) {
@@ -290,7 +294,7 @@ class _AutoCompletionBlockComponentState
     final userProfile = await UserBackendService.getCurrentUserProfile()
         .then((value) => value.toOption().toNullable());
     if (userProfile == null) {
-      loading.stop();
+      await loading.stop();
       if (mounted) {
         showSnackBarMessage(
           context,
@@ -308,7 +312,7 @@ class _AutoCompletionBlockComponentState
     await openAIRepository.getStreamedCompletions(
       prompt: _rewritePrompt(previousOutput),
       onStart: () async {
-        loading.stop();
+        await loading.stop();
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       },
       onProcess: (response) async {
@@ -322,12 +326,14 @@ class _AutoCompletionBlockComponentState
       },
       onEnd: () async {},
       onError: (error) async {
-        loading.stop();
-        showSnackBarMessage(
-          context,
-          error.message,
-          showCancel: true,
-        );
+        await loading.stop();
+        if (mounted) {
+          showSnackBarMessage(
+            context,
+            error.message,
+            showCancel: true,
+          );
+        }
       },
     );
     await _updateGenerationCount();
