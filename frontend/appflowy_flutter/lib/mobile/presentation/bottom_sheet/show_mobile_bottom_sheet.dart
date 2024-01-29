@@ -114,12 +114,10 @@ Future<T?> showMobileBottomSheet<T>(
         return children.first;
       }
 
-      // not full-screen mode
-      if (MediaQuery.of(context).padding.bottom == 0) {
-        children.add(
-          const VSpace(16),
-        );
-      }
+      // add default padding
+      children.add(
+        VSpace(MediaQuery.of(context).padding.bottom == 0 ? 28.0 : 16.0),
+      );
 
       return SafeArea(
         child: Column(
