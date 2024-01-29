@@ -27,7 +27,6 @@ class BottomSheetHeader extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: AppBarCloseButton(
-                margin: EdgeInsets.zero,
                 onTap: onClose,
               ),
             ),

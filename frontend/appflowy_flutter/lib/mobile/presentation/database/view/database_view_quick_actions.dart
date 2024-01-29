@@ -44,7 +44,7 @@ class _MobileDatabaseViewQuickActionsState
   Widget _quickActions(BuildContext context, ViewPB view) {
     final isInline = view.childViews.isNotEmpty;
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 38),
+      padding: const EdgeInsets.only(top: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

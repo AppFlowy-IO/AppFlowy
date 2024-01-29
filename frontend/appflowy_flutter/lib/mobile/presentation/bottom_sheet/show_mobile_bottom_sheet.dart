@@ -151,12 +151,7 @@ class _Header extends StatelessWidget {
             if (showCloseButton)
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 16),
-                  child: AppBarCloseButton(
-                    margin: EdgeInsets.zero,
-                  ),
-                ),
+                child: AppBarCloseButton(),
               ),
             Align(
               child: FlowyText(
@@ -168,11 +163,8 @@ class _Header extends StatelessWidget {
             if (showDoneButton)
               Align(
                 alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: AppBarDoneButton(
-                    onTap: () => Navigator.pop(context),
-                  ),
+                child: AppBarDoneButton(
+                  onTap: () => Navigator.pop(context),
                 ),
               ),
           ],
