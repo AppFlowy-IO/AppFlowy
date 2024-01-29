@@ -35,7 +35,7 @@
     "emoji-mart": "^5.5.2",
     "emoji-regex": "^10.2.1",
     "events": "^3.3.0",
-    "google-protobuf": "3.21.2",
+    "google-protobuf": "^3.15.12",
     "i18next": "^22.4.10",
     "i18next-browser-languagedetector": "^7.0.1",
     "i18next-resources-to-backend": "^1.1.4",
@@ -80,7 +80,7 @@
   "devDependencies": {
     "@svgr/plugin-svgo": "^8.0.1",
     "@tauri-apps/cli": "^1.5.6",
-    "@types/google-protobuf": "3.21.2",
+    "@types/google-protobuf": "^3.15.12",
     "@types/is-hotkey": "^0.1.7",
     "@types/jest": "^29.5.3",
     "@types/katex": "^0.16.0",
