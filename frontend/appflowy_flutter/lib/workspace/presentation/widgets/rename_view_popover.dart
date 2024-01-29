@@ -40,6 +40,12 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -50,13 +56,7 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
             defaultIcon: widget.icon,
             direction: PopoverDirection.bottomWithCenterAligned,
             offset: const Offset(0, 18),
-            onSubmitted: (emoji, _) async {
-              await ViewBackendService.updateViewIcon(
-                viewId: widget.viewId,
-                viewIcon: emoji,
-              );
-              widget.popoverController.close();
-            },
+            onSubmitted: _updateViewIcon,
           ),
           const HSpace(6),
         ],
@@ -65,28 +65,29 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
           width: 220,
           child: FlowyTextField(
             controller: _controller,
-            onSubmitted: (text) async {
-              if (text.isNotEmpty && text != widget.name) {
-                await ViewBackendService.updateView(
-                  viewId: widget.viewId,
-                  name: text,
-                );
-              }
-              widget.popoverController.close();
-            },
-            onCanceled: () async {
-              if (_controller.text.isNotEmpty &&
-                  _controller.text != widget.name) {
-                await ViewBackendService.updateView(
-                  viewId: widget.viewId,
-                  name: _controller.text,
-                );
-                widget.popoverController.close();
-              }
-            },
+            onSubmitted: _updateViewName,
+            onCanceled: () => _updateViewName(_controller.text),
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _updateViewName(String name) async {
+    if (name.isNotEmpty && name != widget.name) {
+      await ViewBackendService.updateView(
+        viewId: widget.viewId,
+        name: _controller.text,
+      );
+      widget.popoverController.close();
+    }
+  }
+
+  Future<void> _updateViewIcon(String emoji, PopoverController? _) async {
+    await ViewBackendService.updateViewIcon(
+      viewId: widget.viewId,
+      viewIcon: emoji,
+    );
+    widget.popoverController.close();
   }
 }
