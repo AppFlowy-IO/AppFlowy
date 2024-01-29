@@ -26,7 +26,7 @@ class FlowySearchTextField extends StatelessWidget {
         onSubmitted: onSubmitted,
         placeholder: hintText,
         prefixIcon: const FlowySvg(FlowySvgs.m_search_m),
-        prefixInsets: const EdgeInsets.only(left: 16.0),
+        prefixInsets: const EdgeInsets.only(left: 16.0, right: 2.0),
         suffixIcon: const Icon(Icons.close),
         suffixInsets: const EdgeInsets.only(right: 16.0),
         placeholderStyle: Theme.of(context).textTheme.titleSmall?.copyWith(

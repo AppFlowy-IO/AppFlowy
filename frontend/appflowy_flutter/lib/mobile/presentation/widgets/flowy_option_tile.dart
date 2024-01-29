@@ -111,8 +111,7 @@ class FlowyOptionTile extends StatelessWidget {
       leading: leftIcon,
       trailing: isSelected
           ? const FlowySvg(
-              FlowySvgs.blue_check_s,
-              size: Size.square(24.0),
+              FlowySvgs.m_blue_check_s,
               blendMode: null,
             )
           : null,
