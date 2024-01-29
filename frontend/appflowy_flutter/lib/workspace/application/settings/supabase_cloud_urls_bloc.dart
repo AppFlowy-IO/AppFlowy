@@ -28,40 +28,41 @@ class SupabaseCloudURLsBloc
           if (state.updatedUrl.isEmpty) {
             emit(
               state.copyWith(
-                urlError: none(),
+                urlError: Some(
+                  LocaleKeys.settings_menu_cloudSupabaseUrlCanNotBeEmpty.tr(),
+                ),
                 anonKeyError: none(),
-                restartApp: true,
+                restartApp: false,
               ),
             );
-            await setSupbaseServer(none(), none());
-          } else {
-            // The anon key can't be empty if the url is not empty.
-            if (state.upatedAnonKey.isEmpty) {
-              emit(
-                state.copyWith(
-                  urlError: none(),
-                  anonKeyError: some(
-                    LocaleKeys.settings_menu_cloudSupabaseAnonKeyCanNotBeEmpty
-                        .tr(),
-                  ),
-                  restartApp: false,
-                ),
-              );
-              return;
-            }
-
-            validateUrl(state.updatedUrl).fold(
-              (error) => emit(state.copyWith(urlError: Some(error))),
-              (_) async {
-                await setSupbaseServer(
-                  Some(state.updatedUrl),
-                  Some(state.upatedAnonKey),
-                );
-
-                add(const SupabaseCloudURLsEvent.didSaveConfig());
-              },
-            );
+            return;
           }
+
+          if (state.upatedAnonKey.isEmpty) {
+            emit(
+              state.copyWith(
+                urlError: none(),
+                anonKeyError: Some(
+                  LocaleKeys.settings_menu_cloudSupabaseAnonKeyCanNotBeEmpty
+                      .tr(),
+                ),
+                restartApp: false,
+              ),
+            );
+            return;
+          }
+
+          validateUrl(state.updatedUrl).fold(
+            (error) => emit(state.copyWith(urlError: Some(error))),
+            (_) async {
+              await useSupabaseCloud(
+                url: state.updatedUrl,
+                anonKey: state.upatedAnonKey,
+              );
+
+              add(const SupabaseCloudURLsEvent.didSaveConfig());
+            },
+          );
         },
         didSaveConfig: () {
           emit(

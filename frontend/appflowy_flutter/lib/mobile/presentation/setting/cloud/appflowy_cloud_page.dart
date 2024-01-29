@@ -18,7 +18,7 @@ class AppFlowyCloudPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SettingCloud(
-          didResetServerUrl: () async {
+          restartAppFlowy: () async {
             await runAppFlowy();
           },
         ),

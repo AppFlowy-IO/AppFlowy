@@ -22,9 +22,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingSupabaseCloudView extends StatelessWidget {
-  const SettingSupabaseCloudView({required this.didResetServerUrl, super.key});
+  const SettingSupabaseCloudView({required this.restartAppFlowy, super.key});
 
-  final VoidCallback didResetServerUrl;
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class SettingSupabaseCloudView extends StatelessWidget {
                     const VSpace(40),
                     const SupabaseSelfhostTip(),
                     SupabaseCloudURLs(
-                      didUpdateUrls: didResetServerUrl,
+                      didUpdateUrls: restartAppFlowy,
                     ),
                   ],
                 ),
@@ -87,7 +87,6 @@ class SupabaseCloudURLs extends StatelessWidget {
       child: BlocListener<SupabaseCloudURLsBloc, SupabaseCloudURLsState>(
         listener: (context, state) async {
           if (state.restartApp) {
-            await setAuthenticatorType(AuthenticatorType.supabase);
             didUpdateUrls();
           }
         },
@@ -119,7 +118,7 @@ class SupabaseCloudURLs extends StatelessWidget {
                 ),
                 const VSpace(20),
                 RestartButton(
-                  onClick: () => _restartApp,
+                  onClick: () => _restartApp(context),
                 ),
               ],
             );

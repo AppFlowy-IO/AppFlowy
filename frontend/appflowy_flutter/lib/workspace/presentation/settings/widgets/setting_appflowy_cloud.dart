@@ -67,8 +67,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
               NavigatorAlertDialog(
                 title: LocaleKeys.settings_menu_restartAppTip.tr(),
                 confirm: () async {
-                  await setAppFlowyCloudUrl(Some(serverURL));
-                  await setAuthenticatorType(authenticatorType);
+                  await useAppFlowyBetaCloudWithURL(serverURL);
                   restartAppFlowy();
                 },
               ).show(context);
@@ -153,7 +152,6 @@ class AppFlowyCloudURLs extends StatelessWidget {
       child: BlocListener<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
         listener: (context, state) async {
           if (state.restartApp) {
-            await setAuthenticatorType(AuthenticatorType.appflowyCloudSelfHost);
             restartAppFlowy();
           }
         },

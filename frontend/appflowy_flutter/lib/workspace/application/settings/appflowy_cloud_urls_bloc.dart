@@ -23,16 +23,17 @@ class AppFlowyCloudURLsBloc
             emit(
               state.copyWith(
                 updatedServerUrl: "",
-                urlError: none(),
-                restartApp: true,
+                urlError: Some(
+                  LocaleKeys.settings_menu_appFlowyCloudUrlCanNotBeEmpty.tr(),
+                ),
+                restartApp: false,
               ),
             );
-            await setAppFlowyCloudUrl(none());
           } else {
             validateUrl(state.updatedServerUrl).fold(
               (url) async {
                 if (state.config.base_url != url) {
-                  await setAppFlowyCloudUrl(Some(url));
+                  await useSelfHostedAppFlowyCloudWithURL(url);
                 }
                 add(const AppFlowyCloudURLsEvent.didSaveConfig());
               },

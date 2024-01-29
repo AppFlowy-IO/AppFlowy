@@ -20,9 +20,9 @@ import 'setting_appflowy_cloud.dart';
 import 'setting_supabase_cloud.dart';
 
 class SettingCloud extends StatelessWidget {
-  const SettingCloud({required this.didResetServerUrl, super.key});
+  const SettingCloud({required this.restartAppFlowy, super.key});
 
-  final VoidCallback didResetServerUrl;
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -82,25 +82,25 @@ class SettingCloud extends StatelessWidget {
     switch (cloudType) {
       case AuthenticatorType.local:
         return SettingLocalCloud(
-          didResetServerUrl: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
       case AuthenticatorType.supabase:
         return SettingSupabaseCloudView(
-          didResetServerUrl: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
       case AuthenticatorType.appflowyCloud:
         return AppFlowyCloudViewSetting(
-          restartAppFlowy: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
       case AuthenticatorType.appflowyCloudSelfHost:
         return CustomAppFlowyCloudView(
-          restartAppFlowy: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
       case AuthenticatorType.appflowyCloudDevelop:
         return AppFlowyCloudViewSetting(
           serverURL: "http://localhost",
           authenticatorType: AuthenticatorType.appflowyCloudDevelop,
-          restartAppFlowy: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
     }
   }
