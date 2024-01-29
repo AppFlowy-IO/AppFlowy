@@ -34,7 +34,7 @@ class ThemeUploadLearnMoreButton extends StatelessWidget {
               await launchUrl(uri);
             } else {
               if (context.mounted) {
-                Dialogs.show(
+                await Dialogs.show(
                   context,
                   child: FlowyDialog(
                     child: FlowyErrorPage.message(

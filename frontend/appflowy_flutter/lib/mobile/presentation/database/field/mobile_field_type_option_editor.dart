@@ -7,10 +7,11 @@ import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -18,6 +19,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:protobuf/protobuf.dart';
@@ -33,8 +35,9 @@ class FieldOptionValues {
   FieldOptionValues({
     required this.type,
     required this.name,
-    this.dateFormate,
+    this.dateFormat,
     this.timeFormat,
+    this.includeTime,
     this.numberFormat,
     this.selectOption = const [],
   });
@@ -48,12 +51,26 @@ class FieldOptionValues {
       numberFormat: fieldType == FieldType.Number
           ? NumberTypeOptionPB.fromBuffer(buffer).format
           : null,
-      dateFormate: fieldType == FieldType.DateTime
-          ? DateTypeOptionPB.fromBuffer(buffer).dateFormat
-          : null,
-      timeFormat: fieldType == FieldType.DateTime
-          ? DateTypeOptionPB.fromBuffer(buffer).timeFormat
-          : null,
+      dateFormat: switch (fieldType) {
+        FieldType.DateTime => DateTypeOptionPB.fromBuffer(buffer).dateFormat,
+        FieldType.LastEditedTime ||
+        FieldType.CreatedTime =>
+          TimestampTypeOptionPB.fromBuffer(buffer).dateFormat,
+        _ => null
+      },
+      timeFormat: switch (fieldType) {
+        FieldType.DateTime => DateTypeOptionPB.fromBuffer(buffer).timeFormat,
+        FieldType.LastEditedTime ||
+        FieldType.CreatedTime =>
+          TimestampTypeOptionPB.fromBuffer(buffer).timeFormat,
+        _ => null
+      },
+      includeTime: switch (fieldType) {
+        FieldType.LastEditedTime ||
+        FieldType.CreatedTime =>
+          TimestampTypeOptionPB.fromBuffer(buffer).includeTime,
+        _ => null
+      },
       selectOption: switch (fieldType) {
         FieldType.SingleSelect =>
           SingleSelectTypeOptionPB.fromBuffer(buffer).options,
@@ -67,11 +84,17 @@ class FieldOptionValues {
   FieldType type;
   String name;
 
-  // FieldType.Date
-  DateFormatPB? dateFormate;
+  // FieldType.DateTime
+  // FieldType.LastEditedTime
+  // FieldType.CreatedTime
+  DateFormatPB? dateFormat;
   TimeFormatPB? timeFormat;
 
-  // FieldType.Num
+  // FieldType.LastEditedTime
+  // FieldType.CreatedTime
+  bool? includeTime;
+
+  // FieldType.Number
   NumberFormatPB? numberFormat;
 
   // FieldType.Select
@@ -103,7 +126,7 @@ class FieldOptionValues {
         ).writeToBuffer();
       case FieldType.DateTime:
         return DateTypeOptionPB(
-          dateFormat: dateFormate,
+          dateFormat: dateFormat,
           timeFormat: timeFormat,
         ).writeToBuffer();
       case FieldType.SingleSelect:
@@ -116,6 +139,13 @@ class FieldOptionValues {
         ).writeToBuffer();
       case FieldType.Checklist:
         return ChecklistTypeOptionPB().writeToBuffer();
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        return TimestampTypeOptionPB(
+          dateFormat: dateFormat,
+          timeFormat: timeFormat,
+          includeTime: includeTime,
+        ).writeToBuffer();
       default:
         throw UnimplementedError();
     }
@@ -237,9 +267,9 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
       case FieldType.DateTime:
         return [
           _DateOption(
-            selectedFormat: values.dateFormate ?? DateFormatPB.Local,
+            selectedFormat: values.dateFormat ?? DateFormatPB.Local,
             onSelected: (format) => _updateOptionValues(
-              dateFormate: format,
+              dateFormat: format,
             ),
           ),
           const _Divider(),
@@ -247,6 +277,30 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
             selectedFormat: values.timeFormat ?? TimeFormatPB.TwelveHour,
             onSelected: (format) => _updateOptionValues(
               timeFormat: format,
+            ),
+          ),
+        ];
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        return [
+          _DateOption(
+            selectedFormat: values.dateFormat ?? DateFormatPB.Local,
+            onSelected: (format) => _updateOptionValues(
+              dateFormat: format,
+            ),
+          ),
+          const _Divider(),
+          _TimeOption(
+            selectedFormat: values.timeFormat ?? TimeFormatPB.TwelveHour,
+            onSelected: (format) => _updateOptionValues(
+              timeFormat: format,
+            ),
+          ),
+          const _Divider(),
+          _IncludeTimeOption(
+            includeTime: values.includeTime ?? true,
+            onToggle: (includeTime) => _updateOptionValues(
+              includeTime: includeTime,
             ),
           ),
         ];
@@ -286,7 +340,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
       if (widget.actions.contains(FieldOptionAction.hide))
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_hide.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.hide_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_hide_s),
           onTap: () => widget.onAction?.call(FieldOptionAction.hide),
         ),
       if (widget.actions.contains(FieldOptionAction.show))
@@ -300,7 +354,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.button_duplicate.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.copy_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_copy_s),
           onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
         ),
       if (widget.actions.contains(FieldOptionAction.delete) &&
@@ -310,7 +364,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
           leftIcon: FlowySvg(
-            FlowySvgs.delete_s,
+            FlowySvgs.m_delete_s,
             color: Theme.of(context).colorScheme.error,
           ),
           onTap: () => widget.onAction?.call(FieldOptionAction.delete),
@@ -321,8 +375,9 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
   void _updateOptionValues({
     FieldType? type,
     String? name,
-    DateFormatPB? dateFormate,
+    DateFormatPB? dateFormat,
     TimeFormatPB? timeFormat,
+    bool? includeTime,
     NumberFormatPB? numberFormat,
     List<SelectOptionPB>? selectOption,
   }) {
@@ -332,11 +387,14 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
     if (name != null) {
       values.name = name;
     }
-    if (dateFormate != null) {
-      values.dateFormate = dateFormate;
+    if (dateFormat != null) {
+      values.dateFormat = dateFormat;
     }
     if (timeFormat != null) {
       values.timeFormat = timeFormat;
+    }
+    if (includeTime != null) {
+      values.includeTime = includeTime;
     }
     if (numberFormat != null) {
       values.numberFormat = numberFormat;
@@ -525,6 +583,37 @@ class _TimeOptionState extends State<_TimeOption> {
   }
 }
 
+class _IncludeTimeOption extends StatefulWidget {
+  const _IncludeTimeOption({
+    required this.includeTime,
+    required this.onToggle,
+  });
+
+  final bool includeTime;
+  final void Function(bool includeTime) onToggle;
+
+  @override
+  State<_IncludeTimeOption> createState() => _IncludeTimeOptionState();
+}
+
+class _IncludeTimeOptionState extends State<_IncludeTimeOption> {
+  late bool includeTime = widget.includeTime;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyOptionTile.toggle(
+      text: LocaleKeys.grid_field_includeTime.tr(),
+      isSelected: includeTime,
+      onValueChanged: (value) {
+        widget.onToggle(value);
+        setState(() {
+          includeTime = value;
+        });
+      },
+    );
+  }
+}
+
 class _NumberOption extends StatelessWidget {
   const _NumberOption({
     required this.selectedFormat,
@@ -555,7 +644,7 @@ class _NumberOption extends StatelessWidget {
       onTap: () {
         showMobileBottomSheet(
           context,
-          padding: EdgeInsets.zero,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (context) {
             return DraggableScrollableSheet(
               expand: false,
@@ -578,7 +667,7 @@ class _NumberOption extends StatelessWidget {
   }
 }
 
-class _NumberFormatList extends StatelessWidget {
+class _NumberFormatList extends StatefulWidget {
   const _NumberFormatList({
     this.scrollController,
     required this.selectedFormat,
@@ -590,19 +679,80 @@ class _NumberFormatList extends StatelessWidget {
   final void Function(NumberFormatPB format) onSelected;
 
   @override
+  State<_NumberFormatList> createState() => _NumberFormatListState();
+}
+
+class _NumberFormatListState extends State<_NumberFormatList> {
+  List<NumberFormatPB> formats = NumberFormatPB.values;
+
+  @override
   Widget build(BuildContext context) {
     return ListView(
-      controller: scrollController,
-      children: NumberFormatPB.values
-          .mapIndexed(
-            (index, element) => FlowyOptionTile.checkbox(
-              text: element.title(),
-              isSelected: selectedFormat == element,
-              showTopBorder: index == 0,
-              onTap: () => onSelected(element),
+      controller: widget.scrollController,
+      children: [
+        const Center(
+          child: DragHandler(),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          height: 44.0,
+          child: CupertinoSearchTextField(
+            prefixIcon: const FlowySvg(FlowySvgs.m_search_m),
+            prefixInsets: const EdgeInsets.only(left: 16.0),
+            suffixIcon: const Icon(Icons.close),
+            suffixInsets: const EdgeInsets.only(right: 16.0),
+            placeholderStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).hintColor,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14.0,
+                ),
+            onChanged: (String value) {
+              setState(() {
+                formats = NumberFormatPB.values
+                    .where(
+                      (element) => element
+                          .title()
+                          .toLowerCase()
+                          .contains(value.toLowerCase()),
+                    )
+                    .toList();
+              });
+            },
+          ),
+        ),
+        ...formats.mapIndexed(
+          (index, element) => FlowyOptionTile.checkbox(
+            text: element.title(),
+            content: Expanded(
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4.0,
+                      vertical: 16.0,
+                    ),
+                    child: FlowyText(
+                      element.title(),
+                      fontSize: 16,
+                    ),
+                  ),
+                  const Spacer(),
+                  FlowyText(
+                    element.iconSymbol(),
+                    fontSize: 16,
+                  ),
+                  widget.selectedFormat != element
+                      ? const HSpace(30.0)
+                      : const HSpace(6.0),
+                ],
+              ),
             ),
-          )
-          .toList(),
+            isSelected: widget.selectedFormat == element,
+            showTopBorder: false,
+            onTap: () => widget.onSelected(element),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -643,7 +793,10 @@ class _SelectOption extends StatelessWidget {
         ),
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_addOption.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.add_s),
+          leftIcon: const FlowySvg(
+            FlowySvgs.add_s,
+            size: Size.square(20),
+          ),
           onTap: () {
             onAddOptions([
               SelectOptionPB(

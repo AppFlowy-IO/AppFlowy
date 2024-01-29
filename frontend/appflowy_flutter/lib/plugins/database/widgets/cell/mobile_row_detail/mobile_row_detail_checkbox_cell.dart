@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/checkbox_cell/checkbox_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/checkbox_cell_bloc.dart';
 import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/checkbox.dart';

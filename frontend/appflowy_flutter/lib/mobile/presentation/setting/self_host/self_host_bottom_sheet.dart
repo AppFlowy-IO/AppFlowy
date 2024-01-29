@@ -100,7 +100,7 @@ class _SelfHostUrlBottomSheetState extends State<SelfHostUrlBottomSheet> {
         validateUrl(value).fold(
           (url) async {
             await setAppFlowyCloudUrl(Some(url));
-            runAppFlowy();
+            await runAppFlowy();
           },
           (err) => Log.error(err),
         );

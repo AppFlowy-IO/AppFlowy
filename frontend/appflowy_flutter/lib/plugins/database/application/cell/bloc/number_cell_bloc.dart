@@ -18,7 +18,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   void _dispatch() {
     on<NumberCellEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () {
             _startListening();
           },

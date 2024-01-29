@@ -2,7 +2,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'checklist_cell_bloc.dart';
+import '../../application/cell/bloc/checklist_cell_bloc.dart';
 
 class ChecklistProgressBar extends StatefulWidget {
   const ChecklistProgressBar({

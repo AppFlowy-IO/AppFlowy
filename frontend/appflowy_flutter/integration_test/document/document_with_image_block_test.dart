@@ -64,7 +64,7 @@ void main() {
         paths: [imagePath],
       );
 
-      getIt<KeyValueStorage>().set(KVKeys.kCloudType, '0');
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, '0');
       await tester.tapButtonWithName(
         LocaleKeys.document_imageBlock_upload_placeholder.tr(),
       );

@@ -9,7 +9,7 @@ import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'date_cell_editor_bloc.dart';
+import '../../application/cell/bloc/date_cell_editor_bloc.dart';
 
 class DateCellEditor extends StatefulWidget {
   const DateCellEditor({

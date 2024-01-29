@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'mobile_create_field_screen.dart';
@@ -73,7 +72,7 @@ void showQuickEditField(
   BuildContext context,
   String viewId,
   FieldInfo fieldInfo,
-) async {
+) {
   showMobileBottomSheet(
     context,
     padding: EdgeInsets.zero,
@@ -98,7 +97,6 @@ Future<String?> showFieldPicker(
 ) {
   return showMobileBottomSheet<String>(
     context,
-    padding: EdgeInsets.zero,
     builder: (context) {
       return MobileFieldPickerList(
         selectedFieldId: selectedFieldId,

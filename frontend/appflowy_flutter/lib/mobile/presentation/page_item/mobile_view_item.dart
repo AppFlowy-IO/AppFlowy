@@ -397,7 +397,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
           showDragHandle: true,
           showCloseButton: true,
           useRootNavigator: true,
-          padding: const EdgeInsets.only(bottom: 36),
           builder: (sheetContext) {
             return AddNewPageWidgetBottomSheet(
               view: widget.view,
