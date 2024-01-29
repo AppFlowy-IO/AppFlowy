@@ -23,6 +23,7 @@ class SupabaseCloudURLsBloc
             state.copyWith(
               updatedUrl: url,
               showRestartHint: url.isNotEmpty && state.upatedAnonKey.isNotEmpty,
+              urlError: none(),
             ),
           );
         },
@@ -32,6 +33,7 @@ class SupabaseCloudURLsBloc
               upatedAnonKey: anonKey,
               showRestartHint:
                   anonKey.isNotEmpty && state.updatedUrl.isNotEmpty,
+              anonKeyError: none(),
             ),
           );
         },

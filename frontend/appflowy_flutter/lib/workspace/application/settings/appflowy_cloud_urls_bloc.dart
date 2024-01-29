@@ -19,6 +19,7 @@ class AppFlowyCloudURLsBloc
           emit(
             state.copyWith(
               updatedServerUrl: url,
+              urlError: none(),
               showRestartHint: url.isNotEmpty,
             ),
           );

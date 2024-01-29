@@ -24,6 +24,7 @@ class RestartButton extends StatelessWidget {
           padding: const EdgeInsets.only(top: 10),
           child: FlowyText(
             LocaleKeys.settings_menu_restartAppTip.tr(),
+            maxLines: null,
           ),
         ),
       );

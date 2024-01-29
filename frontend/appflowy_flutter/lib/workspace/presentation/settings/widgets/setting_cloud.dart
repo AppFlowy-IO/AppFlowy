@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_local_cloud.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
@@ -46,19 +47,15 @@ class SettingCloud extends StatelessWidget {
                               LocaleKeys.settings_menu_cloudServerType.tr(),
                             ),
                           ),
-                          Tooltip(
-                            message: LocaleKeys.settings_menu_cloudServerTypeTip
-                                .tr(),
-                            child: CloudTypeSwitcher(
-                              cloudType: state.cloudType,
-                              onSelected: (newCloudType) {
-                                context.read<CloudSettingBloc>().add(
-                                      CloudSettingEvent.updateCloudType(
-                                        newCloudType,
-                                      ),
-                                    );
-                              },
-                            ),
+                          CloudTypeSwitcher(
+                            cloudType: state.cloudType,
+                            onSelected: (newCloudType) {
+                              context.read<CloudSettingBloc>().add(
+                                    CloudSettingEvent.updateCloudType(
+                                      newCloudType,
+                                    ),
+                                  );
+                            },
                           ),
                         ],
                       ),
@@ -215,7 +212,13 @@ class CloudTypeItem extends StatelessWidget {
             : null,
         onTap: () {
           if (currentCloudtype != cloudType) {
-            onSelected(cloudType);
+            NavigatorAlertDialog(
+              title: LocaleKeys.settings_menu_changeServerTip.tr(),
+              confirm: () async {
+                onSelected(cloudType);
+              },
+              hideCancleButton: true,
+            ).show(context);
           }
           PopoverContainer.of(context).close();
         },
