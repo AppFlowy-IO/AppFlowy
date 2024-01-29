@@ -8,7 +8,7 @@ use validator::{ValidationError, ValidationErrors};
 
 use flowy_derive::ProtoBuf;
 
-use crate::code::ErrorCode as AFErrorCode;
+use crate::code::ErrorCode;
 
 pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 
@@ -16,7 +16,7 @@ pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 #[error("{code:?}: {msg}")]
 pub struct FlowyError {
   #[pb(index = 1)]
-  pub code: crate::code::ErrorCode,
+  pub code: ErrorCode,
 
   #[pb(index = 2)]
   pub msg: String,
@@ -35,7 +35,7 @@ macro_rules! static_flowy_error {
 }
 
 impl FlowyError {
-  pub fn new<T: ToString>(code: AFErrorCode, msg: T) -> Self {
+  pub fn new<T: ToString>(code: ErrorCode, msg: T) -> Self {
     Self {
       code,
       msg: msg.to_string(),
@@ -53,75 +53,72 @@ impl FlowyError {
   }
 
   pub fn is_record_not_found(&self) -> bool {
-    self.code == AFErrorCode::RecordNotFound
+    self.code == ErrorCode::RecordNotFound
   }
 
   pub fn is_already_exists(&self) -> bool {
-    self.code == AFErrorCode::RecordAlreadyExists
+    self.code == ErrorCode::RecordAlreadyExists
   }
 
   pub fn is_unauthorized(&self) -> bool {
-    self.code == AFErrorCode::UserUnauthorized || self.code == AFErrorCode::RecordNotFound
+    self.code == ErrorCode::UserUnauthorized || self.code == ErrorCode::RecordNotFound
   }
 
   pub fn is_local_version_not_support(&self) -> bool {
-    self.code == AFErrorCode::LocalVersionNotSupport
+    self.code == ErrorCode::LocalVersionNotSupport
   }
 
-  static_flowy_error!(internal, AFErrorCode::Internal);
-  static_flowy_error!(record_not_found, AFErrorCode::RecordNotFound);
-  static_flowy_error!(workspace_name, AFErrorCode::WorkspaceNameInvalid);
-  static_flowy_error!(workspace_id, AFErrorCode::WorkspaceIdInvalid);
-  static_flowy_error!(color_style, AFErrorCode::AppColorStyleInvalid);
-  static_flowy_error!(workspace_desc, AFErrorCode::WorkspaceDescTooLong);
-  static_flowy_error!(app_name, AFErrorCode::AppNameInvalid);
-  static_flowy_error!(invalid_app_id, AFErrorCode::AppIdInvalid);
-  static_flowy_error!(view_name, AFErrorCode::ViewNameInvalid);
-  static_flowy_error!(view_thumbnail, AFErrorCode::ViewThumbnailInvalid);
-  static_flowy_error!(invalid_view_id, AFErrorCode::ViewIdIsInvalid);
-  static_flowy_error!(view_desc, AFErrorCode::ViewDescTooLong);
-  static_flowy_error!(view_data, AFErrorCode::ViewDataInvalid);
-  static_flowy_error!(unauthorized, AFErrorCode::UserUnauthorized);
-  static_flowy_error!(email_empty, AFErrorCode::EmailIsEmpty);
-  static_flowy_error!(email_format, AFErrorCode::EmailFormatInvalid);
-  static_flowy_error!(email_exist, AFErrorCode::EmailAlreadyExists);
-  static_flowy_error!(password_empty, AFErrorCode::PasswordIsEmpty);
-  static_flowy_error!(passworkd_too_long, AFErrorCode::PasswordTooLong);
+  static_flowy_error!(internal, ErrorCode::Internal);
+  static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
+  static_flowy_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
+  static_flowy_error!(workspace_id, ErrorCode::WorkspaceIdInvalid);
+  static_flowy_error!(color_style, ErrorCode::AppColorStyleInvalid);
+  static_flowy_error!(workspace_desc, ErrorCode::WorkspaceDescTooLong);
+  static_flowy_error!(app_name, ErrorCode::AppNameInvalid);
+  static_flowy_error!(invalid_app_id, ErrorCode::AppIdInvalid);
+  static_flowy_error!(view_name, ErrorCode::ViewNameInvalid);
+  static_flowy_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
+  static_flowy_error!(invalid_view_id, ErrorCode::ViewIdIsInvalid);
+  static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
+  static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
+  static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
+  static_flowy_error!(email_empty, ErrorCode::EmailIsEmpty);
+  static_flowy_error!(email_format, ErrorCode::EmailFormatInvalid);
+  static_flowy_error!(email_exist, ErrorCode::EmailAlreadyExists);
+  static_flowy_error!(password_empty, ErrorCode::PasswordIsEmpty);
+  static_flowy_error!(passworkd_too_long, ErrorCode::PasswordTooLong);
   static_flowy_error!(
     password_forbid_char,
-    AFErrorCode::PasswordContainsForbidCharacters
+    ErrorCode::PasswordContainsForbidCharacters
   );
-  static_flowy_error!(password_format, AFErrorCode::PasswordFormatInvalid);
-  static_flowy_error!(password_not_match, AFErrorCode::PasswordNotMatch);
-  static_flowy_error!(name_too_long, AFErrorCode::UserNameTooLong);
+  static_flowy_error!(password_format, ErrorCode::PasswordFormatInvalid);
+  static_flowy_error!(password_not_match, ErrorCode::PasswordNotMatch);
+  static_flowy_error!(name_too_long, ErrorCode::UserNameTooLong);
   static_flowy_error!(
     name_forbid_char,
-    AFErrorCode::UserNameContainForbiddenCharacters
+    ErrorCode::UserNameContainForbiddenCharacters
   );
-  static_flowy_error!(name_empty, AFErrorCode::UserNameIsEmpty);
-  static_flowy_error!(user_id, AFErrorCode::UserIdInvalid);
-  static_flowy_error!(text_too_long, AFErrorCode::TextTooLong);
-  static_flowy_error!(invalid_data, AFErrorCode::InvalidParams);
-  static_flowy_error!(out_of_bounds, AFErrorCode::OutOfBounds);
-  static_flowy_error!(serde, AFErrorCode::Serde);
-  static_flowy_error!(field_record_not_found, AFErrorCode::FieldRecordNotFound);
-  static_flowy_error!(payload_none, AFErrorCode::UnexpectedEmpty);
-  static_flowy_error!(http, AFErrorCode::HttpError);
+  static_flowy_error!(name_empty, ErrorCode::UserNameIsEmpty);
+  static_flowy_error!(user_id, ErrorCode::UserIdInvalid);
+  static_flowy_error!(text_too_long, ErrorCode::TextTooLong);
+  static_flowy_error!(invalid_data, ErrorCode::InvalidParams);
+  static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
+  static_flowy_error!(serde, ErrorCode::Serde);
+  static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
+  static_flowy_error!(payload_none, ErrorCode::UnexpectedEmpty);
+  static_flowy_error!(http, ErrorCode::HttpError);
   static_flowy_error!(
     unexpect_calendar_field_type,
-    AFErrorCode::UnexpectedCalendarFieldType
+    ErrorCode::UnexpectedCalendarFieldType
   );
-  static_flowy_error!(collab_not_sync, AFErrorCode::CollabDataNotSync);
-  static_flowy_error!(server_error, AFErrorCode::InternalServerError);
-  static_flowy_error!(not_support, AFErrorCode::NotSupportYet);
-  static_flowy_error!(
-    local_version_not_support,
-    AFErrorCode::LocalVersionNotSupport
-  );
+  static_flowy_error!(collab_not_sync, ErrorCode::CollabDataNotSync);
+  static_flowy_error!(server_error, ErrorCode::InternalServerError);
+  static_flowy_error!(not_support, ErrorCode::NotSupportYet);
+  static_flowy_error!(local_version_not_support, ErrorCode::LocalVersionNotSupport);
 }
 
-impl std::convert::From<AFErrorCode> for FlowyError {
-  fn from(code: AFErrorCode) -> Self {
+impl std::convert::From<ErrorCode> for FlowyError {
+  fn from(code: ErrorCode) -> Self {
     let msg = format!("{}", code);
     FlowyError {
       code,
@@ -152,20 +149,20 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
 
 impl From<ValidationError> for FlowyError {
   fn from(value: ValidationError) -> Self {
-    FlowyError::new(AFErrorCode::InvalidParams, value)
+    FlowyError::new(ErrorCode::InvalidParams, value)
   }
 }
 
 impl From<ValidationErrors> for FlowyError {
   fn from(value: ValidationErrors) -> Self {
-    FlowyError::new(AFErrorCode::InvalidParams, value)
+    FlowyError::new(ErrorCode::InvalidParams, value)
   }
 }
 
 impl From<anyhow::Error> for FlowyError {
   fn from(e: anyhow::Error) -> Self {
     e.downcast::<FlowyError>()
-      .unwrap_or_else(|err| FlowyError::new(AFErrorCode::Internal, err))
+      .unwrap_or_else(|err| FlowyError::new(ErrorCode::Internal, err))
   }
 }
 

@@ -21,7 +21,7 @@ fn main() {
       },
     );
     flowy_codegen::protobuf_file::ts_gen(
-      "flowy-error",
+      crate_name,
       flowy_codegen::Project::Web {
         relative_path: "../../".to_string(),
       },
