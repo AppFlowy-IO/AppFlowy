@@ -55,14 +55,12 @@ http_sync = []
 native_sync = []
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
-    "flowy-user/dart",
     "flowy-date/dart",
     "flowy-folder/dart",
     "flowy-database2/dart",
-    "flowy-config/dart",
 ]
 ts = [
-    "flowy-user/ts",
+    "flowy-user/tauri_ts",
     "flowy-date/ts",
     "flowy-folder/ts",
     "flowy-database2/ts",

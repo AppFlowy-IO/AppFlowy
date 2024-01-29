@@ -31,6 +31,8 @@ lib-dispatch = { workspace = true }
 flowy-core = { workspace = true }
 flowy-notification = { workspace = true, features = ["dart"] }
 flowy-document = { workspace = true, features = ["dart"] }
+flowy-config = { workspace = true, features = ["dart"] }
+flowy-user = { workspace = true, features = ["dart"] }
 flowy-server = { workspace = true }
 flowy-server-pub = { workspace = true}
 collab-integrate = { workspace = true }

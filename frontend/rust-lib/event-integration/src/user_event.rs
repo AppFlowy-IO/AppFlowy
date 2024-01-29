@@ -69,7 +69,7 @@ impl EventIntegrationTest {
     .unwrap();
 
     let request = AFPluginRequest::new(SignUp).payload(payload);
-    let user_profile = AFPluginDispatcher::async_send(self.appflowy_core.dispatcher(), request)
+    let user_profile = AFPluginDispatcher::async_send(&self.appflowy_core.dispatcher(), request)
       .await
       .parse::<UserProfilePB, FlowyError>()
       .unwrap()
