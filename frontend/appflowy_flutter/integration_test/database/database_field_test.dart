@@ -39,12 +39,7 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Invoke the field editor
-      await tester.tapGridFieldWithName('Type');
-      await tester.tapEditFieldButton();
-
-      await tester.tapSwitchFieldTypeButton();
-      await tester.selectFieldType(FieldType.Checkbox);
-      await tester.dismissFieldEditor();
+      await tester.changeFieldTypeOfFieldWithName('Type', FieldType.Checkbox);
 
       await tester.assertFieldTypeWithFieldName(
         'Type',

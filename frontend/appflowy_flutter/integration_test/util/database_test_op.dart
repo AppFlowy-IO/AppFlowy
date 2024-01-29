@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/number.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
@@ -714,6 +716,31 @@ extension AppFlowyDatabaseTest on WidgetTester {
       (widget) => widget is FieldCellButton && widget.field.name == name,
     );
     await tapButton(field);
+    await pumpAndSettle();
+  }
+
+  Future<void> changeFieldTypeOfFieldWithName(
+    String name,
+    FieldType type,
+  ) async {
+    await tapGridFieldWithName(name);
+    await tapEditFieldButton();
+
+    await tapSwitchFieldTypeButton();
+    await selectFieldType(type);
+    await dismissFieldEditor();
+  }
+
+  Future<void> changeCalculateAtIndex(int index, CalculationType type) async {
+    await tap(find.byType(CalculateCell).at(index));
+    await pumpAndSettle();
+
+    await tap(
+      find.descendant(
+        of: find.byType(CalculationTypeItem),
+        matching: find.text(type.label),
+      ),
+    );
     await pumpAndSettle();
   }
 
