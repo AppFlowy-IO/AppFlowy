@@ -58,6 +58,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
                       appearanceSettings.documentSetting.selectionColor,
                     ),
                   ),
+            appearanceSettings.fontIconsSizeFactor,
           ),
         );
 
@@ -178,6 +179,12 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   void saveMenuOffset(double offset) {
     _appearanceSettings.menuOffset = offset;
     _saveAppearanceSettings();
+  }
+
+  void saveFontIconsSizeFactor(double factor) {
+    _appearanceSettings.fontIconsSizeFactor = factor;
+    _saveAppearanceSettings();
+    emit(state.copyWith(fontIconsSizeFactor: factor));
   }
 
   /// Saves key/value setting to disk.
@@ -347,6 +354,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required String timezoneId,
     required Color? documentCursorColor,
     required Color? documentSelectionColor,
+    required double fontIconsSizeFactor,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
@@ -364,6 +372,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     String timezoneId,
     Color? documentCursorColor,
     Color? documentSelectionColor,
+    double fontIconsSizeFactor,
   ) {
     return AppearanceSettingsState(
       appTheme: appTheme,
@@ -380,6 +389,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       timezoneId: timezoneId,
       documentCursorColor: documentCursorColor,
       documentSelectionColor: documentSelectionColor,
+      fontIconsSizeFactor: fontIconsSizeFactor,
     );
   }
 

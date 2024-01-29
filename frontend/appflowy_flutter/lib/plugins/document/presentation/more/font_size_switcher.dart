@@ -7,7 +7,11 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef _FontSizeSelection = (String, double, bool);
+class _DocumentFontSize {
+  const _DocumentFontSize(this.name, this.size);
+  final String name;
+  final double size;
+}
 
 class FontSizeSwitcher extends StatefulWidget {
   const FontSizeSwitcher({
@@ -19,13 +23,13 @@ class FontSizeSwitcher extends StatefulWidget {
 }
 
 class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
-  final List<_FontSizeSelection> _fontSizes = [
-    (LocaleKeys.moreAction_small.tr(), 14.0, false),
-    (LocaleKeys.moreAction_medium.tr(), 18.0, true),
-    (LocaleKeys.moreAction_large.tr(), 22.0, false),
+  final List<_DocumentFontSize> _fontSizes = [
+    _DocumentFontSize(LocaleKeys.moreAction_small.tr(), 14.0),
+    _DocumentFontSize(LocaleKeys.moreAction_medium.tr(), 18.0),
+    _DocumentFontSize(LocaleKeys.moreAction_large.tr(), 22.0),
   ];
 
-  _FontSizeSelection? _selection;
+  _DocumentFontSize? _selection;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +38,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
       builder: (context, state) {
         _selection = _fontSizes.firstWhereOrNull(
-          (element) => element.$2 == state.fontSize,
+          (element) => element.size == state.fontSize,
         );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +51,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
             const SizedBox(
               height: 5,
             ),
-            SegmentedButton<_FontSizeSelection>(
+            SegmentedButton<_DocumentFontSize>(
               showSelectedIcon: false,
               style: TextButton.styleFrom(
                 foregroundColor: foregroundColor,
@@ -63,11 +67,11 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
               ),
               segments: _fontSizes
                   .map(
-                    (e) => ButtonSegment(
-                      value: e,
+                    (fontSize) => ButtonSegment(
+                      value: fontSize,
                       label: FlowyText(
-                        e.$1,
-                        fontSize: e.$2,
+                        fontSize.name,
+                        fontSize: fontSize.size,
                       ),
                     ),
                   )
@@ -75,9 +79,9 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
               selected: {
                 _selection ?? _fontSizes.first,
               },
-              onSelectionChanged: (Set<(String, double, bool)> newSelection) {
+              onSelectionChanged: (Set<_DocumentFontSize> newSelection) {
                 _selection = newSelection.firstOrNull;
-                _updateSelectedFontSize(newSelection.first.$2);
+                _updateSelectedFontSize(newSelection.first.size);
               },
             ),
           ],

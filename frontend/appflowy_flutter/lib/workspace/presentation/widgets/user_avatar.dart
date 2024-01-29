@@ -2,11 +2,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 const double _smallSize = 28;
 const double _largeSize = 56;
@@ -61,19 +63,24 @@ class UserAvatar extends StatelessWidget {
         ),
       );
     }
-
-    return SizedBox.square(
-      dimension: size,
-      child: ClipRRect(
-        borderRadius: Corners.s5Border,
-        child: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          child: builtInSVGIcons.contains(iconUrl)
-              ? FlowySvg(
-                  FlowySvgData('emoji/$iconUrl'),
-                  blendMode: null,
-                )
-              : EmojiText(emoji: iconUrl, fontSize: isLarge ? 36 : 18),
+    const tempOne = 1; // delete this later
+    return Transform.scale(
+      scale:
+          context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor +
+              tempOne,
+      child: SizedBox.square(
+        dimension: size,
+        child: ClipRRect(
+          borderRadius: Corners.s5Border,
+          child: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            child: builtInSVGIcons.contains(iconUrl)
+                ? FlowySvg(
+                    FlowySvgData('emoji/$iconUrl'),
+                    blendMode: null,
+                  )
+                : EmojiText(emoji: iconUrl, fontSize: isLarge ? 36 : 18),
+          ),
         ),
       ),
     );

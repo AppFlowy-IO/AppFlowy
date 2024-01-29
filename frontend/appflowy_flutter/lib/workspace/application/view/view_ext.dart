@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -25,7 +26,7 @@ class PluginArgumentKeys {
 }
 
 extension ViewExtension on ViewPB {
-  Widget defaultIcon() => FlowySvg(
+  Widget defaultIcon() => ScalableFlowySvg(
         switch (layout) {
           ViewLayoutPB.Board => FlowySvgs.board_s,
           ViewLayoutPB.Calendar => FlowySvgs.date_s,

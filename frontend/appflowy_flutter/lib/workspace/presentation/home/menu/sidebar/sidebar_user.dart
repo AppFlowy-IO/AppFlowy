@@ -3,8 +3,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -29,6 +31,10 @@ class SidebarUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final factor =
+        context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor;
+
+    const tempOne = 1; // Delete this later
     return BlocProvider<MenuUserBloc>(
       create: (context) => MenuUserBloc(user)
         ..add(
@@ -37,16 +43,17 @@ class SidebarUser extends StatelessWidget {
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
           children: [
+            HSpace(0 + ((factor + tempOne - 1) * 10)),
             UserAvatar(
               iconUrl: state.userProfile.iconUrl,
               name: state.userProfile.name,
             ),
-            const HSpace(4),
+            HSpace(4 + ((factor + tempOne - 1) * 10)),
             Expanded(
               child: _buildUserName(context, state),
             ),
             UserSettingButton(userProfile: state.userProfile),
-            const HSpace(4),
+            HSpace(4 + ((factor + tempOne - 1) * 25)),
             NotificationButton(views: views),
           ],
         ),
@@ -115,7 +122,7 @@ class UserSettingButton extends StatelessWidget {
         },
         icon: SizedBox.square(
           dimension: 20,
-          child: FlowySvg(
+          child: ScalableFlowySvg(
             FlowySvgs.settings_m,
             color: Theme.of(context).colorScheme.tertiary,
           ),

@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_dialog.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -47,7 +48,7 @@ class NotificationButton extends StatelessWidget {
   Widget _buildNotificationIcon(BuildContext context, bool hasUnreads) {
     return Stack(
       children: [
-        FlowySvg(
+        ScalableFlowySvg(
           FlowySvgs.clock_alarm_s,
           size: const Size.square(24),
           color: Theme.of(context).colorScheme.tertiary,

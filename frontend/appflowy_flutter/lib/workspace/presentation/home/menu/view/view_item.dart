@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -39,7 +41,6 @@ class ViewItem extends StatelessWidget {
     this.isFirstChild = false,
     this.isDraggable = true,
     required this.isFeedback,
-    this.height = 28.0,
   });
 
   final ViewPB view;
@@ -71,8 +72,6 @@ class ViewItem extends StatelessWidget {
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
-  final double height;
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -98,7 +97,6 @@ class ViewItem extends StatelessWidget {
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
             isFeedback: isFeedback,
-            height: height,
           );
         },
       ),
@@ -124,7 +122,6 @@ class InnerViewItem extends StatelessWidget {
     this.onTertiarySelected,
     this.isFirstChild = false,
     required this.isFeedback,
-    required this.height,
   });
 
   final ViewPB view;
@@ -144,7 +141,6 @@ class InnerViewItem extends StatelessWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
-  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +156,6 @@ class InnerViewItem extends StatelessWidget {
       isDraggable: isDraggable,
       leftPadding: leftPadding,
       isFeedback: isFeedback,
-      height: height,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -196,15 +191,15 @@ class InnerViewItem extends StatelessWidget {
           children: [
             child,
             Container(
-              height: height,
+              // minHeight is to make sure the height of the title is greater than the height of ViewAddButton and ViewMoreActionButton
+              constraints: const BoxConstraints(minHeight: 30),
               alignment: Alignment.centerLeft,
-              child: Padding(
-                // add 2px to make the text align with the view item
-                padding: EdgeInsets.only(left: (level + 1) * leftPadding + 2),
-                child: FlowyText.medium(
-                  LocaleKeys.noPagesInside.tr(),
-                  color: Theme.of(context).hintColor,
-                ),
+              // add 2px to make the text align with the view item
+              padding:
+                  EdgeInsets.fromLTRB((level + 1) * leftPadding + 2, 2, 0, 2),
+              child: FlowyText.medium(
+                LocaleKeys.noPagesInside.tr(),
+                color: Theme.of(context).hintColor,
               ),
             ),
           ],
@@ -261,7 +256,6 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.onSelected,
     this.onTertiarySelected,
     required this.isFeedback,
-    required this.height,
   });
 
   final ViewPB view;
@@ -278,7 +272,6 @@ class SingleInnerViewItem extends StatefulWidget {
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final FolderCategoryType categoryType;
-  final double height;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -290,8 +283,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
+    final factor =
+        context.watch<AppearanceSettingsCubit>().state.fontIconsSizeFactor;
     if (widget.isFeedback) {
-      return _buildViewItem(false);
+      return _buildViewItem(false, factor);
     }
 
     return FlowyHover(
@@ -301,20 +296,22 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
       buildWhenOnHover: () =>
           !widget.showActions && !_isDragging && !isIconPickerOpened,
-      builder: (_, onHover) => _buildViewItem(onHover),
+      builder: (_, onHover) => _buildViewItem(onHover, factor),
       isSelected: () =>
           widget.showActions ||
           getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
     );
   }
 
-  Widget _buildViewItem(bool onHover) {
+  Widget _buildViewItem(bool onHover, double factor) {
+    const tempOne = 1; // delete this later
     final children = [
       // expand icon
       _buildLeftIcon(),
+      HSpace(5 * (factor + tempOne)),
       // icon
       _buildViewIconButton(),
-      const HSpace(5),
+      HSpace(5 * (factor + tempOne)),
       // title
       Expanded(
         child: FlowyText.regular(
@@ -339,13 +336,15 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
-      child: SizedBox(
-        height: widget.height,
-        child: Padding(
-          padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-          child: Row(
-            children: children,
-          ),
+      child: Container(
+        // minHeight to make sure the height of the title is greater than the height of ViewAddButton and ViewMoreActionButton
+        constraints: const BoxConstraints(
+          minHeight: 30,
+        ),
+        padding:
+            EdgeInsets.fromLTRB(widget.level * widget.leftPadding, 2, 0, 2),
+        child: Row(
+          children: children,
         ),
       ),
     );
@@ -402,7 +401,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ? FlowySvgs.drop_menu_show_m
         : FlowySvgs.drop_menu_hide_m;
     return GestureDetector(
-      child: FlowySvg(
+      child: ScalableFlowySvg(
         svg,
         size: const Size.square(16.0),
       ),

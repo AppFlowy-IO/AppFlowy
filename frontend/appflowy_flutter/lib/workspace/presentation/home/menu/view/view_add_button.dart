@@ -5,6 +5,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_panel.dart';
 
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy/workspace/presentation/widgets/scalable_flowy_svg.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class ViewAddButton extends StatelessWidget {
           hoverColor: Colors.transparent,
           iconPadding: const EdgeInsets.all(2),
           width: 26,
-          icon: const FlowySvg(FlowySvgs.add_s),
+          icon: const ScalableFlowySvg(FlowySvgs.add_s),
           onPressed: () {
             onEditing(true);
             popover.show();
@@ -108,7 +109,7 @@ class ViewAddButtonActionWrapper extends ActionCell {
   final PluginBuilder pluginBuilder;
 
   @override
-  Widget? leftIcon(Color iconColor) => FlowySvg(pluginBuilder.icon);
+  Widget? leftIcon(Color iconColor) => ScalableFlowySvg(pluginBuilder.icon);
 
   @override
   String get name => pluginBuilder.menuName;
@@ -124,7 +125,8 @@ class ViewImportActionWrapper extends ActionCell {
   final DocumentPluginBuilder pluginBuilder;
 
   @override
-  Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.import_s);
+  Widget? leftIcon(Color iconColor) =>
+      const ScalableFlowySvg(FlowySvgs.import_s);
 
   @override
   String get name => LocaleKeys.moreAction_import.tr();
