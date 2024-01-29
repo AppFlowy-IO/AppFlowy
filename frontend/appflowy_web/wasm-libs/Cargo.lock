@@ -118,11 +118,13 @@ dependencies = [
  "flowy-server",
  "flowy-server-pub",
  "flowy-user-pub",
+ "js-sys",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "parking_lot 0.12.1",
  "serde",
+ "serde-wasm-bindgen",
  "tokio",
  "tokio-stream",
  "tracing",
@@ -2028,6 +2030,7 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 name = "lib-dispatch"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "bytes",
  "derivative",
  "dyn-clone",
@@ -2040,6 +2043,9 @@ dependencies = [
  "parking_lot 0.12.1",
  "pin-project",
  "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
  "thread-id",
  "tokio",
  "tracing",
@@ -3462,6 +3468,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63261df402c67811e9ac6def069e4786148c4563f4b50fd4bf30aa370d626b02"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-wasm-bindgen"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3b4c031cd0d9014307d82b8abf653c0290fbdaeb4c02d00c63cf52f728628bf"
+dependencies = [
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
 ]
 
 [[package]]

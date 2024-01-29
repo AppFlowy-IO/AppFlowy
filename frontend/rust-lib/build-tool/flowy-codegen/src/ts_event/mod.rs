@@ -14,9 +14,8 @@ use syn::Item;
 use walkdir::WalkDir;
 
 pub fn gen(crate_name: &str, project: Project) {
-  let root = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("../../".to_string());
-  let tauri_backend_service_path =
-    std::env::var("TAURI_BACKEND_SERVICE_PATH").unwrap_or(project.dst());
+  let root = project.event_root();
+  let backend_service_path = std::env::var("TAURI_BACKEND_SERVICE_PATH").unwrap_or(project.dst());
 
   let crate_path = std::fs::canonicalize(".")
     .unwrap()
@@ -30,7 +29,8 @@ pub fn gen(crate_name: &str, project: Project) {
     .collect::<Vec<_>>();
 
   let event_render_ctx = ast_to_event_render_ctx(event_ast.as_ref());
-  let mut render_result = TS_HEADER.to_string();
+  let mut render_result = project.event_imports();
+
   for (index, render_ctx) in event_render_ctx.into_iter().enumerate() {
     let mut event_template = EventTemplate::new();
 
@@ -40,7 +40,7 @@ pub fn gen(crate_name: &str, project: Project) {
   }
   render_result.push_str(TS_FOOTER);
 
-  let ts_event_folder: PathBuf = [&root, &tauri_backend_service_path, "events", crate_name]
+  let ts_event_folder: PathBuf = [&root, &backend_service_path, "events", crate_name]
     .iter()
     .collect();
   if !ts_event_folder.as_path().exists() {
@@ -196,13 +196,6 @@ pub fn ast_to_event_render_ctx(ast: &[EventASTContext]) -> Vec<EventRenderContex
     })
     .collect::<Vec<EventRenderContext>>()
 }
-
-const TS_HEADER: &str = r#"
-/// Auto generate. Do not edit
-import { Ok, Err, Result } from "ts-results";
-import { invoke } from "@tauri-apps/api/tauri";
-import * as pb from "../..";
-"#;
 
 const TS_FOOTER: &str = r#"
 "#;

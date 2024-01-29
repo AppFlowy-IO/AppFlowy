@@ -34,4 +34,40 @@ impl Project {
       Project::Native => panic!("Native project is not supported yet."),
     }
   }
+
+  pub fn event_root(&self) -> String {
+    match self {
+      Project::Tauri => "../../".to_string(),
+      Project::Web => "../../".to_string(),
+      Project::Native => panic!("Native project is not supported yet."),
+    }
+  }
+
+  pub fn model_root(&self) -> String {
+    match self {
+      Project::Tauri => "../../".to_string(),
+      Project::Web => "../../".to_string(),
+      Project::Native => panic!("Native project is not supported yet."),
+    }
+  }
+
+  pub fn event_imports(&self) -> String {
+    match self {
+      Project::Tauri => r#"
+/// Auto generate. Do not edit
+import { Ok, Err, Result } from "ts-results";
+import { invoke } from "@tauri-apps/api/tauri";
+import * as pb from "../..";
+"#
+      .to_string(),
+      Project::Web => r#"
+/// Auto generate. Do not edit
+import { Ok, Err, Result } from "ts-results";
+import { invoke } from "@/application/app.ts";
+import * as pb from "../..";
+"#
+      .to_string(),
+      Project::Native => panic!("Native project is not supported yet."),
+    }
+  }
 }

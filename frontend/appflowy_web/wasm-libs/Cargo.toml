@@ -36,6 +36,7 @@ uuid = { version = "1.5", features = ["serde", "v4", "v5"] }
 tokio-stream = "0.1"
 tokio = { version = "1.35", features = ["sync"] }
 wasm-bindgen-futures = "0.4.40"
+serde-wasm-bindgen = "0.4"
 
 
 [profile.dev]

@@ -15,7 +15,9 @@
     "events": "^3.3.0",
     "google-protobuf": "^3.21.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "ts-results": "^3.3.0",
+    "protoc-gen-ts": "^0.8.5"
   },
   "devDependencies": {
     "@types/events": "^3.0.3",

@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = { version = "0.2.89" }
 lazy_static = "1.4.0"
-lib-dispatch = { workspace = true }
+lib-dispatch = { workspace = true, features = ["use_serde"] }
 parking_lot.workspace = true
 tracing.workspace = true
 tracing-core = { version = "0.1.32" }
@@ -24,12 +24,14 @@ flowy-notification = { workspace = true, features = ["ts"] }
 flowy-user-pub = { workspace = true }
 flowy-server = { workspace = true, features = ["enable_wasm"] }
 flowy-server-pub = { workspace = true }
-flowy-error = { workspace = true, features = ["impl_from_dispatch_error"] }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "web_ts"] }
 lib-infra = { workspace = true }
 collab = { workspace = true, features = ["wasm_build", "async-plugin"] }
 web-sys = "0.3"
 wasm-bindgen-futures.workspace = true
 uuid.workspace = true
+serde-wasm-bindgen.workspace = true
+js-sys = "0.3.67"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.40"

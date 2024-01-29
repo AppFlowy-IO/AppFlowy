@@ -7,12 +7,18 @@ dependencies:
   google-protobuf:
     specifier: ^3.21.2
     version: 3.21.2
+  protoc-gen-ts:
+    specifier: ^0.8.5
+    version: 0.8.5(google-protobuf@3.21.2)(typescript@5.2.2)
   react:
     specifier: ^18.2.0
     version: 18.2.0
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
+  ts-results:
+    specifier: ^3.3.0
+    version: 3.3.0
 
 devDependencies:
   '@types/events':
@@ -1669,6 +1675,17 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
+  /protoc-gen-ts@0.8.5(google-protobuf@3.21.2)(typescript@5.2.2):
+    resolution: {integrity: sha512-LHZ+w/+DqmdgnhPtShgqtPtdv+hJ9bAXEIqNU0kkY2bPcCVIEWz5seOv20FCw6gbKorriTGP8xgz2RsIcrRvVw==}
+    hasBin: true
+    peerDependencies:
+      google-protobuf: ^3.13.0
+      typescript: '>=4'
+    dependencies:
+      google-protobuf: 3.21.2
+      typescript: 5.2.2
+    dev: false
+
   /punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
@@ -1836,6 +1853,10 @@ packages:
       typescript: 5.2.2
     dev: true
 
+  /ts-results@3.3.0:
+    resolution: {integrity: sha512-FWqxGX2NHp5oCyaMd96o2y2uMQmSu8Dey6kvyuFdRJ2AzfmWo3kWa4UsPlCGlfQ/qu03m09ZZtppMoY8EMHuiA==}
+    dev: false
+
   /type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
@@ -1852,7 +1873,6 @@ packages:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}

@@ -1,19 +1,15 @@
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import {async_event, init_sdk, init_tracing} from "../wasm-libs/af-wasm/pkg/af_wasm";
 import { useEffect } from "react";
-import { initApp } from "./application/init_app.ts";
+import {initApp,  invoke} from "./application/app.ts";
 import { subscribeNotification } from "./application/notification.ts";
 import { NotifyArgs } from "./@types/global";
+import {init_tracing_log, init_wasm_core} from "../wasm-libs/af-wasm/pkg";
 
-
-async function runWasm() {
-    init_tracing();
-    init_sdk("sdk config"); // Call your exported Wasm function.
-}
-runWasm();
-
+init_tracing_log();
+// FIXME: handle the promise that init_wasm_core returns
+init_wasm_core();
 
 function App() {
   useEffect(() => {
@@ -24,9 +20,13 @@ function App() {
   }, []);
 
   const handleClick = async () => {
-    const payload = new TextEncoder().encode("someString");
-    const res = await async_event("add", payload);
-    console.log(res);
+      let args = {
+          request: {
+              ty: "test",
+              payload: new TextEncoder().encode("someString"),
+          },
+      };
+      invoke("invoke_request", args);
   };
 
   return (

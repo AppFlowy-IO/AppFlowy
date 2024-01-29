@@ -6,24 +6,37 @@ use std::rc::Rc;
 pub mod core;
 mod integrate;
 pub mod notification;
-pub mod request;
 
 use crate::core::AppFlowyWASMCore;
-use crate::request::WasmRequest;
 use lazy_static::lazy_static;
-use lib_dispatch::prelude::AFPluginDispatcher;
+use lib_dispatch::prelude::{
+  AFPluginDispatcher, AFPluginEventResponse, AFPluginRequest, StatusCode,
+};
 
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use tracing::{error, trace};
+use tracing::{error, info};
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
+use wasm_bindgen_futures::{future_to_promise, js_sys};
 
 lazy_static! {
   static ref APPFLOWY_CORE: RefCellAppFlowyCore = RefCellAppFlowyCore::new();
 }
 
 #[wasm_bindgen]
-pub fn init_sdk(_data: String) -> i64 {
+extern "C" {
+  #[wasm_bindgen(js_namespace = console)]
+  pub fn log(s: &str);
+  #[wasm_bindgen(js_namespace = window)]
+  fn onFlowyNotify(event_name: &str, payload: JsValue);
+}
+#[wasm_bindgen]
+pub fn init_tracing_log() {
+  tracing_wasm::set_as_global_default();
+}
+
+#[wasm_bindgen]
+pub fn init_wasm_core() -> js_sys::Promise {
   #[cfg(feature = "localhost_dev")]
   let config = AFCloudConfiguration {
     base_url: "http://localhost".to_string(),
@@ -38,44 +51,37 @@ pub fn init_sdk(_data: String) -> i64 {
     gotrue_url: "https://beta.appflowy.cloud/gotrue".to_string(),
   };
 
-  wasm_bindgen_futures::spawn_local(async {
+  let future = async move {
     if let Ok(core) = AppFlowyWASMCore::new("device_id", config).await {
       *APPFLOWY_CORE.0.borrow_mut() = Some(core);
+      info!("🔥🔥🔥Initialized AppFlowyWASMCore");
     } else {
       error!("Failed to initialize AppFlowyWASMCore")
     }
-  });
-  0
+    Ok(JsValue::from_str(""))
+  };
+  future_to_promise(future)
 }
 
 #[wasm_bindgen]
-pub fn init_tracing() {
-  tracing_wasm::set_as_global_default();
-}
-
-#[wasm_bindgen]
-pub fn async_event(name: String, payload: Vec<u8>) {
-  trace!("[WASM]: receives event: {}", name);
+pub fn async_event(name: String, payload: Vec<u8>) -> js_sys::Promise {
   if let Some(dispatcher) = APPFLOWY_CORE.dispatcher() {
-    AFPluginDispatcher::boxed_async_send_with_callback(
-      dispatcher.as_ref(),
-      WasmRequest::new(name, payload),
-      |_| Box::pin(async {}),
-    );
-  } else {
-    error!(
-      "Dispatcher is not initialized, failed to send event: {}",
-      name
-    );
-  }
-}
+    let future = async move {
+      let request = WasmRequest::new(name, payload);
+      let event_resp =
+        AFPluginDispatcher::boxed_async_send_with_callback(dispatcher.as_ref(), request, |_| {
+          Box::pin(async {})
+        })
+        .await;
 
-#[wasm_bindgen]
-extern "C" {
-  #[wasm_bindgen(js_namespace = console)]
-  pub fn log(s: &str);
-  #[wasm_bindgen(js_namespace = window)]
-  fn onFlowyNotify(event_name: &str, payload: JsValue);
+      let response = WasmResponse::from(event_resp);
+      serde_wasm_bindgen::to_value(&response).map_err(error_response)
+    };
+
+    future_to_promise(future)
+  } else {
+    future_to_promise(async { Err(JsValue::from_str("Dispatcher is not initialized")) })
+  }
 }
 
 #[wasm_bindgen]
@@ -106,5 +112,50 @@ impl RefCellAppFlowyCore {
       .borrow()
       .as_ref()
       .map(|core| core.event_dispatcher.clone())
+  }
+}
+
+fn error_response(error: serde_wasm_bindgen::Error) -> JsValue {
+  error!("Error: {}", error);
+  serde_wasm_bindgen::to_value(&WasmResponse::error(error.to_string())).unwrap()
+}
+
+pub struct WasmRequest {
+  name: String,
+  payload: Vec<u8>,
+}
+
+impl WasmRequest {
+  pub fn new(name: String, payload: Vec<u8>) -> Self {
+    Self { name, payload }
+  }
+}
+
+impl From<WasmRequest> for AFPluginRequest {
+  fn from(request: WasmRequest) -> Self {
+    AFPluginRequest::new(request.name).payload(request.payload)
+  }
+}
+
+#[derive(serde::Serialize)]
+pub struct WasmResponse {
+  pub code: i8,
+  pub payload: Vec<u8>,
+}
+impl WasmResponse {
+  pub fn error(msg: String) -> Self {
+    Self {
+      code: StatusCode::Err as i8,
+      payload: msg.into_bytes(),
+    }
+  }
+}
+
+impl From<AFPluginEventResponse> for WasmResponse {
+  fn from(response: AFPluginEventResponse) -> Self {
+    Self {
+      code: response.status_code as i8,
+      payload: response.payload.to_vec(),
+    }
   }
 }
