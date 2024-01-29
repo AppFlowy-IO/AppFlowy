@@ -65,6 +65,7 @@ Future<bool?> showAddBlockMenu(
     showHeader: true,
     showDragHandle: true,
     showDoneButton: true,
+    showCloseButton: true,
     barrierColor: Colors.transparent,
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,

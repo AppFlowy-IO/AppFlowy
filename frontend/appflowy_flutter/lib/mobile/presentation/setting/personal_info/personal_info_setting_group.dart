@@ -51,6 +51,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
                     showCloseButton: true,
                     showDragHandle: true,
                     showDivider: false,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     builder: (_) {
                       return EditUsernameBottomSheet(
                         context,

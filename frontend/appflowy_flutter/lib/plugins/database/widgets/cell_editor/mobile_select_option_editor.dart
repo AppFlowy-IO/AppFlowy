@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
@@ -61,10 +62,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const DragHandler(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: _buildHeader(context),
-                ),
+                _buildHeader(context),
                 const Divider(height: 0.5),
                 Expanded(
                   child: Padding(
@@ -83,20 +81,14 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    const iconWidth = 36.0;
     const height = 44.0;
     return Stack(
       children: [
         Align(
           alignment: Alignment.centerLeft,
-          child: FlowyIconButton(
-            icon: FlowySvg(
-              showMoreOptions ? FlowySvgs.arrow_left_s : FlowySvgs.close_s,
-              size: const Size.square(iconWidth),
-            ),
-            width: iconWidth,
-            onPressed: () => _popOrBack(),
-          ),
+          child: showMoreOptions
+              ? AppBarBackButton(onTap: _popOrBack)
+              : AppBarCloseButton(onTap: _popOrBack),
         ),
         SizedBox(
           height: 44.0,
@@ -473,6 +465,7 @@ class _MoreOptionsState extends State<_MoreOptions> {
     return ConstrainedBox(
       constraints: const BoxConstraints.tightFor(height: 52.0),
       child: FlowyOptionTile.textField(
+        showTopBorder: false,
         onTextChanged: (name) => widget.onUpdate(name, null),
         controller: widget.controller,
       ),

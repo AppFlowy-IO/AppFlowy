@@ -50,7 +50,6 @@ GoRouter generateRouter(Widget child) {
       if (PlatformExtension.isMobile) ...[
         // settings
         _mobileHomeSettingPageRoute(),
-        _mobileSettingUserAgreementPageRoute(),
         _mobileCloudSettingAppFlowyCloudPageRoute(),
         _mobileLaunchSettingsPageRoute(),
 
@@ -205,16 +204,6 @@ GoRoute _mobileCloudSettingAppFlowyCloudPageRoute() {
     path: AppFlowyCloudPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialPage(child: AppFlowyCloudPage());
-    },
-  );
-}
-
-GoRoute _mobileSettingUserAgreementPageRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: UserAgreementPage.routeName,
-    pageBuilder: (context, state) {
-      return const MaterialPage(child: UserAgreementPage());
     },
   );
 }
