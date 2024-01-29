@@ -183,6 +183,7 @@ version = "0.0.0"
 dependencies = [
  "bytes",
  "flowy-core",
+ "flowy-document",
  "flowy-error",
  "flowy-notification",
  "lib-dispatch",

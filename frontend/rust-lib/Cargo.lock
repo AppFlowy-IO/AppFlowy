@@ -1189,6 +1189,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-core",
  "flowy-derive",
+ "flowy-document",
  "flowy-error",
  "flowy-notification",
  "flowy-server",

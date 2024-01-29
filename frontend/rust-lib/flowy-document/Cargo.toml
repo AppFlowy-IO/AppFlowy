@@ -50,11 +50,10 @@ collab-integrate = { workspace = true }
 flowy-codegen.workspace = true
 
 [features]
-dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
-enable_wasm = [
+dart = ["flowy-codegen/dart"]
+tauri_ts = ["flowy-codegen/ts"]
+web_ts = [
     "flowy-codegen/ts",
-    "flowy-notification/tauri_ts",
     "collab-plugins/wasm_build",
     "collab/wasm_build",
     "collab-document/wasm_build",

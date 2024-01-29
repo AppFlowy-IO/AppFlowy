@@ -25,6 +25,7 @@ flowy-user-pub = { workspace = true }
 flowy-server = { workspace = true, features = ["enable_wasm"] }
 flowy-server-pub = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "web_ts"] }
+flowy-document = { workspace = true, features = ["web_ts"] }
 lib-infra = { workspace = true }
 collab = { workspace = true, features = ["wasm_build", "async-plugin"] }
 web-sys = "0.3"

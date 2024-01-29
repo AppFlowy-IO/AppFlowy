@@ -23,6 +23,7 @@ flowy-server-pub = { path = "../../rust-lib/flowy-server-pub" }
 flowy-error = { path = "../../rust-lib/flowy-error" }
 flowy-derive = { path = "../../rust-lib/build-tool/flowy-derive" }
 flowy-codegen = { path = "../../rust-lib/build-tool/flowy-codegen" }
+flowy-document = { path = "../../rust-lib/flowy-document" }
 lib-infra = { path = "../../rust-lib/lib-infra" }
 collab = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }

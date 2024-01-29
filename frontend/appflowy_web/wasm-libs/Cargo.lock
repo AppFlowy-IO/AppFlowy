@@ -100,7 +100,7 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "protobuf",
- "strum_macros",
+ "strum_macros 0.25.3",
  "tokio",
  "tracing",
  "wasm-bindgen-futures",
@@ -113,6 +113,7 @@ dependencies = [
  "af-user",
  "collab",
  "collab-integrate",
+ "flowy-document",
  "flowy-error",
  "flowy-notification",
  "flowy-server",
@@ -184,6 +185,12 @@ checksum = "94fb8275041c72129eb51b7d0322c29b8387a0386127718b096429201a5d6ece"
 dependencies = [
  "alloc-no-stdlib",
 ]
+
+[[package]]
+name = "allocator-api2"
+version = "0.2.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
 
 [[package]]
 name = "android-tzdata"
@@ -552,7 +559,7 @@ dependencies = [
  "realtime-entity",
  "realtime-protocol",
  "reqwest",
- "scraper",
+ "scraper 0.17.1",
  "serde",
  "serde_json",
  "serde_repr",
@@ -625,6 +632,7 @@ dependencies = [
  "anyhow",
  "collab",
  "collab-entity",
+ "getrandom 0.2.12",
  "nanoid",
  "parking_lot 0.12.1",
  "serde",
@@ -1199,6 +1207,43 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-document"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "collab",
+ "collab-document",
+ "collab-entity",
+ "collab-integrate",
+ "collab-plugins",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-document-pub",
+ "flowy-error",
+ "flowy-notification",
+ "flowy-storage",
+ "futures",
+ "getrandom 0.2.12",
+ "indexmap",
+ "lib-dispatch",
+ "lib-infra",
+ "lru",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "protobuf",
+ "scraper 0.18.1",
+ "serde",
+ "serde_json",
+ "strum_macros 0.21.1",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "uuid",
+ "validator",
+]
+
+[[package]]
 name = "flowy-document-pub"
 version = "0.1.0"
 dependencies = [
@@ -1230,6 +1275,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "client-api",
+ "collab-document",
  "collab-plugins",
  "fancy-regex 0.11.0",
  "flowy-codegen",
@@ -1649,6 +1695,19 @@ name = "hashbrown"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "290f1a1d9242c78d09ce40a5e87e7554ee637af1351968159f4952f028f75604"
+dependencies = [
+ "ahash",
+ "allocator-api2",
+]
+
+[[package]]
+name = "heck"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
+dependencies = [
+ "unicode-segmentation",
+]
 
 [[package]]
 name = "heck"
@@ -1911,6 +1970,7 @@ checksum = "d530e1a18b1cb4c484e6e34556a0d948706958449fca0cab753d649f2bce3d1f"
 dependencies = [
  "equivalent",
  "hashbrown",
+ "serde",
 ]
 
 [[package]]
@@ -2135,6 +2195,15 @@ name = "log"
 version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
+
+[[package]]
+name = "lru"
+version = "0.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db2c024b41519440580066ba82aab04092b333e09066a5eb86c7c4890df31f22"
+dependencies = [
+ "hashbrown",
+]
 
 [[package]]
 name = "mac"
@@ -2880,7 +2949,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c55e02e35260070b6f716a2423c2ff1c3bb1642ddca6f99e1f26d06268a0e2d2"
 dependencies = [
  "bytes",
- "heck",
+ "heck 0.4.1",
  "itertools",
  "log",
  "multimap",
@@ -3402,6 +3471,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "scraper"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "585480e3719b311b78a573db1c9d9c4c1f8010c2dee4cc59c2efe58ea4dbc3e1"
+dependencies = [
+ "ahash",
+ "cssparser",
+ "ego-tree",
+ "getopts",
+ "html5ever",
+ "once_cell",
+ "selectors",
+ "tendril",
+]
+
+[[package]]
 name = "sct"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3709,11 +3794,23 @@ dependencies = [
 
 [[package]]
 name = "strum_macros"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d06aaeeee809dbc59eb4556183dd927df67db1540de5be8d3ec0b6636358a5ec"
+dependencies = [
+ "heck 0.3.3",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "strum_macros"
 version = "0.25.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23dc1fa9ac9c169a78ba62f0b841814b7abae11bdd047b9c58f893439e309ea0"
 dependencies = [
- "heck",
+ "heck 0.4.1",
  "proc-macro2",
  "quote",
  "rustversion",
@@ -4204,6 +4301,12 @@ checksum = "5c5713f0fc4b5db668a2ac63cdb7bb4469d8c9fed047b1d0292cc7b0ce2ba921"
 dependencies = [
  "tinyvec",
 ]
+
+[[package]]
+name = "unicode-segmentation"
+version = "1.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1dd624098567895118886609431a7c3b8f516e41d30e0643f03d94592a147e36"
 
 [[package]]
 name = "unicode-width"

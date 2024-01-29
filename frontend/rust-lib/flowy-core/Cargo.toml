@@ -59,7 +59,6 @@ dart = [
     "flowy-date/dart",
     "flowy-folder/dart",
     "flowy-database2/dart",
-    "flowy-document/dart",
     "flowy-config/dart",
 ]
 ts = [
@@ -67,7 +66,6 @@ ts = [
     "flowy-date/ts",
     "flowy-folder/ts",
     "flowy-database2/ts",
-    "flowy-document/ts",
     "flowy-config/ts",
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]
