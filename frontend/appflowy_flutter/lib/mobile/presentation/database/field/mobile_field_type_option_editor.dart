@@ -159,8 +159,8 @@ enum FieldOptionAction {
   delete,
 }
 
-class FieldOptionEditor extends StatefulWidget {
-  const FieldOptionEditor({
+class MobileFieldEditor extends StatefulWidget {
+  const MobileFieldEditor({
     super.key,
     required this.mode,
     required this.defaultValues,
@@ -182,11 +182,12 @@ class FieldOptionEditor extends StatefulWidget {
   final bool isPrimary;
 
   @override
-  State<FieldOptionEditor> createState() => _FieldOptionEditorState();
+  State<MobileFieldEditor> createState() => _MobileFieldEditorState();
 }
 
-class _FieldOptionEditorState extends State<FieldOptionEditor> {
+class _MobileFieldEditorState extends State<MobileFieldEditor> {
   final controller = TextEditingController();
+  bool isFieldNameChanged = false;
 
   late FieldOptionValues values;
 
@@ -219,6 +220,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
               controller: controller,
               type: values.type,
               onTextChanged: (value) {
+                isFieldNameChanged = true;
                 _updateOptionValues(name: value);
               },
             ),
@@ -226,16 +228,18 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
             if (!widget.isPrimary) ...[
               _PropertyType(
                 type: values.type,
-                onSelected: (type) => setState(
-                  () {
-                    if (widget.mode == FieldOptionMode.add) {
-                      controller.text = type.i18n;
-                      _updateOptionValues(name: type.i18n, type: type);
-                    } else {
+                onSelected: (type) {
+                  setState(
+                    () {
+                      if (widget.mode == FieldOptionMode.add &&
+                          !isFieldNameChanged) {
+                        controller.text = type.i18n;
+                        _updateOptionValues(name: type.i18n);
+                      }
                       _updateOptionValues(type: type);
-                    }
-                  },
-                ),
+                    },
+                  );
+                },
               ),
               const _Divider(),
               if (option.isNotEmpty) ...[
@@ -446,9 +450,10 @@ class _PropertyType extends StatelessWidget {
             return DraggableScrollableSheet(
               expand: false,
               snap: true,
-              initialChildSize: 0.7,
-              minChildSize: 0.7,
-              builder: (context, controller) => FieldOptions(
+              initialChildSize: 0.97,
+              minChildSize: 0.97,
+              maxChildSize: 0.97,
+              builder: (context, controller) => MobileFieldTypeGrid(
                 scrollController: controller,
                 mode: FieldOptionMode.edit,
                 onSelectFieldType: (type) {
@@ -894,10 +899,10 @@ class _SelectOptionTile extends StatefulWidget {
   final void Function(SelectOptionPB option) onUpdateOption;
 
   @override
-  State<_SelectOptionTile> createState() => __SelectOptionTileState();
+  State<_SelectOptionTile> createState() => _SelectOptionTileState();
 }
 
-class __SelectOptionTileState extends State<_SelectOptionTile> {
+class _SelectOptionTileState extends State<_SelectOptionTile> {
   final TextEditingController controller = TextEditingController();
   late SelectOptionPB option;
 
