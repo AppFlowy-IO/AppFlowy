@@ -20,7 +20,7 @@ collab-integrate = { workspace = true, features = ["enable_wasm"] }
 tokio-stream.workspace = true
 
 af-user.workspace = true
-flowy-notification = { workspace = true, features = ["ts"] }
+flowy-notification = { workspace = true, features = ["web_ts"] }
 flowy-user-pub = { workspace = true }
 flowy-server = { workspace = true, features = ["enable_wasm"] }
 flowy-server-pub = { workspace = true }

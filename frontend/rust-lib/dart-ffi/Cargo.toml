@@ -29,7 +29,7 @@ tracing.workspace = true
 lib-dispatch = { workspace = true }
 #flowy-core = { workspace = true, features = ["profiling"] }
 flowy-core = { workspace = true }
-flowy-notification = { workspace = true }
+flowy-notification = { workspace = true, features = ["dart"] }
 flowy-server = { workspace = true }
 flowy-server-pub = { workspace = true}
 collab-integrate = { workspace = true }

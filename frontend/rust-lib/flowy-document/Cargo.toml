@@ -51,10 +51,10 @@ flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 enable_wasm = [
     "flowy-codegen/ts",
-    "flowy-notification/ts",
+    "flowy-notification/tauri_ts",
     "collab-plugins/wasm_build",
     "collab/wasm_build",
     "collab-document/wasm_build",

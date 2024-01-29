@@ -45,8 +45,8 @@ impl AFCloudConfiguration {
 
     if base_url.is_empty() || ws_base_url.is_empty() || gotrue_url.is_empty() {
       return Err(FlowyError::new(
-        ErrorCode::InvalidAuthConfig,
-        format!(
+          ErrorCode::InvalidAuthConfig,
+          format!(
           "Invalid APPFLOWY_CLOUD_BASE_URL: {}, APPFLOWY_CLOUD_WS_BASE_URL: {}, APPFLOWY_CLOUD_GOTRUE_URL: {}",
           base_url, ws_base_url, gotrue_url,
         )),

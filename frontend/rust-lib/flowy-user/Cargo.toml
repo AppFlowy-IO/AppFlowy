@@ -59,7 +59,7 @@ quickcheck_macros = "1.0"
 default = ["rev-sqlite"]
 rev-sqlite = ["flowy-sqlite"]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 
 [build-dependencies]
 flowy-codegen.workspace = true
