@@ -22,13 +22,6 @@ function App() {
   }, []);
 
   const handleClick = async () => {
-      // let args = {
-      //     request: {
-      //         ty: "test",
-      //         payload: new TextEncoder().encode("someString"),
-      //     },
-      // };
-      // invoke("invoke_request", args);
     let email = `${uuidv4()}@example.com`;
     let password = "AppFlowy!2024";
     const payload = AddUserPB.fromObject({email: email, password: password })

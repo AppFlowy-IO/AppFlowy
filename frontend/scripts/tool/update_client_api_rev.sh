@@ -8,7 +8,7 @@ fi
 
 NEW_REV="$1"
 echo "New revision: $NEW_REV"
-directories=("rust-lib" "appflowy_tauri/src-tauri")
+directories=("rust-lib" "appflowy_tauri/src-tauri" "appflowy_web/wasm-libs")
 
 for dir in "${directories[@]}"; do
     echo "Updating $dir"
