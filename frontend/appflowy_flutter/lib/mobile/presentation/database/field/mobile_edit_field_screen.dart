@@ -78,10 +78,9 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
           isPrimary: widget.field.isPrimary,
           defaultValues: _fieldOptionValues,
           actions: [
-            if (widget.field.fieldSettings?.visibility.isVisibleState() ?? true)
-              FieldOptionAction.hide
-            else
-              FieldOptionAction.show,
+            widget.field.fieldSettings?.visibility.isVisibleState() ?? true
+                ? FieldOptionAction.hide
+                : FieldOptionAction.show,
             FieldOptionAction.duplicate,
             FieldOptionAction.delete,
           ],
