@@ -181,6 +181,7 @@ fn generate_ts_protobuf_files(
     //   panic!("Generate ts pb file failed: {}, {:?}", path, err);
     // }
 
+    println!("cargo:rerun-if-changed={}", output.to_str().unwrap());
     let result = cmd_lib::run_cmd! {
         ${protoc_bin_path} --ts_out=${output} --proto_path=${proto_file_output_path} ${path}
     };
@@ -256,7 +257,7 @@ fn generate_dart_protobuf_files(
   });
 
   let protobuf_dart = path_string_with_component(&output, vec!["protobuf.dart"]);
-
+  println!("cargo:rerun-if-changed={}", protobuf_dart);
   match std::fs::OpenOptions::new()
     .create(true)
     .write(true)
@@ -348,141 +349,4 @@ pub fn gen_proto_files(crate_name: &str) -> Vec<ProtobufCrate> {
     });
 
   proto_crates
-}
-
-#[cfg(feature = "dart")]
-#[allow(unused_variables)]
-pub fn dart_gen2(crate_name: &str, proto_crates: &Vec<ProtobufCrate>) {
-  for proto_crate in proto_crates {
-    let mut proto_file_paths = vec![];
-    let mut file_names = vec![];
-    let proto_file_output_path = proto_crate
-      .proto_output_path()
-      .to_str()
-      .unwrap()
-      .to_string();
-
-    for (path, file_name) in WalkDir::new(&proto_file_output_path)
-      .into_iter()
-      .filter_map(|e| e.ok())
-      .map(|e| {
-        let path = e.path().to_str().unwrap().to_string();
-        let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
-        (path, file_name)
-      })
-    {
-      if path.ends_with(".proto") {
-        // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
-        println!("cargo:rerun-if-changed={}", path);
-        proto_file_paths.push(path);
-        file_names.push(file_name);
-      }
-    }
-    let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
-
-    // 2. generate the protobuf files(Dart)
-    generate_dart_protobuf_files(
-      crate_name,
-      &proto_file_output_path,
-      &proto_file_paths,
-      &file_names,
-      &protoc_bin_path,
-    );
-  }
-}
-
-#[allow(unused_variables)]
-#[cfg(feature = "ts")]
-pub fn ts_gen2(crate_name: &str, proto_crates: &Vec<ProtobufCrate>, project: Project) {
-  let crate_path = std::fs::canonicalize(".")
-    .unwrap()
-    .as_path()
-    .display()
-    .to_string();
-
-  for proto_crate in proto_crates {
-    let mut proto_file_paths = vec![];
-    let mut file_names = vec![];
-    let proto_file_output_path = proto_crate
-      .proto_output_path()
-      .to_str()
-      .unwrap()
-      .to_string();
-    let protobuf_output_path = proto_crate
-      .protobuf_crate_path()
-      .to_str()
-      .unwrap()
-      .to_string();
-
-    for (path, file_name) in WalkDir::new(&proto_file_output_path)
-      .into_iter()
-      .filter_map(|e| e.ok())
-      .map(|e| {
-        let path = e.path().to_str().unwrap().to_string();
-        let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
-        (path, file_name)
-      })
-    {
-      if path.ends_with(".proto") {
-        // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
-        println!("cargo:rerun-if-changed={}", path);
-        proto_file_paths.push(path);
-        file_names.push(file_name);
-      }
-    }
-    let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
-
-    // 2. generate the protobuf files(Dart)
-    generate_ts_protobuf_files(
-      crate_name,
-      &proto_file_output_path,
-      &proto_file_paths,
-      &file_names,
-      &protoc_bin_path,
-      &project,
-    );
-  }
-}
-
-pub fn gen_rust_proto_files(proto_crates: Vec<ProtobufCrate>) {
-  for proto_crate in proto_crates {
-    let mut proto_file_paths = vec![];
-    let mut file_names = vec![];
-    let proto_file_output_path = proto_crate
-      .proto_output_path()
-      .to_str()
-      .unwrap()
-      .to_string();
-    let protobuf_output_path = proto_crate
-      .protobuf_crate_path()
-      .to_str()
-      .unwrap()
-      .to_string();
-
-    for (path, file_name) in WalkDir::new(&proto_file_output_path)
-      .into_iter()
-      .filter_map(|e| e.ok())
-      .map(|e| {
-        let path = e.path().to_str().unwrap().to_string();
-        let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
-        (path, file_name)
-      })
-    {
-      if path.ends_with(".proto") {
-        // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
-        println!("cargo:rerun-if-changed={}", path);
-        proto_file_paths.push(path);
-        file_names.push(file_name);
-      }
-    }
-    let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
-
-    // 3. generate the protobuf files(Rust)
-    generate_rust_protobuf_files(
-      &protoc_bin_path,
-      &proto_file_paths,
-      &proto_file_output_path,
-      &protobuf_output_path,
-    );
-  }
 }
