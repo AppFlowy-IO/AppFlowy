@@ -29,7 +29,7 @@ class ChecklistFilterEditorBloc
   void _dispatch() {
     on<ChecklistFilterEditorEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () async {
             _startListening();
           },

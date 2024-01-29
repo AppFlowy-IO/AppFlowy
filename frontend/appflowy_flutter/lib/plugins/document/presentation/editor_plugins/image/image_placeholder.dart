@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
@@ -12,6 +12,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log, UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -107,12 +108,16 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         child: child,
       );
     } else {
-      return GestureDetector(
-        onTap: () {
-          editorState.updateSelectionWithReason(null, extraInfo: {});
-          showUploadImageMenu();
-        },
-        child: child,
+      return MobileBlockActionButtons(
+        node: widget.node,
+        editorState: editorState,
+        child: GestureDetector(
+          onTap: () {
+            editorState.updateSelectionWithReason(null, extraInfo: {});
+            showUploadImageMenu();
+          },
+          child: child,
+        ),
       );
     }
   }
@@ -128,7 +133,8 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         showCloseButton: true,
         showDragHandle: true,
         builder: (context) {
-          return ConstrainedBox(
+          return Container(
+            margin: const EdgeInsets.only(top: 12.0),
             constraints: const BoxConstraints(
               maxHeight: 340,
               minHeight: 80,
@@ -164,13 +170,15 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       return;
     }
 
+    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
+
     final transaction = editorState.transaction;
-    final type = await getAuthenticatorType();
+    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
     String? path;
     CustomImageType imageType = CustomImageType.local;
 
     // if the user is using local authenticator, we need to save the image to local storage
-    if (type == AuthenticatorType.local) {
+    if (type == AuthenticatorPB.Local) {
       path = await saveImageToLocalStorage(url);
     } else {
       // else we should save the image to cloud storage

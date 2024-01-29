@@ -34,12 +34,12 @@ extension AppFlowyTestBase on WidgetTester {
     String? pathExtension,
     // use to specify the application data directory, if not specified, a temporary directory will be used.
     String? dataDirectory,
-    Size windowsSize = const Size(1600, 1200),
+    Size windowSize = const Size(1600, 1200),
     AuthenticatorType? cloudType,
     String? email,
   }) async {
     // view.physicalSize = windowsSize;
-    binding.setSurfaceSize(windowsSize);
+    await binding.setSurfaceSize(windowSize);
     // addTearDown(() => binding.setSurfaceSize(null));
 
     mockHotKeyManagerHandlers();

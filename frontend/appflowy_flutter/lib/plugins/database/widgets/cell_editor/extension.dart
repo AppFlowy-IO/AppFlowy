@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -68,6 +68,8 @@ class SelectOptionTag extends StatelessWidget {
     this.color,
     this.textStyle,
     this.onRemove,
+    this.textAlign,
+    this.isExpanded = false,
     required this.padding,
   }) : assert(option != null || name != null && color != null);
 
@@ -78,11 +80,20 @@ class SelectOptionTag extends StatelessWidget {
   final TextStyle? textStyle;
   final void Function(String)? onRemove;
   final EdgeInsets padding;
+  final TextAlign? textAlign;
+  final bool isExpanded;
 
   @override
   Widget build(BuildContext context) {
     final optionName = option?.name ?? name!;
     final optionColor = option?.color.toColor(context) ?? color!;
+    final text = FlowyText.medium(
+      optionName,
+      fontSize: fontSize,
+      overflow: TextOverflow.ellipsis,
+      color: AFThemeExtension.of(context).textColor,
+      textAlign: textAlign,
+    );
     return Container(
       padding: onRemove == null ? padding : padding.copyWith(right: 2.0),
       decoration: BoxDecoration(
@@ -96,14 +107,7 @@ class SelectOptionTag extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: FlowyText.medium(
-              optionName,
-              fontSize: fontSize,
-              overflow: TextOverflow.ellipsis,
-              color: AFThemeExtension.of(context).textColor,
-            ),
-          ),
+          isExpanded ? Expanded(child: text) : Flexible(child: text),
           if (onRemove != null) ...[
             const HSpace(4),
             FlowyIconButton(

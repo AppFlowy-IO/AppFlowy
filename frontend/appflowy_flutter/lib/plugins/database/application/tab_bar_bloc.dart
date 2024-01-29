@@ -21,7 +21,7 @@ class DatabaseTabBarBloc
       : super(DatabaseTabBarState.initial(view)) {
     on<DatabaseTabBarEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () {
             _listenInlineViewChanged();
             _loadChildView();
@@ -93,7 +93,7 @@ class DatabaseTabBarBloc
                   // Dispose the controller when the tab is removed.
                   final controller =
                       tabBarControllerByViewId.remove(tabBar.viewId);
-                  controller?.dispose();
+                  await controller?.dispose();
                 }
 
                 if (index == state.selectedIndex) {
@@ -186,17 +186,18 @@ class DatabaseTabBarBloc
     );
   }
 
-  Future<void> _loadChildView() async {
-    ViewBackendService.getChildViews(viewId: state.parentView.id)
-        .then((viewsOrFail) {
-      if (isClosed) {
-        return;
-      }
-      viewsOrFail.fold(
-        (views) => add(DatabaseTabBarEvent.didLoadChildViews(views)),
-        (err) => Log.error(err),
-      );
-    });
+  void _loadChildView() async {
+    final viewsOrFail =
+        await ViewBackendService.getChildViews(viewId: state.parentView.id);
+
+    viewsOrFail.fold(
+      (views) {
+        if (!isClosed) {
+          add(DatabaseTabBarEvent.didLoadChildViews(views));
+        }
+      },
+      (err) => Log.error(err),
+    );
   }
 }
 

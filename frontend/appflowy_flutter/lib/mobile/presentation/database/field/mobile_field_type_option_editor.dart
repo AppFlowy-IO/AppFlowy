@@ -3,10 +3,12 @@ import 'dart:typed_data';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
@@ -157,8 +159,8 @@ enum FieldOptionAction {
   delete,
 }
 
-class FieldOptionEditor extends StatefulWidget {
-  const FieldOptionEditor({
+class MobileFieldEditor extends StatefulWidget {
+  const MobileFieldEditor({
     super.key,
     required this.mode,
     required this.defaultValues,
@@ -180,11 +182,12 @@ class FieldOptionEditor extends StatefulWidget {
   final bool isPrimary;
 
   @override
-  State<FieldOptionEditor> createState() => _FieldOptionEditorState();
+  State<MobileFieldEditor> createState() => _MobileFieldEditorState();
 }
 
-class _FieldOptionEditorState extends State<FieldOptionEditor> {
+class _MobileFieldEditorState extends State<MobileFieldEditor> {
   final controller = TextEditingController();
+  bool isFieldNameChanged = false;
 
   late FieldOptionValues values;
 
@@ -217,6 +220,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
               controller: controller,
               type: values.type,
               onTextChanged: (value) {
+                isFieldNameChanged = true;
                 _updateOptionValues(name: value);
               },
             ),
@@ -224,16 +228,18 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
             if (!widget.isPrimary) ...[
               _PropertyType(
                 type: values.type,
-                onSelected: (type) => setState(
-                  () {
-                    if (widget.mode == FieldOptionMode.add) {
-                      controller.text = type.i18n;
-                      _updateOptionValues(name: type.i18n, type: type);
-                    } else {
+                onSelected: (type) {
+                  setState(
+                    () {
+                      if (widget.mode == FieldOptionMode.add &&
+                          !isFieldNameChanged) {
+                        controller.text = type.i18n;
+                        _updateOptionValues(name: type.i18n);
+                      }
                       _updateOptionValues(type: type);
-                    }
-                  },
-                ),
+                    },
+                  );
+                },
               ),
               const _Divider(),
               if (option.isNotEmpty) ...[
@@ -338,7 +344,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
       if (widget.actions.contains(FieldOptionAction.hide))
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_hide.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.hide_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_hide_s),
           onTap: () => widget.onAction?.call(FieldOptionAction.hide),
         ),
       if (widget.actions.contains(FieldOptionAction.show))
@@ -352,7 +358,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.button_duplicate.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.copy_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_copy_s),
           onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
         ),
       if (widget.actions.contains(FieldOptionAction.delete) &&
@@ -362,7 +368,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
           leftIcon: FlowySvg(
-            FlowySvgs.delete_s,
+            FlowySvgs.m_delete_s,
             color: Theme.of(context).colorScheme.error,
           ),
           onTap: () => widget.onAction?.call(FieldOptionAction.delete),
@@ -444,9 +450,10 @@ class _PropertyType extends StatelessWidget {
             return DraggableScrollableSheet(
               expand: false,
               snap: true,
-              initialChildSize: 0.7,
-              minChildSize: 0.7,
-              builder: (context, controller) => FieldOptions(
+              initialChildSize: 0.97,
+              minChildSize: 0.97,
+              maxChildSize: 0.97,
+              builder: (context, controller) => MobileFieldTypeGrid(
                 scrollController: controller,
                 mode: FieldOptionMode.edit,
                 onSelectFieldType: (type) {
@@ -642,13 +649,12 @@ class _NumberOption extends StatelessWidget {
       onTap: () {
         showMobileBottomSheet(
           context,
-          padding: EdgeInsets.zero,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (context) {
             return DraggableScrollableSheet(
               expand: false,
               snap: true,
-              initialChildSize: 0.6,
-              minChildSize: 0.6,
+              minChildSize: 0.5,
               builder: (context, scrollController) => _NumberFormatList(
                 scrollController: scrollController,
                 selectedFormat: selectedFormat,
@@ -665,7 +671,7 @@ class _NumberOption extends StatelessWidget {
   }
 }
 
-class _NumberFormatList extends StatelessWidget {
+class _NumberFormatList extends StatefulWidget {
   const _NumberFormatList({
     this.scrollController,
     required this.selectedFormat,
@@ -677,19 +683,73 @@ class _NumberFormatList extends StatelessWidget {
   final void Function(NumberFormatPB format) onSelected;
 
   @override
+  State<_NumberFormatList> createState() => _NumberFormatListState();
+}
+
+class _NumberFormatListState extends State<_NumberFormatList> {
+  List<NumberFormatPB> formats = NumberFormatPB.values;
+
+  @override
   Widget build(BuildContext context) {
     return ListView(
-      controller: scrollController,
-      children: NumberFormatPB.values
-          .mapIndexed(
-            (index, element) => FlowyOptionTile.checkbox(
-              text: element.title(),
-              isSelected: selectedFormat == element,
-              showTopBorder: index == 0,
-              onTap: () => onSelected(element),
+      controller: widget.scrollController,
+      children: [
+        const Center(
+          child: DragHandler(),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          height: 44.0,
+          child: FlowySearchTextField(
+            onChanged: (String value) {
+              setState(() {
+                formats = NumberFormatPB.values
+                    .where(
+                      (element) => element
+                          .title()
+                          .toLowerCase()
+                          .contains(value.toLowerCase()),
+                    )
+                    .toList();
+              });
+            },
+          ),
+        ),
+        ...formats.mapIndexed(
+          (index, element) => FlowyOptionTile.checkbox(
+            text: element.title(),
+            content: Expanded(
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      4.0,
+                      16.0,
+                      12.0,
+                      16.0,
+                    ),
+                    child: FlowyText(
+                      element.title(),
+                      fontSize: 16,
+                    ),
+                  ),
+                  FlowyText(
+                    element.iconSymbol(),
+                    fontSize: 16,
+                    color: Theme.of(context).hintColor,
+                  ),
+                  widget.selectedFormat != element
+                      ? const HSpace(30.0)
+                      : const HSpace(6.0),
+                ],
+              ),
             ),
-          )
-          .toList(),
+            isSelected: widget.selectedFormat == element,
+            showTopBorder: false,
+            onTap: () => widget.onSelected(element),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -730,7 +790,10 @@ class _SelectOption extends StatelessWidget {
         ),
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_addOption.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.add_s),
+          leftIcon: const FlowySvg(
+            FlowySvgs.add_s,
+            size: Size.square(20),
+          ),
           onTap: () {
             onAddOptions([
               SelectOptionPB(
@@ -828,10 +891,10 @@ class _SelectOptionTile extends StatefulWidget {
   final void Function(SelectOptionPB option) onUpdateOption;
 
   @override
-  State<_SelectOptionTile> createState() => __SelectOptionTileState();
+  State<_SelectOptionTile> createState() => _SelectOptionTileState();
 }
 
-class __SelectOptionTileState extends State<_SelectOptionTile> {
+class _SelectOptionTileState extends State<_SelectOptionTile> {
   final TextEditingController controller = TextEditingController();
   late SelectOptionPB option;
 
