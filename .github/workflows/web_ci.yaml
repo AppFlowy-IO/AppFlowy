@@ -79,4 +79,4 @@ jobs:
         working-directory: frontend/appflowy_web
         run: |
           pnpm install
-          pnpm run wasm
+          pnpm run build_release_wasm
