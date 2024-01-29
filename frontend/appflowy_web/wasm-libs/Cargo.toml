@@ -61,7 +61,7 @@ lto = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f8f1e885f51ccad1f8b07fa01460dcaf5b12ce11" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "e1b35a1a24eb95ae5cda8fad064e897f0fd7f45a" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
