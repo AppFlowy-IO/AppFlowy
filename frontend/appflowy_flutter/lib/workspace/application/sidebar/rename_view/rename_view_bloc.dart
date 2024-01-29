@@ -20,7 +20,7 @@ class RenameViewBloc extends Bloc<RenameViewEvent, RenameViewState> {
   @override
   Future<void> close() async {
     _controller.close();
-    super.close();
+    await super.close();
   }
 }
 
