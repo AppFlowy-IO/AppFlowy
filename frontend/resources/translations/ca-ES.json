@@ -396,12 +396,25 @@
     },
     "mobile": {
       "personalInfo": "Informació personal",
-      "username": "Nom d'usuari"
+      "username": "Nom d'usuari",
+      "about": "Sobre",
+      "pushNotifications": "Notificacions push",
+      "support": "Suport",
+      "joinDiscord": "Uneix-te a nosaltres a Discord",
+      "privacyPolicy": "Política de privacitat",
+      "userAgreement": "Acord d'usuari",
+      "termsAndConditions": "Termes i condicions",
+      "userprofileError": "No s'ha pogut carregar el perfil d'usuari",
+      "selectStartingDay": "Seleccioneu el dia d'inici",
+      "version": "Versió"
     }
   },
   "grid": {
     "deleteView": "Esteu segur que voleu suprimir aquesta vista?",
     "createView": "Nou",
+    "title": {
+      "placeholder": "Sense títol"
+    },
     "settings": {
       "filter": "Filtre",
       "sort": "Ordena",
@@ -414,7 +427,14 @@
       "filterBy": "Filtra per...",
       "typeAValue": "Escriu un valor...",
       "layout": "Disseny",
-      "databaseLayout": "Disseny"
+      "databaseLayout": "Disseny",
+      "viewList": "Visualitzacions de la base de dades",
+      "editView": "Edita la vista",
+      "boardSettings": "Configuració del tauler",
+      "calendarSettings": "Configuració del calendari",
+      "createView": "Vista nova",
+      "duplicateView": "Vista duplicada",
+      "deleteView": "Suprimeix la vista"
     },
     "textFilter": {
       "contains": "Conté",
@@ -456,8 +476,18 @@
       "isEmpty": "Està buit",
       "isNotEmpty": "No està buit"
     },
+    "dateFilter": {
+      "before": "És abans",
+      "after": "És després",
+      "onOrBefore": "Està activat o abans",
+      "onOrAfter": "Està activat o després",
+      "between": "Està entre",
+      "empty": "Està buit",
+      "notEmpty": "No està buit"
+    },
     "field": {
       "hide": "Amaga",
+      "show": "Espectacle",
       "insertLeft": "Insereix a l'esquerra",
       "insertRight": "Insereix a la dreta",
       "duplicate": "Duplicat",
@@ -475,6 +505,7 @@
       "numberFormat": "Format numèric",
       "dateFormat": "Format de data",
       "includeTime": "Inclou el temps",
+      "isRange": "Data de finalització",
       "dateFormatFriendly": "Mes Dia, Any",
       "dateFormatISO": "Any-Mes-Dia",
       "dateFormatLocal": "Mes/Dia/Any",
@@ -484,12 +515,29 @@
       "invalidTimeFormat": "Format no vàlid",
       "timeFormatTwelveHour": "12 hores",
       "timeFormatTwentyFourHour": "24 hores",
+      "clearDate": "Data clara",
+      "dateTime": "Data i hora",
+      "startDateTime": "Data d'inici hora",
+      "endDateTime": "Data de finalització hora",
+      "failedToLoadDate": "No s'ha pogut carregar el valor de la data",
+      "selectTime": "Seleccioneu l'hora",
+      "selectDate": "Seleccioneu la data",
+      "visibility": "Visibilitat",
+      "propertyType": "Tipus de propietat",
       "addSelectOption": "Afegeix una opció",
+      "typeANewOption": "Escriviu una nova opció",
       "optionTitle": "Opcions",
       "addOption": "Afegeix opció",
       "editProperty": "Edita la propietat",
       "newProperty": "Nova propietat",
-      "deleteFieldPromptMessage": "Estàs segur? Aquesta propietat se suprimirà"
+      "deleteFieldPromptMessage": "Estàs segur? Aquesta propietat se suprimirà",
+      "newColumn": "Nova columna",
+      "format": "Format",
+      "reminderOnDateTooltip": "Aquesta cel·la té un recordatori programat"
+    },
+    "rowPage": {
+      "newField": "Afegeix un camp nou",
+      "fieldDragElementTooltip": "Feu clic per obrir el menú"
     },
     "sort": {
       "ascending": "Ascendent",
@@ -500,11 +548,13 @@
     "row": {
       "duplicate": "Duplicat",
       "delete": "Suprimeix",
+      "titlePlaceholder": "Sense títol",
       "textPlaceholder": "Buit",
       "copyProperty": "S'ha copiat la propietat al porta-retalls",
       "count": "Compte",
       "newRow": "Nova fila",
-      "action": "Acció"
+      "action": "Acció",
+      "drag": "Arrossegueu per moure's"
     },
     "selectOption": {
       "create": "Crear",
@@ -523,7 +573,8 @@
       "searchOption": "Cerca una opció"
     },
     "checklist": {
-      "addNew": "Afegeix un element"
+      "addNew": "Afegeix un element",
+      "submitNewTask": "Crear"
     },
     "menuName": "Quadrícula",
     "referencedGridPrefix": "Vista de"
@@ -549,7 +600,8 @@
       }
     },
     "selectionMenu": {
-      "outline": "Esquema"
+      "outline": "Esquema",
+      "codeBlock": "Bloc de codi"
     },
     "plugins": {
       "referencedBoard": "Junta de referència",
@@ -574,7 +626,10 @@
       "smartEditDisabled": "Connecteu OpenAI a Configuració",
       "discardResponse": "Voleu descartar les respostes d'IA?",
       "createInlineMathEquation": "Crea una equació",
+      "fonts": "Fonts",
       "toggleList": "Commuta la llista",
+      "bulletedList": "Llista amb pics",
+      "todoList": "Llista de tasques",
       "cover": {
         "changeCover": "Canvi de coberta",
         "colors": "Colors",
@@ -596,10 +651,12 @@
         "couldNotFetchImage": "No s'ha pogut recuperar la imatge",
         "imageSavingFailed": "No s'ha pogut desar la imatge",
         "addIcon": "Afegeix una icona",
+        "changeIcon": "Canvia la icona",
         "coverRemoveAlert": "S'eliminarà de la coberta després de suprimir-lo.",
         "alertDialogConfirmation": "N'estàs segur, vols continuar?"
       },
       "mathEquation": {
+        "name": "Equació matemàtica",
         "addMathEquation": "Afegeix una equació matemàtica",
         "editMathEquation": "Edita l'equació matemàtica"
       },
@@ -619,10 +676,30 @@
         "defaultColor": "Per defecte"
       },
       "image": {
-        "copiedToPasteBoard": "L'enllaç de la imatge s'ha copiat al porta-retalls"
+        "copiedToPasteBoard": "L'enllaç de la imatge s'ha copiat al porta-retalls",
+        "addAnImage": "Afegeix una imatge"
       },
       "outline": {
         "addHeadingToCreateOutline": "Afegiu títols per crear una taula de continguts."
+      },
+      "table": {
+        "addAfter": "Afegeix després",
+        "addBefore": "Afegeix abans",
+        "delete": "Suprimeix",
+        "duplicate": "Duplicar",
+        "bgColor": "Color de fon"
+      },
+      "contextMenu": {
+        "copy": "Còpia",
+        "cut": "Talla"
+      },
+      "action": "Accions",
+      "database": {
+        "selectDataSource": "Seleccioneu la font de dades",
+        "noDataSource": "Sense font de dades",
+        "toContinue": "per continuar",
+        "newDatabase": "Nova base de dades",
+        "linkToDatabase": "Enllaç a la base de dades"
       }
     },
     "textBlock": {
@@ -641,13 +718,23 @@
         "label": "URL de la imatge",
         "placeholder": "Introduïu l'URL de la imatge"
       },
+      "ai": {
+        "label": "Generar imatge des d'OpenAI"
+      },
       "support": "El límit de mida de la imatge és de 5 MB. Formats admesos: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Imatge no vàlida",
         "invalidImageSize": "La mida de la imatge ha de ser inferior a 5 MB",
         "invalidImageFormat": "El format d'imatge no és compatible. Formats admesos: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "URL de la imatge no vàlid"
-      }
+      },
+      "embedLink": {
+        "label": "Insereix l'enllaç",
+        "placeholder": "Enganxeu o escriviu un enllaç d'imatge"
+      },
+      "searchForAnImage": "Cerca una imatge",
+      "saveImageToGallery": "Guardar imatge",
+      "unableToLoadImage": "No es pot carregar la imatge"
     },
     "codeBlock": {
       "language": {
@@ -657,6 +744,9 @@
     },
     "inlineLink": {
       "placeholder": "Enganxeu o escriviu un enllaç",
+      "openInNewTab": "Obre en una pestanya nova",
+      "copyLink": "Copia l'enllaç",
+      "removeLink": "Elimina l'enllaç",
       "url": {
         "label": "URL de l'enllaç",
         "placeholder": "Introduïu l'URL de l'enllaç"
@@ -664,6 +754,11 @@
       "title": {
         "label": "Títol de l'enllaç",
         "placeholder": "Introduïu el títol de l'enllaç"
+      }
+    },
+    "mention": {
+      "page": {
+        "label": "Enllaç a la pàgina"
       }
     }
   },
