@@ -198,7 +198,7 @@ pub enum UserEvent {
   #[event(output = "CreateWorkspacePB")]
   CreateWorkspace = 42,
 
-  #[event(input = "DeleteWorkspacePB")]
+  #[event(input = "UserWorkspaceIdPB")]
   DeleteWorkspace = 43,
 }
 
