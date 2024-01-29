@@ -17,7 +17,7 @@ flowy-database-pub = { workspace = true }
 flowy-sqlite = { workspace = true }
 flowy-document = { workspace = true }
 flowy-document-pub = { workspace = true }
-flowy-error = { workspace = true, features = ["dart"] }
+flowy-error = { workspace = true }
 flowy-server = { workspace = true, features = ["enable_supabase"] }
 flowy-server-pub = { workspace = true }
 flowy-config = { workspace = true }
