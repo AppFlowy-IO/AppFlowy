@@ -32,6 +32,9 @@ class FlowyOptionTile extends StatelessWidget {
     this.onTextChanged,
     this.onTextSubmitted,
     this.autofocus,
+    this.content,
+    this.backgroundColor,
+    this.fontFamily,
   });
 
   factory FlowyOptionTile.text({
@@ -89,21 +92,26 @@ class FlowyOptionTile extends StatelessWidget {
     required bool isSelected,
     required VoidCallback? onTap,
     Widget? leftIcon,
+    Widget? content,
     bool showTopBorder = true,
     bool showBottomBorder = true,
+    String? fontFamily,
+    Color? backgroundColor,
   }) {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.checkbox,
       isSelected: isSelected,
       text: text,
+      content: content,
       onTap: onTap,
+      fontFamily: fontFamily,
+      backgroundColor: backgroundColor,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
       trailing: isSelected
           ? const FlowySvg(
-              FlowySvgs.blue_check_s,
-              size: Size.square(24.0),
+              FlowySvgs.m_blue_check_s,
               blendMode: null,
             )
           : null,
@@ -141,6 +149,9 @@ class FlowyOptionTile extends StatelessWidget {
   final Widget? leading;
   final Widget? trailing;
 
+  // customize the content widget
+  final Widget? content;
+
   // only used in checkbox or switcher
   final bool isSelected;
 
@@ -155,25 +166,27 @@ class FlowyOptionTile extends StatelessWidget {
 
   final FlowyOptionTileType type;
 
+  final Color? backgroundColor;
+  final String? fontFamily;
+
   @override
   Widget build(BuildContext context) {
     final leadingWidget = _buildLeading();
 
-    final child = ColoredBox(
-      color: Theme.of(context).colorScheme.surface,
-      child: FlowyOptionDecorateBox(
-        showTopBorder: showTopBorder,
-        showBottomBorder: showBottomBorder,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: [
-              if (leadingWidget != null) leadingWidget,
-              _buildText(),
-              _buildTextField(),
-              if (trailing != null) trailing!,
-            ],
-          ),
+    final child = FlowyOptionDecorateBox(
+      color: backgroundColor,
+      showTopBorder: showTopBorder,
+      showBottomBorder: showBottomBorder,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            if (leadingWidget != null) leadingWidget,
+            if (content != null) content!,
+            if (content == null) _buildText(),
+            if (content == null) _buildTextField(),
+            if (trailing != null) trailing!,
+          ],
         ),
       ),
     );
@@ -215,6 +228,7 @@ class FlowyOptionTile extends StatelessWidget {
           text!,
           fontSize: 16,
           color: textColor,
+          fontFamily: fontFamily,
         ),
       ),
     );

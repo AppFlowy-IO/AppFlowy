@@ -128,18 +128,82 @@ extension NumberFormatExtension on NumberFormatPB {
     }
   }
 
-  // String iconName() {
-  //   switch (this) {
-  //     case NumberFormatPB.CNY:
-  //       return "grid/field/yen";
-  //     case NumberFormatPB.EUR:
-  //       return "grid/field/euro";
-  //     case NumberFormatPB.Number:
-  //       return "grid/field/numbers";
-  //     case NumberFormatPB.USD:
-  //       return "grid/field/us_dollar";
-  //     default:
-  //       throw UnimplementedError;
-  //   }
-  // }
+  String iconSymbol() {
+    switch (this) {
+      case NumberFormatPB.ArgentinePeso:
+        return "\$";
+      case NumberFormatPB.Baht:
+        return "฿";
+      case NumberFormatPB.CanadianDollar:
+        return "C\$";
+      case NumberFormatPB.ChileanPeso:
+        return "\$";
+      case NumberFormatPB.ColombianPeso:
+        return "\$";
+      case NumberFormatPB.DanishKrone:
+        return "kr";
+      case NumberFormatPB.Dirham:
+        return "د.إ";
+      case NumberFormatPB.EUR:
+        return "€";
+      case NumberFormatPB.Forint:
+        return "Ft";
+      case NumberFormatPB.Franc:
+        return "Fr";
+      case NumberFormatPB.HongKongDollar:
+        return "HK\$";
+      case NumberFormatPB.Koruna:
+        return "Kč";
+      case NumberFormatPB.Krona:
+        return "kr";
+      case NumberFormatPB.Leu:
+        return "lei";
+      case NumberFormatPB.Lira:
+        return "₺";
+      case NumberFormatPB.MexicanPeso:
+        return "\$";
+      case NumberFormatPB.NewTaiwanDollar:
+        return "NT\$";
+      case NumberFormatPB.NewZealandDollar:
+        return "NZ\$";
+      case NumberFormatPB.NorwegianKrone:
+        return "kr";
+      case NumberFormatPB.Num:
+        return "#";
+      case NumberFormatPB.Percent:
+        return "%";
+      case NumberFormatPB.PhilippinePeso:
+        return "₱";
+      case NumberFormatPB.Pound:
+        return "£";
+      case NumberFormatPB.Rand:
+        return "R";
+      case NumberFormatPB.Real:
+        return "R\$";
+      case NumberFormatPB.Ringgit:
+        return "RM";
+      case NumberFormatPB.Riyal:
+        return "ر.س";
+      case NumberFormatPB.Ruble:
+        return "₽";
+      case NumberFormatPB.Rupee:
+        return "₹";
+      case NumberFormatPB.Rupiah:
+        return "Rp";
+      case NumberFormatPB.Shekel:
+        return "₪";
+      case NumberFormatPB.USD:
+        return "\$";
+      case NumberFormatPB.UruguayanPeso:
+        return "\$U";
+      case NumberFormatPB.Won:
+        return "₩";
+      case NumberFormatPB.Yen:
+        return "JPY ¥";
+      case NumberFormatPB.Yuan:
+        return "¥";
+      default:
+        throw UnimplementedError;
+    }
+  }
 }

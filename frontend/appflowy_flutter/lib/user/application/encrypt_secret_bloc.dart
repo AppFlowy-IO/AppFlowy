@@ -32,11 +32,10 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
             ..encryptionSign = user.encryptionSign
             ..encryptionType = user.encryptionType
             ..userId = user.id;
-          UserEventSetEncryptionSecret(payload).send().then((result) {
-            if (!isClosed) {
-              add(EncryptSecretEvent.didFinishCheck(result));
-            }
-          });
+          final result = await UserEventSetEncryptionSecret(payload).send();
+          if (!isClosed) {
+            add(EncryptSecretEvent.didFinishCheck(result));
+          }
           emit(
             state.copyWith(
               loadingState: const LoadingState.loading(),

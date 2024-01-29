@@ -107,8 +107,8 @@ class GroupController {
     );
   }
 
-  Future<void> dispose() async {
-    _listener.stop();
+  Future<void> dispose() {
+    return _listener.stop();
   }
 }
 

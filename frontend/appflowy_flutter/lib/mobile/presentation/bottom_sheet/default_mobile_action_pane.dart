@@ -54,7 +54,6 @@ enum MobilePaneActionType {
               context,
               showDragHandle: true,
               showDivider: false,
-              padding: const EdgeInsets.only(bottom: 36.0),
               backgroundColor: Theme.of(context).colorScheme.surface,
               useRootNavigator: true,
               builder: (context) {

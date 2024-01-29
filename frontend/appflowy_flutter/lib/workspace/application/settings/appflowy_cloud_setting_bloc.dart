@@ -22,7 +22,7 @@ class AppFlowyCloudSettingBloc
 
   @override
   Future<void> close() async {
-    _listener.stop();
+    await _listener.stop();
     return super.close();
   }
 

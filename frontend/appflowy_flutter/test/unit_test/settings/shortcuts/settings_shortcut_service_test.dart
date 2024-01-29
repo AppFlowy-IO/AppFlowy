@@ -117,7 +117,7 @@ void main() {
       commandShortcutEvent.updateCommand(command: newCommand);
 
       //saving the updated shortcuts
-      service.saveAllShortcuts(currentCommandShortcuts);
+      await service.saveAllShortcuts(currentCommandShortcuts);
 
       //now directly fetching the shortcuts from loadShortcuts
       final commandShortcuts = await service.getCustomizeShortcuts();

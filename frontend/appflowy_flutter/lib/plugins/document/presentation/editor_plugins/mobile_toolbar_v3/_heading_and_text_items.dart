@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -93,12 +95,14 @@ class _HeadingOrTextItem extends StatelessWidget {
         selectionExtraInfoDisableFloatingToolbar: true,
       },
     );
-    await editorState.updateSelectionWithReason(
-      editorState.selection,
-      extraInfo: {
-        selectionExtraInfoDisableFloatingToolbar: true,
-        selectionExtraInfoDoNotAttachTextService: true,
-      },
+    unawaited(
+      editorState.updateSelectionWithReason(
+        editorState.selection,
+        extraInfo: {
+          selectionExtraInfoDisableFloatingToolbar: true,
+          selectionExtraInfoDoNotAttachTextService: true,
+        },
+      ),
     );
   }
 }

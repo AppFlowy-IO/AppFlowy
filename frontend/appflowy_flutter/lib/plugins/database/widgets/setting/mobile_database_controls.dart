@@ -95,7 +95,6 @@ class MobileDatabaseControls extends StatelessWidget {
                       showDragHandle: true,
                       showDivider: false,
                       title: LocaleKeys.grid_settings_viewList.tr(),
-                      padding: const EdgeInsets.only(bottom: 36.0),
                       builder: (_) {
                         return MultiBlocProvider(
                           providers: [

@@ -164,7 +164,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
               case _ActionType.delete:
                 final transaction = widget.editorState.transaction;
                 transaction.deleteNode(widget.node);
-                widget.editorState.apply(transaction);
+                await widget.editorState.apply(transaction);
                 break;
             }
             controller.close();
@@ -177,7 +177,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   Future<void> _deletePage() async {
     final transaction = widget.editorState.transaction;
     transaction.deleteNode(widget.node);
-    widget.editorState.apply(transaction);
+    await widget.editorState.apply(transaction);
   }
 }
 

@@ -20,7 +20,7 @@ Future<T?> showMobileBottomSheet<T>(
   bool useRootNavigator = false,
   ShapeBorder? shape,
   // the padding of the content, the padding of the header area is fixed
-  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 4, 16, 32),
+  EdgeInsets padding = const EdgeInsets.all(0.0),
   Color? backgroundColor,
   BoxConstraints? constraints,
   Color? barrierColor,
@@ -38,16 +38,20 @@ Future<T?> showMobileBottomSheet<T>(
     ),
   );
 
+  backgroundColor ??= Theme.of(context).brightness == Brightness.light
+      ? const Color(0xFFF7F8FB)
+      : const Color(0xFF626364);
+
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: isScrollControlled,
     enableDrag: isDragEnabled,
     useSafeArea: true,
     clipBehavior: Clip.antiAlias,
-    backgroundColor: backgroundColor,
     constraints: constraints,
     barrierColor: barrierColor,
     elevation: elevation,
+    backgroundColor: backgroundColor,
     shape: shape,
     useRootNavigator: useRootNavigator,
     builder: (context) {
@@ -81,7 +85,7 @@ Future<T?> showMobileBottomSheet<T>(
 
         if (showDivider) {
           children.add(
-            const Divider(height: 1.0, thickness: 1.0),
+            const Divider(height: 0.5, thickness: 0.5),
           );
         }
       }
@@ -110,9 +114,18 @@ Future<T?> showMobileBottomSheet<T>(
         return children.first;
       }
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: children,
+      // not full-screen mode
+      if (MediaQuery.of(context).padding.bottom == 0) {
+        children.add(
+          const VSpace(16),
+        );
+      }
+
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
+        ),
       );
     },
   );
