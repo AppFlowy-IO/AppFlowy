@@ -220,9 +220,7 @@ class DatabaseFieldListTile extends StatelessWidget {
           size: const Size.square(20),
         ),
         showTopBorder: showTopBorder,
-        onTap: () {
-          showEditFieldScreen(context, viewId, fieldInfo);
-        },
+        onTap: () => showEditFieldScreen(context, viewId, fieldInfo),
         onValueChanged: (value) {
           final newVisibility = fieldInfo.visibility!.toggle();
           context.read<DatabasePropertyBloc>().add(

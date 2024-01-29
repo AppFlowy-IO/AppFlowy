@@ -23,8 +23,8 @@ const _supportedFieldTypes = [
   FieldType.CreatedTime,
 ];
 
-class FieldOptions extends StatelessWidget {
-  const FieldOptions({
+class MobileFieldTypeGrid extends StatelessWidget {
+  const MobileFieldTypeGrid({
     super.key,
     required this.mode,
     required this.onSelectFieldType,

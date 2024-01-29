@@ -69,7 +69,7 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
           ),
         ],
       ),
-      body: FieldOptionEditor(
+      body: MobileFieldEditor(
         mode: FieldOptionMode.add,
         defaultValues: optionValues,
         onOptionValuesChanged: (optionValues) {
