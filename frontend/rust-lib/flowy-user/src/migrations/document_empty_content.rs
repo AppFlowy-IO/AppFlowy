@@ -14,7 +14,7 @@ use flowy_user_pub::entities::Authenticator;
 
 use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 /// Migrate the first level documents of the workspace by inserting documents
 pub struct HistoricalEmptyDocumentMigration;

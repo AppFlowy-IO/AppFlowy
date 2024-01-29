@@ -24,4 +24,4 @@ fxhash = "0.2.1"
 
 
 [features]
-wasm_build = ["lib-infra/wasm_build", "flowy-error/wasm_build"]
+enable_wasm = []

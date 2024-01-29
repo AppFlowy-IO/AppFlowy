@@ -7,14 +7,14 @@ use collab_entity::CollabType;
 use collab_integrate::collab_builder::CollabBuilderConfig;
 use collab_user::core::{MutexUserAwareness, UserAwareness};
 use tracing::{error, trace};
-use uuid::Uuid;
 
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_user_pub::entities::awareness_oid_from_user_uuid;
 
 use crate::entities::ReminderPB;
-use crate::services::entities::Session;
 use crate::user_manager::UserManager;
+use flowy_user_pub::session::Session;
 
 impl UserManager {
   /// Adds a new reminder based on the given payload.
@@ -212,10 +212,6 @@ impl UserManager {
       Some(user_awareness) => f(&user_awareness.lock()),
     }
   }
-}
-
-pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
-  Uuid::new_v5(user_uuid, b"user_awareness")
 }
 
 /// Indicate using which data source to initialize the user awareness

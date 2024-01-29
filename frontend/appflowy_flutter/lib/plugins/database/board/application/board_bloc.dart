@@ -303,12 +303,14 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
     boardController.addGroups(
       groups
-          .where(
-            (group) =>
-                fieldController.getField(group.fieldId) != null &&
-                ((!group.isDefault && group.isVisible) ||
-                    (group.isDefault && !hideUngrouped)),
-          )
+          .where((group) {
+            final field = fieldController.getField(group.fieldId);
+            return field != null &&
+                (!group.isDefault && group.isVisible ||
+                    group.isDefault &&
+                        !hideUngrouped &&
+                        field.fieldType != FieldType.Checkbox);
+          })
           .map((group) => _initializeGroupData(group))
           .toList(),
     );

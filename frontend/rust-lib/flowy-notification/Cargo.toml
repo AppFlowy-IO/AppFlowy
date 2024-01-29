@@ -22,5 +22,5 @@ flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart"]
-ts = ["flowy-codegen/ts"]
-wasm_build = ["lib-dispatch/wasm_build", "flowy-codegen/ts"]
+tauri_ts = ["flowy-codegen/ts"]
+web_ts = ["flowy-codegen/ts"]

@@ -100,7 +100,7 @@ impl UserAuthResponse for AuthResponse {
 
 #[derive(Clone, Debug)]
 pub struct UserCredentials {
-  /// Currently, the token is only used when the [Authenticator] is AFCloud
+  /// Currently, the token is only used when the [Authenticator] is AppFlowyCloud
   pub token: Option<String>,
 
   /// The user id
@@ -390,4 +390,8 @@ pub struct WorkspaceMember {
   pub email: String,
   pub role: Role,
   pub name: String,
+}
+
+pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
+  Uuid::new_v5(user_uuid, b"user_awareness")
 }

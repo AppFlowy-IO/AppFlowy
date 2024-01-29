@@ -1,5 +1,5 @@
-use crate::services::entities::Session;
 use flowy_sqlite::kv::StorePreferences;
+use flowy_user_pub::session::Session;
 use serde_json::{json, Value};
 use std::sync::Arc;
 use uuid::Uuid;
